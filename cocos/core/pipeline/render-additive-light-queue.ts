@@ -38,7 +38,7 @@ import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
 import { Vec3, nextPow2, Mat4, Color } from '../math';
 import { Sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, DescriptorSetInfo, Feature } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -47,29 +47,18 @@ import { SpotLight } from '../renderer/scene/spot-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
-import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
+import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
     UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
     supportsHalfFloatTexture } from './define';
-import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
-import { Texture2D } from '../assets/texture-2d';
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera } from '../renderer/scene';
-
-const _samplerInfo = [
-    Filter.LINEAR,
-    Filter.LINEAR,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-];
+import { GlobalDSManager } from './global-descriptor-set-manager';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
     passIdx: number;
     dynamicOffsets: number[];
-    lights: Light[];
+    lights: number[];
 }
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
@@ -118,7 +107,6 @@ export class RenderAdditiveLightQueue {
     private _device: Device;
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
-    private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -129,8 +117,6 @@ export class RenderAdditiveLightQueue {
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
     private _lightMeterScale = 10000.0;
-
-    private _sampler: Sampler | null = null;
 
     constructor (pipeline: RenderPipeline) {
         this._pipeline = pipeline;
@@ -152,9 +138,6 @@ export class RenderAdditiveLightQueue {
         this._firstLightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
 
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
-
-        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-        this._sampler = samplerLib.getSampler(this._device, shadowMapSamplerHash);
     }
 
     public clear () {
@@ -173,11 +156,13 @@ export class RenderAdditiveLightQueue {
     }
 
     public destroy () {
-        const descriptorSets = Array.from(this._descriptorSetMap.values());
-        for (let i = 0; i < descriptorSets.length; ++i) {
-            const descriptorSet = descriptorSets[i];
+        const descriptorSetMap = this._pipeline.globalDSManager.descriptorSetMap;
+        const keys = descriptorSetMap.keys;
+
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
-                descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
                 descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
                 descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
                 descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
@@ -185,8 +170,8 @@ export class RenderAdditiveLightQueue {
                 descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.destroy();
             }
+            descriptorSetMap.delete(key);
         }
-        this._descriptorSetMap.clear();
     }
 
     public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
@@ -232,6 +217,7 @@ export class RenderAdditiveLightQueue {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
+        const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
             const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
@@ -247,9 +233,9 @@ export class RenderAdditiveLightQueue {
 
             for (let j = 0; j < dynamicOffsets.length; ++j) {
                 const light = lights[j];
-                const descriptorSet = this._getOrCreateDescriptorSet(light);
+                const descriptorSet = globalDSManager.getOrCreateDescriptorSet(light)!;
                 _dynamicOffsets[0] = dynamicOffsets[j];
-                cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet!);
+                cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, localDS, _dynamicOffsets);
                 cmdBuff.draw(ia);
             }
@@ -268,7 +254,6 @@ export class RenderAdditiveLightQueue {
             Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 validLights.push(light);
-                this._getOrCreateDescriptorSet(light);
             }
         }
         const { spotLights } = camera.scene!;
@@ -281,7 +266,6 @@ export class RenderAdditiveLightQueue {
             Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 validLights.push(light);
-                this._getOrCreateDescriptorSet(light);
             }
         }
     }
@@ -331,7 +315,7 @@ export class RenderAdditiveLightQueue {
             lp.passIdx = lightPassIdx;
             for (let l = 0; l < _lightIndices.length; l++) {
                 const idx = _lightIndices[l];
-                lp.lights.push(validLights[idx]);
+                lp.lights.push(idx);
                 lp.dynamicOffsets.push(this._lightBufferStride * idx);
             }
 
@@ -349,10 +333,11 @@ export class RenderAdditiveLightQueue {
         const isSupportHalfFloat = supportsHalfFloatTexture(device);
         const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
         const packing = shadowInfo.packing ? 1.0 : (isSupportHalfFloat ? 0.0 : 1.0);
+        const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
 
         for (let i = 0; i < this._validLights.length; i++) {
             const light = this._validLights[i];
-            const descriptorSet = this._getOrCreateDescriptorSet(light);
+            const descriptorSet = globalDSManager.getOrCreateDescriptorSet(i);
             if (!descriptorSet) { continue; }
             switch (light.type) {
             case LightType.SPHERE:
@@ -408,11 +393,9 @@ export class RenderAdditiveLightQueue {
 
                 // Spot light sampler binding
                 if (shadowFrameBufferMap.has(light)) {
-                    if (shadowFrameBufferMap.has(light)) {
-                        const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
-                        if (texture) {
-                            descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture);
-                        }
+                    const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
+                    if (texture) {
+                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture);
                     }
                 }
                 break;
@@ -502,37 +485,5 @@ export class RenderAdditiveLightQueue {
         }
 
         cmdBuff.updateBuffer(this._lightBuffer, this._lightBufferData);
-    }
-
-    protected _getOrCreateDescriptorSet (light: Light) {
-        if (!this._descriptorSetMap.has(light)) {
-            const device = this._device;
-            const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._pipeline.descriptorSetLayout));
-
-            descriptorSet.bindBuffer(UBOGlobal.BINDING, this._pipeline.descriptorSet.getBuffer(UBOGlobal.BINDING));
-
-            descriptorSet.bindBuffer(UBOCamera.BINDING, this._pipeline.descriptorSet.getBuffer(UBOCamera.BINDING));
-
-            const shadowBUO = device.createBuffer(new BufferInfo(
-                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                UBOShadow.SIZE,
-                UBOShadow.SIZE,
-            ));
-            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
-
-            descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, this._sampler!);
-            descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
-            descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-
-            descriptorSet.update();
-
-            this._descriptorSetMap.set(light, descriptorSet);
-
-            return descriptorSet;
-        }
-
-        return this._descriptorSetMap.get(light);
     }
 }

@@ -42,7 +42,7 @@ import {
     Mat3, Mat4, Quat, Vec3,
 } from '../math';
 import {
-    NULL_HANDLE, NodeHandle, NodePool, NodeView,
+    NULL_HANDLE, NodeHandle, NodePool, NodeView, RawBufferPool, RawBufferHandle,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
@@ -52,12 +52,71 @@ import { Component } from '../components';
 const v3_a = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
-const array_a = new Array(10);
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const bookOfChange = new Map<Node, number>();
+const array_a: any[] = [];
+
+class BookOfChange {
+    private _chunkHandles: RawBufferHandle[] = [];
+    private _chunks: Uint32Array[] = [];
+    private _freelists: number[][] = [];
+
+    // these should match with native: cocos/renderer/pipeline/helper/SharedMemory.h Node.getHasChangedFlags
+    private static CAPACITY_PER_CHUNK = 256;
+    private static BIT_SHIFT = 16;
+
+    constructor () {
+        this._createChunk();
+    }
+
+    public alloc () {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (!this._freelists[i].length) continue;
+            return this._createView(i);
+        }
+        this._createChunk();
+        return this._createView(chunkCount);
+    }
+
+    public free (view: Uint32Array, idx: number) {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (this._chunks[i] !== view) continue;
+            this._freelists[i].push(idx);
+            return;
+        }
+        // wtf?
+    }
+
+    public clear () {
+        const chunkCount = this._chunks.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            this._chunks[i].fill(0);
+        }
+    }
+
+    private _createChunk () {
+        const handle = RawBufferPool.alloc(BookOfChange.CAPACITY_PER_CHUNK * 4);
+        this._chunkHandles.push(handle);
+        this._chunks.push(new Uint32Array(RawBufferPool.getBuffer(handle)));
+        const freelist: number[] = [];
+        for (let i = 0; i < BookOfChange.CAPACITY_PER_CHUNK; ++i) freelist.push(i);
+        this._freelists.push(freelist);
+    }
+
+    private _createView (chunkIdx: number): [Uint32Array, number, number] {
+        const chunk = this._chunks[chunkIdx];
+        const offset = this._freelists[chunkIdx].pop()!;
+        let handle = this._chunkHandles[chunkIdx] as unknown as number;
+        handle += offset << BookOfChange.BIT_SHIFT;
+        return [chunk, offset, handle];
+    }
+}
+
+const bookOfChange = new BookOfChange();
 
 /**
  * @zh
@@ -83,8 +142,6 @@ const bookOfChange = new Map<Node, number>();
  */
 @ccclass('cc.Node')
 export class Node extends BaseNode {
-    public static bookOfChange = bookOfChange;
-
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
@@ -110,6 +167,13 @@ export class Node extends BaseNode {
      */
     public static TransformBit = TransformBit;
 
+    /**
+     * @en Counter to clear node array
+     * @zh 清除节点数组计时器
+     */
+    private static ClearFrame = 0;
+    private static ClearRound = 1000;
+
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
 
@@ -117,40 +181,37 @@ export class Node extends BaseNode {
 
     // world transform, don't access this directly
     protected _pos = new Vec3();
-
     protected _rot = new Quat();
-
     protected _scale = new Vec3(1, 1, 1);
-
     protected _mat = new Mat4();
 
     // local transform
     @serializable
     protected _lpos = new Vec3();
-
     @serializable
     protected _lrot = new Quat();
-
     @serializable
     protected _lscale = new Vec3(1, 1, 1);
-
     @serializable
     protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
     // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
     @serializable
     protected _euler = new Vec3();
-
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
-
+    protected _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
+    protected _hasChangedFlagsOffset: number;
     protected _eulerDirty = false;
-
     protected _poolHandle: NodeHandle = NULL_HANDLE;
 
     constructor (name?: string) {
         super(name);
         this._poolHandle = NodePool.alloc();
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        const [chunk, offset, handle] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
+        NodePool.set(this._poolHandle, NodeView.HAS_CHANGED_FLAGS, handle);
     }
 
     /**
@@ -166,6 +227,7 @@ export class Node extends BaseNode {
             NodePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
         }
+        bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
         return super.destroy();
     }
 
@@ -349,12 +411,11 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return bookOfChange.get(this) || 0;
+        return this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] as TransformBit;
     }
 
-    set hasChangedFlags (val: number) {
-        bookOfChange.set(this, val);
-        NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
+    set hasChangedFlags (val: TransformBit) {
+        this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
     }
 
     // ===============================
@@ -407,6 +468,7 @@ export class Node extends BaseNode {
 
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
+        this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -522,10 +584,6 @@ export class Node extends BaseNode {
         this.setWorldRotation(q_a);
     }
 
-    // ===============================
-    // transform maintainer
-    // ===============================
-
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -533,15 +591,25 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const hasChanegdFlags = this.hasChangedFlags;
-        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
-        this._dirtyFlags |= dirtyBit;
-        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
-        const newDirtyBit = dirtyBit | TransformBit.POSITION;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+        array_a[0] = this;
+
+        // we need to recursively iterate this
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let i = 0;
+        while (i >= 0) {
+            const cur: this = array_a[i--];
+            const hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._dirtyFlags |= dirtyBit;
+                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
+                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                cur._hasChangedFlagsChunk[cur._hasChangedFlagsOffset] = hasChangedFlags | dirtyBit;
+                const children = cur._children;
+                const len = children.length;
+                for (let j = 0; j < len; ++j) array_a[++i] = children[j];
+            }
+            dirtyBit = childDirtyBit;
         }
     }
 
@@ -562,16 +630,29 @@ export class Node extends BaseNode {
         }
         let child: this; let dirtyBits = 0;
 
+        let childMat: Mat4;
+        let curMat: Mat4;
+        let childPos: Vec3;
+        let childLPos: Vec3;
+        let childRot: Quat;
+
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
-                    Vec3.transformMat4(child._pos, child._lpos, cur._mat);
-                    child._mat.m12 = child._pos.x;
-                    child._mat.m13 = child._pos.y;
-                    child._mat.m14 = child._pos.z;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
+                    childMat = child._mat;
+                    curMat = cur._mat;
+                    childPos = child._pos;
+                    childLPos = child._lpos;
+                    childRot = child._rot;
+
+                    Vec3.transformMat4(childPos, childLPos, curMat);
+
+                    childMat.m12 = childPos.x;
+                    childMat.m13 = childPos.y;
+                    childMat.m14 = childPos.z;
+                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, childPos);
                 }
                 if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
@@ -670,7 +751,7 @@ export class Node extends BaseNode {
      * @zh 用四元数设置本地旋转
      * @param rotation Rotation in quaternion
      */
-    public setRotation (rotation: Quat): void;
+    public setRotation (rotation: Readonly<Quat>): void;
 
     /**
      * @en Set rotation in local coordinate system with a quaternion representing the rotation
@@ -682,9 +763,9 @@ export class Node extends BaseNode {
      */
     public setRotation (x: number, y: number, z: number, w: number): void;
 
-    public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
+    public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._lrot, val as Quat);
+            Quat.copy(this._lrot, val as Readonly<Quat>);
         } else {
             Quat.set(this._lrot, val as number, y, z, w);
         }
@@ -1111,9 +1192,23 @@ export class Node extends BaseNode {
      * @zh
      * 清除所有节点的脏标记。
      */
-    public static clearBooks () {
-        if (JSB) bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+    public static resetHasChangedFlags () {
         bookOfChange.clear();
+    }
+
+    /**
+     * @en
+     * clear node array
+     * @zh
+     * 清除节点数组
+     */
+    public static clearNodeArray () {
+        if (Node.ClearFrame < Node.ClearRound) {
+            Node.ClearFrame++;
+        } else {
+            Node.ClearFrame = 0;
+            array_a.length = 0;
+        }
     }
 
     /**
@@ -1126,7 +1221,7 @@ export class Node extends BaseNode {
         const v = this.hasChangedFlags;
         if (v) {
             if (v & TransformBit.POSITION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition); }
-            if (v & TransformBit.ROTATION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation); }
+            if (v & TransformBit.ROTATION) { NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation); }
             if (v & TransformBit.SCALE) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this.worldScale); }
         }
     }
@@ -1138,7 +1233,7 @@ export class Node extends BaseNode {
      * 原生变换信息同步到 js 层。
      */
     public syncFromNativeTransform () {
-        const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
+        const v = this.hasChangedFlags;
         if (v) {
             if (v & TransformBit.POSITION) {
                 NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION, v3_a);

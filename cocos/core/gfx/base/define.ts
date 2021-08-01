@@ -601,9 +601,9 @@ export enum DynamicStateFlagBit {
 }
 
 export enum StencilFace {
-    FRONT,
-    BACK,
-    ALL,
+    FRONT = 0x1,
+    BACK  = 0x2,
+    ALL   = 0x3,
 }
 
 export enum DescriptorType {
@@ -1642,6 +1642,56 @@ export class MemoryStatus {
     public copy (info: MemoryStatus) {
         this.bufferSize = info.bufferSize;
         this.textureSize = info.textureSize;
+        return this;
+    }
+}
+
+export class DynamicStencilStates {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public writeMask: number = 0,
+        public compareMask: number = 0,
+        public reference: number = 0,
+    ) {}
+
+    public copy (info: DynamicStencilStates) {
+        this.writeMask = info.writeMask;
+        this.compareMask = info.compareMask;
+        this.reference = info.reference;
+        return this;
+    }
+}
+
+export class DynamicStates {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public viewport: Viewport = new Viewport(),
+        public scissor: Rect = new Rect(),
+        public blendConstant: Color = new Color(),
+        public lineWidth: number = 1,
+        public depthBiasConstant: number = 0,
+        public depthBiasClamp: number = 0,
+        public depthBiasSlope: number = 0,
+        public depthMinBounds: number = 0,
+        public depthMaxBounds: number = 0,
+        public stencilStatesFront: DynamicStencilStates = new DynamicStencilStates(),
+        public stencilStatesBack: DynamicStencilStates = new DynamicStencilStates(),
+    ) {}
+
+    public copy (info: DynamicStates) {
+        this.viewport.copy(info.viewport);
+        this.scissor.copy(info.scissor);
+        this.blendConstant.copy(info.blendConstant);
+        this.lineWidth = info.lineWidth;
+        this.depthBiasConstant = info.depthBiasConstant;
+        this.depthBiasClamp = info.depthBiasClamp;
+        this.depthBiasSlope = info.depthBiasSlope;
+        this.depthMinBounds = info.depthMinBounds;
+        this.depthMaxBounds = info.depthMaxBounds;
+        this.stencilStatesFront.copy(info.stencilStatesFront);
+        this.stencilStatesBack.copy(info.stencilStatesBack);
         return this;
     }
 }

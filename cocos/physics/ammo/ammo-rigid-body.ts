@@ -63,8 +63,7 @@ export class AmmoRigidBody implements IRigidBody {
     setMass (value: number) {
         if (!this._rigidBody.isDynamic) return;
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
-        const localInertia = AmmoConstant.instance.VECTOR3_0;
-        // const localInertia = this._sharedBody.bodyStruct.localInertia;
+        const localInertia = this._sharedBody.bodyStruct.localInertia;
         localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const shape = this.impl.getCollisionShape();
         if (shape.isCompound()) {
@@ -80,47 +79,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     setType (v: ERigidBodyType) {
-        let m_bcf = this.impl.getCollisionFlags();
-        let m_gcf = this._sharedBody.ghost.getCollisionFlags();
-        const localInertia = AmmoConstant.instance.VECTOR3_0;
-        switch (v) {
-        case ERigidBodyType.DYNAMIC:
-            m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-            m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
-            this.impl.setCollisionFlags(m_bcf);
-            this.setMass(this._rigidBody.mass);
-            this.useGravity(this._rigidBody.useGravity);
-            this.setAllowSleep(this._rigidBody.allowSleep);
-            m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
-            m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
-            this._sharedBody.ghost.setCollisionFlags(m_gcf);
-            break;
-        case ERigidBodyType.KINEMATIC:
-            localInertia.setValue(0, 0, 0);
-            this.impl.setMassProps(0, localInertia);
-            m_bcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
-            m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
-            this.impl.setCollisionFlags(m_bcf);
-            this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
-            m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
-            m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
-            this._sharedBody.ghost.setCollisionFlags(m_gcf);
-            break;
-        case ERigidBodyType.STATIC:
-        default:
-            localInertia.setValue(0, 0, 0);
-            this.impl.setMassProps(0, localInertia);
-            m_bcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
-            m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-            this.impl.setCollisionFlags(m_bcf);
-            this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
-            m_gcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-            m_gcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
-            this._sharedBody.ghost.setCollisionFlags(m_gcf);
-            break;
-        }
-        this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
-        this._sharedBody.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
+        this._sharedBody.setType(v);
     }
 
     setLinearDamping (value: number) {
@@ -205,7 +164,6 @@ export class AmmoRigidBody implements IRigidBody {
     onEnable () {
         this._isEnabled = true;
         this.setMass(this._rigidBody.mass);
-        this.setType(this._rigidBody.type);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);

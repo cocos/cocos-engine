@@ -26,7 +26,7 @@
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom } from '../../core/math';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -114,6 +114,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
     private _inited = false;
+    private _localMat: Mat4 = new Mat4();
+    private _gravity: Vec4 = new Vec4();
 
     constructor (info: any) {
         super(info);
@@ -258,6 +260,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             trailModule.update();
         }
 
+        if (ps.simulationSpace === Space.Local) {
+            const r:Quat = ps.node.getRotation();
+            Mat4.fromQuat(this._localMat, r);
+            this._localMat.transpose(); // just consider rotation, use transpose as invert
+        }
+
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
@@ -272,8 +280,21 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 continue;
             }
 
-            // apply gravity.
-            p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+            if (ps.simulationSpace === Space.Local) {
+                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                this._gravity.x = 0.0;
+                this._gravity.y = gravityFactor;
+                this._gravity.z = 0.0;
+                this._gravity.w = 1.0;
+                this._gravity = this._gravity.transformMat4(this._localMat);
+
+                p.velocity.x += this._gravity.x;
+                p.velocity.y += this._gravity.y;
+                p.velocity.z += this._gravity.z;
+            } else {
+                // apply gravity.
+                p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+            }
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
 

@@ -352,6 +352,8 @@ export class Mask extends Renderable2D {
 
     protected _graphics: Graphics | null = null;
 
+    private _clearModelMesh: RenderingSubMesh| null = null;
+
     constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
@@ -389,8 +391,9 @@ export class Mask extends Renderable2D {
 
     public onDestroy () {
         super.onDestroy();
-        if (this._clearModel) {
+        if (this._clearModel && this._clearModelMesh) {
             director.root!.destroyModel(this._clearModel);
+            this._clearModelMesh.destroy();
         }
 
         if (this._clearStencilMtl) {
@@ -561,10 +564,10 @@ export class Mask extends Renderable2D {
 
             const ib = new Uint16Array([0, 1, 2, 2, 1, 3]);
             indexBuffer.update(ib);
-            const renderMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
-            renderMesh.subMeshIdx = 0;
+            this._clearModelMesh = new RenderingSubMesh([vertexBuffer], vfmt, PrimitiveMode.TRIANGLE_LIST, indexBuffer);
+            this._clearModelMesh.subMeshIdx = 0;
 
-            this._clearModel.initSubModel(0, renderMesh, this._clearStencilMtl);
+            this._clearModel.initSubModel(0, this._clearModelMesh, this._clearStencilMtl);
         }
     }
 

@@ -460,10 +460,8 @@ export class Renderable2D extends RenderableComponent {
 
     protected _updateColor () {
         this._updateWorldAlpha();
-        if ((this._colorDirty || this._cacheAlpha !== this.node._uiProps.opacity)
-                && this._renderFlag && this._assembler && this._assembler.updateColor) {
+        if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
-            this._cacheAlpha = this.node._uiProps.opacity;
             this._colorDirty = false;
         }
     }
@@ -471,8 +469,11 @@ export class Renderable2D extends RenderableComponent {
     protected _updateWorldAlpha () {
         let localAlpha = this.color.a / 255;
         if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
-        this.node._uiProps.opacity = (this.node.parent && this.node.parent._uiProps) ? this.node.parent._uiProps.opacity * localAlpha : localAlpha;
-        this._renderFlag = this._canRender();
+        const parent = this.node.parent;
+        const alpha = (parent && parent._uiProps) ? parent._uiProps.opacity * localAlpha : localAlpha;
+        this.node._uiProps.opacity = alpha;
+        this._colorDirty = this._colorDirty || alpha !== this._cacheAlpha;
+        this._cacheAlpha = alpha;
     }
 
     public _updateBlendFunc () {

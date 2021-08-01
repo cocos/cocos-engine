@@ -122,11 +122,11 @@ export class PassInstance extends Pass {
 
     protected _syncBatchingScheme () {
         this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
-        PassPool.set(this._handle, PassView.BATCHING_SCHEME, 0);
+        this.batchingScheme = 0;
     }
 
     protected _onStateChange () {
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
+        this.hash = Pass.getPassHash(this, this._hShaderDefault);
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

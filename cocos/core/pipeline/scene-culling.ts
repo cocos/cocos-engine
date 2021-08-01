@@ -222,14 +222,15 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     }
 
     const models = scene.models;
+    const visibility = camera.visibility;
 
     for (let i = 0; i < models.length; i++) {
         const model = models[i];
 
         // filter model by view visibility
         if (model.enabled) {
-            if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
-                || (camera.visibility & model.visFlags)) {
+            if (model.node && ((visibility & model.node.layer) === model.node.layer)
+                || (visibility & model.visFlags)) {
                 // shadow render Object
                 if (shadowObjects != null && model.castShadow && model.worldBounds) {
                     if (!_castBoundsInited) {
