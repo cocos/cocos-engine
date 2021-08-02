@@ -441,6 +441,12 @@ export default class TrailModule {
         if (!this._trailSegments) {
             return;
         }
+
+        if (p.remainingLifetime > p.lastRemaining) {
+            p.lastRemaining = p.remainingLifetime;
+            return;
+        }
+
         let trail = this._particleTrail.get(p);
         if (!trail) {
             trail = this._trailSegments.alloc();
@@ -470,12 +476,6 @@ export default class TrailModule {
             lastSeg.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
         } else {
             lastSeg.width = this.widthRatio.evaluate(0, 1)!;
-        }
-
-        if (p.remainingLifetime > p.lastRemaining) {
-            this.clear();
-            p.lastRemaining = p.remainingLifetime;
-            return;
         }
 
         const trailNum = trail.count();
