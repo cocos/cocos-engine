@@ -59,7 +59,9 @@ public:
     void               transform(const Mat4 &m, AABB *out) const;
     inline void        setCenter(float x, float y, float z) { _aabbLayout->center.set(x, y, z); }
     inline void        setCenter(const Vec3 &center) { _aabbLayout->center.set(center); }
+    inline void        setValid(bool isValid) { _isValid = isValid; }
     inline const Vec3 &getCenter() const { return _aabbLayout->center; }
+    inline bool        getValid() const { return _isValid; }
     inline void        setHalfExtents(float x, float y, float z) { _aabbLayout->halfExtents.set(x, y, z); }
     inline void        setHalfExtents(const Vec3 &halfExtents) { _aabbLayout->halfExtents.set(halfExtents); }
     inline const Vec3 &getHalfExtents() const { return _aabbLayout->halfExtents; }
@@ -68,6 +70,7 @@ public:
 private:
     AABBLayout  _embedLayout;
     AABBLayout *_aabbLayout{nullptr};
+    bool        _isValid{true};
 };
 
 } // namespace scene

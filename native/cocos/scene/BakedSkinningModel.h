@@ -36,7 +36,7 @@ struct BakedAnimInfo {
     uint8_t *    data{nullptr};
     uint8_t *    dirty{nullptr};
     inline bool  getDirty() const {
-        return static_cast<bool>(*reinterpret_cast<int32_t*>(dirty));
+        return static_cast<bool>(*reinterpret_cast<int32_t *>(dirty));
     }
 };
 struct BakedJointInfo {
@@ -56,6 +56,15 @@ public:
 
     void        updateTransform(uint32_t stamp) override;
     void        updateUBOs(uint32_t stamp) override;
+    inline void updateModelBounds(AABB *modelBounds) {
+        if (modelBounds == nullptr) {
+            _modelBounds.setValid(false);
+            return;
+        }
+        _modelBounds.setValid(true);
+        _modelBounds.set(modelBounds->getCenter(), modelBounds->getHalfExtents());
+    }
+
     inline void setJointMedium(bool isUploadAnim, BakedJointInfo &&jointMedium) {
         _isUploadAnim = isUploadAnim;
         _jointMedium  = std::move(jointMedium);

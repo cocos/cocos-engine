@@ -43,7 +43,7 @@ void Model::updateTransform(uint32_t /*stamp*/) {
     if (node->getFlagsChanged() || node->getDirtyFlag()) {
         node->updateWorldTransform();
         _transformUpdated = true;
-        if (_worldBounds) {
+        if (_modelBounds.getValid() && _worldBounds) {
             _modelBounds.transform(node->getWorldMatrix(), _worldBounds);
         }
     }

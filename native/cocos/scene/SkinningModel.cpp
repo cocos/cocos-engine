@@ -116,7 +116,7 @@ void SkinningModel::updateTransform(uint32_t stamp) {
         Vec3::min(v3Min, v31, &v3Min);
         Vec3::max(v3Max, v32, &v3Max);
     }
-    if (_worldBounds) {
+    if (_modelBounds.getValid() && _worldBounds) {
         AABB::fromPoints(v3Min, v3Max, &_modelBounds);
         _modelBounds.transform(root->getNodeLayout()->worldMatrix, _worldBounds);
     }
