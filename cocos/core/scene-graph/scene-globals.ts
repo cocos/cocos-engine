@@ -401,9 +401,9 @@ export class ShadowsInfo {
     @serializable
     protected _near = 0.1;
     @serializable
-    protected _far = 30.0;
+    protected _far = 20.0;
     @serializable
-    protected _range = 1000.0;
+    protected _range = 50.0;
     @serializable
     protected _orthoSize = 5;
     @serializable
@@ -614,6 +614,9 @@ export class ShadowsInfo {
      * @en get or set shadow camera far
      * @zh 获取或者设置阴影相机远裁剪面
      */
+    @editable
+    @range([0.0, 2000.0, 0.1])
+    @slide
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set far (val: number) {
@@ -626,8 +629,11 @@ export class ShadowsInfo {
 
     /**
      * @en get or set shadow camera far
-     * @zh 获取或者设置阴影产生的范围
+     * @zh 获取或者设置潜在阴影产生的范围
      */
+    @editable
+    @range([0.0, 2000.0, 0.1])
+    @slide
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
     set range (val: number) {
