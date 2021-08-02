@@ -499,7 +499,7 @@ export default class TrailModule {
         } else {
             lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
         }
-        
+
         p.lastRemaining = p.remainingLifetime;
     }
 
