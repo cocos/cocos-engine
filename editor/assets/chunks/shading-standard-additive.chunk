@@ -15,7 +15,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
   vec3 finalColor = vec3(0.0);
 
   int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
-
+  float att = 1.0;
   for (int i = 0; i < LIGHTS_PER_PASS; i++) {
     if (i >= numLights) break;
     vec3 SLU = cc_lightPos[i].xyz - s.position;
@@ -25,12 +25,14 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float SNH = max(dot(N, SH), 0.0);
 
     float distSqr = dot(SLU, SLU);
-    float litRadius = cc_lightSizeRangeAngle[i].x;
-    float litRadiusSqr = litRadius * litRadius;
-    float illum = PI * (litRadiusSqr / max(litRadiusSqr , distSqr));
+    //float litRadius = cc_lightSizeRangeAngle[i].x;
+    //float litRadiusSqr = litRadius * litRadius;
+    //float illum = PI * (litRadiusSqr / max(litRadiusSqr , distSqr));
+    //float illum = PI *(1.0 / max(litRadiusSqr , distSqr));
     float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
     attRadiusSqrInv *= attRadiusSqrInv;
-    float att = GetDistAtt(distSqr, attRadiusSqrInv);
+    
+    att *= GetDistAtt(distSqr, attRadiusSqrInv);
     vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
 
     if (cc_lightPos[i].w > 0.0) {
@@ -51,7 +53,8 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     #endif
 
     lightColor *= shadow;
-    finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+    //finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
+    finalColor += SNL * lightColor * cc_lightColor[i].w  * att * (diffuseContrib + lspec);
   }
 
   return vec4(finalColor, 0.0);
