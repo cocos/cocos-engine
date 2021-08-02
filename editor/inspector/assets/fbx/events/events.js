@@ -34,12 +34,12 @@ exports.data = {
     eventEditorInfo: {
         frame: 0,
         events: [{
-            functionName: '',
-            parameters: [],
+            func: '',
+            params: [],
             frame: 0,
         }],
     },
-}
+};
 
 exports.methods = {
     display(x) {
@@ -60,7 +60,7 @@ exports.methods = {
             },
             accelerator: 'Delete',
         },
-    ];
+        ];
         Editor.Menu.popup({
             x: event.pageX,
             y: event.pageY,

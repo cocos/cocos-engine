@@ -5,7 +5,7 @@ module.paths.push(join(Editor.App.path, 'node_modules'));
 const Vue = require('vue/dist/vue.min.js');
 
 const events = require('./events');
-exports.ready = function () {
+exports.ready = function() {
     this.eventVm = new Vue({
         el: this.$.events,
         template: events.template,
@@ -24,11 +24,11 @@ exports.ready = function () {
     });
 };
 
-exports.update = function (eventInfo) {
+exports.update = function(eventInfo) {
     this.eventVm.events = eventInfo;
 };
 
-exports.apply = async function () {
+exports.apply = async function() {
     const clips = Object.keys(this.events.eventsMap);
     for (let i = 0; i < clips.length; i++) {
         const uuid = clips[i];
@@ -42,11 +42,11 @@ exports.apply = async function () {
     this.events.eventsMap = {};
 };
 
-exports.addNewEvent = function (time) {
+exports.addNewEvent = function(time) {
     const newInfo = {
         frame: time,
-        functionName: '',
-        parameters: [],
+        func: '',
+        params: [],
     };
     const userData = this.curEditClipInfo.userData;
     if (!userData.events) {
@@ -60,7 +60,7 @@ exports.addNewEvent = function (time) {
     this.dispatch('change');
 };
 
-exports.delEvent = function (time) {
+exports.delEvent = function(time) {
     const userData = this.curEditClipInfo.userData;
     userData.events = userData.events.filter((item) => item.frame !== time);
     this.events.eventsMap[this.curEditClipInfo.clipUUID] = userData.events;
@@ -68,7 +68,7 @@ exports.delEvent = function (time) {
     this.dispatch('change');
 };
 
-exports.updateEventInfo = function (time, eventInfos) {
+exports.updateEventInfo = function(time, eventInfos) {
     const userData = this.curEditClipInfo.userData;
     const newEvents = userData.events.filter((item) => item.frame !== time);
     newEvents.push(...eventInfos);
@@ -76,4 +76,4 @@ exports.updateEventInfo = function (time, eventInfos) {
     this.events.eventsMap[this.curEditClipInfo.clipUUID] = newEvents;
     this.updateEventInfo();
     this.dispatch('update');
-}
+};
