@@ -107,7 +107,7 @@ export class AnimationClip extends Asset {
         clip.duration = spriteFrames.length / clip.sample;
         const step = 1 / clip.sample;
         const track = new ObjectTrack<SpriteFrame>();
-        track.path =  new TrackPath().component('cc.Sprite').property('spriteFrame');
+        track.path =  new TrackPath().toComponent('cc.Sprite').toProperty('spriteFrame');
         const curve = track.channels()[0].curve;
         curve.assignSorted(spriteFrames.map((spriteFrame, index) => [step * index, spriteFrame]));
         return clip;
@@ -225,6 +225,7 @@ export class AnimationClip extends Asset {
 
     public onLoaded () {
         this.frameRate = this.sample;
+        this.events = this._events;
     }
 
     /**

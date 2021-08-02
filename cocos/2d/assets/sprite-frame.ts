@@ -1169,7 +1169,7 @@ export class SpriteFrame extends Asset {
                 rotated: this._rotated,
                 capInsets: this._capInsets,
                 vertices,
-                texture,
+                texture: (!ctxForExporting && texture) || undefined,
                 packable: this._packable,
             };
 

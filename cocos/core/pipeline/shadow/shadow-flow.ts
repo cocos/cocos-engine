@@ -113,26 +113,28 @@ export class ShadowFlow extends RenderFlow {
 
     public destroy () {
         super.destroy();
-        const shadowFrameBufferMap = this._pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const shadowFrameBuffers = Array.from(shadowFrameBufferMap.values());
-        for (let i = 0; i < shadowFrameBuffers.length; i++) {
-            const frameBuffer = shadowFrameBuffers[i];
+        if (this._pipeline) {
+            const shadowFrameBufferMap = this._pipeline.pipelineSceneData.shadowFrameBufferMap;
+            const shadowFrameBuffers = Array.from(shadowFrameBufferMap.values());
+            for (let i = 0; i < shadowFrameBuffers.length; i++) {
+                const frameBuffer = shadowFrameBuffers[i];
 
-            if (!frameBuffer) { continue; }
-            const renderTargets = frameBuffer.colorTextures;
-            for (let j = 0; j < renderTargets.length; j++) {
-                const renderTarget = renderTargets[i];
-                if (renderTarget) { renderTarget.destroy(); }
+                if (!frameBuffer) { continue; }
+                const renderTargets = frameBuffer.colorTextures;
+                for (let j = 0; j < renderTargets.length; j++) {
+                    const renderTarget = renderTargets[i];
+                    if (renderTarget) { renderTarget.destroy(); }
+                }
+                renderTargets.length = 0;
+
+                const depth = frameBuffer.depthStencilTexture;
+                if (depth) { depth.destroy(); }
+
+                frameBuffer.destroy();
             }
-            renderTargets.length = 0;
 
-            const depth = frameBuffer.depthStencilTexture;
-            if (depth) { depth.destroy(); }
-
-            frameBuffer.destroy();
+            shadowFrameBufferMap.clear();
         }
-
-        shadowFrameBufferMap.clear();
 
         if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }

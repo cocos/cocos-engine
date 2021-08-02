@@ -29,7 +29,7 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, JSB, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
@@ -39,6 +39,7 @@ import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides } from '../utils/prefab/utils';
+import { NativeScene } from '../renderer/scene/native-scene';
 
 /**
  * @en
@@ -97,8 +98,20 @@ export class Scene extends BaseNode {
 
     protected _dirtyFlags = 0;
 
+    protected declare _nativeObj: NativeScene | null;
+
     protected _updateScene () {
         this._scene = this;
+    }
+
+    get native (): any {
+        return this._nativeObj;
+    }
+
+    protected _init () {
+        if (JSB) {
+            this._nativeObj = new NativeScene();
+        }
     }
 
     constructor (name: string) {
@@ -108,6 +121,7 @@ export class Scene extends BaseNode {
             this._renderScene = legacyCC.director.root.createScene({});
         }
         this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
+        this._init();
     }
 
     /**

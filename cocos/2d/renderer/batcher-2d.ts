@@ -113,6 +113,14 @@ export class Batcher2D {
                 }
             }
         }
+
+        // release the buffer to recycle pool --
+        const idx = this._bufferBatchPool.data.indexOf(buffer);
+        if (idx !== -1) {
+            buffer.reset();
+            this._bufferBatchPool.removeAt(idx);
+        }
+        // ---
     }
 
     set currStaticRoot (value: UIStaticBatch | null) {
@@ -250,6 +258,7 @@ export class Batcher2D {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
+            this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
         }
 

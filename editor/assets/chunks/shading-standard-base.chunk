@@ -50,14 +50,13 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
-  float SpecularIntensity;
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
  
-  vec3 specular = mix(vec3(0.08 * s.SpecularIntensity), s.albedo.rgb, s.metallic);
+  vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
 
   vec3 N = normalize(s.normal);
   vec3 V = normalize(cc_cameraPos.xyz - s.position);

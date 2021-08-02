@@ -1044,14 +1044,6 @@ export function deserialize (data: IFileData | string | CCON | any, details: Det
 
         parseResult(data);
 
-        if (JSB) {
-            // invoke hooks
-            for (let i = 0; i < instances.length; ++i) {
-                // try invoking hook on every element regardless of whether the last one is rootIndex
-                instances[i]?.onAfterDeserialize_JSB?.();
-            }
-        }
-
         res = instances[rootIndex];
     }
 

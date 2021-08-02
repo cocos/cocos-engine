@@ -250,7 +250,7 @@ export function _resetDebugSetting (mode: DebugMode) {
 
     if (mode <= DebugMode.VERBOSE) {
         if (typeof console.debug === 'function') {
-            const vendorDebug = console.debug;
+            const vendorDebug = console.debug.bind(console);
             ccDebug = (...data: any[]) => vendorDebug(...data);
         }
     }

@@ -58,7 +58,8 @@ export class AudioPlayer implements OperationQueueable {
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
 
-    private _beforePlaying = {
+    // NOTE: we need to cache the state in case the audio id is invalid.
+    private _cachedState = {
         duration: 1, // wrong value before playing
         loop: false,
         currentTime: 0,
@@ -143,40 +144,38 @@ export class AudioPlayer implements OperationQueueable {
     }
     get loop (): boolean {
         if (!this._isValid) {
-            return this._beforePlaying.loop;
+            return this._cachedState.loop;
         }
         return audioEngine.isLoop(this._id);
     }
     set loop (val: boolean) {
-        if (!this._isValid) {
-            this._beforePlaying.loop = val;
-        } else  {
+        if (this._isValid) {
             audioEngine.setLoop(this._id, val);
         }
+        this._cachedState.loop = val;
     }
     get volume (): number {
         if (!this._isValid) {
-            return this._beforePlaying.volume;
+            return this._cachedState.volume;
         }
         return audioEngine.getVolume(this._id);
     }
     set volume (val: number) {
         val = clamp01(val);
-        if (!this._isValid) {
-            this._beforePlaying.volume = val;
-        } else {
+        if (this._isValid) {
             audioEngine.setVolume(this._id, val);
         }
+        this._cachedState.volume = val;
     }
     get duration (): number {
         if (!this._isValid) {
-            return this._beforePlaying.duration;
+            return this._cachedState.duration;
         }
         return audioEngine.getDuration(this._id);
     }
     get currentTime (): number {
         if (!this._isValid) {
-            return this._beforePlaying.currentTime;
+            return this._cachedState.currentTime;
         }
         return audioEngine.getCurrentTime(this._id);
     }
@@ -186,11 +185,10 @@ export class AudioPlayer implements OperationQueueable {
         return new Promise((resolve) => {
             // Duration is invalid before player
             // time = clamp(time, 0, this.duration);
-            if (!this._isValid) {
-                this._beforePlaying.currentTime = time;
-                return resolve();
+            if (this._isValid) {
+                audioEngine.setCurrentTime(this._id, time);
             }
-            audioEngine.setCurrentTime(this._id, time);
+            this._cachedState.currentTime = time;
             return resolve();
         });
     }
@@ -207,11 +205,11 @@ export class AudioPlayer implements OperationQueueable {
                     audioEngine.resume(this._id);
                 }
             } else {
-                this._id = audioEngine.play2d(this._url, this._beforePlaying.loop, this._beforePlaying.volume);
+                this._id = audioEngine.play2d(this._url, this._cachedState.loop, this._cachedState.volume);
                 if (this._isValid) {
-                    if (this._beforePlaying.currentTime !== 0) {
-                        audioEngine.setCurrentTime(this._id, this._beforePlaying.currentTime);
-                        this._beforePlaying.currentTime = 0;
+                    if (this._cachedState.currentTime !== 0) {
+                        audioEngine.setCurrentTime(this._id, this._cachedState.currentTime);
+                        this._cachedState.currentTime = 0;
                     }
                     audioEngine.setFinishCallback(this._id, () => {
                         this._id = INVALID_AUDIO_ID;
