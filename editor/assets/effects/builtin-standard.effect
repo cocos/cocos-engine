@@ -289,7 +289,6 @@ CCProgram standard-fs %{
     s.occlusion = clamp(pbr.x, 0.0, 0.96);
     s.roughness = clamp(pbr.y, 0.04, 1.0);
     s.metallic = pbr.z;
-    s.SpecularIntensity = pbr.w;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
     #if USE_EMISSIVE_MAP
