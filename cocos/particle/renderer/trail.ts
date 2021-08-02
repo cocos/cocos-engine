@@ -471,6 +471,13 @@ export default class TrailModule {
         } else {
             lastSeg.width = this.widthRatio.evaluate(0, 1)!;
         }
+
+        if (p.remainingLifetime > p.lastRemaining) {
+            this.clear();
+            p.lastRemaining = p.remainingLifetime;
+            return;
+        }
+
         const trailNum = trail.count();
         if (trailNum === 2) {
             const lastSecondTrail = trail.getElement(trail.end - 2)!;
@@ -492,6 +499,8 @@ export default class TrailModule {
         } else {
             lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
         }
+        
+        p.lastRemaining = p.remainingLifetime;
     }
 
     public removeParticle (p: Particle) {
