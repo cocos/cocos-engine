@@ -141,14 +141,7 @@ var utils = {
             var includeNative = true;
             if (data instanceof cc.Asset && (!data.__nativeDepend__ || data._nativeAsset)) includeNative = false; 
             if (!preload) {
-                // asyncLoadAssets = !CC_EDITOR && (!!data.asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
-                if (CC_EDITOR) {
-                    asyncLoadAssets = false;
-                } else if (asyncLoadAssets === true || asyncLoadAssets === false) {
-                    asyncLoadAssets = asyncLoadAssets && !info.preventDeferredLoadDependents;
-                } else {
-                    asyncLoadAssets = !!data.asyncLoadAssets;
-                }
+                asyncLoadAssets = !CC_EDITOR && (!!data.asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
                 for (let i = 0, l = info.deps.length; i < l; i++) {
                     let dep = info.deps[i];
                     if (!(dep in exclude)) {
@@ -161,7 +154,7 @@ var utils = {
                     config && (info.nativeDep.bundle = config.name);
                     depends.push(Object.assign({}, info.nativeDep));
                 }
-
+                
             } else {
                 for (let i = 0, l = info.deps.length; i < l; i++) {
                     let dep = info.deps[i];
@@ -180,7 +173,7 @@ var utils = {
             cc.error(e.message, e.stack);
         }
     },
-
+    
     cache (id, asset, cacheAsset) {
         if (!asset) return;
         var _isScene = isScene(asset);
@@ -221,7 +214,7 @@ var utils = {
             missingAssetReporter && missingAssetReporter.reportByOwner();
             asset.__depends__ = undefined;
         }
-
+        
         if (asset.__nativeDepend__) {
             if (!asset._nativeAsset) {
                 if (assetsMap[uuid + '@native']) {
@@ -349,7 +342,7 @@ var utils = {
             callInNextTick(() => {
                 refs.forEach(x => x.decRef(false));
                 cb(p1, p2);
-            });
+            }); 
         }
     }
 };
