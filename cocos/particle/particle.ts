@@ -55,6 +55,7 @@ export class Particle {
     public color: Color;
     public randomSeed: number; // uint
     public remainingLifetime: number;
+    public lastRemaining: number;
     public startLifetime: number;
     public emitAccumulator0: number;
     public emitAccumulator1: number;
@@ -81,6 +82,7 @@ export class Particle {
         this.color = Color.WHITE.clone();
         this.randomSeed = 0; // uint
         this.remainingLifetime = 0.0;
+        this.lastRemaining = 0.0;
         this.startLifetime = 0.0;
         this.emitAccumulator0 = 0.0;
         this.emitAccumulator1 = 0.0;

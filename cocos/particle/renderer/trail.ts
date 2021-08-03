@@ -441,6 +441,12 @@ export default class TrailModule {
         if (!this._trailSegments) {
             return;
         }
+
+        if (p.remainingLifetime > p.lastRemaining) {
+            p.lastRemaining = p.remainingLifetime;
+            return;
+        }
+
         let trail = this._particleTrail.get(p);
         if (!trail) {
             trail = this._trailSegments.alloc();
@@ -471,6 +477,7 @@ export default class TrailModule {
         } else {
             lastSeg.width = this.widthRatio.evaluate(0, 1)!;
         }
+
         const trailNum = trail.count();
         if (trailNum === 2) {
             const lastSecondTrail = trail.getElement(trail.end - 2)!;
@@ -492,6 +499,8 @@ export default class TrailModule {
         } else {
             lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
         }
+
+        p.lastRemaining = p.remainingLifetime;
     }
 
     public removeParticle (p: Particle) {
