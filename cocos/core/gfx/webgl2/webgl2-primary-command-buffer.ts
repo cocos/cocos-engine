@@ -58,11 +58,13 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public draw (info: DrawInfo | InputAssembler) {
+    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
+
+            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
 
             WebGL2CmdFuncDraw(this._device as WebGL2Device, info as DrawInfo);
 

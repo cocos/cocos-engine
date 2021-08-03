@@ -31,13 +31,21 @@
 import { Buffer } from './buffer';
 import { Device } from './device';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { Attribute, Obj, ObjectType, InputAssemblerInfo } from './define';
+import { Attribute, Obj, ObjectType, InputAssemblerInfo, DrawInfo } from './define';
 
 /**
  * @en GFX input assembler.
  * @zh GFX 输入汇集器。
  */
 export abstract class InputAssembler extends Obj {
+    /**
+     * @en Get current attributes.
+     * @zh 顶点属性数组。
+     */
+    get attributes (): Attribute[] {
+        return this._attributes;
+    }
+
     /**
      * @en Get current vertex buffers.
      * @zh 顶点缓冲数组。
@@ -55,11 +63,11 @@ export abstract class InputAssembler extends Obj {
     }
 
     /**
-     * @en Get current attributes.
-     * @zh 顶点属性数组。
+     * @en Get the indirect buffer, if present.
+     * @zh 间接绘制缓冲。
      */
-    get attributes (): Attribute[] {
-        return this._attributes;
+    get indirectBuffer (): Buffer | null {
+        return this._indirectBuffer;
     }
 
     /**
@@ -74,119 +82,71 @@ export abstract class InputAssembler extends Obj {
      * @en Get current vertex count.
      * @zh 顶点数量。
      */
-    get vertexCount (): number {
-        return this._vertexCount;
-    }
-
     set vertexCount (count: number) {
-        this._vertexCount = count;
+        this._drawInfo.vertexCount = count;
     }
 
     /**
      * @en Get starting vertex.
      * @zh 起始顶点。
      */
-    get firstVertex (): number {
-        return this._firstVertex;
-    }
-
     set firstVertex (first: number) {
-        this._firstVertex = first;
+        this._drawInfo.firstVertex = first;
     }
 
     /**
      * @en Get current index count.
      * @zh 索引数量。
      */
-    get indexCount (): number {
-        return this._indexCount;
-    }
-
     set indexCount (count: number) {
-        this._indexCount = count;
+        this._drawInfo.indexCount = count;
     }
 
     /**
      * @en Get starting index.
      * @zh 起始索引。
      */
-    get firstIndex (): number {
-        return this._firstIndex;
-    }
-
     set firstIndex (first: number) {
-        this._firstIndex = first;
+        this._drawInfo.firstIndex = first;
     }
 
     /**
      * @en Get current vertex offset.
      * @zh 顶点偏移量。
      */
-    get vertexOffset (): number {
-        return this._vertexOffset;
-    }
-
     set vertexOffset (offset: number) {
-        this._vertexOffset = offset;
+        this._drawInfo.vertexOffset = offset;
     }
 
     /**
      * @en Get current instance count.
      * @zh 实例数量。
      */
-    get instanceCount (): number {
-        return this._instanceCount;
-    }
-
     set instanceCount (count: number) {
-        this._instanceCount = count;
+        this._drawInfo.instanceCount = count;
     }
 
     /**
      * @en Get starting instance.
      * @zh 起始实例。
      */
-    get firstInstance (): number {
-        return this._firstInstance;
-    }
-
     set firstInstance (first: number) {
-        this._firstInstance = first;
+        this._drawInfo.firstInstance = first;
     }
 
-    /**
-     * @en Get the indirect buffer, if present.
-     * @zh 间接绘制缓冲。
-     */
-    get indirectBuffer (): Buffer | null {
-        return this._indirectBuffer;
+    get drawInfo (): Readonly<DrawInfo> {
+        return this._drawInfo;
     }
 
     protected _device: Device;
-
     protected _attributes: Attribute[] = [];
-
-    protected _vertexBuffers: Buffer[] = [];
-
-    protected _indexBuffer: Buffer | null = null;
-
-    protected _vertexCount = 0;
-
-    protected _firstVertex = 0;
-
-    protected _indexCount = 0;
-
-    protected _firstIndex = 0;
-
-    protected _vertexOffset = 0;
-
-    protected _instanceCount = 0;
-
-    protected _firstInstance = 0;
-
     protected _attributesHash = 0;
 
+    protected _vertexBuffers: Buffer[] = [];
+    protected _indexBuffer: Buffer | null = null;
     protected _indirectBuffer: Buffer | null = null;
+
+    protected _drawInfo = new DrawInfo();
 
     constructor (device: Device) {
         super(ObjectType.INPUT_ASSEMBLER);

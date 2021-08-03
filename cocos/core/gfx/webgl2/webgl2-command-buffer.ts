@@ -275,22 +275,16 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public draw (info: DrawInfo | InputAssembler) {
+    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
         if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
+            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
 
             const cmd = this._cmdAllocator.drawCmdPool.alloc(WebGL2CmdDraw);
-            // cmd.drawInfo = inputAssembler;
-            cmd.drawInfo.vertexCount = info.vertexCount;
-            cmd.drawInfo.firstVertex = info.firstVertex;
-            cmd.drawInfo.indexCount = info.indexCount;
-            cmd.drawInfo.firstIndex = info.firstIndex;
-            cmd.drawInfo.vertexOffset = info.vertexOffset;
-            cmd.drawInfo.instanceCount = info.instanceCount;
-            cmd.drawInfo.firstInstance = info.firstInstance;
+            cmd.drawInfo.copy(info);
             this.cmdPackage.drawCmds.push(cmd);
 
             this.cmdPackage.cmds.push(WebGL2Cmd.DRAW);

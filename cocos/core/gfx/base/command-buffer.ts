@@ -238,9 +238,9 @@ export abstract class CommandBuffer extends Obj {
     /**
      * @en Draw the specified primitives.
      * @zh 绘制。
-     * @param info The draw call information.
+     * @param infoOrAssembler The draw call information.
      */
-    public abstract draw (info: DrawInfo | InputAssembler): void;
+    public abstract draw (infoOrAssembler: DrawInfo | InputAssembler): void;
 
     /**
      * @en Update buffer.

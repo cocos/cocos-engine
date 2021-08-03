@@ -2479,7 +2479,7 @@ export function WebGLCmdFuncBindStates (
     } // update dynamic states
 }
 
-export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: DrawInfo) {
+export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawInfo>) {
     const { gl } = device;
     const { ANGLE_instanced_arrays: ia, WEBGL_multi_draw: md } = device.extensions;
     const { gpuInputAssembler, glPrimitive } = gfxStateCache;
