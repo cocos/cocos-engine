@@ -31,7 +31,7 @@
 
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4';
-import { IMat4Like, IQuatLike, IVec4Like, FloatArray } from './type-define';
+import { IVec4Like, FloatArray, IMat4, IQuat, IVec4 } from './type-define';
 import { clamp, enumerableProps, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
@@ -49,7 +49,7 @@ export class Vec4 extends MathBase {
      * @en Obtains a clone of the given vector object
      * @zh 获得指定向量的拷贝
      */
-    public static clone <Out extends IVec4Like> (a: Readonly<IVec4Like>) {
+    public static clone <Out extends IVec4Like> (a: IVec4) {
         return new Vec4(a.x, a.y, a.z, a.w);
     }
 
@@ -57,7 +57,7 @@ export class Vec4 extends MathBase {
      * @en Copy the target vector and save the results to out vector object
      * @zh 复制目标向量
      */
-    public static copy <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static copy <Out extends IVec4Like> (out: Out, a: IVec4) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -81,7 +81,7 @@ export class Vec4 extends MathBase {
      * @en Element-wise vector addition and save the results to out vector object
      * @zh 逐元素向量加法
      */
-    public static add <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static add <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4) {
         out.x = a.x + b.x;
         out.y = a.y + b.y;
         out.z = a.z + b.z;
@@ -93,7 +93,7 @@ export class Vec4 extends MathBase {
      * @en Element-wise vector subtraction and save the results to out vector object
      * @zh 逐元素向量减法
      */
-    public static subtract <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static subtract <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4) {
         out.x = a.x - b.x;
         out.y = a.y - b.y;
         out.z = a.z - b.z;
@@ -105,7 +105,7 @@ export class Vec4 extends MathBase {
      * @en Element-wise vector multiplication and save the results to out vector object
      * @zh 逐元素向量乘法
      */
-    public static multiply <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static multiply <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4) {
         out.x = a.x * b.x;
         out.y = a.y * b.y;
         out.z = a.z * b.z;
@@ -117,7 +117,7 @@ export class Vec4 extends MathBase {
      * @en Element-wise vector division and save the results to out vector object
      * @zh 逐元素向量除法
      */
-    public static divide <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static divide <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4) {
         out.x = a.x / b.x;
         out.y = a.y / b.y;
         out.z = a.z / b.z;
@@ -129,7 +129,7 @@ export class Vec4 extends MathBase {
      * @en Rounds up by elements of the vector and save the results to out vector object
      * @zh 逐元素向量向上取整
      */
-    public static ceil <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static ceil <Out extends IVec4Like> (out: Out, a: IVec4) {
         out.x = Math.ceil(a.x);
         out.y = Math.ceil(a.y);
         out.z = Math.ceil(a.z);
@@ -141,7 +141,7 @@ export class Vec4 extends MathBase {
      * @en Element-wise rounds down of the current vector and save the results to the out vector
      * @zh 逐元素向量向下取整
      */
-    public static floor <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static floor <Out extends IVec4Like> (out: Out, a: IVec4) {
         out.x = Math.floor(a.x);
         out.y = Math.floor(a.y);
         out.z = Math.floor(a.z);
@@ -153,7 +153,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the minimum values by elements of the vector and save the results to the out vector
      * @zh 逐元素向量最小值
      */
-    public static min <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static min <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4) {
         out.x = Math.min(a.x, b.x);
         out.y = Math.min(a.y, b.y);
         out.z = Math.min(a.z, b.z);
@@ -165,7 +165,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the maximum values by elements of the vector and save the results to the out vector
      * @zh 逐元素向量最大值
      */
-    public static max <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static max <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4) {
         out.x = Math.max(a.x, b.x);
         out.y = Math.max(a.y, b.y);
         out.z = Math.max(a.z, b.z);
@@ -177,7 +177,7 @@ export class Vec4 extends MathBase {
      * @en Calculates element-wise round results and save to the out vector
      * @zh 逐元素向量四舍五入取整
      */
-    public static round <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static round <Out extends IVec4Like> (out: Out, a: IVec4) {
         out.x = Math.round(a.x);
         out.y = Math.round(a.y);
         out.z = Math.round(a.z);
@@ -189,7 +189,7 @@ export class Vec4 extends MathBase {
      * @en Vector scalar multiplication and save the results to out vector object
      * @zh 向量标量乘法
      */
-    public static multiplyScalar <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: number) {
+    public static multiplyScalar <Out extends IVec4Like> (out: Out, a: IVec4, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -201,7 +201,7 @@ export class Vec4 extends MathBase {
      * @en Element-wise multiplication and addition with the equation: a + b * scale
      * @zh 逐元素向量乘加: A + B * scale
      */
-    public static scaleAndAdd <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>, scale: number) {
+    public static scaleAndAdd <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4, scale: number) {
         out.x = a.x + (b.x * scale);
         out.y = a.y + (b.y * scale);
         out.z = a.z + (b.z * scale);
@@ -213,7 +213,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the euclidean distance of two vectors
      * @zh 求两向量的欧氏距离
      */
-    public static distance <Out extends IVec4Like> (a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static distance <Out extends IVec4Like> (a: IVec4, b: IVec4) {
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -225,7 +225,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the squared euclidean distance of two vectors
      * @zh 求两向量的欧氏距离平方
      */
-    public static squaredDistance <Out extends IVec4Like> (a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static squaredDistance <Out extends IVec4Like> (a: IVec4, b: IVec4) {
         const x = b.x - a.x;
         const y = b.y - a.y;
         const z = b.z - a.z;
@@ -237,7 +237,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the length of the vector
      * @zh 求向量长度
      */
-    public static len <Out extends IVec4Like> (a: Readonly<IVec4Like>) {
+    public static len <Out extends IVec4Like> (a: IVec4) {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -249,7 +249,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the squared length of the vector
      * @zh 求向量长度平方
      */
-    public static lengthSqr <Out extends IVec4Like> (a: Readonly<IVec4Like>) {
+    public static lengthSqr <Out extends IVec4Like> (a: IVec4) {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -261,7 +261,7 @@ export class Vec4 extends MathBase {
      * @en Sets each element to its negative value
      * @zh 逐元素向量取负
      */
-    public static negate <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static negate <Out extends IVec4Like> (out: Out, a: IVec4) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -273,7 +273,7 @@ export class Vec4 extends MathBase {
      * @en Sets each element to its inverse value, zero value will become Infinity
      * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
-    public static inverse <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static inverse <Out extends IVec4Like> (out: Out, a: IVec4) {
         out.x = 1.0 / a.x;
         out.y = 1.0 / a.y;
         out.z = 1.0 / a.z;
@@ -285,7 +285,7 @@ export class Vec4 extends MathBase {
      * @en Sets each element to its inverse value, zero value will remain zero
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
-    public static inverseSafe <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static inverseSafe <Out extends IVec4Like> (out: Out, a: IVec4) {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -322,7 +322,7 @@ export class Vec4 extends MathBase {
      * @en Sets the normalized vector to the out vector
      * @zh 归一化向量
      */
-    public static normalize <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>) {
+    public static normalize <Out extends IVec4Like> (out: Out, a: IVec4) {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -342,7 +342,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the dot product of the vector
      * @zh 向量点积（数量积）
      */
-    public static dot <Out extends IVec4Like> (a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static dot <Out extends IVec4Like> (a: IVec4, b: IVec4) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
@@ -350,7 +350,7 @@ export class Vec4 extends MathBase {
      * @en Calculates the linear interpolation between two vectors with a given ratio
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
-    public static lerp <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, b: Readonly<IVec4Like>, t: number) {
+    public static lerp <Out extends IVec4Like> (out: Out, a: IVec4, b: IVec4, t: number) {
         out.x = a.x + t * (b.x - a.x);
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
@@ -381,7 +381,7 @@ export class Vec4 extends MathBase {
      * @en Vector and fourth order matrix multiplication
      * @zh 向量与四维矩阵乘法
      */
-    public static transformMat4 <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, m: Readonly<IMat4Like>) {
+    public static transformMat4 <Out extends IVec4Like> (out: Out, a: IVec4, m: IMat4) {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -397,7 +397,7 @@ export class Vec4 extends MathBase {
      * @en Transform the vector with the given affine transformation
      * @zh 向量仿射变换
      */
-    public static transformAffine<Out extends IVec4Like> (out: Out, v: Readonly<IVec4Like>, m: Readonly<IMat4Like>) {
+    public static transformAffine<Out extends IVec4Like> (out: Out, v: IVec4, m: IMat4) {
         const x = v.x;
         const y = v.y;
         const z = v.z;
@@ -413,7 +413,7 @@ export class Vec4 extends MathBase {
      * @en Vector quaternion multiplication
      * @zh 向量四元数乘法
      */
-    public static transformQuat <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, q: Readonly<IQuatLike>) {
+    public static transformQuat <Out extends IVec4Like> (out: Out, a: IVec4, q: IQuat) {
         const { x, y, z } = a;
 
         const _x = q.x;
@@ -440,7 +440,7 @@ export class Vec4 extends MathBase {
      * @zh 向量转数组
      * @param ofs Array Start Offset
      */
-    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec4Like, ofs = 0) {
+    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, v: IVec4, ofs = 0) {
         out[ofs + 0] = v.x;
         out[ofs + 1] = v.y;
         out[ofs + 2] = v.z;
@@ -465,7 +465,7 @@ export class Vec4 extends MathBase {
      * @en Check the equality of the two given vectors
      * @zh 向量等价判断
      */
-    public static strictEquals <Out extends IVec4Like> (a: Readonly<IVec4Like>, b: Readonly<IVec4Like>) {
+    public static strictEquals <Out extends IVec4Like> (a: IVec4, b: IVec4) {
         return a.x === b.x && a.y === b.y && a.z === b.z && a.w === b.w;
     }
 
@@ -473,7 +473,7 @@ export class Vec4 extends MathBase {
      * @en Check whether the two given vectors are approximately equivalent
      * @zh 排除浮点数误差的向量近似等价判断
      */
-    public static equals <Out extends IVec4Like> (a: Readonly<IVec4Like>, b: Readonly<IVec4Like>, epsilon = EPSILON) {
+    public static equals <Out extends IVec4Like> (a: IVec4, b: IVec4, epsilon = EPSILON) {
         return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
             && Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
             && Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z))
@@ -524,11 +524,11 @@ export class Vec4 extends MathBase {
         this._array[3] = w;
     }
 
-    constructor (x: Vec4 | FloatArray);
+    constructor (x: Vec4 | Readonly<Vec4> | FloatArray);
 
     constructor (x?: number, y?: number, z?: number, w?: number);
 
-    constructor (x?: number | Vec4 | FloatArray, y?: number, z?: number, w?: number) {
+    constructor (x?: number | Vec4 | Readonly<Vec4> | FloatArray, y?: number, z?: number, w?: number) {
         super();
         if (x && typeof x === 'object') {
             if (ArrayBuffer.isView(x)) {
@@ -565,7 +565,7 @@ export class Vec4 extends MathBase {
      * @param other Specified vector
      * @returns `this`
      */
-    public set (other: Readonly<Vec4>);
+    public set (other: Vec4 | Readonly<Vec4>);
 
     /**
      * @en Set the value of each component of the current vector.
@@ -578,13 +578,12 @@ export class Vec4 extends MathBase {
      */
     public set (x?: number, y?: number, z?: number, w?: number);
 
-    public set (x?: number | Readonly<Vec4>, y?: number, z?: number, w?: number) {
+    public set (x?: number | Vec4 | Readonly<Vec4>, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
-            const v = x.array;
-            this._array[0] = v[0];
-            this._array[1] = v[1];
-            this._array[2] = v[2];
-            this._array[3] = v[3];
+            this._array[0] = x.x;
+            this._array[1] = x.y;
+            this._array[2] = x.z;
+            this._array[3] = x.w;
         } else {
             this._array[0] = x || 0;
             this._array[1] = y || 0;
@@ -601,7 +600,7 @@ export class Vec4 extends MathBase {
      * @param epsilon The error allowed. It`s should be a non-negative number.
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
-    public equals (other: Readonly<Vec4>, epsilon = EPSILON) {
+    public equals (other: Vec4 | Readonly<Vec4>, epsilon = EPSILON) {
         const v = other.array;
         return (Math.abs(this._array[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(v[0]))
             && Math.abs(this._array[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(v[1]))
@@ -632,7 +631,7 @@ export class Vec4 extends MathBase {
      * @param other specified vector
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
-    public strictEquals (other: Readonly<Vec4>) {
+    public strictEquals (other: Vec4 | Readonly<Vec4>) {
         const v = other.array;
         return this._array[0] === v[0] && this._array[1] === v[1] && this._array[2] === v[2] && this._array[3] === v[3];
     }
@@ -700,7 +699,7 @@ export class Vec4 extends MathBase {
      * @zh 向量加法。将当前向量与指定向量的相加
      * @param other specified vector
      */
-    public add (other: Readonly<Vec4>) {
+    public add (other: Vec4 | Readonly<Vec4>) {
         const v = other.array;
         this._array[0] += v[0];
         this._array[1] += v[1];
@@ -730,7 +729,7 @@ export class Vec4 extends MathBase {
      * @zh 向量减法。将当前向量减去指定向量
      * @param other specified vector
      */
-    public subtract (other: Readonly<Vec4>) {
+    public subtract (other: Vec4 | Readonly<Vec4>) {
         const v = other.array;
         this._array[0] -= v[0];
         this._array[1] -= v[1];
@@ -774,7 +773,7 @@ export class Vec4 extends MathBase {
      * @zh 向量乘法。将当前向量乘以指定向量
      * @param other specified vector
      */
-    public multiply (other: Readonly<Vec4>) {
+    public multiply (other: Vec4 | Readonly<Vec4>) {
         if (typeof other !== 'object') { console.warn('should use Vec4.scale for vector * scalar operation'); }
         const v = other.array;
         this._array[0] *= v[0];
@@ -805,7 +804,7 @@ export class Vec4 extends MathBase {
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other specified vector
      */
-    public divide (other: Readonly<Vec4>) {
+    public divide (other: Vec4 | Readonly<Vec4>) {
         const v = other.array;
         this._array[0] /= v[0];
         this._array[1] /= v[1];
@@ -848,7 +847,7 @@ export class Vec4 extends MathBase {
      * @param other specified vector
      * @returns 当前向量与指定向量点乘的结果。
      */
-    public dot (other: Readonly<Vec4>) {
+    public dot (other: Vec4 | Readonly<Vec4>) {
         const v = other.array;
         return this._array[0] * v[0] + this._array[1] * v[1] + this._array[2] * v[2] + this._array[3] * v[3];
     }
@@ -858,7 +857,7 @@ export class Vec4 extends MathBase {
      * @zh 向量叉乘。视当前向量和指定向量为三维向量（舍弃 w 分量），将当前向量左叉乘指定向量
      * @param other specified vector
      */
-    public cross (other: Readonly<Vec4>) {
+    public cross (other: Vec4 | Readonly<Vec4>) {
         const ax = this._array[0];
         const ay = this._array[1];
         const az = this._array[2];
@@ -924,7 +923,7 @@ export class Vec4 extends MathBase {
      * @zh 应用四维矩阵变换到当前矩阵
      * @param matrix matrix to transform with
      */
-    public transformMat4 (matrix: Readonly<Mat4>) {
+    public transformMat4 (matrix: Mat4 | Readonly<Mat4>) {
         const x = this._array[0];
         const y = this._array[1];
         const z = this._array[2];
