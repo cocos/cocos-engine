@@ -23,16 +23,20 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     vec3 SH = normalize(SL + V);
     float SNL = max(dot(N, SL), 0.001);
     float SNH = max(dot(N, SH), 0.0);
-
     float distSqr = dot(SLU, SLU);
-    //float litRadius = cc_lightSizeRangeAngle[i].x;
-    //float litRadiusSqr = litRadius * litRadius;
-    //float illum = PI * (litRadiusSqr / max(litRadiusSqr , distSqr));
-    //float illum = PI *(1.0 / max(litRadiusSqr , distSqr));
     float attRadiusSqrInv = 1.0 / max(cc_lightSizeRangeAngle[i].y, 0.01);
     attRadiusSqrInv *= attRadiusSqrInv;
-    
-    att *= GetDistAtt(distSqr, attRadiusSqrInv);
+  
+    float lumen = cc_lightColor[i].w;
+    float Attenuation_mode = cc_lightSizeRangeAngle[i].w;
+     if (Attenuation_mode < 0.0001){ 
+       att *= GetAttenPoint(cc_lightSizeRangeAngle[i].y, N,SLU);
+       lumen = 1.0;
+     }
+     else if (Attenuation_mode > 9.9999){
+       att *= GetDistAtt(distSqr, attRadiusSqrInv);
+     }
+      
     vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
 
     if (cc_lightPos[i].w > 0.0) {
@@ -53,8 +57,8 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     #endif
 
     lightColor *= shadow;
-    //finalColor += SNL * lightColor * cc_lightColor[i].w * illum * att * (diffuseContrib + lspec);
-    finalColor += SNL * lightColor * cc_lightColor[i].w  * att * (diffuseContrib + lspec);
+
+    finalColor += SNL * lightColor * lumen  * att * (diffuseContrib + lspec);
   }
 
   return vec4(finalColor, 0.0);

@@ -27,3 +27,13 @@ float GetAngleAtt (vec3 L, vec3 litDir, float litAngleScale, float litAngleOffse
   float attenuation = clamp(cd * litAngleScale + litAngleOffset, 0.0, 1.0);
   return (attenuation * attenuation);
 }
+
+
+float GetAttenPoint(float range,  vec3 normal, vec3 SLU) {
+  vec3 lightVec = SLU * (1.0 / range);
+  float lightDist = length(lightVec);
+  float falloff = pow( clamp(1.0 - pow(lightDist , 4.0), 0.0, 1.0), 2.0) / 4.0 * PI * (pow(lightDist, 2.0) + 1.0 );
+  vec3 lightDir = lightVec / lightDist;
+
+  return clamp(dot(normal, lightDir), 0.0, 1.0) * falloff;
+}
