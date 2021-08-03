@@ -138,11 +138,17 @@ export class EffectAsset extends Asset {
      * @zh 将指定 effect 从全局管理器移除。
      */
     public static remove (asset: EffectAsset | string) {
-        if (typeof asset !== 'string' && EffectAsset._effects[asset.name]) { if (EffectAsset._effects[asset.name].equals(asset)) { delete EffectAsset._effects[asset.name]; return; } }
-        for (const n in EffectAsset._effects) {
-            if (EffectAsset._effects[n]._uuid === asset) {
-                delete EffectAsset._effects[n];
-                return;
+        if (typeof asset !== 'string') {
+            if (EffectAsset._effects[asset.name] && EffectAsset._effects[asset.name].equals(asset)) {
+                delete EffectAsset._effects[asset.name];
+            }
+        } else {
+            if (EffectAsset._effects[asset]) { delete EffectAsset._effects[asset]; return; }
+            for (const n in EffectAsset._effects) {
+                if (EffectAsset._effects[n]._uuid === asset) {
+                    delete EffectAsset._effects[n];
+                    return;
+                }
             }
         }
     }
