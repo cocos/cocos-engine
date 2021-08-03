@@ -42,6 +42,7 @@ import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
 import { legacyCC } from '../../core/global-exports';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -442,8 +443,8 @@ export default class TrailModule {
             return;
         }
 
-        if (p.remainingLifetime > p.lastRemaining) {
-            p.lastRemaining = p.remainingLifetime;
+        if (p.loopCount > p.lastLoop) {
+            p.lastLoop = p.loopCount;
             return;
         }
 
@@ -470,6 +471,7 @@ export default class TrailModule {
         if (!lastSeg) {
             return;
         }
+
         Vec3.copy(lastSeg.position, _temp_vec3);
         lastSeg.lifetime = 0;
         if (this.widthFromParticle) {
@@ -500,7 +502,7 @@ export default class TrailModule {
             lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
         }
 
-        p.lastRemaining = p.remainingLifetime;
+        p.lastLoop = p.loopCount;
     }
 
     public removeParticle (p: Particle) {
@@ -538,6 +540,13 @@ export default class TrailModule {
             } else {
                 Vec3.copy(_temp_trailEle.position, p.position);
             }
+
+            // refresh particle node position to update emit position
+            const trailModel = this._trailModel;
+            if (trailModel) {
+                trailModel.node.invalidateChildren(TransformBit.POSITION);
+            }
+
             if (trailNum === 1 || trailNum === 2) {
                 const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1)!;
                 Vec3.subtract(lastSecondTrail.velocity, _temp_trailEle.position, lastSecondTrail.position);
