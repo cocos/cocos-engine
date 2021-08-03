@@ -247,7 +247,7 @@ class ReleaseManager {
             }
         }
         // only release non-gc asset in editor
-        if (!EDITOR || (asset instanceof ImageAsset || asset instanceof TextureBase)) {
+        if (!EDITOR) {
             asset.destroy();
         }
         dependUtil.remove(uuid);
@@ -258,7 +258,7 @@ class ReleaseManager {
             }
             references!.forEach((dependance, key) => {
                 for (let i = dependance.length - 1; i >= 0; i--) {
-                    if (dependance[i][0].deref() === asset) {
+                    if (dependance[i][0].deref()?.equals(asset)) {
                         js.array.fastRemoveAt(dependance, i);
                     }
                 }
