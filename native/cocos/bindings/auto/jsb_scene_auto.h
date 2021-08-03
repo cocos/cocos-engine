@@ -325,6 +325,7 @@ bool register_all_scene(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::BakedSkinningModel);
 SE_DECLARE_FUNC(js_scene_BakedSkinningModel_setAnimInfoIdx);
 SE_DECLARE_FUNC(js_scene_BakedSkinningModel_setJointMedium);
+SE_DECLARE_FUNC(js_scene_BakedSkinningModel_updateModelBounds);
 SE_DECLARE_FUNC(js_scene_BakedSkinningModel_BakedSkinningModel);
 
 extern se::Object* __jsb_cc_scene_DrawBatch2D_proto;
