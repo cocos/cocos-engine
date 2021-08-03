@@ -2073,6 +2073,7 @@ if(OHOS)
         rawfile.z
         z
         OpenSLES
+        hilog_ndk.z
         ${CC_EXTERNAL_LIBS}
     )
 endif()

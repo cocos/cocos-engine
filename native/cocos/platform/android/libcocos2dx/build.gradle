@@ -16,6 +16,8 @@ android {
         manifest.srcFile "AndroidManifest.xml"
     }
 
+    buildDir = new File(rootProject.buildDir, project.name)
+
     buildTypes {
         release {
             minifyEnabled false

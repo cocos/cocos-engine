@@ -22,7 +22,9 @@ cmake -Bbuild \
     -DCMAKE_MAKE_PROGRAM="$ndk_path/build-tools/cmake/bin/ninja" \
     -GNinja \
     -DUSE_SOCKET=ON \
-    -DUSE_WEBSOCKET_SERVER=ON
+    -DUSE_WEBSOCKET_SERVER=ON \
+    -DUSE_JOB_SYSTEM_TASKFLOW=OFF \
+    -DUSE_JOB_SYSTEM_TBB=ON
 
     
 

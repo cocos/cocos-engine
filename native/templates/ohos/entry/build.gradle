@@ -51,6 +51,6 @@ ohos {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.har'])
+    implementation project(path: ':libcocos')
     testImplementation 'junit:junit:4.12'
-    compile project(path: ':libcocos')
 }

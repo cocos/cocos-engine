@@ -71,12 +71,15 @@ android {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.release
             }
+            resValue  "string", "cc_app_name", PROP_APP_NAME
         }
 
         debug {
             debuggable true
             jniDebuggable true
             renderscriptDebuggable true
+            resValue  "string", "cc_app_name", "${PROP_APP_NAME}-dbg"
+            applicationIdSuffix ".debug"
         }
     }
 }
