@@ -32,7 +32,8 @@ export class GCObject extends CCObject {
         return garbageCollectionManager.registerGCObject(this);
     }
 
-    public equals (gcObject: GCObject) {
+    public equals (gcObject: GCObject | null) {
+        if (!gcObject) { return false; }
         if (EDITOR) {
             return gcObject._finalizationToken === this._finalizationToken;
         } else {
