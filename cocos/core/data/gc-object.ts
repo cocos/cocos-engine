@@ -18,6 +18,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { EDITOR } from 'internal:constants';
 import { ccclass } from './decorators';
 import { garbageCollectionManager } from './garbage-collection';
 import { CCObject } from './object';
@@ -29,6 +30,14 @@ export class GCObject extends CCObject {
     constructor (...arg: ConstructorParameters<typeof CCObject>) {
         super(...arg);
         return garbageCollectionManager.registerGCObject(this);
+    }
+
+    public equals (gcObject: GCObject) {
+        if (EDITOR) {
+            return gcObject._finalizationToken === this._finalizationToken;
+        } else {
+            return gcObject === this;
+        }
     }
 
     public destroy () {

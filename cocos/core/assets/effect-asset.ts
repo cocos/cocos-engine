@@ -137,10 +137,10 @@ export class EffectAsset extends Asset {
      * @en Unregister the effect asset from the static map
      * @zh 将指定 effect 从全局管理器移除。
      */
-    public static remove (name: string) {
-        if (EffectAsset._effects[name]) { delete EffectAsset._effects[name]; return; }
+    public static remove (asset: EffectAsset | string) {
+        if (typeof asset !== 'string' && EffectAsset._effects[asset.name]) { if (EffectAsset._effects[asset.name].equals(asset)) { delete EffectAsset._effects[asset.name]; return; } }
         for (const n in EffectAsset._effects) {
-            if (EffectAsset._effects[n]._uuid === name) {
+            if (EffectAsset._effects[n]._uuid === asset) {
                 delete EffectAsset._effects[n];
                 return;
             }
@@ -228,7 +228,7 @@ export class EffectAsset extends Asset {
     }
 
     public destroy () {
-        EffectAsset.remove(this.name);
+        EffectAsset.remove(this);
         return super.destroy();
     }
 
