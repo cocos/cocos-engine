@@ -194,15 +194,25 @@ export class Canvas extends RenderRoot2D {
         this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
+    public onEnable () {
+        super.onEnable();
+        if (!EDITOR && this._cameraComponent) {
+            this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+        }
+    }
+
+    public onDisable () {
+        super.onDisable();
+        if (this._cameraComponent) {
+            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+        }
+    }
+
     public onDestroy () {
         super.onDestroy();
 
         if (EDITOR) {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
-        }
-
-        if (this._cameraComponent) {
-            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
 
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
