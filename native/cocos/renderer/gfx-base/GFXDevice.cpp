@@ -40,7 +40,7 @@ Device *Device::getInstance() {
 
 Device::Device() {
     Device::instance = this;
-    memset(_features, 0, sizeof(_features));
+    _features.fill(false);
 }
 
 Device::~Device() {
@@ -58,8 +58,7 @@ Format Device::getDepthStencilFormat() const {
 bool Device::initialize(const DeviceInfo &info) {
     _width        = info.width;
     _height       = info.height;
-    _nativeWidth  = info.nativeWidth;
-    _nativeHeight = info.nativeHeight;
+    _pixelRatio   = info.pixelRatio;
     _windowHandle = info.windowHandle;
 
     _bindingMappingInfo = info.bindingMappingInfo;
@@ -78,7 +77,8 @@ void Device::destroy() {
 
     _bindingMappingInfo.bufferOffsets.clear();
     _bindingMappingInfo.samplerOffsets.clear();
-    _width = _height = _nativeWidth = _nativeHeight = _windowHandle = 0U;
+    _width = _height = _windowHandle = 0U;
+    _pixelRatio                      = 1.0F;
 }
 
 } // namespace gfx

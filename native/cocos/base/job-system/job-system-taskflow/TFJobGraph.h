@@ -46,7 +46,7 @@ public:
 
     void run() noexcept;
 
-    CC_INLINE void waitForAll() {
+    inline void waitForAll() {
         if (_pending) {
             _future.wait();
             _pending = false;

@@ -26,6 +26,11 @@
 #if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
 
     #include "cocos/bindings/manual/jsb_websocket_server.h"
+    #if CC_PLATFORM == CC_PLATFORM_OHOS
+        #include "uv.h"
+    #else
+        #include "uv/uv.h"
+    #endif
     #include "cocos/bindings/jswrapper/SeApi.h"
     #include "cocos/bindings/manual/jsb_conversions.h"
     #include "cocos/bindings/manual/jsb_global.h"

@@ -1,27 +1,48 @@
 #!/usr/bin/python
 
 # This script is used to generate luabinding glue codes.
-# Android ndk version must be ndk-r9b.
+# Android ndk version must be ndk-r16 or greater.
 
 
-import sys
-import os, os.path
-import shutil
-import ConfigParser
-import subprocess
-import re
+import sys, os, shutil, subprocess, re
 from contextlib import contextmanager
 
+if sys.version_info.major >= 3:
+    import configparser
+else:
+    import ConfigParser as configparser
+
+defaultSections = [
+    'cocos',
+    'video',
+    'webview',
+    'audio' ,
+    'extension',
+    'network',
+    'gfx',
+    'pipeline',
+    'spine',
+    'editor_support',
+    'dragonbones',
+    'physics',
+    'scene',
+]
+projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+defaultOutputDir = '%s/cocos/bindings/auto' % projectRoot
 
 def _check_ndk_root_env():
     ''' Checking the environment NDK_ROOT, which will be used for building
     '''
 
     try:
-        NDK_ROOT = os.environ['NDK_ROOT']
+        NDK_ROOT = os.environ['ANDROID_NDK_HOME']
     except Exception:
-        print "NDK_ROOT not defined. Please define NDK_ROOT in your environment."
-        sys.exit(1)
+        print ("ANDROID_NDK_HOME not defined...")
+        try:
+            NDK_ROOT = os.environ['NDK_ROOT']
+        except Exception:
+            print ("NDK_ROOT not defined. Please define NDK_ROOT or ANDROID_NDK_HOME in your environment.")
+            sys.exit(1)
 
     return NDK_ROOT
 
@@ -32,7 +53,7 @@ def _check_python_bin_env():
     try:
         PYTHON_BIN = os.environ['PYTHON_BIN']
     except Exception:
-        print "PYTHON_BIN not defined, use current python."
+        print ("PYTHON_BIN not defined, use current python.")
         PYTHON_BIN = sys.executable
 
     return PYTHON_BIN
@@ -40,7 +61,6 @@ def _check_python_bin_env():
 
 class CmdError(Exception):
     pass
-
 
 @contextmanager
 def _pushd(newDir):
@@ -57,6 +77,14 @@ def _run_cmd(command):
     return subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
 
 def main():
+    if len(sys.argv) == 2 and sys.argv[1] == '--help':
+        print ('python %s [SECTION]... | --config [config paths]\n' % (sys.argv[0]))
+        print ('    Generate JSB bindings for the specified sections or config file.\n')
+        print ('    If nothing is specified, all built-in sections will be generated.\n')
+        print ('    Built-in section list:')
+        for section in defaultSections:
+            print ('        %s' % section)
+        sys.exit(0)
 
     cur_platform= '??'
     llvm_path = '??'
@@ -73,7 +101,7 @@ def main():
     elif 'linux' in platform:
         cur_platform = 'linux'
     else:
-        print 'Your platform is not supported!'
+        print ('Your platform is not supported!')
         sys.exit(1)
 
 
@@ -89,8 +117,8 @@ def main():
     elif os.path.isdir(x86_llvm_path):
         llvm_path = x86_llvm_path
     else:
-        print 'llvm toolchain not found!'
-        print 'path: %s or path: %s are not valid! ' % (x86_llvm_path, x64_llvm_path)
+        print ('llvm toolchain not found!')
+        print ('path: %s or path: %s are not valid! ' % (x86_llvm_path, x64_llvm_path))
         sys.exit(1)
 
     x86_gcc_toolchain_path = ""
@@ -105,16 +133,15 @@ def main():
     elif os.path.isdir(x86_gcc_toolchain_path):
         gcc_toolchain_path = x86_gcc_toolchain_path
     else:
-        print 'gcc toolchain not found!'
-        print 'path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path)
+        print ('gcc toolchain not found!')
+        print ('path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path))
         sys.exit(1)
 
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    cocos_root = os.path.abspath(project_root)
-    cxx_generator_root = os.path.abspath(os.path.join(project_root, 'tools/bindings-generator'))
+    cocos_root = os.path.abspath(projectRoot)
+    cxx_generator_root = os.path.abspath(os.path.join(projectRoot, 'tools/bindings-generator'))
 
     # save config to file
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.set('DEFAULT', 'androidndkdir', ndk_root)
     config.set('DEFAULT', 'clangllvmdir', llvm_path)
     config.set('DEFAULT', 'gcc_toolchain_dir', gcc_toolchain_path)
@@ -124,7 +151,7 @@ def main():
 
     conf_ini_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'userconf.ini'))
 
-    print 'generating userconf.ini...'
+    print ('generating userconf.ini...')
     with open(conf_ini_file, 'w') as configfile:
       config.write(configfile)
 
@@ -132,56 +159,48 @@ def main():
     # set proper environment variables
     if 'linux' in platform or platform == 'darwin':
         os.putenv('LD_LIBRARY_PATH', '%s/libclang' % cxx_generator_root)
-        print '%s/libclang' % cxx_generator_root
+        print ('%s/libclang' % cxx_generator_root)
     if platform == 'win32':
         path_env = os.environ['PATH']
         os.putenv('PATH', r'%s;%s\libclang;%s\tools\win32;' % (path_env, cxx_generator_root, cxx_generator_root))
 
 
     try:
-
-        tojs_root = '%s/tools/tojs' % project_root
-        output_dir = '%s/cocos/bindings/auto' % project_root
-
-        cmd_args = {
-            'cocos.ini' : ('cocos', 'jsb_cocos_auto'),
-            'video.ini': ('video', 'jsb_video_auto'),
-            'webview.ini': ('webview', 'jsb_webview_auto'),
-            'audio.ini' : ('audio', 'jsb_audio_auto'),
-            'extension.ini' : ('extension', 'jsb_extension_auto'),
-            'network.ini' : ('network', 'jsb_network_auto'),
-            'gfx.ini': ('gfx', 'jsb_gfx_auto'),
-            'pipeline.ini': ('pipeline', 'jsb_pipeline_auto'),
-            'spine.ini': ('spine','jsb_spine_auto'),
-            'editor_support.ini': ('editor_support','jsb_editor_support_auto'),
-            'dragonbones.ini': ('dragonbones','jsb_dragonbones_auto'),
-            'physics.ini': ('physics','jsb_physics_auto')
-        }
+        tojs_root = '%s/tools/tojs' % projectRoot
 
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root
         tasks = []
-        for key in cmd_args.keys():
-            if len(sys.argv) <= 1 or any(key[:-4] in s for s in sys.argv[1:]):
-                args = cmd_args[key]
-                cfg = '%s/%s' % (tojs_root, key)
-                print '!!----------Generating bindings for %s----------!!' % (key[:-4])
-                command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
-                # tasks.append(_run_cmd(command))
-                _run_cmd(command).communicate()
+
+        def generate (cfg, directory = None, section = None, filename = None):
+            if directory is None: directory = os.path.dirname(cfg)
+            if section is None: section = os.path.basename(cfg)[:-4]
+            if filename is None: filename = 'jsb_%s_auto' % section
+            print ('!!----------Generating bindings for %s----------!!' % (section))
+            command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, section, target, directory, filename)
+            # tasks.append(_run_cmd(command))
+            _run_cmd(command).communicate()
+
+        if len(sys.argv) > 2 and sys.argv[1] == '--config':
+            for path in sys.argv[2:]:
+                generate(path.replace('\\', '/'))
+        else:
+            for section in defaultSections:
+                if len(sys.argv) <= 1 or any(section in s for s in sys.argv[1:]):
+                    generate('%s/%s.ini' % (tojs_root, section), defaultOutputDir)
 
         # for t in tasks:
         #     t.communicate()
 
-        print '----------------------------------------'
-        print 'Generating javascript bindings succeeds.'
-        print '----------------------------------------'
+        print ('----------------------------------------')
+        print ('Generating javascript bindings succeeds.')
+        print ('----------------------------------------')
 
     except Exception as e:
         if e.__class__.__name__ == 'CmdError':
-            print '-------------------------------------'
-            print 'Generating javascript bindings fails.'
-            print '-------------------------------------'
+            print ('-------------------------------------')
+            print ('Generating javascript bindings fails.')
+            print ('-------------------------------------')
             sys.exit(1)
         else:
             raise

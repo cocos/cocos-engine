@@ -50,6 +50,7 @@
 namespace cc {
 namespace gfx {
 
+class GFXObject;
 class Device;
 class Buffer;
 class GlobalBarrier;
@@ -101,12 +102,14 @@ enum class ObjectType {
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
 };
+CC_ENUM_CONVERSION_OPERATOR(ObjectType);
 
 enum class Status {
     UNREADY,
     FAILED,
     SUCCESS,
 };
+CC_ENUM_CONVERSION_OPERATOR(Status);
 
 enum class API {
     UNKNOWN,
@@ -118,6 +121,7 @@ enum class API {
     WEBGL2,
     WEBGPU,
 };
+CC_ENUM_CONVERSION_OPERATOR(API);
 
 enum class SurfaceTransform {
     IDENTITY,
@@ -125,6 +129,7 @@ enum class SurfaceTransform {
     ROTATE_180,
     ROTATE_270,
 };
+CC_ENUM_CONVERSION_OPERATOR(SurfaceTransform);
 
 enum class Feature {
     COLOR_FLOAT,
@@ -134,31 +139,21 @@ enum class Feature {
     TEXTURE_FLOAT_LINEAR,
     TEXTURE_HALF_FLOAT_LINEAR,
     FORMAT_R11G11B10F,
-    FORMAT_D16,
-    FORMAT_D16S8,
-    FORMAT_D24,
-    FORMAT_D24S8,
-    FORMAT_D32F,
-    FORMAT_D32FS8,
+    FORMAT_SRGB,
     FORMAT_ETC1,
     FORMAT_ETC2,
     FORMAT_DXT,
     FORMAT_PVRTC,
     FORMAT_ASTC,
     FORMAT_RGB8,
-    MSAA,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
-    DEPTH_BOUNDS,
-    LINE_WIDTH,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
-    MULTITHREADED_SUBMISSION,
     COMPUTE_SHADER,
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(Feature);
 
 enum class Format {
 
@@ -317,6 +312,7 @@ enum class Format {
     // Total count
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(Format);
 
 enum class FormatType {
     NONE,
@@ -327,6 +323,7 @@ enum class FormatType {
     UFLOAT,
     FLOAT,
 };
+CC_ENUM_CONVERSION_OPERATOR(FormatType);
 
 enum class Type {
     UNKNOWN,
@@ -382,6 +379,8 @@ enum class Type {
     SUBPASS_INPUT,
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(Type);
+
 bool isCombinedImageSampler(Type type);
 bool isSampledImage(Type type);
 bool isStorageImage(Type type);
@@ -397,13 +396,13 @@ enum class BufferUsageBit : FlagBits {
     INDIRECT     = 0x40,
 };
 using BufferUsage = BufferUsageBit;
-CC_ENUM_OPERATORS(BufferUsageBit);
+CC_ENUM_BITWISE_OPERATORS(BufferUsageBit);
 
 enum class BufferFlagBit : FlagBits {
     NONE = 0,
 };
 using BufferFlags = BufferFlagBit;
-CC_ENUM_OPERATORS(BufferFlagBit);
+CC_ENUM_BITWISE_OPERATORS(BufferFlagBit);
 
 enum class MemoryAccessBit : FlagBits {
     NONE       = 0,
@@ -412,6 +411,7 @@ enum class MemoryAccessBit : FlagBits {
     READ_WRITE = READ_ONLY | WRITE_ONLY,
 };
 using MemoryAccess = MemoryAccessBit;
+CC_ENUM_CONVERSION_OPERATOR(MemoryAccessBit);
 
 enum class MemoryUsageBit : FlagBits {
     NONE   = 0,
@@ -419,7 +419,7 @@ enum class MemoryUsageBit : FlagBits {
     HOST   = 0x2,
 };
 using MemoryUsage = MemoryUsageBit;
-CC_ENUM_OPERATORS(MemoryUsageBit);
+CC_ENUM_BITWISE_OPERATORS(MemoryUsageBit);
 
 enum class TextureType {
     TEX1D,
@@ -429,6 +429,7 @@ enum class TextureType {
     TEX1D_ARRAY,
     TEX2D_ARRAY,
 };
+CC_ENUM_CONVERSION_OPERATOR(TextureType);
 
 enum class TextureUsageBit : FlagBits {
     NONE                     = 0,
@@ -441,25 +442,27 @@ enum class TextureUsageBit : FlagBits {
     INPUT_ATTACHMENT         = 0x40,
 };
 using TextureUsage = TextureUsageBit;
-CC_ENUM_OPERATORS(TextureUsageBit);
+CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
 
 enum class TextureFlagBit : FlagBits {
-    NONE       = 0,
-    GEN_MIPMAP = 0x1,
-    IMMUTABLE  = 0x2,
+    NONE           = 0,
+    GEN_MIPMAP     = 0x1,
+    IMMUTABLE      = 0x2,
+    GENERAL_LAYOUT = 0x4,
 };
 using TextureFlags = TextureFlagBit;
-CC_ENUM_OPERATORS(TextureFlagBit);
+CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
 
 enum class SampleCount {
-    X1,
-    X2,
-    X4,
-    X8,
-    X16,
-    X32,
-    X64,
+    X1  = 0x1,
+    X2  = 0x2,
+    X4  = 0x4,
+    X8  = 0x8,
+    X16 = 0x10,
+    X32 = 0x20,
+    X64 = 0x40,
 };
+CC_ENUM_CONVERSION_OPERATOR(SampleCount);
 
 enum class Filter {
     NONE,
@@ -467,6 +470,7 @@ enum class Filter {
     LINEAR,
     ANISOTROPIC,
 };
+CC_ENUM_CONVERSION_OPERATOR(Filter);
 
 enum class Address {
     WRAP,
@@ -474,6 +478,7 @@ enum class Address {
     CLAMP,
     BORDER,
 };
+CC_ENUM_CONVERSION_OPERATOR(Address);
 
 enum class ComparisonFunc {
     NEVER,
@@ -485,6 +490,7 @@ enum class ComparisonFunc {
     GREATER_EQUAL,
     ALWAYS,
 };
+CC_ENUM_CONVERSION_OPERATOR(ComparisonFunc);
 
 enum class StencilOp {
     ZERO,
@@ -496,6 +502,7 @@ enum class StencilOp {
     INCR_WRAP,
     DECR_WRAP,
 };
+CC_ENUM_CONVERSION_OPERATOR(StencilOp);
 
 enum class BlendFactor {
     ZERO,
@@ -514,6 +521,7 @@ enum class BlendFactor {
     CONSTANT_ALPHA,
     ONE_MINUS_CONSTANT_ALPHA,
 };
+CC_ENUM_CONVERSION_OPERATOR(BlendFactor);
 
 enum class BlendOp {
     ADD,
@@ -522,6 +530,7 @@ enum class BlendOp {
     MIN,
     MAX,
 };
+CC_ENUM_CONVERSION_OPERATOR(BlendOp);
 
 enum class ColorMask : FlagBits {
     NONE = 0x0,
@@ -531,7 +540,7 @@ enum class ColorMask : FlagBits {
     A    = 0x8,
     ALL  = R | G | B | A,
 };
-CC_ENUM_OPERATORS(ColorMask);
+CC_ENUM_BITWISE_OPERATORS(ColorMask);
 
 enum class ShaderStageFlagBit : FlagBits {
     NONE       = 0x0,
@@ -544,18 +553,20 @@ enum class ShaderStageFlagBit : FlagBits {
     ALL        = 0x3f,
 };
 using ShaderStageFlags = ShaderStageFlagBit;
-CC_ENUM_OPERATORS(ShaderStageFlagBit);
+CC_ENUM_BITWISE_OPERATORS(ShaderStageFlagBit);
 
 enum class LoadOp {
     LOAD,    // Load the contents from the fbo from previous
     CLEAR,   // Clear the fbo
     DISCARD, // Ignore writing to the fbo and keep old data
 };
+CC_ENUM_CONVERSION_OPERATOR(LoadOp);
 
 enum class StoreOp {
     STORE,   // Write the source to the destination
     DISCARD, // Don't write the source to the destination
 };
+CC_ENUM_CONVERSION_OPERATOR(StoreOp);
 
 enum class AccessType {
     NONE,
@@ -591,14 +602,25 @@ enum class AccessType {
     HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
     HOST_WRITE,                     // Written on the host
 };
+CC_ENUM_CONVERSION_OPERATOR(AccessType);
 
 using AccessTypeList = std::vector<AccessType>;
+
+enum class ResolveMode {
+    NONE,
+    SAMPLE_ZERO,
+    AVERAGE,
+    MIN,
+    MAX,
+};
+CC_ENUM_CONVERSION_OPERATOR(ResolveMode);
 
 enum class PipelineBindPoint {
     GRAPHICS,
     COMPUTE,
     RAY_TRACING,
 };
+CC_ENUM_CONVERSION_OPERATOR(PipelineBindPoint);
 
 enum class PrimitiveMode {
     POINT_LIST,
@@ -617,23 +639,27 @@ enum class PrimitiveMode {
     TRIANGLE_PATCH_ADJACENCY,
     QUAD_PATCH_LIST,
 };
+CC_ENUM_CONVERSION_OPERATOR(PrimitiveMode);
 
 enum class PolygonMode {
     FILL,
     POINT,
     LINE,
 };
+CC_ENUM_CONVERSION_OPERATOR(PolygonMode);
 
 enum class ShadeModel {
     GOURAND,
     FLAT,
 };
+CC_ENUM_CONVERSION_OPERATOR(ShadeModel);
 
 enum class CullMode {
     NONE,
     FRONT,
     BACK,
 };
+CC_ENUM_CONVERSION_OPERATOR(CullMode);
 
 enum class DynamicStateFlagBit : FlagBits {
     NONE                 = 0x0,
@@ -647,15 +673,16 @@ enum class DynamicStateFlagBit : FlagBits {
     STENCIL_COMPARE_MASK = 0x80,
 };
 using DynamicStateFlags = DynamicStateFlagBit;
-CC_ENUM_OPERATORS(DynamicStateFlagBit);
+CC_ENUM_BITWISE_OPERATORS(DynamicStateFlagBit);
 
 using DynamicStateList = vector<DynamicStateFlagBit>;
 
 enum class StencilFace {
-    FRONT,
-    BACK,
-    ALL,
+    FRONT = 0x1,
+    BACK  = 0x2,
+    ALL   = 0x3,
 };
+CC_ENUM_BITWISE_OPERATORS(StencilFace);
 
 enum class DescriptorType : FlagBits {
     UNKNOWN                = 0,
@@ -669,18 +696,20 @@ enum class DescriptorType : FlagBits {
     STORAGE_IMAGE          = 0x80,
     INPUT_ATTACHMENT       = 0x100,
 };
-CC_ENUM_OPERATORS(DescriptorType);
+CC_ENUM_BITWISE_OPERATORS(DescriptorType);
 
 enum class QueueType {
     GRAPHICS,
     COMPUTE,
     TRANSFER,
 };
+CC_ENUM_CONVERSION_OPERATOR(QueueType);
 
 enum class CommandBufferType {
     PRIMARY,
     SECONDARY,
 };
+CC_ENUM_CONVERSION_OPERATOR(CommandBufferType);
 
 enum class ClearFlagBit : FlagBits {
     NONE          = 0,
@@ -691,7 +720,7 @@ enum class ClearFlagBit : FlagBits {
     ALL           = COLOR | DEPTH | STENCIL,
 };
 using ClearFlags = ClearFlagBit;
-CC_ENUM_OPERATORS(ClearFlagBit);
+CC_ENUM_BITWISE_OPERATORS(ClearFlagBit);
 
 struct Size {
     uint x = 0U;
@@ -870,7 +899,7 @@ struct DrawInfo {
     uint firstVertex   = 0U;
     uint indexCount    = 0U;
     uint firstIndex    = 0U;
-    uint vertexOffset  = 0U;
+    int  vertexOffset  = 0;
     uint instanceCount = 0U;
     uint firstInstance = 0U;
 };
@@ -1050,6 +1079,7 @@ struct ColorAttachment {
     StoreOp                 storeOp     = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::PRESENT};
+    bool                    isGeneralLayout = false;
 };
 
 using ColorAttachmentList = vector<ColorAttachment>;
@@ -1063,6 +1093,7 @@ struct DepthStencilAttachment {
     StoreOp                 stencilStoreOp = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+    bool                    isGeneralLayout = false;
 };
 
 struct SubpassInfo {
@@ -1070,7 +1101,11 @@ struct SubpassInfo {
     std::vector<uint> colors;
     std::vector<uint> resolves;
     std::vector<uint> preserves;
-    uint              depthStencil = INVALID_BINDING;
+
+    uint        depthStencil        = INVALID_BINDING;
+    uint        depthStencilResolve = INVALID_BINDING;
+    ResolveMode depthResolveMode    = ResolveMode::NONE;
+    ResolveMode stencilResolveMode  = ResolveMode::NONE;
 };
 
 using SubpassInfoList = vector<SubpassInfo>;
@@ -1112,8 +1147,6 @@ struct FramebufferInfo {
     RenderPass *      renderPass = nullptr;
     TextureList       colorTextures;                 // @ts-overrides { type: '(Texture | null)[]' }
     Texture *         depthStencilTexture = nullptr; // @ts-nullable
-    std::vector<uint> colorMipmapLevels;
-    uint              depthStencilMipmapLevel = 0;
 };
 
 struct DescriptorSetLayoutBinding {
@@ -1239,6 +1272,27 @@ struct FormatInfo {
 struct MemoryStatus {
     uint bufferSize  = 0;
     uint textureSize = 0;
+};
+
+struct DynamicStencilStates {
+    uint writeMask   = 0U;
+    uint compareMask = 0U;
+    uint reference   = 0U;
+};
+
+struct DynamicStates {
+    Viewport viewport;
+    Rect     scissor;
+    Color    blendConstant;
+    float    lineWidth         = 1.F;
+    float    depthBiasConstant = 0.F;
+    float    depthBiasClamp    = 0.F;
+    float    depthBiasSlope    = 0.F;
+    float    depthMinBounds    = 0.F;
+    float    depthMaxBounds    = 0.F;
+
+    DynamicStencilStates stencilStatesFront;
+    DynamicStencilStates stencilStatesBack;
 };
 
 } // namespace gfx

@@ -1,9 +1,11 @@
 {
     "doAddNativeSupport": {
-        "appendFile": [{
-            "from": "cocos/bindings/manual/jsb_module_register.cpp",
-            "to": "${COMMON_DIR}/Classes/jsb_module_register.cpp"
-        }],
+        "appendFile": [
+            {
+                "from": "cocos/bindings/manual/jsb_module_register.cpp",
+                "to": "${COMMON_DIR}/Classes/jsb_module_register.cpp"
+            }
+        ],
         "projectReplaceProjectName": {
             "srcProjectName": "CocosGame",
             "files": [
@@ -14,51 +16,14 @@
                 "${NATIVE_DIR}/CMakeLists.txt"
             ]
         },
-        "appendXEngine": {
-            "from": ".",
-            "to": "${COMMON_DIR}/cocos2d-x"
-        },
         "projectReplacePackageName": {
             "srcPackageName": "com.cocos.helloworld",
             "files": [
                 "${NATIVE_DIR}/app/build.gradle",
                 "${NATIVE_DIR}/app/AndroidManifest.xml",
                 "${NATIVE_DIR}/instantapp/build.gradle",
-                "${NATIVE_DIR}/instantapp/AndroidManifest.xml"
-            ]
-        },
-        "projectReplaceMacBundleid": {
-            "srcBundleId": "com.cocos.helloworld.mac",
-            "files": [
-                "${NATIVE_DIR}/CMakeLists.txt"
-            ]
-        },
-        "projectReplaceIosBundleid": {
-            "srcBundleId": "com.cocos.helloworld.ios",
-            "files": [
-                "${NATIVE_DIR}/CMakeLists.txt"
-            ]
-        },
-        "projectReplaceCocosRoot": {
-            "pattern":"\\$\\{COCOS_ROOT\\}",
-            "files": [
-                {"file": "${NATIVE_DIR}/CMakeLists.txt", "default":"${CMAKE_CURRENT_LIST_DIR}/cocos2d-x", "needFix":true},
-                {"file": "proj/settings.gradle", "default":"${COMMON_DIR}/cocos2d-x", "needFix":true},
-                "proj/build-cfg.json"
-            ]
-        },
-        "projectReplaceTemplatePath": {
-            "pattern":"\\$\\{NATIVE_DIR\\}",
-            "files": [
-                "proj/settings.gradle",
-                "proj/build.gradle"
-            ]
-        },
-        "projectReplaceProjectCommon" : {
-            "pattern":"\\$\\{COCOS_PROJ_COMMON\\}",
-            "files":[
-                "${NATIVE_DIR}/app/build.gradle",
-                "${NATIVE_DIR}/instantapp/build.gradle"
+                "${NATIVE_DIR}/instantapp/AndroidManifest.xml",
+                "${NATIVE_DIR}/entry/src/main/config.json"
             ]
         }
     }

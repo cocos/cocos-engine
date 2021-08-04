@@ -27,18 +27,17 @@
 
 #include "concurrentqueue/concurrentqueue.h"
 #include "concurrentqueue/lightweightsemaphore.h"
-#include <cassert>
-
+#include "base/Macros.h"
 namespace cc {
 
 class Semaphore final {
 public:
     Semaphore() noexcept;
-    explicit Semaphore(uint32_t const initialCount) noexcept;
+    explicit Semaphore(int initialCount) noexcept;
 
     void wait() noexcept;
-    void signal() noexcept;
-    void signalAll() noexcept { assert(false); }
+    void signal(int count = 1) noexcept;
+    void signalAll() noexcept { CC_ASSERT(false); } // NOLINT(readability-convert-member-functions-to-static)
 
 private:
     moodycamel::details::Semaphore _semaphore;

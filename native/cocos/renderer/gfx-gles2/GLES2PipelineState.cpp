@@ -34,7 +34,7 @@
 namespace cc {
 namespace gfx {
 
-const GLenum GLES2Primitives[] = {
+const GLenum GLE_S2_PRIMITIVES[] = {
     GL_POINTS,
     GL_LINES,
     GL_LINE_STRIP,
@@ -51,27 +51,27 @@ const GLenum GLES2Primitives[] = {
     GL_NONE,
 };
 
-GLES2PipelineState::GLES2PipelineState()
-: PipelineState() {
+GLES2PipelineState::GLES2PipelineState() {
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 GLES2PipelineState::~GLES2PipelineState() {
     destroy();
 }
 
-void GLES2PipelineState::doInit(const PipelineStateInfo &info) {
-    _gpuPipelineState = CC_NEW(GLES2GPUPipelineState);
-    _gpuPipelineState->glPrimitive = GLES2Primitives[(int)_primitive];
-    _gpuPipelineState->gpuShader = static_cast<GLES2Shader *>(_shader)->gpuShader();
-    _gpuPipelineState->rs = _rasterizerState;
-    _gpuPipelineState->dss = _depthStencilState;
-    _gpuPipelineState->bs = _blendState;
+void GLES2PipelineState::doInit(const PipelineStateInfo & /*info*/) {
+    _gpuPipelineState                    = CC_NEW(GLES2GPUPipelineState);
+    _gpuPipelineState->glPrimitive       = GLE_S2_PRIMITIVES[static_cast<int>(_primitive)];
+    _gpuPipelineState->gpuShader         = static_cast<GLES2Shader *>(_shader)->gpuShader();
+    _gpuPipelineState->rs                = _rasterizerState;
+    _gpuPipelineState->dss               = _depthStencilState;
+    _gpuPipelineState->bs                = _blendState;
     _gpuPipelineState->gpuPipelineLayout = static_cast<GLES2PipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass)->gpuRenderPass();
 
     for (uint i = 0; i < 31; i++) {
-        if ((uint)_dynamicStates & (1 << i)) {
-            _gpuPipelineState->dynamicStates.push_back((DynamicStateFlagBit)(1 << i));
+        if (static_cast<uint>(_dynamicStates) & (1 << i)) {
+            _gpuPipelineState->dynamicStates.push_back(static_cast<DynamicStateFlagBit>(1 << i));
         }
     }
 }

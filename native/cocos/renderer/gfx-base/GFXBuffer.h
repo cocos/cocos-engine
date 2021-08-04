@@ -44,12 +44,12 @@ public:
 
     virtual void update(const void *buffer, uint size) = 0;
 
-    CC_INLINE BufferUsage getUsage() const { return _usage; }
-    CC_INLINE MemoryUsage getMemUsage() const { return _memUsage; }
-    CC_INLINE uint        getStride() const { return _stride; }
-    CC_INLINE uint        getCount() const { return _count; }
-    CC_INLINE uint        getSize() const { return _size; }
-    CC_INLINE BufferFlags getFlags() const { return _flags; }
+    inline BufferUsage getUsage() const { return _usage; }
+    inline MemoryUsage getMemUsage() const { return _memUsage; }
+    inline uint        getStride() const { return _stride; }
+    inline uint        getCount() const { return _count; }
+    inline uint        getSize() const { return _size; }
+    inline BufferFlags getFlags() const { return _flags; }
 
 protected:
     virtual void doInit(const BufferInfo &info)     = 0;

@@ -528,7 +528,7 @@ static inline int16_t clamp16_from_float(float f) {
     static const int32_t limpos = (0x10f << 22) /*zero*/ + 32767; /* 0x43c07fff */
 
     union {
-        float f;
+        float   f;
         int32_t i;
     } u;
 
@@ -566,7 +566,7 @@ static inline uint8_t clamp8_from_float(float f) {
     static const int32_t limpos = (0x11f << 22) /*zero*/ + 255; /* 0x47c000ff */
 
     union {
-        float f;
+        float   f;
         int32_t i;
     } u;
 
@@ -591,7 +591,7 @@ static inline uint8_t clamp8_from_float(float f) {
  * depending on hardware and future implementation of this function.
  */
 static inline int32_t clamp24_from_float(float f) {
-    static const float scale = (float)(1 << 23);
+    static const float scale  = (float)(1 << 23);
     static const float limpos = 0x7fffff / (float)(1 << 23);
     static const float limneg = -0x800000 / (float)(1 << 23);
 
@@ -632,7 +632,7 @@ static inline int32_t clamp24_from_q8_23(int32_t ival) {
  * depending on hardware and future implementation of this function.
  */
 static inline int32_t clampq4_27_from_float(float f) {
-    static const float scale = (float)(1UL << 27);
+    static const float scale  = (float)(1UL << 27);
     static const float limpos = 16.;
     static const float limneg = -16.;
 
@@ -656,7 +656,7 @@ static inline int32_t clampq4_27_from_float(float f) {
  * depending on hardware and future implementation of this function.
  */
 static inline int32_t clamp32_from_float(float f) {
-    static const float scale = (float)(1UL << 31);
+    static const float scale  = (float)(1UL << 31);
     static const float limpos = 1.;
     static const float limneg = -1.;
 
@@ -727,8 +727,8 @@ static inline float float_from_u4_12(uint16_t uval) {
  * depending on hardware and future implementation of this function.
  */
 static inline uint32_t u4_28_from_float(float f) {
-    static const float scale = (float)(1 << 28);
-    static const float limpos = 0xffffffffUL / (float)(1 << 28);
+    static const float scale  = (float)(1 << 28);
+    static const float limpos = 16.0f;
 
     if (f <= 0.) {
         return 0;
@@ -749,7 +749,7 @@ static inline uint32_t u4_28_from_float(float f) {
  * depending on hardware and future implementation of this function.
  */
 static inline uint16_t u4_12_from_float(float f) {
-    static const float scale = (float)(1 << 12);
+    static const float scale  = (float)(1 << 12);
     static const float limpos = 0xffff / (float)(1 << 12);
 
     if (f <= 0.) {
@@ -849,8 +849,8 @@ static inline int32_t mulAdd(int16_t in, int16_t v, int32_t a) {
 #if defined(__arm__) && !defined(__thumb__)
     int32_t out;
     asm("smlabb %[out], %[in], %[v], %[a] \n"
-        : [ out ] "=r"(out)
-        : [ in ] "%r"(in), [ v ] "r"(v), [ a ] "r"(a)
+        : [out] "=r"(out)
+        : [in] "%r"(in), [v] "r"(v), [a] "r"(a)
         :);
     return out;
 #else
@@ -865,8 +865,8 @@ static inline int32_t mul(int16_t in, int16_t v) {
 #if defined(__arm__) && !defined(__thumb__)
     int32_t out;
     asm("smulbb %[out], %[in], %[v] \n"
-        : [ out ] "=r"(out)
-        : [ in ] "%r"(in), [ v ] "r"(v)
+        : [out] "=r"(out)
+        : [in] "%r"(in), [v] "r"(v)
         :);
     return out;
 #else
@@ -882,13 +882,13 @@ static inline int32_t mulAddRL(int left, uint32_t inRL, uint32_t vRL, int32_t a)
     int32_t out;
     if (left) {
         asm("smlabb %[out], %[inRL], %[vRL], %[a] \n"
-            : [ out ] "=r"(out)
-            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL), [ a ] "r"(a)
+            : [out] "=r"(out)
+            : [inRL] "%r"(inRL), [vRL] "r"(vRL), [a] "r"(a)
             :);
     } else {
         asm("smlatt %[out], %[inRL], %[vRL], %[a] \n"
-            : [ out ] "=r"(out)
-            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL), [ a ] "r"(a)
+            : [out] "=r"(out)
+            : [inRL] "%r"(inRL), [vRL] "r"(vRL), [a] "r"(a)
             :);
     }
     return out;
@@ -909,13 +909,13 @@ static inline int32_t mulRL(int left, uint32_t inRL, uint32_t vRL) {
     int32_t out;
     if (left) {
         asm("smulbb %[out], %[inRL], %[vRL] \n"
-            : [ out ] "=r"(out)
-            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL)
+            : [out] "=r"(out)
+            : [inRL] "%r"(inRL), [vRL] "r"(vRL)
             :);
     } else {
         asm("smultt %[out], %[inRL], %[vRL] \n"
-            : [ out ] "=r"(out)
-            : [ inRL ] "%r"(inRL), [ vRL ] "r"(vRL)
+            : [out] "=r"(out)
+            : [inRL] "%r"(inRL), [vRL] "r"(vRL)
             :);
     }
     return out;

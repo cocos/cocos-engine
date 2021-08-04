@@ -45,7 +45,7 @@ private:
 
 public:
     // Get the total amount of memory allocated currently.
-    CC_INLINE size_t total_memory_allocated() const { return total_memory_allocated_; }
+    inline size_t total_memory_allocated() const { return total_memory_allocated_; }
 
     void DumpMemoryAllocation();
 
@@ -68,7 +68,7 @@ public:
     int GetAllocSize(void *ptr);
 
     // Static utility method to get the memory tracker instance
-    CC_INLINE static MemTracker *Instance() {
+    inline static MemTracker *Instance() {
         static MemTracker tracker;
         return &tracker;
     }

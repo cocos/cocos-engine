@@ -49,27 +49,27 @@ public:
         _initialized = true;
     }
 
-    CC_INLINE const bool isInitialized() {
+    inline const bool isInitialized() {
         return _initialized;
     }
 
-    CC_INLINE void setComputePipelineState(id<MTLComputePipelineState> pipelineState) {
+    inline void setComputePipelineState(id<MTLComputePipelineState> pipelineState) {
         if(_pipelineState == pipelineState)
             return;
         [_mtlEncoder setComputePipelineState:pipelineState];
         _pipelineState = pipelineState;
     }
 
-    CC_INLINE void setBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
+    inline void setBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
         [_mtlEncoder setBuffer:buffer offset:offset atIndex:index];
     }
 
-    CC_INLINE void setTexture(const id<MTLTexture> texture, uint index) {
+    inline void setTexture(const id<MTLTexture> texture, uint index) {
         [_mtlEncoder setTexture:texture atIndex:index];
         _resourceSize = {texture.width, texture.height, texture.depth};
     }
     
-    CC_INLINE void dispatch(MTLSize groupsPerGrid) {
+    inline void dispatch(MTLSize groupsPerGrid) {
         // GLSL -> SPIRV -> MSL
         // GLSL shader request to specify the compute thread size,
         // no such limit in Metal and have to set compute thread size explicity
@@ -79,11 +79,11 @@ public:
         [_mtlEncoder dispatchThreadgroups:groupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
     }
     
-    CC_INLINE void dispatch(id<MTLBuffer> indirectBuffer, NSUInteger offset, MTLSize groupsPerGrid) {
+    inline void dispatch(id<MTLBuffer> indirectBuffer, NSUInteger offset, MTLSize groupsPerGrid) {
         [_mtlEncoder dispatchThreadgroupsWithIndirectBuffer:indirectBuffer indirectBufferOffset:offset threadsPerThreadgroup:groupsPerGrid];
     }
 
-    CC_INLINE void endEncoding() {
+    inline void endEncoding() {
         [_mtlEncoder endEncoding];
         [_mtlEncoder release];
         _mtlEncoder  = nil;
@@ -91,7 +91,7 @@ public:
         _initialized = false;
     }
 
-    CC_INLINE id<MTLComputeCommandEncoder> const getMTLEncoder() {
+    inline id<MTLComputeCommandEncoder> const getMTLEncoder() {
         return _mtlEncoder;
     }
 

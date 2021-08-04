@@ -38,7 +38,7 @@ public:
     void initialize(const PipelineLayoutInfo &info);
     void destroy();
 
-    CC_INLINE const DescriptorSetLayoutList &getSetLayouts() const { return _setLayouts; }
+    inline const DescriptorSetLayoutList &getSetLayouts() const { return _setLayouts; }
 
 protected:
     virtual void doInit(const PipelineLayoutInfo &info) = 0;

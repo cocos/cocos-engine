@@ -26,65 +26,65 @@
 #pragma once
 
 #include "Define.h"
+#include "scene/Model.h"
+#include "scene/Pass.h"
+#include "scene/SubModel.h"
 
 namespace cc {
 namespace gfx {
 class Device;
 }
 namespace pipeline {
-struct ModelView;
-struct SubModelView;
-struct PassView;
-struct InstancedAttributeBlock;
 struct PSOInfo;
 
 #if defined(INITIAL_CAPACITY)
-#undef INITIAL_CAPACITY
+    #undef INITIAL_CAPACITY
 #endif
 
 struct CC_DLL InstancedItem {
-    uint count = 0;
-    uint capacity = 0;
-    gfx::Buffer *vb = nullptr;
-    uint8_t *data = nullptr;
-    gfx::InputAssembler *ia = nullptr;
-    uint stride = 0;
-    gfx::Shader *shader = nullptr;
-    gfx::DescriptorSet *descriptorSet = nullptr;
-    gfx::Texture *lightingMap = nullptr;
+    uint                 count         = 0;
+    uint                 capacity      = 0;
+    gfx::Buffer *        vb            = nullptr;
+    uint8_t *            data          = nullptr;
+    gfx::InputAssembler *ia            = nullptr;
+    uint                 stride        = 0;
+    gfx::Shader *        shader        = nullptr;
+    gfx::DescriptorSet * descriptorSet = nullptr;
+    gfx::Texture *       lightingMap   = nullptr;
 };
 using InstancedItemList = vector<InstancedItem>;
 using DynamicOffsetList = vector<uint>;
 
 class InstancedBuffer : public Object {
 public:
-    static constexpr uint INITIAL_CAPACITY = 32;
-    static constexpr uint MAX_CAPACITY = 1024;
-    static InstancedBuffer *get(uint pass);
-    static InstancedBuffer *get(uint pass, uint extraKey);
+    static constexpr uint   INITIAL_CAPACITY = 32;
+    static constexpr uint   MAX_CAPACITY     = 1024;
+    static InstancedBuffer *get(scene::Pass *pass);
+    static InstancedBuffer *get(scene::Pass *, uint extraKey);
+    static void             destroyInstancedBuffer();
 
-    explicit InstancedBuffer(const PassView *pass);
+    explicit InstancedBuffer(const scene::Pass *pass);
     ~InstancedBuffer() override;
 
     void destroy();
-    void merge(const ModelView *, const SubModelView *, uint);
-    void merge(const ModelView *, const SubModelView *, uint, gfx::Shader *);
+    void merge(const scene::Model *, const scene::SubModel *, uint);
+    void merge(const scene::Model *, const scene::SubModel *, uint, gfx::Shader *);
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void clear();
     void setDynamicOffset(uint idx, uint value);
 
-    CC_INLINE const InstancedItemList &getInstances() const { return _instances; }
-    CC_INLINE const PassView *getPass() const { return _pass; }
-    CC_INLINE bool hasPendingModels() const { return _hasPendingModels; }
-    CC_INLINE const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
+    inline const InstancedItemList &getInstances() const { return _instances; }
+    inline const scene::Pass *      getPass() const { return _pass; }
+    inline bool                     hasPendingModels() const { return _hasPendingModels; }
+    inline const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
-    static map<uint, map<uint, InstancedBuffer *>> buffers;
-    InstancedItemList _instances;
-    const PassView *_pass = nullptr;
-    bool _hasPendingModels = false;
-    DynamicOffsetList _dynamicOffsets;
-    gfx::Device *_device = nullptr;
+    static map<scene::Pass *, map<uint, InstancedBuffer *>> buffers;
+    InstancedItemList                                       _instances;
+    const scene::Pass *                                     _pass             = nullptr;
+    bool                                                    _hasPendingModels = false;
+    DynamicOffsetList                                       _dynamicOffsets;
+    gfx::Device *                                           _device = nullptr;
 };
 
 } // namespace pipeline

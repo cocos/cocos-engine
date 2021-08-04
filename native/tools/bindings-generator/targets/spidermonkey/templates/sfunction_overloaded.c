@@ -1,6 +1,6 @@
 ## ===== static function implementation template - for overloaded functions
 
-static bool ${signature_name}(se::State& s)
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -45,7 +45,7 @@ static bool ${signature_name}(se::State& s)
             #set $arg_list = ", ".join($arg_array)
             #if str($func.ret_type) != "void"
                 #if $func.ret_type.is_enum
-            $ret_type.enum_declare_type result = ($ret_type.enum_declare_type)${namespaced_class_name}::${func.func_name}($arg_list);
+            auto result = static_cast<$ret_type.enum_declare_type>(${namespaced_class_name}::${func.func_name}($arg_list));
                 #else
             ${func.ret_type.get_whole_name($generator)} result = ${namespaced_class_name}::${func.func_name}($arg_list);
                 #end if

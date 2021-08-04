@@ -26,23 +26,33 @@
 #pragma once
 
 #include "base/Agent.h"
+#include "base/threading/MessageQueue.h"
 #include "gfx-base/GFXBuffer.h"
 
 namespace cc {
+
+class ThreadSafeLinearAllocator;
+
 namespace gfx {
 
 class CC_DLL BufferAgent final : public Agent<Buffer> {
 public:
-    using Agent::Agent;
+    explicit BufferAgent(Buffer *actor);
     ~BufferAgent() override;
 
     void update(const void *buffer, uint size) override;
 
-protected:
+    static void getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint size, uint8_t **pActorBuffer, bool *pNeedFreeing);
+
+private:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doResize(uint size, uint count) override;
     void doDestroy() override;
+
+    static constexpr uint STAGING_BUFFER_THRESHOLD = MessageQueue::MEMORY_CHUNK_SIZE / 2;
+
+    vector<uint8_t *> _stagingBuffers;
 };
 
 } // namespace gfx

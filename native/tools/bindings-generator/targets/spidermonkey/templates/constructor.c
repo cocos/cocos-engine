@@ -2,13 +2,15 @@
 
 SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 
-static bool ${signature_name}(se::State& s) // constructor.c
-{
 #if $is_skip_constructor
+static bool ${signature_name}(se::State& /*s*/) // NOLINT(readability-identifier-naming) constructor.c
+{
     //#3 ${namespaced_class_name}: is_skip_construtor ${is_skip_constructor}
     se::ScriptEngine::getInstance()->evalString("throw new Error(\"${namespaced_class_name} constructor is skipped\")");
     return false;
 #else
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
 #if len($arguments) >= $min_args
     #set arg_count = len($arguments)
     #set arg_idx = $min_args

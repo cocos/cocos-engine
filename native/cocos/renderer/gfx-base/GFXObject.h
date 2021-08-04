@@ -33,13 +33,24 @@ namespace gfx {
 
 class GFXObject : public Object {
 public:
-    GFXObject(ObjectType Type);
-    virtual ~GFXObject() = default;
+    explicit GFXObject(ObjectType type);
+    ~GFXObject() override = default;
 
-    CC_INLINE ObjectType getType() const { return _Type; }
+    inline ObjectType getObjectType() const { return _objectType; }
+    inline uint       getObjectID() const { return _objectID; }
+    inline uint       getTypedID() const { return _typedID; }
 
 protected:
-    ObjectType _Type = ObjectType::UNKNOWN;
+    template <typename T>
+    static uint generateObjectID() noexcept {
+        static uint generator = 1 << 16;
+        return ++generator;
+    }
+
+    ObjectType _objectType = ObjectType::UNKNOWN;
+    uint       _objectID   = 0U;
+
+    uint _typedID = 0U; // inited by sub-classes
 };
 
 } // namespace gfx

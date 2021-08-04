@@ -27,10 +27,14 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#include "base/TypeDef.h"
+#include <cerrno>
 #include <string>
 #include <vector>
+#include "base/Macros.h"
+#include "base/TypeDef.h"
+/** @file ccUtils.h
+Misc free functions
+*/
 
 namespace cc {
 namespace utils {

@@ -25,7 +25,6 @@
 
 #include "base/CoreStd.h"
 #include "base/job-system/JobSystem.h"
-#include "base/threading/MessageQueue.h"
 
 #include "BufferValidator.h"
 #include "CommandBufferValidator.h"
@@ -47,7 +46,14 @@ CommandBufferValidator::~CommandBufferValidator() {
     CC_SAFE_DELETE(_actor);
 }
 
+void CommandBufferValidator::initValidator() {
+    size_t descriptorSetCount = DeviceValidator::getInstance()->bindingMappingInfo().bufferOffsets.size();
+    _curStates.descriptorSets.resize(descriptorSetCount);
+    _curStates.dynamicOffsets.resize(descriptorSetCount);
+}
+
 void CommandBufferValidator::doInit(const CommandBufferInfo &info) {
+    initValidator();
 
     /////////// execute ///////////
 
@@ -62,12 +68,14 @@ void CommandBufferValidator::doDestroy() {
 }
 
 void CommandBufferValidator::begin(RenderPass *renderPass, uint subpass, Framebuffer *framebuffer) {
-    CCASSERT(!_insideRenderPass, "Already inside an render pass?");
+    CCASSERT(!_insideRenderPass, "Already inside a render pass?");
     CCASSERT(_type != CommandBufferType::PRIMARY || !renderPass, "Primary command buffer cannot inherit render passes");
 
     // secondary command buffers enter the render pass right here
     _insideRenderPass = !!renderPass;
     _commandsFlushed  = false;
+
+    _recorder.clear();
 
     /////////// execute ///////////
 
@@ -78,7 +86,7 @@ void CommandBufferValidator::begin(RenderPass *renderPass, uint subpass, Framebu
 }
 
 void CommandBufferValidator::end() {
-    CCASSERT(_type != CommandBufferType::PRIMARY || !_insideRenderPass, "Still inside an render pass?");
+    CCASSERT(_type != CommandBufferType::PRIMARY || !_insideRenderPass, "Still inside a render pass?");
     _insideRenderPass = false;
 
     /////////// execute ///////////
@@ -86,18 +94,33 @@ void CommandBufferValidator::end() {
     _actor->end();
 }
 
-void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
     CCASSERT(renderPass, "invalid render pass");
     CCASSERT(fbo, "invalid framebuffer");
 
     CCASSERT(_type == CommandBufferType::PRIMARY, "Command 'endRenderPass' must be recorded in primary command buffers.");
-    CCASSERT(!_insideRenderPass, "Already inside an render pass?");
+    CCASSERT(!_insideRenderPass, "Already inside a render pass?");
     _insideRenderPass = true;
+    _curSubpass       = 0U;
+
+    _curStates.renderPass   = renderPass;
+    _curStates.framebuffer  = fbo;
+    _curStates.renderArea   = renderArea;
+    _curStates.clearDepth   = depth;
+    _curStates.clearStencil = stencil;
+    size_t clearColorCount  = renderPass->getColorAttachments().size();
+    if (clearColorCount) {
+        _curStates.clearColors.assign(colors, colors + clearColorCount);
+    }
+
+    if (DeviceValidator::getInstance()->isRecording()) {
+        _recorder.recordBeginRenderPass(_curStates);
+    }
+
+    /////////// execute ///////////
 
     static vector<CommandBuffer *> secondaryCBActors;
     secondaryCBActors.resize(secondaryCBCount);
-
-    /////////// execute ///////////
 
     RenderPass * renderPassActor  = renderPass ? static_cast<RenderPassValidator *>(renderPass)->getActor() : nullptr;
     Framebuffer *framebufferActor = fbo ? static_cast<FramebufferValidator *>(fbo)->getActor() : nullptr;
@@ -113,10 +136,22 @@ void CommandBufferValidator::beginRenderPass(RenderPass *renderPass, Framebuffer
     _actor->beginRenderPass(renderPassActor, framebufferActor, renderArea, colors, depth, stencil, actorSecondaryCBs, secondaryCBCount);
 }
 
+void CommandBufferValidator::nextSubpass() {
+    ++_curSubpass;
+
+    /////////// execute ///////////
+
+    _actor->nextSubpass();
+}
+
 void CommandBufferValidator::endRenderPass() {
     CCASSERT(_type == CommandBufferType::PRIMARY, "Command 'endRenderPass' must be recorded in primary command buffers.");
     CCASSERT(_insideRenderPass, "No render pass to end?");
     _insideRenderPass = false;
+
+    if (DeviceValidator::getInstance()->isRecording()) {
+        _recorder.recordEndRenderPass();
+    }
 
     /////////// execute ///////////
 
@@ -140,55 +175,119 @@ void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t co
 }
 
 void CommandBufferValidator::bindPipelineState(PipelineState *pso) {
+    _curStates.pipelineState = pso;
+
+    /////////// execute ///////////
+
     _actor->bindPipelineState(static_cast<PipelineStateValidator *>(pso)->getActor());
 }
 
 void CommandBufferValidator::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
+    CCASSERT(set < DeviceValidator::getInstance()->bindingMappingInfo().bufferOffsets.size(), "invalid set index");
+    CCASSERT(descriptorSet, "invalid descriptor set");
+    //CCASSERT(descriptorSet->getLayout()->getDynamicBindings().size() == dynamicOffsetCount, "wrong number of dynamic offsets"); // be more lenient on this
+
+    _curStates.descriptorSets[set] = descriptorSet;
+    _curStates.dynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
+
+    /////////// execute ///////////
+
     _actor->bindDescriptorSet(set, static_cast<DescriptorSetValidator *>(descriptorSet)->getActor(), dynamicOffsetCount, dynamicOffsets);
 }
 
 void CommandBufferValidator::bindInputAssembler(InputAssembler *ia) {
+    _curStates.inputAssembler = ia;
+
+    /////////// execute ///////////
+
     _actor->bindInputAssembler(static_cast<InputAssemblerValidator *>(ia)->getActor());
 }
 
 void CommandBufferValidator::setViewport(const Viewport &vp) {
+    _curStates.viewport = vp;
+
+    /////////// execute ///////////
+
     _actor->setViewport(vp);
 }
 
 void CommandBufferValidator::setScissor(const Rect &rect) {
+    _curStates.scissor = rect;
+
+    /////////// execute ///////////
+
     _actor->setScissor(rect);
 }
 
 void CommandBufferValidator::setLineWidth(float width) {
+    _curStates.lineWidth = width;
+
+    /////////// execute ///////////
+
     _actor->setLineWidth(width);
 }
 
 void CommandBufferValidator::setDepthBias(float constant, float clamp, float slope) {
+    _curStates.depthBiasConstant = constant;
+    _curStates.depthBiasClamp    = clamp;
+    _curStates.depthBiasSlope    = slope;
+
+    /////////// execute ///////////
+
     _actor->setDepthBias(constant, clamp, slope);
 }
 
 void CommandBufferValidator::setBlendConstants(const Color &constants) {
+    _curStates.blendConstant = constants;
+
+    /////////// execute ///////////
+
     _actor->setBlendConstants(constants);
 }
 
 void CommandBufferValidator::setDepthBound(float minBounds, float maxBounds) {
+    _curStates.depthMinBounds = minBounds;
+    _curStates.depthMaxBounds = maxBounds;
+
+    /////////// execute ///////////
+
     _actor->setDepthBound(minBounds, maxBounds);
 }
 
 void CommandBufferValidator::setStencilWriteMask(StencilFace face, uint mask) {
+    if (hasFlag(face, StencilFace::FRONT)) {
+        _curStates.stencilStatesFront.writeMask = mask;
+    }
+    if (hasFlag(face, StencilFace::BACK)) {
+        _curStates.stencilStatesBack.writeMask = mask;
+    }
+
+    /////////// execute ///////////
+
     _actor->setStencilWriteMask(face, mask);
 }
 
-void CommandBufferValidator::setStencilCompareMask(StencilFace face, int ref, uint mask) {
-    _actor->setStencilCompareMask(face, ref, mask);
-}
+void CommandBufferValidator::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
+    if (hasFlag(face, StencilFace::FRONT)) {
+        _curStates.stencilStatesFront.reference   = ref;
+        _curStates.stencilStatesFront.compareMask = mask;
+    }
+    if (hasFlag(face, StencilFace::BACK)) {
+        _curStates.stencilStatesBack.reference   = ref;
+        _curStates.stencilStatesBack.compareMask = mask;
+    }
 
-void CommandBufferValidator::nextSubpass() {
-    _actor->nextSubpass();
+    /////////// execute ///////////
+
+    _actor->setStencilCompareMask(face, ref, mask);
 }
 
 void CommandBufferValidator::draw(const DrawInfo &info) {
     CCASSERT(_insideRenderPass, "Command 'draw' must be recorded inside render passes.");
+
+    if (DeviceValidator::getInstance()->isRecording()) {
+        _recorder.recordDrawcall(_curStates);
+    }
 
     /////////// execute ///////////
 
@@ -200,7 +299,7 @@ void CommandBufferValidator::updateBuffer(Buffer *buff, const void *data, uint s
     CCASSERT(!_insideRenderPass, "Command 'updateBuffer' must be recorded outside render passes.");
 
     auto *bufferValidator = static_cast<BufferValidator *>(buff);
-    bufferValidator->updateRedundencyCheck();
+    bufferValidator->sanityCheck(data, size);
 
     /////////// execute ///////////
 
@@ -212,7 +311,7 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
     CCASSERT(!_insideRenderPass, "Command 'copyBuffersToTexture' must be recorded outside render passes.");
 
     auto *textureValidator = static_cast<TextureValidator *>(texture);
-    textureValidator->updateRedundencyCheck();
+    textureValidator->sanityCheck();
 
     /////////// execute ///////////
 
@@ -244,7 +343,6 @@ void CommandBufferValidator::dispatch(const DispatchInfo &info) {
 }
 
 void CommandBufferValidator::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
-
     /////////// execute ///////////
 
     static vector<Texture *> textureActors;

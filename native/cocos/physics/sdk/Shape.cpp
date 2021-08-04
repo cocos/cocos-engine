@@ -23,9 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/PhysicsSelector.h"
 #include "physics/sdk/Shape.h"
-
+#include "physics/PhysicsSelector.h"
 
 #define CC_PHYSICS_SHAPE_DEFINITION(CLASS, WRAPPED)                  \
                                                                      \
@@ -41,8 +40,8 @@
         return _impl->getImpl();                                     \
     }                                                                \
                                                                      \
-    void CLASS::initialize(uint uuid) {                              \
-        _impl->initialize(uuid);                                     \
+    void CLASS::initialize(scene::Node* node) {                      \
+        _impl->initialize(node);                                     \
     }                                                                \
                                                                      \
     void CLASS::onEnable() {                                         \
@@ -90,11 +89,11 @@
         _impl->updateEventListener(v);                               \
     }                                                                \
                                                                      \
-    cc::pipeline::AABB& CLASS::getAABB() {                           \
+    scene::AABB& CLASS::getAABB() {                                  \
         return _impl->getAABB();                                     \
     }                                                                \
                                                                      \
-    cc::pipeline::Sphere& CLASS::getBoundingSphere() {               \
+    scene::Sphere& CLASS::getBoundingSphere() {                      \
         return _impl->getBoundingSphere();                           \
     }
 

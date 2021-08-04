@@ -24,31 +24,33 @@
 ****************************************************************************/
 
 #include "View-win32.h"
-#include "base/Log.h"
 #include <unordered_map>
+#include "base/Log.h"
 
 using namespace cc;
 
 namespace {
 
 std::unordered_map<int, KeyCode> gKeyMap = {
-    {SDLK_ESCAPE, KeyCode::Escape}, {SDLK_MINUS, KeyCode::Minus}, {SDLK_LSHIFT, KeyCode::ShiftLeft}, {SDLK_RSHIFT, KeyCode::ShiftRight}, {SDLK_EQUALS, KeyCode::Equal}, {SDLK_BACKSLASH, KeyCode::Backslash}, {SDLK_BACKQUOTE, KeyCode::Backquote}, {SDLK_BACKSPACE, KeyCode::Backspace}, {SDLK_RETURN, KeyCode::Enter}, {SDLK_RETURN2, KeyCode::Enter}, {SDLK_LEFTBRACKET, KeyCode::BracketLeft}, {SDLK_RIGHTBRACKET, KeyCode::BracketRight}, {SDLK_SEMICOLON, KeyCode::Semicolon}, {SDLK_QUOTE, KeyCode::Quote}, {SDLK_TAB, KeyCode::Tab}, {SDLK_LCTRL, KeyCode::ControlLeft}, {SDLK_RCTRL, KeyCode::ControlRight}, {SDLK_LALT, KeyCode::AltLeft}, {SDLK_RALT, KeyCode::AltRight}, {SDLK_LEFT, KeyCode::ArrowLeft}, {SDLK_RIGHT, KeyCode::ArrowRight}, {SDLK_UP, KeyCode::ArrowUp}, {SDLK_DOWN, KeyCode::ArrowDown}, {SDLK_KP_ENTER, KeyCode::NumpadEnter}, {SDLK_KP_PLUS, KeyCode::NumpadPlus}, {SDLK_KP_MULTIPLY, KeyCode::NumpadMultiply}, {SDLK_KP_DIVIDE, KeyCode::NumpadDivide}, {SDLK_KP_MINUS, KeyCode::NumpadMinus}, {SDLK_KP_PERIOD, KeyCode::NumpadDecimal}, {SDLK_KP_BACKSPACE, KeyCode::Backspace}, {SDLK_NUMLOCKCLEAR, KeyCode::NumLock}, {SDLK_HOME, KeyCode::Home}, {SDLK_PAGEUP, KeyCode::PageUp}, {SDLK_PAGEDOWN, KeyCode::PageDown}, {SDLK_END, KeyCode::End}, {SDLK_COMMA, KeyCode::Comma}, {SDLK_PERIOD, KeyCode::Period}, {SDLK_SLASH, KeyCode::Slash}, {SDLK_SPACE, KeyCode::Space}, {SDLK_DELETE, KeyCode::Delete}, {SDLK_CAPSLOCK, KeyCode::CapsLock}, {SDLK_KP_0, KeyCode::NUMPAD_0}, {SDLK_KP_1, KeyCode::NUMPAD_1}, {SDLK_KP_2, KeyCode::NUMPAD_2}, {SDLK_KP_3, KeyCode::NUMPAD_3}, {SDLK_KP_4, KeyCode::NUMPAD_4}, {SDLK_KP_5, KeyCode::NUMPAD_5}, {SDLK_KP_6, KeyCode::NUMPAD_6}, {SDLK_KP_7, KeyCode::NUMPAD_7}, {SDLK_KP_8, KeyCode::NUMPAD_8}, {SDLK_KP_9, KeyCode::NUMPAD_9}};
+    {SDLK_APPLICATION, KeyCode::CONTEXT_MENU}, {SDLK_SCROLLLOCK, KeyCode::SCROLLLOCK}, {SDLK_PAUSE, KeyCode::PAUSE}, {SDLK_PRINTSCREEN, KeyCode::PRINT_SCREEN}, {SDLK_INSERT, KeyCode::INSERT}, {SDLK_ESCAPE, KeyCode::ESCAPE}, {SDLK_MINUS, KeyCode::MINUS}, {SDLK_LSHIFT, KeyCode::SHIFT_LEFT}, {SDLK_RSHIFT, KeyCode::SHIFT_RIGHT}, {SDLK_EQUALS, KeyCode::EQUAL}, {SDLK_BACKSLASH, KeyCode::BACKSLASH}, {SDLK_BACKQUOTE, KeyCode::BACKQUOTE}, {SDLK_BACKSPACE, KeyCode::BACKSPACE}, {SDLK_RETURN, KeyCode::ENTER}, {SDLK_RETURN2, KeyCode::ENTER}, {SDLK_LEFTBRACKET, KeyCode::BRACKET_LEFT}, {SDLK_RIGHTBRACKET, KeyCode::BRACKET_RIGHT}, {SDLK_SEMICOLON, KeyCode::SEMICOLON}, {SDLK_QUOTE, KeyCode::QUOTE}, {SDLK_TAB, KeyCode::TAB}, {SDLK_LCTRL, KeyCode::CONTROL_LEFT}, {SDLK_RCTRL, KeyCode::CONTROL_RIGHT}, {SDLK_LALT, KeyCode::ALT_LEFT}, {SDLK_RALT, KeyCode::ALT_RIGHT}, {SDLK_LEFT, KeyCode::ARROW_LEFT}, {SDLK_RIGHT, KeyCode::ARROW_RIGHT}, {SDLK_UP, KeyCode::ARROW_UP}, {SDLK_DOWN, KeyCode::ARROW_DOWN}, {SDLK_KP_ENTER, KeyCode::NUMPAD_ENTER}, {SDLK_KP_PLUS, KeyCode::NUMPAD_PLUS}, {SDLK_KP_MULTIPLY, KeyCode::NUMPAD_MULTIPLY}, {SDLK_KP_DIVIDE, KeyCode::NUMPAD_DIVIDE}, {SDLK_KP_MINUS, KeyCode::NUMPAD_MINUS}, {SDLK_KP_PERIOD, KeyCode::NUMPAD_DECIMAL}, {SDLK_KP_BACKSPACE, KeyCode::BACKSPACE}, {SDLK_NUMLOCKCLEAR, KeyCode::NUM_LOCK}, {SDLK_HOME, KeyCode::HOME}, {SDLK_PAGEUP, KeyCode::PAGE_UP}, {SDLK_PAGEDOWN, KeyCode::PAGE_DOWN}, {SDLK_END, KeyCode::END}, {SDLK_COMMA, KeyCode::COMMA}, {SDLK_PERIOD, KeyCode::PERIOD}, {SDLK_SLASH, KeyCode::SLASH}, {SDLK_SPACE, KeyCode::SPACE}, {SDLK_DELETE, KeyCode::DELETE_KEY}, {SDLK_CAPSLOCK, KeyCode::CAPS_LOCK}, {SDLK_KP_0, KeyCode::NUMPAD_0}, {SDLK_KP_1, KeyCode::NUMPAD_1}, {SDLK_KP_2, KeyCode::NUMPAD_2}, {SDLK_KP_3, KeyCode::NUMPAD_3}, {SDLK_KP_4, KeyCode::NUMPAD_4}, {SDLK_KP_5, KeyCode::NUMPAD_5}, {SDLK_KP_6, KeyCode::NUMPAD_6}, {SDLK_KP_7, KeyCode::NUMPAD_7}, {SDLK_KP_8, KeyCode::NUMPAD_8}, {SDLK_KP_9, KeyCode::NUMPAD_9}};
 
-int sdl_keycode_to_cocos_code(int code_, int mode) {
-
+int sdlKeycodeToCocosCode(int code_, int mode) {
     auto it = gKeyMap.find(code_);
     if (it != gKeyMap.end()) {
         return static_cast<int>(it->second);
     }
-
-    int code = code_ & (~(1 << 30));
-    //F1 ~ F12
-    if (code >= SDLK_F1 && code <= SDLK_F12) {
-        return 112 + (code - SDLK_F1);
-    } else if (code >= SDLK_a && code <= SDLK_z) {
-        return 'A' + (code - SDLK_a);
+    
+    if (code_ >= SDLK_F1 && code_ <= SDLK_F12) {
+        // F1 ~ F12
+        return 112 + (code_ - SDLK_F1);
+    } else {
+        int code = code_ & (~(1 << 30));
+        if (code >= SDLK_a && code <= SDLK_z) {
+            return 'A' + (code - SDLK_a);
+        } else {
+            return code;
+        }
     }
-    return code;
 }
 } // namespace
 
@@ -90,7 +92,7 @@ bool View::init() {
     return true;
 }
 
-bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
+bool View::pollEvent(bool *quit, bool *resume, bool *pause, bool *close) {
     int cnt = SDL_PollEvent(&sdlEvent);
     if (cnt == 0) return false;
     cc::TouchEvent    touch;
@@ -110,6 +112,8 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
                     break;
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
                 case SDL_WINDOWEVENT_RESIZED:
+                    this->_width = wevent.data1;
+                    this->_height = wevent.data2;
                     cc::EventDispatcher::dispatchResizeEvent(wevent.data1, wevent.data2);
                     break;
                 case SDL_WINDOWEVENT_HIDDEN:
@@ -119,6 +123,9 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
                 case SDL_WINDOWEVENT_ENTER:
                     SDL_CaptureMouse(SDL_TRUE);
                     break;
+                case SDL_WINDOWEVENT_CLOSE:
+                    *close = true;
+                    break;
             }
             break;
         }
@@ -127,6 +134,9 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
             mouse.type                  = MouseEvent::Type::DOWN;
             mouse.x                     = static_cast<float>(event.x);
             mouse.y                     = static_cast<float>(event.y);
+            if (0 > mouse.x || mouse.x > this->_width || 0 > mouse.y || mouse.y > this->_height) {
+                break;
+            }
             mouse.button                = event.button - 1;
             cc::EventDispatcher::dispatchMouseEvent(mouse);
             break;
@@ -183,7 +193,7 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
             SDL_KeyboardEvent &event = sdlEvent.key;
             auto               mode  = event.keysym.mod;
             keyboard.action          = KeyboardEvent::Action::PRESS;
-            keyboard.key             = sdl_keycode_to_cocos_code(event.keysym.sym, mode);
+            keyboard.key             = sdlKeycodeToCocosCode(event.keysym.sym, mode);
             keyboard.altKeyActive    = mode & KMOD_ALT;
             keyboard.ctrlKeyActive   = mode & KMOD_CTRL;
             keyboard.shiftKeyActive  = mode & KMOD_SHIFT;
@@ -195,7 +205,7 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause) {
             SDL_KeyboardEvent &event = sdlEvent.key;
             auto               mode  = event.keysym.mod;
             keyboard.action          = KeyboardEvent::Action::RELEASE;
-            keyboard.key             = sdl_keycode_to_cocos_code(event.keysym.sym, mode);
+            keyboard.key             = sdlKeycodeToCocosCode(event.keysym.sym, mode);
             keyboard.altKeyActive    = mode & KMOD_ALT;
             keyboard.ctrlKeyActive   = mode & KMOD_CTRL;
             keyboard.shiftKeyActive  = mode & KMOD_SHIFT;

@@ -33,7 +33,9 @@
 namespace cc {
 namespace gfx {
 
-GLES3Queue::GLES3Queue() = default;
+GLES3Queue::GLES3Queue() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3Queue::~GLES3Queue() {
     destroy();

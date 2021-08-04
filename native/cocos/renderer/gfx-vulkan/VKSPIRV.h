@@ -25,15 +25,17 @@
 
 #pragma once
 
-#include "glslang/SPIRV/GlslangToSpv.h"
-#include "glslang/Public/ShaderLang.h"
+#include "base/Log.h"
+#include "gfx-base/GFXDef.h"
+
 #include "StandAlone/ResourceLimits.h"
+#include "glslang/Public/ShaderLang.h"
+#include "glslang/SPIRV/GlslangToSpv.h"
 
 namespace cc {
 namespace gfx {
 
-namespace {
-EShLanguage getShaderStage(ShaderStageFlagBit type) {
+inline EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
         case ShaderStageFlagBit::VERTEX: return EShLangVertex;
         case ShaderStageFlagBit::CONTROL: return EShLangTessControl;
@@ -48,7 +50,7 @@ EShLanguage getShaderStage(ShaderStageFlagBit type) {
     }
 }
 
-glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
+inline glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
     switch (vulkanMinorVersion) {
         case 0: return glslang::EShTargetVulkan_1_0;
         case 1: return glslang::EShTargetVulkan_1_1;
@@ -60,7 +62,7 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
     }
 }
 
-glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
+inline glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
     switch (vulkanMinorVersion) {
         case 0: return glslang::EShTargetSpv_1_0;
         case 1: return glslang::EShTargetSpv_1_3;
@@ -72,28 +74,28 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
     }
 }
 
-bool glslangInitialized = false;
+inline bool glslangInitialized = false;
 
-const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &source, int vulkanMinorVersion = 0) {
+inline vector<unsigned int> glsl2spirv(ShaderStageFlagBit type, const String &source, int vulkanMinorVersion = 0) {
     if (!glslangInitialized) {
         glslang::InitializeProcess();
         glslangInitialized = true;
     }
 
-    EShLanguage stage = getShaderStage(type);
-    const char *string = source.c_str();
+    EShLanguage      stage  = getShaderStage(type);
+    const char *     string = source.c_str();
     glslang::TShader shader(stage);
     shader.setStrings(&string, 1);
 
-    int clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10;
-    glslang::EShTargetClientVersion clientVersion = getClientVersion(vulkanMinorVersion);
-    glslang::EShTargetLanguageVersion targetVersion = getTargetVersion(vulkanMinorVersion);
+    int                               clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10;
+    glslang::EShTargetClientVersion   clientVersion               = getClientVersion(vulkanMinorVersion);
+    glslang::EShTargetLanguageVersion targetVersion               = getTargetVersion(vulkanMinorVersion);
 
     shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, clientInputSemanticsVersion);
     shader.setEnvClient(glslang::EShClientVulkan, clientVersion);
     shader.setEnvTarget(glslang::EShTargetSpv, targetVersion);
 
-    EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+    auto messages = static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
 
     if (!shader.parse(&glslang::DefaultTBuiltInResource, clientInputSemanticsVersion, false, messages)) {
         CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", shader.getInfoLog(), shader.getInfoDebugLog());
@@ -107,14 +109,12 @@ const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &sou
     }
 
     vector<unsigned int> spirv;
-    spv::SpvBuildLogger logger;
-    glslang::SpvOptions spvOptions;
+    spv::SpvBuildLogger  logger;
+    glslang::SpvOptions  spvOptions;
     glslang::GlslangToSpv(*program.getIntermediate(stage), spirv, &logger, &spvOptions);
 
     return spirv;
 }
-
-} // namespace
 
 } // namespace gfx
 } // namespace cc

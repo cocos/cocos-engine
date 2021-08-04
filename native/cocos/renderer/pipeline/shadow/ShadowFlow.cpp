@@ -26,16 +26,17 @@
 #include "ShadowFlow.h"
 
 #include "../Define.h"
+#include "../SceneCulling.h"
 #include "../forward/ForwardPipeline.h"
-#include "../helper/SharedMemory.h"
 #include "ShadowStage.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXRenderPass.h"
 #include "gfx-base/GFXTexture.h"
-#include "../SceneCulling.h"
 
 namespace cc::pipeline {
+std::unordered_map<uint, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
+
 RenderFlowInfo ShadowFlow::initInfo = {
     "ShadowFlow",
     static_cast<uint>(ForwardFlowPriority::SHADOW),
@@ -61,16 +62,20 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void ShadowFlow::render(Camera *camera) {
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
-    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
+void ShadowFlow::render(scene::Camera *camera) {
+    const auto *sceneData  = _pipeline->getPipelineSceneData();
+    auto *      shadowInfo = sceneData->getSharedData()->shadow;
+    if (!shadowInfo->enabled || shadowInfo->shadowType != scene::ShadowType::SHADOWMAP) return;
 
-    lightCollecting(camera, _validLights);
+    lightCollecting(camera, &_validLights);
 
     if (sceneData->getShadowObjects().empty()) {
         clearShadowMap(camera);
         return;
+    }
+
+    if (shadowInfo->shadowMapDirty) {
+        resizeShadowMap(&shadowInfo);
     }
 
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
@@ -80,9 +85,7 @@ void ShadowFlow::render(Camera *camera) {
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
-        if (shadowInfo->shadowMapDirty) {
-            resizeShadowMap(light, shadowInfo);
-        }
+
         for (auto *stage : _stages) {
             auto *shadowStage = dynamic_cast<ShadowStage *>(stage);
             shadowStage->setUseData(light, shadowFrameBuffer);
@@ -95,8 +98,8 @@ void ShadowFlow::render(Camera *camera) {
     _pipeline->getPipelineUBO()->updateShadowUBO(camera);
 }
 
-void ShadowFlow::clearShadowMap(Camera *camera) {
-    auto *sceneData = _pipeline->getPipelineSceneData();
+void ShadowFlow::clearShadowMap(scene::Camera *camera) {
+    auto *      sceneData            = _pipeline->getPipelineSceneData();
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
         if (!shadowFramebufferMap.count(light)) {
@@ -112,20 +115,18 @@ void ShadowFlow::clearShadowMap(Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo){
-    auto *sceneData = _pipeline->getPipelineSceneData();
+void ShadowFlow::resizeShadowMap(scene::Shadow **shadowInfo) {
+    auto *     sceneData = _pipeline->getPipelineSceneData();
     auto *     device    = gfx::Device::getInstance();
-    const auto width     = static_cast<uint>(shadowInfo->size.x);
-    const auto height    = static_cast<uint>(shadowInfo->size.y);
-    const auto format    = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
-                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
-                            : gfx::Format::RGBA8;
+    const auto width     = static_cast<uint>((*shadowInfo)->size.x);
+    const auto height    = static_cast<uint>((*shadowInfo)->size.y);
+    const auto format    = supportsHalfFloatTexture(device) ? gfx::Format::R16F : gfx::Format::RGBA8;
 
-    if (sceneData->getShadowFramebufferMap().count(light)) {
-        auto *framebuffer = sceneData->getShadowFramebufferMap().at(light);
+    for (const auto &pair : sceneData->getShadowFramebufferMap()) {
+        gfx::Framebuffer *framebuffer = pair.second;
 
         if (!framebuffer) {
-            return;
+            continue;
         }
 
         auto renderTargets = framebuffer->getColorTextures();
@@ -160,47 +161,52 @@ void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo){
             _renderPass,
             renderTargets,
             depth,
-            {},
         });
     }
+
+    (*shadowInfo)->shadowMapDirty = false;
 }
 
-void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light) {
+void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light) {
     auto *      device        = gfx::Device::getInstance();
     const auto *sceneData     = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo    = sceneData->getSharedData()->getShadows();
+    const auto *shadowInfo    = sceneData->getSharedData()->shadow;
     const auto  shadowMapSize = shadowInfo->size;
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
-    const auto  format        = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
-                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
-                            : gfx::Format::RGBA8;
+    const auto  format        = supportsHalfFloatTexture(device) ? gfx::Format::R16F : gfx::Format::RGBA8;
+    
+    const gfx::ColorAttachment colorAttachment = {
+        format,
+        gfx::SampleCount::X1,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::STORE,
+        {},
+        {},
+    };
 
-    if (!_renderPass) {
-        const gfx::ColorAttachment colorAttachment = {
-            format,
-            gfx::SampleCount::X1,
-            gfx::LoadOp::CLEAR,
-            gfx::StoreOp::STORE,
-            {},
-            {},
-        };
+    const gfx::DepthStencilAttachment depthStencilAttachment = {
+        device->getDepthStencilFormat(),
+        gfx::SampleCount::X1,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::DISCARD,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::DISCARD,
+        {},
+        {},
+    };
 
-        const gfx::DepthStencilAttachment depthStencilAttachment = {
-            device->getDepthStencilFormat(),
-            gfx::SampleCount::X1,
-            gfx::LoadOp::CLEAR,
-            gfx::StoreOp::DISCARD,
-            gfx::LoadOp::CLEAR,
-            gfx::StoreOp::DISCARD,
-            {},
-            {},
-        };
+    gfx::RenderPassInfo rpInfo;
+    rpInfo.colorAttachments.emplace_back(colorAttachment);
+    rpInfo.depthStencilAttachment = depthStencilAttachment;
 
-        gfx::RenderPassInfo rpInfo;
-        rpInfo.colorAttachments.emplace_back(colorAttachment);
-        rpInfo.depthStencilAttachment = depthStencilAttachment;
-        _renderPass                   = device->createRenderPass(rpInfo);
+    uint rpHash = cc::gfx::RenderPass::computeHash(rpInfo);
+    auto iter   = renderPassHashMap.find(rpHash);
+    if (iter != renderPassHashMap.end()) {
+        _renderPass = iter->second;
+    } else {
+        _renderPass = device->createRenderPass(rpInfo);
+        renderPassHashMap.insert({rpHash, _renderPass});
     }
 
     vector<gfx::Texture *> renderTargets;
@@ -217,7 +223,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
 
     gfx::Texture *depth = device->createTexture({
         gfx::TextureType::TEX2D,
-        gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
+        gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         device->getDepthStencilFormat(),
         width,
         height,
@@ -228,20 +234,20 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
         _renderPass,
         renderTargets,
         depth,
-        {}, //colorMipmapLevels
     });
 
     pipeline->getPipelineSceneData()->setShadowFramebuffer(light, framebuffer);
 }
 
 void ShadowFlow::destroy() {
-    if (_renderPass) {
-        _renderPass->destroy();
-        _renderPass = nullptr;
+    for (auto rpPair : renderPassHashMap) {
+        rpPair.second->destroy();
     }
+    renderPassHashMap.clear();
+    CC_SAFE_DESTROY(_renderPass)
 
     for (auto *texture : _usedTextures) {
-        CC_DELETE(texture);
+        CC_SAFE_DESTROY(texture);
     }
     _usedTextures.clear();
 

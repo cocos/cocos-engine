@@ -32,6 +32,7 @@
 #import <Metal/MTLBuffer.h>
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLSampler.h>
+#import "../../base/Utils.h"
 
 namespace cc {
 namespace gfx {
@@ -39,6 +40,10 @@ class CCMTLBuffer;
 class CCMTLTexture;
 class CCMTLSampler;
 class CCMTLShader;
+
+namespace {
+    constexpr size_t MegaBytesToBytes = 1024 * 1024;
+}
 
 class CCMTLGPUDescriptorSetLayout : public Object {
 public:
@@ -77,10 +82,19 @@ struct CCMTLGPUSamplerBlock {
     uint count = 0;
 };
 
+struct CCMTLGPUSubpassAttachment {
+    String name;
+    uint set = INVALID_BINDING;
+    uint binding = INVALID_BINDING;
+};
+
 class CCMTLGPUShader : public Object {
 public:
     unordered_map<uint, CCMTLGPUUniformBlock> blocks;
     unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
+    
+    vector<CCMTLGPUSubpassAttachment> inputs;
+    vector<CCMTLGPUSubpassAttachment> outputs;
 };
 
 struct CCMTLGPUPipelineState {
@@ -129,7 +143,6 @@ public:
     const vector<uint> *descriptorIndices = nullptr;
 };
 
-constexpr size_t chunkSize = 16 * 1024 * 1024; // 16M per block by default
 class CCMTLGPUStagingBufferPool : public Object {
 public:
     CCMTLGPUStagingBufferPool(id<MTLDevice> device)
@@ -151,7 +164,7 @@ public:
         _pool.clear();
     }
 
-    CC_INLINE void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
+    inline void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
     void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
@@ -159,23 +172,29 @@ public:
         for (size_t idx = 0; idx < bufferCount; idx++) {
             auto *cur = &_pool[idx];
             offset = mu::alignUp(cur->curOffset, alignment);
-            if (gpuBuffer->size + offset <= chunkSize) {
+            if (gpuBuffer->size + offset <= [cur->mtlBuffer length]) {
                 buffer = cur;
                 break;
             }
         }
         if (!buffer) {
+            uint mbNeeds = mu::roundUp(gpuBuffer->size, MegaBytesToBytes);
+            mbNeeds = cc::utils::nextPOT(mbNeeds);
+#ifdef CC_DEBUG
+            float realNeeds = gpuBuffer->size / static_cast<float>(MegaBytesToBytes);
+            assert(mbNeeds > realNeeds);
+#endif
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
             if (_tripleEnabled) {
                 for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
                     // Create a new buffer with enough capacity to store one instance of the dynamic buffer data
-                    id<MTLBuffer> dataBuffer = [_device newBufferWithLength:chunkSize options:MTLResourceStorageModeShared];
+                    id<MTLBuffer> dataBuffer = [_device newBufferWithLength:mbNeeds * MegaBytesToBytes options:MTLResourceStorageModeShared];
                     buffer->dynamicDataBuffers[i] = dataBuffer;
                 }
                 buffer->mtlBuffer = buffer->dynamicDataBuffers[0];
             } else {
-                buffer->mtlBuffer = [_device newBufferWithLength:chunkSize options:MTLResourceStorageModeShared];
+                buffer->mtlBuffer = [_device newBufferWithLength:mbNeeds * MegaBytesToBytes options:MTLResourceStorageModeShared];
             }
             buffer->mappedData = (uint8_t *)buffer->mtlBuffer.contents;
             offset = 0;

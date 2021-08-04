@@ -29,7 +29,7 @@
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXShader.h"
-#include "helper/SharedMemory.h"
+#include "scene/SubModel.h"
 
 namespace cc {
 namespace pipeline {
@@ -43,18 +43,19 @@ void RenderQueue::clear() {
 }
 
 bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx) {
-    const auto *const subModelID = renderObj.model->getSubModelID();
-    const auto *const subModel      = cc::pipeline::ModelView::getSubModelView(subModelID[subModelIdx]);
-    const auto *const pass = subModel->getPassView(passIdx);
-    const bool isTransparent = pass->getBlendState()->targets[0].blend;
+    const auto *const subModel      = renderObj.model->getSubModels()[subModelIdx];
+    const auto *const pass          = subModel->getPass(passIdx);
+    const bool        isTransparent = pass->getBlendState()->targets[0].blend;
 
-    if (isTransparent != _passDesc.isTransparent || !(pass->phase & _passDesc.phases)) {
+    if (isTransparent != _passDesc.isTransparent || !(pass->getPhase() & _passDesc.phases)) {
         return false;
     }
 
-    const auto hash = (0 << 30) | (pass->priority << 16) | (subModel->priority << 8) | passIdx;
-    uint shaderID = subModel->shaderID[passIdx];
-    RenderPass renderPass = {hash, renderObj.depth, shaderID, passIdx, subModel};
+    auto       passPriority  = static_cast<uint32_t>(pass->getPriority());
+    auto       modelPriority = static_cast<uint32_t>(subModel->getPriority());
+    auto       shaderId      = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(subModel->getShader(passIdx)));
+    const auto hash          = (0 << 30) | (passPriority << 16) | (modelPriority << 8) | passIdx;
+    RenderPass renderPass    = {hash, renderObj.depth, shaderId, passIdx, subModel};
     _queue.emplace_back(renderPass);
     return true;
 }
@@ -64,13 +65,13 @@ void RenderQueue::sort() {
 }
 
 void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
-    for (auto & i : _queue) {
-        const auto *const subModel = i.subModel;
-        const auto passIdx = i.passIndex;
-        auto *inputAssembler = subModel->getInputAssembler();
+    for (auto &i : _queue) {
+        const auto *const subModel       = i.subModel;
+        const auto        passIdx        = i.passIndex;
+        auto *            inputAssembler = subModel->getInputAssembler();
 
-        const auto *const pass = subModel->getPassView(passIdx);
-        auto *shader = subModel->getShader(passIdx);
+        const auto *pass   = subModel->getPass(passIdx);
+        auto *      shader = subModel->getShader(passIdx);
 
         auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
         cmdBuff->bindPipelineState(pso);

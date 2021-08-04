@@ -90,51 +90,38 @@
 namespace cc {
 
 namespace {
-    bool setCanvasCallback(se::Object* global) {
+    bool setCanvasCallback(se::Object *global) {
         auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
 
-        int nativeWidth = static_cast<int>(viewLogicalSize.y * Device::getDevicePixelRatio());
-        int nativeHeight = static_cast<int>(viewLogicalSize.x * Device::getDevicePixelRatio());
-        auto orientation = cc::Device::getDeviceOrientation();
-        bool isLandscape = (orientation == cc::Device::Orientation::LANDSCAPE_RIGHT || orientation == cc::Device::Orientation::LANDSCAPE_LEFT);
-        if (isLandscape) std::swap(nativeWidth, nativeHeight);
+        int  nativeWidth  = static_cast<int>(viewLogicalSize.x * Device::getDevicePixelRatio());
+        int  nativeHeight = static_cast<int>(viewLogicalSize.y * Device::getDevicePixelRatio());
 
         // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
         // format intptr_t
         //set window.innerWidth/innerHeight in css pixel units
-        uintptr_t windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
+        uintptr_t         windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
         std::stringstream commandBuf;
         commandBuf << "window.innerWidth = " << viewLogicalSize.x
-                   << "; window.innerHeight = " << viewLogicalSize.y
-                   << "; window.nativeWidth= " << nativeWidth
-                   << "; window.nativeHeight = " << nativeHeight
-                   << "; window.windowHandler = " << windowHandle << ";";
+                << "; window.innerHeight = " << viewLogicalSize.y
+                << "; window.nativeWidth= " << nativeWidth
+                << "; window.nativeHeight = " << nativeHeight
+                << "; window.windowHandler = " << windowHandle << ";";
 
-        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        se::ScriptEngine *se = se::ScriptEngine::getInstance();
         se->evalString(commandBuf.str().c_str());
-
-        gfx::DeviceInfo deviceInfo;
-        deviceInfo.windowHandle = windowHandle;
-        deviceInfo.width        = viewLogicalSize.x;
-        deviceInfo.height       = viewLogicalSize.y;
-        deviceInfo.nativeWidth  = nativeWidth;
-        deviceInfo.nativeHeight = nativeHeight;
-        deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
-
-        gfx::DeviceManager::create(deviceInfo);
 
         return true;
     }
 
-    MyTimer* _timer;
+    MyTimer *_timer;
 }
 
-Application *Application::_instance = nullptr;
-std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
+Application *              Application::instance  = nullptr;
+std::shared_ptr<Scheduler> Application::scheduler = nullptr;
 
 Application::Application(int width, int height) {
-    Application::_instance = this;
-    _scheduler             = std::make_shared<Scheduler>();
+    Application::instance = this;
+    scheduler             = std::make_shared<Scheduler>();
     EventDispatcher::init();
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
@@ -154,7 +141,7 @@ Application::~Application() {
 
     gfx::DeviceManager::destroy();
 
-    Application::_instance = nullptr;
+    Application::instance = nullptr;
 
     [_timer release];
 }
@@ -254,6 +241,9 @@ void Application::onPause() {
 
 void Application::onResume() {
     [_timer resume];
+}
+
+void Application::onClose() {
 }
 
 std::string Application::getSystemVersion() {

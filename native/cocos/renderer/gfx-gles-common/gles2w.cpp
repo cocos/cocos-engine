@@ -23,14 +23,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#define GL_GLES_PROTOTYPES 0
-#include <GLES2/gl2.h>
+#include "gles2w.h"
 
-#include <GLES2/gl2ext.h>
-#include <GLES2/gl2platform.h>
+#ifndef __OHOS__
+    #define GL_GLES_PROTOTYPES 0
+    #include <GLES2/gl2.h>
+    #include <GLES2/gl2ext.h>
+    #include <GLES2/gl2platform.h>
+#else
+    #define GL_GLES_PROTOTYPES 0
+    #include <GLES3/gl32.h>
+    #include <GLES3/gl3platform.h>
+#endif
 #include <KHR/khrplatform.h>
 
-#include "gles2w.h"
 
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
@@ -1121,1065 +1127,1065 @@ void gles2wLoadProcs(PFNGLES2WLOADPROC gles2wLoad) {
 
     /* GLES2W_GENERATE_GLES_LOAD */
     /* GL_ES_VERSION_2_0 */
-    glActiveTexture = (PFNGLACTIVETEXTUREPROC)gles2wLoad("glActiveTexture");
-    glAttachShader = (PFNGLATTACHSHADERPROC)gles2wLoad("glAttachShader");
-    glBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)gles2wLoad("glBindAttribLocation");
-    glBindBuffer = (PFNGLBINDBUFFERPROC)gles2wLoad("glBindBuffer");
-    glBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)gles2wLoad("glBindFramebuffer");
-    glBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)gles2wLoad("glBindRenderbuffer");
-    glBindTexture = (PFNGLBINDTEXTUREPROC)gles2wLoad("glBindTexture");
-    glBlendColor = (PFNGLBLENDCOLORPROC)gles2wLoad("glBlendColor");
-    glBlendEquation = (PFNGLBLENDEQUATIONPROC)gles2wLoad("glBlendEquation");
-    glBlendEquationSeparate = (PFNGLBLENDEQUATIONSEPARATEPROC)gles2wLoad("glBlendEquationSeparate");
-    glBlendFunc = (PFNGLBLENDFUNCPROC)gles2wLoad("glBlendFunc");
-    glBlendFuncSeparate = (PFNGLBLENDFUNCSEPARATEPROC)gles2wLoad("glBlendFuncSeparate");
-    glBufferData = (PFNGLBUFFERDATAPROC)gles2wLoad("glBufferData");
-    glBufferSubData = (PFNGLBUFFERSUBDATAPROC)gles2wLoad("glBufferSubData");
-    glCheckFramebufferStatus = (PFNGLCHECKFRAMEBUFFERSTATUSPROC)gles2wLoad("glCheckFramebufferStatus");
-    glClear = (PFNGLCLEARPROC)gles2wLoad("glClear");
-    glClearColor = (PFNGLCLEARCOLORPROC)gles2wLoad("glClearColor");
-    glClearDepthf = (PFNGLCLEARDEPTHFPROC)gles2wLoad("glClearDepthf");
-    glClearStencil = (PFNGLCLEARSTENCILPROC)gles2wLoad("glClearStencil");
-    glColorMask = (PFNGLCOLORMASKPROC)gles2wLoad("glColorMask");
-    glCompileShader = (PFNGLCOMPILESHADERPROC)gles2wLoad("glCompileShader");
-    glCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)gles2wLoad("glCompressedTexImage2D");
-    glCompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC)gles2wLoad("glCompressedTexSubImage2D");
-    glCopyTexImage2D = (PFNGLCOPYTEXIMAGE2DPROC)gles2wLoad("glCopyTexImage2D");
-    glCopyTexSubImage2D = (PFNGLCOPYTEXSUBIMAGE2DPROC)gles2wLoad("glCopyTexSubImage2D");
-    glCreateProgram = (PFNGLCREATEPROGRAMPROC)gles2wLoad("glCreateProgram");
-    glCreateShader = (PFNGLCREATESHADERPROC)gles2wLoad("glCreateShader");
-    glCullFace = (PFNGLCULLFACEPROC)gles2wLoad("glCullFace");
-    glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)gles2wLoad("glDeleteBuffers");
-    glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC)gles2wLoad("glDeleteFramebuffers");
-    glDeleteProgram = (PFNGLDELETEPROGRAMPROC)gles2wLoad("glDeleteProgram");
-    glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)gles2wLoad("glDeleteRenderbuffers");
-    glDeleteShader = (PFNGLDELETESHADERPROC)gles2wLoad("glDeleteShader");
-    glDeleteTextures = (PFNGLDELETETEXTURESPROC)gles2wLoad("glDeleteTextures");
-    glDepthFunc = (PFNGLDEPTHFUNCPROC)gles2wLoad("glDepthFunc");
-    glDepthMask = (PFNGLDEPTHMASKPROC)gles2wLoad("glDepthMask");
-    glDepthRangef = (PFNGLDEPTHRANGEFPROC)gles2wLoad("glDepthRangef");
-    glDetachShader = (PFNGLDETACHSHADERPROC)gles2wLoad("glDetachShader");
-    glDisable = (PFNGLDISABLEPROC)gles2wLoad("glDisable");
-    glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)gles2wLoad("glDisableVertexAttribArray");
-    glDrawArrays = (PFNGLDRAWARRAYSPROC)gles2wLoad("glDrawArrays");
-    glDrawElements = (PFNGLDRAWELEMENTSPROC)gles2wLoad("glDrawElements");
-    glEnable = (PFNGLENABLEPROC)gles2wLoad("glEnable");
-    glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)gles2wLoad("glEnableVertexAttribArray");
-    glFinish = (PFNGLFINISHPROC)gles2wLoad("glFinish");
-    glFlush = (PFNGLFLUSHPROC)gles2wLoad("glFlush");
-    glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)gles2wLoad("glFramebufferRenderbuffer");
-    glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC)gles2wLoad("glFramebufferTexture2D");
-    glFrontFace = (PFNGLFRONTFACEPROC)gles2wLoad("glFrontFace");
-    glGenBuffers = (PFNGLGENBUFFERSPROC)gles2wLoad("glGenBuffers");
-    glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)gles2wLoad("glGenerateMipmap");
-    glGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)gles2wLoad("glGenFramebuffers");
-    glGenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC)gles2wLoad("glGenRenderbuffers");
-    glGenTextures = (PFNGLGENTEXTURESPROC)gles2wLoad("glGenTextures");
-    glGetActiveAttrib = (PFNGLGETACTIVEATTRIBPROC)gles2wLoad("glGetActiveAttrib");
-    glGetActiveUniform = (PFNGLGETACTIVEUNIFORMPROC)gles2wLoad("glGetActiveUniform");
-    glGetAttachedShaders = (PFNGLGETATTACHEDSHADERSPROC)gles2wLoad("glGetAttachedShaders");
-    glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)gles2wLoad("glGetAttribLocation");
-    glGetBooleanv = (PFNGLGETBOOLEANVPROC)gles2wLoad("glGetBooleanv");
-    glGetBufferParameteriv = (PFNGLGETBUFFERPARAMETERIVPROC)gles2wLoad("glGetBufferParameteriv");
-    glGetError = (PFNGLGETERRORPROC)gles2wLoad("glGetError");
-    glGetFloatv = (PFNGLGETFLOATVPROC)gles2wLoad("glGetFloatv");
-    glGetFramebufferAttachmentParameteriv = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC)gles2wLoad("glGetFramebufferAttachmentParameteriv");
-    glGetIntegerv = (PFNGLGETINTEGERVPROC)gles2wLoad("glGetIntegerv");
-    glGetProgramiv = (PFNGLGETPROGRAMIVPROC)gles2wLoad("glGetProgramiv");
-    glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)gles2wLoad("glGetProgramInfoLog");
-    glGetRenderbufferParameteriv = (PFNGLGETRENDERBUFFERPARAMETERIVPROC)gles2wLoad("glGetRenderbufferParameteriv");
-    glGetShaderiv = (PFNGLGETSHADERIVPROC)gles2wLoad("glGetShaderiv");
-    glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)gles2wLoad("glGetShaderInfoLog");
-    glGetShaderPrecisionFormat = (PFNGLGETSHADERPRECISIONFORMATPROC)gles2wLoad("glGetShaderPrecisionFormat");
-    glGetShaderSource = (PFNGLGETSHADERSOURCEPROC)gles2wLoad("glGetShaderSource");
-    glGetString = (PFNGLGETSTRINGPROC)gles2wLoad("glGetString");
-    glGetTexParameterfv = (PFNGLGETTEXPARAMETERFVPROC)gles2wLoad("glGetTexParameterfv");
-    glGetTexParameteriv = (PFNGLGETTEXPARAMETERIVPROC)gles2wLoad("glGetTexParameteriv");
-    glGetUniformfv = (PFNGLGETUNIFORMFVPROC)gles2wLoad("glGetUniformfv");
-    glGetUniformiv = (PFNGLGETUNIFORMIVPROC)gles2wLoad("glGetUniformiv");
-    glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)gles2wLoad("glGetUniformLocation");
-    glGetVertexAttribfv = (PFNGLGETVERTEXATTRIBFVPROC)gles2wLoad("glGetVertexAttribfv");
-    glGetVertexAttribiv = (PFNGLGETVERTEXATTRIBIVPROC)gles2wLoad("glGetVertexAttribiv");
-    glGetVertexAttribPointerv = (PFNGLGETVERTEXATTRIBPOINTERVPROC)gles2wLoad("glGetVertexAttribPointerv");
-    glHint = (PFNGLHINTPROC)gles2wLoad("glHint");
-    glIsBuffer = (PFNGLISBUFFERPROC)gles2wLoad("glIsBuffer");
-    glIsEnabled = (PFNGLISENABLEDPROC)gles2wLoad("glIsEnabled");
-    glIsFramebuffer = (PFNGLISFRAMEBUFFERPROC)gles2wLoad("glIsFramebuffer");
-    glIsProgram = (PFNGLISPROGRAMPROC)gles2wLoad("glIsProgram");
-    glIsRenderbuffer = (PFNGLISRENDERBUFFERPROC)gles2wLoad("glIsRenderbuffer");
-    glIsShader = (PFNGLISSHADERPROC)gles2wLoad("glIsShader");
-    glIsTexture = (PFNGLISTEXTUREPROC)gles2wLoad("glIsTexture");
-    glLineWidth = (PFNGLLINEWIDTHPROC)gles2wLoad("glLineWidth");
-    glLinkProgram = (PFNGLLINKPROGRAMPROC)gles2wLoad("glLinkProgram");
-    glPixelStorei = (PFNGLPIXELSTOREIPROC)gles2wLoad("glPixelStorei");
-    glPolygonOffset = (PFNGLPOLYGONOFFSETPROC)gles2wLoad("glPolygonOffset");
-    glReadPixels = (PFNGLREADPIXELSPROC)gles2wLoad("glReadPixels");
-    glReleaseShaderCompiler = (PFNGLRELEASESHADERCOMPILERPROC)gles2wLoad("glReleaseShaderCompiler");
-    glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC)gles2wLoad("glRenderbufferStorage");
-    glSampleCoverage = (PFNGLSAMPLECOVERAGEPROC)gles2wLoad("glSampleCoverage");
-    glScissor = (PFNGLSCISSORPROC)gles2wLoad("glScissor");
-    glShaderBinary = (PFNGLSHADERBINARYPROC)gles2wLoad("glShaderBinary");
-    glShaderSource = (PFNGLSHADERSOURCEPROC)gles2wLoad("glShaderSource");
-    glStencilFunc = (PFNGLSTENCILFUNCPROC)gles2wLoad("glStencilFunc");
-    glStencilFuncSeparate = (PFNGLSTENCILFUNCSEPARATEPROC)gles2wLoad("glStencilFuncSeparate");
-    glStencilMask = (PFNGLSTENCILMASKPROC)gles2wLoad("glStencilMask");
-    glStencilMaskSeparate = (PFNGLSTENCILMASKSEPARATEPROC)gles2wLoad("glStencilMaskSeparate");
-    glStencilOp = (PFNGLSTENCILOPPROC)gles2wLoad("glStencilOp");
-    glStencilOpSeparate = (PFNGLSTENCILOPSEPARATEPROC)gles2wLoad("glStencilOpSeparate");
-    glTexImage2D = (PFNGLTEXIMAGE2DPROC)gles2wLoad("glTexImage2D");
-    glTexParameterf = (PFNGLTEXPARAMETERFPROC)gles2wLoad("glTexParameterf");
-    glTexParameterfv = (PFNGLTEXPARAMETERFVPROC)gles2wLoad("glTexParameterfv");
-    glTexParameteri = (PFNGLTEXPARAMETERIPROC)gles2wLoad("glTexParameteri");
-    glTexParameteriv = (PFNGLTEXPARAMETERIVPROC)gles2wLoad("glTexParameteriv");
-    glTexSubImage2D = (PFNGLTEXSUBIMAGE2DPROC)gles2wLoad("glTexSubImage2D");
-    glUniform1f = (PFNGLUNIFORM1FPROC)gles2wLoad("glUniform1f");
-    glUniform1fv = (PFNGLUNIFORM1FVPROC)gles2wLoad("glUniform1fv");
-    glUniform1i = (PFNGLUNIFORM1IPROC)gles2wLoad("glUniform1i");
-    glUniform1iv = (PFNGLUNIFORM1IVPROC)gles2wLoad("glUniform1iv");
-    glUniform2f = (PFNGLUNIFORM2FPROC)gles2wLoad("glUniform2f");
-    glUniform2fv = (PFNGLUNIFORM2FVPROC)gles2wLoad("glUniform2fv");
-    glUniform2i = (PFNGLUNIFORM2IPROC)gles2wLoad("glUniform2i");
-    glUniform2iv = (PFNGLUNIFORM2IVPROC)gles2wLoad("glUniform2iv");
-    glUniform3f = (PFNGLUNIFORM3FPROC)gles2wLoad("glUniform3f");
-    glUniform3fv = (PFNGLUNIFORM3FVPROC)gles2wLoad("glUniform3fv");
-    glUniform3i = (PFNGLUNIFORM3IPROC)gles2wLoad("glUniform3i");
-    glUniform3iv = (PFNGLUNIFORM3IVPROC)gles2wLoad("glUniform3iv");
-    glUniform4f = (PFNGLUNIFORM4FPROC)gles2wLoad("glUniform4f");
-    glUniform4fv = (PFNGLUNIFORM4FVPROC)gles2wLoad("glUniform4fv");
-    glUniform4i = (PFNGLUNIFORM4IPROC)gles2wLoad("glUniform4i");
-    glUniform4iv = (PFNGLUNIFORM4IVPROC)gles2wLoad("glUniform4iv");
-    glUniformMatrix2fv = (PFNGLUNIFORMMATRIX2FVPROC)gles2wLoad("glUniformMatrix2fv");
-    glUniformMatrix3fv = (PFNGLUNIFORMMATRIX3FVPROC)gles2wLoad("glUniformMatrix3fv");
-    glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)gles2wLoad("glUniformMatrix4fv");
-    glUseProgram = (PFNGLUSEPROGRAMPROC)gles2wLoad("glUseProgram");
-    glValidateProgram = (PFNGLVALIDATEPROGRAMPROC)gles2wLoad("glValidateProgram");
-    glVertexAttrib1f = (PFNGLVERTEXATTRIB1FPROC)gles2wLoad("glVertexAttrib1f");
-    glVertexAttrib1fv = (PFNGLVERTEXATTRIB1FVPROC)gles2wLoad("glVertexAttrib1fv");
-    glVertexAttrib2f = (PFNGLVERTEXATTRIB2FPROC)gles2wLoad("glVertexAttrib2f");
-    glVertexAttrib2fv = (PFNGLVERTEXATTRIB2FVPROC)gles2wLoad("glVertexAttrib2fv");
-    glVertexAttrib3f = (PFNGLVERTEXATTRIB3FPROC)gles2wLoad("glVertexAttrib3f");
-    glVertexAttrib3fv = (PFNGLVERTEXATTRIB3FVPROC)gles2wLoad("glVertexAttrib3fv");
-    glVertexAttrib4f = (PFNGLVERTEXATTRIB4FPROC)gles2wLoad("glVertexAttrib4f");
-    glVertexAttrib4fv = (PFNGLVERTEXATTRIB4FVPROC)gles2wLoad("glVertexAttrib4fv");
-    glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)gles2wLoad("glVertexAttribPointer");
-    glViewport = (PFNGLVIEWPORTPROC)gles2wLoad("glViewport");
+    glActiveTexture = reinterpret_cast<PFNGLACTIVETEXTUREPROC>(gles2wLoad("glActiveTexture"));
+    glAttachShader = reinterpret_cast<PFNGLATTACHSHADERPROC>(gles2wLoad("glAttachShader"));
+    glBindAttribLocation = reinterpret_cast<PFNGLBINDATTRIBLOCATIONPROC>(gles2wLoad("glBindAttribLocation"));
+    glBindBuffer = reinterpret_cast<PFNGLBINDBUFFERPROC>(gles2wLoad("glBindBuffer"));
+    glBindFramebuffer = reinterpret_cast<PFNGLBINDFRAMEBUFFERPROC>(gles2wLoad("glBindFramebuffer"));
+    glBindRenderbuffer = reinterpret_cast<PFNGLBINDRENDERBUFFERPROC>(gles2wLoad("glBindRenderbuffer"));
+    glBindTexture = reinterpret_cast<PFNGLBINDTEXTUREPROC>(gles2wLoad("glBindTexture"));
+    glBlendColor = reinterpret_cast<PFNGLBLENDCOLORPROC>(gles2wLoad("glBlendColor"));
+    glBlendEquation = reinterpret_cast<PFNGLBLENDEQUATIONPROC>(gles2wLoad("glBlendEquation"));
+    glBlendEquationSeparate = reinterpret_cast<PFNGLBLENDEQUATIONSEPARATEPROC>(gles2wLoad("glBlendEquationSeparate"));
+    glBlendFunc = reinterpret_cast<PFNGLBLENDFUNCPROC>(gles2wLoad("glBlendFunc"));
+    glBlendFuncSeparate = reinterpret_cast<PFNGLBLENDFUNCSEPARATEPROC>(gles2wLoad("glBlendFuncSeparate"));
+    glBufferData = reinterpret_cast<PFNGLBUFFERDATAPROC>(gles2wLoad("glBufferData"));
+    glBufferSubData = reinterpret_cast<PFNGLBUFFERSUBDATAPROC>(gles2wLoad("glBufferSubData"));
+    glCheckFramebufferStatus = reinterpret_cast<PFNGLCHECKFRAMEBUFFERSTATUSPROC>(gles2wLoad("glCheckFramebufferStatus"));
+    glClear = reinterpret_cast<PFNGLCLEARPROC>(gles2wLoad("glClear"));
+    glClearColor = reinterpret_cast<PFNGLCLEARCOLORPROC>(gles2wLoad("glClearColor"));
+    glClearDepthf = reinterpret_cast<PFNGLCLEARDEPTHFPROC>(gles2wLoad("glClearDepthf"));
+    glClearStencil = reinterpret_cast<PFNGLCLEARSTENCILPROC>(gles2wLoad("glClearStencil"));
+    glColorMask = reinterpret_cast<PFNGLCOLORMASKPROC>(gles2wLoad("glColorMask"));
+    glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(gles2wLoad("glCompileShader"));
+    glCompressedTexImage2D = reinterpret_cast<PFNGLCOMPRESSEDTEXIMAGE2DPROC>(gles2wLoad("glCompressedTexImage2D"));
+    glCompressedTexSubImage2D = reinterpret_cast<PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC>(gles2wLoad("glCompressedTexSubImage2D"));
+    glCopyTexImage2D = reinterpret_cast<PFNGLCOPYTEXIMAGE2DPROC>(gles2wLoad("glCopyTexImage2D"));
+    glCopyTexSubImage2D = reinterpret_cast<PFNGLCOPYTEXSUBIMAGE2DPROC>(gles2wLoad("glCopyTexSubImage2D"));
+    glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(gles2wLoad("glCreateProgram"));
+    glCreateShader = reinterpret_cast<PFNGLCREATESHADERPROC>(gles2wLoad("glCreateShader"));
+    glCullFace = reinterpret_cast<PFNGLCULLFACEPROC>(gles2wLoad("glCullFace"));
+    glDeleteBuffers = reinterpret_cast<PFNGLDELETEBUFFERSPROC>(gles2wLoad("glDeleteBuffers"));
+    glDeleteFramebuffers = reinterpret_cast<PFNGLDELETEFRAMEBUFFERSPROC>(gles2wLoad("glDeleteFramebuffers"));
+    glDeleteProgram = reinterpret_cast<PFNGLDELETEPROGRAMPROC>(gles2wLoad("glDeleteProgram"));
+    glDeleteRenderbuffers = reinterpret_cast<PFNGLDELETERENDERBUFFERSPROC>(gles2wLoad("glDeleteRenderbuffers"));
+    glDeleteShader = reinterpret_cast<PFNGLDELETESHADERPROC>(gles2wLoad("glDeleteShader"));
+    glDeleteTextures = reinterpret_cast<PFNGLDELETETEXTURESPROC>(gles2wLoad("glDeleteTextures"));
+    glDepthFunc = reinterpret_cast<PFNGLDEPTHFUNCPROC>(gles2wLoad("glDepthFunc"));
+    glDepthMask = reinterpret_cast<PFNGLDEPTHMASKPROC>(gles2wLoad("glDepthMask"));
+    glDepthRangef = reinterpret_cast<PFNGLDEPTHRANGEFPROC>(gles2wLoad("glDepthRangef"));
+    glDetachShader = reinterpret_cast<PFNGLDETACHSHADERPROC>(gles2wLoad("glDetachShader"));
+    glDisable = reinterpret_cast<PFNGLDISABLEPROC>(gles2wLoad("glDisable"));
+    glDisableVertexAttribArray = reinterpret_cast<PFNGLDISABLEVERTEXATTRIBARRAYPROC>(gles2wLoad("glDisableVertexAttribArray"));
+    glDrawArrays = reinterpret_cast<PFNGLDRAWARRAYSPROC>(gles2wLoad("glDrawArrays"));
+    glDrawElements = reinterpret_cast<PFNGLDRAWELEMENTSPROC>(gles2wLoad("glDrawElements"));
+    glEnable = reinterpret_cast<PFNGLENABLEPROC>(gles2wLoad("glEnable"));
+    glEnableVertexAttribArray = reinterpret_cast<PFNGLENABLEVERTEXATTRIBARRAYPROC>(gles2wLoad("glEnableVertexAttribArray"));
+    glFinish = reinterpret_cast<PFNGLFINISHPROC>(gles2wLoad("glFinish"));
+    glFlush = reinterpret_cast<PFNGLFLUSHPROC>(gles2wLoad("glFlush"));
+    glFramebufferRenderbuffer = reinterpret_cast<PFNGLFRAMEBUFFERRENDERBUFFERPROC>(gles2wLoad("glFramebufferRenderbuffer"));
+    glFramebufferTexture2D = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DPROC>(gles2wLoad("glFramebufferTexture2D"));
+    glFrontFace = reinterpret_cast<PFNGLFRONTFACEPROC>(gles2wLoad("glFrontFace"));
+    glGenBuffers = reinterpret_cast<PFNGLGENBUFFERSPROC>(gles2wLoad("glGenBuffers"));
+    glGenerateMipmap = reinterpret_cast<PFNGLGENERATEMIPMAPPROC>(gles2wLoad("glGenerateMipmap"));
+    glGenFramebuffers = reinterpret_cast<PFNGLGENFRAMEBUFFERSPROC>(gles2wLoad("glGenFramebuffers"));
+    glGenRenderbuffers = reinterpret_cast<PFNGLGENRENDERBUFFERSPROC>(gles2wLoad("glGenRenderbuffers"));
+    glGenTextures = reinterpret_cast<PFNGLGENTEXTURESPROC>(gles2wLoad("glGenTextures"));
+    glGetActiveAttrib = reinterpret_cast<PFNGLGETACTIVEATTRIBPROC>(gles2wLoad("glGetActiveAttrib"));
+    glGetActiveUniform = reinterpret_cast<PFNGLGETACTIVEUNIFORMPROC>(gles2wLoad("glGetActiveUniform"));
+    glGetAttachedShaders = reinterpret_cast<PFNGLGETATTACHEDSHADERSPROC>(gles2wLoad("glGetAttachedShaders"));
+    glGetAttribLocation = reinterpret_cast<PFNGLGETATTRIBLOCATIONPROC>(gles2wLoad("glGetAttribLocation"));
+    glGetBooleanv = reinterpret_cast<PFNGLGETBOOLEANVPROC>(gles2wLoad("glGetBooleanv"));
+    glGetBufferParameteriv = reinterpret_cast<PFNGLGETBUFFERPARAMETERIVPROC>(gles2wLoad("glGetBufferParameteriv"));
+    glGetError = reinterpret_cast<PFNGLGETERRORPROC>(gles2wLoad("glGetError"));
+    glGetFloatv = reinterpret_cast<PFNGLGETFLOATVPROC>(gles2wLoad("glGetFloatv"));
+    glGetFramebufferAttachmentParameteriv = reinterpret_cast<PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC>(gles2wLoad("glGetFramebufferAttachmentParameteriv"));
+    glGetIntegerv = reinterpret_cast<PFNGLGETINTEGERVPROC>(gles2wLoad("glGetIntegerv"));
+    glGetProgramiv = reinterpret_cast<PFNGLGETPROGRAMIVPROC>(gles2wLoad("glGetProgramiv"));
+    glGetProgramInfoLog = reinterpret_cast<PFNGLGETPROGRAMINFOLOGPROC>(gles2wLoad("glGetProgramInfoLog"));
+    glGetRenderbufferParameteriv = reinterpret_cast<PFNGLGETRENDERBUFFERPARAMETERIVPROC>(gles2wLoad("glGetRenderbufferParameteriv"));
+    glGetShaderiv = reinterpret_cast<PFNGLGETSHADERIVPROC>(gles2wLoad("glGetShaderiv"));
+    glGetShaderInfoLog = reinterpret_cast<PFNGLGETSHADERINFOLOGPROC>(gles2wLoad("glGetShaderInfoLog"));
+    glGetShaderPrecisionFormat = reinterpret_cast<PFNGLGETSHADERPRECISIONFORMATPROC>(gles2wLoad("glGetShaderPrecisionFormat"));
+    glGetShaderSource = reinterpret_cast<PFNGLGETSHADERSOURCEPROC>(gles2wLoad("glGetShaderSource"));
+    glGetString = reinterpret_cast<PFNGLGETSTRINGPROC>(gles2wLoad("glGetString"));
+    glGetTexParameterfv = reinterpret_cast<PFNGLGETTEXPARAMETERFVPROC>(gles2wLoad("glGetTexParameterfv"));
+    glGetTexParameteriv = reinterpret_cast<PFNGLGETTEXPARAMETERIVPROC>(gles2wLoad("glGetTexParameteriv"));
+    glGetUniformfv = reinterpret_cast<PFNGLGETUNIFORMFVPROC>(gles2wLoad("glGetUniformfv"));
+    glGetUniformiv = reinterpret_cast<PFNGLGETUNIFORMIVPROC>(gles2wLoad("glGetUniformiv"));
+    glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(gles2wLoad("glGetUniformLocation"));
+    glGetVertexAttribfv = reinterpret_cast<PFNGLGETVERTEXATTRIBFVPROC>(gles2wLoad("glGetVertexAttribfv"));
+    glGetVertexAttribiv = reinterpret_cast<PFNGLGETVERTEXATTRIBIVPROC>(gles2wLoad("glGetVertexAttribiv"));
+    glGetVertexAttribPointerv = reinterpret_cast<PFNGLGETVERTEXATTRIBPOINTERVPROC>(gles2wLoad("glGetVertexAttribPointerv"));
+    glHint = reinterpret_cast<PFNGLHINTPROC>(gles2wLoad("glHint"));
+    glIsBuffer = reinterpret_cast<PFNGLISBUFFERPROC>(gles2wLoad("glIsBuffer"));
+    glIsEnabled = reinterpret_cast<PFNGLISENABLEDPROC>(gles2wLoad("glIsEnabled"));
+    glIsFramebuffer = reinterpret_cast<PFNGLISFRAMEBUFFERPROC>(gles2wLoad("glIsFramebuffer"));
+    glIsProgram = reinterpret_cast<PFNGLISPROGRAMPROC>(gles2wLoad("glIsProgram"));
+    glIsRenderbuffer = reinterpret_cast<PFNGLISRENDERBUFFERPROC>(gles2wLoad("glIsRenderbuffer"));
+    glIsShader = reinterpret_cast<PFNGLISSHADERPROC>(gles2wLoad("glIsShader"));
+    glIsTexture = reinterpret_cast<PFNGLISTEXTUREPROC>(gles2wLoad("glIsTexture"));
+    glLineWidth = reinterpret_cast<PFNGLLINEWIDTHPROC>(gles2wLoad("glLineWidth"));
+    glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(gles2wLoad("glLinkProgram"));
+    glPixelStorei = reinterpret_cast<PFNGLPIXELSTOREIPROC>(gles2wLoad("glPixelStorei"));
+    glPolygonOffset = reinterpret_cast<PFNGLPOLYGONOFFSETPROC>(gles2wLoad("glPolygonOffset"));
+    glReadPixels = reinterpret_cast<PFNGLREADPIXELSPROC>(gles2wLoad("glReadPixels"));
+    glReleaseShaderCompiler = reinterpret_cast<PFNGLRELEASESHADERCOMPILERPROC>(gles2wLoad("glReleaseShaderCompiler"));
+    glRenderbufferStorage = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEPROC>(gles2wLoad("glRenderbufferStorage"));
+    glSampleCoverage = reinterpret_cast<PFNGLSAMPLECOVERAGEPROC>(gles2wLoad("glSampleCoverage"));
+    glScissor = reinterpret_cast<PFNGLSCISSORPROC>(gles2wLoad("glScissor"));
+    glShaderBinary = reinterpret_cast<PFNGLSHADERBINARYPROC>(gles2wLoad("glShaderBinary"));
+    glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(gles2wLoad("glShaderSource"));
+    glStencilFunc = reinterpret_cast<PFNGLSTENCILFUNCPROC>(gles2wLoad("glStencilFunc"));
+    glStencilFuncSeparate = reinterpret_cast<PFNGLSTENCILFUNCSEPARATEPROC>(gles2wLoad("glStencilFuncSeparate"));
+    glStencilMask = reinterpret_cast<PFNGLSTENCILMASKPROC>(gles2wLoad("glStencilMask"));
+    glStencilMaskSeparate = reinterpret_cast<PFNGLSTENCILMASKSEPARATEPROC>(gles2wLoad("glStencilMaskSeparate"));
+    glStencilOp = reinterpret_cast<PFNGLSTENCILOPPROC>(gles2wLoad("glStencilOp"));
+    glStencilOpSeparate = reinterpret_cast<PFNGLSTENCILOPSEPARATEPROC>(gles2wLoad("glStencilOpSeparate"));
+    glTexImage2D = reinterpret_cast<PFNGLTEXIMAGE2DPROC>(gles2wLoad("glTexImage2D"));
+    glTexParameterf = reinterpret_cast<PFNGLTEXPARAMETERFPROC>(gles2wLoad("glTexParameterf"));
+    glTexParameterfv = reinterpret_cast<PFNGLTEXPARAMETERFVPROC>(gles2wLoad("glTexParameterfv"));
+    glTexParameteri = reinterpret_cast<PFNGLTEXPARAMETERIPROC>(gles2wLoad("glTexParameteri"));
+    glTexParameteriv = reinterpret_cast<PFNGLTEXPARAMETERIVPROC>(gles2wLoad("glTexParameteriv"));
+    glTexSubImage2D = reinterpret_cast<PFNGLTEXSUBIMAGE2DPROC>(gles2wLoad("glTexSubImage2D"));
+    glUniform1f = reinterpret_cast<PFNGLUNIFORM1FPROC>(gles2wLoad("glUniform1f"));
+    glUniform1fv = reinterpret_cast<PFNGLUNIFORM1FVPROC>(gles2wLoad("glUniform1fv"));
+    glUniform1i = reinterpret_cast<PFNGLUNIFORM1IPROC>(gles2wLoad("glUniform1i"));
+    glUniform1iv = reinterpret_cast<PFNGLUNIFORM1IVPROC>(gles2wLoad("glUniform1iv"));
+    glUniform2f = reinterpret_cast<PFNGLUNIFORM2FPROC>(gles2wLoad("glUniform2f"));
+    glUniform2fv = reinterpret_cast<PFNGLUNIFORM2FVPROC>(gles2wLoad("glUniform2fv"));
+    glUniform2i = reinterpret_cast<PFNGLUNIFORM2IPROC>(gles2wLoad("glUniform2i"));
+    glUniform2iv = reinterpret_cast<PFNGLUNIFORM2IVPROC>(gles2wLoad("glUniform2iv"));
+    glUniform3f = reinterpret_cast<PFNGLUNIFORM3FPROC>(gles2wLoad("glUniform3f"));
+    glUniform3fv = reinterpret_cast<PFNGLUNIFORM3FVPROC>(gles2wLoad("glUniform3fv"));
+    glUniform3i = reinterpret_cast<PFNGLUNIFORM3IPROC>(gles2wLoad("glUniform3i"));
+    glUniform3iv = reinterpret_cast<PFNGLUNIFORM3IVPROC>(gles2wLoad("glUniform3iv"));
+    glUniform4f = reinterpret_cast<PFNGLUNIFORM4FPROC>(gles2wLoad("glUniform4f"));
+    glUniform4fv = reinterpret_cast<PFNGLUNIFORM4FVPROC>(gles2wLoad("glUniform4fv"));
+    glUniform4i = reinterpret_cast<PFNGLUNIFORM4IPROC>(gles2wLoad("glUniform4i"));
+    glUniform4iv = reinterpret_cast<PFNGLUNIFORM4IVPROC>(gles2wLoad("glUniform4iv"));
+    glUniformMatrix2fv = reinterpret_cast<PFNGLUNIFORMMATRIX2FVPROC>(gles2wLoad("glUniformMatrix2fv"));
+    glUniformMatrix3fv = reinterpret_cast<PFNGLUNIFORMMATRIX3FVPROC>(gles2wLoad("glUniformMatrix3fv"));
+    glUniformMatrix4fv = reinterpret_cast<PFNGLUNIFORMMATRIX4FVPROC>(gles2wLoad("glUniformMatrix4fv"));
+    glUseProgram = reinterpret_cast<PFNGLUSEPROGRAMPROC>(gles2wLoad("glUseProgram"));
+    glValidateProgram = reinterpret_cast<PFNGLVALIDATEPROGRAMPROC>(gles2wLoad("glValidateProgram"));
+    glVertexAttrib1f = reinterpret_cast<PFNGLVERTEXATTRIB1FPROC>(gles2wLoad("glVertexAttrib1f"));
+    glVertexAttrib1fv = reinterpret_cast<PFNGLVERTEXATTRIB1FVPROC>(gles2wLoad("glVertexAttrib1fv"));
+    glVertexAttrib2f = reinterpret_cast<PFNGLVERTEXATTRIB2FPROC>(gles2wLoad("glVertexAttrib2f"));
+    glVertexAttrib2fv = reinterpret_cast<PFNGLVERTEXATTRIB2FVPROC>(gles2wLoad("glVertexAttrib2fv"));
+    glVertexAttrib3f = reinterpret_cast<PFNGLVERTEXATTRIB3FPROC>(gles2wLoad("glVertexAttrib3f"));
+    glVertexAttrib3fv = reinterpret_cast<PFNGLVERTEXATTRIB3FVPROC>(gles2wLoad("glVertexAttrib3fv"));
+    glVertexAttrib4f = reinterpret_cast<PFNGLVERTEXATTRIB4FPROC>(gles2wLoad("glVertexAttrib4f"));
+    glVertexAttrib4fv = reinterpret_cast<PFNGLVERTEXATTRIB4FVPROC>(gles2wLoad("glVertexAttrib4fv"));
+    glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(gles2wLoad("glVertexAttribPointer"));
+    glViewport = reinterpret_cast<PFNGLVIEWPORTPROC>(gles2wLoad("glViewport"));
 
 
 #if defined(GL_AMD_framebuffer_multisample_advanced)
-    glRenderbufferStorageMultisampleAdvancedAMD = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC)gles2wLoad("glRenderbufferStorageMultisampleAdvancedAMD");
-    glNamedRenderbufferStorageMultisampleAdvancedAMD = (PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC)gles2wLoad("glNamedRenderbufferStorageMultisampleAdvancedAMD");
+    glRenderbufferStorageMultisampleAdvancedAMD = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC>(gles2wLoad("glRenderbufferStorageMultisampleAdvancedAMD"));
+    glNamedRenderbufferStorageMultisampleAdvancedAMD = reinterpret_cast<PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEADVANCEDAMDPROC>(gles2wLoad("glNamedRenderbufferStorageMultisampleAdvancedAMD"));
 #endif /* defined(GL_AMD_framebuffer_multisample_advanced) */
 
 #if defined(GL_AMD_performance_monitor)
-    glGetPerfMonitorGroupsAMD = (PFNGLGETPERFMONITORGROUPSAMDPROC)gles2wLoad("glGetPerfMonitorGroupsAMD");
-    glGetPerfMonitorCountersAMD = (PFNGLGETPERFMONITORCOUNTERSAMDPROC)gles2wLoad("glGetPerfMonitorCountersAMD");
-    glGetPerfMonitorGroupStringAMD = (PFNGLGETPERFMONITORGROUPSTRINGAMDPROC)gles2wLoad("glGetPerfMonitorGroupStringAMD");
-    glGetPerfMonitorCounterStringAMD = (PFNGLGETPERFMONITORCOUNTERSTRINGAMDPROC)gles2wLoad("glGetPerfMonitorCounterStringAMD");
-    glGetPerfMonitorCounterInfoAMD = (PFNGLGETPERFMONITORCOUNTERINFOAMDPROC)gles2wLoad("glGetPerfMonitorCounterInfoAMD");
-    glGenPerfMonitorsAMD = (PFNGLGENPERFMONITORSAMDPROC)gles2wLoad("glGenPerfMonitorsAMD");
-    glDeletePerfMonitorsAMD = (PFNGLDELETEPERFMONITORSAMDPROC)gles2wLoad("glDeletePerfMonitorsAMD");
-    glSelectPerfMonitorCountersAMD = (PFNGLSELECTPERFMONITORCOUNTERSAMDPROC)gles2wLoad("glSelectPerfMonitorCountersAMD");
-    glBeginPerfMonitorAMD = (PFNGLBEGINPERFMONITORAMDPROC)gles2wLoad("glBeginPerfMonitorAMD");
-    glEndPerfMonitorAMD = (PFNGLENDPERFMONITORAMDPROC)gles2wLoad("glEndPerfMonitorAMD");
-    glGetPerfMonitorCounterDataAMD = (PFNGLGETPERFMONITORCOUNTERDATAAMDPROC)gles2wLoad("glGetPerfMonitorCounterDataAMD");
+    glGetPerfMonitorGroupsAMD = reinterpret_cast<PFNGLGETPERFMONITORGROUPSAMDPROC>(gles2wLoad("glGetPerfMonitorGroupsAMD"));
+    glGetPerfMonitorCountersAMD = reinterpret_cast<PFNGLGETPERFMONITORCOUNTERSAMDPROC>(gles2wLoad("glGetPerfMonitorCountersAMD"));
+    glGetPerfMonitorGroupStringAMD = reinterpret_cast<PFNGLGETPERFMONITORGROUPSTRINGAMDPROC>(gles2wLoad("glGetPerfMonitorGroupStringAMD"));
+    glGetPerfMonitorCounterStringAMD = reinterpret_cast<PFNGLGETPERFMONITORCOUNTERSTRINGAMDPROC>(gles2wLoad("glGetPerfMonitorCounterStringAMD"));
+    glGetPerfMonitorCounterInfoAMD = reinterpret_cast<PFNGLGETPERFMONITORCOUNTERINFOAMDPROC>(gles2wLoad("glGetPerfMonitorCounterInfoAMD"));
+    glGenPerfMonitorsAMD = reinterpret_cast<PFNGLGENPERFMONITORSAMDPROC>(gles2wLoad("glGenPerfMonitorsAMD"));
+    glDeletePerfMonitorsAMD = reinterpret_cast<PFNGLDELETEPERFMONITORSAMDPROC>(gles2wLoad("glDeletePerfMonitorsAMD"));
+    glSelectPerfMonitorCountersAMD = reinterpret_cast<PFNGLSELECTPERFMONITORCOUNTERSAMDPROC>(gles2wLoad("glSelectPerfMonitorCountersAMD"));
+    glBeginPerfMonitorAMD = reinterpret_cast<PFNGLBEGINPERFMONITORAMDPROC>(gles2wLoad("glBeginPerfMonitorAMD"));
+    glEndPerfMonitorAMD = reinterpret_cast<PFNGLENDPERFMONITORAMDPROC>(gles2wLoad("glEndPerfMonitorAMD"));
+    glGetPerfMonitorCounterDataAMD = reinterpret_cast<PFNGLGETPERFMONITORCOUNTERDATAAMDPROC>(gles2wLoad("glGetPerfMonitorCounterDataAMD"));
 #endif /* defined(GL_AMD_performance_monitor) */
 
 #if defined(GL_ANGLE_framebuffer_blit)
-    glBlitFramebufferANGLE = (PFNGLBLITFRAMEBUFFERANGLEPROC)gles2wLoad("glBlitFramebufferANGLE");
+    glBlitFramebufferANGLE = reinterpret_cast<PFNGLBLITFRAMEBUFFERANGLEPROC>(gles2wLoad("glBlitFramebufferANGLE"));
 #endif /* defined(GL_ANGLE_framebuffer_blit) */
 
 #if defined(GL_ANGLE_framebuffer_multisample)
-    glRenderbufferStorageMultisampleANGLE = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEANGLEPROC)gles2wLoad("glRenderbufferStorageMultisampleANGLE");
+    glRenderbufferStorageMultisampleANGLE = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEMULTISAMPLEANGLEPROC>(gles2wLoad("glRenderbufferStorageMultisampleANGLE"));
 #endif /* defined(GL_ANGLE_framebuffer_multisample) */
 
 #if defined(GL_ANGLE_instanced_arrays)
-    glDrawArraysInstancedANGLE = (PFNGLDRAWARRAYSINSTANCEDANGLEPROC)gles2wLoad("glDrawArraysInstancedANGLE");
-    glDrawElementsInstancedANGLE = (PFNGLDRAWELEMENTSINSTANCEDANGLEPROC)gles2wLoad("glDrawElementsInstancedANGLE");
-    glVertexAttribDivisorANGLE = (PFNGLVERTEXATTRIBDIVISORANGLEPROC)gles2wLoad("glVertexAttribDivisorANGLE");
+    glDrawArraysInstancedANGLE = reinterpret_cast<PFNGLDRAWARRAYSINSTANCEDANGLEPROC>(gles2wLoad("glDrawArraysInstancedANGLE"));
+    glDrawElementsInstancedANGLE = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDANGLEPROC>(gles2wLoad("glDrawElementsInstancedANGLE"));
+    glVertexAttribDivisorANGLE = reinterpret_cast<PFNGLVERTEXATTRIBDIVISORANGLEPROC>(gles2wLoad("glVertexAttribDivisorANGLE"));
 #endif /* defined(GL_ANGLE_instanced_arrays) */
 
 #if defined(GL_ANGLE_translated_shader_source)
-    glGetTranslatedShaderSourceANGLE = (PFNGLGETTRANSLATEDSHADERSOURCEANGLEPROC)gles2wLoad("glGetTranslatedShaderSourceANGLE");
+    glGetTranslatedShaderSourceANGLE = reinterpret_cast<PFNGLGETTRANSLATEDSHADERSOURCEANGLEPROC>(gles2wLoad("glGetTranslatedShaderSourceANGLE"));
 #endif /* defined(GL_ANGLE_translated_shader_source) */
 
 #if defined(GL_APPLE_copy_texture_levels)
-    glCopyTextureLevelsAPPLE = (PFNGLCOPYTEXTURELEVELSAPPLEPROC)gles2wLoad("glCopyTextureLevelsAPPLE");
+    glCopyTextureLevelsAPPLE = reinterpret_cast<PFNGLCOPYTEXTURELEVELSAPPLEPROC>(gles2wLoad("glCopyTextureLevelsAPPLE"));
 #endif /* defined(GL_APPLE_copy_texture_levels) */
 
 #if defined(GL_APPLE_framebuffer_multisample)
-    glRenderbufferStorageMultisampleAPPLE = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEAPPLEPROC)gles2wLoad("glRenderbufferStorageMultisampleAPPLE");
-    glResolveMultisampleFramebufferAPPLE = (PFNGLRESOLVEMULTISAMPLEFRAMEBUFFERAPPLEPROC)gles2wLoad("glResolveMultisampleFramebufferAPPLE");
+    glRenderbufferStorageMultisampleAPPLE = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEMULTISAMPLEAPPLEPROC>(gles2wLoad("glRenderbufferStorageMultisampleAPPLE"));
+    glResolveMultisampleFramebufferAPPLE = reinterpret_cast<PFNGLRESOLVEMULTISAMPLEFRAMEBUFFERAPPLEPROC>(gles2wLoad("glResolveMultisampleFramebufferAPPLE"));
 #endif /* defined(GL_APPLE_framebuffer_multisample) */
 
 #if defined(GL_APPLE_sync)
-    glFenceSyncAPPLE = (PFNGLFENCESYNCAPPLEPROC)gles2wLoad("glFenceSyncAPPLE");
-    glIsSyncAPPLE = (PFNGLISSYNCAPPLEPROC)gles2wLoad("glIsSyncAPPLE");
-    glDeleteSyncAPPLE = (PFNGLDELETESYNCAPPLEPROC)gles2wLoad("glDeleteSyncAPPLE");
-    glClientWaitSyncAPPLE = (PFNGLCLIENTWAITSYNCAPPLEPROC)gles2wLoad("glClientWaitSyncAPPLE");
-    glWaitSyncAPPLE = (PFNGLWAITSYNCAPPLEPROC)gles2wLoad("glWaitSyncAPPLE");
-    glGetInteger64vAPPLE = (PFNGLGETINTEGER64VAPPLEPROC)gles2wLoad("glGetInteger64vAPPLE");
-    glGetSyncivAPPLE = (PFNGLGETSYNCIVAPPLEPROC)gles2wLoad("glGetSyncivAPPLE");
+    glFenceSyncAPPLE = reinterpret_cast<PFNGLFENCESYNCAPPLEPROC>(gles2wLoad("glFenceSyncAPPLE"));
+    glIsSyncAPPLE = reinterpret_cast<PFNGLISSYNCAPPLEPROC>(gles2wLoad("glIsSyncAPPLE"));
+    glDeleteSyncAPPLE = reinterpret_cast<PFNGLDELETESYNCAPPLEPROC>(gles2wLoad("glDeleteSyncAPPLE"));
+    glClientWaitSyncAPPLE = reinterpret_cast<PFNGLCLIENTWAITSYNCAPPLEPROC>(gles2wLoad("glClientWaitSyncAPPLE"));
+    glWaitSyncAPPLE = reinterpret_cast<PFNGLWAITSYNCAPPLEPROC>(gles2wLoad("glWaitSyncAPPLE"));
+    glGetInteger64vAPPLE = reinterpret_cast<PFNGLGETINTEGER64VAPPLEPROC>(gles2wLoad("glGetInteger64vAPPLE"));
+    glGetSyncivAPPLE = reinterpret_cast<PFNGLGETSYNCIVAPPLEPROC>(gles2wLoad("glGetSyncivAPPLE"));
 #endif /* defined(GL_APPLE_sync) */
 
 #if defined(GL_EXT_EGL_image_storage)
-    glEGLImageTargetTexStorageEXT = (PFNGLEGLIMAGETARGETTEXSTORAGEEXTPROC)gles2wLoad("glEGLImageTargetTexStorageEXT");
+    glEGLImageTargetTexStorageEXT = reinterpret_cast<PFNGLEGLIMAGETARGETTEXSTORAGEEXTPROC>(gles2wLoad("glEGLImageTargetTexStorageEXT"));
 
-    glEGLImageTargetTextureStorageEXT = (PFNGLEGLIMAGETARGETTEXTURESTORAGEEXTPROC)gles2wLoad("glEGLImageTargetTextureStorageEXT");
+    glEGLImageTargetTextureStorageEXT = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURESTORAGEEXTPROC>(gles2wLoad("glEGLImageTargetTextureStorageEXT"));
 #endif /* defined(GL_EXT_EGL_image_storage) */
 
 #if defined(GL_EXT_base_instance)
-    glDrawArraysInstancedBaseInstanceEXT = (PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEEXTPROC)gles2wLoad("glDrawArraysInstancedBaseInstanceEXT");
-    glDrawElementsInstancedBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEEXTPROC)gles2wLoad("glDrawElementsInstancedBaseInstanceEXT");
-    glDrawElementsInstancedBaseVertexBaseInstanceEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEEXTPROC)gles2wLoad("glDrawElementsInstancedBaseVertexBaseInstanceEXT");
+    glDrawArraysInstancedBaseInstanceEXT = reinterpret_cast<PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEEXTPROC>(gles2wLoad("glDrawArraysInstancedBaseInstanceEXT"));
+    glDrawElementsInstancedBaseInstanceEXT = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEEXTPROC>(gles2wLoad("glDrawElementsInstancedBaseInstanceEXT"));
+    glDrawElementsInstancedBaseVertexBaseInstanceEXT = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEEXTPROC>(gles2wLoad("glDrawElementsInstancedBaseVertexBaseInstanceEXT"));
 #endif /* defined(GL_EXT_base_instance) */
 
 #if defined(GL_EXT_blend_func_extended)
-    glBindFragDataLocationIndexedEXT = (PFNGLBINDFRAGDATALOCATIONINDEXEDEXTPROC)gles2wLoad("glBindFragDataLocationIndexedEXT");
-    glBindFragDataLocationEXT = (PFNGLBINDFRAGDATALOCATIONEXTPROC)gles2wLoad("glBindFragDataLocationEXT");
-    glGetProgramResourceLocationIndexEXT = (PFNGLGETPROGRAMRESOURCELOCATIONINDEXEXTPROC)gles2wLoad("glGetProgramResourceLocationIndexEXT");
-    glGetFragDataIndexEXT = (PFNGLGETFRAGDATAINDEXEXTPROC)gles2wLoad("glGetFragDataIndexEXT");
+    glBindFragDataLocationIndexedEXT = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONINDEXEDEXTPROC>(gles2wLoad("glBindFragDataLocationIndexedEXT"));
+    glBindFragDataLocationEXT = reinterpret_cast<PFNGLBINDFRAGDATALOCATIONEXTPROC>(gles2wLoad("glBindFragDataLocationEXT"));
+    glGetProgramResourceLocationIndexEXT = reinterpret_cast<PFNGLGETPROGRAMRESOURCELOCATIONINDEXEXTPROC>(gles2wLoad("glGetProgramResourceLocationIndexEXT"));
+    glGetFragDataIndexEXT = reinterpret_cast<PFNGLGETFRAGDATAINDEXEXTPROC>(gles2wLoad("glGetFragDataIndexEXT"));
 #endif /* defined(GL_EXT_blend_func_extended) */
 
 #if defined(GL_EXT_buffer_storage)
-    glBufferStorageEXT = (PFNGLBUFFERSTORAGEEXTPROC)gles2wLoad("glBufferStorageEXT");
+    glBufferStorageEXT = reinterpret_cast<PFNGLBUFFERSTORAGEEXTPROC>(gles2wLoad("glBufferStorageEXT"));
 #endif /* defined(GL_EXT_buffer_storage) */
 
 #if defined(GL_EXT_clear_texture)
-    glClearTexImageEXT = (PFNGLCLEARTEXIMAGEEXTPROC)gles2wLoad("glClearTexImageEXT");
-    glClearTexSubImageEXT = (PFNGLCLEARTEXSUBIMAGEEXTPROC)gles2wLoad("glClearTexSubImageEXT");
+    glClearTexImageEXT = reinterpret_cast<PFNGLCLEARTEXIMAGEEXTPROC>(gles2wLoad("glClearTexImageEXT"));
+    glClearTexSubImageEXT = reinterpret_cast<PFNGLCLEARTEXSUBIMAGEEXTPROC>(gles2wLoad("glClearTexSubImageEXT"));
 #endif /* defined(GL_EXT_clear_texture) */
 
 #if defined(GL_EXT_clip_control)
-    glClipControlEXT = (PFNGLCLIPCONTROLEXTPROC)gles2wLoad("glClipControlEXT");
+    glClipControlEXT = reinterpret_cast<PFNGLCLIPCONTROLEXTPROC>(gles2wLoad("glClipControlEXT"));
 #endif /* defined(GL_EXT_clip_control) */
 
 #if defined(GL_EXT_copy_image)
-    glCopyImageSubDataEXT = (PFNGLCOPYIMAGESUBDATAEXTPROC)gles2wLoad("glCopyImageSubDataEXT");
+    glCopyImageSubDataEXT = reinterpret_cast<PFNGLCOPYIMAGESUBDATAEXTPROC>(gles2wLoad("glCopyImageSubDataEXT"));
 #endif /* defined(GL_EXT_copy_image) */
 
 #if defined(GL_EXT_debug_label)
-    glLabelObjectEXT = (PFNGLLABELOBJECTEXTPROC)gles2wLoad("glLabelObjectEXT");
-    glGetObjectLabelEXT = (PFNGLGETOBJECTLABELEXTPROC)gles2wLoad("glGetObjectLabelEXT");
+    glLabelObjectEXT = reinterpret_cast<PFNGLLABELOBJECTEXTPROC>(gles2wLoad("glLabelObjectEXT"));
+    glGetObjectLabelEXT = reinterpret_cast<PFNGLGETOBJECTLABELEXTPROC>(gles2wLoad("glGetObjectLabelEXT"));
 #endif /* defined(GL_EXT_debug_label) */
 
 #if defined(GL_EXT_debug_marker)
-    glInsertEventMarkerEXT = (PFNGLINSERTEVENTMARKEREXTPROC)gles2wLoad("glInsertEventMarkerEXT");
-    glPushGroupMarkerEXT = (PFNGLPUSHGROUPMARKEREXTPROC)gles2wLoad("glPushGroupMarkerEXT");
-    glPopGroupMarkerEXT = (PFNGLPOPGROUPMARKEREXTPROC)gles2wLoad("glPopGroupMarkerEXT");
+    glInsertEventMarkerEXT = reinterpret_cast<PFNGLINSERTEVENTMARKEREXTPROC>(gles2wLoad("glInsertEventMarkerEXT"));
+    glPushGroupMarkerEXT = reinterpret_cast<PFNGLPUSHGROUPMARKEREXTPROC>(gles2wLoad("glPushGroupMarkerEXT"));
+    glPopGroupMarkerEXT = reinterpret_cast<PFNGLPOPGROUPMARKEREXTPROC>(gles2wLoad("glPopGroupMarkerEXT"));
 #endif /* defined(GL_EXT_debug_marker) */
 
 #if defined(GL_EXT_discard_framebuffer)
-    glDiscardFramebufferEXT = (PFNGLDISCARDFRAMEBUFFEREXTPROC)gles2wLoad("glDiscardFramebufferEXT");
+    glDiscardFramebufferEXT = reinterpret_cast<PFNGLDISCARDFRAMEBUFFEREXTPROC>(gles2wLoad("glDiscardFramebufferEXT"));
 #endif /* defined(GL_EXT_discard_framebuffer) */
 
 #if defined(GL_EXT_disjoint_timer_query)
-    glGenQueriesEXT = (PFNGLGENQUERIESEXTPROC)gles2wLoad("glGenQueriesEXT");
-    glDeleteQueriesEXT = (PFNGLDELETEQUERIESEXTPROC)gles2wLoad("glDeleteQueriesEXT");
-    glIsQueryEXT = (PFNGLISQUERYEXTPROC)gles2wLoad("glIsQueryEXT");
-    glBeginQueryEXT = (PFNGLBEGINQUERYEXTPROC)gles2wLoad("glBeginQueryEXT");
-    glEndQueryEXT = (PFNGLENDQUERYEXTPROC)gles2wLoad("glEndQueryEXT");
-    glQueryCounterEXT = (PFNGLQUERYCOUNTEREXTPROC)gles2wLoad("glQueryCounterEXT");
-    glGetQueryivEXT = (PFNGLGETQUERYIVEXTPROC)gles2wLoad("glGetQueryivEXT");
-    glGetQueryObjectivEXT = (PFNGLGETQUERYOBJECTIVEXTPROC)gles2wLoad("glGetQueryObjectivEXT");
-    glGetQueryObjectuivEXT = (PFNGLGETQUERYOBJECTUIVEXTPROC)gles2wLoad("glGetQueryObjectuivEXT");
-    glGetQueryObjecti64vEXT = (PFNGLGETQUERYOBJECTI64VEXTPROC)gles2wLoad("glGetQueryObjecti64vEXT");
-    glGetQueryObjectui64vEXT = (PFNGLGETQUERYOBJECTUI64VEXTPROC)gles2wLoad("glGetQueryObjectui64vEXT");
-    glGetInteger64vEXT = (PFNGLGETINTEGER64VEXTPROC)gles2wLoad("glGetInteger64vEXT");
+    glGenQueriesEXT = reinterpret_cast<PFNGLGENQUERIESEXTPROC>(gles2wLoad("glGenQueriesEXT"));
+    glDeleteQueriesEXT = reinterpret_cast<PFNGLDELETEQUERIESEXTPROC>(gles2wLoad("glDeleteQueriesEXT"));
+    glIsQueryEXT = reinterpret_cast<PFNGLISQUERYEXTPROC>(gles2wLoad("glIsQueryEXT"));
+    glBeginQueryEXT = reinterpret_cast<PFNGLBEGINQUERYEXTPROC>(gles2wLoad("glBeginQueryEXT"));
+    glEndQueryEXT = reinterpret_cast<PFNGLENDQUERYEXTPROC>(gles2wLoad("glEndQueryEXT"));
+    glQueryCounterEXT = reinterpret_cast<PFNGLQUERYCOUNTEREXTPROC>(gles2wLoad("glQueryCounterEXT"));
+    glGetQueryivEXT = reinterpret_cast<PFNGLGETQUERYIVEXTPROC>(gles2wLoad("glGetQueryivEXT"));
+    glGetQueryObjectivEXT = reinterpret_cast<PFNGLGETQUERYOBJECTIVEXTPROC>(gles2wLoad("glGetQueryObjectivEXT"));
+    glGetQueryObjectuivEXT = reinterpret_cast<PFNGLGETQUERYOBJECTUIVEXTPROC>(gles2wLoad("glGetQueryObjectuivEXT"));
+    glGetQueryObjecti64vEXT = reinterpret_cast<PFNGLGETQUERYOBJECTI64VEXTPROC>(gles2wLoad("glGetQueryObjecti64vEXT"));
+    glGetQueryObjectui64vEXT = reinterpret_cast<PFNGLGETQUERYOBJECTUI64VEXTPROC>(gles2wLoad("glGetQueryObjectui64vEXT"));
+    glGetInteger64vEXT = reinterpret_cast<PFNGLGETINTEGER64VEXTPROC>(gles2wLoad("glGetInteger64vEXT"));
 #endif /* defined(GL_EXT_disjoint_timer_query) */
 
 #if defined(GL_EXT_draw_buffers)
-    glDrawBuffersEXT = (PFNGLDRAWBUFFERSEXTPROC)gles2wLoad("glDrawBuffersEXT");
+    glDrawBuffersEXT = reinterpret_cast<PFNGLDRAWBUFFERSEXTPROC>(gles2wLoad("glDrawBuffersEXT"));
 #endif /* defined(GL_EXT_draw_buffers) */
 
 #if defined(GL_EXT_draw_buffers_indexed)
-    glEnableiEXT = (PFNGLENABLEIEXTPROC)gles2wLoad("glEnableiEXT");
-    glDisableiEXT = (PFNGLDISABLEIEXTPROC)gles2wLoad("glDisableiEXT");
-    glBlendEquationiEXT = (PFNGLBLENDEQUATIONIEXTPROC)gles2wLoad("glBlendEquationiEXT");
-    glBlendEquationSeparateiEXT = (PFNGLBLENDEQUATIONSEPARATEIEXTPROC)gles2wLoad("glBlendEquationSeparateiEXT");
-    glBlendFunciEXT = (PFNGLBLENDFUNCIEXTPROC)gles2wLoad("glBlendFunciEXT");
-    glBlendFuncSeparateiEXT = (PFNGLBLENDFUNCSEPARATEIEXTPROC)gles2wLoad("glBlendFuncSeparateiEXT");
-    glColorMaskiEXT = (PFNGLCOLORMASKIEXTPROC)gles2wLoad("glColorMaskiEXT");
-    glIsEnablediEXT = (PFNGLISENABLEDIEXTPROC)gles2wLoad("glIsEnablediEXT");
+    glEnableiEXT = reinterpret_cast<PFNGLENABLEIEXTPROC>(gles2wLoad("glEnableiEXT"));
+    glDisableiEXT = reinterpret_cast<PFNGLDISABLEIEXTPROC>(gles2wLoad("glDisableiEXT"));
+    glBlendEquationiEXT = reinterpret_cast<PFNGLBLENDEQUATIONIEXTPROC>(gles2wLoad("glBlendEquationiEXT"));
+    glBlendEquationSeparateiEXT = reinterpret_cast<PFNGLBLENDEQUATIONSEPARATEIEXTPROC>(gles2wLoad("glBlendEquationSeparateiEXT"));
+    glBlendFunciEXT = reinterpret_cast<PFNGLBLENDFUNCIEXTPROC>(gles2wLoad("glBlendFunciEXT"));
+    glBlendFuncSeparateiEXT = reinterpret_cast<PFNGLBLENDFUNCSEPARATEIEXTPROC>(gles2wLoad("glBlendFuncSeparateiEXT"));
+    glColorMaskiEXT = reinterpret_cast<PFNGLCOLORMASKIEXTPROC>(gles2wLoad("glColorMaskiEXT"));
+    glIsEnablediEXT = reinterpret_cast<PFNGLISENABLEDIEXTPROC>(gles2wLoad("glIsEnablediEXT"));
 #endif /* defined(GL_EXT_draw_buffers_indexed) */
 
 #if defined(GL_EXT_draw_elements_base_vertex)
-    glDrawElementsBaseVertexEXT = (PFNGLDRAWELEMENTSBASEVERTEXEXTPROC)gles2wLoad("glDrawElementsBaseVertexEXT");
-    glDrawRangeElementsBaseVertexEXT = (PFNGLDRAWRANGEELEMENTSBASEVERTEXEXTPROC)gles2wLoad("glDrawRangeElementsBaseVertexEXT");
-    glDrawElementsInstancedBaseVertexEXT = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXEXTPROC)gles2wLoad("glDrawElementsInstancedBaseVertexEXT");
-    glMultiDrawElementsBaseVertexEXT = (PFNGLMULTIDRAWELEMENTSBASEVERTEXEXTPROC)gles2wLoad("glMultiDrawElementsBaseVertexEXT");
+    glDrawElementsBaseVertexEXT = reinterpret_cast<PFNGLDRAWELEMENTSBASEVERTEXEXTPROC>(gles2wLoad("glDrawElementsBaseVertexEXT"));
+    glDrawRangeElementsBaseVertexEXT = reinterpret_cast<PFNGLDRAWRANGEELEMENTSBASEVERTEXEXTPROC>(gles2wLoad("glDrawRangeElementsBaseVertexEXT"));
+    glDrawElementsInstancedBaseVertexEXT = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXEXTPROC>(gles2wLoad("glDrawElementsInstancedBaseVertexEXT"));
+    glMultiDrawElementsBaseVertexEXT = reinterpret_cast<PFNGLMULTIDRAWELEMENTSBASEVERTEXEXTPROC>(gles2wLoad("glMultiDrawElementsBaseVertexEXT"));
 #endif /* defined(GL_EXT_draw_elements_base_vertex) */
 
 #if defined(GL_EXT_draw_instanced)
-    glDrawArraysInstancedEXT = (PFNGLDRAWARRAYSINSTANCEDEXTPROC)gles2wLoad("glDrawArraysInstancedEXT");
-    glDrawElementsInstancedEXT = (PFNGLDRAWELEMENTSINSTANCEDEXTPROC)gles2wLoad("glDrawElementsInstancedEXT");
+    glDrawArraysInstancedEXT = reinterpret_cast<PFNGLDRAWARRAYSINSTANCEDEXTPROC>(gles2wLoad("glDrawArraysInstancedEXT"));
+    glDrawElementsInstancedEXT = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDEXTPROC>(gles2wLoad("glDrawElementsInstancedEXT"));
 #endif /* defined(GL_EXT_draw_instanced) */
 
 #if defined(GL_EXT_draw_transform_feedback)
-    glDrawTransformFeedbackEXT = (PFNGLDRAWTRANSFORMFEEDBACKEXTPROC)gles2wLoad("glDrawTransformFeedbackEXT");
-    glDrawTransformFeedbackInstancedEXT = (PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDEXTPROC)gles2wLoad("glDrawTransformFeedbackInstancedEXT");
+    glDrawTransformFeedbackEXT = reinterpret_cast<PFNGLDRAWTRANSFORMFEEDBACKEXTPROC>(gles2wLoad("glDrawTransformFeedbackEXT"));
+    glDrawTransformFeedbackInstancedEXT = reinterpret_cast<PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDEXTPROC>(gles2wLoad("glDrawTransformFeedbackInstancedEXT"));
 #endif /* defined(GL_EXT_draw_transform_feedback) */
 
 #if defined(GL_EXT_external_buffer)
-    glBufferStorageExternalEXT = (PFNGLBUFFERSTORAGEEXTERNALEXTPROC)gles2wLoad("glBufferStorageExternalEXT");
-    glNamedBufferStorageExternalEXT = (PFNGLNAMEDBUFFERSTORAGEEXTERNALEXTPROC)gles2wLoad("glNamedBufferStorageExternalEXT");
+    glBufferStorageExternalEXT = reinterpret_cast<PFNGLBUFFERSTORAGEEXTERNALEXTPROC>(gles2wLoad("glBufferStorageExternalEXT"));
+    glNamedBufferStorageExternalEXT = reinterpret_cast<PFNGLNAMEDBUFFERSTORAGEEXTERNALEXTPROC>(gles2wLoad("glNamedBufferStorageExternalEXT"));
 #endif /* defined(GL_EXT_external_buffer) */
 
 #if defined(GL_EXT_geometry_shader)
-    glFramebufferTextureEXT = (PFNGLFRAMEBUFFERTEXTUREEXTPROC)gles2wLoad("glFramebufferTextureEXT");
+    glFramebufferTextureEXT = reinterpret_cast<PFNGLFRAMEBUFFERTEXTUREEXTPROC>(gles2wLoad("glFramebufferTextureEXT"));
 #endif /* defined(GL_EXT_geometry_shader) */
 
 #if defined(GL_EXT_instanced_arrays)
-    glVertexAttribDivisorEXT = (PFNGLVERTEXATTRIBDIVISOREXTPROC)gles2wLoad("glVertexAttribDivisorEXT");
+    glVertexAttribDivisorEXT = reinterpret_cast<PFNGLVERTEXATTRIBDIVISOREXTPROC>(gles2wLoad("glVertexAttribDivisorEXT"));
 #endif /* defined(GL_EXT_instanced_arrays) */
 
 #if defined(GL_EXT_map_buffer_range)
-    glMapBufferRangeEXT = (PFNGLMAPBUFFERRANGEEXTPROC)gles2wLoad("glMapBufferRangeEXT");
-    glFlushMappedBufferRangeEXT = (PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC)gles2wLoad("glFlushMappedBufferRangeEXT");
+    glMapBufferRangeEXT = reinterpret_cast<PFNGLMAPBUFFERRANGEEXTPROC>(gles2wLoad("glMapBufferRangeEXT"));
+    glFlushMappedBufferRangeEXT = reinterpret_cast<PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC>(gles2wLoad("glFlushMappedBufferRangeEXT"));
 #endif /* defined(GL_EXT_map_buffer_range) */
 
 #if defined(GL_EXT_memory_object)
-    glGetUnsignedBytevEXT = (PFNGLGETUNSIGNEDBYTEVEXTPROC)gles2wLoad("glGetUnsignedBytevEXT");
-    glGetUnsignedBytei_vEXT = (PFNGLGETUNSIGNEDBYTEI_VEXTPROC)gles2wLoad("glGetUnsignedBytei_vEXT");
-    glDeleteMemoryObjectsEXT = (PFNGLDELETEMEMORYOBJECTSEXTPROC)gles2wLoad("glDeleteMemoryObjectsEXT");
-    glIsMemoryObjectEXT = (PFNGLISMEMORYOBJECTEXTPROC)gles2wLoad("glIsMemoryObjectEXT");
-    glCreateMemoryObjectsEXT = (PFNGLCREATEMEMORYOBJECTSEXTPROC)gles2wLoad("glCreateMemoryObjectsEXT");
-    glMemoryObjectParameterivEXT = (PFNGLMEMORYOBJECTPARAMETERIVEXTPROC)gles2wLoad("glMemoryObjectParameterivEXT");
-    glGetMemoryObjectParameterivEXT = (PFNGLGETMEMORYOBJECTPARAMETERIVEXTPROC)gles2wLoad("glGetMemoryObjectParameterivEXT");
-    glTexStorageMem2DEXT = (PFNGLTEXSTORAGEMEM2DEXTPROC)gles2wLoad("glTexStorageMem2DEXT");
-    glTexStorageMem2DMultisampleEXT = (PFNGLTEXSTORAGEMEM2DMULTISAMPLEEXTPROC)gles2wLoad("glTexStorageMem2DMultisampleEXT");
-    glTexStorageMem3DEXT = (PFNGLTEXSTORAGEMEM3DEXTPROC)gles2wLoad("glTexStorageMem3DEXT");
-    glTexStorageMem3DMultisampleEXT = (PFNGLTEXSTORAGEMEM3DMULTISAMPLEEXTPROC)gles2wLoad("glTexStorageMem3DMultisampleEXT");
-    glBufferStorageMemEXT = (PFNGLBUFFERSTORAGEMEMEXTPROC)gles2wLoad("glBufferStorageMemEXT");
+    glGetUnsignedBytevEXT = reinterpret_cast<PFNGLGETUNSIGNEDBYTEVEXTPROC>(gles2wLoad("glGetUnsignedBytevEXT"));
+    glGetUnsignedBytei_vEXT = reinterpret_cast<PFNGLGETUNSIGNEDBYTEI_VEXTPROC>(gles2wLoad("glGetUnsignedBytei_vEXT"));
+    glDeleteMemoryObjectsEXT = reinterpret_cast<PFNGLDELETEMEMORYOBJECTSEXTPROC>(gles2wLoad("glDeleteMemoryObjectsEXT"));
+    glIsMemoryObjectEXT = reinterpret_cast<PFNGLISMEMORYOBJECTEXTPROC>(gles2wLoad("glIsMemoryObjectEXT"));
+    glCreateMemoryObjectsEXT = reinterpret_cast<PFNGLCREATEMEMORYOBJECTSEXTPROC>(gles2wLoad("glCreateMemoryObjectsEXT"));
+    glMemoryObjectParameterivEXT = reinterpret_cast<PFNGLMEMORYOBJECTPARAMETERIVEXTPROC>(gles2wLoad("glMemoryObjectParameterivEXT"));
+    glGetMemoryObjectParameterivEXT = reinterpret_cast<PFNGLGETMEMORYOBJECTPARAMETERIVEXTPROC>(gles2wLoad("glGetMemoryObjectParameterivEXT"));
+    glTexStorageMem2DEXT = reinterpret_cast<PFNGLTEXSTORAGEMEM2DEXTPROC>(gles2wLoad("glTexStorageMem2DEXT"));
+    glTexStorageMem2DMultisampleEXT = reinterpret_cast<PFNGLTEXSTORAGEMEM2DMULTISAMPLEEXTPROC>(gles2wLoad("glTexStorageMem2DMultisampleEXT"));
+    glTexStorageMem3DEXT = reinterpret_cast<PFNGLTEXSTORAGEMEM3DEXTPROC>(gles2wLoad("glTexStorageMem3DEXT"));
+    glTexStorageMem3DMultisampleEXT = reinterpret_cast<PFNGLTEXSTORAGEMEM3DMULTISAMPLEEXTPROC>(gles2wLoad("glTexStorageMem3DMultisampleEXT"));
+    glBufferStorageMemEXT = reinterpret_cast<PFNGLBUFFERSTORAGEMEMEXTPROC>(gles2wLoad("glBufferStorageMemEXT"));
 
-    glTextureStorageMem2DEXT = (PFNGLTEXTURESTORAGEMEM2DEXTPROC)gles2wLoad("glTextureStorageMem2DEXT");
-    glTextureStorageMem2DMultisampleEXT = (PFNGLTEXTURESTORAGEMEM2DMULTISAMPLEEXTPROC)gles2wLoad("glTextureStorageMem2DMultisampleEXT");
-    glTextureStorageMem3DEXT = (PFNGLTEXTURESTORAGEMEM3DEXTPROC)gles2wLoad("glTextureStorageMem3DEXT");
-    glTextureStorageMem3DMultisampleEXT = (PFNGLTEXTURESTORAGEMEM3DMULTISAMPLEEXTPROC)gles2wLoad("glTextureStorageMem3DMultisampleEXT");
-    glNamedBufferStorageMemEXT = (PFNGLNAMEDBUFFERSTORAGEMEMEXTPROC)gles2wLoad("glNamedBufferStorageMemEXT");
+    glTextureStorageMem2DEXT = reinterpret_cast<PFNGLTEXTURESTORAGEMEM2DEXTPROC>(gles2wLoad("glTextureStorageMem2DEXT"));
+    glTextureStorageMem2DMultisampleEXT = reinterpret_cast<PFNGLTEXTURESTORAGEMEM2DMULTISAMPLEEXTPROC>(gles2wLoad("glTextureStorageMem2DMultisampleEXT"));
+    glTextureStorageMem3DEXT = reinterpret_cast<PFNGLTEXTURESTORAGEMEM3DEXTPROC>(gles2wLoad("glTextureStorageMem3DEXT"));
+    glTextureStorageMem3DMultisampleEXT = reinterpret_cast<PFNGLTEXTURESTORAGEMEM3DMULTISAMPLEEXTPROC>(gles2wLoad("glTextureStorageMem3DMultisampleEXT"));
+    glNamedBufferStorageMemEXT = reinterpret_cast<PFNGLNAMEDBUFFERSTORAGEMEMEXTPROC>(gles2wLoad("glNamedBufferStorageMemEXT"));
 #endif /* defined(GL_EXT_memory_object) */
 
 #if defined(GL_EXT_memory_object_fd)
-    glImportMemoryFdEXT = (PFNGLIMPORTMEMORYFDEXTPROC)gles2wLoad("glImportMemoryFdEXT");
+    glImportMemoryFdEXT = reinterpret_cast<PFNGLIMPORTMEMORYFDEXTPROC>(gles2wLoad("glImportMemoryFdEXT"));
 #endif /* defined(GL_EXT_memory_object_fd) */
 
 #if defined(GL_EXT_memory_object_win32)
-    glImportMemoryWin32HandleEXT = (PFNGLIMPORTMEMORYWIN32HANDLEEXTPROC)gles2wLoad("glImportMemoryWin32HandleEXT");
-    glImportMemoryWin32NameEXT = (PFNGLIMPORTMEMORYWIN32NAMEEXTPROC)gles2wLoad("glImportMemoryWin32NameEXT");
+    glImportMemoryWin32HandleEXT = reinterpret_cast<PFNGLIMPORTMEMORYWIN32HANDLEEXTPROC>(gles2wLoad("glImportMemoryWin32HandleEXT"));
+    glImportMemoryWin32NameEXT = reinterpret_cast<PFNGLIMPORTMEMORYWIN32NAMEEXTPROC>(gles2wLoad("glImportMemoryWin32NameEXT"));
 #endif /* defined(GL_EXT_memory_object_win32) */
 
 #if defined(GL_EXT_multi_draw_arrays)
-    glMultiDrawArraysEXT = (PFNGLMULTIDRAWARRAYSEXTPROC)gles2wLoad("glMultiDrawArraysEXT");
-    glMultiDrawElementsEXT = (PFNGLMULTIDRAWELEMENTSEXTPROC)gles2wLoad("glMultiDrawElementsEXT");
+    glMultiDrawArraysEXT = reinterpret_cast<PFNGLMULTIDRAWARRAYSEXTPROC>(gles2wLoad("glMultiDrawArraysEXT"));
+    glMultiDrawElementsEXT = reinterpret_cast<PFNGLMULTIDRAWELEMENTSEXTPROC>(gles2wLoad("glMultiDrawElementsEXT"));
 #endif /* defined(GL_EXT_multi_draw_arrays) */
 
 #if defined(GL_EXT_multi_draw_indirect)
-    glMultiDrawArraysIndirectEXT = (PFNGLMULTIDRAWARRAYSINDIRECTEXTPROC)gles2wLoad("glMultiDrawArraysIndirectEXT");
-    glMultiDrawElementsIndirectEXT = (PFNGLMULTIDRAWELEMENTSINDIRECTEXTPROC)gles2wLoad("glMultiDrawElementsIndirectEXT");
+    glMultiDrawArraysIndirectEXT = reinterpret_cast<PFNGLMULTIDRAWARRAYSINDIRECTEXTPROC>(gles2wLoad("glMultiDrawArraysIndirectEXT"));
+    glMultiDrawElementsIndirectEXT = reinterpret_cast<PFNGLMULTIDRAWELEMENTSINDIRECTEXTPROC>(gles2wLoad("glMultiDrawElementsIndirectEXT"));
 #endif /* defined(GL_EXT_multi_draw_indirect) */
 
 #if defined(GL_EXT_multisampled_render_to_texture)
-    glRenderbufferStorageMultisampleEXT = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)gles2wLoad("glRenderbufferStorageMultisampleEXT");
-    glFramebufferTexture2DMultisampleEXT = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)gles2wLoad("glFramebufferTexture2DMultisampleEXT");
+    glRenderbufferStorageMultisampleEXT = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC>(gles2wLoad("glRenderbufferStorageMultisampleEXT"));
+    glFramebufferTexture2DMultisampleEXT = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC>(gles2wLoad("glFramebufferTexture2DMultisampleEXT"));
 #endif /* defined(GL_EXT_multisampled_render_to_texture) */
 
 #if defined(GL_EXT_multiview_draw_buffers)
-    glReadBufferIndexedEXT = (PFNGLREADBUFFERINDEXEDEXTPROC)gles2wLoad("glReadBufferIndexedEXT");
-    glDrawBuffersIndexedEXT = (PFNGLDRAWBUFFERSINDEXEDEXTPROC)gles2wLoad("glDrawBuffersIndexedEXT");
-    glGetIntegeri_vEXT = (PFNGLGETINTEGERI_VEXTPROC)gles2wLoad("glGetIntegeri_vEXT");
+    glReadBufferIndexedEXT = reinterpret_cast<PFNGLREADBUFFERINDEXEDEXTPROC>(gles2wLoad("glReadBufferIndexedEXT"));
+    glDrawBuffersIndexedEXT = reinterpret_cast<PFNGLDRAWBUFFERSINDEXEDEXTPROC>(gles2wLoad("glDrawBuffersIndexedEXT"));
+    glGetIntegeri_vEXT = reinterpret_cast<PFNGLGETINTEGERI_VEXTPROC>(gles2wLoad("glGetIntegeri_vEXT"));
 #endif /* defined(GL_EXT_multiview_draw_buffers) */
 
 #if defined(GL_EXT_polygon_offset_clamp)
-    glPolygonOffsetClampEXT = (PFNGLPOLYGONOFFSETCLAMPEXTPROC)gles2wLoad("glPolygonOffsetClampEXT");
+    glPolygonOffsetClampEXT = reinterpret_cast<PFNGLPOLYGONOFFSETCLAMPEXTPROC>(gles2wLoad("glPolygonOffsetClampEXT"));
 #endif /* defined(GL_EXT_polygon_offset_clamp) */
 
 #if defined(GL_EXT_primitive_bounding_box)
-    glPrimitiveBoundingBoxEXT = (PFNGLPRIMITIVEBOUNDINGBOXEXTPROC)gles2wLoad("glPrimitiveBoundingBoxEXT");
+    glPrimitiveBoundingBoxEXT = reinterpret_cast<PFNGLPRIMITIVEBOUNDINGBOXEXTPROC>(gles2wLoad("glPrimitiveBoundingBoxEXT"));
 #endif /* defined(GL_EXT_primitive_bounding_box) */
 
 #if defined(GL_EXT_raster_multisample)
-    glRasterSamplesEXT = (PFNGLRASTERSAMPLESEXTPROC)gles2wLoad("glRasterSamplesEXT");
+    glRasterSamplesEXT = reinterpret_cast<PFNGLRASTERSAMPLESEXTPROC>(gles2wLoad("glRasterSamplesEXT"));
 #endif /* defined(GL_EXT_raster_multisample) */
 
 #if defined(GL_EXT_robustness)
-    glGetGraphicsResetStatusEXT = (PFNGLGETGRAPHICSRESETSTATUSEXTPROC)gles2wLoad("glGetGraphicsResetStatusEXT");
-    glReadnPixelsEXT = (PFNGLREADNPIXELSEXTPROC)gles2wLoad("glReadnPixelsEXT");
-    glGetnUniformfvEXT = (PFNGLGETNUNIFORMFVEXTPROC)gles2wLoad("glGetnUniformfvEXT");
-    glGetnUniformivEXT = (PFNGLGETNUNIFORMIVEXTPROC)gles2wLoad("glGetnUniformivEXT");
+    glGetGraphicsResetStatusEXT = reinterpret_cast<PFNGLGETGRAPHICSRESETSTATUSEXTPROC>(gles2wLoad("glGetGraphicsResetStatusEXT"));
+    glReadnPixelsEXT = reinterpret_cast<PFNGLREADNPIXELSEXTPROC>(gles2wLoad("glReadnPixelsEXT"));
+    glGetnUniformfvEXT = reinterpret_cast<PFNGLGETNUNIFORMFVEXTPROC>(gles2wLoad("glGetnUniformfvEXT"));
+    glGetnUniformivEXT = reinterpret_cast<PFNGLGETNUNIFORMIVEXTPROC>(gles2wLoad("glGetnUniformivEXT"));
 #endif /* defined(GL_EXT_robustness) */
 
 #if defined(GL_EXT_semaphore)
-    glGenSemaphoresEXT = (PFNGLGENSEMAPHORESEXTPROC)gles2wLoad("glGenSemaphoresEXT");
-    glDeleteSemaphoresEXT = (PFNGLDELETESEMAPHORESEXTPROC)gles2wLoad("glDeleteSemaphoresEXT");
-    glIsSemaphoreEXT = (PFNGLISSEMAPHOREEXTPROC)gles2wLoad("glIsSemaphoreEXT");
-    glSemaphoreParameterui64vEXT = (PFNGLSEMAPHOREPARAMETERUI64VEXTPROC)gles2wLoad("glSemaphoreParameterui64vEXT");
-    glGetSemaphoreParameterui64vEXT = (PFNGLGETSEMAPHOREPARAMETERUI64VEXTPROC)gles2wLoad("glGetSemaphoreParameterui64vEXT");
-    glWaitSemaphoreEXT = (PFNGLWAITSEMAPHOREEXTPROC)gles2wLoad("glWaitSemaphoreEXT");
-    glSignalSemaphoreEXT = (PFNGLSIGNALSEMAPHOREEXTPROC)gles2wLoad("glSignalSemaphoreEXT");
+    glGenSemaphoresEXT = reinterpret_cast<PFNGLGENSEMAPHORESEXTPROC>(gles2wLoad("glGenSemaphoresEXT"));
+    glDeleteSemaphoresEXT = reinterpret_cast<PFNGLDELETESEMAPHORESEXTPROC>(gles2wLoad("glDeleteSemaphoresEXT"));
+    glIsSemaphoreEXT = reinterpret_cast<PFNGLISSEMAPHOREEXTPROC>(gles2wLoad("glIsSemaphoreEXT"));
+    glSemaphoreParameterui64vEXT = reinterpret_cast<PFNGLSEMAPHOREPARAMETERUI64VEXTPROC>(gles2wLoad("glSemaphoreParameterui64vEXT"));
+    glGetSemaphoreParameterui64vEXT = reinterpret_cast<PFNGLGETSEMAPHOREPARAMETERUI64VEXTPROC>(gles2wLoad("glGetSemaphoreParameterui64vEXT"));
+    glWaitSemaphoreEXT = reinterpret_cast<PFNGLWAITSEMAPHOREEXTPROC>(gles2wLoad("glWaitSemaphoreEXT"));
+    glSignalSemaphoreEXT = reinterpret_cast<PFNGLSIGNALSEMAPHOREEXTPROC>(gles2wLoad("glSignalSemaphoreEXT"));
 #endif /* defined(GL_EXT_semaphore) */
 
 #if defined(GL_EXT_semaphore_fd)
-    glImportSemaphoreFdEXT = (PFNGLIMPORTSEMAPHOREFDEXTPROC)gles2wLoad("glImportSemaphoreFdEXT");
+    glImportSemaphoreFdEXT = reinterpret_cast<PFNGLIMPORTSEMAPHOREFDEXTPROC>(gles2wLoad("glImportSemaphoreFdEXT"));
 #endif /* defined(GL_EXT_semaphore_fd) */
 
 #if defined(GL_EXT_semaphore_win32)
-    glImportSemaphoreWin32HandleEXT = (PFNGLIMPORTSEMAPHOREWIN32HANDLEEXTPROC)gles2wLoad("glImportSemaphoreWin32HandleEXT");
-    glImportSemaphoreWin32NameEXT = (PFNGLIMPORTSEMAPHOREWIN32NAMEEXTPROC)gles2wLoad("glImportSemaphoreWin32NameEXT");
+    glImportSemaphoreWin32HandleEXT = reinterpret_cast<PFNGLIMPORTSEMAPHOREWIN32HANDLEEXTPROC>(gles2wLoad("glImportSemaphoreWin32HandleEXT"));
+    glImportSemaphoreWin32NameEXT = reinterpret_cast<PFNGLIMPORTSEMAPHOREWIN32NAMEEXTPROC>(gles2wLoad("glImportSemaphoreWin32NameEXT"));
 #endif /* defined(GL_EXT_semaphore_win32) */
 
 #if defined(GL_EXT_separate_shader_objects)
-    glActiveShaderProgramEXT = (PFNGLACTIVESHADERPROGRAMEXTPROC)gles2wLoad("glActiveShaderProgramEXT");
-    glBindProgramPipelineEXT = (PFNGLBINDPROGRAMPIPELINEEXTPROC)gles2wLoad("glBindProgramPipelineEXT");
-    glCreateShaderProgramvEXT = (PFNGLCREATESHADERPROGRAMVEXTPROC)gles2wLoad("glCreateShaderProgramvEXT");
-    glDeleteProgramPipelinesEXT = (PFNGLDELETEPROGRAMPIPELINESEXTPROC)gles2wLoad("glDeleteProgramPipelinesEXT");
-    glGenProgramPipelinesEXT = (PFNGLGENPROGRAMPIPELINESEXTPROC)gles2wLoad("glGenProgramPipelinesEXT");
-    glGetProgramPipelineInfoLogEXT = (PFNGLGETPROGRAMPIPELINEINFOLOGEXTPROC)gles2wLoad("glGetProgramPipelineInfoLogEXT");
-    glGetProgramPipelineivEXT = (PFNGLGETPROGRAMPIPELINEIVEXTPROC)gles2wLoad("glGetProgramPipelineivEXT");
-    glIsProgramPipelineEXT = (PFNGLISPROGRAMPIPELINEEXTPROC)gles2wLoad("glIsProgramPipelineEXT");
-    glProgramParameteriEXT = (PFNGLPROGRAMPARAMETERIEXTPROC)gles2wLoad("glProgramParameteriEXT");
-    glProgramUniform1fEXT = (PFNGLPROGRAMUNIFORM1FEXTPROC)gles2wLoad("glProgramUniform1fEXT");
-    glProgramUniform1fvEXT = (PFNGLPROGRAMUNIFORM1FVEXTPROC)gles2wLoad("glProgramUniform1fvEXT");
-    glProgramUniform1iEXT = (PFNGLPROGRAMUNIFORM1IEXTPROC)gles2wLoad("glProgramUniform1iEXT");
-    glProgramUniform1ivEXT = (PFNGLPROGRAMUNIFORM1IVEXTPROC)gles2wLoad("glProgramUniform1ivEXT");
-    glProgramUniform2fEXT = (PFNGLPROGRAMUNIFORM2FEXTPROC)gles2wLoad("glProgramUniform2fEXT");
-    glProgramUniform2fvEXT = (PFNGLPROGRAMUNIFORM2FVEXTPROC)gles2wLoad("glProgramUniform2fvEXT");
-    glProgramUniform2iEXT = (PFNGLPROGRAMUNIFORM2IEXTPROC)gles2wLoad("glProgramUniform2iEXT");
-    glProgramUniform2ivEXT = (PFNGLPROGRAMUNIFORM2IVEXTPROC)gles2wLoad("glProgramUniform2ivEXT");
-    glProgramUniform3fEXT = (PFNGLPROGRAMUNIFORM3FEXTPROC)gles2wLoad("glProgramUniform3fEXT");
-    glProgramUniform3fvEXT = (PFNGLPROGRAMUNIFORM3FVEXTPROC)gles2wLoad("glProgramUniform3fvEXT");
-    glProgramUniform3iEXT = (PFNGLPROGRAMUNIFORM3IEXTPROC)gles2wLoad("glProgramUniform3iEXT");
-    glProgramUniform3ivEXT = (PFNGLPROGRAMUNIFORM3IVEXTPROC)gles2wLoad("glProgramUniform3ivEXT");
-    glProgramUniform4fEXT = (PFNGLPROGRAMUNIFORM4FEXTPROC)gles2wLoad("glProgramUniform4fEXT");
-    glProgramUniform4fvEXT = (PFNGLPROGRAMUNIFORM4FVEXTPROC)gles2wLoad("glProgramUniform4fvEXT");
-    glProgramUniform4iEXT = (PFNGLPROGRAMUNIFORM4IEXTPROC)gles2wLoad("glProgramUniform4iEXT");
-    glProgramUniform4ivEXT = (PFNGLPROGRAMUNIFORM4IVEXTPROC)gles2wLoad("glProgramUniform4ivEXT");
-    glProgramUniformMatrix2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC)gles2wLoad("glProgramUniformMatrix2fvEXT");
-    glProgramUniformMatrix3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC)gles2wLoad("glProgramUniformMatrix3fvEXT");
-    glProgramUniformMatrix4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC)gles2wLoad("glProgramUniformMatrix4fvEXT");
-    glUseProgramStagesEXT = (PFNGLUSEPROGRAMSTAGESEXTPROC)gles2wLoad("glUseProgramStagesEXT");
-    glValidateProgramPipelineEXT = (PFNGLVALIDATEPROGRAMPIPELINEEXTPROC)gles2wLoad("glValidateProgramPipelineEXT");
+    glActiveShaderProgramEXT = reinterpret_cast<PFNGLACTIVESHADERPROGRAMEXTPROC>(gles2wLoad("glActiveShaderProgramEXT"));
+    glBindProgramPipelineEXT = reinterpret_cast<PFNGLBINDPROGRAMPIPELINEEXTPROC>(gles2wLoad("glBindProgramPipelineEXT"));
+    glCreateShaderProgramvEXT = reinterpret_cast<PFNGLCREATESHADERPROGRAMVEXTPROC>(gles2wLoad("glCreateShaderProgramvEXT"));
+    glDeleteProgramPipelinesEXT = reinterpret_cast<PFNGLDELETEPROGRAMPIPELINESEXTPROC>(gles2wLoad("glDeleteProgramPipelinesEXT"));
+    glGenProgramPipelinesEXT = reinterpret_cast<PFNGLGENPROGRAMPIPELINESEXTPROC>(gles2wLoad("glGenProgramPipelinesEXT"));
+    glGetProgramPipelineInfoLogEXT = reinterpret_cast<PFNGLGETPROGRAMPIPELINEINFOLOGEXTPROC>(gles2wLoad("glGetProgramPipelineInfoLogEXT"));
+    glGetProgramPipelineivEXT = reinterpret_cast<PFNGLGETPROGRAMPIPELINEIVEXTPROC>(gles2wLoad("glGetProgramPipelineivEXT"));
+    glIsProgramPipelineEXT = reinterpret_cast<PFNGLISPROGRAMPIPELINEEXTPROC>(gles2wLoad("glIsProgramPipelineEXT"));
+    glProgramParameteriEXT = reinterpret_cast<PFNGLPROGRAMPARAMETERIEXTPROC>(gles2wLoad("glProgramParameteriEXT"));
+    glProgramUniform1fEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM1FEXTPROC>(gles2wLoad("glProgramUniform1fEXT"));
+    glProgramUniform1fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM1FVEXTPROC>(gles2wLoad("glProgramUniform1fvEXT"));
+    glProgramUniform1iEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM1IEXTPROC>(gles2wLoad("glProgramUniform1iEXT"));
+    glProgramUniform1ivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM1IVEXTPROC>(gles2wLoad("glProgramUniform1ivEXT"));
+    glProgramUniform2fEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM2FEXTPROC>(gles2wLoad("glProgramUniform2fEXT"));
+    glProgramUniform2fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM2FVEXTPROC>(gles2wLoad("glProgramUniform2fvEXT"));
+    glProgramUniform2iEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM2IEXTPROC>(gles2wLoad("glProgramUniform2iEXT"));
+    glProgramUniform2ivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM2IVEXTPROC>(gles2wLoad("glProgramUniform2ivEXT"));
+    glProgramUniform3fEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM3FEXTPROC>(gles2wLoad("glProgramUniform3fEXT"));
+    glProgramUniform3fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM3FVEXTPROC>(gles2wLoad("glProgramUniform3fvEXT"));
+    glProgramUniform3iEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM3IEXTPROC>(gles2wLoad("glProgramUniform3iEXT"));
+    glProgramUniform3ivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM3IVEXTPROC>(gles2wLoad("glProgramUniform3ivEXT"));
+    glProgramUniform4fEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM4FEXTPROC>(gles2wLoad("glProgramUniform4fEXT"));
+    glProgramUniform4fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM4FVEXTPROC>(gles2wLoad("glProgramUniform4fvEXT"));
+    glProgramUniform4iEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM4IEXTPROC>(gles2wLoad("glProgramUniform4iEXT"));
+    glProgramUniform4ivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM4IVEXTPROC>(gles2wLoad("glProgramUniform4ivEXT"));
+    glProgramUniformMatrix2fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX2FVEXTPROC>(gles2wLoad("glProgramUniformMatrix2fvEXT"));
+    glProgramUniformMatrix3fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX3FVEXTPROC>(gles2wLoad("glProgramUniformMatrix3fvEXT"));
+    glProgramUniformMatrix4fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4FVEXTPROC>(gles2wLoad("glProgramUniformMatrix4fvEXT"));
+    glUseProgramStagesEXT = reinterpret_cast<PFNGLUSEPROGRAMSTAGESEXTPROC>(gles2wLoad("glUseProgramStagesEXT"));
+    glValidateProgramPipelineEXT = reinterpret_cast<PFNGLVALIDATEPROGRAMPIPELINEEXTPROC>(gles2wLoad("glValidateProgramPipelineEXT"));
 
-    glProgramUniform1uiEXT = (PFNGLPROGRAMUNIFORM1UIEXTPROC)gles2wLoad("glProgramUniform1uiEXT");
-    glProgramUniform2uiEXT = (PFNGLPROGRAMUNIFORM2UIEXTPROC)gles2wLoad("glProgramUniform2uiEXT");
-    glProgramUniform3uiEXT = (PFNGLPROGRAMUNIFORM3UIEXTPROC)gles2wLoad("glProgramUniform3uiEXT");
-    glProgramUniform4uiEXT = (PFNGLPROGRAMUNIFORM4UIEXTPROC)gles2wLoad("glProgramUniform4uiEXT");
-    glProgramUniform1uivEXT = (PFNGLPROGRAMUNIFORM1UIVEXTPROC)gles2wLoad("glProgramUniform1uivEXT");
-    glProgramUniform2uivEXT = (PFNGLPROGRAMUNIFORM2UIVEXTPROC)gles2wLoad("glProgramUniform2uivEXT");
-    glProgramUniform3uivEXT = (PFNGLPROGRAMUNIFORM3UIVEXTPROC)gles2wLoad("glProgramUniform3uivEXT");
-    glProgramUniform4uivEXT = (PFNGLPROGRAMUNIFORM4UIVEXTPROC)gles2wLoad("glProgramUniform4uivEXT");
-    glProgramUniformMatrix2x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC)gles2wLoad("glProgramUniformMatrix2x3fvEXT");
-    glProgramUniformMatrix3x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC)gles2wLoad("glProgramUniformMatrix3x2fvEXT");
-    glProgramUniformMatrix2x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC)gles2wLoad("glProgramUniformMatrix2x4fvEXT");
-    glProgramUniformMatrix4x2fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC)gles2wLoad("glProgramUniformMatrix4x2fvEXT");
-    glProgramUniformMatrix3x4fvEXT = (PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC)gles2wLoad("glProgramUniformMatrix3x4fvEXT");
-    glProgramUniformMatrix4x3fvEXT = (PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC)gles2wLoad("glProgramUniformMatrix4x3fvEXT");
+    glProgramUniform1uiEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM1UIEXTPROC>(gles2wLoad("glProgramUniform1uiEXT"));
+    glProgramUniform2uiEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM2UIEXTPROC>(gles2wLoad("glProgramUniform2uiEXT"));
+    glProgramUniform3uiEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM3UIEXTPROC>(gles2wLoad("glProgramUniform3uiEXT"));
+    glProgramUniform4uiEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM4UIEXTPROC>(gles2wLoad("glProgramUniform4uiEXT"));
+    glProgramUniform1uivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM1UIVEXTPROC>(gles2wLoad("glProgramUniform1uivEXT"));
+    glProgramUniform2uivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM2UIVEXTPROC>(gles2wLoad("glProgramUniform2uivEXT"));
+    glProgramUniform3uivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM3UIVEXTPROC>(gles2wLoad("glProgramUniform3uivEXT"));
+    glProgramUniform4uivEXT = reinterpret_cast<PFNGLPROGRAMUNIFORM4UIVEXTPROC>(gles2wLoad("glProgramUniform4uivEXT"));
+    glProgramUniformMatrix2x3fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX2X3FVEXTPROC>(gles2wLoad("glProgramUniformMatrix2x3fvEXT"));
+    glProgramUniformMatrix3x2fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX3X2FVEXTPROC>(gles2wLoad("glProgramUniformMatrix3x2fvEXT"));
+    glProgramUniformMatrix2x4fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX2X4FVEXTPROC>(gles2wLoad("glProgramUniformMatrix2x4fvEXT"));
+    glProgramUniformMatrix4x2fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4X2FVEXTPROC>(gles2wLoad("glProgramUniformMatrix4x2fvEXT"));
+    glProgramUniformMatrix3x4fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX3X4FVEXTPROC>(gles2wLoad("glProgramUniformMatrix3x4fvEXT"));
+    glProgramUniformMatrix4x3fvEXT = reinterpret_cast<PFNGLPROGRAMUNIFORMMATRIX4X3FVEXTPROC>(gles2wLoad("glProgramUniformMatrix4x3fvEXT"));
 #endif /* defined(GL_EXT_separate_shader_objects) */
 
 #if defined(GL_EXT_shader_framebuffer_fetch_non_coherent)
-    glFramebufferFetchBarrierEXT = (PFNGLFRAMEBUFFERFETCHBARRIEREXTPROC)gles2wLoad("glFramebufferFetchBarrierEXT");
+    glFramebufferFetchBarrierEXT = reinterpret_cast<PFNGLFRAMEBUFFERFETCHBARRIEREXTPROC>(gles2wLoad("glFramebufferFetchBarrierEXT"));
 #endif /* defined(GL_EXT_shader_framebuffer_fetch_non_coherent) */
 
 #if defined(GL_EXT_shader_pixel_local_storage2)
-    glFramebufferPixelLocalStorageSizeEXT = (PFNGLFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC)gles2wLoad("glFramebufferPixelLocalStorageSizeEXT");
-    glGetFramebufferPixelLocalStorageSizeEXT = (PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC)gles2wLoad("glGetFramebufferPixelLocalStorageSizeEXT");
-    glClearPixelLocalStorageuiEXT = (PFNGLCLEARPIXELLOCALSTORAGEUIEXTPROC)gles2wLoad("glClearPixelLocalStorageuiEXT");
+    glFramebufferPixelLocalStorageSizeEXT = reinterpret_cast<PFNGLFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC>(gles2wLoad("glFramebufferPixelLocalStorageSizeEXT"));
+    glGetFramebufferPixelLocalStorageSizeEXT = reinterpret_cast<PFNGLGETFRAMEBUFFERPIXELLOCALSTORAGESIZEEXTPROC>(gles2wLoad("glGetFramebufferPixelLocalStorageSizeEXT"));
+    glClearPixelLocalStorageuiEXT = reinterpret_cast<PFNGLCLEARPIXELLOCALSTORAGEUIEXTPROC>(gles2wLoad("glClearPixelLocalStorageuiEXT"));
 #endif /* defined(GL_EXT_shader_pixel_local_storage2) */
 
 #if defined(GL_EXT_sparse_texture)
-    glTexPageCommitmentEXT = (PFNGLTEXPAGECOMMITMENTEXTPROC)gles2wLoad("glTexPageCommitmentEXT");
+    glTexPageCommitmentEXT = reinterpret_cast<PFNGLTEXPAGECOMMITMENTEXTPROC>(gles2wLoad("glTexPageCommitmentEXT"));
 #endif /* defined(GL_EXT_sparse_texture) */
 
 #if defined(GL_EXT_tessellation_shader)
-    glPatchParameteriEXT = (PFNGLPATCHPARAMETERIEXTPROC)gles2wLoad("glPatchParameteriEXT");
+    glPatchParameteriEXT = reinterpret_cast<PFNGLPATCHPARAMETERIEXTPROC>(gles2wLoad("glPatchParameteriEXT"));
 #endif /* defined(GL_EXT_tessellation_shader) */
 
 #if defined(GL_EXT_texture_border_clamp)
-    glTexParameterIivEXT = (PFNGLTEXPARAMETERIIVEXTPROC)gles2wLoad("glTexParameterIivEXT");
-    glTexParameterIuivEXT = (PFNGLTEXPARAMETERIUIVEXTPROC)gles2wLoad("glTexParameterIuivEXT");
-    glGetTexParameterIivEXT = (PFNGLGETTEXPARAMETERIIVEXTPROC)gles2wLoad("glGetTexParameterIivEXT");
-    glGetTexParameterIuivEXT = (PFNGLGETTEXPARAMETERIUIVEXTPROC)gles2wLoad("glGetTexParameterIuivEXT");
-    glSamplerParameterIivEXT = (PFNGLSAMPLERPARAMETERIIVEXTPROC)gles2wLoad("glSamplerParameterIivEXT");
-    glSamplerParameterIuivEXT = (PFNGLSAMPLERPARAMETERIUIVEXTPROC)gles2wLoad("glSamplerParameterIuivEXT");
-    glGetSamplerParameterIivEXT = (PFNGLGETSAMPLERPARAMETERIIVEXTPROC)gles2wLoad("glGetSamplerParameterIivEXT");
-    glGetSamplerParameterIuivEXT = (PFNGLGETSAMPLERPARAMETERIUIVEXTPROC)gles2wLoad("glGetSamplerParameterIuivEXT");
+    glTexParameterIivEXT = reinterpret_cast<PFNGLTEXPARAMETERIIVEXTPROC>(gles2wLoad("glTexParameterIivEXT"));
+    glTexParameterIuivEXT = reinterpret_cast<PFNGLTEXPARAMETERIUIVEXTPROC>(gles2wLoad("glTexParameterIuivEXT"));
+    glGetTexParameterIivEXT = reinterpret_cast<PFNGLGETTEXPARAMETERIIVEXTPROC>(gles2wLoad("glGetTexParameterIivEXT"));
+    glGetTexParameterIuivEXT = reinterpret_cast<PFNGLGETTEXPARAMETERIUIVEXTPROC>(gles2wLoad("glGetTexParameterIuivEXT"));
+    glSamplerParameterIivEXT = reinterpret_cast<PFNGLSAMPLERPARAMETERIIVEXTPROC>(gles2wLoad("glSamplerParameterIivEXT"));
+    glSamplerParameterIuivEXT = reinterpret_cast<PFNGLSAMPLERPARAMETERIUIVEXTPROC>(gles2wLoad("glSamplerParameterIuivEXT"));
+    glGetSamplerParameterIivEXT = reinterpret_cast<PFNGLGETSAMPLERPARAMETERIIVEXTPROC>(gles2wLoad("glGetSamplerParameterIivEXT"));
+    glGetSamplerParameterIuivEXT = reinterpret_cast<PFNGLGETSAMPLERPARAMETERIUIVEXTPROC>(gles2wLoad("glGetSamplerParameterIuivEXT"));
 #endif /* defined(GL_EXT_texture_border_clamp) */
 
 #if defined(GL_EXT_texture_buffer)
-    glTexBufferEXT = (PFNGLTEXBUFFEREXTPROC)gles2wLoad("glTexBufferEXT");
-    glTexBufferRangeEXT = (PFNGLTEXBUFFERRANGEEXTPROC)gles2wLoad("glTexBufferRangeEXT");
+    glTexBufferEXT = reinterpret_cast<PFNGLTEXBUFFEREXTPROC>(gles2wLoad("glTexBufferEXT"));
+    glTexBufferRangeEXT = reinterpret_cast<PFNGLTEXBUFFERRANGEEXTPROC>(gles2wLoad("glTexBufferRangeEXT"));
 #endif /* defined(GL_EXT_texture_buffer) */
 
 #if defined(GL_EXT_texture_storage)
-    glTexStorage1DEXT = (PFNGLTEXSTORAGE1DEXTPROC)gles2wLoad("glTexStorage1DEXT");
-    glTexStorage2DEXT = (PFNGLTEXSTORAGE2DEXTPROC)gles2wLoad("glTexStorage2DEXT");
-    glTexStorage3DEXT = (PFNGLTEXSTORAGE3DEXTPROC)gles2wLoad("glTexStorage3DEXT");
+    glTexStorage1DEXT = reinterpret_cast<PFNGLTEXSTORAGE1DEXTPROC>(gles2wLoad("glTexStorage1DEXT"));
+    glTexStorage2DEXT = reinterpret_cast<PFNGLTEXSTORAGE2DEXTPROC>(gles2wLoad("glTexStorage2DEXT"));
+    glTexStorage3DEXT = reinterpret_cast<PFNGLTEXSTORAGE3DEXTPROC>(gles2wLoad("glTexStorage3DEXT"));
 
-    glTextureStorage1DEXT = (PFNGLTEXTURESTORAGE1DEXTPROC)gles2wLoad("glTextureStorage1DEXT");
-    glTextureStorage2DEXT = (PFNGLTEXTURESTORAGE2DEXTPROC)gles2wLoad("glTextureStorage2DEXT");
-    glTextureStorage3DEXT = (PFNGLTEXTURESTORAGE3DEXTPROC)gles2wLoad("glTextureStorage3DEXT");
+    glTextureStorage1DEXT = reinterpret_cast<PFNGLTEXTURESTORAGE1DEXTPROC>(gles2wLoad("glTextureStorage1DEXT"));
+    glTextureStorage2DEXT = reinterpret_cast<PFNGLTEXTURESTORAGE2DEXTPROC>(gles2wLoad("glTextureStorage2DEXT"));
+    glTextureStorage3DEXT = reinterpret_cast<PFNGLTEXTURESTORAGE3DEXTPROC>(gles2wLoad("glTextureStorage3DEXT"));
 #endif /* defined(GL_EXT_texture_storage) */
 
 #if defined(GL_EXT_texture_view)
-    glTextureViewEXT = (PFNGLTEXTUREVIEWEXTPROC)gles2wLoad("glTextureViewEXT");
+    glTextureViewEXT = reinterpret_cast<PFNGLTEXTUREVIEWEXTPROC>(gles2wLoad("glTextureViewEXT"));
 #endif /* defined(GL_EXT_texture_view) */
 
 #if defined(GL_NV_timeline_semaphore)
-    glCreateSemaphoresNV = (PFNGLCREATESEMAPHORESNVPROC)gles2wLoad("glCreateSemaphoresNV");
-    glSemaphoreParameterivNV = (PFNGLSEMAPHOREPARAMETERIVNVPROC)gles2wLoad("glSemaphoreParameterivNV");
-    glGetSemaphoreParameterivNV = (PFNGLGETSEMAPHOREPARAMETERIVNVPROC)gles2wLoad("glGetSemaphoreParameterivNV");
+    glCreateSemaphoresNV = reinterpret_cast<PFNGLCREATESEMAPHORESNVPROC>(gles2wLoad("glCreateSemaphoresNV"));
+    glSemaphoreParameterivNV = reinterpret_cast<PFNGLSEMAPHOREPARAMETERIVNVPROC>(gles2wLoad("glSemaphoreParameterivNV"));
+    glGetSemaphoreParameterivNV = reinterpret_cast<PFNGLGETSEMAPHOREPARAMETERIVNVPROC>(gles2wLoad("glGetSemaphoreParameterivNV"));
 #endif /* defined(GL_NV_timeline_semaphore) */
 
 #if defined(GL_EXT_win32_keyed_mutex)
-    glAcquireKeyedMutexWin32EXT = (PFNGLACQUIREKEYEDMUTEXWIN32EXTPROC)gles2wLoad("glAcquireKeyedMutexWin32EXT");
-    glReleaseKeyedMutexWin32EXT = (PFNGLRELEASEKEYEDMUTEXWIN32EXTPROC)gles2wLoad("glReleaseKeyedMutexWin32EXT");
+    glAcquireKeyedMutexWin32EXT = reinterpret_cast<PFNGLACQUIREKEYEDMUTEXWIN32EXTPROC>(gles2wLoad("glAcquireKeyedMutexWin32EXT"));
+    glReleaseKeyedMutexWin32EXT = reinterpret_cast<PFNGLRELEASEKEYEDMUTEXWIN32EXTPROC>(gles2wLoad("glReleaseKeyedMutexWin32EXT"));
 #endif /* defined(GL_EXT_win32_keyed_mutex) */
 
 #if defined(GL_EXT_window_rectangles)
-    glWindowRectanglesEXT = (PFNGLWINDOWRECTANGLESEXTPROC)gles2wLoad("glWindowRectanglesEXT");
+    glWindowRectanglesEXT = reinterpret_cast<PFNGLWINDOWRECTANGLESEXTPROC>(gles2wLoad("glWindowRectanglesEXT"));
 #endif /* defined(GL_EXT_window_rectangles) */
 
 #if defined(GL_IMG_bindless_texture)
-    glGetTextureHandleIMG = (PFNGLGETTEXTUREHANDLEIMGPROC)gles2wLoad("glGetTextureHandleIMG");
-    glGetTextureSamplerHandleIMG = (PFNGLGETTEXTURESAMPLERHANDLEIMGPROC)gles2wLoad("glGetTextureSamplerHandleIMG");
-    glUniformHandleui64IMG = (PFNGLUNIFORMHANDLEUI64IMGPROC)gles2wLoad("glUniformHandleui64IMG");
-    glUniformHandleui64vIMG = (PFNGLUNIFORMHANDLEUI64VIMGPROC)gles2wLoad("glUniformHandleui64vIMG");
-    glProgramUniformHandleui64IMG = (PFNGLPROGRAMUNIFORMHANDLEUI64IMGPROC)gles2wLoad("glProgramUniformHandleui64IMG");
-    glProgramUniformHandleui64vIMG = (PFNGLPROGRAMUNIFORMHANDLEUI64VIMGPROC)gles2wLoad("glProgramUniformHandleui64vIMG");
+    glGetTextureHandleIMG = reinterpret_cast<PFNGLGETTEXTUREHANDLEIMGPROC>(gles2wLoad("glGetTextureHandleIMG"));
+    glGetTextureSamplerHandleIMG = reinterpret_cast<PFNGLGETTEXTURESAMPLERHANDLEIMGPROC>(gles2wLoad("glGetTextureSamplerHandleIMG"));
+    glUniformHandleui64IMG = reinterpret_cast<PFNGLUNIFORMHANDLEUI64IMGPROC>(gles2wLoad("glUniformHandleui64IMG"));
+    glUniformHandleui64vIMG = reinterpret_cast<PFNGLUNIFORMHANDLEUI64VIMGPROC>(gles2wLoad("glUniformHandleui64vIMG"));
+    glProgramUniformHandleui64IMG = reinterpret_cast<PFNGLPROGRAMUNIFORMHANDLEUI64IMGPROC>(gles2wLoad("glProgramUniformHandleui64IMG"));
+    glProgramUniformHandleui64vIMG = reinterpret_cast<PFNGLPROGRAMUNIFORMHANDLEUI64VIMGPROC>(gles2wLoad("glProgramUniformHandleui64vIMG"));
 #endif /* defined(GL_IMG_bindless_texture) */
 
 #if defined(GL_IMG_framebuffer_downsample)
-    glFramebufferTexture2DDownsampleIMG = (PFNGLFRAMEBUFFERTEXTURE2DDOWNSAMPLEIMGPROC)gles2wLoad("glFramebufferTexture2DDownsampleIMG");
-    glFramebufferTextureLayerDownsampleIMG = (PFNGLFRAMEBUFFERTEXTURELAYERDOWNSAMPLEIMGPROC)gles2wLoad("glFramebufferTextureLayerDownsampleIMG");
+    glFramebufferTexture2DDownsampleIMG = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DDOWNSAMPLEIMGPROC>(gles2wLoad("glFramebufferTexture2DDownsampleIMG"));
+    glFramebufferTextureLayerDownsampleIMG = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURELAYERDOWNSAMPLEIMGPROC>(gles2wLoad("glFramebufferTextureLayerDownsampleIMG"));
 #endif /* defined(GL_IMG_framebuffer_downsample) */
 
 #if defined(GL_IMG_multisampled_render_to_texture)
-    glRenderbufferStorageMultisampleIMG = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC)gles2wLoad("glRenderbufferStorageMultisampleIMG");
-    glFramebufferTexture2DMultisampleIMG = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC)gles2wLoad("glFramebufferTexture2DMultisampleIMG");
+    glRenderbufferStorageMultisampleIMG = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEMULTISAMPLEIMGPROC>(gles2wLoad("glRenderbufferStorageMultisampleIMG"));
+    glFramebufferTexture2DMultisampleIMG = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC>(gles2wLoad("glFramebufferTexture2DMultisampleIMG"));
 #endif /* defined(GL_IMG_multisampled_render_to_texture) */
 
 #if defined(GL_INTEL_framebuffer_CMAA)
-    glApplyFramebufferAttachmentCMAAINTEL = (PFNGLAPPLYFRAMEBUFFERATTACHMENTCMAAINTELPROC)gles2wLoad("glApplyFramebufferAttachmentCMAAINTEL");
+    glApplyFramebufferAttachmentCMAAINTEL = reinterpret_cast<PFNGLAPPLYFRAMEBUFFERATTACHMENTCMAAINTELPROC>(gles2wLoad("glApplyFramebufferAttachmentCMAAINTEL"));
 #endif /* defined(GL_INTEL_framebuffer_CMAA) */
 
 #if defined(GL_INTEL_performance_query)
-    glBeginPerfQueryINTEL = (PFNGLBEGINPERFQUERYINTELPROC)gles2wLoad("glBeginPerfQueryINTEL");
-    glCreatePerfQueryINTEL = (PFNGLCREATEPERFQUERYINTELPROC)gles2wLoad("glCreatePerfQueryINTEL");
-    glDeletePerfQueryINTEL = (PFNGLDELETEPERFQUERYINTELPROC)gles2wLoad("glDeletePerfQueryINTEL");
-    glEndPerfQueryINTEL = (PFNGLENDPERFQUERYINTELPROC)gles2wLoad("glEndPerfQueryINTEL");
-    glGetFirstPerfQueryIdINTEL = (PFNGLGETFIRSTPERFQUERYIDINTELPROC)gles2wLoad("glGetFirstPerfQueryIdINTEL");
-    glGetNextPerfQueryIdINTEL = (PFNGLGETNEXTPERFQUERYIDINTELPROC)gles2wLoad("glGetNextPerfQueryIdINTEL");
-    glGetPerfCounterInfoINTEL = (PFNGLGETPERFCOUNTERINFOINTELPROC)gles2wLoad("glGetPerfCounterInfoINTEL");
-    glGetPerfQueryDataINTEL = (PFNGLGETPERFQUERYDATAINTELPROC)gles2wLoad("glGetPerfQueryDataINTEL");
-    glGetPerfQueryIdByNameINTEL = (PFNGLGETPERFQUERYIDBYNAMEINTELPROC)gles2wLoad("glGetPerfQueryIdByNameINTEL");
-    glGetPerfQueryInfoINTEL = (PFNGLGETPERFQUERYINFOINTELPROC)gles2wLoad("glGetPerfQueryInfoINTEL");
+    glBeginPerfQueryINTEL = reinterpret_cast<PFNGLBEGINPERFQUERYINTELPROC>(gles2wLoad("glBeginPerfQueryINTEL"));
+    glCreatePerfQueryINTEL = reinterpret_cast<PFNGLCREATEPERFQUERYINTELPROC>(gles2wLoad("glCreatePerfQueryINTEL"));
+    glDeletePerfQueryINTEL = reinterpret_cast<PFNGLDELETEPERFQUERYINTELPROC>(gles2wLoad("glDeletePerfQueryINTEL"));
+    glEndPerfQueryINTEL = reinterpret_cast<PFNGLENDPERFQUERYINTELPROC>(gles2wLoad("glEndPerfQueryINTEL"));
+    glGetFirstPerfQueryIdINTEL = reinterpret_cast<PFNGLGETFIRSTPERFQUERYIDINTELPROC>(gles2wLoad("glGetFirstPerfQueryIdINTEL"));
+    glGetNextPerfQueryIdINTEL = reinterpret_cast<PFNGLGETNEXTPERFQUERYIDINTELPROC>(gles2wLoad("glGetNextPerfQueryIdINTEL"));
+    glGetPerfCounterInfoINTEL = reinterpret_cast<PFNGLGETPERFCOUNTERINFOINTELPROC>(gles2wLoad("glGetPerfCounterInfoINTEL"));
+    glGetPerfQueryDataINTEL = reinterpret_cast<PFNGLGETPERFQUERYDATAINTELPROC>(gles2wLoad("glGetPerfQueryDataINTEL"));
+    glGetPerfQueryIdByNameINTEL = reinterpret_cast<PFNGLGETPERFQUERYIDBYNAMEINTELPROC>(gles2wLoad("glGetPerfQueryIdByNameINTEL"));
+    glGetPerfQueryInfoINTEL = reinterpret_cast<PFNGLGETPERFQUERYINFOINTELPROC>(gles2wLoad("glGetPerfQueryInfoINTEL"));
 #endif /* defined(GL_INTEL_performance_query) */
 
 #if defined(GL_KHR_blend_equation_advanced)
-    glBlendBarrierKHR = (PFNGLBLENDBARRIERKHRPROC)gles2wLoad("glBlendBarrierKHR");
+    glBlendBarrierKHR = reinterpret_cast<PFNGLBLENDBARRIERKHRPROC>(gles2wLoad("glBlendBarrierKHR"));
 #endif /* defined(GL_KHR_blend_equation_advanced) */
 
 #if defined(GL_KHR_debug)
-    glDebugMessageControlKHR = (PFNGLDEBUGMESSAGECONTROLKHRPROC)gles2wLoad("glDebugMessageControlKHR");
-    glDebugMessageInsertKHR = (PFNGLDEBUGMESSAGEINSERTKHRPROC)gles2wLoad("glDebugMessageInsertKHR");
-    glDebugMessageCallbackKHR = (PFNGLDEBUGMESSAGECALLBACKKHRPROC)gles2wLoad("glDebugMessageCallbackKHR");
-    glGetDebugMessageLogKHR = (PFNGLGETDEBUGMESSAGELOGKHRPROC)gles2wLoad("glGetDebugMessageLogKHR");
-    glPushDebugGroupKHR = (PFNGLPUSHDEBUGGROUPKHRPROC)gles2wLoad("glPushDebugGroupKHR");
-    glPopDebugGroupKHR = (PFNGLPOPDEBUGGROUPKHRPROC)gles2wLoad("glPopDebugGroupKHR");
-    glObjectLabelKHR = (PFNGLOBJECTLABELKHRPROC)gles2wLoad("glObjectLabelKHR");
-    glGetObjectLabelKHR = (PFNGLGETOBJECTLABELKHRPROC)gles2wLoad("glGetObjectLabelKHR");
-    glObjectPtrLabelKHR = (PFNGLOBJECTPTRLABELKHRPROC)gles2wLoad("glObjectPtrLabelKHR");
-    glGetObjectPtrLabelKHR = (PFNGLGETOBJECTPTRLABELKHRPROC)gles2wLoad("glGetObjectPtrLabelKHR");
-    glGetPointervKHR = (PFNGLGETPOINTERVKHRPROC)gles2wLoad("glGetPointervKHR");
+    glDebugMessageControlKHR = reinterpret_cast<PFNGLDEBUGMESSAGECONTROLKHRPROC>(gles2wLoad("glDebugMessageControlKHR"));
+    glDebugMessageInsertKHR = reinterpret_cast<PFNGLDEBUGMESSAGEINSERTKHRPROC>(gles2wLoad("glDebugMessageInsertKHR"));
+    glDebugMessageCallbackKHR = reinterpret_cast<PFNGLDEBUGMESSAGECALLBACKKHRPROC>(gles2wLoad("glDebugMessageCallbackKHR"));
+    glGetDebugMessageLogKHR = reinterpret_cast<PFNGLGETDEBUGMESSAGELOGKHRPROC>(gles2wLoad("glGetDebugMessageLogKHR"));
+    glPushDebugGroupKHR = reinterpret_cast<PFNGLPUSHDEBUGGROUPKHRPROC>(gles2wLoad("glPushDebugGroupKHR"));
+    glPopDebugGroupKHR = reinterpret_cast<PFNGLPOPDEBUGGROUPKHRPROC>(gles2wLoad("glPopDebugGroupKHR"));
+    glObjectLabelKHR = reinterpret_cast<PFNGLOBJECTLABELKHRPROC>(gles2wLoad("glObjectLabelKHR"));
+    glGetObjectLabelKHR = reinterpret_cast<PFNGLGETOBJECTLABELKHRPROC>(gles2wLoad("glGetObjectLabelKHR"));
+    glObjectPtrLabelKHR = reinterpret_cast<PFNGLOBJECTPTRLABELKHRPROC>(gles2wLoad("glObjectPtrLabelKHR"));
+    glGetObjectPtrLabelKHR = reinterpret_cast<PFNGLGETOBJECTPTRLABELKHRPROC>(gles2wLoad("glGetObjectPtrLabelKHR"));
+    glGetPointervKHR = reinterpret_cast<PFNGLGETPOINTERVKHRPROC>(gles2wLoad("glGetPointervKHR"));
 #endif /* defined(GL_KHR_debug) */
 
 #if defined(GL_KHR_robustness)
-    glGetGraphicsResetStatusKHR = (PFNGLGETGRAPHICSRESETSTATUSKHRPROC)gles2wLoad("glGetGraphicsResetStatusKHR");
-    glReadnPixelsKHR = (PFNGLREADNPIXELSKHRPROC)gles2wLoad("glReadnPixelsKHR");
-    glGetnUniformfvKHR = (PFNGLGETNUNIFORMFVKHRPROC)gles2wLoad("glGetnUniformfvKHR");
-    glGetnUniformivKHR = (PFNGLGETNUNIFORMIVKHRPROC)gles2wLoad("glGetnUniformivKHR");
-    glGetnUniformuivKHR = (PFNGLGETNUNIFORMUIVKHRPROC)gles2wLoad("glGetnUniformuivKHR");
+    glGetGraphicsResetStatusKHR = reinterpret_cast<PFNGLGETGRAPHICSRESETSTATUSKHRPROC>(gles2wLoad("glGetGraphicsResetStatusKHR"));
+    glReadnPixelsKHR = reinterpret_cast<PFNGLREADNPIXELSKHRPROC>(gles2wLoad("glReadnPixelsKHR"));
+    glGetnUniformfvKHR = reinterpret_cast<PFNGLGETNUNIFORMFVKHRPROC>(gles2wLoad("glGetnUniformfvKHR"));
+    glGetnUniformivKHR = reinterpret_cast<PFNGLGETNUNIFORMIVKHRPROC>(gles2wLoad("glGetnUniformivKHR"));
+    glGetnUniformuivKHR = reinterpret_cast<PFNGLGETNUNIFORMUIVKHRPROC>(gles2wLoad("glGetnUniformuivKHR"));
 #endif /* defined(GL_KHR_robustness) */
 
 #if defined(GL_KHR_parallel_shader_compile)
-    glMaxShaderCompilerThreadsKHR = (PFNGLMAXSHADERCOMPILERTHREADSKHRPROC)gles2wLoad("glMaxShaderCompilerThreadsKHR");
+    glMaxShaderCompilerThreadsKHR = reinterpret_cast<PFNGLMAXSHADERCOMPILERTHREADSKHRPROC>(gles2wLoad("glMaxShaderCompilerThreadsKHR"));
 #endif /* defined(GL_KHR_parallel_shader_compile) */
 
 #if defined(GL_MESA_framebuffer_flip_y)
-    glFramebufferParameteriMESA = (PFNGLFRAMEBUFFERPARAMETERIMESAPROC)gles2wLoad("glFramebufferParameteriMESA");
-    glGetFramebufferParameterivMESA = (PFNGLGETFRAMEBUFFERPARAMETERIVMESAPROC)gles2wLoad("glGetFramebufferParameterivMESA");
+    glFramebufferParameteriMESA = reinterpret_cast<PFNGLFRAMEBUFFERPARAMETERIMESAPROC>(gles2wLoad("glFramebufferParameteriMESA"));
+    glGetFramebufferParameterivMESA = reinterpret_cast<PFNGLGETFRAMEBUFFERPARAMETERIVMESAPROC>(gles2wLoad("glGetFramebufferParameterivMESA"));
 #endif /* defined(GL_MESA_framebuffer_flip_y) */
 
 #if defined(GL_NV_bindless_texture)
-    glGetTextureHandleNV = (PFNGLGETTEXTUREHANDLENVPROC)gles2wLoad("glGetTextureHandleNV");
-    glGetTextureSamplerHandleNV = (PFNGLGETTEXTURESAMPLERHANDLENVPROC)gles2wLoad("glGetTextureSamplerHandleNV");
-    glMakeTextureHandleResidentNV = (PFNGLMAKETEXTUREHANDLERESIDENTNVPROC)gles2wLoad("glMakeTextureHandleResidentNV");
-    glMakeTextureHandleNonResidentNV = (PFNGLMAKETEXTUREHANDLENONRESIDENTNVPROC)gles2wLoad("glMakeTextureHandleNonResidentNV");
-    glGetImageHandleNV = (PFNGLGETIMAGEHANDLENVPROC)gles2wLoad("glGetImageHandleNV");
-    glMakeImageHandleResidentNV = (PFNGLMAKEIMAGEHANDLERESIDENTNVPROC)gles2wLoad("glMakeImageHandleResidentNV");
-    glMakeImageHandleNonResidentNV = (PFNGLMAKEIMAGEHANDLENONRESIDENTNVPROC)gles2wLoad("glMakeImageHandleNonResidentNV");
-    glUniformHandleui64NV = (PFNGLUNIFORMHANDLEUI64NVPROC)gles2wLoad("glUniformHandleui64NV");
-    glUniformHandleui64vNV = (PFNGLUNIFORMHANDLEUI64VNVPROC)gles2wLoad("glUniformHandleui64vNV");
-    glProgramUniformHandleui64NV = (PFNGLPROGRAMUNIFORMHANDLEUI64NVPROC)gles2wLoad("glProgramUniformHandleui64NV");
-    glProgramUniformHandleui64vNV = (PFNGLPROGRAMUNIFORMHANDLEUI64VNVPROC)gles2wLoad("glProgramUniformHandleui64vNV");
-    glIsTextureHandleResidentNV = (PFNGLISTEXTUREHANDLERESIDENTNVPROC)gles2wLoad("glIsTextureHandleResidentNV");
-    glIsImageHandleResidentNV = (PFNGLISIMAGEHANDLERESIDENTNVPROC)gles2wLoad("glIsImageHandleResidentNV");
+    glGetTextureHandleNV = reinterpret_cast<PFNGLGETTEXTUREHANDLENVPROC>(gles2wLoad("glGetTextureHandleNV"));
+    glGetTextureSamplerHandleNV = reinterpret_cast<PFNGLGETTEXTURESAMPLERHANDLENVPROC>(gles2wLoad("glGetTextureSamplerHandleNV"));
+    glMakeTextureHandleResidentNV = reinterpret_cast<PFNGLMAKETEXTUREHANDLERESIDENTNVPROC>(gles2wLoad("glMakeTextureHandleResidentNV"));
+    glMakeTextureHandleNonResidentNV = reinterpret_cast<PFNGLMAKETEXTUREHANDLENONRESIDENTNVPROC>(gles2wLoad("glMakeTextureHandleNonResidentNV"));
+    glGetImageHandleNV = reinterpret_cast<PFNGLGETIMAGEHANDLENVPROC>(gles2wLoad("glGetImageHandleNV"));
+    glMakeImageHandleResidentNV = reinterpret_cast<PFNGLMAKEIMAGEHANDLERESIDENTNVPROC>(gles2wLoad("glMakeImageHandleResidentNV"));
+    glMakeImageHandleNonResidentNV = reinterpret_cast<PFNGLMAKEIMAGEHANDLENONRESIDENTNVPROC>(gles2wLoad("glMakeImageHandleNonResidentNV"));
+    glUniformHandleui64NV = reinterpret_cast<PFNGLUNIFORMHANDLEUI64NVPROC>(gles2wLoad("glUniformHandleui64NV"));
+    glUniformHandleui64vNV = reinterpret_cast<PFNGLUNIFORMHANDLEUI64VNVPROC>(gles2wLoad("glUniformHandleui64vNV"));
+    glProgramUniformHandleui64NV = reinterpret_cast<PFNGLPROGRAMUNIFORMHANDLEUI64NVPROC>(gles2wLoad("glProgramUniformHandleui64NV"));
+    glProgramUniformHandleui64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORMHANDLEUI64VNVPROC>(gles2wLoad("glProgramUniformHandleui64vNV"));
+    glIsTextureHandleResidentNV = reinterpret_cast<PFNGLISTEXTUREHANDLERESIDENTNVPROC>(gles2wLoad("glIsTextureHandleResidentNV"));
+    glIsImageHandleResidentNV = reinterpret_cast<PFNGLISIMAGEHANDLERESIDENTNVPROC>(gles2wLoad("glIsImageHandleResidentNV"));
 #endif /* defined(GL_NV_bindless_texture) */
 
 #if defined(GL_NV_blend_equation_advanced)
-    glBlendParameteriNV = (PFNGLBLENDPARAMETERINVPROC)gles2wLoad("glBlendParameteriNV");
-    glBlendBarrierNV = (PFNGLBLENDBARRIERNVPROC)gles2wLoad("glBlendBarrierNV");
+    glBlendParameteriNV = reinterpret_cast<PFNGLBLENDPARAMETERINVPROC>(gles2wLoad("glBlendParameteriNV"));
+    glBlendBarrierNV = reinterpret_cast<PFNGLBLENDBARRIERNVPROC>(gles2wLoad("glBlendBarrierNV"));
 #endif /* defined(GL_NV_blend_equation_advanced) */
 
 #if defined(GL_NV_clip_space_w_scaling)
-    glViewportPositionWScaleNV = (PFNGLVIEWPORTPOSITIONWSCALENVPROC)gles2wLoad("glViewportPositionWScaleNV");
+    glViewportPositionWScaleNV = reinterpret_cast<PFNGLVIEWPORTPOSITIONWSCALENVPROC>(gles2wLoad("glViewportPositionWScaleNV"));
 #endif /* defined(GL_NV_clip_space_w_scaling) */
 
 #if defined(GL_NV_conditional_render)
-    glBeginConditionalRenderNV = (PFNGLBEGINCONDITIONALRENDERNVPROC)gles2wLoad("glBeginConditionalRenderNV");
-    glEndConditionalRenderNV = (PFNGLENDCONDITIONALRENDERNVPROC)gles2wLoad("glEndConditionalRenderNV");
+    glBeginConditionalRenderNV = reinterpret_cast<PFNGLBEGINCONDITIONALRENDERNVPROC>(gles2wLoad("glBeginConditionalRenderNV"));
+    glEndConditionalRenderNV = reinterpret_cast<PFNGLENDCONDITIONALRENDERNVPROC>(gles2wLoad("glEndConditionalRenderNV"));
 #endif /* defined(GL_NV_conditional_render) */
 
 #if defined(GL_NV_conservative_raster)
-    glSubpixelPrecisionBiasNV = (PFNGLSUBPIXELPRECISIONBIASNVPROC)gles2wLoad("glSubpixelPrecisionBiasNV");
+    glSubpixelPrecisionBiasNV = reinterpret_cast<PFNGLSUBPIXELPRECISIONBIASNVPROC>(gles2wLoad("glSubpixelPrecisionBiasNV"));
 #endif /* defined(GL_NV_conservative_raster) */
 
 #if defined(GL_NV_conservative_raster_pre_snap_triangles)
-    glConservativeRasterParameteriNV = (PFNGLCONSERVATIVERASTERPARAMETERINVPROC)gles2wLoad("glConservativeRasterParameteriNV");
+    glConservativeRasterParameteriNV = reinterpret_cast<PFNGLCONSERVATIVERASTERPARAMETERINVPROC>(gles2wLoad("glConservativeRasterParameteriNV"));
 #endif /* defined(GL_NV_conservative_raster_pre_snap_triangles) */
 
 #if defined(GL_NV_copy_buffer)
-    glCopyBufferSubDataNV = (PFNGLCOPYBUFFERSUBDATANVPROC)gles2wLoad("glCopyBufferSubDataNV");
+    glCopyBufferSubDataNV = reinterpret_cast<PFNGLCOPYBUFFERSUBDATANVPROC>(gles2wLoad("glCopyBufferSubDataNV"));
 #endif /* defined(GL_NV_copy_buffer) */
 
 #if defined(GL_NV_coverage_sample)
-    glCoverageMaskNV = (PFNGLCOVERAGEMASKNVPROC)gles2wLoad("glCoverageMaskNV");
-    glCoverageOperationNV = (PFNGLCOVERAGEOPERATIONNVPROC)gles2wLoad("glCoverageOperationNV");
+    glCoverageMaskNV = reinterpret_cast<PFNGLCOVERAGEMASKNVPROC>(gles2wLoad("glCoverageMaskNV"));
+    glCoverageOperationNV = reinterpret_cast<PFNGLCOVERAGEOPERATIONNVPROC>(gles2wLoad("glCoverageOperationNV"));
 #endif /* defined(GL_NV_coverage_sample) */
 
 #if defined(GL_NV_draw_buffers)
-    glDrawBuffersNV = (PFNGLDRAWBUFFERSNVPROC)gles2wLoad("glDrawBuffersNV");
+    glDrawBuffersNV = reinterpret_cast<PFNGLDRAWBUFFERSNVPROC>(gles2wLoad("glDrawBuffersNV"));
 #endif /* defined(GL_NV_draw_buffers) */
 
 #if defined(GL_NV_draw_instanced)
-    glDrawArraysInstancedNV = (PFNGLDRAWARRAYSINSTANCEDNVPROC)gles2wLoad("glDrawArraysInstancedNV");
-    glDrawElementsInstancedNV = (PFNGLDRAWELEMENTSINSTANCEDNVPROC)gles2wLoad("glDrawElementsInstancedNV");
+    glDrawArraysInstancedNV = reinterpret_cast<PFNGLDRAWARRAYSINSTANCEDNVPROC>(gles2wLoad("glDrawArraysInstancedNV"));
+    glDrawElementsInstancedNV = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDNVPROC>(gles2wLoad("glDrawElementsInstancedNV"));
 #endif /* defined(GL_NV_draw_instanced) */
 
 #if defined(GL_NV_draw_vulkan_image)
-    glDrawVkImageNV = (PFNGLDRAWVKIMAGENVPROC)gles2wLoad("glDrawVkImageNV");
-    glGetVkProcAddrNV = (PFNGLGETVKPROCADDRNVPROC)gles2wLoad("glGetVkProcAddrNV");
-    glWaitVkSemaphoreNV = (PFNGLWAITVKSEMAPHORENVPROC)gles2wLoad("glWaitVkSemaphoreNV");
-    glSignalVkSemaphoreNV = (PFNGLSIGNALVKSEMAPHORENVPROC)gles2wLoad("glSignalVkSemaphoreNV");
-    glSignalVkFenceNV = (PFNGLSIGNALVKFENCENVPROC)gles2wLoad("glSignalVkFenceNV");
+    glDrawVkImageNV = reinterpret_cast<PFNGLDRAWVKIMAGENVPROC>(gles2wLoad("glDrawVkImageNV"));
+    glGetVkProcAddrNV = reinterpret_cast<PFNGLGETVKPROCADDRNVPROC>(gles2wLoad("glGetVkProcAddrNV"));
+    glWaitVkSemaphoreNV = reinterpret_cast<PFNGLWAITVKSEMAPHORENVPROC>(gles2wLoad("glWaitVkSemaphoreNV"));
+    glSignalVkSemaphoreNV = reinterpret_cast<PFNGLSIGNALVKSEMAPHORENVPROC>(gles2wLoad("glSignalVkSemaphoreNV"));
+    glSignalVkFenceNV = reinterpret_cast<PFNGLSIGNALVKFENCENVPROC>(gles2wLoad("glSignalVkFenceNV"));
 #endif /* defined(GL_NV_draw_vulkan_image) */
 
 #if defined(GL_NV_fence)
-    glDeleteFencesNV = (PFNGLDELETEFENCESNVPROC)gles2wLoad("glDeleteFencesNV");
-    glGenFencesNV = (PFNGLGENFENCESNVPROC)gles2wLoad("glGenFencesNV");
-    glIsFenceNV = (PFNGLISFENCENVPROC)gles2wLoad("glIsFenceNV");
-    glTestFenceNV = (PFNGLTESTFENCENVPROC)gles2wLoad("glTestFenceNV");
-    glGetFenceivNV = (PFNGLGETFENCEIVNVPROC)gles2wLoad("glGetFenceivNV");
-    glFinishFenceNV = (PFNGLFINISHFENCENVPROC)gles2wLoad("glFinishFenceNV");
-    glSetFenceNV = (PFNGLSETFENCENVPROC)gles2wLoad("glSetFenceNV");
+    glDeleteFencesNV = reinterpret_cast<PFNGLDELETEFENCESNVPROC>(gles2wLoad("glDeleteFencesNV"));
+    glGenFencesNV = reinterpret_cast<PFNGLGENFENCESNVPROC>(gles2wLoad("glGenFencesNV"));
+    glIsFenceNV = reinterpret_cast<PFNGLISFENCENVPROC>(gles2wLoad("glIsFenceNV"));
+    glTestFenceNV = reinterpret_cast<PFNGLTESTFENCENVPROC>(gles2wLoad("glTestFenceNV"));
+    glGetFenceivNV = reinterpret_cast<PFNGLGETFENCEIVNVPROC>(gles2wLoad("glGetFenceivNV"));
+    glFinishFenceNV = reinterpret_cast<PFNGLFINISHFENCENVPROC>(gles2wLoad("glFinishFenceNV"));
+    glSetFenceNV = reinterpret_cast<PFNGLSETFENCENVPROC>(gles2wLoad("glSetFenceNV"));
 #endif /* defined(GL_NV_fence) */
 
 #if defined(GL_NV_fragment_coverage_to_color)
-    glFragmentCoverageColorNV = (PFNGLFRAGMENTCOVERAGECOLORNVPROC)gles2wLoad("glFragmentCoverageColorNV");
+    glFragmentCoverageColorNV = reinterpret_cast<PFNGLFRAGMENTCOVERAGECOLORNVPROC>(gles2wLoad("glFragmentCoverageColorNV"));
 #endif /* defined(GL_NV_fragment_coverage_to_color) */
 
 #if defined(GL_NV_framebuffer_blit)
-    glBlitFramebufferNV = (PFNGLBLITFRAMEBUFFERNVPROC)gles2wLoad("glBlitFramebufferNV");
+    glBlitFramebufferNV = reinterpret_cast<PFNGLBLITFRAMEBUFFERNVPROC>(gles2wLoad("glBlitFramebufferNV"));
 #endif /* defined(GL_NV_framebuffer_blit) */
 
 #if defined(GL_NV_framebuffer_mixed_samples)
-    glCoverageModulationTableNV = (PFNGLCOVERAGEMODULATIONTABLENVPROC)gles2wLoad("glCoverageModulationTableNV");
-    glGetCoverageModulationTableNV = (PFNGLGETCOVERAGEMODULATIONTABLENVPROC)gles2wLoad("glGetCoverageModulationTableNV");
-    glCoverageModulationNV = (PFNGLCOVERAGEMODULATIONNVPROC)gles2wLoad("glCoverageModulationNV");
+    glCoverageModulationTableNV = reinterpret_cast<PFNGLCOVERAGEMODULATIONTABLENVPROC>(gles2wLoad("glCoverageModulationTableNV"));
+    glGetCoverageModulationTableNV = reinterpret_cast<PFNGLGETCOVERAGEMODULATIONTABLENVPROC>(gles2wLoad("glGetCoverageModulationTableNV"));
+    glCoverageModulationNV = reinterpret_cast<PFNGLCOVERAGEMODULATIONNVPROC>(gles2wLoad("glCoverageModulationNV"));
 #endif /* defined(GL_NV_framebuffer_mixed_samples) */
 
 #if defined(GL_NV_framebuffer_multisample)
-    glRenderbufferStorageMultisampleNV = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC)gles2wLoad("glRenderbufferStorageMultisampleNV");
+    glRenderbufferStorageMultisampleNV = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEMULTISAMPLENVPROC>(gles2wLoad("glRenderbufferStorageMultisampleNV"));
 #endif /* defined(GL_NV_framebuffer_multisample) */
 
 #if defined(GL_NV_gpu_shader5)
-    glUniform1i64NV = (PFNGLUNIFORM1I64NVPROC)gles2wLoad("glUniform1i64NV");
-    glUniform2i64NV = (PFNGLUNIFORM2I64NVPROC)gles2wLoad("glUniform2i64NV");
-    glUniform3i64NV = (PFNGLUNIFORM3I64NVPROC)gles2wLoad("glUniform3i64NV");
-    glUniform4i64NV = (PFNGLUNIFORM4I64NVPROC)gles2wLoad("glUniform4i64NV");
-    glUniform1i64vNV = (PFNGLUNIFORM1I64VNVPROC)gles2wLoad("glUniform1i64vNV");
-    glUniform2i64vNV = (PFNGLUNIFORM2I64VNVPROC)gles2wLoad("glUniform2i64vNV");
-    glUniform3i64vNV = (PFNGLUNIFORM3I64VNVPROC)gles2wLoad("glUniform3i64vNV");
-    glUniform4i64vNV = (PFNGLUNIFORM4I64VNVPROC)gles2wLoad("glUniform4i64vNV");
-    glUniform1ui64NV = (PFNGLUNIFORM1UI64NVPROC)gles2wLoad("glUniform1ui64NV");
-    glUniform2ui64NV = (PFNGLUNIFORM2UI64NVPROC)gles2wLoad("glUniform2ui64NV");
-    glUniform3ui64NV = (PFNGLUNIFORM3UI64NVPROC)gles2wLoad("glUniform3ui64NV");
-    glUniform4ui64NV = (PFNGLUNIFORM4UI64NVPROC)gles2wLoad("glUniform4ui64NV");
-    glUniform1ui64vNV = (PFNGLUNIFORM1UI64VNVPROC)gles2wLoad("glUniform1ui64vNV");
-    glUniform2ui64vNV = (PFNGLUNIFORM2UI64VNVPROC)gles2wLoad("glUniform2ui64vNV");
-    glUniform3ui64vNV = (PFNGLUNIFORM3UI64VNVPROC)gles2wLoad("glUniform3ui64vNV");
-    glUniform4ui64vNV = (PFNGLUNIFORM4UI64VNVPROC)gles2wLoad("glUniform4ui64vNV");
-    glGetUniformi64vNV = (PFNGLGETUNIFORMI64VNVPROC)gles2wLoad("glGetUniformi64vNV");
+    glUniform1i64NV = reinterpret_cast<PFNGLUNIFORM1I64NVPROC>(gles2wLoad("glUniform1i64NV"));
+    glUniform2i64NV = reinterpret_cast<PFNGLUNIFORM2I64NVPROC>(gles2wLoad("glUniform2i64NV"));
+    glUniform3i64NV = reinterpret_cast<PFNGLUNIFORM3I64NVPROC>(gles2wLoad("glUniform3i64NV"));
+    glUniform4i64NV = reinterpret_cast<PFNGLUNIFORM4I64NVPROC>(gles2wLoad("glUniform4i64NV"));
+    glUniform1i64vNV = reinterpret_cast<PFNGLUNIFORM1I64VNVPROC>(gles2wLoad("glUniform1i64vNV"));
+    glUniform2i64vNV = reinterpret_cast<PFNGLUNIFORM2I64VNVPROC>(gles2wLoad("glUniform2i64vNV"));
+    glUniform3i64vNV = reinterpret_cast<PFNGLUNIFORM3I64VNVPROC>(gles2wLoad("glUniform3i64vNV"));
+    glUniform4i64vNV = reinterpret_cast<PFNGLUNIFORM4I64VNVPROC>(gles2wLoad("glUniform4i64vNV"));
+    glUniform1ui64NV = reinterpret_cast<PFNGLUNIFORM1UI64NVPROC>(gles2wLoad("glUniform1ui64NV"));
+    glUniform2ui64NV = reinterpret_cast<PFNGLUNIFORM2UI64NVPROC>(gles2wLoad("glUniform2ui64NV"));
+    glUniform3ui64NV = reinterpret_cast<PFNGLUNIFORM3UI64NVPROC>(gles2wLoad("glUniform3ui64NV"));
+    glUniform4ui64NV = reinterpret_cast<PFNGLUNIFORM4UI64NVPROC>(gles2wLoad("glUniform4ui64NV"));
+    glUniform1ui64vNV = reinterpret_cast<PFNGLUNIFORM1UI64VNVPROC>(gles2wLoad("glUniform1ui64vNV"));
+    glUniform2ui64vNV = reinterpret_cast<PFNGLUNIFORM2UI64VNVPROC>(gles2wLoad("glUniform2ui64vNV"));
+    glUniform3ui64vNV = reinterpret_cast<PFNGLUNIFORM3UI64VNVPROC>(gles2wLoad("glUniform3ui64vNV"));
+    glUniform4ui64vNV = reinterpret_cast<PFNGLUNIFORM4UI64VNVPROC>(gles2wLoad("glUniform4ui64vNV"));
+    glGetUniformi64vNV = reinterpret_cast<PFNGLGETUNIFORMI64VNVPROC>(gles2wLoad("glGetUniformi64vNV"));
 
-    glProgramUniform1i64NV = (PFNGLPROGRAMUNIFORM1I64NVPROC)gles2wLoad("glProgramUniform1i64NV");
-    glProgramUniform2i64NV = (PFNGLPROGRAMUNIFORM2I64NVPROC)gles2wLoad("glProgramUniform2i64NV");
-    glProgramUniform3i64NV = (PFNGLPROGRAMUNIFORM3I64NVPROC)gles2wLoad("glProgramUniform3i64NV");
-    glProgramUniform4i64NV = (PFNGLPROGRAMUNIFORM4I64NVPROC)gles2wLoad("glProgramUniform4i64NV");
-    glProgramUniform1i64vNV = (PFNGLPROGRAMUNIFORM1I64VNVPROC)gles2wLoad("glProgramUniform1i64vNV");
-    glProgramUniform2i64vNV = (PFNGLPROGRAMUNIFORM2I64VNVPROC)gles2wLoad("glProgramUniform2i64vNV");
-    glProgramUniform3i64vNV = (PFNGLPROGRAMUNIFORM3I64VNVPROC)gles2wLoad("glProgramUniform3i64vNV");
-    glProgramUniform4i64vNV = (PFNGLPROGRAMUNIFORM4I64VNVPROC)gles2wLoad("glProgramUniform4i64vNV");
-    glProgramUniform1ui64NV = (PFNGLPROGRAMUNIFORM1UI64NVPROC)gles2wLoad("glProgramUniform1ui64NV");
-    glProgramUniform2ui64NV = (PFNGLPROGRAMUNIFORM2UI64NVPROC)gles2wLoad("glProgramUniform2ui64NV");
-    glProgramUniform3ui64NV = (PFNGLPROGRAMUNIFORM3UI64NVPROC)gles2wLoad("glProgramUniform3ui64NV");
-    glProgramUniform4ui64NV = (PFNGLPROGRAMUNIFORM4UI64NVPROC)gles2wLoad("glProgramUniform4ui64NV");
-    glProgramUniform1ui64vNV = (PFNGLPROGRAMUNIFORM1UI64VNVPROC)gles2wLoad("glProgramUniform1ui64vNV");
-    glProgramUniform2ui64vNV = (PFNGLPROGRAMUNIFORM2UI64VNVPROC)gles2wLoad("glProgramUniform2ui64vNV");
-    glProgramUniform3ui64vNV = (PFNGLPROGRAMUNIFORM3UI64VNVPROC)gles2wLoad("glProgramUniform3ui64vNV");
-    glProgramUniform4ui64vNV = (PFNGLPROGRAMUNIFORM4UI64VNVPROC)gles2wLoad("glProgramUniform4ui64vNV");
+    glProgramUniform1i64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM1I64NVPROC>(gles2wLoad("glProgramUniform1i64NV"));
+    glProgramUniform2i64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM2I64NVPROC>(gles2wLoad("glProgramUniform2i64NV"));
+    glProgramUniform3i64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM3I64NVPROC>(gles2wLoad("glProgramUniform3i64NV"));
+    glProgramUniform4i64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM4I64NVPROC>(gles2wLoad("glProgramUniform4i64NV"));
+    glProgramUniform1i64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM1I64VNVPROC>(gles2wLoad("glProgramUniform1i64vNV"));
+    glProgramUniform2i64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM2I64VNVPROC>(gles2wLoad("glProgramUniform2i64vNV"));
+    glProgramUniform3i64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM3I64VNVPROC>(gles2wLoad("glProgramUniform3i64vNV"));
+    glProgramUniform4i64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM4I64VNVPROC>(gles2wLoad("glProgramUniform4i64vNV"));
+    glProgramUniform1ui64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM1UI64NVPROC>(gles2wLoad("glProgramUniform1ui64NV"));
+    glProgramUniform2ui64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM2UI64NVPROC>(gles2wLoad("glProgramUniform2ui64NV"));
+    glProgramUniform3ui64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM3UI64NVPROC>(gles2wLoad("glProgramUniform3ui64NV"));
+    glProgramUniform4ui64NV = reinterpret_cast<PFNGLPROGRAMUNIFORM4UI64NVPROC>(gles2wLoad("glProgramUniform4ui64NV"));
+    glProgramUniform1ui64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM1UI64VNVPROC>(gles2wLoad("glProgramUniform1ui64vNV"));
+    glProgramUniform2ui64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM2UI64VNVPROC>(gles2wLoad("glProgramUniform2ui64vNV"));
+    glProgramUniform3ui64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM3UI64VNVPROC>(gles2wLoad("glProgramUniform3ui64vNV"));
+    glProgramUniform4ui64vNV = reinterpret_cast<PFNGLPROGRAMUNIFORM4UI64VNVPROC>(gles2wLoad("glProgramUniform4ui64vNV"));
 #endif /* defined(GL_NV_gpu_shader5) */
 
 #if defined(GL_NV_instanced_arrays)
-    glVertexAttribDivisorNV = (PFNGLVERTEXATTRIBDIVISORNVPROC)gles2wLoad("glVertexAttribDivisorNV");
+    glVertexAttribDivisorNV = reinterpret_cast<PFNGLVERTEXATTRIBDIVISORNVPROC>(gles2wLoad("glVertexAttribDivisorNV"));
 #endif /* defined(GL_NV_instanced_arrays) */
 
 #if defined(GL_NV_internalformat_sample_query)
-    glGetInternalformatSampleivNV = (PFNGLGETINTERNALFORMATSAMPLEIVNVPROC)gles2wLoad("glGetInternalformatSampleivNV");
+    glGetInternalformatSampleivNV = reinterpret_cast<PFNGLGETINTERNALFORMATSAMPLEIVNVPROC>(gles2wLoad("glGetInternalformatSampleivNV"));
 #endif /* defined(GL_NV_internalformat_sample_query) */
 
 #if defined(GL_NV_memory_attachment)
-    glGetMemoryObjectDetachedResourcesuivNV = (PFNGLGETMEMORYOBJECTDETACHEDRESOURCESUIVNVPROC)gles2wLoad("glGetMemoryObjectDetachedResourcesuivNV");
-    glResetMemoryObjectParameterNV = (PFNGLRESETMEMORYOBJECTPARAMETERNVPROC)gles2wLoad("glResetMemoryObjectParameterNV");
-    glTexAttachMemoryNV = (PFNGLTEXATTACHMEMORYNVPROC)gles2wLoad("glTexAttachMemoryNV");
-    glBufferAttachMemoryNV = (PFNGLBUFFERATTACHMEMORYNVPROC)gles2wLoad("glBufferAttachMemoryNV");
+    glGetMemoryObjectDetachedResourcesuivNV = reinterpret_cast<PFNGLGETMEMORYOBJECTDETACHEDRESOURCESUIVNVPROC>(gles2wLoad("glGetMemoryObjectDetachedResourcesuivNV"));
+    glResetMemoryObjectParameterNV = reinterpret_cast<PFNGLRESETMEMORYOBJECTPARAMETERNVPROC>(gles2wLoad("glResetMemoryObjectParameterNV"));
+    glTexAttachMemoryNV = reinterpret_cast<PFNGLTEXATTACHMEMORYNVPROC>(gles2wLoad("glTexAttachMemoryNV"));
+    glBufferAttachMemoryNV = reinterpret_cast<PFNGLBUFFERATTACHMEMORYNVPROC>(gles2wLoad("glBufferAttachMemoryNV"));
 
-    glTextureAttachMemoryNV = (PFNGLTEXTUREATTACHMEMORYNVPROC)gles2wLoad("glTextureAttachMemoryNV");
-    glNamedBufferAttachMemoryNV = (PFNGLNAMEDBUFFERATTACHMEMORYNVPROC)gles2wLoad("glNamedBufferAttachMemoryNV");
+    glTextureAttachMemoryNV = reinterpret_cast<PFNGLTEXTUREATTACHMEMORYNVPROC>(gles2wLoad("glTextureAttachMemoryNV"));
+    glNamedBufferAttachMemoryNV = reinterpret_cast<PFNGLNAMEDBUFFERATTACHMEMORYNVPROC>(gles2wLoad("glNamedBufferAttachMemoryNV"));
 #endif /* defined(GL_NV_memory_attachment) */
 
 #if defined(GL_NV_memory_object_sparse)
-    glBufferPageCommitmentMemNV = (PFNGLBUFFERPAGECOMMITMENTMEMNVPROC)gles2wLoad("glBufferPageCommitmentMemNV");
-    glTexPageCommitmentMemNV = (PFNGLTEXPAGECOMMITMENTMEMNVPROC)gles2wLoad("glTexPageCommitmentMemNV");
+    glBufferPageCommitmentMemNV = reinterpret_cast<PFNGLBUFFERPAGECOMMITMENTMEMNVPROC>(gles2wLoad("glBufferPageCommitmentMemNV"));
+    glTexPageCommitmentMemNV = reinterpret_cast<PFNGLTEXPAGECOMMITMENTMEMNVPROC>(gles2wLoad("glTexPageCommitmentMemNV"));
 
-    glNamedBufferPageCommitmentMemNV = (PFNGLNAMEDBUFFERPAGECOMMITMENTMEMNVPROC)gles2wLoad("glNamedBufferPageCommitmentMemNV");
-    glTexturePageCommitmentMemNV = (PFNGLTEXTUREPAGECOMMITMENTMEMNVPROC)gles2wLoad("glTexturePageCommitmentMemNV");
+    glNamedBufferPageCommitmentMemNV = reinterpret_cast<PFNGLNAMEDBUFFERPAGECOMMITMENTMEMNVPROC>(gles2wLoad("glNamedBufferPageCommitmentMemNV"));
+    glTexturePageCommitmentMemNV = reinterpret_cast<PFNGLTEXTUREPAGECOMMITMENTMEMNVPROC>(gles2wLoad("glTexturePageCommitmentMemNV"));
 #endif /* defined(GL_NV_memory_object_sparse) */
 
 #if defined(GL_NV_mesh_shader)
-    glDrawMeshTasksNV = (PFNGLDRAWMESHTASKSNVPROC)gles2wLoad("glDrawMeshTasksNV");
-    glDrawMeshTasksIndirectNV = (PFNGLDRAWMESHTASKSINDIRECTNVPROC)gles2wLoad("glDrawMeshTasksIndirectNV");
-    glMultiDrawMeshTasksIndirectNV = (PFNGLMULTIDRAWMESHTASKSINDIRECTNVPROC)gles2wLoad("glMultiDrawMeshTasksIndirectNV");
-    glMultiDrawMeshTasksIndirectCountNV = (PFNGLMULTIDRAWMESHTASKSINDIRECTCOUNTNVPROC)gles2wLoad("glMultiDrawMeshTasksIndirectCountNV");
+    glDrawMeshTasksNV = reinterpret_cast<PFNGLDRAWMESHTASKSNVPROC>(gles2wLoad("glDrawMeshTasksNV"));
+    glDrawMeshTasksIndirectNV = reinterpret_cast<PFNGLDRAWMESHTASKSINDIRECTNVPROC>(gles2wLoad("glDrawMeshTasksIndirectNV"));
+    glMultiDrawMeshTasksIndirectNV = reinterpret_cast<PFNGLMULTIDRAWMESHTASKSINDIRECTNVPROC>(gles2wLoad("glMultiDrawMeshTasksIndirectNV"));
+    glMultiDrawMeshTasksIndirectCountNV = reinterpret_cast<PFNGLMULTIDRAWMESHTASKSINDIRECTCOUNTNVPROC>(gles2wLoad("glMultiDrawMeshTasksIndirectCountNV"));
 #endif /* defined(GL_NV_mesh_shader) */
 
 #if defined(GL_NV_non_square_matrices)
-    glUniformMatrix2x3fvNV = (PFNGLUNIFORMMATRIX2X3FVNVPROC)gles2wLoad("glUniformMatrix2x3fvNV");
-    glUniformMatrix3x2fvNV = (PFNGLUNIFORMMATRIX3X2FVNVPROC)gles2wLoad("glUniformMatrix3x2fvNV");
-    glUniformMatrix2x4fvNV = (PFNGLUNIFORMMATRIX2X4FVNVPROC)gles2wLoad("glUniformMatrix2x4fvNV");
-    glUniformMatrix4x2fvNV = (PFNGLUNIFORMMATRIX4X2FVNVPROC)gles2wLoad("glUniformMatrix4x2fvNV");
-    glUniformMatrix3x4fvNV = (PFNGLUNIFORMMATRIX3X4FVNVPROC)gles2wLoad("glUniformMatrix3x4fvNV");
-    glUniformMatrix4x3fvNV = (PFNGLUNIFORMMATRIX4X3FVNVPROC)gles2wLoad("glUniformMatrix4x3fvNV");
+    glUniformMatrix2x3fvNV = reinterpret_cast<PFNGLUNIFORMMATRIX2X3FVNVPROC>(gles2wLoad("glUniformMatrix2x3fvNV"));
+    glUniformMatrix3x2fvNV = reinterpret_cast<PFNGLUNIFORMMATRIX3X2FVNVPROC>(gles2wLoad("glUniformMatrix3x2fvNV"));
+    glUniformMatrix2x4fvNV = reinterpret_cast<PFNGLUNIFORMMATRIX2X4FVNVPROC>(gles2wLoad("glUniformMatrix2x4fvNV"));
+    glUniformMatrix4x2fvNV = reinterpret_cast<PFNGLUNIFORMMATRIX4X2FVNVPROC>(gles2wLoad("glUniformMatrix4x2fvNV"));
+    glUniformMatrix3x4fvNV = reinterpret_cast<PFNGLUNIFORMMATRIX3X4FVNVPROC>(gles2wLoad("glUniformMatrix3x4fvNV"));
+    glUniformMatrix4x3fvNV = reinterpret_cast<PFNGLUNIFORMMATRIX4X3FVNVPROC>(gles2wLoad("glUniformMatrix4x3fvNV"));
 #endif /* defined(GL_NV_non_square_matrices) */
 
 #if defined(GL_NV_path_rendering)
-    glGenPathsNV = (PFNGLGENPATHSNVPROC)gles2wLoad("glGenPathsNV");
-    glDeletePathsNV = (PFNGLDELETEPATHSNVPROC)gles2wLoad("glDeletePathsNV");
-    glIsPathNV = (PFNGLISPATHNVPROC)gles2wLoad("glIsPathNV");
-    glPathCommandsNV = (PFNGLPATHCOMMANDSNVPROC)gles2wLoad("glPathCommandsNV");
-    glPathCoordsNV = (PFNGLPATHCOORDSNVPROC)gles2wLoad("glPathCoordsNV");
-    glPathSubCommandsNV = (PFNGLPATHSUBCOMMANDSNVPROC)gles2wLoad("glPathSubCommandsNV");
-    glPathSubCoordsNV = (PFNGLPATHSUBCOORDSNVPROC)gles2wLoad("glPathSubCoordsNV");
-    glPathStringNV = (PFNGLPATHSTRINGNVPROC)gles2wLoad("glPathStringNV");
-    glPathGlyphsNV = (PFNGLPATHGLYPHSNVPROC)gles2wLoad("glPathGlyphsNV");
-    glPathGlyphRangeNV = (PFNGLPATHGLYPHRANGENVPROC)gles2wLoad("glPathGlyphRangeNV");
-    glWeightPathsNV = (PFNGLWEIGHTPATHSNVPROC)gles2wLoad("glWeightPathsNV");
-    glCopyPathNV = (PFNGLCOPYPATHNVPROC)gles2wLoad("glCopyPathNV");
-    glInterpolatePathsNV = (PFNGLINTERPOLATEPATHSNVPROC)gles2wLoad("glInterpolatePathsNV");
-    glTransformPathNV = (PFNGLTRANSFORMPATHNVPROC)gles2wLoad("glTransformPathNV");
-    glPathParameterivNV = (PFNGLPATHPARAMETERIVNVPROC)gles2wLoad("glPathParameterivNV");
-    glPathParameteriNV = (PFNGLPATHPARAMETERINVPROC)gles2wLoad("glPathParameteriNV");
-    glPathParameterfvNV = (PFNGLPATHPARAMETERFVNVPROC)gles2wLoad("glPathParameterfvNV");
-    glPathParameterfNV = (PFNGLPATHPARAMETERFNVPROC)gles2wLoad("glPathParameterfNV");
-    glPathDashArrayNV = (PFNGLPATHDASHARRAYNVPROC)gles2wLoad("glPathDashArrayNV");
-    glPathStencilFuncNV = (PFNGLPATHSTENCILFUNCNVPROC)gles2wLoad("glPathStencilFuncNV");
-    glPathStencilDepthOffsetNV = (PFNGLPATHSTENCILDEPTHOFFSETNVPROC)gles2wLoad("glPathStencilDepthOffsetNV");
-    glStencilFillPathNV = (PFNGLSTENCILFILLPATHNVPROC)gles2wLoad("glStencilFillPathNV");
-    glStencilStrokePathNV = (PFNGLSTENCILSTROKEPATHNVPROC)gles2wLoad("glStencilStrokePathNV");
-    glStencilFillPathInstancedNV = (PFNGLSTENCILFILLPATHINSTANCEDNVPROC)gles2wLoad("glStencilFillPathInstancedNV");
-    glStencilStrokePathInstancedNV = (PFNGLSTENCILSTROKEPATHINSTANCEDNVPROC)gles2wLoad("glStencilStrokePathInstancedNV");
-    glPathCoverDepthFuncNV = (PFNGLPATHCOVERDEPTHFUNCNVPROC)gles2wLoad("glPathCoverDepthFuncNV");
-    glCoverFillPathNV = (PFNGLCOVERFILLPATHNVPROC)gles2wLoad("glCoverFillPathNV");
-    glCoverStrokePathNV = (PFNGLCOVERSTROKEPATHNVPROC)gles2wLoad("glCoverStrokePathNV");
-    glCoverFillPathInstancedNV = (PFNGLCOVERFILLPATHINSTANCEDNVPROC)gles2wLoad("glCoverFillPathInstancedNV");
-    glCoverStrokePathInstancedNV = (PFNGLCOVERSTROKEPATHINSTANCEDNVPROC)gles2wLoad("glCoverStrokePathInstancedNV");
-    glGetPathParameterivNV = (PFNGLGETPATHPARAMETERIVNVPROC)gles2wLoad("glGetPathParameterivNV");
-    glGetPathParameterfvNV = (PFNGLGETPATHPARAMETERFVNVPROC)gles2wLoad("glGetPathParameterfvNV");
-    glGetPathCommandsNV = (PFNGLGETPATHCOMMANDSNVPROC)gles2wLoad("glGetPathCommandsNV");
-    glGetPathCoordsNV = (PFNGLGETPATHCOORDSNVPROC)gles2wLoad("glGetPathCoordsNV");
-    glGetPathDashArrayNV = (PFNGLGETPATHDASHARRAYNVPROC)gles2wLoad("glGetPathDashArrayNV");
-    glGetPathMetricsNV = (PFNGLGETPATHMETRICSNVPROC)gles2wLoad("glGetPathMetricsNV");
-    glGetPathMetricRangeNV = (PFNGLGETPATHMETRICRANGENVPROC)gles2wLoad("glGetPathMetricRangeNV");
-    glGetPathSpacingNV = (PFNGLGETPATHSPACINGNVPROC)gles2wLoad("glGetPathSpacingNV");
-    glIsPointInFillPathNV = (PFNGLISPOINTINFILLPATHNVPROC)gles2wLoad("glIsPointInFillPathNV");
-    glIsPointInStrokePathNV = (PFNGLISPOINTINSTROKEPATHNVPROC)gles2wLoad("glIsPointInStrokePathNV");
-    glGetPathLengthNV = (PFNGLGETPATHLENGTHNVPROC)gles2wLoad("glGetPathLengthNV");
-    glPointAlongPathNV = (PFNGLPOINTALONGPATHNVPROC)gles2wLoad("glPointAlongPathNV");
+    glGenPathsNV = reinterpret_cast<PFNGLGENPATHSNVPROC>(gles2wLoad("glGenPathsNV"));
+    glDeletePathsNV = reinterpret_cast<PFNGLDELETEPATHSNVPROC>(gles2wLoad("glDeletePathsNV"));
+    glIsPathNV = reinterpret_cast<PFNGLISPATHNVPROC>(gles2wLoad("glIsPathNV"));
+    glPathCommandsNV = reinterpret_cast<PFNGLPATHCOMMANDSNVPROC>(gles2wLoad("glPathCommandsNV"));
+    glPathCoordsNV = reinterpret_cast<PFNGLPATHCOORDSNVPROC>(gles2wLoad("glPathCoordsNV"));
+    glPathSubCommandsNV = reinterpret_cast<PFNGLPATHSUBCOMMANDSNVPROC>(gles2wLoad("glPathSubCommandsNV"));
+    glPathSubCoordsNV = reinterpret_cast<PFNGLPATHSUBCOORDSNVPROC>(gles2wLoad("glPathSubCoordsNV"));
+    glPathStringNV = reinterpret_cast<PFNGLPATHSTRINGNVPROC>(gles2wLoad("glPathStringNV"));
+    glPathGlyphsNV = reinterpret_cast<PFNGLPATHGLYPHSNVPROC>(gles2wLoad("glPathGlyphsNV"));
+    glPathGlyphRangeNV = reinterpret_cast<PFNGLPATHGLYPHRANGENVPROC>(gles2wLoad("glPathGlyphRangeNV"));
+    glWeightPathsNV = reinterpret_cast<PFNGLWEIGHTPATHSNVPROC>(gles2wLoad("glWeightPathsNV"));
+    glCopyPathNV = reinterpret_cast<PFNGLCOPYPATHNVPROC>(gles2wLoad("glCopyPathNV"));
+    glInterpolatePathsNV = reinterpret_cast<PFNGLINTERPOLATEPATHSNVPROC>(gles2wLoad("glInterpolatePathsNV"));
+    glTransformPathNV = reinterpret_cast<PFNGLTRANSFORMPATHNVPROC>(gles2wLoad("glTransformPathNV"));
+    glPathParameterivNV = reinterpret_cast<PFNGLPATHPARAMETERIVNVPROC>(gles2wLoad("glPathParameterivNV"));
+    glPathParameteriNV = reinterpret_cast<PFNGLPATHPARAMETERINVPROC>(gles2wLoad("glPathParameteriNV"));
+    glPathParameterfvNV = reinterpret_cast<PFNGLPATHPARAMETERFVNVPROC>(gles2wLoad("glPathParameterfvNV"));
+    glPathParameterfNV = reinterpret_cast<PFNGLPATHPARAMETERFNVPROC>(gles2wLoad("glPathParameterfNV"));
+    glPathDashArrayNV = reinterpret_cast<PFNGLPATHDASHARRAYNVPROC>(gles2wLoad("glPathDashArrayNV"));
+    glPathStencilFuncNV = reinterpret_cast<PFNGLPATHSTENCILFUNCNVPROC>(gles2wLoad("glPathStencilFuncNV"));
+    glPathStencilDepthOffsetNV = reinterpret_cast<PFNGLPATHSTENCILDEPTHOFFSETNVPROC>(gles2wLoad("glPathStencilDepthOffsetNV"));
+    glStencilFillPathNV = reinterpret_cast<PFNGLSTENCILFILLPATHNVPROC>(gles2wLoad("glStencilFillPathNV"));
+    glStencilStrokePathNV = reinterpret_cast<PFNGLSTENCILSTROKEPATHNVPROC>(gles2wLoad("glStencilStrokePathNV"));
+    glStencilFillPathInstancedNV = reinterpret_cast<PFNGLSTENCILFILLPATHINSTANCEDNVPROC>(gles2wLoad("glStencilFillPathInstancedNV"));
+    glStencilStrokePathInstancedNV = reinterpret_cast<PFNGLSTENCILSTROKEPATHINSTANCEDNVPROC>(gles2wLoad("glStencilStrokePathInstancedNV"));
+    glPathCoverDepthFuncNV = reinterpret_cast<PFNGLPATHCOVERDEPTHFUNCNVPROC>(gles2wLoad("glPathCoverDepthFuncNV"));
+    glCoverFillPathNV = reinterpret_cast<PFNGLCOVERFILLPATHNVPROC>(gles2wLoad("glCoverFillPathNV"));
+    glCoverStrokePathNV = reinterpret_cast<PFNGLCOVERSTROKEPATHNVPROC>(gles2wLoad("glCoverStrokePathNV"));
+    glCoverFillPathInstancedNV = reinterpret_cast<PFNGLCOVERFILLPATHINSTANCEDNVPROC>(gles2wLoad("glCoverFillPathInstancedNV"));
+    glCoverStrokePathInstancedNV = reinterpret_cast<PFNGLCOVERSTROKEPATHINSTANCEDNVPROC>(gles2wLoad("glCoverStrokePathInstancedNV"));
+    glGetPathParameterivNV = reinterpret_cast<PFNGLGETPATHPARAMETERIVNVPROC>(gles2wLoad("glGetPathParameterivNV"));
+    glGetPathParameterfvNV = reinterpret_cast<PFNGLGETPATHPARAMETERFVNVPROC>(gles2wLoad("glGetPathParameterfvNV"));
+    glGetPathCommandsNV = reinterpret_cast<PFNGLGETPATHCOMMANDSNVPROC>(gles2wLoad("glGetPathCommandsNV"));
+    glGetPathCoordsNV = reinterpret_cast<PFNGLGETPATHCOORDSNVPROC>(gles2wLoad("glGetPathCoordsNV"));
+    glGetPathDashArrayNV = reinterpret_cast<PFNGLGETPATHDASHARRAYNVPROC>(gles2wLoad("glGetPathDashArrayNV"));
+    glGetPathMetricsNV = reinterpret_cast<PFNGLGETPATHMETRICSNVPROC>(gles2wLoad("glGetPathMetricsNV"));
+    glGetPathMetricRangeNV = reinterpret_cast<PFNGLGETPATHMETRICRANGENVPROC>(gles2wLoad("glGetPathMetricRangeNV"));
+    glGetPathSpacingNV = reinterpret_cast<PFNGLGETPATHSPACINGNVPROC>(gles2wLoad("glGetPathSpacingNV"));
+    glIsPointInFillPathNV = reinterpret_cast<PFNGLISPOINTINFILLPATHNVPROC>(gles2wLoad("glIsPointInFillPathNV"));
+    glIsPointInStrokePathNV = reinterpret_cast<PFNGLISPOINTINSTROKEPATHNVPROC>(gles2wLoad("glIsPointInStrokePathNV"));
+    glGetPathLengthNV = reinterpret_cast<PFNGLGETPATHLENGTHNVPROC>(gles2wLoad("glGetPathLengthNV"));
+    glPointAlongPathNV = reinterpret_cast<PFNGLPOINTALONGPATHNVPROC>(gles2wLoad("glPointAlongPathNV"));
 
-    glMatrixLoad3x2fNV = (PFNGLMATRIXLOAD3X2FNVPROC)gles2wLoad("glMatrixLoad3x2fNV");
-    glMatrixLoad3x3fNV = (PFNGLMATRIXLOAD3X3FNVPROC)gles2wLoad("glMatrixLoad3x3fNV");
-    glMatrixLoadTranspose3x3fNV = (PFNGLMATRIXLOADTRANSPOSE3X3FNVPROC)gles2wLoad("glMatrixLoadTranspose3x3fNV");
-    glMatrixMult3x2fNV = (PFNGLMATRIXMULT3X2FNVPROC)gles2wLoad("glMatrixMult3x2fNV");
-    glMatrixMult3x3fNV = (PFNGLMATRIXMULT3X3FNVPROC)gles2wLoad("glMatrixMult3x3fNV");
-    glMatrixMultTranspose3x3fNV = (PFNGLMATRIXMULTTRANSPOSE3X3FNVPROC)gles2wLoad("glMatrixMultTranspose3x3fNV");
-    glStencilThenCoverFillPathNV = (PFNGLSTENCILTHENCOVERFILLPATHNVPROC)gles2wLoad("glStencilThenCoverFillPathNV");
-    glStencilThenCoverStrokePathNV = (PFNGLSTENCILTHENCOVERSTROKEPATHNVPROC)gles2wLoad("glStencilThenCoverStrokePathNV");
-    glStencilThenCoverFillPathInstancedNV = (PFNGLSTENCILTHENCOVERFILLPATHINSTANCEDNVPROC)gles2wLoad("glStencilThenCoverFillPathInstancedNV");
-    glStencilThenCoverStrokePathInstancedNV = (PFNGLSTENCILTHENCOVERSTROKEPATHINSTANCEDNVPROC)gles2wLoad("glStencilThenCoverStrokePathInstancedNV");
-    glPathGlyphIndexRangeNV = (PFNGLPATHGLYPHINDEXRANGENVPROC)gles2wLoad("glPathGlyphIndexRangeNV");
+    glMatrixLoad3x2fNV = reinterpret_cast<PFNGLMATRIXLOAD3X2FNVPROC>(gles2wLoad("glMatrixLoad3x2fNV"));
+    glMatrixLoad3x3fNV = reinterpret_cast<PFNGLMATRIXLOAD3X3FNVPROC>(gles2wLoad("glMatrixLoad3x3fNV"));
+    glMatrixLoadTranspose3x3fNV = reinterpret_cast<PFNGLMATRIXLOADTRANSPOSE3X3FNVPROC>(gles2wLoad("glMatrixLoadTranspose3x3fNV"));
+    glMatrixMult3x2fNV = reinterpret_cast<PFNGLMATRIXMULT3X2FNVPROC>(gles2wLoad("glMatrixMult3x2fNV"));
+    glMatrixMult3x3fNV = reinterpret_cast<PFNGLMATRIXMULT3X3FNVPROC>(gles2wLoad("glMatrixMult3x3fNV"));
+    glMatrixMultTranspose3x3fNV = reinterpret_cast<PFNGLMATRIXMULTTRANSPOSE3X3FNVPROC>(gles2wLoad("glMatrixMultTranspose3x3fNV"));
+    glStencilThenCoverFillPathNV = reinterpret_cast<PFNGLSTENCILTHENCOVERFILLPATHNVPROC>(gles2wLoad("glStencilThenCoverFillPathNV"));
+    glStencilThenCoverStrokePathNV = reinterpret_cast<PFNGLSTENCILTHENCOVERSTROKEPATHNVPROC>(gles2wLoad("glStencilThenCoverStrokePathNV"));
+    glStencilThenCoverFillPathInstancedNV = reinterpret_cast<PFNGLSTENCILTHENCOVERFILLPATHINSTANCEDNVPROC>(gles2wLoad("glStencilThenCoverFillPathInstancedNV"));
+    glStencilThenCoverStrokePathInstancedNV = reinterpret_cast<PFNGLSTENCILTHENCOVERSTROKEPATHINSTANCEDNVPROC>(gles2wLoad("glStencilThenCoverStrokePathInstancedNV"));
+    glPathGlyphIndexRangeNV = reinterpret_cast<PFNGLPATHGLYPHINDEXRANGENVPROC>(gles2wLoad("glPathGlyphIndexRangeNV"));
 
-    glPathGlyphIndexArrayNV = (PFNGLPATHGLYPHINDEXARRAYNVPROC)gles2wLoad("glPathGlyphIndexArrayNV");
-    glPathMemoryGlyphIndexArrayNV = (PFNGLPATHMEMORYGLYPHINDEXARRAYNVPROC)gles2wLoad("glPathMemoryGlyphIndexArrayNV");
-    glProgramPathFragmentInputGenNV = (PFNGLPROGRAMPATHFRAGMENTINPUTGENNVPROC)gles2wLoad("glProgramPathFragmentInputGenNV");
-    glGetProgramResourcefvNV = (PFNGLGETPROGRAMRESOURCEFVNVPROC)gles2wLoad("glGetProgramResourcefvNV");
+    glPathGlyphIndexArrayNV = reinterpret_cast<PFNGLPATHGLYPHINDEXARRAYNVPROC>(gles2wLoad("glPathGlyphIndexArrayNV"));
+    glPathMemoryGlyphIndexArrayNV = reinterpret_cast<PFNGLPATHMEMORYGLYPHINDEXARRAYNVPROC>(gles2wLoad("glPathMemoryGlyphIndexArrayNV"));
+    glProgramPathFragmentInputGenNV = reinterpret_cast<PFNGLPROGRAMPATHFRAGMENTINPUTGENNVPROC>(gles2wLoad("glProgramPathFragmentInputGenNV"));
+    glGetProgramResourcefvNV = reinterpret_cast<PFNGLGETPROGRAMRESOURCEFVNVPROC>(gles2wLoad("glGetProgramResourcefvNV"));
 
-    glMatrixFrustumEXT = (PFNGLMATRIXFRUSTUMEXTPROC)gles2wLoad("glMatrixFrustumEXT");
-    glMatrixLoadIdentityEXT = (PFNGLMATRIXLOADIDENTITYEXTPROC)gles2wLoad("glMatrixLoadIdentityEXT");
-    glMatrixLoadTransposefEXT = (PFNGLMATRIXLOADTRANSPOSEFEXTPROC)gles2wLoad("glMatrixLoadTransposefEXT");
-    glMatrixLoadTransposedEXT = (PFNGLMATRIXLOADTRANSPOSEDEXTPROC)gles2wLoad("glMatrixLoadTransposedEXT");
-    glMatrixLoadfEXT = (PFNGLMATRIXLOADFEXTPROC)gles2wLoad("glMatrixLoadfEXT");
-    glMatrixLoaddEXT = (PFNGLMATRIXLOADDEXTPROC)gles2wLoad("glMatrixLoaddEXT");
-    glMatrixMultTransposefEXT = (PFNGLMATRIXMULTTRANSPOSEFEXTPROC)gles2wLoad("glMatrixMultTransposefEXT");
-    glMatrixMultTransposedEXT = (PFNGLMATRIXMULTTRANSPOSEDEXTPROC)gles2wLoad("glMatrixMultTransposedEXT");
-    glMatrixMultfEXT = (PFNGLMATRIXMULTFEXTPROC)gles2wLoad("glMatrixMultfEXT");
-    glMatrixMultdEXT = (PFNGLMATRIXMULTDEXTPROC)gles2wLoad("glMatrixMultdEXT");
-    glMatrixOrthoEXT = (PFNGLMATRIXORTHOEXTPROC)gles2wLoad("glMatrixOrthoEXT");
-    glMatrixPopEXT = (PFNGLMATRIXPOPEXTPROC)gles2wLoad("glMatrixPopEXT");
-    glMatrixPushEXT = (PFNGLMATRIXPUSHEXTPROC)gles2wLoad("glMatrixPushEXT");
-    glMatrixRotatefEXT = (PFNGLMATRIXROTATEFEXTPROC)gles2wLoad("glMatrixRotatefEXT");
-    glMatrixRotatedEXT = (PFNGLMATRIXROTATEDEXTPROC)gles2wLoad("glMatrixRotatedEXT");
-    glMatrixScalefEXT = (PFNGLMATRIXSCALEFEXTPROC)gles2wLoad("glMatrixScalefEXT");
-    glMatrixScaledEXT = (PFNGLMATRIXSCALEDEXTPROC)gles2wLoad("glMatrixScaledEXT");
-    glMatrixTranslatefEXT = (PFNGLMATRIXTRANSLATEFEXTPROC)gles2wLoad("glMatrixTranslatefEXT");
-    glMatrixTranslatedEXT = (PFNGLMATRIXTRANSLATEDEXTPROC)gles2wLoad("glMatrixTranslatedEXT");
+    glMatrixFrustumEXT = reinterpret_cast<PFNGLMATRIXFRUSTUMEXTPROC>(gles2wLoad("glMatrixFrustumEXT"));
+    glMatrixLoadIdentityEXT = reinterpret_cast<PFNGLMATRIXLOADIDENTITYEXTPROC>(gles2wLoad("glMatrixLoadIdentityEXT"));
+    glMatrixLoadTransposefEXT = reinterpret_cast<PFNGLMATRIXLOADTRANSPOSEFEXTPROC>(gles2wLoad("glMatrixLoadTransposefEXT"));
+    glMatrixLoadTransposedEXT = reinterpret_cast<PFNGLMATRIXLOADTRANSPOSEDEXTPROC>(gles2wLoad("glMatrixLoadTransposedEXT"));
+    glMatrixLoadfEXT = reinterpret_cast<PFNGLMATRIXLOADFEXTPROC>(gles2wLoad("glMatrixLoadfEXT"));
+    glMatrixLoaddEXT = reinterpret_cast<PFNGLMATRIXLOADDEXTPROC>(gles2wLoad("glMatrixLoaddEXT"));
+    glMatrixMultTransposefEXT = reinterpret_cast<PFNGLMATRIXMULTTRANSPOSEFEXTPROC>(gles2wLoad("glMatrixMultTransposefEXT"));
+    glMatrixMultTransposedEXT = reinterpret_cast<PFNGLMATRIXMULTTRANSPOSEDEXTPROC>(gles2wLoad("glMatrixMultTransposedEXT"));
+    glMatrixMultfEXT = reinterpret_cast<PFNGLMATRIXMULTFEXTPROC>(gles2wLoad("glMatrixMultfEXT"));
+    glMatrixMultdEXT = reinterpret_cast<PFNGLMATRIXMULTDEXTPROC>(gles2wLoad("glMatrixMultdEXT"));
+    glMatrixOrthoEXT = reinterpret_cast<PFNGLMATRIXORTHOEXTPROC>(gles2wLoad("glMatrixOrthoEXT"));
+    glMatrixPopEXT = reinterpret_cast<PFNGLMATRIXPOPEXTPROC>(gles2wLoad("glMatrixPopEXT"));
+    glMatrixPushEXT = reinterpret_cast<PFNGLMATRIXPUSHEXTPROC>(gles2wLoad("glMatrixPushEXT"));
+    glMatrixRotatefEXT = reinterpret_cast<PFNGLMATRIXROTATEFEXTPROC>(gles2wLoad("glMatrixRotatefEXT"));
+    glMatrixRotatedEXT = reinterpret_cast<PFNGLMATRIXROTATEDEXTPROC>(gles2wLoad("glMatrixRotatedEXT"));
+    glMatrixScalefEXT = reinterpret_cast<PFNGLMATRIXSCALEFEXTPROC>(gles2wLoad("glMatrixScalefEXT"));
+    glMatrixScaledEXT = reinterpret_cast<PFNGLMATRIXSCALEDEXTPROC>(gles2wLoad("glMatrixScaledEXT"));
+    glMatrixTranslatefEXT = reinterpret_cast<PFNGLMATRIXTRANSLATEFEXTPROC>(gles2wLoad("glMatrixTranslatefEXT"));
+    glMatrixTranslatedEXT = reinterpret_cast<PFNGLMATRIXTRANSLATEDEXTPROC>(gles2wLoad("glMatrixTranslatedEXT"));
 #endif /* defined(GL_NV_path_rendering) */
 
 #if defined(GL_NV_polygon_mode)
-    glPolygonModeNV = (PFNGLPOLYGONMODENVPROC)gles2wLoad("glPolygonModeNV");
+    glPolygonModeNV = reinterpret_cast<PFNGLPOLYGONMODENVPROC>(gles2wLoad("glPolygonModeNV"));
 #endif /* defined(GL_NV_polygon_mode) */
 
 #if defined(GL_NV_read_buffer)
-    glReadBufferNV = (PFNGLREADBUFFERNVPROC)gles2wLoad("glReadBufferNV");
+    glReadBufferNV = reinterpret_cast<PFNGLREADBUFFERNVPROC>(gles2wLoad("glReadBufferNV"));
 #endif /* defined(GL_NV_read_buffer) */
 
 #if defined(GL_NV_sample_locations)
-    glFramebufferSampleLocationsfvNV = (PFNGLFRAMEBUFFERSAMPLELOCATIONSFVNVPROC)gles2wLoad("glFramebufferSampleLocationsfvNV");
-    glNamedFramebufferSampleLocationsfvNV = (PFNGLNAMEDFRAMEBUFFERSAMPLELOCATIONSFVNVPROC)gles2wLoad("glNamedFramebufferSampleLocationsfvNV");
-    glResolveDepthValuesNV = (PFNGLRESOLVEDEPTHVALUESNVPROC)gles2wLoad("glResolveDepthValuesNV");
+    glFramebufferSampleLocationsfvNV = reinterpret_cast<PFNGLFRAMEBUFFERSAMPLELOCATIONSFVNVPROC>(gles2wLoad("glFramebufferSampleLocationsfvNV"));
+    glNamedFramebufferSampleLocationsfvNV = reinterpret_cast<PFNGLNAMEDFRAMEBUFFERSAMPLELOCATIONSFVNVPROC>(gles2wLoad("glNamedFramebufferSampleLocationsfvNV"));
+    glResolveDepthValuesNV = reinterpret_cast<PFNGLRESOLVEDEPTHVALUESNVPROC>(gles2wLoad("glResolveDepthValuesNV"));
 #endif /* defined(GL_NV_sample_locations) */
 
 #if defined(GL_NV_scissor_exclusive)
-    glScissorExclusiveNV = (PFNGLSCISSOREXCLUSIVENVPROC)gles2wLoad("glScissorExclusiveNV");
-    glScissorExclusiveArrayvNV = (PFNGLSCISSOREXCLUSIVEARRAYVNVPROC)gles2wLoad("glScissorExclusiveArrayvNV");
+    glScissorExclusiveNV = reinterpret_cast<PFNGLSCISSOREXCLUSIVENVPROC>(gles2wLoad("glScissorExclusiveNV"));
+    glScissorExclusiveArrayvNV = reinterpret_cast<PFNGLSCISSOREXCLUSIVEARRAYVNVPROC>(gles2wLoad("glScissorExclusiveArrayvNV"));
 #endif /* defined(GL_NV_scissor_exclusive) */
 
 #if defined(GL_NV_shading_rate_image)
-    glBindShadingRateImageNV = (PFNGLBINDSHADINGRATEIMAGENVPROC)gles2wLoad("glBindShadingRateImageNV");
-    glGetShadingRateImagePaletteNV = (PFNGLGETSHADINGRATEIMAGEPALETTENVPROC)gles2wLoad("glGetShadingRateImagePaletteNV");
-    glGetShadingRateSampleLocationivNV = (PFNGLGETSHADINGRATESAMPLELOCATIONIVNVPROC)gles2wLoad("glGetShadingRateSampleLocationivNV");
-    glShadingRateImageBarrierNV = (PFNGLSHADINGRATEIMAGEBARRIERNVPROC)gles2wLoad("glShadingRateImageBarrierNV");
-    glShadingRateImagePaletteNV = (PFNGLSHADINGRATEIMAGEPALETTENVPROC)gles2wLoad("glShadingRateImagePaletteNV");
-    glShadingRateSampleOrderNV = (PFNGLSHADINGRATESAMPLEORDERNVPROC)gles2wLoad("glShadingRateSampleOrderNV");
-    glShadingRateSampleOrderCustomNV = (PFNGLSHADINGRATESAMPLEORDERCUSTOMNVPROC)gles2wLoad("glShadingRateSampleOrderCustomNV");
+    glBindShadingRateImageNV = reinterpret_cast<PFNGLBINDSHADINGRATEIMAGENVPROC>(gles2wLoad("glBindShadingRateImageNV"));
+    glGetShadingRateImagePaletteNV = reinterpret_cast<PFNGLGETSHADINGRATEIMAGEPALETTENVPROC>(gles2wLoad("glGetShadingRateImagePaletteNV"));
+    glGetShadingRateSampleLocationivNV = reinterpret_cast<PFNGLGETSHADINGRATESAMPLELOCATIONIVNVPROC>(gles2wLoad("glGetShadingRateSampleLocationivNV"));
+    glShadingRateImageBarrierNV = reinterpret_cast<PFNGLSHADINGRATEIMAGEBARRIERNVPROC>(gles2wLoad("glShadingRateImageBarrierNV"));
+    glShadingRateImagePaletteNV = reinterpret_cast<PFNGLSHADINGRATEIMAGEPALETTENVPROC>(gles2wLoad("glShadingRateImagePaletteNV"));
+    glShadingRateSampleOrderNV = reinterpret_cast<PFNGLSHADINGRATESAMPLEORDERNVPROC>(gles2wLoad("glShadingRateSampleOrderNV"));
+    glShadingRateSampleOrderCustomNV = reinterpret_cast<PFNGLSHADINGRATESAMPLEORDERCUSTOMNVPROC>(gles2wLoad("glShadingRateSampleOrderCustomNV"));
 #endif /* defined(GL_NV_shading_rate_image) */
 
 #if defined(GL_NV_viewport_array)
-    glViewportArrayvNV = (PFNGLVIEWPORTARRAYVNVPROC)gles2wLoad("glViewportArrayvNV");
-    glViewportIndexedfNV = (PFNGLVIEWPORTINDEXEDFNVPROC)gles2wLoad("glViewportIndexedfNV");
-    glViewportIndexedfvNV = (PFNGLVIEWPORTINDEXEDFVNVPROC)gles2wLoad("glViewportIndexedfvNV");
-    glScissorArrayvNV = (PFNGLSCISSORARRAYVNVPROC)gles2wLoad("glScissorArrayvNV");
-    glScissorIndexedNV = (PFNGLSCISSORINDEXEDNVPROC)gles2wLoad("glScissorIndexedNV");
-    glScissorIndexedvNV = (PFNGLSCISSORINDEXEDVNVPROC)gles2wLoad("glScissorIndexedvNV");
-    glDepthRangeArrayfvNV = (PFNGLDEPTHRANGEARRAYFVNVPROC)gles2wLoad("glDepthRangeArrayfvNV");
-    glDepthRangeIndexedfNV = (PFNGLDEPTHRANGEINDEXEDFNVPROC)gles2wLoad("glDepthRangeIndexedfNV");
-    glGetFloati_vNV = (PFNGLGETFLOATI_VNVPROC)gles2wLoad("glGetFloati_vNV");
-    glEnableiNV = (PFNGLENABLEINVPROC)gles2wLoad("glEnableiNV");
-    glDisableiNV = (PFNGLDISABLEINVPROC)gles2wLoad("glDisableiNV");
-    glIsEnablediNV = (PFNGLISENABLEDINVPROC)gles2wLoad("glIsEnablediNV");
+    glViewportArrayvNV = reinterpret_cast<PFNGLVIEWPORTARRAYVNVPROC>(gles2wLoad("glViewportArrayvNV"));
+    glViewportIndexedfNV = reinterpret_cast<PFNGLVIEWPORTINDEXEDFNVPROC>(gles2wLoad("glViewportIndexedfNV"));
+    glViewportIndexedfvNV = reinterpret_cast<PFNGLVIEWPORTINDEXEDFVNVPROC>(gles2wLoad("glViewportIndexedfvNV"));
+    glScissorArrayvNV = reinterpret_cast<PFNGLSCISSORARRAYVNVPROC>(gles2wLoad("glScissorArrayvNV"));
+    glScissorIndexedNV = reinterpret_cast<PFNGLSCISSORINDEXEDNVPROC>(gles2wLoad("glScissorIndexedNV"));
+    glScissorIndexedvNV = reinterpret_cast<PFNGLSCISSORINDEXEDVNVPROC>(gles2wLoad("glScissorIndexedvNV"));
+    glDepthRangeArrayfvNV = reinterpret_cast<PFNGLDEPTHRANGEARRAYFVNVPROC>(gles2wLoad("glDepthRangeArrayfvNV"));
+    glDepthRangeIndexedfNV = reinterpret_cast<PFNGLDEPTHRANGEINDEXEDFNVPROC>(gles2wLoad("glDepthRangeIndexedfNV"));
+    glGetFloati_vNV = reinterpret_cast<PFNGLGETFLOATI_VNVPROC>(gles2wLoad("glGetFloati_vNV"));
+    glEnableiNV = reinterpret_cast<PFNGLENABLEINVPROC>(gles2wLoad("glEnableiNV"));
+    glDisableiNV = reinterpret_cast<PFNGLDISABLEINVPROC>(gles2wLoad("glDisableiNV"));
+    glIsEnablediNV = reinterpret_cast<PFNGLISENABLEDINVPROC>(gles2wLoad("glIsEnablediNV"));
 #endif /* defined(GL_NV_viewport_array) */
 
 #if defined(GL_NV_viewport_swizzle)
-    glViewportSwizzleNV = (PFNGLVIEWPORTSWIZZLENVPROC)gles2wLoad("glViewportSwizzleNV");
+    glViewportSwizzleNV = reinterpret_cast<PFNGLVIEWPORTSWIZZLENVPROC>(gles2wLoad("glViewportSwizzleNV"));
 #endif /* defined(GL_NV_viewport_swizzle) */
 
 #if defined(GL_OES_EGL_image)
-    glEGLImageTargetTexture2DOES = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)gles2wLoad("glEGLImageTargetTexture2DOES");
-    glEGLImageTargetRenderbufferStorageOES = (PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC)gles2wLoad("glEGLImageTargetRenderbufferStorageOES");
+    glEGLImageTargetTexture2DOES = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(gles2wLoad("glEGLImageTargetTexture2DOES"));
+    glEGLImageTargetRenderbufferStorageOES = reinterpret_cast<PFNGLEGLIMAGETARGETRENDERBUFFERSTORAGEOESPROC>(gles2wLoad("glEGLImageTargetRenderbufferStorageOES"));
 #endif /* defined(GL_OES_EGL_image) */
 
 #if defined(GL_OES_copy_image)
-    glCopyImageSubDataOES = (PFNGLCOPYIMAGESUBDATAOESPROC)gles2wLoad("glCopyImageSubDataOES");
+    glCopyImageSubDataOES = reinterpret_cast<PFNGLCOPYIMAGESUBDATAOESPROC>(gles2wLoad("glCopyImageSubDataOES"));
 #endif /* defined(GL_OES_copy_image) */
 
 #if defined(GL_OES_draw_buffers_indexed)
-    glEnableiOES = (PFNGLENABLEIOESPROC)gles2wLoad("glEnableiOES");
-    glDisableiOES = (PFNGLDISABLEIOESPROC)gles2wLoad("glDisableiOES");
-    glBlendEquationiOES = (PFNGLBLENDEQUATIONIOESPROC)gles2wLoad("glBlendEquationiOES");
-    glBlendEquationSeparateiOES = (PFNGLBLENDEQUATIONSEPARATEIOESPROC)gles2wLoad("glBlendEquationSeparateiOES");
-    glBlendFunciOES = (PFNGLBLENDFUNCIOESPROC)gles2wLoad("glBlendFunciOES");
-    glBlendFuncSeparateiOES = (PFNGLBLENDFUNCSEPARATEIOESPROC)gles2wLoad("glBlendFuncSeparateiOES");
-    glColorMaskiOES = (PFNGLCOLORMASKIOESPROC)gles2wLoad("glColorMaskiOES");
-    glIsEnablediOES = (PFNGLISENABLEDIOESPROC)gles2wLoad("glIsEnablediOES");
+    glEnableiOES = reinterpret_cast<PFNGLENABLEIOESPROC>(gles2wLoad("glEnableiOES"));
+    glDisableiOES = reinterpret_cast<PFNGLDISABLEIOESPROC>(gles2wLoad("glDisableiOES"));
+    glBlendEquationiOES = reinterpret_cast<PFNGLBLENDEQUATIONIOESPROC>(gles2wLoad("glBlendEquationiOES"));
+    glBlendEquationSeparateiOES = reinterpret_cast<PFNGLBLENDEQUATIONSEPARATEIOESPROC>(gles2wLoad("glBlendEquationSeparateiOES"));
+    glBlendFunciOES = reinterpret_cast<PFNGLBLENDFUNCIOESPROC>(gles2wLoad("glBlendFunciOES"));
+    glBlendFuncSeparateiOES = reinterpret_cast<PFNGLBLENDFUNCSEPARATEIOESPROC>(gles2wLoad("glBlendFuncSeparateiOES"));
+    glColorMaskiOES = reinterpret_cast<PFNGLCOLORMASKIOESPROC>(gles2wLoad("glColorMaskiOES"));
+    glIsEnablediOES = reinterpret_cast<PFNGLISENABLEDIOESPROC>(gles2wLoad("glIsEnablediOES"));
 #endif /* defined(GL_OES_draw_buffers_indexed) */
 
 #if defined(GL_OES_draw_elements_base_vertex)
-    glDrawElementsBaseVertexOES = (PFNGLDRAWELEMENTSBASEVERTEXOESPROC)gles2wLoad("glDrawElementsBaseVertexOES");
-    glDrawRangeElementsBaseVertexOES = (PFNGLDRAWRANGEELEMENTSBASEVERTEXOESPROC)gles2wLoad("glDrawRangeElementsBaseVertexOES");
-    glDrawElementsInstancedBaseVertexOES = (PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXOESPROC)gles2wLoad("glDrawElementsInstancedBaseVertexOES");
+    glDrawElementsBaseVertexOES = reinterpret_cast<PFNGLDRAWELEMENTSBASEVERTEXOESPROC>(gles2wLoad("glDrawElementsBaseVertexOES"));
+    glDrawRangeElementsBaseVertexOES = reinterpret_cast<PFNGLDRAWRANGEELEMENTSBASEVERTEXOESPROC>(gles2wLoad("glDrawRangeElementsBaseVertexOES"));
+    glDrawElementsInstancedBaseVertexOES = reinterpret_cast<PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXOESPROC>(gles2wLoad("glDrawElementsInstancedBaseVertexOES"));
 #endif /* defined(GL_OES_draw_elements_base_vertex) */
 
 #if defined(GL_OES_geometry_shader)
-    glFramebufferTextureOES = (PFNGLFRAMEBUFFERTEXTUREOESPROC)gles2wLoad("glFramebufferTextureOES");
+    glFramebufferTextureOES = reinterpret_cast<PFNGLFRAMEBUFFERTEXTUREOESPROC>(gles2wLoad("glFramebufferTextureOES"));
 #endif /* defined(GL_OES_geometry_shader) */
 
 #if defined(GL_OES_get_program_binary)
-    glGetProgramBinaryOES = (PFNGLGETPROGRAMBINARYOESPROC)gles2wLoad("glGetProgramBinaryOES");
-    glProgramBinaryOES = (PFNGLPROGRAMBINARYOESPROC)gles2wLoad("glProgramBinaryOES");
+    glGetProgramBinaryOES = reinterpret_cast<PFNGLGETPROGRAMBINARYOESPROC>(gles2wLoad("glGetProgramBinaryOES"));
+    glProgramBinaryOES = reinterpret_cast<PFNGLPROGRAMBINARYOESPROC>(gles2wLoad("glProgramBinaryOES"));
 #endif /* defined(GL_OES_get_program_binary) */
 
 #if defined(GL_OES_mapbuffer)
-    glMapBufferOES = (PFNGLMAPBUFFEROESPROC)gles2wLoad("glMapBufferOES");
-    glUnmapBufferOES = (PFNGLUNMAPBUFFEROESPROC)gles2wLoad("glUnmapBufferOES");
-    glGetBufferPointervOES = (PFNGLGETBUFFERPOINTERVOESPROC)gles2wLoad("glGetBufferPointervOES");
+    glMapBufferOES = reinterpret_cast<PFNGLMAPBUFFEROESPROC>(gles2wLoad("glMapBufferOES"));
+    glUnmapBufferOES = reinterpret_cast<PFNGLUNMAPBUFFEROESPROC>(gles2wLoad("glUnmapBufferOES"));
+    glGetBufferPointervOES = reinterpret_cast<PFNGLGETBUFFERPOINTERVOESPROC>(gles2wLoad("glGetBufferPointervOES"));
 #endif /* defined(GL_OES_mapbuffer) */
 
 #if defined(GL_OES_primitive_bounding_box)
-    glPrimitiveBoundingBoxOES = (PFNGLPRIMITIVEBOUNDINGBOXOESPROC)gles2wLoad("glPrimitiveBoundingBoxOES");
+    glPrimitiveBoundingBoxOES = reinterpret_cast<PFNGLPRIMITIVEBOUNDINGBOXOESPROC>(gles2wLoad("glPrimitiveBoundingBoxOES"));
 #endif /* defined(GL_OES_primitive_bounding_box) */
 
 #if defined(GL_OES_sample_shading)
-    glMinSampleShadingOES = (PFNGLMINSAMPLESHADINGOESPROC)gles2wLoad("glMinSampleShadingOES");
+    glMinSampleShadingOES = reinterpret_cast<PFNGLMINSAMPLESHADINGOESPROC>(gles2wLoad("glMinSampleShadingOES"));
 #endif /* defined(GL_OES_sample_shading) */
 
 #if defined(GL_OES_tessellation_shader)
-    glPatchParameteriOES = (PFNGLPATCHPARAMETERIOESPROC)gles2wLoad("glPatchParameteriOES");
+    glPatchParameteriOES = reinterpret_cast<PFNGLPATCHPARAMETERIOESPROC>(gles2wLoad("glPatchParameteriOES"));
 #endif /* defined(GL_OES_tessellation_shader) */
 
 #if defined(GL_OES_texture_3D)
-    glTexImage3DOES = (PFNGLTEXIMAGE3DOESPROC)gles2wLoad("glTexImage3DOES");
-    glTexSubImage3DOES = (PFNGLTEXSUBIMAGE3DOESPROC)gles2wLoad("glTexSubImage3DOES");
-    glCopyTexSubImage3DOES = (PFNGLCOPYTEXSUBIMAGE3DOESPROC)gles2wLoad("glCopyTexSubImage3DOES");
-    glCompressedTexImage3DOES = (PFNGLCOMPRESSEDTEXIMAGE3DOESPROC)gles2wLoad("glCompressedTexImage3DOES");
-    glCompressedTexSubImage3DOES = (PFNGLCOMPRESSEDTEXSUBIMAGE3DOESPROC)gles2wLoad("glCompressedTexSubImage3DOES");
-    glFramebufferTexture3DOES = (PFNGLFRAMEBUFFERTEXTURE3DOESPROC)gles2wLoad("glFramebufferTexture3DOES");
+    glTexImage3DOES = reinterpret_cast<PFNGLTEXIMAGE3DOESPROC>(gles2wLoad("glTexImage3DOES"));
+    glTexSubImage3DOES = reinterpret_cast<PFNGLTEXSUBIMAGE3DOESPROC>(gles2wLoad("glTexSubImage3DOES"));
+    glCopyTexSubImage3DOES = reinterpret_cast<PFNGLCOPYTEXSUBIMAGE3DOESPROC>(gles2wLoad("glCopyTexSubImage3DOES"));
+    glCompressedTexImage3DOES = reinterpret_cast<PFNGLCOMPRESSEDTEXIMAGE3DOESPROC>(gles2wLoad("glCompressedTexImage3DOES"));
+    glCompressedTexSubImage3DOES = reinterpret_cast<PFNGLCOMPRESSEDTEXSUBIMAGE3DOESPROC>(gles2wLoad("glCompressedTexSubImage3DOES"));
+    glFramebufferTexture3DOES = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE3DOESPROC>(gles2wLoad("glFramebufferTexture3DOES"));
 #endif /* defined(GL_OES_texture_3D) */
 
 #if defined(GL_OES_texture_border_clamp)
-    glTexParameterIivOES = (PFNGLTEXPARAMETERIIVOESPROC)gles2wLoad("glTexParameterIivOES");
-    glTexParameterIuivOES = (PFNGLTEXPARAMETERIUIVOESPROC)gles2wLoad("glTexParameterIuivOES");
-    glGetTexParameterIivOES = (PFNGLGETTEXPARAMETERIIVOESPROC)gles2wLoad("glGetTexParameterIivOES");
-    glGetTexParameterIuivOES = (PFNGLGETTEXPARAMETERIUIVOESPROC)gles2wLoad("glGetTexParameterIuivOES");
-    glSamplerParameterIivOES = (PFNGLSAMPLERPARAMETERIIVOESPROC)gles2wLoad("glSamplerParameterIivOES");
-    glSamplerParameterIuivOES = (PFNGLSAMPLERPARAMETERIUIVOESPROC)gles2wLoad("glSamplerParameterIuivOES");
-    glGetSamplerParameterIivOES = (PFNGLGETSAMPLERPARAMETERIIVOESPROC)gles2wLoad("glGetSamplerParameterIivOES");
-    glGetSamplerParameterIuivOES = (PFNGLGETSAMPLERPARAMETERIUIVOESPROC)gles2wLoad("glGetSamplerParameterIuivOES");
+    glTexParameterIivOES = reinterpret_cast<PFNGLTEXPARAMETERIIVOESPROC>(gles2wLoad("glTexParameterIivOES"));
+    glTexParameterIuivOES = reinterpret_cast<PFNGLTEXPARAMETERIUIVOESPROC>(gles2wLoad("glTexParameterIuivOES"));
+    glGetTexParameterIivOES = reinterpret_cast<PFNGLGETTEXPARAMETERIIVOESPROC>(gles2wLoad("glGetTexParameterIivOES"));
+    glGetTexParameterIuivOES = reinterpret_cast<PFNGLGETTEXPARAMETERIUIVOESPROC>(gles2wLoad("glGetTexParameterIuivOES"));
+    glSamplerParameterIivOES = reinterpret_cast<PFNGLSAMPLERPARAMETERIIVOESPROC>(gles2wLoad("glSamplerParameterIivOES"));
+    glSamplerParameterIuivOES = reinterpret_cast<PFNGLSAMPLERPARAMETERIUIVOESPROC>(gles2wLoad("glSamplerParameterIuivOES"));
+    glGetSamplerParameterIivOES = reinterpret_cast<PFNGLGETSAMPLERPARAMETERIIVOESPROC>(gles2wLoad("glGetSamplerParameterIivOES"));
+    glGetSamplerParameterIuivOES = reinterpret_cast<PFNGLGETSAMPLERPARAMETERIUIVOESPROC>(gles2wLoad("glGetSamplerParameterIuivOES"));
 #endif /* defined(GL_OES_texture_border_clamp) */
 
 #if defined(GL_OES_texture_buffer)
-    glTexBufferOES = (PFNGLTEXBUFFEROESPROC)gles2wLoad("glTexBufferOES");
-    glTexBufferRangeOES = (PFNGLTEXBUFFERRANGEOESPROC)gles2wLoad("glTexBufferRangeOES");
+    glTexBufferOES = reinterpret_cast<PFNGLTEXBUFFEROESPROC>(gles2wLoad("glTexBufferOES"));
+    glTexBufferRangeOES = reinterpret_cast<PFNGLTEXBUFFERRANGEOESPROC>(gles2wLoad("glTexBufferRangeOES"));
 #endif /* defined(GL_OES_texture_buffer) */
 
 #if defined(GL_OES_texture_storage_multisample_2d_array)
-    glTexStorage3DMultisampleOES = (PFNGLTEXSTORAGE3DMULTISAMPLEOESPROC)gles2wLoad("glTexStorage3DMultisampleOES");
+    glTexStorage3DMultisampleOES = reinterpret_cast<PFNGLTEXSTORAGE3DMULTISAMPLEOESPROC>(gles2wLoad("glTexStorage3DMultisampleOES"));
 #endif /* defined(GL_OES_texture_storage_multisample_2d_array) */
 
 #if defined(GL_OES_texture_view)
-    glTextureViewOES = (PFNGLTEXTUREVIEWOESPROC)gles2wLoad("glTextureViewOES");
+    glTextureViewOES = reinterpret_cast<PFNGLTEXTUREVIEWOESPROC>(gles2wLoad("glTextureViewOES"));
 #endif /* defined(GL_OES_texture_view) */
 
 #if defined(GL_OES_vertex_array_object)
-    glBindVertexArrayOES = (PFNGLBINDVERTEXARRAYOESPROC)gles2wLoad("glBindVertexArrayOES");
-    glDeleteVertexArraysOES = (PFNGLDELETEVERTEXARRAYSOESPROC)gles2wLoad("glDeleteVertexArraysOES");
-    glGenVertexArraysOES = (PFNGLGENVERTEXARRAYSOESPROC)gles2wLoad("glGenVertexArraysOES");
-    glIsVertexArrayOES = (PFNGLISVERTEXARRAYOESPROC)gles2wLoad("glIsVertexArrayOES");
+    glBindVertexArrayOES = reinterpret_cast<PFNGLBINDVERTEXARRAYOESPROC>(gles2wLoad("glBindVertexArrayOES"));
+    glDeleteVertexArraysOES = reinterpret_cast<PFNGLDELETEVERTEXARRAYSOESPROC>(gles2wLoad("glDeleteVertexArraysOES"));
+    glGenVertexArraysOES = reinterpret_cast<PFNGLGENVERTEXARRAYSOESPROC>(gles2wLoad("glGenVertexArraysOES"));
+    glIsVertexArrayOES = reinterpret_cast<PFNGLISVERTEXARRAYOESPROC>(gles2wLoad("glIsVertexArrayOES"));
 #endif /* defined(GL_OES_vertex_array_object) */
 
 #if defined(GL_OES_viewport_array)
-    glViewportArrayvOES = (PFNGLVIEWPORTARRAYVOESPROC)gles2wLoad("glViewportArrayvOES");
-    glViewportIndexedfOES = (PFNGLVIEWPORTINDEXEDFOESPROC)gles2wLoad("glViewportIndexedfOES");
-    glViewportIndexedfvOES = (PFNGLVIEWPORTINDEXEDFVOESPROC)gles2wLoad("glViewportIndexedfvOES");
-    glScissorArrayvOES = (PFNGLSCISSORARRAYVOESPROC)gles2wLoad("glScissorArrayvOES");
-    glScissorIndexedOES = (PFNGLSCISSORINDEXEDOESPROC)gles2wLoad("glScissorIndexedOES");
-    glScissorIndexedvOES = (PFNGLSCISSORINDEXEDVOESPROC)gles2wLoad("glScissorIndexedvOES");
-    glDepthRangeArrayfvOES = (PFNGLDEPTHRANGEARRAYFVOESPROC)gles2wLoad("glDepthRangeArrayfvOES");
-    glDepthRangeIndexedfOES = (PFNGLDEPTHRANGEINDEXEDFOESPROC)gles2wLoad("glDepthRangeIndexedfOES");
-    glGetFloati_vOES = (PFNGLGETFLOATI_VOESPROC)gles2wLoad("glGetFloati_vOES");
+    glViewportArrayvOES = reinterpret_cast<PFNGLVIEWPORTARRAYVOESPROC>(gles2wLoad("glViewportArrayvOES"));
+    glViewportIndexedfOES = reinterpret_cast<PFNGLVIEWPORTINDEXEDFOESPROC>(gles2wLoad("glViewportIndexedfOES"));
+    glViewportIndexedfvOES = reinterpret_cast<PFNGLVIEWPORTINDEXEDFVOESPROC>(gles2wLoad("glViewportIndexedfvOES"));
+    glScissorArrayvOES = reinterpret_cast<PFNGLSCISSORARRAYVOESPROC>(gles2wLoad("glScissorArrayvOES"));
+    glScissorIndexedOES = reinterpret_cast<PFNGLSCISSORINDEXEDOESPROC>(gles2wLoad("glScissorIndexedOES"));
+    glScissorIndexedvOES = reinterpret_cast<PFNGLSCISSORINDEXEDVOESPROC>(gles2wLoad("glScissorIndexedvOES"));
+    glDepthRangeArrayfvOES = reinterpret_cast<PFNGLDEPTHRANGEARRAYFVOESPROC>(gles2wLoad("glDepthRangeArrayfvOES"));
+    glDepthRangeIndexedfOES = reinterpret_cast<PFNGLDEPTHRANGEINDEXEDFOESPROC>(gles2wLoad("glDepthRangeIndexedfOES"));
+    glGetFloati_vOES = reinterpret_cast<PFNGLGETFLOATI_VOESPROC>(gles2wLoad("glGetFloati_vOES"));
 #endif /* defined(GL_OES_viewport_array) */
 
 #if defined(GL_OVR_multiview)
-    glFramebufferTextureMultiviewOVR = (PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC)gles2wLoad("glFramebufferTextureMultiviewOVR");
+    glFramebufferTextureMultiviewOVR = reinterpret_cast<PFNGLFRAMEBUFFERTEXTUREMULTIVIEWOVRPROC>(gles2wLoad("glFramebufferTextureMultiviewOVR"));
 #endif /* defined(GL_OVR_multiview) */
 
 #if defined(GL_OVR_multiview_multisampled_render_to_texture)
-    glFramebufferTextureMultisampleMultiviewOVR = (PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)gles2wLoad("glFramebufferTextureMultisampleMultiviewOVR");
+    glFramebufferTextureMultisampleMultiviewOVR = reinterpret_cast<PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC>(gles2wLoad("glFramebufferTextureMultisampleMultiviewOVR"));
 #endif /* defined(GL_OVR_multiview_multisampled_render_to_texture) */
 
 #if defined(GL_QCOM_alpha_test)
-    glAlphaFuncQCOM = (PFNGLALPHAFUNCQCOMPROC)gles2wLoad("glAlphaFuncQCOM");
+    glAlphaFuncQCOM = reinterpret_cast<PFNGLALPHAFUNCQCOMPROC>(gles2wLoad("glAlphaFuncQCOM"));
 #endif /* defined(GL_QCOM_alpha_test) */
 
 #if defined(GL_QCOM_driver_control)
-    glGetDriverControlsQCOM = (PFNGLGETDRIVERCONTROLSQCOMPROC)gles2wLoad("glGetDriverControlsQCOM");
-    glGetDriverControlStringQCOM = (PFNGLGETDRIVERCONTROLSTRINGQCOMPROC)gles2wLoad("glGetDriverControlStringQCOM");
-    glEnableDriverControlQCOM = (PFNGLENABLEDRIVERCONTROLQCOMPROC)gles2wLoad("glEnableDriverControlQCOM");
-    glDisableDriverControlQCOM = (PFNGLDISABLEDRIVERCONTROLQCOMPROC)gles2wLoad("glDisableDriverControlQCOM");
+    glGetDriverControlsQCOM = reinterpret_cast<PFNGLGETDRIVERCONTROLSQCOMPROC>(gles2wLoad("glGetDriverControlsQCOM"));
+    glGetDriverControlStringQCOM = reinterpret_cast<PFNGLGETDRIVERCONTROLSTRINGQCOMPROC>(gles2wLoad("glGetDriverControlStringQCOM"));
+    glEnableDriverControlQCOM = reinterpret_cast<PFNGLENABLEDRIVERCONTROLQCOMPROC>(gles2wLoad("glEnableDriverControlQCOM"));
+    glDisableDriverControlQCOM = reinterpret_cast<PFNGLDISABLEDRIVERCONTROLQCOMPROC>(gles2wLoad("glDisableDriverControlQCOM"));
 #endif /* defined(GL_QCOM_driver_control) */
 
 #if defined(GL_QCOM_extended_get)
-    glExtGetTexturesQCOM = (PFNGLEXTGETTEXTURESQCOMPROC)gles2wLoad("glExtGetTexturesQCOM");
-    glExtGetBuffersQCOM = (PFNGLEXTGETBUFFERSQCOMPROC)gles2wLoad("glExtGetBuffersQCOM");
-    glExtGetRenderbuffersQCOM = (PFNGLEXTGETRENDERBUFFERSQCOMPROC)gles2wLoad("glExtGetRenderbuffersQCOM");
-    glExtGetFramebuffersQCOM = (PFNGLEXTGETFRAMEBUFFERSQCOMPROC)gles2wLoad("glExtGetFramebuffersQCOM");
-    glExtGetTexLevelParameterivQCOM = (PFNGLEXTGETTEXLEVELPARAMETERIVQCOMPROC)gles2wLoad("glExtGetTexLevelParameterivQCOM");
-    glExtTexObjectStateOverrideiQCOM = (PFNGLEXTTEXOBJECTSTATEOVERRIDEIQCOMPROC)gles2wLoad("glExtTexObjectStateOverrideiQCOM");
-    glExtGetTexSubImageQCOM = (PFNGLEXTGETTEXSUBIMAGEQCOMPROC)gles2wLoad("glExtGetTexSubImageQCOM");
-    glExtGetBufferPointervQCOM = (PFNGLEXTGETBUFFERPOINTERVQCOMPROC)gles2wLoad("glExtGetBufferPointervQCOM");
+    glExtGetTexturesQCOM = reinterpret_cast<PFNGLEXTGETTEXTURESQCOMPROC>(gles2wLoad("glExtGetTexturesQCOM"));
+    glExtGetBuffersQCOM = reinterpret_cast<PFNGLEXTGETBUFFERSQCOMPROC>(gles2wLoad("glExtGetBuffersQCOM"));
+    glExtGetRenderbuffersQCOM = reinterpret_cast<PFNGLEXTGETRENDERBUFFERSQCOMPROC>(gles2wLoad("glExtGetRenderbuffersQCOM"));
+    glExtGetFramebuffersQCOM = reinterpret_cast<PFNGLEXTGETFRAMEBUFFERSQCOMPROC>(gles2wLoad("glExtGetFramebuffersQCOM"));
+    glExtGetTexLevelParameterivQCOM = reinterpret_cast<PFNGLEXTGETTEXLEVELPARAMETERIVQCOMPROC>(gles2wLoad("glExtGetTexLevelParameterivQCOM"));
+    glExtTexObjectStateOverrideiQCOM = reinterpret_cast<PFNGLEXTTEXOBJECTSTATEOVERRIDEIQCOMPROC>(gles2wLoad("glExtTexObjectStateOverrideiQCOM"));
+    glExtGetTexSubImageQCOM = reinterpret_cast<PFNGLEXTGETTEXSUBIMAGEQCOMPROC>(gles2wLoad("glExtGetTexSubImageQCOM"));
+    glExtGetBufferPointervQCOM = reinterpret_cast<PFNGLEXTGETBUFFERPOINTERVQCOMPROC>(gles2wLoad("glExtGetBufferPointervQCOM"));
 #endif /* defined(GL_QCOM_extended_get) */
 
 #if defined(GL_QCOM_extended_get2)
-    glExtGetShadersQCOM = (PFNGLEXTGETSHADERSQCOMPROC)gles2wLoad("glExtGetShadersQCOM");
-    glExtGetProgramsQCOM = (PFNGLEXTGETPROGRAMSQCOMPROC)gles2wLoad("glExtGetProgramsQCOM");
-    glExtIsProgramBinaryQCOM = (PFNGLEXTISPROGRAMBINARYQCOMPROC)gles2wLoad("glExtIsProgramBinaryQCOM");
-    glExtGetProgramBinarySourceQCOM = (PFNGLEXTGETPROGRAMBINARYSOURCEQCOMPROC)gles2wLoad("glExtGetProgramBinarySourceQCOM");
+    glExtGetShadersQCOM = reinterpret_cast<PFNGLEXTGETSHADERSQCOMPROC>(gles2wLoad("glExtGetShadersQCOM"));
+    glExtGetProgramsQCOM = reinterpret_cast<PFNGLEXTGETPROGRAMSQCOMPROC>(gles2wLoad("glExtGetProgramsQCOM"));
+    glExtIsProgramBinaryQCOM = reinterpret_cast<PFNGLEXTISPROGRAMBINARYQCOMPROC>(gles2wLoad("glExtIsProgramBinaryQCOM"));
+    glExtGetProgramBinarySourceQCOM = reinterpret_cast<PFNGLEXTGETPROGRAMBINARYSOURCEQCOMPROC>(gles2wLoad("glExtGetProgramBinarySourceQCOM"));
 #endif /* defined(GL_QCOM_extended_get2) */
 
 #if defined(GL_QCOM_framebuffer_foveated)
-    glFramebufferFoveationConfigQCOM = (PFNGLFRAMEBUFFERFOVEATIONCONFIGQCOMPROC)gles2wLoad("glFramebufferFoveationConfigQCOM");
-    glFramebufferFoveationParametersQCOM = (PFNGLFRAMEBUFFERFOVEATIONPARAMETERSQCOMPROC)gles2wLoad("glFramebufferFoveationParametersQCOM");
+    glFramebufferFoveationConfigQCOM = reinterpret_cast<PFNGLFRAMEBUFFERFOVEATIONCONFIGQCOMPROC>(gles2wLoad("glFramebufferFoveationConfigQCOM"));
+    glFramebufferFoveationParametersQCOM = reinterpret_cast<PFNGLFRAMEBUFFERFOVEATIONPARAMETERSQCOMPROC>(gles2wLoad("glFramebufferFoveationParametersQCOM"));
 #endif /* defined(GL_QCOM_framebuffer_foveated) */
 
 #if defined(GL_QCOM_motion_estimation)
-    glTexEstimateMotionQCOM = (PFNGLTEXESTIMATEMOTIONQCOMPROC)gles2wLoad("glTexEstimateMotionQCOM");
-    glTexEstimateMotionRegionsQCOM = (PFNGLTEXESTIMATEMOTIONREGIONSQCOMPROC)gles2wLoad("glTexEstimateMotionRegionsQCOM");
+    glTexEstimateMotionQCOM = reinterpret_cast<PFNGLTEXESTIMATEMOTIONQCOMPROC>(gles2wLoad("glTexEstimateMotionQCOM"));
+    glTexEstimateMotionRegionsQCOM = reinterpret_cast<PFNGLTEXESTIMATEMOTIONREGIONSQCOMPROC>(gles2wLoad("glTexEstimateMotionRegionsQCOM"));
 #endif /* defined(GL_QCOM_motion_estimation) */
 
 #if defined(GL_QCOM_frame_extrapolation)
-    glExtrapolateTex2DQCOM = (PFNGLEXTRAPOLATETEX2DQCOMPROC)gles2wLoad("glExtrapolateTex2DQCOM");
+    glExtrapolateTex2DQCOM = reinterpret_cast<PFNGLEXTRAPOLATETEX2DQCOMPROC>(gles2wLoad("glExtrapolateTex2DQCOM"));
 #endif /* defined(GL_QCOM_frame_extrapolation) */
 
 #if defined(GL_QCOM_texture_foveated)
-    glTextureFoveationParametersQCOM = (PFNGLTEXTUREFOVEATIONPARAMETERSQCOMPROC)gles2wLoad("glTextureFoveationParametersQCOM");
+    glTextureFoveationParametersQCOM = reinterpret_cast<PFNGLTEXTUREFOVEATIONPARAMETERSQCOMPROC>(gles2wLoad("glTextureFoveationParametersQCOM"));
 #endif /* defined(GL_QCOM_texture_foveated) */
 
 #if defined(GL_QCOM_shader_framebuffer_fetch_noncoherent)
-    glFramebufferFetchBarrierQCOM = (PFNGLFRAMEBUFFERFETCHBARRIERQCOMPROC)gles2wLoad("glFramebufferFetchBarrierQCOM");
+    glFramebufferFetchBarrierQCOM = reinterpret_cast<PFNGLFRAMEBUFFERFETCHBARRIERQCOMPROC>(gles2wLoad("glFramebufferFetchBarrierQCOM"));
 #endif /* defined(GL_QCOM_shader_framebuffer_fetch_noncoherent) */
 
 #if defined(GL_QCOM_shading_rate)
-    glShadingRateQCOM = (PFNGLSHADINGRATEQCOMPROC)gles2wLoad("glShadingRateQCOM");
+    glShadingRateQCOM = reinterpret_cast<PFNGLSHADINGRATEQCOMPROC>(gles2wLoad("glShadingRateQCOM"));
 #endif /* defined(GL_QCOM_shading_rate) */
 
 #if defined(GL_QCOM_tiled_rendering)
-    glStartTilingQCOM = (PFNGLSTARTTILINGQCOMPROC)gles2wLoad("glStartTilingQCOM");
-    glEndTilingQCOM = (PFNGLENDTILINGQCOMPROC)gles2wLoad("glEndTilingQCOM");
+    glStartTilingQCOM = reinterpret_cast<PFNGLSTARTTILINGQCOMPROC>(gles2wLoad("glStartTilingQCOM"));
+    glEndTilingQCOM = reinterpret_cast<PFNGLENDTILINGQCOMPROC>(gles2wLoad("glEndTilingQCOM"));
 #endif /* defined(GL_QCOM_tiled_rendering) */
 
     /* GLES2W_GENERATE_GLES_LOAD */

@@ -33,18 +33,21 @@ namespace gfx {
 class CC_DLL TextureBarrier : public GFXObject {
 public:
     TextureBarrier();
-    virtual ~TextureBarrier();
+    ~TextureBarrier() override;
 
     static uint computeHash(const TextureBarrierInfo &info);
 
-    CC_INLINE const TextureBarrierInfo &info() const { return _info; }
+    inline const TextureBarrierInfo &info() const { return _info; }
 
 protected:
     friend class Device;
 
     virtual void doInit(const TextureBarrierInfo &info) {}
 
-    void initialize(const TextureBarrierInfo &info) { _info = info; doInit(info); }
+    void initialize(const TextureBarrierInfo &info) {
+        _info = info;
+        doInit(info);
+    }
 
     TextureBarrierInfo _info;
 };

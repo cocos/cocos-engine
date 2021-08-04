@@ -107,51 +107,43 @@ bool setCanvasCallback(se::Object *global) {
                << "; window.windowHandler = " << reinterpret_cast<uintptr_t>(view) << ";";
     se->evalString(commandBuf.str().c_str());
 
-    gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle       = (uintptr_t)view;
-    deviceInfo.width              = viewLogicalSize.x;
-    deviceInfo.height             = viewLogicalSize.y;
-    deviceInfo.nativeWidth        = viewLogicalSize.x * Device::getDevicePixelRatio();
-    deviceInfo.nativeHeight       = viewLogicalSize.y * Device::getDevicePixelRatio();
-    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
-
-    gfx::DeviceManager::create(deviceInfo);
-
     return true;
 }
 
 MyTimer *_timer;
 } // namespace
 
-Application *              Application::_instance  = nullptr;
-std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
+Application *              Application::instance  = nullptr;
+std::shared_ptr<Scheduler> Application::scheduler = nullptr;
 
 Application::Application(int width, int height) {
-    Application::_instance = this;
+    Application::instance = this;
 
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
 
-    _scheduler = std::make_shared<Scheduler>();
+    scheduler = std::make_shared<Scheduler>();
     EventDispatcher::init();
 
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
 }
 
 Application::~Application() {
-
 #if USE_AUDIO
     AudioEngine::end();
 #endif
 
-    pipeline::RenderPipeline::getInstance()->destroy();
+    auto *pipelineInst = pipeline::RenderPipeline::getInstance();
+    if (pipelineInst) {
+        pipelineInst->destroy();
+    }
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
 
     gfx::DeviceManager::destroy();
 
-    Application::_instance = nullptr;
+    Application::instance = nullptr;
     [_timer release];
 }
 
@@ -251,6 +243,9 @@ void Application::onPause() {
 
 void Application::onResume() {
     [_timer resume];
+}
+
+void Application::onClose() {
 }
 
 std::string Application::getSystemVersion() {

@@ -1,0 +1,206 @@
+name: 🏗️ Compile
+
+on: [pull_request]
+
+jobs:
+  compile_windows:
+    # windows 2019, Visual Studio Enterprise 2019
+    # windows 2016, Visual Studio Enterprise 2017
+    #runs-on: windows-latest
+    runs-on: windows-2019
+    name: "Windows"
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+      - name: Install deps
+        run: |
+          choco install --forcex86 vulkan-sdk
+          python -m pip install PyYAML Cheetah3
+      - name: Generate bindings
+        shell: bash
+        run: |
+          python -V
+          cd ./tools/tojs
+          echo "Create auto-generated jsbinding glue codes."
+          python ./genbindings.py
+          rm userconf.ini
+      - name: Compile win32
+        shell: bash
+        env:
+          COCOS_ENGINE_DEV: 1
+        run: |
+          cd $GITHUB_WORKSPACE/templates/windows
+          mkdir -p build-win32/proj
+          touch build-win32/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN ON)" >> build-win32/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 ON)" >> build-win32/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
+          mkdir build-win32/assets
+          cd build-win32
+          RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win32
+          COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}
+          cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
+          cmake --build . --config Release
+          echo "Compile Win32 Release Done!"
+
+  compile_android:
+    name: "Android"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+      - name: Generate bindings
+        run: |
+          python3 -m pip install PyYAML Cheetah3
+          python3 ./tools/tojs/genbindings.py
+          rm ./tools/tojs/userconf.ini
+      - name: Compile
+        env:
+          COCOS_ENGINE_DEV: 1
+        run: |
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE   
+          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          NATIVE_DIR=$COCOS2DX_ROOT/templates/android-template       
+          echo "Compiling Android ... "
+          cd $COCOS2DX_ROOT/templates/
+          if [ ! -d  android-template ]; then
+            cp -r android/template android-template
+          fi
+          cd $COCOS2DX_ROOT/templates/android/build
+          mkdir -p build-android/proj
+          touch build-android/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
+
+          mkdir -p build-android/assets
+
+          ASSET_DIR=$COCOS2DX_ROOT/templates/android/build/build-android/
+
+          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
+          sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
+          sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
+          sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
+          sed -i "s@^NATIVE_DIR.*@NATIVE_DIR=$NATIVE_DIR@g" gradle.properties
+
+          # To speedup CI, compile arm64-v8a only
+          # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
+
+          echo "Compile Android - cmake ..."
+          echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
+          ./gradlew :CocosGame:assembleDebug --quiet
+          echo "Compile Android Debug Done!"
+
+  compile_mac:
+    name: "MacOS"
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+      - name: Generate bindings
+        run: |
+          python -m pip install PyYAML Cheetah3
+          python ./tools/tojs/genbindings.py
+          rm ./tools/tojs/userconf.ini
+      - name: Compile
+        env:
+          COCOS_ENGINE_DEV: 1
+        run: |
+          NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE   
+          echo "Compiling MacOSX ... "
+          cd  $COCOS2DX_ROOT/templates/mac
+          mkdir -p build-mac/proj
+          touch build-mac/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
+          mkdir build-mac/assets
+
+          RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
+          cd build-mac
+          cmake ../ -GXcode -DCC_USE_GLES3=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
+          echo "Compile MacOSX x86_64 Release Done!"
+
+          cd ..
+          mkdir build-mac-apple-silicon
+          cd build-mac-apple-silicon
+          cmake ../ -GXcode -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT -DUSE_PHYSICS_PHYSX=OFF
+          cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
+          echo "Compile MacOSX ARM64 Release Done!"
+
+  compile_iOS:
+    name: "iOS"
+    runs-on: macos-latest
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+      - name: Generate bindings
+        run: |
+          python -m pip install PyYAML Cheetah3
+          python ./tools/tojs/genbindings.py
+          rm ./tools/tojs/userconf.ini
+      - name: Compile
+        env:
+          COCOS_ENGINE_DEV: 1
+        run: |
+          set -x
+          NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE  
+          echo "Compiling iOS ... "
+          cd  $COCOS2DX_ROOT/templates/ios
+          mkdir -p build-ios/proj
+          touch build-ios/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 OFF)" >> build-ios/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN OFF)" >> build-ios/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 OFF)" >> build-ios/proj/cfg.cmake
+          echo "set(CC_USE_METAL ON)" >> build-ios/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-ios/proj/cfg.cmake
+          echo "set(USE_DRAGONBONES OFF)" >> build-ios/proj/cfg.cmake
+          echo "set(MACOSX_BUNDLE_GUI_IDENTIFIER com.cocos.demo.ios)" >> build-ios/proj/cfg.cmake
+          mkdir build-ios/assets
+          cd build-ios
+          RES_DIR=$COCOS2DX_ROOT/templates/ios/build-ios
+          cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
+              -DCMAKE_OSX_SYSROOT=iphoneos \
+              -DCMAKE_OSX_ARCHITECTURES=arm64 \
+              -DRES_DIR=$RES_DIR \
+              -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO 
+          cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          echo "Compile iOS Done!"

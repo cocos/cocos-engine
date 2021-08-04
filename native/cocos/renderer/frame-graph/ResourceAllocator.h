@@ -43,10 +43,10 @@ public:
     ResourceAllocator &operator=(ResourceAllocator &&) = delete;
 
     static ResourceAllocator &getInstance() noexcept;
-    DeviceResourceType *      alloc(const DescriptorType &desc, DescriptorHash const key) noexcept;
-    void                      free(const DescriptorType &desc, DescriptorHash const key, DeviceResourceType *const resource) noexcept;
-    CC_INLINE void               tick() noexcept;
-    void                      gc(uint32_t const unusedFrameCount) noexcept;
+    DeviceResourceType *      alloc(const DescriptorType &desc, DescriptorHash key) noexcept;
+    void                      free(const DescriptorType &desc, DescriptorHash key, DeviceResourceType *resource) noexcept;
+    inline void               tick() noexcept;
+    void                      gc(uint32_t unusedFrameCount) noexcept;
 
 private:
     using DeviceResourcePtr = DeviceResourceType *;
@@ -67,8 +67,8 @@ private:
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
     template <typename Cache>
-    typename Bucket::Pool *getPool(DescriptorHash const key, Cache &from) noexcept;
-    BucketGC &             getBucketGC(DescriptorHash const key) noexcept;
+    typename Bucket::Pool *getPool(DescriptorHash key, Cache &from) noexcept;
+    BucketGC &             getBucketGC(DescriptorHash key) noexcept;
 
     std::vector<BucketGC> _free{};
     std::vector<Bucket>   _inUse{};
@@ -111,7 +111,7 @@ DeviceResourceType *ResourceAllocator<DeviceResourceType, DescriptorType, Device
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
-void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::free(const DescriptorType &desc, DescriptorHash const key, DeviceResourceType *const resource) noexcept {
+void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::free(const DescriptorType & /*desc*/, DescriptorHash const key, DeviceResourceType *const resource) noexcept {
     auto *pool = getPool(key, _inUse);
     CC_ASSERT(!pool->empty());
 

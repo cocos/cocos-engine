@@ -23,29 +23,29 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "jsb_global_init.h"
 #include "base/CoreStd.h"
 #include "base/Scheduler.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "jsb_conversions.h"
+#include "jsb_global_init.h"
 #include "xxtea/xxtea.h"
 
 #include <chrono>
 #include <regex>
 #include <sstream>
 
-using namespace cc;
+using namespace cc; //NOLINT
 
-se::Object *__jsbObj = nullptr;
-se::Object *__glObj  = nullptr;
+se::Object *__jsbObj = nullptr; //NOLINT
+se::Object *__glObj  = nullptr; //NOLINT
 
-static std::string xxteaKey = "";
-void               jsb_set_xxtea_key(const std::string &key) {
+static std::string xxteaKey;
+void               jsb_set_xxtea_key(const std::string &key) { //NOLINT
     xxteaKey = key;
 }
 
-static const char *BYTE_CODE_FILE_EXT = ".jsc";
+static const char *BYTE_CODE_FILE_EXT = ".jsc"; //NOLINT
 
 static std::string removeFileExt(const std::string &filePath) {
     size_t pos = filePath.rfind('.');
@@ -55,7 +55,8 @@ static std::string removeFileExt(const std::string &filePath) {
     return filePath;
 }
 
-void jsb_init_file_operation_delegate() {
+void jsb_init_file_operation_delegate() { //NOLINT
+
     static se::ScriptEngine::FileOperationDelegate delegate;
     if (!delegate.isValid()) {
         delegate.onGetDataFromFile = [](const std::string &path, const std::function<void(const uint8_t *, size_t)> &readCallback) -> void {
@@ -68,7 +69,9 @@ void jsb_init_file_operation_delegate() {
                 fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
                 size_t   dataLen = 0;
-                uint8_t *data    = xxtea_decrypt((unsigned char *)fileData.getBytes(), (uint32_t)fileData.getSize(), (unsigned char *)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), (uint32_t *)&dataLen);
+                uint8_t *data    = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
+                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
+                                              static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
 
                 if (data == nullptr) {
                     SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
@@ -107,7 +110,9 @@ void jsb_init_file_operation_delegate() {
                 Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
 
                 uint32_t dataLen;
-                uint8_t *data = xxtea_decrypt((uint8_t *)fileData.getBytes(), (uint32_t)fileData.getSize(), (uint8_t *)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), &dataLen);
+                uint8_t *data = xxtea_decrypt(static_cast<uint8_t *>(fileData.getBytes()), static_cast<uint32_t>(fileData.getSize()),
+                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
+                                              static_cast<uint32_t>(xxteaKey.size()), &dataLen);
 
                 if (data == nullptr) {
                     SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
@@ -127,18 +132,16 @@ void jsb_init_file_operation_delegate() {
                     free(data);
 
                     return ret;
-                } else {
-                    std::string ret(reinterpret_cast<const char *>(data), dataLen);
-                    free(data);
-                    return ret;
                 }
+                std::string ret(reinterpret_cast<const char *>(data), dataLen);
+                free(data);
+                return ret;
             }
 
             if (FileUtils::getInstance()->isFileExist(path)) {
                 return FileUtils::getInstance()->getStringFromFile(path);
-            } else {
-                SE_LOGE("ScriptEngine::onGetStringFromFile %s not found, possible missing file.\n", path.c_str());
             }
+            SE_LOGE("ScriptEngine::onGetStringFromFile %s not found, possible missing file.\n", path.c_str());
             return "";
         };
 
@@ -162,17 +165,18 @@ void jsb_init_file_operation_delegate() {
     }
 }
 
-bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) {
-    if (debuggerServerAddr.empty() || port == 0)
+bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) { //NOLINT
+    if (debuggerServerAddr.empty() || port == 0) {
         return false;
+    }
 
     auto se = se::ScriptEngine::getInstance();
-    se->enableDebugger(debuggerServerAddr.c_str(), port, isWaitForConnect);
+    se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
 
     // For debugger main loop
     class SimpleRunLoop {
     public:
-        void update(float dt) {
+        void update(float dt) { //NOLINT
             se::ScriptEngine::getInstance()->mainLoopUpdate();
         }
     };

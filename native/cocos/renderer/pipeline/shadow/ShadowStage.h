@@ -25,39 +25,39 @@
 
 #pragma once
 #include "../RenderStage.h"
+#include "scene/Light.h"
 
 namespace cc {
 namespace pipeline {
 class RenderQueue;
 class ShadowMapBatchedQueue;
-struct Camera;
 
 class CC_DLL ShadowStage : public RenderStage {
 public:
-    ShadowStage() = default;
+    ShadowStage()           = default;
     ~ShadowStage() override = default;
 
     static const RenderStageInfo &getInitializeInfo();
 
     bool initialize(const RenderStageInfo &info) override;
     void destroy() override;
-    void render(Camera *camera) override;
+    void render(scene::Camera *camera) override;
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
-    CC_INLINE void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
-    CC_INLINE void setUseData(const Light *light, gfx::Framebuffer *framebuffer) {
-        _light = light;
+    inline void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
+    inline void setUseData(const scene::Light *light, gfx::Framebuffer *framebuffer) {
+        _light       = light;
         _framebuffer = framebuffer;
     };
 
-    void clearFramebuffer(Camera *camera);
+    void clearFramebuffer(scene::Camera *camera);
 
 private:
     static RenderStageInfo initInfo;
 
-    gfx::Rect _renderArea;
-    const Light *_light = nullptr;
-    gfx::Framebuffer *_framebuffer = nullptr;
+    gfx::Rect           _renderArea;
+    const scene::Light *_light       = nullptr;
+    gfx::Framebuffer *  _framebuffer = nullptr;
 
     ShadowMapBatchedQueue *_additiveShadowQueue = nullptr;
 };

@@ -2,8 +2,9 @@ const fs = require('fs');
 const parser = require('fast-xml-parser');
 const axios = require('axios');
 
-const eglRegistry = { local: `${__dirname}/specs/egl.xml`, remote: 'https://www.khronos.org/registry/EGL/api/egl.xml' };
-const glRegistry = { local: `${__dirname}/specs/gl.xml`, remote: 'https://www.khronos.org/registry/OpenGL/xml/gl.xml' };
+const specDir = `${__dirname}/specs`;
+const eglRegistry = { local: `${specDir}/egl.xml`, remote: 'https://www.khronos.org/registry/EGL/api/egl.xml' };
+const glRegistry = { local: `${specDir}/gl.xml`, remote: 'https://www.khronos.org/registry/OpenGL/xml/gl.xml' };
 
 const downloadSpec = async (specInfo) => {
     if (fs.existsSync(specInfo.local)) return;
@@ -22,9 +23,10 @@ for (let i = 2; i < argc; i++) {
 }
 
 (async () => {
-    if (!fs.existsSync('specs')) fs.mkdirSync('specs');
+    if (!fs.existsSync(specDir)) fs.mkdirSync(specDir);
     await downloadSpec(eglRegistry);
     await downloadSpec(glRegistry);
+
     const parseOpt = {
         attributeNamePrefix : '',
         ignoreAttributes : false,
@@ -46,9 +48,10 @@ for (let i = 2; i < argc; i++) {
         let sourceDef = '';
         let sourceLoad = '';
         const writeCommand = (name) => {
-            headerDecl += `extern PFN${name.toUpperCase()}PROC ${name};\n`;
+            const nolint = name.includes('_') ? ' // NOLINT(readability-identifier-naming)' : '';
+            headerDecl += `extern PFN${name.toUpperCase()}PROC ${name};${nolint}\n`;
             sourceDef += `PFN${name.toUpperCase()}PROC ${name};\n`;
-            sourceLoad += `    ${name} = (PFN${name.toUpperCase()}PROC)${moduleName}Load("${name}");\n`;
+            sourceLoad += `    ${name} = reinterpret_cast<PFN${name.toUpperCase()}PROC>(${moduleName}Load("${name}"));\n`;
             nameRecord.add(name);
         };
         const append = (content) => {

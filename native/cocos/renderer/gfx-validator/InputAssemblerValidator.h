@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL InputAssemblerValidator final : public Agent<InputAssembler> {
 public:
-    using Agent::Agent;
+    explicit InputAssemblerValidator(InputAssembler *actor);
     ~InputAssemblerValidator() override;
 
     void setVertexCount(uint count) override;

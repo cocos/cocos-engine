@@ -74,14 +74,12 @@ public:
     GlobalBarrier *      createGlobalBarrier() override;
     TextureBarrier *     createTextureBarrier() override;
     void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
 
     void             flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
-    void             setMultithreaded(bool multithreaded) override;
     SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
     uint             getWidth() const override { return _actor->getWidth(); }
     uint             getHeight() const override { return _actor->getHeight(); }
-    uint             getNativeWidth() const override { return _actor->getNativeWidth(); }
-    uint             getNativeHeight() const override { return _actor->getNativeHeight(); }
     MemoryStatus &   getMemoryStatus() override { return _actor->getMemoryStatus(); }
     uint             getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     uint             getNumInstances() const override { return _actor->getNumInstances(); }

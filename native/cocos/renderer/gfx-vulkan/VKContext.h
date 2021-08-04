@@ -39,8 +39,8 @@ class CCVKGPUSemaphorePool;
 
 class CC_VULKAN_API CCVKContext final : public Context {
 public:
-    CCVKContext();
-    ~CCVKContext() override;
+    CCVKContext()           = default;
+    ~CCVKContext() override = default;
 
     void present() override {}
 

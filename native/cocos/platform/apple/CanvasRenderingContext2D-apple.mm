@@ -676,7 +676,7 @@ void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBuffer
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_width(float width) {
+void CanvasRenderingContext2D::setWidth(float width) {
     //    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     if (math::IsEqualF(width, _width)) return;
     _width = width;
@@ -684,7 +684,7 @@ void CanvasRenderingContext2D::set_width(float width) {
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_height(float height) {
+void CanvasRenderingContext2D::setHeight(float height) {
     //    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     if (math::IsEqualF(height, _height)) return;
     _height = height;
@@ -692,20 +692,20 @@ void CanvasRenderingContext2D::set_height(float height) {
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_lineWidth(float lineWidth) {
+void CanvasRenderingContext2D::setLineWidth(float lineWidth) {
     _lineWidth = lineWidth;
     _impl.lineWidth = _lineWidth;
 }
 
-void CanvasRenderingContext2D::set_lineCap(const std::string &lineCap) {
+void CanvasRenderingContext2D::setLineCap(const std::string &lineCap) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::set_lineJoin(const std::string &lineJoin) {
+void CanvasRenderingContext2D::setLineJoin(const std::string &lineJoin) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::set_font(const std::string &font) {
+void CanvasRenderingContext2D::setFont(const std::string &font) {
     if (_font != font) {
         _font = font;
 
@@ -727,7 +727,7 @@ void CanvasRenderingContext2D::set_font(const std::string &font) {
     }
 }
 
-void CanvasRenderingContext2D::set_textAlign(const std::string &textAlign) {
+void CanvasRenderingContext2D::setTextAlign(const std::string &textAlign) {
     //    SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left") {
         _impl.textAlign = CanvasTextAlign::LEFT;
@@ -740,7 +740,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string &textAlign) {
     }
 }
 
-void CanvasRenderingContext2D::set_textBaseline(const std::string &textBaseline) {
+void CanvasRenderingContext2D::setTextBaseline(const std::string &textBaseline) {
     //    SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top") {
         _impl.textBaseLine = CanvasTextBaseline::TOP;
@@ -756,22 +756,22 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string &textBaseline)
     }
 }
 
-void CanvasRenderingContext2D::set_fillStyle(const std::string &fillStyle) {
+void CanvasRenderingContext2D::setFillStyle(const std::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
     [_impl setFillStyleWithRed:color.r / 255.0f green:color.g / 255.0f blue:color.b / 255.0f alpha:color.a];
     //    SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
-void CanvasRenderingContext2D::set_strokeStyle(const std::string &strokeStyle) {
+void CanvasRenderingContext2D::setStrokeStyle(const std::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
     [_impl setStrokeStyleWithRed:color.r / 255.0f green:color.g / 255.0f blue:color.b / 255.0f alpha:color.a];
 }
 
-void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string &globalCompositeOperation) {
+void CanvasRenderingContext2D::setGlobalCompositeOperation(const std::string &globalCompositeOperation) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::_fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+void CanvasRenderingContext2D::fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 

@@ -29,31 +29,31 @@
 
 #include "base/Object.h"
 #include "base/Value.h"
-#include "gfx-base/GFXDef.h"
+#include "renderer/gfx-base/GFXDef.h"
+#include "scene/Light.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace pipeline {
 
 class RenderStage;
 class RenderFlow;
-struct SubModelView;
-struct Light;
-struct ModelView;
-struct AABB;
-struct Frustum;
 
 // The actual uniform vectors used is JointUniformCapacity * 3.
 // We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.
 // Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
 // But still, you can tweak this for your own need by changing the number below
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
-#define JOINT_UNIFORM_CAPACITY 30
+constexpr int JOINT_UNIFORM_CAPACITY = 30;
+
+constexpr float SHADOW_CAMERA_MAX_FAR    = 2000.0F;
+const float     COEFFICIENT_OF_EXPANSION = 2.0F * std::sqrtf(3.0F);
 
 struct CC_DLL RenderObject {
-    float            depth = 0;
-    const ModelView *model = nullptr;
+    float               depth = 0;
+    const scene::Model *model = nullptr;
 };
-using  RenderObjectList = vector<struct RenderObject>;
+using RenderObjectList = vector<struct RenderObject>;
 
 struct CC_DLL RenderTargetInfo {
     uint width  = 0;
@@ -61,15 +61,15 @@ struct CC_DLL RenderTargetInfo {
 };
 
 struct CC_DLL RenderPass {
-    uint                hash      = 0;
-    float               depth     = 0;
-    uint                shaderID  = 0;
-    uint                passIndex = 0;
-    const SubModelView *subModel  = nullptr;
+    uint                   hash      = 0;
+    float                  depth     = 0;
+    uint                   shaderID  = 0;
+    uint                   passIndex = 0;
+    const scene::SubModel *subModel  = nullptr;
 };
 using RenderPassList = vector<RenderPass>;
 
-using ColorDesc = gfx::ColorAttachment;
+using ColorDesc     = gfx::ColorAttachment;
 using ColorDescList = vector<ColorDesc>;
 
 using DepthStencilDesc = gfx::DepthStencilAttachment;
@@ -106,9 +106,9 @@ enum class RenderFlowType : uint8_t {
 };
 
 using RenderStageList = vector<RenderStage *>;
-using RenderFlowList = vector<RenderFlow *>;
-using LightList = vector<Light *>;
-using UintList = vector<uint>;
+using RenderFlowList  = vector<RenderFlow *>;
+using LightList       = vector<scene::Light *>;
+using UintList        = vector<uint>;
 
 enum class CC_DLL RenderPassStage {
     DEFAULT = 100,
@@ -154,7 +154,7 @@ using RenderQueueDescList = std::vector<RenderQueueDesc>;
 
 uint getPhaseID(const String &phase);
 
-CC_INLINE bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
+inline bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.hash != b.hash) {
         return a.hash < b.hash;
     }
@@ -166,7 +166,7 @@ CC_INLINE bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
     return a.shaderID < b.shaderID;
 }
 
-CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
+inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.hash != b.hash) {
         return a.hash < b.hash;
     }
@@ -176,6 +176,31 @@ CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     }
 
     return a.shaderID < b.shaderID;
+}
+
+inline uint convertPhase(const StringArray &stages) {
+    uint phase = 0;
+    for (const auto &stage : stages) {
+        phase |= getPhaseID(stage);
+    }
+    return phase;
+}
+
+using RenderQueueSortFunc = std::function<int(const RenderPass &, const RenderPass &)>;
+
+inline RenderQueueSortFunc convertQueueSortFunc(const RenderQueueSortMode &mode) {
+    std::function<int(const RenderPass &, const RenderPass &)> sortFunc = opaqueCompareFn;
+    switch (mode) {
+        case RenderQueueSortMode::BACK_TO_FRONT:
+            sortFunc = transparentCompareFn;
+            break;
+        case RenderQueueSortMode::FRONT_TO_BACK:
+            sortFunc = opaqueCompareFn;
+        default:
+            break;
+    }
+
+    return sortFunc;
 }
 
 enum class CC_DLL PipelineGlobalBindings {
@@ -211,6 +236,8 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
+    SAMPLER_REFLECTION,
+    STORAGE_REFLECTION,
 
     COUNT,
 };
@@ -385,16 +412,16 @@ struct CC_DLL UBOCamera : public Object {
 };
 
 struct CC_DLL UBOShadow : public Object {
-    static constexpr uint                        MAT_LIGHT_PLANE_PROJ_OFFSET                = 0;
-    static constexpr uint                        MAT_LIGHT_VIEW_OFFSET                      = MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
-    static constexpr uint                        MAT_LIGHT_VIEW_PROJ_OFFSET                 = UBOShadow::MAT_LIGHT_VIEW_OFFSET + 16;
-    static constexpr uint                        SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET    = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    static constexpr uint                        SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET   = UBOShadow::SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 4;
-    static constexpr uint                        SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
-    static constexpr uint                        SHADOW_COLOR_OFFSET                         = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4; 
-    static constexpr uint                        COUNT                                      = UBOShadow::SHADOW_COLOR_OFFSET + 4;
-    static constexpr uint                        SIZE                                       = UBOShadow::COUNT * 4;
-    static constexpr uint                        BINDING                                    = static_cast<uint>(PipelineGlobalBindings::UBO_SHADOW);
+    static constexpr uint                        MAT_LIGHT_PLANE_PROJ_OFFSET                   = 0;
+    static constexpr uint                        MAT_LIGHT_VIEW_OFFSET                         = MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    static constexpr uint                        MAT_LIGHT_VIEW_PROJ_OFFSET                    = UBOShadow::MAT_LIGHT_VIEW_OFFSET + 16;
+    static constexpr uint                        SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint                        SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET      = UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
+    static constexpr uint                        SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET   = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
+    static constexpr uint                        SHADOW_COLOR_OFFSET                           = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
+    static constexpr uint                        COUNT                                         = UBOShadow::SHADOW_COLOR_OFFSET + 4;
+    static constexpr uint                        SIZE                                          = UBOShadow::COUNT * 4;
+    static constexpr uint                        BINDING                                       = static_cast<uint>(PipelineGlobalBindings::UBO_SHADOW);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformBlock               LAYOUT;
     static const String                          NAME;
@@ -405,7 +432,7 @@ public:
     static gfx::Sampler *getSampler(uint hash);
     static uint          genSamplerHash(const gfx::SamplerInfo &info);
 
-    static void          destroyAll();
+    static void destroyAll();
 
 protected:
     static uint defaultSamplerHash;
@@ -417,6 +444,7 @@ struct CC_DLL DescriptorSetLayoutInfos {
     gfx::DescriptorSetLayoutBindingList               bindings;
     unordered_map<String, gfx::UniformBlock>          blocks;
     unordered_map<String, gfx::UniformSamplerTexture> samplers;
+    unordered_map<String, gfx::UniformStorageImage>   storeImages;
 };
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
 extern CC_DLL DescriptorSetLayoutInfos localDescriptorSetLayout;
@@ -441,7 +469,9 @@ const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_
 
 uint nextPow2(uint val);
 
-extern CC_DLL uint                     skyboxFlag;
+bool supportsHalfFloatTexture(gfx::Device *device);
+
+extern CC_DLL uint skyboxFlag;
 
 struct CC_DLL SHADOWMAP : public Object {
     static constexpr uint                        BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
@@ -538,6 +568,20 @@ struct CC_DLL SPRITETEXTURE : public Object {
     static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture      LAYOUT;
+    static const String                          NAME;
+};
+
+struct CC_DLL REFLECTIONTEXTURE : public Object {
+    static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture      LAYOUT;
+    static const String                          NAME;
+};
+
+struct CC_DLL REFLECTIONSTORAGE : public Object {
+    static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformStorageImage        LAYOUT;
     static const String                          NAME;
 };
 

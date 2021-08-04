@@ -37,7 +37,7 @@ public:
     GLES2Sampler();
     ~GLES2Sampler();
 
-    CC_INLINE GLES2GPUSampler *gpuSampler() const { return _gpuSampler; }
+    inline GLES2GPUSampler *gpuSampler() const { return _gpuSampler; }
 
 protected:
     void doInit(const SamplerInfo &info) override;

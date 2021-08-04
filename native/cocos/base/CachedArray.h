@@ -34,9 +34,9 @@ template <typename T>
 class CachedArray : public Object {
 public:
     explicit CachedArray(uint size = 1U) {
-        _size = 0;
-        _capacity = std::max(size, 1u);
-        _array = CC_NEW_ARRAY(T, _capacity);
+        _size     = 0;
+        _capacity = std::max(size, 1U);
+        _array    = CC_NEW_ARRAY(T, _capacity);
     }
 
     // The rule of five applies here
@@ -49,55 +49,53 @@ public:
         memcpy(_array, other._array, _size * sizeof(T));
     }
 
-    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment) false positive
-    CachedArray &operator=(const CachedArray &other) noexcept {
+    CachedArray &operator=(const CachedArray &other) {
         if (this != &other) {
             CC_DELETE_ARRAY(_array);
-            _size = other._size;
+            _size     = other._size;
             _capacity = other._capacity;
-            _array = CC_NEW_ARRAY(T, _capacity);
+            _array    = CC_NEW_ARRAY(T, _capacity);
             memcpy(_array, other._array, _size * sizeof(T));
         }
         return *this;
     }
 
-    CachedArray(CachedArray &&other)
- noexcept     : _size(other._size), _capacity(other._capacity), _array(other._array) {
-        other._size = 0;
+    CachedArray(CachedArray &&other) noexcept : _size(other._size), _capacity(other._capacity), _array(other._array) {
+        other._size     = 0;
         other._capacity = 0;
-        other._array = nullptr;
+        other._array    = nullptr;
     }
 
     CachedArray &operator=(CachedArray &&other) noexcept {
         if (this != &other) {
             CC_DELETE_ARRAY(_array);
-            _size = other._size;
-            _capacity = other._capacity;
-            _array = other._array;
-            other._size = 0;
+            _size           = other._size;
+            _capacity       = other._capacity;
+            _array          = other._array;
+            other._size     = 0;
             other._capacity = 0;
-            other._array = nullptr;
+            other._array    = nullptr;
         }
         return *this;
     }
 
     // Subscription operators
-    T &operator[](int index) {
+    T &operator[](uint index) {
         return _array[index];
     }
 
-    const T &operator[](int index) const {
+    const T &operator[](uint index) const {
         return _array[index];
     }
 
-    CC_INLINE void clear() { _size = 0; }
-    CC_INLINE uint size() const { return _size; }
-    CC_INLINE T pop() { return _array[--_size]; }
+    inline void clear() { _size = 0; }
+    inline uint size() const { return _size; }
+    inline T    pop() { return _array[--_size]; }
 
     void reserve(uint size) {
         if (size > _capacity) {
             T *temp = _array;
-            _array = CC_NEW_ARRAY(T, size);
+            _array  = CC_NEW_ARRAY(T, size);
             memcpy(_array, temp, _capacity * sizeof(T));
             _capacity = size;
             CC_DELETE_ARRAY(temp);
@@ -107,7 +105,7 @@ public:
     void push(T item) {
         if (_size >= _capacity) {
             T *temp = _array;
-            _array = CC_NEW_ARRAY(T, _capacity * 2);
+            _array  = CC_NEW_ARRAY(T, _capacity * 2);
             memcpy(_array, temp, _capacity * sizeof(T));
             _capacity *= 2;
             CC_DELETE_ARRAY(temp);
@@ -117,9 +115,9 @@ public:
 
     void concat(const CachedArray<T> &array) {
         if (_size + array._size > _capacity) {
-            T *temp = _array;
+            T *  temp = _array;
             uint size = std::max(_capacity * 2, _size + array._size);
-            _array = CC_NEW_ARRAY(T, size);
+            _array    = CC_NEW_ARRAY(T, size);
             memcpy(_array, temp, _size * sizeof(T));
             _capacity = size;
             CC_DELETE_ARRAY(temp);
@@ -130,9 +128,9 @@ public:
 
     void concat(T *array, uint count) {
         if (_size + count > _capacity) {
-            T *temp = _array;
+            T *  temp = _array;
             uint size = std::max(_capacity * 2, _size + count);
-            _array = CC_NEW_ARRAY(T, size);
+            _array    = CC_NEW_ARRAY(T, size);
             memcpy(_array, temp, _size * sizeof(T));
             _capacity = size;
             CC_DELETE_ARRAY(temp);
@@ -158,9 +156,9 @@ public:
     }
 
 private:
-    uint _size = 0;
+    uint _size     = 0;
     uint _capacity = 0;
-    T *_array = nullptr;
+    T *  _array    = nullptr;
 };
 
 } // namespace cc

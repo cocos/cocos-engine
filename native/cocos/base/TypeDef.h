@@ -32,13 +32,18 @@ using ushort   = uint16_t;
 using ulong    = uint32_t;
 using FlagBits = uint32_t;
 
-#define CC_ENUM_OPERATORS(T)                                                                                                                                                      \
+#define CC_ENUM_CONVERSION_OPERATOR(T) \
+    inline std::underlying_type<T>::type toNumber(const T v) { return static_cast<std::underlying_type<T>::type>(v); }
+
+#define CC_ENUM_BITWISE_OPERATORS(T)                                                                                                                                              \
     inline T    operator~(const T v) { return static_cast<T>(~static_cast<std::underlying_type<T>::type>(v)); }                                                                   \
     inline bool operator||(const T lhs, const T rhs) { return (static_cast<std::underlying_type<T>::type>(lhs) || static_cast<std::underlying_type<T>::type>(rhs)); }             \
     inline bool operator&&(const T lhs, const T rhs) { return (static_cast<std::underlying_type<T>::type>(lhs) && static_cast<std::underlying_type<T>::type>(rhs)); }             \
     inline T    operator|(const T lhs, const T rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) | static_cast<std::underlying_type<T>::type>(rhs)); } \
     inline T    operator&(const T lhs, const T rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) & static_cast<std::underlying_type<T>::type>(rhs)); } \
     inline T    operator^(const T lhs, const T rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) ^ static_cast<std::underlying_type<T>::type>(rhs)); } \
+    inline T    operator+(const T lhs, const T rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) + static_cast<std::underlying_type<T>::type>(rhs)); } \
+    inline T    operator+(const T lhs, bool rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) + rhs); }                                                \
     inline void operator|=(T &lhs, const T rhs) { lhs = static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) | static_cast<std::underlying_type<T>::type>(rhs)); }      \
     inline void operator&=(T &lhs, const T rhs) { lhs = static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) & static_cast<std::underlying_type<T>::type>(rhs)); }      \
     inline void operator^=(T &lhs, const T rhs) { lhs = static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) ^ static_cast<std::underlying_type<T>::type>(rhs)); }      \
@@ -56,4 +61,5 @@ using FlagBits = uint32_t;
         return (static_cast<ValueType>(flags) & static_cast<ValueType>(flagsToTest)) == static_cast<ValueType>(flagsToTest);                                                      \
     }                                                                                                                                                                             \
     inline T addFlags(const T flags, const T flagsToAdd) { return (flags | flagsToAdd); }                                                                                         \
-    inline T removeFlags(const T flags, const T flagsToRemove) { return (flags & ~flagsToRemove); }
+    inline T removeFlags(const T flags, const T flagsToRemove) { return (flags & ~flagsToRemove); }                                                                               \
+    CC_ENUM_CONVERSION_OPERATOR(T)

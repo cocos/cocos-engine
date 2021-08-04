@@ -24,19 +24,27 @@
 ****************************************************************************/
 
 #if CC_JOB_SYSTEM == CC_JOB_SYSTEM_TASKFLOW
-#include "job-system-taskflow/TFJobGraph.h"
-#include "job-system-taskflow/TFJobSystem.h"
+    #include "job-system-taskflow/TFJobGraph.h"
+    #include "job-system-taskflow/TFJobSystem.h"
 namespace cc {
-using JobToken = TFJobToken;
-using JobGraph = TFJobGraph;
+using JobToken  = TFJobToken;
+using JobGraph  = TFJobGraph;
 using JobSystem = TFJobSystem;
 } // namespace cc
 #elif CC_JOB_SYSTEM == CC_JOB_SYSTEM_TBB
-#include "job-system-tbb/TBBJobGraph.h"
-#include "job-system-tbb/TBBJobSystem.h"
+    #include "job-system-tbb/TBBJobGraph.h"
+    #include "job-system-tbb/TBBJobSystem.h"
 namespace cc {
-using JobToken = TBBJobToken;
-using JobGraph = TBBJobGraph;
+using JobToken  = TBBJobToken;
+using JobGraph  = TBBJobGraph;
 using JobSystem = TBBJobSystem;
+} // namespace cc
+#else
+    #include "job-system-dummy/DummyJobGraph.h"
+    #include "job-system-dummy/DummyJobSystem.h"
+namespace cc {
+using JobToken  = DummyJobToken;
+using JobGraph  = DummyJobGraph;
+using JobSystem = DummyJobSystem;
 } // namespace cc
 #endif

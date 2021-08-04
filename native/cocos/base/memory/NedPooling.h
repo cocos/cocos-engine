@@ -50,24 +50,24 @@ public:
  */
 class CC_DLL NedPoolingAllocPolicy {
 public:
-    static CC_INLINE CC_DECL_MALLOC void *AllocateBytes(size_t count, const char *file = nullptr, int line = 0, const char *func = nullptr) {
+    static inline CC_DECL_MALLOC void *AllocateBytes(size_t count, const char *file = nullptr, int line = 0, const char *func = nullptr) {
         return NedPoolingImpl::AllocBytes(count, file, line, func);
     }
-    static CC_INLINE CC_DECL_MALLOC void *ReallocateBytes(void *ptr, size_t count, const char *file = nullptr, int line = 0, const char *func = nullptr) {
+    static inline CC_DECL_MALLOC void *ReallocateBytes(void *ptr, size_t count, const char *file = nullptr, int line = 0, const char *func = nullptr) {
         return NedPoolingImpl::ReallocBytes(ptr, count, file, line, func);
     }
-    static CC_INLINE void DeallocateBytes(void *ptr) {
+    static inline void DeallocateBytes(void *ptr) {
         NedPoolingImpl::DeallocBytes(ptr);
     }
-    static CC_INLINE CC_DECL_MALLOC void *AllocateBytesAligned(size_t alignment, size_t count, const char *file = nullptr, int line = 0, const char *func = nullptr) {
+    static inline CC_DECL_MALLOC void *AllocateBytesAligned(size_t alignment, size_t count, const char *file = nullptr, int line = 0, const char *func = nullptr) {
         return NedPoolingImpl::AllocBytesAligned(alignment, count, file, line, func);
     }
-    static CC_INLINE void DeallocateBytesAligned(void *ptr) {
+    static inline void DeallocateBytesAligned(void *ptr) {
         NedPoolingImpl::DeallocBytes(ptr);
     }
 
     // Get the maximum size of a single allocation
-    static CC_INLINE size_t getMaxAllocationSize() {
+    static inline size_t getMaxAllocationSize() {
         return (std::numeric_limits<size_t>::max)();
     }
 

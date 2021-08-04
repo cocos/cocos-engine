@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "platform/CanvasRenderingContext2D.h"
-#include <stdint.h>
+#include <cstdint>
 #include "base/csscolorparser.h"
 #include "math/Math.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
@@ -34,10 +34,10 @@
 #include <array>
 #include <Windows.h>
 
-typedef std::array<float, 2> Point;
-typedef std::array<float, 2> Vec2;
-typedef std::array<float, 2> Size;
-typedef std::array<float, 4> Color4F;
+using Point   = std::array<float, 2>;
+using Vec2    = std::array<float, 2>;
+using Size    = std::array<float, 2>;
+using Color4F = std::array<float, 4>;
 
 enum class CanvasTextAlign {
     LEFT,
@@ -74,20 +74,15 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
 
 class CanvasRenderingContext2DImpl {
 public:
-    CanvasRenderingContext2DImpl() : _DC(nullptr),
-                                     _bmp(nullptr),
-                                     _font((HFONT)GetStockObject(DEFAULT_GUI_FONT)),
-                                     _wnd(nullptr),
-                                     _savedDC(0) {
-        _wnd = nullptr;
+    CanvasRenderingContext2DImpl() {
         HDC hdc = GetDC(_wnd);
         _DC = CreateCompatibleDC(hdc);
         ReleaseDC(_wnd, hdc);
     }
 
     ~CanvasRenderingContext2DImpl() {
-        _deleteBitmap();
-        _removeCustomFont();
+        deleteBitmap();
+        removeCustomFont();
         if (_DC)
             DeleteDC(_DC);
     }
@@ -95,17 +90,17 @@ public:
     void recreateBuffer(float w, float h) {
         _bufferWidth = w;
         _bufferHeight = h;
-        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f) {
-            _deleteBitmap();
+        if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
+            deleteBitmap();
             return;
         }
 
-        int textureSize = _bufferWidth * _bufferHeight * 4;
-        uint8_t *data = (uint8_t *)malloc(sizeof(uint8_t) * textureSize);
+        auto textureSize = static_cast<int>(_bufferWidth * _bufferHeight * 4);
+        auto *data = static_cast<uint8_t *>(malloc(sizeof(uint8_t) * textureSize));
         memset(data, 0x00, textureSize);
         _imageData.fastSet(data, textureSize);
 
-        _prepareBitmap(_bufferWidth, _bufferHeight);
+        prepareBitmap(_bufferWidth, _bufferHeight);
     }
 
     void beginPath() {
@@ -133,9 +128,11 @@ public:
 
     void stroke() {
         DeleteObject(_hpen);
-        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+        if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
             return;
-        _fillTextureData();
+        }
+
+        fillTextureData();
     }
 
     void saveContext() {
@@ -149,18 +146,22 @@ public:
         }
     }
 
-    void clearRect(float x, float y, float w, float h) {
-        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+    void clearRect(float /*x*/, float /*y*/, float w, float h) {
+        if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
             return;
-        if (_imageData.isNull())
-            return;
+        }
 
+        if (_imageData.isNull()) {
+            return;
+        }
+        
         recreateBuffer(w, h);
     }
 
     void fillRect(float x, float y, float w, float h) {
-        if (_bufferWidth < 1.0f || _bufferHeight < 1.0f)
+        if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
             return;
+        }
 
         //not filled all Bits in buffer? the buffer length is _bufferWidth * _bufferHeight * 4, but it filled _bufferWidth * _bufferHeight * 3?
         uint8_t *buffer = _imageData.getBytes();
@@ -169,25 +170,32 @@ public:
             uint8_t g = _fillStyle[1] * 255.0f;
             uint8_t b = _fillStyle[2] * 255.0f;
             uint8_t a = _fillStyle[3] * 255.0f;
-            fillRectWithColor(buffer, (uint32_t)_bufferWidth, (uint32_t)_bufferHeight, (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h, r, g, b, a);
+            fillRectWithColor(buffer, 
+                              static_cast<uint32_t>(_bufferWidth), 
+                              static_cast<uint32_t>(_bufferHeight), 
+                              static_cast<uint32_t>(x), 
+                              static_cast<uint32_t>(y), 
+                              static_cast<uint32_t>(w), 
+                              static_cast<uint32_t>(h), r, g, b, a);
         }
     }
 
-    void fillText(const std::string &text, float x, float y, float maxWidth) {
-        if (text.empty() || _bufferWidth < 1.0f || _bufferHeight < 1.0f)
+    void fillText(const std::string &text, float x, float y, float /*maxWidth*/) {
+        if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
             return;
+        }
 
         SIZE textSize = {0, 0};
-        Point offsetPoint = _convertDrawPoint(Point{x, y}, text);
+        Point offsetPoint = convertDrawPoint(Point{x, y}, text);
 
-        _drawText(text, (int)offsetPoint[0], (int)offsetPoint[1]);
-        _fillTextureData();
+        drawText(text, (int)offsetPoint[0], (int)offsetPoint[1]);
+        fillTextureData();
     }
 
-    void strokeText(const std::string &text, float x, float y, float maxWidth) {
-        if (text.empty() || _bufferWidth < 1.0f || _bufferHeight < 1.0f)
+    void strokeText(const std::string &text, float /*x*/, float /*y*/, float /*maxWidth*/) const {
+        if (text.empty() || _bufferWidth < 1.0F || _bufferHeight < 1.0F) {
             return;
-        // REFINE
+        }
     }
 
     Size measureText(const std::string &text) {
@@ -195,8 +203,8 @@ public:
             return std::array<float, 2>{0.0f, 0.0f};
 
         int bufferLen = 0;
-        wchar_t *pwszBuffer = _utf8ToUtf16(text, &bufferLen);
-        Size size = _sizeWithText(pwszBuffer, bufferLen);
+        wchar_t *pwszBuffer = CanvasRenderingContext2DImpl::utf8ToUtf16(text, &bufferLen);
+        Size size = sizeWithText(pwszBuffer, bufferLen);
         //SE_LOGD("CanvasRenderingContext2DImpl::measureText: %s, %d, %d\n", text.c_str(), size.cx, size.cy);
         CC_SAFE_DELETE_ARRAY(pwszBuffer);
         return size;
@@ -205,7 +213,7 @@ public:
     void updateFont(const std::string &fontName, float fontSize, bool bold = false) {
         do {
             _fontName = fontName;
-            _fontSize = fontSize;
+            _fontSize = static_cast<int>(fontSize);
             std::string fontPath;
             LOGFONTA tFont = {0};
             if (!_fontName.empty()) {
@@ -247,11 +255,11 @@ public:
             tFont.lfQuality = ANTIALIASED_QUALITY;
 
             // delete old font
-            _removeCustomFont();
+            removeCustomFont();
 
-            if (fontPath.size() > 0) {
+            if (!fontPath.empty()) {
                 _curFontPath = fontPath;
-                wchar_t *pwszBuffer = _utf8ToUtf16(_curFontPath);
+                wchar_t *pwszBuffer = utf8ToUtf16(_curFontPath);
                 if (pwszBuffer) {
                     if (AddFontResource(pwszBuffer)) {
                         SendMessage(_wnd, WM_FONTCHANGE, 0, 0);
@@ -267,12 +275,11 @@ public:
                 // create failed, use default font
                 SE_LOGE("Failed to create custom font(font name: %s, font size: %f), use default font.\n",
                         _fontName.c_str(), fontSize);
-                break;
             } else {
                 SelectObject(_DC, _font);
                 SendMessage(_wnd, WM_FONTCHANGE, 0, 0);
             }
-        } while (0);
+        } while (false);
     }
 
     void setTextAlign(CanvasTextAlign align) {
@@ -299,20 +306,20 @@ public:
         return _imageData;
     }
 
-    HDC _DC;
-    HBITMAP _bmp;
+    HDC _DC{nullptr};
+    HBITMAP _bmp{nullptr};
 
 private:
     cc::Data _imageData;
-    HFONT _font;
-    HWND _wnd;
+    HFONT _font{static_cast<HFONT>(GetStockObject(DEFAULT_GUI_FONT))};
+    HWND _wnd{nullptr};
     HPEN _hpen;
     PAINTSTRUCT _paintStruct;
     std::string _curFontPath;
-    int _savedDC;
-    float _lineWidth = 0.0f;
-    float _bufferWidth = 0.0f;
-    float _bufferHeight = 0.0f;
+    int _savedDC{0};
+    float _lineWidth = 0.0F;
+    float _bufferWidth = 0.0F;
+    float _bufferHeight = 0.0F;
 
     std::string _fontName;
     int _fontSize;
@@ -325,7 +332,7 @@ private:
     TEXTMETRIC _tm;
 
     // change utf-8 string to utf-16, pRetLen is the string length after changing
-    wchar_t *_utf8ToUtf16(const std::string &str, int *pRetLen = nullptr) {
+    static wchar_t *utf8ToUtf16(const std::string &str, int *pRetLen = nullptr) {
         wchar_t *pwszBuffer = nullptr;
         do {
             if (str.empty()) {
@@ -342,18 +349,18 @@ private:
             if (pRetLen != nullptr) {
                 *pRetLen = actuallyLen;
             }
-        } while (0);
+        } while (false);
         return pwszBuffer;
     }
 
-    void _removeCustomFont() {
+    void removeCustomFont() {
         HFONT hDefFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
         if (hDefFont != _font) {
             DeleteObject(SelectObject(_DC, hDefFont));
         }
         // release temp font resource
-        if (_curFontPath.size() > 0) {
-            wchar_t *pwszBuffer = _utf8ToUtf16(_curFontPath);
+        if (!_curFontPath.empty()) {
+            wchar_t *pwszBuffer = utf8ToUtf16(_curFontPath);
             if (pwszBuffer) {
                 RemoveFontResource(pwszBuffer);
                 SendMessage(_wnd, WM_FONTCHANGE, 0, 0);
@@ -365,7 +372,7 @@ private:
     }
 
     // x, y offset value
-    int _drawText(const std::string &text, int x, int y) {
+    int drawText(const std::string &text, int x, int y) {
         int nRet = 0;
         wchar_t *pwszBuffer = nullptr;
         do {
@@ -374,9 +381,9 @@ private:
             DWORD dwFmt = DT_SINGLELINE | DT_NOPREFIX;
 
             int bufferLen = 0;
-            pwszBuffer = _utf8ToUtf16(text, &bufferLen);
+            pwszBuffer = utf8ToUtf16(text, &bufferLen);
 
-            Size newSize = _sizeWithText(pwszBuffer, bufferLen);
+            Size newSize = sizeWithText(pwszBuffer, bufferLen);
 
             _textSize = newSize;
 
@@ -398,13 +405,13 @@ private:
 
             // draw text
             nRet = DrawTextW(_DC, pwszBuffer, bufferLen, &rcText, dwFmt);
-        } while (0);
+        } while (false);
         CC_SAFE_DELETE_ARRAY(pwszBuffer);
 
         return nRet;
     }
 
-    Size _sizeWithText(const wchar_t *pszText, int nLen) {
+    Size sizeWithText(const wchar_t *pszText, int nLen) {
         Size tRet{0, 0};
         do {
             CC_BREAK_IF(!pszText || nLen <= 0);
@@ -417,14 +424,14 @@ private:
 
             tRet[0] = rc.right;
             tRet[1] = rc.bottom;
-        } while (0);
+        } while (false);
 
         return tRet;
     }
 
-    void _prepareBitmap(int nWidth, int nHeight) {
+    void prepareBitmap(int nWidth, int nHeight) {
         // release bitmap
-        _deleteBitmap();
+        deleteBitmap();
 
         if (nWidth > 0 && nHeight > 0) {
             _bmp = CreateBitmap(nWidth, nHeight, 1, 32, nullptr);
@@ -432,17 +439,17 @@ private:
         }
     }
 
-    void _deleteBitmap() {
+    void deleteBitmap() {
         if (_bmp) {
             DeleteObject(_bmp);
             _bmp = nullptr;
         }
     }
 
-    void _fillTextureData() {
+    void fillTextureData() {
         do {
-            int dataLen = _bufferWidth * _bufferHeight * 4;
-            unsigned char *dataBuf = (unsigned char *)malloc(sizeof(unsigned char) * dataLen);
+            auto dataLen = static_cast<int>(_bufferWidth * _bufferHeight * 4);
+            auto *dataBuf = static_cast<unsigned char *>(malloc(sizeof(unsigned char) * dataLen));
             CC_BREAK_IF(!dataBuf);
             unsigned char *imageBuf = _imageData.getBytes();
             CC_BREAK_IF(!imageBuf);
@@ -467,10 +474,12 @@ private:
             COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
             COLORREF *pPixel = nullptr;
             COLORREF *pImage = nullptr;
-            for (int y = 0; y < _bufferHeight; ++y) {
-                pPixel = (COLORREF *)dataBuf + y * (int)_bufferWidth;
-                pImage = (COLORREF *)imageBuf + y * (int)_bufferWidth;
-                for (int x = 0; x < _bufferWidth; ++x) {
+            int bufferHeight = static_cast<int>(_bufferHeight);
+            int bufferWidth = static_cast<int>(_bufferWidth);
+            for (int y = 0; y < bufferHeight; ++y) {
+                pPixel = (COLORREF *)dataBuf + y * bufferWidth;
+                pImage = (COLORREF *)imageBuf + y * bufferWidth;
+                for (int x = 0; x < bufferWidth; ++x) {
                     COLORREF &clr = *pPixel;
                     COLORREF &val = *pImage;
                     // Because text is drawn in white color, and background color is black,
@@ -485,10 +494,10 @@ private:
                 }
             }
             free(dataBuf);
-        } while (0);
+        } while (false);
     }
 
-    std::array<float, 2> _convertDrawPoint(Point point, std::string text) {
+    std::array<float, 2> convertDrawPoint(Point point, const std::string &text) {
         Size textSize = measureText(text);
         if (_textAlign == CanvasTextAlign::CENTER) {
             point[0] -= textSize[0] / 2.0f;
@@ -515,13 +524,9 @@ private:
 
 namespace cc {
 
-CanvasGradient::CanvasGradient() {
-    //SE_LOGD("CanvasGradient constructor: %p\n", this);
-}
+CanvasGradient::CanvasGradient() = default;
 
-CanvasGradient::~CanvasGradient() {
-    //SE_LOGD("CanvasGradient destructor: %p\n", this);
-}
+CanvasGradient::~CanvasGradient() = default;
 
 void CanvasGradient::addColorStop(float offset, const std::string &color) {
     //SE_LOGD("CanvasGradient::addColorStop: %p\n", this);
@@ -546,8 +551,9 @@ void CanvasRenderingContext2D::recreateBufferIfNeeded() {
         _isBufferSizeDirty = false;
         //SE_LOGD("Recreate buffer %p, w: %f, h:%f\n", this, __width, __height);
         _impl->recreateBuffer(_width, _height);
-        if (_canvasBufferUpdatedCB != nullptr)
+        if (_canvasBufferUpdatedCB != nullptr) {
             _canvasBufferUpdatedCB(_impl->getDataRef());
+        }  
     }
 }
 
@@ -561,31 +567,38 @@ void CanvasRenderingContext2D::fillRect(float x, float y, float width, float hei
     recreateBufferIfNeeded();
     _impl->fillRect(x, y, width, height);
 
-    if (_canvasBufferUpdatedCB != nullptr)
+    if (_canvasBufferUpdatedCB != nullptr) {
         _canvasBufferUpdatedCB(_impl->getDataRef());
+    }   
 }
 
 void CanvasRenderingContext2D::fillText(const std::string &text, float x, float y, float maxWidth) {
     //SE_LOGD("CanvasRenderingContext2D::fillText: %s, offset: (%f, %f), %f\n", text.c_str(), x, y, maxWidth);
-    if (text.empty())
+    if (text.empty()) {
         return;
+    }
+ 
     recreateBufferIfNeeded();
 
     _impl->fillText(text, x, y, maxWidth);
-    if (_canvasBufferUpdatedCB != nullptr)
+    if (_canvasBufferUpdatedCB != nullptr) {
         _canvasBufferUpdatedCB(_impl->getDataRef());
+    } 
 }
 
 void CanvasRenderingContext2D::strokeText(const std::string &text, float x, float y, float maxWidth) {
     //SE_LOGD("CanvasRenderingContext2D::strokeText: %s, %f, %f, %f\n", text.c_str(), x, y, maxWidth);
-    if (text.empty())
+    if (text.empty()) {
         return;
+    }
+
     recreateBufferIfNeeded();
 
     _impl->strokeText(text, x, y, maxWidth);
 
-    if (_canvasBufferUpdatedCB != nullptr)
+    if (_canvasBufferUpdatedCB != nullptr) {
         _canvasBufferUpdatedCB(_impl->getDataRef());
+    }  
 }
 
 cc::Size CanvasRenderingContext2D::measureText(const std::string &text) {
@@ -594,7 +607,7 @@ cc::Size CanvasRenderingContext2D::measureText(const std::string &text) {
     return cc::Size(s[0], s[1]);
 }
 
-CanvasGradient *CanvasRenderingContext2D::createLinearGradient(float x0, float y0, float x1, float y1) {
+CanvasGradient *CanvasRenderingContext2D::createLinearGradient(float /*x0*/, float /*y0*/, float /*x1*/, float /*y1*/) {
     return nullptr;
 }
 
@@ -627,8 +640,9 @@ void CanvasRenderingContext2D::stroke() {
     //SE_LOGD("CanvasRenderingContext2D::stroke\n");
     _impl->stroke();
 
-    if (_canvasBufferUpdatedCB != nullptr)
+    if (_canvasBufferUpdatedCB != nullptr) {
         _canvasBufferUpdatedCB(_impl->getDataRef());
+    }
 }
 
 void CanvasRenderingContext2D::restore() {
@@ -641,7 +655,7 @@ void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBuffer
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_width(float width) {
+void CanvasRenderingContext2D::setWidth(float width) {
     //SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     if (math::IsEqualF(width, _width)) return;
     _width = width;
@@ -649,7 +663,7 @@ void CanvasRenderingContext2D::set_width(float width) {
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_height(float height) {
+void CanvasRenderingContext2D::setHeight(float height) {
     //SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     if (math::IsEqualF(height, _height)) return;
     _height = height;
@@ -657,17 +671,17 @@ void CanvasRenderingContext2D::set_height(float height) {
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_lineWidth(float lineWidth) {
+void CanvasRenderingContext2D::setLineWidth(float lineWidth) {
     //SE_LOGD("CanvasRenderingContext2D::set_lineWidth %d\n", lineWidth);
     _lineWidth = lineWidth;
     _impl->setLineWidth(lineWidth);
 }
 
-void CanvasRenderingContext2D::set_lineCap(const std::string &lineCap) {
+void CanvasRenderingContext2D::setLineCap(const std::string &lineCap) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::set_lineJoin(const std::string &lineJoin) {
+void CanvasRenderingContext2D::setLineJoin(const std::string &lineJoin) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
@@ -678,7 +692,7 @@ void CanvasRenderingContext2D::rect(float x, float y, float w, float h) {
     // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::set_font(const std::string &font) {
+void CanvasRenderingContext2D::setFont(const std::string &font) {
     if (_font != font) {
         _font = font;
 
@@ -695,13 +709,13 @@ void CanvasRenderingContext2D::set_font(const std::string &font) {
             fontName = results[5].str();
         }
 
-        float fontSize = atof(fontSizeStr.c_str());
+        auto fontSize = static_cast<float>(atof(fontSizeStr.c_str()));
         //SE_LOGD("CanvasRenderingContext2D::set_font: %s, Size: %f, isBold: %b\n", fontName.c_str(), fontSize, !boldStr.empty());
         _impl->updateFont(fontName, fontSize, !boldStr.empty());
     }
 }
 
-void CanvasRenderingContext2D::set_textAlign(const std::string &textAlign) {
+void CanvasRenderingContext2D::setTextAlign(const std::string &textAlign) {
     //SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left") {
         _impl->setTextAlign(CanvasTextAlign::LEFT);
@@ -714,7 +728,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string &textAlign) {
     }
 }
 
-void CanvasRenderingContext2D::set_textBaseline(const std::string &textBaseline) {
+void CanvasRenderingContext2D::setTextBaseline(const std::string &textBaseline) {
     //SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top") {
         _impl->setTextBaseline(CanvasTextBaseline::TOP);
@@ -730,22 +744,28 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string &textBaseline)
     }
 }
 
-void CanvasRenderingContext2D::set_fillStyle(const std::string &fillStyle) {
+void CanvasRenderingContext2D::setFillStyle(const std::string &fillStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
-    _impl->setFillStyle(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a);
+    _impl->setFillStyle(static_cast<float>(color.r) / 255.0F,
+                        static_cast<float>(color.g) / 255.0F,
+                        static_cast<float>(color.b) / 255.0F,
+                        color.a);
     //SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
-void CanvasRenderingContext2D::set_strokeStyle(const std::string &strokeStyle) {
+void CanvasRenderingContext2D::setStrokeStyle(const std::string &strokeStyle) {
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
-    _impl->setStrokeStyle(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a);
+    _impl->setStrokeStyle(static_cast<float>(color.r) / 255.0F,
+                          static_cast<float>(color.g) / 255.0F,
+                          static_cast<float>(color.b) / 255.0F,
+                          color.a);
 }
 
-void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string &globalCompositeOperation) {
+void CanvasRenderingContext2D::setGlobalCompositeOperation(const std::string &globalCompositeOperation) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::_fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+void CanvasRenderingContext2D::fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
     //SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 // transform

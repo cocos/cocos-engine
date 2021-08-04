@@ -43,10 +43,10 @@ struct TouchInfo {
     float y     = 0;
     int   index = 0;
 
-    TouchInfo(float _x, float _y, int _index)
-    : x(_x),
-      y(_y),
-      index(_index) {}
+    TouchInfo(float x, float y, int index)
+    : x(x),
+      y(y),
+      index(index) {}
 };
 
 struct TouchEvent {
@@ -71,67 +71,71 @@ struct MouseEvent {
         UNKNOWN
     };
 
-    float x = 0.0f;
-    float y = 0.0f;
+    float x = 0.0F;
+    float y = 0.0F;
     // The button number that was pressed when the mouse event was fired: Left button=0, middle button=1 (if present), right button=2.
     // For mice configured for left handed use in which the button actions are reversed the values are instead read from right to left.
-    unsigned short button = 0;
-    Type           type   = Type::UNKNOWN;
+    uint16_t button = 0;
+    Type     type   = Type::UNKNOWN;
 };
 
 enum class KeyCode {
-    Backspace      = 8,
-    Tab            = 9,
-    NumLock        = 12,
-    NumpadEnter    = 20013,
-    Enter          = 13,
-    ShiftRight     = 20016,
-    ShiftLeft      = 16,
-    ControlLeft    = 17,
-    ControlRight   = 20017,
-    AltRight       = 20018,
-    AltLeft        = 18,
-    CapsLock       = 20,
-    Escape         = 27,
-    Space          = 32,
-    PageUp         = 33,
-    PageDown       = 34,
-    End            = 35,
-    Home           = 36,
-    ArrowLeft      = 37,
-    ArrowUp        = 38,
-    ArrowRight     = 39,
-    ArrowDown      = 40,
-    Delete         = 46,
-    MetaLeft       = 91,
-    ContextMenu    = 20093,
-    MetaRight      = 93,
-    NumpadMultiply = 106,
-    NumpadPlus     = 107,
-    NumpadMinus    = 109,
-    NumpadDecimal  = 110,
-    NumpadDivide   = 111,
-    Semicolon      = 186,
-    Equal          = 187,
-    Comma          = 188,
-    Minus          = 189,
-    Period         = 190,
-    Slash          = 191,
-    Backquote      = 192,
-    BracketLeft    = 219,
-    Backslash      = 220,
-    BracketRight   = 221,
-    Quote          = 222,
-    NUMPAD_0       = 10048,
-    NUMPAD_1       = 10049,
-    NUMPAD_2       = 10050,
-    NUMPAD_3       = 10051,
-    NUMPAD_4       = 10052,
-    NUMPAD_5       = 10053,
-    NUMPAD_6       = 10054,
-    NUMPAD_7       = 10055,
-    NUMPAD_8       = 10056,
-    NUMPAD_9       = 10057
+    BACKSPACE       = 8,
+    TAB             = 9,
+    NUM_LOCK        = 12,
+    NUMPAD_ENTER    = 20013,
+    ENTER           = 13,
+    SHIFT_RIGHT     = 20016,
+    SHIFT_LEFT      = 16,
+    CONTROL_LEFT    = 17,
+    CONTROL_RIGHT   = 20017,
+    ALT_RIGHT       = 20018,
+    ALT_LEFT        = 18,
+    PAUSE           = 19,
+    CAPS_LOCK       = 20,
+    ESCAPE          = 27,
+    SPACE           = 32,
+    PAGE_UP         = 33,
+    PAGE_DOWN       = 34,
+    END             = 35,
+    HOME            = 36,
+    ARROW_LEFT      = 37,
+    ARROW_UP        = 38,
+    ARROW_RIGHT     = 39,
+    ARROW_DOWN      = 40,
+    INSERT          = 45,
+    DELETE_KEY      = 46, //DELETE has conflict
+    META_LEFT       = 91,
+    CONTEXT_MENU    = 20093,
+    PRINT_SCREEN    = 20094,
+    META_RIGHT      = 93,
+    NUMPAD_MULTIPLY = 106,
+    NUMPAD_PLUS     = 107,
+    NUMPAD_MINUS    = 109,
+    NUMPAD_DECIMAL  = 110,
+    NUMPAD_DIVIDE   = 111,
+    SCROLLLOCK      = 145,
+    SEMICOLON       = 186,
+    EQUAL           = 187,
+    COMMA           = 188,
+    MINUS           = 189,
+    PERIOD          = 190,
+    SLASH           = 191,
+    BACKQUOTE       = 192,
+    BRACKET_LEFT    = 219,
+    BACKSLASH       = 220,
+    BRACKET_RIGHT   = 221,
+    QUOTE           = 222,
+    NUMPAD_0        = 10048,
+    NUMPAD_1        = 10049,
+    NUMPAD_2        = 10050,
+    NUMPAD_3        = 10051,
+    NUMPAD_4        = 10052,
+    NUMPAD_5        = 10053,
+    NUMPAD_6        = 10054,
+    NUMPAD_7        = 10055,
+    NUMPAD_8        = 10056,
+    NUMPAD_9        = 10057
 };
 
 struct KeyboardEvent {
@@ -148,23 +152,23 @@ struct KeyboardEvent {
     bool   ctrlKeyActive  = false;
     bool   metaKeyActive  = false;
     bool   shiftKeyActive = false;
-    // TODO: support caps lock?
+    // TODO(mingo): support caps lock?
 };
 
 class CustomEvent {
 public:
     std::string name;
     union {
-        void *ptrVal;
-        long  longVal;
-        int   intVal;
-        short shortVal;
-        char  charVal;
-        bool  boolVal;
+        void *  ptrVal;
+        int32_t longVal;
+        int     intVal;
+        int16_t shortVal;
+        char    charVal;
+        bool    boolVal;
     } args[10];
 
-    CustomEvent(){};
-    virtual ~CustomEvent(){};
+    CustomEvent()          = default;
+    virtual ~CustomEvent() = default;
 };
 
 class EventDispatcher {
@@ -183,6 +187,7 @@ public:
     static void dispatchEnterForegroundEvent();
     static void dispatchMemoryWarningEvent();
     static void dispatchRestartVM();
+    static void dispatchCloseEvent();
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;
     static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);
@@ -199,8 +204,8 @@ private:
         uint32_t            listenerID;
         struct Node *       next = nullptr;
     };
-    static std::unordered_map<std::string, Node *> _listeners;
-    static uint32_t                                _hashListenerID; //simple increment hash
+    static std::unordered_map<std::string, Node *> listeners;
+    static uint32_t                                hashListenerId; //simple increment hash
 };
 
 } // end of namespace cc

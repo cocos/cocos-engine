@@ -60,8 +60,8 @@ bool CCMTLContext::doInit(const ContextInfo &info) {
     CCMTLDevice *device = CCMTLDevice::getInstance();
     CAMetalLayer *layer = (CAMetalLayer *)device->getMTLLayer();
     _colorFmt = toFormat(layer.pixelFormat);
-    id<MTLTexture> dssTex = (id<MTLTexture>)device->getDSSTexture();
-    _depthStencilFmt = toFormat(dssTex.pixelFormat);
+    id<MTLTexture> dsTex = (id<MTLTexture>)device->getDSTexture();
+    _depthStencilFmt = toFormat(dsTex.pixelFormat);
 
     return true;
 }

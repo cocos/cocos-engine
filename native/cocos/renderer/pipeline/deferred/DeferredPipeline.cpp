@@ -25,7 +25,6 @@
 
 #include "DeferredPipeline.h"
 #include "../SceneCulling.h"
-#include "../helper/SharedMemory.h"
 #include "../shadow/ShadowFlow.h"
 #include "GbufferFlow.h"
 #include "LightingFlow.h"
@@ -127,16 +126,16 @@ bool DeferredPipeline::activate() {
     return true;
 }
 
-void DeferredPipeline::render(const vector<uint> &cameras) {
+void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
-    for (const auto cameraId : cameras) {
-        auto *camera = GET_CAMERA(cameraId);
+    _pipelineUBO->updateMultiCameraUBO(cameras);
+    for (auto *camera : cameras) {
         sceneCulling(this, camera);
-        _pipelineUBO->updateCameraUBO(camera);
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
+        _pipelineUBO->incCameraUBOOffset();
     }
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
@@ -152,100 +151,33 @@ void DeferredPipeline::updateQuadVertexData(const gfx::Rect &renderArea) {
     float vbData[16]    = {0};
     genQuadVertexData(gfx::SurfaceTransform::IDENTITY, renderArea, vbData);
     _commandBuffers[0]->updateBuffer(_quadVBOffscreen, vbData);
-
-    genQuadVertexData(_device->getSurfaceTransform(), renderArea, vbData);
-    _commandBuffers[0]->updateBuffer(_quadVBOnscreen, vbData);
 }
 
-void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *vbData) {
-    float minX = float(renderArea.x) / _device->getWidth();
-    float maxX = float(renderArea.x + renderArea.width) / _device->getWidth();
-    float minY = float(renderArea.y) / _device->getHeight();
-    float maxY = float(renderArea.y + renderArea.height) / _device->getHeight();
+void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform /*surfaceTransform*/, const gfx::Rect &renderArea, float *vbData) {
+    float minX = float(renderArea.x) / _width;
+    float maxX = float(renderArea.x + renderArea.width) / _width;
+    float minY = float(renderArea.y) / _height;
+    float maxY = float(renderArea.y + renderArea.height) / _height;
     if (_device->getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }
-    int n = 0;
-    switch (surfaceTransform) {
-        case (gfx::SurfaceTransform::IDENTITY):
-            n           = 0;
-            vbData[n++] = -1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = minX; // uv
-            vbData[n++] = maxY;
-            vbData[n++] = 1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = maxX;
-            vbData[n++] = maxY;
-            vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = minX;
-            vbData[n++] = minY;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = maxX;
-            vbData[n++] = minY;
-            break;
-        case (gfx::SurfaceTransform::ROTATE_90):
-            n           = 0;
-            vbData[n++] = -1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = maxX; // uv
-            vbData[n++] = maxY;
-            vbData[n++] = 1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = maxX;
-            vbData[n++] = minY;
-            vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = minX;
-            vbData[n++] = maxY;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = minX;
-            vbData[n++] = minY;
-            break;
-        case (gfx::SurfaceTransform::ROTATE_180):
-            n           = 0;
-            vbData[n++] = -1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = minX; // uv
-            vbData[n++] = minY;
-            vbData[n++] = 1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = maxX;
-            vbData[n++] = minY;
-            vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = minX;
-            vbData[n++] = maxY;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = maxX;
-            vbData[n++] = maxY;
-            break;
-        case (gfx::SurfaceTransform::ROTATE_270):
-            n           = 0;
-            vbData[n++] = -1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = minX; // uv
-            vbData[n++] = minY;
-            vbData[n++] = 1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = minX;
-            vbData[n++] = maxY;
-            vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = maxX;
-            vbData[n++] = minY;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = maxX;
-            vbData[n++] = maxY;
-            break;
-        default:
-            break;
-    }
+    int n       = 0;
+    vbData[n++] = -1.0;
+    vbData[n++] = -1.0;
+    vbData[n++] = minX; // uv
+    vbData[n++] = maxY;
+    vbData[n++] = 1.0;
+    vbData[n++] = -1.0;
+    vbData[n++] = maxX;
+    vbData[n++] = maxY;
+    vbData[n++] = -1.0;
+    vbData[n++] = 1.0;
+    vbData[n++] = minX;
+    vbData[n++] = minY;
+    vbData[n++] = 1.0;
+    vbData[n++] = 1.0;
+    vbData[n++] = maxX;
+    vbData[n++] = minY;
 }
 
 bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA) {
@@ -287,50 +219,31 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffe
     return (*quadIA) != nullptr;
 }
 
-gfx::Rect DeferredPipeline::getRenderArea(Camera *camera, bool onScreen) {
+gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera, bool onScreen) {
     gfx::Rect renderArea;
-    uint      w;
-    uint      h;
+
+    uint w;
+    uint h;
     if (onScreen) {
-        w = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
-        h = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
+        w = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
+        h = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
     } else {
         w = camera->width;
         h = camera->height;
     }
 
-    renderArea.x      = static_cast<int>(camera->viewportX * w);
-    renderArea.y      = static_cast<int>(camera->viewportY * h);
-    renderArea.width  = static_cast<uint>(camera->viewportWidth * w * _pipelineSceneData->getSharedData()->shadingScale);
-    renderArea.height = static_cast<uint>(camera->viewportHeight * h * _pipelineSceneData->getSharedData()->shadingScale);
+    const auto &viewport = camera->viewPort;
+    renderArea.x         = static_cast<int>(viewport.x * w);
+    renderArea.y         = static_cast<int>(viewport.y * h);
+    renderArea.width     = static_cast<uint>(viewport.z * w * _pipelineSceneData->getSharedData()->shadingScale);
+    renderArea.height    = static_cast<uint>(viewport.w * h * _pipelineSceneData->getSharedData()->shadingScale);
     return renderArea;
 }
 
 void DeferredPipeline::destroyQuadInputAssembler() {
-    if (_quadIB) {
-        _quadIB->destroy();
-        _quadIB = nullptr;
-    }
-
-    if (_quadVBOnscreen) {
-        _quadVBOnscreen->destroy();
-        _quadVBOnscreen = nullptr;
-    }
-
-    if (_quadVBOffscreen) {
-        _quadVBOffscreen->destroy();
-        _quadVBOffscreen = nullptr;
-    }
-
-    if (_quadIAOnscreen) {
-        _quadIAOnscreen->destroy();
-        _quadIAOnscreen = nullptr;
-    }
-
-    if (_quadIAOffscreen) {
-        _quadIAOffscreen->destroy();
-        _quadIAOffscreen = nullptr;
-    }
+    CC_SAFE_DESTROY(_quadIB);
+    CC_SAFE_DESTROY(_quadVBOffscreen);
+    CC_SAFE_DESTROY(_quadIAOffscreen);
 }
 
 bool DeferredPipeline::activeRenderer() {
@@ -338,15 +251,19 @@ bool DeferredPipeline::activeRenderer() {
     auto *const sharedData = _pipelineSceneData->getSharedData();
 
     gfx::SamplerInfo info{
-        gfx::Filter::LINEAR,
-        gfx::Filter::LINEAR,
+        gfx::Filter::POINT,
+        gfx::Filter::POINT,
         gfx::Filter::NONE,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
+        {},
+        {},
+        {},
+        {},
     };
-    const auto  samplerHash = SamplerLib::genSamplerHash(info);
-    auto *const sampler     = SamplerLib::getSampler(samplerHash);
+    const uint          samplerHash = SamplerLib::genSamplerHash(info);
+    gfx::Sampler *const sampler     = SamplerLib::getSampler(samplerHash);
 
     // Main light sampler binding
     this->_descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
@@ -363,10 +280,6 @@ bool DeferredPipeline::activeRenderer() {
     _macros.setValue("CC_SUPPORT_FLOAT_TEXTURE", _device->hasFeature(gfx::Feature::TEXTURE_FLOAT));
 
     if (!createQuadInputAssembler(&_quadIB, &_quadVBOffscreen, &_quadIAOffscreen)) {
-        return false;
-    }
-
-    if (!createQuadInputAssembler(&_quadIB, &_quadVBOnscreen, &_quadIAOnscreen)) {
         return false;
     }
 
@@ -403,7 +316,7 @@ bool DeferredPipeline::activeRenderer() {
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
         {},
-        {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
+        {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
     };
 
     gfx::RenderPassInfo lightPass;
@@ -421,14 +334,8 @@ bool DeferredPipeline::activeRenderer() {
 
     _lightingRenderPass = _device->createRenderPass(lightPass);
 
-    if (_device->getSurfaceTransform() == gfx::SurfaceTransform::IDENTITY ||
-        _device->getSurfaceTransform() == gfx::SurfaceTransform::ROTATE_180) {
-        _width  = _device->getWidth();
-        _height = _device->getHeight();
-    } else {
-        _width  = _device->getHeight();
-        _height = _device->getWidth();
-    }
+    _width  = _device->getWidth();
+    _height = _device->getHeight();
 
     generateDeferredRenderData();
 
@@ -509,12 +416,12 @@ void DeferredPipeline::generateDeferredRenderData() {
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[3]);
 
     _descriptorSet->bindTexture(
-        static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP),
-        _deferredRenderData->lightingFrameBuff->getColorTextures()[0]);
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP), _deferredRenderData->lightingFrameBuff->getColorTextures()[0]);
 }
 
 void DeferredPipeline::destroy() {
     destroyQuadInputAssembler();
+    destroyDeferredData();
 
     if (_descriptorSet) {
         _descriptorSet->getBuffer(UBOGlobal::BINDING)->destroy();
@@ -527,14 +434,14 @@ void DeferredPipeline::destroy() {
     }
 
     for (auto &it : _renderPasses) {
-        it.second->destroy();
+        CC_DESTROY(it.second);
     }
     _renderPasses.clear();
 
     _commandBuffers.clear();
 
-    _gbufferRenderPass  = nullptr;
-    _lightingRenderPass = nullptr;
+    CC_SAFE_DESTROY(_gbufferRenderPass);
+    CC_SAFE_DESTROY(_lightingRenderPass);
 
     RenderPipeline::destroy();
 }
@@ -564,9 +471,9 @@ void DeferredPipeline::destroyDeferredData() {
         _deferredRenderData->depthTex = nullptr;
     }
 
-    for (size_t i = 0; i < _deferredRenderData->gbufferRenderTargets.size(); i++) {
-        _deferredRenderData->gbufferRenderTargets[i]->destroy();
-        CC_DELETE(_deferredRenderData->gbufferRenderTargets[i]);
+    for (auto *renderTarget : _deferredRenderData->gbufferRenderTargets) {
+        renderTarget->destroy();
+        CC_DELETE(renderTarget);
     }
     _deferredRenderData->gbufferRenderTargets.clear();
 

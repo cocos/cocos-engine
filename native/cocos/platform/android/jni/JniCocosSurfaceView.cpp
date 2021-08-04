@@ -22,16 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-
-#include "platform/android/jni/JniHelper.h"
-#include "platform/Application.h"
-#include <jni.h>
-#include <android/log.h>
 #include <android/keycodes.h>
+#include <android/log.h>
+#include <jni.h>
+#include "platform/Application.h"
+#include "platform/java/jni/JniHelper.h"
 
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "JniCocosSurfaceView JNI", __VA_ARGS__)
 
 extern "C" {
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_nativeOnSizeChanged(JNIEnv *env, jobject thiz, jint width,
                                                                                jint height) {
     cc::EventDispatcher::dispatchResizeEvent(width, height);

@@ -1,6 +1,7 @@
 ---
 # Here are the reasons for disabled checks:
 #
+# -google-runtime-references
 # -misc-non-private-member-variables-in-classes
 # -modernize-avoid-c-arrays
 #       Legacy reasons
@@ -26,6 +27,7 @@ Checks: >
     portability-*,
     readability-*,
 
+    -google-runtime-references,
     -misc-non-private-member-variables-in-classes,
     -modernize-avoid-c-arrays,
 

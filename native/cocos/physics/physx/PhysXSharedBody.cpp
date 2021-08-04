@@ -23,33 +23,33 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXSharedBody.h"
+#include <cmath>
+#include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
-#include "physics/physx/shapes/PhysXShape.h"
 #include "physics/physx/joints/PhysXJoint.h"
-#include <cmath>
+#include "physics/physx/shapes/PhysXShape.h"
 
-using physx::PxVec3;
-using physx::PxQuat;
-using physx::PxIdentity;
-using physx::PxPhysics;
 using physx::PxFilterData;
-using physx::PxJointActorIndex;
-using physx::PxTransform;
 using physx::PxForceMode;
-using physx::PxRigidBodyFlag;
+using physx::PxIdentity;
+using physx::PxJointActorIndex;
+using physx::PxPhysics;
+using physx::PxQuat;
 using physx::PxRigidActor;
 using physx::PxRigidBodyExt;
+using physx::PxRigidBodyFlag;
+using physx::PxTransform;
+using physx::PxVec3;
 
 namespace cc {
 namespace physics {
-std::map<uint, PhysXSharedBody *> PhysXSharedBody::sharedBodesMap = std::map<uint, PhysXSharedBody *>();
+std::map<scene::Node *, PhysXSharedBody *> PhysXSharedBody::sharedBodesMap = std::map<scene::Node *, PhysXSharedBody *>();
 
 static int idCounter = 0;
 PhysXSharedBody::PhysXSharedBody(
-    const uint &          handle,
+    scene::Node *         node,
     PhysXWorld *const     world,
     PhysXRigidBody *const body) : _mID(idCounter++),
                                   _mRef(0),
@@ -57,25 +57,24 @@ PhysXSharedBody::PhysXSharedBody(
                                   _mIsStatic(true),
                                   _mIndex(-1),
                                   _mFilterData(1, 1, 0, 0),
-                                  _mNodeHandle(handle),
                                   _mStaticActor(nullptr),
                                   _mDynamicActor(nullptr),
                                   _mWrappedWorld(world),
                                   _mWrappedBody(body) {
     _mImpl.ptr = 0;
-    _mNode     = cc::pipeline::SharedMemory::getBuffer<cc::pipeline::Node>(_mNodeHandle);
+    _mNode     = node;
 };
 
-PhysXSharedBody *PhysXSharedBody::getSharedBody(const uint handle, PhysXWorld *const world, PhysXRigidBody *const body) {
-    auto             iter = sharedBodesMap.find(handle);
+PhysXSharedBody *PhysXSharedBody::getSharedBody(const scene::Node *node, PhysXWorld *const world, PhysXRigidBody *const body) {
+    auto             iter = sharedBodesMap.find(const_cast<scene::Node *>(node));
     PhysXSharedBody *newSB;
     if (iter != sharedBodesMap.end()) {
         newSB = iter->second;
     } else {
-        newSB                     = new PhysXSharedBody(handle, world, body);
+        newSB                     = new PhysXSharedBody(const_cast<scene::Node *>(node), world, body);
         newSB->_mFilterData.word0 = 1;
         newSB->_mFilterData.word1 = world->getMaskByIndex(0);
-        sharedBodesMap.insert(std::pair<uint, PhysXSharedBody *>(handle, newSB));
+        sharedBodesMap.insert(std::pair<scene::Node *, PhysXSharedBody *>(const_cast<scene::Node *>(node), newSB));
     }
     if (body != nullptr) {
         auto g                    = body->getInitialGroup();
@@ -86,6 +85,7 @@ PhysXSharedBody *PhysXSharedBody::getSharedBody(const uint handle, PhysXWorld *c
 }
 
 PhysXSharedBody::~PhysXSharedBody() {
+    sharedBodesMap.erase(_mNode);
     if (_mStaticActor != nullptr) PX_RELEASE(_mStaticActor);
     if (_mDynamicActor != nullptr) PX_RELEASE(_mDynamicActor);
 }
@@ -100,7 +100,12 @@ void PhysXSharedBody::setType(ERigidBodyType v) {
     if (_mType == v) return;
     _mType = v;
     initActor();
-    _mImpl.ptr = isStatic() ? reinterpret_cast<uintptr_t>(_mStaticActor) : reinterpret_cast<uintptr_t>(_mDynamicActor);
+    if (isStatic()) {
+        _mImpl.ptr = reinterpret_cast<uintptr_t>(_mStaticActor);
+    } else {
+        _mImpl.ptr = reinterpret_cast<uintptr_t>(_mDynamicActor);
+        _mImpl.rigidDynamic->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, _mType == ERigidBodyType::KINEMATIC);
+	}
 }
 
 void PhysXSharedBody::reference(bool v) {
@@ -167,8 +172,9 @@ void PhysXSharedBody::switchActor(const bool isStaticBefore) {
 void PhysXSharedBody::initStaticActor() {
     if (_mStaticActor == nullptr) {
         PxTransform transform{PxIdentity};
-        pxSetVec3Ext(transform.p, getNode().worldPosition);
-        pxSetQuatExt(transform.q, getNode().worldRotation);
+        getNode()->updateWorldTransform();
+        pxSetVec3Ext(transform.p, getNode()->getWorldPosition());
+        pxSetQuatExt(transform.q, getNode()->getWorldRotation());
         if (!transform.p.isFinite()) transform.p = PxVec3{PxIdentity};
         if (!transform.q.isUnit()) transform.q = PxQuat{PxIdentity};
         PxPhysics &phy = PxGetPhysics();
@@ -179,8 +185,9 @@ void PhysXSharedBody::initStaticActor() {
 void PhysXSharedBody::initDynamicActor() {
     if (_mDynamicActor == nullptr) {
         PxTransform transform{PxIdentity};
-        pxSetVec3Ext(transform.p, getNode().worldPosition);
-        pxSetQuatExt(transform.q, getNode().worldRotation);
+        getNode()->updateWorldTransform();
+        pxSetVec3Ext(transform.p, getNode()->getWorldPosition());
+        pxSetQuatExt(transform.q, getNode()->getWorldRotation());
         if (!transform.p.isFinite()) transform.p = PxVec3{PxIdentity};
         if (!transform.q.isUnit()) transform.q = PxQuat{PxIdentity};
         PxPhysics &phy = PxGetPhysics();
@@ -214,14 +221,17 @@ void PhysXSharedBody::syncScale() {
 }
 
 void PhysXSharedBody::syncSceneToPhysics() {
-    if (getNode().flagsChanged) {
-        if (getNode().flagsChanged & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
+    uint32_t hasChangedFlags = getNode()->getFlagsChanged();
+    if (hasChangedFlags) {
+        if (hasChangedFlags & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
         auto wp = getImpl().rigidActor->getGlobalPose();
-        if (getNode().flagsChanged & static_cast<uint32_t>(TransformBit::POSITION)) {
-            pxSetVec3Ext(wp.p, getNode().worldPosition);
+        if (hasChangedFlags & static_cast<uint32_t>(TransformBit::POSITION)) {
+            getNode()->updateWorldTransform();
+            pxSetVec3Ext(wp.p, getNode()->getWorldPosition());
         }
-        if (getNode().flagsChanged & static_cast<uint32_t>(TransformBit::ROTATION)) {
-            pxSetQuatExt(wp.q, getNode().worldRotation);
+        if (hasChangedFlags & static_cast<uint32_t>(TransformBit::ROTATION)) {
+            getNode()->updateWorldTransform();
+            pxSetQuatExt(wp.q, getNode()->getWorldRotation());
         }
 
         if (isKinematic()) {
@@ -233,15 +243,17 @@ void PhysXSharedBody::syncSceneToPhysics() {
 }
 
 void PhysXSharedBody::syncSceneWithCheck() {
-    if (getNode().flagsChanged & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
+    if (getNode()->getFlagsChanged() & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
     auto wp         = getImpl().rigidActor->getGlobalPose();
     bool needUpdate = false;
-    if (wp.p != getNode().worldPosition) {
-        pxSetVec3Ext(wp.p, getNode().worldPosition);
+    getNode()->updateWorldTransform();
+    if (wp.p != getNode()->getWorldPosition()) {
+        pxSetVec3Ext(wp.p, getNode()->getWorldPosition());
         needUpdate = true;
     }
-    if (wp.q != getNode().worldRotation) {
-        pxSetQuatExt(wp.q, getNode().worldRotation);
+    const auto nr = getNode()->getWorldRotation();
+    if (wp.q.x != nr.x && wp.q.y != nr.y && wp.q.z != nr.z) {
+        pxSetQuatExt(wp.q, getNode()->getWorldRotation());
         needUpdate = true;
     }
     if (needUpdate) {
@@ -253,12 +265,12 @@ void PhysXSharedBody::syncPhysicsToScene() {
     if (isStaticOrKinematic()) return;
     if (_mDynamicActor->isSleeping()) return;
     const PxTransform &wp = getImpl().rigidActor->getGlobalPose();
-    pxSetVec3Ext(getNode().worldPosition, wp.p);
-    pxSetQuatExt(getNode().worldRotation, wp.q);
-    getNode().flagsChanged |= static_cast<uint32_t>(TransformBit::POSITION) | static_cast<uint32_t>(TransformBit::ROTATION);
+    getNode()->setWorldPosition(wp.p.x, wp.p.y, wp.p.z);
+    getNode()->setWorldRotation(wp.q.x, wp.q.y, wp.q.z, wp.q.w);
+    getNode()->setFlagsChanged(getNode()->getFlagsChanged() | static_cast<uint32_t>(TransformBit::POSITION) | static_cast<uint32_t>(TransformBit::ROTATION));
 }
 
-void PhysXSharedBody::addShape(PhysXShape &shape) {
+void PhysXSharedBody::addShape(const PhysXShape &shape) {
     auto beg  = _mWrappedShapes.begin();
     auto end  = _mWrappedShapes.end();
     auto iter = find(beg, end, &shape);
@@ -266,43 +278,43 @@ void PhysXSharedBody::addShape(PhysXShape &shape) {
         shape.getShape().setSimulationFilterData(_mFilterData);
         shape.getShape().setQueryFilterData(_mFilterData);
         getImpl().rigidActor->attachShape(shape.getShape());
-        _mWrappedShapes.push_back(&shape);
+        _mWrappedShapes.push_back(&const_cast<PhysXShape &>(shape));
         if (!shape.isTrigger()) {
-            if (!shape.getCenter().isZero()) updateCenterOfMass();
+            if (!const_cast<PhysXShape &>(shape).getCenter().isZero()) updateCenterOfMass();
             if (isDynamic()) PxRigidBodyExt::setMassAndUpdateInertia(*getImpl().rigidDynamic, _mMass);
         }
     }
 }
 
-void PhysXSharedBody::removeShape(PhysXShape &shape) {
+void PhysXSharedBody::removeShape(const PhysXShape &shape) {
     auto beg  = _mWrappedShapes.begin();
     auto end  = _mWrappedShapes.end();
     auto iter = find(beg, end, &shape);
     if (iter != end) {
         _mWrappedShapes.erase(iter);
         getImpl().rigidActor->detachShape(shape.getShape(), true);
-        if (!shape.isTrigger()) {
-            if (!shape.getCenter().isZero()) updateCenterOfMass();
+        if (!const_cast<PhysXShape &>(shape).isTrigger()) {
+            if (!const_cast<PhysXShape &>(shape).getCenter().isZero()) updateCenterOfMass();
             if (isDynamic()) PxRigidBodyExt::setMassAndUpdateInertia(*getImpl().rigidDynamic, _mMass);
         }
     }
 }
 
-void PhysXSharedBody::addJoint(PhysXJoint &joint, const PxJointActorIndex::Enum index) {
+void PhysXSharedBody::addJoint(const PhysXJoint &joint, const PxJointActorIndex::Enum index) {
     if (index == PxJointActorIndex::eACTOR1) {
         auto beg  = _mWrappedJoints1.begin();
         auto end  = _mWrappedJoints1.end();
         auto iter = find(beg, end, &joint);
-        if (iter == end) _mWrappedJoints1.push_back(&joint);
+        if (iter == end) _mWrappedJoints1.push_back(&const_cast<PhysXJoint &>(joint));
     } else {
         auto beg  = _mWrappedJoints0.begin();
         auto end  = _mWrappedJoints0.end();
         auto iter = find(beg, end, &joint);
-        if (iter == end) _mWrappedJoints0.push_back(&joint);
+        if (iter == end) _mWrappedJoints0.push_back(&const_cast<PhysXJoint &>(joint));
     }
 }
 
-void PhysXSharedBody::removeJoint(PhysXJoint &joint, const PxJointActorIndex::Enum index) {
+void PhysXSharedBody::removeJoint(const PhysXJoint &joint, const PxJointActorIndex::Enum index) {
     if (index == PxJointActorIndex::eACTOR1) {
         auto beg  = _mWrappedJoints1.begin();
         auto end  = _mWrappedJoints1.end();
@@ -332,7 +344,7 @@ void PhysXSharedBody::setMask(uint32_t v) {
     setCollisionFilter(_mFilterData);
 }
 
-void PhysXSharedBody::setCollisionFilter(PxFilterData &data) {
+void PhysXSharedBody::setCollisionFilter(const PxFilterData &data) {
     if (isDynamic()) _mDynamicActor->wakeUp();
     for (auto const &ws : _mWrappedShapes) {
         ws->getShape().setQueryFilterData(data);

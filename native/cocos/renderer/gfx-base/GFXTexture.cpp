@@ -34,7 +34,6 @@ namespace gfx {
 
 Texture::Texture()
 : GFXObject(ObjectType::TEXTURE) {
-    _textureID = generateTextureID();
 }
 
 Texture::~Texture() = default;
@@ -67,8 +66,6 @@ void Texture::initialize(const TextureInfo &info) {
     _flags      = info.flags;
     _size       = formatSize(_format, _width, _height, _depth);
 
-    Device::getInstance()->getMemoryStatus().textureSize += _size;
-
     doInit(info);
 }
 
@@ -96,8 +93,6 @@ void Texture::initialize(const TextureViewInfo &info) {
 void Texture::destroy() {
     doDestroy();
 
-    Device::getInstance()->getMemoryStatus().textureSize -= _size;
-
     _format = Format::UNKNOWN;
     _width = _height = _depth = _size = 0;
 }
@@ -107,12 +102,9 @@ void Texture::resize(uint width, uint height) {
         uint size = formatSize(_format, width, height, _depth);
         doResize(width, height, size);
 
-        Device::getInstance()->getMemoryStatus().textureSize -= _size;
-
         _width  = width;
         _height = height;
         _size   = size;
-        Device::getInstance()->getMemoryStatus().textureSize += _size;
     }
 }
 

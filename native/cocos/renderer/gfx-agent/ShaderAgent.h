@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL ShaderAgent final : public Agent<Shader> {
 public:
-    using Agent::Agent;
+    explicit ShaderAgent(Shader *actor);
     ~ShaderAgent() override;
 
 protected:

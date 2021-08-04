@@ -29,11 +29,11 @@
     #define WIN32_LEAN_AND_MEAN 1
     #include <windows.h>
 
-static HMODULE libegl = NULL;
+static HMODULE libegl  = NULL;
 static HMODULE libgles = NULL;
 
 bool gles2wOpen() {
-    libegl = LoadLibraryA("libEGL.dll");
+    libegl  = LoadLibraryA("libEGL.dll");
     libgles = LoadLibraryA("libGLESv2.dll");
     return (libegl && libgles);
 }
@@ -45,31 +45,35 @@ void *gles2wLoad(const char *proc) {
     return res;
 }
 #elif defined(__EMSCRIPTEN__)
-bool gles2wOpen() { return true; }
+bool  gles2wOpen() { return true; }
 void *gles2wLoad(const char *proc) {
     return (void *)eglGetProcAddress(proc);
 }
 #else
     #include <dlfcn.h>
 
-static void *libegl = nullptr;
+static void *libegl  = nullptr;
 static void *libgles = nullptr;
 
 bool gles2wOpen() {
     libegl = dlopen("libEGL.so", RTLD_LAZY | RTLD_GLOBAL);
+    #if __OHOS__
+    libgles = dlopen("libGLESv3.so", RTLD_LAZY | RTLD_GLOBAL);
+    #else
     libgles = dlopen("libGLESv2.so", RTLD_LAZY | RTLD_GLOBAL);
+    #endif
     return (libegl && libgles);
 }
 
 void *gles2wLoad(const char *proc) {
     void *res = nullptr;
-    if (eglGetProcAddress) res = (void *)eglGetProcAddress(proc);
+    if (eglGetProcAddress) res = reinterpret_cast<void *>(eglGetProcAddress(proc));
     if (!res) res = dlsym(libegl, proc);
     return res;
 }
 #endif
 
-bool gles2wInit(void) {
+bool gles2wInit() {
     if (!gles2wOpen()) {
         return false;
     }

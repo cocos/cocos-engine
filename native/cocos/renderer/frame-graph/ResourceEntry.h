@@ -46,7 +46,7 @@ public:
     void                                   release() noexcept override;
     typename ResourceType::DeviceResource *getDeviceResource() const noexcept override;
 
-    CC_INLINE const ResourceType &get() const noexcept { return _resource; }
+    inline const ResourceType &get() const noexcept { return _resource; }
 
 private:
     ResourceType _resource;

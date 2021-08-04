@@ -25,11 +25,11 @@
 
 #include "MessageQueue.h"
 #include <cassert>
+#include "AutoReleasePool.h"
 
 namespace cc {
 
 namespace {
-uint32_t constexpr MEMORY_CHUNK_SIZE               = 4096 * 16;
 uint32_t constexpr MEMORY_CHUNK_POOL_CAPACITY      = 64;
 uint32_t constexpr SWITCH_CHUNK_MEMORY_REQUIREMENT = sizeof(MemoryChunkSwitchMessage) + sizeof(DummyMessage);
 } // namespace
@@ -60,7 +60,7 @@ void MessageQueue::MemoryAllocator::recycle(uint8_t *const chunk, bool const fre
 }
 
 void MessageQueue::MemoryAllocator::freeByUser(MessageQueue *const mainMessageQueue) noexcept {
-    auto queue = &_chunkFreeQueue;
+    auto *queue = &_chunkFreeQueue;
 
     ENQUEUE_MESSAGE_1(
         mainMessageQueue, FreeChunksInFreeQueue,
@@ -143,7 +143,7 @@ void MessageQueue::terminateConsumerThread() noexcept {
     event.wait();
 }
 
-void MessageQueue::finishWriting(bool wait) noexcept {
+void MessageQueue::finishWriting() noexcept {
     if (!_immediateMode) {
         bool *const flushingFinished = &_reader.flushingFinished;
 
@@ -153,11 +153,7 @@ void MessageQueue::finishWriting(bool wait) noexcept {
                               *flushingFinished = true;
                           });
 
-        if (wait) {
-            kickAndWait();
-        } else {
-            kick();
-        }
+        kick();
     }
 }
 
@@ -169,40 +165,39 @@ void MessageQueue::freeChunksInFreeQueue(MessageQueue *const mainMessageQueue) n
     MessageQueue::MemoryAllocator::getInstance().freeByUser(mainMessageQueue);
 }
 
-uint8_t *MessageQueue::allocateImpl(uint32_t &allocatedSize, uint32_t const requestSize) noexcept {
+// NOLINTNEXTLINE(misc-no-recursion)
+uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const requestSize) noexcept {
     uint32_t const alignedSize = align(requestSize, 16);
     assert(alignedSize + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE); // exceeds the block size
 
     uint32_t const newOffset = _writer.offset + alignedSize;
 
     if (newOffset + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE) {
-        allocatedSize                  = alignedSize;
         uint8_t *const allocatedMemory = _writer.currentMemoryChunk + _writer.offset;
         _writer.offset                 = newOffset;
         return allocatedMemory;
-    } else {
-        uint8_t *const                  newChunk      = MessageQueue::MemoryAllocator::getInstance().request();
-        MemoryChunkSwitchMessage *const switchMessage = reinterpret_cast<MemoryChunkSwitchMessage *>(_writer.currentMemoryChunk + _writer.offset);
-        new (switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer.currentMemoryChunk);
-        switchMessage->_next = reinterpret_cast<Message *>(newChunk); // point to start position
-        _writer.lastMessage  = switchMessage;
-        ++_writer.pendingMessageCount;
-        _writer.currentMemoryChunk = newChunk;
-        _writer.offset             = 0;
-
-        DummyMessage *const head = allocate<DummyMessage>(1);
-        new (head) DummyMessage;
-
-        if (_immediateMode) {
-            pushMessages();
-            pullMessages();
-            assert(_reader.newMessageCount == 2);
-            executeMessages();
-            executeMessages();
-        }
-
-        return allocateImpl(allocatedSize, requestSize);
     }
+    uint8_t *const newChunk      = MessageQueue::MemoryAllocator::getInstance().request();
+    auto *const    switchMessage = reinterpret_cast<MemoryChunkSwitchMessage *>(_writer.currentMemoryChunk + _writer.offset);
+    new (switchMessage) MemoryChunkSwitchMessage(this, newChunk, _writer.currentMemoryChunk);
+    switchMessage->_next = reinterpret_cast<Message *>(newChunk); // point to start position
+    _writer.lastMessage  = switchMessage;
+    ++_writer.pendingMessageCount;
+    _writer.currentMemoryChunk = newChunk;
+    _writer.offset             = 0;
+
+    DummyMessage *const head = allocate<DummyMessage>(1);
+    new (head) DummyMessage;
+
+    if (_immediateMode) {
+        pushMessages();
+        pullMessages();
+        assert(_reader.newMessageCount == 2);
+        executeMessages();
+        executeMessages();
+    }
+
+    return allocateImpl(allocatedSize, requestSize);
 }
 
 void MessageQueue::pushMessages() noexcept {
@@ -254,6 +249,7 @@ Message *MessageQueue::readMessage() noexcept {
 
 void MessageQueue::consumerThreadLoop() noexcept {
     while (!_reader.terminateConsumerThread) {
+        AutoReleasePool autoReleasePool;
         flushMessages();
     }
 

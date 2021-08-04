@@ -30,7 +30,7 @@ namespace cc {
 uint8_t const ThreadPool::CPU_CORE_COUNT   = std::thread::hardware_concurrency();
 uint8_t const ThreadPool::MAX_THREAD_COUNT = CPU_CORE_COUNT - 1;
 
-void ThreadPool::start() noexcept {
+void ThreadPool::start() {
     if (_running) {
         return;
     }
@@ -42,13 +42,13 @@ void ThreadPool::start() noexcept {
     }
 }
 
-void ThreadPool::stop() noexcept {
+void ThreadPool::stop() {
     if (!_running) {
         return;
     }
 
     _running = false;
-    _event.SignalAll();
+    _event.signalAll();
 
     for (auto &worker : _workers) {
         if (worker.joinable()) {
@@ -59,7 +59,7 @@ void ThreadPool::stop() noexcept {
     _workers.clear();
 }
 
-void ThreadPool::addThread() noexcept {
+void ThreadPool::addThread() {
     assert(_workers.size() < MAX_THREAD_COUNT);
 
     auto workerLoop = [this]() {

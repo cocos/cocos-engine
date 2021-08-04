@@ -25,20 +25,15 @@
 
 #include "GLES2Std.h"
 #include "GLES2Context.h"
-#include "gles2w.h"
 
-#if TARGET_OS_OSX
-#import <QuartzCore/CAOpenGLLayer.h>
-#else
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+
 #import <UIKit/UIScreen.h>
-#endif
 
 namespace cc {
 namespace gfx {
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-
-void GLES2Context::doInit(const ContextInfo &info) {
+bool GLES2Context::doInit(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
@@ -163,7 +158,7 @@ bool GLES2Context::createCustomFrameBuffer() {
             }
             default:;
         }
-        destroyCustomFrameBuffer();
+        doDestroyCustomFrameBuffer();
         return false;
     }
 
@@ -171,7 +166,7 @@ bool GLES2Context::createCustomFrameBuffer() {
     return true;
 }
 
-void GLES2Context::destroyCustomFrameBuffer()
+void GLES2Context::doDestroyCustomFrameBuffer()
 {
     if (_defaultColorBuffer)
     {
@@ -192,7 +187,7 @@ void GLES2Context::destroyCustomFrameBuffer()
 }
 
 void GLES2Context::doDestroy() {
-    destroyCustomFrameBuffer();
+    doDestroyCustomFrameBuffer();
 
   if (_eaglContext) {
     [(EAGLContext*)_eaglContext release];
@@ -211,12 +206,18 @@ void GLES2Context::present() {
   }
 }
 
-bool GLES2Context::MakeCurrentImpl(bool bound) {
+bool GLES2Context::makeCurrentImpl(bool bound) {
     if (!bound) return [EAGLContext setCurrentContext: nil];
     return [EAGLContext setCurrentContext: (EAGLContext*)_eaglContext] && createCustomFrameBuffer();
 }
 
-#endif
+void GLES2Context::releaseSurface(uintptr_t /*windowHandle*/) {
+}
+
+void GLES2Context::acquireSurface(uintptr_t /*windowHandle*/) {
+}
 
 } // namespace gfx
 } // namespace cc
+
+#endif

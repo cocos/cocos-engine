@@ -23,16 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXRigidBody.h"
+#include "physics/physx/PhysXInc.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
 
-using physx::PxReal;
-using physx::PxVec3;
-using physx::PxTransform;
-using physx::PxForceMode;
 using physx::PxActorFlag;
+using physx::PxForceMode;
+using physx::PxReal;
+using physx::PxTransform;
+using physx::PxVec3;
 
 namespace cc {
 namespace physics {
@@ -40,10 +40,10 @@ namespace physics {
 PhysXRigidBody::PhysXRigidBody() : _mEnabled(false),
                                    _mGroup(1) {}
 
-void PhysXRigidBody::initialize(uint h, ERigidBodyType t, uint32_t g) {
-    _mGroup = g;
+void PhysXRigidBody::initialize(scene::Node *node, ERigidBodyType t, uint32_t g) {
+    _mGroup         = g;
     PhysXWorld &ins = PhysXWorld::getInstance();
-    _mSharedBody = ins.getSharedBody(h, this);
+    _mSharedBody    = ins.getSharedBody(node, this);
     getSharedBody().reference(true);
     getSharedBody().setType(t);
 }
@@ -97,6 +97,11 @@ void PhysXRigidBody::setAngularDamping(float v) {
 void PhysXRigidBody::useGravity(bool v) {
     if (getSharedBody().isStatic()) return;
     getSharedBody().getImpl().rigidDynamic->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !v);
+}
+
+void PhysXRigidBody::useCCD(bool v) {
+    if (getSharedBody().isStatic()) return;
+    getSharedBody().getImpl().rigidDynamic->setRigidBodyFlag(physx::PxRigidBodyFlag::eENABLE_CCD, v);
 }
 
 void PhysXRigidBody::setLinearFactor(float x, float y, float z) {
@@ -190,10 +195,10 @@ void PhysXRigidBody::applyLocalForce(float x, float y, float z, float rx, float 
     if (getSharedBody().isStatic()) return;
     const PxVec3 force{x, y, z};
     if (force.isZero()) return;
-    auto *body = getSharedBody().getImpl().rigidDynamic;
-    const PxTransform bodyPose = body->getGlobalPose();
-    const PxVec3 worldForce = bodyPose.rotate(force);
-    const PxVec3 worldPos = bodyPose.rotate(PxVec3{rx, ry, rz});
+    auto *            body       = getSharedBody().getImpl().rigidDynamic;
+    const PxTransform bodyPose   = body->getGlobalPose();
+    const PxVec3      worldForce = bodyPose.rotate(force);
+    const PxVec3      worldPos   = bodyPose.rotate(PxVec3{rx, ry, rz});
     body->addForce(worldForce, PxForceMode::eFORCE, true);
     const PxVec3 torque = worldPos.cross(worldForce);
     if (!torque.isZero()) body->addTorque(torque, PxForceMode::eFORCE, true);
@@ -203,7 +208,7 @@ void PhysXRigidBody::applyImpulse(float x, float y, float z, float rx, float ry,
     if (getSharedBody().isStatic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
-    auto *body = getSharedBody().getImpl().rigidDynamic;
+    auto *       body   = getSharedBody().getImpl().rigidDynamic;
     const PxVec3 torque = (PxVec3{rx, ry, rz}).cross(impulse);
     body->addForce(impulse, PxForceMode::eIMPULSE, true);
     if (!torque.isZero()) body->addTorque(torque, PxForceMode::eIMPULSE, true);
@@ -213,10 +218,10 @@ void PhysXRigidBody::applyLocalImpulse(float x, float y, float z, float rx, floa
     if (getSharedBody().isStatic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
-    auto *body = getSharedBody().getImpl().rigidDynamic;
-    const PxTransform bodyPose = body->getGlobalPose();
-    const PxVec3 worldImpulse = bodyPose.rotate(impulse);
-    const PxVec3 worldPos = bodyPose.rotate(PxVec3{rx, ry, rz});
+    auto *            body         = getSharedBody().getImpl().rigidDynamic;
+    const PxTransform bodyPose     = body->getGlobalPose();
+    const PxVec3      worldImpulse = bodyPose.rotate(impulse);
+    const PxVec3      worldPos     = bodyPose.rotate(PxVec3{rx, ry, rz});
     body->addForce(worldImpulse, PxForceMode::eIMPULSE, true);
     const PxVec3 torque = worldPos.cross(worldImpulse);
     if (!torque.isZero()) body->addTorque(torque, PxForceMode::eIMPULSE, true);
@@ -233,7 +238,7 @@ void PhysXRigidBody::applyLocalTorque(float x, float y, float z) {
     if (getSharedBody().isStatic()) return;
     PxVec3 torque{x, y, z};
     if (torque.isZero()) return;
-    auto *body = getSharedBody().getImpl().rigidDynamic;
+    auto *            body     = getSharedBody().getImpl().rigidDynamic;
     const PxTransform bodyPose = body->getGlobalPose();
     body->addTorque(bodyPose.rotate(PxVec3{x, y, z}), PxForceMode::eFORCE, true);
 }

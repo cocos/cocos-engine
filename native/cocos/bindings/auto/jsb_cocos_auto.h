@@ -1,28 +1,3 @@
-/****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
 #pragma once
 #include "base/Config.h"
 #include <type_traits>
@@ -46,7 +21,6 @@ SE_DECLARE_FUNC(js_engine_FileUtils_fullPathForFilename);
 SE_DECLARE_FUNC(js_engine_FileUtils_fullPathFromRelativeFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_getDataFromFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_getDefaultResourceRootPath);
-SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 SE_DECLARE_FUNC(js_engine_FileUtils_getFileExtension);
 SE_DECLARE_FUNC(js_engine_FileUtils_getFileSize);
 SE_DECLARE_FUNC(js_engine_FileUtils_getOriginalSearchPaths);
@@ -61,7 +35,6 @@ SE_DECLARE_FUNC(js_engine_FileUtils_isAbsolutePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_isDirectoryExist);
 SE_DECLARE_FUNC(js_engine_FileUtils_isFileExist);
 SE_DECLARE_FUNC(js_engine_FileUtils_listFiles);
-SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_purgeCachedEntries);
 SE_DECLARE_FUNC(js_engine_FileUtils_removeDirectory);
 SE_DECLARE_FUNC(js_engine_FileUtils_removeFile);
@@ -74,8 +47,10 @@ SE_DECLARE_FUNC(js_engine_FileUtils_writeStringToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeValueMapToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeValueVectorToFile);
+SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_setDelegate);
 SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
+SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 
 extern se::Object* __jsb_cc_CanvasGradient_proto;
 extern se::Class* __jsb_cc_CanvasGradient_class;
@@ -94,12 +69,12 @@ bool js_register_cc_CanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::CanvasRenderingContext2D);
-SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D__fillImageData);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_beginPath);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_clearRect);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_closePath);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_createLinearGradient);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_fill);
+SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_fillImageData);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_lineTo);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_moveTo);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_rect);

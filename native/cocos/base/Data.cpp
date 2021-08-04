@@ -56,7 +56,9 @@ Data::~Data() {
 
 Data &Data::operator=(const Data &other) {
     //    CC_LOG_INFO("In the copy assignment of Data.");
-    copy(other._bytes, other._size);
+    if (this != &other) {
+        copy(other._bytes, other._size);
+    }
     return *this;
 }
 
@@ -93,7 +95,7 @@ void Data::copy(const unsigned char *bytes, ssize_t size) {
 
     if (size > 0) {
         _size  = size;
-        _bytes = (unsigned char *)malloc(sizeof(unsigned char) * _size);
+        _bytes = static_cast<unsigned char *>(malloc(sizeof(unsigned char) * _size));
         memcpy(_bytes, bytes, _size);
     }
 }
@@ -104,6 +106,15 @@ void Data::fastSet(unsigned char *bytes, ssize_t size) {
     _size  = size;
 }
 
+void Data::resize(ssize_t size) {
+    CC_ASSERT(size);
+    if (_size == size) {
+        return;
+    }
+    _size  = size;
+    _bytes = static_cast<unsigned char *>(realloc(_bytes, sizeof(unsigned char) * _size));
+}
+
 void Data::clear() {
     free(_bytes);
     _bytes = nullptr;
@@ -111,7 +122,7 @@ void Data::clear() {
 }
 
 unsigned char *Data::takeBuffer(ssize_t *size) {
-    auto buffer = getBytes();
+    auto *buffer = getBytes();
     if (size) {
         *size = getSize();
     }

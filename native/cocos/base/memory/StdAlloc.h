@@ -43,7 +43,7 @@ namespace cc {
 */
 class CC_DLL StdAllocPolicy {
 public:
-    static CC_INLINE CC_DECL_MALLOC void *AllocateBytes(size_t count,
+    static inline CC_DECL_MALLOC void *AllocateBytes(size_t count,
     #ifdef CC_MEMORY_TRACKER
                                                         const char *file = nullptr, int line = 0, const char *func = nullptr
     #else
@@ -57,7 +57,7 @@ public:
         return ptr;
     }
 
-    static CC_INLINE CC_DECL_MALLOC void *ReallocateBytes(void *ptr, size_t count,
+    static inline CC_DECL_MALLOC void *ReallocateBytes(void *ptr, size_t count,
     #ifdef CC_MEMORY_TRACKER
                                                           const char *file = nullptr, int line = 0, const char *func = nullptr
     #else
@@ -101,14 +101,14 @@ public:
     #endif
     }
 
-    static CC_INLINE void DeallocateBytes(void *ptr) {
+    static inline void DeallocateBytes(void *ptr) {
     #ifdef CC_MEMORY_TRACKER
         MemTracker::Instance()->RecordFree(ptr);
     #endif
         free(ptr);
     }
 
-    static CC_INLINE CC_DECL_MALLOC void *AllocateBytesAligned(size_t alignment, size_t count,
+    static inline CC_DECL_MALLOC void *AllocateBytesAligned(size_t alignment, size_t count,
     #ifdef CC_MEMORY_TRACKER
                                                                const char *file = NULL, int line = 0, const char *func = NULL
     #else
@@ -134,7 +134,7 @@ public:
         return ptr;
     }
 
-    static CC_INLINE void DeallocateBytesAligned(void *ptr) {
+    static inline void DeallocateBytesAligned(void *ptr) {
     #ifdef CC_MEMORY_TRACKER
         MemTracker::Instance()->RecordFree(ptr);
     #endif
@@ -153,7 +153,7 @@ public:
     }
 
     // Get the maximum size of a single allocation
-    static CC_INLINE size_t getMaxAllocationSize() {
+    static inline size_t getMaxAllocationSize() {
         return (std::numeric_limits<size_t>::max)();
     }
 

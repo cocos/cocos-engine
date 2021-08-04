@@ -25,24 +25,23 @@
 
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXDevice.h"
-#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 
-unordered_map<uint, gfx::PipelineState *> PipelineStateManager::_PSOHashMap;
+unordered_map<uint, gfx::PipelineState *> PipelineStateManager::psoHashMap;
 
-gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassView *     pass,
+gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *  pass,
                                                                    gfx::Shader *        shader,
                                                                    gfx::InputAssembler *inputAssembler,
                                                                    gfx::RenderPass *    renderPass) {
-    const auto passHash       = pass->hash;
+    const auto passHash       = pass->getHash();
     const auto renderPassHash = renderPass->getHash();
     const auto iaHash         = inputAssembler->getAttributesHash();
-    const auto shaderID       = shader->getID();
+    const auto shaderID       = shader->getTypedID();
     const auto hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
 
-    auto *pso = _PSOHashMap[hash];
+    auto *pso = psoHashMap[hash];
     if (!pso) {
         auto *pipelineLayout = pass->getPipelineLayout();
 
@@ -58,26 +57,17 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassVie
             pass->getDynamicState(),
         });
 
-        _PSOHashMap[hash] = pso;
+        psoHashMap[hash] = pso;
     }
 
     return pso;
 }
 
-gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStateByJS(uint32_t             passHandle,
-                                                                       gfx::Shader *        shader,
-                                                                       gfx::InputAssembler *inputAssembler,
-                                                                       gfx::RenderPass *    renderPass) {
-    const auto *pass = GET_PASS(passHandle);
-    CC_ASSERT(pass);
-    return PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
-}
-
 void PipelineStateManager::destroyAll() {
-    for (auto &pair : _PSOHashMap) {
+    for (auto &pair : psoHashMap) {
         CC_SAFE_DESTROY(pair.second);
     }
-    _PSOHashMap.clear();
+    psoHashMap.clear();
 }
 
 } // namespace pipeline

@@ -33,6 +33,11 @@
 namespace cc {
 namespace gfx {
 
+SamplerAgent::SamplerAgent(Sampler *actor)
+: Agent<Sampler>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 SamplerAgent::~SamplerAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),

@@ -1,4 +1,4 @@
-\#include "cocos/bindings/auto/${out_file}.h"
+\#include "${os.path.relpath(os.path.join($outdir, $out_file + '.h'), $search_path+'/..').replace(os.path.sep, '/')}"
 #if $macro_judgement
 $macro_judgement
 #end if
@@ -6,7 +6,7 @@ $macro_judgement
 \#include "cocos/bindings/manual/jsb_global.h"
 #for header in $headers
     #set include_header = os.path.basename(header)
-    #if $replace_headers.has_key(include_header)
+    #if include_header in $replace_headers
 \#include "${replace_headers[include_header]}"
     #else
         #set relative = os.path.relpath(header, $search_path)

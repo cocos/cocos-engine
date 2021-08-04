@@ -1,8 +1,11 @@
 {
-  "name": "cocos2d-x-lite",
-  "version": "3.0.0",
-  "description": "Native implementation of creator 3d.",
+  "name": "engine-native",
+  "version": "3.3.0",
+  "description": "Native implementation of Cocos Creator.",
   "main": "gulpfile.js",
+  "scripts": {
+    "clear-platform": "node ./utils/clear-platform.js"
+  },
   "devDependencies": {
     "gulp": "^4.0.2",
     "@types/fs-extra": "^9.0.1",
@@ -21,14 +24,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cocos-creator/cocos2d-x-lite.git"
+    "url": "git+https://github.com/cocos-creator/engine-native.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/cocos-creator/cocos2d-x-lite/issues"
+    "url": "https://github.com/cocos-creator/engine-native/issues"
   },
-  "homepage": "https://github.com/cocos-creator/cocos2d-x-lite#readme",
+  "homepage": "https://github.com/cocos-creator/engine-native#readme",
   "dependencies": {
     "@types/node": "^14.0.27"
   }

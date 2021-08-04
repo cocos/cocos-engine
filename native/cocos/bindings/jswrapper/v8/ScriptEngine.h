@@ -30,8 +30,8 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-    #include "Base.h"
     #include "../Value.h"
+    #include "Base.h"
 
     #include <thread>
 
@@ -52,7 +52,7 @@ class Object;
 class Class;
 class Value;
 
-extern Class *__jsb_CCPrivateData_class;
+extern Class *__jsb_CCPrivateData_class; //NOLINT
 
 /**
      * A stack-allocated class that governs a number of local handles.
@@ -65,8 +65,7 @@ public:
     AutoHandleScope()
     : _handleScope(v8::Isolate::GetCurrent()) {
     }
-    ~AutoHandleScope() {
-    }
+    ~AutoHandleScope() = default;
 
 private:
     v8::HandleScope _handleScope;
@@ -94,7 +93,7 @@ public:
          */
     Object *getGlobalObject() const;
 
-    typedef bool (*RegisterCallback)(Object *);
+    using RegisterCallback = bool (*)(Object *);
 
     /**
          *  @brief Adds a callback for registering a native binding module.
@@ -160,21 +159,21 @@ public:
 
     /**
          *  @brief Executes a utf-8 string buffer which contains JavaScript code.
-         *  @param[in] scriptStr A utf-8 string buffer, if it isn't null-terminated, parameter `length` should be assigned and > 0.
+         *  @param[in] script A utf-8 string buffer, if it isn't null-terminated, parameter `length` should be assigned and > 0.
          *  @param[in] length The length of parameter `scriptStr`, it will be set to string length internally if passing < 0 and parameter `scriptStr` is null-terminated.
-         *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
+         *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @param[in] fileName A string containing a URL for the script's source file. This is used by debuggers and when reporting exceptions. Pass NULL if you do not care to include source file information.
          *  @return true if succeed, otherwise false.
          */
-    bool evalString(const char *scriptStr, ssize_t length = -1, Value *rval = nullptr, const char *fileName = nullptr);
+    bool evalString(const char *script, ssize_t length = -1, Value *ret = nullptr, const char *fileName = nullptr);
 
     /**
          *  @brief Compile script file into v8::ScriptCompiler::CachedData and save to file.
-         *  @param[in] scriptPath The path of script file.
-         *  @param[in] outputPath The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
+         *  @param[in] path The path of script file.
+         *  @param[in] pathBc The location where bytecode file should be written to. The path should be ends with ".bc", which indicates a bytecode file.
          *  @return true if succeed, otherwise false.
          */
-    bool saveByteCodeToFile(const std::string &scriptPath, const std::string &outputPath);
+    bool saveByteCodeToFile(const std::string &path, const std::string &pathBc);
 
     /**
          * @brief Grab a snapshot of the current JavaScript execution stack.
@@ -225,16 +224,16 @@ public:
     /**
          *  @brief Executes a file which contains JavaScript code.
          *  @param[in] path Script file path.
-         *  @param[in] rval The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
+         *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @return true if succeed, otherwise false.
          */
-    bool runScript(const std::string &path, Value *rval = nullptr);
+    bool runScript(const std::string &path, Value *ret = nullptr);
 
     /**
          *  @brief Tests whether script engine is doing garbage collection.
          *  @return true if it's in garbage collection, otherwise false.
          */
-    bool isGarbageCollecting();
+    bool isGarbageCollecting() const;
 
     /**
          *  @brief Performs a JavaScript garbage collection.
@@ -245,13 +244,18 @@ public:
          *  @brief Tests whether script engine is being cleaned up.
          *  @return true if it's in cleaning up, otherwise false.
          */
-    bool isInCleanup() { return _isInCleanup; }
+    bool isInCleanup() const { return _isInCleanup; }
 
     /**
          *  @brief Tests whether script engine is valid.
          *  @return true if it's valid, otherwise false.
          */
     bool isValid() const;
+
+    /**
+     * @brief Throw JS exception
+     */
+    void throwException(const std::string &errorMessage);
 
     /**
          *  @brief Clears all exceptions.
@@ -302,10 +306,10 @@ public:
     uint32_t getVMId() const { return _vmId; }
 
     // Private API used in wrapper
-    void _retainScriptObject(void *owner, void *target);
-    void _releaseScriptObject(void *owner, void *target);
-    v8::Local<v8::Context> _getContext() const;
-    void _setGarbageCollecting(bool isGarbageCollecting);
+    void                   _retainScriptObject(void *owner, void *target);  //NOLINT(readability-identifier-naming)
+    void                   _releaseScriptObject(void *owner, void *target); //NOLINT(readability-identifier-naming)
+    v8::Local<v8::Context> _getContext() const;                             //NOLINT(readability-identifier-naming)
+    void                   _setGarbageCollecting(bool isGarbageCollecting); //NOLINT(readability-identifier-naming)
     //
 private:
     ScriptEngine();
@@ -313,7 +317,7 @@ private:
     static void privateDataFinalize(void *nativeObj);
 
     static void onFatalErrorCallback(const char *location, const char *message);
-    static void onOOMErrorCallback(const char *location, bool is_heap_oom);
+    static void onOOMErrorCallback(const char *location, bool isHeapOom);
     static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
     static void onPromiseRejectCallback(v8::PromiseRejectMessage msg);
 
@@ -323,28 +327,28 @@ private:
          *  @param[in] ret The se::Value that results from evaluating script. Passing nullptr if you don't care about the result.
          *  @return true if succeed, otherwise false.
          */
-    bool runByteCodeFile(const std::string &path_bc, Value *ret /* = nullptr */);
+    bool runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */);
     void callExceptionCallback(const char *, const char *, const char *);
 
     std::chrono::steady_clock::time_point _startTime;
-    std::vector<RegisterCallback> _registerCallbackArray;
-    std::vector<RegisterCallback> _permRegisterCallbackArray;
-    std::vector<std::function<void()>> _beforeInitHookArray;
-    std::vector<std::function<void()>> _afterInitHookArray;
-    std::vector<std::function<void()>> _beforeCleanupHookArray;
-    std::vector<std::function<void()>> _afterCleanupHookArray;
+    std::vector<RegisterCallback>         _registerCallbackArray;
+    std::vector<RegisterCallback>         _permRegisterCallbackArray;
+    std::vector<std::function<void()>>    _beforeInitHookArray;
+    std::vector<std::function<void()>>    _afterInitHookArray;
+    std::vector<std::function<void()>>    _beforeCleanupHookArray;
+    std::vector<std::function<void()>>    _afterCleanupHookArray;
 
     v8::Persistent<v8::Context> _context;
 
-    v8::Isolate *_isolate;
+    v8::Isolate *    _isolate;
     v8::HandleScope *_handleScope;
-    Object *_globalObj;
-    Value _gcFuncValue;
-    Object *_gcFunc = nullptr;
+    Object *         _globalObj;
+    Value            _gcFuncValue;
+    Object *         _gcFunc = nullptr;
 
     FileOperationDelegate _fileOperationDelegate;
-    ExceptionCallback _nativeExceptionCallback = nullptr;
-    ExceptionCallback _jsExceptionCallback = nullptr;
+    ExceptionCallback     _nativeExceptionCallback = nullptr;
+    ExceptionCallback     _jsExceptionCallback     = nullptr;
 
     #if SE_ENABLE_INSPECTOR
     node::Environment *_env;
@@ -354,8 +358,8 @@ private:
     std::thread::id _engineThreadId;
 
     std::string _debuggerServerAddr;
-    uint32_t _debuggerServerPort;
-    bool _isWaitForConnect;
+    uint32_t    _debuggerServerPort;
+    bool        _isWaitForConnect;
 
     uint32_t _vmId;
 

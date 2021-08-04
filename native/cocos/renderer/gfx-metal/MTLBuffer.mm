@@ -38,6 +38,11 @@ namespace cc {
 namespace gfx {
 
 CCMTLBuffer::CCMTLBuffer() : Buffer() {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
+CCMTLBuffer::~CCMTLBuffer() {
+    destroy();
 }
 
 void CCMTLBuffer::doInit(const BufferInfo &info) {
@@ -65,10 +70,19 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
             _drawInfos.resize(_count);
         }
     }
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize += _size;
 }
 
 void CCMTLBuffer::doInit(const BufferViewInfo &info) {
-    *this = *static_cast<CCMTLBuffer *>(info.buffer);
+    auto* ccBuffer = static_cast<CCMTLBuffer *>(info.buffer);
+    _mtlBuffer = ccBuffer->getMTLBuffer();
+    _indexType = ccBuffer->getIndexType();
+    _mtlResourceOptions = ccBuffer->_mtlResourceOptions;
+    _isIndirectDrawSupported = ccBuffer->_isIndirectDrawSupported;
+    _isDrawIndirectByIndex = ccBuffer->_isDrawIndirectByIndex;
+    _indexedPrimitivesIndirectArguments = ccBuffer->_indexedPrimitivesIndirectArguments;
+    _primitiveIndirectArguments = ccBuffer->_primitiveIndirectArguments;
+    _drawInfos = ccBuffer->_drawInfos;
     _bufferViewOffset = info.offset;
     _isBufferView = true;
 }
@@ -77,11 +91,11 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_mtlBuffer) {
-        Device *device = CCMTLDevice::getInstance();
         id<MTLBuffer> mtlBuffer = _mtlBuffer;
 
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
+                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
                 [mtlBuffer release];
             }
         };
@@ -102,6 +116,8 @@ void CCMTLBuffer::doDestroy() {
         return;
     }
 
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
+
     if (!_indexedPrimitivesIndirectArguments.empty()) {
         _indexedPrimitivesIndirectArguments.clear();
     }
@@ -114,13 +130,12 @@ void CCMTLBuffer::doDestroy() {
         _drawInfos.clear();
     }
 
-    Device *device = CCMTLDevice::getInstance();
     id<MTLBuffer> mtlBuffer = _mtlBuffer;
     _mtlBuffer = nil;
-    uint size = _size;
 
     std::function<void(void)> destroyFunc = [=]() {
         if (mtlBuffer) {
+            [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
             [mtlBuffer release];
         }
     };
@@ -134,6 +149,9 @@ void CCMTLBuffer::doResize(uint size, uint count) {
         hasFlag(_usage, BufferUsageBit::UNIFORM)) {
         createMTLBuffer(size, _memUsage);
     }
+
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize += size;
 
     _size = size;
     _count = count;

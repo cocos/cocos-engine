@@ -25,45 +25,105 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
+#include <array>
 #include "base/Utils.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 
 namespace utils {
+
 String getStacktraceJS();
+
 } // namespace utils
 
 namespace gfx {
 
-class GFXObject;
-class CommandBuffer;
-class Queue;
-class Buffer;
-class Texture;
-class Sampler;
-class Shader;
-class InputAssembler;
-class RenderPass;
-class Framebuffer;
-class DescriptorSet;
-class DescriptorSetLayout;
-class PipelineLayout;
-class PipelineState;
+struct RenderPassSnapshot {
+    RenderPass *  renderPass  = nullptr;
+    Framebuffer * framebuffer = nullptr;
+    Rect          renderArea;
+    vector<Color> clearColors;
+    float         clearDepth   = 1.F;
+    uint          clearStencil = 0U;
+};
+
+struct DrawcallSnapshot {
+    PipelineState *         pipelineState;
+    InputAssembler *        inputAssembler;
+    vector<DescriptorSet *> descriptorSets;
+    vector<vector<uint>>    dynamicOffsets;
+};
+
+struct CommandBufferStorage : public DynamicStates, RenderPassSnapshot, DrawcallSnapshot {};
+
+class CommandRecorder {
+public:
+    void recordBeginRenderPass(const RenderPassSnapshot &renderPass);
+    void recordDrawcall(const DrawcallSnapshot &drawcall);
+    void recordEndRenderPass();
+    void clear();
+
+    static vector<uint32_t> serialize(const CommandRecorder &recorder);
+    static CommandRecorder  deserialize(const vector<uint32_t> &bytes);
+    static bool             compare(const CommandRecorder &test, const CommandRecorder &baseline);
+
+private:
+    enum class CommandType {
+        BEGIN_RENDER_PASS,
+        END_RENDER_PASS,
+        DRAW
+    };
+
+    struct RenderPassCommand {
+        ColorAttachmentList    colorAttachments;
+        DepthStencilAttachment depthStencilAttachment;
+
+        Rect          renderArea;
+        vector<Color> clearColors;
+        float         clearDepth   = 1.F;
+        uint          clearStencil = 0U;
+    };
+
+    struct DrawcallCommand {
+        InputState        inputState;
+        RasterizerState   rasterizerState;
+        DepthStencilState depthStencilState;
+        BlendState        blendState;
+        PrimitiveMode     primitive     = PrimitiveMode::TRIANGLE_LIST;
+        DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
+        PipelineBindPoint bindPoint     = PipelineBindPoint::GRAPHICS;
+
+        DrawInfo drawInfo;
+
+        vector<DescriptorSet *> descriptorSets;
+        vector<uint>            dynamicOffsets;
+    };
+
+    vector<CommandType>       _commands;
+    vector<RenderPassCommand> _renderPassCommands;
+    vector<DrawcallCommand>   _drawcallCommands;
+
+    struct BufferData {
+        BufferInfo      info;
+        vector<uint8_t> data;
+    };
+    unordered_map<uint, BufferData> _bufferMap;
+};
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-struct record_stacktrace : std::false_type {};
+struct RecordStacktrace : std::false_type {};
 
 template <typename Resource, typename Enable = std::enable_if_t<std::is_base_of<GFXObject, Resource>::value>>
 class DeviceResourceTracker {
 public:
     template <typename T, typename = std::enable_if_t<std::is_same<Resource, T>::value>>
-    static std::enable_if_t<record_stacktrace<T>::value, void> push(T *resource);
+    static std::enable_if_t<RecordStacktrace<T>::value, void> push(T *resource);
 
     template <typename T, typename = std::enable_if_t<std::is_same<Resource, T>::value>>
-    static std::enable_if_t<!record_stacktrace<T>::value, void> push(T *resource);
+    static std::enable_if_t<!RecordStacktrace<T>::value, void> push(T *resource);
 
     static void erase(Resource *resource);
     static void checkEmpty();
@@ -74,32 +134,32 @@ private:
         String    initStack;
     };
 
-    static vector<ResourceRecord> _resources;
+    static vector<ResourceRecord> resources;
 };
 
 template <typename Resource, typename Enable>
-vector<typename DeviceResourceTracker<Resource, Enable>::ResourceRecord> DeviceResourceTracker<Resource, Enable>::_resources;
+vector<typename DeviceResourceTracker<Resource, Enable>::ResourceRecord> DeviceResourceTracker<Resource, Enable>::resources;
 
 template <typename Resource, typename Enable>
 template <typename T, typename EnableFn>
-std::enable_if_t<record_stacktrace<T>::value, void>
+std::enable_if_t<RecordStacktrace<T>::value, void>
 DeviceResourceTracker<Resource, Enable>::push(T *resource) {
-    _resources.emplace_back(ResourceRecord{resource, utils::getStacktrace(6, 10)});
+    resources.emplace_back(ResourceRecord{resource, utils::getStacktrace(6, 10)});
 }
 
 template <typename Resource, typename Enable>
 template <typename T, typename EnableFn>
-std::enable_if_t<!record_stacktrace<T>::value, void>
+std::enable_if_t<!RecordStacktrace<T>::value, void>
 DeviceResourceTracker<Resource, Enable>::push(T *resource) {
-    _resources.emplace_back(ResourceRecord{resource, {}});
+    resources.emplace_back(ResourceRecord{resource, {}});
 }
 
 template <typename Resource, typename Enable>
 void DeviceResourceTracker<Resource, Enable>::erase(Resource *resource) {
-    CCASSERT(!_resources.empty(), "Deleted twice?");
+    CCASSERT(!resources.empty(), "Deleted twice?");
 
-    _resources.erase(std::remove_if(_resources.begin(), _resources.end(),
-                                    [resource](const auto &record) { return record.resource == resource; }));
+    resources.erase(std::remove_if(resources.begin(), resources.end(),
+                                   [resource](const auto &record) { return record.resource == resource; }));
 }
 
 template <typename Resource, typename Enable>
@@ -109,22 +169,22 @@ void DeviceResourceTracker<Resource, Enable>::checkEmpty() {
     // and look up the resource initialization stacktrace in `_resources[i].initStack`.
     // Note: capturing stacktrace is a painfully time-consuming process,
     // so better to uncomment the exact type of resource that is leaking rather than toggle them all at once.
-    CCASSERT(_resources.empty(), "Resource leaked");
+    CCASSERT(resources.empty(), "Resource leaked");
 }
 
-//template <> struct record_stacktrace<CommandBuffer> : std::true_type {};
-//template <> struct record_stacktrace<Queue> : std::true_type {};
-//template <> struct record_stacktrace<Buffer> : std::true_type {};
-//template <> struct record_stacktrace<Texture> : std::true_type {};
-//template <> struct record_stacktrace<Sampler> : std::true_type {};
-//template <> struct record_stacktrace<Shader> : std::true_type {};
-//template <> struct record_stacktrace<InputAssembler> : std::true_type {};
-//template <> struct record_stacktrace<RenderPass> : std::true_type {};
-//template <> struct record_stacktrace<Framebuffer> : std::true_type {};
-//template <> struct record_stacktrace<DescriptorSet> : std::true_type {};
-//template <> struct record_stacktrace<DescriptorSetLayout> : std::true_type {};
-//template <> struct record_stacktrace<PipelineLayout> : std::true_type {};
-//template <> struct record_stacktrace<PipelineState> : std::true_type {};
+//template <> struct RecordStacktrace<CommandBuffer> : std::true_type {};
+//template <> struct RecordStacktrace<Queue> : std::true_type {};
+//template <> struct RecordStacktrace<Buffer> : std::true_type {};
+//template <> struct RecordStacktrace<Texture> : std::true_type {};
+//template <> struct RecordStacktrace<Sampler> : std::true_type {};
+//template <> struct RecordStacktrace<Shader> : std::true_type {};
+//template <> struct RecordStacktrace<InputAssembler> : std::true_type {};
+//template <> struct RecordStacktrace<RenderPass> : std::true_type {};
+//template <> struct RecordStacktrace<Framebuffer> : std::true_type {};
+//template <> struct RecordStacktrace<DescriptorSet> : std::true_type {};
+//template <> struct RecordStacktrace<DescriptorSetLayout> : std::true_type {};
+//template <> struct RecordStacktrace<PipelineLayout> : std::true_type {};
+//template <> struct RecordStacktrace<PipelineState> : std::true_type {};
 
 } // namespace gfx
 } // namespace cc

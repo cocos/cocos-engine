@@ -33,6 +33,11 @@
 namespace cc {
 namespace gfx {
 
+InputAssemblerAgent::InputAssemblerAgent(InputAssembler *actor)
+: Agent<InputAssembler>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 InputAssemblerAgent::~InputAssemblerAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -45,8 +50,8 @@ InputAssemblerAgent::~InputAssemblerAgent() {
 
 void InputAssemblerAgent::doInit(const InputAssemblerInfo &info) {
     InputAssemblerInfo actorInfo = info;
-    for (uint i = 0u; i < actorInfo.vertexBuffers.size(); ++i) {
-        actorInfo.vertexBuffers[i] = static_cast<BufferAgent *>(actorInfo.vertexBuffers[i])->getActor();
+    for (auto &vertexBuffer : actorInfo.vertexBuffers) {
+        vertexBuffer = static_cast<BufferAgent *>(vertexBuffer)->getActor();
     }
     if (actorInfo.indexBuffer) {
         actorInfo.indexBuffer = static_cast<BufferAgent *>(actorInfo.indexBuffer)->getActor();

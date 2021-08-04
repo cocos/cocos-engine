@@ -43,7 +43,7 @@ void RenderFlow::activate(RenderPipeline *pipeline) {
     _pipeline = pipeline;
 
     std::sort(_stages.begin(), _stages.end(), [](const RenderStage *s1, const RenderStage *s2) {
-        return s1->getPriority() - s2->getPriority();
+        return s1->getPriority() < s2->getPriority();
     });
 
     for (auto *const stage : _stages) {
@@ -51,7 +51,7 @@ void RenderFlow::activate(RenderPipeline *pipeline) {
     }
 }
 
-void RenderFlow::render(Camera *camera) {
+void RenderFlow::render(scene::Camera *camera) {
     for (auto *const stage : _stages) {
         stage->render(camera);
     }

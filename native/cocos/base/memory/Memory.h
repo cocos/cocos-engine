@@ -141,7 +141,7 @@
 #if 0
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS) && (CC_MODE == CC_MODE_DEBUG)
 CC_CORE_API void *BareNewErroneouslyCalled(size_t sz);
-CC_INLINE void *operator new(size_t sz) { return BareNewErroneouslyCalled(sz); }
-CC_INLINE void operator delete(void *ptr) throw() { free(ptr); }
+inline void *operator new(size_t sz) { return BareNewErroneouslyCalled(sz); }
+inline void operator delete(void *ptr) throw() { free(ptr); }
     #endif
 #endif

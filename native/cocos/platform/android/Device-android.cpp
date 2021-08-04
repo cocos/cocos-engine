@@ -25,27 +25,25 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include <android/log.h>
+#include <android/sensor.h>
+#include <android/window.h>
+#include <android_native_app_glue.h>
+#include <jni.h>
+#include <cstring>
+#include "base/UTF8.h"
+#include "platform/Device.h"
+#include "platform/FileUtils.h"
+#include "platform/android/jni/JniCocosActivity.h"
+#include "platform/java/jni/JniHelper.h"
 
-    #include "platform/Device.h"
-    #include <cstring>
-    #include <android/log.h>
-    #include <jni.h>
-    #include <android_native_app_glue.h>
-    #include <android/window.h>
-    #include <android/sensor.h>
-    #include "platform/android/jni/JniCocosActivity.h"
-    #include "platform/FileUtils.h"
-    #include "base/UTF8.h"
-    #include "platform/android/jni/JniHelper.h"
+#ifndef JCLS_HELPER
+    #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+#endif
 
-    #ifndef JCLS_HELPER
-        constexpr auto JCLS_HELPER = "com/cocos/lib/CocosHelper";
-    #endif
-
-    #ifndef JCLS_SENSOR
-        constexpr auto JCLS_SENSOR = "com/cocos/lib/CocosSensorHandler";
-    #endif
+#ifndef JCLS_SENSOR
+    #define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
+#endif
 
 namespace {
 cc::Device::MotionValue motionValue;
@@ -70,7 +68,7 @@ int Device::getDPI() {
         int32_t density = AConfiguration_getDensity(config);
         AConfiguration_delete(config);
         const int stdDpi = 160;
-        dpi = density * stdDpi;
+        dpi              = density * stdDpi;
     }
     return dpi;
 }
@@ -95,7 +93,7 @@ const Device::MotionValue &Device::getDeviceMotionValue() {
     motionValue.accelerationZ = v[5];
 
     motionValue.rotationRateAlpha = v[6];
-    motionValue.rotationRateBeta = v[7];
+    motionValue.rotationRateBeta  = v[7];
     motionValue.rotationRateGamma = v[8];
 
     return motionValue;
@@ -112,7 +110,7 @@ Device::Orientation Device::getDeviceOrientation() {
             return Orientation::PORTRAIT_UPSIDE_DOWN;
         case ROTATION_270:
             return Orientation::LANDSCAPE_LEFT;
-        default: 
+        default:
             break;
     }
     return Orientation::PORTRAIT;
@@ -137,7 +135,7 @@ float Device::getBatteryLevel() {
 }
 
 Device::NetworkType Device::getNetworkType() {
-    return (Device::NetworkType)JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");
+    return static_cast<Device::NetworkType>(JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType"));
 }
 
 cc::Vec4 Device::getSafeAreaEdge() {
@@ -149,5 +147,3 @@ float Device::getDevicePixelRatio() {
     return 1;
 }
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_ANDROID

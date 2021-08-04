@@ -34,6 +34,11 @@
 namespace cc {
 namespace gfx {
 
+SamplerValidator::SamplerValidator(Sampler *actor)
+: Agent<Sampler>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 SamplerValidator::~SamplerValidator() {
     DeviceResourceTracker<Sampler>::erase(this);
     CC_SAFE_DELETE(_actor);

@@ -40,7 +40,7 @@ public:
 
     void update() override;
 
-    CC_INLINE GLES2GPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
+    inline GLES2GPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;

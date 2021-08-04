@@ -34,9 +34,14 @@
 #include "GLES2PipelineState.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Texture.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
+
+GLES2CommandBuffer::GLES2CommandBuffer() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES2CommandBuffer::~GLES2CommandBuffer() {
     destroy();
@@ -93,7 +98,6 @@ void GLES2CommandBuffer::end() {
     if (_isStateInvalid) {
         bindStates();
     }
-    _isInRenderPass = false;
 
     _pendingPackages.push(_curCmdPackage);
     if (!_freePackages.empty()) {
@@ -104,17 +108,16 @@ void GLES2CommandBuffer::end() {
     }
 }
 
-void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
-    _isInRenderPass = true;
+void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
+    _curSubpassIdx = 0U;
 
     GLES2CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
+    cmd->subpassIdx              = _curSubpassIdx;
     cmd->gpuRenderPass           = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
     cmd->gpuFBO                  = static_cast<GLES2Framebuffer *>(fbo)->gpuFBO();
     cmd->renderArea              = renderArea;
-    cmd->numClearColors          = cmd->gpuRenderPass->colorAttachments.size();
-    for (size_t i = 0; i < cmd->numClearColors; ++i) {
-        cmd->clearColors[i] = colors[i];
-    }
+    size_t numClearColors        = cmd->gpuRenderPass->colorAttachments.size();
+    memcpy(cmd->clearColors, colors, numClearColors * sizeof(Color));
     cmd->clearDepth   = depth;
     cmd->clearStencil = stencil;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
@@ -122,8 +125,15 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 }
 
 void GLES2CommandBuffer::endRenderPass() {
-    _isInRenderPass = false;
     _curCmdPackage->cmds.push(GLESCmdType::END_RENDER_PASS);
+}
+
+void GLES2CommandBuffer::nextSubpass() {
+    _curCmdPackage->cmds.push(GLESCmdType::END_RENDER_PASS);
+    GLES2CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
+    cmd->subpassIdx              = ++_curSubpassIdx;
+    _curCmdPackage->beginRenderPassCmds.push(cmd);
+    _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
 }
 
 void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
@@ -154,89 +164,89 @@ void GLES2CommandBuffer::bindInputAssembler(InputAssembler *ia) {
 }
 
 void GLES2CommandBuffer::setViewport(const Viewport &vp) {
-
-    if ((_curViewport.left != vp.left) ||
-        (_curViewport.top != vp.top) ||
-        (_curViewport.width != vp.width) ||
-        (_curViewport.height != vp.height) ||
-        math::IsNotEqualF(_curViewport.minDepth, vp.minDepth) ||
-        math::IsNotEqualF(_curViewport.maxDepth, vp.maxDepth)) {
-        _curViewport    = vp;
-        _isStateInvalid = true;
+    if ((_curDynamicStates.viewport.left != vp.left) ||
+        (_curDynamicStates.viewport.top != vp.top) ||
+        (_curDynamicStates.viewport.width != vp.width) ||
+        (_curDynamicStates.viewport.height != vp.height) ||
+        math::IsNotEqualF(_curDynamicStates.viewport.minDepth, vp.minDepth) ||
+        math::IsNotEqualF(_curDynamicStates.viewport.maxDepth, vp.maxDepth)) {
+        _curDynamicStates.viewport = vp;
+        _isStateInvalid            = true;
     }
 }
 
 void GLES2CommandBuffer::setScissor(const Rect &rect) {
-    if ((_curScissor.x != rect.x) ||
-        (_curScissor.y != rect.y) ||
-        (_curScissor.width != rect.width) ||
-        (_curScissor.height != rect.height)) {
-        _curScissor     = rect;
-        _isStateInvalid = true;
-    }
-}
-
-void GLES2CommandBuffer::setLineWidth(float width) {
-    if (math::IsNotEqualF(_curLineWidth, width)) {
-        _curLineWidth   = width;
-        _isStateInvalid = true;
-    }
-}
-
-void GLES2CommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    if (math::IsNotEqualF(_curDepthBias.constant, constant) ||
-        math::IsNotEqualF(_curDepthBias.clamp, clamp) ||
-        math::IsNotEqualF(_curDepthBias.slope, slope)) {
-        _curDepthBias.constant = constant;
-        _curDepthBias.clamp    = clamp;
-        _curDepthBias.slope    = slope;
-        _isStateInvalid        = true;
-    }
-}
-
-void GLES2CommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curBlendConstants.x, constants.x) ||
-        math::IsNotEqualF(_curBlendConstants.y, constants.y) ||
-        math::IsNotEqualF(_curBlendConstants.z, constants.z) ||
-        math::IsNotEqualF(_curBlendConstants.w, constants.w)) {
-        _curBlendConstants.x = constants.x;
-        _curBlendConstants.y = constants.y;
-        _curBlendConstants.z = constants.z;
-        _curBlendConstants.w = constants.w;
-        _isStateInvalid      = true;
-    }
-}
-
-void GLES2CommandBuffer::setDepthBound(float minBounds, float maxBounds) {
-    if (math::IsNotEqualF(_curDepthBounds.minBounds, minBounds) ||
-        math::IsNotEqualF(_curDepthBounds.maxBounds, maxBounds)) {
-        _curDepthBounds.minBounds = minBounds;
-        _curDepthBounds.maxBounds = maxBounds;
+    if ((_curDynamicStates.scissor.x != rect.x) ||
+        (_curDynamicStates.scissor.y != rect.y) ||
+        (_curDynamicStates.scissor.width != rect.width) ||
+        (_curDynamicStates.scissor.height != rect.height)) {
+        _curDynamicStates.scissor = rect;
         _isStateInvalid           = true;
     }
 }
 
+void GLES2CommandBuffer::setLineWidth(float width) {
+    if (math::IsNotEqualF(_curDynamicStates.lineWidth, width)) {
+        _curDynamicStates.lineWidth = width;
+        _isStateInvalid             = true;
+    }
+}
+
+void GLES2CommandBuffer::setDepthBias(float constant, float clamp, float slope) {
+    if (math::IsNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
+        math::IsNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
+        math::IsNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
+        _curDynamicStates.depthBiasConstant = constant;
+        _curDynamicStates.depthBiasClamp    = clamp;
+        _curDynamicStates.depthBiasSlope    = slope;
+        _isStateInvalid                     = true;
+    }
+}
+
+void GLES2CommandBuffer::setBlendConstants(const Color &constants) {
+    if (math::IsNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
+        _curDynamicStates.blendConstant.x = constants.x;
+        _curDynamicStates.blendConstant.y = constants.y;
+        _curDynamicStates.blendConstant.z = constants.z;
+        _curDynamicStates.blendConstant.w = constants.w;
+        _isStateInvalid                   = true;
+    }
+}
+
+void GLES2CommandBuffer::setDepthBound(float minBounds, float maxBounds) {
+    if (math::IsNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
+        math::IsNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
+        _curDynamicStates.depthMinBounds = minBounds;
+        _curDynamicStates.depthMaxBounds = maxBounds;
+        _isStateInvalid                  = true;
+    }
+}
+
 void GLES2CommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
-    if ((_curStencilWriteMask.face != face) ||
-        (_curStencilWriteMask.writeMask != mask)) {
-        _curStencilWriteMask.face      = face;
-        _curStencilWriteMask.writeMask = mask;
-        _isStateInvalid                = true;
-    }
+    auto update = [&](DynamicStencilStates &stencilState) {
+        if (stencilState.writeMask != mask) {
+            stencilState.writeMask = mask;
+            _isStateInvalid        = true;
+        }
+    };
+    if (hasFlag(face, StencilFace::FRONT)) update(_curDynamicStates.stencilStatesFront);
+    if (hasFlag(face, StencilFace::BACK)) update(_curDynamicStates.stencilStatesBack);
 }
 
-void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint mask) {
-    if ((_curStencilCompareMask.face != face) ||
-        (_curStencilCompareMask.refrence != ref) ||
-        (_curStencilCompareMask.compareMask != mask)) {
-        _curStencilCompareMask.face        = face;
-        _curStencilCompareMask.refrence    = ref;
-        _curStencilCompareMask.compareMask = mask;
-        _isStateInvalid                    = true;
-    }
-}
-
-void GLES2CommandBuffer::nextSubpass() {
+void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
+    auto update = [&](DynamicStencilStates &stencilState) {
+        if ((stencilState.reference != ref) ||
+            (stencilState.compareMask != mask)) {
+            stencilState.reference   = ref;
+            stencilState.compareMask = mask;
+            _isStateInvalid          = true;
+        }
+    };
+    if (hasFlag(face, StencilFace::FRONT)) update(_curDynamicStates.stencilStatesFront);
+    if (hasFlag(face, StencilFace::BACK)) update(_curDynamicStates.stencilStatesBack);
 }
 
 void GLES2CommandBuffer::draw(const DrawInfo &info) {
@@ -297,6 +307,15 @@ void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
 }
 
 void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+    GLES2CmdBlitTexture *cmd = _cmdAllocator->blitTextureCmdPool.alloc();
+    if (srcTexture) cmd->gpuTextureSrc = static_cast<GLES2Texture *>(srcTexture)->gpuTexture();
+    if (dstTexture) cmd->gpuTextureDst = static_cast<GLES2Texture *>(dstTexture)->gpuTexture();
+    cmd->regions = regions;
+    cmd->count   = count;
+    cmd->filter  = filter;
+
+    _curCmdPackage->blitTextureCmds.push(cmd);
+    _curCmdPackage->cmds.push(GLESCmdType::BLIT_TEXTURE);
 }
 
 void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
@@ -331,6 +350,11 @@ void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
             ++cmd->refCount;
             _curCmdPackage->copyBufferToTextureCmds.push(cmd);
         }
+        for (uint j = 0; j < cmdPackage->blitTextureCmds.size(); ++j) {
+            GLES2CmdBlitTexture *cmd = cmdPackage->blitTextureCmds[j];
+            ++cmd->refCount;
+            _curCmdPackage->blitTextureCmds.push(cmd);
+        }
         _curCmdPackage->cmds.concat(cmdPackage->cmds);
 
         _numDrawCalls += cmdBuff->_numDrawCalls;
@@ -364,18 +388,7 @@ void GLES2CommandBuffer::bindStates() {
             if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
         }
     }
-
-    cmd->viewport           = _curViewport;
-    cmd->scissor            = _curScissor;
-    cmd->lineWidth          = _curLineWidth;
-    cmd->depthBias          = _curDepthBias;
-    cmd->blendConstants.x   = _curBlendConstants.x;
-    cmd->blendConstants.y   = _curBlendConstants.y;
-    cmd->blendConstants.z   = _curBlendConstants.z;
-    cmd->blendConstants.w   = _curBlendConstants.w;
-    cmd->depthBounds        = _curDepthBounds;
-    cmd->stencilWriteMask   = _curStencilWriteMask;
-    cmd->stencilCompareMask = _curStencilCompareMask;
+    cmd->dynamicStates = _curDynamicStates;
 
     _curCmdPackage->bindStatesCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BIND_STATES);

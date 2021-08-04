@@ -38,7 +38,7 @@ public:
     CCVKPipelineLayout();
     ~CCVKPipelineLayout();
 
-    CC_INLINE CCVKGPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
+    inline CCVKGPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
 
 protected:
     void doInit(const PipelineLayoutInfo &info) override;

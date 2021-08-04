@@ -35,6 +35,11 @@
 namespace cc {
 namespace gfx {
 
+PipelineStateAgent::PipelineStateAgent(PipelineState *actor)
+: Agent<PipelineState>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 PipelineStateAgent::~PipelineStateAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -47,8 +52,8 @@ PipelineStateAgent::~PipelineStateAgent() {
 
 void PipelineStateAgent::doInit(const PipelineStateInfo &info) {
     PipelineStateInfo actorInfo = info;
-    actorInfo.shader = static_cast<ShaderAgent *>(info.shader)->getActor();
-    actorInfo.pipelineLayout = static_cast<PipelineLayoutAgent *>(info.pipelineLayout)->getActor();
+    actorInfo.shader            = static_cast<ShaderAgent *>(info.shader)->getActor();
+    actorInfo.pipelineLayout    = static_cast<PipelineLayoutAgent *>(info.pipelineLayout)->getActor();
     if (info.renderPass) actorInfo.renderPass = static_cast<RenderPassAgent *>(info.renderPass)->getActor();
 
     ENQUEUE_MESSAGE_2(

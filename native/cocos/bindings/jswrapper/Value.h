@@ -26,10 +26,11 @@
 
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "HandleObject.h"
+#include "base/Macros.h"
 
 namespace se {
 
@@ -42,16 +43,17 @@ class Object;
 class Value final {
 public:
     enum class Type : char {
-        Undefined = 0,
-        Null,
-        Number,
-        Boolean,
-        String,
-        Object
+        Undefined = 0, // NOLINT(readability-identifier-naming)
+        Null,          // NOLINT(readability-identifier-naming)
+        Number,        // NOLINT(readability-identifier-naming)
+        Boolean,       // NOLINT(readability-identifier-naming)
+        String,        // NOLINT(readability-identifier-naming)
+        Object,        // NOLINT(readability-identifier-naming)
+        BigInt,        // NOLINT(readability-identifier-naming)
     };
 
-    static Value Null;
-    static Value Undefined;
+    static Value Null;      // NOLINT(readability-identifier-naming)
+    static Value Undefined; // NOLINT(readability-identifier-naming)
 
     /**
          *  @brief The default constructor.
@@ -66,60 +68,60 @@ public:
     /**
          *  @brief The move constructor.
          */
-    Value(Value &&v);
+    Value(Value &&v) noexcept;
 
     /**
-         *  @brief The constructor with a boolean arguement.
+         *  @brief The constructor with a boolean argument.
          */
     explicit Value(bool v);
 
     /**
-         *  @brief The constructor with a int8_t arguement.
+         *  @brief The constructor with a int8_t argument.
          */
     explicit Value(int8_t v);
 
     /**
-         *  @brief The constructor with a uint8_t arguement.
+         *  @brief The constructor with a uint8_t argument.
          */
     explicit Value(uint8_t v);
 
     /**
-         *  @brief The constructor with a int16_t arguement.
+         *  @brief The constructor with a int16_t argument.
          */
     explicit Value(int16_t v);
 
     /**
-         *  @brief The constructor with a uint16_t arguement.
+         *  @brief The constructor with a uint16_t argument.
          */
     explicit Value(uint16_t v);
 
     /**
-         *  @brief The constructor with a int32_t arguement.
+         *  @brief The constructor with a int32_t argument.
          */
     explicit Value(int32_t v);
 
     /**
-         *  @brief The constructor with a uint32_t arguement.
+         *  @brief The constructor with a uint32_t argument.
          */
     explicit Value(uint32_t v);
 
     /**
-         *  @brief The constructor with a long arguement.
+         *  @brief The constructor with a uint64_t argument.
          */
-    explicit Value(long v);
+    explicit Value(uint64_t v);
 
     /**
-         *  @brief The constructor with a unsigned long arguement.
+         *  @brief The constructor with a int64_t argument.
          */
-    explicit Value(unsigned long v);
+    explicit Value(int64_t v);
 
     /**
-         *  @brief The constructor with a float arguement.
+         *  @brief The constructor with a float argument.
          */
     explicit Value(float v);
 
     /**
-         *  @brief The constructor with a double arguement.
+         *  @brief The constructor with a double argument.
          */
     explicit Value(double v);
 
@@ -160,22 +162,73 @@ public:
     /**
          *  @brief The move assignment operator.
          */
-    Value &operator=(Value &&v);
+    Value &operator=(Value &&v) noexcept;
 
     /**
-         *  @brief Sets se::Value to undefined.
+     *  @brief Sets se::Value to a long value.
+     *  @param[in] v The long value to be set.
+     */
+    CC_DEPRECATED(3.3)
+    void setLong(long v); // NOLINT(google-runtime-int)
+
+    /**
+     *  @brief Sets se::Value to a uintptr_t value.
+     *  @param[in] v The uintptr_t value to be set.
+     */
+    CC_DEPRECATED(3.3)
+    void setUIntptr_t(uintptr_t v); // NOLINT(readability-identifier-naming)
+
+    /**
+     *  @brief Sets se::Value to a unsigned long value.
+     *  @param[in] v The unsigned long value to be set.
+     */
+    CC_DEPRECATED(3.3)
+    void setUlong(unsigned long v); // NOLINT(google-runtime-int)
+
+    /**
+     *  @brief Sets se::Value to a double value.
+     *  @param[in] v The double value to be set.
+     */
+    CC_DEPRECATED(3.3, "Use setDouble instead")
+    void setNumber(double v);
+
+    CC_DEPRECATED(3.3)
+    unsigned int toUint() const;
+
+    /**
+     *  @brief Converts se::Value to long.
+     *  @return long integer.
+     */
+    CC_DEPRECATED(3.3)
+    long toLong() const; // NOLINT(google-runtime-int)
+    /**
+         *  @brief Converts se::Value to unsigned long.
+         *  @return unsigned long integer.
          */
+    CC_DEPRECATED(3.3)
+    unsigned long toUlong() const; // NOLINT(google-runtime-int)
+
+    /**
+     *  @brief Converts se::Value to double number.
+     *  @return double number.
+     */
+    CC_DEPRECATED(3.3, "Use toDouble instead")
+    double toNumber() const;
+
+    /**
+     *  @brief Sets se::Value to undefined.
+     */
     void setUndefined();
 
     /**
-         *  @brief Sets se::Value to null.
-         */
+     *  @brief Sets se::Value to null.
+     */
     void setNull();
 
     /**
-         *  @brief Sets se::Value to a boolean value.
-         *  @param[in] v The boolean value to be set.
-         */
+     *  @brief Sets se::Value to a boolean value.
+     *  @param[in] v The boolean value to be set.
+     */
     void setBoolean(bool v);
 
     /**
@@ -215,34 +268,28 @@ public:
     void setUint32(uint32_t v);
 
     /**
-         *  @brief Sets se::Value to a long value.
-         *  @param[in] v The long value to be set.
-         */
-    void setLong(long v);
+     *  @brief Sets se::Value to a unsigned int64_t
+     *  @param[in] v The unsigned int64_t value to be set.
+     */
+    void setUint64(uint64_t v);
 
     /**
-             *  @brief Sets se::Value to a uintptr_t value.
-             *  @param[in] v The uintptr_t value to be set.
-             */
-    void setUIntptr_t(uintptr_t v);
+     *  @brief Sets se::Value to a int64_t value.
+     *  @param[in] v The int64_t value to be set.
+     */
+    void setInt64(int64_t v);
 
     /**
-         *  @brief Sets se::Value to a unsigned long value.
-         *  @param[in] v The unsigned long value to be set.
-         */
-    void setUlong(unsigned long v);
-
-    /**
-         *  @brief Sets se::Value to a float value.
-         *  @param[in] v The float value to be set.
-         */
+     *  @brief Sets se::Value to a float value.
+     *  @param[in] v The float value to be set.
+     */
     void setFloat(float v);
 
     /**
          *  @brief Sets se::Value to a double value.
          *  @param[in] v The double value to be set.
          */
-    void setNumber(double v);
+    void setDouble(double v);
 
     /**
          *  @brief Sets se::Value to an UTF8 null-terminated string value.
@@ -306,25 +353,18 @@ public:
          */
     uint32_t toUint32() const;
 
-    unsigned int toUint() const;
+    /**
+     *  @brief Converts se::Value to int64_t
+     *  @return signed int64
+     */
+    int64_t toInt64() const;
 
     /**
-         *  @brief Converts se::Value to long.
-         *  @return long integer.
-         */
-    long toLong() const;
+     *  @brief Converts se::Value to unsigned uint64_t.
+     *  @return unsigned int64.
+     */
+    uint64_t toUint64() const;
 
-    /**
-         *  @brief Converts se::Value to unsigned long.
-         *  @return unsigned long integer.
-         */
-    unsigned long toUlong() const;
-
-    /**
-         *  @brief Converts se::Value to unsigned long.
-         *  @return intptr_t.
-         */
-    intptr_t toUIntptr_t() const;
     /**
          *  @brief Converts se::Value to float number.
          *  @return float number.
@@ -332,15 +372,15 @@ public:
     float toFloat() const;
 
     /**
-         *  @brief Converts se::Value to double number.
-         *  @return double number.
-         */
-    double toNumber() const;
+     *  @brief Converts se::Value to double number.
+     *  @return double number.
+     */
+    double toDouble() const;
 
     /**
-         *  @brief Converts se::Value to boolean.
-         *  @return boolean.
-         */
+     *  @brief Converts se::Value to boolean.
+     *  @return boolean.
+     */
     bool toBoolean() const;
 
     /**
@@ -370,15 +410,21 @@ public:
     inline Type getType() const { return _type; }
 
     /**
-         *  @brief Tests whether se::Value stores a number.
-         *  @return true if se::Value stores a number, otherwise false.
-         */
+     *  @brief Tests whether se::Value stores a number.
+     *  @return true if se::Value stores a number, otherwise false.
+     */
     inline bool isNumber() const { return _type == Type::Number; }
 
     /**
-         *  @brief Tests whether se::Value stores a string.
-         *  @return true if se::Value stores a string, otherwise false.
-         */
+     *  @brief Tests whether se::Value stores a Bigint.
+     *  @return true if se::Value stores a uint64_t or a int64_t, otherwise false.
+     */
+    inline bool isBigInt() const { return _type == Type::BigInt; }
+
+    /**
+     *  @brief Tests whether se::Value stores a string.
+     *  @return true if se::Value stores a string, otherwise false.
+     */
     inline bool isString() const { return _type == Type::String; }
 
     /**
@@ -411,15 +457,28 @@ public:
          */
     inline bool isNullOrUndefined() const { return (isNull() || isUndefined()); }
 
+    size_t toSize() const {
+        return static_cast<size_t>(toDouble());
+    }
+
+    void setSize(size_t v) {
+        setDouble(static_cast<double>(v));
+    }
+
+    uintptr_t asPtr() const {
+        return static_cast<uintptr_t>(toUint64());
+    }
+
 private:
     explicit Value(Type type);
     void reset(Type type);
 
     union {
-        bool _boolean;
-        double _number;
+        bool         _boolean;
+        double       _number;
         std::string *_string;
-        Object *_object;
+        Object *     _object;
+        int64_t      _bigint;
     } _u;
 
     Type _type;
@@ -427,8 +486,8 @@ private:
 };
 
 using ValueArray = std::vector<Value>;
-extern ValueArray EmptyValueArray;
+extern ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
 } // namespace se
 
-typedef se::Object *se_object_ptr;
+using se_object_ptr = se::Object *; // NOLINT(readability-identifier-naming)

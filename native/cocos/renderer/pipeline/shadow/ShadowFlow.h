@@ -24,13 +24,14 @@
 ****************************************************************************/
 
 #pragma once
+
 #include "../RenderFlow.h"
+#include "scene/Define.h"
+#include "scene/Light.h"
+
 namespace cc {
 namespace pipeline {
 class ForwardPipeline;
-struct Light;
-struct Camera;
-struct Shadows;
 
 class CC_DLL ShadowFlow : public RenderFlow {
 public:
@@ -43,23 +44,25 @@ public:
 
     void activate(RenderPipeline *pipeline) override;
 
-    void render(Camera *camera) override;
+    void render(scene::Camera *camera) override;
 
     void destroy() override;
 
 private:
-    void clearShadowMap(Camera *camera);
+    void clearShadowMap(scene::Camera *camera);
 
-    void resizeShadowMap(const Light *light, const Shadows *shadowInfo);
+    void resizeShadowMap(scene::Shadow **shadowInfo);
 
-    void initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light);
+    void initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light);
 
     static RenderFlowInfo initInfo;
 
     gfx::RenderPass *_renderPass = nullptr;
 
-    vector<const Light *> _validLights;
-    vector<gfx::Texture *> _usedTextures;
+    vector<const scene::Light *> _validLights;
+    vector<gfx::Texture *>       _usedTextures;
+
+    static std::unordered_map<uint, cc::gfx::RenderPass*> renderPassHashMap;
 };
 } // namespace pipeline
 } // namespace cc

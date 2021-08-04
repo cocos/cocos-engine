@@ -26,18 +26,16 @@
 #pragma once
 
 #include "Define.h"
+#include "scene/Light.h"
+#include "scene/Model.h"
+#include "scene/SubModel.h"
 
 namespace cc {
 namespace pipeline {
-struct SubModelView;
-struct PassView;
 struct RenderObject;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
 class RenderPipeline;
-struct Shadows;
-struct Light;
-struct ModelView;
 
 //const uint phaseID(PassPhase::getPhaseID("shadow-caster"));
 
@@ -48,21 +46,21 @@ public:
     void destroy();
 
     void clear();
-    void gatherLightPasses(const Light *, gfx::CommandBuffer *);
-    void add(const ModelView *, gfx::CommandBuffer *);
+    void gatherLightPasses(const scene::Light *, gfx::CommandBuffer *);
+    void add(const scene::Model *, gfx::CommandBuffer *);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
 private:
-    int getShadowPassIndex(const ModelView *model) const;
+    int getShadowPassIndex(const scene::Model *model) const;
 
-    RenderPipeline *             _pipeline = nullptr;
-    vector<const SubModelView *> _subModels;
-    vector<const PassView *>     _passes;
-    vector<gfx::Shader *>        _shaders;
-    RenderInstancedQueue *       _instancedQueue = nullptr;
-    RenderBatchedQueue *         _batchedQueue   = nullptr;
-    gfx::Buffer *                _buffer         = nullptr;
-    uint                         _phaseID        = 0;
+    RenderPipeline *                _pipeline = nullptr;
+    vector<const scene::SubModel *> _subModels;
+    vector<const scene::Pass *>     _passes;
+    vector<gfx::Shader *>           _shaders;
+    RenderInstancedQueue *          _instancedQueue = nullptr;
+    RenderBatchedQueue *            _batchedQueue   = nullptr;
+    gfx::Buffer *                   _buffer         = nullptr;
+    uint                            _phaseID        = 0;
 };
 
 } // namespace pipeline

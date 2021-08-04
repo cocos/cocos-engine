@@ -32,26 +32,24 @@
 
 #include "storage/local-storage/LocalStorage.h"
 
-using namespace cc;
+extern se::Object *__jsb_cc_FileUtils_proto; // NOLINT(readability-redundant-declaration)
 
-extern se::Object *__jsb_cc_FileUtils_proto;
-
-static bool jsb_ccx_empty_func(se::State &s) {
+static bool jsb_ccx_empty_func(const se::State &/*s*/) { // NOLINT(readability-identifier-naming)
     return true;
 }
-SE_BIND_FUNC(jsb_ccx_empty_func)
+SE_BIND_FUNC(jsb_ccx_empty_func) // NOLINT(readability-identifier-naming)
 
-class __JSPlistDelegator : public cc::SAXDelegator {
+class JSPlistDelegator : public cc::SAXDelegator {
 public:
-    static __JSPlistDelegator *getInstance() {
-        static __JSPlistDelegator *pInstance = NULL;
-        if (pInstance == NULL) {
-            pInstance = new (std::nothrow) __JSPlistDelegator();
+    static JSPlistDelegator *getInstance() {
+        static JSPlistDelegator *pInstance = nullptr;
+        if (pInstance == nullptr) {
+            pInstance = new (std::nothrow) JSPlistDelegator();
         }
         return pInstance;
     };
 
-    virtual ~__JSPlistDelegator();
+    ~JSPlistDelegator() override;
 
     cc::SAXParser *getParser();
 
@@ -71,23 +69,23 @@ private:
 };
 
 // cc.PlistParser.getInstance()
-static bool js_PlistParser_getInstance(se::State &s) {
-    __JSPlistDelegator *delegator = __JSPlistDelegator::getInstance();
-    SAXParser *parser = delegator->getParser();
+static bool js_PlistParser_getInstance(se::State &s) { // NOLINT(readability-identifier-naming)
+    JSPlistDelegator *delegator = JSPlistDelegator::getInstance();
+    cc::SAXParser *parser = delegator->getParser();
 
     if (parser) {
-        native_ptr_to_rooted_seval<SAXParser>(parser, __jsb_cc_SAXParser_class, &s.rval());
+        native_ptr_to_rooted_seval<cc::SAXParser>(parser, __jsb_cc_SAXParser_class, &s.rval());
         return true;
     }
     return false;
 }
-SE_BIND_FUNC(js_PlistParser_getInstance)
+SE_BIND_FUNC(js_PlistParser_getInstance) // NOLINT(readability-identifier-naming)
 
 // cc.PlistParser.getInstance().parse(text)
-static bool js_PlistParser_parse(se::State &s) {
+static bool js_PlistParser_parse(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
-    __JSPlistDelegator *delegator = __JSPlistDelegator::getInstance();
+    JSPlistDelegator *delegator = JSPlistDelegator::getInstance();
 
     bool ok = true;
     if (argc == 1) {
@@ -110,31 +108,31 @@ static bool js_PlistParser_parse(se::State &s) {
 }
 SE_BIND_FUNC(js_PlistParser_parse)
 
-cc::SAXParser *__JSPlistDelegator::getParser() {
+cc::SAXParser *JSPlistDelegator::getParser() {
     return &_parser;
 }
 
-std::string __JSPlistDelegator::parse(const std::string &path) {
+std::string JSPlistDelegator::parse(const std::string &path) {
     _result.clear();
 
-    SAXParser parser;
-    if (false != parser.init("UTF-8")) {
+    cc::SAXParser parser;
+    if (parser.init("UTF-8")) {
         parser.setDelegator(this);
-        parser.parse(FileUtils::getInstance()->fullPathForFilename(path));
+        parser.parse(cc::FileUtils::getInstance()->fullPathForFilename(path));
     }
 
     return _result;
 }
 
-__JSPlistDelegator::~__JSPlistDelegator() {
+JSPlistDelegator::~JSPlistDelegator() {
     CC_LOG_INFO("deallocing __JSSAXDelegator: %p", this);
 }
 
-std::string __JSPlistDelegator::parseText(const std::string &text) {
+std::string JSPlistDelegator::parseText(const std::string &text) {
     _result.clear();
 
-    SAXParser parser;
-    if (false != parser.init("UTF-8")) {
+    cc::SAXParser parser;
+    if (parser.init("UTF-8")) {
         parser.setDelegator(this);
         parser.parse(text.c_str(), text.size());
     }
@@ -142,13 +140,13 @@ std::string __JSPlistDelegator::parseText(const std::string &text) {
     return _result;
 }
 
-void __JSPlistDelegator::startElement(void *ctx, const char *name, const char **atts) {
+void JSPlistDelegator::startElement(void */*ctx*/, const char *name, const char **/*atts*/) {
     _isStoringCharacters = true;
     _currentValue.clear();
 
-    std::string elementName = (char *)name;
+    std::string elementName{name};
 
-    int end = (int)_result.size() - 1;
+    auto end = static_cast<int>(_result.size()) - 1;
     if (end >= 0 && _result[end] != '{' && _result[end] != '[' && _result[end] != ':') {
         _result += ",";
     }
@@ -160,9 +158,9 @@ void __JSPlistDelegator::startElement(void *ctx, const char *name, const char **
     }
 }
 
-void __JSPlistDelegator::endElement(void *ctx, const char *name) {
+void JSPlistDelegator::endElement(void */*ctx*/, const char *name) {
     _isStoringCharacters = false;
-    std::string elementName = (char *)name;
+    std::string elementName{name};
 
     if (elementName == "dict") {
         _result += "}";
@@ -179,15 +177,15 @@ void __JSPlistDelegator::endElement(void *ctx, const char *name) {
     }
 }
 
-void __JSPlistDelegator::textHandler(void *, const char *ch, int len) {
-    std::string text((char *)ch, 0, len);
+void JSPlistDelegator::textHandler(void */*unused*/, const char *ch, int len) {
+    std::string text(ch, 0, len);
 
     if (_isStoringCharacters) {
         _currentValue += text;
     }
 }
 
-static bool register_plist_parser(se::Object *obj) {
+static bool register_plist_parser(se::Object */*obj*/) { // NOLINT(readability-identifier-naming)
     se::Value v;
     __jsbObj->getProperty("PlistParser", &v);
     assert(v.isObject());
@@ -202,21 +200,22 @@ static bool register_plist_parser(se::Object *obj) {
 
 // cc.sys.localStorage
 
-static bool JSB_localStorageGetItem(se::State &s) {
+static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
-        std::string ret_val;
         bool ok = true;
         std::string key;
         ok = seval_to_std_string(args[0], &key);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
         std::string value;
         ok = localStorageGetItem(key, &value);
-        if (ok)
+        if (ok) {
             s.rval().setString(value);
-        else
+        }
+        else {
             s.rval().setNull(); // Should return null to make JSB behavior same as Browser since returning undefined will make JSON.parse(undefined) trigger exception.
+        }
 
         return true;
     }
@@ -224,9 +223,9 @@ static bool JSB_localStorageGetItem(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments");
     return false;
 }
-SE_BIND_FUNC(JSB_localStorageGetItem)
+SE_BIND_FUNC(JSB_localStorageGetItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageRemoveItem(se::State &s) {
+static bool JSB_localStorageRemoveItem(const se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -241,9 +240,9 @@ static bool JSB_localStorageRemoveItem(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments");
     return false;
 }
-SE_BIND_FUNC(JSB_localStorageRemoveItem)
+SE_BIND_FUNC(JSB_localStorageRemoveItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageSetItem(se::State &s) {
+static bool JSB_localStorageSetItem(const se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 2) {
@@ -262,9 +261,9 @@ static bool JSB_localStorageSetItem(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments");
     return false;
 }
-SE_BIND_FUNC(JSB_localStorageSetItem)
+SE_BIND_FUNC(JSB_localStorageSetItem) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageClear(se::State &s) {
+static bool JSB_localStorageClear(const se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -275,9 +274,9 @@ static bool JSB_localStorageClear(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments");
     return false;
 }
-SE_BIND_FUNC(JSB_localStorageClear)
+SE_BIND_FUNC(JSB_localStorageClear) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageKey(se::State &s) {
+static bool JSB_localStorageKey(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -294,9 +293,9 @@ static bool JSB_localStorageKey(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments");
     return false;
 }
-SE_BIND_FUNC(JSB_localStorageKey)
+SE_BIND_FUNC(JSB_localStorageKey) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorage_getLength(se::State &s) {
+static bool JSB_localStorage_getLength(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -310,9 +309,9 @@ static bool JSB_localStorage_getLength(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments");
     return false;
 }
-SE_BIND_PROP_GET(JSB_localStorage_getLength);
+SE_BIND_PROP_GET(JSB_localStorage_getLength); // NOLINT(readability-identifier-naming)
 
-static bool register_sys_localStorage(se::Object *obj) {
+static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-identifier-naming)
     se::Value sys;
     if (!obj->getProperty("sys", &sys)) {
         se::HandleObject sysObj(se::Object::createPlainObject());
@@ -343,42 +342,9 @@ static bool register_sys_localStorage(se::Object *obj) {
     return true;
 }
 
-#define BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(cls, property, type, convertFunc, returnFunc)   \
-    static bool js_##cls_set_##property(se::State &s) {                                        \
-        cc::cls *cobj = (cc::cls *)s.nativeThisObject();                                       \
-        SE_PRECONDITION2(cobj, false, "js_#cls_set_#property : Invalid Native Object");        \
-        const auto &args = s.args();                                                           \
-        size_t argc = args.size();                                                             \
-        bool ok = true;                                                                        \
-        if (argc == 1) {                                                                       \
-            type arg0;                                                                         \
-            ok &= convertFunc(args[0], &arg0);                                                 \
-            SE_PRECONDITION2(ok, false, "js_#cls_set_#property : Error processing arguments"); \
-            cobj->set_##property(arg0);                                                        \
-            return true;                                                                       \
-        }                                                                                      \
-        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);      \
-        return false;                                                                          \
-    }                                                                                          \
-    SE_BIND_PROP_SET(js_##cls_set_##property)                                                  \
-                                                                                               \
-    static bool js_##cls_get_##property(se::State &s) {                                        \
-        cc::cls *cobj = (cc::cls *)s.nativeThisObject();                                       \
-        SE_PRECONDITION2(cobj, false, "js_#cls_get_#property : Invalid Native Object");        \
-        s.rval().returnFunc(cobj->_##property);                                                \
-        return true;                                                                           \
-    }                                                                                          \
-    SE_BIND_PROP_GET(js_##cls_get_##property)
-
-BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, width, float, seval_to_float, setFloat)
-BIND_PROP_WITH_TYPE__CONV_FUNC__RETURN(CanvasRenderingContext2D, height, float, seval_to_float, setFloat)
-
-#define _SE_DEFINE_PROP(cls, property) \
-    __jsb_cc_##cls##_proto->defineProperty(#property, _SE(js_##cls_get_##property), _SE(js_##cls_set_##property));
-
 //IDEA:  move to auto bindings.
-static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State &s) {
-    cc::CanvasRenderingContext2D *cobj = (cc::CanvasRenderingContext2D *)s.nativeThisObject();
+static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State &s) { // NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<cc::CanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
@@ -423,42 +389,42 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback)
+SE_BIND_FUNC(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback) // NOLINT(readability-identifier-naming)
 
 static void setCanvasRenderingContext2DProps(cc::CanvasRenderingContext2D *context, const se::Value &val) {
     se::Object *props = val.toObject();
     se::Value propVal;
 
     props->getProperty("lineWidth", &propVal);
-    if (!propVal.isUndefined()) context->set_lineWidth(propVal.toFloat());
+    if (!propVal.isUndefined()) context->setLineWidth(propVal.toFloat());
 
     props->getProperty("lineJoin", &propVal);
-    if (!propVal.isUndefined()) context->set_lineJoin(propVal.toString());
+    if (!propVal.isUndefined()) context->setLineJoin(propVal.toString());
 
     props->getProperty("fillStyle", &propVal);
-    if (!propVal.isUndefined()) context->set_fillStyle(propVal.toString());
+    if (!propVal.isUndefined()) context->setFillStyle(propVal.toString());
 
     props->getProperty("font", &propVal);
-    if (!propVal.isUndefined()) context->set_font(propVal.toString());
+    if (!propVal.isUndefined()) context->setFont(propVal.toString());
 
     props->getProperty("lineCap", &propVal);
-    if (!propVal.isUndefined()) context->set_lineCap(propVal.toString());
+    if (!propVal.isUndefined()) context->setLineCap(propVal.toString());
 
     props->getProperty("textAlign", &propVal);
-    if (!propVal.isUndefined()) context->set_textAlign(propVal.toString());
+    if (!propVal.isUndefined()) context->setTextAlign(propVal.toString());
 
     props->getProperty("textBaseline", &propVal);
-    if (!propVal.isUndefined()) context->set_textBaseline(propVal.toString());
+    if (!propVal.isUndefined()) context->setTextBaseline(propVal.toString());
 
     props->getProperty("strokeStyle", &propVal);
-    if (!propVal.isUndefined()) context->set_strokeStyle(propVal.toString());
+    if (!propVal.isUndefined()) context->setStrokeStyle(propVal.toString());
 
     props->getProperty("globalCompositeOperation", &propVal);
-    if (!propVal.isUndefined()) context->set_globalCompositeOperation(propVal.toString());
+    if (!propVal.isUndefined()) context->setGlobalCompositeOperation(propVal.toString());
 }
 
-static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) {
-    cc::CanvasRenderingContext2D *cobj = (cc::CanvasRenderingContext2D *)s.nativeThisObject();
+static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<cc::CanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_measureText : Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
@@ -477,10 +443,10 @@ static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) {
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_measureText)
+SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_measureText) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_fillRect(se::State &s) {
-    cc::CanvasRenderingContext2D *cobj = (cc::CanvasRenderingContext2D *)s.nativeThisObject();
+static bool js_engine_CanvasRenderingContext2D_fillRect(const se::State &s) { // NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<cc::CanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fillRect : Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
@@ -503,10 +469,10 @@ static bool js_engine_CanvasRenderingContext2D_fillRect(se::State &s) {
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillRect)
+SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillRect) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_fillText(se::State &s) {
-    cc::CanvasRenderingContext2D *cobj = (cc::CanvasRenderingContext2D *)s.nativeThisObject();
+static bool js_engine_CanvasRenderingContext2D_fillText(const se::State &s) { // NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<cc::CanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fillText : Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
@@ -534,14 +500,14 @@ static bool js_engine_CanvasRenderingContext2D_fillText(se::State &s) {
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillText)
+SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillText) // NOLINT(readability-identifier-naming)
 
-static bool js_engine_CanvasRenderingContext2D_strokeText(se::State &s) {
-    cc::CanvasRenderingContext2D *cobj = (cc::CanvasRenderingContext2D *)s.nativeThisObject();
+static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { // NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<cc::CanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_strokeText : Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    bool ok = true;
     if (argc == 5) {
         std::string arg0;
         float arg1 = 0;
@@ -566,43 +532,43 @@ static bool js_engine_CanvasRenderingContext2D_strokeText(se::State &s) {
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_strokeText)
+SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_strokeText) // NOLINT(readability-identifier-naming)
 
-static se::Object *__deviceMotionObject = nullptr;
-static bool JSB_getDeviceMotionValue(se::State &s) {
-    if (__deviceMotionObject == nullptr) {
-        __deviceMotionObject = se::Object::createArrayObject(9);
-        __deviceMotionObject->root();
+static se::Object *deviceMotionObject = nullptr;
+static bool JSB_getDeviceMotionValue(se::State &s) { // NOLINT(readability-identifier-naming)
+    if (deviceMotionObject == nullptr) {
+        deviceMotionObject = se::Object::createArrayObject(9);
+        deviceMotionObject->root();
     }
 
-    const auto &v = Device::getDeviceMotionValue();
+    const auto &v = cc::Device::getDeviceMotionValue();
 
-    __deviceMotionObject->setArrayElement(0, se::Value(v.accelerationX));
-    __deviceMotionObject->setArrayElement(1, se::Value(v.accelerationY));
-    __deviceMotionObject->setArrayElement(2, se::Value(v.accelerationZ));
-    __deviceMotionObject->setArrayElement(3, se::Value(v.accelerationIncludingGravityX));
-    __deviceMotionObject->setArrayElement(4, se::Value(v.accelerationIncludingGravityY));
-    __deviceMotionObject->setArrayElement(5, se::Value(v.accelerationIncludingGravityZ));
-    __deviceMotionObject->setArrayElement(6, se::Value(v.rotationRateAlpha));
-    __deviceMotionObject->setArrayElement(7, se::Value(v.rotationRateBeta));
-    __deviceMotionObject->setArrayElement(8, se::Value(v.rotationRateGamma));
+    deviceMotionObject->setArrayElement(0, se::Value(v.accelerationX));
+    deviceMotionObject->setArrayElement(1, se::Value(v.accelerationY));
+    deviceMotionObject->setArrayElement(2, se::Value(v.accelerationZ));
+    deviceMotionObject->setArrayElement(3, se::Value(v.accelerationIncludingGravityX));
+    deviceMotionObject->setArrayElement(4, se::Value(v.accelerationIncludingGravityY));
+    deviceMotionObject->setArrayElement(5, se::Value(v.accelerationIncludingGravityZ));
+    deviceMotionObject->setArrayElement(6, se::Value(v.rotationRateAlpha));
+    deviceMotionObject->setArrayElement(7, se::Value(v.rotationRateBeta));
+    deviceMotionObject->setArrayElement(8, se::Value(v.rotationRateGamma));
 
-    s.rval().setObject(__deviceMotionObject);
+    s.rval().setObject(deviceMotionObject);
     return true;
 }
-SE_BIND_FUNC(JSB_getDeviceMotionValue)
+SE_BIND_FUNC(JSB_getDeviceMotionValue) // NOLINT(readability-identifier-naming)
 
-static bool register_device(se::Object *obj) {
+static bool register_device(se::Object */*obj*/) { // NOLINT(readability-identifier-naming)
     se::Value device;
     __jsbObj->getProperty("Device", &device);
 
     device.toObject()->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        if (__deviceMotionObject != nullptr) {
-            __deviceMotionObject->unroot();
-            __deviceMotionObject->decRef();
-            __deviceMotionObject = nullptr;
+        if (deviceMotionObject != nullptr) {
+            deviceMotionObject->unroot();
+            deviceMotionObject->decRef();
+            deviceMotionObject = nullptr;
         }
     });
 
@@ -610,10 +576,7 @@ static bool register_device(se::Object *obj) {
     return true;
 }
 
-static bool register_canvas_context2d(se::Object *obj) {
-    _SE_DEFINE_PROP(CanvasRenderingContext2D, width)
-    _SE_DEFINE_PROP(CanvasRenderingContext2D, height)
-
+static bool register_canvas_context2d(se::Object */*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
     __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("fillText", _SE(js_engine_CanvasRenderingContext2D_fillText));
     __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("strokeText", _SE(js_engine_CanvasRenderingContext2D_strokeText));
@@ -625,8 +588,8 @@ static bool register_canvas_context2d(se::Object *obj) {
     return true;
 }
 
-static bool js_engine_FileUtils_listFilesRecursively(se::State &s) {
-    auto *cobj = (cc::FileUtils *)s.nativeThisObject();
+static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<cc::FileUtils *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFilesRecursively : Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
@@ -642,16 +605,16 @@ static bool js_engine_FileUtils_listFilesRecursively(se::State &s) {
         for (uint i = 0; i < static_cast<uint>(arg1.size()); i++) {
             list->setArrayElement(i, se::Value(arg1[i]));
         }
-        list->setProperty("length", se::Value(static_cast<std::uint32_t>(arg1.size())));
+        list->setProperty("length", se::Value(static_cast<uint32_t>(arg1.size())));
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_engine_FileUtils_listFilesRecursively)
+SE_BIND_FUNC(js_engine_FileUtils_listFilesRecursively) // NOLINT(readability-identifier-naming)
 
-static bool js_se_setExceptionCallback(se::State &s) {
-    auto &args = s.args();
+static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-identifier-naming)
+    const auto &args = s.args();
     if (args.size() != 1 || !args[0].isObject() || !args[0].toObject()->isFunction()) {
         SE_REPORT_ERROR("expect 1 arguments of Function type, %d provided", (int)args.size());
         return false;
@@ -678,14 +641,14 @@ static bool js_se_setExceptionCallback(se::State &s) {
     });
     return true;
 }
-SE_BIND_FUNC(js_se_setExceptionCallback)
+SE_BIND_FUNC(js_se_setExceptionCallback) // NOLINT(readability-identifier-naming)
 
-static bool register_filetuils_ext(se::Object *obj) {
+static bool register_filetuils_ext(se::Object */*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_FileUtils_proto->defineFunction("listFilesRecursively", _SE(js_engine_FileUtils_listFilesRecursively));
     return true;
 }
 
-static bool register_se_setExceptionCallback(se::Object *obj) {
+static bool register_se_setExceptionCallback(se::Object *obj) { // NOLINT(readability-identifier-naming)
     se::Value jsb;
     if (!obj->getProperty("jsb", &jsb)) {
         jsb.setObject(se::Object::createPlainObject());

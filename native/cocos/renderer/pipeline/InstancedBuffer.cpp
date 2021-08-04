@@ -24,29 +24,41 @@
 ****************************************************************************/
 
 #include "InstancedBuffer.h"
+#include "Define.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXInputAssembler.h"
-#include "helper/SharedMemory.h"
-#include "Define.h"
 
 namespace cc {
 namespace pipeline {
-map<uint, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
-InstancedBuffer *                       InstancedBuffer::get(uint pass) {
+map<scene::Pass *, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
+InstancedBuffer *                                InstancedBuffer::get(scene::Pass *pass) {
     return InstancedBuffer::get(pass, 0);
 }
-InstancedBuffer *InstancedBuffer::get(uint pass, uint extraKey) {
+InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
     auto &record = buffers[pass];
     auto &buffer = record[extraKey];
-    if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(GET_PASS(pass)));
+    if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(pass));
 
     return buffer;
 }
 
-InstancedBuffer::InstancedBuffer(const PassView *pass)
+void InstancedBuffer::destroyInstancedBuffer() {
+    for (auto &pair : InstancedBuffer::buffers) {
+        const map<uint, InstancedBuffer *> &instanceItem = pair.second;
+        for (const auto &item : instanceItem) {
+            InstancedBuffer *instanceBuffer = item.second;
+            if (instanceBuffer) {
+                instanceBuffer->destroy();
+            }
+        }
+    }
+    InstancedBuffer::buffers.clear();
+}
+
+InstancedBuffer::InstancedBuffer(const scene::Pass *pass)
 : _pass(pass),
   _device(gfx::Device::getInstance()) {
 }
@@ -55,20 +67,20 @@ InstancedBuffer::~InstancedBuffer() = default;
 
 void InstancedBuffer::destroy() {
     for (auto &instance : _instances) {
-        instance.vb->destroy();
-        instance.ia->destroy();
+        CC_SAFE_DESTROY(instance.vb);
+        CC_SAFE_DESTROY(instance.ia);
         CC_FREE(instance.data);
     }
     _instances.clear();
 }
 
-void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx) {
+void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx) {
     merge(model, subModel, passIdx, nullptr);
 }
 
-void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx, gfx::Shader *shaderImplant) {
-    uint              stride          = 0;
-    const auto *const instancedBuffer = model->getInstancedBuffer(&stride);
+void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx, gfx::Shader *shaderImplant) {
+    auto        stride          = model->getInstancedBufferSize();
+    const auto *instancedBuffer = model->getInstancedBuffer();
 
     if (!stride) return; // we assume per-instance attributes are always present
     auto *sourceIA      = subModel->getInputAssembler();
@@ -94,12 +106,9 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
         }
         if (instance.count >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
-            const auto  newSize = instance.stride * instance.capacity;
-            auto *const oldData = instance.data;
-            instance.data       = static_cast<uint8_t *>(CC_MALLOC(newSize));
-            memcpy(instance.data, oldData, instance.vb->getSize());
+            const auto newSize = instance.stride * instance.capacity;
+            instance.data      = static_cast<uint8_t *>(CC_REALLOC(instance.data, newSize));
             instance.vb->resize(newSize);
-            CC_FREE(oldData);
         }
         if (instance.shader != shader) {
             instance.shader = shader;
@@ -125,12 +134,15 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
     auto  attributes    = sourceIA->getAttributes();
     auto *indexBuffer   = sourceIA->getIndexBuffer();
 
-    const auto *const attributesID = model->getInstancedAttributeID();
-    const auto        lenght       = attributesID[0];
-    for (uint i = 1; i <= lenght; i++) {
-        auto *const    attribute = ModelView::getInstancedAttribute(attributesID[i]);
-        gfx::Attribute newAttr   = {attribute->name, attribute->format, attribute->isNormalized, static_cast<uint>(vertexBuffers.size()), true, attribute->location};
-        attributes.emplace_back(std::move(newAttr));
+    for (const auto &attribute : model->getInstanceAttributes()) {
+        attributes.emplace_back(gfx::Attribute{
+            attribute.name,
+            attribute.format,
+            attribute.isNormalized,
+            static_cast<uint>(vertexBuffers.size()), // stream
+            true,
+            attribute.location
+            });
     }
 
     auto *data = static_cast<uint8_t *>(CC_MALLOC(newSize));

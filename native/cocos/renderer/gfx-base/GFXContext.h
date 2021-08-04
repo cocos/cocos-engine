@@ -33,17 +33,17 @@ namespace gfx {
 class CC_DLL Context : public Object {
 public:
     Context();
-    virtual ~Context();
+    ~Context() override;
 
     bool initialize(const ContextInfo &info);
     void destroy();
 
     virtual void present() = 0;
 
-    CC_INLINE Context * getSharedContext() const { return _sharedContext; }
-    CC_INLINE VsyncMode getVsyncMode() const { return _vsyncMode; }
-    CC_INLINE Format    getColorFormat() const { return _colorFmt; }
-    CC_INLINE Format    getDepthStencilFormat() const { return _depthStencilFmt; }
+    inline Context * getSharedContext() const { return _sharedContext; }
+    inline VsyncMode getVsyncMode() const { return _vsyncMode; }
+    inline Format    getColorFormat() const { return _colorFmt; }
+    inline Format    getDepthStencilFormat() const { return _depthStencilFmt; }
 
 protected:
     virtual bool doInit(const ContextInfo &info) = 0;

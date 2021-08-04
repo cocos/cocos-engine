@@ -38,7 +38,7 @@ public:
     CCVKGlobalBarrier();
     ~CCVKGlobalBarrier();
 
-    CC_INLINE const CCVKGPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
+    inline const CCVKGPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
 
 protected:
     void doInit(const GlobalBarrierInfo &info) override;

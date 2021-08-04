@@ -1,34 +1,10 @@
-/****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
 #pragma once
 #include "base/Config.h"
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/renderer/gfx-base/GFXBase.h"
+#include "cocos/renderer/GFXDeviceManager.h"
 
 extern se::Object* __jsb_cc_gfx_Size_proto;
 extern se::Class* __jsb_cc_gfx_Size_class;
@@ -390,6 +366,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::SubpassInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassInfo);
 
+extern se::Object* __jsb_cc_gfx_SubpassDependency_proto;
+extern se::Class* __jsb_cc_gfx_SubpassDependency_class;
+
+bool js_register_cc_gfx_SubpassDependency(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::SubpassDependency *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassDependency);
+
 extern se::Object* __jsb_cc_gfx_RenderPassInfo_proto;
 extern se::Class* __jsb_cc_gfx_RenderPassInfo_class;
 
@@ -520,6 +506,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::BlendState *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::BlendState);
 
+extern se::Object* __jsb_cc_gfx_PipelineStateInfo_proto;
+extern se::Class* __jsb_cc_gfx_PipelineStateInfo_class;
+
+bool js_register_cc_gfx_PipelineStateInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::PipelineStateInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::PipelineStateInfo);
+
 extern se::Object* __jsb_cc_gfx_CommandBufferInfo_proto;
 extern se::Class* __jsb_cc_gfx_CommandBufferInfo_class;
 
@@ -559,6 +555,16 @@ bool register_all_gfx(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::DeviceInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceInfo);
+
+extern se::Object* __jsb_cc_gfx_ContextInfo_proto;
+extern se::Class* __jsb_cc_gfx_ContextInfo_class;
+
+bool js_register_cc_gfx_ContextInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::ContextInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::ContextInfo);
 
 extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 extern se::Class* __jsb_cc_gfx_GFXObject_class;
@@ -655,6 +661,7 @@ SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTextureJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getBuffer);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_getLayout);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getSampler);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_initialize);
@@ -671,6 +678,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::DescriptorSetLayout);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getBindings);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getDescriptorCount);
+SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getDynamicBindings);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_DescriptorSetLayout);
 
@@ -784,7 +792,6 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Texture);
 SE_DECLARE_FUNC(js_gfx_Texture_destroy);
-SE_DECLARE_FUNC(js_gfx_Texture_getTextureID);
 SE_DECLARE_FUNC(js_gfx_Texture_isTextureView);
 SE_DECLARE_FUNC(js_gfx_Texture_resize);
 SE_DECLARE_FUNC(js_gfx_Texture_computeHash);
@@ -823,10 +830,20 @@ SE_DECLARE_FUNC(js_gfx_Device_createRenderPass);
 SE_DECLARE_FUNC(js_gfx_Device_createSampler);
 SE_DECLARE_FUNC(js_gfx_Device_createShader);
 SE_DECLARE_FUNC(js_gfx_Device_destroy);
+SE_DECLARE_FUNC(js_gfx_Device_devicePixelRatio);
 SE_DECLARE_FUNC(js_gfx_Device_flushCommandsForJS);
 SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
 SE_DECLARE_FUNC(js_gfx_Device_present);
 SE_DECLARE_FUNC(js_gfx_Device_resize);
-SE_DECLARE_FUNC(js_gfx_Device_setMultithreaded);
+
+extern se::Object* __jsb_cc_gfx_DeviceManager_proto;
+extern se::Class* __jsb_cc_gfx_DeviceManager_class;
+
+bool js_register_cc_gfx_DeviceManager(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
+SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
+SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 

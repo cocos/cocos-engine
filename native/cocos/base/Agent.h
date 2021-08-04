@@ -38,7 +38,7 @@ public:
     explicit Agent(Actor *const actor) noexcept
     : Actor(), _actor(actor) {}
 
-    ~Agent() override {}
+    ~Agent() override = default;
 
     Agent(Agent const &) = delete;
 

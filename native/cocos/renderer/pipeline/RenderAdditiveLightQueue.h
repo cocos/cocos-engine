@@ -27,15 +27,15 @@
 
 #include "Define.h"
 #include "base/CoreStd.h"
-#include "helper/SharedMemory.h"
+#include "scene/Camera.h"
+#include "scene/Light.h"
+#include "scene/Pass.h"
+#include "scene/SphereLight.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
-struct SubModelView;
-struct Light;
 struct RenderObject;
-struct PassView;
-struct Sphere;
 class RenderPipeline;
 class DefineMap;
 class RenderInstancedQueue;
@@ -43,11 +43,11 @@ class RenderBatchedQueue;
 class ForwardPipeline;
 
 struct AdditiveLightPass {
-    const SubModelView *  subModel = nullptr;
-    const PassView *      pass     = nullptr;
-    gfx::Shader *         shader   = nullptr;
-    vector<uint>          dynamicOffsets;
-    vector<const Light *> lights;
+    const scene::SubModel *      subModel = nullptr;
+    const scene::Pass *          pass     = nullptr;
+    gfx::Shader *                shader   = nullptr;
+    vector<uint>                 dynamicOffsets;
+    vector<uint>                 lights;
 };
 
 class RenderAdditiveLightQueue : public Object {
@@ -56,38 +56,36 @@ public:
     ~RenderAdditiveLightQueue() override;
 
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
-    void gatherLightPasses(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void destroy();
+    void gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    void destroy() const;
 
 private:
-    static bool cullSphereLight(const Light *light, const ModelView *model);
-    static bool cullSpotLight(const Light *light, const ModelView *model);
+    static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
+    static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
 
     void                clear();
-    void                gatherValidLights(const Camera *camera);
-    void                addRenderQueue(const PassView *pass, const SubModelView *subModel, const ModelView *model, uint lightPassIdx);
-    void                updateUBOs(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void                updateLightDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    bool                getLightPassIndex(const ModelView *model, vector<uint> *lightPassIndices) const;
-    void                lightCulling(const ModelView *model);
-    gfx::DescriptorSet *getOrCreateDescriptorSet(const Light *light);
+    void                gatherValidLights(const scene::Camera *camera);
+    void                addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);
+    void                updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    void                updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
+    bool                getLightPassIndex(const scene::Model *model, vector<uint> *lightPassIndices) const;
+    void                lightCulling(const scene::Model *model);
+    gfx::DescriptorSet *getOrCreateDescriptorSet(const scene::Light *light);
 
-    ForwardPipeline *              _pipeline = nullptr;
-    vector<vector<SubModelView *>> _sortedSubModelsArray;
-    vector<vector<uint>>           _sortedPSOCIArray;
-    vector<const Light *>          _validLights;
-    vector<uint>                   _lightIndices;
-    vector<AdditiveLightPass>      _lightPasses;
-    vector<uint>                   _dynamicOffsets;
-    vector<float>                  _lightBufferData;
-    RenderInstancedQueue *         _instancedQueue       = nullptr;
-    RenderBatchedQueue *           _batchedQueue         = nullptr;
-    gfx::Buffer *                  _lightBuffer          = nullptr;
-    gfx::Buffer *                  _firstLightBufferView = nullptr;
-    gfx::Sampler *                 _sampler              = nullptr;
+    RenderPipeline *                  _pipeline = nullptr;
+    vector<vector<scene::SubModel *>> _sortedSubModelsArray;
+    vector<vector<uint>>              _sortedPSOCIArray;
+    vector<scene::Light *>            _validLights;
+    vector<uint>                      _lightIndices;
+    vector<AdditiveLightPass>         _lightPasses;
+    vector<uint>                      _dynamicOffsets;
+    vector<float>                     _lightBufferData;
+    RenderInstancedQueue *            _instancedQueue       = nullptr;
+    RenderBatchedQueue *              _batchedQueue         = nullptr;
+    gfx::Buffer *                     _lightBuffer          = nullptr;
+    gfx::Buffer *                     _firstLightBufferView = nullptr;
 
-    std::unordered_map<const Light *, gfx::DescriptorSet *> _descriptorSetMap{};
-    std::array<float, UBOShadow::COUNT>                     _shadowUBO{};
+    std::array<float, UBOShadow::COUNT>                            _shadowUBO{};
 
     uint  _lightBufferStride       = 0;
     uint  _lightBufferElementCount = 0;

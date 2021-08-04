@@ -31,6 +31,7 @@
 #include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXTexture.h"
+#include "InstancedBuffer.h"
 
 namespace cc {
 namespace pipeline {
@@ -45,70 +46,15 @@ RenderPipeline::RenderPipeline()
 : _device(gfx::Device::getInstance()) {
     RenderPipeline::instance = this;
 
-    setDescriptorSetLayout();
     generateConstantMacros();
 
+    _globalDSManager   = new GlobalDSManager();
     _pipelineUBO       = new PipelineUBO();
     _pipelineSceneData = new PipelineSceneData();
 }
 
-RenderPipeline::~RenderPipeline() = default;
-
-#define INIT_GLOBAL_DESCSET_LAYOUT(info)                                      \
-    do {                                                                      \
-        globalDescriptorSetLayout.samplers[info::NAME]    = info::LAYOUT;     \
-        globalDescriptorSetLayout.bindings[info::BINDING] = info::DESCRIPTOR; \
-    } while (0)
-
-void RenderPipeline::setDescriptorSetLayout() {
-    globalDescriptorSetLayout.bindings.resize(static_cast<size_t>(PipelineGlobalBindings::COUNT));
-
-    globalDescriptorSetLayout.blocks[UBOGlobal::NAME]              = UBOGlobal::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOGlobal::BINDING]         = UBOGlobal::DESCRIPTOR;
-    globalDescriptorSetLayout.blocks[UBOCamera::NAME]              = UBOCamera::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOCamera::BINDING]         = UBOCamera::DESCRIPTOR;
-    globalDescriptorSetLayout.blocks[UBOShadow::NAME]              = UBOShadow::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOShadow::BINDING]         = UBOShadow::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[SHADOWMAP::NAME]            = SHADOWMAP::LAYOUT;
-    globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING]         = SHADOWMAP::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME]          = ENVIRONMENT::LAYOUT;
-    globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING]       = ENVIRONMENT::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[SPOTLIGHTINGMAP::NAME]    = SPOTLIGHTINGMAP::LAYOUT;
-    globalDescriptorSetLayout.bindings[SPOTLIGHTINGMAP::BINDING] = SPOTLIGHTINGMAP::DESCRIPTOR;
-
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERALBEDOMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERPOSITIONMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFEREMISSIVEMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERNORMALMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERLIGHTINGRESULTMAP);
-
-    localDescriptorSetLayout.bindings.resize(static_cast<size_t>(ModelLocalBindings::COUNT));
-    localDescriptorSetLayout.blocks[UBOLocalBatched::NAME]           = UBOLocalBatched::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOLocalBatched::BINDING]      = UBOLocalBatched::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOLocal::NAME]                  = UBOLocal::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOLocal::BINDING]             = UBOLocal::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOForwardLight::NAME]           = UBOForwardLight::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOForwardLight::BINDING]      = UBOForwardLight::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOSkinningTexture::NAME]        = UBOSkinningTexture::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOSkinningTexture::BINDING]   = UBOSkinningTexture::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOSkinningAnimation::NAME]      = UBOSkinningAnimation::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOSkinningAnimation::BINDING] = UBOSkinningAnimation::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOSkinning::NAME]               = UBOSkinning::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOSkinning::BINDING]          = UBOSkinning::DESCRIPTOR;
-    localDescriptorSetLayout.blocks[UBOMorph::NAME]                  = UBOMorph::LAYOUT;
-    localDescriptorSetLayout.bindings[UBOMorph::BINDING]             = UBOMorph::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[JOINTTEXTURE::NAME]           = JOINTTEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[JOINTTEXTURE::BINDING]        = JOINTTEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[POSITIONMORPH::NAME]          = POSITIONMORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[POSITIONMORPH::BINDING]       = POSITIONMORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[NORMALMORPH::NAME]            = NORMALMORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[NORMALMORPH::BINDING]         = NORMALMORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[TANGENTMORPH::NAME]           = TANGENTMORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[TANGENTMORPH::BINDING]        = TANGENTMORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[LIGHTMAPTEXTURE::NAME]        = LIGHTMAPTEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[LIGHTMAPTEXTURE::BINDING]     = LIGHTMAPTEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[SPRITETEXTURE::NAME]          = SPRITETEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[SPRITETEXTURE::BINDING]       = SPRITETEXTURE::DESCRIPTOR;
+RenderPipeline::~RenderPipeline() {
+    RenderPipeline::instance = nullptr;
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
@@ -118,17 +64,8 @@ bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
 }
 
 bool RenderPipeline::activate() {
-    if (_descriptorSetLayout) {
-        _descriptorSetLayout->destroy();
-        CC_DELETE(_descriptorSetLayout);
-    }
-    _descriptorSetLayout = _device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
-
-    if (_descriptorSet) {
-        _descriptorSet->destroy();
-        CC_DELETE(_descriptorSet);
-    }
-    _descriptorSet = _device->createDescriptorSet({_descriptorSetLayout});
+    _globalDSManager->activate(_device, this);
+    _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device, this);
 
@@ -151,10 +88,9 @@ bool RenderPipeline::activate() {
     return true;
 }
 
-void RenderPipeline::render(const vector<uint> &cameras) {
+void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
     for (auto *const flow : _flows) {
-        for (const auto cameraID : cameras) {
-            auto *camera = GET_CAMERA(cameraID);
+        for (auto *camera : cameras) {
             flow->render(camera);
         }
     }
@@ -166,8 +102,8 @@ void RenderPipeline::destroy() {
     }
     _flows.clear();
 
-    CC_SAFE_DESTROY(_descriptorSetLayout);
-    CC_SAFE_DESTROY(_descriptorSet);
+    _descriptorSet = nullptr;
+    CC_SAFE_DESTROY(_globalDSManager);
     CC_SAFE_DESTROY(_pipelineUBO);
     CC_SAFE_DESTROY(_pipelineSceneData);
 
@@ -182,10 +118,11 @@ void RenderPipeline::destroy() {
 
     SamplerLib::destroyAll();
     PipelineStateManager::destroyAll();
+    InstancedBuffer::destroyInstancedBuffer();
 }
 
-void RenderPipeline::setPipelineSharedSceneData(uint handle) {
-    _pipelineSceneData->setPipelineSharedSceneData(handle);
+void RenderPipeline::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data) {
+    _pipelineSceneData->setPipelineSharedSceneData(data);
 }
 
 void RenderPipeline::generateConstantMacros() {

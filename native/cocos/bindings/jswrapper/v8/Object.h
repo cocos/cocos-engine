@@ -30,9 +30,9 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
-    #include "Base.h"
     #include "../RefCounter.h"
     #include "../Value.h"
+    #include "Base.h"
     #include "ObjectWrap.h"
 
     #include <memory>
@@ -98,7 +98,7 @@ public:
          *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
          */
-    static Object *createTypedArray(TypedArrayType type, void *data, size_t byteLength);
+    static Object *createTypedArray(TypedArrayType type, const void *data, size_t byteLength);
 
     /**
          *  @brief Creates a JavaScript Array Buffer object from an existing pointer.
@@ -107,7 +107,7 @@ public:
          *  @return A Array Buffer Object whose backing store is the same as the one pointed to data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
          */
-    static Object *createArrayBufferObject(void *bytes, size_t byteLength);
+    static Object *createArrayBufferObject(void *data, size_t byteLength);
 
     /**
          *  @brief Creates a JavaScript Object from a JSON formatted string.
@@ -139,7 +139,7 @@ public:
          *  @param[out] value The property's value if object has the property, otherwise the undefined value.
          *  @return true if object has the property, otherwise false.
          */
-    bool getProperty(const char *name, Value *value);
+    bool getProperty(const char *name, Value *data);
 
     inline bool getProperty(const std::string &name, Value *value) {
         return getProperty(name.c_str(), value);
@@ -151,7 +151,7 @@ public:
          *  @param[in] value A value to be used as the property's value.
          *  @return true if the property is set successfully, otherwise false.
          */
-    bool setProperty(const char *name, const Value &value);
+    bool setProperty(const char *name, const Value &data);
 
     inline bool setProperty(const std::string &name, const Value &value) {
         return setProperty(name.c_str(), value);
@@ -318,12 +318,12 @@ public:
          *  @note This method will set `obj` as a property of current object, therefore the lifecycle of child object will depend on current object,
          *        which means `obj` may be garbage collected only after current object is garbage collected.
          *        It's normally used in binding a native callback method. For example:
-         
+
              ```javascript
                 var self = this;
                 someObject.setCallback(function(){}, self);
              ```
-         
+
              ```c++
                 static bool SomeObject_setCallback(se::State& s)
                 {
@@ -378,10 +378,10 @@ public:
     std::string toString() const;
 
     // Private API used in wrapper
-    static Object *_createJSObject(Class *cls, v8::Local<v8::Object> obj);
+    static Object *       _createJSObject(Class *cls, v8::Local<v8::Object> obj);
     v8::Local<v8::Object> _getJSObject() const;
-    ObjectWrap &_getWrap();
-    Class *_getClass() const;
+    ObjectWrap &          _getWrap();
+    Class *               _getClass() const;
 
     void _setFinalizeCallback(V8FinalizeFunc finalizeCb);
     bool _isNativeFunction() const;
@@ -398,16 +398,16 @@ private:
     static void setup();
 
     Object();
-    virtual ~Object();
+    ~Object() override;
 
     bool init(Class *cls, v8::Local<v8::Object> obj);
 
-    Class *_cls;
+    Class *    _cls;
     ObjectWrap _obj;
-    uint32_t _rootCount;
+    uint32_t   _rootCount;
 
-    void *_privateData;
-    V8FinalizeFunc _finalizeCb;
+    void *                 _privateData;
+    V8FinalizeFunc         _finalizeCb;
     internal::PrivateData *_internalData;
 
     #if CC_DEBUG

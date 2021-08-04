@@ -34,12 +34,14 @@
 #include "StandAlone/ResourceLimits.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
+#include "TargetConditionals.h"
 
 namespace cc {
 namespace gfx {
 namespace {
 
-std::unordered_map<uint, PipelineState*> renderPassMap;
+std::unordered_map<uint, PipelineState*> pipelineMap;
+std::unordered_map<uint, RenderPass*> renderPassMap;
 
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
@@ -101,14 +103,13 @@ const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &sou
     shader.setEnvClient(glslang::EShClientVulkan, clientVersion);
     shader.setEnvTarget(glslang::EShTargetSpv, targetVersion);
 
-    EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+    EShMessages messages = EShMsgRelaxedErrors;
 
     if (!shader.parse(&glslang::DefaultTBuiltInResource, clientInputSemanticsVersion, false, messages)) {
         CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", shader.getInfoLog(), shader.getInfoDebugLog());
         CC_LOG_ERROR("%s", string);
         return spirv;
     }
-
     glslang::TProgram program;
     program.addShader(&shader);
 
@@ -401,14 +402,58 @@ gfx::Shader *createShader(CCMTLDevice *device) {
     return device->createShader(shaderInfo);
 }
 
-CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass *renderPass) {
-    uint rpHash = renderPass->getHash();
-    const auto iter = renderPassMap.find(rpHash);
-    if(iter != renderPassMap.end()) {
+CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass * curPass) {
+    uint rpHash = curPass->getHash();
+    const auto iter = pipelineMap.find(rpHash);
+    if(iter != pipelineMap.end()) {
         auto *ccMtlPiplineState = static_cast<CCMTLPipelineState *>(iter->second);
         return ccMtlPiplineState->getGPUPipelineState();
     }
-
+    
+    RenderPass* renderPass = nullptr;
+    const auto rpIter = renderPassMap.find(rpHash);
+    if(rpIter != renderPassMap.end()) {
+        renderPass = rpIter->second;
+    } else {
+        const ColorAttachmentList& originAttachments = curPass->getColorAttachments();
+        const SubpassInfoList& subpasses = curPass->getSubpasses();
+        uint32_t curSubpassIndex = static_cast<CCMTLRenderPass*>(curPass)->getCurrentSubpassIndex();
+        if(!subpasses.empty()) {
+            gfx::ColorAttachmentList colorAttachments;
+            gfx::DepthStencilAttachment depthStencilAttachment;
+            for (size_t i = 0; i < subpasses[curSubpassIndex].colors.size(); i++) {
+                uint32_t color = subpasses[curSubpassIndex].colors[i];
+                colorAttachments.push_back(originAttachments[color]);
+            }
+            
+            uint32_t depthStencil = subpasses[curSubpassIndex].depthStencil;
+            if(depthStencil >= subpasses[curSubpassIndex].colors.size()) {
+                depthStencilAttachment = curPass->getDepthStencilAttachment();
+            } else {
+                const ColorAttachment& dsa = originAttachments[depthStencil];
+                depthStencilAttachment.depthLoadOp = dsa.loadOp;
+                depthStencilAttachment.depthStoreOp = dsa.storeOp;
+                depthStencilAttachment.stencilLoadOp = dsa.loadOp;
+                depthStencilAttachment.stencilStoreOp = dsa.storeOp;
+                depthStencilAttachment.beginAccesses = dsa.beginAccesses;
+                depthStencilAttachment.endAccesses = dsa.endAccesses;
+                depthStencilAttachment.format = dsa.format;
+                depthStencilAttachment.sampleCount = dsa.sampleCount;
+            }
+            renderPass = device->createRenderPass({
+                colorAttachments,
+                depthStencilAttachment,
+                {},
+            });
+        } else {
+            renderPass = device->createRenderPass({
+                originAttachments,
+                curPass->getDepthStencilAttachment(),
+                {},
+            });
+        }
+    }
+    
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
@@ -418,7 +463,9 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
     CC_DELETE(pipelineInfo.shader);
-    renderPassMap.emplace(std::make_pair(renderPass->getHash(), pipelineState));
+    pipelineMap.emplace(std::make_pair(curPass->getHash(), pipelineState));
+    renderPassMap.emplace(std::make_pair(curPass->getHash(), renderPass));
+    ((CCMTLPipelineState*)pipelineState)->check();
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
 }
@@ -451,8 +498,40 @@ MTLStoreAction mu::toMTLStoreAction(StoreOp op) {
     }
 }
 
+MTLStoreAction mu::toMTLMSAAStoreAction(StoreOp op) {
+    switch (op) {
+        case StoreOp::STORE: return MTLStoreActionMultisampleResolve;
+        case StoreOp::DISCARD: return MTLStoreActionStoreAndMultisampleResolve;
+        default: return MTLStoreActionUnknown;
+    }
+}
+
 MTLClearColor mu::toMTLClearColor(const Color &clearColor) {
     return MTLClearColorMake(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+}
+
+MTLMultisampleDepthResolveFilter mu::toMTLDepthResolveMode(ResolveMode mode) {
+    switch (mode) {
+        case ResolveMode::SAMPLE_ZERO:
+            return MTLMultisampleDepthResolveFilterSample0;
+        case ResolveMode::MIN:
+            return MTLMultisampleDepthResolveFilterMin;
+        case ResolveMode::MAX:
+            return MTLMultisampleDepthResolveFilterMax;
+        default:
+            return MTLMultisampleDepthResolveFilterSample0;
+    }
+}
+
+MTLMultisampleStencilResolveFilter mu::toMTLStencilResolveMode(ResolveMode mode) {
+    switch (mode) {
+        case ResolveMode::SAMPLE_ZERO:
+            return MTLMultisampleStencilResolveFilterSample0;
+        case ResolveMode::MIN:
+        case ResolveMode::MAX:
+        default:
+            return MTLMultisampleStencilResolveFilterDepthResolvedSample;
+    }
 }
 
 MTLVertexFormat mu::toMTLVertexFormat(Format format, bool isNormalized) {
@@ -551,11 +630,13 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
             //            case Format::RGB32F: return MTLPixelFormatRGBA32Float;
             //            case Format::RGB32UI: return MTLPixelFormatRGBA32Uint;
             //            case Format::RGB32I: return MTLPixelFormatRGBA32Sint;
+            //            case Format::SRGB8: return MTLPixelFormatRGBA8Unorm_sRGB;
 
         case Format::RGBA8: return MTLPixelFormatRGBA8Unorm;
         case Format::RGBA8SN: return MTLPixelFormatRGBA8Snorm;
         case Format::RGBA8UI: return MTLPixelFormatRGBA8Uint;
         case Format::RGBA8I: return MTLPixelFormatRGBA8Sint;
+        case Format::SRGB8_A8: return MTLPixelFormatRGBA8Unorm_sRGB;
         case Format::RGBA16F: return MTLPixelFormatRGBA16Float;
         case Format::RGBA16UI: return MTLPixelFormatRGBA16Uint;
         case Format::RGBA16I: return MTLPixelFormatRGBA16Sint;
@@ -795,17 +876,16 @@ MTLTextureUsage mu::toMTLTextureUsage(TextureUsage usage) {
 
     MTLTextureUsage ret = MTLTextureUsageUnknown;
     if (hasFlag(usage, TextureUsage::TRANSFER_SRC))
-        ret |= MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
+        ret |= MTLTextureUsageShaderRead;
     if (hasFlag(usage, TextureUsage::TRANSFER_DST))
         ret |= MTLTextureUsageShaderWrite;
-    if (hasFlag(usage, TextureUsage::SAMPLED))
+    if (hasFlag(usage, TextureUsage::SAMPLED) || hasFlag(usage, TextureUsageBit::INPUT_ATTACHMENT))
         ret |= MTLTextureUsageShaderRead;
     if (hasFlag(usage, TextureUsage::STORAGE))
         ret |= MTLTextureUsageShaderWrite;
     if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT) ||
-        hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
-        hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) {
-        ret |= MTLTextureUsageRenderTarget;
+        hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
+        ret |= MTLTextureUsageRenderTarget | MTLTextureUsageShaderWrite;
     }
 
     return ret;
@@ -879,6 +959,26 @@ MTLSamplerMipFilter mu::toMTLSamplerMipFilter(Filter filter) {
     }
 }
 
+bool mu::isImageBlockSupported() {
+    //implicit imageblocks
+    if(!mu::isFramebufferFetchSupported()) {
+        return false;
+    }
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) || TARGET_CPU_ARM64
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool mu::isFramebufferFetchSupported() {
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) || TARGET_CPU_ARM64
+    return true;
+#else
+    return false;
+#endif
+}
+
 String mu::compileGLSLShader2Msl(const String &src,
                                  ShaderStageFlagBit shaderType,
                                  Device *device,
@@ -889,7 +989,7 @@ String mu::compileGLSLShader2Msl(const String &src,
     const auto &spv = GLSL2SPIRV(shaderType, shaderSource);
     if (spv.size() == 0)
         return "";
-
+    
     spirv_cross::CompilerMSL msl(std::move(spv));
 
     // The SPIR-V is now parsed, and we can perform reflection on it.
@@ -899,6 +999,24 @@ String mu::compileGLSLShader2Msl(const String &src,
     auto active = msl.get_active_interface_variables();
     spirv_cross::ShaderResources resources = msl.get_shader_resources(active);
     msl.set_enabled_interface_variables(std::move(active));
+    
+    // Set some options.
+    spirv_cross::CompilerMSL::Options options;
+    options.enable_decoration_binding = true;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
+#endif
+    options.emulate_subgroups = true;
+    options.pad_fragment_output_components = true;
+    if(isFramebufferFetchSupported()) {
+        options.use_framebuffer_fetch_subpasses = true;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+        options.set_msl_version(2, 3, 0);
+#endif
+    }
+    msl.set_msl_options(options);
 
     // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
@@ -986,18 +1104,45 @@ String mu::compileGLSLShader2Msl(const String &src,
             samplerIndex++;
         }
     }
-    // Set some options.
-    spirv_cross::CompilerMSL::Options options;
-    //    options.set_msl_version(2, 0);
-    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
-    #else
-    options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
-    #endif
-    msl.set_msl_options(options);
+    
+    if(executionModel == spv::ExecutionModelFragment) {
+        gpuShader->outputs.resize(resources.stage_outputs.size());
+        for(size_t i = 0; i < resources.stage_outputs.size(); i++) {
+            const auto& stageOutput = resources.stage_outputs[i];
+            auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
+            auto attachmentIndex = static_cast<uint32_t>(i);
+            msl.set_decoration(stageOutput.id, spv::DecorationLocation, attachmentIndex);
+            gpuShader->outputs[i].name = stageOutput.name;
+            gpuShader->outputs[i].set = set;
+            gpuShader->outputs[i].binding = attachmentIndex;
+        }
+        
+        if(!resources.subpass_inputs.empty()) {
+            gpuShader->inputs.resize(resources.subpass_inputs.size());
+            for(size_t i = 0; i < resources.subpass_inputs.size(); i++) {
+                const auto& attachment = resources.subpass_inputs[i];
+                gpuShader->inputs[i].name = attachment.name;
+                auto set = msl.get_decoration(attachment.id, spv::DecorationDescriptorSet);
+                auto index = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
+                msl.set_decoration(attachment.id, spv::DecorationBinding,index);
+                gpuShader->inputs[i].binding = index;
+                gpuShader->inputs[i].set = set;
+            }
+        }
+    }
 
     // Compile to MSL, ready to give to metal driver.
     String output = msl.compile();
+    if(executionModel == spv::ExecutionModelFragment) {
+        // add custom function constant to achieve delay binding for color attachment.
+        auto customCodingPos = output.find("using namespace metal;");
+        int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
+        for(int i = maxIndex; i >=0; --i) {
+            String indexStr = std::to_string(i);
+            output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[ function_constant(" + indexStr + ") ]];\n");
+            output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
+        }
+    }
     if (!output.size()) {
         CC_LOG_ERROR("Compile to MSL failed.");
         CC_LOG_ERROR("%s", shaderSource.c_str());
@@ -1575,11 +1720,12 @@ bool mu::isSamplerDescriptorCompareFunctionSupported(uint family) {
 #endif
 }
 
-void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, int /*stencil*/) {
+void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, uint /*stencil*/) {
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     uint slot = 0u;
     MTLRenderPassDescriptor *renderPassDescriptor = mtlRenderPass->getMTLRenderPassDescriptor();
+    renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
     float renderTargetHeight = renderTargetSizes[slot].y;
@@ -1632,12 +1778,19 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
 
 void mu::clearUtilResource() {
     if(!renderPassMap.empty()) {
-        for (auto pass : renderPassMap) {
+        for (auto& pass : renderPassMap) {
             //TODO: create and destroy not in the same level
             pass.second->destroy();
             CC_DELETE(pass.second);
         }
         renderPassMap.clear();
+    }
+    if(!pipelineMap.empty()) {
+        for (auto& pipeline : pipelineMap) {
+            pipeline.second->destroy();
+            CC_DELETE(pipeline.second);
+        }
+        pipelineMap.clear();
     }
 }
 

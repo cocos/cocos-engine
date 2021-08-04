@@ -35,6 +35,7 @@ class GLES3Context;
 class GLES3GPUStateCache;
 class GLES3GPUStagingBufferPool;
 class GLES3GPUFramebufferCacheMap;
+class GLES3GPUConstantRegistry;
 
 class CC_GLES3_API GLES3Device final : public Device {
 public:
@@ -65,16 +66,14 @@ public:
 
     inline GLES3GPUStateCache *         stateCache() const { return _gpuStateCache; }
     inline GLES3GPUStagingBufferPool *  stagingBufferPool() const { return _gpuStagingBufferPool; }
+    inline GLES3GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
-    inline uint                         getThreadID() const { return _threadID; }
 
     inline bool checkExtension(const String &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
             return ext.find(extension) != String::npos;
         });
     }
-
-    uint getMinorVersion() const;
 
 protected:
     static GLES3Device *instance;
@@ -102,6 +101,7 @@ protected:
     GlobalBarrier *      createGlobalBarrier() override;
     TextureBarrier *     createTextureBarrier() override;
     void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
 
     void releaseSurface(uintptr_t windowHandle) override;
     void acquireSurface(uintptr_t windowHandle) override;
@@ -113,11 +113,10 @@ protected:
     GLES3Context *               _deviceContext          = nullptr;
     GLES3GPUStateCache *         _gpuStateCache          = nullptr;
     GLES3GPUStagingBufferPool *  _gpuStagingBufferPool   = nullptr;
+    GLES3GPUConstantRegistry *   _gpuConstantRegistry    = nullptr;
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;
-
-    uint _threadID = 0U;
 };
 
 } // namespace gfx

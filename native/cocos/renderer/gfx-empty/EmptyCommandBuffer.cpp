@@ -40,7 +40,7 @@ void EmptyCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
 void EmptyCommandBuffer::end() {
 }
 
-void EmptyCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+void EmptyCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
 }
 
 void EmptyCommandBuffer::endRenderPass() {
@@ -79,7 +79,7 @@ void EmptyCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
 void EmptyCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
 }
 
-void EmptyCommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint mask) {
+void EmptyCommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
 }
 
 void EmptyCommandBuffer::nextSubpass() {

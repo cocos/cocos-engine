@@ -1,8 +1,8 @@
 ## ===== instance function implementation template
 
-static bool ${signature_name}(se::State& s)
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
+    auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2(cobj, false, "${signature_name} : Invalid Native Object");
 #if len($arguments) >= $min_args
     const auto& args = s.args();
@@ -36,7 +36,7 @@ static bool ${signature_name}(se::State& s)
                              "context" : "s.thisObject()", \
                              "is_static": False, \
                              "is_persistent": $is_persistent, \
-                             "ntype": str($arg)}) 
+                             "ntype": str($arg)})
             #set arg_conv_array += [$conv_txt]
         $holder_prefix arg${count} = {};
             #set $count = $count + 1
@@ -48,7 +48,11 @@ static bool ${signature_name}(se::State& s)
             #set $arg = $arguments[$count]
             #set $arg_type = $arg.to_string($generator)
         $arg_conv_array[$count];
+            #if $arg.is_rreference
+            #set $arg_array += [ "std::move(arg"+str(count)+".value())"]
+            #else
             #set $arg_array += [ "arg"+str(count)+".value()"]
+            #end if
             #set $count = $count + 1
         #end while
         #if $arg_idx > 0
@@ -57,7 +61,7 @@ static bool ${signature_name}(se::State& s)
         #set $arg_list = ", ".join($arg_array)
         #if $ret_type.name != "void"
             #if $ret_type.is_enum
-        $ret_type.enum_declare_type result = ($ret_type.enum_declare_type)cobj->${func_name}($arg_list);
+        auto result = static_cast<$ret_type.enum_declare_type>(cobj->${func_name}($arg_list));
             #else
         ${ret_type.get_whole_name($generator)} result = cobj->${func_name}($arg_list);
             #end if

@@ -27,9 +27,9 @@
 
 #pragma once
 
-#include "base/Macros.h"
 #include <cstdint> // for ssize_t on android
 #include <string>  // for ssize_t on linux
+#include "base/Macros.h"
 
 /**
  * @addtogroup base
@@ -107,6 +107,8 @@ public:
      */
     void fastSet(unsigned char *bytes, ssize_t size);
 
+    void resize(ssize_t size);
+
     /**
      * Clears data, free buffer and reset data size.
      */
@@ -142,7 +144,7 @@ public:
     unsigned char *takeBuffer(ssize_t *size = nullptr);
 
 private:
-    void move(Data &other);
+    void move(Data &other); //NOLINT
 
 private:
     unsigned char *_bytes;

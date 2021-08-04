@@ -40,7 +40,6 @@
 #include "boost/stacktrace.hpp"
 
 namespace cc {
-
 namespace utils {
 
 #define MAX_ITOA_BUFFER_SIZE 256
@@ -61,7 +60,7 @@ double atof(const char *str) {
     return ::atof(buf);
 }
 
-int nextPOT(int x) {
+uint nextPOT(uint x) {
     x = x - 1;
     x = x | (x >> 1);
     x = x | (x >> 2);
@@ -77,5 +76,4 @@ std::string getStacktrace(uint skip, uint maxDepth) {
 }
 
 } // namespace utils
-
 } // namespace cc

@@ -52,6 +52,14 @@ typedef SSIZE_T ssize_t;
                                 "%s function:%s line:%d",          \
                                 __FILE__, __FUNCTION__, __LINE__); \
         }
+#elif (CC_PLATFORM == CC_PLATFORM_OHOS)
+    #include <hilog/log.h>
+    #define CC_ASSERT(cond)                                                      \
+        if (!(cond)) {                                                           \
+            HILOG_ERROR(LOG_APP,                                                 \
+                        "assert %{public}s function:%{public}s line:%{public}d", \
+                        __FILE__, __FUNCTION__, __LINE__);                       \
+        }
 #else
     #include <assert.h>
     #define CC_ASSERT(cond) assert(cond)
@@ -160,20 +168,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     } while (0)
 #define CC_BREAK_IF(cond) \
     if (cond) break
-
-/** @def CC_DISALLOW_COPY_AND_ASSIGN(TypeName)
-* A macro to disallow the copy constructor and operator= functions.
-* This should be used in the private: declarations for a class
-*/
-#if defined(__GNUC__) && ((__GNUC__ >= 5) || ((__GNUG__ == 4) && (__GNUC_MINOR__ >= 4))) || (defined(__clang__) && (__clang_major__ >= 3)) || (_MSC_VER >= 1800)
-    #define CC_DISALLOW_COPY_AND_ASSIGN(TypeName) \
-        TypeName(const TypeName &) = delete;      \
-        TypeName &operator=(const TypeName &) = delete;
-#else
-    #define CC_DISALLOW_COPY_AND_ASSIGN(TypeName) \
-        TypeName(const TypeName &);               \
-        TypeName &operator=(const TypeName &);
-#endif
 
 /** @def CC_DEPRECATED_ATTRIBUTE
 * Only certain compilers support __attribute__((deprecated)).
@@ -366,22 +360,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_CHARSET CC_CHARSET_MULTIBYTE
 #endif
 
-#if CC_COMPILER == CC_COMPILER_MSVC
-    #if CC_COMPILER_VERSION >= 120
-        #define CC_INLINE __forceinline
-    #else
-        #define CC_INLINE inline
-    #endif
-#elif defined(__MINGW32__)
-    #if !defined(CC_INLINE)
-        #define CC_INLINE __inline
-    #endif
-#elif !defined(ANDROID) && (CC_COMPILER == CC_COMPILER_GNUC || CC_COMPILER == CC_COMPILER_CLANG)
-    #define CC_INLINE inline __attribute__((always_inline))
-#else
-    #define CC_INLINE __inline
-#endif
-
 // Asserts expression is true at compile-time
 #define CC_COMPILER_ASSERT(x) typedef int COMPILER_ASSERT_[!!(x)]
 
@@ -421,6 +399,22 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_ENABLE_WARNINGS() \
         _Pragma("clang diagnostic pop")
 #endif
+
+#define ENABLE_COPY_SEMANTICS(cls) \
+    cls(const cls &) = default;    \
+    cls &operator=(const cls &) = default;
+
+#define DISABLE_COPY_SEMANTICS(cls) \
+    cls(const cls &) = delete;      \
+    cls &operator=(const cls &) = delete;
+
+#define ENABLE_MOVE_SEMANTICS(cls) \
+    cls(cls &&)  = default;        \
+    cls &operator=(cls &&) = default;
+
+#define DISABLE_MOVE_SEMANTICS(cls) \
+    cls(cls &&)  = delete;          \
+    cls &operator=(cls &&) = delete;
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)
     #define CC_ALIGN(N)        __declspec(align(N))
@@ -529,7 +523,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 /* Stack-alignment
  If macro __CC_SIMD_ALIGN_STACK defined, means there requests
  special code to ensure stack align to a 16-bytes boundary.
- 
+
  Note:
  This macro can only guarantee callee stack pointer (esp) align
  to a 16-bytes boundary, but not that for frame pointer (ebp).

@@ -36,6 +36,11 @@
 namespace cc {
 namespace gfx {
 
+DescriptorSetAgent::DescriptorSetAgent(DescriptorSet *actor)
+: Agent<DescriptorSet>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 DescriptorSetAgent::~DescriptorSetAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -71,6 +76,9 @@ void DescriptorSetAgent::doDestroy() {
 }
 
 void DescriptorSetAgent::update() {
+    // Avoid enqueueing unnecessary command
+    if (!_isDirty) return;
+
     _isDirty = false;
 
     ENQUEUE_MESSAGE_1(

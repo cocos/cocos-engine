@@ -95,6 +95,7 @@ Device::NetworkType Device::getNetworkType() {
             break;
         case Reachability::NetworkStatus::REACHABLE_VIA_WWAN:
             ret = NetworkType::WWAN;
+            break;
         default:
             ret = NetworkType::NONE;
             break;

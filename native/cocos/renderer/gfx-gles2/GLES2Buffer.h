@@ -41,8 +41,8 @@ public:
 
     void update(const void *buffer, uint size) override;
 
-    CC_INLINE GLES2GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
-    CC_INLINE GLES2GPUBufferView *gpuBufferView() const { return _gpuBufferView; }
+    inline GLES2GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
+    inline GLES2GPUBufferView *gpuBufferView() const { return _gpuBufferView; }
 
 protected:
     void doInit(const BufferInfo &info) override;

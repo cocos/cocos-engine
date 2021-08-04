@@ -32,27 +32,27 @@
 namespace cc {
 namespace gfx {
 
-GLES3PipelineLayout::GLES3PipelineLayout()
-: PipelineLayout() {
+GLES3PipelineLayout::GLES3PipelineLayout() {
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 GLES3PipelineLayout::~GLES3PipelineLayout() {
     destroy();
 }
 
-void GLES3PipelineLayout::doInit(const PipelineLayoutInfo &info) {
+void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
     _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
 
-    uint offset = 0u;
+    uint offset = 0U;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
-    for (uint i = 0u; i < _setLayouts.size(); i++) {
-        DescriptorSetLayout *setLayout = _setLayouts[i];
+    for (uint i = 0U; i < _setLayouts.size(); i++) {
+        DescriptorSetLayout *        setLayout    = _setLayouts[i];
         GLES3GPUDescriptorSetLayout *gpuSetLayout = static_cast<GLES3DescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
-        size_t dynamicCount = gpuSetLayout->dynamicBindings.size();
-        vector<int> &indices = _gpuPipelineLayout->dynamicOffsetIndices[i];
+        size_t                       dynamicCount = gpuSetLayout->dynamicBindings.size();
+        vector<int> &                indices      = _gpuPipelineLayout->dynamicOffsetIndices[i];
         indices.assign(setLayout->getBindingIndices().size(), -1);
 
-        for (uint j = 0u; j < dynamicCount; j++) {
+        for (uint j = 0U; j < dynamicCount; j++) {
             uint binding = gpuSetLayout->dynamicBindings[j];
             if (indices[binding] < 0) indices[binding] = offset + j;
         }
@@ -66,7 +66,6 @@ void GLES3PipelineLayout::doInit(const PipelineLayoutInfo &info) {
 }
 
 void GLES3PipelineLayout::doDestroy() {
-
     if (_gpuPipelineLayout) {
         CC_DELETE(_gpuPipelineLayout);
         _gpuPipelineLayout = nullptr;

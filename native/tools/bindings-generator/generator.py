@@ -4,17 +4,17 @@
 #
 # Copyright (c) 2011 - Zynga Inc.
 
-from clang import cindex
-import sys
-import ConfigParser
-import yaml
-import re
-import os
-import inspect
-import traceback
-import logging
-from Cheetah.Template import Template
+import sys, yaml, re, os, io
+import inspect, traceback, logging
 
+from Cheetah.Template import Template
+from clang import cindex
+
+if sys.version_info.major >= 3:
+    import configparser
+    def unicode(s): return str(s)
+else:
+    import ConfigParser as configparser
 
 logger = None
 
@@ -417,6 +417,7 @@ class NativeType(object):
         self.is_const = False
         self.is_pointer = False
         self.is_reference = False
+        self.is_rreference = False
         self.canonical_type = None
         self.kind = None
 
@@ -458,6 +459,7 @@ class NativeType(object):
             nt.is_const = ntype.get_pointee().is_const_qualified()
             nt.whole_name = nt.namespaced_class_name + "&&"
             nt.is_reference = True
+            nt.is_rreference = True
 
             if nt.is_const:
                 nt.whole_name = "const " + nt.whole_name
@@ -503,7 +505,7 @@ class NativeType(object):
 
                 # Check whether it's a std::function typedef
                 cdecl = ntype.get_canonical().get_declaration()
-                if None != cdecl.spelling and 0 == cmp(cdecl.spelling, "function"):
+                if None != cdecl.spelling and cdecl.spelling == "function":
                     nt.name = "std::function"
 
                 if nt.name != INVALID_NATIVE_TYPE and nt.name != "std::string" and nt.name != "std::function":
@@ -519,7 +521,7 @@ class NativeType(object):
                 nt.is_enum = ntype.get_canonical().kind == cindex.TypeKind.ENUM
                 if nt.is_enum:
                     nt.enum_kind = cdecl.enum_type.kind
-                    if type_map.has_key(nt.enum_kind):
+                    if nt.enum_kind in type_map:
                         nt.enum_declare_type = type_map[nt.enum_kind]
                     else:
                         nt.enum_declare_type = 'int' # FIXME: cjh
@@ -609,7 +611,7 @@ class NativeType(object):
         return None
 
     def from_native(self, convert_opts):
-        assert(convert_opts.has_key('generator'))
+        assert('generator' in convert_opts)
         generator = convert_opts['generator']
         keys = []
         # print("from_native:" + str(convert_opts))
@@ -632,12 +634,14 @@ class NativeType(object):
         if "context" in convert_opts:
             context = convert_opts["context"]
 
-
-        return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
+        if self.is_rreference:
+            return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
+        else:
+            return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
 
     def to_string(self, generator):
         conversions = generator.config['conversions']
-        if conversions.has_key('native_types'):
+        if 'native_types' in conversions:
             native_types_dict = conversions['native_types']
             if NativeType.dict_has_key_re(native_types_dict, [self.namespaced_class_name]):
                 # print "type ---> " + self.namespaced_class_name
@@ -675,7 +679,7 @@ class NativeType(object):
             name = self.canonical_type.whole_name
 
         to_replace = None
-        if conversions.has_key('native_types'):
+        if 'native_types' in conversions:
             native_types_dict = conversions['native_types']
             to_replace = NativeType.dict_replace_value_re(native_types_dict, [name])
 
@@ -744,13 +748,13 @@ class NativeField(object):
         gen = current_class.generator if current_class else generator
         config = gen.config
 
-        if config['definitions'].has_key('public_field'):
+        if 'public_field' in config['definitions']:
             tpl = Template(config['definitions']['public_field'],
                                     searchList=[current_class, self])
             self.signature_name = str(tpl)
         tpl = Template(file=os.path.join(gen.target, "templates", "public_field.c"),
                        searchList=[current_class, self])
-        gen.impl_file.write(str(tpl))
+        gen.impl_file.write(unicode(tpl))
 
 # return True if found default argument.
 def iterate_param_node(param_node, depth=1):
@@ -847,9 +851,9 @@ class NativeFunction(object):
             tpl = Template(file=os.path.join(gen.target, "templates", "function.h"),
                         searchList=[current_class, self])
             if not is_override:
-                gen.head_file.write(str(tpl))
+                gen.head_file.write(unicode(tpl))
         if self.static:
-            if config['definitions'].has_key('sfunction'):
+            if 'sfunction' in config['definitions']:
                 tpl = Template(config['definitions']['sfunction'],
                                     searchList=[current_class, self])
                 self.signature_name = str(tpl)
@@ -857,12 +861,12 @@ class NativeFunction(object):
                             searchList=[current_class, self])
         else:
             if not self.is_constructor:
-                if config['definitions'].has_key('ifunction'):
+                if 'ifunction' in config['definitions']:
                     tpl = Template(config['definitions']['ifunction'],
                                     searchList=[current_class, self])
                     self.signature_name = str(tpl)
             else:
-                if config['definitions'].has_key('constructor'):
+                if 'constructor' in config['definitions']:
                     if not is_ctor:
                         tpl = Template(config['definitions']['constructor'],
                                     searchList=[current_class, self])
@@ -881,7 +885,7 @@ class NativeFunction(object):
                 tpl = Template(file=os.path.join(gen.target, "templates", "ifunction.c"),
                                 searchList=[current_class, self])
         if not is_override:
-            gen.impl_file.write(str(tpl))
+            gen.impl_file.write(unicode(tpl))
 
 
 class NativeOverloadedFunction(object):
@@ -943,9 +947,9 @@ class NativeOverloadedFunction(object):
             tpl = Template(file=os.path.join(gen.target, "templates", "function.h"),
                         searchList=[current_class, self])
             if not is_override:
-                gen.head_file.write(str(tpl))
+                gen.head_file.write(unicode(tpl))
         if static:
-            if config['definitions'].has_key('sfunction'):
+            if 'sfunction' in config['definitions']:
                 tpl = Template(config['definitions']['sfunction'],
                                 searchList=[current_class, self])
                 self.signature_name = str(tpl)
@@ -953,12 +957,12 @@ class NativeOverloadedFunction(object):
                             searchList=[current_class, self])
         else:
             if not self.is_constructor:
-                if config['definitions'].has_key('ifunction'):
+                if 'ifunction' in config['definitions']:
                     tpl = Template(config['definitions']['ifunction'],
                                     searchList=[current_class, self])
                     self.signature_name = str(tpl)
             else:
-                if config['definitions'].has_key('constructor'):
+                if 'constructor' in config['definitions']:
                     if not is_ctor:
                         tpl = Template(config['definitions']['constructor'],
                                         searchList=[current_class, self])
@@ -977,7 +981,7 @@ class NativeOverloadedFunction(object):
                 tpl = Template(file=os.path.join(gen.target, "templates", "ifunction_overloaded.c"),
                             searchList=[current_class, self])
         if not is_override:
-            gen.impl_file.write(str(tpl))
+            gen.impl_file.write(unicode(tpl))
 
 
 class NativeClass(object):
@@ -1021,7 +1025,7 @@ class NativeClass(object):
         self.parse()
         # post parse
         if self.class_name in generator.getter_setter :
-            for field_name in generator.getter_setter[self.class_name].iterkeys():
+            for field_name in iter(generator.getter_setter[self.class_name].keys()):
                 field = generator.getter_setter[self.class_name][field_name]
                 item = {
                     "name" : field_name,
@@ -1081,7 +1085,7 @@ class NativeClass(object):
         clean list of methods (without the ones that should be skipped)
         '''
         ret = []
-        for name, impl in self.methods.iteritems():
+        for name, impl in iter(self.methods.items()):
             should_skip = False
             if name == 'constructor':
                 should_skip = True
@@ -1097,7 +1101,7 @@ class NativeClass(object):
         clean list of static methods (without the ones that should be skipped)
         '''
         ret = []
-        for name, impl in self.static_methods.iteritems():
+        for name, impl in iter(self.static_methods.items()):
             should_skip = self.generator.should_skip(self.class_name, name)
             if not should_skip:
                 ret.append({"name": name, "impl": impl})
@@ -1108,7 +1112,7 @@ class NativeClass(object):
         clean list of override methods (without the ones that should be skipped)
         '''
         ret = []
-        for name, impl in self.override_methods.iteritems():
+        for name, impl in iter(self.override_methods.items()):
             should_skip = self.generator.should_skip(self.class_name, name)
             if not should_skip:
                 ret.append({"name": name, "impl": impl})
@@ -1130,8 +1134,8 @@ class NativeClass(object):
                             searchList=[{"current_class": self}])
 
 
-        self.generator.head_file.write(str(prelude_h))
-        self.generator.impl_file.write(str(prelude_c))
+        self.generator.head_file.write(unicode(prelude_h))
+        self.generator.impl_file.write(unicode(prelude_c))
         for m in self.methods_clean():
             m['impl'].generate_code(self)
         for m in self.static_methods_clean():
@@ -1142,20 +1146,20 @@ class NativeClass(object):
         # generate register section
         register = Template(file=os.path.join(self.generator.target, "templates", "register.c"),
                             searchList=[{"current_class": self}])
-        self.generator.impl_file.write(str(register))
+        self.generator.impl_file.write(unicode(register))
 
     def should_export_field(self, field_name):
         return (self.is_struct and not self.generator.should_skip_field(self.class_name, field_name)) or self.generator.should_bind_field(self.class_name, field_name)
 
     def generate_struct_constructor(self):
-        stream = file(os.path.join(self.generator.target, "conversions.yaml"), "r")
+        stream = open(os.path.join(self.generator.target, "conversions.yaml"), "r")
         config = yaml.load(stream)
         tpl = Template(config['definitions']['constructor'],
                                     searchList=[self])
         self.struct_constructor_name = str(tpl)
         tpl = Template(file=os.path.join(self.generator.target, "templates", "struct_constructor.c"),
                             searchList=[self])
-        self.generator.impl_file.write(str(tpl))
+        self.generator.impl_file.write(unicode(tpl))
 
     def _deep_iterate(self, cursor=None, depth=0):
         for node in cursor.get_children():
@@ -1223,7 +1227,7 @@ class NativeClass(object):
             if not self.class_name in self.generator.classes_have_no_parents:
                 if parent_name and parent_name not in self.generator.base_classes_to_skip:
                     #if parent and self.generator.in_listed_classes(parent.displayname):
-                    if not self.generator.generated_classes.has_key(parent.displayname):
+                    if parent.displayname not in self.generator.generated_classes:
                         parent = NativeClass(parent, self.generator)
                         self.generator.generated_classes[parent.class_name] = parent
                     else:
@@ -1255,7 +1259,7 @@ class NativeClass(object):
                         return False
 
                 if m.static:
-                    if not self.static_methods.has_key(registration_name):
+                    if registration_name not in self.static_methods:
                         self.static_methods[registration_name] = m
                     else:
                         previous_m = self.static_methods[registration_name]
@@ -1264,7 +1268,7 @@ class NativeClass(object):
                         else:
                             self.static_methods[registration_name] = NativeOverloadedFunction([m, previous_m])
                 else:
-                    if not self.methods.has_key(registration_name):
+                    if registration_name not in self.methods:
                         self.methods[registration_name] = m
                     else:
                         previous_m = self.methods[registration_name]
@@ -1286,7 +1290,7 @@ class NativeClass(object):
             m = NativeFunction(cursor, self.generator)
             m.is_constructor = True
             self.has_constructor = True
-            if not self.methods.has_key('constructor'):
+            if 'constructor' not in self.methods:
                 self.methods['constructor'] = m
             else:
                 previous_m = self.methods['constructor']
@@ -1351,7 +1355,7 @@ class NativeEnum(object):
         # generate register section
         register = Template(file=os.path.join(self.generator.target, "templates", "enum.c"),
                             searchList=[{"current_class": self, "generator": self.generator}])
-        self.generator.impl_file.write(str(register))
+        self.generator.impl_file.write(unicode(register))
 
 class Generator(object):
     def __init__(self, opts):
@@ -1511,7 +1515,7 @@ class Generator(object):
                             raise Exception("getter_setter parse %s:%s failed" %(gs_kls, field))
 
     def is_reserved_function(self, class_name, method_name):
-        if self.rename_functions.has_key(class_name):
+        if class_name in self.rename_functions:
             rename_map = self.rename_functions[class_name]
             for fn in rename_map:
                 if method_name == rename_map[fn]:
@@ -1519,21 +1523,21 @@ class Generator(object):
         return False
 
     def should_rename_function(self, class_name, method_name):
-        if self.rename_functions.has_key(class_name) and self.rename_functions[class_name].has_key(method_name):
+        if class_name in self.rename_functions and method_name in self.rename_functions[class_name]:
             # logger.error("will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name]))
             return self.rename_functions[class_name][method_name]
         return None
 
     def get_class_or_rename_class(self, class_name):
 
-        if self.rename_classes.has_key(class_name):
+        if class_name in self.rename_classes:
             # logger.error("will rename %s to %s" % (method_name, self.rename_functions[class_name][method_name]))
             return self.rename_classes[class_name]
         return class_name
 
     def should_obtain_return_value(self, class_name, method_name):
         # logger.info("should_obtain_return_value (%s, %s) in %s" % (class_name, method_name, self.obtain_return_value))
-        if self.obtain_return_value.has_key(class_name):
+        if class_name in self.obtain_return_value:
             methods = self.obtain_return_value[class_name]
             # logger.info("obtain_return_value %s:%s in %s" % (class_name, method_name, methods))
             for key in methods:
@@ -1546,12 +1550,12 @@ class Generator(object):
     def should_skip(self, class_name, method_name, verbose=False):
         if method_name is not None and (method_name.startswith("operator") or method_name.find("=") != -1):
             return True
-        if class_name == "*" and self.skip_classes.has_key("*"):
+        if class_name == "*" and "*" in self.skip_classes:
             for func in self.skip_classes["*"]:
                 if re.match(func, method_name):
                     return True
         else:
-            for key in self.skip_classes.iterkeys():
+            for key in iter(self.skip_classes.keys()):
                 if key == "*" or re.match("^" + key + "$", class_name):
                     if verbose:
                         logger.info("%s in skip_classes" % (class_name))
@@ -1573,12 +1577,12 @@ class Generator(object):
         return self.should_skip(class_name, field_name)
 
     def should_bind_field(self, class_name, field_name, verbose=False):
-        if class_name == "*" and self.bind_fields.has_key("*"):
+        if class_name == "*" and "*" in self.bind_fields:
             for func in self.bind_fields["*"]:
                 if re.match(func, field_name):
                     return True
         else:
-            for key in self.bind_fields.iterkeys():
+            for key in iter(self.bind_fields.keys()):
                 if key == "*" or re.match("^" + key + "$", class_name):
                     if verbose:
                         logger.info( "%s in bind_fields" % (class_name))
@@ -1634,7 +1638,7 @@ class Generator(object):
         sorted classes in order of inheritance
         '''
         sorted_list = []
-        for class_name in self.generated_classes.iterkeys():
+        for class_name in iter(self.generated_classes.keys()):
             nclass = self.generated_classes[class_name]
             sorted_list += self._sorted_parents(nclass)
         # remove dupes from the list
@@ -1656,7 +1660,7 @@ class Generator(object):
 
     def generate_code(self):
         # must read the yaml file first
-        stream = file(os.path.join(self.target, "conversions.yaml"), "r")
+        stream = open(os.path.join(self.target, "conversions.yaml"), "r")
         data = yaml.load(stream)
         self.config = data
         implfilepath = os.path.join(self.outdir, self.out_file + ".cpp")
@@ -1666,31 +1670,27 @@ class Generator(object):
         implLicense = ''
 
         licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s*', re.S)
-        with open(implfilepath) as implReader:
-            implMatch = licensePattern.search(implReader.read())
-            if implMatch: implLicense = implMatch.group()
-        with open(headfilepath) as headReader:
+        with open(headfilepath, 'a+') as headReader:
             headMatch = licensePattern.search(headReader.read())
             if headMatch: headLicense = headMatch.group()
+        with open(implfilepath, 'a+') as implReader:
+            implMatch = licensePattern.search(implReader.read())
+            if implMatch: implLicense = implMatch.group()
 
-        self.impl_file = open(implfilepath, "wb+")
-        self.head_file = open(headfilepath, "wb+")
+        self.head_file = io.open(headfilepath, "w+", newline="\n")
+        self.impl_file = io.open(implfilepath, "w+", newline="\n")
 
-        layout_h = Template(file=os.path.join(self.target, "templates", "layout_head.h"),
-                            searchList=[self])
-        layout_c = Template(file=os.path.join(self.target, "templates", "layout_head.c"),
-                            searchList=[self])
-        self.head_file.write(headLicense + str(layout_h))
-        self.impl_file.write(implLicense + str(layout_c))
+        layout_h = Template(file=os.path.join(self.target, "templates", "layout_head.h"), searchList=[self])
+        layout_c = Template(file=os.path.join(self.target, "templates", "layout_head.c"), searchList=[self])
+        self.head_file.write(headLicense + unicode(layout_h))
+        self.impl_file.write(implLicense + unicode(layout_c))
 
         self._parse_headers()
 
-        layout_h = Template(file=os.path.join(self.target, "templates", "layout_foot.h"),
-                            searchList=[self])
-        layout_c = Template(file=os.path.join(self.target, "templates", "layout_foot.c"),
-                            searchList=[self])
-        self.head_file.write(str(layout_h))
-        self.impl_file.write(str(layout_c))
+        layout_h = Template(file=os.path.join(self.target, "templates", "layout_foot.h"), searchList=[self])
+        layout_c = Template(file=os.path.join(self.target, "templates", "layout_foot.c"), searchList=[self])
+        self.head_file.write(unicode(layout_h))
+        self.impl_file.write(unicode(layout_c))
 
         self.impl_file.close()
         self.head_file.close()
@@ -1748,7 +1748,7 @@ class Generator(object):
                             break
 
                 if is_targeted_class and self.in_listed_classes(cursor.displayname):
-                    if not self.generated_classes.has_key(cursor.displayname):
+                    if cursor.displayname not in self.generated_classes:
                         nclass = NativeClass(cursor, self, is_struct)
                         nclass.generate_code()
                         self.generated_classes[cursor.displayname] = nclass
@@ -1768,7 +1768,7 @@ class Generator(object):
                             break
 
                 if is_targeted_class and  len(cursor.displayname) > 0 and self.in_listed_classes_exactly(cursor.displayname):
-                    if not self.generated_classes.has_key(cursor.displayname):
+                    if cursor.displayname not in self.generated_classes:
                         nclass = NativeEnum(cursor, self)
                         nclass.generate_code()
                         self.generated_classes[cursor.displayname] = nclass
@@ -1907,15 +1907,16 @@ def main():
     if len(args) == 0:
         parser.error('invalid number of arguments')
 
-    userconfig = ConfigParser.SafeConfigParser()
+    userconfig = configparser.ConfigParser()
     userconfig_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../tojs", 'userconf.ini')
     userconfig.read(userconfig_path)
+    userconfig.set('DEFAULT', 'configdir', os.path.dirname(args[0]))
     # logger.info('Using userconfig \n %s' % (userconfig.items('DEFAULT')))
 
     clang_lib_path = os.path.join(userconfig.get('DEFAULT', 'cxxgeneratordir'), 'libclang')
     cindex.Config.set_library_path(clang_lib_path)
 
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.ConfigParser()
     config.read(args[0])
 
     if (0 == len(config.sections())):
@@ -1964,11 +1965,11 @@ def main():
             logger.info(".... .... Processing section " + s)
             gen_opts = {
                 'prefix': config.get(s, 'prefix'),
-                'headers':    (config.get(s, 'headers'        , 0, dict(userconfig.items('DEFAULT')))),
+                'headers':    (config.get(s, 'headers', raw=False, vars=dict(userconfig.items('DEFAULT')))),
                 'replace_headers': config.get(s, 'replace_headers') if config.has_option(s, 'replace_headers') else None,
                 'classes': re.split('[\s,]+', re.sub('[#;].*', '', config.get(s, 'classes'))),
                 'classes_need_extend': config.get(s, 'classes_need_extend').split(' ') if config.has_option(s, 'classes_need_extend') else [],
-                'clang_args': (config.get(s, 'extra_arguments', 0, dict(userconfig.items('DEFAULT'))) or "").split(" "),
+                'clang_args': (config.get(s, 'extra_arguments', raw=False, vars=dict(userconfig.items('DEFAULT'))) or "").split(" "),
                 'target': os.path.join(workingdir, "targets", t),
                 'outdir': outdir,
                 'search_path': os.path.abspath(os.path.join(userconfig.get('DEFAULT', 'cocosdir'), 'cocos')),
@@ -1989,9 +1990,9 @@ def main():
                 'out_file': opts.out_file or config.get(s, 'prefix'),
                 'script_type': t,
                 'macro_judgement': config.get(s, 'macro_judgement') if config.has_option(s, 'macro_judgement') else None,
-                'hpp_headers': config.get(s, 'hpp_headers', 0, dict(userconfig.items('DEFAULT'))).split(' ') if config.has_option(s, 'hpp_headers') else None,
-                'cpp_headers': config.get(s, 'cpp_headers', 0, dict(userconfig.items('DEFAULT'))).split(' ') if config.has_option(s, 'cpp_headers') else None,
-                'win32_clang_flags': (config.get(s, 'win32_clang_flags', 0, dict(userconfig.items('DEFAULT'))) or "").split(" ") if config.has_option(s, 'win32_clang_flags') else None
+                'hpp_headers': config.get(s, 'hpp_headers', raw=False, vars=dict(userconfig.items('DEFAULT'))).split(' ') if config.has_option(s, 'hpp_headers') else None,
+                'cpp_headers': config.get(s, 'cpp_headers', raw=False, vars=dict(userconfig.items('DEFAULT'))).split(' ') if config.has_option(s, 'cpp_headers') else None,
+                'win32_clang_flags': (config.get(s, 'win32_clang_flags', raw=False, vars=dict(userconfig.items('DEFAULT'))) or "").split(" ") if config.has_option(s, 'win32_clang_flags') else None
                 }
             generator = Generator(gen_opts)
             generator.generate_code()

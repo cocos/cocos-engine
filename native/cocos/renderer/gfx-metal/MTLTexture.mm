@@ -33,7 +33,13 @@
 namespace cc {
 namespace gfx {
 
-CCMTLTexture::CCMTLTexture() : Texture() {}
+CCMTLTexture::CCMTLTexture() : Texture() {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
+CCMTLTexture::~CCMTLTexture() {
+    destroy();
+}
 
 void CCMTLTexture::doInit(const TextureInfo &info) {
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
@@ -50,6 +56,8 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
         CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed.");
         return;
     }
+
+    CCMTLDevice::getInstance()->getMemoryStatus().textureSize += _size;
 }
 
 void CCMTLTexture::doInit(const TextureViewInfo &info) {
@@ -105,14 +113,20 @@ bool CCMTLTexture::createMTLTexture() {
         return false;
 
     descriptor.usage = mu::toMTLTextureUsage(_usage);
-    descriptor.textureType = mu::toMTLTextureType(_type);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
+    descriptor.textureType = descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_type);
     descriptor.mipmapLevelCount = _levelCount;
     descriptor.arrayLength = _type == TextureType::CUBE ? 1 : _layerCount;
-    if (hasFlag(_usage, TextureUsage::COLOR_ATTACHMENT) ||
-        hasFlag(_usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
-        hasFlag(_usage, TextureUsage::INPUT_ATTACHMENT)) {
-        descriptor.resourceOptions = MTLResourceStorageModePrivate;
+    
+    if(hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _usage) && mu::isImageBlockSupported()) {
+        //xcode OS version warning
+        if (@available(macOS 11.0, *)) {
+            descriptor.storageMode = MTLStorageModeMemoryless;
+        } else {
+            descriptor.storageMode = MTLStorageModePrivate;
+        }
+    } else if (hasFlag(_usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_usage, TextureUsage::INPUT_ATTACHMENT)) {
+        descriptor.storageMode = MTLStorageModePrivate;
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
@@ -126,11 +140,14 @@ void CCMTLTexture::doDestroy() {
         return;
     }
 
+    CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
+
     id<MTLTexture> mtlTexure = _mtlTexture;
     _mtlTexture = nil;
 
     std::function<void(void)> destroyFunc = [=]() {
         if (mtlTexure) {
+            [mtlTexure setPurgeableState:MTLPurgeableStateEmpty];
             [mtlTexure release];
         }
     };
@@ -156,14 +173,18 @@ void CCMTLTexture::doResize(uint width, uint height, uint size) {
         return;
     }
 
+    CCMTLDevice::getInstance()->getMemoryStatus().textureSize += size;
+
     if (oldMTLTexture) {
         std::function<void(void)> destroyFunc = [=]() {
             if (oldMTLTexture) {
+                [oldMTLTexture setPurgeableState:MTLPurgeableStateEmpty];
                 [oldMTLTexture release];
             }
         };
         //gpu object only
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
+        CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= oldSize;
     }
 }
 

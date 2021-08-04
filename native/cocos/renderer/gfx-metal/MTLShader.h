@@ -35,27 +35,29 @@ class CCMTLGPUShader;
 class CCMTLShader final : public Shader {
 public:
     explicit CCMTLShader();
-    ~CCMTLShader() override = default;
+    ~CCMTLShader();
     CCMTLShader(const CCMTLShader &)=delete;
     CCMTLShader(CCMTLShader &&)=delete;
     CCMTLShader &operator=(const CCMTLShader &)=delete;
     CCMTLShader &operator=(CCMTLShader &&)=delete;
 
-    CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }
-    CC_INLINE id<MTLFunction> getFragmentMTLFunction() const { return _fragmentMTLFunction; }
-    CC_INLINE id<MTLFunction> getComputeMTLFunction() const { return _computeMTLFunction; }
-    CC_INLINE const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
-    CC_INLINE const CCMTLGPUShader *gpuShader() const { return _gpuShader; }
+    inline id<MTLFunction> getVertMTLFunction() const { return _vertFunction; }
+    inline id<MTLFunction> getFragmentMTLFunction() const { return _fragFunction; }
+    inline id<MTLFunction> getComputeMTLFunction() const { return _cmptFunction; }
+    inline const unordered_map<uint, uint> &getFragmentSamplerBindings() const { return _mtlFragmentSamplerBindings; }
+    inline const CCMTLGPUShader *gpuShader() const { return _gpuShader; }
 
     uint getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint stream);
+    
+    id<MTLFunction> getSpecializedFragFunction(uint* index, int* val, uint count);
 
 #ifdef DEBUG_SHADER
-    CC_INLINE const String &getVertGlslShader() const { return _vertGlslShader; }
-    CC_INLINE const String &getVertMtlSahder() const { return _vertMtlShader; }
-    CC_INLINE const String &getFragGlslShader() const { return _fragGlslShader; }
-    CC_INLINE const String &getFragMtlSahder() const { return _fragMtlShader; }
-    CC_INLINE const String &getcompGlslShader() const { return _cmptGlslShader; }
-    CC_INLINE const String &getcompMtlSahder() const { return _cmptMtlShader; }
+    inline const String &getVertGlslShader() const { return _vertGlslShader; }
+    inline const String &getVertMtlSahder() const { return _vertMtlShader; }
+    inline const String &getFragGlslShader() const { return _fragGlslShader; }
+    inline const String &getFragMtlSahder() const { return _fragMtlShader; }
+    inline const String &getcompGlslShader() const { return _cmptGlslShader; }
+    inline const String &getcompMtlSahder() const { return _cmptMtlShader; }
 #endif
 
 protected:
@@ -65,9 +67,17 @@ protected:
     bool createMTLFunction(const ShaderStage &);
     void setAvailableBufferBindingIndex();
 
-    id<MTLFunction> _vertexMTLFunction = nil;
-    id<MTLFunction> _fragmentMTLFunction = nil;
-    id<MTLFunction> _computeMTLFunction = nil;
+    id<MTLFunction> _vertFunction = nil;
+    id<MTLFunction> _fragFunction = nil;
+    id<MTLFunction> _cmptFunction = nil;
+    
+    id<MTLLibrary> _vertLibrary = nil;
+    id<MTLLibrary> _fragLibrary = nil;
+    id<MTLLibrary> _cmptLibrary = nil;
+    
+    // function constant hash , specialized MTLFunction
+    NSMutableDictionary<NSString*, id<MTLFunction>>* _specializedFragFuncs = nil;
+    
     unordered_map<uint, uint> _mtlFragmentSamplerBindings;
     vector<uint> _availableVertexBufferBindingIndex;
     vector<uint> _availableFragmentBufferBindingIndex;

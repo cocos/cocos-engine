@@ -39,7 +39,7 @@ public:
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
     void endRenderPass() override;
     void bindPipelineState(PipelineState *pso) override;
     void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -51,7 +51,7 @@ public:
     void setBlendConstants(const Color &constants) override;
     void setDepthBound(float minBounds, float maxBounds) override;
     void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, int reference, uint mask) override;
+    void setStencilCompareMask(StencilFace face, uint reference, uint mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buffer, const void *data, uint size) override;
@@ -73,32 +73,25 @@ protected:
 
     CCVKGPUCommandBuffer *_gpuCommandBuffer = nullptr;
 
-    CCVKGPUPipelineState *_curGPUPipelineState = nullptr;
+    CCVKGPUPipelineState *         _curGPUPipelineState = nullptr;
     vector<CCVKGPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<VkDescriptorSet> _curVkDescriptorSets;
-    vector<uint> _curDynamicOffsets;
-    vector<const uint *> _curDynamicOffsetPtrs;
-    vector<uint> _curDynamicOffsetCounts;
-    uint _firstDirtyDescriptorSet = UINT_MAX;
+    vector<VkDescriptorSet>        _curVkDescriptorSets;
+    vector<uint>                   _curDynamicOffsets;
+    vector<const uint *>           _curDynamicOffsetPtrs;
+    vector<uint>                   _curDynamicOffsetCounts;
+    uint                           _firstDirtyDescriptorSet = UINT_MAX;
 
     CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;
-    CCVKGPUFramebuffer *_curGPUFBO = nullptr;
+    CCVKGPUFramebuffer *   _curGPUFBO           = nullptr;
 
     bool _secondaryRP = false;
 
-    Viewport _curViewport;
-    Rect _curScissor;
-    float _curLineWidth = 1.0F;
-    CCVKDepthBias _curDepthBias;
-    Color _curBlendConstants;
-    CCVKDepthBounds _curDepthBounds;
-    CCVKStencilWriteMask _curStencilWriteMask;
-    CCVKStencilCompareMask _curStencilCompareMask;
+    DynamicStates _curDynamicStates;
 
     // temp storage
-    vector<VkImageBlit> _blitRegions;
+    vector<VkImageBlit>          _blitRegions;
     vector<VkImageMemoryBarrier> _imageMemoryBarriers;
-    vector<VkCommandBuffer> _vkCommandBuffers;
+    vector<VkCommandBuffer>      _vkCommandBuffers;
 
     queue<VkCommandBuffer> _pendingQueue;
 };

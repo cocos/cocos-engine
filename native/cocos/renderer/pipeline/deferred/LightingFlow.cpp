@@ -24,32 +24,30 @@
 ****************************************************************************/
 
 #include "LightingFlow.h"
+#include "../SceneCulling.h"
 #include "DeferredPipeline.h"
 #include "LightingStage.h"
-#include "../SceneCulling.h"
-#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXDescriptorSet.h"
-#include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXFramebuffer.h"
 
 namespace cc {
 namespace pipeline {
-RenderFlowInfo LightingFlow::_initInfo = {
+RenderFlowInfo LightingFlow::initInfo = {
     "LightingFlow",
     static_cast<uint>(DeferredFlowPriority::LIGHTING),
     static_cast<uint>(RenderFlowTag::SCENE),
     {},
 };
-const RenderFlowInfo &LightingFlow::getInitializeInfo() { return LightingFlow::_initInfo; }
+const RenderFlowInfo &LightingFlow::getInitializeInfo() { return LightingFlow::initInfo; }
 
-LightingFlow::~LightingFlow() {
-}
+LightingFlow::~LightingFlow() = default;
 
 bool LightingFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
-    if (_stages.size() == 0) {
-        auto stage = CC_NEW(LightingStage);
+    if (_stages.empty()) {
+        auto *stage = CC_NEW(LightingStage);
         stage->initialize(LightingStage::getInitializeInfo());
         _stages.emplace_back(stage);
     }
@@ -61,8 +59,7 @@ void LightingFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void LightingFlow::render(Camera *camera) {
-    auto pipeline = dynamic_cast<DeferredPipeline *>(_pipeline);
+void LightingFlow::render(scene::Camera *camera) {
     RenderFlow::render(camera);
 }
 

@@ -32,7 +32,9 @@
 namespace cc {
 namespace gfx {
 
-GLES2Shader::GLES2Shader() = default;
+GLES2Shader::GLES2Shader() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES2Shader::~GLES2Shader() {
     destroy();
@@ -43,9 +45,10 @@ void GLES2Shader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader->name            = _name;
     _gpuShader->blocks          = _blocks;
     _gpuShader->samplerTextures = _samplerTextures;
+    _gpuShader->subpassInputs   = _subpassInputs;
+
     for (const auto &stage : _stages) {
-        GLES2GPUShaderStage gpuShaderStage = {stage.stage, stage.source};
-        _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
+        _gpuShader->gpuStages.push_back({stage.stage, stage.source});
     }
 
     cmdFuncGLES2CreateShader(GLES2Device::getInstance(), _gpuShader);

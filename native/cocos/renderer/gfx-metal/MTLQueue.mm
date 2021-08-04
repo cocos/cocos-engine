@@ -34,6 +34,11 @@ namespace gfx {
 
 CCMTLQueue::CCMTLQueue()
 : Queue() {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
+CCMTLQueue::~CCMTLQueue() {
+    destroy();
 }
 
 void CCMTLQueue::doInit(const QueueInfo &info) {

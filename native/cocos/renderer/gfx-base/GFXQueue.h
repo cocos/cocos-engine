@@ -41,11 +41,11 @@ public:
 
     virtual void submit(CommandBuffer *const *cmdBuffs, uint count) = 0;
 
-    CC_INLINE void submit(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), utils::toUint(cmdBuffs.size())); }
+    inline void submit(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), utils::toUint(cmdBuffs.size())); }
 
-    CC_INLINE void submitForJS(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), utils::toUint(cmdBuffs.size())); }
+    inline void submitForJS(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), utils::toUint(cmdBuffs.size())); }
 
-    CC_INLINE QueueType getType() const { return _type; }
+    inline QueueType getType() const { return _type; }
 
 protected:
     virtual void doInit(const QueueInfo &info) = 0;

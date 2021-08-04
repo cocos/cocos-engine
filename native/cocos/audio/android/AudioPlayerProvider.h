@@ -29,9 +29,9 @@ THE SOFTWARE.
 #include "audio/android/OpenSLHelper.h"
 #include "audio/android/PcmData.h"
 
-#include <unordered_map>
-#include <memory>
 #include <condition_variable>
+#include <memory>
+#include <unordered_map>
 
 namespace cc {
 // Manage PcmAudioPlayer& UrlAudioPlayer
@@ -54,11 +54,11 @@ public:
 
     IAudioPlayer *getAudioPlayer(const std::string &audioFilePath);
 
-    typedef std::function<void(bool /* succeed */, PcmData /* data */)> PreloadCallback;
+    using PreloadCallback = std::function<void(bool, PcmData)>;
     void preloadEffect(const std::string &audioFilePath, const PreloadCallback &cb);
 
     float getDurationFromFile(const std::string &filePath);
-    void clearPcmCache(const std::string &audioFilePath);
+    void  clearPcmCache(const std::string &audioFilePath);
 
     void clearAllPcmCaches();
 
@@ -68,13 +68,13 @@ public:
 
 private:
     struct AudioFileInfo {
-        std::string url;
+        std::string              url;
         std::shared_ptr<AssetFd> assetFd;
-        off_t start;
-        off_t length;
+        off_t                    start{};
+        off_t                    length;
 
         AudioFileInfo()
-        : assetFd(nullptr), start(0), length(0){};
+        : assetFd(nullptr) {}
 
         inline bool isValid() const {
             return !url.empty() && length > 0;
@@ -92,28 +92,28 @@ private:
     bool isSmallFile(const AudioFileInfo &info);
 
 private:
-    SLEngineItf _engineItf;
-    SLObjectItf _outputMixObject;
-    int _deviceSampleRate;
-    int _bufferSizeInFrames;
-    FdGetterCallback _fdGetterCallback;
+    SLEngineItf         _engineItf;
+    SLObjectItf         _outputMixObject;
+    int                 _deviceSampleRate;
+    int                 _bufferSizeInFrames;
+    FdGetterCallback    _fdGetterCallback;
     ICallerThreadUtils *_callerThreadUtils;
 
     std::unordered_map<std::string, PcmData> _pcmCache;
-    std::mutex _pcmCacheMutex;
+    std::mutex                               _pcmCacheMutex;
 
     struct PreloadCallbackParam {
         PreloadCallback callback;
-        bool isPreloadInPlay2d;
+        bool            isPreloadInPlay2d;
     };
 
     std::unordered_map<std::string, std::vector<PreloadCallbackParam>> _preloadCallbackMap;
-    std::mutex _preloadCallbackMutex;
+    std::mutex                                                         _preloadCallbackMutex;
 
-    std::mutex _preloadWaitMutex;
+    std::mutex              _preloadWaitMutex;
     std::condition_variable _preloadWaitCond;
 
-    PcmAudioService *_pcmAudioService;
+    PcmAudioService *     _pcmAudioService;
     AudioMixerController *_mixController;
 
     LegacyThreadPool *_threadPool;

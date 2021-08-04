@@ -37,6 +37,11 @@
 namespace cc {
 namespace gfx {
 
+DescriptorSetValidator::DescriptorSetValidator(DescriptorSet *actor)
+: Agent<DescriptorSet>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 DescriptorSetValidator::~DescriptorSetValidator() {
     DeviceResourceTracker<DescriptorSet>::erase(this);
     CC_SAFE_DELETE(_actor);
@@ -58,8 +63,9 @@ void DescriptorSetValidator::doDestroy() {
 }
 
 void DescriptorSetValidator::update() {
-    _isDirty = false;
+    if (!_isDirty) return;
 
+    _isDirty = false;
     _actor->update();
 }
 

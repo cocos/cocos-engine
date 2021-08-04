@@ -24,38 +24,38 @@
 ****************************************************************************/
 
 #include "JniCocosActivity.h"
-#include "platform/android/jni/JniHelper.h"
-#include "platform/android/FileUtils-android.h"
-#include "platform/Application.h"
-#include "platform/android/View.h"
-#include <jni.h>
-#include <android/log.h>
 #include <android/asset_manager_jni.h>
+#include <android/log.h>
 #include <android/native_window_jni.h>
 #include <android_native_app_glue.h>
-#include <thread>
-#include <unistd.h>
 #include <fcntl.h>
+#include <jni.h>
+#include <unistd.h>
+#include <thread>
 #include <vector>
+#include "platform/Application.h"
+#include "platform/android/FileUtils-android.h"
+#include "platform/android/View.h"
+#include "platform/java/jni/JniHelper.h"
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_INFO, "CocosActivity JNI", __VA_ARGS__)
 
-cc::Application *cocos_main(int, int) __attribute__((weak));
+cc::Application *cocos_main(int, int) __attribute__((weak)); //NOLINT
 
 namespace cc {
 CocosApp cocosApp;
 }
 
 namespace {
-int messagePipe[2];
-int pipeRead = 0;
-int pipeWrite = 0;
-cc::Application *game = nullptr;
+int              messagePipe[2];
+int              pipeRead  = 0;
+int              pipeWrite = 0;
+cc::Application *game      = nullptr;
 
 void createGame(ANativeWindow *window) {
-    int width = ANativeWindow_getWidth(window);
+    int width  = ANativeWindow_getWidth(window);
     int height = ANativeWindow_getHeight(window);
-    game = cocos_main(width, height);
+    game       = cocos_main(width, height);
     game->init();
 }
 
@@ -68,9 +68,9 @@ int readCommand(int8_t &cmd) {
 }
 
 void handlePauseResume(int8_t cmd) {
-    LOGV("activityState=%d", cmd);
+    LOGV("appState=%d", cmd);
     std::unique_lock<std::mutex> lk(cc::cocosApp.mutex);
-    cc::cocosApp.activityState = cmd;
+    cc::cocosApp.appState = static_cast<uint8_t>(cmd);
     lk.unlock();
     cc::cocosApp.cond.notify_all();
 }
@@ -131,22 +131,23 @@ void glThreadEntry() {
     cc::cocosApp.cond.notify_all();
 
     int8_t cmd = 0;
-    while (1) {
+    while (true) {
         if (readCommand(cmd) > 0) {
             preExecCmd(cmd);
             cc::View::engineHandleCmd(cmd);
             postExecCmd(cmd);
         }
 
-        if (!cc::cocosApp.animating) continue;
+        if (!cc::cocosApp.animating || APP_CMD_PAUSE == cc::cocosApp.appState) {
+            std::this_thread::yield();
+        }
 
-        if (game) {
+        if (game && cc::cocosApp.animating) {
             // Handle java events send by UI thread. Input events are handled here too.
             cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper",
                                                 "flushTasksOnGameThread");
             game->tick();
         }
-
         if (cc::cocosApp.destroyRequested) break;
     }
 
@@ -171,17 +172,17 @@ void setWindow(ANativeWindow *window) {
     }
 }
 
-void setActivityState(int8_t cmd) {
+void setAppState(int8_t cmd) {
     std::unique_lock<std::mutex> lk(cc::cocosApp.mutex);
     writeCommand(cmd);
-    while (cc::cocosApp.activityState != cmd) {
+    while (cc::cocosApp.appState != cmd) {
         cc::cocosApp.cond.wait(lk);
     }
 }
 } // namespace
 
 extern "C" {
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *env, jobject obj, jobject activity,
                                                                        jobject assetMgr, jstring obbPath, jint sdkVersion) {
     if (cc::cocosApp.running) {
@@ -190,14 +191,14 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *e
 
     cc::cocosApp.sdkVersion = sdkVersion;
     cc::JniHelper::init(env, activity);
-    cc::cocosApp.obbPath = cc::JniHelper::jstring2string(obbPath);
+    cc::cocosApp.obbPath      = cc::JniHelper::jstring2string(obbPath);
     cc::cocosApp.assetManager = AAssetManager_fromJava(env, assetMgr);
-    static_cast<cc::FileUtilsAndroid *>(cc::FileUtils::getInstance())->setassetmanager(cc::cocosApp.assetManager);
+    cc::FileUtilsAndroid::setassetmanager(cc::cocosApp.assetManager);
 
     if (pipe(messagePipe)) {
         LOGV("Can not create pipe: %s", strerror(errno));
     }
-    pipeRead = messagePipe[0];
+    pipeRead  = messagePipe[0];
     pipeWrite = messagePipe[1];
     if (fcntl(pipeRead, F_SETFL, O_NONBLOCK) < 0) {
         LOGV("Can not make pipe read to non blocking mode.");
@@ -211,34 +212,35 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onCreateNative(JNIEnv *e
         cc::cocosApp.cond.wait(lk);
     }
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceCreatedNative(JNIEnv *env, jobject obj, jobject surface) {
     setWindow(ANativeWindow_fromSurface(env, surface));
 }
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStartNative(JNIEnv *env, jobject obj) {
+    setAppState(APP_CMD_RESUME);
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onPauseNative(JNIEnv *env, jobject obj) {
-    setActivityState(APP_CMD_PAUSE);
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onResumeNative(JNIEnv *env, jobject obj) {
-    setActivityState(APP_CMD_RESUME);
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStopNative(JNIEnv *env, jobject obj) {
+    setAppState(APP_CMD_PAUSE);
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onLowMemoryNative(JNIEnv *env, jobject obj) {
     writeCommand(APP_CMD_LOW_MEMORY);
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onWindowFocusChangedNative(JNIEnv *env, jobject obj, jboolean has_focus) {
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceChangedNative(JNIEnv *env, jobject obj, jint width, jint height) {
 }
-
+//NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceDestroyNative(JNIEnv *env, jobject obj) {
     setWindow(nullptr);
 }
