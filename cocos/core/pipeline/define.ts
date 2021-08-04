@@ -34,7 +34,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, Device, Feature } from '../gfx';
+    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, Device, Feature, API } from '../gfx';
 
 export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
 export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
@@ -560,7 +560,9 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
  */
 export function supportsHalfFloatTexture (device: Device) {
-    return device.hasFeature(Feature.COLOR_HALF_FLOAT) && device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+    return device.hasFeature(Feature.COLOR_HALF_FLOAT)
+     && device.hasFeature(Feature.TEXTURE_HALF_FLOAT)
+     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
 /* eslint-enable max-len */
