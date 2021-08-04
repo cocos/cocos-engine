@@ -336,6 +336,7 @@ export class RenderAdditiveLightQueue {
             const light = this._validLights[i];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(i);
             if (!descriptorSet) { continue; }
+            let matShadowProj : Mat4;
             switch (light.type) {
             case LightType.SPHERE:
                 // planar PROJ
@@ -365,10 +366,7 @@ export class RenderAdditiveLightQueue {
                 // light proj
                 Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
 
-                const matShadowProj = _matShadowViewProj.clone();
-
-                Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_PROJ_OFFSET);
-                Mat4.toArray(this._shadowUBO, _matShadowViewProj.clone().invert(), UBOShadow.MAT_LIGHT_INV_PROJ_OFFSET);
+                matShadowProj = _matShadowViewProj.clone();
 
                 // light viewProj
                 Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);

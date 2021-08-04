@@ -5,8 +5,6 @@ layout(set = 0, binding = 2) uniform CCShadow {
   highp mat4 cc_matLightPlaneProj;
   highp mat4 cc_matLightView;
   highp mat4 cc_matLightViewProj;
-  highp mat4 cc_matLightProj;
-  highp mat4 cc_matLightInvProj;
   lowp  vec4 cc_shadowDepthBiasPerspCoeffs; // x -> cc_matLightProj[10]; y -> cc_matLightProj[14]; z -> cc_matLightProj[2][3]; w -> 0
   lowp  vec4 cc_shadowNFLSInfo;     // x -> near(N);      y -> far(F);       z -> isLinear(L);   w -> shadow saturation(S);
   lowp  vec4 cc_shadowWHPBInfo;     // x -> width(W);     y -> height(H);    z -> pcf(P);        w -> bias(B);
