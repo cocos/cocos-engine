@@ -139,7 +139,7 @@ export class SystemEvent extends EventTarget {
      * @param target - The event listener's target and callee
      */
     // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
-    public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?, once?: boolean) {
+    public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return callback;
         }
@@ -244,7 +244,7 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?, once?: boolean) {
+    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
