@@ -420,6 +420,7 @@ export class Camera extends Component {
             this._camera.changeTargetWindow(EDITOR ? legacyCC.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
+        this.node.emit('targetChange', this);
     }
 
     /**

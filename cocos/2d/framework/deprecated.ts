@@ -102,8 +102,6 @@ replaceProperty(Canvas.prototype, 'Canvas.prototype', [
         customSetter (value) {
             // @ts-expect-error deprecation method
             if (this._cameraComponent) this._cameraComponent.targetTexture = value;
-            // @ts-expect-error deprecation method
-            this._onResizeCamera();
         },
     },
     {
