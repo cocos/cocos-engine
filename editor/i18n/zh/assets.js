@@ -213,6 +213,10 @@ module.exports = {
                     title: '跳过对模型文件的验证。',
                 },
             },
+            addEvent: {
+                shouldSave: '新建的 clip 需要先提交修改后，才能添加/编辑事件',
+                ok: '知道了',
+            },
             ImageRemap: {
                 remapAs: '映射为',
                 original: '原始',
