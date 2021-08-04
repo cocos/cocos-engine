@@ -1,4 +1,6 @@
 'use strict';
+const { join } = require('path');
+module.paths.push(join(Editor.App.path, 'node_modules'));
 
 const eventItem = require('./event-item');
 const defaultFunc = [
@@ -8,9 +10,9 @@ const defaultFunc = [
     },
 ];
 
-exports.template = `<section v-if="show" id="event-editor">
+exports.template = `<section v-if="show" id="event-editor" @mousedown.stop>
     <header class="flex">
-        <ui-label class="f1" value="Animation Event"></ui-label>
+        <ui-label class="f1" :value="'Animation Event (frame: ' + RealFrame + ' )'"></ui-label>
         <ui-icon value="close" @click="show = false"></ui-icon>
     </header>
     <div class="functions">
@@ -53,10 +55,12 @@ exports.data = function() {
         value: [],
         dirty: false,
         debounceSave: null,
+        // time value
         frame: 0,
+        RealFrame: 0,
         show: false,
     };
-}
+};
 
 exports.components = {
     'event-item': eventItem,
@@ -111,7 +115,7 @@ exports.methods = {
     async saveData() {
         const that = this;
         const result = that.value.map((item) => {
-           // TODO Animation events recorded in meta need to be unified https://github.com/cocos-creator/3d-tasks/issues/7416
+            // TODO Animation events recorded in meta need to be unified https://github.com/cocos-creator/3d-tasks/issues/7416
             return {
                 functionName: item.func,
                 parameters: item.params,
@@ -147,4 +151,4 @@ exports.mounted = function() {
     // @ts-ignore
     const that = this;
     that.debounceSave = require('lodash').debounce(that.saveData, 300);
-}
+};
