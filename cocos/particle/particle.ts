@@ -57,6 +57,7 @@ export class Particle {
     public remainingLifetime: number;
     public loopCount: number;
     public lastLoop: number;
+    public trailDelay: number;
     public startLifetime: number;
     public emitAccumulator0: number;
     public emitAccumulator1: number;
@@ -85,6 +86,7 @@ export class Particle {
         this.remainingLifetime = 0.0;
         this.loopCount = 0;
         this.lastLoop = 0;
+        this.trailDelay = 0;
         this.startLifetime = 0.0;
         this.emitAccumulator0 = 0.0;
         this.emitAccumulator1 = 0.0;

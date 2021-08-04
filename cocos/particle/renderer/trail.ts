@@ -444,7 +444,12 @@ export default class TrailModule {
         }
 
         if (p.loopCount > p.lastLoop) {
-            p.lastLoop = p.loopCount;
+            if (p.trailDelay > 1) {
+                p.lastLoop = p.loopCount;
+                p.trailDelay = 0;
+            } else {
+                p.trailDelay++;
+            }
             return;
         }
 
@@ -501,8 +506,6 @@ export default class TrailModule {
         } else {
             lastSeg.color.set(this.colorOvertime.evaluate(0, 1));
         }
-
-        p.lastLoop = p.loopCount;
     }
 
     public removeParticle (p: Particle) {
