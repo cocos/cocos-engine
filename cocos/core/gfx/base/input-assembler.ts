@@ -29,15 +29,14 @@
  */
 
 import { Buffer } from './buffer';
-import { Device } from './device';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { Attribute, Obj, ObjectType, InputAssemblerInfo, DrawInfo } from './define';
+import { Attribute, GFXObject, ObjectType, InputAssemblerInfo, DrawInfo } from './define';
 
 /**
  * @en GFX input assembler.
  * @zh GFX 输入汇集器。
  */
-export abstract class InputAssembler extends Obj {
+export abstract class InputAssembler extends GFXObject {
     /**
      * @en Get current attributes.
      * @zh 顶点属性数组。
@@ -138,7 +137,6 @@ export abstract class InputAssembler extends Obj {
         return this._drawInfo;
     }
 
-    protected _device: Device;
     protected _attributes: Attribute[] = [];
     protected _attributesHash = 0;
 
@@ -148,9 +146,8 @@ export abstract class InputAssembler extends Obj {
 
     protected _drawInfo = new DrawInfo();
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.INPUT_ASSEMBLER);
-        this._device = device;
     }
 
     /**

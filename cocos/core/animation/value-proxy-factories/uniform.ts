@@ -36,7 +36,6 @@ import { TextureBase } from '../../assets/texture-base';
 import { Type } from '../../gfx';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
-import { samplerLib } from '../../renderer/core/sampler-lib';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
 import { warn } from '../../platform/debug';
 import { legacyCC } from '../../global-exports';
@@ -121,7 +120,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     if (!texture || !texture.width || !texture.height) { return; }
                     pass.bindTexture(binding, texture);
                     if (value instanceof TextureBase) {
-                        pass.bindSampler(binding, samplerLib.getSampler(legacyCC.game._gfxDevice, value.getSamplerHash()));
+                        pass.bindSampler(binding, legacyCC.game._gfxDevice.getSampler(value.getSamplerInfo()));
                     }
                 },
             };

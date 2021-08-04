@@ -46,11 +46,11 @@ export * from './base/descriptor-set-layout';
 export * from './base/pipeline-layout';
 export * from './base/queue';
 export * from './base/render-pass';
-export * from './base/sampler';
 export * from './base/shader';
 export * from './base/texture';
-export * from './base/global-barrier';
-export * from './base/texture-barrier';
+export * from './base/states/sampler';
+export * from './base/states/global-barrier';
+export * from './base/states/texture-barrier';
 
 const polyfillCC: Record<string, unknown> = Object.assign({}, defines);
 polyfillCC.Device = gfx.Device;

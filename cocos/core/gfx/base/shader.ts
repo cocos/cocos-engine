@@ -28,62 +28,37 @@
  * @module gfx
  */
 
-import { Device } from './device';
-import { Obj, ObjectType, ShaderInfo, ShaderStage, UniformBlock, UniformSampler, Attribute } from './define';
+import { GFXObject, ObjectType, ShaderInfo, ShaderStage, UniformBlock, UniformSampler, Attribute } from './define';
 
 /**
  * @en GFX shader.
  * @zh GFX 着色器。
  */
-export abstract class Shader extends Obj {
-    private static _shaderIdGen = 0;
-
-    /**
-     * @en Get current shader id.
-     * @zh 着色器 id。
-     */
-    public get id (): number {
-        return this._id;
-    }
-
-    /**
-     * @en Get current shader name.
-     * @zh 着色器名称。
-     */
-    public get name (): string {
+export abstract class Shader extends GFXObject {
+    get name (): string {
         return this._name;
     }
 
-    public get attributes () {
+    get attributes () {
         return this._attributes;
     }
 
-    public get blocks () {
+    get blocks () {
         return this._blocks;
     }
 
-    public get samplers () {
+    get samplers () {
         return this._samplers;
     }
 
-    protected _device: Device;
-
-    protected _id: number;
-
     protected _name = '';
-
     protected _stages: ShaderStage[] = [];
-
     protected _attributes: Attribute[] = [];
-
     protected _blocks: UniformBlock[] = [];
-
     protected _samplers: UniformSampler[] = [];
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.SHADER);
-        this._device = device;
-        this._id = Shader._shaderIdGen++;
     }
 
     public abstract initialize (info: ShaderInfo): boolean;

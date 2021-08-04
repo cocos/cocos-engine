@@ -293,7 +293,7 @@ export class SplashScreen {
         samplerInfo.addressU = Address.CLAMP;
         samplerInfo.addressV = Address.CLAMP;
         samplerInfo.addressW = Address.CLAMP;
-        this.sampler = device.createSampler(samplerInfo);
+        this.sampler = device.getSampler(samplerInfo);
 
         this.logoTexture = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
@@ -406,7 +406,6 @@ export class SplashScreen {
         this.vertexBuffers = null!;
         this.indicesBuffers.destroy();
         this.indicesBuffers = null!;
-        this.sampler.destroy();
         this.sampler = null!;
 
         /** text */

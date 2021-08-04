@@ -49,7 +49,6 @@ import {
     WebGL2CmdPackage,
     WebGL2CmdUpdateBuffer,
 } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { IWebGL2GPUInputAssembler, IWebGL2GPUDescriptorSet, IWebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
@@ -57,8 +56,9 @@ import { WebGL2PipelineState } from './webgl2-pipeline-state';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
-import { GlobalBarrier } from '../base/global-barrier';
-import { TextureBarrier } from '../base/texture-barrier';
+import { GlobalBarrier } from '../base/states/global-barrier';
+import { TextureBarrier } from '../base/states/texture-barrier';
+import { WebGL2DeviceManager } from './webgl2-define';
 
 export class WebGL2CommandBuffer extends CommandBuffer {
     public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
@@ -76,7 +76,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         this._type = info.type;
         this._queue = info.queue;
 
-        const setCount = (this._device as WebGL2Device).bindingMappingInfo.bufferOffsets.length;
+        const setCount = WebGL2DeviceManager.instance.bindingMappingInfo.bufferOffsets.length;
         for (let i = 0; i < setCount; i++) {
             this._curGPUDescriptorSets.push(null!);
         }
@@ -409,12 +409,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
-    }
-
-    public get webGLDevice (): WebGL2Device {
-        return this._device as WebGL2Device;
-    }
+    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {}
 
     protected bindStates () {
         const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGL2CmdBindStates);

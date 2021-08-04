@@ -26,7 +26,7 @@
 import { FormatSurfaceSize, TextureInfo, TextureViewInfo, IsPowerOf2, ISwapchainTextureInfo, TextureUsageBit, FormatInfos } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGLCmdFuncCreateTexture, WebGLCmdFuncDestroyTexture, WebGLCmdFuncResizeTexture } from './webgl-commands';
-import { WebGLDevice } from './webgl-device';
+import { WebGLDeviceManager } from './webgl-define';
 import { IWebGLGPUTexture } from './webgl-gpu-objects';
 
 export class WebGLTexture extends Texture {
@@ -85,17 +85,17 @@ export class WebGLTexture extends Texture {
             isSwapchainTexture: isSwapchainTexture || false,
         };
 
-        WebGLCmdFuncCreateTexture(this._device as WebGLDevice, this._gpuTexture);
+        WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
 
-        this._device.memoryStatus.textureSize += this._size;
+        WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
 
         return true;
     }
 
     public destroy () {
         if (this._gpuTexture) {
-            WebGLCmdFuncDestroyTexture(this._device as WebGLDevice, this._gpuTexture);
-            this._device.memoryStatus.textureSize -= this._size;
+            WebGLCmdFuncDestroyTexture(WebGLDeviceManager.instance, this._gpuTexture);
+            WebGLDeviceManager.instance.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
     }
@@ -111,9 +111,9 @@ export class WebGLTexture extends Texture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGLCmdFuncResizeTexture(this._device as WebGLDevice, this._gpuTexture);
-            this._device.memoryStatus.textureSize -= oldSize;
-            this._device.memoryStatus.textureSize += this._size;
+            WebGLCmdFuncResizeTexture(WebGLDeviceManager.instance, this._gpuTexture);
+            WebGLDeviceManager.instance.memoryStatus.textureSize -= oldSize;
+            WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
         }
     }
 

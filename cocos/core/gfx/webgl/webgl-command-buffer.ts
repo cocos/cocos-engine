@@ -33,7 +33,6 @@ import { Texture } from '../base/texture';
 import { WebGLDescriptorSet } from './webgl-descriptor-set';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
-import { WebGLDevice } from './webgl-device';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { IWebGLGPUInputAssembler, IWebGLGPUDescriptorSet, IWebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLInputAssembler } from './webgl-input-assembler';
@@ -45,8 +44,9 @@ import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource,
     CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates } from '../base/define';
 import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdCopyBufferToTexture,
     WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
-import { GlobalBarrier } from '../base/global-barrier';
-import { TextureBarrier } from '../base/texture-barrier';
+import { GlobalBarrier } from '../base/states/global-barrier';
+import { TextureBarrier } from '../base/states/texture-barrier';
+import { WebGLDeviceManager } from './webgl-define';
 
 export class WebGLCommandBuffer extends CommandBuffer {
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
@@ -64,7 +64,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         this._type = info.type;
         this._queue = info.queue;
 
-        const setCount = (this._device as WebGLDevice).bindingMappingInfo.bufferOffsets.length;
+        const setCount = WebGLDeviceManager.instance.bindingMappingInfo.bufferOffsets.length;
         for (let i = 0; i < setCount; i++) {
             this._curGPUDescriptorSets.push(null!);
         }
@@ -402,10 +402,6 @@ export class WebGLCommandBuffer extends CommandBuffer {
     }
 
     public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
-    }
-
-    public get webGLDevice (): WebGLDevice {
-        return this._device as WebGLDevice;
     }
 
     protected bindStates () {

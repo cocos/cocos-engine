@@ -32,8 +32,7 @@ import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
 import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, IUniform, IAttribute } from '../gfx';
-
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, SamplerInfo, Uniform, Attribute } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -43,7 +42,7 @@ import { legacyCC } from '../global-exports';
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
     handleInfo?: [string, number, number]; // auto-generated from 'target'
-    samplerHash?: number; // auto-generated from 'sampler'
+    samplerInfo?: SamplerInfo; // auto-generated from 'sampler'
     value?: number[] | string;
 }
 // Pass instance itself are compliant to IPassStates too
@@ -72,7 +71,7 @@ export interface ITechniqueInfo {
 export interface IBlockInfo {
     binding: number;
     name: string;
-    members: IUniform[];
+    members: Uniform[];
     count: number;
     stageFlags: ShaderStageFlags;
     descriptorType?: DescriptorType;
@@ -85,7 +84,7 @@ export interface ISamplerTextureInfo {
     stageFlags: ShaderStageFlags;
     descriptorType?: DescriptorType;
 }
-export interface IAttributeInfo extends IAttribute {
+export interface IAttributeInfo extends Attribute {
     defines: string[];
 }
 export interface IDefineInfo {

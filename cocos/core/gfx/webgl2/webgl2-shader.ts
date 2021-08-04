@@ -26,7 +26,7 @@
 import { ShaderInfo } from '../base/define';
 import { Shader } from '../base/shader';
 import { WebGL2CmdFuncCreateShader, WebGL2CmdFuncDestroyShader } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
+import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUShader, IWebGL2GPUShaderStage } from './webgl2-gpu-objects';
 
 export class WebGL2Shader extends Shader {
@@ -65,14 +65,14 @@ export class WebGL2Shader extends Shader {
             };
         }
 
-        WebGL2CmdFuncCreateShader(this._device as WebGL2Device, this._gpuShader);
+        WebGL2CmdFuncCreateShader(WebGL2DeviceManager.instance, this._gpuShader);
 
         return true;
     }
 
     public destroy () {
         if (this._gpuShader) {
-            WebGL2CmdFuncDestroyShader(this._device as WebGL2Device, this._gpuShader);
+            WebGL2CmdFuncDestroyShader(WebGL2DeviceManager.instance, this._gpuShader);
             this._gpuShader = null;
         }
     }

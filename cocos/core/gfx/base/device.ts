@@ -44,11 +44,11 @@ import { InputAssembler } from './input-assembler';
 import { PipelineState, PipelineStateInfo } from './pipeline-state';
 import { Queue } from './queue';
 import { RenderPass } from './render-pass';
-import { Sampler } from './sampler';
+import { Sampler } from './states/sampler';
 import { Shader } from './shader';
 import { Texture } from './texture';
-import { GlobalBarrier } from './global-barrier';
-import { TextureBarrier } from './texture-barrier';
+import { GlobalBarrier } from './states/global-barrier';
+import { TextureBarrier } from './states/texture-barrier';
 import { Swapchain } from './swapchain';
 
 /**
@@ -156,8 +156,11 @@ export abstract class Device {
     protected _memoryStatus = new MemoryStatus();
     protected _caps = new DeviceCaps();
     protected _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
+    protected _samplers = new Map<number, Sampler>();
+    protected _globalBarriers = new Map<number, GlobalBarrier>();
+    protected _textureBarriers = new Map<number, TextureBarrier>();
 
-    public abstract initialize (info: DeviceInfo): boolean;
+    public abstract initialize (info: Readonly<DeviceInfo>): boolean;
 
     public abstract destroy (): void;
 
@@ -184,112 +187,112 @@ export abstract class Device {
      * @zh 创建命令缓冲。
      * @param info GFX command buffer description info.
      */
-    public abstract createCommandBuffer (info: CommandBufferInfo): CommandBuffer;
+    public abstract createCommandBuffer (info: Readonly<CommandBufferInfo>): CommandBuffer;
 
     /**
      * @en Create swapchain.
      * @zh 创建交换链。
      * @param info GFX swapchain description info.
      */
-    public abstract createSwapchain (info: SwapchainInfo): Swapchain;
+    public abstract createSwapchain (info: Readonly<SwapchainInfo>): Swapchain;
 
     /**
      * @en Create buffer.
      * @zh 创建缓冲。
      * @param info GFX buffer description info.
      */
-    public abstract createBuffer (info: BufferInfo | BufferViewInfo): Buffer;
+    public abstract createBuffer (info: Readonly<BufferInfo> | BufferViewInfo): Buffer;
 
     /**
      * @en Create texture.
      * @zh 创建纹理。
      * @param info GFX texture description info.
      */
-    public abstract createTexture (info: TextureInfo | TextureViewInfo): Texture;
-
-    /**
-     * @en Create sampler.
-     * @zh 创建采样器。
-     * @param info GFX sampler description info.
-     */
-    public abstract createSampler (info: SamplerInfo): Sampler;
+    public abstract createTexture (info: Readonly<TextureInfo> | TextureViewInfo): Texture;
 
     /**
      * @en Create descriptor sets.
      * @zh 创建描述符集组。
      * @param info GFX descriptor sets description info.
      */
-    public abstract createDescriptorSet (info: DescriptorSetInfo): DescriptorSet;
+    public abstract createDescriptorSet (info: Readonly<DescriptorSetInfo>): DescriptorSet;
 
     /**
      * @en Create shader.
      * @zh 创建着色器。
      * @param info GFX shader description info.
      */
-    public abstract createShader (info: ShaderInfo): Shader;
+    public abstract createShader (info: Readonly<ShaderInfo>): Shader;
 
     /**
      * @en Create input assembler.
      * @zh 创建纹理。
      * @param info GFX input assembler description info.
      */
-    public abstract createInputAssembler (info: InputAssemblerInfo): InputAssembler;
+    public abstract createInputAssembler (info: Readonly<InputAssemblerInfo>): InputAssembler;
 
     /**
      * @en Create render pass.
      * @zh 创建渲染过程。
      * @param info GFX render pass description info.
      */
-    public abstract createRenderPass (info: RenderPassInfo): RenderPass;
+    public abstract createRenderPass (info: Readonly<RenderPassInfo>): RenderPass;
 
     /**
      * @en Create frame buffer.
      * @zh 创建帧缓冲。
      * @param info GFX frame buffer description info.
      */
-    public abstract createFramebuffer (info: FramebufferInfo): Framebuffer;
+    public abstract createFramebuffer (info: Readonly<FramebufferInfo>): Framebuffer;
 
     /**
      * @en Create descriptor set layout.
      * @zh 创建描述符集布局。
      * @param info GFX descriptor set layout description info.
      */
-    public abstract createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout;
+    public abstract createDescriptorSetLayout (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayout;
 
     /**
      * @en Create pipeline layout.
      * @zh 创建管线布局。
      * @param info GFX pipeline layout description info.
      */
-    public abstract createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout;
+    public abstract createPipelineLayout (info: Readonly<PipelineLayoutInfo>): PipelineLayout;
 
     /**
      * @en Create pipeline state.
      * @zh 创建管线状态。
      * @param info GFX pipeline state description info.
      */
-    public abstract createPipelineState (info: PipelineStateInfo): PipelineState;
+    public abstract createPipelineState (info: Readonly<PipelineStateInfo>): PipelineState;
 
     /**
      * @en Create queue.
      * @zh 创建队列。
      * @param info GFX queue description info.
      */
-    public abstract createQueue (info: QueueInfo): Queue;
+    public abstract createQueue (info: Readonly<QueueInfo>): Queue;
+
+    /**
+     * @en Create sampler.
+     * @zh 创建采样器。
+     * @param info GFX sampler description info.
+     */
+    public abstract getSampler (info: Readonly<SamplerInfo>): Sampler;
 
     /**
      * @en Create global barrier.
      * @zh 创建全局内存屏障。
      * @param info GFX global barrier description info.
      */
-    public abstract createGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier;
+    public abstract getGlobalBarrier (info: Readonly<GlobalBarrierInfo>): GlobalBarrier;
 
     /**
      * @en Create texture barrier.
      * @zh 创建贴图内存屏障。
      * @param info GFX texture barrier description info.
      */
-    public abstract createTextureBarrier (info: TextureBarrierInfo): TextureBarrier;
+    public abstract getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier;
 
     /**
      * @en Copy buffers to texture.
@@ -298,10 +301,9 @@ export abstract class Device {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: BufferTextureCopy[]): void;
 
     /**
-     *
      * @en Copy texture to buffers
      * @zh 拷贝纹理到缓冲
      * @param texture The texture to be copied.

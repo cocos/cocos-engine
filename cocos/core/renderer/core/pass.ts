@@ -34,7 +34,6 @@ import { TextureBase } from '../../assets/texture-base';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { samplerLib } from './sampler-lib';
 import {
     BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
@@ -473,8 +472,8 @@ export class Pass {
         const texName = value ? `${value as string}-texture` : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
-        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase && textureBase.getSamplerHash();
-        const sampler = samplerLib.getSampler(this._device, samplerHash);
+        const samplerInfo = info && info.samplerInfo !== undefined ? info.samplerInfo : textureBase && textureBase.getSamplerInfo();
+        const sampler = this._device.getSampler(samplerInfo);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
     }

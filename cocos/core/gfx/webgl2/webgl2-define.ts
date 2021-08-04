@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 
+import { WebGL2Device } from './webgl2-device';
+
 // Extensions
 export enum WebGL2EXT {
     COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0,
@@ -101,4 +103,15 @@ export interface IWebGL2Extensions {
     OES_texture_half_float_linear: OES_texture_half_float_linear | null;
     OES_texture_float_linear: OES_texture_float_linear | null;
     useVAO: boolean;
+}
+
+// put the global instance here so that we won't have circular dependencies
+export class WebGL2DeviceManager {
+    static get instance () {
+        return WebGL2DeviceManager._instance!;
+    }
+    static setInstance (instance: WebGL2Device) {
+        WebGL2DeviceManager._instance = instance;
+    }
+    private static _instance: WebGL2Device | null = null;
 }

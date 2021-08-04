@@ -32,7 +32,7 @@ import { WebGLTexture } from './webgl-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo } from '../base/define';
 import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
 import { Swapchain } from '../base/swapchain';
-import { IWebGLExtensions } from './webgl-define';
+import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -215,8 +215,8 @@ export class WebGLSwapchain extends Swapchain {
         const gl = this.gl;
 
         this.stateCache.initialize(
-            this._device.capabilities.maxTextureUnits,
-            this._device.capabilities.maxVertexAttributes,
+            WebGLDeviceManager.instance.capabilities.maxTextureUnits,
+            WebGLDeviceManager.instance.capabilities.maxVertexAttributes,
         );
 
         this._extensions = getExtensions(gl);
@@ -237,7 +237,7 @@ export class WebGLSwapchain extends Swapchain {
         if (depthBits && stencilBits) depthStencilFmt = Format.DEPTH_STENCIL;
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
-        this._colorTexture = new WebGLTexture(this._device);
+        this._colorTexture = new WebGLTexture();
         // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
@@ -246,7 +246,7 @@ export class WebGLSwapchain extends Swapchain {
             height: info.height,
         });
 
-        this._depthStencilTexture = new WebGLTexture(this._device);
+        this._depthStencilTexture = new WebGLTexture();
         // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
@@ -256,7 +256,7 @@ export class WebGLSwapchain extends Swapchain {
         });
 
         // create default null texture
-        this.nullTex2D = this._device.createTexture(new TextureInfo(
+        this.nullTex2D = WebGLDeviceManager.instance.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -265,7 +265,7 @@ export class WebGLSwapchain extends Swapchain {
             TextureFlagBit.GEN_MIPMAP,
         )) as WebGLTexture;
 
-        this.nullTexCube = this._device.createTexture(new TextureInfo(
+        this.nullTexCube = WebGLDeviceManager.instance.createTexture(new TextureInfo(
             TextureType.CUBE,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -281,10 +281,10 @@ export class WebGLSwapchain extends Swapchain {
 
         const nullTexBuff = new Uint8Array(this.nullTex2D.size);
         nullTexBuff.fill(0);
-        this._device.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
+        WebGLDeviceManager.instance.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
 
         nullTexRegion.texSubres.layerCount = 6;
-        this._device.copyBuffersToTexture(
+        WebGLDeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );

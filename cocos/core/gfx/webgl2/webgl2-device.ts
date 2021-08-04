@@ -34,7 +34,7 @@ import { InputAssembler } from '../base/input-assembler';
 import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { Queue } from '../base/queue';
 import { RenderPass } from '../base/render-pass';
-import { Sampler } from '../base/sampler';
+import { Sampler } from '../base/states/sampler';
 import { Shader } from '../base/shader';
 import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
@@ -48,7 +48,7 @@ import { WebGL2PipelineState } from './webgl2-pipeline-state';
 import { WebGL2PrimaryCommandBuffer } from './webgl2-primary-command-buffer';
 import { WebGL2Queue } from './webgl2-queue';
 import { WebGL2RenderPass } from './webgl2-render-pass';
-import { WebGL2Sampler } from './webgl2-sampler';
+import { WebGL2Sampler } from './states/webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2Swapchain, getExtensions } from './webgl2-swapchain';
 import { WebGL2Texture } from './webgl2-texture';
@@ -59,12 +59,16 @@ import {
     QueueType, API, Feature, BufferTextureCopy, SwapchainInfo,
 } from '../base/define';
 import { WebGL2CmdFuncCopyTextureToBuffers, WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
-import { GlobalBarrier } from '../base/global-barrier';
-import { TextureBarrier } from '../base/texture-barrier';
+import { GlobalBarrier } from '../base/states/global-barrier';
+import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
 
 export class WebGL2Device extends Device {
+    static get instance () {
+        return WebGL2Device._instance!;
+    }
+
     get gl () {
         return this._swapchain!.gl;
     }
@@ -86,8 +90,10 @@ export class WebGL2Device extends Device {
     }
 
     private _swapchain: WebGL2Swapchain | null = null;
+    private static _instance: WebGL2Device | null = null;
 
     public initialize (info: DeviceInfo): boolean {
+        WebGL2Device._instance = this;
         this._gfxAPI = API.WEBGL2;
 
         this._bindingMappingInfo = info.bindingMappingInfo;
@@ -214,7 +220,15 @@ export class WebGL2Device extends Device {
             this._cmdBuff = null;
         }
 
+        const it = this._samplers.values();
+        let res = it.next();
+        while (!res.done) {
+            (res.value as WebGL2Sampler).destroy();
+            res = it.next();
+        }
+
         this._swapchain = null;
+        WebGL2Device._instance = null;
     }
 
     public flushCommands (cmdBuffs: CommandBuffer[]) {}
@@ -232,7 +246,7 @@ export class WebGL2Device extends Device {
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
         // const Ctor = WebGLCommandBuffer; // opt to instant invocation
         const Ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
-        const cmdBuff = new Ctor(this);
+        const cmdBuff = new Ctor();
         if (cmdBuff.initialize(info)) {
             return cmdBuff;
         }
@@ -240,7 +254,7 @@ export class WebGL2Device extends Device {
     }
 
     public createSwapchain (info: SwapchainInfo): Swapchain {
-        const swapchain = new WebGL2Swapchain(this);
+        const swapchain = new WebGL2Swapchain();
         this._swapchain = swapchain;
         if (swapchain.initialize(info)) {
             return swapchain;
@@ -249,7 +263,7 @@ export class WebGL2Device extends Device {
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
-        const buffer = new WebGL2Buffer(this);
+        const buffer = new WebGL2Buffer();
         if (buffer.initialize(info)) {
             return buffer;
         }
@@ -257,23 +271,15 @@ export class WebGL2Device extends Device {
     }
 
     public createTexture (info: TextureInfo | TextureViewInfo): Texture {
-        const texture = new WebGL2Texture(this);
+        const texture = new WebGL2Texture();
         if (texture.initialize(info)) {
             return texture;
         }
         return null!;
     }
 
-    public createSampler (info: SamplerInfo): Sampler {
-        const sampler = new WebGL2Sampler(this);
-        if (sampler.initialize(info)) {
-            return sampler;
-        }
-        return null!;
-    }
-
     public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
-        const descriptorSet = new WebGL2DescriptorSet(this);
+        const descriptorSet = new WebGL2DescriptorSet();
         if (descriptorSet.initialize(info)) {
             return descriptorSet;
         }
@@ -281,7 +287,7 @@ export class WebGL2Device extends Device {
     }
 
     public createShader (info: ShaderInfo): Shader {
-        const shader = new WebGL2Shader(this);
+        const shader = new WebGL2Shader();
         if (shader.initialize(info)) {
             return shader;
         }
@@ -289,7 +295,7 @@ export class WebGL2Device extends Device {
     }
 
     public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
-        const inputAssembler = new WebGL2InputAssembler(this);
+        const inputAssembler = new WebGL2InputAssembler();
         if (inputAssembler.initialize(info)) {
             return inputAssembler;
         }
@@ -297,7 +303,7 @@ export class WebGL2Device extends Device {
     }
 
     public createRenderPass (info: RenderPassInfo): RenderPass {
-        const renderPass = new WebGL2RenderPass(this);
+        const renderPass = new WebGL2RenderPass();
         if (renderPass.initialize(info)) {
             return renderPass;
         }
@@ -305,7 +311,7 @@ export class WebGL2Device extends Device {
     }
 
     public createFramebuffer (info: FramebufferInfo): Framebuffer {
-        const framebuffer = new WebGL2Framebuffer(this);
+        const framebuffer = new WebGL2Framebuffer();
         if (framebuffer.initialize(info)) {
             return framebuffer;
         }
@@ -313,7 +319,7 @@ export class WebGL2Device extends Device {
     }
 
     public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
-        const descriptorSetLayout = new WebGL2DescriptorSetLayout(this);
+        const descriptorSetLayout = new WebGL2DescriptorSetLayout();
         if (descriptorSetLayout.initialize(info)) {
             return descriptorSetLayout;
         }
@@ -321,7 +327,7 @@ export class WebGL2Device extends Device {
     }
 
     public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
-        const pipelineLayout = new WebGL2PipelineLayout(this);
+        const pipelineLayout = new WebGL2PipelineLayout();
         if (pipelineLayout.initialize(info)) {
             return pipelineLayout;
         }
@@ -329,7 +335,7 @@ export class WebGL2Device extends Device {
     }
 
     public createPipelineState (info: PipelineStateInfo): PipelineState {
-        const pipelineState = new WebGL2PipelineState(this);
+        const pipelineState = new WebGL2PipelineState();
         if (pipelineState.initialize(info)) {
             return pipelineState;
         }
@@ -337,27 +343,35 @@ export class WebGL2Device extends Device {
     }
 
     public createQueue (info: QueueInfo): Queue {
-        const queue = new WebGL2Queue(this);
+        const queue = new WebGL2Queue();
         if (queue.initialize(info)) {
             return queue;
         }
         return null!;
     }
 
-    public createGlobalBarrier (info: GlobalBarrierInfo) {
-        const barrier = new GlobalBarrier(this);
-        if (barrier.initialize(info)) {
-            return barrier;
+    public getSampler (info: SamplerInfo): Sampler {
+        const hash = Sampler.computeHash(info);
+        if (!this._samplers.has(hash)) {
+            this._samplers.set(hash, new WebGL2Sampler(info));
         }
-        return null!;
+        return this._samplers.get(hash)!;
     }
 
-    public createTextureBarrier (info: TextureBarrierInfo) {
-        const barrier = new TextureBarrier(this);
-        if (barrier.initialize(info)) {
-            return barrier;
+    public getGlobalBarrier (info: GlobalBarrierInfo) {
+        const hash = GlobalBarrier.computeHash(info);
+        if (!this._globalBarriers.has(hash)) {
+            this._globalBarriers.set(hash, new GlobalBarrier(info));
         }
-        return null!;
+        return this._globalBarriers.get(hash)!;
+    }
+
+    public getTextureBarrier (info: TextureBarrierInfo) {
+        const hash = TextureBarrier.computeHash(info);
+        if (!this._textureBarriers.has(hash)) {
+            this._textureBarriers.set(hash, new TextureBarrier(info));
+        }
+        return this._textureBarriers.get(hash)!;
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {

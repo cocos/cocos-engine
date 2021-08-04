@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 
+import { WebGLDevice } from './webgl-device';
+
 // Extensions
 export enum WebGLEXT {
     RGBA16F_EXT = 0x881A,
@@ -127,4 +129,15 @@ export interface IWebGLExtensions {
     destroyShadersImmediately: boolean;
     noCompressedTexSubImage2D: boolean;
     useVAO: boolean;
+}
+
+// put the global instance here so that we won't have circular dependencies
+export class WebGLDeviceManager {
+    static get instance () {
+        return WebGLDeviceManager._instance!;
+    }
+    static setInstance (instance: WebGLDevice) {
+        WebGLDeviceManager._instance = instance;
+    }
+    private static _instance: WebGLDevice | null = null;
 }

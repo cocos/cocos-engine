@@ -30,7 +30,6 @@
 
 import { Buffer } from './buffer';
 import { DescriptorSet } from './descriptor-set';
-import { Device } from './device';
 import { Framebuffer } from './framebuffer';
 import { InputAssembler } from './input-assembler';
 import { PipelineState } from './pipeline-state';
@@ -38,22 +37,22 @@ import { Queue } from './queue';
 import { RenderPass } from './render-pass';
 import { Texture } from './texture';
 import {
-    Obj,
+    GFXObject,
     ObjectType,
     StencilFace,
     CommandBufferType,
     CommandBufferInfo,
     BufferTextureCopy, Color, Rect, Viewport, DrawInfo,
 } from './define';
-import { GlobalBarrier } from './global-barrier';
-import { TextureBarrier } from './texture-barrier';
+import { GlobalBarrier } from './states/global-barrier';
+import { TextureBarrier } from './states/texture-barrier';
 
 /**
  * @en GFX command buffer.
  * @zh GFX 命令缓冲。
  */
 
-export abstract class CommandBuffer extends Obj {
+export abstract class CommandBuffer extends GFXObject {
     /**
      * @en Type of the command buffer.
      * @zh 命令缓冲类型。
@@ -94,21 +93,14 @@ export abstract class CommandBuffer extends Obj {
         return this._numTris;
     }
 
-    protected _device: Device;
-
     protected _queue: Queue | null = null;
-
     protected _type: CommandBufferType = CommandBufferType.PRIMARY;
-
     protected _numDrawCalls = 0;
-
     protected _numInstances = 0;
-
     protected _numTris = 0;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.COMMAND_BUFFER);
-        this._device = device;
     }
 
     public abstract initialize (info: CommandBufferInfo): boolean;

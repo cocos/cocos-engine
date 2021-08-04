@@ -28,24 +28,33 @@
  * @module gfx
  */
 
-import { Device } from './device';
-import { Obj, ObjectType, TextureBarrierInfo } from './define';
+import { murmurhash2_32_gc } from '../../../utils';
+import { GFXObject, ObjectType, GlobalBarrierInfo } from '../define';
 
 /**
- * @en GFX shader.
- * @zh GFX 着色器。
+ * @en GFX global barrier.
+ * @zh GFX 全局内存屏障。
  */
-export class TextureBarrier extends Obj {
-    protected _device: Device;
-    protected _info: TextureBarrierInfo = new TextureBarrierInfo();
+export class GlobalBarrier extends GFXObject {
+    get info (): Readonly<GlobalBarrierInfo> { return this._info; }
 
-    constructor (device: Device) {
-        super(ObjectType.TEXTURE_BARRIER);
-        this._device = device;
+    protected _info: GlobalBarrierInfo = new GlobalBarrierInfo();
+
+    constructor (info: GlobalBarrierInfo) {
+        super(ObjectType.GLOBAL_BARRIER);
+        this._info.copy(info);
     }
 
-    public initialize (info: TextureBarrierInfo): boolean {
-        this._info.copy(info);
-        return true;
+    static computeHash (info: GlobalBarrierInfo) {
+        let res = 'prev:';
+        for (let i = 0; i < info.prevAccesses.length; ++i) {
+            res += ` ${info.prevAccesses[i]}`;
+        }
+        res += 'next:';
+        for (let i = 0; i < info.nextAccesses.length; ++i) {
+            res += ` ${info.nextAccesses[i]}`;
+        }
+
+        return murmurhash2_32_gc(res, 666);
     }
 }

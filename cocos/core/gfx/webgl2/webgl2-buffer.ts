@@ -31,7 +31,7 @@ import {
     WebGL2CmdFuncResizeBuffer,
     WebGL2CmdFuncUpdateBuffer,
 } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
+import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUBuffer, WebGL2IndirectDrawInfos } from './webgl2-gpu-objects';
 
 export class WebGL2Buffer extends Buffer {
@@ -84,9 +84,9 @@ export class WebGL2Buffer extends Buffer {
                 glOffset: 0,
             };
 
-            WebGL2CmdFuncCreateBuffer(this._device as WebGL2Device, this._gpuBuffer);
+            WebGL2CmdFuncCreateBuffer(WebGL2DeviceManager.instance, this._gpuBuffer);
 
-            this._device.memoryStatus.bufferSize += this._size;
+            WebGL2DeviceManager.instance.memoryStatus.bufferSize += this._size;
         }
 
         return true;
@@ -95,8 +95,8 @@ export class WebGL2Buffer extends Buffer {
     public destroy () {
         if (this._gpuBuffer) {
             if (!this._isBufferView) {
-                WebGL2CmdFuncDestroyBuffer(this._device as WebGL2Device, this._gpuBuffer);
-                this._device.memoryStatus.bufferSize -= this._size;
+                WebGL2CmdFuncDestroyBuffer(WebGL2DeviceManager.instance, this._gpuBuffer);
+                WebGL2DeviceManager.instance.memoryStatus.bufferSize -= this._size;
             }
             this._gpuBuffer = null;
         }
@@ -117,9 +117,9 @@ export class WebGL2Buffer extends Buffer {
         if (this._gpuBuffer) {
             this._gpuBuffer.size = size;
             if (size > 0) {
-                WebGL2CmdFuncResizeBuffer(this._device as WebGL2Device, this._gpuBuffer);
-                this._device.memoryStatus.bufferSize -= oldSize;
-                this._device.memoryStatus.bufferSize += size;
+                WebGL2CmdFuncResizeBuffer(WebGL2DeviceManager.instance, this._gpuBuffer);
+                WebGL2DeviceManager.instance.memoryStatus.bufferSize -= oldSize;
+                WebGL2DeviceManager.instance.memoryStatus.bufferSize += size;
             }
         }
     }
@@ -140,7 +140,7 @@ export class WebGL2Buffer extends Buffer {
         }
 
         WebGL2CmdFuncUpdateBuffer(
-            this._device as WebGL2Device,
+            WebGL2DeviceManager.instance,
             this._gpuBuffer!,
             buffer,
             0,

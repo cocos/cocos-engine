@@ -34,7 +34,7 @@ import { InputAssembler } from '../base/input-assembler';
 import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { Queue } from '../base/queue';
 import { RenderPass } from '../base/render-pass';
-import { Sampler } from '../base/sampler';
+import { Sampler } from '../base/states/sampler';
 import { Shader } from '../base/shader';
 import { Texture } from '../base/texture';
 import { WebGLDescriptorSet } from './webgl-descriptor-set';
@@ -48,7 +48,7 @@ import { WebGLPipelineState } from './webgl-pipeline-state';
 import { WebGLPrimaryCommandBuffer } from './webgl-primary-command-buffer';
 import { WebGLQueue } from './webgl-queue';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { WebGLSampler } from './webgl-sampler';
+import { WebGLSampler } from './states/webgl-sampler';
 import { WebGLShader } from './webgl-shader';
 import { getExtensions, WebGLSwapchain } from './webgl-swapchain';
 import { WebGLTexture } from './webgl-texture';
@@ -59,11 +59,11 @@ import {
     QueueType, API, Feature, BufferTextureCopy, SwapchainInfo,
 } from '../base/define';
 import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
-import { GlobalBarrier } from '../base/global-barrier';
-import { TextureBarrier } from '../base/texture-barrier';
-import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
+import { GlobalBarrier } from '../base/states/global-barrier';
+import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
+import { WebGLDeviceManager } from './webgl-define';
 
 export class WebGLDevice extends Device {
     get gl () {
@@ -89,6 +89,7 @@ export class WebGLDevice extends Device {
     private _swapchain: WebGLSwapchain | null = null;
 
     public initialize (info: DeviceInfo): boolean {
+        WebGLDeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL;
 
         this._bindingMappingInfo = info.bindingMappingInfo;
@@ -252,7 +253,7 @@ export class WebGLDevice extends Device {
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
         // const Ctor = WebGLCommandBuffer; // opt to instant invocation
         const Ctor = info.type === CommandBufferType.PRIMARY ? WebGLPrimaryCommandBuffer : WebGLCommandBuffer;
-        const cmdBuff = new Ctor(this);
+        const cmdBuff = new Ctor();
         if (cmdBuff.initialize(info)) {
             return cmdBuff;
         }
@@ -260,7 +261,7 @@ export class WebGLDevice extends Device {
     }
 
     public createSwapchain (info: SwapchainInfo): Swapchain {
-        const swapchain = new WebGLSwapchain(this);
+        const swapchain = new WebGLSwapchain();
         this._swapchain = swapchain;
         if (swapchain.initialize(info)) {
             return swapchain;
@@ -269,7 +270,7 @@ export class WebGLDevice extends Device {
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
-        const buffer = new WebGLBuffer(this);
+        const buffer = new WebGLBuffer();
         if (buffer.initialize(info)) {
             return buffer;
         }
@@ -277,23 +278,15 @@ export class WebGLDevice extends Device {
     }
 
     public createTexture (info: TextureInfo | TextureViewInfo): Texture {
-        const texture = new WebGLTexture(this);
+        const texture = new WebGLTexture();
         if (texture.initialize(info)) {
             return texture;
         }
         return null!;
     }
 
-    public createSampler (info: SamplerInfo): Sampler {
-        const sampler = new WebGLSampler(this);
-        if (sampler.initialize(info)) {
-            return sampler;
-        }
-        return null!;
-    }
-
     public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
-        const descriptorSet = new WebGLDescriptorSet(this);
+        const descriptorSet = new WebGLDescriptorSet();
         if (descriptorSet.initialize(info)) {
             return descriptorSet;
         }
@@ -301,7 +294,7 @@ export class WebGLDevice extends Device {
     }
 
     public createShader (info: ShaderInfo): Shader {
-        const shader = new WebGLShader(this);
+        const shader = new WebGLShader();
         if (shader.initialize(info)) {
             return shader;
         }
@@ -309,7 +302,7 @@ export class WebGLDevice extends Device {
     }
 
     public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
-        const inputAssembler = new WebGLInputAssembler(this);
+        const inputAssembler = new WebGLInputAssembler();
         if (inputAssembler.initialize(info)) {
             return inputAssembler;
         }
@@ -317,7 +310,7 @@ export class WebGLDevice extends Device {
     }
 
     public createRenderPass (info: RenderPassInfo): RenderPass {
-        const renderPass = new WebGLRenderPass(this);
+        const renderPass = new WebGLRenderPass();
         if (renderPass.initialize(info)) {
             return renderPass;
         }
@@ -325,7 +318,7 @@ export class WebGLDevice extends Device {
     }
 
     public createFramebuffer (info: FramebufferInfo): Framebuffer {
-        const framebuffer = new WebGLFramebuffer(this);
+        const framebuffer = new WebGLFramebuffer();
         if (framebuffer.initialize(info)) {
             return framebuffer;
         }
@@ -333,7 +326,7 @@ export class WebGLDevice extends Device {
     }
 
     public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
-        const descriptorSetLayout = new WebGLDescriptorSetLayout(this);
+        const descriptorSetLayout = new WebGLDescriptorSetLayout();
         if (descriptorSetLayout.initialize(info)) {
             return descriptorSetLayout;
         }
@@ -341,7 +334,7 @@ export class WebGLDevice extends Device {
     }
 
     public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
-        const pipelineLayout = new WebGLPipelineLayout(this);
+        const pipelineLayout = new WebGLPipelineLayout();
         if (pipelineLayout.initialize(info)) {
             return pipelineLayout;
         }
@@ -349,7 +342,7 @@ export class WebGLDevice extends Device {
     }
 
     public createPipelineState (info: PipelineStateInfo): PipelineState {
-        const pipelineState = new WebGLPipelineState(this);
+        const pipelineState = new WebGLPipelineState();
         if (pipelineState.initialize(info)) {
             return pipelineState;
         }
@@ -357,27 +350,35 @@ export class WebGLDevice extends Device {
     }
 
     public createQueue (info: QueueInfo): Queue {
-        const queue = new WebGLQueue(this);
+        const queue = new WebGLQueue();
         if (queue.initialize(info)) {
             return queue;
         }
         return null!;
     }
 
-    public createGlobalBarrier (info: GlobalBarrierInfo) {
-        const barrier = new GlobalBarrier(this);
-        if (barrier.initialize(info)) {
-            return barrier;
+    public getSampler (info: SamplerInfo): Sampler {
+        const hash = Sampler.computeHash(info);
+        if (!this._samplers.has(hash)) {
+            this._samplers.set(hash, new WebGLSampler(info));
         }
-        return null!;
+        return this._samplers.get(hash)!;
     }
 
-    public createTextureBarrier (info: TextureBarrierInfo) {
-        const barrier = new TextureBarrier(this);
-        if (barrier.initialize(info)) {
-            return barrier;
+    public getGlobalBarrier (info: GlobalBarrierInfo) {
+        const hash = GlobalBarrier.computeHash(info);
+        if (!this._globalBarriers.has(hash)) {
+            this._globalBarriers.set(hash, new GlobalBarrier(info));
         }
-        return null!;
+        return this._globalBarriers.get(hash)!;
+    }
+
+    public getTextureBarrier (info: TextureBarrierInfo) {
+        const hash = TextureBarrier.computeHash(info);
+        if (!this._textureBarriers.has(hash)) {
+            this._textureBarriers.set(hash, new TextureBarrier(info));
+        }
+        return this._textureBarriers.get(hash)!;
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {

@@ -28,10 +28,9 @@
  * @module gfx
  */
 
-import { Device } from './device';
 import {
     Format,
-    Obj,
+    GFXObject,
     ObjectType,
     SampleCount,
     TextureFlagBit,
@@ -48,7 +47,7 @@ import {
  * @en GFX texture.
  * @zh GFX 纹理。
  */
-export abstract class Texture extends Obj {
+export abstract class Texture extends GFXObject {
     /**
      * @en Get texture type.
      * @zh 纹理类型。
@@ -137,8 +136,6 @@ export abstract class Texture extends Obj {
         return this._size;
     }
 
-    protected _device: Device;
-
     protected _type: TextureType = TextureType.TEX2D;
     protected _usage: TextureUsage = TextureUsageBit.NONE;
     protected _format: Format = Format.UNKNOWN;
@@ -152,9 +149,8 @@ export abstract class Texture extends Obj {
     protected _isPowerOf2 = false;
     protected _size = 0;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.TEXTURE);
-        this._device = device;
     }
 
     public abstract initialize (info: TextureInfo | TextureViewInfo): boolean;

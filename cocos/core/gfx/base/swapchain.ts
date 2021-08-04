@@ -28,15 +28,14 @@
  * @module gfx
  */
 
-import { Obj, ObjectType, SurfaceTransform, SwapchainInfo } from './define';
-import { Device } from './device';
+import { GFXObject, ObjectType, SurfaceTransform, SwapchainInfo } from './define';
 import { Texture } from './texture';
 
 /**
  * @en GFX Swapchain.
  * @zh GFX 交换链。
  */
-export abstract class Swapchain extends Obj {
+export abstract class Swapchain extends GFXObject {
     /**
      * @en The color texture of this swapchain.
      * @zh 当前交换链的颜色缓冲。
@@ -69,14 +68,12 @@ export abstract class Swapchain extends Obj {
         return this._colorTexture.height;
     }
 
-    protected _device: Device;
     protected _transform = SurfaceTransform.IDENTITY;
     protected _colorTexture: Texture = null!;
     protected _depthStencilTexture: Texture = null!;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.SWAPCHAIN);
-        this._device = device;
     }
 
     public abstract initialize (info: SwapchainInfo): boolean;

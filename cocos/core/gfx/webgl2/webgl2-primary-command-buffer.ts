@@ -34,11 +34,11 @@ import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
     WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncCopyBuffersToTexture,
     WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
+import { WebGL2DeviceManager } from './webgl2-define';
 
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     public beginRenderPass (
@@ -50,7 +50,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         clearStencil: number,
     ) {
         WebGL2CmdFuncBeginRenderPass(
-            this._device as WebGL2Device,
+            WebGL2DeviceManager.instance,
             (renderPass as WebGL2RenderPass).gpuRenderPass,
             (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
             renderArea, clearColors, clearDepth, clearStencil,
@@ -66,7 +66,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
 
             const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
 
-            WebGL2CmdFuncDraw(this._device as WebGL2Device, info as DrawInfo);
+            WebGL2CmdFuncDraw(WebGL2DeviceManager.instance, info as DrawInfo);
 
             ++this._numDrawCalls;
             this._numInstances += info.instanceCount;
@@ -104,7 +104,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                     buffSize = (data as ArrayBuffer).byteLength;
                 }
 
-                WebGL2CmdFuncUpdateBuffer(this._device as WebGL2Device, gpuBuffer, data as ArrayBuffer, 0, buffSize);
+                WebGL2CmdFuncUpdateBuffer(WebGL2DeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
@@ -115,7 +115,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
-                WebGL2CmdFuncCopyBuffersToTexture(this._device as WebGL2Device, buffers, gpuTexture, regions);
+                WebGL2CmdFuncCopyBuffersToTexture(WebGL2DeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
             console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
@@ -126,7 +126,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
             const webGL2CmdBuff = cmdBuffs[i] as WebGL2PrimaryCommandBuffer;
-            WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, webGL2CmdBuff.cmdPackage);
+            WebGL2CmdFuncExecuteCmds(WebGL2DeviceManager.instance, webGL2CmdBuff.cmdPackage);
             this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
             this._numInstances += webGL2CmdBuff._numInstances;
             this._numTris += webGL2CmdBuff._numTris;
@@ -134,7 +134,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     protected bindStates () {
-        WebGL2CmdFuncBindStates(this._device as WebGL2Device, this._curGPUPipelineState, this._curGPUInputAssembler,
+        WebGL2CmdFuncBindStates(WebGL2DeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
             this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
     }

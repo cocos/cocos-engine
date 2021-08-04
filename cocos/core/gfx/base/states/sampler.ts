@@ -28,24 +28,31 @@
  * @module gfx
  */
 
-import { Device } from './device';
-import { Obj, ObjectType, GlobalBarrierInfo } from './define';
+import { GFXObject, ObjectType, SamplerInfo } from '../define';
 
 /**
- * @en GFX shader.
- * @zh GFX 着色器。
+ * @en GFX sampler.
+ * @zh GFX 采样器。
  */
-export class GlobalBarrier extends Obj {
-    protected _device: Device;
-    protected _info: GlobalBarrierInfo = new GlobalBarrierInfo();
+export abstract class Sampler extends GFXObject {
+    get info (): Readonly<SamplerInfo> { return this._info; }
 
-    constructor (device: Device) {
-        super(ObjectType.GLOBAL_BARRIER);
-        this._device = device;
+    protected _info: SamplerInfo = new SamplerInfo();
+
+    constructor (info: SamplerInfo) {
+        super(ObjectType.SAMPLER);
+        this._info.copy(info);
     }
 
-    public initialize (info: GlobalBarrierInfo): boolean {
-        this._info.copy(info);
-        return true;
+    static computeHash (info: SamplerInfo) {
+        let hash = info.minFilter;
+        hash |= (info.magFilter << 2);
+        hash |= (info.mipFilter << 4);
+        hash |= (info.addressU << 6);
+        hash |= (info.addressV << 8);
+        hash |= (info.addressW << 10);
+        hash |= (info.maxAnisotropy << 12);
+        hash |= (info.cmpFunc << 16);
+        return hash;
     }
 }

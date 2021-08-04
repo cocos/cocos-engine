@@ -29,14 +29,13 @@
  */
 
 import { CommandBuffer } from './command-buffer';
-import { Device } from './device';
-import { Obj, ObjectType, QueueType, QueueInfo } from './define';
+import { GFXObject, ObjectType, QueueType, QueueInfo } from './define';
 
 /**
  * @en GFX Queue.
  * @zh GFX 队列。
  */
-export abstract class Queue extends Obj {
+export abstract class Queue extends GFXObject {
     /**
      * @en Get current type.
      * @zh 队列类型。
@@ -45,18 +44,11 @@ export abstract class Queue extends Obj {
         return this._type;
     }
 
-    protected _device: Device;
-
     protected _type: QueueType = QueueType.GRAPHICS;
 
-    protected _isAsync = false;
-
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.QUEUE);
-        this._device = device;
     }
-
-    public isAsync () { return this._isAsync; }
 
     public abstract initialize (info: QueueInfo): boolean;
 

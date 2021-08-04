@@ -23,38 +23,41 @@
  THE SOFTWARE.
  */
 
-import { QueueInfo } from '../base/define';
-import { CommandBuffer } from '../base/command-buffer';
-import { Queue } from '../base/queue';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export class WebGLQueue extends Queue {
-    public numDrawCalls = 0;
-    public numInstances = 0;
-    public numTris = 0;
+import { murmurhash2_32_gc } from '../../../utils';
+import { GFXObject, ObjectType, TextureBarrierInfo } from '../define';
 
-    public initialize (info: QueueInfo): boolean {
-        this._type = info.type;
+/**
+ * @en GFX texture barrier.
+ * @zh GFX 贴图内存屏障。
+ */
+export class TextureBarrier extends GFXObject {
+    get info (): Readonly<TextureBarrierInfo> { return this._info; }
 
-        return true;
+    protected _info: TextureBarrierInfo = new TextureBarrierInfo();
+
+    constructor (info: TextureBarrierInfo) {
+        super(ObjectType.TEXTURE_BARRIER);
+        this._info.copy(info);
     }
 
-    public destroy () {
-    }
-
-    public submit (cmdBuffs: CommandBuffer[]) {
-        const len = cmdBuffs.length;
-        for (let i = 0; i < len; i++) {
-            const cmdBuff = cmdBuffs[i];
-            // WebGLCmdFuncExecuteCmds( this._device as WebGLDevice, (cmdBuff as WebGLCommandBuffer).cmdPackage); // opted out
-            this.numDrawCalls += cmdBuff.numDrawCalls;
-            this.numInstances += cmdBuff.numInstances;
-            this.numTris += cmdBuff.numTris;
+    static computeHash (info: TextureBarrierInfo) {
+        let res = 'prev:';
+        for (let i = 0; i < info.prevAccesses.length; ++i) {
+            res += ` ${info.prevAccesses[i]}`;
         }
-    }
+        res += 'next:';
+        for (let i = 0; i < info.nextAccesses.length; ++i) {
+            res += ` ${info.nextAccesses[i]}`;
+        }
+        res += info.discardContents;
+        res += info.srcQueue ? info.srcQueue.type : 0;
+        res += info.dstQueue ? info.dstQueue.type : 0;
 
-    public clear () {
-        this.numDrawCalls = 0;
-        this.numInstances = 0;
-        this.numTris = 0;
+        return murmurhash2_32_gc(res, 666);
     }
 }

@@ -29,7 +29,6 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
@@ -39,7 +38,7 @@ import { ShadowFlow } from '../shadow/shadow-flow';
 import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
     SurfaceTransform, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect, Swapchain } from '../../gfx';
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect, Swapchain, SamplerInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
     UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
     UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
@@ -52,16 +51,14 @@ import { RenderWindow } from '../../renderer/core/render-window';
 
 const PIPELINE_TYPE = 1;
 
-const _samplerInfo = [
+const _samplerInfo = new SamplerInfo(
     Filter.POINT,
     Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-];
-
-const samplerHash = genSamplerHash(_samplerInfo);
+);
 
 class InputAssemblerData {
     quadIB: Buffer|null = null;
@@ -218,7 +215,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const sampler = samplerLib.getSampler(device, samplerHash);
+        const sampler = device.getSampler(_samplerInfo);
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, sampler);
         this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, sampler);
@@ -307,8 +304,6 @@ export class DeferredPipeline extends RenderPipeline {
             this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOCamera.BINDING).destroy();
-            this._descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
-            this._descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
             this._descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
             this._descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
         }
@@ -586,7 +581,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, data.gbufferFrameBuffer.colorTextures[3]!);
         this._descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, data.lightingFrameBuffer.colorTextures[0]!);
 
-        const sampler = samplerLib.getSampler(device, samplerHash);
+        const sampler = device.getSampler(_samplerInfo);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, sampler);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, sampler);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, sampler);

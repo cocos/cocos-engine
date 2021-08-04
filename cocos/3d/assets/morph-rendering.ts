@@ -32,10 +32,9 @@ import { AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit,
 import { Mesh } from './mesh';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { ImageAsset } from '../../core/assets/image-asset';
-import { samplerLib } from '../../core/renderer/core/sampler-lib';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { warn, warnID } from '../../core/platform/debug';
+import { warn } from '../../core/platform/debug';
 import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { log2, nextPow2 } from '../../core/math/bits';
@@ -517,7 +516,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
             if (!textureAsset.getGFXTexture()) {
                 warn('Unexpected: failed to create morph texture?');
             }
-            const sampler = samplerLib.getSampler(gfxDevice, textureAsset.getSamplerHash());
+            const sampler = gfxDevice.getSampler(textureAsset.getSamplerInfo());
             return {
                 /**
                  * Gets the GFX texture.

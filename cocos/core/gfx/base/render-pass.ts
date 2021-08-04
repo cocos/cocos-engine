@@ -28,10 +28,9 @@
  * @module gfx
  */
 
-import { Device } from './device';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import {
-    Obj,
+    GFXObject,
     ObjectType,
     ColorAttachment,
     DepthStencilAttachment,
@@ -43,15 +42,10 @@ import {
  * @en GFX render pass.
  * @zh GFX 渲染过程。
  */
-export abstract class RenderPass extends Obj {
-    protected _device: Device;
-
+export abstract class RenderPass extends GFXObject {
     protected _colorInfos: ColorAttachment[] = [];
-
     protected _depthStencilInfo: DepthStencilAttachment | null = null;
-
     protected _subpasses: SubpassInfo[] = [];
-
     protected _hash = 0;
 
     get colorAttachments () { return this._colorInfos; }
@@ -59,9 +53,8 @@ export abstract class RenderPass extends Obj {
     get subPasses () { return this._subpasses; }
     get hash () { return this._hash; }
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.RENDER_PASS);
-        this._device = device;
     }
 
     // Based on render pass compatibility

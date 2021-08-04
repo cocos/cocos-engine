@@ -33,7 +33,7 @@ import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';
 import { RenderPass } from './render-pass';
-import { Sampler } from './sampler';
+import { Sampler } from './states/sampler';
 import { Swapchain } from './swapchain';
 import { Texture } from './texture';
 
@@ -74,6 +74,7 @@ export enum ObjectType {
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
+    COUNT,
 }
 
 export enum Status {
@@ -1146,8 +1147,6 @@ export class SamplerInfo {
         public addressW: Address = Address.WRAP,
         public maxAnisotropy: number = 0,
         public cmpFunc: ComparisonFunc = ComparisonFunc.ALWAYS,
-        public borderColor: Color = new Color(),
-        public mipLODBias: number = 0,
     ) {}
 
     public copy (info: Readonly<SamplerInfo>) {
@@ -1159,8 +1158,6 @@ export class SamplerInfo {
         this.addressW = info.addressW;
         this.maxAnisotropy = info.maxAnisotropy;
         this.cmpFunc = info.cmpFunc;
-        this.borderColor.copy(info.borderColor);
-        this.mipLODBias = info.mipLODBias;
         return this;
     }
 }
@@ -1782,15 +1779,29 @@ ccenum(Format);
  * @en GFX base object.
  * @zh GFX 基类对象。
  */
-export class Obj {
-    public get gfxType (): ObjectType {
-        return this._gfxType;
+export class GFXObject {
+    public get objectType (): ObjectType {
+        return this._objectType;
     }
 
-    protected _gfxType = ObjectType.UNKNOWN;
+    public get objectID (): number {
+        return this._objectID;
+    }
 
-    constructor (gfxType: ObjectType) {
-        this._gfxType = gfxType;
+    public get typedID (): number {
+        return this._typedID;
+    }
+
+    protected _objectType = ObjectType.UNKNOWN;
+    protected _objectID = 0;
+    protected _typedID = 0;
+
+    private static _idTable = Array(ObjectType.COUNT).fill(1 << 16);
+
+    constructor (objectType: ObjectType) {
+        this._objectType = objectType;
+        this._objectID = GFXObject._idTable[ObjectType.UNKNOWN]++;
+        this._typedID = GFXObject._idTable[objectType]++;
     }
 }
 
@@ -1799,26 +1810,6 @@ export interface ISwapchainTextureInfo {
     format: Format;
     width: number;
     height: number;
-}
-
-export interface IUniform {
-    name: string;
-    type: Type;
-    count: number;
-}
-
-export interface IShaderStage {
-    stage: ShaderStageFlagBit;
-    source: string;
-}
-
-export interface IAttribute {
-    name: string;
-    format: Format;
-    isNormalized: boolean;
-    stream: number;
-    isInstanced: boolean;
-    location: number;
 }
 
 export enum AttributeName {

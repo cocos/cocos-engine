@@ -29,7 +29,7 @@ import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo } from '../base/define';
 import { Swapchain } from '../base/swapchain';
-import { IWebGL2Extensions } from './webgl2-define';
+import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -154,9 +154,9 @@ export class WebGL2Swapchain extends Swapchain {
         const gl = this.gl;
 
         this.stateCache.initialize(
-            this._device.capabilities.maxTextureUnits,
-            this._device.capabilities.maxUniformBufferBindings,
-            this._device.capabilities.maxVertexAttributes,
+            WebGL2DeviceManager.instance.capabilities.maxTextureUnits,
+            WebGL2DeviceManager.instance.capabilities.maxUniformBufferBindings,
+            WebGL2DeviceManager.instance.capabilities.maxVertexAttributes,
         );
 
         this._extensions = getExtensions(gl);
@@ -173,7 +173,7 @@ export class WebGL2Swapchain extends Swapchain {
         if (depthBits && stencilBits) depthStencilFmt = Format.DEPTH_STENCIL;
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
-        this._colorTexture = new WebGL2Texture(this._device);
+        this._colorTexture = new WebGL2Texture();
         // @ts-expect-error(2445) private initializer
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
@@ -182,7 +182,7 @@ export class WebGL2Swapchain extends Swapchain {
             height: info.height,
         });
 
-        this._depthStencilTexture = new WebGL2Texture(this._device);
+        this._depthStencilTexture = new WebGL2Texture();
         // @ts-expect-error(2445) private initializer
         this._depthStencilTexture.initAsSwapchainTexture({
             swapchain: this,
@@ -192,7 +192,7 @@ export class WebGL2Swapchain extends Swapchain {
         });
 
         // create default null texture
-        this.nullTex2D = this._device.createTexture(new TextureInfo(
+        this.nullTex2D = WebGL2DeviceManager.instance.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -201,7 +201,7 @@ export class WebGL2Swapchain extends Swapchain {
             TextureFlagBit.GEN_MIPMAP,
         )) as WebGL2Texture;
 
-        this.nullTexCube = this._device.createTexture(new TextureInfo(
+        this.nullTexCube = WebGL2DeviceManager.instance.createTexture(new TextureInfo(
             TextureType.CUBE,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -217,10 +217,10 @@ export class WebGL2Swapchain extends Swapchain {
 
         const nullTexBuff = new Uint8Array(this.nullTex2D.size);
         nullTexBuff.fill(0);
-        this._device.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
+        WebGL2DeviceManager.instance.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
 
         nullTexRegion.texSubres.layerCount = 6;
-        this._device.copyBuffersToTexture(
+        WebGL2DeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );

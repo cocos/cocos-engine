@@ -26,7 +26,7 @@
 import { DescriptorSet } from '../base/descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { IWebGL2GPUDescriptorSet, IWebGL2GPUDescriptor } from './webgl2-gpu-objects';
-import { WebGL2Sampler } from './webgl2-sampler';
+import { WebGL2Sampler } from './states/webgl2-sampler';
 import { WebGL2Texture } from './webgl2-texture';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 import { DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from '../base/define';

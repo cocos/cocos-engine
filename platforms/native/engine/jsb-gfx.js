@@ -26,7 +26,6 @@
 /* global gfx */
 
 const deviceProto = gfx.Device.prototype;
-const shaderProto = gfx.Shader.prototype;
 const swapchainProto = gfx.Swapchain.prototype;
 const bufferProto = gfx.Buffer.prototype;
 const textureProto = gfx.Texture.prototype;
@@ -164,8 +163,4 @@ Object.defineProperty(deviceProto, 'uboOffsetAlignment', {
         }
         return this.cachedUboOffsetAlignment;
     },
-});
-
-cc.js.get(shaderProto, 'id', function () {
-    return this.shaderID;
 });

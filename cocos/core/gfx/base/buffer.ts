@@ -28,7 +28,6 @@
  * @module gfx
  */
 
-import { Device } from './device';
 import {
     BufferFlagBit,
     BufferFlags,
@@ -36,9 +35,8 @@ import {
     BufferUsageBit,
     MemoryUsage,
     MemoryUsageBit,
-    Obj,
+    GFXObject,
     ObjectType,
-    IndirectBuffer,
     BufferInfo,
     BufferViewInfo,
     BufferSource,
@@ -48,7 +46,7 @@ import {
  * @en GFX buffer.
  * @zh GFX 缓冲。
  */
-export abstract class Buffer extends Obj {
+export abstract class Buffer extends GFXObject {
     /**
      * @en Usage type of the buffer.
      * @zh 缓冲使用方式。
@@ -93,7 +91,6 @@ export abstract class Buffer extends Obj {
         return this._flags;
     }
 
-    protected _device: Device;
     protected _usage: BufferUsage = BufferUsageBit.NONE;
     protected _memUsage: MemoryUsage = MemoryUsageBit.NONE;
     protected _size = 0;
@@ -102,9 +99,8 @@ export abstract class Buffer extends Obj {
     protected _flags: BufferFlags = BufferFlagBit.NONE;
     protected _isBufferView = false;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.BUFFER);
-        this._device = device;
     }
 
     public abstract initialize (info: BufferInfo | BufferViewInfo): boolean;

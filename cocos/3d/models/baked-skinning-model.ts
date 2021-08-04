@@ -37,13 +37,12 @@ import { BufferUsageBit, MemoryUsageBit, Attribute, DescriptorSet, Buffer, Buffe
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UNIFORM_JOINT_TEXTURE_BINDING } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
 import { IMacroPatch, Pass } from '../../core/renderer/core/pass';
-import { samplerLib } from '../../core/renderer/core/sampler-lib';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { ModelType } from '../../core/renderer/scene/model';
-import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skeletal-animation/skeletal-animation-utils';
+import { IAnimInfo, IJointTextureHandle, jointTextureSamplerInfo } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
-import { NativeAABB, NativeBakedSkinningModel, NativeSkinningModel } from '../../core/renderer/scene/native-scene';
+import { NativeAABB, NativeBakedSkinningModel } from '../../core/renderer/scene/native-scene';
 
 interface IJointsInfo {
     buffer: Buffer | null;
@@ -224,7 +223,7 @@ export class BakedSkinningModel extends MorphModel {
         descriptorSet.bindBuffer(UBOSkinningTexture.BINDING, buffer!);
         descriptorSet.bindBuffer(UBOSkinningAnimation.BINDING, animInfo.buffer);
         if (texture) {
-            const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
+            const sampler = this._device.getSampler(jointTextureSamplerInfo);
             descriptorSet.bindTexture(UNIFORM_JOINT_TEXTURE_BINDING, texture.handle.texture);
             descriptorSet.bindSampler(UNIFORM_JOINT_TEXTURE_BINDING, sampler);
         }

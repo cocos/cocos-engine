@@ -43,15 +43,12 @@ export class WebGL2Queue extends Queue {
     }
 
     public submit (cmdBuffs: CommandBuffer[]) {
-        // TODO: Async
-        if (!this._isAsync) {
-            for (let i = 0; i < cmdBuffs.length; i++) {
-                const cmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
-                // WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, cmdBuff.cmdPackage); // opted out
-                this.numDrawCalls += cmdBuff.numDrawCalls;
-                this.numInstances += cmdBuff.numInstances;
-                this.numTris += cmdBuff.numTris;
-            }
+        for (let i = 0; i < cmdBuffs.length; i++) {
+            const cmdBuff = cmdBuffs[i] as WebGL2CommandBuffer;
+            // WebGL2CmdFuncExecuteCmds(this._device as WebGL2Device, cmdBuff.cmdPackage); // opted out
+            this.numDrawCalls += cmdBuff.numDrawCalls;
+            this.numInstances += cmdBuff.numInstances;
+            this.numTris += cmdBuff.numTris;
         }
     }
 
