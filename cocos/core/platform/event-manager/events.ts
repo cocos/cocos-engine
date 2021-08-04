@@ -599,7 +599,7 @@ export class EventAcceleration extends Event {
 export class EventKeyboard extends Event {
     /**
      * @en The KeyCode enum value of current keyboard event.
-     * @zh keyCode 当前键盘事件的 KeyCode 枚举值
+     * @zh 当前键盘事件的 KeyCode 枚举值
      */
     public keyCode: KeyCode;
 
