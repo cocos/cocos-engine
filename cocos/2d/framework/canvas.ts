@@ -175,7 +175,7 @@ export class Canvas extends RenderRoot2D {
         if (!EDITOR) {
             if (this._cameraComponent) {
                 this._cameraComponent._createCamera();
-                this._cameraComponent.node.on('targetChange', this._thisOnCameraResized);
+                this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
             }
         }
 
@@ -202,7 +202,7 @@ export class Canvas extends RenderRoot2D {
         }
 
         if (this._cameraComponent) {
-            this._cameraComponent.node.off('targetChange', this._thisOnCameraResized);
+            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
 
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);

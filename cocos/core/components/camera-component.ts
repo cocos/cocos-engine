@@ -91,6 +91,7 @@ export class Camera extends Component {
     public static Aperture = Aperture;
     public static Shutter = Shutter;
     public static ISO = ISO;
+    public static TARGET_TEXTURE_CHANGE = 'tex-change';
 
     @serializable
     protected _projection = ProjectionType.PERSPECTIVE;
@@ -420,7 +421,7 @@ export class Camera extends Component {
             this._camera.changeTargetWindow(EDITOR ? legacyCC.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
-        this.node.emit('targetChange', this);
+        this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
     }
 
     /**
