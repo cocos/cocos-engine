@@ -20,6 +20,27 @@
     return cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
   }
 
+  
+  vec4 ApplyShadowDepthBias_Perspective(vec4 shadowPos, float viewspaceDepthBias)
+  {
+    float coeffA = cc_shadowDepthBiasPerspCoeffs.x;
+    float coeffB = cc_shadowDepthBiasPerspCoeffs.y;
+
+    // Recover the Z distance in view space:
+    vec4 viewSpacePos;
+    viewSpacePos.z = (shadowPos.z - coeffB) / coeffA;
+
+    // Apply bias
+    viewSpacePos.z += viewspaceDepthBias;
+
+    // Reconstuct clipspace
+    vec4 result;
+    result.xy = shadowPos.xy;
+    result.z = viewSpacePos.z * coeffA + coeffB;
+    result.w = cc_shadowDepthBiasPerspCoeffs.z * viewSpacePos.z;
+    return result;
+  }
+
   float CCGetShadowFactorHard (vec4 shadowPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
@@ -134,7 +155,8 @@
   }
 
   float CCGetSpotLightShadowFactorHard (vec4 shadowPos, vec3 worldPos) {
-    vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+    vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
         clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
@@ -155,13 +177,14 @@
     } else {
       closestDepth = texture(cc_spotLightingMap, clipPos.xy).x;
     }
-    shadow = step(depth - cc_shadowWHPBInfo.w, closestDepth);
+    shadow = step(depth, closestDepth);
 
     return shadow;
   }
 
   float CCGetSpotLightShadowFactorSoft (vec4 shadowPos, vec3 worldPos) {
-    vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+    vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
         clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
@@ -179,7 +202,7 @@
       depth = clipPos.z;
     }
     
-    float offsetDepth = depth - cc_shadowWHPBInfo.w;
+    float offsetDepth = depth;
     // enbaled packing?
     if (cc_shadowLPNNInfo.y > 0.000001) {
       float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
@@ -209,7 +232,8 @@
   }
 
   float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos) {
-    vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
+    vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
         clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
@@ -226,7 +250,7 @@
       depth = clipPos.z;
     }
 
-    float offsetDepth = depth - cc_shadowWHPBInfo.w;
+    float offsetDepth = depth;
     if (cc_shadowLPNNInfo.y > 0.000001) {
       for (int i = -1; i <= 1; i++) {
         for (int j = -1; j <= 1; j++) {

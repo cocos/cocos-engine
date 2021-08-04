@@ -366,6 +366,11 @@ export class RenderAdditiveLightQueue {
                 // light proj
                 Mat4.perspective(_matShadowViewProj, (light as SpotLight).spotAngle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
 
+                const matShadowProj = _matShadowViewProj.clone();
+
+                Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_PROJ_OFFSET);
+                Mat4.toArray(this._shadowUBO, _matShadowViewProj.clone().invert(), UBOShadow.MAT_LIGHT_INV_PROJ_OFFSET);
+
                 // light viewProj
                 Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
 
@@ -385,6 +390,11 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
+
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 0] = matShadowProj.m10;
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 1] = matShadowProj.m14;
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 2] = matShadowProj.m11;
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 3] = 0.0;
 
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
