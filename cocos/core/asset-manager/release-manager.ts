@@ -258,7 +258,7 @@ class ReleaseManager {
             }
             references!.forEach((dependance, key) => {
                 for (let i = dependance.length - 1; i >= 0; i--) {
-                    if (dependance[i][0].deref()?.equals(asset)) {
+                    if (dependance[i][0].deref() === asset) {
                         js.array.fastRemoveAt(dependance, i);
                     }
                 }
