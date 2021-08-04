@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL SamplerValidator final : public Agent<Sampler> {
 public:
-    using Agent::Agent;
+    explicit SamplerValidator(Sampler *actor);
     ~SamplerValidator() override;
 
 protected:

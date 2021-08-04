@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/PhysicsSelector.h"
 #include "physics/sdk/Joint.h"
+#include "physics/PhysicsSelector.h"
 
 #define CC_PHYSICS_JOINT_DEFINITION(CLASS, WRAPPED) \
                                                     \
@@ -40,8 +40,8 @@
         return _impl->getImpl();                    \
     }                                               \
                                                     \
-    void CLASS::initialize(uint h) {                \
-        _impl->initialize(h);                       \
+    void CLASS::initialize(scene::Node* node) {     \
+        _impl->initialize(node);                    \
     }                                               \
                                                     \
     void CLASS::onEnable() {                        \
@@ -56,7 +56,7 @@
         _impl->onDestroy();                         \
     }                                               \
                                                     \
-    void CLASS::setConnectedBody(uint v) {          \
+    void CLASS::setConnectedBody(uintptr_t v) {     \
         _impl->setConnectedBody(v);                 \
     }                                               \
                                                     \

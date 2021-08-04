@@ -38,7 +38,7 @@ public:
     GLES2PipelineLayout();
     ~GLES2PipelineLayout();
 
-    CC_INLINE GLES2GPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
+    inline GLES2GPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
 
 protected:
     void doInit(const PipelineLayoutInfo &info) override;

@@ -25,13 +25,13 @@
 
 #pragma once
 
+#include <cstdint>
 #include "Event.h"
 #include "concurrentqueue/concurrentqueue.h"
-#include <cstdint>
 
 namespace cc {
 
-// TODO: thread-specific allocators
+// TODO(YunHsiao): thread-specific allocators
 template <typename T>
 inline T *memoryAllocateForMultiThread(uint32_t const count) noexcept {
     return static_cast<T *>(malloc(sizeof(T) * count));
@@ -48,19 +48,19 @@ inline uint32_t constexpr align(uint32_t const val, uint32_t const alignment) no
 
 class Message {
 public:
-    Message() = default;
-    virtual ~Message() {}
+    Message()                = default;
+    virtual ~Message()       = default;
     Message(Message const &) = delete;
     Message(Message &&)      = delete;
     Message &operator=(Message const &) = delete;
     Message &operator=(Message &&) = delete;
 
-    virtual void        execute() noexcept       = 0;
+    virtual void        execute()                = 0;
     virtual char const *getName() const noexcept = 0;
     inline Message *    getNext() const noexcept { return _next; }
 
 private:
-    Message *_next;
+    Message *_next; // explicitly assigned beforehand, don't init the member here
 
     friend class MessageQueue;
 };
@@ -87,6 +87,8 @@ struct alignas(64) ReaderContext final {
 // Both the messages and their submitting data should be allocated from here.
 class alignas(64) MessageQueue final {
 public:
+    static constexpr uint32_t MEMORY_CHUNK_SIZE = 4096 * 16;
+
     MessageQueue();
     ~MessageQueue()                    = default;
     MessageQueue(MessageQueue const &) = delete;
@@ -97,16 +99,16 @@ public:
     // message allocation
     template <typename T>
     std::enable_if_t<std::is_base_of<Message, T>::value, T *>
-    allocate(uint32_t const count) noexcept;
+    allocate(uint32_t count) noexcept;
 
     // general-purpose allocation
     template <typename T>
     std::enable_if_t<!std::is_base_of<Message, T>::value, T *>
-    allocate(uint32_t const count) noexcept;
+    allocate(uint32_t count) noexcept;
     template <typename T>
-    T *allocateAndCopy(uint32_t const count, void const *data) noexcept;
+    T *allocateAndCopy(uint32_t count, void const *data) noexcept;
     template <typename T>
-    T *allocateAndZero(uint32_t const count) noexcept;
+    T *allocateAndZero(uint32_t count) noexcept;
 
     // notify the consumer to start working
     void kick() noexcept;
@@ -116,19 +118,18 @@ public:
 
     void runConsumerThread() noexcept;
     void terminateConsumerThread() noexcept;
-    void finishWriting(bool wait) noexcept;
+    void finishWriting() noexcept;
     void flushMessages() noexcept;
 
     inline bool isImmediateMode() const noexcept { return _immediateMode; }
-    inline void finishWriting() noexcept { finishWriting(false); }
 
-    void        recycleMemoryChunk(uint8_t *const chunk) const noexcept;
-    static void freeChunksInFreeQueue(MessageQueue *const mainMessagesQueue) noexcept;
+    void        recycleMemoryChunk(uint8_t *chunk) const noexcept;
+    static void freeChunksInFreeQueue(MessageQueue *mainMessageQueue) noexcept;
 
-    inline void setImmediateMode(bool immediateMode) noexcept { _immediateMode = immediateMode; }
-    inline int  getPendingMessageCount() const noexcept { return _writer.pendingMessageCount; }
-    inline int  getWrittenMessageCount() const noexcept { return _writer.writtenMessageCount; }
-    inline int  getNewMessageCount() const noexcept { return _reader.newMessageCount; }
+    inline void     setImmediateMode(bool immediateMode) noexcept { _immediateMode = immediateMode; }
+    inline uint32_t getPendingMessageCount() const noexcept { return _writer.pendingMessageCount; }
+    inline uint32_t getWrittenMessageCount() const noexcept { return _writer.writtenMessageCount; }
+    inline uint32_t getNewMessageCount() const noexcept { return _reader.newMessageCount; }
 
 private:
     class alignas(64) MemoryAllocator final {
@@ -142,19 +143,19 @@ private:
 
         static MemoryAllocator &getInstance() noexcept;
         uint8_t *               request() noexcept;
-        void                    recycle(uint8_t *const chunk, bool const freeByUser) noexcept;
-        void                    freeByUser(MessageQueue *const mainMessageQueue) noexcept;
+        void                    recycle(uint8_t *chunk, bool freeByUser) noexcept;
+        void                    freeByUser(MessageQueue *mainMessageQueue) noexcept;
 
     private:
         using ChunkQueue = moodycamel::ConcurrentQueue<uint8_t *>;
 
-        void                  free(uint8_t *const chunk) noexcept;
+        void                  free(uint8_t *chunk) noexcept;
         std::atomic<uint32_t> _chunkCount{0};
         ChunkQueue            _chunkPool{};
         ChunkQueue            _chunkFreeQueue{};
     };
 
-    uint8_t *allocateImpl(uint32_t &allocatedSize, uint32_t const requestSize) noexcept;
+    uint8_t *allocateImpl(uint32_t allocatedSize, uint32_t requestSize) noexcept;
     void     pushMessages() noexcept;
 
     // consumer thread specifics
@@ -176,17 +177,17 @@ private:
 
 class DummyMessage final : public Message {
 public:
-    virtual void        execute() noexcept override {}
-    virtual char const *getName() const noexcept override;
+    void        execute() noexcept override {}
+    char const *getName() const noexcept override;
 };
 
 class MemoryChunkSwitchMessage final : public Message {
 public:
-    MemoryChunkSwitchMessage(MessageQueue *const cb, uint8_t *const newChunk, uint8_t *const oldChunk) noexcept;
-    ~MemoryChunkSwitchMessage();
+    MemoryChunkSwitchMessage(MessageQueue *queue, uint8_t *newChunk, uint8_t *oldChunk) noexcept;
+    ~MemoryChunkSwitchMessage() override;
 
-    virtual void        execute() noexcept override;
-    virtual char const *getName() const noexcept override;
+    void        execute() noexcept override;
+    char const *getName() const noexcept override;
 
 private:
     MessageQueue *_messageQueue{nullptr};
@@ -196,10 +197,10 @@ private:
 
 class TerminateConsumerThreadMessage final : public Message {
 public:
-    TerminateConsumerThreadMessage(EventSem *const pEvent, ReaderContext *const pR) noexcept;
+    TerminateConsumerThreadMessage(EventSem *pEvent, ReaderContext *pR) noexcept;
 
-    virtual void        execute() noexcept override;
-    virtual char const *getName() const noexcept override;
+    void        execute() noexcept override;
+    char const *getName() const noexcept override;
 
 private:
     EventSem *     _event{nullptr};
@@ -208,7 +209,7 @@ private:
 
 template <typename T>
 std::enable_if_t<std::is_base_of<Message, T>::value, T *>
-MessageQueue::allocate(uint32_t const count) noexcept {
+MessageQueue::allocate(uint32_t const /*count*/) noexcept {
     uint32_t allocatedSize = 0;
     T *const msg           = reinterpret_cast<T *>(allocateImpl(allocatedSize, sizeof(T)));
     msg->_next             = reinterpret_cast<Message *>(_writer.currentMemoryChunk + _writer.offset);
@@ -254,470 +255,461 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
         }                                                             \
     }
 
-#define ENQUEUE_MESSAGE_0(queue, MessageName, Code)                 \
-    {                                                               \
-        class MessageName final : public Message {                  \
-        public:                                                     \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName, );                        \
+#define ENQUEUE_MESSAGE_0(queue, MessageName, Code)         \
+    {                                                       \
+        class MessageName final : public Message {          \
+        public:                                             \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName, );                \
     }
 
-#define ENQUEUE_MESSAGE_1(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-                                                                    \
-        class MessageName final : public Message {                  \
-        public:                                                     \
-            explicit MessageName(Type1 const &In##Param1)           \
-            : Param1(In##Param1) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName, (Value1))                 \
+#define ENQUEUE_MESSAGE_1(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+                                                            \
+        class MessageName final : public Message {          \
+        public:                                             \
+            explicit MessageName(Type1 In##Param1)          \
+            : Param1(std::move(In##Param1)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName, (Value1))         \
     }
 
-#define ENQUEUE_MESSAGE_2(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-                                                                    \
-        class MessageName final : public Message {                  \
-        public:                                                     \
-            MessageName(                                            \
-                Type1 const &In##Param1, Type2 const &In##Param2)   \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName, (Value1, Value2))         \
+#define ENQUEUE_MESSAGE_2(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+                                                            \
+        class MessageName final : public Message {          \
+        public:                                             \
+            MessageName(                                    \
+                Type1 In##Param1, Type2 In##Param2)         \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName, (Value1, Value2)) \
     }
 
-#define ENQUEUE_MESSAGE_3(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Param3, Value3,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-        using Type3 = std::decay<decltype(Value3)>::type;           \
-                                                                    \
-        class MessageName final : public Message {                  \
-        public:                                                     \
-            MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-            Type3 Param3;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName,                           \
-                      (Value1,                                      \
-                       Value2,                                      \
-                       Value3))                                     \
+#define ENQUEUE_MESSAGE_3(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Param3, Value3,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+        using Type3 = std::decay<decltype(Value3)>::type;   \
+                                                            \
+        class MessageName final : public Message {          \
+        public:                                             \
+            MessageName(                                    \
+                Type1 In##Param1,                           \
+                Type2 In##Param2,                           \
+                Type3 In##Param3)                           \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)),                \
+              Param3(std::move(In##Param3)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+            Type3 Param3;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName,                   \
+                      (Value1,                              \
+                       Value2,                              \
+                       Value3))                             \
     }
 
-#define ENQUEUE_MESSAGE_4(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Param3, Value3,                           \
-                          Param4, Value4,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-        using Type3 = std::decay<decltype(Value3)>::type;           \
-        using Type4 = std::decay<decltype(Value4)>::type;           \
-                                                                    \
-        class MessageName : public Message {                        \
-        public:                                                     \
-            MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-            Type3 Param3;                                           \
-            Type4 Param4;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName,                           \
-                      (Value1,                                      \
-                       Value2,                                      \
-                       Value3,                                      \
-                       Value4))                                     \
+#define ENQUEUE_MESSAGE_4(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Param3, Value3,                   \
+                          Param4, Value4,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+        using Type3 = std::decay<decltype(Value3)>::type;   \
+        using Type4 = std::decay<decltype(Value4)>::type;   \
+                                                            \
+        class MessageName : public Message {                \
+        public:                                             \
+            MessageName(                                    \
+                Type1 In##Param1,                           \
+                Type2 In##Param2,                           \
+                Type3 In##Param3,                           \
+                Type4 In##Param4)                           \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)),                \
+              Param3(std::move(In##Param3)),                \
+              Param4(std::move(In##Param4)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+            Type3 Param3;                                   \
+            Type4 Param4;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName,                   \
+                      (Value1,                              \
+                       Value2,                              \
+                       Value3,                              \
+                       Value4))                             \
     }
 
-#define ENQUEUE_MESSAGE_5(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Param3, Value3,                           \
-                          Param4, Value4,                           \
-                          Param5, Value5,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-        using Type3 = std::decay<decltype(Value3)>::type;           \
-        using Type4 = std::decay<decltype(Value4)>::type;           \
-        using Type5 = std::decay<decltype(Value5)>::type;           \
-                                                                    \
-        class MessageName : public Message {                        \
-        public:                                                     \
-            MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4,                            \
-                Type5 const &In##Param5)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-            Type3 Param3;                                           \
-            Type4 Param4;                                           \
-            Type5 Param5;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName,                           \
-                      (Value1,                                      \
-                       Value2,                                      \
-                       Value3,                                      \
-                       Value4,                                      \
-                       Value5))                                     \
+#define ENQUEUE_MESSAGE_5(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Param3, Value3,                   \
+                          Param4, Value4,                   \
+                          Param5, Value5,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+        using Type3 = std::decay<decltype(Value3)>::type;   \
+        using Type4 = std::decay<decltype(Value4)>::type;   \
+        using Type5 = std::decay<decltype(Value5)>::type;   \
+                                                            \
+        class MessageName : public Message {                \
+        public:                                             \
+            MessageName(                                    \
+                Type1 In##Param1,                           \
+                Type2 In##Param2,                           \
+                Type3 In##Param3,                           \
+                Type4 In##Param4,                           \
+                Type5 In##Param5)                           \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)),                \
+              Param3(std::move(In##Param3)),                \
+              Param4(std::move(In##Param4)),                \
+              Param5(std::move(In##Param5)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+            Type3 Param3;                                   \
+            Type4 Param4;                                   \
+            Type5 Param5;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName,                   \
+                      (Value1,                              \
+                       Value2,                              \
+                       Value3,                              \
+                       Value4,                              \
+                       Value5))                             \
     }
 
-#define ENQUEUE_MESSAGE_6(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Param3, Value3,                           \
-                          Param4, Value4,                           \
-                          Param5, Value5,                           \
-                          Param6, Value6,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-        using Type3 = std::decay<decltype(Value3)>::type;           \
-        using Type4 = std::decay<decltype(Value4)>::type;           \
-        using Type5 = std::decay<decltype(Value5)>::type;           \
-        using Type6 = std::decay<decltype(Value6)>::type;           \
-                                                                    \
-        class MessageName : public Message {                        \
-        public:                                                     \
-            MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4,                            \
-                Type5 const &In##Param5,                            \
-                Type6 const &In##Param6)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-            Type3 Param3;                                           \
-            Type4 Param4;                                           \
-            Type5 Param5;                                           \
-            Type6 Param6;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName,                           \
-                      (Value1,                                      \
-                       Value2,                                      \
-                       Value3,                                      \
-                       Value4,                                      \
-                       Value5,                                      \
-                       Value6))                                     \
+#define ENQUEUE_MESSAGE_6(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Param3, Value3,                   \
+                          Param4, Value4,                   \
+                          Param5, Value5,                   \
+                          Param6, Value6,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+        using Type3 = std::decay<decltype(Value3)>::type;   \
+        using Type4 = std::decay<decltype(Value4)>::type;   \
+        using Type5 = std::decay<decltype(Value5)>::type;   \
+        using Type6 = std::decay<decltype(Value6)>::type;   \
+                                                            \
+        class MessageName : public Message {                \
+        public:                                             \
+            MessageName(                                    \
+                Type1 In##Param1,                           \
+                Type2 In##Param2,                           \
+                Type3 In##Param3,                           \
+                Type4 In##Param4,                           \
+                Type5 In##Param5,                           \
+                Type6 In##Param6)                           \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)),                \
+              Param3(std::move(In##Param3)),                \
+              Param4(std::move(In##Param4)),                \
+              Param5(std::move(In##Param5)),                \
+              Param6(std::move(In##Param6)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+            Type3 Param3;                                   \
+            Type4 Param4;                                   \
+            Type5 Param5;                                   \
+            Type6 Param6;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName,                   \
+                      (Value1,                              \
+                       Value2,                              \
+                       Value3,                              \
+                       Value4,                              \
+                       Value5,                              \
+                       Value6))                             \
     }
 
-#define ENQUEUE_MESSAGE_7(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Param3, Value3,                           \
-                          Param4, Value4,                           \
-                          Param5, Value5,                           \
-                          Param6, Value6,                           \
-                          Param7, Value7,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-        using Type3 = std::decay<decltype(Value3)>::type;           \
-        using Type4 = std::decay<decltype(Value4)>::type;           \
-        using Type5 = std::decay<decltype(Value5)>::type;           \
-        using Type6 = std::decay<decltype(Value6)>::type;           \
-        using Type7 = std::decay<decltype(Value7)>::type;           \
-                                                                    \
-        class MessageName : public Message {                        \
-        public:                                                     \
-            MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4,                            \
-                Type5 const &In##Param5,                            \
-                Type6 const &In##Param6,                            \
-                Type7 const &In##Param7)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6),                                   \
-              Param7(In##Param7) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual const char *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-            Type3 Param3;                                           \
-            Type4 Param4;                                           \
-            Type5 Param5;                                           \
-            Type6 Param6;                                           \
-            Type7 Param7;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName,                           \
-                      (Value1,                                      \
-                       Value2,                                      \
-                       Value3,                                      \
-                       Value4,                                      \
-                       Value5,                                      \
-                       Value6,                                      \
-                       Value7))                                     \
+#define ENQUEUE_MESSAGE_7(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Param3, Value3,                   \
+                          Param4, Value4,                   \
+                          Param5, Value5,                   \
+                          Param6, Value6,                   \
+                          Param7, Value7,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+        using Type3 = std::decay<decltype(Value3)>::type;   \
+        using Type4 = std::decay<decltype(Value4)>::type;   \
+        using Type5 = std::decay<decltype(Value5)>::type;   \
+        using Type6 = std::decay<decltype(Value6)>::type;   \
+        using Type7 = std::decay<decltype(Value7)>::type;   \
+                                                            \
+        class MessageName : public Message {                \
+        public:                                             \
+            MessageName(                                    \
+                Type1 In##Param1,                           \
+                Type2 In##Param2,                           \
+                Type3 In##Param3,                           \
+                Type4 In##Param4,                           \
+                Type5 In##Param5,                           \
+                Type6 In##Param6,                           \
+                Type7 In##Param7)                           \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)),                \
+              Param3(std::move(In##Param3)),                \
+              Param4(std::move(In##Param4)),                \
+              Param5(std::move(In##Param5)),                \
+              Param6(std::move(In##Param6)),                \
+              Param7(std::move(In##Param7)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            const char *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+            Type3 Param3;                                   \
+            Type4 Param4;                                   \
+            Type5 Param5;                                   \
+            Type6 Param6;                                   \
+            Type7 Param7;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName,                   \
+                      (Value1,                              \
+                       Value2,                              \
+                       Value3,                              \
+                       Value4,                              \
+                       Value5,                              \
+                       Value6,                              \
+                       Value7))                             \
     }
 
-#define ENQUEUE_MESSAGE_8(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Param3, Value3,                           \
-                          Param4, Value4,                           \
-                          Param5, Value5,                           \
-                          Param6, Value6,                           \
-                          Param7, Value7,                           \
-                          Param8, Value8,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-        using Type3 = std::decay<decltype(Value3)>::type;           \
-        using Type4 = std::decay<decltype(Value4)>::type;           \
-        using Type5 = std::decay<decltype(Value5)>::type;           \
-        using Type6 = std::decay<decltype(Value6)>::type;           \
-        using Type7 = std::decay<decltype(Value7)>::type;           \
-        using Type8 = std::decay<decltype(Value8)>::type;           \
-                                                                    \
-        class MessageName : public Message {                        \
-        public:                                                     \
-            MessageName(Type1 const &In##Param1,                    \
-                        Type2 const &In##Param2,                    \
-                        Type3 const &In##Param3,                    \
-                        Type4 const &In##Param4,                    \
-                        Type5 const &In##Param5,                    \
-                        Type6 const &In##Param6,                    \
-                        Type7 const &In##Param7,                    \
-                        Type8 const &In##Param8)                    \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6),                                   \
-              Param7(In##Param7),                                   \
-              Param8(In##Param8) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-            Type3 Param3;                                           \
-            Type4 Param4;                                           \
-            Type5 Param5;                                           \
-            Type6 Param6;                                           \
-            Type7 Param7;                                           \
-            Type8 Param8;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName,                           \
-                      (Value1,                                      \
-                       Value2,                                      \
-                       Value3,                                      \
-                       Value4,                                      \
-                       Value5,                                      \
-                       Value6,                                      \
-                       Value7,                                      \
-                       Value8))                                     \
+#define ENQUEUE_MESSAGE_8(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Param3, Value3,                   \
+                          Param4, Value4,                   \
+                          Param5, Value5,                   \
+                          Param6, Value6,                   \
+                          Param7, Value7,                   \
+                          Param8, Value8,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+        using Type3 = std::decay<decltype(Value3)>::type;   \
+        using Type4 = std::decay<decltype(Value4)>::type;   \
+        using Type5 = std::decay<decltype(Value5)>::type;   \
+        using Type6 = std::decay<decltype(Value6)>::type;   \
+        using Type7 = std::decay<decltype(Value7)>::type;   \
+        using Type8 = std::decay<decltype(Value8)>::type;   \
+                                                            \
+        class MessageName : public Message {                \
+        public:                                             \
+            MessageName(Type1 In##Param1,                   \
+                        Type2 In##Param2,                   \
+                        Type3 In##Param3,                   \
+                        Type4 In##Param4,                   \
+                        Type5 In##Param5,                   \
+                        Type6 In##Param6,                   \
+                        Type7 In##Param7,                   \
+                        Type8 In##Param8)                   \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)),                \
+              Param3(std::move(In##Param3)),                \
+              Param4(std::move(In##Param4)),                \
+              Param5(std::move(In##Param5)),                \
+              Param6(std::move(In##Param6)),                \
+              Param7(std::move(In##Param7)),                \
+              Param8(std::move(In##Param8)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+            Type3 Param3;                                   \
+            Type4 Param4;                                   \
+            Type5 Param5;                                   \
+            Type6 Param6;                                   \
+            Type7 Param7;                                   \
+            Type8 Param8;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName,                   \
+                      (Value1,                              \
+                       Value2,                              \
+                       Value3,                              \
+                       Value4,                              \
+                       Value5,                              \
+                       Value6,                              \
+                       Value7,                              \
+                       Value8))                             \
     }
 
-#define ENQUEUE_MESSAGE_9(queue, MessageName,                       \
-                          Param1, Value1,                           \
-                          Param2, Value2,                           \
-                          Param3, Value3,                           \
-                          Param4, Value4,                           \
-                          Param5, Value5,                           \
-                          Param6, Value6,                           \
-                          Param7, Value7,                           \
-                          Param8, Value8,                           \
-                          Param9, Value9,                           \
-                          Code)                                     \
-    {                                                               \
-                                                                    \
-        using Type1 = std::decay<decltype(Value1)>::type;           \
-        using Type2 = std::decay<decltype(Value2)>::type;           \
-        using Type3 = std::decay<decltype(Value3)>::type;           \
-        using Type4 = std::decay<decltype(Value4)>::type;           \
-        using Type5 = std::decay<decltype(Value5)>::type;           \
-        using Type6 = std::decay<decltype(Value6)>::type;           \
-        using Type7 = std::decay<decltype(Value7)>::type;           \
-        using Type8 = std::decay<decltype(Value8)>::type;           \
-        using Type9 = std::decay<decltype(Value9)>::type;           \
-                                                                    \
-        class MessageName : public Message {                        \
-        public:                                                     \
-            MessageName(Type1 const &In##Param1,                    \
-                        Type2 const &In##Param2,                    \
-                        Type3 const &In##Param3,                    \
-                        Type4 const &In##Param4,                    \
-                        Type5 const &In##Param5,                    \
-                        Type6 const &In##Param6,                    \
-                        Type7 const &In##Param7,                    \
-                        Type8 const &In##Param8,                    \
-                        Type9 const &In##Param9)                    \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6),                                   \
-              Param7(In##Param7),                                   \
-              Param8(In##Param8),                                   \
-              Param9(In##Param9) {                                  \
-            }                                                       \
-            virtual void execute() noexcept override {              \
-                Code                                                \
-            }                                                       \
-            virtual char const *getName() const noexcept override { \
-                return (#MessageName);                              \
-            }                                                       \
-                                                                    \
-        private:                                                    \
-            Type1 Param1;                                           \
-            Type2 Param2;                                           \
-            Type3 Param3;                                           \
-            Type4 Param4;                                           \
-            Type5 Param5;                                           \
-            Type6 Param6;                                           \
-            Type7 Param7;                                           \
-            Type8 Param8;                                           \
-            Type9 Param9;                                           \
-        };                                                          \
-        WRITE_MESSAGE(queue, MessageName,                           \
-                      (Value1,                                      \
-                       Value2,                                      \
-                       Value3,                                      \
-                       Value4,                                      \
-                       Value5,                                      \
-                       Value6,                                      \
-                       Value7,                                      \
-                       Value8,                                      \
-                       Value9))                                     \
+#define ENQUEUE_MESSAGE_9(queue, MessageName,               \
+                          Param1, Value1,                   \
+                          Param2, Value2,                   \
+                          Param3, Value3,                   \
+                          Param4, Value4,                   \
+                          Param5, Value5,                   \
+                          Param6, Value6,                   \
+                          Param7, Value7,                   \
+                          Param8, Value8,                   \
+                          Param9, Value9,                   \
+                          Code)                             \
+    {                                                       \
+        using Type1 = std::decay<decltype(Value1)>::type;   \
+        using Type2 = std::decay<decltype(Value2)>::type;   \
+        using Type3 = std::decay<decltype(Value3)>::type;   \
+        using Type4 = std::decay<decltype(Value4)>::type;   \
+        using Type5 = std::decay<decltype(Value5)>::type;   \
+        using Type6 = std::decay<decltype(Value6)>::type;   \
+        using Type7 = std::decay<decltype(Value7)>::type;   \
+        using Type8 = std::decay<decltype(Value8)>::type;   \
+        using Type9 = std::decay<decltype(Value9)>::type;   \
+                                                            \
+        class MessageName : public Message {                \
+        public:                                             \
+            MessageName(Type1 In##Param1,                   \
+                        Type2 In##Param2,                   \
+                        Type3 In##Param3,                   \
+                        Type4 In##Param4,                   \
+                        Type5 In##Param5,                   \
+                        Type6 In##Param6,                   \
+                        Type7 In##Param7,                   \
+                        Type8 In##Param8,                   \
+                        Type9 In##Param9)                   \
+            : Param1(std::move(In##Param1)),                \
+              Param2(std::move(In##Param2)),                \
+              Param3(std::move(In##Param3)),                \
+              Param4(std::move(In##Param4)),                \
+              Param5(std::move(In##Param5)),                \
+              Param6(std::move(In##Param6)),                \
+              Param7(std::move(In##Param7)),                \
+              Param8(std::move(In##Param8)),                \
+              Param9(std::move(In##Param9)) {               \
+            }                                               \
+            void execute() override {                       \
+                Code                                        \
+            }                                               \
+            char const *getName() const noexcept override { \
+                return (#MessageName);                      \
+            }                                               \
+                                                            \
+        private:                                            \
+            Type1 Param1;                                   \
+            Type2 Param2;                                   \
+            Type3 Param3;                                   \
+            Type4 Param4;                                   \
+            Type5 Param5;                                   \
+            Type6 Param6;                                   \
+            Type7 Param7;                                   \
+            Type8 Param8;                                   \
+            Type9 Param9;                                   \
+        };                                                  \
+        WRITE_MESSAGE(queue, MessageName,                   \
+                      (Value1,                              \
+                       Value2,                              \
+                       Value3,                              \
+                       Value4,                              \
+                       Value5,                              \
+                       Value6,                              \
+                       Value7,                              \
+                       Value8,                              \
+                       Value9))                             \
     }
 
 } // namespace cc

@@ -34,7 +34,13 @@
 namespace cc {
 namespace gfx {
 
-CCMTLSampler::CCMTLSampler() : Sampler() {}
+CCMTLSampler::CCMTLSampler() : Sampler() {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
+CCMTLSampler::~CCMTLSampler() {
+    destroy();
+}
 
 void CCMTLSampler::doInit(const SamplerInfo &info) {
     MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];

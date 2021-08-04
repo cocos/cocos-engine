@@ -52,10 +52,11 @@ void PhysXBox::updateScale() {
 }
 
 void PhysXBox::updateGeometry() {
-    auto &node = getSharedBody().getNode();
+    auto *node = getSharedBody().getNode();
     auto &geo = getPxGeometry<physx::PxBoxGeometry>();
     geo.halfExtents = _mHalfExtents;
-    geo.halfExtents *= node.worldScale;
+    node->updateWorldTransform();
+    geo.halfExtents *= node->getWorldScale();
     geo.halfExtents = geo.halfExtents.abs();
     if (geo.halfExtents.minElement() <= 0.0) {
         geo.halfExtents = geo.halfExtents.maximum(physx::PxVec3{PX_NORMALIZATION_EPSILON});

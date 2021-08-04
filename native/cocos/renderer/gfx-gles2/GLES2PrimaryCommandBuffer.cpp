@@ -56,21 +56,25 @@ void GLES2PrimaryCommandBuffer::end() {
     if (_isStateInvalid) {
         bindStates();
     }
-    _isInRenderPass = false;
 }
 
-void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
-    _isInRenderPass                     = true;
+void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
+    _curSubpassIdx = 0U;
+
     GLES2GPURenderPass * gpuRenderPass  = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
     GLES2GPUFramebuffer *gpuFramebuffer = static_cast<GLES2Framebuffer *>(fbo)->gpuFBO();
 
-    cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), gpuRenderPass, gpuFramebuffer,
-                                renderArea, gpuRenderPass->colorAttachments.size(), colors, depth, stencil);
+    cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
+                                &renderArea, colors, depth, stencil);
 }
 
 void GLES2PrimaryCommandBuffer::endRenderPass() {
     cmdFuncGLES2EndRenderPass(GLES2Device::getInstance());
-    _isInRenderPass = false;
+}
+
+void GLES2PrimaryCommandBuffer::nextSubpass() {
+    cmdFuncGLES2EndRenderPass(GLES2Device::getInstance());
+    cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), ++_curSubpassIdx);
 }
 
 void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
@@ -83,8 +87,8 @@ void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
         }
-        cmdFuncGLES2BindState(GLES2Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
-                              _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+        cmdFuncGLES2BindState(GLES2Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember,
+                              _curGPUDescriptorSets.data(), dynamicOffsets.data(), &_curDynamicStates);
 
         _isStateInvalid = false;
     }
@@ -125,6 +129,15 @@ void GLES2PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffe
     }
 }
 
+void GLES2PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+    GLES2GPUTexture *gpuTextureSrc = nullptr;
+    GLES2GPUTexture *gpuTextureDst = nullptr;
+    if (srcTexture) gpuTextureSrc = static_cast<GLES2Texture *>(srcTexture)->gpuTexture();
+    if (dstTexture) gpuTextureDst = static_cast<GLES2Texture *>(dstTexture)->gpuTexture();
+
+    cmdFuncGLES2BlitTexture(GLES2Device::getInstance(), gpuTextureSrc, gpuTextureDst, regions, count, filter);
+}
+
 void GLES2PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         auto *cmdBuff = static_cast<GLES2PrimaryCommandBuffer *>(cmdBuffs[i]);
@@ -156,8 +169,7 @@ void GLES2PrimaryCommandBuffer::bindStates() {
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
         }
-        cmdFuncGLES2BindState(GLES2Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
-                              _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+        cmdFuncGLES2BindState(GLES2Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets.data(), dynamicOffsets.data(), &_curDynamicStates);
     }
     _isStateInvalid = false;
 }

@@ -26,11 +26,11 @@
 
 #pragma once
 
+#include <functional>
+#include <map>
+#include <string>
 #include "base/Macros.h"
 #include "base/Ref.h"
-#include <functional>
-#include <string>
-#include <map>
 
 #ifndef OBJC_CLASS
     #ifdef __OBJC__
@@ -70,12 +70,12 @@ public:
     /**
      * A callback which will be called after specific VideoPlayer event happens.
      */
-    typedef std::function<void()> ccVideoPlayerCallback;
+    using ccVideoPlayerCallback = std::function<void()>;
 
     /**
      * Sets a URL as a video source for VideoPlayer.
      */
-    virtual void setURL(const std::string &_videoURL);
+    virtual void setURL(const std::string &videoURL);
 
     /**
      * Starts playback.
@@ -151,7 +151,7 @@ public:
     virtual void setFrame(float x, float y, float width, float height);
 
 protected:
-    virtual ~VideoPlayer();
+    ~VideoPlayer() override;
 
 protected:
     enum class Source {
@@ -165,9 +165,9 @@ protected:
     bool _keepAspectRatioEnabled;
 
     std::string _videoURL;
-    Source _videoSource;
+    Source      _videoSource;
 
-    int _videoPlayerIndex;
+    int                                          _videoPlayerIndex;
     std::map<std::string, ccVideoPlayerCallback> _eventCallback;
 
     void *_videoView;

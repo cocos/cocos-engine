@@ -48,7 +48,7 @@ Game::~Game()
 
 bool Game::init()
 {
-    
+
     cc::Application::init();
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
@@ -56,13 +56,13 @@ bool Game::init()
     Application::getInstance()->setPreferredFramesPerSecond(60);
     jsb_init_file_operation_delegate();
     jsb_register_all_modules();
-    
+
     auto parser = ConfigParser::getInstance();
  #if defined(CC_DEBUG) && (CC_DEBUG > 0)
      // Enable debugger here
     jsb_enable_debugger("0.0.0.0", 5086, parser->isWaitForConnect());
  #endif
-    
+
     se->start();
 
     auto runtimeEngine = RuntimeEngine::getInstance();
@@ -74,33 +74,24 @@ bool Game::init()
     se::AutoHandleScope hs;
     jsb_run_script("jsb-adapter/jsb-builtin.js");
     jsb_run_script("main.js");
-    
-    se->addAfterCleanupHook([]() {
-        JSBClassType::destroy();
-    });
-    
+
     // Runtime end
     CC_LOG_DEBUG("iShow!");
     return true;
 }
 
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void Game::onPause()
-{
+void Game::onPause() {
     cc::Application::onPause();
+    cc::EventDispatcher::dispatchEnterBackgroundEvent();
+}
 
-    cc::CustomEvent event;
-    event.name = EVENT_COME_TO_BACKGROUND;
-    cc::EventDispatcher::dispatchCustomEvent(event);
-    cc::EventDispatcher::dispatchEnterBackgroundEvent();}
-
-// this function will be called when the app is active again
-void Game::onResume()
-{
+void Game::onResume() {
     cc::Application::onResume();
-    cc::CustomEvent event;
-    event.name = EVENT_COME_TO_FOREGROUND;
-    cc::EventDispatcher::dispatchCustomEvent(event);
     cc::EventDispatcher::dispatchEnterForegroundEvent();
-    
+}
+
+void Game::onClose() {
+    cc::Application::onClose();
+    cc::EventDispatcher::dispatchCloseEvent();
 }

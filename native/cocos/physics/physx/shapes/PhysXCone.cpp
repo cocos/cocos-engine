@@ -23,19 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/shapes/PhysXShape.h"
 #include "physics/physx/shapes/PhysXCone.h"
+#include <algorithm>
+#include "math/Quaternion.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
-#include "math/Quaternion.h"
-#include "renderer/pipeline/helper/SharedMemory.h"
-#include <algorithm>
+#include "physics/physx/shapes/PhysXShape.h"
 
 namespace cc {
 namespace physics {
 
-PhysXCone::PhysXCone() : _mMesh(nullptr)
-                         {};
+PhysXCone::PhysXCone() : _mMesh(nullptr){};
 
 void PhysXCone::setConvex(uintptr_t handle) {
     if (reinterpret_cast<uintptr_t>(_mMesh) == handle) return;
@@ -64,7 +62,9 @@ void PhysXCone::setCone(float r, float h, EAxisDirection d) {
 void PhysXCone::updateGeometry() {
     if (!_mShape) return;
     static physx::PxMeshScale scale;
-    pxSetVec3Ext(scale.scale, getSharedBody().getNode().worldScale);
+    auto *node = getSharedBody().getNode();
+    node->updateWorldTransform();
+    pxSetVec3Ext(scale.scale, node->getWorldScale());
     scale.scale.y *= std::max(0.0001F, _mData.height / 2);
     const auto xz = std::max(0.0001F, _mData.radius * 2);
     scale.scale.x *= xz;

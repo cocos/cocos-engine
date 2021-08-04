@@ -36,12 +36,12 @@ void PipelineSceneData::activate(gfx::Device *device, RenderPipeline *pipeline)
     _device = device;
     _pipeline = pipeline;
 
-    _sphere = CC_NEW(Sphere);
+    _sphere = CC_NEW(scene::Sphere);
 }
 
-void PipelineSceneData::setPipelineSharedSceneData(uint handle)
+void PipelineSceneData::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data)
 {
-    _sharedSceneData = GET_PIPELINE_SHARED_SCENE_DATA(handle);
+    _sharedSceneData = data;
 }
 
 void PipelineSceneData::destroy()

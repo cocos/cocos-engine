@@ -31,46 +31,50 @@
 #include "SceneCulling.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
-#include "helper/SharedMemory.h"
 #include "math/Quaternion.h"
 #include "platform/Application.h"
+#include "scene/AABB.h"
+#include "scene/Light.h"
+#include "scene/RenderScene.h"
+#include "scene/Sphere.h"
+#include "scene/SpotLight.h"
 
 namespace cc {
 namespace pipeline {
-bool castBoundsInitialized = false;
-AABB castWorldBounds;
+bool         castBoundsInitialized = false;
+scene::AABB castWorldBounds;
 
-RenderObject genRenderObject(const ModelView *model, const Camera *camera) {
+RenderObject genRenderObject(const scene::Model *model, const scene::Camera *camera) {
     float depth = 0;
-    if (model->nodeID) {
-        const auto *const node = model->getTransform();
-        cc::Vec3          position;
-        cc::Vec3::subtract(node->worldPosition, camera->position, &position);
+    if (model->getNode()) {
+        auto *const node = model->getTransform();
+        cc::Vec3    position;
+        cc::Vec3::subtract(node->getWorldPosition(), camera->position, &position);
         depth = position.dot(camera->forward);
     }
 
     return {depth, model};
 }
 
-void getShadowWorldMatrix(const Sphere *sphere, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 &shadowWorldMat, cc::Vec3 &out) {
+void getShadowWorldMatrix(const scene::Sphere *sphere, const cc::Quaternion &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out) {
     Vec3 translation(dir);
     translation.negate();
-    const auto distance = sphere->radius * COEFFICIENT_OF_EXPANSION;
+    const auto distance = sphere->getRadius() * COEFFICIENT_OF_EXPANSION;
     translation.scale(distance);
-    translation.add(sphere->center);
-    out.set(translation);
+    translation.add(sphere->getCenter());
+    out->set(translation);
 
-    Mat4::fromRT(rotation, translation, &shadowWorldMat);
+    Mat4::fromRT(rotation, translation, shadowWorldMat);
 }
 
-void updateSphereLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT> &shadowUBO) {
-    const auto *const node = light->getNode();
-    if (!node->flagsChanged && !shadows->dirty) {
+void updateSphereLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+    auto *const node = light->getNode();
+    if (!node->getFlagsChanged() && !shadows->dirty) {
         return;
     }
 
     shadows->dirty       = false;
-    const auto  position = node->worldPosition;
+    const auto &position = node->getWorldPosition();
     const auto &normal   = shadows->normal;
     const auto  distance = shadows->distance + 0.001F; // avoid z-fighting
     const auto  ndL      = normal.dot(position);
@@ -98,14 +102,14 @@ void updateSphereLight(Shadows *shadows, const Light *light, std::array<float, U
     matLight.m[14]       = lz * distance;
     matLight.m[15]       = ndL;
 
-    memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
+    memcpy(shadowUBO->data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
 }
 
-void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT> &shadowUBO) {
-    const auto *const node     = light->getNode();
-    const auto        rotation = node->worldRotation;
-    Quaternion        qt(rotation.x, rotation.y, rotation.z, rotation.w);
-    Vec3              forward(0, 0, -1.0F);
+void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
+    auto *const node     = light->getNode();
+    const auto &rotation = node->getWorldRotation();
+    Quaternion  qt(rotation.x, rotation.y, rotation.z, rotation.w);
+    Vec3        forward(0, 0, -1.0F);
     forward.transformQuat(qt);
     const auto &normal   = shadows->normal;
     const auto  distance = shadows->distance + 0.001F; // avoid z-fighting
@@ -135,78 +139,68 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
     matLight.m[14]       = lz * distance;
     matLight.m[15]       = 1;
 
-    memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
+    memcpy(shadowUBO->data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
     float color[4] = {shadows->color.x, shadows->color.y, shadows->color.z, shadows->color.w};
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(float) * 4);
+    memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(float) * 4);
 }
 
-void lightCollecting(Camera *camera, std::vector<const Light *> &validLights) {
-    validLights.clear();
-    auto *            sphere    = CC_NEW(Sphere);
-    const auto *const scene     = camera->getScene();
-    const Light *     mainLight = nullptr;
-    if (scene->mainLightID) mainLight = scene->getMainLight();
-    validLights.emplace_back(mainLight);
+void lightCollecting(scene::Camera *camera, std::vector<const scene::Light *> *validLights) {
+    validLights->clear();
+    auto *              sphere    = CC_NEW(scene::Sphere);
+    const auto *        scene     = camera->scene;
+    const scene::Light *mainLight = scene->getMainLight();
+    validLights->emplace_back(mainLight);
 
-    const auto *const spotLightArrayID = scene->getSpotLightArrayID();
-    const auto        count            = spotLightArrayID ? spotLightArrayID[0] : 0;
-    for (uint32_t i = 1; i <= count; ++i) {
-        const auto *spotLight = cc::pipeline::Scene::getSpotLight(spotLightArrayID[i]);
-        sphere->center.set(spotLight->position);
-        sphere->radius = spotLight->range;
-        if (sphere->interset(*camera->getFrustum())) {
-            validLights.emplace_back(spotLight);
+    for (auto *spotLight : scene->getSpotLights()) {
+        sphere->setCenter(spotLight->getPosition());
+        sphere->setRadius(spotLight->getRange());
+        if (sphere->interset(camera->frustum)) {
+            validLights->emplace_back(static_cast<scene::Light *>(spotLight));
         }
     }
 
     CC_SAFE_DELETE(sphere);
 }
 
-
-void sceneCulling(RenderPipeline *pipeline, Camera *camera) {
+void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
     auto *const       sceneData  = pipeline->getPipelineSceneData();
     auto *const       sharedData = sceneData->getSharedData();
-    auto *const       shadows    = sharedData->getShadows();
-    auto *const       skyBox     = sharedData->getSkybox();
-    const auto *const scene      = camera->getScene();
+    auto *const       shadows    = sharedData->shadow;
+    auto *const       skyBox     = sharedData->skybox;
+    const auto *const scene      = camera->scene;
 
     castBoundsInitialized = false;
     RenderObjectList shadowObjects;
-    bool isShadowMap = false;
-    if(shadows->enabled && shadows->getShadowType() == ShadowType::SHADOWMAP) {
+    bool             isShadowMap = false;
+    if (shadows->enabled && shadows->shadowType == scene::ShadowType::SHADOWMAP) {
         isShadowMap = true;
     }
 
-    const Light *mainLight = nullptr;
-    if (scene->mainLightID) mainLight = scene->getMainLight();
-    RenderObjectList renderObjects;
+    RenderObjectList               renderObjects;
 
-    if (skyBox->enabled && skyBox->modelID && (camera->clearFlag & skyboxFlag)) {
-        renderObjects.emplace_back(genRenderObject(skyBox->getModel(), camera));
+    if (skyBox->enabled && skyBox->model && (camera->clearFlag & skyboxFlag)) {
+        renderObjects.emplace_back(genRenderObject(skyBox->model, camera));
     }
 
-    const auto *const models     = scene->getModels();
-    const auto        modelCount = models[0];
-    for (size_t i = 1; i <= modelCount; i++) {
-        const auto *const model = cc::pipeline::Scene::getModelView(models[i]);
-
+    for (auto *model : scene->getModels()) {
         // filter model by view visibility
-        if (model->enabled) {
+        if (model->getEnabled()) {
             const auto        visibility = camera->visibility;
             const auto *const node       = model->getNode();
-            if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
-                (visibility & model->visFlags)) {
+            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
+                (visibility & model->getVisFlags())) {
                 // shadow render Object
-                if (isShadowMap && model->castShadow && model->getWorldBounds()) {
+                const auto *modelWorldBounds = model->getWorldBounds();
+                if (isShadowMap && model->getCastShadow() && modelWorldBounds) {
                     if (!castBoundsInitialized) {
-                        castWorldBounds = *model->getWorldBounds();
+                        castWorldBounds.set(modelWorldBounds->getCenter(), modelWorldBounds->getHalfExtents());
                         castBoundsInitialized = true;
                     }
-                    castWorldBounds.merge(*model->getWorldBounds());
+                    castWorldBounds.merge(*modelWorldBounds);
                     shadowObjects.emplace_back(genRenderObject(model, camera));
                 }
                 // frustum culling
-                if ((model->worldBoundsID) && !aabbFrustum(model->getWorldBounds(), camera->getFrustum())) {
+                if (modelWorldBounds && !modelWorldBounds->aabbFrustum(camera->frustum)) {
                     continue;
                 }
 
@@ -215,7 +209,7 @@ void sceneCulling(RenderPipeline *pipeline, Camera *camera) {
         }
     }
 
-    if(isShadowMap) {
+    if (isShadowMap) {
         sceneData->getSphere()->define(castWorldBounds);
         sceneData->setShadowObjects(std::move(shadowObjects));
     }

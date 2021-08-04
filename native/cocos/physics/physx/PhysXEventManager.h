@@ -57,9 +57,9 @@ public:
         explicit SimulationEventCallback(PhysXEventManager *m) : mManager(m) {}
     };
 
-    CC_INLINE SimulationEventCallback &getEventCallback() { return *_mCallback; }
-    CC_INLINE std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerPairs() { return _mTriggerPairs; }
-    CC_INLINE std::vector<std::shared_ptr<ContactEventPair>> &getConatctPairs() { return _mConatctPairs; }
+    inline SimulationEventCallback &getEventCallback() { return *_mCallback; }
+    inline std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerPairs() { return _mTriggerPairs; }
+    inline std::vector<std::shared_ptr<ContactEventPair>> &getConatctPairs() { return _mConatctPairs; }
     void refreshPairs();
 
 private:

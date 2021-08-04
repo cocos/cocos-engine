@@ -74,15 +74,15 @@ static void _checkPath() {
 }
 
 FileUtils *FileUtils::getInstance() {
-    if (s_sharedFileUtils == nullptr) {
-        s_sharedFileUtils = new FileUtilsWin32();
-        if (!s_sharedFileUtils->init()) {
-            delete s_sharedFileUtils;
-            s_sharedFileUtils = nullptr;
+    if (FileUtils::sharedFileUtils == nullptr) {
+        FileUtils::sharedFileUtils = new FileUtilsWin32();
+        if (!FileUtils::sharedFileUtils->init()) {
+            delete FileUtils::sharedFileUtils;
+            FileUtils::sharedFileUtils = nullptr;
             CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsWin32");
         }
     }
-    return s_sharedFileUtils;
+    return FileUtils::sharedFileUtils;
 }
 
 FileUtilsWin32::FileUtilsWin32() {
@@ -143,20 +143,20 @@ bool FileUtilsWin32::isAbsolutePath(const std::string &strPath) const {
 
 FileUtils::Status FileUtilsWin32::getContents(const std::string &filename, ResizableBuffer *buffer) {
     if (filename.empty())
-        return FileUtils::Status::NotExists;
+        return FileUtils::Status::NOT_EXISTS;
 
     // read the file from hardware
     std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filename);
 
     HANDLE fileHandle = ::CreateFile(StringUtf8ToWideChar(fullPath).c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, nullptr);
     if (fileHandle == INVALID_HANDLE_VALUE)
-        return FileUtils::Status::OpenFailed;
+        return FileUtils::Status::OPEN_FAILED;
 
     DWORD hi;
     auto size = ::GetFileSize(fileHandle, &hi);
     if (hi > 0) {
         ::CloseHandle(fileHandle);
-        return FileUtils::Status::TooLarge;
+        return FileUtils::Status::TOO_LARGE;
     }
     // don't read file content if it is empty
     if (size == 0) {
@@ -172,7 +172,7 @@ FileUtils::Status FileUtilsWin32::getContents(const std::string &filename, Resiz
     if (!successed) {
         CC_LOG_DEBUG("Get data from file(%s) failed, error code is %s", filename.data(), std::to_string(::GetLastError()).data());
         buffer->resize(sizeRead);
-        return FileUtils::Status::ReadFailed;
+        return FileUtils::Status::READ_FAILED;
     }
     return FileUtils::Status::OK;
 }

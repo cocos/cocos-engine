@@ -1,30 +1,5 @@
-/****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
 #include "cocos/bindings/auto/jsb_webview_auto.h"
-#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#if USE_WEBVIEW > 0
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "ui/webview/WebView.h"
@@ -39,9 +14,9 @@
 se::Object* __jsb_cc_WebView_proto = nullptr;
 se::Class* __jsb_cc_WebView_class = nullptr;
 
-static bool js_webview_WebView_canGoBack(se::State& s)
+static bool js_webview_WebView_canGoBack(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_canGoBack : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -58,9 +33,9 @@ static bool js_webview_WebView_canGoBack(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_canGoBack)
 
-static bool js_webview_WebView_canGoForward(se::State& s)
+static bool js_webview_WebView_canGoForward(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_canGoForward : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -77,9 +52,9 @@ static bool js_webview_WebView_canGoForward(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_canGoForward)
 
-static bool js_webview_WebView_evaluateJS(se::State& s)
+static bool js_webview_WebView_evaluateJS(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_evaluateJS : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -96,9 +71,9 @@ static bool js_webview_WebView_evaluateJS(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_evaluateJS)
 
-static bool js_webview_WebView_getOnDidFailLoading(se::State& s)
+static bool js_webview_WebView_getOnDidFailLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnDidFailLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -115,9 +90,9 @@ static bool js_webview_WebView_getOnDidFailLoading(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_getOnDidFailLoading)
 
-static bool js_webview_WebView_getOnDidFinishLoading(se::State& s)
+static bool js_webview_WebView_getOnDidFinishLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnDidFinishLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -134,9 +109,9 @@ static bool js_webview_WebView_getOnDidFinishLoading(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_getOnDidFinishLoading)
 
-static bool js_webview_WebView_getOnJSCallback(se::State& s)
+static bool js_webview_WebView_getOnJSCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnJSCallback : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -153,15 +128,15 @@ static bool js_webview_WebView_getOnJSCallback(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_getOnJSCallback)
 
-static bool js_webview_WebView_getOnShouldStartLoading(se::State& s)
+static bool js_webview_WebView_getOnShouldStartLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnShouldStartLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::function<bool (cc::WebView *, const std::string&)> result = cobj->getOnShouldStartLoading();
+        std::function<bool (cc::WebView *, const std::string)> result = cobj->getOnShouldStartLoading();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_webview_WebView_getOnShouldStartLoading : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -172,9 +147,9 @@ static bool js_webview_WebView_getOnShouldStartLoading(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_getOnShouldStartLoading)
 
-static bool js_webview_WebView_goBack(se::State& s)
+static bool js_webview_WebView_goBack(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_goBack : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -187,9 +162,9 @@ static bool js_webview_WebView_goBack(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_goBack)
 
-static bool js_webview_WebView_goForward(se::State& s)
+static bool js_webview_WebView_goForward(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_goForward : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -202,9 +177,9 @@ static bool js_webview_WebView_goForward(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_goForward)
 
-static bool js_webview_WebView_loadData(se::State& s)
+static bool js_webview_WebView_loadData(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -227,9 +202,9 @@ static bool js_webview_WebView_loadData(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_loadData)
 
-static bool js_webview_WebView_loadFile(se::State& s)
+static bool js_webview_WebView_loadFile(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -246,9 +221,9 @@ static bool js_webview_WebView_loadFile(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_loadFile)
 
-static bool js_webview_WebView_loadHTMLString(se::State& s)
+static bool js_webview_WebView_loadHTMLString(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadHTMLString : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -274,9 +249,9 @@ static bool js_webview_WebView_loadHTMLString(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_loadHTMLString)
 
-static bool js_webview_WebView_loadURL(se::State& s)
+static bool js_webview_WebView_loadURL(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadURL : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -293,9 +268,9 @@ static bool js_webview_WebView_loadURL(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_loadURL)
 
-static bool js_webview_WebView_reload(se::State& s)
+static bool js_webview_WebView_reload(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_reload : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -308,9 +283,9 @@ static bool js_webview_WebView_reload(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_reload)
 
-static bool js_webview_WebView_setBackgroundTransparent(se::State& s)
+static bool js_webview_WebView_setBackgroundTransparent(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setBackgroundTransparent : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -327,9 +302,9 @@ static bool js_webview_WebView_setBackgroundTransparent(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setBackgroundTransparent)
 
-static bool js_webview_WebView_setBounces(se::State& s)
+static bool js_webview_WebView_setBounces(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setBounces : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -346,9 +321,9 @@ static bool js_webview_WebView_setBounces(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setBounces)
 
-static bool js_webview_WebView_setFrame(se::State& s)
+static bool js_webview_WebView_setFrame(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setFrame : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -371,9 +346,9 @@ static bool js_webview_WebView_setFrame(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setFrame)
 
-static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s)
+static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setJavascriptInterfaceScheme : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -390,22 +365,22 @@ static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setJavascriptInterfaceScheme)
 
-static bool js_webview_WebView_setOnDidFailLoading(se::State& s)
+static bool js_webview_WebView_setOnDidFailLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnDidFailLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<void (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> void {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -439,22 +414,22 @@ static bool js_webview_WebView_setOnDidFailLoading(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setOnDidFailLoading)
 
-static bool js_webview_WebView_setOnDidFinishLoading(se::State& s)
+static bool js_webview_WebView_setOnDidFinishLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnDidFinishLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<void (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> void {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -488,22 +463,22 @@ static bool js_webview_WebView_setOnDidFinishLoading(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setOnDidFinishLoading)
 
-static bool js_webview_WebView_setOnJSCallback(se::State& s)
+static bool js_webview_WebView_setOnJSCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnJSCallback : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<void (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> void {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -537,22 +512,22 @@ static bool js_webview_WebView_setOnJSCallback(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setOnJSCallback)
 
-static bool js_webview_WebView_setOnShouldStartLoading(se::State& s)
+static bool js_webview_WebView_setOnShouldStartLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnShouldStartLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<bool (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<bool (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> bool {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> bool {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -590,9 +565,9 @@ static bool js_webview_WebView_setOnShouldStartLoading(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setOnShouldStartLoading)
 
-static bool js_webview_WebView_setScalesPageToFit(se::State& s)
+static bool js_webview_WebView_setScalesPageToFit(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setScalesPageToFit : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -609,9 +584,9 @@ static bool js_webview_WebView_setScalesPageToFit(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setScalesPageToFit)
 
-static bool js_webview_WebView_setVisible(se::State& s)
+static bool js_webview_WebView_setVisible(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setVisible : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -628,9 +603,9 @@ static bool js_webview_WebView_setVisible(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setVisible)
 
-static bool js_webview_WebView_stopLoading(se::State& s)
+static bool js_webview_WebView_stopLoading(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_stopLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -643,7 +618,7 @@ static bool js_webview_WebView_stopLoading(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_stopLoading)
 
-static bool js_webview_WebView_create(se::State& s)
+static bool js_webview_WebView_create(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -662,17 +637,16 @@ static bool js_webview_WebView_create(se::State& s)
 SE_BIND_FUNC(js_webview_WebView_create)
 
 
-
-static bool js_cc_WebView_finalize(se::State& s)
+static bool js_cc_WebView_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     // destructor is skipped
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_WebView_finalize)
 
-static bool js_cc_WebView_destroy(se::State& s)
+static bool js_cc_WebView_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     cobj->release();
     auto objIter = se::NativePtrToObjectMap::find(SE_THIS_OBJECT<cc::WebView>(s));
     if(objIter != se::NativePtrToObjectMap::end())
@@ -683,9 +657,9 @@ static bool js_cc_WebView_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_cc_WebView_destroy)
 
-bool js_register_webview_WebView(se::Object* obj)
+bool js_register_webview_WebView(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto cls = se::Class::create("WebView", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("WebView", obj, nullptr, nullptr);
 
     cls->defineFunction("canGoBack", _SE(js_webview_WebView_canGoBack));
     cls->defineFunction("canGoForward", _SE(js_webview_WebView_canGoForward));
@@ -740,4 +714,4 @@ bool register_all_webview(se::Object* obj)
     return true;
 }
 
-#endif //#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#endif //#if USE_WEBVIEW > 0

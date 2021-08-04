@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL FramebufferAgent final : public Agent<Framebuffer> {
 public:
-    using Agent::Agent;
+    explicit FramebufferAgent(Framebuffer *actor);
     ~FramebufferAgent() override;
 
 protected:

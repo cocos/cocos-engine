@@ -33,12 +33,12 @@ namespace gfx {
 
 class CC_DLL BufferValidator final : public Agent<Buffer> {
 public:
-    using Agent::Agent;
+    explicit BufferValidator(Buffer *actor);
     ~BufferValidator() override;
 
     void update(const void *buffer, uint size) override;
 
-    void updateRedundencyCheck();
+    void sanityCheck(const void *buffer, uint size);
 
 protected:
     void doInit(const BufferInfo &info) override;

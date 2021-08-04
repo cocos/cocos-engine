@@ -33,21 +33,21 @@ namespace gfx {
 class CC_DLL Sampler : public GFXObject {
 public:
     Sampler();
-    virtual ~Sampler();
+    ~Sampler() override;
 
     void initialize(const SamplerInfo &info);
     void destroy();
 
-    CC_INLINE Filter         getMinFilter() const { return _minFilter; }
-    CC_INLINE Filter         getMagFilter() const { return _magFilter; }
-    CC_INLINE Filter         getMipFilter() const { return _mipFilter; }
-    CC_INLINE Address        getAddressU() const { return _addressU; }
-    CC_INLINE Address        getAddressV() const { return _addressV; }
-    CC_INLINE Address        getAddressW() const { return _addressW; }
-    CC_INLINE uint           getMaxAnisotropy() const { return _maxAnisotropy; }
-    CC_INLINE ComparisonFunc getCmpFunc() const { return _cmpFunc; }
-    CC_INLINE const Color &getBorderColor() const { return _borderColor; }
-    CC_INLINE float        getMipLODBias() const { return _mipLODBias; }
+    inline Filter         getMinFilter() const { return _minFilter; }
+    inline Filter         getMagFilter() const { return _magFilter; }
+    inline Filter         getMipFilter() const { return _mipFilter; }
+    inline Address        getAddressU() const { return _addressU; }
+    inline Address        getAddressV() const { return _addressV; }
+    inline Address        getAddressW() const { return _addressW; }
+    inline uint           getMaxAnisotropy() const { return _maxAnisotropy; }
+    inline ComparisonFunc getCmpFunc() const { return _cmpFunc; }
+    inline const Color &  getBorderColor() const { return _borderColor; }
+    inline float          getMipLODBias() const { return _mipLODBias; }
 
 protected:
     virtual void doInit(const SamplerInfo &info) = 0;
@@ -62,7 +62,7 @@ protected:
     uint           _maxAnisotropy = 0;
     ComparisonFunc _cmpFunc       = ComparisonFunc::ALWAYS;
     Color          _borderColor;
-    float          _mipLODBias = 0.0f;
+    float          _mipLODBias = 0.0F;
 };
 
 } // namespace gfx

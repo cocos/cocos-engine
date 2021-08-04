@@ -44,21 +44,21 @@
 namespace cc {
 namespace gfx {
 
-EmptyDevice *EmptyDevice::_instance = nullptr;
+EmptyDevice *EmptyDevice::instance = nullptr;
 
 EmptyDevice *EmptyDevice::getInstance() {
-    return EmptyDevice::_instance;
+    return EmptyDevice::instance;
 }
 
 EmptyDevice::EmptyDevice() {
-    EmptyDevice::_instance  = this;
+    EmptyDevice::instance = this;
 }
 
 EmptyDevice::~EmptyDevice() {
-    EmptyDevice::_instance = nullptr;
+    EmptyDevice::instance = nullptr;
 }
 
-bool EmptyDevice::doInit(const DeviceInfo &info) {
+bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
 
@@ -77,11 +77,8 @@ bool EmptyDevice::doInit(const DeviceInfo &info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
-    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = true;
-
     CC_LOG_INFO("Empty device initialized.");
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
-    CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
 
     return true;
 }
@@ -93,8 +90,8 @@ void EmptyDevice::doDestroy() {
 }
 
 void EmptyDevice::resize(uint width, uint height) {
-    _width = _nativeWidth = width;
-    _height = _nativeHeight = height;
+    _width  = width;
+    _height = height;
 }
 
 void EmptyDevice::acquire() {
@@ -104,7 +101,7 @@ void EmptyDevice::present() {
     std::this_thread::sleep_for(std::chrono::milliseconds(16));
 }
 
-CommandBuffer *EmptyDevice::createCommandBuffer(const CommandBufferInfo &info, bool Emptyhas) {
+CommandBuffer *EmptyDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {
     return CC_NEW(EmptyCommandBuffer());
 }
 
@@ -165,6 +162,9 @@ TextureBarrier *EmptyDevice::createTextureBarrier() {
 }
 
 void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+}
+
+void EmptyDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
 }
 
 } // namespace gfx

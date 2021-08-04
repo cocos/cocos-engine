@@ -26,17 +26,17 @@
 
 #pragma once
 
-#include "base/Macros.h"
 #include "audio/include/Export.h"
+#include "base/Macros.h"
 
-#include "bindings/event/EventDispatcher.h"
 #include "bindings/event/CustomEventTypes.h"
+#include "bindings/event/EventDispatcher.h"
 
+#include <chrono>
 #include <functional>
 #include <list>
 #include <string>
 #include <unordered_map>
-#include <chrono>
 
 #ifdef ERROR
     #undef ERROR
@@ -59,19 +59,17 @@ public:
     //Profile name can't be empty.
     std::string name;
     //The maximum number of simultaneous audio instance.
-    unsigned int maxInstances;
+    unsigned int maxInstances{};
 
     /* Minimum delay in between sounds */
-    double minDelay;
+    double minDelay{};
 
     /**
      * Default constructor
      *
      * @lua new
      */
-    AudioProfile()
-    : maxInstances(0), minDelay(0.0) {
-    }
+    AudioProfile() = default;
 };
 
 class AudioEngineImpl;
@@ -127,7 +125,7 @@ public:
      *
      * @see `AudioProfile`
      */
-    static int play2d(const std::string &filePath, bool loop = false, float volume = 1.0f, const AudioProfile *profile = nullptr);
+    static int play2d(const std::string &filePath, bool loop = false, float volume = 1.0F, const AudioProfile *profile = nullptr);
 
     /** 
      * Sets whether an audio instance loop or not.
@@ -195,10 +193,10 @@ public:
      * Sets the current playback position of an audio instance.
      *
      * @param audioID   An audioID returned by the play2d function.
-     * @param sec       The offset in seconds from the start to seek to.
+     * @param time      The offset in seconds from the start to seek to.
      * @return 
      */
-    static bool setCurrentTime(int audioID, float sec);
+    static bool setCurrentTime(int audioID, float time);
 
     /** 
      * Gets the current playback position of an audio instance.
@@ -243,7 +241,7 @@ public:
     /**
      * Gets the maximum number of simultaneous audio instance of AudioEngine.
      */
-    static int getMaxAudioInstance() { return _maxInstances; }
+    static int getMaxAudioInstance() { return static_cast<int>(sMaxInstances); }
 
     /**
      * Sets the maximum number of simultaneous audio instance for AudioEngine.
@@ -254,7 +252,7 @@ public:
 
     /** 
      * Uncache the audio data from internal buffer.
-     * AudioEngine cache audio data on ios,mac, and win32 platform.
+     * AudioEngine cache audio data on ios,mac, and oalsoft platform.
      *
      * @warning This can lead to stop related audio first.
      * @param filePath Audio file path.
@@ -295,7 +293,7 @@ public:
      * @param filePath The file path of an audio.
      * @param callback A callback which will be called after loading is finished.
      */
-    static void preload(const std::string &filePath, std::function<void(bool isSuccess)> callback);
+    static void preload(const std::string &filePath, const std::function<void(bool isSuccess)> &callback);
 
     /**
      * Gets playing audio count.
@@ -316,6 +314,9 @@ protected:
     static void addTask(const std::function<void()> &task);
     static void remove(int audioID);
 
+    static void pauseAll(std::vector<int> *pausedAudioIDs);
+    static void resumeAll(std::vector<int> *pausedAudioIDs);
+
     struct ProfileHelper {
         AudioProfile profile;
 
@@ -323,17 +324,16 @@ protected:
 
         std::chrono::high_resolution_clock::time_point lastPlayTime;
 
-        ProfileHelper() {
-        }
+        ProfileHelper() = default;
     };
 
     struct AudioInfo {
         const std::string *filePath;
-        ProfileHelper *profileHelper;
+        ProfileHelper *    profileHelper;
 
-        float volume;
-        bool loop;
-        float duration;
+        float      volume;
+        bool       loop;
+        float      duration;
         AudioState state;
 
         AudioInfo();
@@ -341,35 +341,35 @@ protected:
 
     private:
         AudioInfo(const AudioInfo &info);
-        AudioInfo(AudioInfo &&info);
+        AudioInfo(AudioInfo &&info) noexcept;
         AudioInfo &operator=(const AudioInfo &info);
-        AudioInfo &operator=(AudioInfo &&info);
+        AudioInfo &operator=(AudioInfo &&info) noexcept;
     };
 
     //audioID,audioAttribute
-    static std::unordered_map<int, AudioInfo> _audioIDInfoMap;
+    static std::unordered_map<int, AudioInfo> sAudioIDInfoMap;
 
     //audio file path,audio IDs
-    static std::unordered_map<std::string, std::list<int>> _audioPathIDMap;
+    static std::unordered_map<std::string, std::list<int>> sAudioPathIDMap;
 
     //profileName,ProfileHelper
-    static std::unordered_map<std::string, ProfileHelper> _audioPathProfileHelperMap;
+    static std::unordered_map<std::string, ProfileHelper> sAudioPathProfileHelperMap;
 
-    static unsigned int _maxInstances;
+    static unsigned int sMaxInstances;
 
-    static ProfileHelper *_defaultProfileHelper;
+    static ProfileHelper *sDefaultProfileHelper;
 
-    static AudioEngineImpl *_audioEngineImpl;
+    static AudioEngineImpl *sAudioEngineImpl;
 
     class AudioEngineThreadPool;
-    static AudioEngineThreadPool *s_threadPool;
+    static AudioEngineThreadPool *sThreadPool;
 
-    static bool _isEnabled;
+    static bool sIsEnabled;
 
 private:
-    static uint32_t _onPauseListenerID;
-    static uint32_t _onResumeListenerID;
-    static std::vector<int> _breakAudioID;
+    static uint32_t         sOnPauseListenerID;
+    static uint32_t         sOnResumeListenerID;
+    static std::vector<int> sBreakAudioID;
 
     static void onEnterBackground(const CustomEvent &);
     static void onEnterForeground(const CustomEvent &);

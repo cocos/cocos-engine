@@ -28,10 +28,10 @@
 
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_SM
 
-    #include "Utils.h"
+    #include "../MappingUtils.h"
     #include "Class.h"
     #include "ScriptEngine.h"
-    #include "../MappingUtils.h"
+    #include "Utils.h"
 
 namespace se {
 
@@ -74,7 +74,7 @@ Object::~Object() {
 }
 
 bool Object::init(Class *cls, JSObject *obj) {
-    _cls = cls;
+    _cls  = cls;
     _heap = obj;
 
     assert(__objectMap.find(this) == __objectMap.end());
@@ -100,13 +100,13 @@ Object *Object::createPlainObject() {
 
 Object *Object::createObjectWithClass(Class *cls) {
     JSObject *jsobj = Class::_createJSObjectWithClass(cls);
-    Object *obj = Object::_createJSObject(cls, jsobj);
+    Object *  obj   = Object::_createJSObject(cls, jsobj);
     return obj;
 }
 
 Object *Object::getObjectWithPtr(void *ptr) {
-    Object *obj = nullptr;
-    auto iter = NativePtrToObjectMap::find(ptr);
+    Object *obj  = nullptr;
+    auto    iter = NativePtrToObjectMap::find(ptr);
     if (iter != NativePtrToObjectMap::end()) {
         obj = iter->second;
         obj->incRef();
@@ -116,15 +116,15 @@ Object *Object::getObjectWithPtr(void *ptr) {
 
 Object *Object::createArrayObject(size_t length) {
     JS::RootedObject jsobj(__cx, JS_NewArrayObject(__cx, length));
-    Object *obj = Object::_createJSObject(nullptr, jsobj);
+    Object *         obj = Object::_createJSObject(nullptr, jsobj);
     return obj;
 }
 
 Object *Object::createArrayBufferObject(void *data, size_t byteLength) {
-    JS::RootedObject jsobj(__cx, JS_NewArrayBuffer(__cx, (uint32_t)byteLength));
-    bool isShared = false;
+    JS::RootedObject      jsobj(__cx, JS_NewArrayBuffer(__cx, (uint32_t)byteLength));
+    bool                  isShared = false;
     JS::AutoCheckCannotGC nogc;
-    uint8_t *tmpData = JS_GetArrayBufferData(jsobj, &isShared, nogc);
+    uint8_t *             tmpData = JS_GetArrayBufferData(jsobj, &isShared, nogc);
     if (data) {
         memcpy((void *)tmpData, (const void *)data, byteLength);
     } else {
@@ -134,7 +134,7 @@ Object *Object::createArrayBufferObject(void *data, size_t byteLength) {
     return obj;
 }
 
-Object *Object::createTypedArray(TypedArrayType type, void *data, size_t byteLength) {
+Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t byteLength) {
     if (type == TypedArrayType::NONE) {
         SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
         return nullptr;
@@ -145,42 +145,42 @@ Object *Object::createTypedArray(TypedArrayType type, void *data, size_t byteLen
         return nullptr;
     }
 
-    JSObject *arr = nullptr;
-    void *tmpData = nullptr;
-    bool isShared = false;
+    JSObject *            arr      = nullptr;
+    void *                tmpData  = nullptr;
+    bool                  isShared = false;
     JS::AutoCheckCannotGC nogc;
 
     switch (type) {
         case TypedArrayType::INT8:
-            arr = JS_NewInt8Array(__cx, (uint32_t)byteLength);
+            arr     = JS_NewInt8Array(__cx, (uint32_t)byteLength);
             tmpData = JS_GetInt8ArrayData(arr, &isShared, nogc);
             break;
         case TypedArrayType::INT16:
-            arr = JS_NewInt16Array(__cx, (uint32_t)byteLength / 2);
+            arr     = JS_NewInt16Array(__cx, (uint32_t)byteLength / 2);
             tmpData = JS_GetInt16ArrayData(arr, &isShared, nogc);
             break;
         case TypedArrayType::INT32:
-            arr = JS_NewInt32Array(__cx, (uint32_t)byteLength / 4);
+            arr     = JS_NewInt32Array(__cx, (uint32_t)byteLength / 4);
             tmpData = JS_GetInt32ArrayData(arr, &isShared, nogc);
             break;
         case TypedArrayType::UINT8:
-            arr = JS_NewUint8Array(__cx, (uint32_t)byteLength);
+            arr     = JS_NewUint8Array(__cx, (uint32_t)byteLength);
             tmpData = JS_GetUint8ArrayData(arr, &isShared, nogc);
             break;
         case TypedArrayType::UINT16:
-            arr = JS_NewUint16Array(__cx, (uint32_t)byteLength / 2);
+            arr     = JS_NewUint16Array(__cx, (uint32_t)byteLength / 2);
             tmpData = JS_GetUint16ArrayData(arr, &isShared, nogc);
             break;
         case TypedArrayType::UINT32:
-            arr = JS_NewUint32Array(__cx, (uint32_t)byteLength / 4);
+            arr     = JS_NewUint32Array(__cx, (uint32_t)byteLength / 4);
             tmpData = JS_GetUint32ArrayData(arr, &isShared, nogc);
             break;
         case TypedArrayType::FLOAT32:
-            arr = JS_NewFloat32Array(__cx, (uint32_t)byteLength / 4);
+            arr     = JS_NewFloat32Array(__cx, (uint32_t)byteLength / 4);
             tmpData = JS_GetFloat32ArrayData(arr, &isShared, nogc);
             break;
         case TypedArrayType::FLOAT64:
-            arr = JS_NewFloat64Array(__cx, (uint32_t)byteLength / 8);
+            arr     = JS_NewFloat64Array(__cx, (uint32_t)byteLength / 8);
             tmpData = JS_GetFloat64ArrayData(arr, &isShared, nogc);
             break;
         default:
@@ -204,12 +204,12 @@ Object *Object::createUint8TypedArray(uint8_t *data, size_t dataCount) {
 }
 
 Object *Object::createJSONObject(const std::string &jsonStr) {
-    Value strVal(jsonStr);
+    Value           strVal(jsonStr);
     JS::RootedValue jsStr(__cx);
     internal::seToJsValue(__cx, strVal, &jsStr);
-    JS::RootedValue jsObj(__cx);
+    JS::RootedValue  jsObj(__cx);
     JS::RootedString rootedStr(__cx, jsStr.toString());
-    Object *obj = nullptr;
+    Object *         obj = nullptr;
     if (JS_ParseJSON(__cx, rootedStr, &jsObj)) {
         obj = Object::_createJSObject(nullptr, jsObj.toObjectOrNull());
     }
@@ -231,7 +231,7 @@ bool Object::getProperty(const char *name, Value *data) {
     JS::RootedObject object(__cx, jsobj);
 
     bool found = false;
-    bool ok = JS_HasProperty(__cx, object, name, &found);
+    bool ok    = JS_HasProperty(__cx, object, name, &found);
 
     if (!ok || !found) {
         return false;
@@ -272,7 +272,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
         contextObject.set(thisObject->_getJSObject());
     }
 
-    JSObject *funcObj = _getJSObject();
+    JSObject *      funcObj = _getJSObject();
     JS::RootedValue func(__cx, JS::ObjectValue(*funcObj));
     JS::RootedValue rcValue(__cx);
 
@@ -290,7 +290,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
 
 bool Object::defineFunction(const char *funcName, JSNative func) {
     JS::RootedObject object(__cx, _getJSObject());
-    bool ok = JS_DefineFunction(__cx, object, funcName, func, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    bool             ok = JS_DefineFunction(__cx, object, funcName, func, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     return ok;
 }
 
@@ -313,7 +313,7 @@ bool Object::getArrayElement(uint32_t index, Value *data) const {
         return false;
 
     JS::RootedObject object(__cx, _getJSObject());
-    JS::RootedValue rcValue(__cx);
+    JS::RootedValue  rcValue(__cx);
     if (JS_GetElement(__cx, object, index, &rcValue)) {
         internal::jsToSeValue(__cx, rcValue, data);
         return true;
@@ -348,7 +348,7 @@ bool Object::isTypedArray() const {
 
 Object::TypedArrayType Object::getTypedArrayType() const {
     TypedArrayType ret = TypedArrayType::NONE;
-    JSObject *obj = _getJSObject();
+    JSObject *     obj = _getJSObject();
     if (JS_IsInt8Array(obj))
         ret = TypedArrayType::INT8;
     else if (JS_IsInt16Array(obj))
@@ -373,16 +373,16 @@ Object::TypedArrayType Object::getTypedArrayType() const {
 
 bool Object::getTypedArrayData(uint8_t **ptr, size_t *length) const {
     assert(JS_IsArrayBufferViewObject(_getJSObject()));
-    bool isShared = false;
+    bool                  isShared = false;
     JS::AutoCheckCannotGC nogc;
-    *ptr = (uint8_t *)JS_GetArrayBufferViewData(_getJSObject(), &isShared, nogc);
+    *ptr    = (uint8_t *)JS_GetArrayBufferViewData(_getJSObject(), &isShared, nogc);
     *length = JS_GetArrayBufferViewByteLength(_getJSObject());
     return (*ptr != nullptr);
 }
 
 bool Object::isArray() const {
     JS::RootedValue value(__cx, JS::ObjectValue(*_getJSObject()));
-    bool isArray = false;
+    bool            isArray = false;
     return JS_IsArrayObject(__cx, value, &isArray) && isArray;
 }
 
@@ -393,23 +393,23 @@ bool Object::isArrayBuffer() const {
 bool Object::getArrayBufferData(uint8_t **ptr, size_t *length) const {
     assert(isArrayBuffer());
 
-    bool isShared = false;
+    bool                  isShared = false;
     JS::AutoCheckCannotGC nogc;
-    *ptr = (uint8_t *)JS_GetArrayBufferData(_getJSObject(), &isShared, nogc);
+    *ptr    = (uint8_t *)JS_GetArrayBufferData(_getJSObject(), &isShared, nogc);
     *length = JS_GetArrayBufferByteLength(_getJSObject());
     return (*ptr != nullptr);
 }
 
 bool Object::getAllKeys(std::vector<std::string> *allKeys) const {
     assert(allKeys != nullptr);
-    JS::RootedObject jsobj(__cx, _getJSObject());
+    JS::RootedObject         jsobj(__cx, _getJSObject());
     JS::Rooted<JS::IdVector> props(__cx, JS::IdVector(__cx));
     if (!JS_Enumerate(__cx, jsobj, &props))
         return false;
 
     std::vector<std::string> keys;
     for (size_t i = 0, length = props.length(); i < length; ++i) {
-        JS::RootedId id(__cx, props[i]);
+        JS::RootedId    id(__cx, props[i]);
         JS::RootedValue keyVal(__cx);
         JS_IdToValue(__cx, id, &keyVal);
 
@@ -539,8 +539,8 @@ void Object::trace(JSTracer *tracer, void *data) {
      * finalized. If the object was finalized, returns true. */
 bool Object::updateAfterGC(void *data) {
     assert(!isRooted());
-    bool isGarbageCollected = false;
-    internal::PrivateData *internalData = nullptr;
+    bool                   isGarbageCollected = false;
+    internal::PrivateData *internalData       = nullptr;
 
     JSObject *oldPtr = _heap.unbarrieredGet();
     if (_heap.unbarrieredGet() != nullptr)
@@ -564,7 +564,7 @@ bool Object::isRooted() const {
 }
 
 bool Object::strictEquals(Object *o) const {
-    JSObject *thisObj = _getJSObject();
+    JSObject *thisObj  = _getJSObject();
     JSObject *oThisObj = o->_getJSObject();
     if ((thisObj == nullptr || oThisObj == nullptr) && thisObj != oThisObj)
         return false;
@@ -573,8 +573,8 @@ bool Object::strictEquals(Object *o) const {
     assert(oThisObj);
     JS::RootedValue v1(__cx, JS::ObjectValue(*_getJSObject()));
     JS::RootedValue v2(__cx, JS::ObjectValue(*o->_getJSObject()));
-    bool same = false;
-    bool ok = JS_SameValue(__cx, v1, v2, &same);
+    bool            same = false;
+    bool            ok   = JS_SameValue(__cx, v1, v2, &same);
     return ok && same;
 }
 
@@ -582,7 +582,7 @@ bool Object::attachObject(Object *obj) {
     assert(obj);
 
     Object *global = ScriptEngine::getInstance()->getGlobalObject();
-    Value jsbVal;
+    Value   jsbVal;
     if (!global->getProperty("jsb", &jsbVal))
         return false;
     Object *jsbObj = jsbVal.toObject();
@@ -602,7 +602,7 @@ bool Object::attachObject(Object *obj) {
 bool Object::detachObject(Object *obj) {
     assert(obj);
     Object *global = ScriptEngine::getInstance()->getGlobalObject();
-    Value jsbVal;
+    Value   jsbVal;
     if (!global->getProperty("jsb", &jsbVal))
         return false;
     Object *jsbObj = jsbVal.toObject();

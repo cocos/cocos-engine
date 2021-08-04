@@ -25,10 +25,12 @@
 
 #pragma once
 
+#include <cstdint>
 #include "bindings/manual/jsb_conversions.h"
 #include "physics/spec/ILifecycle.h"
-#include "renderer/pipeline/helper/SharedMemory.h"
-#include <cstdint>
+#include "scene/AABB.h"
+#include "scene/Node.h"
+#include "scene/Sphere.h"
 
 namespace cc {
 namespace physics {
@@ -40,77 +42,85 @@ enum class EAxisDirection : uint8_t {
 };
 
 enum class EShapeFilterFlag : uint8_t {
-    NONE = 0,
-    IS_TRIGGER = 1 << 0,
-    NEED_EVENT = 1 << 1,
-    NEED_CONTACT_DATA = 1 << 2,
+    NONE               = 0,
+    IS_TRIGGER         = 1 << 0,
+    NEED_EVENT         = 1 << 1,
+    NEED_CONTACT_DATA  = 1 << 2,
     DETECT_CONTACT_CCD = 1 << 3,
 };
 
 class IBaseShape : virtual public ILifecycle {
 public:
-    ~IBaseShape() override= default;;
-    virtual void initialize(uint h) = 0;
-    virtual uintptr_t getImpl() = 0;
-    virtual void setMaterial(uint16_t id, float f, float df, float r,
-                             uint8_t m0, uint8_t m1) = 0;
-    virtual void setAsTrigger(bool v) = 0;
-    virtual void setCenter(float x, float y, float z) = 0;
-    virtual cc::pipeline::AABB& getAABB() = 0;
-    virtual cc::pipeline::Sphere& getBoundingSphere() = 0;
-    virtual void updateEventListener(EShapeFilterFlag flag) = 0;
-    virtual uint32_t getGroup() = 0;
-    virtual void setGroup(uint32_t g) = 0;
-    virtual uint32_t getMask() = 0;
-    virtual void setMask(uint32_t m) = 0;
+    ~IBaseShape() override = default;
+    ;
+    virtual void           initialize(scene::Node *node)              = 0;
+    virtual uintptr_t      getImpl()                                  = 0;
+    virtual void           setMaterial(uint16_t id, float f, float df, float r,
+                                       uint8_t m0, uint8_t m1)        = 0;
+    virtual void           setAsTrigger(bool v)                       = 0;
+    virtual void           setCenter(float x, float y, float z)       = 0;
+    virtual scene::AABB &  getAABB()                                  = 0;
+    virtual scene::Sphere &getBoundingSphere()                        = 0;
+    virtual void           updateEventListener(EShapeFilterFlag flag) = 0;
+    virtual uint32_t       getGroup()                                 = 0;
+    virtual void           setGroup(uint32_t g)                       = 0;
+    virtual uint32_t       getMask()                                  = 0;
+    virtual void           setMask(uint32_t m)                        = 0;
 };
 
 class ISphereShape : virtual public IBaseShape {
 public:
-    ~ISphereShape() override= default;;
+    ~ISphereShape() override = default;
+    ;
     virtual void setRadius(float v) = 0;
 };
 
 class IBoxShape : virtual public IBaseShape {
 public:
-    ~IBoxShape() override= default;;
+    ~IBoxShape() override = default;
+    ;
     virtual void setSize(float x, float y, float z) = 0;
 };
 
 class ICapsuleShape : virtual public IBaseShape {
 public:
-    ~ICapsuleShape() override= default;;
-    virtual void setRadius(float v) = 0;
-    virtual void setCylinderHeight(float v) = 0;
+    ~ICapsuleShape() override = default;
+    ;
+    virtual void setRadius(float v)             = 0;
+    virtual void setCylinderHeight(float v)     = 0;
     virtual void setDirection(EAxisDirection v) = 0;
 };
 
 class ICylinderShape : virtual public IBaseShape {
 public:
-    ~ICylinderShape() override= default;;
-    virtual void setConvex(uintptr_t v) = 0;
+    ~ICylinderShape() override = default;
+    ;
+    virtual void setConvex(uintptr_t v)                          = 0;
     virtual void setCylinder(float r, float h, EAxisDirection d) = 0;
 };
 
 class IConeShape : virtual public IBaseShape {
 public:
-    ~IConeShape() override= default;;
-    virtual void setConvex(uintptr_t v) = 0;
+    ~IConeShape() override = default;
+    ;
+    virtual void setConvex(uintptr_t v)                      = 0;
     virtual void setCone(float r, float h, EAxisDirection d) = 0;
 };
 
 class IPlaneShape : virtual public IBaseShape {
 public:
-    ~IPlaneShape() override= default;;
-    virtual void setConstant(float v) = 0;
+    ~IPlaneShape() override = default;
+    ;
+    virtual void setConstant(float v)                 = 0;
     virtual void setNormal(float x, float y, float z) = 0;
 };
 
 class ITrimeshShape : virtual public IBaseShape {
 public:
-    ~ITrimeshShape() override= default;;
+    ~ITrimeshShape() override = default;
+    ;
     virtual void setMesh(uintptr_t v) = 0;
-    virtual void useConvex(bool v) = 0;
+    virtual void useConvex(bool v)    = 0;
 };
 
 class ITerrainShape : virtual public IBaseShape {
@@ -122,21 +132,21 @@ public:
 } // namespace cc
 
 template <>
-inline bool nativevalue_to_se(const cc::pipeline::AABB &from, se::Value &to, se::Object *ctx) {
+inline bool nativevalue_to_se(const cc::scene::AABB &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
-    se::Value tmp;
-    if (nativevalue_to_se(from.center, tmp, ctx)) obj->setProperty("center", tmp);
-    if (nativevalue_to_se(from.halfExtents, tmp, ctx)) obj->setProperty("halfExtents", tmp);
+    se::Value        tmp;
+    if (nativevalue_to_se(from.getCenter(), tmp, ctx)) obj->setProperty("center", tmp);
+    if (nativevalue_to_se(from.getHalfExtents(), tmp, ctx)) obj->setProperty("halfExtents", tmp);
     to.setObject(obj);
     return true;
 }
 
 template <>
-inline bool nativevalue_to_se(const cc::pipeline::Sphere &from, se::Value &to, se::Object *ctx) {
+inline bool nativevalue_to_se(const cc::scene::Sphere &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
-    se::Value tmp(from.radius);
+    se::Value        tmp(from.getRadius());
     obj->setProperty("radius", tmp);
-    if (nativevalue_to_se(from.center, tmp, ctx)) obj->setProperty("center", tmp);
+    if (nativevalue_to_se(from.getCenter(), tmp, ctx)) obj->setProperty("center", tmp);
     to.setObject(obj);
     return true;
 }

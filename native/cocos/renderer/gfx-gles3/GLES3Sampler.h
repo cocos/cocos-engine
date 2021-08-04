@@ -37,7 +37,7 @@ public:
     GLES3Sampler();
     ~GLES3Sampler();
 
-    CC_INLINE GLES3GPUSampler *gpuSampler() const { return _gpuSampler; }
+    inline GLES3GPUSampler *gpuSampler() const { return _gpuSampler; }
 
 protected:
     void doInit(const SamplerInfo &info) override;

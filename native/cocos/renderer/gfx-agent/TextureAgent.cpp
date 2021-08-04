@@ -32,6 +32,11 @@
 namespace cc {
 namespace gfx {
 
+TextureAgent::TextureAgent(Texture *actor)
+: Agent<Texture>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 TextureAgent::~TextureAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -77,7 +82,7 @@ void TextureAgent::doDestroy() {
         });
 }
 
-void TextureAgent::doResize(uint width, uint height, uint size) {
+void TextureAgent::doResize(uint width, uint height, uint /*size*/) {
     ENQUEUE_MESSAGE_3(
         DeviceAgent::getInstance()->getMessageQueue(),
         TextureResize,

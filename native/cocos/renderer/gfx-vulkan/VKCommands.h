@@ -32,28 +32,6 @@ namespace gfx {
 
 class CCVKDevice;
 
-struct CCVKDepthBias {
-    float constant = 0.0F;
-    float clamp = 0.0F;
-    float slope = 0.0F;
-};
-
-struct CCVKDepthBounds {
-    float minBounds = 0.0F;
-    float maxBounds = 0.0F;
-};
-
-struct CCVKStencilWriteMask {
-    StencilFace face = StencilFace::FRONT;
-    uint32_t write_mask = 0;
-};
-
-struct CCVKStencilCompareMask {
-    StencilFace face = StencilFace::FRONT;
-    int reference = 0;
-    uint32_t compareMask = 0;
-};
-
 CC_VULKAN_API void cmdFuncCCVKGetDeviceQueue(CCVKDevice *device, CCVKGPUQueue *gpuQueue);
 
 CC_VULKAN_API void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture);
@@ -70,6 +48,7 @@ CC_VULKAN_API void cmdFuncCCVKCreateComputePipelineState(CCVKDevice *device, CCV
 
 CC_VULKAN_API void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const void *buffer, uint size, const CCVKGPUCommandBuffer *cmdBuffer = nullptr);
 CC_VULKAN_API void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *buffers, CCVKGPUTexture *gpuTexture, const BufferTextureCopy *regions, uint count, const CCVKGPUCommandBuffer *gpuCommandBuffer);
+CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer, const BufferTextureCopy *regions, uint count, const CCVKGPUCommandBuffer *gpuCommandBuffer);
 
 CC_VULKAN_API void cmdFuncCCVKDestroyRenderPass(CCVKGPUDevice *device, CCVKGPURenderPass *gpuRenderPass);
 CC_VULKAN_API void cmdFuncCCVKDestroySampler(CCVKGPUDevice *device, CCVKGPUSampler *gpuSampler);

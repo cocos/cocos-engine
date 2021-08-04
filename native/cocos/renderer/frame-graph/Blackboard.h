@@ -41,11 +41,11 @@ public:
     Blackboard &operator=(const Blackboard &) = delete;
     Blackboard &operator=(Blackboard &&) = delete;
 
-    CC_INLINE ValueType &operator[](const KeyType &name) noexcept;
-    CC_INLINE void       put(const KeyType &name, ValueType const handle) noexcept;
-    CC_INLINE ValueType  get(const KeyType &name) const noexcept;
-    CC_INLINE void       clear() noexcept;
-    CC_INLINE bool       has(const KeyType &name) const noexcept;
+    inline ValueType &operator[](const KeyType &name) noexcept;
+    inline void       put(const KeyType &name, ValueType const handle) noexcept;
+    inline ValueType  get(const KeyType &name) const noexcept;
+    inline void       clear() noexcept;
+    inline bool       has(const KeyType &name) const noexcept;
 
 private:
     using Container = std::map<KeyType, ValueType>;

@@ -25,13 +25,13 @@
 
 #pragma once
 
+#include <memory>
 #include "CallbackPass.h"
 #include "Handle.h"
 #include "PassInsertPointManager.h"
 #include "RenderTargetAttachment.h"
 #include "VirtualResource.h"
 #include "gfx-base/GFXDef.h"
-#include <memory>
 
 namespace cc {
 namespace framegraph {
@@ -40,29 +40,29 @@ class FrameGraph;
 
 class PassNode final {
 public:
-    PassNode(const PassInsertPoint inserPoint, const StringHandle name, const ID &id, Executable *pass) noexcept;
+    PassNode(PassInsertPoint inserPoint, StringHandle name, const ID &id, Executable *pass) noexcept;
     ~PassNode()                    = default;
     PassNode(PassNode &&) noexcept = default;
     PassNode(const PassNode &)     = delete;
     PassNode &operator=(const PassNode &) = delete;
     PassNode &operator=(PassNode &&) = delete;
 
-    Handle         read(FrameGraph &graph, const Handle &input) noexcept;
-    Handle         write(FrameGraph &graph, const Handle &output) noexcept;
-    void           createRenderTargetAttachment(RenderTargetAttachment &&attachment) noexcept;
-    CC_INLINE void sideEffect() noexcept;
-    CC_INLINE void subpass(bool clearActionIgnoreable, bool const end) noexcept;
-    CC_INLINE void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
+    Handle      read(FrameGraph &graph, const Handle &input) noexcept;
+    Handle      write(FrameGraph &graph, const Handle &output) noexcept;
+    void        createRenderTargetAttachment(RenderTargetAttachment &&attachment) noexcept;
+    inline void sideEffect() noexcept;
+    inline void subpass(bool clearActionIgnoreable, bool end) noexcept;
+    inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
 
 private:
     bool                    canMerge(const FrameGraph &graph, const PassNode &passNode) const noexcept;
     RenderTargetAttachment *getRenderTargetAttachment(const Handle &handle) noexcept;
-    RenderTargetAttachment *getRenderTargetAttachment(const FrameGraph &graph, const VirtualResource *const resource) noexcept;
+    RenderTargetAttachment *getRenderTargetAttachment(const FrameGraph &graph, const VirtualResource *resource) noexcept;
     void                    requestTransientResources() noexcept;
     void                    releaseTransientResources() noexcept;
     bool                    check(FrameGraph &graph, const Handle &checkingHandle, std::vector<Handle> const &handles) const noexcept;
-    void                    setDevicePassId(ID const id) noexcept;
-    Handle                  getWriteResourceNodeHandle(const FrameGraph &graph, const VirtualResource *const resource) const noexcept;
+    void                    setDevicePassId(ID id) noexcept;
+    Handle                  getWriteResourceNodeHandle(const FrameGraph &graph, const VirtualResource *resource) const noexcept;
 
     std::unique_ptr<Executable>         _pass{nullptr};
     std::vector<Handle>                 _reads{};
@@ -100,7 +100,7 @@ void PassNode::sideEffect() noexcept {
     _sideEffect = true;
 }
 
-void PassNode::subpass(bool clearActionIgnoreable, bool const end) noexcept {
+void PassNode::subpass(bool clearActionIgnoreable, bool end) noexcept {
     _subpass               = true;
     _clearActionIgnoreable = clearActionIgnoreable;
     _subpassEnd            = end;

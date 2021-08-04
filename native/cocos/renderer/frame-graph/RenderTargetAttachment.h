@@ -48,15 +48,15 @@ struct RenderTargetAttachment final {
         uint8_t writeMask{0xff};
         LoadOp  loadOp{LoadOp::DISCARD};
         Color   clearColor;
-        float   clearDepth{1.f};
-        uint8_t clearStencil{0u};
+        float   clearDepth{1.F};
+        uint8_t clearStencil{0U};
 
         std::vector<gfx::AccessType> beginAccesses;
         std::vector<gfx::AccessType> endAccesses;
     };
 
     struct Sorter {
-        CC_INLINE bool operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept;
+        inline bool operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept;
     };
 
     static constexpr uint8_t DEPTH_STENCIL_SLOT_START{13};
@@ -69,14 +69,11 @@ struct RenderTargetAttachment final {
     StoreOp       storeOp{StoreOp::DISCARD};
 };
 
-CC_INLINE bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {
-    if (a1.desc.usage < a2.desc.usage) {
-        return true;
-    } else if (a1.desc.usage == a2.desc.usage) {
+inline bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {
+    if (a1.desc.usage == a2.desc.usage) {
         return a1.desc.slot < a2.desc.slot;
-    } else {
-        return false;
     }
+    return a1.desc.usage < a2.desc.usage;
 }
 
 } // namespace framegraph

@@ -32,6 +32,7 @@
 #define EVENT_RECREATE_WINDOW    "event_recreate_window"
 #define EVENT_MEMORY_WARNING     "event_memory_warning"
 #define EVENT_RESIZE             "event_resize"
+#define EVENT_CLOSE              "event_close"
 
 #define EVENT_MOUSE_DOWN  "event_mouse_down"
 #define EVENT_MOUSE_UP    "event_mouse_up"

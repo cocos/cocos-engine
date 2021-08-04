@@ -35,7 +35,7 @@ class CCMTLGPUDescriptorSet;
 class CCMTLDescriptorSet final : public DescriptorSet {
 public:
     explicit CCMTLDescriptorSet();
-    ~CCMTLDescriptorSet() override = default;
+    ~CCMTLDescriptorSet();
     CCMTLDescriptorSet(const CCMTLDescriptorSet &)=delete;
     CCMTLDescriptorSet(CCMTLDescriptorSet &&)=delete;
     CCMTLDescriptorSet &operator=(const CCMTLDescriptorSet &)=delete;
@@ -43,7 +43,7 @@ public:
 
     void update() override;
 
-    CC_INLINE CCMTLGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
+    inline CCMTLGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;

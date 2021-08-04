@@ -27,6 +27,11 @@
 
 #if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
 
+#define EGL_EGL_PROTOTYPES 0
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <EGL/eglplatform.h>
+
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from EGL spec by running:
@@ -131,6 +136,10 @@ extern PFNEGLGETFRAMETIMESTAMPSANDROIDPROC eglGetFrameTimestampsANDROID;
 #if defined(EGL_ANGLE_query_surface_pointer)
 extern PFNEGLQUERYSURFACEPOINTERANGLEPROC eglQuerySurfacePointerANGLE;
 #endif /* defined(EGL_ANGLE_query_surface_pointer) */
+
+#if defined(EGL_ANGLE_sync_control_rate)
+extern PFNEGLGETMSCRATEANGLEPROC eglGetMscRateANGLE;
+#endif /* defined(EGL_ANGLE_sync_control_rate) */
 
 #if defined(EGL_EXT_client_sync)
 extern PFNEGLCLIENTSIGNALSYNCEXTPROC eglClientSignalSyncEXT;

@@ -44,21 +44,21 @@ public:
     bool checkExtension(const String &extension) const;
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    CC_INLINE intptr_t eagl_context() const { return _eaglContext; }
-    CC_INLINE intptr_t eagl_shared_ctx() const { return _eaglSharedContext; }
-    CC_INLINE uint     getDefaultFramebuffer() const { return _defaultFBO; }
+    inline intptr_t eagl_context() const { return _eaglContext; }
+    inline intptr_t eagl_shared_ctx() const { return _eaglSharedContext; }
 #else
-    CC_INLINE NativeDisplayType nativeDisplay() const { return _nativeDisplay; }
-    CC_INLINE EGLDisplay        eglDisplay() const { return _eglDisplay; }
-    CC_INLINE EGLConfig         eglConfig() const { return _eglConfig; }
-    CC_INLINE EGLSurface        eglSurface() const { return _eglSurface; }
-    CC_INLINE EGLContext        eglContext() const { return _eglContext; }
-    CC_INLINE EGLContext        eglSharedCtx() const { return _eglSharedContext; }
+    inline NativeDisplayType nativeDisplay() const { return _nativeDisplay; }
+    inline EGLDisplay        eglDisplay() const { return _eglDisplay; }
+    inline EGLConfig         eglConfig() const { return _eglConfig; }
+    inline EGLSurface        eglSurface() const { return _eglSurface; }
+    inline EGLContext        eglContext() const { return _eglContext; }
+    inline EGLContext        eglSharedCtx() const { return _eglSharedContext; }
 #endif
-    CC_INLINE bool    makeCurrent() { return makeCurrent(true); }
-    CC_INLINE int     majorVer() const { return _majorVersion; }
-    CC_INLINE int     minorVer() const { return _minorVersion; }
-    CC_INLINE uint8_t multiSampleCount() const { return _sampleCount; }
+    inline bool    makeCurrent() { return makeCurrent(true); }
+    inline int     majorVer() const { return _majorVersion; }
+    inline int     minorVer() const { return _minorVersion; }
+    inline uint8_t multiSampleCount() const { return _sampleCount; }
+    inline uint    getDefaultFramebuffer() const { return _defaultFBO; }
 
     void releaseSurface(uintptr_t windowHandle);
     void acquireSurface(uintptr_t windowHandle);
@@ -77,21 +77,21 @@ protected:
     bool    _isInitialized   = false;
     uint8_t _sampleBuffers   = 0;
     uint8_t _sampleCount     = 0;
+    uint    _defaultFBO      = 0;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     intptr_t _eaglContext       = 0;
     intptr_t _eaglSharedContext = 0;
     // iOS needs to created frame buffer and attach color/depth/stencil buffer.
-    uint _defaultFBO                = 0;
     uint _defaultColorBuffer        = 0;
     uint _defaultDepthStencilBuffer = 0;
 #else
-    NativeDisplayType           _nativeDisplay    = 0; // NOLINT(modernize-use-nullptr) portability issues
-    EGLDisplay                  _eglDisplay       = EGL_NO_DISPLAY;
-    EGLConfig                   _eglConfig        = EGL_NO_CONFIG_KHR;
-    EGLSurface                  _eglSurface       = EGL_NO_SURFACE;
-    EGLContext                  _eglContext       = EGL_NO_CONTEXT;
-    EGLContext                  _eglSharedContext = EGL_NO_CONTEXT;
-    std::vector<EGLConfig>      _vecEGLConfig;
+    NativeDisplayType        _nativeDisplay    = 0; // NOLINT(modernize-use-nullptr) portability issues
+    EGLDisplay               _eglDisplay       = EGL_NO_DISPLAY;
+    EGLConfig                _eglConfig        = EGL_NO_CONFIG_KHR;
+    EGLSurface               _eglSurface       = EGL_NO_SURFACE;
+    EGLContext               _eglContext       = EGL_NO_CONTEXT;
+    EGLContext               _eglSharedContext = EGL_NO_CONTEXT;
+    std::vector<EGLConfig>   _vecEGLConfig;
 #endif
     int         _majorVersion = 0;
     int         _minorVersion = 0;

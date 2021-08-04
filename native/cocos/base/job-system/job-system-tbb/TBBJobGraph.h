@@ -49,7 +49,7 @@ public:
 
     void run() noexcept;
 
-    CC_INLINE void waitForAll() {
+    inline void waitForAll() {
         if (_pending) {
             _graph.wait_for_all();
             _pending = false;

@@ -26,51 +26,41 @@
 #pragma once
 
 #include <array>
-
 #include "../RenderPipeline.h"
-#include "../helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 struct UBOGlobal;
 struct UBOCamera;
 struct UBOShadow;
-struct Fog;
-struct Ambient;
-struct Skybox;
-struct Shadows;
-struct Sphere;
-struct Camera;
-class Framebuffer;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
-    ForwardPipeline() = default;
-    ~ForwardPipeline() = default;
+    ForwardPipeline()           = default;
+    ~ForwardPipeline() override = default;
 
-    virtual bool initialize(const RenderPipelineInfo &info) override;
-    virtual void destroy() override;
-    virtual bool activate() override;
-    virtual void render(const vector<uint> &cameras) override;
+    bool initialize(const RenderPipelineInfo &info) override;
+    void destroy() override;
+    bool activate() override;
+    void render(const vector<scene::Camera *> &cameras) override;
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
-    CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
-    CC_INLINE const LightList &getValidLights() const { return _validLights; }
-    CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
-    CC_INLINE const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
-    CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
+    inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
+    inline const LightList &      getValidLights() const { return _validLights; }
+    inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
+    inline const UintList &       getLightIndexOffsets() const { return _lightIndexOffsets; }
+    inline const UintList &       getLightIndices() const { return _lightIndices; }
 
 private:
     bool activeRenderer();
-    void updateUBO(Camera *);
+    void updateUBO(scene::Camera *);
 
-private:
-    gfx::Buffer *_lightsUBO = nullptr;
-    LightList _validLights;
-    gfx::BufferList _lightBuffers;
-    UintList _lightIndexOffsets;
-    UintList _lightIndices;
+    gfx::Buffer *                                     _lightsUBO = nullptr;
+    LightList                                         _validLights;
+    gfx::BufferList                                   _lightBuffers;
+    UintList                                          _lightIndexOffsets;
+    UintList                                          _lightIndices;
     unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
 };
 

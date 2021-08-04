@@ -30,7 +30,6 @@
 namespace cc {
 namespace pipeline {
 
-struct Camera;
 class GbufferStage;
 
 class CC_DLL GbufferFlow : public RenderFlow {
@@ -43,7 +42,7 @@ public:
     bool initialize(const RenderFlowInfo &info) override;
     void activate(RenderPipeline *pipeline) override;
     void destroy() override;
-    void render(Camera *camera) override;
+    void render(scene::Camera *camera) override;
 
 private:
     static RenderFlowInfo initInfo;

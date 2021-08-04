@@ -96,10 +96,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT      fl
 #endif
 } // namespace
 
-CCVKContext::CCVKContext() = default;
-
-CCVKContext::~CCVKContext() = default;
-
 bool CCVKContext::doInit(const ContextInfo &info) {
     if (!info.sharedCtx) {
         _isPrimaryContex = true;
@@ -256,7 +252,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
             return false;
         }
 
-        volkLoadInstance(_gpuContext->vkInstance);
+        volkLoadInstanceOnly(_gpuContext->vkInstance);
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
         if (debugUtils) {
@@ -271,7 +267,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
-        surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
+        surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle); // NOLINT(performance-no-int-to-ptr)
         VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
@@ -338,6 +334,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         if (_minorVersion >= 1 || checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
             _gpuContext->physicalDeviceFeatures2.pNext        = &_gpuContext->physicalDeviceVulkan11Features;
             _gpuContext->physicalDeviceVulkan11Features.pNext = &_gpuContext->physicalDeviceVulkan12Features;
+            _gpuContext->physicalDeviceProperties2.pNext      = &_gpuContext->physicalDeviceDepthStencilResolveProperties;
             if (_minorVersion >= 1) {
                 vkGetPhysicalDeviceProperties2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceProperties2);
                 vkGetPhysicalDeviceFeatures2(_gpuContext->physicalDevice, &_gpuContext->physicalDeviceFeatures2);
@@ -358,7 +355,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
                                                  _gpuContext->vkSurface, &_gpuContext->queueFamilyPresentables[propertyIndex]);
         }
 
-        ///////////////////// Swapchain Preperation /////////////////////
+        ///////////////////// Swapchain Preparation /////////////////////
 
         _colorFmt        = Format::BGRA8;
         _depthStencilFmt = Format::D24S8;
@@ -379,7 +376,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         VkFormat        colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
         VkColorSpaceKHR colorSpace  = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
-        // there is no preferered format, so we assume VK_FORMAT_B8G8R8A8_UNORM
+        // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
         if ((surfaceFormatCount == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED)) {
             colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
             colorSpace  = surfaceFormats[0].colorSpace;
@@ -542,13 +539,7 @@ void CCVKContext::releaseSurface(uintptr_t /*windowHandle*/) {
     if (_gpuContext && _gpuContext->vkSurface == VK_NULL_HANDLE) return;
 
     CCVKDevice *device = CCVKDevice::getInstance();
-
-    uint fenceCount = device->gpuFencePool()->size();
-    if (fenceCount) {
-        VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
-                                 device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
-    }
-
+    device->waitAllFences();
     device->destroySwapchain();
     device->_swapchainReady = false;
 
@@ -563,7 +554,7 @@ void CCVKContext::acquireSurface(uintptr_t windowHandle) {
     if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) return;
 
     VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
-    surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
+    surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle); // NOLINT(performance-no-int-to-ptr)
     VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
                                        nullptr, &_gpuContext->vkSurface));
 

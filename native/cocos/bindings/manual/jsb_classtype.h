@@ -31,25 +31,22 @@
 
 class JSBClassType {
 public:
-    static bool init();
-    static void destroy();
-
     template <typename T>
     static void registerClass(se::Class *cls) {
         const char *typeName = typeid(T).name();
-        assert(__jsbClassTypeMap->find(typeName) == __jsbClassTypeMap->end());
-        __jsbClassTypeMap->emplace(typeName, cls);
+        assert(jsbClassTypeMap.find(typeName) == jsbClassTypeMap.end());
+        jsbClassTypeMap.emplace(typeName, cls);
     }
 
     template <typename T>
-    static se::Class *findClass(const T *nativeObj) {
-        bool found = false;
-        std::string typeName = typeid(*nativeObj).name();
-        auto iter = __jsbClassTypeMap->find(typeName);
-        if (iter == __jsbClassTypeMap->end()) {
+    static se::Class *findClass(const T * /*nativeObj*/) {
+        bool        found    = false;
+        std::string typeName = typeid(T).name();
+        auto        iter     = jsbClassTypeMap.find(typeName);
+        if (iter == jsbClassTypeMap.end()) {
             typeName = typeid(T).name();
-            iter = __jsbClassTypeMap->find(typeName);
-            if (iter != __jsbClassTypeMap->end()) {
+            iter     = jsbClassTypeMap.find(typeName);
+            if (iter != jsbClassTypeMap.end()) {
                 found = true;
             }
         } else {
@@ -58,9 +55,10 @@ public:
         return found ? iter->second : nullptr;
     }
 
-    static void cleanup();
+    static void cleanup() {
+        jsbClassTypeMap.clear();
+    }
 
 private:
-    using Map = std::unordered_map<std::string, se::Class *>;
-    static Map *__jsbClassTypeMap;
+    static std::unordered_map<std::string, se::Class *> jsbClassTypeMap;
 };

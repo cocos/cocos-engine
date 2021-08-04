@@ -26,11 +26,11 @@
 #include "GbufferFlow.h"
 #include "DeferredPipeline.h"
 #include "GbufferStage.h"
-#include "pipeline/SceneCulling.h"
-#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXDescriptorSet.h"
-#include "gfx-base/GFXSampler.h"
+#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXRenderPass.h"
+#include "gfx-base/GFXSampler.h"
+#include "pipeline/SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
@@ -60,7 +60,7 @@ void GbufferFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void GbufferFlow::render(Camera *camera) {
+void GbufferFlow::render(scene::Camera *camera) {
     RenderFlow::render(camera);
 }
 

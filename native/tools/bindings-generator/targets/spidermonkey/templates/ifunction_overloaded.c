@@ -1,9 +1,9 @@
 ## ===== instance function implementation template - for overloaded functions
 
-static bool ${signature_name}(se::State& s)
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
-    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
+    auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2( cobj, false, "${signature_name} : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -56,7 +56,7 @@ static bool ${signature_name}(se::State& s)
         #end if
         #if str($func.ret_type) != "void"
             #if $func.ret_type.is_enum
-            $ret_type.enum_declare_type result = ($ret_type.enum_declare_type)cobj->${func.func_name}($arg_list);
+            auto result = static_cast<$ret_type.enum_declare_type>(cobj->${func.func_name}($arg_list));
             #else
             ${func.ret_type.get_whole_name($generator)} result = cobj->${func.func_name}($arg_list);
             #end if

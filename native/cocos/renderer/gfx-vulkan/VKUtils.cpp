@@ -39,6 +39,7 @@ VkFormat mapVkFormat(Format format) {
         case Format::RG8UI: return VK_FORMAT_R8G8_UINT;
         case Format::RG8I: return VK_FORMAT_R8G8_SINT;
         case Format::RGB8: return VK_FORMAT_R8G8B8_UNORM;
+        case Format::SRGB8: return VK_FORMAT_R8G8B8_SRGB;
         case Format::RGB8SN: return VK_FORMAT_R8G8B8_SNORM;
         case Format::RGB8UI: return VK_FORMAT_R8G8B8_UINT;
         case Format::RGB8I: return VK_FORMAT_R8G8B8_SINT;
@@ -209,21 +210,6 @@ VkImageType mapVkImageType(TextureType type) {
     }
 }
 
-VkSampleCountFlagBits mapVkSampleCount(SampleCount count) {
-    switch (count) {
-        case SampleCount::X1: return VK_SAMPLE_COUNT_1_BIT;
-        case SampleCount::X2: return VK_SAMPLE_COUNT_2_BIT;
-        case SampleCount::X4: return VK_SAMPLE_COUNT_4_BIT;
-        case SampleCount::X8: return VK_SAMPLE_COUNT_8_BIT;
-        case SampleCount::X16: return VK_SAMPLE_COUNT_16_BIT;
-        case SampleCount::X32: return VK_SAMPLE_COUNT_32_BIT;
-        default: {
-            CCASSERT(false, "Unsupported TextureType, convert to VkImageType failed.");
-            return VK_SAMPLE_COUNT_1_BIT;
-        }
-    }
-}
-
 VkFormatFeatureFlags mapVkFormatFeatureFlags(TextureUsage usage) {
     uint flags = 0U;
     if (hasFlag(usage, TextureUsage::TRANSFER_SRC)) flags |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
@@ -232,7 +218,6 @@ VkFormatFeatureFlags mapVkFormatFeatureFlags(TextureUsage usage) {
     if (hasFlag(usage, TextureUsage::STORAGE)) flags |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
     if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT)) flags |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
     if (hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) flags |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    if (hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) flags |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
     return static_cast<VkFormatFeatureFlags>(flags);
 }
 
@@ -250,7 +235,7 @@ VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
 
 VkImageAspectFlags mapVkImageAspectFlags(Format format) {
     VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    const FormatInfo & info       = GFX_FORMAT_INFOS[static_cast<uint>(format)];
+    const FormatInfo & info       = GFX_FORMAT_INFOS[toNumber(format)];
     if (info.hasDepth) aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
     if (info.hasStencil) aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
     return aspectMask;
@@ -534,6 +519,14 @@ const ThsvsAccessType THSVS_ACCESS_TYPES[] = {
     THSVS_ACCESS_HOST_WRITE,                                                 // HOST_WRITE
 };
 
+const VkResolveModeFlagBits VK_RESOLVE_MODES[] = {
+    VK_RESOLVE_MODE_NONE,
+    VK_RESOLVE_MODE_SAMPLE_ZERO_BIT,
+    VK_RESOLVE_MODE_AVERAGE_BIT,
+    VK_RESOLVE_MODE_MIN_BIT,
+    VK_RESOLVE_MODE_MAX_BIT,
+};
+
 const VkImageLayout VK_IMAGE_LAYOUTS[] = {
     VK_IMAGE_LAYOUT_UNDEFINED,
     VK_IMAGE_LAYOUT_GENERAL,
@@ -545,6 +538,12 @@ const VkImageLayout VK_IMAGE_LAYOUTS[] = {
     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
     VK_IMAGE_LAYOUT_PREINITIALIZED,
     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+};
+
+const VkStencilFaceFlags VK_STENCIL_FACE_FLAGS[] = {
+    VK_STENCIL_FACE_FRONT_BIT,
+    VK_STENCIL_FACE_BACK_BIT,
+    VK_STENCIL_FACE_FRONT_AND_BACK,
 };
 
 const VkAccessFlags FULL_ACCESS_FLAGS =

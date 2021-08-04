@@ -26,18 +26,18 @@
 #pragma once
 
 #include "Define.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
 
 class RenderPipeline;
 class RenderStage;
-struct Camera;
 
 struct CC_DLL RenderFlowInfo {
-    String name;
-    uint priority = 0;
-    uint tag = 0;
+    String          name;
+    uint            priority = 0;
+    uint            tag      = 0;
     RenderStageList stages;
 };
 
@@ -48,19 +48,19 @@ public:
 
     virtual bool initialize(const RenderFlowInfo &info);
     virtual void activate(RenderPipeline *pipeline);
-    virtual void render(Camera *camera);
+    virtual void render(scene::Camera *camera);
     virtual void destroy();
 
     inline const String &getName() const { return _name; }
-    inline uint getPriority() const { return _priority; }
-    inline uint getTag() const { return _tag; }
+    inline uint          getPriority() const { return _priority; }
+    inline uint          getTag() const { return _tag; }
 
 protected:
     RenderStageList _stages;
-    String _name;
+    String          _name;
     RenderPipeline *_pipeline = nullptr;
-    uint _priority = 0;
-    uint _tag = 0;
+    uint            _priority = 0;
+    uint            _tag      = 0;
 };
 
 } // namespace pipeline

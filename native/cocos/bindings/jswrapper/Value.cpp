@@ -25,13 +25,14 @@
 ****************************************************************************/
 
 #include "Value.h"
+#include <sstream>
 #include "Object.h"
 
 namespace se {
 
-ValueArray EmptyValueArray;
+ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
-Value Value::Null = Value(Type::Null);
+Value Value::Null      = Value(Type::Null);
 Value Value::Undefined = Value(Type::Undefined);
 
 Value::Value()
@@ -53,7 +54,7 @@ Value::Value(const Value &v)
     *this = v;
 }
 
-Value::Value(Value &&v)
+Value::Value(Value &&v) noexcept
 : _type(Type::Undefined),
   _autoRootUnroot(false) {
     *this = std::move(v);
@@ -101,16 +102,16 @@ Value::Value(uint16_t v)
     setUint16(v);
 }
 
-Value::Value(long v)
+Value::Value(int64_t v)
 : _type(Type::Undefined),
   _autoRootUnroot(false) {
-    setLong(v);
+    setInt64(v);
 }
 
-Value::Value(unsigned long v)
+Value::Value(uint64_t v)
 : _type(Type::Undefined),
   _autoRootUnroot(false) {
-    setUlong(v);
+    setUint64(v);
 }
 
 Value::Value(float v)
@@ -122,7 +123,7 @@ Value::Value(float v)
 Value::Value(double v)
 : _type(Type::Undefined),
   _autoRootUnroot(false) {
-    setNumber(v);
+    setDouble(v);
 }
 
 Value::Value(const char *v)
@@ -166,6 +167,9 @@ Value &Value::operator=(const Value &v) {
             case Type::Number:
                 _u._number = v._u._number;
                 break;
+            case Type::BigInt:
+                _u._bigint = v._u._bigint;
+                break;
             case Type::String:
                 *_u._string = *v._u._string;
                 break;
@@ -182,7 +186,7 @@ Value &Value::operator=(const Value &v) {
     return *this;
 }
 
-Value &Value::operator=(Value &&v) {
+Value &Value::operator=(Value &&v) noexcept {
     if (this != &v) {
         reset(v.getType());
 
@@ -194,6 +198,9 @@ Value &Value::operator=(Value &&v) {
             }
             case Type::Number:
                 _u._number = v._u._number;
+                break;
+            case Type::BigInt:
+                _u._bigint = v._u._bigint;
                 break;
             case Type::String:
                 *_u._string = std::move(*v._u._string);
@@ -209,9 +216,9 @@ Value &Value::operator=(Value &&v) {
                     }
                     _u._object->decRef();
                 }
-                _u._object = v._u._object;
-                _autoRootUnroot = v._autoRootUnroot;
-                v._u._object = nullptr; // Reset to nullptr here to avoid 'release' operation in v.reset(Type::Undefined) since it's a move operation here.
+                _u._object        = v._u._object;
+                _autoRootUnroot   = v._autoRootUnroot;
+                v._u._object      = nullptr; // Reset to nullptr here to avoid 'release' operation in v.reset(Type::Undefined) since it's a move operation here.
                 v._autoRootUnroot = false;
             } break;
             default:
@@ -268,55 +275,50 @@ void Value::setBoolean(bool v) {
 
 void Value::setInt8(int8_t v) {
     reset(Type::Number);
-    _u._number = (double)v;
+    _u._number = static_cast<double>(v);
 }
 
 void Value::setUint8(uint8_t v) {
     reset(Type::Number);
-    _u._number = (double)v;
+    _u._number = static_cast<double>(v);
 }
 
 void Value::setInt32(int32_t v) {
     reset(Type::Number);
-    _u._number = (double)v;
+    _u._number = static_cast<double>(v);
 }
 
 void Value::setUint32(uint32_t v) {
     reset(Type::Number);
-    _u._number = (double)v;
+    _u._number = static_cast<double>(v);
 }
 
 void Value::setInt16(int16_t v) {
     reset(Type::Number);
-    _u._number = (double)v;
+    _u._number = static_cast<double>(v);
 }
 
 void Value::setUint16(uint16_t v) {
     reset(Type::Number);
-    _u._number = (double)v;
+    _u._number = static_cast<double>(v);
 }
 
-void Value::setLong(long v) {
-    reset(Type::Number);
-    _u._number = (double)v;
+void Value::setInt64(int64_t v) {
+    reset(Type::BigInt);
+    _u._bigint = v;
 }
 
-void Value::setUIntptr_t(uintptr_t v) {
-    reset(Type::Number);
-    _u._number = (double)v;
-}
-
-void Value::setUlong(unsigned long v) {
-    reset(Type::Number);
-    _u._number = (double)v;
+void Value::setUint64(uint64_t v) {
+    reset(Type::BigInt);
+    _u._bigint = static_cast<int64_t>(v);
 }
 
 void Value::setFloat(float v) {
     reset(Type::Number);
-    _u._number = (double)v;
+    _u._number = static_cast<double>(v);
 }
 
-void Value::setNumber(double v) {
+void Value::setDouble(double v) {
     reset(Type::Number);
     _u._number = v;
 }
@@ -360,7 +362,7 @@ void Value::setObject(Object *object, bool autoRootUnroot /* = false*/) {
             }
             _u._object->decRef();
         }
-        _u._object = object;
+        _u._object      = object;
         _autoRootUnroot = autoRootUnroot;
     } else {
         _autoRootUnroot = autoRootUnroot;
@@ -375,56 +377,51 @@ void Value::setObject(const HandleObject &o, bool autoRootUnroot /* = false*/) {
 }
 
 int8_t Value::toInt8() const {
-    return static_cast<int8_t>(toNumber());
+    return static_cast<int8_t>(toDouble());
 }
 
 uint8_t Value::toUint8() const {
-    return static_cast<uint8_t>(toNumber());
+    return static_cast<uint8_t>(toDouble());
 }
 
 int16_t Value::toInt16() const {
-    return static_cast<int16_t>(toNumber());
+    return static_cast<int16_t>(toDouble());
 }
 
 uint16_t Value::toUint16() const {
-    return static_cast<uint16_t>(toNumber());
+    return static_cast<uint16_t>(toDouble());
 }
 
 int32_t Value::toInt32() const {
-    return static_cast<int32_t>(toNumber());
+    return static_cast<int32_t>(toDouble());
 }
 
 uint32_t Value::toUint32() const {
-    return static_cast<uint32_t>(toNumber());
+    return static_cast<uint32_t>(toDouble());
 }
 
-unsigned int Value::toUint() const {
-    return static_cast<unsigned int>(toNumber());
+int64_t Value::toInt64() const {
+    assert(isBigInt() || isNumber());
+    return _type == Type::BigInt ? _u._bigint : static_cast<uint64_t>(_u._number);
 }
 
-long Value::toLong() const {
-    return static_cast<long>(toNumber());
-}
-
-unsigned long Value::toUlong() const {
-    return static_cast<unsigned long>(toNumber());
-}
-
-intptr_t Value::toUIntptr_t() const {
-    return static_cast<uintptr_t>(toNumber());
+uint64_t Value::toUint64() const {
+    assert(isBigInt() || isNumber());
+    return _type == Type::BigInt ? static_cast<uint64_t>(_u._bigint) : static_cast<uint64_t>(_u._number);
 }
 
 float Value::toFloat() const {
-    return static_cast<float>(toNumber());
+    return static_cast<float>(toDouble());
 }
 
-double Value::toNumber() const {
+double Value::toDouble() const {
     assert(_type == Type::Number || _type == Type::Boolean);
+    // assert(_type != Type::BigInt);
     if (_type == Type::Boolean) {
-        if (_u._boolean)
+        if (_u._boolean) {
             return 1.0;
-        else
-            return 0.0;
+        }
+        return 0.0;
     }
     return _u._number;
 }
@@ -440,26 +437,28 @@ const std::string &Value::toString() const {
 }
 
 std::string Value::toStringForce() const {
-    std::string ret;
+    std::stringstream ss;
     if (_type == Type::String) {
-        ret = *_u._string;
+        ss << *_u._string;
     } else if (_type == Type::Boolean) {
-        ret = _u._boolean ? "true" : "false";
+        ss << (_u._boolean ? "true" : "false");
     } else if (_type == Type::Number) {
         char tmp[50] = {0};
         snprintf(tmp, sizeof(tmp), "%.17g", _u._number);
-        ret = tmp;
+        ss << tmp;
+    } else if (_type == Type::BigInt) {
+        ss << _u._bigint;
     } else if (_type == Type::Object) {
-        ret = toObject()->toString();
+        ss << toObject()->toString();
     } else if (_type == Type::Null) {
-        ret = "null";
+        ss << "null";
     } else if (_type == Type::Undefined) {
-        ret = "undefined";
+        ss << "undefined";
     } else {
         assert(false);
+        ss << "[[BadValueType]]";
     }
-
-    return ret;
+    return ss.str();
 }
 
 Object *Value::toObject() const {
@@ -500,6 +499,40 @@ void Value::reset(Type type) {
         }
         _type = type;
     }
+}
+
+/////////////////// deprecated methods ////////////////////
+
+void Value::setLong(long v) { // NOLINT(google-runtime-int)
+    setDouble(static_cast<double>(v));
+}
+
+void Value::setUIntptr_t(uintptr_t v) {
+    setDouble(static_cast<double>(v));
+}
+
+void Value::setUlong(unsigned long v) { // NOLINT(google-runtime-int)
+    setDouble(static_cast<double>(v));
+}
+
+void Value::setNumber(double v) {
+    setDouble(v);
+}
+
+unsigned int Value::toUint() const {
+    return static_cast<unsigned int>(toDouble());
+}
+
+long Value::toLong() const {              // NOLINT(google-runtime-int)
+    return static_cast<long>(toDouble()); // NOLINT(google-runtime-int)
+}
+
+unsigned long Value::toUlong() const {             // NOLINT(google-runtime-int)
+    return static_cast<unsigned long>(toDouble()); // NOLINT(google-runtime-int)
+}
+
+double Value::toNumber() const {
+    return toDouble();
 }
 
 } // namespace se

@@ -27,7 +27,6 @@
 
 #include "BufferAllocator.h"
 #include "BufferPool.h"
-#include "ObjectPool.h"
 #include "cocos/bindings/manual/jsb_classtype.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -56,9 +55,9 @@ static bool jsb_BufferPool_constructor(se::State &s) { // NOLINT
         uint bytesPerEntry = 0;
 
         bool ok = true;
-        ok &= seval_to_uint(args[0], &poolType);
-        ok &= seval_to_uint(args[1], &entryBits);
-        ok &= seval_to_uint(args[2], &bytesPerEntry);
+        ok &= seval_to_uint32(args[0], &poolType);
+        ok &= seval_to_uint32(args[1], &entryBits);
+        ok &= seval_to_uint32(args[2], &bytesPerEntry);
         if (!ok) {
             SE_REPORT_ERROR("jsb_BufferPool_constructor: argument convertion error");
             return false;
@@ -99,85 +98,6 @@ static bool js_register_se_BufferPool(se::Object *obj) { // NOLINT
     return true;
 }
 
-/***************************************************
-   ObjectPool binding
-  *****************************************************/
-static se::Class *jsb_ObjectPool_class = nullptr; // NOLINT
-
-SE_DECLARE_FINALIZE_FUNC(jsb_ObjectPool_finalize)
-
-static bool jsb_ObjectPool_constructor(se::State &s) { // NOLINT
-    const auto &args = s.args();
-    size_t      argc = args.size();
-    if (argc == 2) {
-        uint poolType = 0;
-        bool ok       = true;
-        ok &= seval_to_uint(args[0], &poolType);
-
-        if (!args[1].isObject()) {
-            SE_REPORT_ERROR("jsb_ObjectPool_constructor: parameter 2 wants a JSArray");
-            return false;
-        }
-        se::Object *jsArr = args[1].toObject();
-
-        se::ObjectPool *pool = JSB_ALLOC(se::ObjectPool, (se::PoolType)(poolType), jsArr);
-        s.thisObject()->setPrivateData(pool);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(pool);
-        return true;
-    }
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_CTOR(jsb_ObjectPool_constructor, jsb_ObjectPool_class, jsb_ObjectPool_finalize)
-
-static bool jsb_ObjectPool_finalize(se::State &s) { // NOLINT
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end()) {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto *cobj = static_cast<se::ObjectPool *>(s.nativeThisObject());
-        JSB_FREE(cobj);
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(jsb_ObjectPool_finalize)
-
-static bool js_ObjectPool_bind(se::State &s) { // NOLINT
-    auto *cobj = SE_THIS_OBJECT<se::ObjectPool>(s);
-    SE_PRECONDITION2(cobj, false, "js_ObjectPool_bind : Invalid Native Object");
-    const auto &   args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
-    if (argc == 2) {
-        bool ok = true;
-        uint id = 0;
-        ok &= seval_to_uint(args[0], &id);
-        SE_PRECONDITION2(ok, false, "jsb_ObjectPool_bind : Error processing arguments");
-
-        if (!args[1].isObject()) {
-            SE_REPORT_ERROR("jsb_ObjectPool_bind: parameter 2 wants a Object");
-            return false;
-        }
-        se::Object *value = args[1].toObject();
-        cobj->bind(id, value);
-        return true;
-    }
-    SE_REPORT_ERROR("jsb_ObjectPool_bind: wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-}
-SE_BIND_FUNC(js_ObjectPool_bind)
-
-static bool js_register_se_ObjectPool(se::Object *obj) { // NOLINT
-    se::Class *cls = se::Class::create("NativeObjectPool", obj, nullptr, _SE(jsb_ObjectPool_constructor));
-    cls->defineFunction("bind", _SE(js_ObjectPool_bind));
-    cls->install();
-    JSBClassType::registerClass<se::ObjectPool>(cls);
-
-    jsb_ObjectPool_class = cls; // NOLINT
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
 /*****************************************************
    Array binding
   ******************************************************/
@@ -190,7 +110,6 @@ static bool jsb_BufferAllocator_constructor(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         uint type = 0;
-        bool ok   = seval_to_uint(args[0], &type);
 
         se::BufferAllocator *bufferAllocator = JSB_ALLOC(se::BufferAllocator, static_cast<se::PoolType>(type));
         s.thisObject()->setPrivateData(bufferAllocator);
@@ -222,9 +141,9 @@ static bool jsb_BufferAllocator_alloc(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 2) {
         uint index = 0;
-        seval_to_uint(args[0], &index);
+        seval_to_uint32(args[0], &index);
         uint bytes = 0;
-        seval_to_uint(args[1], &bytes);
+        seval_to_uint32(args[1], &bytes);
         s.rval().setObject(bufferAllocator->alloc(index, bytes));
         return true;
     }
@@ -242,7 +161,7 @@ static bool jsb_BufferAllocator_free(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         uint index = 0;
-        seval_to_uint(args[0], &index);
+        seval_to_uint32(args[0], &index);
         bufferAllocator->free(index);
         return true;
     }
@@ -277,6 +196,5 @@ bool register_all_dop_bindings(se::Object *obj) { // NOLINT
 
     js_register_se_BufferAllocator(ns); // NOLINT
     js_register_se_BufferPool(ns);      // NOLINT
-    js_register_se_ObjectPool(ns);      // NOLINT
     return true;
 }

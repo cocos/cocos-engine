@@ -2,7 +2,7 @@
 
 SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 
-static bool ${signature_name}(se::State& s)
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     //ctor_overloaded.c
     CC_UNUSED bool ok = true;

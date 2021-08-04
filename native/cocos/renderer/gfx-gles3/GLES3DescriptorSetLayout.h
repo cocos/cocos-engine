@@ -38,7 +38,7 @@ public:
     GLES3DescriptorSetLayout();
     ~GLES3DescriptorSetLayout();
 
-    CC_INLINE GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
+    inline GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;

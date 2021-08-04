@@ -40,7 +40,10 @@ public:
     ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator const &) = delete;
     ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator &&) = delete;
 
-    void *allocate(size_t size, size_t alignment) noexcept;
+    template <typename T>
+    inline T *allocate(size_t count, size_t alignment = 1) noexcept {
+        return reinterpret_cast<T *>(doAllocate(count * sizeof(T), alignment));
+    }
 
     inline void *   getBuffer() const noexcept { return _buffer; }
     inline uint32_t getCapacity() const noexcept { return _capacity; }
@@ -50,6 +53,8 @@ public:
     inline void recycle() noexcept { _usedSize.store(0, std::memory_order_relaxed); }
 
 private:
+    void *doAllocate(size_t size, size_t alignment) noexcept;
+
     void *                _buffer{nullptr};
     uint32_t              _capacity{0};
     std::atomic<uint32_t> _usedSize{0};

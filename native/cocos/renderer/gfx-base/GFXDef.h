@@ -59,8 +59,7 @@ struct DeviceInfo {
     uintptr_t          windowHandle = 0U;
     uint               width        = 0U;
     uint               height       = 0U;
-    uint               nativeWidth  = 0U;
-    uint               nativeHeight = 0U;
+    float              pixelRatio   = 1.0F;
     BindingMappingInfo bindingMappingInfo;
 };
 

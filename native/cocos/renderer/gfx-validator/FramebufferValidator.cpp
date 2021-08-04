@@ -35,6 +35,11 @@
 namespace cc {
 namespace gfx {
 
+FramebufferValidator::FramebufferValidator(Framebuffer *actor)
+: Agent<Framebuffer>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 FramebufferValidator::~FramebufferValidator() {
     DeviceResourceTracker<Framebuffer>::erase(this);
     CC_SAFE_DELETE(_actor);
@@ -42,7 +47,7 @@ FramebufferValidator::~FramebufferValidator() {
 
 void FramebufferValidator::doInit(const FramebufferInfo &info) {
     FramebufferInfo actorInfo = info;
-    for (uint i = 0u; i < info.colorTextures.size(); ++i) {
+    for (uint i = 0U; i < info.colorTextures.size(); ++i) {
         if (info.colorTextures[i]) {
             actorInfo.colorTextures[i] = static_cast<TextureValidator *>(info.colorTextures[i])->getActor();
         }

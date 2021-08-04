@@ -1,18 +1,18 @@
 # What's new
-* Add a prebuilt libclang 5.0 in `libclang/`for mac, linux and windows.
-* If you want use the prebuilt licbclang 5.0 work with Android NDK, then `only the NDK r16 (or higher version) can work corrently` with it.
+* Add a prebuilt libclang 12.0 in `libclang/`for linux, mac and windows.
+* If you want use the prebuilt libclang 12.0 work with Android NDK, then `only the NDK r21 (or higher version) can work corrently` with it.
 
 # Requirements
 
-* python2.7
+* python2.7 or 3.x (64-bit)
 * py-yaml
-* cheetah (for target language templates)
+* cheetah or cheetah3 (depend on your python version)
 * libclang binary files
 
 # Usage
 
     Usage: generator.py [options] {configfile}
-    
+
     Options:
       -h, --help   show this help message and exit
       -s SECTION   sets a specific section to be converted
@@ -23,73 +23,70 @@ the `.ini` file you want to generate code for.
 
 ### Download libclang binary files
 
-* Go to website [http://releases.llvm.org/download.html#5.0.0](http://releases.llvm.org/download.html#5.0.0)
-* Download `Pre-Built Binaries` according your platforms
-* Unzip or install binaries. For example, unzip `clang+llvm-5.0.0-x86_64-apple-darwin.tar.xz` for macOS.
+* Download the pre-built binaries according to your platform from [here](https://github.com/llvm/llvm-project/releases/tag/llvmorg-12.0.0).
+* Unzip or install binaries. For example, unzip `clang+llvm-12.0.0-x86_64-apple-darwin.tar.xz` for macOS.
 * Find libclang.dll (windows) or libclang.dylib (macOS)
 * Copy the dynamic library to `bindings-generator/libclang` folder.
 
-## Run the simple test with prebuilt libclang 5.0
+## Run the simple test with prebuilt libclang 12.0
 
 Included in this repository is a simple test. Use this to confirm the generator is working and that your environment is set up correctly.
 
 #### NOTE
 
-* The test uses the prebuilt 5.0 libclang, so you should use `Android NDK r16` or higher version.
-* The test uses &lt;string&gt; and &lt;stdint.h&gt; so you need a C++ implementation that provides these
+* The test uses the prebuilt 12.0 libclang, so you should use `Android NDK r21` or higher version.
+* The test uses \<string\>; and \<stdint.h\>; so you need a C++ implementation that provides these
 * Currently, the test script is setup to use the Android NDK's llvm libc++
 
 ### Mac OS X
 
 * The OSX 10.9 has a built-in python2.7 and if your os don't have python2.7 then use [Homebrew](http://brew.sh/) to install the python and use pip install the python dependencies.
-<pre>
-	brew install python
-</pre>
+  ```bash
+  brew install python
+  ```
 
 * Install python dependices by pip.
-<pre>
-    sudo easy_install pip
-    sudo pip install PyYAML
-	sudo pip install Cheetah
-</pre>
-    
-* Download [NDK r16](https://dl.google.com/android/repository/android-ndk-r16-darwin-x86_64.zip) from [google](https://developer.android.com/ndk/downloads/index.html)
+  ```bash
+  sudo easy_install pip
+  sudo pip install PyYAML Cheetah
+  ```
+
+* Download NDK r21 from [google](https://developer.android.com/ndk/downloads/index.html)
 * If you are using python installed from other way, copy user.cfg.sample and rename it as `user.cfg` then set the absolute path to  python `PYTHON_BIN` in `user.cfg`
 * Run follow command, it will generate a `userconf.ini`, and check the values in it if it occorus any error.
-<pre>
-	export NDK_ROOT=/path/to/android-ndk-r16
-    ./test.sh
-</pre>
+  ```bash
+  export NDK_ROOT=/path/to/android-ndk-r21
+  ./test.sh
+  ```
 
 ### Ubuntu Linux 12.04 64bit
 * Install python
-<pre>
-	sudo apt-get install python2.7
-</pre>
+  ```bash
+  sudo apt-get install python2.7
+  ```
 * Install python dependices by pip.
-<pre>
-	sudo apt-get install python-pip
-	sudo pip install PyYAML
-	sudo pip install Cheetah
-</pre>
-* Download [NDK r16](https://dl.google.com/android/repository/android-ndk-r16-linux-x86_64.zip) from [google](https://developer.android.com/ndk/downloads/index.html)
+  ```bash
+  sudo apt-get install python-pip
+  sudo pip install PyYAML Cheetah
+  ```
+* Download NDK r21 from [google](https://developer.android.com/ndk/downloads/index.html)
 * If you are using python installed from other way, copy user.cfg.sample and rename it as `user.cfg` then set the absolute path to  python `PYTHON_BIN` in `user.cfg`
 * Run follow command, it will generate a `userconf.ini`, and check the values in it if it occorus any error.
-<pre>
-	export NDK_ROOT=/path/to/android-ndk-r16
-    ./test.sh
-</pre>
+  ```bash
+  export NDK_ROOT=/path/to/android-ndk-r21
+  ./test.sh
+  ```
 
 ### Windows 7 64bit
-* Download python2.7.3 (`32bit`) from (http://www.python.org/ftp/python/2.7.3/python-2.7.3.msi).
-* Add the installed path of python (e.g. C:\Python27) to windows environment variable named 'PATH'.
-* Download pyyaml from http://pyyaml.org/download/pyyaml/PyYAML-3.10.win32-py2.7.exe and install it.
-* Download [Cheetah-2.4.4.tar.gz](https://pypi.python.org/packages/cd/b0/c2d700252fc251e91c08639ff41a8a5203b627f4e0a2ae18a6b662ab32ea/Cheetah-2.4.4.tar.gz#md5=853917116e731afbc8c8a43c37e6ddba), extract and install it by `python setup.py`.
-* Download [NDK r16](https://dl.google.com/android/repository/android-ndk-r16-windows-x86_64.zip) from [google](https://developer.android.com/ndk/downloads/index.html)
+* Download python3 (`64bit`) from (https://www.python.org).
+* Add the installed path of python (e.g. C:\Python39) to PATH environment variable, if not already added in the installer.
+* Install python dependices by pip.
+  ```bash
+  pip install PyYAML Cheetah3
+  ```
+* Download NDK r21 or above from [google](https://developer.android.com/ndk/downloads/index.html)
 * Set the environment variables (`PYTHON_ROOT` and `NDK_ROOT`) or just them in `test.bat`.
 * Run "test.bat". The generated codes will be under "simple_test_bindings".
-
-
 
 ### Expected output
 

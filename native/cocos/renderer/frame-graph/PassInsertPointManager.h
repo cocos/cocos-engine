@@ -50,7 +50,7 @@ private:
     PassInsertPointManager()  = default;
     ~PassInsertPointManager() = default;
 
-    CC_INLINE PassInsertPoint get(StringHandle name) const noexcept;
+    inline PassInsertPoint get(StringHandle name) const noexcept;
 
     StringPool                   _stringPool;
     std::vector<PassInsertPoint> _insertPoints{};

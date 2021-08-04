@@ -27,7 +27,7 @@
 
 #include "base/Macros.h"
 
-// STD including
+// STD includes
 #include <cassert>
 #include <cfloat>
 #include <cmath>
@@ -37,11 +37,10 @@
 #include <cwchar>
 #include <limits>
 
-// STL including
+// STL includes
 #include <algorithm>
 #include <array>
 #include <atomic>
-#include <cmath>
 #include <cstdint>
 #include <deque>
 #include <exception>

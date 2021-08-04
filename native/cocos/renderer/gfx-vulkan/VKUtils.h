@@ -27,9 +27,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#include "base/Utils.h"
 #include "base/Macros.h"
 #include "base/StringUtil.h"
+#include "base/Utils.h"
 #include "gfx-base/GFXDef.h"
 
 #include "vk_mem_alloc.h"
@@ -55,7 +55,6 @@ extern VkAttachmentLoadOp    mapVkLoadOp(LoadOp loadOp);
 extern VkAttachmentStoreOp   mapVkStoreOp(StoreOp storeOp);
 extern VkBufferUsageFlagBits mapVkBufferUsageFlagBits(BufferUsage usage);
 extern VkImageType           mapVkImageType(TextureType type);
-extern VkSampleCountFlagBits mapVkSampleCount(SampleCount count);
 extern VkFormatFeatureFlags  mapVkFormatFeatureFlags(TextureUsage usage);
 extern VkImageUsageFlagBits  mapVkImageUsageFlagBits(TextureUsage usage);
 extern VkImageAspectFlags    mapVkImageAspectFlags(Format format);
@@ -88,7 +87,9 @@ extern const VkSamplerMipmapMode        VK_SAMPLER_MIPMAP_MODES[];
 extern const VkSamplerAddressMode       VK_SAMPLER_ADDRESS_MODES[];
 extern const VkPipelineBindPoint        VK_PIPELINE_BIND_POINTS[];
 extern const ThsvsAccessType            THSVS_ACCESS_TYPES[];
+extern const VkResolveModeFlagBits      VK_RESOLVE_MODES[];
 extern const VkImageLayout              VK_IMAGE_LAYOUTS[];
+extern const VkStencilFaceFlags         VK_STENCIL_FACE_FLAGS[];
 extern const VkAccessFlags              FULL_ACCESS_FLAGS;
 
 } // namespace gfx

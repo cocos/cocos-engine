@@ -34,19 +34,17 @@
 namespace cc {
 namespace gfx {
 
-GLES3Framebuffer::GLES3Framebuffer() = default;
+GLES3Framebuffer::GLES3Framebuffer() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3Framebuffer::~GLES3Framebuffer() {
     destroy();
 }
 
-void GLES3Framebuffer::doInit(const FramebufferInfo &info) {
-    _gpuFBO                          = CC_NEW(GLES3GPUFramebuffer);
-    _gpuFBO->gpuRenderPass           = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
-    _gpuFBO->depthStencilMipmapLevel = info.depthStencilMipmapLevel;
-    for (uint mipLevel : info.colorMipmapLevels) {
-        _gpuFBO->colorMipmapLevels.push_back(mipLevel);
-    }
+void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
+    _gpuFBO                = CC_NEW(GLES3GPUFramebuffer);
+    _gpuFBO->gpuRenderPass = static_cast<GLES3RenderPass *>(_renderPass)->gpuRenderPass();
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {

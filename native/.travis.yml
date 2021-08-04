@@ -1,54 +1,22 @@
 language: cpp
 
-jobs: 
+jobs:
   include:
-    - os: windows
-      name: Win32
-      env: 
-        - BUILD_TARGET=windows_cmake
-      language: cpp
-      before_install:
-        - choco install nodejs.install --version=12.8.0 
-        - choco install --forcex86 -y python2
-        - export PATH="/C/Program Files/nodejs":$PATH
-        - export PATH="/C/Python27":$PATH
-        - tools/travis-scripts/before-install.sh
-    - os: osx
-      name: MacOSX
-      env:
-        - BUILD_TARGET=macosx_cmake
-      language: cpp
-      osx_image: xcode12u
-      sudo: required
-      before_install:
-        - nvm install 12
-        - tools/travis-scripts/before-install.sh
-    - os: osx
-      name: iOS
-      env:
-        - BUILD_TARGET=ios_cmake
-      language: cpp
-      osx_image: xcode12u
-      sudo: required
-      before_install:
-        - nvm install 12
-        - tools/travis-scripts/before-install.sh
     - os: linux
       name: Android
       dist: xenial
       sudo: required
-      env: 
-        - BUILD_TARGET=android_cmake
+      env:
+        - BUILD_TARGET=genbindings
       language: cpp
       before_install:
         - nvm install 12
         - tools/travis-scripts/before-install.sh
 
 jdk:
-  - oraclejdk8  
+  - oraclejdk8
 script:
   - tools/travis-scripts/run-script.sh
-
 # blocklist
 # branches:
 #  except:

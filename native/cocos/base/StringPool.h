@@ -105,7 +105,7 @@ StringHandle StringPool<ThreadSafe>::find(const char *str) const noexcept {
 
 template <bool ThreadSafe>
 inline StringHandle StringPool<ThreadSafe>::doStringToHandle(const char *str) noexcept {
-    auto const it = _stringToHandles.find(str);
+    const auto it = _stringToHandles.find(str);
 
     if (it == _stringToHandles.end()) {
         size_t const strLength = strlen(str) + 1;

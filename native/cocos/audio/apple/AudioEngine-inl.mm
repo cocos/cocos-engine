@@ -118,11 +118,9 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
         if (reason == AVAudioSessionInterruptionTypeBegan) {
             isAudioSessionInterrupted = true;
+            alcMakeContextCurrent(nullptr);
 
-            if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-                ALOGD("AVAudioSessionInterruptionTypeBegan, application != UIApplicationStateActive, alcMakeContextCurrent(nullptr)");
-                alcMakeContextCurrent(nullptr);
-            } else {
+            if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
                 ALOGD("AVAudioSessionInterruptionTypeBegan, application == UIApplicationStateActive, pauseOnResignActive = true");
                 pauseOnResignActive = true;
             }
@@ -131,17 +129,11 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         if (reason == AVAudioSessionInterruptionTypeEnded) {
             isAudioSessionInterrupted = false;
 
-            if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
-                ALOGD("AVAudioSessionInterruptionTypeEnded, application == UIApplicationStateActive, alcMakeContextCurrent(s_ALContext)");
-                NSError *error = nil;
-                [[AVAudioSession sharedInstance] setActive:YES error:&error];
-                alcMakeContextCurrent(s_ALContext);
-                //IDEA:                if (Director::getInstance()->isPaused())
-                {
-                    ALOGD("AVAudioSessionInterruptionTypeEnded, director was paused, try to resume it.");
-                    //IDEA:                    Director::getInstance()->resume();
-                }
-            } else {
+            NSError *error = nil;
+            [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            alcMakeContextCurrent(s_ALContext);
+
+            if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
                 ALOGD("AVAudioSessionInterruptionTypeEnded, application != UIApplicationStateActive, resumeOnBecomingActive = true");
                 resumeOnBecomingActive = true;
             }
@@ -381,7 +373,7 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
     _audioPlayers[_currentAudioID] = player;
     _threadMutex.unlock();
 
-    audioCache->addPlayCallback(std::bind(&AudioEngineImpl::_play2d, this, audioCache, _currentAudioID));
+    audioCache->addPlayCallback(std::bind(&AudioEngineImpl::play2dImpl, this, audioCache, _currentAudioID));
 
     if (_lazyInitLoop) {
         _lazyInitLoop = false;
@@ -393,23 +385,23 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
     return _currentAudioID++;
 }
 
-void AudioEngineImpl::_play2d(AudioCache *cache, int audioID) {
-    //Note: It may bn in sub thread or main thread :(
+void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
+    //Note: It may be in sub thread or main thread :(
     if (!*cache->_isDestroyed && cache->_state == AudioCache::State::READY) {
         _threadMutex.lock();
         auto playerIt = _audioPlayers.find(audioID);
         if (playerIt != _audioPlayers.end() && playerIt->second->play2d()) {
             if (auto sche = _scheduler.lock()) {
                 sche->performFunctionInCocosThread([audioID]() {
-                    if (AudioEngine::_audioIDInfoMap.find(audioID) != AudioEngine::_audioIDInfoMap.end()) {
-                        AudioEngine::_audioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
+                    if (AudioEngine::sAudioIDInfoMap.find(audioID) != AudioEngine::sAudioIDInfoMap.end()) {
+                        AudioEngine::sAudioIDInfoMap[audioID].state = AudioEngine::AudioState::PLAYING;
                     }
                 });
             }
         }
         _threadMutex.unlock();
     } else {
-        ALOGD("AudioEngineImpl::_play2d, cache was destroyed or not ready!");
+        ALOGD("AudioEngineImpl::play2dImpl, cache was destroyed or not ready!");
         auto iter = _audioPlayers.find(audioID);
         if (iter != _audioPlayers.end()) {
             iter->second->_removeByAudioEngine = true;
@@ -428,7 +420,7 @@ ALuint AudioEngineImpl::findValidSource() {
 }
 
 void AudioEngineImpl::setVolume(int audioID, float volume) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return;
     }
     auto player = _audioPlayers[audioID];
@@ -445,7 +437,7 @@ void AudioEngineImpl::setVolume(int audioID, float volume) {
 }
 
 void AudioEngineImpl::setLoop(int audioID, bool loop) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return;
     }
     auto player = _audioPlayers[audioID];
@@ -471,7 +463,7 @@ void AudioEngineImpl::setLoop(int audioID, bool loop) {
 }
 
 bool AudioEngineImpl::pause(int audioID) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return false;
     }
     bool ret = true;
@@ -487,7 +479,7 @@ bool AudioEngineImpl::pause(int audioID) {
 }
 
 bool AudioEngineImpl::resume(int audioID) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return false;
     }
     bool ret = true;
@@ -503,7 +495,7 @@ bool AudioEngineImpl::resume(int audioID) {
 }
 
 void AudioEngineImpl::stop(int audioID) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return;
     }
     auto player = _audioPlayers[audioID];
@@ -523,7 +515,7 @@ void AudioEngineImpl::stopAll() {
 }
 
 float AudioEngineImpl::getDuration(int audioID) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return 0.0f;
     }
     auto player = _audioPlayers[audioID];
@@ -545,7 +537,7 @@ float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
 }
 
 float AudioEngineImpl::getCurrentTime(int audioID) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return 0.0f;
     }
     float ret = 0.0f;
@@ -567,7 +559,7 @@ float AudioEngineImpl::getCurrentTime(int audioID) {
 }
 
 bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return false;
     }
     bool ret = false;
@@ -602,7 +594,7 @@ bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
 }
 
 void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(int, const std::string &)> &callback) {
-    if (!_checkAudioIdValid(audioID)) {
+    if (!checkAudioIdValid(audioID)) {
         return;
     }
     _audioPlayers[audioID]->_finishCallbak = callback;
@@ -633,7 +625,7 @@ void AudioEngineImpl::update(float dt) {
 
             std::string filePath;
             if (player->_finishCallbak) {
-                auto &audioInfo = AudioEngine::_audioIDInfoMap[audioID];
+                auto &audioInfo = AudioEngine::sAudioIDInfoMap[audioID];
                 filePath = *audioInfo.filePath;
             }
 
@@ -674,6 +666,6 @@ void AudioEngineImpl::uncacheAll() {
     _audioCaches.clear();
 }
 
-bool AudioEngineImpl::_checkAudioIdValid(int audioID) {
+bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
 }

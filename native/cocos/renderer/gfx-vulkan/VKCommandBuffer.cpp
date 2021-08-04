@@ -39,6 +39,8 @@
 #include "VKRenderPass.h"
 #include "VKTexture.h"
 #include "VKTextureBarrier.h"
+#include "gfx-base/GFXDef-common.h"
+#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {
@@ -109,9 +111,9 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer 
 void CCVKCommandBuffer::end() {
     if (!_gpuCommandBuffer->began) return;
 
-    _curGPUFBO           = nullptr;
-    _curGPUInputAssember = nullptr;
-    _curViewport.width = _curViewport.height = _curScissor.width = _curScissor.height = 0U;
+    _curGPUFBO                       = nullptr;
+    _curGPUInputAssember             = nullptr;
+    _curDynamicStates.viewport.width = _curDynamicStates.viewport.height = _curDynamicStates.scissor.width = _curDynamicStates.scissor.height = 0U;
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
 
@@ -120,7 +122,7 @@ void CCVKCommandBuffer::end() {
 }
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors,
-                                        float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint secondaryCBCount) {
+                                        float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint secondaryCBCount) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     // guard against RAW hazard
     VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
@@ -146,13 +148,13 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         for (size_t i = 0U; i < attachmentCount - 1; ++i) {
             clearValues[i].color = {{colors[i].x, colors[i].y, colors[i].z, colors[i].w}};
         }
-        clearValues[attachmentCount - 1].depthStencil = {depth, static_cast<uint>(stencil)};
+        clearValues[attachmentCount - 1].depthStencil = {depth, stencil};
     }
-
+    auto *                device = CCVKDevice::getInstance();
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     passBeginInfo.renderPass      = gpuRenderPass->vkRenderPass;
     passBeginInfo.framebuffer     = framebuffer;
-    passBeginInfo.clearValueCount = clearValues.size();
+    passBeginInfo.clearValueCount = utils::toUint(clearValues.size());
     passBeginInfo.pClearValues    = clearValues.data();
     passBeginInfo.renderArea      = {{renderArea.x, renderArea.y}, {renderArea.width, renderArea.height}};
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
@@ -201,7 +203,7 @@ void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
     CCVKGPUPipelineState *gpuPipelineState = static_cast<CCVKPipelineState *>(pso)->gpuPipelineState();
 
     if (_curGPUPipelineState != gpuPipelineState) {
-        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINTS[static_cast<uint>(gpuPipelineState->bindPoint)], gpuPipelineState->vkPipeline);
+        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINTS[toNumber(gpuPipelineState->bindPoint)], gpuPipelineState->vkPipeline);
         _curGPUPipelineState = gpuPipelineState;
     }
 }
@@ -227,13 +229,13 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 
     if (_curGPUInputAssember != gpuInputAssembler) {
         // buffers may be rebuilt(e.g. resize event) without IA's acknowledge
-        size_t vbCount = gpuInputAssembler->gpuVertexBuffers.size();
+        uint vbCount = utils::toUint(gpuInputAssembler->gpuVertexBuffers.size());
         if (gpuInputAssembler->vertexBuffers.size() < vbCount) {
             gpuInputAssembler->vertexBuffers.resize(vbCount);
             gpuInputAssembler->vertexBufferOffsets.resize(vbCount);
         }
 
-        for (size_t i = 0U; i < vbCount; ++i) {
+        for (uint i = 0U; i < vbCount; ++i) {
             gpuInputAssembler->vertexBuffers[i]       = gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
             gpuInputAssembler->vertexBufferOffsets[i] = gpuInputAssembler->gpuVertexBuffers[i]->startOffset;
         }
@@ -250,8 +252,8 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 }
 
 void CCVKCommandBuffer::setViewport(const Viewport &vp) {
-    if (_curViewport != vp) {
-        _curViewport = vp;
+    if (_curDynamicStates.viewport != vp) {
+        _curDynamicStates.viewport = vp;
 
         VkViewport viewport{static_cast<float>(vp.left), static_cast<float>(vp.top), static_cast<float>(vp.width), static_cast<float>(vp.height), vp.minDepth, vp.maxDepth};
         vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
@@ -259,8 +261,8 @@ void CCVKCommandBuffer::setViewport(const Viewport &vp) {
 }
 
 void CCVKCommandBuffer::setScissor(const Rect &rect) {
-    if (_curScissor != rect) {
-        _curScissor = rect;
+    if (_curDynamicStates.scissor != rect) {
+        _curDynamicStates.scissor = rect;
 
         VkRect2D scissor = {{rect.x, rect.y}, {rect.width, rect.height}};
         vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &scissor);
@@ -268,66 +270,85 @@ void CCVKCommandBuffer::setScissor(const Rect &rect) {
 }
 
 void CCVKCommandBuffer::setLineWidth(float width) {
-    if (math::IsNotEqualF(_curLineWidth, width)) {
-        _curLineWidth = width;
+    if (math::IsNotEqualF(_curDynamicStates.lineWidth, width)) {
+        _curDynamicStates.lineWidth = width;
         vkCmdSetLineWidth(_gpuCommandBuffer->vkCommandBuffer, width);
     }
 }
 
 void CCVKCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    if (math::IsNotEqualF(_curDepthBias.constant, constant) ||
-        math::IsNotEqualF(_curDepthBias.clamp, clamp) ||
-        math::IsNotEqualF(_curDepthBias.slope, slope)) {
-        _curDepthBias.constant = constant;
-        _curDepthBias.clamp    = clamp;
-        _curDepthBias.slope    = slope;
+    if (math::IsNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
+        math::IsNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
+        math::IsNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
+        _curDynamicStates.depthBiasConstant = constant;
+        _curDynamicStates.depthBiasClamp    = clamp;
+        _curDynamicStates.depthBiasSlope    = slope;
         vkCmdSetDepthBias(_gpuCommandBuffer->vkCommandBuffer, constant, clamp, slope);
     }
 }
 
 void CCVKCommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curBlendConstants.x, constants.x) ||
-        math::IsNotEqualF(_curBlendConstants.y, constants.y) ||
-        math::IsNotEqualF(_curBlendConstants.z, constants.z) ||
-        math::IsNotEqualF(_curBlendConstants.w, constants.w)) {
-        _curBlendConstants.x = constants.x;
-        _curBlendConstants.y = constants.y;
-        _curBlendConstants.z = constants.z;
-        _curBlendConstants.w = constants.w;
+    if (math::IsNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
+        _curDynamicStates.blendConstant.x = constants.x;
+        _curDynamicStates.blendConstant.y = constants.y;
+        _curDynamicStates.blendConstant.z = constants.z;
+        _curDynamicStates.blendConstant.w = constants.w;
         vkCmdSetBlendConstants(_gpuCommandBuffer->vkCommandBuffer, reinterpret_cast<const float *>(&constants));
     }
 }
 
 void CCVKCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
-    if (math::IsNotEqualF(_curDepthBounds.minBounds, minBounds) ||
-        math::IsNotEqualF(_curDepthBounds.maxBounds, maxBounds)) {
-        _curDepthBounds.minBounds = minBounds;
-        _curDepthBounds.maxBounds = maxBounds;
+    if (math::IsNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
+        math::IsNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
+        _curDynamicStates.depthMinBounds = minBounds;
+        _curDynamicStates.depthMaxBounds = maxBounds;
         vkCmdSetDepthBounds(_gpuCommandBuffer->vkCommandBuffer, minBounds, maxBounds);
     }
 }
 
 void CCVKCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
-    if ((_curStencilWriteMask.face != face) ||
-        (_curStencilWriteMask.write_mask != mask)) {
-        _curStencilWriteMask.face       = face;
-        _curStencilWriteMask.write_mask = mask;
-        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer,
-                                 face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT, mask);
+    DynamicStencilStates &front = _curDynamicStates.stencilStatesFront;
+    DynamicStencilStates &back  = _curDynamicStates.stencilStatesBack;
+    if (face == StencilFace::ALL) {
+        if (front.writeMask == mask && back.writeMask == mask) return;
+        front.writeMask = back.writeMask = mask;
+        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, mask);
+    } else if (face == StencilFace::FRONT) {
+        if (front.writeMask == mask) return;
+        front.writeMask = mask;
+        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_BIT, mask);
+    } else if (face == StencilFace::BACK) {
+        if (back.writeMask == mask) return;
+        back.writeMask = mask;
+        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_BACK_BIT, mask);
     }
 }
 
-void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, int reference, uint mask) {
-    if ((_curStencilCompareMask.face != face) ||
-        (_curStencilCompareMask.reference != reference) ||
-        (_curStencilCompareMask.compareMask != mask)) {
-        _curStencilCompareMask.face        = face;
-        _curStencilCompareMask.reference   = reference;
-        _curStencilCompareMask.compareMask = mask;
-
-        VkStencilFaceFlagBits vkFace = (face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT);
-        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, vkFace, reference);
-        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, vkFace, mask);
+void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, uint reference, uint mask) {
+    DynamicStencilStates &front = _curDynamicStates.stencilStatesFront;
+    DynamicStencilStates &back  = _curDynamicStates.stencilStatesBack;
+    if (face == StencilFace::ALL) {
+        if (front.reference == reference && back.reference == reference &&
+            front.compareMask == mask && back.compareMask == mask) return;
+        front.reference = back.reference = reference;
+        front.compareMask = back.compareMask = mask;
+        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, reference);
+        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, mask);
+    } else if (face == StencilFace::FRONT) {
+        if (front.writeMask == mask && front.reference == reference) return;
+        front.writeMask = mask;
+        front.reference = reference;
+        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_BIT, reference);
+        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_BIT, mask);
+    } else if (face == StencilFace::BACK) {
+        if (back.writeMask == mask && back.reference == reference) return;
+        back.writeMask = mask;
+        back.reference = reference;
+        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_BACK_BIT, reference);
+        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_BACK_BIT, mask);
     }
 }
 
@@ -465,6 +486,19 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
     } else {
         dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         dstImage      = swapchain->swapchainImages[swapchain->curImageIndex];
+
+        VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+        barrier.dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.srcQueueFamilyIndex = barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+        barrier.image                       = dstImage;
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.levelCount = barrier.subresourceRange.layerCount = 1;
+
+        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_DEPENDENCY_BY_REGION_BIT,
+                             0, nullptr, 0, nullptr, 1, &barrier);
     }
 
     _blitRegions.resize(count);
@@ -477,9 +511,9 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].srcOffsets[0].x               = region.srcOffset.x;
         _blitRegions[i].srcOffsets[0].y               = region.srcOffset.y;
         _blitRegions[i].srcOffsets[0].z               = region.srcOffset.z;
-        _blitRegions[i].srcOffsets[1].x               = region.srcExtent.width;
-        _blitRegions[i].srcOffsets[1].y               = region.srcExtent.height;
-        _blitRegions[i].srcOffsets[1].z               = region.srcExtent.depth;
+        _blitRegions[i].srcOffsets[1].x               = static_cast<int32_t>(region.srcOffset.x + region.srcExtent.width);
+        _blitRegions[i].srcOffsets[1].y               = static_cast<int32_t>(region.srcOffset.y + region.srcExtent.height);
+        _blitRegions[i].srcOffsets[1].z               = static_cast<int32_t>(region.srcOffset.z + region.srcExtent.depth);
 
         _blitRegions[i].dstSubresource.aspectMask     = dstAspectMask;
         _blitRegions[i].dstSubresource.mipLevel       = region.dstSubres.mipLevel;
@@ -488,15 +522,32 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].dstOffsets[0].x               = region.dstOffset.x;
         _blitRegions[i].dstOffsets[0].y               = region.dstOffset.y;
         _blitRegions[i].dstOffsets[0].z               = region.dstOffset.z;
-        _blitRegions[i].dstOffsets[1].x               = region.dstExtent.width;
-        _blitRegions[i].dstOffsets[1].y               = region.dstExtent.height;
-        _blitRegions[i].dstOffsets[1].z               = region.dstExtent.depth;
+        _blitRegions[i].dstOffsets[1].x               = static_cast<int32_t>(region.dstOffset.x + region.dstExtent.width);
+        _blitRegions[i].dstOffsets[1].y               = static_cast<int32_t>(region.dstOffset.y + region.dstExtent.height);
+        _blitRegions[i].dstOffsets[1].z               = static_cast<int32_t>(region.dstOffset.z + region.dstExtent.depth);
     }
 
     vkCmdBlitImage(_gpuCommandBuffer->vkCommandBuffer,
                    srcImage, srcImageLayout,
                    dstImage, dstImageLayout,
-                   count, _blitRegions.data(), VK_FILTERS[static_cast<uint>(filter)]);
+                   count, _blitRegions.data(), VK_FILTERS[toNumber(filter)]);
+
+    if (!dstTexture) {
+        VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+        barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask       = 0;
+        barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        barrier.srcQueueFamilyIndex = barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+        barrier.image                       = dstImage;
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.levelCount = barrier.subresourceRange.layerCount = 1;
+
+        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_DEPENDENCY_BY_REGION_BIT,
+                             0, nullptr, 0, nullptr, 1, &barrier);
+    }
 }
 
 void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
@@ -504,7 +555,7 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     CCVKGPUDevice *        gpuDevice            = device->gpuDevice();
     CCVKGPUPipelineLayout *pipelineLayout       = _curGPUPipelineState->gpuPipelineLayout;
     vector<uint> &         dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
-    uint                   descriptorSetCount   = pipelineLayout->setLayouts.size();
+    uint                   descriptorSetCount   = utils::toUint(pipelineLayout->setLayouts.size());
     _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
 
     uint dirtyDescriptorSetCount = descriptorSetCount - _firstDirtyDescriptorSet;

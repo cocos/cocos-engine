@@ -29,8 +29,9 @@
 #include "PipelineSceneData.h"
 #include "PipelineUBO.h"
 #include "base/CoreStd.h"
+#include "GlobalDescriptorSetManager.h"
 #include "helper/DefineMap.h"
-#include "helper/SharedMemory.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace gfx {
@@ -40,7 +41,7 @@ class DescriptorSetLayout;
 } // namespace gfx
 namespace pipeline {
 class DefineMap;
-struct Camera;
+class GlobalDSManager;
 
 struct CC_DLL RenderPipelineInfo {
     uint           tag = 0;
@@ -57,18 +58,19 @@ public:
     virtual bool activate();
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
-    virtual void render(const vector<uint> &cameras);
+    virtual void render(const vector<scene::Camera *> &cameras);
     virtual void resize(uint width, uint height){};
 
-    void setPipelineSharedSceneData(uint handle);
+    void setPipelineSharedSceneData(scene::PipelineSharedSceneData *data);
 
     inline const RenderFlowList &                  getFlows() const { return _flows; }
     inline uint                                    getTag() const { return _tag; }
     inline const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
     inline const DefineMap &                       getMacros() const { return _macros; }
     inline void                                    setValue(const String &name, bool value) { _macros.setValue(name, value); }
+    inline GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
     inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
-    inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _descriptorSetLayout; }
+    inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
     inline gfx::Texture *                          getDefaultTexture() const { return _defaultTexture; }
     inline PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
     inline const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
@@ -78,8 +80,6 @@ public:
 
 protected:
     static RenderPipeline *instance;
-
-    static void setDescriptorSetLayout();
 
     void generateConstantMacros();
 
@@ -91,7 +91,7 @@ protected:
     String                           _constantMacros;
 
     gfx::Device *             _device              = nullptr;
-    gfx::DescriptorSetLayout *_descriptorSetLayout = nullptr;
+    GlobalDSManager *         _globalDSManager     = nullptr;
     gfx::DescriptorSet *      _descriptorSet       = nullptr;
     PipelineUBO *             _pipelineUBO         = nullptr;
     PipelineSceneData *       _pipelineSceneData   = nullptr;

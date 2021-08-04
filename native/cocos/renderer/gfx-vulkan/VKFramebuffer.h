@@ -37,7 +37,7 @@ public:
     CCVKFramebuffer();
     ~CCVKFramebuffer() override;
 
-    CC_INLINE CCVKGPUFramebuffer *gpuFBO() const { return _gpuFBO; }
+    inline CCVKGPUFramebuffer *gpuFBO() const { return _gpuFBO; }
 
 protected:
     void doInit(const FramebufferInfo &info) override;

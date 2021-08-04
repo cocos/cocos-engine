@@ -33,7 +33,6 @@
 #include "DeviceAgent.h"
 #include "FramebufferAgent.h"
 #include "InputAssemblerAgent.h"
-#include "LinearAllocatorPool.h"
 #include "PipelineLayoutAgent.h"
 #include "PipelineStateAgent.h"
 #include "QueueAgent.h"
@@ -41,6 +40,7 @@
 #include "SamplerAgent.h"
 #include "ShaderAgent.h"
 #include "TextureAgent.h"
+#include "base/threading/ThreadSafeLinearAllocator.h"
 
 namespace cc {
 namespace gfx {
@@ -74,14 +74,10 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     _renderer                                           = _actor->getRenderer();
     _vendor                                             = _actor->getVendor();
     _caps                                               = _actor->_caps;
-    memcpy(_features, _actor->_features, static_cast<uint>(Feature::COUNT) * sizeof(bool));
+    memcpy(_features.data(), _actor->_features.data(), static_cast<uint>(Feature::COUNT) * sizeof(bool));
 
-    _mainEncoder = CC_NEW(MessageQueue);
+    _mainMessageQueue = CC_NEW(MessageQueue);
 
-    _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
-    for (uint i = 0U; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
-        _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
-    }
     static_cast<CommandBufferAgent *>(_cmdBuff)->initMessageQueue();
 
     setMultithreaded(true);
@@ -91,8 +87,8 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 
 void DeviceAgent::doDestroy() {
     ENQUEUE_MESSAGE_1(
-        getMessageQueue(), DeviceDestroy,
-        actor, getActor(),
+        _mainMessageQueue, DeviceDestroy,
+        actor, _actor,
         {
             actor->destroy();
         });
@@ -109,19 +105,14 @@ void DeviceAgent::doDestroy() {
         _queue = nullptr;
     }
 
-    _mainEncoder->terminateConsumerThread();
-    CC_SAFE_DELETE(_mainEncoder);
-
-    for (LinearAllocatorPool *pool : _allocatorPools) {
-        CC_SAFE_DELETE(pool);
-    }
-    _allocatorPools.clear();
+    _mainMessageQueue->terminateConsumerThread();
+    CC_SAFE_DELETE(_mainMessageQueue);
 }
 
 void DeviceAgent::resize(uint width, uint height) {
     ENQUEUE_MESSAGE_3(
-        getMessageQueue(), DeviceResize,
-        actor, getActor(),
+        _mainMessageQueue, DeviceResize,
+        actor, _actor,
         width, width,
         height, height,
         {
@@ -131,8 +122,8 @@ void DeviceAgent::resize(uint width, uint height) {
 
 void DeviceAgent::acquire() {
     ENQUEUE_MESSAGE_1(
-        _mainEncoder, DeviceAcquire,
-        actor, getActor(),
+        _mainMessageQueue, DeviceAcquire,
+        actor, _actor,
         {
             actor->acquire();
         });
@@ -140,23 +131,18 @@ void DeviceAgent::acquire() {
 
 void DeviceAgent::present() {
     ENQUEUE_MESSAGE_2(
-        _mainEncoder, DevicePresent,
-        actor, getActor(),
+        _mainMessageQueue, DevicePresent,
+        actor, _actor,
         frameBoundarySemaphore, &_frameBoundarySemaphore,
         {
             actor->present();
             frameBoundarySemaphore->signal();
         });
 
-    MessageQueue::freeChunksInFreeQueue(_mainEncoder);
-    _mainEncoder->finishWriting();
-    _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
+    MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
+    _mainMessageQueue->finishWriting();
+    _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
     _frameBoundarySemaphore.wait();
-
-    getMainAllocator()->reset();
-    for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
-        cmdBuff->_allocatorPools[_currentIndex]->reset();
-    }
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {
@@ -164,11 +150,11 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     _multithreaded = multithreaded;
 
     if (multithreaded) {
-        _mainEncoder->setImmediateMode(false);
+        _mainMessageQueue->setImmediateMode(false);
         _actor->bindRenderContext(false);
-        _mainEncoder->runConsumerThread();
+        _mainMessageQueue->runConsumerThread();
         ENQUEUE_MESSAGE_1(
-            _mainEncoder, DeviceMakeCurrentTrue,
+            _mainMessageQueue, DeviceMakeCurrentTrue,
             actor, _actor,
             {
                 actor->bindDeviceContext(true);
@@ -179,13 +165,13 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
         }
     } else {
         ENQUEUE_MESSAGE_1(
-            _mainEncoder, DeviceMakeCurrentFalse,
+            _mainMessageQueue, DeviceMakeCurrentFalse,
             actor, _actor,
             {
                 actor->bindDeviceContext(false);
             });
-        _mainEncoder->terminateConsumerThread();
-        _mainEncoder->setImmediateMode(true);
+        _mainMessageQueue->terminateConsumerThread();
+        _mainMessageQueue->setImmediateMode(true);
         _actor->bindRenderContext(true);
         for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
             cmdBuff->_messageQueue->setImmediateMode(true);
@@ -196,17 +182,18 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
 
 void DeviceAgent::releaseSurface(uintptr_t windowHandle) {
     ENQUEUE_MESSAGE_2(
-        _mainEncoder, DeviceReleaseSurface,
+        _mainMessageQueue, DeviceReleaseSurface,
         actor, _actor,
         windowHandle, windowHandle,
         {
             actor->releaseSurface(windowHandle);
         });
+    _mainMessageQueue->kickAndWait();
 }
 
 void DeviceAgent::acquireSurface(uintptr_t windowHandle) {
     ENQUEUE_MESSAGE_2(
-        _mainEncoder, DeviceAcquireSurface,
+        _mainMessageQueue, DeviceAcquireSurface,
         actor, _actor,
         windowHandle, windowHandle,
         {
@@ -288,19 +275,28 @@ TextureBarrier *DeviceAgent::createTextureBarrier() {
 }
 
 void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    LinearAllocatorPool *allocator = getMainAllocator();
-
-    auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
-    memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
-
     uint bufferCount = 0U;
     for (uint i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
+    uint totalSize = sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount;
+    for (uint i = 0U, n = 0U; i < count; i++) {
+        const BufferTextureCopy &region = regions[i];
+
+        uint size = formatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        totalSize += size * region.texSubres.layerCount;
+    }
+
+    auto *allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
+
+    auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
+    memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
+
     const auto **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
     for (uint i = 0U, n = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
-        uint                     size   = formatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+
+        uint size = formatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
             auto *buffer = allocator->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
@@ -308,24 +304,40 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         }
     }
 
-    ENQUEUE_MESSAGE_5(
-        _mainEncoder, DeviceCopyBuffersToTexture,
-        actor, getActor(),
+    ENQUEUE_MESSAGE_6(
+        _mainMessageQueue, DeviceCopyBuffersToTexture,
+        actor, _actor,
         buffers, actorBuffers,
         dst, static_cast<TextureAgent *>(dst)->getActor(),
         regions, actorRegions,
         count, count,
+        allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
+            CC_DELETE(allocator);
         });
+}
+
+void DeviceAgent::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+    ENQUEUE_MESSAGE_5(
+        _mainMessageQueue,
+        DeviceCopyTextureToBuffers,
+        actor, getActor(),
+        src, static_cast<TextureAgent *>(srcTexture)->getActor(),
+        buffers, buffers,
+        regions, regions,
+        count, count,
+        {
+            actor->copyTextureToBuffers(src, buffers, regions, count);
+        });
+    _mainMessageQueue->kickAndWait();
 }
 
 void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     if (!_multithreaded) return; // all command buffers are immediately executed
 
-    bool multiThreaded = hasFeature(Feature::MULTITHREADED_SUBMISSION);
+    auto **agentCmdBuffs = _mainMessageQueue->allocate<CommandBufferAgent *>(count);
 
-    auto **agentCmdBuffs = getMainAllocator()->allocate<CommandBufferAgent *>(count);
     for (uint i = 0; i < count; ++i) {
         agentCmdBuffs[i] = static_cast<CommandBufferAgent *const>(cmdBuffs[i]);
         MessageQueue::freeChunksInFreeQueue(agentCmdBuffs[i]->_messageQueue);
@@ -333,10 +345,10 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     }
 
     ENQUEUE_MESSAGE_3(
-        _mainEncoder, DeviceFlushCommands,
+        _mainMessageQueue, DeviceFlushCommands,
         count, count,
         cmdBuffs, agentCmdBuffs,
-        multiThreaded, multiThreaded,
+        multiThreaded, _actor->_multithreadedSubmission,
         {
             CommandBufferAgent::flushCommands(count, cmdBuffs, multiThreaded);
         });

@@ -38,7 +38,7 @@ public:
     CCVKTextureBarrier();
     ~CCVKTextureBarrier();
 
-    CC_INLINE const CCVKGPUTextureBarrier *gpuBarrier() const { return _gpuBarrier; }
+    inline const CCVKGPUTextureBarrier *gpuBarrier() const { return _gpuBarrier; }
 
 protected:
     void doInit(const TextureBarrierInfo &info) override;

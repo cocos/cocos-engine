@@ -37,12 +37,14 @@ public:
     void setMesh(uintptr_t handle) override;
     void useConvex(bool v) override;
     void updateScale() override;
+    void setAsTrigger(bool v) override;
 
 private:
     bool         _mConvex;
     uintptr_t    _mMeshHandle;
+    bool         _mIsTrigger;
     void         updateGeometry();
-    void onComponentSet() override;
+    void         onComponentSet() override;
 };
 
 } // namespace physics

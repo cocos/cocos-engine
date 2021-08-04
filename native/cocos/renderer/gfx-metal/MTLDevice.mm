@@ -109,14 +109,16 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
         layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
     }
     // Persistent depth stencil texture
-    MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
-    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _caps.depthBits);
-    dssDescriptor.width = info.nativeWidth;
-    dssDescriptor.height = info.nativeHeight;
-    dssDescriptor.storageMode = MTLStorageModePrivate;
-    dssDescriptor.usage = MTLTextureUsageRenderTarget;
-    _dssTex = [mtlDevice newTextureWithDescriptor:dssDescriptor];
+    MTLTextureDescriptor *dsDescriptor = [[MTLTextureDescriptor alloc] init];
+    dsDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _caps.depthBits);
+    dsDescriptor.width = info.width;
+    dsDescriptor.height = info.height;
+    dsDescriptor.storageMode = MTLStorageModePrivate;
+    dsDescriptor.usage = MTLTextureUsageRenderTarget;
+    _dsTex = [mtlDevice newTextureWithDescriptor:dsDescriptor];
+    [dsDescriptor release];
     _caps.stencilBits = 8;
+    
 
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
@@ -166,24 +168,14 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
     _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
     _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
-    _features[static_cast<uint>(Feature::MSAA)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_SRGB)] = true;
     _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = true;
     _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
     _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
     _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
-    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = false;
-    _features[static_cast<uint>(Feature::LINE_WIDTH)] = false;
-    _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = false;
-    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = false;
-    _features[static_cast<uint>(Feature::MULTITHREADED_SUBMISSION)] = true;
     _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
 
     _features[static_cast<uint>(Feature::FORMAT_RGB8)] = false;
-    _features[static_cast<uint>(Feature::FORMAT_D16)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D16S8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16S8, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D24S8, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F_S8, gpuFamily);
 
 //    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
@@ -224,24 +216,28 @@ void CCMTLDevice::doDestroy() {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
         _gpuStagingBufferPools[i] = nullptr;
     }
-    
+
     cc::gfx::mu::clearUtilResource();
+
+    CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
+    CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 }
 
 void CCMTLDevice::resize(uint w, uint h) {
     this->_width = w;
     this->_height = h;
 
-    [id<MTLTexture>(_dssTex) release];
+    [id<MTLTexture>(_dsTex) release];
 
-    MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
+    MTLTextureDescriptor *dsDescriptor = [[MTLTextureDescriptor alloc] init];
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
-    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(id<MTLDevice>(this->_mtlDevice), gpuFamily, _caps.depthBits);
-    dssDescriptor.width = w;
-    dssDescriptor.height = h;
-    dssDescriptor.storageMode = MTLStorageModePrivate;
-    dssDescriptor.usage = MTLTextureUsageRenderTarget;
-    _dssTex = [id<MTLDevice>(this->_mtlDevice) newTextureWithDescriptor:dssDescriptor];
+    dsDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(id<MTLDevice>(this->_mtlDevice), gpuFamily, _caps.depthBits);
+    dsDescriptor.width = w;
+    dsDescriptor.height = h;
+    dsDescriptor.storageMode = MTLStorageModePrivate;
+    dsDescriptor.usage = MTLTextureUsageRenderTarget;
+    _dsTex = [id<MTLDevice>(this->_mtlDevice) newTextureWithDescriptor:dsDescriptor];
+    [dsDescriptor release];
 }
 
 void CCMTLDevice::acquire() {
@@ -289,16 +285,13 @@ void CCMTLDevice::onPresentCompleted() {
 void *CCMTLDevice::getCurrentDrawable() {
     if (!_activeDrawable)    {
         CAMetalLayer *layer = (CAMetalLayer*)getMTLLayer();
-        _activeDrawable = [[layer nextDrawable] retain];
+        _activeDrawable = [layer nextDrawable];
     }
     return _activeDrawable;
 }
 
 void CCMTLDevice::disposeCurrentDrawable() {
-    if (_activeDrawable) {
-        [(id<CAMetalDrawable>)_activeDrawable release];
-        _activeDrawable = nil;
-    }
+    _activeDrawable = nil;
 }
 
 Queue *CCMTLDevice::createQueue() {
@@ -369,6 +362,11 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
     // getting rid of this interface all together may become a better option.
     _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
+}
+
+void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+    _cmdBuff->begin();
+    static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
 }
 
 void CCMTLDevice::onMemoryWarning() {

@@ -26,10 +26,9 @@
 #include "RenderBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "PipelineStateManager.h"
-#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXRenderPass.h"
-#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
@@ -59,8 +58,8 @@ void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
 
 void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
     for (auto *batchedBuffer : _queues) {
-        bool boundPSO = false;
-        const auto &batches = batchedBuffer->getBatches();
+        bool        boundPSO = false;
+        const auto &batches  = batchedBuffer->getBatches();
         for (const auto &batch : batches) {
             if (!batch.mergeCount) continue;
             if (!boundPSO) {

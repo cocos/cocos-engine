@@ -33,6 +33,7 @@ namespace gfx {
 
 GlobalBarrier::GlobalBarrier()
 : GFXObject(ObjectType::GLOBAL_BARRIER) {
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 GlobalBarrier::~GlobalBarrier() = default;

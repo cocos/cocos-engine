@@ -25,14 +25,18 @@
 ****************************************************************************/
 
 #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
-#include "platform/android/jni/JniHelper.h"
+#include "cocos/base/UTF8.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/base/UTF8.h"
+#include "platform/java/jni/JniHelper.h"
 
-#include <android/log.h>
-#include <vector>
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <android/log.h>
+#elif CC_PLATFORM == CC_PLATFORM_OHOS
+    #include <hilog/log.h>
+#endif
 #include <string>
+#include <vector>
 
 #ifdef LOG_TAG
     #undef LOG_TAG
@@ -47,15 +51,15 @@
 
 extern "C" {
 
-JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)(JNIEnv *env, jclass cls, jstring value) {
+JNIEXPORT jint JNICALL JNI_JSJAVABRIDGE(evalString)(JNIEnv *env, jclass /*cls*/, jstring value) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         CC_LOG_DEBUG("ScriptEngine has not been initialized");
         return 0;
     }
 
     se::AutoHandleScope hs;
-    bool strFlag = false;
-    std::string strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
+    bool                strFlag  = false;
+    std::string         strValue = cc::StringUtils::getStringUTFCharsJNI(env, value, &strFlag);
     if (!strFlag) {
         CC_LOG_DEBUG("JavaScriptJavaBridge_evalString error, invalid string code");
         return 0;
@@ -89,86 +93,114 @@ public:
         FUNCTION
     };
 
-    typedef std::vector<ValueType> ValueTypes;
+    using ValueTypes = std::vector<ValueType>;
 
-    typedef union {
-        int intValue;
-        long longValue;
-        float floatValue;
-        int boolValue;
+    using ReturnValue = union {
+        int          intValue;
+        int64_t      longValue;
+        float        floatValue;
+        int          boolValue;
         std::string *stringValue;
-    } ReturnValue;
+    };
 
     class CallInfo {
     public:
         CallInfo(const char *className, const char *methodName, const char *methodSig)
-        : m_valid(false),
-          m_error(JSJ_ERR_OK),
-          m_className(className),
-          m_methodName(methodName),
-          m_methodSig(methodSig),
-          m_returnType(ValueType::VOID),
-          m_argumentsCount(0),
-          m_retjstring(NULL),
-          m_env(NULL),
-          m_classID(NULL),
-          m_methodID(NULL) {
-            memset(&m_ret, 0, sizeof(m_ret));
-            m_valid = validateMethodSig() && getMethodInfo();
+        : _mValid(false),
+          _mError(JSJ_ERR_OK),
+          _mClassName(className),
+          _mMethodName(methodName),
+          _mMethodSig(methodSig),
+          _mReturnType(ValueType::VOID),
+          _mArgumentsCount(0),
+          _mRetjstring(nullptr),
+          _mEnv(nullptr),
+          _mClassID(nullptr),
+          _mMethodID(nullptr) {
+            memset(&_mRet, 0, sizeof(_mRet));
+            _mValid = validateMethodSig() && getMethodInfo();
         }
         ~CallInfo();
 
-        bool isValid() {
-            return m_valid;
+        bool isValid() const {
+            return _mValid;
         }
 
-        int getErrorCode() {
-            return m_error;
+        int getErrorCode() const {
+            return _mError;
+        }
+
+        void tryThrowJSException() const {
+            if (_mError != JSJ_ERR_OK) {
+                se::ScriptEngine::getInstance()->throwException(getErrorMessage());
+            }
+        }
+
+        const char *getErrorMessage() const {
+            switch (_mError) {
+                case JSJ_ERR_TYPE_NOT_SUPPORT:
+                    return "argument type is not supported";
+                case JSJ_ERR_INVALID_SIGNATURES:
+                    return "invalid signature";
+                case JSJ_ERR_METHOD_NOT_FOUND:
+                    return "method not found";
+                case JSJ_ERR_EXCEPTION_OCCURRED:
+                    return "excpected occurred";
+                case JSJ_ERR_VM_THREAD_DETACHED:
+                    return "vm thread detached";
+                case JSJ_ERR_VM_FAILURE:
+                    return "vm failure";
+                case JSJ_ERR_CLASS_NOT_FOUND:
+                    return "class not found";
+                case JSJ_ERR_OK:
+                default:
+                    return "NOERROR";
+            }
         }
 
         JNIEnv *getEnv() {
-            return m_env;
+            return _mEnv;
         }
 
         ValueType argumentTypeAtIndex(size_t index) {
-            return m_argumentsType.at(index);
+            return _mArgumentsType.at(index);
         }
 
-        int getArgumentsCount() {
-            return m_argumentsCount;
+        int getArgumentsCount() const {
+            return _mArgumentsCount;
         }
 
         ValueType getReturnValueType() {
-            return m_returnType;
+            return _mReturnType;
         }
 
         ReturnValue getReturnValue() {
-            return m_ret;
+            return _mRet;
         }
 
         bool execute();
         bool executeWithArgs(jvalue *args);
 
     private:
-        bool m_valid;
-        int m_error;
+        bool _mValid;
+        int  _mError;
 
-        std::string m_className;
-        std::string m_methodName;
-        std::string m_methodSig;
-        int m_argumentsCount;
-        ValueTypes m_argumentsType;
-        ValueType m_returnType;
+        std::string _mClassName;
+        std::string _mMethodName;
+        std::string _mMethodSig;
+        int         _mArgumentsCount;
+        ValueTypes  _mArgumentsType;
+        ValueType   _mReturnType;
 
-        ReturnValue m_ret;
-        jstring m_retjstring;
+        ReturnValue _mRet;
+        jstring     _mRetjstring;
 
-        JNIEnv *m_env;
-        jclass m_classID;
-        jmethodID m_methodID;
+        JNIEnv *  _mEnv;
+        jclass    _mClassID;
+        jmethodID _mMethodID;
 
-        bool validateMethodSig();
-        bool getMethodInfo();
+        bool      validateMethodSig();
+        bool      getMethodInfo();
         ValueType checkType(const std::string &sig, size_t *pos);
     };
 
@@ -176,54 +208,55 @@ public:
 };
 
 JavaScriptJavaBridge::CallInfo::~CallInfo() {
-    if (m_returnType == ValueType::STRING && m_ret.stringValue) {
-        delete m_ret.stringValue;
+    if (_mReturnType == ValueType::STRING && _mRet.stringValue) {
+        delete _mRet.stringValue;
     }
 }
 
 bool JavaScriptJavaBridge::CallInfo::execute() {
-    switch (m_returnType) {
+    switch (_mReturnType) {
         case JavaScriptJavaBridge::ValueType::VOID:
-            m_env->CallStaticVoidMethod(m_classID, m_methodID);
+            _mEnv->CallStaticVoidMethod(_mClassID, _mMethodID);
             break;
 
         case JavaScriptJavaBridge::ValueType::INTEGER:
-            m_ret.intValue = m_env->CallStaticIntMethod(m_classID, m_methodID);
+            _mRet.intValue = _mEnv->CallStaticIntMethod(_mClassID, _mMethodID);
             break;
 
         case JavaScriptJavaBridge::ValueType::LONG:
-            m_ret.longValue = m_env->CallStaticLongMethod(m_classID, m_methodID);
+            _mRet.longValue = _mEnv->CallStaticLongMethod(_mClassID, _mMethodID);
             break;
 
         case JavaScriptJavaBridge::ValueType::FLOAT:
-            m_ret.floatValue = m_env->CallStaticFloatMethod(m_classID, m_methodID);
+            _mRet.floatValue = _mEnv->CallStaticFloatMethod(_mClassID, _mMethodID);
             break;
 
         case JavaScriptJavaBridge::ValueType::BOOLEAN:
-            m_ret.boolValue = m_env->CallStaticBooleanMethod(m_classID, m_methodID);
+            _mRet.boolValue = _mEnv->CallStaticBooleanMethod(_mClassID, _mMethodID);
             break;
 
         case JavaScriptJavaBridge::ValueType::STRING: {
-            m_retjstring = (jstring)m_env->CallStaticObjectMethod(m_classID, m_methodID);
-            if (m_retjstring) {
-                std::string strValue = cc::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
-                m_ret.stringValue = new std::string(strValue);
-            } else
-                m_ret.stringValue = nullptr;
+            _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethod(_mClassID, _mMethodID));
+            if (_mRetjstring) {
+                std::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
+                _mRet.stringValue    = new std::string(strValue);
+            } else {
+                _mRet.stringValue = nullptr;
+            }
 
             break;
         }
 
         default:
-            m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
-            SE_LOGD("Return type '%d' is not supported", static_cast<int>(m_returnType));
+            _mError = JSJ_ERR_TYPE_NOT_SUPPORT;
+            SE_LOGD("Return type '%d' is not supported", static_cast<int>(_mReturnType));
             return false;
     }
 
-    if (m_env->ExceptionCheck() == JNI_TRUE) {
-        m_env->ExceptionDescribe();
-        m_env->ExceptionClear();
-        m_error = JSJ_ERR_EXCEPTION_OCCURRED;
+    if (_mEnv->ExceptionCheck() == JNI_TRUE) {
+        _mEnv->ExceptionDescribe();
+        _mEnv->ExceptionClear();
+        _mError = JSJ_ERR_EXCEPTION_OCCURRED;
         return false;
     }
 
@@ -231,44 +264,44 @@ bool JavaScriptJavaBridge::CallInfo::execute() {
 }
 
 bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args) {
-    switch (m_returnType) {
+    switch (_mReturnType) {
         case JavaScriptJavaBridge::ValueType::VOID:
-            m_env->CallStaticVoidMethodA(m_classID, m_methodID, args);
+            _mEnv->CallStaticVoidMethodA(_mClassID, _mMethodID, args);
             break;
 
         case JavaScriptJavaBridge::ValueType::INTEGER:
-            m_ret.intValue = m_env->CallStaticIntMethodA(m_classID, m_methodID, args);
+            _mRet.intValue = _mEnv->CallStaticIntMethodA(_mClassID, _mMethodID, args);
             break;
 
         case JavaScriptJavaBridge::ValueType::LONG:
-            m_ret.longValue = m_env->CallStaticLongMethodA(m_classID, m_methodID, args);
+            _mRet.longValue = _mEnv->CallStaticLongMethodA(_mClassID, _mMethodID, args);
             break;
 
         case JavaScriptJavaBridge::ValueType::FLOAT:
-            m_ret.floatValue = m_env->CallStaticFloatMethodA(m_classID, m_methodID, args);
+            _mRet.floatValue = _mEnv->CallStaticFloatMethodA(_mClassID, _mMethodID, args);
             break;
 
         case JavaScriptJavaBridge::ValueType::BOOLEAN:
-            m_ret.boolValue = m_env->CallStaticBooleanMethodA(m_classID, m_methodID, args);
+            _mRet.boolValue = _mEnv->CallStaticBooleanMethodA(_mClassID, _mMethodID, args);
             break;
 
         case JavaScriptJavaBridge::ValueType::STRING: {
-            m_retjstring = (jstring)m_env->CallStaticObjectMethodA(m_classID, m_methodID, args);
-            std::string strValue = cc::StringUtils::getStringUTFCharsJNI(m_env, m_retjstring);
-            m_ret.stringValue = new std::string(strValue);
+            _mRetjstring         = static_cast<jstring>(_mEnv->CallStaticObjectMethodA(_mClassID, _mMethodID, args));
+            std::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
+            _mRet.stringValue    = new std::string(strValue);
             break;
         }
 
         default:
-            m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
-            SE_LOGD("Return type '%d' is not supported", static_cast<int>(m_returnType));
+            _mError = JSJ_ERR_TYPE_NOT_SUPPORT;
+            SE_LOGD("Return type '%d' is not supported", static_cast<int>(_mReturnType));
             return false;
     }
 
-    if (m_env->ExceptionCheck() == JNI_TRUE) {
-        m_env->ExceptionDescribe();
-        m_env->ExceptionClear();
-        m_error = JSJ_ERR_EXCEPTION_OCCURRED;
+    if (_mEnv->ExceptionCheck() == JNI_TRUE) {
+        _mEnv->ExceptionDescribe();
+        _mEnv->ExceptionClear();
+        _mError = JSJ_ERR_EXCEPTION_OCCURRED;
         return false;
     }
 
@@ -276,30 +309,30 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args) {
 }
 
 bool JavaScriptJavaBridge::CallInfo::validateMethodSig() {
-    size_t len = m_methodSig.length();
-    if (len < 3 || m_methodSig[0] != '(') // min sig is "()V"
+    size_t len = _mMethodSig.length();
+    if (len < 3 || _mMethodSig[0] != '(') // min sig is "()V"
     {
-        m_error = JSJ_ERR_INVALID_SIGNATURES;
+        _mError = JSJ_ERR_INVALID_SIGNATURES;
         return false;
     }
 
     size_t pos = 1;
-    while (pos < len && m_methodSig[pos] != ')') {
-        JavaScriptJavaBridge::ValueType type = checkType(m_methodSig, &pos);
+    while (pos < len && _mMethodSig[pos] != ')') {
+        JavaScriptJavaBridge::ValueType type = checkType(_mMethodSig, &pos);
         if (type == ValueType::INVALID) return false;
 
-        m_argumentsCount++;
-        m_argumentsType.push_back(type);
+        _mArgumentsCount++;
+        _mArgumentsType.push_back(type);
         pos++;
     }
 
-    if (pos >= len || m_methodSig[pos] != ')') {
-        m_error = JSJ_ERR_INVALID_SIGNATURES;
+    if (pos >= len || _mMethodSig[pos] != ')') {
+        _mError = JSJ_ERR_INVALID_SIGNATURES;
         return false;
     }
 
     pos++;
-    m_returnType = checkType(m_methodSig, &pos);
+    _mReturnType = checkType(_mMethodSig, &pos);
     return true;
 }
 
@@ -318,41 +351,47 @@ JavaScriptJavaBridge::ValueType JavaScriptJavaBridge::CallInfo::checkType(const 
         case 'L':
             size_t pos2 = sig.find_first_of(';', *pos + 1);
             if (pos2 == std::string::npos) {
-                m_error = JSJ_ERR_INVALID_SIGNATURES;
+                _mError = JSJ_ERR_INVALID_SIGNATURES;
                 return ValueType::INVALID;
             }
 
             const std::string t = sig.substr(*pos, pos2 - *pos + 1);
-            if (t.compare("Ljava/lang/String;") == 0) {
+            if (t == "Ljava/lang/String;") {
                 *pos = pos2;
                 return ValueType::STRING;
-            } else if (t.compare("Ljava/util/Vector;") == 0) {
+            }
+
+            if (t == "Ljava/util/Vector;") {
                 *pos = pos2;
                 return ValueType::VECTOR;
-            } else {
-                m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
-                return ValueType::INVALID;
             }
+
+            _mError = JSJ_ERR_TYPE_NOT_SUPPORT;
+            return ValueType::INVALID;
     }
 
-    m_error = JSJ_ERR_TYPE_NOT_SUPPORT;
+    _mError = JSJ_ERR_TYPE_NOT_SUPPORT;
     return ValueType::INVALID;
 }
 
 bool JavaScriptJavaBridge::CallInfo::getMethodInfo() {
-    m_methodID = 0;
-    m_env = 0;
+    _mMethodID = nullptr;
+    _mEnv      = nullptr;
 
     JavaVM *jvm = cc::JniHelper::getJavaVM();
-    jint ret = jvm->GetEnv((void **)&m_env, JNI_VERSION_1_4);
+    jint    ret = jvm->GetEnv(reinterpret_cast<void **>(&_mEnv), JNI_VERSION_1_4);
     switch (ret) {
         case JNI_OK:
             break;
 
         case JNI_EDETACHED:
-            if (jvm->AttachCurrentThread(&m_env, NULL) < 0) {
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+            if (jvm->AttachCurrentThread(&_mEnv, nullptr) < 0) {
+#else
+            if (jvm->AttachCurrentThread(reinterpret_cast<void **>(&_mEnv), nullptr) < 0) {
+#endif
                 SE_LOGD("%s", "Failed to get the environment using AttachCurrentThread()");
-                m_error = JSJ_ERR_VM_THREAD_DETACHED;
+                _mError = JSJ_ERR_VM_THREAD_DETACHED;
                 return false;
             }
             break;
@@ -360,31 +399,31 @@ bool JavaScriptJavaBridge::CallInfo::getMethodInfo() {
         case JNI_EVERSION:
         default:
             SE_LOGD("%s", "Failed to get the environment using GetEnv()");
-            m_error = JSJ_ERR_VM_FAILURE;
+            _mError = JSJ_ERR_VM_FAILURE;
             return false;
     }
-    jstring _jstrClassName = m_env->NewStringUTF(m_className.c_str());
-    m_classID = (jclass)m_env->CallObjectMethod(cc::JniHelper::classloader,
-                                                cc::JniHelper::loadclassMethod_methodID,
-                                                _jstrClassName);
+    jstring jstrClassName = _mEnv->NewStringUTF(_mClassName.c_str());
+    _mClassID             = static_cast<jclass>(_mEnv->CallObjectMethod(cc::JniHelper::classloader,
+                                                            cc::JniHelper::loadclassMethodMethodId,
+                                                            jstrClassName));
 
-    if (NULL == m_classID) {
-        SE_LOGD("Classloader failed to find class of %s", m_className.c_str());
-        m_env->DeleteLocalRef(_jstrClassName);
-        m_env->ExceptionClear();
-        m_error = JSJ_ERR_CLASS_NOT_FOUND;
+    if (nullptr == _mClassID) {
+        SE_LOGD("Classloader failed to find class of %s", _mClassName.c_str());
+        ccDeleteLocalRef(_mEnv, jstrClassName);
+        _mEnv->ExceptionClear();
+        _mError = JSJ_ERR_CLASS_NOT_FOUND;
         return false;
     }
 
-    m_env->DeleteLocalRef(_jstrClassName);
-    m_methodID = m_env->GetStaticMethodID(m_classID, m_methodName.c_str(), m_methodSig.c_str());
-    if (!m_methodID) {
-        m_env->ExceptionClear();
+    ccDeleteLocalRef(_mEnv, jstrClassName);
+    _mMethodID = _mEnv->GetStaticMethodID(_mClassID, _mMethodName.c_str(), _mMethodSig.c_str());
+    if (!_mMethodID) {
+        _mEnv->ExceptionClear();
         SE_LOGD("Failed to find method id of %s.%s %s",
-                m_className.c_str(),
-                m_methodName.c_str(),
-                m_methodSig.c_str());
-        m_error = JSJ_ERR_METHOD_NOT_FOUND;
+                _mClassName.c_str(),
+                _mMethodName.c_str(),
+                _mMethodSig.c_str());
+        _mError = JSJ_ERR_METHOD_NOT_FOUND;
         return false;
     }
 
@@ -398,7 +437,7 @@ bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType ty
             ret->setInt32(retValue.intValue);
             break;
         case JavaScriptJavaBridge::ValueType::LONG:
-            ret->setLong(retValue.longValue);
+            ret->setDouble(static_cast<double>(retValue.longValue));
             break;
         case JavaScriptJavaBridge::ValueType::FLOAT:
             ret->setFloat(retValue.floatValue);
@@ -407,10 +446,11 @@ bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType ty
             ret->setBoolean(retValue.boolValue);
             break;
         case JavaScriptJavaBridge::ValueType::STRING:
-            if (retValue.stringValue)
+            if (retValue.stringValue) {
                 ret->setString(*retValue.stringValue);
-            else
+            } else {
                 ret->setNull();
+            }
             break;
         default:
             ret->setUndefined();
@@ -420,29 +460,31 @@ bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType ty
     return true;
 }
 
-se::Class *__jsb_JavaScriptJavaBridge_class = nullptr;
+se::Class *__jsb_JavaScriptJavaBridge_class = nullptr; // NOLINT
 
-static bool JavaScriptJavaBridge_finalize(se::State &s) {
-    JavaScriptJavaBridge *cobj = (JavaScriptJavaBridge *)s.nativeThisObject();
+static bool JavaScriptJavaBridge_finalize(se::State &s) { //NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<JavaScriptJavaBridge *>(s.nativeThisObject());
     delete cobj;
     return true;
 }
 SE_BIND_FINALIZE_FUNC(JavaScriptJavaBridge_finalize)
 
-static bool JavaScriptJavaBridge_constructor(se::State &s) {
-    JavaScriptJavaBridge *cobj = new (std::nothrow) JavaScriptJavaBridge();
+static bool JavaScriptJavaBridge_constructor(se::State &s) { //NOLINT(readability-identifier-naming)
+    auto *cobj = new (std::nothrow) JavaScriptJavaBridge();
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
 SE_BIND_CTOR(JavaScriptJavaBridge_constructor, __jsb_JavaScriptJavaBridge_class, JavaScriptJavaBridge_finalize)
 
-static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
+static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(readability-identifier-naming)
     const auto &args = s.args();
-    int argc = (int)args.size();
+    auto        argc = static_cast<int>(args.size());
 
     if (argc == 3) {
-        bool ok = false;
-        std::string clsName, methodName, methodSig;
+        bool        ok = false;
+        std::string clsName;
+        std::string methodName;
+        std::string methodSig;
         ok = seval_to_std_string(args[0], &clsName);
         SE_PRECONDITION2(ok, false, "Converting class name failed!");
 
@@ -454,20 +496,26 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid()) {
-            ok = call.execute();
+            ok            = call.execute();
             int errorCode = call.getErrorCode();
             if (!ok || errorCode < 0) {
+                call.tryThrowJSException();
                 SE_REPORT_ERROR("call result code: %d", call.getErrorCode());
                 return false;
             }
             JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
             return true;
         }
+        call.tryThrowJSException();
         SE_REPORT_ERROR("JavaScriptJavaBridge::CallInfo isn't valid!");
         return false;
-    } else if (argc > 3) {
-        bool ok = false;
-        std::string clsName, methodName, methodSig;
+    }
+
+    if (argc > 3) {
+        bool        ok = false;
+        std::string clsName;
+        std::string methodName;
+        std::string methodSig;
         ok = seval_to_std_string(args[0], &clsName);
         SE_PRECONDITION2(ok, false, "Converting class name failed!");
 
@@ -479,8 +527,8 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
 
         JavaScriptJavaBridge::CallInfo call(clsName.c_str(), methodName.c_str(), methodSig.c_str());
         if (call.isValid() && call.getArgumentsCount() == (argc - 3)) {
-            int count = argc - 3;
-            jvalue *jargs = new jvalue[count];
+            int                  count = argc - 3;
+            auto *               jargs = new jvalue[count];
             std::vector<jobject> toReleaseObjects;
             for (int i = 0; i < count; ++i) {
                 int index = i + 3;
@@ -492,13 +540,13 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
                         break;
                     }
                     case JavaScriptJavaBridge::ValueType::LONG: {
-                        long longVal = 0L;
-                        seval_to_long(args[index], &longVal);
+                        int64_t longVal = 0L;
+                        sevalue_to_native(args[index], &longVal, nullptr);
                         jargs[i].j = longVal;
                         break;
                     }
                     case JavaScriptJavaBridge::ValueType::FLOAT: {
-                        float floatNumber = 0.0f;
+                        float floatNumber = 0.0F;
                         seval_to_float(args[index], &floatNumber);
                         jargs[i].f = floatNumber;
                         break;
@@ -509,9 +557,9 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
                     }
                     case JavaScriptJavaBridge::ValueType::STRING: {
                         const auto &arg = args[index];
-                        if (arg.isNull() || arg.isUndefined())
+                        if (arg.isNull() || arg.isUndefined()) {
                             jargs[i].l = nullptr;
-                        else {
+                        } else {
                             std::string str;
                             seval_to_std_string(args[index], &str);
                             jargs[i].l = call.getEnv()->NewStringUTF(str.c_str());
@@ -527,12 +575,12 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
             }
             ok = call.executeWithArgs(jargs);
             for (const auto &obj : toReleaseObjects) {
-                call.getEnv()->DeleteLocalRef(obj);
+                ccDeleteLocalRef(call.getEnv(), obj);
             }
-            if (jargs)
-                delete[] jargs;
+            delete[] jargs;
             int errorCode = call.getErrorCode();
             if (!ok || errorCode < 0) {
+                call.tryThrowJSException();
                 SE_REPORT_ERROR("js_JSJavaBridge : call result code: %d", errorCode);
                 return false;
             }
@@ -540,6 +588,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
             JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
             return true;
         }
+        call.tryThrowJSException();
         SE_REPORT_ERROR("call valid: %d, call.getArgumentsCount()= %d", call.isValid(), call.getArgumentsCount());
         return false;
     }
@@ -548,7 +597,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) {
 }
 SE_BIND_FUNC(JavaScriptJavaBridge_callStaticMethod)
 
-bool register_javascript_java_bridge(se::Object *obj) {
+bool register_javascript_java_bridge(se::Object *obj) { //NOLINT(readability-identifier-naming)
     se::Class *cls = se::Class::create("JavascriptJavaBridge", obj, nullptr, _SE(JavaScriptJavaBridge_constructor));
     cls->defineFinalizeFunction(_SE(JavaScriptJavaBridge_finalize));
 

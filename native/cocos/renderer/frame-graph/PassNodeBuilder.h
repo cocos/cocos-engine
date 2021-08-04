@@ -41,25 +41,26 @@ public:
     PassNodeBuilder &operator=(PassNodeBuilder &&) = delete;
 
     template <typename ResourceType>
-    void create(TypedHandle<ResourceType> &handle, const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept;
+    TypedHandle<ResourceType> create(const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept;
     template <typename ResourceType>
-    void importExternal(TypedHandle<ResourceType> &handle, const StringHandle &name, ResourceType &resource) const noexcept;
+    TypedHandle<ResourceType> importExternal(const StringHandle &name, ResourceType &resource) const noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> read(TypedHandle<ResourceType> const &input) const noexcept;
-    Handle                    read(const Handle &input) const noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> write(TypedHandle<ResourceType> const &output) const noexcept;
     TextureHandle             write(const TextureHandle &output, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
     TextureHandle             write(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
 
-    CC_INLINE void sideEffect() const noexcept;
-    CC_INLINE void subpass(bool clearActionIgnoreable, bool const end) const noexcept;
-    CC_INLINE void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
+    inline void sideEffect() const noexcept;
+    inline void subpass(bool clearActionIgnoreable, bool end) const noexcept;
+    inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
 
     void   writeToBlackboard(const StringHandle &name, const Handle &handle) const noexcept;
     Handle readFromBlackboard(const StringHandle &name) const noexcept;
 
 private:
+    Handle read(const Handle &input) const noexcept;
+
     FrameGraph &_graph;
     PassNode &  _passNode;
 };
@@ -80,7 +81,7 @@ void PassNodeBuilder::sideEffect() const noexcept {
     _passNode.sideEffect();
 }
 
-void PassNodeBuilder::subpass(bool clearActionIgnoreable, bool const end) const noexcept {
+void PassNodeBuilder::subpass(bool clearActionIgnoreable, bool end) const noexcept {
     _passNode.subpass(clearActionIgnoreable, end);
 }
 

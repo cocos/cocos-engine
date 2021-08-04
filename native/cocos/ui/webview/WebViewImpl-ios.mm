@@ -378,7 +378,7 @@ void WebViewImpl::setBounces(bool bounces) {
     [_uiWebViewWrapper setBounces:bounces];
 }
 
-void WebViewImpl::setScalesPageToFit(const bool scalesPageToFit) {
+void WebViewImpl::setScalesPageToFit(bool scalesPageToFit) {
     [_uiWebViewWrapper setScalesPageToFit:scalesPageToFit];
 }
 

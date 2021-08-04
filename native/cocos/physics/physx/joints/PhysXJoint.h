@@ -25,9 +25,10 @@
 
 #pragma once
 
+#include "base/Macros.h"
 #include "physics/physx/PhysXInc.h"
 #include "physics/spec/IJoint.h"
-#include "base/Macros.h"
+#include "scene/Node.h"
 
 namespace cc {
 namespace physics {
@@ -39,22 +40,22 @@ class PhysXJoint : virtual public IBaseJoint {
 
 public:
     ~PhysXJoint() override = default;
-    CC_INLINE uintptr_t getImpl() override { return reinterpret_cast<uintptr_t>(this); }
-    void initialize(uint handle) override;
-    void onEnable() override;
-    void onDisable() override;
-    void onDestroy() override;
-    void setConnectedBody(uint handle) override;
-    void setEnableCollision(bool v) override;
-    virtual void updateScale0() = 0;
-    virtual void updateScale1() = 0;
+    inline uintptr_t getImpl() override { return reinterpret_cast<uintptr_t>(this); }
+    void             initialize(scene::Node *node) override;
+    void             onEnable() override;
+    void             onDisable() override;
+    void             onDestroy() override;
+    void             setConnectedBody(uintptr_t v) override;
+    void             setEnableCollision(bool v) override;
+    virtual void     updateScale0() = 0;
+    virtual void     updateScale1() = 0;
 
 protected:
-    physx::PxJoint *_mJoint{nullptr};
+    physx::PxJoint * _mJoint{nullptr};
     PhysXSharedBody *_mSharedBody{nullptr};
     PhysXSharedBody *_mConnectedBody{nullptr};
-    bool _mEnableCollision{false};
-    virtual void onComponentSet() = 0;
+    bool             _mEnableCollision{false};
+    virtual void     onComponentSet() = 0;
 };
 
 } // namespace physics

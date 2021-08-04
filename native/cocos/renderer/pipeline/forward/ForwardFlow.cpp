@@ -24,28 +24,27 @@
 ****************************************************************************/
 
 #include "ForwardFlow.h"
+#include "../SceneCulling.h"
 #include "ForwardPipeline.h"
 #include "ForwardStage.h"
-#include "../SceneCulling.h"
 
 namespace cc {
 namespace pipeline {
-RenderFlowInfo ForwardFlow::_initInfo = {
+RenderFlowInfo ForwardFlow::initInfo = {
     "ForwardFlow",
     static_cast<uint>(ForwardFlowPriority::FORWARD),
     static_cast<uint>(RenderFlowTag::SCENE),
     {},
 };
-const RenderFlowInfo &ForwardFlow::getInitializeInfo() { return ForwardFlow::_initInfo; }
+const RenderFlowInfo &ForwardFlow::getInitializeInfo() { return ForwardFlow::initInfo; }
 
-ForwardFlow::~ForwardFlow() {
-}
+ForwardFlow::~ForwardFlow() = default;
 
 bool ForwardFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
-    if (_stages.size() == 0) {
-        auto forwardStage = CC_NEW(ForwardStage);
+    if (_stages.empty()) {
+        auto *forwardStage = CC_NEW(ForwardStage);
         forwardStage->initialize(ForwardStage::getInitializeInfo());
         _stages.emplace_back(forwardStage);
     }
@@ -57,7 +56,7 @@ void ForwardFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void ForwardFlow::render(Camera *camera) {
+void ForwardFlow::render(scene::Camera *camera) {
     RenderFlow::render(camera);
 }
 

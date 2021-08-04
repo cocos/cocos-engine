@@ -26,10 +26,11 @@
 ****************************************************************************/
 
 #include "Image.h"
-#include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
 #include <cassert>
 #include <cctype>
 #include <string>
+#include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
+
 #if CC_USE_JPEG
     #include "jpeg/jpeglib.h"
 #endif // CC_USE_JPEG
@@ -41,7 +42,11 @@
 
 extern "C" {
 #if CC_USE_PNG
-    #include "png/png.h"
+    #if __OHOS__
+        #include "png.h"
+    #else
+        #include "png/png.h"
+    #endif
 #endif //CC_USE_PNG
 
 #include "base/etc1.h"
@@ -652,7 +657,6 @@ bool Image::initWithPngData(const unsigned char *data, ssize_t dataLen) {
         }
         // update info
         png_read_update_info(pngPtr, infoPtr);
-        bitDepth  = png_get_bit_depth(pngPtr, infoPtr);
         colorType = png_get_color_type(pngPtr, infoPtr);
 
         switch (colorType) {
@@ -740,8 +744,8 @@ bool Image::initWithPVRv2Data(const unsigned char *data, ssize_t dataLen) {
     _renderFormat = it->second;
 
     //Get size of mipmap
-    _width = width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
-    _height = height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
+    _width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
+    _height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
     _isCompressed    = true;
 
     //Move by size of header

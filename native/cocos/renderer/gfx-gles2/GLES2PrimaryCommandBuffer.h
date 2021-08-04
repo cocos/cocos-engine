@@ -38,11 +38,13 @@ public:
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
     void endRenderPass() override;
+    void nextSubpass() override;
     void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
+    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 protected:

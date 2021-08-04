@@ -1,8 +1,8 @@
 ## ===== member implementation template
 
-static bool ${signature_name}_get_${name}(se::State& s)
+static bool ${signature_name}_get_${name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
+    auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2(cobj, false, "${signature_name}_get_${name} : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -33,10 +33,10 @@ static bool ${signature_name}_get_${name}(se::State& s)
 }
 SE_BIND_PROP_GET(${signature_name}_get_${name})
 
-static bool ${signature_name}_set_${name}(se::State& s)
+static bool ${signature_name}_set_${name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
-    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
+    auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2(cobj, false, "${signature_name}_set_${name} : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -65,7 +65,7 @@ static bool ${signature_name}_set_${name}(se::State& s)
                         "arg":$ntype, \
                         "context" :  "s.thisObject()" \
                     })
-#end if    
+#end if
     $conv_text;
     SE_PRECONDITION2(ok, false, "${signature_name}_set_${name} : Error processing new value");
     return true;

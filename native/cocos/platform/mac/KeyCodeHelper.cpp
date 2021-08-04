@@ -158,6 +158,14 @@
 #define GLFW_KEY_LAST GLFW_KEY_MENU
 
 namespace {
+// Modifier Key State
+bool stateShiftLeft = false;
+bool stateShiftRight = false;
+bool stateControlLeft = false;
+bool stateControlRight = false;
+bool stateOptionLeft = false;
+bool stateOptionRight = false;
+
 // Refer to https://github.com/glfw/glfw/blob/master/src/cocoa_window.m.
 int keyCodes[0xff + 1] = {-1};
 
@@ -278,6 +286,63 @@ void init() {
     keyCodes[0x4E] = GLFW_KEY_KP_SUBTRACT;
 }
 } // namespace
+
+void updateModifierKeyState (int keyCodeInWeb) {
+    if (keyCodeInWeb == 16) {  // shift left
+        stateShiftLeft = !stateShiftLeft;
+    } else if (keyCodeInWeb == 20016) {  // shift right
+        stateShiftRight = !stateShiftRight;
+    } else if (keyCodeInWeb == 17) {  // ctrl left
+        stateControlLeft = !stateControlLeft;
+    } else if (keyCodeInWeb == 20017) {  // ctrl right
+        stateControlRight = !stateControlRight;
+    } else if (keyCodeInWeb == 18) {  // alt left
+        stateOptionLeft = !stateOptionLeft;
+    } else if (keyCodeInWeb == 20018) {  // alt right
+        stateOptionRight = !stateOptionRight;
+    }
+}
+
+cc::KeyboardEvent::Action getModifierKeyAction (int keyCodeInWeb) {
+    if (keyCodeInWeb == 16) {  // shift left
+        if (stateShiftLeft) {
+            return cc::KeyboardEvent::Action::PRESS;
+        } else {
+            return cc::KeyboardEvent::Action::RELEASE;
+        }
+    } else if (keyCodeInWeb == 20016) {  // shift right
+        if (stateShiftRight) {
+            return cc::KeyboardEvent::Action::PRESS;
+        } else {
+            return cc::KeyboardEvent::Action::RELEASE;
+        }
+    } else if (keyCodeInWeb == 17) {  // ctrl left
+        if (stateControlLeft) {
+            return cc::KeyboardEvent::Action::PRESS;
+        } else {
+            return cc::KeyboardEvent::Action::RELEASE;
+        }
+    } else if (keyCodeInWeb == 20017) {  // ctrl right
+        if (stateControlRight) {
+            return cc::KeyboardEvent::Action::PRESS;
+        } else {
+            return cc::KeyboardEvent::Action::RELEASE;
+        }
+    } else if (keyCodeInWeb == 18) {  // alt left
+        if (stateOptionLeft) {
+            return cc::KeyboardEvent::Action::PRESS;
+        } else {
+            return cc::KeyboardEvent::Action::RELEASE;
+        }
+    } else if (keyCodeInWeb == 20018) {  // alt right
+        if (stateOptionRight) {
+            return cc::KeyboardEvent::Action::PRESS;
+        } else {
+            return cc::KeyboardEvent::Action::RELEASE;
+        }
+    }
+    return cc::KeyboardEvent::Action::UNKNOWN;
+}
 
 // Refer to: https://github.com/cocos-creator/cocos2d-x-lite/blob/v2.4.0/cocos/platform/desktop/CCGLView-desktop.cpp.
 int translateKeycode(int keyCode) {

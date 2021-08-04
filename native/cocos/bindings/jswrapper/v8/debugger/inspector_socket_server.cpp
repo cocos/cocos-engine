@@ -18,9 +18,9 @@ namespace inspector {
 // depend on inspector_socket_server.h
 std::string FormatWsAddress(const std::string &host, int port,
                             const std::string &target_id,
-                            bool include_protocol) {
+                            bool               include_protocol) {
     // Host is valid (socket was bound) so colon means it's a v6 IP address
-    bool v6 = host.find(':') != std::string::npos;
+    bool               v6 = host.find(':') != std::string::npos;
     std::ostringstream url;
     if (include_protocol)
         url << "ws://";
@@ -55,7 +55,7 @@ void Escape(std::string *string) {
 }
 
 std::string MapToString(const std::map<std::string, std::string> &object) {
-    bool first = true;
+    bool               first = true;
     std::ostringstream json;
     json << "{\n";
     for (const auto &name_value : object) {
@@ -71,7 +71,7 @@ std::string MapToString(const std::map<std::string, std::string> &object) {
 
 std::string MapsToString(
     const std::vector<std::map<std::string, std::string>> &array) {
-    bool first = true;
+    bool               first = true;
     std::ostringstream json;
     json << "[ ";
     for (const auto &object : array) {
@@ -95,13 +95,13 @@ const char *MatchPathSegment(const char *path, const char *expected) {
 
 void OnBufferAlloc(uv_handle_t *handle, size_t len, uv_buf_t *buf) {
     buf->base = new char[len];
-    buf->len = len;
+    buf->len  = len;
 }
 
-void PrintDebuggerReadyMessage(const std::string &host,
-                               int port,
+void PrintDebuggerReadyMessage(const std::string &             host,
+                               int                             port,
                                const std::vector<std::string> &ids,
-                               FILE *out) {
+                               FILE *                          out) {
     if (out == NULL) {
         return;
     }
@@ -109,12 +109,16 @@ void PrintDebuggerReadyMessage(const std::string &host,
     std::vector<std::tuple<std::string, bool, std::string>> ipList;
 
     {
-        char buf[512];
-        uv_interface_address_t *info;
-        int count, i;
+        char                    buf[512];
+        uv_interface_address_t *info  = nullptr;
+        int                     count = 0, i = 0;
 
         uv_interface_addresses(&info, &count);
         i = count;
+
+        if (errno) {
+            SE_LOGE("failed to get addresses %s\n", strerror(errno));
+        }
 
         printf("Number of interfaces: %d\n", count);
         while (i--) {
@@ -146,20 +150,21 @@ void PrintDebuggerReadyMessage(const std::string &host,
 }
 
 void SendHttpResponse(InspectorSocket *socket, const std::string &response) {
-    const char HEADERS[] = "HTTP/1.0 200 OK\r\n"
-                           "Content-Type: application/json; charset=UTF-8\r\n"
-                           "Cache-Control: no-cache\r\n"
-                           "Content-Length: %zu\r\n"
-                           "\r\n";
+    const char HEADERS[] =
+        "HTTP/1.0 200 OK\r\n"
+        "Content-Type: application/json; charset=UTF-8\r\n"
+        "Cache-Control: no-cache\r\n"
+        "Content-Length: %zu\r\n"
+        "\r\n";
     char header[sizeof(HEADERS) + 20];
-    int header_len = snprintf(header, sizeof(header), HEADERS, response.size());
+    int  header_len = snprintf(header, sizeof(header), HEADERS, response.size());
     inspector_write(socket, header, header_len);
     inspector_write(socket, response.data(), response.size());
 }
 
 void SendVersionResponse(InspectorSocket *socket) {
     std::map<std::string, std::string> response;
-    response["Browser"] = "Cocos2d-x Games"; //cjh
+    response["Browser"]          = "Cocos Games"; //cjh
     response["Protocol-Version"] = "1.1";
     SendHttpResponse(socket, MapToString(response));
 }
@@ -167,17 +172,17 @@ void SendVersionResponse(InspectorSocket *socket) {
 void SendProtocolJson(InspectorSocket *socket) {
     z_stream strm;
     strm.zalloc = Z_NULL;
-    strm.zfree = Z_NULL;
+    strm.zfree  = Z_NULL;
     strm.opaque = Z_NULL;
     CHECK_EQ(Z_OK, inflateInit(&strm));
     static const size_t kDecompressedSize =
         PROTOCOL_JSON[0] * 0x10000u +
         PROTOCOL_JSON[1] * 0x100u +
         PROTOCOL_JSON[2];
-    strm.next_in = const_cast<uint8_t *>(PROTOCOL_JSON + 3);
+    strm.next_in  = const_cast<uint8_t *>(PROTOCOL_JSON + 3);
     strm.avail_in = sizeof(PROTOCOL_JSON) - 3;
     std::string data(kDecompressedSize, '\0');
-    strm.next_out = reinterpret_cast<Byte *>(&data[0]);
+    strm.next_out  = reinterpret_cast<Byte *>(&data[0]);
     strm.avail_out = static_cast<uInt>(data.size());
     CHECK_EQ(Z_STREAM_END, inflate(&strm, Z_FINISH));
     CHECK_EQ(0, strm.avail_out);
@@ -186,20 +191,20 @@ void SendProtocolJson(InspectorSocket *socket) {
 }
 
 int GetSocketHost(uv_tcp_t *socket, std::string *out_host) {
-    char ip[INET6_ADDRSTRLEN];
+    char             ip[INET6_ADDRSTRLEN];
     sockaddr_storage addr;
-    int len = sizeof(addr);
-    int err = uv_tcp_getsockname(socket,
+    int              len = sizeof(addr);
+    int              err = uv_tcp_getsockname(socket,
                                  reinterpret_cast<struct sockaddr *>(&addr),
                                  &len);
     if (err != 0)
         return err;
     if (addr.ss_family == AF_INET6) {
         const sockaddr_in6 *v6 = reinterpret_cast<const sockaddr_in6 *>(&addr);
-        err = uv_ip6_name(v6, ip, sizeof(ip));
+        err                    = uv_ip6_name(v6, ip, sizeof(ip));
     } else {
         const sockaddr_in *v4 = reinterpret_cast<const sockaddr_in *>(&addr);
-        err = uv_ip4_name(v4, ip, sizeof(ip));
+        err                   = uv_ip4_name(v4, ip, sizeof(ip));
     }
     if (err != 0)
         return err;
@@ -240,19 +245,19 @@ public:
     }
 
 private:
-    InspectorSocketServer *server_;
+    InspectorSocketServer *                         server_;
     std::set<InspectorSocketServer::ServerCallback> callbacks_;
-    int close_count_;
+    int                                             close_count_;
 };
 
 class SocketSession {
 public:
     static int Accept(InspectorSocketServer *server, int server_port,
                       uv_stream_t *server_socket);
-    void Send(const std::string &message);
-    void Close();
+    void       Send(const std::string &message);
+    void       Close();
 
-    int id() const { return id_; }
+    int  id() const { return id_; }
     bool IsForTarget(const std::string &target_id) const {
         return target_id_ == target_id;
     }
@@ -271,9 +276,9 @@ private:
                        kClosing,
                        kEOF,
                        kDeclined };
-    static bool HandshakeCallback(InspectorSocket *socket,
+    static bool HandshakeCallback(InspectorSocket *              socket,
                                   enum inspector_handshake_event state,
-                                  const std::string &path);
+                                  const std::string &            path);
     static void ReadCallback(uv_stream_t *stream, ssize_t read,
                              const uv_buf_t *buf);
     static void CloseCallback(InspectorSocket *socket, int code);
@@ -285,19 +290,19 @@ private:
         target_id_ = target_id;
     }
 
-    const int id_;
-    InspectorSocket socket_;
+    const int              id_;
+    InspectorSocket        socket_;
     InspectorSocketServer *server_;
-    std::string target_id_;
-    State state_;
-    const int server_port_;
+    std::string            target_id_;
+    State                  state_;
+    const int              server_port_;
 };
 
 class ServerSocket {
 public:
     static int Listen(InspectorSocketServer *inspector_server,
                       sockaddr *addr, uv_loop_t *loop);
-    void Close() {
+    void       Close() {
         uv_close(reinterpret_cast<uv_handle_t *>(&tcp_socket_),
                  SocketClosedCallback);
     }
@@ -321,16 +326,16 @@ private:
     }
     int DetectPort();
 
-    uv_tcp_t tcp_socket_;
+    uv_tcp_t               tcp_socket_;
     InspectorSocketServer *server_;
-    int port_;
+    int                    port_;
 };
 
 InspectorSocketServer::InspectorSocketServer(SocketServerDelegate *delegate,
-                                             uv_loop_t *loop,
-                                             const std::string &host,
-                                             int port,
-                                             FILE *out) : loop_(loop),
+                                             uv_loop_t *           loop,
+                                             const std::string &   host,
+                                             int                   port,
+                                             FILE *                out) : loop_(loop),
                                                           delegate_(delegate),
                                                           host_(host),
                                                           port_(port),
@@ -340,7 +345,7 @@ InspectorSocketServer::InspectorSocketServer(SocketServerDelegate *delegate,
     state_ = ServerState::kNew;
 }
 
-bool InspectorSocketServer::SessionStarted(SocketSession *session,
+bool InspectorSocketServer::SessionStarted(SocketSession *    session,
                                            const std::string &id) {
     if (TargetExists(id) && delegate_->StartSession(session->id(), id)) {
         connected_sessions_[session->id()] = session;
@@ -367,7 +372,7 @@ void InspectorSocketServer::SessionTerminated(SocketSession *session) {
     delete session;
 }
 
-bool InspectorSocketServer::HandleGetRequest(InspectorSocket *socket,
+bool InspectorSocketServer::HandleGetRequest(InspectorSocket *  socket,
                                              const std::string &path) {
     const char *command = MatchPathSegment(path.c_str(), "/json");
     if (command == nullptr)
@@ -397,10 +402,10 @@ void InspectorSocketServer::SendListResponse(InspectorSocket *socket) {
     for (const std::string &id : delegate_->GetTargetIds()) {
         response.push_back(std::map<std::string, std::string>());
         std::map<std::string, std::string> &target_map = response.back();
-        target_map["description"] = "node.js instance";
-        target_map["faviconUrl"] = "https://nodejs.org/static/favicon.ico";
-        target_map["id"] = id;
-        target_map["title"] = delegate_->GetTargetTitle(id);
+        target_map["description"]                      = "node.js instance";
+        target_map["faviconUrl"]                       = "https://nodejs.org/static/favicon.ico";
+        target_map["id"]                               = id;
+        target_map["title"]                            = delegate_->GetTargetTitle(id);
         Escape(&target_map["title"]);
         target_map["type"] = "node";
         // This attribute value is a "best effort" URL that is passed as a JSON
@@ -417,7 +422,7 @@ void InspectorSocketServer::SendListResponse(InspectorSocket *socket) {
         }
         if (!connected) {
             std::string host;
-            int port = SocketSession::ServerPortForClient(socket);
+            int         port = SocketSession::ServerPortForClient(socket);
             GetSocketHost(&socket->tcp, &host);
             std::ostringstream frontend_url;
             frontend_url << "devtools://devtools/bundled";
@@ -435,11 +440,11 @@ bool InspectorSocketServer::Start() {
     CHECK_EQ(state_, ServerState::kNew);
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_flags = AI_NUMERICSERV;
+    hints.ai_flags    = AI_NUMERICSERV;
     hints.ai_socktype = SOCK_STREAM;
-    uv_getaddrinfo_t req;
+    uv_getaddrinfo_t  req;
     const std::string port_string = to_string(port_);
-    int err = uv_getaddrinfo(loop_, &req, nullptr, host_.c_str(),
+    int               err         = uv_getaddrinfo(loop_, &req, nullptr, host_.c_str(),
                              port_string.c_str(), &hints);
     if (err < 0) {
         SE_LOGE("Unable to resolve \"%s\": %s\n", host_.c_str(),
@@ -447,7 +452,7 @@ bool InspectorSocketServer::Start() {
         return false;
     }
     for (addrinfo *address = req.addrinfo; address != nullptr;
-         address = address->ai_next) {
+         address           = address->ai_next) {
         err = ServerSocket::Listen(this, address->ai_addr, loop_);
     }
     uv_freeaddrinfo(req.addrinfo);
@@ -496,7 +501,7 @@ void InspectorSocketServer::TerminateConnections() {
 
 bool InspectorSocketServer::TargetExists(const std::string &id) {
     const std::vector<std::string> &target_ids = delegate_->GetTargetIds();
-    const auto &found = std::find(target_ids.begin(), target_ids.end(), id);
+    const auto &                    found      = std::find(target_ids.begin(), target_ids.end(), id);
     return found != target_ids.end();
 }
 
@@ -554,7 +559,7 @@ int SocketSession::Accept(InspectorSocketServer *server, int server_port,
                           uv_stream_t *server_socket) {
     // Memory is freed when the socket closes.
     SocketSession *session = new SocketSession(server, server_port);
-    int err = inspector_accept(server_socket, &session->socket_,
+    int            err     = inspector_accept(server_socket, &session->socket_,
                                HandshakeCallback);
     if (err != 0) {
         delete session;
@@ -563,12 +568,12 @@ int SocketSession::Accept(InspectorSocketServer *server, int server_port,
 }
 
 // static
-bool SocketSession::HandshakeCallback(InspectorSocket *socket,
+bool SocketSession::HandshakeCallback(InspectorSocket *         socket,
                                       inspector_handshake_event event,
-                                      const std::string &path) {
-    SocketSession *session = SocketSession::From(socket);
-    InspectorSocketServer *server = session->server_;
-    const std::string &id = path.empty() ? path : path.substr(1);
+                                      const std::string &       path) {
+    SocketSession *        session = SocketSession::From(socket);
+    InspectorSocketServer *server  = session->server_;
+    const std::string &    id      = path.empty() ? path : path.substr(1);
     switch (event) {
         case kInspectorHandshakeHttpGet:
             return server->HandleGetRequest(socket, path);
@@ -608,8 +613,8 @@ void SocketSession::FrontendConnected() {
 // static
 void SocketSession::ReadCallback(uv_stream_t *stream, ssize_t read,
                                  const uv_buf_t *buf) {
-    InspectorSocket *socket = inspector_from_stream(stream);
-    SocketSession *session = SocketSession::From(socket);
+    InspectorSocket *socket  = inspector_from_stream(stream);
+    SocketSession *  session = SocketSession::From(socket);
     if (read > 0) {
         session->server_->MessageReceived(session->id_,
                                           std::string(buf->base, read));
@@ -627,8 +632,8 @@ void SocketSession::Send(const std::string &message) {
 // ServerSocket implementation
 int ServerSocket::DetectPort() {
     sockaddr_storage addr;
-    int len = sizeof(addr);
-    int err = uv_tcp_getsockname(&tcp_socket_,
+    int              len = sizeof(addr);
+    int              err = uv_tcp_getsockname(&tcp_socket_,
                                  reinterpret_cast<struct sockaddr *>(&addr), &len);
     if (err != 0)
         return err;
@@ -645,7 +650,7 @@ int ServerSocket::DetectPort() {
 int ServerSocket::Listen(InspectorSocketServer *inspector_server,
                          sockaddr *addr, uv_loop_t *loop) {
     ServerSocket *server_socket = new ServerSocket(inspector_server);
-    uv_tcp_t *server = &server_socket->tcp_socket_;
+    uv_tcp_t *    server        = &server_socket->tcp_socket_;
     CHECK_EQ(0, uv_tcp_init(loop, server));
     int err = uv_tcp_bind(server, addr, 0);
     if (err == 0) {
@@ -665,7 +670,7 @@ int ServerSocket::Listen(InspectorSocketServer *inspector_server,
 
 // static
 void ServerSocket::SocketConnectedCallback(uv_stream_t *tcp_socket,
-                                           int status) {
+                                           int          status) {
     if (status == 0) {
         ServerSocket *server_socket = ServerSocket::FromTcpSocket(tcp_socket);
         // Memory is freed when the socket closes.

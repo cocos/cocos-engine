@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <array>
 #include "GFXBuffer.h"
 #include "GFXCommandBuffer.h"
 #include "GFXDescriptorSet.h"
@@ -59,13 +60,11 @@ public:
     virtual void present()                       = 0;
 
     virtual void flushCommands(CommandBuffer *const *cmdBuffs, uint count) {}
-    virtual void setMultithreaded(bool multithreaded) {}
 
     virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
     virtual uint             getWidth() const { return _width; }
     virtual uint             getHeight() const { return _height; }
-    virtual uint             getNativeWidth() const { return _nativeWidth; }
-    virtual uint             getNativeHeight() const { return _nativeHeight; }
+    virtual float            devicePixelRatio() const { return _pixelRatio; }
     virtual MemoryStatus &   getMemoryStatus() { return _memoryStatus; }
     virtual uint             getNumDrawCalls() const { return _numDrawCalls; }
     virtual uint             getNumInstances() const { return _numInstances; }
@@ -88,6 +87,9 @@ public:
     inline PipelineState *      createPipelineState(const PipelineStateInfo &info);
     inline GlobalBarrier *      createGlobalBarrier(const GlobalBarrierInfo &info);
     inline TextureBarrier *     createTextureBarrier(const TextureBarrierInfo &info);
+
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
+    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) = 0;
 
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
     inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
@@ -119,22 +121,21 @@ protected:
     virtual bool doInit(const DeviceInfo &info) = 0;
     virtual void doDestroy()                    = 0;
 
-    virtual CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent)                                               = 0;
-    virtual Queue *              createQueue()                                                                                                   = 0;
-    virtual Buffer *             createBuffer()                                                                                                  = 0;
-    virtual Texture *            createTexture()                                                                                                 = 0;
-    virtual Sampler *            createSampler()                                                                                                 = 0;
-    virtual Shader *             createShader()                                                                                                  = 0;
-    virtual InputAssembler *     createInputAssembler()                                                                                          = 0;
-    virtual RenderPass *         createRenderPass()                                                                                              = 0;
-    virtual Framebuffer *        createFramebuffer()                                                                                             = 0;
-    virtual DescriptorSet *      createDescriptorSet()                                                                                           = 0;
-    virtual DescriptorSetLayout *createDescriptorSetLayout()                                                                                     = 0;
-    virtual PipelineLayout *     createPipelineLayout()                                                                                          = 0;
-    virtual PipelineState *      createPipelineState()                                                                                           = 0;
-    virtual GlobalBarrier *      createGlobalBarrier()                                                                                           = 0;
-    virtual TextureBarrier *     createTextureBarrier()                                                                                          = 0;
-    virtual void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
+    virtual CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) = 0;
+    virtual Queue *              createQueue()                                                     = 0;
+    virtual Buffer *             createBuffer()                                                    = 0;
+    virtual Texture *            createTexture()                                                   = 0;
+    virtual Sampler *            createSampler()                                                   = 0;
+    virtual Shader *             createShader()                                                    = 0;
+    virtual InputAssembler *     createInputAssembler()                                            = 0;
+    virtual RenderPass *         createRenderPass()                                                = 0;
+    virtual Framebuffer *        createFramebuffer()                                               = 0;
+    virtual DescriptorSet *      createDescriptorSet()                                             = 0;
+    virtual DescriptorSetLayout *createDescriptorSetLayout()                                       = 0;
+    virtual PipelineLayout *     createPipelineLayout()                                            = 0;
+    virtual PipelineState *      createPipelineState()                                             = 0;
+    virtual GlobalBarrier *      createGlobalBarrier()                                             = 0;
+    virtual TextureBarrier *     createTextureBarrier()                                            = 0;
 
     // On minimize
     virtual void releaseSurface(uintptr_t windowHandle) {}
@@ -152,21 +153,22 @@ protected:
     String             _renderer;
     String             _vendor;
     String             _version;
-    bool               _features[static_cast<uint>(Feature::COUNT)];
-    uint               _width        = 0;
-    uint               _height       = 0;
-    uint               _nativeWidth  = 0;
-    uint               _nativeHeight = 0;
+    bool               _multithreadedSubmission{true};
+    uint               _width{0};
+    uint               _height{0};
+    float              _pixelRatio{1.0F};
     MemoryStatus       _memoryStatus;
-    uintptr_t          _windowHandle = 0;
-    Context *          _context      = nullptr;
-    Queue *            _queue        = nullptr;
-    CommandBuffer *    _cmdBuff      = nullptr;
-    uint               _numDrawCalls = 0U;
-    uint               _numInstances = 0U;
-    uint               _numTriangles = 0U;
+    uintptr_t          _windowHandle{0};
+    Context *          _context{nullptr};
+    Queue *            _queue{nullptr};
+    CommandBuffer *    _cmdBuff{nullptr};
+    uint               _numDrawCalls{0U};
+    uint               _numInstances{0U};
+    uint               _numTriangles{0U};
     BindingMappingInfo _bindingMappingInfo;
     DeviceCaps         _caps;
+
+    std::array<bool, static_cast<size_t>(Feature::COUNT)> _features;
 };
 
 //////////////////////////////////////////////////////////////////////////

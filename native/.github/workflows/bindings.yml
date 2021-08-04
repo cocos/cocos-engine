@@ -1,0 +1,44 @@
+name: 🔃 Glue
+
+# on:
+#   pull_request:
+#     types: [closed]
+
+on:
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  generate-jsb:
+    name: genbindings.py
+    #if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+      - name: Run genbindings.py
+        run: |
+          python3 -m pip install PyYAML Cheetah3
+          python3 ./tools/tojs/genbindings.py
+          rm ./tools/tojs/userconf.ini
+
+      - name: Make PR
+        run: |
+          cd tools/travis-scripts && bash generate-pr.sh
+        env:
+          TRAVIS_OS_NAME: linux
+          TRAVIS_PULL_REQUEST: "false"
+          TRAVIS_BRANCH: ${{github.base_ref}}
+          TRAVIS_COMMIT: ${{github.sha}}
+          TRAVIS_COMMIT_MESSAGE: ${{github.event.head_commit.message}}
+          GH_EMAIL: cocos-robot@cocos.com
+          GH_PASSWORD: ${{ secrets.PR_TOKEN }}
+          GH_TOKEN: ${{ secrets.PR_TOKEN }}
+          GH_USER: cocos-robot

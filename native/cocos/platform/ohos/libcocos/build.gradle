@@ -1,0 +1,13 @@
+apply plugin: 'com.huawei.ohos.library'
+ohos {
+    compileSdkVersion 5
+    defaultConfig {
+        compatibleSdkVersion 5
+    }
+}
+
+dependencies {
+///    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation("com.squareup.okhttp3:okhttp:3.12.13")
+    testImplementation 'junit:junit:4.12'
+}

@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "Event.h"
-#include "concurrentqueue/concurrentqueue.h"
 #include <atomic>
 #include <cassert>
 #include <cstdint>
@@ -35,6 +33,8 @@
 #include <list>
 #include <queue>
 #include <thread>
+#include "Event.h"
+#include "concurrentqueue/concurrentqueue.h"
 
 namespace cc {
 
@@ -46,22 +46,22 @@ public:
     static uint8_t const CPU_CORE_COUNT;
     static uint8_t const MAX_THREAD_COUNT;
 
-    ThreadPool()                   = default;
-    ~ThreadPool()                  = default;
-    ThreadPool(ThreadPool const &) = delete;
-    ThreadPool(ThreadPool &&)      = delete;
+    ThreadPool()                       = default;
+    ~ThreadPool()                      = default;
+    ThreadPool(ThreadPool const &)     = delete;
+    ThreadPool(ThreadPool &&) noexcept = delete;
     ThreadPool &operator=(ThreadPool const &) = delete;
-    ThreadPool &operator=(ThreadPool &&) = delete;
+    ThreadPool &operator=(ThreadPool &&) noexcept = delete;
 
     template <typename Function, typename... Args>
-    auto dispatchTask(Function &&func, Args &&... args) noexcept -> std::future<decltype(func(std::forward<Args>(args)...))>;
-    void start() noexcept;
-    void stop() noexcept;
+    auto dispatchTask(Function &&func, Args &&...args) -> std::future<decltype(func(std::forward<Args>(args)...))>;
+    void start();
+    void stop();
 
 private:
     using Event = ConditionVariable;
 
-    void addThread() noexcept;
+    void addThread();
 
     TaskQueue              _tasks{};
     std::list<std::thread> _workers{};
@@ -71,7 +71,7 @@ private:
 };
 
 template <typename Function, typename... Args>
-auto ThreadPool::dispatchTask(Function &&func, Args &&... args) noexcept -> std::future<decltype(func(std::forward<Args>(args)...))> {
+auto ThreadPool::dispatchTask(Function &&func, Args &&...args) -> std::future<decltype(func(std::forward<Args>(args)...))> {
     assert(_running);
 
     using ReturnType   = decltype(func(std::forward<Args>(args)...));

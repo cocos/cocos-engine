@@ -25,6 +25,9 @@
 
 #pragma once
 
+#define GL_GLES_PROTOTYPES 0
+#include <GLES3/gl32.h>
+
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from GLES spec by running:
@@ -66,7 +69,7 @@ extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
 extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
 extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
 extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
-extern PFNGLGETINTEGERI_VPROC glGetIntegeri_v;
+extern PFNGLGETINTEGERI_VPROC glGetIntegeri_v; // NOLINT(readability-identifier-naming)
 extern PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback;
 extern PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback;
 extern PFNGLBINDBUFFERRANGEPROC glBindBufferRange;
@@ -111,7 +114,7 @@ extern PFNGLCLIENTWAITSYNCPROC glClientWaitSync;
 extern PFNGLWAITSYNCPROC glWaitSync;
 extern PFNGLGETINTEGER64VPROC glGetInteger64v;
 extern PFNGLGETSYNCIVPROC glGetSynciv;
-extern PFNGLGETINTEGER64I_VPROC glGetInteger64i_v;
+extern PFNGLGETINTEGER64I_VPROC glGetInteger64i_v; // NOLINT(readability-identifier-naming)
 extern PFNGLGETBUFFERPARAMETERI64VPROC glGetBufferParameteri64v;
 extern PFNGLGENSAMPLERSPROC glGenSamplers;
 extern PFNGLDELETESAMPLERSPROC glDeleteSamplers;
@@ -201,7 +204,7 @@ extern PFNGLVALIDATEPROGRAMPIPELINEPROC glValidateProgramPipeline;
 extern PFNGLGETPROGRAMPIPELINEINFOLOGPROC glGetProgramPipelineInfoLog;
 
 extern PFNGLBINDIMAGETEXTUREPROC glBindImageTexture;
-extern PFNGLGETBOOLEANI_VPROC glGetBooleani_v;
+extern PFNGLGETBOOLEANI_VPROC glGetBooleani_v; // NOLINT(readability-identifier-naming)
 extern PFNGLMEMORYBARRIERPROC glMemoryBarrier;
 extern PFNGLMEMORYBARRIERBYREGIONPROC glMemoryBarrierByRegion;
 

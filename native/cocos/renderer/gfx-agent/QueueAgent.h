@@ -25,17 +25,17 @@
 
 #pragma once
 
-#include "gfx-base/GFXQueue.h"
 #include "base/Agent.h"
+#include "gfx-base/GFXQueue.h"
 
 namespace cc {
 namespace gfx {
 
 class CC_DLL QueueAgent final : public Agent<Queue> {
 public:
-    using Agent::Agent;
     using Queue::submit;
 
+    explicit QueueAgent(Queue *actor);
     ~QueueAgent() override;
 
     void submit(CommandBuffer *const *cmdBuffs, uint count) override;

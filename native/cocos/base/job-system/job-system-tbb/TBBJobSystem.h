@@ -49,7 +49,7 @@ public:
     TBBJobSystem() noexcept : TBBJobSystem(std::max(2u, std::thread::hardware_concurrency() - 2u)) {}
     explicit TBBJobSystem(uint threadCount) noexcept;
 
-    CC_INLINE uint threadCount() { return _threadCount; }
+    inline uint threadCount() { return _threadCount; }
 
 private:
     static TBBJobSystem *_instance;

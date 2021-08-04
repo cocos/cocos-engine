@@ -42,7 +42,10 @@ namespace gfx {
 
 class GLES2Context;
 class GLES2GPUStateCache;
+class GLES2GPUBlitManager;
 class GLES2GPUStagingBufferPool;
+class GLES2GPUConstantRegistry;
+class GLES2GPUFramebufferCacheMap;
 
 class CC_GLES2_API GLES2Device final : public Device {
 public:
@@ -71,21 +74,17 @@ public:
     void acquire() override;
     void present() override;
 
-    inline bool useVAO() const { return _useVAO; }
-    inline bool useDrawInstanced() const { return _useDrawInstanced; }
-    inline bool useInstancedArrays() const { return _useInstancedArrays; }
-    inline bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
-
-    inline GLES2GPUStateCache *       stateCache() const { return _gpuStateCache; }
-    inline GLES2GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
+    inline GLES2GPUStateCache *         stateCache() const { return _gpuStateCache; }
+    inline GLES2GPUBlitManager *        blitManager() const { return _gpuBlitManager; }
+    inline GLES2GPUStagingBufferPool *  stagingBufferPool() const { return _gpuStagingBufferPool; }
+    inline GLES2GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
+    inline GLES2GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const String &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
             return ext.find(extension) != String::npos;
         });
     }
-
-    inline uint getThreadID() const { return _threadID; }
 
 protected:
     static GLES2Device *instance;
@@ -113,6 +112,7 @@ protected:
     GlobalBarrier *      createGlobalBarrier() override;
     TextureBarrier *     createTextureBarrier() override;
     void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    void                 copyTextureToBuffers(Texture* src, uint8_t *const* buffers, const BufferTextureCopy* region, uint count) override;
 
     void releaseSurface(uintptr_t windowHandle) override;
     void acquireSurface(uintptr_t windowHandle) override;
@@ -122,19 +122,15 @@ protected:
 
     static bool checkForETC2();
 
-    GLES2Context *             _renderContext        = nullptr;
-    GLES2Context *             _deviceContext        = nullptr;
-    GLES2GPUStateCache *       _gpuStateCache        = nullptr;
-    GLES2GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
+    GLES2Context *               _renderContext          = nullptr;
+    GLES2Context *               _deviceContext          = nullptr;
+    GLES2GPUStateCache *         _gpuStateCache          = nullptr;
+    GLES2GPUBlitManager *        _gpuBlitManager         = nullptr;
+    GLES2GPUStagingBufferPool *  _gpuStagingBufferPool   = nullptr;
+    GLES2GPUConstantRegistry *   _gpuConstantRegistry    = nullptr;
+    GLES2GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;
-
-    bool _useVAO                = false;
-    bool _useDrawInstanced      = false;
-    bool _useInstancedArrays    = false;
-    bool _useDiscardFramebuffer = false;
-
-    uint _threadID = 0U;
 };
 
 } // namespace gfx

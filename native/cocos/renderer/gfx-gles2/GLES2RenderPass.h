@@ -37,7 +37,7 @@ public:
     GLES2RenderPass();
     ~GLES2RenderPass();
 
-    CC_INLINE GLES2GPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
+    inline GLES2GPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
 
 protected:
     void doInit(const RenderPassInfo &info) override;

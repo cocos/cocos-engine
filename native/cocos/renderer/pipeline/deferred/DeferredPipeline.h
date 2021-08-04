@@ -30,19 +30,12 @@
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXInputAssembler.h"
 #include "pipeline/RenderPipeline.h"
-#include "pipeline/helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 struct UBOGlobal;
 struct UBOCamera;
 struct UBOShadow;
-struct Fog;
-struct Ambient;
-struct Skybox;
-struct Shadows;
-struct Sphere;
-struct Camera;
 
 struct CC_DLL DeferredRenderData {
     gfx::TextureList  gbufferRenderTargets;
@@ -60,20 +53,19 @@ public:
     bool initialize(const RenderPipelineInfo &info) override;
     void destroy() override;
     bool activate() override;
-    void render(const vector<uint> &cameras) override;
+    void render(const vector<scene::Camera *> &cameras) override;
     void resize(uint width, uint height) override;
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
-    CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
-    CC_INLINE const LightList &getValidLights() const { return _validLights; }
-    CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
-    CC_INLINE const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
-    CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
-    gfx::InputAssembler *     getQuadIAOnScreen() { return _quadIAOnscreen; }
-    gfx::InputAssembler *     getQuadIAOffScreen() { return _quadIAOffscreen; }
-    gfx::Rect                 getRenderArea(Camera *camera, bool onScreen);
-    CC_INLINE DeferredRenderData *getDeferredRenderData() { return _deferredRenderData; };
+    inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
+    inline const LightList &      getValidLights() const { return _validLights; }
+    inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
+    inline const UintList &       getLightIndexOffsets() const { return _lightIndexOffsets; }
+    inline const UintList &       getLightIndices() const { return _lightIndices; }
+    gfx::InputAssembler *         getQuadIAOffScreen() { return _quadIAOffscreen; }
+    gfx::Rect                     getRenderArea(scene::Camera *camera, bool onScreen);
+    inline DeferredRenderData *   getDeferredRenderData() { return _deferredRenderData; };
     void                          updateQuadVertexData(const gfx::Rect &renderArea);
     void                          genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *data);
 
@@ -94,9 +86,7 @@ private:
 
     // light stage
     gfx::Buffer *        _quadIB          = nullptr;
-    gfx::Buffer *        _quadVBOnscreen  = nullptr;
     gfx::Buffer *        _quadVBOffscreen = nullptr;
-    gfx::InputAssembler *_quadIAOnscreen  = nullptr;
     gfx::InputAssembler *_quadIAOffscreen = nullptr;
 
     DeferredRenderData *_deferredRenderData = nullptr;

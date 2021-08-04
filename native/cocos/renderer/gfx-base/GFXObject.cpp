@@ -30,8 +30,9 @@
 namespace cc {
 namespace gfx {
 
-GFXObject::GFXObject(ObjectType Type)
-: _Type(Type) {}
+GFXObject::GFXObject(ObjectType type)
+: _objectType(type),
+  _objectID(generateObjectID<GFXObject>()) {}
 
 } // namespace gfx
 } // namespace cc

@@ -441,18 +441,14 @@ public class CanvasRenderingContext2DImpl {
         mLineWidth = lineWidth;
     }
 
-    private void _fillImageData(byte[] imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+    private void _fillImageData(int[] imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
         Log.d(TAG, "_fillImageData: ");
         int fillSize = (int) (imageWidth * imageHeight);
         int[] fillColors = new int[fillSize];
         int r, g, b, a;
         for (int i = 0; i < fillSize; ++i) {
             // imageData Pixel (RGBA) -> fillColors int (ARGB)
-            r = ((int)imageData[4 * i + 0]) & 0xff;
-            g = ((int)imageData[4 * i + 1]) & 0xff;
-            b = ((int)imageData[4 * i + 2]) & 0xff;
-            a = ((int)imageData[4 * i + 3]) & 0xff;
-            fillColors[i] = (a & 0xff) << 24 | (r & 0xff) << 16 | (g & 0xff) << 8 | (b & 0xff);
+            fillColors[i] = Integer.rotateRight(imageData[i], 8);
         }
         mBitmap.setPixels(fillColors, 0, (int) imageWidth, (int) offsetX, (int) offsetY, (int) imageWidth, (int) imageHeight);
     }

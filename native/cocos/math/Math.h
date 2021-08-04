@@ -77,11 +77,11 @@ inline bool IsPowerOfTwo(T n) {
     return (n & (n - 1)) == 0;
 }
 
-CC_INLINE bool IsEqualF(float lhs, float rhs, float precision = 0.000001f) {
+inline bool IsEqualF(float lhs, float rhs, float precision = 0.000001f) {
     return (Abs<float>(lhs - rhs) < precision);
 }
 
-CC_INLINE bool IsNotEqualF(float lhs, float rhs, float precision = 0.000001f) {
+inline bool IsNotEqualF(float lhs, float rhs, float precision = 0.000001f) {
     return (Abs<float>(lhs - rhs) > precision);
 }
 

@@ -24,21 +24,21 @@
 ****************************************************************************/
 
 #include "DevicePass.h"
+#include <algorithm>
 #include "CallbackPass.h"
 #include "FrameGraph.h"
 #include "PassNode.h"
 #include "ResourceNode.h"
 #include "gfx-base/GFXCommandBuffer.h"
-#include <algorithm>
 
 namespace cc {
 namespace framegraph {
 
-DevicePass::DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &subPassNodes) noexcept {
+DevicePass::DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &subPassNodes) {
     std::vector<RenderTargetAttachment> attachments;
 
     for (const PassNode *const passNode : subPassNodes) {
-        append(graph, passNode, attachments);
+        append(graph, passNode, &attachments);
     }
 
     std::sort(attachments.begin(), attachments.end(), RenderTargetAttachment::Sorter());
@@ -61,14 +61,14 @@ DevicePass::DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &s
     }
 }
 
-void DevicePass::execute() noexcept {
-    auto cmdBuff = gfx::Device::getInstance()->getCommandBuffer();
+void DevicePass::execute() {
+    auto *cmdBuff = gfx::Device::getInstance()->getCommandBuffer();
 
     begin(cmdBuff);
 
-    for (Subpass &subPass : _subpasses) {
+    for (size_t i = 0; i < _subpasses.size(); ++i) {
+        Subpass &subPass = _subpasses[i];
         for (LogicPass &pass : subPass.logicPasses) {
-
             gfx::Viewport &viewport = pass.customViewport ? pass.viewport : _viewport;
             gfx::Rect &    scissor  = pass.customViewport ? pass.scissor : _scissor;
 
@@ -84,13 +84,13 @@ void DevicePass::execute() noexcept {
             pass.pass->execute(_resourceTable);
         }
 
-        next(cmdBuff);
+        if (i < _subpasses.size() - 1) next(cmdBuff);
     }
 
     end(cmdBuff);
 }
 
-void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> &attachments) noexcept {
+void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> *attachments) {
     _subpasses.emplace_back();
     Subpass &subPass = _subpasses.back();
 
@@ -110,13 +110,13 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::
     } while (passNode);
 }
 
-void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment, std::vector<RenderTargetAttachment> &attachments) noexcept {
-    auto it = std::find_if(attachments.begin(), attachments.end(), [&attachment](const RenderTargetAttachment &x) {
+void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment, std::vector<RenderTargetAttachment> *attachments) {
+    auto it = std::find_if(attachments->begin(), attachments->end(), [&attachment](const RenderTargetAttachment &x) {
         return attachment.desc.usage == x.desc.usage && attachment.desc.slot == x.desc.slot;
     });
 
-    if (it == attachments.end()) {
-        attachments.emplace_back(attachment);
+    if (it == attachments->end()) {
+        attachments->emplace_back(attachment);
         _usedRenderTargetSlotMask |= 1 << attachment.desc.slot;
     } else {
         const ResourceNode &resourceNodeA = graph.getResourceNode(it->textureHandle);
@@ -126,11 +126,11 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
             if (attachment.storeOp != gfx::StoreOp::DISCARD) it->storeOp = attachment.storeOp;
         } else {
             CC_ASSERT(attachment.desc.usage == RenderTargetAttachment::Usage::COLOR);
-            attachments.emplace_back(attachment);
+            attachments->emplace_back(attachment);
 
             for (uint8_t i = 0; i < RenderTargetAttachment::DEPTH_STENCIL_SLOT_START; ++i) {
                 if ((_usedRenderTargetSlotMask & (1 << i)) == 0) {
-                    attachments.back().desc.slot = i;
+                    attachments->back().desc.slot = i;
                     break;
                 }
             }
@@ -138,41 +138,41 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
     }
 }
 
-void DevicePass::begin(gfx::CommandBuffer *cmdBuff) noexcept {
+void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     if (_attachments.empty()) return;
 
     gfx::RenderPassInfo            rpInfo;
     gfx::FramebufferInfo           fboInfo;
-    float                          clearDepth   = 1.f;
+    float                          clearDepth   = 1.F;
     uint                           clearStencil = 0;
     static std::vector<gfx::Color> clearColors;
     clearColors.clear();
     _viewport = gfx::Viewport();
     _scissor  = gfx::Rect();
-    for (uint i = 0; i < _attachments.size(); ++i) {
-        gfx::Texture *attachment = _attachments[i].renderTarget;
-        if (_attachments[i].attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
+    for (const auto &attachElem : _attachments) {
+        gfx::Texture *attachment = attachElem.renderTarget;
+        if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
             rpInfo.colorAttachments.emplace_back();
             rpInfo.colorAttachments.back().format        = attachment ? attachment->getFormat() : gfx::Device::getInstance()->getColorFormat();
-            rpInfo.colorAttachments.back().loadOp        = _attachments[i].attachment.desc.loadOp;
-            rpInfo.colorAttachments.back().storeOp       = _attachments[i].attachment.storeOp;
-            rpInfo.colorAttachments.back().beginAccesses = _attachments[i].attachment.desc.beginAccesses;
-            rpInfo.colorAttachments.back().endAccesses   = _attachments[i].attachment.desc.endAccesses;
-            fboInfo.colorTextures.push_back(_attachments[i].renderTarget);
-            clearColors.emplace_back(_attachments[i].attachment.desc.clearColor);
-            _viewport.width = _scissor.width = attachment ? attachment->getWidth() : gfx::Device::getInstance()->getNativeWidth();
-            _viewport.height = _scissor.height = attachment ? attachment->getHeight() : gfx::Device::getInstance()->getNativeHeight();
+            rpInfo.colorAttachments.back().loadOp        = attachElem.attachment.desc.loadOp;
+            rpInfo.colorAttachments.back().storeOp       = attachElem.attachment.storeOp;
+            rpInfo.colorAttachments.back().beginAccesses = attachElem.attachment.desc.beginAccesses;
+            rpInfo.colorAttachments.back().endAccesses   = attachElem.attachment.desc.endAccesses;
+            fboInfo.colorTextures.push_back(attachElem.renderTarget);
+            clearColors.emplace_back(attachElem.attachment.desc.clearColor);
+            _viewport.width = _scissor.width = attachment ? attachment->getWidth() : gfx::Device::getInstance()->getWidth();
+            _viewport.height = _scissor.height = attachment ? attachment->getHeight() : gfx::Device::getInstance()->getHeight();
         } else {
             rpInfo.depthStencilAttachment.format         = attachment ? attachment->getFormat() : gfx::Device::getInstance()->getDepthStencilFormat();
-            rpInfo.depthStencilAttachment.depthLoadOp    = _attachments[i].attachment.desc.loadOp;
-            rpInfo.depthStencilAttachment.depthStoreOp   = _attachments[i].attachment.storeOp;
-            rpInfo.depthStencilAttachment.stencilLoadOp  = _attachments[i].attachment.desc.loadOp;
-            rpInfo.depthStencilAttachment.stencilStoreOp = _attachments[i].attachment.storeOp;
-            rpInfo.depthStencilAttachment.beginAccesses  = _attachments[i].attachment.desc.beginAccesses;
-            rpInfo.depthStencilAttachment.endAccesses    = _attachments[i].attachment.desc.endAccesses;
-            fboInfo.depthStencilTexture                  = _attachments[i].renderTarget;
-            clearDepth                                   = _attachments[i].attachment.desc.clearDepth;
-            clearStencil                                 = _attachments[i].attachment.desc.clearStencil;
+            rpInfo.depthStencilAttachment.depthLoadOp    = attachElem.attachment.desc.loadOp;
+            rpInfo.depthStencilAttachment.depthStoreOp   = attachElem.attachment.storeOp;
+            rpInfo.depthStencilAttachment.stencilLoadOp  = attachElem.attachment.desc.loadOp;
+            rpInfo.depthStencilAttachment.stencilStoreOp = attachElem.attachment.storeOp;
+            rpInfo.depthStencilAttachment.beginAccesses  = attachElem.attachment.desc.beginAccesses;
+            rpInfo.depthStencilAttachment.endAccesses    = attachElem.attachment.desc.endAccesses;
+            fboInfo.depthStencilTexture                  = attachElem.renderTarget;
+            clearDepth                                   = attachElem.attachment.desc.clearDepth;
+            clearStencil                                 = attachElem.attachment.desc.clearStencil;
         }
     }
 
@@ -189,9 +189,12 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) noexcept {
 }
 
 void DevicePass::next(gfx::CommandBuffer *cmdBuff) noexcept {
+    if (!_renderPass.get() || !_fbo.get()) return;
+
+    cmdBuff->nextSubpass();
 }
 
-void DevicePass::end(gfx::CommandBuffer *cmdBuff) noexcept {
+void DevicePass::end(gfx::CommandBuffer *cmdBuff) {
     if (!_renderPass.get() || !_fbo.get()) return;
 
     cmdBuff->endRenderPass();

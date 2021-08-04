@@ -57,7 +57,7 @@ public:
     void acquire() override;
     void present() override;
 
-    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool Emptyhas) override;
+    CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool emptyhas) override;
     Queue *              createQueue() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
@@ -73,9 +73,10 @@ public:
     GlobalBarrier *      createGlobalBarrier() override;
     TextureBarrier *     createTextureBarrier() override;
     void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
 
 protected:
-    static EmptyDevice *_instance;
+    static EmptyDevice *instance;
 
     friend class DeviceManager;
 

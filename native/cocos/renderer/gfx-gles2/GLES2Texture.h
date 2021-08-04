@@ -37,7 +37,7 @@ public:
     GLES2Texture();
     ~GLES2Texture();
 
-    CC_INLINE GLES2GPUTexture *gpuTexture() const { return _gpuTexture; }
+    inline GLES2GPUTexture *gpuTexture() const { return _gpuTexture; }
 
 protected:
     void doInit(const TextureInfo &info) override;

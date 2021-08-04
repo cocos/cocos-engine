@@ -25,7 +25,19 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "websockets/libwebsockets.h"
+/***************************************************************************
+* "[WebSocket module] is based in part on the work of the libwebsockets  project
+* (http://libwebsockets.org)"
+*****************************************************************************/
+// clang-format off
+#include "uv.h"
+// clang-format on
+
+#if __OHOS__
+    #include "libwebsockets.h"
+#else
+    #include "websockets/libwebsockets.h"
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -55,7 +67,11 @@
 
 #define WS_RX_BUFFER_SIZE              (65536)
 #define WS_RESERVE_RECEIVE_BUFFER_SIZE (4096)
+#define WS_ENABLE_LIBUV                1
 
+#ifdef LOG_TAG
+    #undef LOG_TAG
+#endif
 #define LOG_TAG "WebSocket.cpp"
 
 struct lws;
@@ -121,7 +137,7 @@ static void wsLog(const char *format, ...) {
 #endif
 
 #define DO_QUOTEME(x) #x
-#define QUOTEME(x) DO_QUOTEME(x)
+#define QUOTEME(x)    DO_QUOTEME(x)
 
 // Since CC_LOG_DEBUG isn't thread safe, we uses LOGD for multi-thread logging.
 #ifdef ANDROID
@@ -132,6 +148,10 @@ static void wsLog(const char *format, ...) {
     #endif
 
     #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#elif defined(__OHOS__)
+    #include "cocos/base/Log.h"
+    #define LOGD(...) CC_LOG_DEBUG(__VA_ARGS__)
+    #define LOGE(...) CC_LOG_ERROR(__VA_ARGS__)
 #else
     #if CC_DEBUG > 0
         #define LOGD(fmt, ...) wsLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
@@ -144,7 +164,7 @@ static void wsLog(const char *format, ...) {
 
 static void printWebSocketLog(int level, const char *line) {
 #if CC_DEBUG > 0
-    static const char *const log_level_names[] = {
+    static const char *const LOG_LEVEL_NAMES[] = {
         "ERR",
         "WARN",
         "NOTICE",
@@ -161,9 +181,10 @@ static void printWebSocketLog(int level, const char *line) {
     int  n;
 
     for (n = 0; n < LLL_COUNT; n++) {
-        if (level != (1 << n))
+        if (level != (1 << n)) {
             continue;
-        sprintf(buf, "%s: ", log_level_names[n]);
+        }
+        sprintf(buf, "%s: ", LOG_LEVEL_NAMES[n]);
         break;
     }
 
@@ -250,12 +271,13 @@ enum WsMsg {
 
 class WsThreadHelper;
 
-static std::vector<WebSocketImpl *> *websocketInstances = nullptr;
+static std::vector<WebSocketImpl *> *websocketInstances{nullptr};
 static std::recursive_mutex          instanceMutex;
-static struct lws_context *          wsContext = nullptr;
-static WsThreadHelper *              wsHelper  = nullptr;
+static struct lws_context *          wsContext{nullptr};
+static WsThreadHelper *              wsHelper{nullptr};
+static std::atomic_bool              wsPolling{false};
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 static std::string getFileNameForPath(const std::string &filePath) {
     std::string  fileName     = filePath;
     const size_t lastSlashIdx = fileName.find_last_of("\\/");
@@ -298,6 +320,9 @@ static lws_context_creation_info convertToContextCreationInfo(const struct lws_p
     } else {
         info.options = LWS_SERVER_OPTION_EXPLICIT_VHOSTS | LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT | LWS_SERVER_OPTION_PEER_CERT_NOT_REQUIRED;
     }
+#if WS_ENABLE_LIBUV
+    info.options |= LWS_SERVER_OPTION_LIBUV;
+#endif
     info.user = nullptr;
 
     return info;
@@ -336,7 +361,7 @@ public:
     // Sends message to Websocket thread. It's needs to be invoked in Cocos thread.
     void sendMessageToWebSocketThread(WsMessage *msg);
 
-    size_t countBufferdBytes(const WebSocketImpl *ws);
+    size_t countBufferedBytes(const WebSocketImpl *ws);
 
     // Waits the sub-thread (websocket thread) to exit,
     void joinWebSocketThread() const;
@@ -427,8 +452,11 @@ void WsThreadHelper::onSubThreadLoop() {
             }
         }
         wsHelper->_subThreadWsMessageQueueMutex.unlock();
-        // Cause delay 4ms for event WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION
-        lws_service(wsContext, 4);
+        // Windows: Cause delay 40ms for event WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION
+        // Android: Let libuv lws to decide when to stop
+        wsPolling = true;
+        lws_service(wsContext, 40);
+        wsPolling = false;
     }
 }
 
@@ -445,11 +473,19 @@ void WsThreadHelper::onSubThreadStarted() {
 
     lws_context_creation_info creationInfo = convertToContextCreationInfo(defaultProtocols, true);
     wsContext                              = lws_create_context(&creationInfo);
+#if WS_ENABLE_LIBUV
+    if (lws_uv_initloop(wsContext, nullptr, 0)) {
+        LOGE("WsThreadHelper: failed to init libuv");
+    }
+#endif
 }
 
 void WsThreadHelper::onSubThreadEnded() {
     if (wsContext != nullptr) {
         lws_context_destroy(wsContext);
+#if WS_ENABLE_LIBUV
+        lws_context_destroy2(wsContext);
+#endif
     }
 }
 
@@ -475,7 +511,7 @@ void WsThreadHelper::sendMessageToWebSocketThread(WsMessage *msg) {
     _subThreadWsMessageQueue->push_back(msg);
 }
 
-size_t WsThreadHelper::countBufferdBytes(const WebSocketImpl *ws) {
+size_t WsThreadHelper::countBufferedBytes(const WebSocketImpl *ws) {
     std::lock_guard<std::mutex> lk(_subThreadWsMessageQueueMutex);
     size_t                      total = 0;
     for (auto *msg : *_subThreadWsMessageQueue) {
@@ -668,11 +704,20 @@ bool WebSocketImpl::init(const cc::network::WebSocket::Delegate &delegate,
         wsHelper->createWebSocketThread();
     }
 
+#if WS_ENABLE_LIBUV
+    if (wsContext && wsPolling) {
+        auto *loop = lws_uv_getloop(wsContext, 0);
+        if (loop) {
+            uv_stop(loop);
+        }
+    }
+#endif
+
     return true;
 }
 
 size_t WebSocketImpl::getBufferedAmount() const {
-    return wsHelper->countBufferdBytes(this);
+    return wsHelper->countBufferedBytes(this);
 }
 
 std::string WebSocketImpl::getExtensions() const {
@@ -804,7 +849,7 @@ cc::network::WebSocket::Delegate *WebSocketImpl::getDelegate() const {
 
 struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, int *sslConnectionOut) {
     auto *fileUtils     = cc::FileUtils::getInstance();
-    bool isCAFileExist = fileUtils->isFileExist(_caFilePath);
+    bool  isCAFileExist = fileUtils->isFileExist(_caFilePath);
     if (isCAFileExist) {
         _caFilePath = fileUtils->fullPathForFilename(_caFilePath);
     }
@@ -814,7 +859,7 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
     int sslConnection = *sslConnectionOut;
     if (sslConnection != 0) {
         if (isCAFileExist) {
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
             // if ca file is in the apk, try to extract it to writable path
             std::string writablePath  = fileUtils->getWritablePath();
             std::string caFileName    = getFileNameForPath(_caFilePath);

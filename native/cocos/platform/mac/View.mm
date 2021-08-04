@@ -60,10 +60,10 @@
         CAMetalLayer *layer = (CAMetalLayer *)self.layer;
         layer.drawableSize  = size;
         layer.pixelFormat   = MTLPixelFormatBGRA8Unorm;
-        layer.device = self.device     = MTLCreateSystemDefaultDevice();
+        layer.device = self.device     = [MTLCreateSystemDefaultDevice() autorelease];
         layer.autoresizingMask         = kCALayerWidthSizable | kCALayerHeightSizable;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
-        self.layerContentsPlacement    = NSViewLayerContentsPlacementScaleProportionallyToFit;
+        self.layerContentsPlacement    = NSViewLayerContentsPlacementScaleProportionallyToFill;
 #endif
     }
     return self;
@@ -90,15 +90,15 @@
     [super setFrameSize:newSize];
     layer.drawableSize = nativeSize;
     [self viewDidChangeBackingProperties];
-    
+
     // Add tracking area to receive mouse move events.
-    NSRect rect = {0, 0, nativeSize.width, nativeSize.height};
+    NSRect          rect         = {0, 0, nativeSize.width, nativeSize.height};
     NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:rect
                                                                 options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow)
                                                                   owner:self
                                                                userInfo:nil];
-    [self addTrackingArea:trackingArea];
-    
+    [self addTrackingArea:[trackingArea autorelease]];
+
     if (cc::EventDispatcher::initialized())
         cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(nativeSize.width), static_cast<int>(nativeSize.height));
 }
@@ -120,6 +120,24 @@
 - (void)keyUp:(NSEvent *)event {
     _keyboardEvent.key    = translateKeycode(event.keyCode);
     _keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
+    [self setModifierFlags:event];
+    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+}
+
+- (void)flagsChanged:(NSEvent *)event {
+    int keyCode = translateKeycode(event.keyCode);
+    updateModifierKeyState(keyCode);
+    auto action = getModifierKeyAction(keyCode);
+    
+    // NOTE: in some cases, flagsChanged event may return some wrong keyCodes
+    // For example:
+    // - when you long press the capslock key, you may get the keyCode -1
+    // - when you press ctrl + space, you may get the keyCode 65
+    if (action == cc::KeyboardEvent::Action::UNKNOWN) {
+        return;
+    }
+    _keyboardEvent.key = keyCode;
+    _keyboardEvent.action = action;
     [self setModifierFlags:event];
     cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
 }

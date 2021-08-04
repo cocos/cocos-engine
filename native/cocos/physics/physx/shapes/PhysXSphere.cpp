@@ -23,10 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/shapes/PhysXShape.h"
 #include "physics/physx/shapes/PhysXSphere.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
+#include "physics/physx/shapes/PhysXShape.h"
 
 namespace cc {
 namespace physics {
@@ -53,8 +53,10 @@ void PhysXSphere::updateScale() {
 
 void PhysXSphere::updateGeometry() {
     physx::PxVec3 scale;
-    pxSetVec3Ext(scale, getSharedBody().getNode().worldScale);
-    auto &geo = getPxGeometry<physx::PxSphereGeometry>();
+    auto *node = getSharedBody().getNode();
+    node->updateWorldTransform();
+    pxSetVec3Ext(scale, node->getWorldScale());
+    auto &geo  = getPxGeometry<physx::PxSphereGeometry>();
     geo.radius = physx::PxMax(_mRadius * scale.abs().maxElement(), PX_NORMALIZATION_EPSILON);
 }
 

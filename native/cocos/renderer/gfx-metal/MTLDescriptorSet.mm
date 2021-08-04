@@ -35,6 +35,7 @@
 namespace cc {
 namespace gfx {
 CCMTLDescriptorSet::CCMTLDescriptorSet() : DescriptorSet() {
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 void CCMTLDescriptorSet::doInit(const DescriptorSetInfo &info) {
@@ -51,6 +52,10 @@ void CCMTLDescriptorSet::doInit(const DescriptorSetInfo &info) {
             _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
         }
     }
+}
+
+CCMTLDescriptorSet::~CCMTLDescriptorSet() {
+    destroy();
 }
 
 void CCMTLDescriptorSet::doDestroy() {

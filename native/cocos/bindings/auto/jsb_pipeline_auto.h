@@ -1,34 +1,10 @@
-/****************************************************************************
- Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
-
- http://www.cocos.com
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated engine source code (the "Software"), a limited,
- worldwide, royalty-free, non-assignable, revocable and non-exclusive license
- to use Cocos Creator solely to develop games on your target platforms. You shall
- not use Cocos Creator software for developing other software or tools that's
- used for developing games. You are not granted to publish, distribute,
- sublicense, and/or sell copies of Cocos Creator.
-
- The software or tools in this License Agreement are licensed, not sold.
- Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-****************************************************************************/
-
 #pragma once
 #include "base/Config.h"
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 #include "cocos/renderer/pipeline/forward/ForwardPipeline.h"
 #include "cocos/renderer/pipeline/forward/ForwardFlow.h"
 #include "cocos/renderer/pipeline/forward/ForwardStage.h"
@@ -38,7 +14,7 @@
 #include "cocos/renderer/pipeline/RenderFlow.h"
 #include "cocos/renderer/pipeline/RenderStage.h"
 #include "cocos/renderer/pipeline/Define.h"
-#include "cocos/renderer/pipeline/helper/SharedMemory.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/deferred/DeferredPipeline.h"
 #include "cocos/renderer/pipeline/deferred/GbufferFlow.h"
@@ -57,48 +33,24 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderQueueDesc *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderQueueDesc);
 
-extern se::Object* __jsb_cc_pipeline_Light_proto;
-extern se::Class* __jsb_cc_pipeline_Light_class;
+extern se::Object* __jsb_cc_pipeline_GlobalDSManager_proto;
+extern se::Class* __jsb_cc_pipeline_GlobalDSManager_class;
 
-bool js_register_cc_pipeline_Light(se::Object* obj);
+bool js_register_cc_pipeline_GlobalDSManager(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
-template<>
-bool sevalue_to_native(const se::Value &, cc::pipeline::Light *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::Light);
-SE_DECLARE_FUNC(js_pipeline_Light_getAABB);
-SE_DECLARE_FUNC(js_pipeline_Light_getFrustum);
-SE_DECLARE_FUNC(js_pipeline_Light_getNode);
-SE_DECLARE_FUNC(js_pipeline_Light_getType);
-
-extern se::Object* __jsb_cc_pipeline_PassView_proto;
-extern se::Class* __jsb_cc_pipeline_PassView_class;
-
-bool js_register_cc_pipeline_PassView(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::pipeline::PassView *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PassView);
-SE_DECLARE_FUNC(js_pipeline_PassView_getBatchingScheme);
-SE_DECLARE_FUNC(js_pipeline_PassView_getBlendState);
-SE_DECLARE_FUNC(js_pipeline_PassView_getDepthStencilState);
-SE_DECLARE_FUNC(js_pipeline_PassView_getDescriptorSet);
-SE_DECLARE_FUNC(js_pipeline_PassView_getDynamicState);
-SE_DECLARE_FUNC(js_pipeline_PassView_getPipelineLayout);
-SE_DECLARE_FUNC(js_pipeline_PassView_getPrimitive);
-SE_DECLARE_FUNC(js_pipeline_PassView_getRasterizerState);
-
-extern se::Object* __jsb_cc_pipeline_RenderWindow_proto;
-extern se::Class* __jsb_cc_pipeline_RenderWindow_class;
-
-bool js_register_cc_pipeline_RenderWindow(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-template<>
-bool sevalue_to_native(const se::Value &, cc::pipeline::RenderWindow *, se::Object *ctx);
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderWindow);
-SE_DECLARE_FUNC(js_pipeline_RenderWindow_getFramebuffer);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GlobalDSManager);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindBuffer);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindTexture);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getGlobalDescriptorSet);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getLinearSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getPointSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_update);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_GlobalDSManager);
 
 extern se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto;
 extern se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class;
@@ -230,6 +182,7 @@ bool register_all_pipeline(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroy);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset);
+SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_get);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_InstancedBuffer);
 

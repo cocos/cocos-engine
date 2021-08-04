@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+
+# If not a pull request, setup for Linux only
+if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+  echo "Should run when TRAVIS_PULL_REQUEST == false"
+  echo "Stop process for TRAVIS_OS_NAME:$TRAVIS_OS_NAME && TRAVIS_PULL_REQUEST:$TRAVIS_PULL_REQUEST"
+  exit 0
+fi
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 COCOS2DX_ROOT="$DIR"/../..
 COCOS_CLI=$COCOS2DX_ROOT/tools/cocos-console/bin/cocos_cli.js
@@ -57,184 +65,13 @@ function setup_linux_andorid_sdk()
     export PATH=$cmake_dir:$PATH
 }
 
-function build_android()
-{
-    echo "Compiling Android ... "
-
-    cd $COCOS2DX_ROOT/templates/
-    if [ ! -d  android-template ]; then
-      cp -r android/template android-template
-    fi
-    cd $COCOS2DX_ROOT/templates/android/build
-    mkdir -p build-android/proj
-    touch build-android/proj/cfg.cmake
-    echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
-    echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
-    echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
-    echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
-
-    mkdir -p build-android/assets
-
-    ASSET_DIR=$COCOS2DX_ROOT/templates/android/build/build-android/
-
-    sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" settings.gradle
-    sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
-    sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" build.gradle
-    sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
-    sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
-    sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
-    sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
-    sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
-
-    #echo "Compile Android - ndk-build ..."
-    #./gradlew assembleDebug --quiet
-
-    echo "Compile Android - cmake ..."
-    echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
-    ./gradlew assembleDebug --quiet
-    echo "Compile Android Debug Done!"
-    # ./gradlew assembleRelease # --quiet
-    # echo "Compile Android Release Done!"
-}
-
-function mac_install_cmake()
-{
-    echo "Compiling CMake ... "
-    NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
-    cd $HOME/bin
-    cmake_source=https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0.tar.gz
-    wget -t 5 --no-check-certificate $cmake_source -O cmake-mac.tar.gz -q
-    tar xf cmake-mac.tar.gz 2>/dev/null
-    cd cmake-3.17.0
-    ./configure --prefix=$HOME/bin/cmake > /dev/null
-    make -j $NUM_OF_CORES >/dev/null
-    make install >/dev/null
-    ls $HOME/bin/cmake
-    export PATH=$HOME/bin/cmake/bin:$PATH
-}
-
-function mac_download_cmake()
-{
-    echo "Download CMake ..."
-    cmake_binary=https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0-Darwin-x86_64.tar.gz
-    wget -t 3 --no-check-certificate $cmake_binary -O cmake_bin.tar.gz -q
-    tar xf cmake_bin.tar.gz 2>/dev/null
-    cmake_bin_dir=`dirname $(find . -name cmake-gui)`
-    cmake_bin_dir="$PWD/$cmake_bin_dir"
-    export PATH=$cmake_bin_dir:$PATH
-}
-
-function build_macosx()
-{
-     NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
-
-    echo "Compiling MacOSX ... "
-    cd  $COCOS2DX_ROOT/templates/mac
-    mkdir -p build-mac/proj
-    touch build-mac/proj/cfg.cmake
-    echo "set(CC_USE_VULKAN OFF)" >> build-mac/proj/cfg.cmake
-    echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
-    echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
-    echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
-    mkdir build-mac/assets
-
-    RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
-    cd build-mac
-    cmake ../ -GXcode -DCC_USE_GLES3=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
-    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
-    echo "Compile MacOSX x86_64 Release Done!"
-
-    cd ..
-    mkdir build-mac-apple-silicon
-    cd build-mac-apple-silicon
-    cmake ../ -GXcode -DCC_USE_GLES3=OFF -DCMAKE_OSX_ARCHITECTURES=arm64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT -DUSE_PHYSICS_PHYSX=OFF
-    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch arm64
-    echo "Compile MacOSX ARM64 Release Done!"
-}
-
-function build_ios()
-{
-    NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
-
-    echo "Compiling iOS ... "
-    cd  $COCOS2DX_ROOT/templates/ios
-    mkdir -p build-ios/proj
-    touch build-ios/proj/cfg.cmake
-    echo "set(CC_USE_GLES3 OFF)" >> build-ios/proj/cfg.cmake
-    echo "set(CC_USE_VULKAN OFF)" >> build-ios/proj/cfg.cmake
-    echo "set(CC_USE_GLES2 OFF)" >> build-ios/proj/cfg.cmake
-    echo "set(CC_USE_METAL ON)" >> build-ios/proj/cfg.cmake
-    echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-ios/proj/cfg.cmake
-    mkdir build-ios/assets
-    cd build-ios
-    RES_DIR=$COCOS2DX_ROOT/templates/ios/build-ios
-    cmake ../ -GXcode -DCMAKE_SYSTEM_NAME=iOS \
-        -DCMAKE_OSX_SYSROOT=iphonesimulator \
-        -DCMAKE_OSX_ARCHITECTURES=x86_64 \
-        -DRES_DIR=$RES_DIR \
-        -DCOCOS_X_PATH=$COCOS2DX_ROOT
-    cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates
-    echo "Compile iOS Done!"
-}
-
-function build_windows()
-{
-    echo "Compiling Win32 ... "
-    cd  $COCOS2DX_ROOT/templates/win32
-    mkdir -p build-win32/proj
-    touch build-win32/proj/cfg.cmake
-    echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
-    echo "set(CC_USE_VULKAN ON)" >> build-win32/proj/cfg.cmake
-    echo "set(CC_USE_GLES2 ON)" >> build-win32/proj/cfg.cmake
-    echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
-    mkdir build-win32/assets
-    cd build-win32
-    RES_DIR=$COCOS2DX_ROOT/templates/win32/build-win32
-    cmake ../ -G"Visual Studio 15 2017" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
-    cmake --build . --config Debug
-    echo "Compile Win32 Debug Done!"
-    cmake --build . --config Release
-    echo "Compile Win32 Debug Done!"
-}
 
 
-function run_compile()
-{
-    if [ "$BUILD_TARGET" == "android_cmake" ]; then
-        setup_linux_andorid_sdk
-        build_android
-    fi
-
-    if [ "$BUILD_TARGET" == "macosx_cmake" ]; then
-        mac_download_cmake
-        build_macosx
-    fi
-
-    if [ "$BUILD_TARGET" == "ios_cmake" ]; then
-        mac_download_cmake
-        build_ios
-    fi
-
-    if [ "$BUILD_TARGET" == "windows_cmake" ]; then
-        cmake --version
-        build_windows
-    fi
-}
-
-# If not a pull request, setup for Linux only
-if [[ "$TRAVIS_OS_NAME" != "linux" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-  echo "Stop process for TRAVIS_OS_NAME:$TRAVIS_OS_NAME && TRAVIS_PULL_REQUEST:$TRAVIS_PULL_REQUEST"
-  exit 0
-fi
-
+setup_linux_andorid_sdk
 
 cd $COCOS2DX_ROOT/tools/travis-scripts
 generate_bindings_glue_codes
 
-# Compile pull request
-if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
-    run_compile
-fi
 
 cd $COCOS2DX_ROOT
 ## revert change

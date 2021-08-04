@@ -25,6 +25,10 @@
 
 #pragma once
 #include "pipeline/Define.h"
+#include "scene/Camera.h"
+#include "scene/Define.h"
+#include "scene/Light.h"
+#include "scene/Sphere.h"
 
 namespace cc {
 class Mat4;
@@ -33,20 +37,14 @@ class Vec3;
 namespace pipeline {
 
 struct RenderObject;
-struct Model;
-struct Camera;
 class RenderPipeline;
-struct Sphere;
-struct Light;
-struct Sphere;
-struct Shadows;
 
-RenderObject genRenderObject(Model *, const Camera *);
+RenderObject genRenderObject(const scene::Model *, const scene::Camera *);
 
-void lightCollecting(Camera *, std::vector<const Light *>&);
-void sceneCulling(RenderPipeline *, Camera *);
-void updateSphereLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT> &);
-void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT>&);
-void getShadowWorldMatrix(const Sphere *sphere, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 &shadowWorldMat, cc::Vec3 &out);
+void lightCollecting(scene::Camera *, std::vector<const scene::Light *> *);
+void sceneCulling(RenderPipeline *, scene::Camera *);
+void updateSphereLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);
+void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);
+void getShadowWorldMatrix(const scene::Sphere *sphere, const cc::Quaternion &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out);
 } // namespace pipeline
 } // namespace cc

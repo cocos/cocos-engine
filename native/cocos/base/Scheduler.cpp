@@ -153,7 +153,7 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
     CCASSERT(target, "Argument target must be non-nullptr");
     CCASSERT(!key.empty(), "key should not be empty!");
 
-    auto iter = _hashForTimers.find(target);
+    auto            iter    = _hashForTimers.find(target);
     HashTimerEntry *element = nullptr;
     if (iter == _hashForTimers.end()) {
         element         = new HashTimerEntry();
@@ -196,7 +196,7 @@ void Scheduler::unschedule(const std::string &key, void *target) {
     if (iter != _hashForTimers.end()) {
         HashTimerEntry *element = iter->second;
         int             i       = 0;
-        auto            &timers  = element->timers;
+        auto &          timers  = element->timers;
 
         for (auto *t : timers) {
             auto *timer = dynamic_cast<TimerTargetCallback *>(t);
@@ -253,8 +253,8 @@ bool Scheduler::isScheduled(const std::string &key, void *target) {
 }
 
 void Scheduler::unscheduleAll() {
-    for (auto iter : _hashForTimers) {
-        unscheduleAllForTarget(iter.first);
+    for (auto iter = _hashForTimers.begin(); iter != _hashForTimers.end();) {
+        unscheduleAllForTarget(iter++->first);
     }
 }
 
@@ -269,7 +269,7 @@ void Scheduler::unscheduleAllForTarget(void *target) {
     auto iter = _hashForTimers.find(target);
     if (iter != _hashForTimers.end()) {
         HashTimerEntry *element = iter->second;
-        auto            &timers = element->timers;
+        auto &          timers  = element->timers;
         if (std::find(timers.begin(), timers.end(), element->currentTimer) != timers.end() &&
             (!element->currentTimerSalvaged)) {
             element->currentTimer->retain();

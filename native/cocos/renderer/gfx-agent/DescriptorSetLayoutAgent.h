@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL DescriptorSetLayoutAgent final : public Agent<DescriptorSetLayout> {
 public:
-    using Agent::Agent;
+    explicit DescriptorSetLayoutAgent(DescriptorSetLayout *actor);
     ~DescriptorSetLayoutAgent() override;
 
 protected:

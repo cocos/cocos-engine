@@ -59,7 +59,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
     private CocosSensorHandler mSensorHandler;
 
 
-    private native void onCreateNative(Activity activity, AssetManager assetManager, String obbPath, int sdkVersion);
+    private native void onCreateNative(Activity activity, AssetManager resourceManager, String obbPath, int sdkVersion);
 
     private native void onSurfaceCreatedNative(Surface surface);
 
@@ -180,6 +180,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         super.onResume();
         mSensorHandler.onResume();
         mOrientationHelper.onResume();
+        Utils.hideVirtualButton();
         onResumeNative();
         Utils.hideVirtualButton();
     }

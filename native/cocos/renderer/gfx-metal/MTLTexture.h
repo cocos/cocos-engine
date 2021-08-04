@@ -35,16 +35,16 @@ namespace gfx {
 class CCMTLTexture final : public Texture {
 public:
     explicit CCMTLTexture();
-    ~CCMTLTexture() override = default;
+    ~CCMTLTexture();
     CCMTLTexture(const CCMTLTexture &) = delete;
     CCMTLTexture(CCMTLTexture &&) = delete;
     CCMTLTexture &operator=(const CCMTLTexture &) = delete;
     CCMTLTexture &operator=(CCMTLTexture &&) = delete;
 
-    CC_INLINE id<MTLTexture> getMTLTexture() const { return _mtlTexture; }
-    CC_INLINE Format getConvertedFormat() const { return _convertedFormat; }
-    CC_INLINE bool isArray() const { return _isArray; }
-    CC_INLINE bool isPVRTC() const { return _isPVRTC; }
+    inline id<MTLTexture> getMTLTexture() const { return _mtlTexture; }
+    inline Format getConvertedFormat() const { return _convertedFormat; }
+    inline bool isArray() const { return _isArray; }
+    inline bool isPVRTC() const { return _isPVRTC; }
 
 protected:
     void doInit(const TextureInfo &info) override;

@@ -34,18 +34,16 @@ class MessageQueue;
 
 namespace gfx {
 
-class LinearAllocatorPool;
-
 class CC_DLL CommandBufferAgent final : public Agent<CommandBuffer> {
 public:
-    using Agent::Agent;
+    explicit CommandBufferAgent(CommandBuffer *actor);
     ~CommandBufferAgent() override;
 
     static void flushCommands(uint count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded);
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
     void endRenderPass() override;
     void bindPipelineState(PipelineState *pso) override;
     void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -57,7 +55,7 @@ public:
     void setBlendConstants(const Color &constants) override;
     void setDepthBound(float minBounds, float maxBounds) override;
     void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
+    void setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
@@ -71,8 +69,7 @@ public:
     uint getNumInstances() const override { return _actor->getNumInstances(); }
     uint getNumTris() const override { return _actor->getNumTris(); }
 
-    CC_INLINE MessageQueue *getMessageQueue() { return _messageQueue; }
-    LinearAllocatorPool *getAllocator();
+    inline MessageQueue *getMessageQueue() { return _messageQueue; }
 
 protected:
     friend class DeviceAgent;
@@ -80,10 +77,9 @@ protected:
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
-    void initMessageQueue();
-    void destroyMessageQueue();
-    MessageQueue *_messageQueue = nullptr;
-    vector<LinearAllocatorPool *> _allocatorPools;
+    void                          initMessageQueue();
+    void                          destroyMessageQueue();
+    MessageQueue *                _messageQueue = nullptr;
 };
 
 } // namespace gfx

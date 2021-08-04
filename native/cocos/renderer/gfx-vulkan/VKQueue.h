@@ -40,7 +40,7 @@ public:
 
     void submit(CommandBuffer *const *cmdBuffs, uint count) override;
 
-    CC_INLINE CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
+    inline CCVKGPUQueue *gpuQueue() const { return _gpuQueue; }
 
 protected:
     friend class CCVKDevice;

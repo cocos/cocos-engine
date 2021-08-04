@@ -76,7 +76,7 @@ public class CocosKeyCodeHandler {
                 CocosHelper.runOnGameThread(new Runnable() {
                     @Override
                     public void run() {
-                        handleKeyDown(keyCode);
+                        handleKeyUp(keyCode);
                     }
                 });
                 return true;

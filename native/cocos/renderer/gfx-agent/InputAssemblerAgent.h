@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL InputAssemblerAgent final : public Agent<InputAssembler> {
 public:
-    using Agent::Agent;
+    explicit InputAssemblerAgent(InputAssembler *actor);
     ~InputAssemblerAgent() override;
 
     void setVertexCount(uint count) override;

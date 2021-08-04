@@ -26,6 +26,8 @@
 #pragma once
 
 #include "../RenderStage.h"
+#include "ReflectionComp.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
@@ -35,7 +37,6 @@ class RenderBatchedQueue;
 class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
 class PlanarShadowQueue;
-struct Camera;
 struct DeferredRenderData;
 
 class CC_DLL LightingStage : public RenderStage {
@@ -48,27 +49,33 @@ public:
     bool initialize(const RenderStageInfo &info) override;
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     void destroy() override;
-    void render(Camera *camera) override;
+    void render(scene::Camera *camera) override;
 
     void initLightingBuffer();
 
 private:
-    void gatherLights(Camera *camera);
-    
-    static RenderStageInfo initInfo;
-    PlanarShadowQueue *_planarShadowQueue = nullptr;
-    gfx::Rect _renderArea;
-    uint _phaseID = 0;
+    void gatherLights(scene::Camera *camera);
 
-    gfx::Buffer *_deferredLitsBufs = nullptr;
-    gfx::Buffer *_deferredLitsBufView = nullptr;
-    std::vector<float> _lightBufferData;
-    uint _lightBufferStride = 0;
-    uint _lightBufferElementCount = 0;
-    float _lightMeterScale = 10000.0;
-    gfx::DescriptorSet *_descriptorSet = nullptr;
-    gfx::DescriptorSetLayout *_descLayout = nullptr;
-	uint _maxDeferredLights = UBODeferredLight::LIGHTS_PER_PASS;
+    static RenderStageInfo initInfo;
+    PlanarShadowQueue *    _planarShadowQueue{nullptr};
+    gfx::Rect              _renderArea;
+    uint                   _phaseID{0};
+    uint                   _defPhaseID{0};
+
+    gfx::Buffer *             _deferredLitsBufs{nullptr};
+    gfx::Buffer *             _deferredLitsBufView{nullptr};
+    std::vector<float>        _lightBufferData;
+    uint                      _lightBufferStride{0};
+    uint                      _lightBufferElementCount{0};
+    float                     _lightMeterScale{10000.0};
+    gfx::DescriptorSet *      _descriptorSet{nullptr};
+    gfx::DescriptorSetLayout *_descLayout{nullptr};
+    uint                      _maxDeferredLights{UBODeferredLight::LIGHTS_PER_PASS};
+
+    ReflectionComp * _reflectionComp{nullptr};
+    RenderQueue *    _reflectionRenderQueue{nullptr};
+    uint             _reflectionPhaseID{0};
+    gfx::RenderPass *_reflectionPass{nullptr};
 };
 
 } // namespace pipeline

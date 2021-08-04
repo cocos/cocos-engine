@@ -37,7 +37,7 @@ public:
 
     static uint computeHash(const GlobalBarrierInfo &info);
 
-    CC_INLINE const GlobalBarrierInfo &info() const { return _info; }
+    inline const GlobalBarrierInfo &info() const { return _info; }
 
 protected:
     friend class Device;

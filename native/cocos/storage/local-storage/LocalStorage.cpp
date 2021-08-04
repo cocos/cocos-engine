@@ -59,17 +59,18 @@
 
 #if (CC_PLATFORM != CC_PLATFORM_ANDROID)
 
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <assert.h>
+    #include <cassert>
+    #include <cstdio>
+    #include <cstdlib>
+
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
         #include <sqlite3/sqlite3.h>
     #else
         #include <sqlite3.h>
     #endif
 
-static int _initialized = 0;
-static sqlite3 *_db;
+static int           _initialized = 0;
+static sqlite3 *     _db;
 static sqlite3_stmt *_stmt_select;
 static sqlite3_stmt *_stmt_remove;
 static sqlite3_stmt *_stmt_update;
@@ -78,9 +79,9 @@ static sqlite3_stmt *_stmt_key;
 static sqlite3_stmt *_stmt_count;
 
 static void localStorageCreateTable() {
-    const char *sql_createtable = "CREATE TABLE IF NOT EXISTS data(key TEXT PRIMARY KEY,value TEXT);";
+    const char *  sql_createtable = "CREATE TABLE IF NOT EXISTS data(key TEXT PRIMARY KEY,value TEXT);";
     sqlite3_stmt *stmt;
-    int ok = sqlite3_prepare_v2(_db, sql_createtable, -1, &stmt, nullptr);
+    int           ok = sqlite3_prepare_v2(_db, sql_createtable, -1, &stmt, nullptr);
     ok |= sqlite3_step(stmt);
     ok |= sqlite3_finalize(stmt);
 
@@ -90,7 +91,6 @@ static void localStorageCreateTable() {
 
 void localStorageInit(const std::string &fullpath /* = "" */) {
     if (!_initialized) {
-
         int ret = 0;
 
         if (fullpath.empty())
@@ -213,8 +213,8 @@ void localStorageGetKey(const int nIndex, std::string *outKey) {
 
     ok |= sqlite3_step(_stmt_key);
 
-    int nCount = 0;
-    const unsigned char *text = nullptr;
+    int                  nCount = 0;
+    const unsigned char *text   = nullptr;
     while (ok == SQLITE_ROW) {
         if (nCount == nIndex) {
             text = sqlite3_column_text(_stmt_key, 0);
