@@ -175,6 +175,7 @@ export class Canvas extends RenderRoot2D {
         if (!EDITOR) {
             if (this._cameraComponent) {
                 this._cameraComponent._createCamera();
+                this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
             }
         }
 
@@ -198,6 +199,10 @@ export class Canvas extends RenderRoot2D {
 
         if (EDITOR) {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
+        }
+
+        if (this._cameraComponent) {
+            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
 
         this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
