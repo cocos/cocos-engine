@@ -54,8 +54,8 @@ exports.apply = async function() {
 exports.addNewEvent = function(time) {
     const newInfo = {
         frame: time,
-        functionName: '',
-        parameters: [],
+        func: '',
+        params: [],
     };
     const userData = this.curEditClipInfo.userData;
     if (!userData.events) {
