@@ -38,7 +38,7 @@ import { Root } from '../../core/root';
 import { legacyCC } from '../../core/global-exports';
 
 export const PhotometricTerm = Enum({
-    LUMINOUS_FLUS: 0,
+    LUMINOUS_FLUX: 0,
     LUMINANCE: 1,
 });
 const _color_tmp = new Vec3();

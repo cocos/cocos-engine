@@ -41,7 +41,7 @@ export class SphereLight extends Light {
     @serializable
     protected _luminance = 1700 / scene.nt2lm(0.15);
     @serializable
-    protected _term = PhotometricTerm.LUMINOUS_FLUS;
+    protected _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
     protected _range = 1;
 
@@ -49,15 +49,15 @@ export class SphereLight extends Light {
     protected _light: scene.SphereLight | null = null;
 
     /**
-     * @en Luminous flus of the light.
+     * @en Luminous flux of the light.
      * @zh 光通量。
      */
     @unit('lm')
-    @tooltip('i18n:lights.luminous_flus')
-    get luminousFlus () {
+    @tooltip('i18n:lights.luminous_flux')
+    get luminousFlux () {
         return this._luminance * scene.nt2lm(this._size);
     }
-    set luminousFlus (val) {
+    set luminousFlux (val) {
         this._luminance = val / scene.nt2lm(this._size);
         if (this._light) { this._light.luminance = this._luminance; }
     }
