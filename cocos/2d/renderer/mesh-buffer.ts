@@ -104,7 +104,11 @@ export class MeshBuffer {
         this._attributes = attrs;
         this._iaInfo = new InputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
 
-        this._reallocBuffer();
+        // for recycle pool using purpose --
+        if (!this.vData || !this.iData) {
+            this._reallocBuffer();
+        }
+        // ----------
     }
 
     public request (vertexCount = 4, indicesCount = 6) {

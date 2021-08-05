@@ -12,14 +12,23 @@ exports.ready = function() {
         data: events.data,
         methods: events.methods,
         components: events.components,
+        mounted: events.mounted,
+        beforeDestroy: events.beforeDestroy,
     });
     this.eventVm.$on('edit', (eventInfo) => {
+        if (this.checkDisabledEditEvent()) {
+            return;
+        }
         this.eventEditorVm.events = this.eventVm.events;
         this.eventEditorVm.frame = eventInfo.frame;
+        this.eventEditorVm.RealFrame = Math.round(eventInfo && eventInfo.frame * this.curEditClipInfo.fps || 0);
         this.eventEditorVm.refresh();
         this.eventEditorVm.show = true;
     });
     this.eventVm.$on('del', (eventInfo) => {
+        if (this.checkDisabledEditEvent()) {
+            return;
+        }
         this.events.delEvent.call(this, eventInfo.frame);
     });
 };

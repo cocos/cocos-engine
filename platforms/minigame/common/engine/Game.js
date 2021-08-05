@@ -3,7 +3,6 @@ const renderer = cc.renderer;
 const game = cc.game;
 let _frameRate = 60;
 
-
 Object.assign(game, {
     setFrameRate (frameRate) {
         _frameRate = frameRate;
@@ -19,44 +18,6 @@ Object.assign(game, {
     getFrameRate () {
         return _frameRate;
     },
-
-    _initEvents () {
-        let hidden = false;
-
-        function onHidden () {
-            if (!hidden) {
-                hidden = true;
-                cc.game.emit(cc.Game.EVENT_HIDE);
-            }
-        }
-        function onShown () {
-            if (hidden) {
-                hidden = false;
-                cc.game.emit(cc.Game.EVENT_SHOW);
-            }
-        }
-
-        __globalAdapter.onAudioInterruptionEnd && __globalAdapter.onAudioInterruptionEnd(function () {
-            if (cc.audioEngine) cc.audioEngine._restore();
-            
-        });
-        __globalAdapter.onAudioInterruptionBegin && __globalAdapter.onAudioInterruptionBegin(function () {
-            if (cc.audioEngine) cc.audioEngine._break();
-        });
-
-        __globalAdapter.onShow && __globalAdapter.onShow(onShown);
-        __globalAdapter.onHide && __globalAdapter.onHide(onHidden);
-
-        this.on(cc.Game.EVENT_HIDE, () => {
-            cc.game.pause();
-        });
-        this.on(cc.Game.EVENT_SHOW, () => {
-            cc.game.resume();
-        });
-    },
-
-    end () { },  // mini game platform not support this api
-
 });
 
 //  Small game in the screen log
