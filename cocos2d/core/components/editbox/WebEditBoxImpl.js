@@ -434,6 +434,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         } else if(inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
+            elem.onmousewheel = 'return false;';
         } else if(inputMode === InputMode.URL) {
             type = 'url';
         } else {
