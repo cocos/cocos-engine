@@ -66,6 +66,8 @@ void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuf
 
     cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
                                 &renderArea, colors, depth, stencil);
+    _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
+    _curDynamicStates.scissor = renderArea;
 }
 
 void GLES2PrimaryCommandBuffer::endRenderPass() {

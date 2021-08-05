@@ -76,6 +76,7 @@ public:
 
     void        exportGraphViz(const std::string &path);
     inline void enableMerge(bool enable) noexcept;
+    bool        isPassExist(StringHandle handle);
 
 private:
     Handle        create(VirtualResource *virtualResource);

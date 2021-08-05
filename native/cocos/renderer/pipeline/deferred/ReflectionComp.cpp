@@ -4,12 +4,9 @@
 namespace cc {
 
 ReflectionComp::~ReflectionComp() {
-    CC_SAFE_DESTROY(_clearPass);
-    CC_SAFE_DESTROY(_clearFramebuffer);
 
     CC_SAFE_DESTROY(_compShader);
     CC_SAFE_DESTROY(_compDescriptorSetLayout);
-    CC_SAFE_DESTROY(_compPipelineLayout);
     CC_SAFE_DESTROY(_compPipelineState);
     CC_SAFE_DESTROY(_compDescriptorSet);
 
@@ -22,12 +19,7 @@ ReflectionComp::~ReflectionComp() {
     CC_SAFE_DESTROY(_localDescriptorSetLayout);
 
     CC_SAFE_DESTROY(_compConstantsBuffer);
-    CC_SAFE_DESTROY(_lightingTex);
-    CC_SAFE_DESTROY(_worldPositionTex);
     CC_SAFE_DESTROY(_sampler);
-    CC_SAFE_DESTROY(_reflectionTex);
-
-    CC_SAFE_DESTROY(_denoiseTex);
 
     delete _barrierPre;
 
@@ -47,32 +39,34 @@ struct ConstantBuffer {
 };
 } // namespace
 
-void ReflectionComp::init(gfx::Device *dev, gfx::Texture *lightTex, gfx::Texture *worldPositionTex, gfx::Texture *denoiseTex, const Mat4 &matViewProj,
-                          uint groupSizeX, uint groupSizeY) {
-    _initialized      = true;
-    _device           = dev;
-    _lightingTex      = lightTex;
+void ReflectionComp::applyTexSize(uint width, uint height, const Mat4& matViewProj) {
+    uint globalWidth  = width;
+    uint globalHeight = height;
+    uint groupWidth   = this->getGroupSizeX();
+    uint groupHeight  = this->getGroupSizeY();
+
+    _dispatchInfo        = {(globalWidth - 1) / groupWidth + 1, (globalHeight - 1) / groupHeight + 1, 1};
+    _denoiseDispatchInfo = {((globalWidth - 1) / 2) / groupWidth + 1, ((globalHeight - 1) / 2) / groupHeight + 1, 1};
+
     _matViewProj      = matViewProj;
-    _worldPositionTex = worldPositionTex;
+    ConstantBuffer constants;
+    constants.texSize     = {float(width), float(height)};
+    constants.matViewProj = _matViewProj;
+
+    if (_compConstantsBuffer) {
+        _compConstantsBuffer->update(&constants, sizeof(constants));
+    }
+}
+
+void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
+    _device           = dev;
     _groupSizeX       = groupSizeX;
     _groupSizeY       = groupSizeY;
-    _denoiseTex       = denoiseTex;
-
-    gfx::TextureInfo reflectionRtInfo = {
-        _denoiseTex->getType(),
-        gfx::TextureUsage::STORAGE | gfx::TextureUsage::TRANSFER_SRC | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST | gfx::TextureUsageBit::COLOR_ATTACHMENT,
-        _denoiseTex->getFormat(),
-        _denoiseTex->getWidth(),
-        _denoiseTex->getHeight(),
-        gfx::TextureFlagBit::IMMUTABLE};
-    _reflectionTex = _device->createTexture(reflectionRtInfo);
 
     gfx::SamplerInfo samplerInfo;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.magFilter = gfx::Filter::POINT;
     _sampler              = _device->createSampler(samplerInfo);
-
-    if (!_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) return;
 
     uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
     CCASSERT(_groupSizeX * _groupSizeY <= maxInvocations, "maxInvocations is too small");
@@ -80,24 +74,6 @@ void ReflectionComp::init(gfx::Device *dev, gfx::Texture *lightTex, gfx::Texture
 
     gfx::DescriptorSetLayoutInfo layoutInfo = {pipeline::localDescriptorSetLayout.bindings};
     _localDescriptorSetLayout               = _device->createDescriptorSetLayout(layoutInfo);
-
-    gfx::ColorAttachment cAttch = {
-        _reflectionTex->getFormat(),
-        gfx::SampleCount::X1,
-        gfx::LoadOp::CLEAR,
-        gfx::StoreOp::STORE,
-        {gfx::AccessType::NONE},
-        {gfx::AccessType::COMPUTE_SHADER_WRITE},
-    };
-
-    gfx::RenderPassInfo clearPassInfo;
-    clearPassInfo.colorAttachments.push_back(cAttch);
-    _clearPass = _device->createRenderPass(clearPassInfo);
-
-    gfx::FramebufferInfo clearFramebufferInfo;
-    clearFramebufferInfo.renderPass = _clearPass;
-    clearFramebufferInfo.colorTextures.push_back(_reflectionTex);
-    _clearFramebuffer = _device->createFramebuffer(clearFramebufferInfo);
 
     gfx::GlobalBarrierInfo infoPre = {
         {
@@ -136,14 +112,6 @@ void ReflectionComp::init(gfx::Device *dev, gfx::Texture *lightTex, gfx::Texture
     _barrierBeforeDenoise.push_back(_device->createTextureBarrier(infoBeforeDenoise2));
     _barrierAfterDenoise.push_back(_device->createTextureBarrier(infoAfterDenoise));
 
-    uint globalWidth  = this->getReflectionTex()->getWidth();
-    uint globalHeight = this->getReflectionTex()->getHeight();
-    uint groupWidth   = this->getGroupSizeX();
-    uint groupHeight  = this->getGroupSizeY();
-
-    _dispatchInfo        = {(globalWidth - 1) / groupWidth + 1, (globalHeight - 1) / groupHeight + 1, 1};
-    _denoiseDispatchInfo = {((globalWidth - 1) / 2) / groupWidth + 1, ((globalHeight - 1) / 2) / groupHeight + 1, 1};
-
     initReflectionRes();
     initDenoiseRes();
 }
@@ -152,12 +120,6 @@ void ReflectionComp::initReflectionRes() {
     _compConstantsBuffer = _device->createBuffer({gfx::BufferUsage::UNIFORM,
                                                   gfx::MemoryUsage::DEVICE | gfx::MemoryUsage::HOST,
                                                   (sizeof(Mat4) + sizeof(Vec2) + 15) / 16 * 16});
-
-    ConstantBuffer constants;
-    constants.texSize     = {float(_reflectionTex->getWidth()), float(_reflectionTex->getHeight())};
-    constants.matViewProj = _matViewProj;
-
-    if (_compConstantsBuffer) _compConstantsBuffer->update(&constants, sizeof(constants));
 
     ShaderSources<ComputeShaderSource> sources;
     sources.glsl4 = StringUtil::format(
@@ -169,7 +131,7 @@ void ReflectionComp::initReflectionRes() {
         layout(set = 0, binding = 2) uniform sampler2D worldPositionTex;
         layout(set = 0, binding = 3, rgba8) writeonly uniform lowp image2D reflectionTex;
 
-        layout(set = 1, binding = 0, std140) uniform CCLocal
+        layout(set = 0, binding = 4, std140) uniform CCLocal
         {
             mat4 cc_matWorld;
             mat4 cc_matWorldIT;
@@ -247,7 +209,7 @@ void ReflectionComp::initReflectionRes() {
     shaderInfo.stages = {{gfx::ShaderStageFlagBit::COMPUTE, getAppropriateShaderSource(sources)}};
     shaderInfo.blocks = {
         {0, 0, "Constants", {{"matViewProj", gfx::Type::MAT4, 1}, {"texSize", gfx::Type::FLOAT2, 1}}, 1},
-        {1, 0, "CCLocal", {{"cc_matWorld", gfx::Type::MAT4, 1}, {"cc_matWorldIT", gfx::Type::MAT4, 1}, {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1}}, 1}};
+        {0, 4, "CCLocal", {{"cc_matWorld", gfx::Type::MAT4, 1}, {"cc_matWorldIT", gfx::Type::MAT4, 1}, {"cc_lightingMapUVParam", gfx::Type::FLOAT4, 1}}, 1}};
     shaderInfo.samplerTextures = {
         {0, 1, "lightingTex", gfx::Type::SAMPLER2D, 1},
         {0, 2, "worldPositionTex", gfx::Type::SAMPLER2D, 1}};
@@ -260,16 +222,10 @@ void ReflectionComp::initReflectionRes() {
     dslInfo.bindings.push_back({1, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({2, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({3, gfx::DescriptorType::STORAGE_IMAGE, 1, gfx::ShaderStageFlagBit::COMPUTE});
+    dslInfo.bindings.push_back({4, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
 
     gfx::DescriptorSetLayout *compDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
     _compDescriptorSet                                = _device->createDescriptorSet({compDescriptorSetLayout});
-    _compDescriptorSet->bindBuffer(0, _compConstantsBuffer);
-    _compDescriptorSet->bindTexture(1, _lightingTex);
-    _compDescriptorSet->bindSampler(1, _sampler);
-    _compDescriptorSet->bindTexture(2, _worldPositionTex);
-    _compDescriptorSet->bindSampler(2, _sampler);
-    _compDescriptorSet->bindTexture(3, _reflectionTex);
-    _compDescriptorSet->update();
 
     gfx::PipelineLayout *compPipelineLayout = _device->createPipelineLayout({{compDescriptorSetLayout, _localDescriptorSetLayout}});
 
@@ -354,9 +310,6 @@ void ReflectionComp::initDenoiseRes() {
     _compDenoisePipelineLayout      = _device->createPipelineLayout({{_compDenoiseDescriptorSetLayout, _localDescriptorSetLayout}});
 
     _compDenoiseDescriptorSet = _device->createDescriptorSet({_compDenoiseDescriptorSetLayout});
-    _compDenoiseDescriptorSet->bindTexture(0, _reflectionTex);
-    _compDenoiseDescriptorSet->bindSampler(0, _sampler);
-    _compDenoiseDescriptorSet->update();
 
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.shader         = _compDenoiseShader;

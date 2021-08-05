@@ -54,6 +54,7 @@ public:
     inline const String &getName() const { return _name; }
     inline uint          getPriority() const { return _priority; }
     inline uint          getTag() const { return _tag; }
+    RenderStage         *getRenderstageByName(const String &name) const;
 
 protected:
     RenderStageList _stages;

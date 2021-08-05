@@ -48,6 +48,7 @@ public:
     void add(InstancedBuffer *instancedBuffer);
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer);
     void clear();
+    bool empty() { return _queues.empty(); }
 
 private:
     unordered_set<InstancedBuffer *> _queues;

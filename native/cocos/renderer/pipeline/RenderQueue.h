@@ -38,6 +38,7 @@ public:
     bool insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx);
     void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
     void sort();
+    bool empty() { return _queue.empty(); }
 
 private:
     RenderPassList _queue;

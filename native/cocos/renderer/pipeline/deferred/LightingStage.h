@@ -38,6 +38,14 @@ class RenderInstancedQueue;
 class RenderAdditiveLightQueue;
 class PlanarShadowQueue;
 struct DeferredRenderData;
+class DeferredPipeline;
+
+struct RenderElem {
+    RenderObject renderObject;
+    gfx::DescriptorSet *set;
+    uint        modelIndex;
+    uint        passIndex;
+};
 
 class CC_DLL LightingStage : public RenderStage {
 public:
@@ -49,12 +57,28 @@ public:
     bool initialize(const RenderStageInfo &info) override;
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     void destroy() override;
+    void renderBAK(scene::Camera *camera);
     void render(scene::Camera *camera) override;
 
-    void initLightingBuffer();
+    ReflectionComp *getReflectionComp() {return _reflectionComp;}
+    RenderElem     getRendElement();
+    void           addDenoiseIndex() {_denoiseIndex = (_denoiseIndex + 1) % _reflectionElems.size();}
+    RenderQueue    *getReflectRenderQueue() const {return _reflectionRenderQueue;}
+    uint           getSsprTexWidth() const { return _ssprTexWidth; }
+    uint           getSsprTexHeight() const { return _ssprTexHeight; }
+    Mat4           getMatViewProj() const { return _matViewProj; }
+    gfx::Sampler   *getSsprSampler() const { return _ssprSample; }
 
 private:
     void gatherLights(scene::Camera *camera);
+    void initLightingBuffer();
+    void fgLightingPass(scene::Camera *camera);
+    void fgTransparent(scene::Camera *camera);
+    void fgSsprPass(scene::Camera *camera);
+    void recordCommandsLit(DeferredPipeline *pipeline, gfx::RenderPass *renderPass);
+    void recordCommandsTransparent(DeferredPipeline *pipeline, gfx::RenderPass *renderPass);
+
+    void putTransparentObj2Queue();
 
     static RenderStageInfo initInfo;
     PlanarShadowQueue *    _planarShadowQueue{nullptr};
@@ -75,7 +99,16 @@ private:
     ReflectionComp * _reflectionComp{nullptr};
     RenderQueue *    _reflectionRenderQueue{nullptr};
     uint             _reflectionPhaseID{0};
-    gfx::RenderPass *_reflectionPass{nullptr};
+
+    std::vector<RenderElem> _reflectionElems;
+    uint _denoiseIndex = 0;         // use to get corrrect texture string handle
+
+    // SSPR texture size
+    uint _ssprTexWidth = 0;
+    uint _ssprTexHeight = 0;
+    Mat4 _matViewProj;
+
+    gfx::Sampler *_ssprSample = nullptr;
 };
 
 } // namespace pipeline

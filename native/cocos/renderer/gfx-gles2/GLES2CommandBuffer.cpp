@@ -122,6 +122,8 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     cmd->clearStencil = stencil;
     _curCmdPackage->beginRenderPassCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
+    _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
+    _curDynamicStates.scissor = renderArea;
 }
 
 void GLES2CommandBuffer::endRenderPass() {

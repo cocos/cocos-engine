@@ -23,18 +23,15 @@ class ReflectionComp {
 public:
     ReflectionComp() = default;
     ~ReflectionComp();
-    void init(gfx::Device* dev, gfx::Texture* lightTex, gfx::Texture* worldPositionTex, gfx::Texture* denoiseTex,
-              const Mat4& matViewProj, uint groupSizeX, uint groupSizeY);
+    void init(gfx::Device* dev, uint groupSizeX, uint groupSizeY);
     void initReflectionRes();
     void initDenoiseRes();
+    void applyTexSize(uint width, uint height, const Mat4& matViewProj);
 
-    inline const gfx::DescriptorSet*      getDescriptorSet() { return _compDescriptorSet; }
+    inline gfx::DescriptorSet*      getDescriptorSet() { return _compDescriptorSet; }
     inline const gfx::PipelineState*      getPipelineState() { return _compPipelineState; }
-    inline const gfx::DescriptorSet*      getDenoiseDescriptorSet() { return _compDenoiseDescriptorSet; }
+    inline gfx::DescriptorSet*      getDenoiseDescriptorSet() { return _compDenoiseDescriptorSet; }
     inline const gfx::PipelineState*      getDenoisePipelineState() { return _compDenoisePipelineState; }
-    inline const gfx::Texture*            getReflectionTex() { return _reflectionTex; }
-    inline const gfx::RenderPass*         getClearPass() { return _clearPass; }
-    inline const gfx::Framebuffer*        getClearFramebuffer() { return _clearFramebuffer; }
     inline const gfx::GlobalBarrier*      getBarrierPre() { return _barrierPre; }
     inline const gfx::TextureBarrierList& getBarrierBeforeDenoise() { return _barrierBeforeDenoise; }
     inline const gfx::TextureBarrierList& getBarrierAfterDenoise() { return _barrierAfterDenoise; }
@@ -42,7 +39,9 @@ public:
     inline const gfx::DispatchInfo&       getDenioseDispatchInfo() { return _denoiseDispatchInfo; }
     inline int                            getGroupSizeX() const { return _groupSizeX; }
     inline int                            getGroupSizeY() const { return _groupSizeY; }
-    inline bool                           isInitialized() const { return _initialized; }
+
+    inline gfx::Buffer *getConstantsBuffer() {return _compConstantsBuffer;}
+    inline gfx::Sampler *getSampler() {return _sampler;}
 
 private:
     template <typename T>
@@ -50,12 +49,8 @@ private:
 
     gfx::Device* _device{nullptr};
 
-    gfx::RenderPass*  _clearPass{nullptr};
-    gfx::Framebuffer* _clearFramebuffer{nullptr};
-
     gfx::Shader*              _compShader{nullptr};
     gfx::DescriptorSetLayout* _compDescriptorSetLayout{nullptr};
-    gfx::PipelineLayout*      _compPipelineLayout{nullptr};
     gfx::PipelineState*       _compPipelineState{nullptr};
     gfx::DescriptorSet*       _compDescriptorSet{nullptr};
 
@@ -68,11 +63,7 @@ private:
     gfx::DescriptorSetLayout* _localDescriptorSetLayout{nullptr};
 
     gfx::Buffer*  _compConstantsBuffer{nullptr};
-    gfx::Texture* _lightingTex{nullptr};
-    gfx::Texture* _worldPositionTex{nullptr};
     gfx::Sampler* _sampler{nullptr};
-    gfx::Texture* _reflectionTex{nullptr};
-    gfx::Texture* _denoiseTex{nullptr};
     Mat4          _matViewProj;
 
     gfx::GlobalBarrier* _barrierPre{nullptr};
@@ -85,7 +76,6 @@ private:
 
     uint _groupSizeX{8};
     uint _groupSizeY{8};
-    bool _initialized{false};
 };
 
 } // namespace cc

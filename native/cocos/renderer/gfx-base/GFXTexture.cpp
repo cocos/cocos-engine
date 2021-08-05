@@ -105,6 +105,8 @@ void Texture::resize(uint width, uint height) {
         _width  = width;
         _height = height;
         _size   = size;
+
+        resizeObjectID();
     }
 }
 

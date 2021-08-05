@@ -369,8 +369,7 @@ enum class CC_DLL DeferredStagePriority {
 
 enum class CC_DLL DeferredFlowPriority {
     SHADOW   = 0,
-    GBUFFER  = 1,
-    LIGHTING = 5,
+    MAIN     = 1,
     UI       = 10
 };
 

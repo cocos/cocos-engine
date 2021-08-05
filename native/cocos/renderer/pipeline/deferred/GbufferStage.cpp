@@ -31,15 +31,20 @@
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
-#include "GbufferFlow.h"
+#include "MainFlow.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXQueue.h"
+#include "frame-graph/DevicePassResourceTable.h"
+#include "frame-graph/DevicePass.h"
+#include "frame-graph/Resource.h"
 
 namespace cc {
 namespace pipeline {
 namespace {
+const String STAGE_NAME = "GbufferStage";
+
 void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
     out->x = gamma.x * gamma.x;
     out->y = gamma.y * gamma.y;
@@ -54,7 +59,7 @@ void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
 } // namespace
 
 RenderStageInfo GbufferStage::initInfo = {
-    "GbufferStage",
+    STAGE_NAME,
     static_cast<uint>(DeferredStagePriority::GBUFFER),
     static_cast<uint>(RenderFlowTag::SCENE),
     {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
@@ -94,15 +99,11 @@ void GbufferStage::destroy() {
     RenderStage::destroy();
 }
 
-void GbufferStage::render(scene::Camera *camera) {
+void GbufferStage::dispenseRenderObject2Queues() {
     _instancedQueue->clear();
     _batchedQueue->clear();
-    auto *      pipeline      = static_cast<DeferredPipeline *>(_pipeline);
-    const auto &renderObjects = _pipeline->getPipelineSceneData()->getRenderObjects();
-    if (renderObjects.empty()) {
-        return;
-    }
 
+    const auto &renderObjects = _pipeline->getPipelineSceneData()->getRenderObjects();
     for (auto *queue : _renderQueues) {
         queue->clear();
     }
@@ -137,34 +138,90 @@ void GbufferStage::render(scene::Camera *camera) {
             }
         }
     }
+
     for (auto *queue : _renderQueues) {
         queue->sort();
     }
+}
+void GbufferStage::recordCommands(DeferredPipeline *pipeline, gfx::RenderPass *renderPass)
+{
+    auto *cmdBuff  = pipeline->getCommandBuffers()[0];
 
-    auto *cmdBuff = pipeline->getCommandBuffers()[0];
+    // descriptorset bindings
+    uint const globalOffsets[] = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
 
-    _instancedQueue->uploadBuffers(cmdBuff);
-    _batchedQueue->uploadBuffers(cmdBuff);
-
-    // render area is not oriented
-    _renderArea = pipeline->getRenderArea(camera, false);
-    pipeline->updateQuadVertexData(_renderArea);
-    auto *const deferredData = pipeline->getDeferredRenderData();
-    auto *      framebuffer  = deferredData->gbufferFrameBuffer;
-    auto *      renderPass   = framebuffer->getRenderPass();
-
-    cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
-
-    uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
-
+    // record commands
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-    //_renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
-
-    cmdBuff->endRenderPass();
 }
 
+void GbufferStage::render(scene::Camera *camera) {
+    struct RenderData {
+        framegraph::TextureHandle gbuffer[4];
+        framegraph::TextureHandle depth;
+    };
+
+    auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
+    _renderArea = pipeline->getRenderArea(camera, false);
+
+    // render area is not oriented, copy buffer must be called outsize of renderpass, it shouldnot be called in execute lambda expression
+    // If there are only transparent object, lighting pass is ignored, we should call getIAByRenderArea here
+    (void)pipeline->getIAByRenderArea(_renderArea);
+
+    auto gbufferSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
+        // gbuffer setup
+        gfx::Color clearColor = {0.0, 0.0, 0.0, 0.0};
+
+        framegraph::RenderTargetAttachment::Descriptor colorInfo;
+        colorInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorInfo.loadOp      = gfx::LoadOp::CLEAR;
+        colorInfo.clearColor  = clearColor;
+        colorInfo.endAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
+        for (int i = 0; i < 4; ++i) {
+            data.gbuffer[i] = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i])), colorInfo);
+            builder.writeToBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i], data.gbuffer[i]);
+        }
+
+        // depth setup
+        framegraph::RenderTargetAttachment::Descriptor depthInfo;
+        depthInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthInfo.loadOp = gfx::LoadOp::CLEAR;
+        depthInfo.clearDepth = camera->clearDepth;
+        depthInfo.clearStencil = camera->clearStencil;
+        depthInfo.endAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+
+        data.depth = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture)), depthInfo);
+        builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
+
+        // viewport setup
+        gfx::Viewport viewport{ _renderArea.x, _renderArea.y, _renderArea.width, _renderArea.height, 0.F, 1.F};
+        builder.setViewport(viewport, _renderArea);
+    };
+
+    auto gbufferExec = [&] (RenderData const &data, const framegraph::DevicePassResourceTable &table) {
+        CC_UNUSED_PARAM(data);
+        auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
+        assert(pipeline != nullptr);
+        auto *stage = static_cast<GbufferStage *>(pipeline->getRenderstageByName(STAGE_NAME));
+        assert(stage != nullptr);
+        gfx::RenderPass *renderPass = table.getRenderPass().get();
+        assert(renderPass != nullptr);
+        stage->recordCommands(pipeline, renderPass);
+    };
+
+    // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda
+    dispenseRenderObject2Queues();
+    auto *cmdBuff  = pipeline->getCommandBuffers()[0];
+    _instancedQueue->uploadBuffers(cmdBuff);
+    _batchedQueue->uploadBuffers(cmdBuff);
+
+    // if empty == true, gbuffer and lightig passes will be ignored
+    bool empty = _renderQueues[0]->empty() && _instancedQueue->empty() && _batchedQueue->empty();
+    if (!empty) {
+        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::IP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
+    }
+}
 } // namespace pipeline
 } // namespace cc

@@ -42,6 +42,7 @@ public:
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
     void add(BatchedBuffer *batchedBuffer);
+    bool empty() { return _queues.empty(); }
 
 private:
     unordered_set<BatchedBuffer *> _queues;

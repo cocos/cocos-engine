@@ -23,9 +23,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "GbufferFlow.h"
+#include "MainFlow.h"
 #include "DeferredPipeline.h"
 #include "GbufferStage.h"
+#include "LightingStage.h"
+#include "PostprocessStage.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXRenderPass.h"
@@ -34,37 +36,43 @@
 
 namespace cc {
 namespace pipeline {
-RenderFlowInfo GbufferFlow::initInfo = {
-    "GbufferFlow",
-    static_cast<uint>(DeferredFlowPriority::GBUFFER),
+RenderFlowInfo MainFlow::initInfo = {
+    "MainFlow",
+    static_cast<uint>(DeferredFlowPriority::MAIN),
     static_cast<uint>(RenderFlowTag::SCENE),
     {},
 };
-const RenderFlowInfo &GbufferFlow::getInitializeInfo() { return GbufferFlow::initInfo; }
+const RenderFlowInfo &MainFlow::getInitializeInfo() { return MainFlow::initInfo; }
 
-GbufferFlow::~GbufferFlow() = default;
+MainFlow::~MainFlow() = default;
 
-bool GbufferFlow::initialize(const RenderFlowInfo &info) {
+bool MainFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
     if (_stages.empty()) {
         auto *gbufferStage = CC_NEW(GbufferStage);
         gbufferStage->initialize(GbufferStage::getInitializeInfo());
         _stages.emplace_back(gbufferStage);
+        auto *lightingStage = CC_NEW(LightingStage);
+        lightingStage->initialize(LightingStage::getInitializeInfo());
+        _stages.emplace_back(lightingStage);
+        auto *postprocessStage = CC_NEW(PostprocessStage);
+        postprocessStage->initialize(PostprocessStage::getInitializeInfo());
+        _stages.emplace_back(postprocessStage);
     }
 
     return true;
 }
 
-void GbufferFlow::activate(RenderPipeline *pipeline) {
+void MainFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void GbufferFlow::render(scene::Camera *camera) {
+void MainFlow::render(scene::Camera *camera) {
     RenderFlow::render(camera);
 }
 
-void GbufferFlow::destroy() {
+void MainFlow::destroy() {
     RenderFlow::destroy();
 }
 

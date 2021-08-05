@@ -30,6 +30,7 @@
 #include "PassNode.h"
 #include "ResourceNode.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "DevicePassResourceTable.h"
 
 namespace cc {
 namespace framegraph {
@@ -59,6 +60,7 @@ DevicePass::DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &s
     for (PassNode *const passNode : subPassNodes) {
         _resourceTable.extract(graph, passNode, multiSubPass, renderTargets);
     }
+    _resourceTable._devicePass = this;
 }
 
 void DevicePass::execute() {
@@ -136,6 +138,10 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
             }
         }
     }
+}
+
+const RenderPass &DevicePassResourceTable::getRenderPass() const {
+    return _devicePass->getRenderPass();
 }
 
 void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {

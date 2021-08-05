@@ -42,6 +42,7 @@ class DescriptorSetLayout;
 namespace pipeline {
 class DefineMap;
 class GlobalDSManager;
+class RenderStage;
 
 struct CC_DLL RenderPipelineInfo {
     uint           tag = 0;
@@ -77,6 +78,7 @@ public:
     inline PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
     inline const String &                          getConstantMacros() { return _constantMacros; }
     inline gfx::Device *                           getDevice() { return _device; }
+    RenderStage *                                  getRenderstageByName(const String &name) const;
 
 protected:
     static RenderPipeline *instance;

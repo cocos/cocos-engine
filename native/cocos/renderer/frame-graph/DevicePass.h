@@ -28,7 +28,6 @@
 #include <string>
 #include <vector>
 #include "CallbackPass.h"
-#include "DevicePassResourceTable.h"
 #include "RenderTargetAttachment.h"
 #include "gfx-base/GFXDef.h"
 
@@ -46,6 +45,7 @@ public:
     DevicePass &operator=(DevicePass &&) = delete;
 
     void execute();
+    const RenderPass &getRenderPass() const { return _renderPass; }
 
 private:
     struct LogicPass final {

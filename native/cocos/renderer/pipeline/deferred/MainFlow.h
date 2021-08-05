@@ -30,14 +30,14 @@
 namespace cc {
 namespace pipeline {
 
-class RenderView;
+class GbufferStage;
 
-class CC_DLL LightingFlow : public RenderFlow {
+class CC_DLL MainFlow : public RenderFlow {
 public:
     static const RenderFlowInfo &getInitializeInfo();
 
-    LightingFlow() = default;
-    ~LightingFlow() override;
+    MainFlow() = default;
+    ~MainFlow() override;
 
     bool initialize(const RenderFlowInfo &info) override;
     void activate(RenderPipeline *pipeline) override;

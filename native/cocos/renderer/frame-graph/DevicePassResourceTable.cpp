@@ -32,7 +32,7 @@
 namespace cc {
 namespace framegraph {
 
-gfx::GFXObject *DevicePassResourceTable::get(const ResourceDictionary &from, const Handle handle) noexcept {
+gfx::GFXObject *DevicePassResourceTable::get(const ResourceDictionary &from, Handle handle) noexcept {
     const auto it = from.find(handle);
     return it == from.cend() ? nullptr : it->second;
 }
@@ -41,8 +41,8 @@ void DevicePassResourceTable::extract(const FrameGraph &                       g
                                       const PassNode *const                    passNode,
                                       bool                                     multiSubPass,
                                       std::vector<const gfx::Texture *> const &renderTargets) noexcept {
-    extract(graph, passNode->_reads, reads, multiSubPass, renderTargets);
-    extract(graph, passNode->_writes, writes, true, renderTargets);
+    extract(graph, passNode->_reads, _reads, multiSubPass, renderTargets);
+    extract(graph, passNode->_writes, _writes, true, renderTargets);
 
     if (passNode->_next) {
         extract(graph, passNode->_next, multiSubPass, renderTargets);

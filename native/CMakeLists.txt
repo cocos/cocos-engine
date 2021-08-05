@@ -816,12 +816,10 @@ cocos_source_files(
                  cocos/renderer/pipeline/forward/UIPhase.h
                  cocos/renderer/pipeline/deferred/DeferredPipeline.cpp
                  cocos/renderer/pipeline/deferred/DeferredPipeline.h
-                 cocos/renderer/pipeline/deferred/GbufferFlow.cpp
-                 cocos/renderer/pipeline/deferred/GbufferFlow.h
+                 cocos/renderer/pipeline/deferred/MainFlow.cpp
+                 cocos/renderer/pipeline/deferred/MainFlow.h
                  cocos/renderer/pipeline/deferred/GbufferStage.cpp
                  cocos/renderer/pipeline/deferred/GbufferStage.h
-                 cocos/renderer/pipeline/deferred/LightingFlow.cpp
-                 cocos/renderer/pipeline/deferred/LightingFlow.h
                  cocos/renderer/pipeline/deferred/LightingStage.cpp
                  cocos/renderer/pipeline/deferred/LightingStage.h
                  cocos/renderer/pipeline/deferred/PostprocessStage.cpp
