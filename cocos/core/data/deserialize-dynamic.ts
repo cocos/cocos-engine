@@ -672,8 +672,11 @@ class _Deserializer {
             } else {
                 // TODO: assertion
                 const source = (this._serializedData as SerializedObject[])[id];
-                const field = this._deserializeObject(source, id, undefined, propName);
-                obj[propName] = field;
+                if (EDITOR || TEST) {
+                    obj[propName] = this._deserializeObject(source, id, obj, propName);
+                } else {
+                    obj[propName] = this._deserializeObject(source, id, undefined, propName);
+                }
                 this._onDereferenced?.(this.deserializedList, id, obj, propName);
             }
         } else {
