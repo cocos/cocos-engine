@@ -31,7 +31,7 @@
 #include "MTLPipelineState.h"
 #include "MTLRenderPass.h"
 #include "MTLShader.h"
-#include "StandAlone/ResourceLimits.h"
+#include "glslang/StandAlone/ResourceLimits.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
 #include "TargetConditionals.h"

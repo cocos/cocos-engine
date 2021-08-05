@@ -34,10 +34,6 @@
 #include <stdlib.h>
 #include <memory>
 
-#ifdef _WIN64
-	#define GWL_WNDPROC (-4)
-#endif
-
 extern std::shared_ptr<cc::View> cc_get_application_view();
 
 namespace cc {
@@ -187,8 +183,8 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
             return;
         }
 
-        g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
-        g_prevEditWindowProc = (WNDPROC)SetWindowLongPtr(g_hwndEditBox, GWL_WNDPROC, (LONG_PTR)editWindowProc);
+        g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWLP_WNDPROC, (LONG_PTR)mainWindowProc);
+        g_prevEditWindowProc = (WNDPROC)SetWindowLongPtr(g_hwndEditBox, GWLP_WNDPROC, (LONG_PTR)editWindowProc);
     }
 
     ::SendMessageW(g_hwndEditBox, EM_LIMITTEXT, showInfo.maxLength, 0);

@@ -514,7 +514,7 @@ int SimulatorWin::run()
     // prepare
     _project.dump();
 
-    g_oldWindowProc = (WNDPROC)SetWindowLong(_hwnd, GWL_WNDPROC, (LONG)SimulatorWin::windowProc);
+    g_oldWindowProc = (WNDPROC)SetWindowLong(_hwnd, GWLP_WNDPROC, (LONG)SimulatorWin::windowProc);
 
     // update window title
     updateWindowTitle();

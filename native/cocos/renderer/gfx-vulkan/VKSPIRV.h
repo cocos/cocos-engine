@@ -28,7 +28,7 @@
 #include "base/Log.h"
 #include "gfx-base/GFXDef.h"
 
-#include "StandAlone/ResourceLimits.h"
+#include "glslang/StandAlone/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 
