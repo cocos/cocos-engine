@@ -1,7 +1,8 @@
+import { JSB } from 'internal:constants';
 import { ValueType } from '../value-types/value-type';
 import { FloatArray } from './type-define';
 
-export const MATH_FLOAT_ARRAY = Float32Array;
+export const MATH_FLOAT_ARRAY = JSB ? Float32Array : Float64Array;
 
 export class MathBase extends ValueType {
     public static createFloatArray (size: number) {
