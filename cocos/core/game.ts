@@ -451,8 +451,8 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart (): Promise<void> {
-        const afterDrawPromise = new Promise<void>((resolve) => legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => resolve()) as void);
-        return afterDrawPromise.then(() => {
+        const endFramePromise = new Promise<void>((resolve) => legacyCC.director.once(legacyCC.Director.EVENT_END_FRAME, () => resolve()) as void);
+        return endFramePromise.then(() => {
             for (const id in this._persistRootNodes) {
                 this.removePersistRootNode(this._persistRootNodes[id]);
             }
