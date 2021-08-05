@@ -28,13 +28,14 @@
  * @module component
  */
 
-import { Light } from './light-component';
+import { Light, PhotometricTerm } from './light-component';
 import { SpotLight } from './spot-light-component';
 import { SphereLight } from './sphere-light-component';
 import { DirectionalLight } from './directional-light-component';
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
 import { replaceProperty } from '../../core/utils/x-deprecated';
+import { LightComponent } from '.';
 
 /**
  * Alias of [[Light]]
@@ -88,5 +89,14 @@ replaceProperty(SphereLight, 'SphereLight', [
         customSetter (this: SphereLight, value: number) {
             this.luminousFlux = value;
         },
+    },
+]);
+
+replaceProperty(PhotometricTerm, 'PhotometricTerm', [
+    {
+        name: 'LUMINOUS_POWER',
+        newName: 'LUMINOUS_FLUX',
+        target: LightComponent.PhotometricTerm,
+        targetName: 'LightComponent.PhotometricTerm',
     },
 ]);
