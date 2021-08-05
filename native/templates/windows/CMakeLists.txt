@@ -14,12 +14,6 @@ set(PROJ_COMMON_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.cpp
 )
 
-if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/jsb_module_register.cpp)
-    file(COPY "${COCOS_X_PATH}/cocos/bindings/manual/jsb_module_register.cpp"
-        DESTINATION ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/)
-endif()
-list(APPEND PROJ_COMMON_SOURCES ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/jsb_module_register.cpp)
-
 set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/game.rc
 )

@@ -19,15 +19,6 @@ set(PROJ_SOURCES
 )
 
 
-if(NOT EXISTS ${COMMON_DIR}/Classes/jsb_module_register.cpp)
-    file(COPY "${COCOS_X_PATH}/cocos/bindings/manual/jsb_module_register.cpp"
-        DESTINATION ${COMMON_DIR}/Classes/)
-endif()
-
-list(APPEND PROJ_SOURCES
-    ${COMMON_DIR}/Classes/jsb_module_register.cpp
-)
-
 add_library(${LIB_NAME} SHARED ${PROJ_SOURCES})
 
 target_link_libraries(${LIB_NAME}

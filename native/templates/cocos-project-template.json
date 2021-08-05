@@ -1,11 +1,6 @@
 {
     "doAddNativeSupport": {
-        "appendFile": [
-            {
-                "from": "cocos/bindings/manual/jsb_module_register.cpp",
-                "to": "${COMMON_DIR}/Classes/jsb_module_register.cpp"
-            }
-        ],
+        "appendFile": [],
         "projectReplaceProjectName": {
             "srcProjectName": "CocosGame",
             "files": [

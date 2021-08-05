@@ -1558,6 +1558,7 @@ cocos_source_files(
     NO_WERROR    cocos/bindings/manual/jsb_helper.cpp
                  cocos/bindings/manual/jsb_helper.h
                  cocos/bindings/manual/jsb_module_register.h
+    NO_WERROR    cocos/bindings/manual/jsb_module_register.cpp
                  cocos/bindings/manual/jsb_platform.h
     NO_WERROR    cocos/bindings/manual/jsb_scene_manual.cpp
     NO_WERROR    cocos/bindings/manual/jsb_scene_manual_ext.cpp
