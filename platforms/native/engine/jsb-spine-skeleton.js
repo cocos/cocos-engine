@@ -637,11 +637,12 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     skeleton.setAnimation = function (trackIndex, name, loop) {
+        let strName = name.toString();
         if (this._nativeSkeleton) {
             if (this.isAnimationCached()) {
-                return this._nativeSkeleton.setAnimation(name, loop);
+                return this._nativeSkeleton.setAnimation(strName, loop);
             } else {
-                return this._nativeSkeleton.setAnimation(trackIndex, name, loop);
+                return this._nativeSkeleton.setAnimation(trackIndex, strName, loop);
             }
         }
         return null;
