@@ -6,7 +6,7 @@ export const MATH_FLOAT_ARRAY = JSB ? Float32Array : Float64Array;
 
 export class MathBase extends ValueType {
     public static createFloatArray (size: number) {
-        return new MATH_FLOAT_ARRAY();
+        return new MATH_FLOAT_ARRAY(size);
     }
 
     /**
