@@ -389,10 +389,10 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
-                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 0] = matShadowProj.m10;
-                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 1] = matShadowProj.m14;
-                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 2] = matShadowProj.m11;
-                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_PERSPECTIVE_COEFFS_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 0] = matShadowProj.m10;
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 1] = matShadowProj.m14;
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 2] = matShadowProj.m11;
+                this._shadowUBO[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 3] = 0.0;
 
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 

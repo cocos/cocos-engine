@@ -252,6 +252,11 @@ export class PipelineUBO {
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
                 device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+
+            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 0] = matShadowViewProj.m10;
+            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 1] = matShadowViewProj.m14;
+            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 2] = 0.0;
+            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 3] = 1.0;
             break;
         case LightType.SPOT:
             // light view
