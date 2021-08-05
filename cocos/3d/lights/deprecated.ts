@@ -92,7 +92,7 @@ replaceProperty(SphereLight, 'SphereLight', [
     },
 ]);
 
-replaceProperty(PhotometricTerm, 'PhotometricTerm', [
+replaceProperty(LightComponent, 'LightComponent', [
     {
         name: 'LUMINOUS_POWER',
         newName: 'LUMINOUS_FLUX',
