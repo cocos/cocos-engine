@@ -34,6 +34,7 @@ import { SphereLight } from './sphere-light-component';
 import { DirectionalLight } from './directional-light-component';
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
+import { replaceProperty } from '../../core/utils/x-deprecated';
 
 /**
  * Alias of [[Light]]
@@ -63,3 +64,29 @@ js.setClassAlias(SphereLight, 'cc.SphereLightComponent');
 export { SpotLight as SpotLightComponent };
 legacyCC.SpotLightComponent = SpotLight;
 js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
+
+replaceProperty(SpotLight, 'SpotLight', [
+    {
+        name: 'luminousPower',
+        targetName: 'luminousFlux',
+        customGetter (this: SpotLight) {
+            return this.luminousFlux;
+        },
+        customSetter (this: SpotLight, value: number) {
+            this.luminousFlux = value;
+        },
+    },
+]);
+
+replaceProperty(SphereLight, 'SphereLight', [
+    {
+        name: 'luminousPower',
+        targetName: 'luminousFlux',
+        customGetter (this: SphereLight) {
+            return this.luminousFlux;
+        },
+        customSetter (this: SphereLight, value: number) {
+            this.luminousFlux = value;
+        },
+    },
+]);
