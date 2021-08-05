@@ -10,6 +10,8 @@ const { ccclass, property } = _decorator;
  * FileBasename = <%FileBasename%>
  * FileBasenameNoExtension = <%FileBasenameNoExtension%>
  * URL = <%URL%>
+ * EditorVersion = <%EditorVersion%>
+ * ManualUrl = <%ManualUrl%>
  *
  */
  
@@ -37,7 +39,7 @@ export class <%Name%> extends Component {
  * [3] Your initialization goes here.
  * [4] Your update function goes here.
  *
- * Learn more about scripting: https://docs.cocos.com/creator/3.0/manual/en/scripting/
- * Learn more about CCClass: https://docs.cocos.com/creator/3.0/manual/en/scripting/ccclass.html
- * Learn more about life-cycle callbacks: https://docs.cocos.com/creator/3.0/manual/en/scripting/life-cycle-callbacks.html
+ * Learn more about scripting: <%ManualUrl%>scripting/
+ * Learn more about CCClass: <%ManualUrl%>scripting/ccclass.html
+ * Learn more about life-cycle callbacks: <%ManualUrl%>scripting/life-cycle-callbacks.html
  */
