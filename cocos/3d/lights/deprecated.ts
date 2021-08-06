@@ -68,7 +68,7 @@ js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
 replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
     {
         name: 'luminousPower',
-        targetName: 'luminousFlux',
+        newName: 'luminousFlux',
         customGetter (this: SpotLight) {
             return this.luminousFlux;
         },
@@ -81,7 +81,7 @@ replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
 replaceProperty(SphereLight.prototype, 'SphereLight.prototype', [
     {
         name: 'luminousPower',
-        targetName: 'luminousFlux',
+        newName: 'luminousFlux',
         customGetter (this: SphereLight) {
             return this.luminousFlux;
         },
