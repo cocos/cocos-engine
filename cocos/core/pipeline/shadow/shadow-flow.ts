@@ -143,7 +143,7 @@ export class ShadowFlow extends RenderFlow {
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsHalfFloatTexture(device) ? Format.R16F : Format.RGBA8;
+        const format = supportsHalfFloatTexture(device) ? Format.R32F : Format.RGBA8;
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
@@ -213,7 +213,7 @@ export class ShadowFlow extends RenderFlow {
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsHalfFloatTexture(device) ? Format.R16F : Format.RGBA8;
+        const format = supportsHalfFloatTexture(device) ? Format.R32F : Format.RGBA8;
 
         const it = shadowFrameBufferMap.values();
         let res = it.next();
