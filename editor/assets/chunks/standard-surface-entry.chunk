@@ -19,7 +19,7 @@
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \
-#elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD                 \
+#elif (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_STANDARD_TRANSPARENT) \
                                                                    \
   layout(location = 0) out vec4 fragColorX;                        \
                                                                    \
@@ -29,18 +29,7 @@
     CC_APPLY_FOG(color);                                           \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
-                                                                   \
-#elif CC_STANDARD_TRANSPARENT                                      \
-                                                                   \
-  layout(location = 0) out vec4 fragColorX;                        \
-                                                                   \
-  void main () {                                                   \
-    StandardSurface s; surf(s);                                    \
-    vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);     \
-    CC_APPLY_FOG(color);                                           \
-    fragColorX = CCFragOutput(color);                              \
-  }                                                                \
-                                                                   \
+                                                                   \                                                                \
 #elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED                \
                                                                    \
   layout(location = 0) out vec4 fragColor0;                        \
