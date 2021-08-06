@@ -96,15 +96,6 @@ const cacheManager = require('./jsb-cache-manager');
             return;
         }
 
-        // gfxTexture may not exist if this._skeletonCache == null
-        // let skeletonCache = spine.retainSkeletonData(uuid);
-        // if (skeletonCache) {
-        //     this._skeletonCache = skeletonCache;
-        //     this.width = this._skeletonCache.getWidth();
-        //     this.height = this._skeletonCache.getHeight();                 
-        //     return;
-        // }
-
         let atlasText = this.atlasText;
         if (!atlasText) {
             cc.errorID(7508, this.name);
@@ -122,7 +113,6 @@ const cacheManager = require('./jsb-cache-manager');
         for (let i = 0; i < textures.length; ++i) {
             let texture = textures[i];
             let textureIdx = this.recordTexture(texture);
-            texture.__textureIndex__ = textureIdx;
             let spTex = new middleware.Texture2D();
             spTex.setRealTextureIndex(textureIdx);
             spTex.setPixelsWide(texture.width);
