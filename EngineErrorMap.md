@@ -1756,10 +1756,6 @@ Current context does not allow root motion.
 
 You provided a ill-formed track path. The last component of track path should be property key, or the setter should not be empty.
 
-### 3922
-
-Seems like we have animation for %s but are missing its parent joint %s in animation?
-
 ### 3923
 
 Root motion is ignored since root bone could not be located in animation.
