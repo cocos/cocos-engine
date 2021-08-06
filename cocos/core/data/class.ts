@@ -438,6 +438,7 @@ CCClass.fastDefine = function (className, constructor, serializableFields) {
         attrs[`${key + DELIMETER}default`] = serializableFields[key];
     }
 };
+
 CCClass.Attr = attributeUtils;
 CCClass.attr = attributeUtils.attr;
 
@@ -579,7 +580,9 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
             (attrs || initAttrs())[`${propertyNamePrefix}readonly`] = attributes.readonly;
         }
         parseSimpleAttribute('tooltip', 'string');
-        parseSimpleAttribute('tab', 'string');
+        if (attributes.group) {
+            (attrs || initAttrs())[`${propertyNamePrefix}group`] = attributes.group;
+        }
         parseSimpleAttribute('slide', 'boolean');
         parseSimpleAttribute('unit', 'string');
     }

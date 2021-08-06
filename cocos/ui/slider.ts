@@ -33,12 +33,13 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, s
 import { EDITOR } from 'internal:constants';
 import { Component, EventHandler } from '../core/components';
 import { UITransform } from '../2d/framework';
-import { EventTouch, SystemEventType, Touch } from '../core/platform';
+import { EventTouch, Touch } from '../core/platform';
 import { Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 const _tempPos = new Vec3();
 /**
@@ -186,26 +187,26 @@ export class Slider extends Component {
     public onEnable () {
         this._updateHandlePosition();
 
-        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
+        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
         if (this._handle && this._handle.isValid) {
-            this._handle.node.on(SystemEventType.TOUCH_START, this._onHandleDragStart, this);
-            this._handle.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
-            this._handle.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+            this._handle.node.on(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
+            this._handle.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
+            this._handle.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
         }
     }
 
     public onDisable () {
-        this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
-        this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
+        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
+        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this);
         if (this._handle && this._handle.isValid) {
-            this._handle.node.off(SystemEventType.TOUCH_START, this._onHandleDragStart, this);
-            this._handle.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMoved, this);
-            this._handle.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+            this._handle.node.off(NodeEventType.TOUCH_START, this._onHandleDragStart, this);
+            this._handle.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this);
+            this._handle.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
         }
     }
 

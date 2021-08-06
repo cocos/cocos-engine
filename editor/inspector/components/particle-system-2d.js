@@ -6,7 +6,7 @@ exports.update = update;
 
 const { setHidden, setDisabled, isMultipleInvalid } = require('../utils/prop');
 
-exports.ready = function () {
+exports.ready = function() {
     // Handling in-line displayed attributes
     const needToInlines = [
         'life',
@@ -50,8 +50,6 @@ exports.ready = function () {
         custom: {
             displayOrder: 6,
             ready(element) {
-                element.classList.add('flex');
-
                 const $checkbox = element.querySelector('ui-checkbox[slot="content"]');
 
                 const $sync = document.createElement('ui-button');
@@ -64,8 +62,9 @@ exports.ready = function () {
                 $checkbox.after($sync);
 
                 // Hack: ui-button has extra events that are passed up to ui-prop ;
-                $sync.addEventListener('change', async (event) => {
+                $sync.addEventListener('change', (event) => {
                     event.stopPropagation();
+                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 $sync.addEventListener('confirm', async (event) => {
@@ -117,8 +116,9 @@ exports.ready = function () {
                 $export.appendChild($exportLabel);
                 $sync.after($export);
 
-                $export.addEventListener('change', async (event) => {
+                $export.addEventListener('change', (event) => {
                     event.stopPropagation();
+                    Editor.Message.send('scene', 'snapshot');
                 });
 
                 $export.addEventListener('confirm', async (event) => {
@@ -212,13 +212,13 @@ exports.ready = function () {
             isAppendToParent() {
                 const $left = this.$[key];
                 const $right = this.$[`${key}Var`];
-        
+
                 if ($left && $right && $right.parentNode === $left) {
                     return false;
                 }
-        
+
                 return true;
-            }
+            },
         };
     });
 };

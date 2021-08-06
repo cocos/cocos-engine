@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
@@ -97,8 +97,8 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
         super.onDestroy();
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {

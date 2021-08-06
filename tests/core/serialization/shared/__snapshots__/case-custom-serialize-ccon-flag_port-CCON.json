@@ -1,0 +1,8 @@
+{
+  "document": {
+    "__type__": "custom-serialize-ccon-flag.Foo",
+    "bar": 3.14
+  },
+  "chunks": [
+  ]
+}

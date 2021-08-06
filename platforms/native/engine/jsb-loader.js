@@ -197,7 +197,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             url = `assets/${bundleName}`;
         }
     }
-    var config = `${url}/config.${version ? version + '.': ''}json`;
+    var config = `${url}/cc.config.${version ? version + '.': ''}json`;
     options.__cacheBundleRoot__ = bundleName;
     downloadJson(config, options, function (err, response) {
         if (err) {
@@ -215,6 +215,50 @@ function downloadBundle (nameOrUrl, options, onComplete) {
         });
     });
 };
+
+const downloadCCON = (url, options, onComplete) => {
+    downloadJson(url, options, (err, json) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        const cconPreface = cc.internal.parseCCONJson(json);
+        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise((resolve, reject) => {
+            downloadArrayBuffer(`${cc.path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+                if (errChunk) {
+                    reject(errChunk);
+                } else {
+                    resolve(new Uint8Array(chunkBuffer));
+                }
+            });
+        })));
+        chunkPromises.then((chunks) => {
+            const ccon = new cc.internal.CCON(cconPreface.document, chunks);
+            onComplete(null, ccon);
+        }).catch((err) => {
+            onComplete(err);
+        });
+    });
+};
+
+const downloadCCONB = (url, options, onComplete) => {
+    downloadArrayBuffer(url, options, (err, arrayBuffer) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        try {
+            const ccon = cc.internal.decodeCCONBinary(new Uint8Array(arrayBuffer));
+            onComplete(null, ccon);
+        } catch (err) {
+            onComplete(err);
+        }
+    });
+};
+
+function downloadArrayBuffer (url, options, onComplete) {
+    download(url, parseArrayBuffer, options, options.onFileProgress, onComplete);
+}
 
 function loadFont (url, options, onComplete) {
     let fontFamilyName = _getFontFamily(url);
@@ -248,11 +292,11 @@ downloader.downloadScript = downloadScript;
 function loadAudioPlayer (url, options, onComplete) {
     cc.AudioPlayer.load(url).then(player => {
         const audioMeta = {
+            player,
             url,
             duration: player.duration,
             type: player.type,
         };
-        player.destroy();
         onComplete(null, audioMeta);
     }).catch(err => {
         onComplete(err);
@@ -283,6 +327,9 @@ downloader.register({
     '.ogg' : downloadAsset,
     '.wav' : downloadAsset,
     '.m4a' : downloadAsset,
+
+    '.ccon': downloadCCON,
+    '.cconb': downloadCCONB,
 
     // Video
     '.mp4': downloadAsset,
@@ -382,6 +429,11 @@ cc.assetManager.transformPipeline.append(function (task) {
         var item = input[i];
         if (item.config) {
             item.options.__cacheBundleRoot__ = item.config.name;
+        }
+        if (item.ext === '.cconb') {
+            item.url = item.url.replace(item.ext, '.bin');
+        } else if (item.ext === '.ccon') {
+            item.url = item.url.replace(item.ext, '.json');
         }
     }
 });

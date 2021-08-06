@@ -1,8 +1,10 @@
+import { systemInfo } from 'pal/system-info';
 import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
+import { Platform } from '../../system-info/enum-type';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
@@ -52,15 +54,13 @@ export class AudioPlayer implements OperationQueueable {
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
 
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
 
-    private _beforePlaying = {
-        duration: 0, // wrong value before playing
+    // NOTE: we need to cache the state in case the audio id is invalid.
+    private _cachedState = {
+        duration: 1, // wrong value before playing
         loop: false,
         currentTime: 0,
         volume: 1,
@@ -70,36 +70,29 @@ export class AudioPlayer implements OperationQueueable {
         this._url = url;
 
         // event
-        // TODO: should not call engine API in pal
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
     }
     destroy () {
-        if (this._onShow) {
-            legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
-            this._onShow = undefined;
-        }
-        if (this._onHide) {
-            legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-            this._onHide = undefined;
-        }
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
         if (--urlCount[this._url] <= 0) {
             audioEngine.uncache(this._url);
+        }
+    }
+    private _onHide () {
+        if (this._state === AudioState.PLAYING) {
+            this.pause().then(() => {
+                this._state = AudioState.INTERRUPTED;
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            }).catch((e) => {});
+        }
+    }
+    private _onShow () {
+        if (this._state === AudioState.INTERRUPTED) {
+            this.play().then(() => {
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            }).catch((e) => {});
         }
     }
     static load (url: string): Promise<AudioPlayer> {
@@ -111,13 +104,19 @@ export class AudioPlayer implements OperationQueueable {
     }
     static loadNative (url: string): Promise<unknown> {
         return new Promise((resolve, reject) => {
-            audioEngine.preload(url, (isSuccess) => {
-                if (isSuccess) {
-                    resolve(url);
-                } else {
-                    reject(new Error('load audio failed'));
-                }
-            });
+            if (systemInfo.platform === Platform.WIN32) {
+                // NOTE: audioEngine.preload() not works well on Win32 platform.
+                // Especially when there is not audio output device.
+                resolve(url);
+            } else {
+                audioEngine.preload(url, (isSuccess) => {
+                    if (isSuccess) {
+                        resolve(url);
+                    } else {
+                        reject(new Error('load audio failed'));
+                    }
+                });
+            }
         });
     }
     static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudio> {
@@ -145,40 +144,38 @@ export class AudioPlayer implements OperationQueueable {
     }
     get loop (): boolean {
         if (!this._isValid) {
-            return this._beforePlaying.loop;
+            return this._cachedState.loop;
         }
         return audioEngine.isLoop(this._id);
     }
     set loop (val: boolean) {
-        if (!this._isValid) {
-            this._beforePlaying.loop = val;
-        } else  {
+        if (this._isValid) {
             audioEngine.setLoop(this._id, val);
         }
+        this._cachedState.loop = val;
     }
     get volume (): number {
         if (!this._isValid) {
-            return this._beforePlaying.volume;
+            return this._cachedState.volume;
         }
         return audioEngine.getVolume(this._id);
     }
     set volume (val: number) {
         val = clamp01(val);
-        if (!this._isValid) {
-            this._beforePlaying.volume = val;
-        } else {
+        if (this._isValid) {
             audioEngine.setVolume(this._id, val);
         }
+        this._cachedState.volume = val;
     }
     get duration (): number {
         if (!this._isValid) {
-            return this._beforePlaying.duration;
+            return this._cachedState.duration;
         }
         return audioEngine.getDuration(this._id);
     }
     get currentTime (): number {
         if (!this._isValid) {
-            return this._beforePlaying.currentTime;
+            return this._cachedState.currentTime;
         }
         return audioEngine.getCurrentTime(this._id);
     }
@@ -186,12 +183,12 @@ export class AudioPlayer implements OperationQueueable {
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            time = clamp(time, 0, this.duration);
-            if (!this._isValid) {
-                this._beforePlaying.currentTime = time;
-                return resolve();
+            // Duration is invalid before player
+            // time = clamp(time, 0, this.duration);
+            if (this._isValid) {
+                audioEngine.setCurrentTime(this._id, time);
             }
-            audioEngine.setCurrentTime(this._id, time);
+            this._cachedState.currentTime = time;
             return resolve();
         });
     }
@@ -200,7 +197,7 @@ export class AudioPlayer implements OperationQueueable {
     play (): Promise<void> {
         return new Promise((resolve) => {
             if (this._isValid) {
-                if (this._state === AudioState.PAUSED) {
+                if (this._state === AudioState.PAUSED || this._state === AudioState.INTERRUPTED) {
                     audioEngine.resume(this._id);
                 } else if (this._state === AudioState.PLAYING) {
                     audioEngine.pause(this._id);
@@ -208,10 +205,11 @@ export class AudioPlayer implements OperationQueueable {
                     audioEngine.resume(this._id);
                 }
             } else {
-                this._id = audioEngine.play2d(this._url, this._beforePlaying.loop, this._beforePlaying.volume);
+                this._id = audioEngine.play2d(this._url, this._cachedState.loop, this._cachedState.volume);
                 if (this._isValid) {
-                    if (this._beforePlaying.currentTime !== 0) {
-                        audioEngine.setCurrentTime(this._id, this._beforePlaying.currentTime);
+                    if (this._cachedState.currentTime !== 0) {
+                        audioEngine.setCurrentTime(this._id, this._cachedState.currentTime);
+                        this._cachedState.currentTime = 0;
                     }
                     audioEngine.setFinishCallback(this._id, () => {
                         this._id = INVALID_AUDIO_ID;

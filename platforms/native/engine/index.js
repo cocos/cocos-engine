@@ -27,14 +27,14 @@ require('./jsb-assets-manager.js');
 
 require('./jsb-game.js');
 require('./jsb-gfx.js');
+require('./jsb-scene.js');
 require('./jsb-loader.js');
 require('./jsb-videoplayer.js');
 require('./jsb-webview.js');
 require('./jsb-editbox.js');
-require('./jsb-safearea.js');
 require('./jsb-editor-support.js')
 require('./jsb-spine-skeleton.js')
 require('./jsb-dragonbones.js')
 
-if (cc.physics.PhysicsSystem.PHYSICS_PHYSX)
+if (cc.physics && cc.physics.PhysicsSystem.PHYSICS_PHYSX)
     require('./jsb-physics.js');

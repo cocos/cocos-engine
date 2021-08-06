@@ -54,14 +54,19 @@ import { WebGL2Sampler } from './webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
-import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, DescriptorSetLayoutInfo, DescriptorSetInfo,
+import {
+    getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, DescriptorSetLayoutInfo, DescriptorSetInfo,
     PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, BindingMappingInfo, FramebufferInfo, InputAssemblerInfo,
     QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, Rect, GlobalBarrierInfo, TextureBarrierInfo,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature, BufferTextureCopy  } from '../base/define';
-import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
-    WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy,
+} from '../base/define';
+import {
+    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer, WebGL2CmdFuncCopyTextureToBuffers,
+    WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture,
+} from './webgl2-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
+import { debug } from '../../platform/debug';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -233,10 +238,8 @@ export class WebGL2Device extends Device {
         this.stateCache.initialize(this._caps.maxTextureUnits, this._caps.maxUniformBufferBindings, this._caps.maxVertexAttributes);
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
-        this._width = this._canvas.width;
-        this._height = this._canvas.height;
-        this._nativeWidth = Math.max(info.nativeWidth || this._width, 0);
-        this._nativeHeight = Math.max(info.nativeHeight || this._height, 0);
+        this._width = info.width;
+        this._height = info.height;
 
         this._colorFmt = Format.RGBA8;
 
@@ -265,7 +268,7 @@ export class WebGL2Device extends Device {
                 extensions += `${ext} `;
             }
 
-            console.debug(`EXTENSIONS: ${extensions}`);
+            debug(`EXTENSIONS: ${extensions}`);
         }
 
         this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
@@ -287,13 +290,8 @@ export class WebGL2Device extends Device {
         this._features[Feature.TEXTURE_FLOAT] = true;
         this._features[Feature.TEXTURE_HALF_FLOAT] = true;
         this._features[Feature.FORMAT_R11G11B10F] = true;
+        this._features[Feature.FORMAT_SRGB] = true;
         this._features[Feature.FORMAT_RGB8] = true;
-        this._features[Feature.FORMAT_D16] = true;
-        this._features[Feature.FORMAT_D24] = true;
-        this._features[Feature.FORMAT_D32F] = true;
-        this._features[Feature.FORMAT_D24S8] = true;
-        this._features[Feature.FORMAT_D32FS8] = true;
-        this._features[Feature.MSAA] = true;
         this._features[Feature.ELEMENT_INDEX_UINT] = true;
         this._features[Feature.INSTANCED_ARRAYS] = true;
         this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
@@ -339,27 +337,26 @@ export class WebGL2Device extends Device {
             compressedFormat += 'astc ';
         }
 
-        console.info(`RENDERER: ${this._renderer}`);
-        console.info(`VENDOR: ${this._vendor}`);
-        console.info(`VERSION: ${this._version}`);
-        console.info(`DPR: ${this._devicePixelRatio}`);
-        console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
-        console.info(`NATIVE_SIZE: ${this._nativeWidth} x ${this._nativeHeight}`);
-        console.info(`MAX_VERTEX_ATTRIBS: ${this._caps.maxVertexAttributes}`);
-        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
-        console.info(`MAX_FRAGMENT_UNIFORM_VECTORS: ${this._caps.maxFragmentUniformVectors}`);
-        console.info(`MAX_TEXTURE_IMAGE_UNITS: ${this._caps.maxTextureUnits}`);
-        console.info(`MAX_VERTEX_TEXTURE_IMAGE_UNITS: ${this._caps.maxVertexTextureUnits}`);
-        console.info(`MAX_UNIFORM_BUFFER_BINDINGS: ${this._caps.maxUniformBufferBindings}`);
-        console.info(`MAX_UNIFORM_BLOCK_SIZE: ${this._caps.maxUniformBlockSize}`);
-        console.info(`DEPTH_BITS: ${this._caps.depthBits}`);
-        console.info(`STENCIL_BITS: ${this._caps.stencilBits}`);
-        console.info(`UNIFORM_BUFFER_OFFSET_ALIGNMENT: ${this._caps.uboOffsetAlignment}`);
+        debug(`RENDERER: ${this._renderer}`);
+        debug(`VENDOR: ${this._vendor}`);
+        debug(`VERSION: ${this._version}`);
+        debug(`DPR: ${this._devicePixelRatio}`);
+        debug(`SCREEN_SIZE: ${this._width} x ${this._height}`);
+        debug(`MAX_VERTEX_ATTRIBS: ${this._caps.maxVertexAttributes}`);
+        debug(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
+        debug(`MAX_FRAGMENT_UNIFORM_VECTORS: ${this._caps.maxFragmentUniformVectors}`);
+        debug(`MAX_TEXTURE_IMAGE_UNITS: ${this._caps.maxTextureUnits}`);
+        debug(`MAX_VERTEX_TEXTURE_IMAGE_UNITS: ${this._caps.maxVertexTextureUnits}`);
+        debug(`MAX_UNIFORM_BUFFER_BINDINGS: ${this._caps.maxUniformBufferBindings}`);
+        debug(`MAX_UNIFORM_BLOCK_SIZE: ${this._caps.maxUniformBlockSize}`);
+        debug(`DEPTH_BITS: ${this._caps.depthBits}`);
+        debug(`STENCIL_BITS: ${this._caps.stencilBits}`);
+        debug(`UNIFORM_BUFFER_OFFSET_ALIGNMENT: ${this._caps.uboOffsetAlignment}`);
         if (this._EXT_texture_filter_anisotropic) {
-            console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
+            debug(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
-        console.info(`USE_VAO: ${this._useVAO}`);
-        console.info(`COMPRESSED_FORMAT: ${compressedFormat}`);
+        debug(`USE_VAO: ${this._useVAO}`);
+        debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
 
         // init states
         this.initStates(gl);
@@ -449,7 +446,7 @@ export class WebGL2Device extends Device {
 
     public resize (width: number, height: number) {
         if (this._width !== width || this._height !== height) {
-            console.info(`Resizing device: ${width}x${height}`);
+            debug(`Resizing device: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
             this._width = width;
@@ -598,6 +595,15 @@ export class WebGL2Device extends Device {
             this,
             buffers,
             (texture as WebGL2Texture).gpuTexture,
+            regions,
+        );
+    }
+
+    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+        WebGL2CmdFuncCopyTextureToBuffers(
+            this,
+            (texture as WebGL2Texture).gpuTexture,
+            buffers,
             regions,
         );
     }

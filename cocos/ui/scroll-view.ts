@@ -34,7 +34,7 @@ import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Event } from '../core/event';
-import { EventMouse, EventTouch, Touch, logID } from '../core/platform';
+import { EventMouse, EventTouch, Touch, logID, SystemEventType } from '../core/platform';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
@@ -43,6 +43,7 @@ import { Node } from '../core/scene-graph/node';
 import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -891,9 +892,9 @@ export class ScrollView extends ViewGroup {
         return this._getContentPosition();
     }
 
-    private _getContentPosition () {
+    private _getContentPosition (): Vec3 {
         if (!this._content) {
-            return Vec3.ZERO;
+            return Vec3.ZERO.clone();
         }
 
         this._contentPos.set(this._content.position);
@@ -943,11 +944,11 @@ export class ScrollView extends ViewGroup {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
             if (this._content) {
-                this._content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
-                this._content.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                this._content.on(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
+                this._content.on(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                 if (this.view) {
-                    this.view.node.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view.node.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                    this.view.node.on(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.node.on(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
 
@@ -966,11 +967,11 @@ export class ScrollView extends ViewGroup {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
             if (this._content) {
-                this._content.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
-                this._content.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                this._content.off(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
+                this._content.off(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                 if (this.view) {
-                    this.view.node.off(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
-                    this.view.node.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
+                    this.view.node.off(NodeEventType.TRANSFORM_CHANGED, this._scaleChanged, this);
+                    this.view.node.off(NodeEventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
         }
@@ -980,19 +981,19 @@ export class ScrollView extends ViewGroup {
 
     // private methods
     protected _registerEvent () {
-        this.node.on(Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
-        this.node.on(Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
-        this.node.on(Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
-        this.node.on(Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
-        this.node.on(Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this, true);
+        this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this, true);
+        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this, true);
+        this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.on(NodeEventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     }
 
     protected _unregisterEvent () {
-        this.node.off(Node.EventType.TOUCH_START, this._onTouchBegan, this, true);
-        this.node.off(Node.EventType.TOUCH_MOVE, this._onTouchMoved, this, true);
-        this.node.off(Node.EventType.TOUCH_END, this._onTouchEnded, this, true);
-        this.node.off(Node.EventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
-        this.node.off(Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
+        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this, true);
+        this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMoved, this, true);
+        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this, true);
+        this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancelled, this, true);
+        this.node.off(NodeEventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     }
 
     protected _onMouseWheel (event: EventMouse, captureListeners?: Node[]) {
@@ -1053,8 +1054,7 @@ export class ScrollView extends ViewGroup {
         if (deltaMove.length() > 7) {
             if (!this._touchMoved && event.target !== this.node) {
                 // Simulate touch cancel for target node
-                const cancelEvent = new EventTouch(event.getTouches(), event.bubbles);
-                cancelEvent.type = Node.EventType.TOUCH_CANCEL;
+                const cancelEvent = new EventTouch(event.getTouches(), event.bubbles, SystemEventType.TOUCH_CANCEL);
                 cancelEvent.touch = event.touch;
                 cancelEvent.simulate = true;
                 (event.target as Node).dispatchEvent(cancelEvent);
@@ -1324,7 +1324,7 @@ export class ScrollView extends ViewGroup {
         return outOfBoundaryAmount;
     }
 
-    protected _updateScrollBar (outOfBoundary: Vec2) {
+    protected _updateScrollBar (outOfBoundary: Readonly<Vec2>) {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }

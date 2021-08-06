@@ -1,9 +1,10 @@
 import { EDITOR } from 'internal:constants';
+import { systemInfo } from 'pal/system-info';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { legacyCC } from '../../../cocos/core/global-exports';
-import { clamp, clamp01 } from '../../../cocos/core';
+import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
+import AudioTimer from '../audio-timer';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -64,11 +65,9 @@ export class AudioContextAgent {
         return sourceBufferNode;
     }
 
-    public createGain (volume?: number) {
+    public createGain (volume = 1) {
         const gainNode = this._context.createGain();
-        if (volume !== undefined) {
-            this.setGainValue(gainNode, volume);
-        }
+        this.setGainValue(gainNode, volume);
         return gainNode;
     }
 
@@ -152,55 +151,31 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _currentTimer = 0;
     private _volume = 1;
     private _loop = false;
-    private _startTime = 0;
-    private _playTimeOffset = 0;
     private _state: AudioState = AudioState.INIT;
+    private _audioTimer: AudioTimer;
 
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
 
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-
     constructor (audioBuffer: AudioBuffer, url: string) {
         this._audioBuffer = audioBuffer;
+        this._audioTimer = new AudioTimer(audioBuffer);
         this._gainNode = audioContextAgent!.createGain();
         audioContextAgent!.connectContext(this._gainNode);
         this._src = url;
         // event
-        // TODO: should not call engine API in pal
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
     }
     destroy () {
+        this._audioTimer.destroy();
         if (this._audioBuffer) {
             // @ts-expect-error need to release AudioBuffer instance
-            this._audioBuffer = undefined;
+            this._audioBuffer = null;
         }
-        if (this._onShow) {
-            legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
-            this._onShow = undefined;
-        }
-        if (this._onHide) {
-            legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-            this._onHide = undefined;
-        }
+        systemInfo.off('hide', this._onHide, this);
+        systemInfo.off('show', this._onShow, this);
     }
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
@@ -242,6 +217,22 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
+    private _onHide () {
+        if (this._state === AudioState.PLAYING) {
+            this.pause().then(() => {
+                this._state = AudioState.INTERRUPTED;
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            }).catch((e) => {});
+        }
+    }
+    private _onShow () {
+        if (this._state === AudioState.INTERRUPTED) {
+            this.play().then(() => {
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            }).catch((e) => {});
+        }
+    }
+
     get src (): string {
         return this._src;
     }
@@ -256,7 +247,9 @@ export class AudioPlayerWeb implements OperationQueueable {
     }
     set loop (val: boolean) {
         this._loop = val;
-        this._sourceNode && (this._sourceNode.loop = val);
+        if (this._sourceNode) {
+            this._sourceNode.loop = val;
+        }
     }
     get volume (): number {
         return this._volume;
@@ -270,14 +263,13 @@ export class AudioPlayerWeb implements OperationQueueable {
         return this._audioBuffer.duration;
     }
     get currentTime (): number {
-        if (this._state !== AudioState.PLAYING) { return this._playTimeOffset; }
-        return (audioContextAgent!.currentTime - this._startTime + this._playTimeOffset) % this._audioBuffer.duration;
+        return this._audioTimer.currentTime;
     }
 
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            this._playTimeOffset = clamp(time, 0, this._audioBuffer.duration);
+            this._audioTimer.seek(time);
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
                 // need to create a new one to start from the offset
@@ -305,25 +297,24 @@ export class AudioPlayerWeb implements OperationQueueable {
                 this._stopSourceNode();
                 this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
                 this._sourceNode.connect(this._gainNode);
-                this._sourceNode.start(0, this._playTimeOffset);
+                this._sourceNode.start(0, this._audioTimer.currentTime);
                 this._state = AudioState.PLAYING;
-                this._startTime = audioContextAgent!.currentTime;
+                this._audioTimer.start();
 
                 /* still not supported by all platforms *
                 this._sourceNode.onended = this._onEnded;
                 /* doing it manually for now */
                 const checkEnded = () => {
-                    this._playTimeOffset = 0;
-                    this._startTime = audioContextAgent!.currentTime;
                     if (this.loop) {
                         this._currentTimer = window.setTimeout(checkEnded, this._audioBuffer.duration * 1000);
                     } else {  // do ended
+                        this._audioTimer.stop();
                         this._eventTarget.emit(AudioEvent.ENDED);
                         this._state = AudioState.INIT;
                     }
                 };
                 window.clearTimeout(this._currentTimer);
-                this._currentTimer = window.setTimeout(checkEnded, (this._audioBuffer.duration - this._playTimeOffset) * 1000);
+                this._currentTimer = window.setTimeout(checkEnded, (this._audioBuffer.duration - this._audioTimer.currentTime) * 1000);
                 resolve();
             }).catch((e) => {});
         });
@@ -342,7 +333,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
         }
-        this._playTimeOffset = (audioContextAgent!.currentTime - this._startTime + this._playTimeOffset) % this._audioBuffer.duration;
+        this._audioTimer.pause();
         this._state = AudioState.PAUSED;
         window.clearTimeout(this._currentTimer);
         this._stopSourceNode();
@@ -354,7 +345,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (!this._sourceNode) {
             return Promise.resolve();
         }
-        this._playTimeOffset = 0;
+        this._audioTimer.stop();
         this._state = AudioState.STOPPED;
         window.clearTimeout(this._currentTimer);
         this._stopSourceNode();

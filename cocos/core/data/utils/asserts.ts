@@ -39,8 +39,12 @@ export function assertIsNonNullable<T> (expr: T, message?: string): asserts expr
  * @param expr Testing expression.
  * @param message Optional message.
  */
-export function assertIsTrue (expr: boolean, message?: string) {
+export function assertIsTrue (expr: unknown, message?: string): asserts expr {
     if (DEBUG && !expr) {
         throw new Error(`Assertion failed: ${message ?? '<no-message>'}`);
     }
+}
+
+export function assertsArrayIndex<T> (array: T[], index: number) {
+    assertIsTrue(index >= 0 && index < array.length, `Array index ${index} out of bounds: [0, ${array.length})`);
 }

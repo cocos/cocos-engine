@@ -34,7 +34,7 @@ import { EventTarget } from '../../event/event-target';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
-import eventManager from './event-manager';
+import { eventManager } from './event-manager';
 import inputManager from './input-manager';
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
@@ -44,6 +44,28 @@ let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;
 let touchListener: EventListener | null = null;
 let mouseListener: EventListener | null = null;
+
+export declare namespace SystemEvent {
+    /**
+     * @en The event type supported by SystemEvent and Node events
+     * @zh SystemEvent 支持的事件类型以及节点事件类型
+     */
+    export type EventType = EnumAlias<typeof SystemEventType>;
+}
+
+interface SystemEventMap {
+    [SystemEvent.EventType.MOUSE_DOWN]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_MOVE]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_UP]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_WHEEL]: (event: EventMouse) => void,
+    [SystemEvent.EventType.TOUCH_START]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_MOVE]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_END]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_CANCEL]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.KEY_DOWN]: (event: EventKeyboard) => void,
+    [SystemEvent.EventType.KEY_UP]: (event: EventKeyboard) => void,
+    [SystemEvent.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
+}
 
 /**
 * @en
@@ -62,6 +84,7 @@ let mouseListener: EventListener | null = null;
 
 export class SystemEvent extends EventTarget {
     public static EventType = SystemEventType;
+
     constructor () {
         super();
     }
@@ -105,13 +128,6 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
-    public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_ENTER | SystemEventType.MOUSE_LEAVE |
-                     SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
-               callback: (event: EventMouse) => void, target?: unknown): typeof callback;
-    public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
-               callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
-    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
     /**
      * @en
      * Register an callback of a specific system event type.
@@ -122,7 +138,8 @@ export class SystemEvent extends EventTarget {
      * @param callback - The event listener's callback
      * @param target - The event listener's target and callee
      */
-    public on<TFunction extends (...any) => void> (type: string, callback: TFunction, target?, once?: boolean) {
+    // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
+    public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return callback;
         }
@@ -133,12 +150,13 @@ export class SystemEvent extends EventTarget {
             if (!keyboardListener) {
                 keyboardListener = EventListener.create({
                     event: EventListener.KEYBOARD,
+                    onKeyDown (keyCode: number, event: EventKeyboard) {
+                        systemEvent.emit(event.type, event);
+                    },
                     onKeyPressed (keyCode: number, event: EventKeyboard) {
-                        event.type = SystemEventType.KEY_DOWN;
                         systemEvent.emit(event.type, event);
                     },
                     onKeyReleased (keyCode: number, event: EventKeyboard) {
-                        event.type = SystemEventType.KEY_UP;
                         systemEvent.emit(event.type, event);
                     },
                 });
@@ -152,7 +170,6 @@ export class SystemEvent extends EventTarget {
                 accelerationListener = EventListener.create({
                     event: EventListener.ACCELERATION,
                     callback (acc: any, event: EventAcceleration) {
-                        event.type = SystemEventType.DEVICEMOTION;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                 });
@@ -170,20 +187,16 @@ export class SystemEvent extends EventTarget {
                 touchListener = EventListener.create({
                     event: EventListener.TOUCH_ONE_BY_ONE,
                     onTouchBegan (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_START;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                         return true;
                     },
                     onTouchMoved (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_MOVE;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                     onTouchEnded (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_END;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                     onTouchCancelled (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_CANCEL;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                 });
@@ -201,19 +214,15 @@ export class SystemEvent extends EventTarget {
                 mouseListener = EventListener.create({
                     event: EventListener.MOUSE,
                     onMouseDown (event: EventMouse) {
-                        event.type = SystemEventType.MOUSE_DOWN;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseMove (event:EventMouse) {
-                        event.type = SystemEventType.MOUSE_MOVE;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseUp (event: EventMouse) {
-                        event.type = SystemEventType.MOUSE_UP;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseScroll (event: EventMouse) {
-                        event.type = SystemEventType.MOUSE_WHEEL;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                 });
@@ -235,7 +244,7 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off (type: string, callback?: (...any) => void, target?) {
+    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
@@ -243,9 +252,11 @@ export class SystemEvent extends EventTarget {
 
         // Keyboard
         if (keyboardListener && (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP)) {
-            const hasKeyDownEventListener = this.hasEventListener(SystemEventType.KEY_DOWN);
+            // const hasKeyDownEventListener = this.hasEventListener('keypress');
+            const hasKeyPressingEventListener = this.hasEventListener(SystemEventType.KEY_DOWN);
             const hasKeyUpEventListener = this.hasEventListener(SystemEventType.KEY_UP);
-            if (!hasKeyDownEventListener && !hasKeyUpEventListener) {
+            // if (!hasKeyDownEventListener && !hasKeyPressingEventListener && !hasKeyUpEventListener) {
+            if (!hasKeyPressingEventListener && !hasKeyUpEventListener) {
                 eventManager.removeListener(keyboardListener);
                 keyboardListener = null;
             }

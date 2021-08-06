@@ -63,6 +63,10 @@ exports.template = `
                 <option value="38">LoopReverse</option>
             </ui-select>
         </ui-prop>
+        <ui-prop>
+            <span slot="label">Speed</span>
+            <ui-num-input slot="content" class="speed"></ui-num-input>
+        </ui-prop>
     </div>
 </div>
 `;
@@ -285,6 +289,7 @@ exports.$ = {
     clipTo: '.clip-to',
     clipFrames: '.clip-frames',
     wrapMode: '.wrap-mode',
+    speed: '.speed',
     rulerMaking: '.ruler-making',
     rulerGear: '.ruler-gear',
     controlWrap: '.control-wrap',
@@ -303,14 +308,14 @@ exports.$ = {
 const Elements = {
     // infos put first
     infos: {
-        ready () {
+        ready() {
             const panel = this;
 
             Object.assign(panel, {
                 animationInfos: null,
             });
         },
-        update () {
+        update() {
             const panel = this;
 
             if (panel.meta && panel.meta.userData.animationImportSettings) {
@@ -329,7 +334,7 @@ const Elements = {
         },
     },
     showType: {
-        ready () {
+        ready() {
             const panel = this;
             panel.animationTimeShowType = panel.$.showType.value === 0 ? 'time' : 'frame';
             panel.$.showType.addEventListener('change', (event) => {
@@ -337,7 +342,7 @@ const Elements = {
                 Elements.clips.update.call(panel);
             });
         },
-        update () {
+        update() {
             const panel = this;
 
             if (!panel.animationInfos) {
@@ -351,7 +356,7 @@ const Elements = {
         },
     },
     clips: {
-        ready () {
+        ready() {
             const panel = this;
 
             Object.assign(panel, {
@@ -360,7 +365,7 @@ const Elements = {
                 currentClipInfo: null,
             });
         },
-        update () {
+        update() {
             const panel = this;
 
             panel.$.clips.innerText = '';
@@ -423,11 +428,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML =                        panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
+                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML =                        panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
+                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
                     line.appendChild(timeEnd);
                 });
 
@@ -473,7 +478,7 @@ const Elements = {
         },
     },
     editor: {
-        ready () {
+        ready() {
             const panel = this;
 
             Object.assign(panel, {
@@ -481,7 +486,6 @@ const Elements = {
                 virtualControl: null,
                 clipNames: [],
             });
-
             panel.onClipNameBind = panel.onClipName.bind(panel);
             panel.$.clipName.addEventListener('confirm', panel.onClipNameBind);
 
@@ -500,7 +504,10 @@ const Elements = {
             panel.onWrapModeChangeBind = panel.onWrapModeChange.bind(panel);
             panel.$.wrapMode.addEventListener('confirm', panel.onWrapModeChangeBind);
 
-            function observer () {
+            panel.onSpeedChangeBind = panel.onSpeedChange.bind(panel);
+            panel.$.speed.addEventListener('confirm', panel.onSpeedChangeBind);
+
+            function observer() {
                 const rect = panel.$.editor.getBoundingClientRect();
                 panel.gridTableWith = rect.width - 60;
 
@@ -516,7 +523,7 @@ const Elements = {
             panel.resizeObserver.observe(panel.$.editor);
             observer();
         },
-        close () {
+        close() {
             const panel = this;
             panel.resizeObserver.unobserve(panel.$.editor);
 
@@ -531,8 +538,9 @@ const Elements = {
             panel.$.clipFPS.removeEventListener('confirm', panel.onFpsChangeBind);
 
             panel.$.wrapMode.removeEventListener('confirm', panel.onWrapModeChangeBind);
+            panel.$.speed.removeEventListener('confirm', panel.onSpeedChangeBind);
         },
-        update () {
+        update() {
             const panel = this;
 
             panel.updateRawClipInfo();
@@ -604,7 +612,7 @@ const Elements = {
     },
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -623,7 +631,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -632,7 +640,7 @@ exports.ready = function () {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
@@ -643,7 +651,7 @@ exports.close = function () {
 
 exports.methods = {
     /** animation name -> uuid */
-    initAnimationNameToUUIDMap () {
+    initAnimationNameToUUIDMap() {
         if (this.meta && this.meta.subMetas) {
             const animationNameToUUIDMap = new Map();
             Object.keys(this.meta.subMetas).forEach((id) => {
@@ -658,7 +666,7 @@ exports.methods = {
             this.animationNameToUUIDMap = animationNameToUUIDMap;
         }
     },
-    initAnimationInfos () {
+    initAnimationInfos() {
         if (this.meta && this.meta.userData.animationImportSettings) {
             this.animationInfos = this.meta.userData.animationImportSettings;
             // Collect clip names for renaming and creating to determine whether the name is repeated
@@ -674,7 +682,7 @@ exports.methods = {
         }
     },
 
-    onSelect (rawClipIndex, splitClipIndex) {
+    onSelect(rawClipIndex, splitClipIndex) {
         this.rawClipIndex = rawClipIndex;
         this.splitClipIndex = splitClipIndex;
         const isElementSelect = (element) => element.getAttribute('rawClipIndex') == rawClipIndex && element.getAttribute('splitClipIndex') == splitClipIndex;
@@ -690,15 +698,16 @@ exports.methods = {
         const curClipInfo = this.getCurClipInfo();
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
     },
-    getCurClipInfo () {
+    getCurClipInfo() {
         const animInfo = this.animationInfos[this.rawClipIndex];
         const splitInfo = animInfo.splits[this.splitClipIndex];
 
         if (!animInfo) {
-            return;
+            return null;
         }
 
-        const clipUUID = this.animationNameToUUIDMap.get(animInfo.name);
+        const rawClipUUID = this.animationNameToUUIDMap.get(animInfo.name);
+        const clipUUID = this.animationNameToUUIDMap.get(splitInfo.name);
         let duration = animInfo.duration;
         let fps = animInfo.fps;
         let from = 0;
@@ -717,6 +726,8 @@ exports.methods = {
         }
 
         return {
+            rawClipUUID,
+            rawClipIndex: this.rawClipIndex,
             clipUUID,
             duration,
             fps,
@@ -724,7 +735,7 @@ exports.methods = {
             to,
         };
     },
-    getRightName (name) {
+    getRightName(name) {
         if (!name) {
             return null;
         }
@@ -739,7 +750,7 @@ exports.methods = {
         } while (panel.clipNames.has(name));
         return name;
     },
-    newClipTemplate () {
+    newClipTemplate() {
         const panel = this;
         // Verify the name
         return {
@@ -747,9 +758,10 @@ exports.methods = {
             from: 0,
             to: panel.rawClipInfo.duration,
             wrapMode: 2 /* Loop */,
+            speed: 1,
         };
     },
-    updateCurrentClipInfo () {
+    updateCurrentClipInfo() {
         const panel = this;
         if (!panel.animationInfos) {
             panel.currentClipInfo = null;
@@ -768,7 +780,7 @@ exports.methods = {
         const durationWidth = (duration / panel.rawClipInfo.duration) * panel.gridTableWith;
         const fps = info.fps !== undefined ? info.fps : panel.rawClipInfo.fps;
         const wrapMode = info.wrapMode ?? panel.rawClipInfo.wrapMode;
-
+        const speed = info.speed ?? panel.rawClipInfo.speed;
         panel.currentClipInfo = {
             name: info.name,
             from: info.from * fps,
@@ -788,6 +800,7 @@ exports.methods = {
             duration,
             fps,
             wrapMode,
+            speed,
         };
 
         const maxFrames = (panel.rawClipInfo.duration * panel.currentClipInfo.fps).toFixed(0);
@@ -805,8 +818,9 @@ exports.methods = {
         panel.$.clipTo.setAttribute('max', maxFrames);
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
+        panel.$.speed.value = panel.currentClipInfo.speed || 1;
     },
-    updateRawClipInfo () {
+    updateRawClipInfo() {
         const panel = this;
         if (!panel.animationInfos) {
             panel.rawClipInfo = null;
@@ -822,7 +836,7 @@ exports.methods = {
 
         panel.$.clipDuration.innerText = duration.toFixed(2);
     },
-    updateGridConfig () {
+    updateGridConfig() {
         const panel = this;
 
         if (!panel.currentClipInfo) {
@@ -847,7 +861,7 @@ exports.methods = {
             labelStep,
         };
     },
-    getStepAndSpacing (width, frames) {
+    getStepAndSpacing(width, frames) {
         const config = {
             minSpacing: 10,
             maxSpacing: 20,
@@ -867,7 +881,7 @@ exports.methods = {
             spacing,
         };
     },
-    onMouseDown (type) {
+    onMouseDown(type) {
         const panel = this;
 
         const info = panel.currentClipInfo;
@@ -896,7 +910,7 @@ exports.methods = {
         document.addEventListener('mousemove', panel.onMouseMoveBind);
         document.addEventListener('mouseup', panel.onMouseUpBind);
     },
-    onMouseMove (event) {
+    onMouseMove(event) {
         const panel = this;
 
         event.preventDefault();
@@ -936,7 +950,7 @@ exports.methods = {
             panel.updateVirtualControl();
         });
     },
-    onMouseUp () {
+    onMouseUp() {
         const panel = this;
 
         if (!panel.virtualControl) {
@@ -966,7 +980,7 @@ exports.methods = {
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
         panel.dispatch('change');
     },
-    updateVirtualControl () {
+    updateVirtualControl() {
         const panel = this;
 
         Object.assign(panel.$.controlVirtual.style, panel.virtualControl.style);
@@ -980,7 +994,7 @@ exports.methods = {
             }
         }
     },
-    onClipName (event) {
+    onClipName(event) {
         const panel = this;
 
         if (!panel.currentClipInfo) {
@@ -1005,7 +1019,7 @@ exports.methods = {
         panel.dispatch('change');
         Elements.clips.update.call(panel);
     },
-    onCutClip (event) {
+    onCutClip(event) {
         const panel = this;
 
         const path = event.target.getAttribute('path');
@@ -1016,7 +1030,7 @@ exports.methods = {
 
         panel.dispatch('change');
     },
-    onFpsChange (event) {
+    onFpsChange(event) {
         const panel = this;
 
         panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].fps = Number(event.target.value);
@@ -1024,10 +1038,18 @@ exports.methods = {
         Elements.editor.update.call(panel);
         panel.dispatch('change');
     },
-    onWrapModeChange (event) {
+    onWrapModeChange(event) {
         const panel = this;
 
         panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = Number(event.target.value);
+
+        Elements.editor.update.call(panel);
+        panel.dispatch('change');
+    },
+    onSpeedChange(event) {
+        const panel = this;
+
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = Number(event.target.value);
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');

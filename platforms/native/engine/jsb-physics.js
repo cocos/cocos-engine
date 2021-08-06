@@ -145,7 +145,7 @@ class PhysicsWorld {
     setDefaultMaterial (v) { }
 
     step (f, t, m) {
-        books.forEach((v) => { v.syncToNativeTransform(); });
+        // books.forEach((v) => { v.syncToNativeTransform(); });
         this._impl.step(f);
     }
 
@@ -189,12 +189,10 @@ class PhysicsWorld {
     }
 
     syncSceneToPhysics () {         
-        books.forEach((v) => { v.updateWorldTransform(); });
         this._impl.syncSceneToPhysics();
     }
 
     syncAfterEvents () {
-        books.forEach((v) => { v.syncFromNativeTransform(); });
         // this._impl.syncSceneToPhysics() 
     }
 
@@ -284,13 +282,14 @@ class RigidBody {
     get isSleeping () { return this._impl.isSleeping(); }
     constructor() {
         updateCollisionMatrix();
-        this._impl = new jsbPhy.RigidBody()
+        this._impl = new jsbPhy.RigidBody();
+        this._isUsingCCD = false;
     }
 
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
-        this._impl.initialize(v.node.handle, v.type, v._group);
+        this._impl.initialize(v.node.native, v.type, v._group);
         bookNode(v.node);
     }
 
@@ -325,8 +324,19 @@ class RigidBody {
     setType (v) { this._impl.setType(v); }
     setMass (v) { this._impl.setMass(v); }
     setAllowSleep (v) { this._impl.setAllowSleep(v); }
-    setLinearDamping (v) { this._impl.setLinearDamping(v); }
-    setAngularDamping (v) { this._impl.setAngularDamping(v); }
+    setLinearDamping (v) {
+        const dt = cc.PhysicsSystem.instance.fixedTimeStep;
+        this._impl.setLinearDamping((1 - (1 - v) ** dt) / dt); 
+    }
+    setAngularDamping (v) {        
+        const dt = cc.PhysicsSystem.instance.fixedTimeStep;
+        this._impl.setAngularDamping((1 - (1 - v) ** dt) / dt);
+    }
+    isUsingCCD () { return this._isUsingCCD; }
+    useCCD (v) { 
+        this._isUsingCCD = v;
+        return this._impl.useCCD(v); 
+    }
     useGravity (v) { this._impl.useGravity(v); }
     setLinearFactor (v) { this._impl.setLinearFactor(v.x, v.y, v.z); }
     setAngularFactor (v) { this._impl.setAngularFactor(v.x, v.y, v.z); }
@@ -367,7 +377,7 @@ class Shape {
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
-        this._impl.initialize(v.node.handle);
+        this._impl.initialize(v.node.native);
         ptrToObj[this._impl.getImpl()] = this;
         bookNode(v.node);
     }
@@ -394,8 +404,8 @@ class Shape {
     }
     setAsTrigger (v) { this._impl.setAsTrigger(v); }
     setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
-    getAABB (v) { }
-    getBoundingSphere (v) { }
+    getAABB(v) { v.copy(this._impl.getAABB());}
+    getBoundingSphere (v) { v.copy(this._impl.getBoundingSphere());}
     updateEventListener () {
         var flag = 0;
         flag |= ESHAPE_FLAG.DETECT_CONTACT_CCD;
@@ -415,19 +425,22 @@ class Shape {
 
 class SphereShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.SphereShape(); }
-    setRadius (v) { this._impl.setRadius(v); }
+    updateRadius () { this._impl.setRadius(this.collider.radius); }
     onLoad () {
         super.onLoad();
-        this.setRadius(this._com.radius);
+        this.updateRadius();
     }
 }
 
 class BoxShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.BoxShape(); }
-    setSize (v) { this._impl.setSize(v.x, v.y, v.z); }
+    updateSize () { 
+        const v = this.collider.size;
+        this._impl.setSize(v.x, v.y, v.z); 
+    }
     onLoad () {
         super.onLoad();
-        this.setSize(this._com.size);
+        this.updateSize();
     }
 }
 
@@ -580,7 +593,7 @@ class Joint {
     setConnectedBody (v) { this._impl.setConnectedBody(v ? v.body.impl.getNodeHandle() : 0); }
     initialize (v) {
         this._com = v;
-        this._impl.initialize(v.node.handle);
+        this._impl.initialize(v.node.native);
         ptrToObj[this._impl.getImpl()] = this;
         this.onLoad();
     }
@@ -621,7 +634,7 @@ class RevoluteJoint extends Joint {
     }
 }
 
-cc.physics.selector.select("physx", {
+cc.physics.selector.register("physx", {
     PhysicsWorld: PhysicsWorld,
     RigidBody: RigidBody,
     SphereShape: SphereShape,

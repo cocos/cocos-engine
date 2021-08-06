@@ -4,12 +4,13 @@
 
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
-
+const { join, sep, normalize } = require('path');
 exports.style = `
 ui-button.location { flex: none; margin-left: 6px; }
 `;
 
-exports.template = `
+exports.template =
+/* html */`
 <header class="header">
     <ui-prop>
         <ui-label slot="label">Effect</ui-label>
@@ -23,6 +24,9 @@ exports.template = `
         <ui-select class="technique" slot="content"></ui-select>
     </ui-prop>
 </header>
+<section class="customSection">
+    <ui-panel class="customPanel"></ui-panel>
+</section>
 <section class="section">
     <ui-prop class="useInstancing" type="dump"></ui-prop>
     <ui-prop class="useBatching" type="dump"></ui-prop>
@@ -40,9 +44,19 @@ exports.$ = {
     materialDump: '.material-dump',
     useInstancing: '.useInstancing',
     useBatching: '.useBatching',
+    customSection: '.customSection',
+    customPanel: '.customPanel',
 };
 
 exports.methods = {
+    async getCustomInspector() {
+        const currentEffectInfo = this._effects.find(effect => { return effect.name === this.material.effect; });
+        if (currentEffectInfo && currentEffectInfo.uuid) {
+            const meta = await Editor.Message.request('asset-db', 'query-asset-meta', currentEffectInfo.uuid);
+            return meta && meta.userData && meta.userData.editor && meta.userData.editor.inspector;
+        }
+        return '';
+    },
     /**
      * Custom Save
      */
@@ -55,7 +69,33 @@ exports.methods = {
         this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
     },
-
+    /**
+     * 
+     * @param {string} inspector 
+     */
+    async updateCustomInspector(inspector) {
+        this.$.customPanel.hidden = false;
+        this.$.section.hidden = true;
+        this.$.materialDump.hidden = true;
+        try {
+            if (inspector.startsWith('packages://')) {
+                const relatePath = normalize(inspector.replace('packages://', ''));
+                const name = relatePath.split(sep)[0];
+                const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
+                const path = join(packagePath, relatePath.split(name)[1]);
+                if (this.$.customPanel.getAttribute('src') !== join(path)) {
+                    this.$.customPanel.setAttribute('src', path);
+                }
+                this.$.customPanel.update(this.material, this.assetList, this.metaList);
+            } else {
+                throw Editor.I18n.t('ENGINE.assets.material.illegal-inspector-url');
+            }
+        } catch (error) {
+            console.error(error);
+            console.error(Editor.I18n.t('ENGINE.assets.material.fail-to-load-custom-inspector', { effect: this.material.effect }));
+            this.updatePasses();
+        }
+    },
     /**
      * Detection of data changes only determines the currently selected technique
      */
@@ -80,13 +120,17 @@ exports.methods = {
      * Update the pass data that is finally displayed in the panel
      */
     updatePasses() {
+        if (this.$.customPanel.hasAttribute('src')) {
+            this.$.customPanel.removeAttribute('src');
+        }
+        this.$.customPanel.hidden = true;
+        this.$.section.hidden = false;
+        this.$.materialDump.hidden = false;
         // Automatic rendering of content
         // The data in passes is not all the values that need to be rendered
         // So it's sorted here, but that doesn't make sense
         // The logical way to do it would be to return a normal dump when querying for material
-        if (!this.material.data[this.material.technique]) {
-            this.material.technique = 0;
-        }
+
         const technique = materialTechniquePolyfill(this.material.data[this.material.technique]);
         this.technique = technique;
 
@@ -127,17 +171,17 @@ exports.methods = {
                 $container.$children = {};
             }
 
-            let i = 0;
-            for (i; i < technique.passes.length; i++) {
+            for (let i = 0; i < technique.passes.length; i++) {
+                const pass = technique.passes[i];
                 // If the propertyIndex is not equal to the current pass index, then do not render
-                if (technique.passes[i].propertyIndex !== undefined && technique.passes[i].propertyIndex.value !== i) {
+                if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
                     continue;
                 }
 
                 // if asset is readonly
                 if (this.asset.readonly) {
-                    for (const key in technique.passes[i].value) {
-                        loopSetAssetDumpDataReadonly(technique.passes[i].value[key]);
+                    for (const key in pass.value) {
+                        loopSetAssetDumpDataReadonly(pass.value[key]);
                     }
                 }
 
@@ -145,7 +189,25 @@ exports.methods = {
                 $container.$children[i].setAttribute('type', 'dump');
                 $container.$children[i].setAttribute('fold', 'false');
                 $container.appendChild($container.$children[i]);
-                $container.$children[i].render(technique.passes[i]);
+                $container.$children[i].render(pass);
+
+                // Add the checkbox given by the switch attribute
+                if (pass.switch && pass.switch.name) {
+                    const $checkbox = document.createElement('ui-checkbox');
+                    $checkbox.innerText = pass.switch.name;
+                    $checkbox.setAttribute('slot', 'header');
+                    $checkbox.addEventListener('change', (e) => {
+                        pass.switch.value = e.target.value;
+                    });
+                    setReadonly(this.asset.readonly, $checkbox);
+                    $checkbox.value = pass.switch.value;
+
+                    const $section = $container.$children[i].querySelector('ui-section');
+                    $section.appendChild($checkbox);
+
+                    const $label = $section.querySelector('ui-label');
+                    $label.style.width = 'calc(var(--left-width) - 10px)';
+                }
 
                 $container.$children[i].querySelectorAll('ui-prop').forEach(($prop) => {
                     const dump = $prop.dump;
@@ -162,10 +224,13 @@ exports.methods = {
                                     continue;
                                 }
 
+                                if (this.asset.readonly) {
+                                    loopSetAssetDumpDataReadonly(dump.childMap[childName]);
+                                }
+
                                 $prop.$children[childName] = document.createElement('ui-prop');
                                 $prop.$children[childName].setAttribute('type', 'dump');
                                 $prop.$children[childName].render(dump.childMap[childName]);
-
                                 $prop.$children.appendChild($prop.$children[childName]);
                             }
 
@@ -211,7 +276,8 @@ exports.methods = {
     updateTechniqueOptions() {
         let techniqueOption = '';
         this.material.data.forEach((technique, index) => {
-            techniqueOption += `<option value="${index}">${index} - ${technique.name}</option>`;
+            const name = technique.name ? `${index} - ${technique.name}` : index;
+            techniqueOption += `<option value="${index}">${name}</option>`;
         });
         this.$.technique.innerHTML = techniqueOption;
     },
@@ -227,7 +293,8 @@ exports.methods = {
  * @param assetList
  * @param metaList
  */
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
+
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -237,30 +304,39 @@ exports.update = async function (assetList, metaList) {
     if (notOnlyOne) {
         return;
     }
+    if (!this.dirtyData) {
+        return;
+    }
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
     }
-
+    // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
-
     // effect <select> tag
     this.$.effect.value = this.material.effect;
     setDisabled(this.asset.readonly, this.$.effect);
-
     // technique <select> tag
     this.$.technique.value = this.material.technique;
     setDisabled(this.asset.readonly, this.$.technique);
 
     this.updateTechniqueOptions();
-    this.updatePasses();
     this.setDirtyData();
+    const inspector = await this.getCustomInspector();
+    if (inspector) {
+        this.updateCustomInspector(inspector);
+    } else {
+        // optimize calculate speed when edit multiple materials in node mode
+        requestIdleCallback(() => {
+            this.updatePasses();
+        });
+    }
 };
 
 /**
  * Method of initializing the panel
  */
-exports.ready = async function () {
+exports.ready = async function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
@@ -273,7 +349,7 @@ exports.ready = async function () {
         const dump = event.target.dump;
 
         // show its children
-        if (dump && dump.childMap && dump.children.length) {
+        if (dump && dump.childMap && dump.children.length && event.target.$children) {
             if (dump.value) {
                 event.target.$children.removeAttribute('hidden');
             } else {
@@ -292,9 +368,18 @@ exports.ready = async function () {
     this.$.effect.addEventListener('change', async (event) => {
         this.material.effect = event.target.value;
         this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
-
         this.updateTechniqueOptions();
-        this.updatePasses();
+        if (!this.material.data[this.material.technique]) {
+            this.$.technique.value = this.material.technique = 0;
+        } else {
+            this.$.technique.value = this.material.technique;
+        }
+        const inspector = await this.getCustomInspector();
+        if (inspector) {
+            this.updateCustomInspector(inspector);
+        } else {
+            this.updatePasses();
+        }
         this.setDirtyData();
         this.dispatch('change');
     });
@@ -309,8 +394,12 @@ exports.ready = async function () {
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = event.target.value;
-
-        this.updatePasses();
+        const inspector = await this.getCustomInspector();
+        if (inspector) {
+            this.updateCustomInspector(inspector);
+        } else {
+            this.updatePasses();
+        }
         this.setDirtyData();
         this.dispatch('change');
     });
@@ -349,9 +438,13 @@ exports.ready = async function () {
         effectOption += `<option>${effect.name}</option>`;
     }
     this.$.effect.innerHTML = effectOption;
+    this.$.customPanel.addEventListener('change', () => {
+        this.setDirtyData();
+        this.dispatch('change');
+    });
 };
 
-exports.close = function () {
+exports.close = function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',

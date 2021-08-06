@@ -28,27 +28,27 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Camera } from '../../renderer/scene';
 import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
-    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlags, ClearFlagBit } from '../../gfx';
+    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
-import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
 import { SRGBToLinear } from '../pipeline-funcs';
+import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { Pass } from '../../renderer/core/pass';
+import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
+import { RenderQueueDesc } from '../pipeline-serialization';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
-const LIGHTINGPASS_INDEX = 1;
 
 /**
  * @en The lighting render stage
@@ -70,25 +70,23 @@ export class LightingStage extends RenderStage {
     @displayOrder(3)
     private _deferredMaterial: Material | null = null;
 
+    @type([RenderQueueDesc])
+    @serializable
+    @displayOrder(2)
+    private renderQueues: RenderQueueDesc[] = [];
+    private _phaseID = getPhaseID('default');
+    private _defPhaseID = getPhaseID('deferred');
+    private _renderQueues: RenderQueue[] = [];
+
     public static initInfo: IRenderStageInfo = {
         name: 'LightingStage',
         priority: DeferredStagePriority.LIGHTING,
         tag: 0,
     };
-
-    set material (val) {
-        if (this._deferredMaterial === val) {
-            return;
-        }
-
-        this._deferredMaterial = val;
-    }
-
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         return true;
     }
-
     public gatherLights (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         const cmdBuff = pipeline.commandBuffers[0];
@@ -185,6 +183,11 @@ export class LightingStage extends RenderStage {
 
         const device = pipeline.device;
 
+        // activate queue
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            this._renderQueues[i] = convertRenderQueue(this.renderQueues[i]);
+        }
+
         let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
         totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
 
@@ -204,10 +207,12 @@ export class LightingStage extends RenderStage {
         this._descriptorSet.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
 
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
+
+        if (this._deferredMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredLightingMaterial = this._deferredMaterial; }
     }
 
     public destroy () {
-        this._deferredLitsBufs.destroy();
+        this._deferredLitsBufs?.destroy();
         this._deferredLitsBufs = null!;
         this._descriptorSet = null!;
     }
@@ -217,8 +222,8 @@ export class LightingStage extends RenderStage {
         const device = pipeline.device;
 
         const cmdBuff = pipeline.commandBuffers[0];
-
-        const renderObjects = pipeline.pipelineSceneData.renderObjects;
+        const sceneData = pipeline.pipelineSceneData;
+        const renderObjects = sceneData.renderObjects;
         if (renderObjects.length === 0) {
             return;
         }
@@ -234,9 +239,9 @@ export class LightingStage extends RenderStage {
         this._renderArea = pipeline.generateRenderArea(camera);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
-            if (pipeline.pipelineSceneData.isHDR) {
+            if (sceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.pipelineSceneData.fpScale / camera.exposure;
+                const scale = sceneData.fpScale / camera.exposure;
                 colors[0].x *= scale;
                 colors[0].y *= scale;
                 colors[0].z *= scale;
@@ -258,16 +263,10 @@ export class LightingStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
-        let pass: Pass;
-        let shader: Shader;
-        const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
-        if (builinDeferred) {
-            pass = builinDeferred.passes[0];
-            shader = ShaderPool.get(pass.getShaderVariant());
-        } else {
-            pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
-            shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
-        }
+        const lightingMat = (sceneData as DeferredPipelineSceneData).deferredLightingMaterial;
+        const pass = lightingMat.passes[0];
+        const shader = pass.getShaderVariant();
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
         const inputAssembler = pipeline.quadIAOffscreen;
         let pso:PipelineState|null = null;
@@ -279,6 +278,32 @@ export class LightingStage extends RenderStage {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
+        }
+
+        // Transparent
+        this._renderQueues.forEach(renderQueueClearFunc);
+
+        let m = 0; let p = 0; let k = 0;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            const subModels = ro.model.subModels;
+            for (m = 0; m < subModels.length; ++m) {
+                const subModel = subModels[m];
+                const passes = subModel.passes;
+                for (p = 0; p < passes.length; ++p) {
+                    const pass = passes[p];
+                    // TODO: need fallback of ulit and gizmo material.
+                    if (pass.phase !== this._phaseID && pass.phase !== this._defPhaseID) continue;
+                    for (k = 0; k < this._renderQueues.length; k++) {
+                        this._renderQueues[k].insertRenderPass(ro, m, p);
+                    }
+                }
+            }
+        }
+
+        this._renderQueues.forEach(renderQueueSortFunc);
+        for (let i = 0; i < this._renderQueues.length; i++) {
+            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }
 
         // planarQueue

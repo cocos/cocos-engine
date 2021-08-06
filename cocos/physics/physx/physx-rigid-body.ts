@@ -32,7 +32,7 @@
 import { IVec3Like, Vec3 } from '../../core';
 import { ERigidBodyType, PhysicsSystem, RigidBody } from '../framework';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { applyForce, applyImpulse, applyTorqueForce, PX, _trans } from './export-physx';
+import { applyForce, applyImpulse, applyTorqueForce, PX, _trans } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { PhysXWorld } from './physx-world';
 
@@ -53,6 +53,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     isSleepy = false;
     private _isEnabled = false;
+    private _isUsingCCD = false;
     private _rigidBody!: RigidBody;
     private _sharedBody!: PhysXSharedBody;
 
@@ -96,13 +97,11 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setLinearDamping (v: number): void {
-        if (this.isStatic) return;
-        this.impl.setLinearDamping(v);
+        this._sharedBody.setLinearDamping(v);
     }
 
     setAngularDamping (v: number): void {
-        if (this.isStatic) return;
-        this.impl.setAngularDamping(v);
+        this._sharedBody.setAngularDamping(v);
     }
 
     useGravity (v: boolean): void {
@@ -113,7 +112,10 @@ export class PhysXRigidBody implements IRigidBody {
     useCCD (v: boolean): void {
         if (this.isStatic) return;
         this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eENABLE_CCD, v);
+        this._isUsingCCD = v;
     }
+
+    isUsingCCD () { return this._isUsingCCD; }
 
     setLinearFactor (v: IVec3Like): void {
         if (this.isStatic) return;

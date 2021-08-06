@@ -31,7 +31,7 @@
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { PlaneCollider } from '../../framework';
 import { IPlaneShape } from '../../spec/i-physics-shape';
-import { getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
+import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXPlaneShape extends PhysXShape implements IPlaneShape {

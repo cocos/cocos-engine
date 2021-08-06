@@ -35,7 +35,7 @@ import { Device, Feature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
-import { warnID, getError } from '../platform/debug';
+import { warnID } from '../platform/debug';
 
 /**
  * @en Image source in memory
@@ -55,8 +55,8 @@ export interface IMemoryImageSource {
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
-function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
-    return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
+function isImageBitmap (imageSource: any): boolean {
+    return !!(legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap);
 }
 
 function fetchImageSource (imageSource: ImageSource) {
@@ -90,6 +90,7 @@ export class ImageAsset extends Asset {
 
     set _nativeAsset (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
+            // @ts-expect-error internal API usage
             value.format = value.format || this._format;
         }
         this.reset(value);
@@ -149,28 +150,9 @@ export class ImageAsset extends Asset {
         return this.nativeUrl;
     }
 
-    /**
-     * @private
-     */
-    set _texture (tex) {
-        this._tex = tex;
-    }
-
-    get _texture () {
-        if (!this._tex) {
-            const tex = new legacyCC.Texture2D();
-            tex.name = this.nativeUrl;
-            tex.image = this;
-            this._tex = tex;
-        }
-        return this._tex;
-    }
-
     private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
 
     private _nativeData: ImageSource;
-
-    private _tex;
 
     private _exportedExts: string[] | null | undefined = undefined;
 
@@ -182,8 +164,6 @@ export class ImageAsset extends Asset {
 
     constructor (nativeAsset?: ImageSource) {
         super();
-
-        this.loaded = false;
 
         this._nativeData = {
             _data: null,
@@ -210,25 +190,13 @@ export class ImageAsset extends Asset {
     public reset (data: ImageSource) {
         if (isImageBitmap(data)) {
             this._nativeData = data;
-            this._onDataComplete();
         } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
+            // @ts-expect-error internal api usage
             this._format = data.format;
-            this._onDataComplete();
         } else {
             this._nativeData = data;
-            if (MINIGAME || (data as any).complete || data instanceof HTMLCanvasElement) { // todo need adatper
-                this._onDataComplete();
-            } else {
-                this.loaded = false;
-                data.addEventListener('load', () => {
-                    this._onDataComplete();
-                });
-                data.addEventListener('error', (err) => {
-                    warnID(3119, err.message);
-                });
-            }
         }
     }
 
@@ -239,6 +207,7 @@ export class ImageAsset extends Asset {
             // @ts-expect-error JSB element should destroy native data.
             if (JSB) this.data.destroy();
         } else if (isImageBitmap(this.data)) {
+            // @ts-expect-error internal api usage
             this.data.close && this.data.close();
         }
         return super.destroy();
@@ -246,6 +215,7 @@ export class ImageAsset extends Asset {
 
     // SERIALIZATION
 
+    // eslint-disable-next-line consistent-return
     public _serialize () {
         if (EDITOR || TEST) {
             let targetExtensions = this._exportedExts;
@@ -330,11 +300,6 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public _onDataComplete () {
-        this.loaded = true;
-        this.emit('load');
-    }
-
     private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
 
     public initDefault (uuid?: string) {
@@ -359,18 +324,9 @@ export class ImageAsset extends Asset {
 
 function _getGlobalDevice (): Device | null {
     if (legacyCC.director.root) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return legacyCC.director.root.device;
     }
     return null;
 }
-
-/**
- * @zh
- * 当该资源加载成功后触发该事件。
- * @en
- * This event is emitted when the asset is loaded
- *
- * @event load
- */
-
 legacyCC.ImageAsset = ImageAsset;

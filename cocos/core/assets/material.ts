@@ -31,15 +31,14 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { RenderTexture } from './render-texture';
 import { RenderableComponent } from '../components/renderable-component';
 import { Texture } from '../gfx';
 import { TextureBase } from './texture-base';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
+import { warnID } from '../platform/debug';
 
 /**
  * @en The basic infos for material initialization.
@@ -83,7 +82,7 @@ interface IMaterialInfo {
     states?: PassOverrides | PassOverrides[];
 }
 
-type MaterialPropertyFull = MaterialProperty | TextureBase | RenderTexture | Texture | null;
+type MaterialPropertyFull = MaterialProperty | TextureBase | Texture | null;
 
 /**
  * @en The material asset, specifies in details how a model is drawn on screen.
@@ -125,7 +124,6 @@ export class Material extends Asset {
 
     constructor () {
         super();
-        this.loaded = false;
     }
 
     /**
@@ -190,6 +188,11 @@ export class Material extends Asset {
      * @param info Material description info.
      */
     public initialize (info: IMaterialInfo) {
+        if (this._passes.length) {
+            warnID(12005);
+            return;
+        }
+
         if (!this._defines) { this._defines = []; }
         if (!this._states) { this._states = []; }
         if (!this._props) { this._props = []; }
@@ -248,8 +251,6 @@ export class Material extends Asset {
      */
     public onLoaded () {
         this._update();
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**
@@ -392,11 +393,6 @@ export class Material extends Asset {
 
     protected _update (keepProps = true) {
         if (this._effectAsset) {
-            if (this._passes && this._passes.length) {
-                for (const pass of this._passes) {
-                    pass.destroy();
-                }
-            }
             this._passes = this._createPasses();
             // handle property values
             const totalPasses = this._effectAsset.techniques[this._techIdx].passes.length;
@@ -449,7 +445,7 @@ export class Material extends Asset {
         const binding = Pass.getBindingFromHandle(handle);
         if (val instanceof Texture) {
             pass.bindTexture(binding, val, index);
-        } else if (val instanceof TextureBase || val instanceof RenderTexture) {
+        } else if (val instanceof TextureBase) {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
                 // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
@@ -466,11 +462,7 @@ export class Material extends Asset {
                 pass.destroy();
             }
         }
-        this._effectAsset = null;
         this._passes.length = 0;
-        this._props.length = 0;
-        this._defines.length = 0;
-        this._states.length = 0;
     }
 
     public initDefault (uuid?: string) {

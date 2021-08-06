@@ -39,9 +39,10 @@ import { TiledLayer } from './tiled-layer';
 import { TiledObjectGroup } from './tiled-object-group';
 import { TiledMapAsset } from './tiled-map-asset';
 import { Sprite } from '../2d/components/sprite';
-import { fillTextureGrids, loadAllTextures } from './tiled-utils';
-import { Size, SystemEventType, Vec2, Node, logID, Color, sys } from '../core';
+import { fillTextureGrids } from './tiled-utils';
+import { Size, Vec2, Node, logID, Color, sys } from '../core';
 import { SpriteFrame } from '../2d/assets';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 interface ImageExtendedNode extends Node {
     layerInfo: TMXImageLayerInfo;
@@ -315,11 +316,11 @@ export class TiledMap extends Component {
     }
 
     onEnable () {
-        this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     onDisable () {
-        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     _applyFile () {
@@ -592,14 +593,12 @@ export class TiledMap extends Component {
             totalTextures.push(imageLayer.sourceImage);
         }
 
-        loadAllTextures(totalTextures, () => {
-            this._buildLayerAndGroup();
-            if (this.cleanupImageCache) {
-                this._textures.forEach((tex) => {
-                    this.doCleanupImageCache(tex);
-                });
-            }
-        });
+        this._buildLayerAndGroup();
+        if (this.cleanupImageCache) {
+            this._textures.forEach((tex) => {
+                this.doCleanupImageCache(tex);
+            });
+        }
     }
 
     doCleanupImageCache (texture) {

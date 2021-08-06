@@ -188,13 +188,7 @@ export class Mesh extends Asset {
     }
 
     set _nativeAsset (value: ArrayBuffer) {
-        if (this._data.byteLength === value.byteLength) {
-            this._data.set(new Uint8Array(value));
-        } else {
-            this._data = new Uint8Array(value);
-        }
-        this.loaded = true;
-        this.emit('load');
+        this._data = new Uint8Array(value);
     }
 
     /**
@@ -277,9 +271,6 @@ export class Mesh extends Asset {
     };
 
     @serializable
-    private _dataLength = 0;
-
-    @serializable
     private _hash = 0;
 
     private _data: Uint8Array = globalEmptyMeshBuffer;
@@ -294,7 +285,6 @@ export class Mesh extends Asset {
 
     constructor () {
         super();
-        this.loaded = false;
     }
 
     public initialize () {
@@ -303,13 +293,6 @@ export class Mesh extends Asset {
         }
 
         this._initialized = true;
-
-        if (this._data.byteLength !== this._dataLength) {
-        // In the case of deferred loading, `this._data` is created before
-        // the actual binary buffer is loaded.
-            this._data = new Uint8Array(this._dataLength);
-            legacyCC.assetManager.postLoadNative(this);
-        }
         const { buffer } = this._data;
         const gfxDevice: Device = legacyCC.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
@@ -352,13 +335,7 @@ export class Mesh extends Asset {
                 if (idxView.stride !== dstStride) {
                     ib = getIndexStrideCtor(dstStride).from(ib);
                 }
-                if (this.loaded) {
-                    indexBuffer.update(ib);
-                } else {
-                    this.once('load', () => {
-                        indexBuffer!.update(ib);
-                    });
-                }
+                indexBuffer.update(ib);
             }
 
             const vbReference = prim.vertexBundelIndices.map((idx) => vertexBuffers[idx]);
@@ -433,10 +410,7 @@ export class Mesh extends Asset {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
-        this._dataLength = this.data.byteLength;
         this._hash = 0;
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**
@@ -494,7 +468,7 @@ export class Mesh extends Asset {
      */
     public merge (mesh: Mesh, worldMatrix?: Mat4, validate?: boolean): boolean {
         if (validate) {
-            if (!this.loaded || !mesh.loaded || !this.validateMergingMesh(mesh)) {
+            if (!this.validateMergingMesh(mesh)) {
                 return false;
             }
         }
@@ -1023,13 +997,7 @@ export class Mesh extends Asset {
             ));
 
             const view = new Uint8Array(data, vertexBundle.view.offset, vertexBundle.view.length);
-            if (this.loaded) {
-                vertexBuffer.update(view);
-            } else {
-                this.once('load', () => {
-                    vertexBuffer.update(view);
-                });
-            }
+            vertexBuffer.update(view);
             return vertexBuffer;
         });
     }

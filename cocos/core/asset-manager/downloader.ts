@@ -28,7 +28,7 @@
  */
 import { BUILD, EDITOR } from 'internal:constants';
 import { sys } from '../platform/sys';
-import { js } from '../utils';
+import { js, path } from '../utils';
 import { callInNextTick } from '../utils/misc';
 import { basename } from '../utils/path';
 import Cache from './cache';
@@ -39,8 +39,9 @@ import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadPars
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { legacyCC } from '../global-exports';
 import { IConfigOption } from './config';
+import { CCON, parseCCONJson, decodeCCONBinary } from '../data/ccon';
 
-export type DownloadHandler = (url: string, opitons: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type DownloadHandler = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
 interface IDownloadRequest {
     id: string;
@@ -72,6 +73,46 @@ const downloadJson = (url: string, options: IDownloadParseOptions, onComplete: C
 const downloadArrayBuffer = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     options.xhrResponseType = 'arraybuffer';
     downloadFile(url, options, options.onFileProgress, onComplete);
+};
+
+const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
+    downloadJson(url, options, (err, json) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        const cconPreface = parseCCONJson(json);
+        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise<Uint8Array>((resolve, reject) => {
+            downloadArrayBuffer(`${path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(new Uint8Array(chunkBuffer));
+                }
+            });
+        })));
+        chunkPromises.then((chunks) => {
+            const ccon = new CCON(cconPreface.document, chunks);
+            onComplete(null, ccon);
+        }).catch((err) => {
+            onComplete(err);
+        });
+    });
+};
+
+const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
+    downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        try {
+            const ccon = decodeCCONBinary(new Uint8Array(arrayBuffer));
+            onComplete(null, ccon);
+        } catch (err) {
+            onComplete(err);
+        }
+    });
 };
 
 const downloadText = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
@@ -200,7 +241,7 @@ export class Downloader {
 
     public downloadScript = downloadScript;
 
-    // dafault handler map
+    // default handler map
     private _downloaders: Record<string, DownloadHandler> = {
         // Images
         '.png': downloadImage,
@@ -229,6 +270,9 @@ export class Downloader {
         '.json': downloadJson,
         '.ExportJson': downloadJson,
         '.plist': downloadText,
+
+        '.ccon': downloadCCON,
+        '.cconb': downloadCCONB,
 
         '.fnt': downloadText,
 
@@ -277,7 +321,7 @@ export class Downloader {
      * @param type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
      * @param handler - handler
      * @param handler.url - url
-     * @param handler.options - some optional paramters will be transferred to handler.
+     * @param handler.options - some optional parameters will be transferred to handler.
      * @param handler.onComplete - callback when finishing downloading
      *
      * @example
@@ -305,18 +349,18 @@ export class Downloader {
      * @param id - The unique id of this download
      * @param url - The url should be downloaded
      * @param type - The type indicates that which handler should be used to download, such as '.jpg'
-     * @param options - some optional paramters will be transferred to the corresponding handler.
+     * @param options - some optional parameters will be transferred to the corresponding handler.
      * @param options.onFileProgress - progressive callback will be transferred to handler.
      * @param options.maxRetryCount - How many times should retry when download failed
      * @param options.maxConcurrency - The maximum number of concurrent when downloading
      * @param options.maxRequestsPerFrame - The maximum number of request can be launched per frame when downloading
      * @param options.priority - The priority of this url, default is 0, the greater number is higher priority.
      * @param onComplete - callback when finishing downloading
-     * @param onComplete.err - The occurred error, null indicetes success
-     * @param onComplete.contetnt - The downloaded file
+     * @param onComplete.err - The occurred error, null indicates success
+     * @param onComplete.content - The downloaded file
      *
      * @example
-     * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
+     * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.log(loaded/total)}, onComplete: (err) => console.log(err));
      *
      */
     public download (id: string, url: string, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
@@ -405,9 +449,9 @@ export class Downloader {
     }
 
     private _updateTime () {
-        const now = Date.now();
+        const now = performance.now();
         // use deltaTime as interval
-        const deltaTime = legacyCC.director.getDeltaTime();
+        const deltaTime = legacyCC.game.deltaTime;
         const interval = deltaTime > this._maxInterval ? this._maxInterval : deltaTime;
         if (now - this._lastDate > interval * 1000) {
             this._totalNumThisPeriod = 0;

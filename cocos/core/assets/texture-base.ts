@@ -131,8 +131,6 @@ export class TextureBase extends Asset {
 
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
-
-        this.loaded = false;
         this._gfxDevice = this._getGFXDevice();
         this._textureHash = murmurhash2_32_gc(this._id, 666);
     }
@@ -241,7 +239,7 @@ export class TextureBase extends Asset {
      */
     public destroy () {
         const destroyed = super.destroy();
-        if (destroyed && legacyCC.director.root && legacyCC.director.root.batcher2D) {
+        if (destroyed && legacyCC.director.root?.batcher2D) {
             legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
         }
         return destroyed;

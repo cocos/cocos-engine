@@ -31,7 +31,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components';
-import { EventTouch, SystemEventType } from '../core/platform';
+import { EventTouch } from '../core/platform';
 import { Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';
@@ -42,6 +42,7 @@ import { warnID, logID } from '../core/platform/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { Node } from '../core/scene-graph';
 import { legacyCC } from '../core/global-exports';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 const _tempVec2 = new Vec2();
 
@@ -324,7 +325,7 @@ export class PageView extends ScrollView {
 
     public onEnable () {
         super.onEnable();
-        this.node.on(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.on(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
@@ -332,7 +333,7 @@ export class PageView extends ScrollView {
 
     public onDisable () {
         super.onDisable();
-        this.node.off(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this.node.off(PageView.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
@@ -629,7 +630,7 @@ export class PageView extends ScrollView {
     // 初始化页面
     protected _initPages () {
         if (!this.content) { return; }
-        this._initContentPos = this.content.position;
+        this._initContentPos = this.content.position as Vec3;
         const children = this.content.children;
         for (let i = 0; i < children.length; ++i) {
             const page = children[i];

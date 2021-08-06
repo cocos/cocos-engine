@@ -139,30 +139,3 @@ export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextur
         texGrids.set(gid as unknown as GID, grid);
     }
 }
-
-export function loadAllTextures (textures: SpriteFrame[], loadedCallback: any) {
-    const totalNum = textures.length;
-    if (totalNum === 0) {
-        loadedCallback();
-        return;
-    }
-
-    let curNum = 0;
-    const itemCallback = () => {
-        curNum++;
-        if (curNum >= totalNum) {
-            loadedCallback();
-        }
-    };
-
-    for (let i = 0; i < totalNum; i++) {
-        const tex = textures[i];
-        if (!tex.loaded) {
-            tex.once('load', () => {
-                itemCallback();
-            });
-        } else {
-            itemCallback();
-        }
-    }
-}

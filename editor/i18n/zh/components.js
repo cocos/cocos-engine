@@ -15,5 +15,8 @@ module.exports = {
                 '由于新的 Prefab 系统还不完善，所以旧的 Prefab 系统中和 Prefab 资源差异过大的 Prefab 无法实现自动迁移。' +
                 '此组件用于保存在旧 Prefab 系统中这个节点关联的 Prefab 资源，等新的 Prefab 系统完善，会自动迁移到新的 Prefab 系统上。',
         },
+        label: {
+            font_style_tooltip: "文本的样式，分别对应引擎的 isBold,isItalic,isUnderline",
+        },
     },
 };

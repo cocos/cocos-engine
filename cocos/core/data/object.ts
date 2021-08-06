@@ -28,11 +28,12 @@
  * @module core/data
  */
 
-import { SUPPORT_JIT, EDITOR, TEST, DEBUG } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
+import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 
 // definitions for CCObject.Flags
 
@@ -46,7 +47,6 @@ const DontDestroy = 1 << 6;
 const Destroying = 1 << 7;
 const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
-// var HideInGame = 1 << 9;
 const HideInHierarchy = 1 << 10;
 
 const IsOnEnableCalled = 1 << 11;
@@ -61,6 +61,10 @@ const IsScaleLocked = 1 << 18;
 const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
+
+// Distributed
+const IsReplicated = 1 << 22;
+const IsClientLoad = 1 << 23;
 
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
@@ -168,7 +172,7 @@ function compileDestruct (obj, ctor) {
  * 大部分对象的基类。
  * @private
  */
-class CCObject {
+class CCObject implements EditorExtendableObject {
     public static _deferredDestroy () {
         const deleteCount = objectsToDestroy.length;
         for (let i = 0; i < deleteCount; ++i) {
@@ -189,6 +193,8 @@ class CCObject {
             deferredDestroyTimer = null;
         }
     }
+
+    public declare [editorExtrasTag]: unknown;
 
     public _objFlags: number;
     protected _name: string;
@@ -235,6 +241,17 @@ class CCObject {
     }
     public get hideFlags () {
         return this._objFlags & CCObject.Flags.AllHideMasks;
+    }
+
+    public set replicated (value: boolean) {
+        if (value) {
+            this._objFlags |= IsReplicated;
+        } else {
+            this._objFlags &= ~IsReplicated;
+        }
+    }
+    public get replicated () {
+        return !!(this._objFlags & IsReplicated);
     }
 
     /**
@@ -361,6 +378,19 @@ if (EDITOR || TEST) {
         return !(this._objFlags & RealDestroyed);
     });
 
+    /**
+     * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
+     * This method is only available for editors and is not recommended for developers
+     * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能(该方法仅提供给编辑器使用，不建议开发者使用)。
+     */
+    js.getset(prototype, 'objFlags',
+        function (this: CCObject) {
+            return this._objFlags;
+        },
+        function (this: CCObject, objFlags: CCObject.Flags) {
+            this._objFlags = objFlags;
+        });
+
     /*
     * @en
     * In fact, Object's "destroy" will not trigger the destruct operation in Firebal Editor.
@@ -428,7 +458,8 @@ prototype._deserialize = null;
 // @ts-expect-error
 prototype._onPreDestroy = null;
 
-CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
+CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
 
 /**
  * Bit mask that controls object states.
@@ -565,6 +596,9 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
+
+        IsReplicated,
+        IsClientLoad,
     }
 
     // for @ccclass

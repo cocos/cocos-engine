@@ -4,7 +4,7 @@ exports.template = template;
 exports.$ = $;
 exports.update = update;
 
-exports.ready = function () {
+exports.ready = function() {
     const $prop = document.createElement('ui-prop');
     this.$.componentContainer.before($prop);
 
@@ -20,6 +20,8 @@ exports.ready = function () {
     $prop.appendChild($button);
 
     $button.addEventListener('confirm', () => {
+        Editor.Message.send('scene', 'snapshot');
+
         const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
 
         uuids.forEach((uuid) => {

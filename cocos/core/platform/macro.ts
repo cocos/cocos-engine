@@ -44,15 +44,17 @@ const KEY = {
 
     // android
     /**
-     * @en The back key
-     * @zh 返回键
+     * @en The back key on mobile phone
+     * @zh 移动端返回键
      * @readonly
+     * @deprecated since v3.3
      */
     back: 6,
     /**
-     * @en The menu key
-     * @zh 菜单键
+     * @en The menu key on mobile phone
+     * @zh 移动端菜单键
      * @readonly
+     * @deprecated since v3.3
      */
     menu: 18,
 
@@ -81,6 +83,7 @@ const KEY = {
      * @en The shift key
      * @zh Shift 键
      * @readonly
+     * @deprecated since v3.3, please use KeyCode.SHIFT_LEFT instead.
      */
     shift: 16, // should use shiftkey instead
 
@@ -88,6 +91,7 @@ const KEY = {
      * @en The ctrl key
      * @zh Ctrl 键
      * @readonly
+     * @deprecated since v3.3, please use KeyCode.CTRL_LEFT instead.
      */
     ctrl: 17, // should use ctrlkey
 
@@ -95,6 +99,7 @@ const KEY = {
      * @en The alt key
      * @zh Alt 键
      * @readonly
+     * @deprecated since v3.3, please use KeyCode.ALT_LEFT instead.
      */
     alt: 18, // should use altkey
 
@@ -186,6 +191,7 @@ const KEY = {
      * @en The select key
      * @zh Select 键
      * @readonly
+     * @deprecated since v3.3
      */
     select: 41,
 
@@ -207,6 +213,7 @@ const KEY = {
      * @en The '0' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 0 键
      * @readonly
+     * @deprecated since v3.3
      */
     0: 48,
 
@@ -214,6 +221,7 @@ const KEY = {
      * @en The '1' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 1 键
      * @readonly
+     * @deprecated since v3.3
      */
     1: 49,
 
@@ -221,6 +229,7 @@ const KEY = {
      * @en The '2' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 2 键
      * @readonly
+     * @deprecated since v3.3
      */
     2: 50,
 
@@ -228,6 +237,7 @@ const KEY = {
      * @en The '3' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 3 键
      * @readonly
+     * @deprecated since v3.3
      */
     3: 51,
 
@@ -235,6 +245,7 @@ const KEY = {
      * @en The '4' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 4 键
      * @readonly
+     * @deprecated since v3.3
      */
     4: 52,
 
@@ -242,6 +253,7 @@ const KEY = {
      * @en The '5' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 5 键
      * @readonly
+     * @deprecated since v3.3
      */
     5: 53,
 
@@ -249,6 +261,7 @@ const KEY = {
      * @en The '6' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 6 键
      * @readonly
+     * @deprecated since v3.3
      */
     6: 54,
 
@@ -256,6 +269,7 @@ const KEY = {
      * @en The '7' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 7 键
      * @readonly
+     * @deprecated since v3.3
      */
     7: 55,
 
@@ -263,6 +277,7 @@ const KEY = {
      * @en The '8' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 8 键
      * @readonly
+     * @deprecated since v3.3
      */
     8: 56,
 
@@ -270,6 +285,7 @@ const KEY = {
      * @en The '9' key on the top of the alphanumeric keyboard.
      * @zh 字母键盘上的 9 键
      * @readonly
+     * @deprecated since v3.3
      */
     9: 57,
 
@@ -529,6 +545,7 @@ const KEY = {
      * @en The numeric keypad '*'
      * @zh 数字键盘 *
      * @readonly
+     * @deprecated since v3.3
      */
     '*': 106,
 
@@ -536,6 +553,7 @@ const KEY = {
      * @en The numeric keypad '+'
      * @zh 数字键盘 +
      * @readonly
+     * @deprecated since v3.3
      */
     '+': 107,
 
@@ -543,6 +561,7 @@ const KEY = {
      * @en The numeric keypad '-'
      * @zh 数字键盘 -
      * @readonly
+     * @deprecated since v3.3
      */
     '-': 109,
 
@@ -557,6 +576,7 @@ const KEY = {
      * @en The numeric keypad '/'
      * @zh 数字键盘 /
      * @readonly
+     * @deprecated since v3.3
      */
     '/': 111,
 
@@ -662,6 +682,7 @@ const KEY = {
      * @en The ';' key.
      * @zh 分号键
      * @readonly
+     * @deprecated since v3.3
      */
     ';': 186,
 
@@ -683,6 +704,7 @@ const KEY = {
      * @en The '=' key.
      * @zh 等于号键
      * @readonly
+     * @deprecated since v3.3
      */
     '=': 187,
 
@@ -690,6 +712,7 @@ const KEY = {
      * @en The ',' key.
      * @zh 逗号键
      * @readonly
+     * @deprecated since v3.3
      */
     ',': 188,
 
@@ -711,6 +734,7 @@ const KEY = {
      * @en The '.' key.
      * @zh 句号键
      * @readonly
+     * @deprecated since v3.3
      */
     '.': 190,
 
@@ -739,6 +763,7 @@ const KEY = {
      * @en The '[' key
      * @zh 按键 [
      * @readonly
+     * @deprecated since v3.3
      */
     '[': 219,
 
@@ -760,6 +785,7 @@ const KEY = {
      * @en The ']' key
      * @zh 按键 ]
      * @readonly
+     * @deprecated since v3.3
      */
     ']': 221,
 
@@ -783,6 +809,7 @@ const KEY = {
      * @en The dpad left key
      * @zh 导航键 向左
      * @readonly
+     * @deprecated since v3.3
      */
     dpadLeft: 1000,
 
@@ -790,6 +817,7 @@ const KEY = {
      * @en The dpad right key
      * @zh 导航键 向右
      * @readonly
+     * @deprecated since v3.3
      */
     dpadRight: 1001,
 
@@ -797,6 +825,7 @@ const KEY = {
      * @en The dpad up key
      * @zh 导航键 向上
      * @readonly
+     * @deprecated since v3.3
      */
     dpadUp: 1003,
 
@@ -804,6 +833,7 @@ const KEY = {
      * @en The dpad down key
      * @zh 导航键 向下
      * @readonly
+     * @deprecated since v3.3
      */
     dpadDown: 1004,
 
@@ -811,6 +841,7 @@ const KEY = {
      * @en The dpad center key
      * @zh 导航键 确定键
      * @readonly
+     * @deprecated since v3.3
      */
     dpadCenter: 1005,
 };
@@ -836,6 +867,7 @@ const macro = {
      * @en Key map for keyboard event
      * @zh 键盘事件的按键值。
      * @example {@link cocos/core/platform/CCCommon/KEY.js}
+     * @deprecated since v3.3 please use KeyCode instead
      */
     KEY,
 

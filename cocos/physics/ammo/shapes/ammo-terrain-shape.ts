@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { Vec3, warn } from '../../../core';
 import { TerrainCollider } from '../../../../exports/physics-framework';
@@ -52,13 +52,12 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
     setTerrain (v: ITerrainAsset | null): void {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
+        if (this._btShape != null && AmmoConstant.isNotEmptyShape(this._btShape)) {
             // TODO: change the terrain asset after initialization
             warn('[Physics] Ammo change the terrain asset after initialization is not support.');
         } else {
             const terrain = v;
             if (terrain) {
-                this._terrainID = terrain._uuid;
                 this._tileSize = terrain.tileSize;
                 const sizeI = terrain.getVertexCountI();
                 const sizeJ = terrain.getVertexCountJ();
@@ -88,20 +87,20 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
                 );
                 this.scale.setValue(this._tileSize, 1, this._tileSize);
                 this._btShape.setLocalScaling(this.scale);
+                this.setCompound(this._btCompound);
+                this.updateByReAdd();
             } else {
                 this._btShape = AmmoConstant.instance.EMPTY_SHAPE;
             }
         }
     }
 
-    private _terrainID: string;
     private _buffPtr: number;
     private _tileSize: number;
     private _localOffset: Vec3;
 
     constructor () {
         super(AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE);
-        this._terrainID = '';
         this._buffPtr = 0;
         this._tileSize = 0;
         this._localOffset = new Vec3();
@@ -128,7 +127,4 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
         cocos2AmmoVec3(this.transform.getOrigin(), CC_V3_0);
         this.updateCompoundTransform();
     }
-
-    // setScale () {
-    // }
 }

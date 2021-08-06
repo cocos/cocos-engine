@@ -35,6 +35,12 @@ import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
+import { Node } from '../core';
+
+enum AudioSourceEventType {
+    STARTED = 'started',
+    ENDED = 'ended',
+}
 
 /**
  * @en
@@ -51,6 +57,8 @@ export class AudioSource extends Component {
         return AudioPlayer.maxAudioChannel;
     }
     public static AudioState = AudioState;
+
+    public static EventType = AudioSourceEventType;
 
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
@@ -119,6 +127,7 @@ export class AudioSource extends Component {
             this._player = player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);
+                this.node.emit(AudioSourceEventType.ENDED, this);
             });
             player.onInterruptionBegin(() => {
                 audioManager.removePlaying(player);
@@ -200,11 +209,26 @@ export class AudioSource extends Component {
     }
 
     public onDisable () {
+        const rootNode = this._getRootNode();
+        if (rootNode?._persistNode) {
+            return;
+        }
         this.pause();
     }
 
     public onDestroy () {
         this.stop();
+        this._player?.destroy();
+    }
+
+    private _getRootNode (): Node | null | undefined {
+        let currentNode = this.node as Node | undefined | null;
+        let currentGrandparentNode = currentNode?.parent?.parent;
+        while (currentGrandparentNode) {
+            currentNode = currentNode?.parent;
+            currentGrandparentNode = currentNode?.parent?.parent;
+        }
+        return currentNode;
     }
 
     /**
@@ -229,6 +253,7 @@ export class AudioSource extends Component {
         }
         this._player?.play().then(() => {
             audioManager.addPlaying(this._player!);
+            this.node.emit(AudioSourceEventType.STARTED, this);
         }).catch((e) => {});
     }
 

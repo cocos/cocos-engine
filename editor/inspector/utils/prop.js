@@ -4,7 +4,7 @@
  * @param {*} value of dump
  * @returns {key:string dump:object}[]
  */
-exports.sortProp = function (propMap) {
+exports.sortProp = function(propMap) {
     const orderList = [];
     const normalList = [];
 
@@ -35,7 +35,7 @@ exports.sortProp = function (propMap) {
  * @param {object} dump
  * @param {(element,prop)=>void} onElementCreated
  */
-exports.getCustomPropElements = function (excludeList, dump, onElementCreated) {
+exports.getCustomPropElements = function(excludeList, dump, onElementCreated) {
     const customPropElements = [];
     const sortedProp = exports.sortProp(dump.value);
     sortedProp.forEach((prop) => {
@@ -54,7 +54,7 @@ exports.getCustomPropElements = function (excludeList, dump, onElementCreated) {
 /**
  * Tool function: recursively set readonly in resource data
  */
-exports.loopSetAssetDumpDataReadonly = function (dump) {
+exports.loopSetAssetDumpDataReadonly = function(dump) {
     if (typeof dump !== 'object') {
         return;
     }
@@ -82,7 +82,7 @@ exports.loopSetAssetDumpDataReadonly = function (dump) {
  * @param {object} data  dump | function
  * @param element
  */
-exports.setDisabled = function (data, element) {
+exports.setDisabled = function(data, element) {
     if (!element) {
         return;
     }
@@ -105,7 +105,7 @@ exports.setDisabled = function (data, element) {
  * @param {object} data  dump | function
  * @param element
  */
-exports.setReadonly = function (data, element) {
+exports.setReadonly = function(data, element) {
     if (!element) {
         return;
     }
@@ -130,10 +130,10 @@ exports.setReadonly = function (data, element) {
 
 /**
  * Tool function: Set the display status
- * @param {object} data  dump | function
- * @param element
+ * @param {Function | boolean} data  dump | function
+ * @param {HTMLElement} element
  */
-exports.setHidden = function (data, element) {
+exports.setHidden = function(data, element) {
     if (!element) {
         return;
     }
@@ -151,7 +151,7 @@ exports.setHidden = function (data, element) {
     }
 };
 
-exports.updatePropByDump = function (panel, dump) {
+exports.updatePropByDump = function(panel, dump) {
     panel.dump = dump;
 
     if (!panel.elements) {
@@ -216,20 +216,15 @@ exports.updatePropByDump = function (panel, dump) {
             return;
         }
 
-        if ($children[i]) {
-            $children[i].replaceWith(child);
-        } else {
-            panel.$.componentContainer.appendChild(child);
-        }
+        panel.$.componentContainer.appendChild(child);
     });
 
     // delete extra children
-    $children = Array.from(panel.$.componentContainer.children);
-    if ($children.length > children.length) {
-        for (let i = children.length; i < $children.length; i++) {
-            $children[i].remove();
+    $children.forEach(($child) => {
+        if (!children.includes($child)) {
+            $child.remove();
         }
-    }
+    });
 
     for (const key in panel.elements) {
         const element = panel.elements[key];
@@ -250,7 +245,7 @@ exports.updatePropByDump = function (panel, dump) {
 /**
  * Tool function: check whether the value of the attribute is consistent after multi-selection
  */
-exports.isMultipleInvalid = function (dump) {
+exports.isMultipleInvalid = function(dump) {
     let invalid = false;
 
     if (dump.values && dump.values.some((ds) => ds !== dump.value)) {
@@ -258,4 +253,62 @@ exports.isMultipleInvalid = function (dump) {
     }
 
     return invalid;
+};
+/**
+ * Get the name based on the dump data
+ */
+/**
+ * 
+ * @param {string} dump 
+ * @returns 
+ */
+exports.getName = function(dump) {
+    if (!dump) {
+        return '';
+    }
+
+    if (dump.displayName) {
+        return dump.displayName;
+    }
+
+    let name = dump.name || '';
+
+    name = name.replace(/^\S/, (str) => str.toUpperCase());
+    name = name.replace(/_/g, (str) => ' ');
+    name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
+
+    return name.trim();
+};
+
+exports.setTooltip = function(element, dump) {
+    if (dump.tooltip) {
+        let tooltip = dump.tooltip;
+        if (tooltip.startsWith('i18n:')) {
+            tooltip = Editor.I18n.t('ENGINE.' + tooltip.substr(5));
+            // 如果 ENGINE 翻译不出来，就当成插件的翻译数据，尝试直接翻译
+            if (!tooltip || tooltip === dump.tooltip) {
+                tooltip = Editor.I18n.t(dump.tooltip.substr(5)) || dump.tooltip;
+            }
+        }
+        element.setAttribute('tooltip', tooltip);
+    } else {
+        element.removeAttribute('tooltip');
+    }
+};
+
+/**
+* Sets the generic property Label in prop
+* name and tooltip
+*/
+exports.setLabel = function($label, dump) {
+    if (!dump) {
+        dump = this.dump;
+    }
+
+    if (!$label || !dump) {
+        return;
+    }
+
+    $label.innerHTML = exports.getName(dump);
+    exports.setTooltip($label, dump);
 };

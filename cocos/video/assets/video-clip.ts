@@ -45,17 +45,14 @@ export class VideoClip extends Asset {
 
     constructor () {
         super();
-        this.loaded = false;
     }
 
     set _nativeAsset (clip: HTMLVideoElement | null) {
         this._video = clip;
         if (clip) {
             this._duration = clip.duration;
-            this.loaded = true;
         } else {
             this._duration = 0;
-            this.loaded = false;
         }
     }
 

@@ -101,6 +101,9 @@ export function quintInOut (k: number) {
 }
 
 export function sineIn (k: number) {
+    if (k === 1) {
+        return 1;
+    }
     return 1 - Math.cos(k * Math.PI / 2);
 }
 
@@ -213,11 +216,17 @@ export function elasticInOut (k: number) {
 }
 
 export function backIn (k: number) {
+    if (k === 1) {
+        return 1;
+    }
     const s = 1.70158;
     return k * k * ((s + 1) * k - s);
 }
 
 export function backOut (k: number) {
+    if (k === 0) {
+        return 0;
+    }
     const s = 1.70158;
     return --k * k * ((s + 1) * k + s) + 1;
 }

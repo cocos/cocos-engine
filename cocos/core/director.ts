@@ -32,14 +32,14 @@
  * @module core
  */
 
-import { DEBUG, EDITOR, BUILD } from 'internal:constants';
+import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
-import { Game } from './game';
-import { Color, size, v2, Vec2 } from './math';
-import eventManager from './platform/event-manager/event-manager';
+import { game, Game } from './game';
+import { v2, Vec2 } from './math';
+import { eventManager } from './platform/event-manager/event-manager';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
 import { ComponentScheduler } from './scene-graph/component-scheduler';
@@ -47,74 +47,27 @@ import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
-import { errorID, error, logID, assertID, warnID } from './platform/debug';
+import { errorID, error, assertID, warnID } from './platform/debug';
+import inputManager from './platform/event-manager/input-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
 /**
  * @en
- * <p>
- *    ATTENTION: USE `director` INSTEAD OF `Director`.<br/>
- *    `director` is a singleton object which manage your game's logic flow.<br/>
- *    Since the `director` is a singleton, you don't need to call any constructor or create functions,<br/>
- *    the standard way to use it is by calling:<br/>
- *      - `director.methodName();` <br/>
- *
- *    It creates and handle the main Window and manages how and when to execute the Scenes.<br/>
- *    <br/>
- *    The `director` is also responsible for:<br/>
- *      - initializing the OpenGL context<br/>
- *      - setting the OpenGL pixel format (default on is RGB565)<br/>
- *      - setting the OpenGL buffer depth (default on is 0-bit)<br/>
- *      - setting the color for clear screen (default one is BLACK)<br/>
- *      - setting the projection (default one is 3D)<br/>
- *      - setting the orientation (default one is Portrait)<br/>
- *      <br/>
- *    <br/>
- *    The `director` also sets the default OpenGL context:<br/>
- *      - GL_TEXTURE_2D is enabled<br/>
- *      - GL_VERTEX_ARRAY is enabled<br/>
- *      - GL_COLOR_ARRAY is enabled<br/>
- *      - GL_TEXTURE_COORD_ARRAY is enabled<br/>
- * </p>
- * <p>
- *   `director` also synchronizes timers with the refresh rate of the display.<br/>
- *   Features and Limitations:<br/>
- *      - Scheduled timers & drawing are synchronizes with the refresh rate of the display<br/>
- *      - Only supports animation intervals of 1/60 1/30 & 1/15<br/>
- * </p>
+ * ATTENTION: USE `director` INSTEAD OF `Director`.
+ * `director` is a singleton object which manage your game's logic flow.
+ * Since the `director` is a singleton, you don't need to call any constructor or create functions,
+ * the standard way to use it is by calling:
+ * `director.methodName();`
+ * It creates and handle the main Window and manages how and when to execute the Scenes.
  *
  * @zh
- * <p>
- *     注意：用 `director` 代替 `Director`。<br/>
- *     `director` 一个管理你的游戏的逻辑流程的单例对象。<br/>
- *     由于 `director` 是一个单例，你不需要调用任何构造函数或创建函数，<br/>
- *     使用它的标准方法是通过调用：<br/>
- *       - `director.methodName();`
- *     <br/>
- *     它创建和处理主窗口并且管理什么时候执行场景。<br/>
- *     <br/>
- *     `director` 还负责：<br/>
- *      - 初始化 OpenGL 环境。<br/>
- *      - 设置OpenGL像素格式。(默认是 RGB565)<br/>
- *      - 设置OpenGL缓冲区深度 (默认是 0-bit)<br/>
- *      - 设置空白场景的颜色 (默认是 黑色)<br/>
- *      - 设置投影 (默认是 3D)<br/>
- *      - 设置方向 (默认是 Portrait)<br/>
- *    <br/>
- *    `director` 设置了 OpenGL 默认环境 <br/>
- *      - GL_TEXTURE_2D   启用。<br/>
- *      - GL_VERTEX_ARRAY 启用。<br/>
- *      - GL_COLOR_ARRAY  启用。<br/>
- *      - GL_TEXTURE_COORD_ARRAY 启用。<br/>
- * </p>
- * <p>
- *   `director` 也同步定时器与显示器的刷新速率。
- *   <br/>
- *   特点和局限性: <br/>
- *      - 将计时器 & 渲染与显示器的刷新频率同步。<br/>
- *      - 只支持动画的间隔 1/60 1/30 & 1/15。<br/>
- * </p>
+ * 注意：用 `director` 代替 `Director`。
+ * `director` 一个管理你的游戏的逻辑流程的单例对象。
+ * 由于 `director` 是一个单例，你不需要调用任何构造函数或创建函数，
+ * 使用它的标准方法是通过调用：
+ * `director.methodName();`
+ * 它创建和处理主窗口并且管理什么时候执行场景。
  */
 export class Director extends EventTarget {
     /**
@@ -232,20 +185,30 @@ export class Director extends EventTarget {
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
+    /**
+     * The event which will be triggered at the frame begin.<br/>
+     * 一帧开始时所触发的事件。
+     * @event Director.EVENT_BEGIN_FRAME
+     */
+    public static readonly EVENT_BEGIN_FRAME = 'director_begin_frame';
+
+    /**
+     * The event which will be triggered at the frame end.<br/>
+     * 一帧结束之后所触发的事件。
+     * @event Director.EVENT_END_FRAME
+     */
+    public static readonly EVENT_END_FRAME = 'director_end_frame';
+
     public static instance: Director;
 
     public _compScheduler: ComponentScheduler;
     public _nodeActivator: NodeActivator;
     private _invalid: boolean;
     private _paused: boolean;
-    private _purgeDirectorInNextLoop: boolean;
     private _root: Root | null;
     private _loadingScene: string;
     private _scene: Scene | null;
     private _totalFrames: number;
-    private _lastUpdate: number;
-    private _deltaTime: number;
-    private _startTime: number;
     private _scheduler: Scheduler;
     private _systems: System[];
 
@@ -255,8 +218,6 @@ export class Director extends EventTarget {
         this._invalid = false;
         // paused?
         this._paused = false;
-        // purge?
-        this._purgeDirectorInNextLoop = false;
 
         // root
         this._root = null;
@@ -267,9 +228,6 @@ export class Director extends EventTarget {
 
         // FPS
         this._totalFrames = 0;
-        this._lastUpdate = 0;
-        this._deltaTime = 0.0;
-        this._startTime = 0.0;
 
         // Scheduler for user registration update
         this._scheduler = new Scheduler();
@@ -280,23 +238,15 @@ export class Director extends EventTarget {
 
         this._systems = [];
 
-        legacyCC.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
+        game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
     }
 
     /**
      * @en Calculates delta time since last time it was called, the result is saved to an internal property.
      * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
+     * @deprecated since v3.3.0 no need to use it anymore
      */
-    public calculateDeltaTime (now) {
-        if (!now) now = performance.now();
-
-        this._deltaTime = now > this._lastUpdate ? (now - this._lastUpdate) / 1000 : 0;
-        if (DEBUG && (this._deltaTime > 1)) {
-            this._deltaTime = 1 / 60.0;
-        }
-
-        this._lastUpdate = now;
-    }
+    public calculateDeltaTime (now) {}
 
     /**
      * @en
@@ -307,7 +257,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public convertToGL (uiPoint: Vec2) {
-        const container = legacyCC.game.container as Element;
+        const container = game.container as Element;
         const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
@@ -326,7 +276,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public convertToUI (glPoint: Vec2) {
-        const container = legacyCC.game.container as Element;
+        const container = game.container as Element;
         const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
@@ -347,33 +297,9 @@ export class Director extends EventTarget {
      * @zh 执行完当前帧后停止 director 的执行
      */
     public end () {
-        this._purgeDirectorInNextLoop = true;
-    }
-
-    /**
-     * @en
-     * Returns the size of the WebGL view in points.<br/>
-     * It takes into account any possible rotation (device orientation) of the window.
-     * @zh 获取视图的大小，以点为单位。
-     * @deprecated since v2.0
-     */
-    public getWinSize () {
-        return size(legacyCC.winSize);
-    }
-
-    /**
-     * @en
-     * Returns the size of the OpenGL view in pixels.<br/>
-     * It takes into account any possible rotation (device orientation) of the window.<br/>
-     * On Mac winSize and winSizeInPixels return the same value.
-     * (The pixel here refers to the resource resolution. If you want to get the physics resolution of device, you need to use `view.getFrameSize()`)
-     * @zh
-     * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
-     * 如果要获取屏幕物理分辨率，需要用 `view.getFrameSize()`）
-     * @deprecated since v2.0
-     */
-    public getWinSizeInPixels () {
-        return size(legacyCC.winSize);
+        this.once(Director.EVENT_END_FRAME, () => {
+            this.purgeDirector();
+        });
     }
 
     /**
@@ -389,15 +315,6 @@ export class Director extends EventTarget {
             return;
         }
         this._paused = true;
-    }
-
-    /**
-     * @en Removes cached all cocos2d cached data.
-     * @zh 删除cocos2d所有的缓存数据
-     * @deprecated since v2.0
-     */
-    public purgeCachedData () {
-        legacyCC.assetManager.releaseAll();
     }
 
     /**
@@ -472,7 +389,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => legacyCC.game._persistRootNodes[x] as Node);
+        const persistNodeList = Object.keys(game._persistRootNodes).map((x) => game._persistRootNodes[x] as Node);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -504,7 +421,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, legacyCC.game._persistRootNodes);
+            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, game._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -563,7 +480,7 @@ export class Director extends EventTarget {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
+        this.once(legacyCC.Director.EVENT_END_FRAME, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     }
@@ -659,57 +576,11 @@ export class Director extends EventTarget {
         if (!this._paused) {
             return;
         }
-
-        this._lastUpdate = performance.now();
-        if (!this._lastUpdate) {
-            logID(1200);
-        }
-
         this._paused = false;
-        this._deltaTime = 0;
-    }
-
-    /**
-     * @en
-     * Enables or disables WebGL depth test.<br>
-     * Implementation can be found in directorCanvas.js/directorWebGL.js
-     * @zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
-     * @deprecated since v2.0
-     */
-    public setDepthTest (value: boolean) {
-        if (!legacyCC.Camera.main) {
-            return;
-        }
-        legacyCC.Camera.main.depth = !!value;
-    }
-
-    /**
-     * @en
-     * Set color for clear screen.<br>
-     * (Implementation can be found in directorCanvas.js/directorWebGL.js)
-     * @zh
-     * 设置场景的默认擦除颜色。<br>
-     * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 `macro.ENABLE_TRANSPARENT_CANVAS`。
-     * @deprecated since v2.0
-     */
-    public setClearColor (clearColor: Color) {
-        if (!legacyCC.Camera.main) {
-            return;
-        }
-        legacyCC.Camera.main.backgroundColor = clearColor;
     }
 
     get root () {
         return this._root;
-    }
-
-    /**
-     * @en Returns current logic Scene.
-     * @zh 获取当前逻辑场景。
-     * @deprecated Since v2.0.
-     */
-    public getRunningScene () {
-        return this._scene;
     }
 
     /**
@@ -727,48 +598,30 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Returns the FPS value. Please use [[Game.setFrameRate]] to control animation interval.
-     * @zh 获取单位帧执行时间。请使用 [[Game.setFrameRate]] 来控制游戏帧率。
-     * @deprecated since v2.0.
-     */
-    public getAnimationInterval () {
-        return 1000 / legacyCC.game.getFrameRate();
-    }
-
-    /**
-     * @en Sets animation interval, this doesn't control the main loop.<br>
-     * To control the game's frame rate overall, please use `game.setFrameRate`
-     * @zh 设置动画间隔，这不控制主循环。<br>
-     * 要控制游戏的帧速率，请使用 `game.setFrameRate`
-     * @deprecated since v2.0
-     * @param value - The animation interval desired.
-     */
-    public setAnimationInterval (value: number) {
-        legacyCC.game.setFrameRate(Math.round(1000 / value));
-    }
-
-    /**
      * @en Returns the delta time since last frame.
      * @zh 获取上一帧的增量时间。
+     * @deprecated since v3.3.0, please use game.deltaTime instead
      */
     public getDeltaTime () {
-        return this._deltaTime;
+        return game.deltaTime;
     }
 
     /**
      * @en Returns the total passed time since game start, unit: ms
      * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     * @deprecated since v3.3.0, please use game.totalTime instead
      */
     public getTotalTime () {
-        return performance.now() - this._startTime;
+        return game.totalTime;
     }
 
     /**
      * @en Returns the current time.
      * @zh 获取当前帧的时间。
+     * @deprecated since v3.3.0, please use game.frameStartTime instead
      */
     public getCurrentTime () {
-        return this._lastUpdate;
+        return game.frameStartTime;
     }
 
     /**
@@ -835,7 +688,7 @@ export class Director extends EventTarget {
     /**
      * @en Returns the `AnimationManager` associated with this director. Please use getSystem(AnimationManager.ID)
      * @zh 获取和 director 相关联的 `AnimationManager`（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
-     * @deprecated
+     * @deprecated since 3.0.0
      */
     public getAnimationManager (): any {
         return this.getSystem(legacyCC.AnimationManager.ID);
@@ -843,17 +696,16 @@ export class Director extends EventTarget {
 
     // Loop management
     /**
-     * @en Starts Animation
-     * @zh 开始动画
+     * @en Starts the director
+     * @zh 开始执行游戏逻辑
      */
     public startAnimation () {
         this._invalid = false;
-        this._lastUpdate = performance.now();
     }
 
     /**
-     * @en Stops animation
-     * @zh 停止动画
+     * @en Stops the director
+     * @zh 停止执行游戏逻辑，每帧渲染会继续执行
      */
     public stopAnimation () {
         this._invalid = true;
@@ -862,21 +714,29 @@ export class Director extends EventTarget {
     /**
      * @en Run main loop of director
      * @zh 运行主循环
+     * @deprecated please use [tick] instead
      */
-    public mainLoop (time: number) {
-        if (this._purgeDirectorInNextLoop) {
-            this._purgeDirectorInNextLoop = false;
-            this.purgeDirector();
-        } else if (!this._invalid) {
-            // calculate "global" dt
-            if (EDITOR && !legacyCC.GAME_VIEW) {
-                this._deltaTime = time;
-            } else {
-                this.calculateDeltaTime(time);
+    public mainLoop (now: number) {
+        let dt;
+        if (EDITOR && !legacyCC.GAME_VIEW || TEST) {
+            dt = now;
+        } else {
+            // @ts-expect-error using internal API for deprecation
+            dt = game._calculateDT(now);
+        }
+        this.tick(dt);
+    }
+
+    /**
+     * @en Run main loop of director
+     * @zh 运行主循环
+     */
+    public tick (dt: number) {
+        if (!this._invalid) {
+            this.emit(Director.EVENT_BEGIN_FRAME);
+            if (!EDITOR) {
+                inputManager.frameDispatchEvents();
             }
-
-            const dt = this._deltaTime;
-
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
@@ -902,21 +762,21 @@ export class Director extends EventTarget {
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
-            this._root!.frameMove(this._deltaTime);
+            // The test environment does not currently support the renderer
+            if (!TEST) this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
-            Node.clearBooks();
+            Node.resetHasChangedFlags();
+            Node.clearNodeArray();
+            this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }
     }
 
     private _initOnRendererInitialized () {
         this._totalFrames = 0;
-        this._lastUpdate = performance.now();
-        this._startTime = this._lastUpdate;
         this._paused = false;
-        this._purgeDirectorInNextLoop = false;
 
         // Event manager
         if (eventManager) {
@@ -931,7 +791,10 @@ export class Director extends EventTarget {
     }
 
     private _init () {
-        this._root = new Root(legacyCC.game._gfxDevice);
+        // The test environment does not currently support the renderer
+        if (TEST) return Promise.resolve();
+        // @ts-expect-error internal api usage
+        this._root = new Root(game._gfxDevice);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {
             errorID(1217);

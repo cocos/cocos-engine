@@ -127,7 +127,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const key in Elements) {
         if (Elements[key].ready) {
             Elements[key].ready.call(this);
@@ -135,7 +135,7 @@ exports.ready = function () {
     }
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.metaList = metaList;
     this.assetList = assetList;
     this.meta = metaList[0];

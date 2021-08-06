@@ -16,8 +16,7 @@
         "__id__": 6
       }
     ],
-    "renderTextures": [],
-    "materials": []
+    "renderTextures": []
   },
   {
     "__type__": "ShadowFlow",
@@ -76,7 +75,7 @@
         "__id__": 7
       },
       {
-        "__id__": 8
+        "__id__": 9
       }
     ]
   },
@@ -85,30 +84,27 @@
     "_name": "LightingStage",
     "_priority": 0,
     "_tag": 0,
-    "_deferredMaterial": {
-      "__uuid__": "016951c5-5a09-4dd0-9bb7-f4958a82d690"
-    }
-  },
-  {
-    "__type__": "PostprocessStage",
-    "_name": "PostprocessStage",
-    "_priority": 0,
-    "_tag": 0,
-    "_postprocessMaterial": {
-      "__uuid__": "85c4d630-c264-4b18-90a4-c52d594e6099"
-    },
     "renderQueues": [
       {
-        "__id__": 9
+        "__id__": 8
       }
-    ]
+    ],
+    "_deferredMaterial": null
   },
   {
     "__type__": "RenderQueueDesc",
     "isTransparent": true,
     "sortMode": 1,
     "stages": [
-      "default"
+      "default",
+      "deferred"
     ]
+  },
+  {
+    "__type__": "PostprocessStage",
+    "_name": "PostprocessStage",
+    "_priority": 0,
+    "_tag": 0,
+    "_postProcessMaterial": null
   }
 ]

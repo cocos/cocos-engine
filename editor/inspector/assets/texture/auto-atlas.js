@@ -18,7 +18,7 @@ const Elements = texture.Elements;
  * @param assetList
  * @param metaList
  */
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -40,4 +40,4 @@ exports.update = function (assetList, metaList) {
  */
 exports.ready = texture.ready;
 
-exports.methods = texture.methods;;
+exports.methods = texture.methods;

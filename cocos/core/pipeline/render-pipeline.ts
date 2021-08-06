@@ -33,11 +33,11 @@ import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
 import { RenderFlow } from './render-flow';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo, Feature, Rect } from '../gfx';
-import { globalDescriptorSetLayout } from './define';
+import { Device, DescriptorSet, CommandBuffer, Feature, Rect } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { PipelineUBO } from './pipeline-ubo';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { GlobalDSManager } from './global-descriptor-set-manager';
 
 /**
  * @en Render pipeline information descriptor
@@ -121,8 +121,12 @@ export abstract class RenderPipeline extends Asset {
         return this._device;
     }
 
+    get globalDSManager () {
+        return this._globalDSManager;
+    }
+
     get descriptorSetLayout () {
-        return this._descriptorSetLayout;
+        return this._globalDSManager.descriptorSetLayout;
     }
 
     get descriptorSet () {
@@ -142,13 +146,13 @@ export abstract class RenderPipeline extends Asset {
     }
 
     protected _device!: Device;
-    protected _descriptorSetLayout!: DescriptorSetLayout;
+    protected _globalDSManager!: GlobalDSManager;
     protected _descriptorSet!: DescriptorSet;
     protected _commandBuffers: CommandBuffer[] = [];
     protected _pipelineUBO = new PipelineUBO();
-    protected _pipelineSceneData = new PipelineSceneData();
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
+    protected declare _pipelineSceneData: PipelineSceneData;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -187,9 +191,8 @@ export abstract class RenderPipeline extends Asset {
      */
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
-        const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
-        this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
-        this._descriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
+        this._globalDSManager = new GlobalDSManager(this);
+        this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
         this._pipelineSceneData.activate(this._device, this);
 
@@ -210,10 +213,12 @@ export abstract class RenderPipeline extends Asset {
      * @param view Render view。
      */
     public render (cameras: Camera[]) {
-        for (let j = 0; j < this.flows.length; j++) {
-            for (let i = 0; i < cameras.length; i++) {
-                const camera = cameras[i];
-                this.flows[j].render(camera);
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.scene) {
+                for (let j = 0; j < this._flows.length; j++) {
+                    this._flows[j].render(camera);
+                }
             }
         }
     }
@@ -230,15 +235,16 @@ export abstract class RenderPipeline extends Asset {
 
         if (this._descriptorSet) {
             this._descriptorSet.destroy();
-            this._descriptorSet = null!;
         }
+
+        this._globalDSManager?.destroy();
 
         for (let i = 0; i < this._commandBuffers.length; i++) {
             this._commandBuffers[i].destroy();
         }
         this._commandBuffers.length = 0;
         this._pipelineUBO.destroy();
-        this._pipelineSceneData.destroy();
+        this._pipelineSceneData?.destroy();
 
         return super.destroy();
     }

@@ -38,10 +38,11 @@ import { game } from '../../core/game';
 import { Vec3 } from '../../core/math';
 import { view } from '../../core/platform/view';
 import { legacyCC } from '../../core/global-exports';
-import { SystemEventType } from '../../core/platform/event-manager';
 import { Enum } from '../../core/value-types/enum';
 import visibleRect from '../../core/platform/visible-rect';
 import { RenderRoot2D } from './render-root-2d';
+import { Node } from '../../core';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const _worldPos = new Vec3();
 
@@ -174,6 +175,7 @@ export class Canvas extends RenderRoot2D {
         if (!EDITOR) {
             if (this._cameraComponent) {
                 this._cameraComponent._createCamera();
+                this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
             }
         }
 
@@ -189,7 +191,21 @@ export class Canvas extends RenderRoot2D {
             this._objFlags |= legacyCC.Object.Flags.IsPositionLocked | legacyCC.Object.Flags.IsSizeLocked | legacyCC.Object.Flags.IsAnchorLocked;
         }
 
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+        this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+    }
+
+    public onEnable () {
+        super.onEnable();
+        if (!EDITOR && this._cameraComponent) {
+            this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+        }
+    }
+
+    public onDisable () {
+        super.onDisable();
+        if (this._cameraComponent) {
+            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+        }
     }
 
     public onDestroy () {
@@ -199,7 +215,7 @@ export class Canvas extends RenderRoot2D {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
         }
 
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
     }
 
     protected _onResizeCamera () {

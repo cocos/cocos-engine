@@ -91,8 +91,11 @@ export function baseNodePolyfill (BaseNode) {
 
             comp.node = this;
             this._components.splice(index, 0, comp);
-            if ((EDITOR || TEST) && legacyCC.engine && (this._id in legacyCC.engine.attachedObjsForEditor)) {
-                legacyCC.engine.attachedObjsForEditor[comp._id] = comp;
+            if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
+                const node = EditorExtends.Node.getNode(this._id);
+                if (node) {
+                    EditorExtends.Component.add(comp._id, comp);
+                }
             }
             if (this._activeInHierarchy) {
                 legacyCC.director._nodeActivator.activateComp(comp);

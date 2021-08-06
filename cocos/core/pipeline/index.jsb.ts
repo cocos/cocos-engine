@@ -27,9 +27,11 @@
 declare const nr: any;
 
 import { getPhaseID } from './pass-phase'
-import { setClassName } from '../../core/utils/js';
+import { setClassName, mixin } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
+import { Asset } from '../assets/asset';
 
 nr.getPhaseID = getPhaseID;
 
@@ -41,15 +43,12 @@ export const PipelineStateManager = nr.PipelineStateManager;
 
 let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
-instancedBufferProto.get = function(pass) {
-    return oldGetFunc.call(this, pass.handle);
-};
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
-    return getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
+    return getOrCreatePipelineState.call(device, pass.native, shader, renderPass, ia);
 }
-  
+
 export function createDefaultPipeline () {
     const pipeline = new ForwardPipeline();
     pipeline.init();
@@ -69,7 +68,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
   
     public init () {
-        this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
+        this.setPipelineSharedSceneData(this.pipelineSceneData.native);
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].init();
         }
@@ -82,11 +81,11 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 
     public render (cameras) {
-      let handles = [];
+      let nativeObjs = [];
       for (let i = 0, len = cameras.length; i < len; ++i) {
-          handles.push(cameras[i].handle);
+          nativeObjs.push(cameras[i].native)
       }
-      super.render(handles);
+      super.render(nativeObjs);
     }
 
     public destroy () {
@@ -94,8 +93,16 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         super.destroy();
     }
 }
+
+mixin(ForwardPipeline.prototype, Asset.prototype);
+
+const ForwardOnLoaded = ForwardPipeline.prototype.onLoaded;
+
 // hook to invoke init after deserialization
-ForwardPipeline.prototype.onAfterDeserialize_JSB = ForwardPipeline.prototype.init;
+ForwardPipeline.prototype.onLoaded = function () {
+  if (ForwardOnLoaded) ForwardOnLoaded.call(this);
+  this.init();
+}
 
 export class ForwardFlow extends nr.ForwardFlow {
     constructor() {
@@ -179,7 +186,7 @@ export class RenderQueueDesc {
 }
 
 export class DeferredPipeline extends nr.DeferredPipeline {
-  public pipelineSceneData = new PipelineSceneData();
+  public pipelineSceneData = new DeferredPipelineSceneData();
   constructor() {
     super();
     this._tag = 0;
@@ -189,9 +196,9 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   }
 
   init() {
-    this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
+    this.setPipelineSharedSceneData(this.pipelineSceneData.native);
     for (let i = 0; i < this._flows.length; i++) {
-      this._flows[i].init();
+      this._flows[i].init(this);
     }
     let info = new nr.RenderPipelineInfo(this._tag, this._flows);
     this.initialize(info);
@@ -202,11 +209,11 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   }
 
   public render (cameras) {
-    let handles = [];
+    let nativeObjs = [];
     for (let i = 0, len = cameras.length; i < len; ++i) {
-        handles.push(cameras[i].handle);
+        nativeObjs.push(cameras[i].native)
     }
-    super.render(handles);
+    super.render(nativeObjs);
   }
 
   destroy () {
@@ -220,8 +227,15 @@ export class DeferredPipeline extends nr.DeferredPipeline {
 
 }
 
+mixin(DeferredPipeline.prototype, Asset.prototype);
+
+const DeferredOnLoaded = DeferredPipeline.prototype.onLoaded;
+
 // hook to invoke init after deserialization
-DeferredPipeline.prototype.onAfterDeserialize_JSB = DeferredPipeline.prototype.init;
+DeferredPipeline.prototype.onLoaded = function () {
+  if (DeferredOnLoaded) DeferredOnLoaded.call(this);
+  this.init();
+}
 
 export class GbufferFlow extends nr.GbufferFlow {
   constructor() {
@@ -232,9 +246,9 @@ export class GbufferFlow extends nr.GbufferFlow {
     this._stages = [];
   }
 
-  init() {
+  init(pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init();
+      this._stages[i].init(pipeline);
     }
     let info = new nr.RenderFlowInfo(
         this._name, this._priority, this._tag, this._stages);
@@ -251,7 +265,7 @@ export class GbufferStage extends nr.GbufferStage {
     this.renderQueues = []
   }
 
-  init() {
+  init(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
@@ -270,9 +284,9 @@ class LightingFlow extends nr.LightingFlow {
     this._tag = 0;
     this._stages = [];
   }
-  init() {
+  init(pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init();
+      this._stages[i].init(pipeline);
     }
     let info = new nr.RenderFlowInfo(
         this._name, this._priority, this._tag, this._stages);
@@ -287,12 +301,14 @@ export class LightingStage extends nr.LightingStage {
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
+    this._deferredMaterial = null;
   }
-  init() {
+  init(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
+    pipeline.pipelineSceneData.deferredLightingMaterial = this._deferredMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
@@ -306,12 +322,14 @@ export class PostprocessStage extends nr.PostprocessStage {
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
+    this._postProcessMaterial = null;
   }
-  init() {
+  init(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
+    pipeline.pipelineSceneData.deferredPostMaterial = this._postProcessMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);

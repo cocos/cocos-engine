@@ -20,7 +20,7 @@ exports.buildEffect = function(index, passData) {
     function encode(item) {
         let current = tree;
 
-       /**
+        /**
          * USE_INSTANCING and USE_BATCHING are common to every child in passes
          * To make editing easier, they are referred to the outside of the passes
          * At this point, you need to set each of the passes to be non-editable and invisible
@@ -168,7 +168,7 @@ exports.buildEffect = function(index, passData) {
     const dump = translate(tree);
     dump.value = tree.childMap;
     return dump;
-}
+};
 
 exports.materialTechniquePolyfill = function(origin) {
     let useInstancing;
@@ -206,4 +206,4 @@ exports.materialTechniquePolyfill = function(origin) {
     };
 
     return technique;
-}
+};

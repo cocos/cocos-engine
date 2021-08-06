@@ -74,11 +74,11 @@ function loadInnerAudioContext (url) {
 function loadAudioPlayer (url, options, onComplete) {
     cc.AudioPlayer.load(url).then(player => {
         const audioMeta = {
+            player,
             url,
             duration: player.duration,
             type: player.type,
         };
-        player.destroy();
         onComplete(null, audioMeta);
     }).catch(err => {
         onComplete(err);
@@ -136,6 +136,10 @@ function downloadJson (url, options, onComplete) {
     download(url, parseJson, options, options.onFileProgress, onComplete);
 }
 
+function downloadArrayBuffer (url, options, onComplete) {
+    download(url, parseArrayBuffer, options, options.onFileProgress, onComplete);
+}
+
 function loadFont (url, options, onComplete) {
     var fontFamily = __globalAdapter.loadFont(url);
     onComplete(null, fontFamily || 'Arial');
@@ -154,6 +158,46 @@ function doNothing (content, options, onComplete) {
 function downloadAsset (url, options, onComplete) {
     download(url, doNothing, options, options.onFileProgress, onComplete);
 }
+
+const downloadCCON = (url, options, onComplete) => {
+    downloadJson(url, options, (err, json) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        const cconPreface = cc.internal.parseCCONJson(json);
+        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise((resolve, reject) => {
+            downloadArrayBuffer(`${cc.path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
+                if (errChunk) {
+                    reject(errChunk);
+                } else {
+                    resolve(new Uint8Array(chunkBuffer));
+                }
+            });
+        })));
+        chunkPromises.then((chunks) => {
+            const ccon = new cc.internal.CCON(cconPreface.document, chunks);
+            onComplete(null, ccon);
+        }).catch((err) => {
+            onComplete(err);
+        });
+    });
+};
+
+const downloadCCONB = (url, options, onComplete) => {
+    downloadArrayBuffer(url, options, (err, arrayBuffer) => {
+        if (err) {
+            onComplete(err);
+            return;
+        }
+        try {
+            const ccon = cc.internal.decodeCCONBinary(new Uint8Array(arrayBuffer));
+            onComplete(null, ccon);
+        } catch (err) {
+            onComplete(err);
+        }
+    });
+};
 
 function downloadBundle (nameOrUrl, options, onComplete) {
     let bundleName = cc.path.basename(nameOrUrl);
@@ -211,7 +255,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                     // PATCH: for android alipay version before v10.1.95 (v10.1.95 included)
                     // to remove in the future
                     let sys = cc.sys;
-                    if (sys.platform === sys.ALIPAY_MINI_GAME && sys.os === sys.OS_ANDROID) {
+                    if (sys.platform === sys.Platform.ALIPAY_MINI_GAME && sys.os === sys.OS.ANDROID) {
                         let resPath = unzipPath + 'res/';
                         if (fs.accessSync({path: resPath})) {
                             data.base = resPath;
@@ -295,6 +339,9 @@ downloader.register({
     '.woff': downloadAsset,
     '.svg': downloadAsset,
     '.ttc': downloadAsset,
+
+    '.ccon': downloadCCON,
+    '.cconb': downloadCCONB,
 
     // Txt
     '.txt' : downloadAsset,
@@ -416,6 +463,11 @@ cc.assetManager.transformPipeline.append(function (task) {
         }
         else {
             options.__cacheBundleRoot__ = item.config.name;
+        }
+        if (item.ext === '.cconb') {
+            item.url = item.url.replace(item.ext, '.bin');
+        } else if (item.ext === '.ccon') {
+            item.url = item.url.replace(item.ext, '.json');
         }
     }
 });

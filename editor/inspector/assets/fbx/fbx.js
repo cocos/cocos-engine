@@ -18,6 +18,10 @@ exports.template = `
             <option value="60">60</option>
         </ui-select>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
+        <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
+    </ui-prop>
 </div>
 `;
 
@@ -38,6 +42,7 @@ exports.$ = {
     container: '.container',
     legacyFbxImporterCheckbox: '.legacyFbxImporter-checkbox',
     animationBakeRateSelect: '.animationBakeRate-select',
+    promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
 };
 
 /**
@@ -74,9 +79,24 @@ const Elements = {
             panel.updateReadonly(panel.$.animationBakeRateSelect);
         },
     },
+    promoteSingleRootNode: {
+        ready() {
+            const panel = this;
+
+            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'promoteSingleRootNode'));
+        },
+        update() {
+            const panel = this;
+
+            panel.$.promoteSingleRootNodeCheckbox.value = panel.getDefault(panel.meta.userData.promoteSingleRootNode, false);
+
+            panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'promoteSingleRootNode');
+            panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
+        },
+    },
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -90,7 +110,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -99,7 +119,7 @@ exports.ready = function () {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
@@ -119,7 +139,7 @@ exports.methods = {
     /**
      * Update whether a data is editable in multi-select state
      */
-     updateInvalid(element, prop) {
+    updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
             return meta.userData[prop] !== this.meta.userData[prop];
         });

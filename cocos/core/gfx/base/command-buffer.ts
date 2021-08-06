@@ -157,11 +157,14 @@ export abstract class CommandBuffer extends Obj {
     public abstract bindPipelineState (pipelineState: PipelineState): void;
 
     /**
-     * @en Bind descriptor set.
-     * @zh 绑定 GFX 描述符集。
+     * @en Bind a descriptor set. Note that the corresponding PiplieneState has to be bound first
+     * before calling this function, or the dynamic offset specified may be invalidated.
+     * @zh 绑定 GFX 描述符集。注意在调用此函数前，必须先绑定对应的 PipelineState，否则 dynamic offset 可能无效。
+     * @param set The target descriptor set index.
      * @param descriptorSet The descriptor set to be bound.
+     * @param dynamicOffsets The offset numbers for dynamic bindings.
      */
-    public abstract bindDescriptorSet (set: number, descriptorSets: DescriptorSet, dynamicOffsets?: number[]): void;
+    public abstract bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]): void;
 
     /**
      * @en Bind input assembler.
@@ -205,7 +208,7 @@ export abstract class CommandBuffer extends Obj {
      * @zh 设置混合因子。
      * @param blendConstants The new blend constants.
      */
-    public abstract setBlendConstants (blendConstants: number[]): void;
+    public abstract setBlendConstants (blendConstants: Color): void;
 
     /**
      * @en Set depth bound.

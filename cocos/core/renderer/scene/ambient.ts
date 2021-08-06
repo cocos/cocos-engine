@@ -23,10 +23,11 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../math';
-import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
 import { legacyCC } from '../../global-exports';
 import { AmbientInfo } from '../../scene-graph/scene-globals';
+import { NativeAmbient } from './native-scene';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
@@ -45,10 +46,13 @@ export class Ambient {
      * @zh 是否开启环境光
      */
     set enabled (val: boolean) {
-        AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
+        this._enabled = val;
+        if (JSB) {
+            this._nativeObj!.enabled = val;
+        }
     }
     get enabled (): boolean {
-        return AmbientPool.get(this._handle, AmbientView.ENABLE) as unknown as boolean;
+        return this._enabled;
     }
     /**
      * @en Sky color
@@ -61,7 +65,9 @@ export class Ambient {
     set skyColor (color: Color) {
         this._skyColor.set(color);
         Color.toArray(this._colorArray, this._skyColor);
-        AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
+        if (JSB) {
+            this._nativeObj!.skyColor = this._skyColor;
+        }
     }
 
     /**
@@ -69,13 +75,15 @@ export class Ambient {
      * @zh 天空亮度
      */
     get skyIllum (): number {
-        return AmbientPool.get(this._handle, AmbientView.ILLUM);
+        return this._skyIllum;
     }
 
     set skyIllum (illum: number) {
-        AmbientPool.set(this._handle, AmbientView.ILLUM, illum);
+        this._skyIllum = illum;
+        if (JSB) {
+            this._nativeObj!.skyIllum = illum;
+        }
     }
-
     /**
      * @en Ground color
      * @zh 地面颜色
@@ -87,37 +95,42 @@ export class Ambient {
     set groundAlbedo (color: Color) {
         this._groundAlbedo.set(color);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
-        AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
+        if (JSB) {
+            this._nativeObj!.groundAlbedo = this._groundAlbedo;
+        }
     }
     protected _skyColor = new Color(51, 128, 204, 1.0);
     protected _groundAlbedo = new Color(51, 51, 51, 255);
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
-    protected _handle: AmbientHandle = NULL_HANDLE;
+    protected _enabled = false;
+    protected _skyIllum = 0;
+    protected declare _nativeObj: NativeAmbient | null;
 
-    get handle () : AmbientHandle {
-        return this._handle;
+    get native (): NativeAmbient {
+        return this._nativeObj!;
     }
 
     constructor () {
-        this._handle = AmbientPool.alloc();
+        if (JSB) {
+            this._nativeObj = new NativeAmbient();
+        }
     }
 
     public initialize (ambientInfo: AmbientInfo) {
-        this._skyColor.set(ambientInfo.skyColor);
-        this._groundAlbedo.set(ambientInfo.groundAlbedo);
-        Color.toArray(this._colorArray, this._skyColor);
-        Vec3.toArray(this._albedoArray, this._groundAlbedo);
-        AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
-        AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
-        AmbientPool.set(this._handle, AmbientView.ILLUM, ambientInfo.skyIllum);
+        this.skyColor = ambientInfo.skyColor;
+        this.groundAlbedo = ambientInfo.groundAlbedo;
+        this.skyIllum = ambientInfo.skyIllum;
+    }
+
+    protected _destroy () {
+        if (JSB) {
+            this._nativeObj = null;
+        }
     }
 
     public destroy () {
-        if (this._handle) {
-            AmbientPool.free(this._handle);
-            this._handle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 }
 

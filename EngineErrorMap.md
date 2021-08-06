@@ -246,6 +246,14 @@ Director.runSceneImmediate: scene is not valid
 
 Director._initOnEngineInitialized: renderer root initialization failed
 
+### 1218
+
+Forward render pipeline initialized.
+
+### 1219
+
+Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.
+
 ### 1300
 
 %s is not in the model pool and cannot be destroyed by destroyModel.
@@ -1740,6 +1748,70 @@ animation not added or already removed
 
 already-playing
 
+### 3920
+
+Current context does not allow root motion.
+
+### 3921
+
+You provided a ill-formed track path. The last component of track path should be property key, or the setter should not be empty.
+
+### 3922
+
+Seems like we have animation for %s but are missing its parent joint %s in animation?
+
+### 3923
+
+Root motion is ignored since root bone could not be located in animation.
+
+### 3924
+
+Root motion is ignored since the root bone could not be located in scene.
+
+### 3925
+
+Target of hierarchy path should be of type Node.
+
+### 3926
+
+Node "%s" has no path "%s".
+
+### 3927
+
+Target of component path should be of type Node.
+
+### 3928
+
+Node "%s" has no component "%s".
+
+### 3929
+
+Target object has no property "%s".
+
+### 3930
+
+Can not decide type for untyped track: runtime binding does not provide a getter.
+
+### 3931
+
+Can not decide type for untyped track: got a unsupported value from runtime binding.
+
+### 3932
+
+Common targets should only target Vectors/`Size`/`Color`.
+
+### 3933
+
+Each curve that has common target should be numeric curve and targets string property.
+
+### 3934
+
+Misconfigured legacy curve: the first keyframe value is number but others aren't.
+
+### 3935
+
+We don't currently support conversion of \`CubicSplineQuatValue\`.
+
 ### 4000
 
 <!-- DEPRECATED -->
@@ -2354,6 +2426,14 @@ cc.ParticleSystem: unknown image format with Data
 ### 6032
 
 cc.ParticleSystem.initWithDictionary() : error loading the texture
+
+### 6033
+
+cc.ParticleSystem: not allowing create to be invoked twice with different particle system
+
+### 6034
+
+cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak
 
 ### 6100
 
@@ -3021,3 +3101,43 @@ The PrivateNode is deprecated, please use Node directly with CCObject.Flags.Dont
 ### 12004
 
 SubModel can only support %d passes.
+
+### 12005
+
+Material already initialized, request aborted.
+
+### 12006
+
+Pass already destroyed.
+
+### 12007
+
+This is old usage, please swap the parameters.
+
+### 12100
+
+The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
+
+### 12101
+
+The asset %s has been destroyed!
+
+### 13100
+
+Incorrect CCON magic.
+
+### 13101
+
+Unknown CCON version number: %d.
+
+### 13102
+
+CCON Format error.
+
+### 13103
+
+Can not encode CCON binary: lack of text encoder.
+
+### 13104
+
+Can not decode CCON binary: lack of text decoder.

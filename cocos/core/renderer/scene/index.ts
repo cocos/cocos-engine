@@ -35,3 +35,4 @@ export * from './skybox';
 export * from './sphere-light';
 export * from './spot-light';
 export * from './submodel';
+export * from './native-scene';

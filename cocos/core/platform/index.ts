@@ -36,6 +36,7 @@ export * from './visible-rect';
 export * from './view';
 export * from './event-manager';
 export {
+    debug,
     log,
     error,
     warn,
