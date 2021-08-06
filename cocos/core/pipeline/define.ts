@@ -259,7 +259,7 @@ export class UBOShadow {
         new Uniform('cc_matLightPlaneProj', Type.MAT4, 1),
         new Uniform('cc_matLightView', Type.MAT4, 1),
         new Uniform('cc_matLightViewProj', Type.MAT4, 1),
-        new Uniform('cc_shadowDepthBiasPerspCoeffs', Type.FLOAT4, 1),
+        new Uniform('cc_shadowDepthBiasCoeffs', Type.FLOAT4, 1),
         new Uniform('cc_shadowNFLSInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowWHPBInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),

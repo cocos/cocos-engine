@@ -22,8 +22,8 @@
 
   vec4 ApplyShadowDepthBias(vec4 shadowPos, float viewspaceDepthBias)
   {
-    float coeffA = cc_shadowDepthBiasPerspCoeffs.x;
-    float coeffB = cc_shadowDepthBiasPerspCoeffs.y;
+    float coeffA = cc_shadowDepthBiasCoeffs.x;
+    float coeffB = cc_shadowDepthBiasCoeffs.y;
 
     // Recover the Z distance in view space:
     vec4 viewSpacePos;
@@ -36,7 +36,7 @@
     vec4 result;
     result.xy = shadowPos.xy;
     result.z = viewSpacePos.z * coeffA + coeffB;
-    result.w = (cc_shadowDepthBiasPerspCoeffs.w > 0.0001) ? 1.0 : (cc_shadowDepthBiasPerspCoeffs.z * viewSpacePos.z);
+    result.w = (cc_shadowDepthBiasCoeffs.w > 0.0001) ? 1.0 : (cc_shadowDepthBiasCoeffs.z * viewSpacePos.z);
     return result;
   }
 
