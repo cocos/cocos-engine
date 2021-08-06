@@ -148,6 +148,10 @@ export class SpotLight extends Light {
         this._needUpdate = true;
     }
 
+    get angle () {
+        return this._angle;
+    }
+
     set aspect (val: number) {
         this._aspect = val;
         if (JSB) {
