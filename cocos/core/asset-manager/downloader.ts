@@ -41,7 +41,7 @@ import { legacyCC } from '../global-exports';
 import { IConfigOption } from './config';
 import { CCON, parseCCONJson, decodeCCONBinary } from '../data/ccon';
 
-export type DownloadHandler = (url: string, opitons: IDownloadParseOptions, onComplete: CompleteCallback) => void;
+export type DownloadHandler = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
 interface IDownloadRequest {
     id: string;
@@ -241,7 +241,7 @@ export class Downloader {
 
     public downloadScript = downloadScript;
 
-    // dafault handler map
+    // default handler map
     private _downloaders: Record<string, DownloadHandler> = {
         // Images
         '.png': downloadImage,
@@ -321,7 +321,7 @@ export class Downloader {
      * @param type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
      * @param handler - handler
      * @param handler.url - url
-     * @param handler.options - some optional paramters will be transferred to handler.
+     * @param handler.options - some optional parameters will be transferred to handler.
      * @param handler.onComplete - callback when finishing downloading
      *
      * @example
@@ -349,18 +349,18 @@ export class Downloader {
      * @param id - The unique id of this download
      * @param url - The url should be downloaded
      * @param type - The type indicates that which handler should be used to download, such as '.jpg'
-     * @param options - some optional paramters will be transferred to the corresponding handler.
+     * @param options - some optional parameters will be transferred to the corresponding handler.
      * @param options.onFileProgress - progressive callback will be transferred to handler.
      * @param options.maxRetryCount - How many times should retry when download failed
      * @param options.maxConcurrency - The maximum number of concurrent when downloading
      * @param options.maxRequestsPerFrame - The maximum number of request can be launched per frame when downloading
      * @param options.priority - The priority of this url, default is 0, the greater number is higher priority.
      * @param onComplete - callback when finishing downloading
-     * @param onComplete.err - The occurred error, null indicetes success
-     * @param onComplete.contetnt - The downloaded file
+     * @param onComplete.err - The occurred error, null indicates success
+     * @param onComplete.content - The downloaded file
      *
      * @example
-     * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
+     * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.log(loaded/total)}, onComplete: (err) => console.log(err));
      *
      */
     public download (id: string, url: string, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {

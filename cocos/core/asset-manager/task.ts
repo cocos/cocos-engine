@@ -203,14 +203,14 @@ export default class Task {
 
     /**
      * @en
-     * Set paramters of this task
+     * Set parameters of this task
      *
      * @zh
      * 设置任务的参数
      *
-     * @param options - Some optional paramters
+     * @param options - Some optional parameters
      * @param options.onComplete - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
-     * @param options.onProgress - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
+     * @param options.onProgress - Continuously callback when the task is running, if the pipeline is synchronous, onProgress is unnecessary.
      * @param options.onError - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
      * @param options.input - Something will be handled with pipeline
      * @param options.progress - Progress information, you may need to assign it manually when multiple pipeline share one progress

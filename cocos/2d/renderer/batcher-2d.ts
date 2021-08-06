@@ -113,6 +113,14 @@ export class Batcher2D {
                 }
             }
         }
+
+        // release the buffer to recycle pool --
+        const idx = this._bufferBatchPool.data.indexOf(buffer);
+        if (idx !== -1) {
+            buffer.reset();
+            this._bufferBatchPool.removeAt(idx);
+        }
+        // ---
     }
 
     set currStaticRoot (value: UIStaticBatch | null) {
@@ -250,6 +258,7 @@ export class Batcher2D {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
+            this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
         }
 
@@ -659,14 +668,17 @@ export class Batcher2D {
         const strideBytes = VertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
-        const meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
-
-        if (meshBufferUseCount >= buffers.length) {
-            this._currMeshBuffer = this._createMeshBuffer(attributes);
-        } else {
-            this._currMeshBuffer = buffers[meshBufferUseCount];
+        let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
+        if (vertexCount && indexCount) {
+            // useCount++ when _recreateMeshBuffer
+            meshBufferUseCount++;
         }
-        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
+
+        this._currMeshBuffer = buffers[meshBufferUseCount];
+        if (!this._currMeshBuffer) {
+            this._currMeshBuffer = this._createMeshBuffer(attributes);
+        }
+        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
         if (vertexCount && indexCount) {
             this._currMeshBuffer.request(vertexCount, indexCount);
         }

@@ -1,8 +1,11 @@
 import legacyCC from '../../../predefine';
+import { getError } from '../platform/debug';
 
 const VERSION = 1;
 
 const MAGIC = 0x4E4F4343;
+
+const CHUNK_ALIGN_AS = 8;
 
 export class CCON {
     constructor (document: unknown, chunks: Uint8Array[]) {
@@ -63,7 +66,7 @@ export function encodeCCONBinary (ccon: CCON) {
     ccobBuilder.append(jsonBytes);
 
     for (const chunk of chunks) {
-        ccobBuilder.alignAs(4);
+        ccobBuilder.alignAs(CHUNK_ALIGN_AS);
         ccobBuilder.append(uint32Bytes(chunk.byteLength));
         ccobBuilder.append(chunk);
     }
@@ -81,7 +84,7 @@ export function encodeCCONBinary (ccon: CCON) {
 
 export function decodeCCONBinary (bytes: Uint8Array) {
     if (bytes.length < 16) {
-        throw new InvalidCCONError(`Format error`);
+        throw new InvalidCCONError(getError(13102));
     }
 
     const dataView = new DataView(
@@ -92,17 +95,17 @@ export function decodeCCONBinary (bytes: Uint8Array) {
 
     const magic = dataView.getUint32(0, true);
     if (magic !== MAGIC) {
-        throw new InvalidCCONError(`Incorrect magic`);
+        throw new InvalidCCONError(getError(13100));
     }
 
     const version = dataView.getUint32(4, true);
     if (version !== VERSION) {
-        throw new InvalidCCONError(`Unknown version`);
+        throw new InvalidCCONError(getError(13101, version));
     }
 
     const dataByteLength = dataView.getUint32(8, true);
     if (dataByteLength !== dataView.byteLength) {
-        throw new InvalidCCONError(`Format error`);
+        throw new InvalidCCONError(getError(13102));
     }
 
     let chunksStart = 12;
@@ -121,8 +124,8 @@ export function decodeCCONBinary (bytes: Uint8Array) {
 
     const chunks: Uint8Array[] = [];
     while (chunksStart < dataView.byteLength) {
-        if (chunksStart % 4 !== 0) {
-            const padding = 4 - chunksStart % 4;
+        if (chunksStart % CHUNK_ALIGN_AS !== 0) {
+            const padding = CHUNK_ALIGN_AS - chunksStart % CHUNK_ALIGN_AS;
             chunksStart += padding;
         }
         const chunkDataLength = dataView.getUint32(chunksStart, true);
@@ -132,7 +135,7 @@ export function decodeCCONBinary (bytes: Uint8Array) {
     }
 
     if (chunksStart !== dataView.byteLength) {
-        throw new InvalidCCONError(`Format error`);
+        throw new InvalidCCONError(getError(13102));
     }
 
     return new CCON(json, chunks);
@@ -166,7 +169,7 @@ function encodeJson (input: string) {
             buffer.length,
         );
     } else {
-        throw new Error(`Cannot encode ${input} as JSON.`);
+        throw new Error(getError(13103));
     }
 }
 
@@ -178,7 +181,7 @@ function decodeJson (data: Uint8Array) {
         // eslint-disable-next-line no-buffer-constructor
         return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString();
     } else {
-        throw new Error(`Cannot decode CCON json.`);
+        throw new Error(getError(13104));
     }
 }
 

@@ -53,6 +53,20 @@ export declare namespace SystemEvent {
     export type EventType = EnumAlias<typeof SystemEventType>;
 }
 
+interface SystemEventMap {
+    [SystemEvent.EventType.MOUSE_DOWN]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_MOVE]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_UP]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_WHEEL]: (event: EventMouse) => void,
+    [SystemEvent.EventType.TOUCH_START]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_MOVE]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_END]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_CANCEL]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.KEY_DOWN]: (event: EventKeyboard) => void,
+    [SystemEvent.EventType.KEY_UP]: (event: EventKeyboard) => void,
+    [SystemEvent.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
+}
+
 /**
 * @en
 * The System event, it currently supports keyboard events and accelerometer events.<br/>
@@ -124,7 +138,8 @@ export class SystemEvent extends EventTarget {
      * @param callback - The event listener's callback
      * @param target - The event listener's target and callee
      */
-    public on<TFunction extends (...any) => void> (type: SystemEvent.EventType, callback: TFunction, target?, once?: boolean) {
+    // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
+    public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return callback;
         }
@@ -229,7 +244,7 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off<TFunction extends (...any) => void> (type: SystemEvent.EventType, callback?: TFunction, target?) {
+    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }

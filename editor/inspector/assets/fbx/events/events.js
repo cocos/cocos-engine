@@ -8,6 +8,7 @@ exports.template = `
     >
         <ui-icon value="event"
             :style="queryKeyStyle(info.x)"
+            :active="selectInfo.frames.includes(info.frame)"
             :index="index"
             name="event"
             @mousedown="onMouseDown($event, info)"
@@ -34,12 +35,15 @@ exports.data = {
     eventEditorInfo: {
         frame: 0,
         events: [{
-            functionName: '',
-            parameters: [],
+            func: '',
+            params: [],
             frame: 0,
         }],
     },
-}
+    selectInfo: {
+        frames: [],
+    },
+};
 
 exports.methods = {
     display(x) {
@@ -60,7 +64,7 @@ exports.methods = {
             },
             accelerator: 'Delete',
         },
-    ];
+        ];
         Editor.Menu.popup({
             x: event.pageX,
             y: event.pageY,
@@ -71,11 +75,10 @@ exports.methods = {
     onMouseDown(event, info) {
         const that = this;
         event.stopPropagation();
-        let dragInfo = {};
         const data = JSON.parse(JSON.stringify(info));
         let selectIndex = that.selectInfo && that.selectInfo.frames.indexOf(info.frame);
         if (typeof selectIndex !== 'number' || selectIndex === -1) {
-            dragInfo = {
+            that.selectInfo = {
                 startX: event.x,
                 data: [data],
                 offset: 0,
@@ -84,16 +87,30 @@ exports.methods = {
             };
         } else {
             that.selectInfo.startX = event.x;
-            dragInfo = that.selectInfo;
         }
-        // animationEditor.startDragEvent(dragInfo, hasCtrl);
     },
 
     openEventEditor(eventInfo) {
+        // HACK 目前的事件帧会有重复关键帧重叠的情况
+        this.selectInfo.frames = [eventInfo.frame];
         this.$emit('edit', eventInfo);
     },
 
     queryKeyStyle(x) {
         return `transform: translateX(${x | 0 + 3}px);`;
     },
+
+    onDomMouseDown() {
+        this.selectInfo = {
+            frames: [],
+        };
+    },
+};
+
+exports.mounted = function() {
+    document.addEventListener('mousedown', this.onDomMouseDown);
+};
+
+exports.beforeDestroy = function() {
+    document.removeEventListener('mousedown', this.onDomMouseDown);
 };

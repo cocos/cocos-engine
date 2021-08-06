@@ -175,6 +175,7 @@ export class Canvas extends RenderRoot2D {
         if (!EDITOR) {
             if (this._cameraComponent) {
                 this._cameraComponent._createCamera();
+                this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
             }
         }
 
@@ -191,6 +192,20 @@ export class Canvas extends RenderRoot2D {
         }
 
         this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+    }
+
+    public onEnable () {
+        super.onEnable();
+        if (!EDITOR && this._cameraComponent) {
+            this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+        }
+    }
+
+    public onDisable () {
+        super.onDisable();
+        if (this._cameraComponent) {
+            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+        }
     }
 
     public onDestroy () {

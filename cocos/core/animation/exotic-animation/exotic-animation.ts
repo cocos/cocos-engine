@@ -49,6 +49,13 @@ export class ExoticAnimation {
         return newAnimation;
     }
 
+    /**
+     * @internal
+     */
+    public toHashString () {
+        return this._nodeAnimations.map((nodeAnimation) => nodeAnimation.toHashString()).join('\n');
+    }
+
     @serializable
     private _nodeAnimations: ExoticNodeAnimation[] = [];
 }
@@ -108,6 +115,16 @@ class ExoticNodeAnimation {
         return this._path;
     }
 
+    /**
+     * @internal
+     */
+    public toHashString (): string {
+        return `${this._path}\n${
+            this._position?.toHashString() ?? ''
+        }${this._scale?.toHashString() ?? ''
+        }${this._rotation?.toHashString() ?? ''}`;
+    }
+
     @serializable
     private _path = '';
 
@@ -119,6 +136,16 @@ class ExoticNodeAnimation {
 
     @serializable
     private _scale: ExoticVec3Track | null = null;
+}
+
+function floatToHashString (value: number) {
+    // Note: referenced to `Skeleton.prototype.hash`
+    return value.toPrecision(2);
+}
+
+function floatArrayToHashString (values: FloatArray) {
+    // @ts-expect-error Complex typing
+    return (values).map(floatToHashString).join(' ');
 }
 
 interface ExoticTrackValues<TValue> {
@@ -153,6 +180,18 @@ class ExoticVectorLikeTrackValues {
         assertIsTrue(!this._isQuantized);
         this._values = quantize(this._values as FloatArray, type);
         this._isQuantized = true;
+    }
+
+    /**
+     * @internal
+     */
+    public toHashString (): string {
+        const { _isQuantized: isQuantized, _values: values } = this;
+        return `${isQuantized} ${
+            isQuantized
+                ? (values as QuantizedFloatArray).toHashString()
+                : floatArrayToHashString(values as FloatArray)
+        }`;
     }
 
     @serializable
@@ -253,7 +292,7 @@ class ExoticQuatTrackValues extends ExoticVectorLikeTrackValues implements Exoti
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticTrack`)
-class ExoticTrack<TTrackValues> {
+class ExoticTrack<TTrackValues extends { toHashString(): string; }> {
     constructor (times: FloatArray, values: TTrackValues) {
         this.times = times;
         this.values = values;
@@ -264,6 +303,14 @@ class ExoticTrack<TTrackValues> {
 
     @serializable
     public values!: TTrackValues;
+
+    /**
+     * @internal
+     */
+    public toHashString (): string {
+        const { times, values } = this;
+        return `times: ${floatArrayToHashString(times)}; values: ${values.toHashString()}`;
+    }
 }
 
 type ExoticVec3Track = ExoticTrack<ExoticVec3TrackValues>;
@@ -753,6 +800,14 @@ class QuantizedFloatArray {
         this.extent = extent;
         this.min = min;
     }
+
+    /**
+     * @internal
+     */
+    public toHashString (): string {
+        const { originalPrecision, min, extent, values } = this;
+        return `${originalPrecision} ${floatToHashString(min)} ${floatToHashString(extent)} ${values.join(' ')}`;
+    }
 }
 
 function quantize (values: FloatArray, type: QuantizationType) {
@@ -785,7 +840,7 @@ function createExoticTrackEvaluationRecord<TValue> (
     binder: Binder,
 ) {
     const trackBinding = new TrackBinding();
-    trackBinding.path = new TrackPath().hierarchy(path).property(property);
+    trackBinding.path = new TrackPath().toHierarchy(path).toProperty(property);
     const runtimeBinding = binder(trackBinding);
     if (!runtimeBinding) {
         return null;

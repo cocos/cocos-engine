@@ -189,15 +189,15 @@ export class AnimationClipLegacyData {
             const trackPath = new TrackPath();
             for (const modifier of modifiers) {
                 if (typeof modifier === 'string') {
-                    trackPath.property(modifier);
+                    trackPath.toProperty(modifier);
                 } else if (typeof modifier === 'number') {
-                    trackPath.element(modifier);
+                    trackPath.toElement(modifier);
                 } else if (modifier instanceof HierarchyPath) {
-                    trackPath.hierarchy(modifier.path);
+                    trackPath.toHierarchy(modifier.path);
                 } else if (modifier instanceof ComponentPath) {
-                    trackPath.component(modifier.component);
+                    trackPath.toComponent(modifier.component);
                 } else {
-                    trackPath.customized(modifier);
+                    trackPath.toCustomized(modifier);
                 }
             }
             track.path = trackPath;
@@ -483,13 +483,21 @@ class LegacyEasingMethodConverter {
         const { easingMethods } = legacyCurveData;
         if (Array.isArray(easingMethods)) {
             // Different
-            this._easingMethods = easingMethods;
+            if (easingMethods.length === 0 && keyframesCount !== 0) {
+                // This shall not happen as specified in doc on legacy easing methods
+                // but it does in history project(see cocos-creator/3d-tasks/issues/#8468).
+                // This may be a promise breaking BUG between engine & Editor.
+                // Let's capture this case.
+                this._easingMethods = new Array(keyframesCount).fill(null);
+            } else {
+                this._easingMethods = easingMethods;
+            }
         } else if (easingMethods === undefined) {
             // Same
             this._easingMethods = new Array(keyframesCount).fill(legacyCurveData.easingMethod);
         } else {
             // Compressed as record
-            this._easingMethods = Array.from({ length: keyframesCount }, (_, index) => easingMethods[index]);
+            this._easingMethods = Array.from({ length: keyframesCount }, (_, index) => easingMethods[index] ?? null);
         }
     }
 
@@ -537,7 +545,7 @@ class LegacyEasingMethodConverter {
         }
     }
 
-    private _easingMethods: LegacyEasingMethod[]  | undefined;
+    private _easingMethods: Array<LegacyEasingMethod | null>  | undefined;
 }
 
 /**

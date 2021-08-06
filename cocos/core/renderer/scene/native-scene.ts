@@ -1,15 +1,20 @@
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
-import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
+import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader,
+    BlendState, DepthStencilState, RasterizerState } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
 
 export const NativeNode: Constructor<{
-    initWithData (data: TypedArray, chunk: ArrayBuffer, offset: number): void;
+    initWithData (data: TypedArray, chunk: Uint32Array, computeNodes: NativeNode[]): void;
     setParent(val: NativeNode | null): void;
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
+export const NativeScene: Constructor<{
+    setParent(val: NativeScene | null): void;
+}> = null!;
+export type NativeScene = InstanceType<typeof NativeScene>;
 
 export const NativeAABB: Constructor<{
     initWithData(data: TypedArray): void;
@@ -84,6 +89,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]): void;
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
     setAnimInfoIdx(idx: number): void;
+    updateModelBounds(val: NativeAABB | null): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 
@@ -177,6 +183,10 @@ export const NativeCamera: Constructor<{
 export type NativeCamera = InstanceType<typeof NativeCamera>;
 
 export const NativePass: Constructor<{
+    blendState: BlendState;
+    depthStencilState: DepthStencilState;
+    rasterizerState: RasterizerState;
+    descriptorSet: DescriptorSet;
     initWithData(data: TypedArray): void;
     update(): void;
     setPriority(val: number): void;
@@ -186,7 +196,6 @@ export const NativePass: Constructor<{
     setRasterizerState(val): void;
     setDepthStencilState(val): void;
     setBlendState(val): void;
-    setState(bs, dss, rs, ds): void;
     setDescriptorSet(val): void;
     setBatchingScheme(val: number): void;
     setDynamicState(val: number): void;

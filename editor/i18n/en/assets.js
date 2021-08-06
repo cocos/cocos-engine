@@ -215,6 +215,10 @@ module.exports = {
                     title: 'Skip validation of the model file.',
                 },
             },
+            addEvent: {
+                shouldSave: 'The newly created clip needs to be submitted for modification before adding/editing events',
+                ok: 'OK',
+            },
             ImageRemap: {
                 remapAs: 'Remap as',
                 original: 'Original',

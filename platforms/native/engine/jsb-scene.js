@@ -24,28 +24,34 @@
  ****************************************************************************/
 
 
-// __fastMQ__, __fastMQIdx__ are created in engine-native\cocos\bindings\manual\jsb_scene_manual_ext.cpp
-
-const FN_TABLE = ns.DrawBatch2D.fnTable;
+// __fastMQ__, __fastMQInfo__ are created in engine-native\cocos\bindings\manual\jsb_scene_manual_ext.cpp
 const NULL_PTR = BigInt(0);
 // @ts-check
 let isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
 
+let dataViews = [];
+function getDataView(idx) { 
+    if(!dataViews[idx]) {
+        dataViews[idx] = new DataView(__fastMQ__[idx]);
+    }
+    return dataViews[idx];
+}
+
 function beginTrans(fn, minBytes) {
-    let dataView = new DataView(__fastMQ__[__fastMQIdx__]);
+    let dataView = getDataView(__fastMQInfo__[0]);
     let startPos = dataView.getUint32(0, isLittleEndian);
     let commands = dataView.getUint32(4, isLittleEndian);
     if (dataView.byteLength <= startPos + minBytes + 12) {
         // allocation new ArrayBuffer, same size as __fastMQ__[0]
-        if (!__fastMQ__[__fastMQIdx__ + 1]) {
+        if (!__fastMQ__[__fastMQInfo__[0] + 1]) {
             const buffer = new ArrayBuffer(dataView.byteLength);
             __fastMQ__.push(buffer);
-            if (__fastMQIdx__ + 1 > 5) {
+            if (__fastMQInfo__[0] + 1 > 5) {
                 console.warn(`Too many pending commands in __fastMQ__, forget to flush?`);
             }
         }
-        __fastMQIdx__ += 1;
-        dataView = new DataView(__fastMQ__[__fastMQIdx__]);
+        __fastMQInfo__[0] += 1;
+        dataView = getDataView(__fastMQInfo__[0]);
         startPos = 8;
         commands = 0;
     }
@@ -66,14 +72,16 @@ function beginTrans(fn, minBytes) {
             dataView.setUint32(startPos + 0, offset, isLittleEndian);   // fn length
             dataView.setUint32(0, startPos + offset, isLittleEndian);   // update offset
             dataView.setUint32(4, commands + 1, isLittleEndian);        // update cnt
+            __fastMQInfo__[1] += 1;
         },
     };
 }
 
-
+// DrawBatch2D
+const DRAW_BATCH_FN_TABLE = ns.DrawBatch2D.fnTable;
 Object.defineProperty(ns.DrawBatch2D.prototype, "visFlags", {
     set: function (v) {
-        let trans = beginTrans(FN_TABLE['visFlags'], 12);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['visFlags'], 12);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(v);
         trans.commit();
@@ -85,7 +93,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "visFlags", {
 
 Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
     set: function (v) {
-        let trans = beginTrans(FN_TABLE['descriptorSet'], 16);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['descriptorSet'], 16);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
@@ -97,7 +105,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
 
 Object.defineProperty(ns.DrawBatch2D.prototype, "inputAssembler", {
     set: function (v) {
-        let trans = beginTrans(FN_TABLE['inputAssembler'], 16);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['inputAssembler'], 16);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
@@ -111,7 +119,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "passes", {
     set: function (passes) {
         if (!passes) return;
 
-        let trans = beginTrans(FN_TABLE['passes'], 8 + 4 + passes.length * 8);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['passes'], 8 + 4 + passes.length * 8);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(passes.length); // arg
         for (let p of passes) {
@@ -127,12 +135,58 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "passes", {
 Object.defineProperty(ns.DrawBatch2D.prototype, "shaders", {
     set: function (shaders) {
         if (!shaders) return;
-        let trans = beginTrans(FN_TABLE['shaders'], 8 + 4 + shaders.length * 8);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['shaders'], 8 + 4 + shaders.length * 8);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(shaders.length); // arg
         for (let p of shaders) {
             trans.writeBigUint64(p ? p.__native_ptr__ : NULL_PTR);
         }
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+// Pass
+const PASS_FN_TABLE = ns.Pass.fnTable;
+Object.defineProperty(ns.Pass.prototype, "blendState", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['blendState'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(ns.Pass.prototype, "depthStencilState", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['depthStencilState'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(ns.Pass.prototype, "rasterizerState", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['rasterizerState'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(ns.Pass.prototype, "descriptorSet", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['descriptorSet'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
     },
     enumerable: true,

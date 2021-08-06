@@ -107,7 +107,7 @@ export class AnimationClip extends Asset {
         clip.duration = spriteFrames.length / clip.sample;
         const step = 1 / clip.sample;
         const track = new ObjectTrack<SpriteFrame>();
-        track.path =  new TrackPath().component('cc.Sprite').property('spriteFrame');
+        track.path =  new TrackPath().toComponent('cc.Sprite').toProperty('spriteFrame');
         const curve = track.channels()[0].curve;
         curve.assignSorted(spriteFrames.map((spriteFrame, index) => [step * index, spriteFrame]));
         return clip;
@@ -172,9 +172,10 @@ export class AnimationClip extends Asset {
     get hash () {
         // hashes should already be computed offline, but if not, make one
         if (this._hash) { return this._hash; }
-        const data = this._nativeAsset;
-        const buffer = new Uint8Array(ArrayBuffer.isView(data) ? data.buffer : data);
-        return this._hash = murmurhash2_32_gc(buffer, 666);
+        // Only hash exotic animations(including skeletal animations imported from model file).
+        // The behavior is consistent with how `.hash` implemented prior to 3.3.
+        const hashString = `Exotic:${this._exoticAnimation?.toHashString() ?? ''}`;
+        return this._hash = murmurhash2_32_gc(hashString, 666);
     }
 
     /**
@@ -225,6 +226,7 @@ export class AnimationClip extends Asset {
 
     public onLoaded () {
         this.frameRate = this.sample;
+        this.events = this._events;
     }
 
     /**
@@ -352,9 +354,9 @@ export class AnimationClip extends Asset {
             if (parentJoint >= 0) {
                 const parentJointName = joint.substring(0, parentJoint);
                 const parentJointFrame = skeletonFrames[parentJointName];
-                if (!parentJointFrame) {
-                    warnID(3922, joint, parentJointName);
-                } else {
+                // Parent joint can be nil since some of joints' parents
+                // are not in animation list. For example, joints under socket nodes.
+                if (parentJointFrame) {
                     skeletonFrame.parent = parentJointFrame;
                 }
             }

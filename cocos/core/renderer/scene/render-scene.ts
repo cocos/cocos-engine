@@ -187,10 +187,10 @@ export class RenderScene {
         this._cameras.splice(0);
     }
 
-    public setMainLight (dl: DirectionalLight) {
+    public setMainLight (dl: DirectionalLight | null) {
         this._mainLight = dl;
         if (JSB) {
-            this._nativeObj!.setMainLight(dl.native);
+            this._nativeObj!.setMainLight(dl ? dl.native : null);
         }
     }
 
@@ -202,7 +202,9 @@ export class RenderScene {
                 if (this._mainLight.node) { // trigger update
                     this._mainLight.node.hasChangedFlags |= TransformBit.ROTATION;
                 }
+                return;
             }
+            this.setMainLight(null);
         }
     }
 

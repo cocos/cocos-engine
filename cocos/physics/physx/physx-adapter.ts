@@ -47,6 +47,7 @@ import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
+import { debug } from '../../core/platform/debug';
 
 let _px = {};
 const globalThis = legacyCC._global;
@@ -398,7 +399,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
 
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[PHYSICS]: cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    debug(`[PHYSICS]: cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -418,7 +419,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     midDesc.setNumPrimsLeaf(numTrisPerLeaf);
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[PHYSICS]: cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    debug(`[PHYSICS]: cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 

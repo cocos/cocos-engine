@@ -168,6 +168,13 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
+    protected _updateModelBounds (aabb: AABB | null) {
+        this._modelBounds = aabb;
+        if (JSB) {
+            (this._nativeObj! as NativeBakedSkinningModel).updateModelBounds(aabb ? aabb.native : null);
+        }
+    }
+
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
@@ -176,11 +183,11 @@ export class BakedSkinningModel extends MorphModel {
         if (anim) {
             texture = resMgr.jointTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh, this.transform);
             this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
-            this._modelBounds = null; // don't calc bounds again in Model
+            this._updateModelBounds(null); // don't calc bounds again in Model
         } else {
             texture = resMgr.jointTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform);
             this._jointsMedium.boundsInfo = null;
-            this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
+            this._updateModelBounds(texture && texture.bounds.get(this._mesh.hash)![0]);
         }
         this._applyJointTexture(texture);
         this._applyNativeJointMedium();
