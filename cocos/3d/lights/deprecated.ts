@@ -28,14 +28,13 @@
  * @module component
  */
 
-import { Light, PhotometricTerm } from './light-component';
+import { Light } from './light-component';
 import { SpotLight } from './spot-light-component';
 import { SphereLight } from './sphere-light-component';
 import { DirectionalLight } from './directional-light-component';
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils/js';
 import { replaceProperty } from '../../core/utils/x-deprecated';
-import { LightComponent } from '.';
 
 /**
  * Alias of [[Light]]
@@ -66,7 +65,7 @@ export { SpotLight as SpotLightComponent };
 legacyCC.SpotLightComponent = SpotLight;
 js.setClassAlias(SpotLight, 'cc.SpotLightComponent');
 
-replaceProperty(SpotLight, 'SpotLight', [
+replaceProperty(SpotLight.prototype, 'SpotLight.prototype', [
     {
         name: 'luminousPower',
         targetName: 'luminousFlux',
@@ -79,7 +78,7 @@ replaceProperty(SpotLight, 'SpotLight', [
     },
 ]);
 
-replaceProperty(SphereLight, 'SphereLight', [
+replaceProperty(SphereLight.prototype, 'SphereLight.prototype', [
     {
         name: 'luminousPower',
         targetName: 'luminousFlux',
@@ -92,11 +91,9 @@ replaceProperty(SphereLight, 'SphereLight', [
     },
 ]);
 
-replaceProperty(LightComponent, 'LightComponent', [
+replaceProperty(Light.PhotometricTerm, 'Light.PhotometricTerm', [
     {
         name: 'LUMINOUS_POWER',
         newName: 'LUMINOUS_FLUX',
-        target: LightComponent.PhotometricTerm,
-        targetName: 'LightComponent.PhotometricTerm',
     },
 ]);
