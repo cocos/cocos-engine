@@ -10,7 +10,6 @@ const { ccclass, property } = _decorator;
  * FileBasename = <%FileBasename%>
  * FileBasenameNoExtension = <%FileBasenameNoExtension%>
  * URL = <%URL%>
- * EditorVersion = <%EditorVersion%>
  * ManualUrl = <%ManualUrl%>
  *
  */
