@@ -17,14 +17,14 @@
   float CCGetLinearDepth (vec3 worldPos) {
     vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
     float dist = length(viewStartPos.xyz);
-    return cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
+    return (dist - cc_shadowNFLSInfo.x) / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x);
   }
 
   float CCGetShadowFactorHard (vec4 shadowPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
-        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
+        clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float shadow = 0.0;
@@ -43,7 +43,7 @@
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
-        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
+        clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float offsetDepth = clipPos.z - cc_shadowWHPBInfo.w;
@@ -75,7 +75,7 @@
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
-        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
+        clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float bias = cc_shadowWHPBInfo.w;
@@ -137,7 +137,7 @@
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
-        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
+        clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float shadow = 0.0;
@@ -164,7 +164,7 @@
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
-        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
+        clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;
@@ -212,7 +212,7 @@
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
-        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
+        clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;
