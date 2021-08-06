@@ -342,7 +342,6 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
   #include <packing>
-  #include <cc-shadow>
   #include <cc-shadow-map-base>
 
   in vec2 v_uv;

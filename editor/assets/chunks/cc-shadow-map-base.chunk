@@ -7,18 +7,18 @@
 // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
 #define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
+float CCGetLinearDepth (vec3 worldPos) {
+  vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
+  float dist = length(viewStartPos.xyz);
+  return (dist - cc_shadowNFLSInfo.x) / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x);
+}
+
 #if CC_RECEIVE_SHADOW
   #pragma builtin(global)
   layout(set = 0, binding = 3) uniform sampler2D cc_shadowMap;
 
   #pragma builtin(global)
   layout(set = 0, binding = 5) uniform sampler2D cc_spotLightingMap;
-
-  float CCGetLinearDepth (vec3 worldPos) {
-    vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
-    float dist = length(viewStartPos.xyz);
-    return (dist - cc_shadowNFLSInfo.x) / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x);
-  }
 
   vec4 ApplyShadowDepthBias(vec4 shadowPos, float viewspaceDepthBias)
   {
