@@ -95,7 +95,7 @@ export class SpotLight extends Light {
      */
     @type(PhotometricTerm)
     @tooltip('i18n:lights.term')
-    get term () {
+    get term (): number {
         return this._term;
     }
 

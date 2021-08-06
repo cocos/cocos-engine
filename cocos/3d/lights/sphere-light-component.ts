@@ -82,7 +82,7 @@ export class SphereLight extends Light {
      */
     @type(PhotometricTerm)
     @tooltip('i18n:lights.term')
-    get term () {
+    get term (): number {
         return this._term;
     }
     set term (val) {
