@@ -26,6 +26,7 @@
 #include "cocos/platform/Application.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "pipeline/RenderPipeline.h"
+#include "cocos/renderer/GFXDeviceManager.h"
 
 #if USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -64,6 +65,7 @@ void Application::restartVM() {
 
     cc::EventDispatcher::init();
     init();
+    cc::gfx::DeviceManager::addCustomEvent();
 }
 
 void Application::close() { // NOLINT
