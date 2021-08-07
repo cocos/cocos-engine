@@ -173,6 +173,7 @@ void Node::initWithData(uint8_t *data, uint8_t *flagChunk, const se::Value &dirt
         dirtyNodes->incRef();
         se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
             dirtyNodes->decRef();
+            dirtyNodes = nullptr;
         });
     }
 }
