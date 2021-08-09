@@ -175,8 +175,8 @@ export class PipelineUBO {
                     far = shadowInfo.far;
                 }
 
-                Mat4.toArray(sv, shadowCameraView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.invert(matShadowView, shadowCameraView!);
+                Mat4.toArray(sv, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                     device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
@@ -241,8 +241,8 @@ export class PipelineUBO {
                 _far = shadowInfo.far;
             }
 
-            Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, shadowCameraView!);
+            Mat4.toArray(sv, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
             vec4ShadowInfo.set(shadowInfo.near, _far, linear, 1.0 - shadowInfo.saturation);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
