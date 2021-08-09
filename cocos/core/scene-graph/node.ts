@@ -971,13 +971,14 @@ export class Node extends BaseNode implements CustomSerializable {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let cur = this;
         let i = 0;
+        // cur not the Scene
         while (cur._parent) {
             this._setDirtyNode(i++, cur);
             cur = cur._parent;
         }
-        while (i >= 0) {
-            Vec3.transformInverseRTS(out, out, cur._lrot, cur._lpos, cur._lscale);
+        while (i >= 1) {
             cur = dirtyNodes[--i];
+            Vec3.transformInverseRTS(out, out, cur._lrot, cur._lpos, cur._lscale);
         }
         return out;
     }
