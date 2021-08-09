@@ -253,7 +253,6 @@ export class ImageAsset extends Asset {
         const device = _getGlobalDevice();
         const extensionIDs = fmtStr.split('_');
 
-        let defaultExt = '';
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
@@ -284,17 +283,12 @@ export class ImageAsset extends Asset {
                 preferedExtensionIndex = index;
                 ext = tmpExt;
                 format = fmt;
-            } else if (!defaultExt) {
-                defaultExt = tmpExt;
             }
         }
 
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
-        } else if (defaultExt) {
-            this._setRawAsset(defaultExt);
-            warnID(3120, defaultExt, defaultExt);
         } else {
             warnID(3121);
         }
