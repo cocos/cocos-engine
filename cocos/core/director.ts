@@ -480,7 +480,7 @@ export class Director extends EventTarget {
         scene._load();
 
         // Delay run / replace scene to the end of the frame
-        this.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
+        this.once(legacyCC.Director.EVENT_END_FRAME, () => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     }

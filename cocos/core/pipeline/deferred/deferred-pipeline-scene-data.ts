@@ -36,8 +36,8 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
 
     public set deferredLightingMaterial (mat: Material) {
-        if (this._deferredLightingMaterial === mat) return;
-        this._deferredLightingMaterial = (mat && mat.effectAsset) ? mat : builtinResMgr.get<Material>('builtin-deferred-material');
+        if (this._deferredLightingMaterial === mat || !mat) return;
+        this._deferredLightingMaterial = mat;
         this.updateDeferredPassInfo();
     }
 
@@ -46,8 +46,8 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
 
     public set deferredPostMaterial (mat: Material) {
-        if (this._deferredPostMaterial === mat) return;
-        this._deferredPostMaterial = (mat && mat.effectAsset) ? mat : builtinResMgr.get<Material>('builtin-post-process-material');
+        if (this._deferredPostMaterial === mat || !mat) return;
+        this._deferredPostMaterial = mat;
         this.updateDeferredPassInfo();
     }
 
@@ -59,8 +59,23 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
 
     public initPipelinePassInfo () {
-        this._deferredLightingMaterial = builtinResMgr.get<Material>('builtin-deferred-material');
-        this._deferredPostMaterial = builtinResMgr.get<Material>('builtin-post-process-material');
+        // builtin deferred material
+        const deferredMat = new Material();
+        deferredMat._uuid = 'builtin-deferred-material';
+        deferredMat.initialize({ effectName: 'deferred-lighting' });
+        for (let i = 0; i < deferredMat.passes.length; ++i) {
+            deferredMat.passes[i].tryCompile();
+        }
+        this._deferredLightingMaterial = deferredMat;
+
+        const postMat = new Material();
+        postMat._uuid = 'builtin-post-process-material';
+        postMat.initialize({ effectName: 'post-process' });
+        for (let i = 0; i < postMat.passes.length; ++i) {
+            postMat.passes[i].tryCompile();
+        }
+        this._deferredPostMaterial = postMat;
+
         this.updateDeferredPassInfo();
     }
 

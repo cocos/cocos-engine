@@ -35,8 +35,8 @@ exports.data = {
     eventEditorInfo: {
         frame: 0,
         events: [{
-            functionName: '',
-            parameters: [],
+            func: '',
+            params: [],
             frame: 0,
         }],
     },
