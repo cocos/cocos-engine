@@ -41,13 +41,13 @@ export function fillVertices3D (node: Node, renderer: Batcher2D, renderData: Ren
     let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;
 
-    let vertexCount = renderData.vertexCount;
+    const vertexCount = renderData.vertexCount;
     let indicesOffset = buffer.indicesOffset;
     let vertexId = buffer.vertexOffset;
     const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
     if (!isRecreate) {
         buffer = renderer.currBufferBatch!;
-        vertexCount = 0;
+        vertexOffset = 0;
         indicesOffset = 0;
         vertexId = 0;
     }
@@ -82,14 +82,14 @@ export function fillMeshVertices3D (node: Node, renderer: Batcher2D, renderData:
     let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;
 
-    let vertexCount = renderData.vertexCount;
+    const vertexCount = renderData.vertexCount;
     let indicesOffset = buffer.indicesOffset;
     let vertexId = buffer.vertexOffset;
 
     const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
     if (!isRecreate) {
         buffer = renderer.currBufferBatch!;
-        vertexCount = 0;
+        vertexOffset = 0;
         indicesOffset = 0;
         vertexId = 0;
     }
@@ -131,13 +131,13 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: Batcher2D, rend
     let vertexOffset = buffer.byteOffset >> 2;
 
     // buffer
-    let vertexCount = renderData.vertexCount;
+    const vertexCount = renderData.vertexCount;
     let indicesOffset: number = buffer.indicesOffset;
     let vertexId: number = buffer.vertexOffset;
     const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
     if (!isRecreate) {
         buffer = renderer.currBufferBatch!;
-        vertexCount = 0;
+        vertexOffset = 0;
         indicesOffset = 0;
         vertexId = 0;
     }
