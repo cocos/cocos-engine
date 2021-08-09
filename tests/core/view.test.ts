@@ -48,7 +48,8 @@ describe('cc.view', () => {
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(-456.6666564941406, -16.66666603088379));
+        expect(tmpVec2.x).toBeCloseTo(-456.667);
+        expect(tmpVec2.y).toBeCloseTo(-16.667);
     });
 
     test('test view FIXED_WIDTH', () => {
@@ -80,14 +81,15 @@ describe('cc.view', () => {
         expect(view.getVisibleSizeInPixel()).toEqual(new Size(1024, 768));
         expect(view.getVisibleOrigin()).toEqual(new Vec2(0, 0));
         expect(view.getVisibleOriginInPixel()).toEqual(new Vec2(0, 0));
-        expect(view.getScaleX()).toBe(1.3473684210526315);
-        expect(view.getScaleY()).toBe(1.3473684210526315);
+        expect(view.getScaleX()).toBeCloseTo(1.347);
+        expect(view.getScaleY()).toBeCloseTo(1.347);
         view.convertToLocationInView(tmpX, tmpY, relatedPos, tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(7.421875, -7.421875));
+        expect(tmpVec2.x).toBeCloseTo(7.422);
+        expect(tmpVec2.y).toBeCloseTo(-7.422);
     });
 
     test('test view FIXED_HEIGHT', () => {
@@ -97,26 +99,31 @@ describe('cc.view', () => {
         expect(view.getCanvasSize()).toEqual(new Size(1024, 768));
         expect(view.getFrameSize()).toEqual(new Size(1024, 768));
         expect(view.getViewportRect()).toEqual(new Rect(0, 0, 1024, 768));
-        expect(view.getVisibleSize()).toEqual(new Size(1013.3333129882812, 760));
-        expect(view.getVisibleSizeInPixel()).toEqual(new Size(1023.9999794407895, 768));
+        expect(view.getVisibleSize().x).toBeCloseTo(1013.333);
+        expect(view.getVisibleSize().y).toBe(760);
+        expect(view.getVisibleSizeInPixel().x).toBeCloseTo(1023.999);
+        expect(view.getVisibleSizeInPixel().y).toBe(768);
         expect(view.getVisibleOrigin()).toEqual(new Vec2(0, 0));
         expect(view.getVisibleOriginInPixel()).toEqual(new Vec2(0, 0));
-        expect(view.getScaleX()).toBe(1.0105263157894737);
-        expect(view.getScaleY()).toBe(1.0105263157894737);
+        expect(view.getScaleX()).toBeCloseTo(1.011);
+        expect(view.getScaleY()).toBeCloseTo(1.011);
         view.convertToLocationInView(tmpX, tmpY, relatedPos, tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(9.895833015441895, -9.895833015441895));
+        expect(tmpVec2.x).toBeCloseTo(9.896);
+        expect(tmpVec2.y).toBeCloseTo(-9.896);
 
         view.setDesignResolutionSize(760, 1280, resolutionPolicy);
         expect(view.getDesignResolutionSize()).toEqual(new Size(760, 1280));
         expect(view.getCanvasSize()).toEqual(new Size(1024, 768));
         expect(view.getFrameSize()).toEqual(new Size(1024, 768));
         expect(view.getViewportRect()).toEqual(new Rect(0, 0, 1024, 768));
-        expect(view.getVisibleSize()).toEqual(new Size(1706.6666259765625, 1280));
-        expect(view.getVisibleSizeInPixel()).toEqual(new Size(1023.9999755859375, 768));
+        expect(view.getVisibleSize().x).toBeCloseTo(1706.667);
+        expect(view.getVisibleSize().y).toBe(1280);
+        expect(view.getVisibleSizeInPixel().x).toBeCloseTo(1023.999);
+        expect(view.getVisibleSizeInPixel().y).toBe(768);
         expect(view.getVisibleOrigin()).toEqual(new Vec2(0, 0));
         expect(view.getVisibleOriginInPixel()).toEqual(new Vec2(0, 0));
         expect(view.getScaleX()).toBe(0.6);
@@ -126,7 +133,8 @@ describe('cc.view', () => {
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(16.66666603088379, -16.66666603088379));
+        expect(tmpVec2.x).toBeCloseTo(16.667);
+        expect(tmpVec2.y).toBeCloseTo(-16.667);
     });
 
     test('test view NO_BORDER', () => {
@@ -135,37 +143,47 @@ describe('cc.view', () => {
         expect(view.getDesignResolutionSize()).toEqual(new Size(1280, 760));
         expect(view.getCanvasSize()).toEqual(new Size(1024, 768));
         expect(view.getFrameSize()).toEqual(new Size(1024, 768));
-        expect(view.getViewportRect()).toEqual(new Rect(-135, 0, 1293.4736328125, 768));
+        expect(view.getViewportRect().x).toBe(-135);
+        expect(view.getViewportRect().y).toBe(0);
+        expect(view.getViewportRect().width).toBeCloseTo(1293.474);
+        expect(view.getViewportRect().height).toBe(768);
         expect(view.getVisibleSize()).toEqual(new Size(1280, 760));
-        expect(view.getVisibleSizeInPixel()).toEqual(new Size(1293.4736842105262, 768));
+        expect(view.getVisibleSizeInPixel().x).toBeCloseTo(1293.474);
+        expect(view.getVisibleSizeInPixel().y).toBe(768);
         expect(view.getVisibleOrigin()).toEqual(new Vec2(0, 0));
         expect(view.getVisibleOriginInPixel()).toEqual(new Vec2(0, 0));
-        expect(view.getScaleX()).toBe(1.0105263157894737);
-        expect(view.getScaleY()).toBe(1.0105263157894737);
+        expect(view.getScaleX()).toBeCloseTo(1.011);
+        expect(view.getScaleY()).toBeCloseTo(1.011);
         view.convertToLocationInView(tmpX, tmpY, relatedPos, tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(143.4895782470703, -9.895833015441895));
+        expect(tmpVec2.x).toBeCloseTo(143.489);
+        expect(tmpVec2.y).toBeCloseTo(-9.896);
 
         view.setDesignResolutionSize(760, 1280, resolutionPolicy);
         expect(view.getDesignResolutionSize()).toEqual(new Size(760, 1280));
         expect(view.getCanvasSize()).toEqual(new Size(1024, 768));
         expect(view.getFrameSize()).toEqual(new Size(1024, 768));
-        expect(view.getViewportRect()).toEqual(new Rect(0, -478, 1024, 1724.631591796875));
+        expect(view.getViewportRect().x).toBe(0);
+        expect(view.getViewportRect().y).toBe(-478);
+        expect(view.getViewportRect().width).toBe(1024);
+        expect(view.getViewportRect().height).toBeCloseTo(1724.632);
         expect(view.getVisibleSize()).toEqual(new Size(760, 1280));
-        expect(view.getVisibleSizeInPixel()).toEqual(new Size(1024, 1724.6315789473683));  
+        expect(view.getVisibleSizeInPixel().x).toBe(1024);  
+        expect(view.getVisibleSizeInPixel().y).toBeCloseTo(1724.632);  
         expect(view.getVisibleOrigin()).toEqual(new Vec2(0, 0));
         expect(view.getVisibleOriginInPixel()).toEqual(new Vec2(0, 0));
-        expect(view.getScaleX()).toBe(1.3473684210526315);
-        expect(view.getScaleY()).toBe(1.3473684210526315);
+        expect(view.getScaleX()).toBeCloseTo(1.347);
+        expect(view.getScaleY()).toBeCloseTo(1.347);
         view.convertToLocationInView(tmpX, tmpY, relatedPos, tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(7.421875, 347.34375));
+        expect(tmpVec2.x).toBeCloseTo(7.422);
+        expect(tmpVec2.y).toBeCloseTo(347.344);
     });
 
     test('test view EXACT_FIT', () => {
@@ -180,13 +198,14 @@ describe('cc.view', () => {
         expect(view.getVisibleOrigin()).toEqual(new Vec2(0, 0));
         expect(view.getVisibleOriginInPixel()).toEqual(new Vec2(0, 0));
         expect(view.getScaleX()).toBe(0.8);
-        expect(view.getScaleY()).toBe(1.0105263157894737);
+        expect(view.getScaleY()).toBeCloseTo(1.011);
         view.convertToLocationInView(tmpX, tmpY, relatedPos, tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(12.5, -9.895833015441895));
+        expect(tmpVec2.x).toBe(12.5);
+        expect(tmpVec2.y).toBeCloseTo(-9.896);
 
         view.setDesignResolutionSize(760, 1280, resolutionPolicy);
         expect(view.getDesignResolutionSize()).toEqual(new Size(760, 1280));
@@ -197,13 +216,14 @@ describe('cc.view', () => {
         expect(view.getVisibleSizeInPixel()).toEqual(new Size(1024, 768));
         expect(view.getVisibleOrigin()).toEqual(new Vec2(0, 0));
         expect(view.getVisibleOriginInPixel()).toEqual(new Vec2(0, 0));
-        expect(view.getScaleX()).toBe(1.3473684210526315);
+        expect(view.getScaleX()).toBeCloseTo(1.347);
         expect(view.getScaleY()).toBe(0.6);
         view.convertToLocationInView(tmpX, tmpY, relatedPos, tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
         view._convertPointWithScale(tmpVec2);
-        expect(tmpVec2).toEqual(new Vec2(7.421875, -16.66666603088379));
+        expect(tmpVec2.x).toBeCloseTo(7.422);
+        expect(tmpVec2.y).toBeCloseTo(-16.667);
     });
 });

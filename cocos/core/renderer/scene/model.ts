@@ -355,7 +355,7 @@ export class Model {
             if (!JSB) {
                 // fix precision lost of webGL on android device
                 // scale worldIT mat to around 1.0 by product its sqrt of determinant.
-                const det = Mat4.determinant(m4_1);
+                const det = Math.abs(Mat4.determinant(m4_1));
                 const factor = 1.0 / Math.sqrt(det);
                 Mat4.multiplyScalar(m4_1, m4_1, factor);
             }

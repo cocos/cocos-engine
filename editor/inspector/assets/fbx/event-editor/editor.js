@@ -114,15 +114,7 @@ exports.methods = {
 
     async saveData() {
         const that = this;
-        const result = that.value.map((item) => {
-            // TODO Animation events recorded in meta need to be unified https://github.com/cocos-creator/3d-tasks/issues/7416
-            return {
-                functionName: item.func,
-                parameters: item.params,
-                frame: that.frame,
-            };
-        });
-        that.$emit('update', that.frame, result);
+        that.$emit('update', that.frame, that.value);
         that.dirty = false;
     },
 
@@ -135,14 +127,7 @@ exports.methods = {
             that.value = [];
             return;
         }
-        that.value = data.map((item) => {
-            // TODO Animation events recorded in meta need to be unified
-            return {
-                frame: that.frame,
-                func: item.functionName,
-                params: item.parameters,
-            };
-        });
+        that.value = JSON.parse(JSON.stringify(data));
         that.newFuncName = '';
     },
 };

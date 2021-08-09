@@ -3,6 +3,7 @@
 #define CC_PIPELINE_TYPE_FORWARD 0
 #define CC_PIPELINE_TYPE_DEFERRED 1
 #pragma define CC_PIPELINE_TYPE range([0, 1])
+#pragma define CC_STANDARD_TRANSPARENT
 
 #if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD
 # define LIGHTS_PER_PASS 1 // indent to avoid effect-compile-time substitution
