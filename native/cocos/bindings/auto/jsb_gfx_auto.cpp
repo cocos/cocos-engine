@@ -20851,6 +20851,19 @@ static bool js_gfx_DeviceManager_create(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_gfx_DeviceManager_create)
 
+static bool js_gfx_DeviceManager_addCustomEvent(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::gfx::DeviceManager::addCustomEvent();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_addCustomEvent)
+
 
 static bool js_cc_gfx_DeviceManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20871,6 +20884,7 @@ bool js_register_gfx_DeviceManager(se::Object* obj) // NOLINT(readability-identi
 
     cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy));
     cls->defineStaticFunction("create", _SE(js_gfx_DeviceManager_create));
+    cls->defineStaticFunction("addCustomEvent", _SE(js_gfx_DeviceManager_addCustomEvent));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DeviceManager_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DeviceManager>(cls);
