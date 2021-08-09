@@ -163,7 +163,7 @@ export class PipelineUBO {
         const range = shadowInfo.range;
 
         Mat4.fromRT(matWorldTrans, rotation, focus);
-        Mat4.ortho(matShadowProj, -radius * 0.5, radius * 0.5, -radius * 0.5, radius * 0.5, -range, radius,
+        Mat4.ortho(matShadowProj, -radius, radius, -radius, radius, -range, radius,
             device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
 
         // snap to whole texels
