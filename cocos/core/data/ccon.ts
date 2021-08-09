@@ -1,4 +1,5 @@
 import legacyCC from '../../../predefine';
+import { getError } from '../platform/debug';
 
 const VERSION = 1;
 
@@ -83,7 +84,7 @@ export function encodeCCONBinary (ccon: CCON) {
 
 export function decodeCCONBinary (bytes: Uint8Array) {
     if (bytes.length < 16) {
-        throw new InvalidCCONError(`Format error`);
+        throw new InvalidCCONError(getError(13102));
     }
 
     const dataView = new DataView(
@@ -94,17 +95,17 @@ export function decodeCCONBinary (bytes: Uint8Array) {
 
     const magic = dataView.getUint32(0, true);
     if (magic !== MAGIC) {
-        throw new InvalidCCONError(`Incorrect magic`);
+        throw new InvalidCCONError(getError(13100));
     }
 
     const version = dataView.getUint32(4, true);
     if (version !== VERSION) {
-        throw new InvalidCCONError(`Unknown version`);
+        throw new InvalidCCONError(getError(13101, version));
     }
 
     const dataByteLength = dataView.getUint32(8, true);
     if (dataByteLength !== dataView.byteLength) {
-        throw new InvalidCCONError(`Format error`);
+        throw new InvalidCCONError(getError(13102));
     }
 
     let chunksStart = 12;
@@ -134,7 +135,7 @@ export function decodeCCONBinary (bytes: Uint8Array) {
     }
 
     if (chunksStart !== dataView.byteLength) {
-        throw new InvalidCCONError(`Format error`);
+        throw new InvalidCCONError(getError(13102));
     }
 
     return new CCON(json, chunks);
@@ -168,7 +169,7 @@ function encodeJson (input: string) {
             buffer.length,
         );
     } else {
-        throw new Error(`Cannot encode ${input} as JSON.`);
+        throw new Error(getError(13103));
     }
 }
 
@@ -180,7 +181,7 @@ function decodeJson (data: Uint8Array) {
         // eslint-disable-next-line no-buffer-constructor
         return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString();
     } else {
-        throw new Error(`Cannot decode CCON json.`);
+        throw new Error(getError(13104));
     }
 }
 

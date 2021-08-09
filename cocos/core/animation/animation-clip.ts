@@ -172,9 +172,10 @@ export class AnimationClip extends Asset {
     get hash () {
         // hashes should already be computed offline, but if not, make one
         if (this._hash) { return this._hash; }
-        const data = this._nativeAsset;
-        const buffer = new Uint8Array(ArrayBuffer.isView(data) ? data.buffer : data);
-        return this._hash = murmurhash2_32_gc(buffer, 666);
+        // Only hash exotic animations(including skeletal animations imported from model file).
+        // The behavior is consistent with how `.hash` implemented prior to 3.3.
+        const hashString = `Exotic:${this._exoticAnimation?.toHashString() ?? ''}`;
+        return this._hash = murmurhash2_32_gc(hashString, 666);
     }
 
     /**

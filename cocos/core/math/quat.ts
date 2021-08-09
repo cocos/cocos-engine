@@ -30,7 +30,7 @@
 
 import { CCClass } from '../data/class';
 import { Mat3 } from './mat3';
-import { IQuatLike, IVec3Like, FloatArray } from './type-define';
+import { IQuatLike, IVec3Like, FloatArray, IQuat, IVec3 } from './type-define';
 import { enumerableProps, EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
@@ -47,7 +47,7 @@ export class Quat extends MathBase {
      * @en Obtain a copy of the given quaternion
      * @zh 获得指定四元数的拷贝
      */
-    public static clone<Out extends IQuatLike> (a: Readonly<IQuatLike>) {
+    public static clone<Out extends IQuatLike> (a: IQuat) {
         return new Quat(a.x, a.y, a.z, a.w);
     }
 
@@ -55,7 +55,7 @@ export class Quat extends MathBase {
      * @en Copy the given quaternion to the out quaternion
      * @zh 复制目标四元数
      */
-    public static copy<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>) {
+    public static copy<Out extends IQuatLike> (out: Out, a: IQuat) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -91,7 +91,7 @@ export class Quat extends MathBase {
      * @en Sets the out quaternion with the shortest path orientation between two vectors, considering both vectors normalized
      * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
-    public static rotationTo<Out extends IQuatLike> (out: Out, a: Readonly<IVec3Like>, b: Readonly<IVec3Like>) {
+    public static rotationTo<Out extends IQuatLike> (out: Out, a: IVec3, b: IVec3) {
         const dot = Vec3.dot(a, b);
         if (dot < -0.999999) {
             Vec3.cross(v3_1, Vec3.UNIT_X, a);
@@ -160,7 +160,7 @@ export class Quat extends MathBase {
      * @en Quaternion scalar multiplication and save the results to out quaternion
      * @zh 四元数标量乘法
      */
-    public static multiplyScalar<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>, b: number) {
+    public static multiplyScalar<Out extends IQuatLike> (out: Out, a: IQuat, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
@@ -172,7 +172,7 @@ export class Quat extends MathBase {
      * @en Quaternion multiplication and addition: A + B * scale
      * @zh 四元数乘加：A + B * scale
      */
-    public static scaleAndAdd<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>, b: Readonly<IQuatLike>, scale: number) {
+    public static scaleAndAdd<Out extends IQuatLike> (out: Out, a: IQuat, b: IQuat, scale: number) {
         out.x = a.x + b.x * scale;
         out.y = a.y + b.y * scale;
         out.z = a.z + b.z * scale;
@@ -185,7 +185,7 @@ export class Quat extends MathBase {
      * @zh 绕 X 轴旋转指定四元数
      * @param rad radius of rotation
      */
-    public static rotateX<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>, rad: number) {
+    public static rotateX<Out extends IQuatLike> (out: Out, a: IQuat, rad: number) {
         rad *= 0.5;
 
         const bx = Math.sin(rad);
@@ -204,7 +204,7 @@ export class Quat extends MathBase {
      * @zh 绕 Y 轴旋转指定四元数
      * @param rad radius of rotation
      */
-    public static rotateY<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>, rad: number) {
+    public static rotateY<Out extends IQuatLike> (out: Out, a: IQuat, rad: number) {
         rad *= 0.5;
 
         const by = Math.sin(rad);
@@ -223,7 +223,7 @@ export class Quat extends MathBase {
      * @zh 绕 Z 轴旋转指定四元数
      * @param rad radius of rotation
      */
-    public static rotateZ<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>, rad: number) {
+    public static rotateZ<Out extends IQuatLike> (out: Out, a: IQuat, rad: number) {
         rad *= 0.5;
 
         const bz = Math.sin(rad);
@@ -243,7 +243,7 @@ export class Quat extends MathBase {
      * @param axis axis of rotation, normalized by default
      * @param rad radius of rotation
      */
-    public static rotateAround<Out extends IQuatLike> (out: Out, rot: Out, axis: Readonly<IVec3Like>, rad: number) {
+    public static rotateAround<Out extends IQuatLike> (out: Out, rot: Out, axis: IVec3, rad: number) {
         // get inv-axis (local to rot)
         Quat.invert(qt_1, rot);
         Vec3.transformQuat(v3_1, axis, qt_1);
@@ -259,7 +259,7 @@ export class Quat extends MathBase {
      * @param axis axis of rotation
      * @param rad radius of rotation
      */
-    public static rotateAroundLocal<Out extends IQuatLike> (out: Out, rot: Out, axis: Readonly<IVec3Like>, rad: number) {
+    public static rotateAroundLocal<Out extends IQuatLike> (out: Out, rot: Out, axis: IVec3, rad: number) {
         Quat.fromAxisAngle(qt_1, axis, rad);
         Quat.multiply(out, rot, qt_1);
         return out;
@@ -269,7 +269,7 @@ export class Quat extends MathBase {
      * @en Calculates the w component with xyz components, considering the given quaternion normalized
      * @zh 根据 xyz 分量计算 w 分量，默认已归一化
      */
-    public static calculateW<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>) {
+    public static calculateW<Out extends IQuatLike> (out: Out, a: IQuat) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -281,7 +281,7 @@ export class Quat extends MathBase {
      * @en Quaternion dot product (scalar product)
      * @zh 四元数点积（数量积）
      */
-    public static dot<Out extends IQuatLike> (a: Readonly<IQuatLike>, b: Readonly<IQuatLike>) {
+    public static dot<Out extends IQuatLike> (a: IQuat, b: IQuat) {
         return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
     }
 
@@ -289,7 +289,7 @@ export class Quat extends MathBase {
      * @en Element by element linear interpolation: A + t * (B - A)
      * @zh 逐元素线性插值： A + t * (B - A)
      */
-    public static lerp<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>, b: Readonly<IQuatLike>, t: number) {
+    public static lerp<Out extends IQuatLike> (out: Out, a: IQuat, b: IQuat, t: number) {
         out.x = a.x + t * (b.x - a.x);
         out.y = a.y + t * (b.y - a.y);
         out.z = a.z + t * (b.z - a.z);
@@ -349,7 +349,7 @@ export class Quat extends MathBase {
      * @en Spherical quaternion interpolation with two control points
      * @zh 带两个控制点的四元数球面插值
      */
-    public static sqlerp<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>, b: Readonly<IQuatLike>, c: Out, d: Out, t: number) {
+    public static sqlerp<Out extends IQuatLike> (out: Out, a: IQuat, b: IQuat, c: Out, d: Out, t: number) {
         Quat.slerp(qt_1, a, d, t);
         Quat.slerp(qt_2, b, c, t);
         Quat.slerp(out, qt_1, qt_2, 2 * t * (1 - t));
@@ -360,7 +360,7 @@ export class Quat extends MathBase {
      * @en Sets the inverse of the given quaternion to out quaternion
      * @zh 四元数求逆
      */
-    public static invert<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>) {
+    public static invert<Out extends IQuatLike> (out: Out, a: IQuat) {
         const dot = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         const invDot = dot ? 1.0 / dot : 0;
 
@@ -377,7 +377,7 @@ export class Quat extends MathBase {
      * @en Conjugating a quaternion, it's equivalent to the inverse of the unit quaternion, but more efficient
      * @zh 求共轭四元数，对单位四元数与求逆等价，但更高效
      */
-    public static conjugate<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>) {
+    public static conjugate<Out extends IQuatLike> (out: Out, a: IQuat) {
         out.x = -a.x;
         out.y = -a.y;
         out.z = -a.z;
@@ -389,7 +389,7 @@ export class Quat extends MathBase {
      * @en Calculates the length of the quaternion
      * @zh 求四元数长度
      */
-    public static len<Out extends IQuatLike> (a: Readonly<IQuatLike>) {
+    public static len<Out extends IQuatLike> (a: IQuat) {
         return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     }
 
@@ -397,7 +397,7 @@ export class Quat extends MathBase {
      * @en Calculates the squared length of the quaternion
      * @zh 求四元数长度平方
      */
-    public static lengthSqr<Out extends IQuatLike> (a: Readonly<IQuatLike>) {
+    public static lengthSqr<Out extends IQuatLike> (a: IQuat) {
         return a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
     }
 
@@ -405,7 +405,7 @@ export class Quat extends MathBase {
      * @en Normalize the given quaternion
      * @zh 归一化四元数
      */
-    public static normalize<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>) {
+    public static normalize<Out extends IQuatLike> (out: Out, a: IQuat) {
         let len = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
@@ -421,7 +421,7 @@ export class Quat extends MathBase {
      * @en Calculated the quaternion represents the given coordinates, considering all given vectors are normalized and mutually perpendicular
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
-    public static fromAxes<Out extends IQuatLike> (out: Out, xAxis: Readonly<IVec3Like>, yAxis: Readonly<IVec3Like>, zAxis: Readonly<IVec3Like>) {
+    public static fromAxes<Out extends IQuatLike> (out: Out, xAxis: IVec3, yAxis: IVec3, zAxis: IVec3) {
         Mat3.set(m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
@@ -435,7 +435,7 @@ export class Quat extends MathBase {
      * @param view The view direction, it`s must be normalized.
      * @param up The view up direction, it`s must be normalized, default value is (0, 1, 0).
      */
-    public static fromViewUp<Out extends IQuatLike> (out: Out, view: Readonly<IVec3Like>, up?: Readonly<Vec3>) {
+    public static fromViewUp<Out extends IQuatLike> (out: Out, view: IVec3, up?: Vec3 | Readonly<Vec3>) {
         Mat3.fromViewUp(m3_1, view, up);
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }
@@ -444,7 +444,7 @@ export class Quat extends MathBase {
      * @en Calculates the quaternion from a given rotary shaft and a radian rotation around it.
      * @zh 根据旋转轴和旋转弧度计算四元数
      */
-    public static fromAxisAngle<Out extends IQuatLike> (out: Out, axis: Readonly<IVec3Like>, rad: number) {
+    public static fromAxisAngle<Out extends IQuatLike> (out: Out, axis: IVec3, rad: number) {
         rad *= 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
@@ -750,7 +750,7 @@ export class Quat extends MathBase {
      * @param other Specified quaternion
      * @returns `this`
      */
-    public set (other: Readonly<Quat>): Quat;
+    public set (other: Quat | Readonly<Quat>): Quat;
 
     /**
      * @en Set the value of each component of the current quaternion
@@ -759,7 +759,7 @@ export class Quat extends MathBase {
      */
     public set (x?: number, y?: number, z?: number, w?: number): Quat;
 
-    public set (x?: number | Readonly<Quat>, y?: number, z?: number, w?: number) {
+    public set (x?: number | Quat | Readonly<Quat>, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
             const v = x.array;
             this._array[0] = v[0];
@@ -782,7 +782,7 @@ export class Quat extends MathBase {
      * @param epsilon The error allowed. It`s should be a non-negative number.
      * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
-    public equals (other: Readonly<Quat>, epsilon = EPSILON) {
+    public equals (other: Quat | Readonly<Quat>, epsilon = EPSILON) {
         const v = other.array;
         return (Math.abs(this._array[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(v[0]))
             && Math.abs(this._array[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(v[1]))
@@ -796,7 +796,7 @@ export class Quat extends MathBase {
      * @param other Comparative quaternion
      * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
-    public strictEquals (other: Readonly<Quat>) {
+    public strictEquals (other: Quat | Readonly<Quat>) {
         const v = other.array;
         return other && this._array[0] === v[0] && this._array[1] === v[1] && this._array[2] === v[2] && this._array[3] === v[3];
     }
