@@ -1,0 +1,60 @@
+[
+  {
+    "__type__": "cc.animation.PoseGraph",
+    "_name": "",
+    "_objFlags": 0,
+    "_native": "",
+    "_layers": [
+      {
+        "__id__": 1
+      }
+    ],
+    "_variables": {}
+  },
+  {
+    "__type__": "cc.animation.Layer",
+    "_graph": {
+      "__id__": 2
+    },
+    "weight": 1,
+    "mask": null,
+    "blending": 1
+  },
+  {
+    "__type__": "cc.animation.PoseSubgraph",
+    "name": "",
+    "_nodes": [
+      {
+        "__id__": 3
+      },
+      {
+        "__id__": 4
+      },
+      {
+        "__id__": 5
+      }
+    ],
+    "_transitions": [],
+    "_entryNode": {
+      "__id__": 3
+    },
+    "_exitNode": {
+      "__id__": 4
+    },
+    "_anyNode": {
+      "__id__": 5
+    }
+  },
+  {
+    "__type__": "cc.animation.GraphNode",
+    "name": ""
+  },
+  {
+    "__type__": "cc.animation.GraphNode",
+    "name": ""
+  },
+  {
+    "__type__": "cc.animation.GraphNode",
+    "name": ""
+  }
+]

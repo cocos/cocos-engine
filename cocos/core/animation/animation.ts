@@ -40,3 +40,4 @@ export { QuatTrack } from './tracks/quat-track';
 export { ColorTrack } from './tracks/color-track';
 export { SizeTrack } from './tracks/size-track';
 export { ObjectTrack } from './tracks/object-track';
+export * from './newgen-anim';
