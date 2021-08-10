@@ -922,6 +922,7 @@ export class ParticleSystem extends RenderableComponent {
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);
+            particle.loopCount++;
 
             this.processor.setNewParticle(particle);
         } // end of particles forLoop.

@@ -209,6 +209,16 @@ class TerrainRenderable extends RenderableComponent {
             return;
         }
 
+        if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
+            const passes = this._currentMaterial.passes;
+            for (let i = 0; i < passes.length; ++i) {
+                if (passes[i] === this._brushMaterial.passes[0]) {
+                    passes.pop();
+                    break;
+                }
+            }
+        }
+
         this._clearMaterials();
 
         this._currentMaterial = null;
@@ -557,8 +567,8 @@ export class TerrainBlock {
 
     public setBrushMaterial (mtl: Material|null) {
         if (this._renderable._brushMaterial !== mtl) {
-            this._renderable._brushMaterial = mtl;
             this._renderable._invalidMaterial();
+            this._renderable._brushMaterial = mtl;
         }
     }
 
