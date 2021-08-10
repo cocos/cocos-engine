@@ -20,6 +20,18 @@ float CCGetLinearDepth (vec3 worldPos) {
   #pragma builtin(global)
   layout(set = 0, binding = 5) uniform sampler2D cc_spotLightingMap;
 
+  vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal)
+  {
+    vec4 newshadowPos = shadowPos;
+    if(cc_shadowLPNNInfo.z > 0.0001)
+    {
+      vec4 viewNormal = cc_matLightView * vec4(worldNormal, 0.0);
+      if(viewNormal.z < 0.1)
+        newshadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * cc_shadowLPNNInfo.z * clamp(viewNormal.z, 0.001, 0.1);
+    }
+    return newshadowPos;
+  }
+  
   vec4 ApplyShadowDepthBias_Perspective(vec4 shadowPos, float viewspaceDepthBias)
   {
     // Recover the coord in view space: cc_matLightInvProj * shadowPos
@@ -290,19 +302,17 @@ float CCGetLinearDepth (vec3 worldPos) {
 
 #define CC_SPOT_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, worldPos, lightPos, normal)           \
 {                                                                                                   \
-  vec4 pos = cc_matLightViewProj * vec4(worldPos + cc_shadowLPNNInfo.z * normal, 1.0);              \
   float pcf = cc_shadowWHPBInfo.z;                                                                  \
-  if (pcf > 1.9) realtimeShadow = CCGetSpotLightShadowFactorSoft2X(pos, worldPos);                  \
-  else if (pcf > 0.9) realtimeShadow = CCGetSpotLightShadowFactorSoft(pos, worldPos);               \
-  else realtimeShadow = CCGetSpotLightShadowFactorHard(pos, worldPos);                              \
+  if (pcf > 1.9) realtimeShadow = CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos);            \
+  else if (pcf > 0.9) realtimeShadow = CCGetSpotLightShadowFactorSoft(shadowPos, worldPos);         \
+  else realtimeShadow = CCGetSpotLightShadowFactorHard(shadowPos, worldPos);                        \
 }                                                                                                   \
 #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
 
-#define CC_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, N, NL)                           \
+#define CC_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, N, NL)                 \
 {                                                                                         \
+  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N);                               \
   float pcf = cc_shadowWHPBInfo.z;                                                        \
-  vec3 projWorldPos = shadowPos.xyz + (1.0 - NL) * cc_shadowLPNNInfo.z * N;               \
-  vec4 pos = vec4(projWorldPos.xyz, shadowPos.w);                                         \
   if (pcf > 1.9) realtimeShadow = CCGetShadowFactorSoft2X(pos);                           \
   else if (pcf > 0.9) realtimeShadow = CCGetShadowFactorSoft(pos);                        \
   else realtimeShadow = CCGetShadowFactorHard(pos);                                       \
