@@ -57,8 +57,7 @@ void CCVKCommandBuffer::doInit(const CommandBufferInfo & /*info*/) {
     size_t setCount = CCVKDevice::getInstance()->bindingMappingInfo().bufferOffsets.size();
     _curGPUDescriptorSets.resize(setCount);
     _curVkDescriptorSets.resize(setCount);
-    _curDynamicOffsetPtrs.resize(setCount);
-    _curDynamicOffsetCounts.resize(setCount);
+    _curDynamicOffsetsArray.resize(setCount);
 }
 
 void CCVKCommandBuffer::doDestroy() {
@@ -76,7 +75,7 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer 
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
-    _curDynamicOffsetCounts.assign(_curDynamicOffsetCounts.size(), 0U);
+    _curDynamicOffsetsArray.assign(_curDynamicOffsetsArray.size(), {});
     _firstDirtyDescriptorSet = UINT_MAX;
 
     _numDrawCalls = 0;
@@ -127,10 +126,10 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     // guard against RAW hazard
     VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
     vkBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-    vkBarrier.dstAccessMask = VK_ACCESS_UNIFORM_READ_BIT;
+    vkBarrier.dstAccessMask = VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
     vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                         VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                         VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                          0, 1, &vkBarrier, 0, nullptr, 0, nullptr);
 #endif
 
@@ -218,8 +217,7 @@ void CCVKCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
     if (dynamicOffsetCount) {
-        _curDynamicOffsetPtrs[set]   = dynamicOffsets;
-        _curDynamicOffsetCounts[set] = dynamicOffsetCount;
+        _curDynamicOffsetsArray[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
     }
 }
@@ -568,8 +566,8 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
         }
         uint count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
         //CCASSERT(_curDynamicOffsetCounts[i] >= count, "missing dynamic offsets?");
-        count = std::min(count, _curDynamicOffsetCounts[i]);
-        if (count > 0) memcpy(&_curDynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsetPtrs[i], count * sizeof(uint));
+        count = std::min(count, utils::toUint(_curDynamicOffsetsArray[i].size()));
+        if (count > 0) memcpy(&_curDynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsetsArray[i].data(), count * sizeof(uint));
     }
 
     uint dynamicOffsetStartIndex = dynamicOffsetOffsets[_firstDirtyDescriptorSet];

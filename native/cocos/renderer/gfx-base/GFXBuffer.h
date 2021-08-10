@@ -44,12 +44,15 @@ public:
 
     virtual void update(const void *buffer, uint size) = 0;
 
+    inline void update(const void *buffer) { update(buffer, _size); }
+
     inline BufferUsage getUsage() const { return _usage; }
     inline MemoryUsage getMemUsage() const { return _memUsage; }
     inline uint        getStride() const { return _stride; }
     inline uint        getCount() const { return _count; }
     inline uint        getSize() const { return _size; }
     inline BufferFlags getFlags() const { return _flags; }
+    inline bool        isBufferView() const { return _isBufferView; }
 
 protected:
     virtual void doInit(const BufferInfo &info)     = 0;

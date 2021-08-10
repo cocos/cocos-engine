@@ -205,8 +205,8 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
 void EditBox::hide() {
     DestroyWindow(g_hwndEditBox);
 
-    SetWindowLongPtr(cc_get_application_view()->getWindowHandler(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
-    SetWindowLongPtr(g_hwndEditBox, GWL_WNDPROC, (LONG_PTR)g_prevEditWindowProc);
+    SetWindowLongPtr(cc_get_application_view()->getWindowHandler(), GWLP_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
+    SetWindowLongPtr(g_hwndEditBox, GWLP_WNDPROC, (LONG_PTR)g_prevEditWindowProc);
     g_hwndEditBox = nullptr;
 }
 

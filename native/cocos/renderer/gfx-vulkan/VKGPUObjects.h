@@ -935,6 +935,20 @@ public:
             }
         }
     }
+    // for resize events
+    void update(const CCVKGPUBuffer *buffer, uint oldStartOffset) {
+        for (const auto &it : _buffers) {
+            if (it.first->gpuBuffer != buffer) continue;
+            const auto &info = it.second;
+            for (uint i = 0U; i < info.descriptors.size(); i++) {
+                info.descriptors[i]->buffer = buffer->vkBuffer;
+                info.descriptors[i]->offset += buffer->startOffset - oldStartOffset;
+            }
+            for (const auto *set : info.sets) {
+                _descriptorSetHub->record(set);
+            }
+        }
+    }
 
     void disengage(const CCVKGPUBufferView *buffer) {
         auto it = _buffers.find(buffer);
