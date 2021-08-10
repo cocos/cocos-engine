@@ -20,28 +20,43 @@ float CCGetLinearDepth (vec3 worldPos) {
   #pragma builtin(global)
   layout(set = 0, binding = 5) uniform sampler2D cc_spotLightingMap;
 
-  vec4 ApplyShadowDepthBias(vec4 shadowPos, float viewspaceDepthBias)
+  vec4 ApplyShadowDepthBias_Perspective(vec4 shadowPos, float viewspaceDepthBias)
   {
-    float coeffA = cc_shadowDepthBiasPerspCoeffs.x;
-    float coeffB = cc_shadowDepthBiasPerspCoeffs.y;
-
-    // Recover the Z distance in view space:
-    vec4 viewSpacePos;
-    viewSpacePos.z = (shadowPos.z - coeffB) / coeffA;
+    // Recover the coord in view space: cc_matLightInvProj * shadowPos
+    vec3 viewSpacePos;
+    viewSpacePos.xy = shadowPos.xy / cc_shadowProjInfo.xy;
+    viewSpacePos.z = shadowPos.z * cc_shadowInvProjDepthInfo.x + shadowPos.w * cc_shadowInvProjDepthInfo.y;
 
     // Apply bias
-    viewSpacePos.z += viewspaceDepthBias;
+    viewSpacePos.xyz += cc_shadowProjDepthInfo.z * normalize(viewSpacePos.xyz) * viewspaceDepthBias;
 
-    // Reconstuct clipspace
-    vec4 result;
-    result.xy = shadowPos.xy;
-    result.z = viewSpacePos.z * coeffA + coeffB;
-    result.w = (cc_shadowDepthBiasPerspCoeffs.w > 0.0001) ? 1.0 : (cc_shadowDepthBiasPerspCoeffs.z * viewSpacePos.z);
-    return result;
+    // Reconstuct clipspace: cc_matLightProj * viewSpacePos
+    vec4 clipSpacePos;
+    clipSpacePos.xy = viewSpacePos.xy * cc_shadowProjInfo.xy;
+    clipSpacePos.zw = viewSpacePos.z * cc_shadowProjDepthInfo.xz + vec2(cc_shadowProjDepthInfo.y, 0.0);
+    return clipSpacePos;
   }
 
+  vec4 ApplyShadowDepthBias_Orthographic(vec4 shadowPos, float viewspaceDepthBias)
+  {
+    float coeffA = cc_shadowProjDepthInfo.x;
+    float coeffB = cc_shadowProjDepthInfo.y;
+
+    // Recover the Z distance in view space:
+    float viewSpacePos_z = (shadowPos.z - coeffB) / coeffA;
+
+    // Apply bias
+    viewSpacePos_z += viewspaceDepthBias;
+
+    // Reconstuct clipspace
+    vec4 result = shadowPos;
+    result.z = viewSpacePos_z * coeffA + coeffB;
+    return result;
+  }
+  
+
   float CCGetShadowFactorHard (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias(shadowPos, cc_shadowWHPBInfo.w);
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -61,7 +76,7 @@ float CCGetLinearDepth (vec3 worldPos) {
   }
 
   float CCGetShadowFactorSoft (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias(shadowPos, cc_shadowWHPBInfo.w);
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -94,7 +109,7 @@ float CCGetLinearDepth (vec3 worldPos) {
   }
 
   float CCGetShadowFactorSoft2X (vec4 shadowPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias(shadowPos, cc_shadowWHPBInfo.w);
+    vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -157,7 +172,7 @@ float CCGetLinearDepth (vec3 worldPos) {
   }
 
   float CCGetSpotLightShadowFactorHard (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias(shadowPos, cc_shadowWHPBInfo.w);
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -185,7 +200,7 @@ float CCGetLinearDepth (vec3 worldPos) {
   }
 
   float CCGetSpotLightShadowFactorSoft (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias(shadowPos, cc_shadowWHPBInfo.w);
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -205,7 +220,7 @@ float CCGetLinearDepth (vec3 worldPos) {
     }
     
     float offsetDepth = depth;
-    // enbaled packing?
+    // packing enabled?
     if (cc_shadowLPNNInfo.y > 0.000001) {
       float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
       shadow += step(offsetDepth, closestDepth);
@@ -234,7 +249,7 @@ float CCGetLinearDepth (vec3 worldPos) {
   }
 
   float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos) {
-    vec4 clipPosNew = ApplyShadowDepthBias(shadowPos, cc_shadowWHPBInfo.w);
+    vec4 clipPosNew = ApplyShadowDepthBias_Perspective(shadowPos, cc_shadowWHPBInfo.w);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -275,10 +290,8 @@ float CCGetLinearDepth (vec3 worldPos) {
 
 #define CC_SPOT_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, worldPos, lightPos, normal)           \
 {                                                                                                   \
+  vec4 pos = cc_matLightViewProj * vec4(worldPos + cc_shadowLPNNInfo.z * normal, 1.0);              \
   float pcf = cc_shadowWHPBInfo.z;                                                                  \
-  float cosAngle = clamp(1.0 - dot(normal, normalize(lightPos.xyz - worldPos.xyz)), 0.0, 1.0);      \
-  vec3 projWorldPos = shadowPos.xyz + cosAngle * cc_shadowLPNNInfo.z * normal;                      \
-  vec4 pos = vec4(projWorldPos.xyz, shadowPos.w);                                                   \
   if (pcf > 1.9) realtimeShadow = CCGetSpotLightShadowFactorSoft2X(pos, worldPos);                  \
   else if (pcf > 0.9) realtimeShadow = CCGetSpotLightShadowFactorSoft(pos, worldPos);               \
   else realtimeShadow = CCGetSpotLightShadowFactorHard(pos, worldPos);                              \

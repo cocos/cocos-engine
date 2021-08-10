@@ -180,6 +180,17 @@ export class PipelineUBO {
 
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                     device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowViewProj.m10;
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowViewProj.m14;
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowViewProj.m11;
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowViewProj.m15;
+
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 0] = matShadowViewProj.m00;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 1] = matShadowViewProj.m05;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 0.0;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0;
+
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
@@ -252,11 +263,6 @@ export class PipelineUBO {
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
                 device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-
-            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 0] = matShadowViewProj.m10;
-            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 1] = matShadowViewProj.m14;
-            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 2] = 0.0;
-            sv[UBOShadow.SHADOW_DEPTHBIAS_COEFFS_OFFSET + 3] = 1.0;
             break;
         case LightType.SPOT:
             Mat4.invert(matShadowView, (light as any).node.getWorldMatrix());
