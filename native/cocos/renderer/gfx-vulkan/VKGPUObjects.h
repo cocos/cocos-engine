@@ -936,7 +936,7 @@ public:
         }
     }
     // for resize events
-    void update(const CCVKGPUBuffer *buffer, uint oldStartOffset) {
+    void update(const CCVKGPUBuffer *buffer, VkDeviceSize oldStartOffset) {
         for (const auto &it : _buffers) {
             if (it.first->gpuBuffer != buffer) continue;
             const auto &info = it.second;

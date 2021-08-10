@@ -94,7 +94,7 @@ void CCVKBuffer::doDestroy() {
 }
 
 void CCVKBuffer::doResize(uint size, uint count) {
-    uint oldStartOffset = _gpuBuffer->startOffset;
+    VkDeviceSize oldStartOffset = _gpuBuffer->startOffset;
 
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
