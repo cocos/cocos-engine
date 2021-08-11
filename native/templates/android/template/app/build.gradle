@@ -83,7 +83,7 @@ android {
             jniDebuggable true
             renderscriptDebuggable true
             resValue  "string", "cc_app_name", "${PROP_APP_NAME}-dbg"
-            applicationIdSuffix ".debug"
+            // applicationIdSuffix ".debug"
         }
     }
 }
