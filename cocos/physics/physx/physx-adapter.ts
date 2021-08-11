@@ -37,7 +37,7 @@
 /* eslint-disable import/order */
 
 import { PhysX } from './physx.asmjs';
-import { BYTEDANCE, EDITOR, TEST } from 'internal:constants';
+import { BYTEDANCE, DEBUG, EDITOR, TEST } from 'internal:constants';
 import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
@@ -476,12 +476,16 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
     const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER | PxQueryFlag.eNO_BLOCK;
+    const queryfilterData = PhysXWorld.queryfilterData;
+    const queryFilterCB = PhysXWorld.queryFilterCB;
+    const mutipleResults = PhysXWorld.mutipleResults;
+    const mutipleResultSize = PhysXWorld.mutipleResultSize;
     if (USE_BYTEDANCE_NATIVE) {
-        world.queryfilterData.data.word3 = word3;
-        world.queryfilterData.data.word0 = options.mask >>> 0;
-        world.queryfilterData.flags = queryFlags;
+        queryfilterData.data.word3 = word3;
+        queryfilterData.data.word0 = options.mask >>> 0;
+        queryfilterData.flags = queryFlags;
         const r = PX.SceneQueryExt.raycastMultiple(world.scene, worldRay.o, worldRay.d, maxDistance, flags,
-            world.mutipleResultSize, world.queryfilterData, world.queryFilterCB);
+            mutipleResultSize, queryfilterData, queryFilterCB);
 
         if (r) {
             for (let i = 0; i < r.length; i++) {
@@ -494,12 +498,12 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
             return true;
         }
     } else {
-        world.queryfilterData.setWords(options.mask >>> 0, 0);
-        world.queryfilterData.setWords(word3, 3);
-        world.queryfilterData.setFlags(queryFlags);
-        const blocks = world.mutipleResults;
+        queryfilterData.setWords(options.mask >>> 0, 0);
+        queryfilterData.setWords(word3, 3);
+        queryfilterData.setFlags(queryFlags);
+        const blocks = mutipleResults;
         const r = world.scene.raycastMultiple(worldRay.o, worldRay.d, maxDistance, flags,
-            blocks, blocks.size(), world.queryfilterData, world.queryFilterCB, null);
+            blocks, blocks.size(), queryfilterData, queryFilterCB, null);
 
         if (r > 0) {
             for (let i = 0; i < r; i++) {
@@ -524,24 +528,26 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
         | EFilterDataWord3.QUERY_SINGLE_HIT;
     const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER;
+    const queryfilterData = PhysXWorld.queryfilterData;
+    const queryFilterCB = PhysXWorld.queryFilterCB;
     if (USE_BYTEDANCE_NATIVE) {
-        world.queryfilterData.data.word3 = word3;
-        world.queryfilterData.data.word0 = options.mask >>> 0;
-        world.queryfilterData.flags = queryFlags;
+        queryfilterData.data.word3 = word3;
+        queryfilterData.data.word0 = options.mask >>> 0;
+        queryfilterData.flags = queryFlags;
         const block = PX.SceneQueryExt.raycastSingle(world.scene, worldRay.o, worldRay.d, maxDistance,
-            flags, world.queryfilterData, world.queryFilterCB);
+            flags, queryfilterData, queryFilterCB);
         if (block) {
             const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
             result._assign(block.position, block.distance, collider, block.normal);
             return true;
         }
     } else {
-        world.queryfilterData.setWords(options.mask >>> 0, 0);
-        world.queryfilterData.setWords(word3, 3);
-        world.queryfilterData.setFlags(queryFlags);
-        const block = world.singleResult;
+        queryfilterData.setWords(options.mask >>> 0, 0);
+        queryfilterData.setWords(word3, 3);
+        queryfilterData.setFlags(queryFlags);
+        const block = PhysXWorld.singleResult;
         const r = world.scene.raycastSingle(worldRay.o, worldRay.d, options.maxDistance, flags,
-            block, world.queryfilterData, world.queryFilterCB, null);
+            block, queryfilterData, queryFilterCB, null);
         if (r) {
             const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
             result._assign(block.position, block.distance, collider, block.normal);
@@ -553,13 +559,19 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
 
 export function initializeWorld (world: any) {
     if (USE_BYTEDANCE_NATIVE) {
+        // construct PhysX instance object only once
+        if (!PhysXWorld.physics) {
+            // const physics = PX.createPhysics();
+            PhysXWorld.physics = PX.physics; // Bytedance have internal physics instance
+            PhysXWorld.cooking = PX.createCooking(new PX.CookingParams());
+            PhysXWorld.queryFilterCB = new PX.QueryFilterCallback();
+            PhysXWorld.queryFilterCB.setPreFilter(world.callback.queryCallback.preFilterForByteDance);
+            PhysXWorld.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
+        }
+
         initConfigForByteDance();
         hackForMultiThread();
-        // const physics = PX.createPhysics();
-        const physics = PX.physics;
-        const cp = new PX.CookingParams();
-        const cooking = PX.createCooking(cp);
-        const sceneDesc = physics.createSceneDesc();
+        const sceneDesc = PhysXWorld.physics.createSceneDesc();
         if (PX.MULTI_THREAD) {
             const mstc = sceneDesc.getMaxSubThreadCount();
             const count = PX.SUB_THREAD_COUNT > mstc ? mstc : PX.SUB_THREAD_COUNT;
@@ -570,33 +582,32 @@ export function initializeWorld (world: any) {
         }
         sceneDesc.setFlag(PX.SceneFlag.eENABLE_PCM, true);
         sceneDesc.setFlag(PX.SceneFlag.eENABLE_CCD, true);
-        const scene = physics.createScene(sceneDesc);
+        const scene = PhysXWorld.physics.createScene(sceneDesc);
         scene.setNeedOnContact(true);
         scene.setNeedOnTrigger(true);
-        world.queryFilterCB = new PX.QueryFilterCallback();
-        world.queryFilterCB.setPreFilter(world.callback.queryCallback.preFilterForByteDance);
-        world.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
-        world.physics = physics;
-        world.cooking = cooking;
         world.scene = scene;
     } else {
-        world.singleResult = new PX.PxRaycastHit();
-        world.mutipleResults = new PX.PxRaycastHitVector();
-        world.mutipleResults.resize(world.mutipleResultSize, world.singleResult);
-        world.queryfilterData = new PX.PxQueryFilterData();
-        world.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
-        world.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
-        const version = PX.PX_PHYSICS_VERSION;
-        const defaultErrorCallback = new PX.PxDefaultErrorCallback();
-        const allocator = new PX.PxDefaultAllocator();
-        const foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-        const scale = new PX.PxTolerancesScale();
-        world.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));
-        world.physics = PX.PxCreatePhysics(version, foundation, scale, false, null);
-        PX.PxInitExtensions(world.physics, null);
-        const sceneDesc = PX.getDefaultSceneDesc(world.physics.getTolerancesScale(), 0, world.simulationCB);
-        world.scene = world.physics.createScene(sceneDesc);
-        PX.physics = world.physics;
+        // construct PhysX instance object only once
+        if (!PhysXWorld.foundation) {
+            const version = PX.PX_PHYSICS_VERSION;
+            const allocator = new PX.PxDefaultAllocator();
+            const defaultErrorCallback = new PX.PxDefaultErrorCallback();
+            const foundation = PhysXWorld.foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
+            if (DEBUG) PhysXWorld.pvd = PX.PxCreatePvd(foundation);
+            const scale = new PX.PxTolerancesScale();
+            PhysXWorld.physics = PX.physics = PX.PxCreatePhysics(version, foundation, scale, false, PhysXWorld.pvd);
+            PhysXWorld.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));
+            PX.PxInitExtensions(PhysXWorld.physics, PhysXWorld.pvd);
+            PhysXWorld.singleResult = new PX.PxRaycastHit();
+            PhysXWorld.mutipleResults = new PX.PxRaycastHitVector();
+            PhysXWorld.mutipleResults.resize(PhysXWorld.mutipleResultSize, PhysXWorld.singleResult);
+            PhysXWorld.queryfilterData = new PX.PxQueryFilterData();
+            PhysXWorld.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
+            PhysXWorld.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
+        }
+
+        const sceneDesc = PX.getDefaultSceneDesc(PhysXWorld.physics.getTolerancesScale(), 0, PhysXWorld.simulationCB);
+        world.scene = PhysXWorld.physics.createScene(sceneDesc);
     }
 }
 

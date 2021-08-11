@@ -36,6 +36,7 @@ import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 import { AttributeName } from '../../../core/gfx';
+import { PhysXWorld } from '../physx-world';
 
 export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
     geometry: any;
@@ -46,8 +47,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
 
     setMesh (v: Mesh | null): void {
         if (v && v.renderingSubMeshes.length > 0 && this._impl == null) {
-            const wrappedWorld = this._sharedBody.wrappedWorld;
-            const physics = wrappedWorld.physics;
+            const physics = PhysXWorld.physics;
             const collider = this.collider;
             const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
             const meshScale = PhysXShape.MESH_SCALE;
@@ -55,7 +55,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             meshScale.setRotation(Quat.IDENTITY);
             if (collider.convex) {
                 if (PX.MESH_CONVEX[v._uuid] == null) {
-                    const cooking = wrappedWorld.cooking;
+                    const cooking = PhysXWorld.cooking;
                     const posBuf = v.readAttribute(0, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
                     PX.MESH_CONVEX[v._uuid] = createConvexMesh(posBuf, cooking, physics);
                 }
@@ -63,7 +63,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
                 this.geometry = new PX.ConvexMeshGeometry(convexMesh, meshScale, createMeshGeometryFlags(0, true));
             } else {
                 if (PX.MESH_STATIC[v._uuid] == null) {
-                    const cooking = wrappedWorld.cooking;
+                    const cooking = PhysXWorld.cooking;
                     const posBuf = v.readAttribute(0, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
                     const indBuf = v.readIndices(0)! as unknown as Uint32Array; // Uint16Array ?
                     PX.MESH_STATIC[v._uuid] = createTriangleMesh(posBuf, indBuf, cooking, physics);

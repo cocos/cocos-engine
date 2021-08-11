@@ -33,6 +33,7 @@ import cylinder from '../../../primitive/cylinder';
 import { ConeCollider, EAxisDirection } from '../../framework';
 import { IConeShape } from '../../spec/i-physics-shape';
 import { createConvexMesh, createMeshGeometryFlags, PX, _trans } from '../physx-adapter';
+import { PhysXWorld } from '../physx-world';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXConeShape extends PhysXShape implements IConeShape {
@@ -61,9 +62,9 @@ export class PhysXConeShape extends PhysXShape implements IConeShape {
 
     onComponentSet (): void {
         const collider = this.collider;
-        const physics = this._sharedBody.wrappedWorld.physics;
+        const physics = PhysXWorld.physics;
         if (!PhysXConeShape.CONVEX_MESH) {
-            const cooking = this._sharedBody.wrappedWorld.cooking;
+            const cooking = PhysXWorld.cooking;
             const primitive = cylinder(0, 0.5, 1, { radialSegments: 32, heightSegments: 1 });
             PhysXConeShape.CONVEX_MESH = createConvexMesh(primitive.positions, cooking, physics);
         }

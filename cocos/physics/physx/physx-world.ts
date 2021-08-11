@@ -55,24 +55,23 @@ export class PhysXWorld implements IPhysicsWorld {
         this.scene.setGravity(gravity);
     }
 
+    static foundation: any;
+    static physics: any;
+    static cooking: any;
+    static pvd: any;
+    static queryfilterData: any;
+    static singleResult: any;
+    static mutipleResults: any;
+    static simulationCB: any;
+    static queryFilterCB: any;
+    static mutipleResultSize = 12;
+
     get impl (): any { return this.scene; }
-
-    readonly physics: any;
     readonly scene: any;
-    readonly cooking: any;
-
-    readonly queryfilterData: any;
-    readonly singleResult: any;
-    readonly mutipleResults: any;
-    readonly simulationCB: any;
-    readonly queryFilterCB: any;
-
-    readonly wrappedBodies: PhysXSharedBody[] = [];
     readonly callback = PhysXCallback;
+    readonly wrappedBodies: PhysXSharedBody[] = [];
 
     private _isNeedFetch = false;
-
-    mutipleResultSize = 12;
 
     constructor () {
         initializeWorld(this);

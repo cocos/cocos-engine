@@ -153,14 +153,14 @@ export class PhysXSharedBody {
     private _initStaticActor () {
         if (this._staticActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
-        this._staticActor = this.wrappedWorld.physics.createRigidStatic(t);
+        this._staticActor = PhysXWorld.physics.createRigidStatic(t);
         if (this._staticActor.$$) PX.IMPL_PTR[this._staticActor.$$.ptr] = this;
     }
 
     private _initDynamicActor () {
         if (this._dynamicActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
-        this._dynamicActor = this.wrappedWorld.physics.createRigidDynamic(t);
+        this._dynamicActor = PhysXWorld.physics.createRigidDynamic(t);
         if (this._dynamicActor.$$) PX.IMPL_PTR[this._dynamicActor.$$.ptr] = this;
         const wb = this.wrappedBody;
         if (wb) {
