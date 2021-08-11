@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Constraint, PhysicsSystem, RigidBody } from '../../framework';
+import { Constraint, RigidBody } from '../../framework';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { PX, setJointActors, _pxtrans } from '../physx-adapter';
 import { PhysXRigidBody } from '../physx-rigid-body';
