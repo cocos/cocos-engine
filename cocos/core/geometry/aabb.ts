@@ -31,7 +31,7 @@
 import { JSB } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
-import { FloatArray, IVec3Like } from '../math/type-define';
+import { FloatArray, IVec3, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
 import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
 import { NativeAABB } from '../renderer/scene/native-scene';
@@ -43,7 +43,7 @@ const _v3_tmp4 = new Vec3();
 const _m3_tmp = new Mat3();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
-const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Readonly<Mat4>) => {
+const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4 | Readonly<Mat4>) => {
     _m3_tmp.m00 = Math.abs(m4.m00); _m3_tmp.m01 = Math.abs(m4.m01); _m3_tmp.m02 = Math.abs(m4.m02);
     _m3_tmp.m03 = Math.abs(m4.m04); _m3_tmp.m04 = Math.abs(m4.m05); _m3_tmp.m05 = Math.abs(m4.m06);
     _m3_tmp.m06 = Math.abs(m4.m08); _m3_tmp.m07 = Math.abs(m4.m09); _m3_tmp.m08 = Math.abs(m4.m10);
@@ -83,7 +83,7 @@ export class AABB {
       * @param a - 克隆的目标。
       * @returns 克隆出的 AABB。
       */
-    public static clone (a: Readonly<AABB>) {
+    public static clone (a: AABB | Readonly<AABB>) {
         return new AABB(a.center.x, a.center.y, a.center.z,
             a.halfExtents.x, a.halfExtents.y, a.halfExtents.z);
     }
@@ -97,7 +97,7 @@ export class AABB {
       * @param {AABB} a 被复制的 AABB。
       * @return {AABB} out 接受操作的 AABB。
       */
-    public static copy (out: AABB, a: Readonly<AABB>): AABB {
+    public static copy (out: AABB, a: AABB | Readonly<AABB>): AABB {
         Vec3.copy(out.center, a.center);
         Vec3.copy(out.halfExtents, a.halfExtents);
 
@@ -114,7 +114,7 @@ export class AABB {
       * @param maxPos - AABB 的最大点。
       * @returns {AABB} out 接受操作的 AABB。
       */
-    public static fromPoints (out: AABB, minPos: Readonly<IVec3Like>, maxPos: Readonly<IVec3Like>): AABB {
+    public static fromPoints (out: AABB, minPos: IVec3, maxPos: IVec3): AABB {
         Vec3.add(_v3_tmp, maxPos, minPos);
         Vec3.subtract(_v3_tmp2, maxPos, minPos);
         Vec3.multiplyScalar(out.center, _v3_tmp, 0.5);
@@ -137,8 +137,8 @@ export class AABB {
       * @return {AABB} out 接受操作的 AABB。
       */
     public static set (out: AABB, px: number, py: number, pz: number, hw: number, hh: number, hl: number): AABB {
-        Vec3.set(out.center, px, py, pz);
-        Vec3.set(out.halfExtents, hw, hh, hl);
+        out.center.set(px, py, pz);
+        out.halfExtents.set(hw, hh, hl);
         return out;
     }
 
@@ -152,7 +152,7 @@ export class AABB {
       * @param b 输入的 AABB。
       * @returns {AABB} out 接受操作的 AABB。
       */
-    public static merge (out: AABB, a: Readonly<AABB>, b: Readonly<AABB>): AABB {
+    public static merge (out: AABB, a: AABB | Readonly<AABB>, b: AABB | Readonly<AABB>): AABB {
         Vec3.subtract(_v3_tmp, a.center, a.halfExtents);
         Vec3.subtract(_v3_tmp2, b.center, b.halfExtents);
         Vec3.add(_v3_tmp3, a.center, a.halfExtents);
@@ -170,7 +170,7 @@ export class AABB {
       * @param out 接受操作的 sphere。
       * @param a 输入的 AABB。
       */
-    public static toBoundingSphere (out: Sphere, a: Readonly<AABB>) {
+    public static toBoundingSphere (out: Sphere, a: AABB | Readonly<AABB>) {
         a.getBoundary(_v3_tmp, _v3_tmp2);
 
         // Initialize sphere
@@ -199,7 +199,7 @@ export class AABB {
       * @param matrix 矩阵。
       * @returns {AABB} out 接受操作的 AABB。
       */
-    public static transform (out: AABB, a: Readonly<AABB>, matrix: Readonly<Mat4>): AABB {
+    public static transform (out: AABB, a: AABB | Readonly<AABB>, matrix: Mat4 | Readonly<Mat4>): AABB {
         Vec3.transformMat4(out.center, a.center, matrix);
         transform_extent_m4(out.halfExtents, a.halfExtents, matrix);
         return out;
@@ -295,7 +295,7 @@ export class AABB {
       * @param a 拷贝的目标。
       * @returns {AABB}
       */
-    public copy (a: Readonly<AABB>): AABB {
+    public copy (a: AABB | Readonly<AABB>): AABB {
         return AABB.copy(this, a);
     }
 }

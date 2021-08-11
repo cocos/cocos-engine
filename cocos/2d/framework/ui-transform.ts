@@ -373,7 +373,7 @@ export class UITransform extends Component {
      * node.setAnchorPoint(1, 1);
      * ```
      */
-    public setAnchorPoint (point: Readonly<Vec2> | number, y?: number) {
+    public setAnchorPoint (point: Vec2 | Readonly<Vec2> | number, y?: number) {
         const locAnchorPoint = this._anchorPoint;
         if (y === undefined) {
             point = point as Vec2;
