@@ -131,7 +131,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._skeletonCache) {
             this.width = this._skeletonCache.getWidth();
             this.height = this._skeletonCache.getHeight();
-        }        
+        }
     };
 
     skeletonDataProto.recordTexture = function (texture) {
@@ -398,15 +398,59 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
+    let IsAttachedSkeleton = function (node) {
+        let ret = false;
+        let tempParent = node._parent;
+        if (!tempParent) {
+            return ret;
+        }
+        let parentSkeleton = tempParent.getComponents('sp.Skeleton');
+        if (parentSkeleton.length < 1) {
+            return ret;
+        }
+        let socketNodes = parentSkeleton[0].socketNodes;
+        if (socketNodes.size < 1) {
+            return ret;
+        }
+        for (let so of socketNodes.values()) {
+            if (so.name == node.name) {
+                ret = true;
+                break;
+            }
+        }
+        return ret;
+    }
+
     skeleton.syncTransform = function (force) {
         let node = this.node;
         if (!node) return;
 
         let paramsBuffer = this._paramsBuffer;
         if (!paramsBuffer) return;
-        
+
         if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
+            let isAttached = IsAttachedSkeleton(this.node);
+            if (isAttached && this.node.__attachMat__) {
+                let m = this.node.__attachMat__;
+                paramsBuffer[1]  = node.scale.x * this.node.__attachScale__.x;
+                paramsBuffer[2]  = m.m01;
+                paramsBuffer[3]  = m.m02;
+                paramsBuffer[4]  = m.m03;
+                paramsBuffer[5]  = m.m04;
+                paramsBuffer[6]  = node.scale.y * this.node.__attachScale__.y;
+                paramsBuffer[7]  = m.m06;
+                paramsBuffer[8]  = m.m07;
+                paramsBuffer[9]  = m.m08;
+                paramsBuffer[10] = m.m09;
+                paramsBuffer[11] = m.m10;
+                paramsBuffer[12] = m.m11;
+                paramsBuffer[13] = m.m12;
+                paramsBuffer[14] = m.m13;
+                paramsBuffer[15] = m.m14;
+                paramsBuffer[16] = m.m15;
+                return;
+            }
             node.updateWorldTransform();
             let worldMat = node._mat;
             paramsBuffer[1]  = worldMat.m00;
@@ -827,7 +871,12 @@ const cacheManager = require('./jsb-cache-manager');
                     socketNodes.delete(boneIdx);
                     continue;
                 }
-
+                let subSkeleton = boneNode.getComponents('sp.Skeleton');
+                if (subSkeleton) {
+                    if (!boneNode.__attachScale__) {
+                        boneNode.__attachScale__ = boneNode.getScale();
+                    }
+                }
                 let tm = _tempAttachMat4;
                 let matOffset = attachInfoOffset + boneIdx * 16;
                 tm.m00 = attachInfo[matOffset];
@@ -836,7 +885,11 @@ const cacheManager = require('./jsb-cache-manager');
                 tm.m05 = attachInfo[matOffset + 5];
                 tm.m12 = attachInfo[matOffset + 12];
                 tm.m13 = attachInfo[matOffset + 13];
+
                 boneNode.matrix = tm;
+                if (subSkeleton) {
+                    boneNode.__attachMat__ = boneNode.getWorldMatrix();
+                }
                 boneNode.scale = this.node.scale;
             }
         }
