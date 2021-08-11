@@ -328,8 +328,8 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
-        const packing = linear > 0.0 ? 0.0 : 1.0;
+        const linear = 0.0;
+        const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
 
         for (let i = 0; i < this._validLights.length; i++) {

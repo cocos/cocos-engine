@@ -222,8 +222,8 @@ export class PipelineUBO {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
-        const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
-        const packing = linear > 0.0 ? 0.0 : 1.0;
+        const linear = 0.0;
+        const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
         let _x = 0; let _y = 0; let _far = 0;
         let shadowCameraView: Mat4;
         switch (light.type) {
