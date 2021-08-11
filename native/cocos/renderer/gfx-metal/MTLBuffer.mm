@@ -33,6 +33,7 @@
 #include "MTLDevice.h"
 #include "MTLRenderCommandEncoder.h"
 #include "MTLUtils.h"
+#include "MTLGPUObjects.h"
 
 namespace cc {
 namespace gfx {
@@ -46,6 +47,13 @@ CCMTLBuffer::~CCMTLBuffer() {
 }
 
 void CCMTLBuffer::doInit(const BufferInfo &info) {
+    _gpuBuffer = CC_NEW(CCMTLGPUBuffer);
+    _gpuBuffer->count = _count;
+    _gpuBuffer->mappedData = nullptr;
+    _gpuBuffer->size = _size;
+    _gpuBuffer->startOffset = _offset;
+    _gpuBuffer->stride = _stride;
+    
     _isIndirectDrawSupported = CCMTLDevice::getInstance()->isIndirectDrawSupported();
     if (hasFlag(_usage, BufferUsage::INDEX)) {
         switch (_stride) {
@@ -75,7 +83,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
 
 void CCMTLBuffer::doInit(const BufferViewInfo &info) {
     auto* ccBuffer = static_cast<CCMTLBuffer *>(info.buffer);
-    _mtlBuffer = ccBuffer->getMTLBuffer();
+    _gpuBuffer = ccBuffer->gpuBuffer();
     _indexType = ccBuffer->getIndexType();
     _mtlResourceOptions = ccBuffer->_mtlResourceOptions;
     _isIndirectDrawSupported = ccBuffer->_isIndirectDrawSupported;
@@ -90,8 +98,8 @@ void CCMTLBuffer::doInit(const BufferViewInfo &info) {
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
-    if (_mtlBuffer) {
-        id<MTLBuffer> mtlBuffer = _mtlBuffer;
+    if (_gpuBuffer->mtlBuffer) {
+        id<MTLBuffer> mtlBuffer = _gpuBuffer->mtlBuffer;
 
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
@@ -104,8 +112,8 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-    _mtlBuffer = [mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
-    if (_mtlBuffer == nil) {
+    _gpuBuffer->mtlBuffer = [mtlDevice newBufferWithLength:size options:_mtlResourceOptions];
+    if (_gpuBuffer->mtlBuffer == nil) {
         return false;
     }
     return true;
@@ -130,17 +138,21 @@ void CCMTLBuffer::doDestroy() {
         _drawInfos.clear();
     }
 
-    id<MTLBuffer> mtlBuffer = _mtlBuffer;
-    _mtlBuffer = nil;
+    if(_gpuBuffer) {
+        id<MTLBuffer> mtlBuffer = _gpuBuffer->mtlBuffer;
+        _gpuBuffer->mtlBuffer = nil;
 
-    std::function<void(void)> destroyFunc = [=]() {
-        if (mtlBuffer) {
-            [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
-            [mtlBuffer release];
-        }
-    };
-    //gpu object only
-    CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
+        std::function<void(void)> destroyFunc = [=]() {
+            if (mtlBuffer) {
+                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
+                [mtlBuffer release];
+            }
+        };
+        //gpu object only
+        CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
+    }
+    
+    CC_SAFE_DELETE(_gpuBuffer);
 }
 
 void CCMTLBuffer::doResize(uint size, uint count) {
@@ -221,13 +233,13 @@ void CCMTLBuffer::update(const void *buffer, uint size) {
 }
 
 void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint /*offset*/, uint size) {
-    if (_mtlBuffer) {
+    if (_gpuBuffer->mtlBuffer) {
         CommandBuffer *cmdBuffer = CCMTLDevice::getInstance()->getCommandBuffer();
         cmdBuffer->begin();
         static_cast<CCMTLCommandBuffer *>(cmdBuffer)->updateBuffer(this, buffer, size);
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
         if (_mtlResourceOptions == MTLResourceStorageModeManaged) {
-            [_mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
+            [_gpuBuffer->mtlBuffer didModifyRange:NSMakeRange(0, _size)]; // Synchronize the managed buffer.
         }
 #endif
     }
@@ -240,18 +252,22 @@ void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint b
 
     if (hasFlag(stages, ShaderStageFlagBit::VERTEX)) {
         CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
-        renderEncoder->setVertexBuffer(_mtlBuffer, offset, binding);
+        renderEncoder->setVertexBuffer(_gpuBuffer->mtlBuffer, offset, binding);
     }
 
     if (hasFlag(stages, ShaderStageFlagBit::FRAGMENT)) {
         CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
-        renderEncoder->setFragmentBuffer(_mtlBuffer, offset, binding);
+        renderEncoder->setFragmentBuffer(_gpuBuffer->mtlBuffer, offset, binding);
     }
 
     if(hasFlag(stages, ShaderStageFlagBit::COMPUTE)) {
         CCMTLComputeCommandEncoder* computeEncoder = static_cast<CCMTLComputeCommandEncoder*>(&encoder);
-        computeEncoder->setBuffer(_mtlBuffer, offset, binding);
+        computeEncoder->setBuffer(_gpuBuffer->mtlBuffer, offset, binding);
     }
+}
+
+id<MTLBuffer> CCMTLBuffer::getMTLBuffer() const {
+    return _gpuBuffer->mtlBuffer;
 }
 
 } // namespace gfx
