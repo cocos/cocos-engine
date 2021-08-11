@@ -36,7 +36,7 @@ float CCGetLinearDepth (vec3 worldPos) {
   {
     // Recover the coord in view space: cc_matLightInvProj * shadowPos
     vec3 viewSpacePos;
-    viewSpacePos.xy = shadowPos.xy / cc_shadowProjInfo.xy;
+    viewSpacePos.xy = shadowPos.xy * cc_shadowProjInfo.zw;
     viewSpacePos.z = shadowPos.z * cc_shadowInvProjDepthInfo.x + shadowPos.w * cc_shadowInvProjDepthInfo.y;
 
     // Apply bias

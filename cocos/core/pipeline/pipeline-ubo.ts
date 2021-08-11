@@ -188,8 +188,8 @@ export class PipelineUBO {
 
                 sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 0] = matShadowViewProj.m00;
                 sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 1] = matShadowViewProj.m05;
-                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 0.0;
-                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 1.0 / matShadowViewProj.m00;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0 / matShadowViewProj.m05;
 
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);

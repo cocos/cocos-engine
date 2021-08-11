@@ -402,8 +402,8 @@ export class RenderAdditiveLightQueue {
 
                 this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 0] = matShadowProj.m00;
                 this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 1] = matShadowProj.m05;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 1.0 / matShadowProj.m00;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0 / matShadowProj.m05;
 
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
