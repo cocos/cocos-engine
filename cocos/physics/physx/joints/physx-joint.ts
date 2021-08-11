@@ -39,9 +39,8 @@ export class PhysXJoint implements IBaseConstraint {
     private static _tempActor: any;
 
     static get tempActor (): any {
-        if (this._tempActor == null) {
-            const physics = (PhysicsSystem.instance.physicsWorld as PhysXWorld).physics;
-            this._tempActor = physics.createRigidDynamic(_pxtrans);
+        if (!this._tempActor) {
+            this._tempActor = PhysXWorld.physics.createRigidDynamic(_pxtrans);
         }
         return this._tempActor;
     }
@@ -68,8 +67,6 @@ export class PhysXJoint implements IBaseConstraint {
         this.setEnableCollision(this._com.enableCollision);
         if (this._impl.$$) {
             PX.IMPL_PTR[this._impl.$$.ptr] = this;
-        } else {
-            //
         }
     }
 
@@ -108,8 +105,6 @@ export class PhysXJoint implements IBaseConstraint {
         if (this._impl.$$) {
             PX.IMPL_PTR[this._impl.$$.ptr] = null;
             delete PX.IMPL_PTR[this._impl.$$.ptr];
-        } else {
-            //
         }
         this._impl.release();
         (this._com as any) = null;
