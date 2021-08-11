@@ -1093,6 +1093,7 @@ export class TextureInfo {
         public levelCount: number = 1,
         public samples: SampleCount = SampleCount.ONE,
         public depth: number = 1,
+        public iosurface: number = 0,
     ) {}
 
     public copy (info: Readonly<TextureInfo>) {
@@ -1106,6 +1107,7 @@ export class TextureInfo {
         this.levelCount = info.levelCount;
         this.samples = info.samples;
         this.depth = info.depth;
+        this.iosurface = info.iosurface;
         return this;
     }
 }
@@ -1421,7 +1423,7 @@ export class ColorAttachment {
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
         public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.PRESENT],
+        public endAccesses: AccessType[] = [AccessType.COLOR_ATTACHMENT_WRITE],
         public isGeneralLayout: boolean = false,
     ) {}
 

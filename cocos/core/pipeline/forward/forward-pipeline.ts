@@ -138,15 +138,15 @@ export class ForwardPipeline extends RenderPipeline {
                 colorAttachment.loadOp = LoadOp.DISCARD;
             } else {
                 colorAttachment.loadOp = LoadOp.LOAD;
-                colorAttachment.beginAccesses = [AccessType.PRESENT];
+                colorAttachment.beginAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
             }
         }
 
         if ((clearFlags & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
             if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
             if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
-            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
         }
+        depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
         renderPass = device.createRenderPass(renderPassInfo);

@@ -63,12 +63,9 @@ import { GlobalBarrier } from '../base/states/global-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { debug } from '../../platform/debug';
 import { Swapchain } from '../base/swapchain';
+import { WebGL2DeviceManager } from './webgl2-define';
 
 export class WebGL2Device extends Device {
-    static get instance () {
-        return WebGL2Device._instance!;
-    }
-
     get gl () {
         return this._swapchain!.gl;
     }
@@ -90,10 +87,9 @@ export class WebGL2Device extends Device {
     }
 
     private _swapchain: WebGL2Swapchain | null = null;
-    private static _instance: WebGL2Device | null = null;
 
     public initialize (info: DeviceInfo): boolean {
-        WebGL2Device._instance = this;
+        WebGL2DeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL2;
 
         this._bindingMappingInfo = info.bindingMappingInfo;
@@ -228,7 +224,6 @@ export class WebGL2Device extends Device {
         }
 
         this._swapchain = null;
-        WebGL2Device._instance = null;
     }
 
     public flushCommands (cmdBuffs: CommandBuffer[]) {}
