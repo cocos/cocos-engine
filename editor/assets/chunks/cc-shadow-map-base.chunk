@@ -7,16 +7,14 @@
 // When screenSpaceSingY and clipSpaceSignY have different signs, need to flip the uv
 #define CC_HANDLE_NDC_SAMPLE_FLIP(uv) uv = cc_cameraPos.w == 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 
-float CCGetLinearDepth(vec3 worldPos) {
-  vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
-  float dist = length(viewStartPos.xyz);
+float CCGetLinearDepthFromViewSpace(vec3 viewPos) {
+  float dist = length(viewPos);
   return (dist - cc_shadowNFLSInfo.x) / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x);
 }
 
-float CCGetLinearDepthAndApplyBias (vec3 worldPos, float biasWS) {
+float CCGetLinearDepth(vec3 worldPos) {
   vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
-  float dist = length(viewStartPos.xyz) + biasWS;
-  return (dist - cc_shadowNFLSInfo.x) / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x);
+  return CCGetLinearDepthFromViewSpace(viewStartPos.xyz);
 }
 
 #if CC_RECEIVE_SHADOW
@@ -52,6 +50,13 @@ float CCGetLinearDepthAndApplyBias (vec3 worldPos, float biasWS) {
     vec4 clipSpacePos;
     clipSpacePos.xy = viewSpacePos.xy * cc_shadowProjInfo.xy;
     clipSpacePos.zw = viewSpacePos.z * cc_shadowProjDepthInfo.xz + vec2(cc_shadowProjDepthInfo.y, 0.0);
+
+    // enabled linear depth?
+    if (cc_shadowNFLSInfo.z > 0.000001) {
+      clipSpacePos.z = CCGetLinearDepthFromViewSpace(viewSpacePos.xyz);
+      clipSpacePos.z = (clipSpacePos.z * 2.0 - 1.0) * clipSpacePos.w;
+    }
+
     return clipSpacePos;
   }
 
@@ -199,13 +204,7 @@ float CCGetLinearDepthAndApplyBias (vec3 worldPos, float biasWS) {
 
     float shadow = 0.0;
     float closestDepth = 0.0;
-    float depth = 0.0;
-
-    if (cc_shadowNFLSInfo.z > 0.000001) {
-      depth = CCGetLinearDepthAndApplyBias(worldPos, cc_shadowWHPBInfo.w);
-    } else {
-      depth = clipPos.z;
-    }
+    float depth = clipPos.z;
 
     if (cc_shadowLPNNInfo.y > 0.000001) {
       closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy));
@@ -228,14 +227,7 @@ float CCGetLinearDepthAndApplyBias (vec3 worldPos, float biasWS) {
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;
     float offsety = 1.0 / cc_shadowWHPBInfo.y;
     float shadow = 0.0;
-    float depth = 0.0;
-
-    // enabled linear depth?
-    if (cc_shadowNFLSInfo.z > 0.000001) {
-      depth = CCGetLinearDepthAndApplyBias(worldPos, cc_shadowWHPBInfo.w);
-    } else {
-      depth = clipPos.z;
-    }
+    float depth = clipPos.z;
     
     float offsetDepth = depth;
     // packing enabled?
@@ -277,13 +269,7 @@ float CCGetLinearDepthAndApplyBias (vec3 worldPos, float biasWS) {
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;
     float offsety = 1.0 / cc_shadowWHPBInfo.y;
     float shadow = 0.0;
-    float depth = 0.0;
-
-    if (cc_shadowNFLSInfo.z > 0.000001) {
-      depth = CCGetLinearDepthAndApplyBias(worldPos, cc_shadowWHPBInfo.w);
-    } else {
-      depth = clipPos.z;
-    }
+    float depth = clipPos.z;
 
     float offsetDepth = depth;
     if (cc_shadowLPNNInfo.y > 0.000001) {
