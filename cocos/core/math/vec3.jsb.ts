@@ -30,7 +30,7 @@
  */
 
 import { CCClass } from '../data/class';
-import { Mat4 } from './mat4.jsb';
+import { Mat4 } from './mat4';
 import { IVec3Like, FloatArray, IMat3, IMat4, IQuat, IVec3 } from './type-define';
 import { clamp, enumerableProps, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
@@ -61,9 +61,16 @@ export class Vec3 extends MathBase {
      * @zh 将目标赋值为零向量
      */
     public static zero<Out extends IVec3Like> (out: Out) {
-        out.x = 0;
-        out.y = 0;
-        out.z = 0;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = 0;
+            vArr[1] = 0;
+            vArr[2] = 0;
+        } else {
+            out.x = 0;
+            out.y = 0;
+            out.z = 0;
+        }
         return out;
     }
 
@@ -72,7 +79,18 @@ export class Vec3 extends MathBase {
      * @zh 获得指定向量的拷贝
      */
     public static clone <Out extends IVec3Like> (a: IVec3) {
-        return new Vec3(a.x, a.y, a.z);
+        let x, y, z;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            x = vArr[0];
+            y = vArr[1];
+            z = vArr[2];
+        } else {
+            x = a.x;
+            y = a.y;
+            z = a.z;
+        }
+        return new Vec3(x, y, z);
     }
 
     /**
@@ -80,9 +98,27 @@ export class Vec3 extends MathBase {
      * @zh 复制目标向量
      */
     public static copy<Out extends IVec3Like> (out: Out, a: IVec3) {
-        out.x = a.x;
-        out.y = a.y;
-        out.z = a.z;
+        let x, y, z;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            x = vArr[0];
+            y = vArr[1];
+            z = vArr[2];
+        } else {
+            x = a.x;
+            y = a.y;
+            z = a.z;
+        }
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -91,9 +127,16 @@ export class Vec3 extends MathBase {
      * @zh 设置向量值
      */
     public static set<Out extends IVec3Like> (out: Out, x: number, y: number, z: number) {
-        out.x = x;
-        out.y = y;
-        out.z = z;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -102,9 +145,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量加法
      */
     public static add<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3) {
-        out.x = a.x + b.x;
-        out.y = a.y + b.y;
-        out.z = a.z + b.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        let x = ax + bx;
+        let y = ay + by;
+        let z = az + bz;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -113,9 +188,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量减法
      */
     public static subtract<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3) {
-        out.x = a.x - b.x;
-        out.y = a.y - b.y;
-        out.z = a.z - b.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        let x = ax - bx;
+        let y = ay - by;
+        let z = az - bz;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -1081,7 +1188,7 @@ export class Vec3 extends MathBase {
         const x = this._array[0];
         const y = this._array[1];
         const z = this._array[2];
-        const v = matrix.array;
+        const v = (matrix as any).array;
         let rhw = v[3] * x + v[7] * y + v[11] * z + v[15];
         rhw = rhw ? 1 / rhw : 1;
         this._array[0] = (v[0] * x + v[4] * y + v[8] * z + v[12]) * rhw;

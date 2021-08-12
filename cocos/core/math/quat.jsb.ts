@@ -29,10 +29,10 @@
  */
 
 import { CCClass } from '../data/class';
-import { Mat3 } from './mat3.jsb';
+import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like, FloatArray, IQuat, IVec3 } from './type-define';
 import { enumerableProps, EPSILON, toDegree } from './utils';
-import { Vec3 } from './vec3.jsb';
+import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
  

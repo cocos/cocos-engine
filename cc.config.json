@@ -49,7 +49,6 @@
                 "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
                 "cocos/core/math/vec3.ts": "cocos/core/math/vec3.jsb.ts",
                 "cocos/core/math/quat.ts": "cocos/core/math/quat.jsb.ts",
-                "cocos/core/math/mat3.ts": "cocos/core/math/mat3.jsb.ts",
                 "cocos/core/math/mat4.ts": "cocos/core/math/mat4.jsb.ts"
             }
         },
