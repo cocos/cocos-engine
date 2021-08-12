@@ -194,8 +194,8 @@ export class PipelineUBO {
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
-                const packing = linear > 0.0 ? 0.0 : 1.0;
+                const linear = 0.0;
+                const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = shadowInfo.near;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = far;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
