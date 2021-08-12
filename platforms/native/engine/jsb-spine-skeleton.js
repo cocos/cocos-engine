@@ -398,7 +398,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let IsAttachedSkeleton = function (node) {
+    let isAttachedSkeleton = function (node) {
         let ret = false;
         let tempParent = node._parent;
         if (!tempParent) {
@@ -413,7 +413,7 @@ const cacheManager = require('./jsb-cache-manager');
             return ret;
         }
         for (let so of socketNodes.values()) {
-            if (so.name == node.name) {
+            if (so === node) {
                 ret = true;
                 break;
             }
@@ -430,7 +430,7 @@ const cacheManager = require('./jsb-cache-manager');
 
         if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
-            let isAttached = IsAttachedSkeleton(this.node);
+            let isAttached = isAttachedSkeleton(this.node);
             if (isAttached && this.node.__attachMat__) {
                 let m = this.node.__attachMat__;
                 paramsBuffer[1]  = node.scale.x * this.node.__attachScale__.x;
