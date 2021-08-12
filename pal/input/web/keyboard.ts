@@ -1,7 +1,8 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-enum';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { KeyCode } from '../../../cocos/core/platform/event-manager/key-code';
+import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 
 const code2KeyCode: Record<string, KeyCode> = {
     Backspace: KeyCode.BACKSPACE,
@@ -14,11 +15,11 @@ const code2KeyCode: Record<string, KeyCode> = {
     ControlRight: KeyCode.CTRL_RIGHT,
     AltRight: KeyCode.ALT_RIGHT,
     Pause: KeyCode.PAUSE,
-    CapsLock: KeyCode.CAPSLOCK,
+    CapsLock: KeyCode.CAPS_LOCK,
     Escape: KeyCode.ESCAPE,
     Space: KeyCode.SPACE,
-    PageUp: KeyCode.PAGEUP,
-    PageDown: KeyCode.PAGEDOWN,
+    PageUp: KeyCode.PAGE_UP,
+    PageDown: KeyCode.PAGE_DOWN,
     End: KeyCode.END,
     Home: KeyCode.HOME,
     ArrowLeft: KeyCode.ARROW_LEFT,
@@ -73,7 +74,7 @@ const code2KeyCode: Record<string, KeyCode> = {
     Numpad7: KeyCode.NUM_7,
     Numpad8: KeyCode.NUM_8,
     Numpad9: KeyCode.NUM_9,
-    NumpadMultiply: KeyCode.NUM_MUTIPLY,
+    NumpadMultiply: KeyCode.NUM_MULTIPLY,
     NumpadAdd: KeyCode.NUM_PLUS,
     NumpadSubtract: KeyCode.NUM_SUBTRACT,
     NumpadDecimal: KeyCode.NUM_DECIMAL,
@@ -92,14 +93,14 @@ const code2KeyCode: Record<string, KeyCode> = {
     F11: KeyCode.F11,
     F12: KeyCode.F12,
     NumLock: KeyCode.NUM_LOCK,
-    ScrollLock: KeyCode.SCROLLLOCK,
+    ScrollLock: KeyCode.SCROLL_LOCK,
     Semicolon: KeyCode.SEMICOLON,
     Equal: KeyCode.EQUAL,
     Comma: KeyCode.COMMA,
     Minus: KeyCode.DASH,
     Period: KeyCode.PERIOD,
     Slash: KeyCode.SLASH,
-    Backquote: KeyCode.BACKQUOTE,
+    Backquote: KeyCode.BACK_QUOTE,
     BracketLeft: KeyCode.BRACKET_LEFT,
     Backslash: KeyCode.BACKSLASH,
     BracketRight: KeyCode.BRACKET_RIGHT,
@@ -124,23 +125,22 @@ export class KeyboardInputSource {
         canvas?.addEventListener('keydown', (event: any) => {
             event.stopPropagation();
             event.preventDefault();
-            if (!event.repeat) {
-                const keyDownInputEvent = this._getInputEvent(event, KeyboardEvent.KEY_DOWN);
-                this._eventTarget.emit(KeyboardEvent.KEY_DOWN, keyDownInputEvent);
-            }
-            // @ts-expect-error Compability for key pressing callback
-            const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
-            this._eventTarget.emit('keydown', keyPressingInputEvent);
+            // if (!event.repeat) {
+            //     const keyDownInputEvent = this._getInputEvent(event, 'keypress');
+            //     this._eventTarget.emit('keypress', keyDownInputEvent);
+            // }
+            const keyPressingInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
+            this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
         });
         canvas?.addEventListener('keyup', (event: any) => {
-            const inputEvent = this._getInputEvent(event, KeyboardEvent.KEY_UP);
+            const inputEvent = this._getInputEvent(event, SystemEventType.KEY_UP);
             event.stopPropagation();
             event.preventDefault();
-            this._eventTarget.emit(KeyboardEvent.KEY_UP, inputEvent);
+            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
         });
     }
 
-    private _getInputEvent (event: any, eventType: KeyboardEvent) {
+    private _getInputEvent (event: any, eventType: SystemEvent.EventType) {
         const keyCode = getKeyCode(event.code);
         const inputEvent: KeyboardInputEvent = {
             type: eventType,
@@ -151,14 +151,14 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(KeyboardEvent.KEY_DOWN, cb);
+        this._eventTarget.on('keypress', cb);
     }
 
     public onPressing (cb: KeyboardCallback) {
-        this._eventTarget.on('keydown', cb);
+        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(KeyboardEvent.KEY_UP, cb);
+        this._eventTarget.on(SystemEventType.KEY_UP, cb);
     }
 }

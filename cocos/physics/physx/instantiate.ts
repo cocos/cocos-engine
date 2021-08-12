@@ -46,7 +46,7 @@ import { PhysXConeShape } from './shapes/physx-cone-shape';
 import { PhysXDistanceJoint } from './joints/physx-distance-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
 
-selector.select('physx', {
+selector.register('physx', {
     PhysicsWorld: PhysXWorld,
     RigidBody: PhysXRigidBody,
 

@@ -41,6 +41,7 @@ import { warnID } from '../../core/platform/debug';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { SystemEventType } from '../../core';
+import visibleRect from '../../core/platform/visible-rect';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -422,7 +423,7 @@ export class UITransform extends Component {
             camera.node.getWorldRT(_mat4_temp);
             const m12 = _mat4_temp.m12;
             const m13 = _mat4_temp.m13;
-            const center = legacyCC.visibleRect.center;
+            const center = visibleRect.center;
             _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
             _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
             Mat4.invert(_mat4_temp, _mat4_temp);

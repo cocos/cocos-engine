@@ -1485,7 +1485,7 @@ export class Skeleton extends Renderable2D {
 
     protected _validateRender () {
         const skeletonData = this.skeletonData;
-        if (!skeletonData || !skeletonData.isTexturesLoaded()) {
+        if (!skeletonData) {
             this.disableRender();
         }
     }
@@ -1551,7 +1551,7 @@ export class Skeleton extends Renderable2D {
         } catch (e) {
             warn(e);
         }
-
+        this._indexBoneSockets();
         this.attachUtil.init(this);
         this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;

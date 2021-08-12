@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { system } from 'pal/system';
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
@@ -64,12 +63,13 @@ import {
     QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect,
 } from '../base/define';
 import {
-    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
+    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers,
     WebGLCmdFuncCopyTexImagesToTexture,
 } from './webgl-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
-import { BrowserType, OS } from '../../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
+import { debug } from '../../platform/debug';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -338,7 +338,7 @@ export class WebGLDevice extends Device {
                 extensions += `${ext} `;
             }
 
-            console.debug(`EXTENSIONS: ${extensions}`);
+            debug(`EXTENSIONS: ${extensions}`);
         }
 
         this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
@@ -370,17 +370,17 @@ export class WebGLDevice extends Device {
         // eslint-disable-next-line no-lone-blocks
         {
             // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
-            if (system.os !== OS.IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
+            if (sys.os !== OS.IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
                 this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
             }
 
             // UC browser instancing implementation doesn't work
-            if (system.browserType === BrowserType.UC) {
+            if (sys.browserType === BrowserType.UC) {
                 this._ANGLE_instanced_arrays = null;
             }
 
             // bytedance ios depth texture implementation doesn't work
-            if (BYTEDANCE && system.os === OS.IOS) {
+            if (BYTEDANCE && sys.os === OS.IOS) {
                 this._WEBGL_depth_texture = null;
             }
 
@@ -392,8 +392,8 @@ export class WebGLDevice extends Device {
             }
 
             // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
-            if ((system.os === OS.IOS && sys.osMainVersion <= 10)
-                || (WECHAT && system.os === OS.ANDROID)) {
+            if ((sys.os === OS.IOS && sys.osMainVersion <= 10)
+                || (WECHAT && sys.os === OS.ANDROID)) {
                 this._destroyShadersImmediately = false;
             }
 
@@ -482,25 +482,25 @@ export class WebGLDevice extends Device {
             this._useVAO = true;
         }
 
-        console.info(`RENDERER: ${this._renderer}`);
-        console.info(`VENDOR: ${this._vendor}`);
-        console.info(`VERSION: ${this._version}`);
-        console.info(`DPR: ${this._devicePixelRatio}`);
-        console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
-        // console.info('COLOR_FORMAT: ' + FormatInfos[this._colorFmt].name);
-        // console.info('DEPTH_STENCIL_FORMAT: ' + FormatInfos[this._depthStencilFmt].name);
-        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
-        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
-        // console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
-        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
-        console.info(`DEPTH_BITS: ${this._caps.depthBits}`);
-        console.info(`STENCIL_BITS: ${this._caps.stencilBits}`);
+        debug(`RENDERER: ${this._renderer}`);
+        debug(`VENDOR: ${this._vendor}`);
+        debug(`VERSION: ${this._version}`);
+        debug(`DPR: ${this._devicePixelRatio}`);
+        debug(`SCREEN_SIZE: ${this._width} x ${this._height}`);
+        // debug('COLOR_FORMAT: ' + FormatInfos[this._colorFmt].name);
+        // debug('DEPTH_STENCIL_FORMAT: ' + FormatInfos[this._depthStencilFmt].name);
+        // debug('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
+        debug(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
+        // debug('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
+        // debug('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
+        // debug('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
+        debug(`DEPTH_BITS: ${this._caps.depthBits}`);
+        debug(`STENCIL_BITS: ${this._caps.stencilBits}`);
         if (this._EXT_texture_filter_anisotropic) {
-            console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
+            debug(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
-        console.info(`USE_VAO: ${this._useVAO}`);
-        console.info(`COMPRESSED_FORMAT: ${compressedFormat}`);
+        debug(`USE_VAO: ${this._useVAO}`);
+        debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
 
         // init states
         this.initStates(gl);
@@ -579,7 +579,7 @@ export class WebGLDevice extends Device {
 
     public resize (width: number, height: number) {
         if (this._width !== width || this._height !== height) {
-            console.info(`Resizing device: ${width}x${height}`);
+            debug(`Resizing device: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
             this._width = width;
@@ -728,6 +728,15 @@ export class WebGLDevice extends Device {
             this,
             buffers,
             (texture as WebGLTexture).gpuTexture,
+            regions,
+        );
+    }
+
+    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+        WebGLCmdFuncCopyTextureToBuffers(
+            this,
+            (texture as WebGLTexture).gpuTexture,
+            buffers,
             regions,
         );
     }

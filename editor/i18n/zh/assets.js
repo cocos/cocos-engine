@@ -213,6 +213,10 @@ module.exports = {
                     title: '跳过对模型文件的验证。',
                 },
             },
+            addEvent: {
+                shouldSave: '新建的 clip 需要先提交修改后，才能添加/编辑事件',
+                ok: '知道了',
+            },
             ImageRemap: {
                 remapAs: '映射为',
                 original: '原始',
@@ -297,6 +301,10 @@ module.exports = {
             wrapModeTTip: 'Wrap Mode T',
             modeWarn:
             '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 repeat 过滤模式，运行时会自动改为 clamp-to-edge 模式，这会使材质的 tilingOffset 等属性完全失效。',
+        },
+        material: {
+            'fail-to-load-custom-inspector': 'material: 自定义 effect {effect} 的 inspector 加载失败',
+            'illegal-inspector-url': "Inspector的路径不合法",
         },
     },
 };

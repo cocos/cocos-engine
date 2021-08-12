@@ -33,6 +33,7 @@ import { CompleteCallbackNoData, assets, files, parsed, pipeline } from './share
 import Task from './task';
 import { cache, checkCircleReference, clear, forEach, gatherAsset, getDepends, setProperties } from './utilities';
 import { legacyCC } from '../global-exports';
+import { nativeDependMap, onLoadedInvokedMap } from './depend-maps';
 
 /**
  * @packageDocumentation
@@ -218,9 +219,9 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
 
                 setProperties(uuid, asset, map);
                 try {
-                    if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
+                    if (typeof asset.onLoaded === 'function' && !onLoadedInvokedMap.has(asset) && !nativeDependMap.has(asset)) {
                         asset.onLoaded();
-                        asset.__onLoadedInvoked__ = true;
+                        onLoadedInvokedMap.add(asset);
                     }
                 } catch (e) {
                     error(`The asset ${uuid} is invalid for some reason, detail message: ${e.message}, stack: ${e.stack}`);

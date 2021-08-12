@@ -31,7 +31,7 @@
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { eventManager } from '../platform/event-manager/event-manager';
@@ -46,6 +46,7 @@ import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
+import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -54,8 +55,8 @@ const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const array_a: any[] = [];
-
+const dirtyNodes: any[] = [];
+const nativeDirtyNodes: any[] = [];
 class BookOfChange {
     private _chunks: Uint32Array[] = [];
     private _freelists: number[][] = [];
@@ -109,6 +110,8 @@ class BookOfChange {
 
 const bookOfChange = new BookOfChange();
 
+const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
+
 /**
  * @zh
  * 场景树中的基本节点，基本特性有：
@@ -132,7 +135,7 @@ const bookOfChange = new BookOfChange();
  * * 维护 3D 空间左边变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode {
+export class Node extends BaseNode implements CustomSerializable {
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
@@ -157,6 +160,11 @@ export class Node extends BaseNode {
      * @zh 节点变换更新的具体部分，可用于判断 [[NodeEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
+
+    /**
+     * @internal
+     */
+    public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
@@ -196,7 +204,18 @@ export class Node extends BaseNode {
     @serializable
     protected _euler = new Vec3();
 
-    protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+    private _dirtyFlagsPri = TransformBit.NONE; // does the world transform need to update?
+
+    protected get _dirtyFlags () {
+        return this._dirtyFlagsPri;
+    }
+
+    protected set _dirtyFlags (flags) {
+        this._dirtyFlagsPri = flags;
+        if (JSB) {
+            this._nativeDirtyFlag[0] = flags;
+        }
+    }
 
     protected _eulerDirty = false;
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
@@ -204,40 +223,38 @@ export class Node extends BaseNode {
     protected declare _hasChangedFlagsOffset: number;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
-    protected declare _nativeFlag: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
+        const [chunk, offset] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
         if (JSB) {
             // new node
             this._nodeHandle = NodePool.alloc();
-            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
-            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
-            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
+            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as any);
+            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as any);
+            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as any);
 
-            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
-            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
-            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
+            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as any);
+            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as any);
+            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as any);
 
-            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
+            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as any);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
-            this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
             this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
+            const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, nativeDirtyNodes);
         } else {
             this._pos = new Vec3();
             this._rot = new Quat();
             this._scale = new Vec3(1, 1, 1);
             this._mat = new Mat4();
         }
-
-        const [chunk, offset] = bookOfChange.alloc();
-        this._hasChangedFlagsChunk = chunk;
-        this._hasChangedFlagsOffset = offset;
     }
 
     constructor (name?: string) {
@@ -260,7 +277,6 @@ export class Node extends BaseNode {
                 NodePool.free(this._nodeHandle);
                 this._nodeHandle = NULL_HANDLE;
             }
-
             this._nativeObj = null;
         }
         bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
@@ -470,8 +486,43 @@ export class Node extends BaseNode {
 
     set hasChangedFlags (val: number) {
         this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
-        if (JSB) {
-            this._nativeFlag[0] = val;
+    }
+
+    public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
+        if (!EDITOR) {
+            serializationOutput.writeThis();
+            return;
+        }
+
+        // Detects if this node is mounted node of `PrefabInstance`
+        // TODO: optimize
+        const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
+
+        // Returns if this node is under `PrefabInstance`
+        // eslint-disable-next-line arrow-body-style
+        const isSyncPrefab = () => {
+            // 1. Under `PrefabInstance`, but not mounted
+            // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
+            return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
+        };
+
+        const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+            || !isSyncPrefab() || context.root === this);
+
+        if (canDiscardByPrefabRoot()) {
+            // discard props disallow to synchronize
+            const isRoot = this._prefab?.root === this;
+            if (isRoot) {
+                serializationOutput.writeProperty('_objFlags', this._objFlags);
+                serializationOutput.writeProperty('_parent', this._parent);
+                serializationOutput.writeProperty('_prefab', this._prefab);
+                // TODO: editorExtrasTag may be a symbol in the future
+                serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
+            } else {
+                // should not serialize child node of synchronizable prefab
+            }
+        } else {
+            serializationOutput.writeThis();
         }
     }
 
@@ -489,7 +540,7 @@ export class Node extends BaseNode {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
         if (JSB) {
-            this._nativeObj!.setParent(this.parent?.native);
+            this._nativeObj!.setParent(this.parent ? this.parent.native : null);
         }
     }
 
@@ -515,13 +566,6 @@ export class Node extends BaseNode {
     protected _onHierarchyChanged (oldParent: this | null) {
         this.eventProcessor.reattach();
         super._onHierarchyChangedBase(oldParent);
-    }
-
-    protected _setDirtyFlags (val: TransformBit) {
-        this._dirtyFlags = val;
-        if (JSB) {
-            this._nativeDirtyFlag[0] = val;
-        }
     }
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
@@ -649,6 +693,13 @@ export class Node extends BaseNode {
         this.setWorldRotation(q_a);
     }
 
+    protected _setDirtyNode (idx: number, currNode: this) {
+        dirtyNodes[idx] = currNode;
+        if (JSB) {
+            nativeDirtyNodes[idx] = currNode.native;
+        }
+    }
+
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -657,18 +708,17 @@ export class Node extends BaseNode {
      */
     public invalidateChildren (dirtyBit: TransformBit) {
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
-        array_a[0] = this;
-
+        this._setDirtyNode(0, this);
         let i = 0;
         while (i >= 0) {
-            const cur: this = array_a[i--];
+            const cur: this = dirtyNodes[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;
-                for (let j = 0; j < len; ++j) array_a[++i] = children[j];
+                for (let j = 0; j < len; ++j) this._setDirtyNode(++i, children[j]);
             }
             dirtyBit = childDirtyBit;
         }
@@ -686,13 +736,13 @@ export class Node extends BaseNode {
         let i = 0;
         while (cur && cur._dirtyFlags) {
             // top level node
-            array_a[i++] = cur;
+            this._setDirtyNode(i++, cur);
             cur = cur._parent;
         }
         let child: this; let dirtyBits = 0;
 
         while (i) {
-            child = array_a[--i];
+            child = dirtyNodes[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
@@ -731,7 +781,7 @@ export class Node extends BaseNode {
                 }
             }
 
-            child._setDirtyFlags(TransformBit.NONE);
+            child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
     }
@@ -920,12 +970,12 @@ export class Node extends BaseNode {
         let cur = this;
         let i = 0;
         while (cur._parent) {
-            array_a[i++] = cur;
+            this._setDirtyNode(i++, cur);
             cur = cur._parent;
         }
         while (i >= 0) {
             Vec3.transformInverseRTS(out, out, cur._lrot, cur._lpos, cur._lscale);
-            cur = array_a[--i];
+            cur = dirtyNodes[--i];
         }
         return out;
     }
@@ -1238,11 +1288,12 @@ export class Node extends BaseNode {
      * 清除节点数组
      */
     public static clearNodeArray () {
-        if (Node.ClearFrame < Node.ClearRound) {
+        if (Node.ClearFrame < Node.ClearRound && !EDITOR) {
             Node.ClearFrame++;
         } else {
             Node.ClearFrame = 0;
-            array_a.length = 0;
+            dirtyNodes.length = 0;
+            nativeDirtyNodes.length = 0;
         }
     }
 }

@@ -48,6 +48,7 @@ export interface IConfigOption {
     redirect: string[];
     debug: boolean;
     types: string[];
+    extensionMap: Record<string, string[]>;
 }
 
 export interface IAssetInfo {
@@ -56,6 +57,7 @@ export interface IAssetInfo {
     redirect?: string;
     ver?: string;
     nativeVer?: string;
+    extension?: string;
 }
 
 export interface IPackInfo extends IAssetInfo {
@@ -144,6 +146,18 @@ const processOptions = (options: IConfigOption) => {
             redirect[i + 1] = bundles[redirect[i + 1]];
         }
     }
+
+    const extensionMap = options.extensionMap;
+    if (extensionMap) {
+        for (const ext in options.extensionMap) {
+            if (!Object.prototype.hasOwnProperty.call(options.extensionMap, ext)) {
+                continue;
+            }
+            options.extensionMap[ext].forEach((uuid, index) => {
+                options.extensionMap[ext][index] = uuids[uuid] || uuid;
+            });
+        }
+    }
 };
 
 export default class Config {
@@ -178,6 +192,17 @@ export default class Config {
         this._initPackage(options.packs);
         this._initVersion(options.versions);
         this._initRedirect(options.redirect);
+        for (const ext in options.extensionMap) {
+            if (!Object.prototype.hasOwnProperty.call(options.extensionMap, ext)) {
+                continue;
+            }
+            options.extensionMap[ext].forEach((uuid) => {
+                const assetInfo = this.assetInfos.get(uuid);
+                if (assetInfo) {
+                    assetInfo.extension = ext;
+                }
+            });
+        }
     }
 
     public getInfoWithPath (path: string, type?: AssetType | null): IAddressableInfo | null {
@@ -272,7 +297,7 @@ export default class Config {
                 if (isSubAsset) {
                     paths.get(path)!.push(assetInfo);
                 } else {
-                    paths.get(path)!.splice(0, 0, assetInfo);
+                    paths.get(path)!.unshift(assetInfo);
                 }
             } else {
                 paths.add(path, [assetInfo]);
@@ -307,7 +332,7 @@ export default class Config {
                 const assetPacks = assetInfo.packs;
                 if (assetPacks) {
                     if (l === 1) {
-                        assetPacks.splice(0, 0, pack);
+                        assetPacks.unshift(pack);
                     } else {
                         assetPacks.push(pack);
                     }

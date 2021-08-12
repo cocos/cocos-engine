@@ -115,7 +115,7 @@ export class Skeleton extends Asset {
     }
 
     public destroy () {
-        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(this);
+        (legacyCC.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
         return super.destroy();
     }
 

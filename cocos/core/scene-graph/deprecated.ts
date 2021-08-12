@@ -39,6 +39,7 @@ import { Size } from '../math/size';
 import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
+import { SceneGlobals } from './scene-globals';
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {
@@ -131,6 +132,21 @@ replaceProperty(Node.prototype, 'Node', [
                 this._uiProps.uiTransformComp!.setContentSize(size);
             }
         },
+    },
+]);
+
+removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
+    {
+        name: 'aspect',
+    },
+    {
+        name: 'selfShadow',
+    },
+    {
+        name: 'linear',
+    },
+    {
+        name: 'packing',
     },
 ]);
 

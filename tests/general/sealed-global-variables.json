@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-06-16T02:55:13.526Z"
+        "stamp": "2021-07-05T09:43:28.305Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -142,6 +142,7 @@
         "cc.GFXRect",
         "cc.GFXRenderPass",
         "cc.GFXRenderPassInfo",
+        "cc.GFXResolveMode",
         "cc.GFXSampleCount",
         "cc.GFXSampler",
         "cc.GFXSamplerInfo",
@@ -311,7 +312,6 @@
         "cc.easing",
         "cc.error",
         "cc.errorID",
-        "cc.eventManager",
         "cc.find",
         "cc.game",
         "cc.geometry",

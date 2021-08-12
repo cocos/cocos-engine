@@ -3,7 +3,6 @@ const renderer = cc.renderer;
 const game = cc.game;
 let _frameRate = 60;
 
-
 Object.assign(game, {
     setFrameRate (frameRate) {
         _frameRate = frameRate;
@@ -13,81 +12,12 @@ Object.assign(game, {
         else {
             this._paused = true;
             this._setAnimFrame();
-            this._runMainLoop();
         }
     },
 
     getFrameRate () {
         return _frameRate;
     },
-
-    _runMainLoop () {
-        var self = this, callback, config = self.config,
-            director = cc.director,
-            skip = true, frameRate = config.frameRate;
-
-        cc.debug.setDisplayStats(config.showFPS);
-
-        director.startAnimation();
-
-        callback = function (time) {
-            if (!self._paused) {
-                self._intervalId = window.rAF(callback);
-                if (_frameRate === 30  && !__globalAdapter.setPreferredFramesPerSecond) {
-                    if (skip = !skip) {
-                        return;
-                    }
-                }
-                director.mainLoop(time);
-            }
-        };
-
-        if (self._intervalId) {
-            window.cAF(self._intervalId);
-            self._intervalId = 0;
-        }
-
-        self._intervalId = window.rAF(callback);
-        self._paused = false;
-    },
-
-    _initEvents () {
-        let hidden = false;
-
-        function onHidden () {
-            if (!hidden) {
-                hidden = true;
-                cc.game.emit(cc.Game.EVENT_HIDE);
-            }
-        }
-        function onShown () {
-            if (hidden) {
-                hidden = false;
-                cc.game.emit(cc.Game.EVENT_SHOW);
-            }
-        }
-
-        __globalAdapter.onAudioInterruptionEnd && __globalAdapter.onAudioInterruptionEnd(function () {
-            if (cc.audioEngine) cc.audioEngine._restore();
-            
-        });
-        __globalAdapter.onAudioInterruptionBegin && __globalAdapter.onAudioInterruptionBegin(function () {
-            if (cc.audioEngine) cc.audioEngine._break();
-        });
-
-        __globalAdapter.onShow && __globalAdapter.onShow(onShown);
-        __globalAdapter.onHide && __globalAdapter.onHide(onHidden);
-
-        this.on(cc.Game.EVENT_HIDE, () => {
-            cc.game.pause();
-        });
-        this.on(cc.Game.EVENT_SHOW, () => {
-            cc.game.resume();
-        });
-    },
-
-    end () { },  // mini game platform not support this api
-
 });
 
 //  Small game in the screen log

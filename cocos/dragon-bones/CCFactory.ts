@@ -5,7 +5,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
-import { director, Game, game, ISchedulable, Node, RenderTexture, Scheduler, System } from '../core';
+import { director, Game, game, ISchedulable, Node, Scheduler, System } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureAtlasData } from './CCTextureData';
 import { TextureBase } from '../core/assets/texture-base';
@@ -93,7 +93,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
         return display;
     }
 
-    _buildTextureAtlasData (textureAtlasData: null | CCTextureAtlasData, textureAtlas?: RenderTexture | TextureBase) {
+    _buildTextureAtlasData (textureAtlasData: null | CCTextureAtlasData, textureAtlas?: TextureBase) {
         if (textureAtlasData) {
             textureAtlasData.renderTexture = textureAtlas!;
         } else {
@@ -117,7 +117,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
                 }
             }
             if (!inserted) {
-                sortedSlots.splice(0, 0, slot);
+                sortedSlots.unshift(slot);
             }
         }
         this._slots = sortedSlots;

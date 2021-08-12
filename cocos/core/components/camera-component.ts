@@ -91,6 +91,7 @@ export class Camera extends Component {
     public static Aperture = Aperture;
     public static Shutter = Shutter;
     public static ISO = ISO;
+    public static TARGET_TEXTURE_CHANGE = 'tex-change';
 
     @serializable
     protected _projection = ProjectionType.PERSPECTIVE;
@@ -413,13 +414,14 @@ export class Camera extends Component {
 
         const old = this._targetTexture;
         this._targetTexture = value;
-        this._chechTargetTextureEvent(old);
+        this._checkTargetTextureEvent(old);
         this._updateTargetTexture();
 
         if (!value && this._camera) {
             this._camera.changeTargetWindow(EDITOR ? legacyCC.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
+        this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
     }
 
     /**
@@ -577,7 +579,7 @@ export class Camera extends Component {
         }
     }
 
-    protected _chechTargetTextureEvent (old: RenderTexture | null) {
+    protected _checkTargetTextureEvent (old: RenderTexture | null) {
         const resizeFunc = (window: RenderWindow) => {
             if (this._camera) {
                 this._camera.setFixedSize(window.width, window.height);

@@ -32,19 +32,40 @@
 import { EDITOR } from 'internal:constants';
 import { EventTarget } from '../../event/event-target';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
-import { DeviceEvent, KeyboardEvent, MouseEvent, SystemEventType, TouchEvent } from './event-enum';
+import { SystemEventType } from './event-enum';
 import { EventListener } from './event-listener';
-import eventManager from './event-manager';
+import { eventManager } from './event-manager';
 import inputManager from './input-manager';
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID, warnID } from '../debug';
-import { KeyCode } from './key-code';
 
 let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;
 let touchListener: EventListener | null = null;
 let mouseListener: EventListener | null = null;
+
+export declare namespace SystemEvent {
+    /**
+     * @en The event type supported by SystemEvent and Node events
+     * @zh SystemEvent 支持的事件类型以及节点事件类型
+     */
+    export type EventType = EnumAlias<typeof SystemEventType>;
+}
+
+interface SystemEventMap {
+    [SystemEvent.EventType.MOUSE_DOWN]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_MOVE]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_UP]: (event: EventMouse) => void,
+    [SystemEvent.EventType.MOUSE_WHEEL]: (event: EventMouse) => void,
+    [SystemEvent.EventType.TOUCH_START]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_MOVE]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_END]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.TOUCH_CANCEL]: (touch: Touch, event: EventTouch) => void,
+    [SystemEvent.EventType.KEY_DOWN]: (event: EventKeyboard) => void,
+    [SystemEvent.EventType.KEY_UP]: (event: EventKeyboard) => void,
+    [SystemEvent.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
+}
 
 /**
 * @en
@@ -56,30 +77,13 @@ let mouseListener: EventListener | null = null;
 * @example
 * ```
 * import { systemEvent, SystemEvent } from 'cc';
-* systemEvent.on(SystemEvent.DeviceEvent.DEVICEMOTION, this.onDeviceMotionEvent, this);
-* systemEvent.off(SystemEvent.DeviceEvent.DEVICEMOTION, this.onDeviceMotionEvent, this);
+* systemEvent.on(SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+* systemEvent.off(SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
 * ```
 */
 
 export class SystemEvent extends EventTarget {
-    /**
-     * @en The event type supported by SystemEvent and Node events
-     * @zh SystemEvent 支持的事件类型以及节点事件类型
-     *
-     * @deprecated since v3.3, please use SystemEvent.TouchEvent, SystemEvent.MouseEvent, SystemEvent.KeyboardEvent, SystemEvent.DeviceEvent and Node.EventType instead
-     */
     public static EventType = SystemEventType;
-
-    public static TouchEvent = TouchEvent;
-    public static MouseEvent = MouseEvent;
-    public static KeyboardEvent = KeyboardEvent;
-    public static DeviceEvent = DeviceEvent;
-
-    /**
-     * @en Enum type of keyCode for key event
-     * @zh 按键事件的按键码
-     */
-    public static KeyCode = KeyCode;
 
     constructor () {
         super();
@@ -124,18 +128,6 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: KeyboardEvent, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
-    public on (type: MouseEvent, callback: (event: EventMouse) => void, target?: unknown): typeof callback;
-    public on (type: TouchEvent, callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
-    public on (type: DeviceEvent, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
-    // #region deprecated
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
-    public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
-        callback: (event: EventMouse) => void, target?: unknown): typeof callback;
-    public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
-        callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
-    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
-    // #endregion deprecated
     /**
      * @en
      * Register an callback of a specific system event type.
@@ -146,21 +138,21 @@ export class SystemEvent extends EventTarget {
      * @param callback - The event listener's callback
      * @param target - The event listener's target and callee
      */
-    public on<TFunction extends (...any) => void> (type: string, callback: TFunction, target?, once?: boolean) {
+    // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
+    public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return callback;
         }
         super.on(type, callback, target, once);
 
         // Keyboard
-        if (type === KeyboardEvent.KEY_DOWN || type === 'keydown' || type === KeyboardEvent.KEY_UP) {
+        if (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP) {
             if (!keyboardListener) {
                 keyboardListener = EventListener.create({
                     event: EventListener.KEYBOARD,
                     onKeyDown (keyCode: number, event: EventKeyboard) {
                         systemEvent.emit(event.type, event);
                     },
-                    // deprecated
                     onKeyPressed (keyCode: number, event: EventKeyboard) {
                         systemEvent.emit(event.type, event);
                     },
@@ -173,7 +165,7 @@ export class SystemEvent extends EventTarget {
         }
 
         // Acceleration
-        if (type === DeviceEvent.DEVICEMOTION) {
+        if (type === SystemEventType.DEVICEMOTION) {
             if (!accelerationListener) {
                 accelerationListener = EventListener.create({
                     event: EventListener.ACCELERATION,
@@ -186,10 +178,10 @@ export class SystemEvent extends EventTarget {
         }
 
         // touch
-        if (type === TouchEvent.TOUCH_START
-            || type === TouchEvent.TOUCH_MOVE
-            || type === TouchEvent.TOUCH_END
-            || type === TouchEvent.TOUCH_CANCEL
+        if (type === SystemEventType.TOUCH_START
+            || type === SystemEventType.TOUCH_MOVE
+            || type === SystemEventType.TOUCH_END
+            || type === SystemEventType.TOUCH_CANCEL
         ) {
             if (!touchListener) {
                 touchListener = EventListener.create({
@@ -213,10 +205,10 @@ export class SystemEvent extends EventTarget {
         }
 
         // mouse
-        if (type === MouseEvent.MOUSE_DOWN
-            || type === MouseEvent.MOUSE_MOVE
-            || type === MouseEvent.MOUSE_UP
-            || type === MouseEvent.MOUSE_WHEEL
+        if (type === SystemEventType.MOUSE_DOWN
+            || type === SystemEventType.MOUSE_MOVE
+            || type === SystemEventType.MOUSE_UP
+            || type === SystemEventType.MOUSE_WHEEL
         ) {
             if (!mouseListener) {
                 mouseListener = EventListener.create({
@@ -241,18 +233,6 @@ export class SystemEvent extends EventTarget {
         return callback;
     }
 
-    public off (type: KeyboardEvent, callback?: (event: EventKeyboard) => void, target?: unknown);
-    public off (type: MouseEvent, callback?: (event: EventMouse) => void, target?: unknown);
-    public off (type: TouchEvent, callback?: (touch: Touch, event: EventTouch) => void, target?: unknown);
-    public off (type: DeviceEvent, callback?: (event: EventAcceleration) => void, target?: unknown);
-    // #region deprecated
-    public off (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback?: (event: EventKeyboard) => void, target?: unknown);
-    public off (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
-        callback?: (event: EventMouse) => void, target?: unknown);
-    public off (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
-        callback?: (touch: Touch, event: EventTouch) => void, target?: unknown);
-    public off (type: SystemEventType.DEVICEMOTION, callback?: (event: EventAcceleration) => void, target?: unknown);
-    // #endregion deprecated
     /**
      * @en
      * Removes the listeners previously registered with the same type, callback, target and or useCapture,
@@ -264,49 +244,50 @@ export class SystemEvent extends EventTarget {
      * @param callback - The callback to remove.
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
-    public off (type: string, callback?: (...any) => void, target?) {
+    public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
         super.off(type, callback, target);
 
         // Keyboard
-        if (keyboardListener && (type === KeyboardEvent.KEY_DOWN || type === 'keydown' || type === KeyboardEvent.KEY_UP)) {
-            const hasKeyDownEventListener = this.hasEventListener(KeyboardEvent.KEY_DOWN);
-            const hasKeyPressingEventListener = this.hasEventListener('keydown');  // SystemEventType.KEY_DOWN
-            const hasKeyUpEventListener = this.hasEventListener(KeyboardEvent.KEY_UP);
-            if (!hasKeyDownEventListener && !hasKeyPressingEventListener && !hasKeyUpEventListener) {
+        if (keyboardListener && (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP)) {
+            // const hasKeyDownEventListener = this.hasEventListener('keypress');
+            const hasKeyPressingEventListener = this.hasEventListener(SystemEventType.KEY_DOWN);
+            const hasKeyUpEventListener = this.hasEventListener(SystemEventType.KEY_UP);
+            // if (!hasKeyDownEventListener && !hasKeyPressingEventListener && !hasKeyUpEventListener) {
+            if (!hasKeyPressingEventListener && !hasKeyUpEventListener) {
                 eventManager.removeListener(keyboardListener);
                 keyboardListener = null;
             }
         }
 
         // Acceleration
-        if (accelerationListener && type === DeviceEvent.DEVICEMOTION) {
+        if (accelerationListener && type === SystemEventType.DEVICEMOTION) {
             eventManager.removeListener(accelerationListener);
             accelerationListener = null;
         }
 
-        if (touchListener && (type === TouchEvent.TOUCH_START || type === TouchEvent.TOUCH_MOVE
-            || type === TouchEvent.TOUCH_END || type === TouchEvent.TOUCH_CANCEL)
+        if (touchListener && (type === SystemEventType.TOUCH_START || type === SystemEventType.TOUCH_MOVE
+            || type === SystemEventType.TOUCH_END || type === SystemEventType.TOUCH_CANCEL)
         ) {
-            const hasTouchStart = this.hasEventListener(TouchEvent.TOUCH_START);
-            const hasTouchMove = this.hasEventListener(TouchEvent.TOUCH_MOVE);
-            const hasTouchEnd = this.hasEventListener(TouchEvent.TOUCH_END);
-            const hasTouchCancel = this.hasEventListener(TouchEvent.TOUCH_CANCEL);
+            const hasTouchStart = this.hasEventListener(SystemEventType.TOUCH_START);
+            const hasTouchMove = this.hasEventListener(SystemEventType.TOUCH_MOVE);
+            const hasTouchEnd = this.hasEventListener(SystemEventType.TOUCH_END);
+            const hasTouchCancel = this.hasEventListener(SystemEventType.TOUCH_CANCEL);
             if (!hasTouchStart && !hasTouchMove && !hasTouchEnd && !hasTouchCancel) {
                 eventManager.removeListener(touchListener);
                 touchListener = null;
             }
         }
 
-        if (mouseListener && (type === MouseEvent.MOUSE_DOWN || type === MouseEvent.MOUSE_MOVE
-            || type === MouseEvent.MOUSE_UP || type === MouseEvent.MOUSE_WHEEL)
+        if (mouseListener && (type === SystemEventType.MOUSE_DOWN || type === SystemEventType.MOUSE_MOVE
+            || type === SystemEventType.MOUSE_UP || type === SystemEventType.MOUSE_WHEEL)
         ) {
-            const hasMouseDown = this.hasEventListener(MouseEvent.MOUSE_DOWN);
-            const hasMouseMove = this.hasEventListener(MouseEvent.MOUSE_MOVE);
-            const hasMouseUp = this.hasEventListener(MouseEvent.MOUSE_UP);
-            const hasMouseWheel = this.hasEventListener(MouseEvent.MOUSE_WHEEL);
+            const hasMouseDown = this.hasEventListener(SystemEventType.MOUSE_DOWN);
+            const hasMouseMove = this.hasEventListener(SystemEventType.MOUSE_MOVE);
+            const hasMouseUp = this.hasEventListener(SystemEventType.MOUSE_UP);
+            const hasMouseWheel = this.hasEventListener(SystemEventType.MOUSE_WHEEL);
             if (!hasMouseDown && !hasMouseMove && !hasMouseUp && !hasMouseWheel) {
                 eventManager.removeListener(mouseListener);
                 mouseListener = null;

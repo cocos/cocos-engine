@@ -44,7 +44,7 @@ import { AmmoPlaneShape } from './shapes/ammo-plane-shape';
 import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
 import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
 
-selector.select('ammo.js', {
+selector.register('ammo.js', {
     PhysicsWorld: AmmoWorld,
     RigidBody: AmmoRigidBody,
 

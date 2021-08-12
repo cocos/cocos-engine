@@ -91,9 +91,11 @@ export class CannonRigidBody implements IRigidBody {
             this.impl.mass = 0;
             this.impl.allowSleep = true;
             this.impl.updateMassProperties();
+            this.clearState();
             break;
         }
     }
+
     setLinearDamping (value: number) {
         this.impl.linearDamping = value;
     }
@@ -105,6 +107,14 @@ export class CannonRigidBody implements IRigidBody {
     useGravity (value: boolean) {
         this.impl.useGravity = value;
         this._wakeUpIfSleep();
+    }
+
+    useCCD (value:boolean) {
+        this.impl.ccdSpeedThreshold = value ? 0.01 : -1;
+    }
+
+    isUsingCCD () {
+        return this.impl.ccdSpeedThreshold !== -1;
     }
 
     setLinearFactor (value: IVec3Like) {

@@ -99,21 +99,22 @@ ui-icon {
     padding: 0 8px;
     width: 100%;
 }
-.time-line ui-scaleplate {
+.time-line ui-scale-plate {
     width: 100%;
 }
 
 .events ui-icon {
     position: absolute;
     bottom: -4px;
-    color: #f5f06d;
 }
 
 .events ui-icon:hover {
-    color: #f4f189;
+    color: white;
     cursor: pointer;
 }
-
+.events ui-icon[active] {
+    color: var(--color-focus-fill);
+}
 .mask {
     position: absolute;
     z-index: 2;
@@ -333,19 +334,19 @@ const Elements = {
             const timeline = this.$.animationTime;
             timeline.addEventListener('change', this.onAnimationTimeChange.bind(this));
             timeline.addEventListener('transform', this.updateEventInfo.bind(this));
-        }
+        },
     },
     currentTime: {
         ready() {
             const currentTime = this.$.currentTime;
             currentTime.addEventListener('confirm', this.onAnimationTimeChange.bind(this));
-        }
+        },
     },
     timeCtrl: {
         ready() {
             this.$.timeCtrl.addEventListener('click', this.onTimeCtrlClick.bind(this));
-        }
-    }
+        },
+    },
 };
 
 exports.update = async function(assetList, metaList) {
@@ -389,7 +390,7 @@ exports.ready = function() {
 
     this.onEditClipInfoChanged = async (clipInfo) => {
         if (clipInfo) {
-            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.rawClipUUID);
+            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
             this.setCurEditClipInfo(clipInfo);
         }
     };
@@ -413,6 +414,9 @@ exports.ready = function() {
     panel.resizeObserver = new window.ResizeObserver(observer);
     panel.resizeObserver.observe(panel.$.container);
 
+    this.onSubAniChangeBind = this.onSubAniChange.bind(this);
+    this.addAssetChangeListener(true);
+
     this.events = events;
     this.events.ready.call(this);
 
@@ -435,14 +439,15 @@ exports.close = function() {
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
 
     this.resizeObserver.unobserve(this.$.container);
+    this.addAssetChangeListener(false);
 };
 
 exports.methods = {
-    async apply () {
+    async apply() {
         // save animation event info
         await this.events.apply.call(this);
     },
-    async refreshPreview () {
+    async refreshPreview() {
         const panel = this;
 
         // After await, the panel no longer exists
@@ -497,7 +502,7 @@ exports.methods = {
         if (!name || !this.curEditClipInfo) {
             return;
         }
-        switch(name) {
+        switch (name) {
             case 'play':
                 this.onPlayButtonClick();
                 break;
@@ -517,9 +522,22 @@ exports.methods = {
                 this.setCurrentFrame(this.curTotalFrames);
                 break;
             case 'add_event':
+                if (this.checkDisabledEditEvent()) {
+                    return;
+                }
                 this.addEventToCurTime();
                 break;
         }
+    },
+
+    checkDisabledEditEvent() {
+        if (!this.curEditClipInfo.userData) {
+            Editor.Dialog.info(Editor.I18n.t('ENGINE.assets.fbx.addEvent.shouldSave'), {
+                buttons: [Editor.I18n.t('ENGINE.assets.fbx.addEvent.ok')],
+            });
+            return true;
+        }
+        return false;
     },
 
     addEventToCurTime() {
@@ -537,14 +555,14 @@ exports.methods = {
         this.events.update.call(this, eventInfos);
     },
 
-    async stopAnimation () {
+    async stopAnimation() {
         if (!this.curEditClipInfo) {
             return;
         }
 
         await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'stop');
     },
-    async onPlayButtonClick () {
+    async onPlayButtonClick() {
         if (!this.curEditClipInfo) {
             return;
         }
@@ -564,7 +582,7 @@ exports.methods = {
 
         this.isPreviewDataDirty = true;
     },
-    async onAnimationTimeChange (event) {
+    async onAnimationTimeChange(event) {
         event.stopPropagation();
         if (!this.curEditClipInfo) {
             return;
@@ -582,7 +600,7 @@ exports.methods = {
         await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setCurEditTime', curTime);
     },
 
-    onModelAnimationUpdate (time) {
+    onModelAnimationUpdate(time) {
         if (!this.curEditClipInfo) {
             return;
         }
@@ -622,10 +640,12 @@ exports.methods = {
                 max: this.curTotalFrames,
             });
             this.$.duration.innerHTML = `Duration: ${this.curTotalFrames}`;
-            // update animation events
-            const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
-            this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
-            this.updateEventInfo();
+            // update animation events, clipInfo.clipUUID may be undefined
+            if (clipInfo.clipUUID) {
+                const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
+                this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
+                this.updateEventInfo();
+            }
 
             if (this.$.animationTimeSlider) {
                 this.$.animationTimeSlider.max = this.curTotalFrames;
@@ -642,5 +662,27 @@ exports.methods = {
     },
     onAnimationPlayStateChanged(state) {
         this.setCurPlayState(state);
+    },
+
+    addAssetChangeListener(add = true) {
+        if (!add && this.hasListenAssetsChange) {
+            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+            this.hasListenAssetsChange = false;
+            return;
+        }
+        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+        this.hasListenAssetsChange = true;
+    },
+
+    async onSubAniChange(uuid) {
+        if (!this.animationNameToUUIDMap || !this.animationNameToUUIDMap.size) {
+            return;
+        }
+        if (Array.from((this.animationNameToUUIDMap.values())).includes((uuid))) {
+            // 主动更新动画 dump 信息
+            this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
+            const clipInfo = animation.methods.getCurClipInfo.call(this);
+            await this.onEditClipInfoChanged(clipInfo);
+        }
     },
 };

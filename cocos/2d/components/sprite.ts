@@ -485,10 +485,6 @@ export class Sprite extends Renderable2D {
             this._resized();
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
-
-        if (this._spriteFrame) {
-            this._spriteFrame.once('load', this._onTextureLoaded, this);
-        }
     }
 
     // /**
@@ -521,10 +517,6 @@ export class Sprite extends Renderable2D {
         this.destroyRenderData();
         if (EDITOR) {
             this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
-        }
-
-        if (this._spriteFrame && !this._spriteFrame.loaded) {
-            this._spriteFrame.off('load', this._onTextureLoaded, this);
         }
         super.onDestroy();
     }
@@ -593,23 +585,12 @@ export class Sprite extends Renderable2D {
     }
 
     protected _canRender () {
-        // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-        //     if (!this._enabled) { return false; }
-        // } else {
-        //     if (!this._enabled || !this._material) { return false; }
-        // }
-
-        // const spriteFrame = this._spriteFrame;
-        // if (!spriteFrame || !spriteFrame.textureLoaded()) {
-        //     return false;
-        // }
-        // return true;
         if (!super._canRender()) {
             return false;
         }
 
         const spriteFrame = this._spriteFrame;
-        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+        if (!spriteFrame || !spriteFrame.texture) {
             return false;
         }
 
@@ -679,65 +660,21 @@ export class Sprite extends Renderable2D {
     private _activateMaterial () {
         const spriteFrame = this._spriteFrame;
         const material = this.getRenderMaterial(0);
-        // WebGL
-        if (legacyCC.game.renderType !== legacyCC.game.RENDER_TYPE_CANVAS) {
-            if (spriteFrame) {
-                if (material) {
-                    this.markForUpdateRenderData();
-                }
-            }
-
-            if (this._renderData) {
-                this._renderData.material = material;
-            }
-        } else {
-            this.markForUpdateRenderData();
-        }
-    }
-    /*
-    private _applyAtlas (spriteFrame: SpriteFrame | null) {
-        if (!EDITOR) {
-            return;
-        }
-        // Set atlas
         if (spriteFrame) {
-            if (spriteFrame.atlasUuid.length > 0) {
-                if (!this._atlas || this._atlas._uuid !== spriteFrame.atlasUuid) {
-                    const self = this;
-                    assetManager.loadAny(spriteFrame.atlasUuid, (err, asset) => {
-                        self._atlas = asset;
-                    });
-                }
-            }else{
-                this._atlas = null;
+            if (material) {
+                this.markForUpdateRenderData();
             }
         }
-    }
-*/
-    private _onTextureLoaded () {
-        if (!this.isValid) {
-            return;
-        }
 
-        this.changeMaterialForDefine();
-        this._applySpriteSize();
+        if (this._renderData) {
+            this._renderData.material = material;
+        }
     }
 
     private _applySpriteFrame (oldFrame: SpriteFrame | null) {
-        // if (oldFrame && oldFrame.off) {
-        //     oldFrame.off('load', this._onTextureLoaded, this);
-        // }
-
         const spriteFrame = this._spriteFrame;
-        // if (!spriteFrame || (this._material && this._material._texture) !== (spriteFrame && spriteFrame._texture)) {
-        //     // disable render flow until texture is loaded
-        //     this.markForRender(false);
-        // }
 
         if (this._renderData) {
-            if (oldFrame && !oldFrame.loaded) {
-                oldFrame.off('load', this._onTextureLoaded, this);
-            }
             if (!this._renderData.uvDirty) {
                 if (oldFrame && spriteFrame) {
                     this._renderData.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
@@ -754,15 +691,10 @@ export class Sprite extends Renderable2D {
             if (!oldFrame || oldFrame.texture !== spriteFrame.texture) {
                 textureChanged = true;
             }
-            if (spriteFrame.loaded) {
-                if (textureChanged) {
-                    this._onTextureLoaded();
-                } else {
-                    this._applySpriteSize();
-                }
-            } else {
-                spriteFrame.once('load', this._onTextureLoaded, this);
+            if (textureChanged) {
+                this.changeMaterialForDefine();
             }
+            this._applySpriteSize();
         }
         /*
         if (EDITOR) {

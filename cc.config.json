@@ -33,7 +33,6 @@
             "test": "context.mode === 'BUILD'",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/core/data/deserialize-dynamic.ts": "cocos/core/data/deserialize-dynamic-empty.ts"
             }
         },
         {
@@ -47,7 +46,11 @@
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/core/renderer/scene/native-scene.ts": "cocos/core/renderer/scene/native-scene.jsb.ts",
-                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts"
+                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
+                "cocos/core/math/vec3.ts": "cocos/core/math/vec3.jsb.ts",
+                "cocos/core/math/quat.ts": "cocos/core/math/quat.jsb.ts",
+                "cocos/core/math/mat3.ts": "cocos/core/math/mat3.jsb.ts",
+                "cocos/core/math/mat4.ts": "cocos/core/math/mat4.jsb.ts"
             }
         },
         {
@@ -56,7 +59,8 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/web/player.ts",
-                "pal/system": "pal/system/web/system.ts",
+                "pal/system-info": "pal/system-info/web/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts"
             }
         },
@@ -66,7 +70,8 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/native/player.ts",
-                "pal/system": "pal/system/native/system.ts",
+                "pal/system-info": "pal/system-info/native/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts"
             }
         },
@@ -76,7 +81,8 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system": "pal/system/minigame/system.ts",
+                "pal/system-info": "pal/system-info/minigame/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts"
             }
         },
@@ -86,15 +92,16 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/runtime.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system": "pal/system/minigame/system.ts",
+                "pal/system-info": "pal/system-info/minigame/system-info.ts",
+                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts"
             }
         },
         {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.BYTEDANCE",
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NOT_PACK_PHYSX_LIBS",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/physics/physx/export-physx.web.ts": "cocos/physics/physx/export-physx.tt.ts"
+                "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
             }
         }
     ]

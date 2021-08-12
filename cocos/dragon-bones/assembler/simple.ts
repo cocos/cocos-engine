@@ -4,7 +4,7 @@
  */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
+import { Color, Mat4, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
 import { TextureBase } from '../../core/assets/texture-base';
 import { MaterialInstance } from '../../core/renderer/core/material-instance';
@@ -57,7 +57,7 @@ let _m05: number;
 let _m13: number;
 const _vec3u_temp = new Vec3();
 
-function _getSlotMaterial (tex: RenderTexture | TextureBase | null, blendMode: BlendMode) {
+function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
     if (!tex) return null;
 
     let src: BlendFactor;

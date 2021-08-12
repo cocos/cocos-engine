@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 import { Mesh } from '../../3d';
 import { PrimitiveMode } from '../../core/gfx';

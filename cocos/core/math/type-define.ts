@@ -91,3 +91,10 @@ export interface IVec4Like {
 }
 
 export type FloatArray = Float64Array | Float32Array;
+export type IVec2 = IVec2Like | Readonly<IVec2Like>;
+export type IVec3 = IVec3Like | Readonly<IVec3Like>;
+export type IVec4 = IVec4Like | Readonly<IVec4Like>;
+export type IMat3 = IMat3Like | Readonly<IMat3Like>;
+export type IMat4 = IMat4Like | Readonly<IMat4Like>;
+export type IRect = IRectLike | Readonly<IRectLike>;
+export type IQuat = IQuatLike | Readonly<IQuatLike>;

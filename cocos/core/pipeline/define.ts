@@ -34,7 +34,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature } from '../gfx';
+    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature, API } from '../gfx';
 
 export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
 export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
@@ -245,8 +245,8 @@ export class UBOShadow {
     public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
-    public static readonly SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET: number = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 4;
+    public static readonly SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET: number = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
     public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET: number = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
     public static readonly COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
@@ -596,7 +596,9 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
  */
 export function supportsHalfFloatTexture (device: Device) {
-    return device.hasFeature(Feature.COLOR_HALF_FLOAT) && device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+    return device.hasFeature(Feature.COLOR_HALF_FLOAT)
+     && device.hasFeature(Feature.TEXTURE_HALF_FLOAT)
+     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
 /* eslint-enable max-len */

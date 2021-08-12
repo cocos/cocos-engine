@@ -39,7 +39,7 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest,
     gatherEvents, getWrapShape, PX, getContactDataOrByteOffset,
-} from './export-physx';
+} from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { fastRemoveAt } from '../../core/utils/array';
 import { TupleDictionary } from '../utils/tuple-dictionary';
@@ -232,7 +232,7 @@ const PhysXCallback = {
             const word3 = filterData.word3;
             const shapeFlags = shape.getFlags();
             if ((word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
-                && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {
+                && (shapeFlags.isSet(PX.ShapeFlag.eTRIGGER_SHAPE))) {
                 return PX.QueryHitType.eNONE;
             }
             return word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;

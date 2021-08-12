@@ -34,7 +34,7 @@ import { builtinResMgr } from '../../core/builtin';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
-import { IMaterialInstanceInfo, scene } from '../../core/renderer';
+import { scene } from '../../core/renderer';
 import { IAssembler } from '../renderer/base';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
@@ -44,12 +44,6 @@ import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, M
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
-
-const _matInsInfo: IMaterialInstanceInfo = {
-    parent: null!,
-    owner: null!,
-    subModelIdx: 0,
-};
 
 const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
@@ -573,7 +567,6 @@ export class Graphics extends Renderable2D {
 
     private _updateMtlForGraphics () {
         let mat;
-        _matInsInfo.owner = this;
         if (this._customMaterial) {
             mat = this.getMaterialInstance(0);
         } else {

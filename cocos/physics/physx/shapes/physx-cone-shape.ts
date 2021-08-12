@@ -32,7 +32,7 @@ import { Quat, Vec3 } from '../../../core';
 import cylinder from '../../../primitive/cylinder';
 import { ConeCollider, EAxisDirection } from '../../framework';
 import { IConeShape } from '../../spec/i-physics-shape';
-import { createConvexMesh, createMeshGeometryFlags, PX, _trans } from '../export-physx';
+import { createConvexMesh, createMeshGeometryFlags, PX, _trans } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXConeShape extends PhysXShape implements IConeShape {

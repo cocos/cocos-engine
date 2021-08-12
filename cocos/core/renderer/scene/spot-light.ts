@@ -41,6 +41,10 @@ export class SpotLight extends Light {
 
     protected _range = 5.0;
 
+    /**
+     * @en Cached uniform variables.
+     * @zh 缓存下来的 uniform 变量。
+     */
     protected _spotAngle: number = Math.cos(Math.PI / 6);
 
     protected _pos: Vec3;
@@ -49,6 +53,10 @@ export class SpotLight extends Light {
 
     protected _frustum: Frustum;
 
+    /**
+     * @en User-specified full-angle radians.
+     * @zh 用户指定的全角弧度。
+     */
     protected _angle = 0;
 
     protected _needUpdate = false;
@@ -124,10 +132,12 @@ export class SpotLight extends Light {
         return this._dir;
     }
 
+    // 获取 cache 下来的 cos(angle / 2) 属性值，uniform 里需要
     get spotAngle () {
         return this._spotAngle;
     }
 
+    // 设置用户指定的全角弧度，同时计算 cache 下来的 cos(angle / 2) 属性值，uniform 里需要。
     set spotAngle (val: number) {
         this._angle = val;
         this._spotAngle = Math.cos(val * 0.5);

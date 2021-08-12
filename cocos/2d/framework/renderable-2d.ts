@@ -106,12 +106,6 @@ export enum InstanceMaterialType {
     USE_ALPHA_SEPARATED_AND_GRAY = 4,
 }
 
-const _matInsInfo: IMaterialInstanceInfo = {
-    parent: null!,
-    owner: null!,
-    subModelIdx: 0,
-};
-
 /**
  * @en Base class for 2D components which supports rendering features.
  * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]
@@ -473,13 +467,22 @@ export class Renderable2D extends RenderableComponent {
         // this._cacheAlpha = this.node._uiProps.opacity;
         // this._colorDirty = false;
         // }
+        // Need update rendFlag when opacity changes from 0 to !0
+        const opacityZero = this._cacheAlpha <= 0;
+        this._updateWorldAlpha();
+        if (this._colorDirty && this._assembler && this._assembler.updateColor) {
+            this._assembler.updateColor(this);
+            if (opacityZero) {
+                this._renderFlag = this._canRender();
+            }
+            this._colorDirty = false;
+        }
     }
 
     protected _updateWorldAlpha () {
         let localAlpha = this.color.a / 255;
         if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
-        const parent = this.node.parent;
-        const alpha = (parent && parent._uiProps) ? parent._uiProps.opacity * localAlpha : localAlpha;
+        const alpha = this.node._uiProps.opacity * localAlpha;
         this.node._uiProps.opacity = alpha;
         this._colorDirty = this._colorDirty || alpha !== this._cacheAlpha;
         this._cacheAlpha = alpha;

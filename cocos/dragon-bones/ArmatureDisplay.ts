@@ -613,7 +613,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     _validateRender () {
         const texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        if (!texture || !texture.loaded) {
+        if (!texture) {
             this.disableRender();
             return false;
         }
@@ -952,7 +952,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     _refresh () {
         this._buildArmature();
-
+        this._indexBoneSockets();
         if (EDITOR) {
             // update inspector
             this._updateArmatureEnum();

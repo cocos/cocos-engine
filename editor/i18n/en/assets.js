@@ -215,6 +215,10 @@ module.exports = {
                     title: 'Skip validation of the model file.',
                 },
             },
+            addEvent: {
+                shouldSave: 'The newly created clip needs to be submitted for modification before adding/editing events',
+                ok: 'OK',
+            },
             ImageRemap: {
                 remapAs: 'Remap as',
                 original: 'Original',
@@ -304,6 +308,10 @@ module.exports = {
             wrapModeTTip: 'Wrap Mode T',
             modeWarn:
                 "Warning: WebGL 1.0 platform doesn't support 'repeat' filter for non-power-of-two textures(runtime fallback to 'clamp-to-edge'), effectively disabling features like the 'tilingOffset' property in many materials.",
+        },
+        material: {
+            'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
+            'illegal-inspector-url': "Inspector's URL is not valid",
         },
     },
 };

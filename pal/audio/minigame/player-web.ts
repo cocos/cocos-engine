@@ -1,6 +1,7 @@
 import { minigame } from 'pal/minigame';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/system-info';
 import { clamp, clamp01, EventTarget } from '../../../cocos/core';
+import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { AudioEvent, AudioState, AudioType } from '../type';
 
@@ -58,9 +59,9 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _gainNode: GainNode;
     private _volume = 1;
     private _loop = false;
-    private _startTime = 0;
-    private _playTimeOffset = 0;
     private _state: AudioState = AudioState.INIT;
+    private _audioTimer: AudioTimer;
+    private _readyToHandleOnShow = false;
 
     private static _audioBufferCacheMap: Record<string, AudioBuffer> = {};
 
@@ -68,47 +69,47 @@ export class AudioPlayerWeb implements OperationQueueable {
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
 
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-
     constructor (audioBuffer: AudioBuffer, url: string) {
         this._audioBuffer = audioBuffer;
+        this._audioTimer = new AudioTimer(audioBuffer);
         this._gainNode = audioContext!.createGain();
         this._gainNode.connect(audioContext!.destination);
 
         this._src = url;
         // event
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-                }).catch((e) => {});
-            }
-        };
-        system.onHide(this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        system.onShow(this._onShow);
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
     }
     destroy () {
+        this._audioTimer.destroy();
         if (this._audioBuffer) {
             // @ts-expect-error need to release AudioBuffer instance
-            this._audioBuffer = undefined;
+            this._audioBuffer = null;
         }
-        if (this._onShow) {
-            system.offShow(this._onShow);
-            this._onShow = undefined;
+        systemInfo.off('hide', this._onHide, this);
+        systemInfo.off('show', this._onShow, this);
+    }
+    private _onHide () {
+        if (this._state === AudioState.PLAYING) {
+            this.pause().then(() => {
+                this._state = AudioState.INTERRUPTED;
+                this._readyToHandleOnShow = true;
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            }).catch((e) => {});
         }
-        if (this._onHide) {
-            system.offHide(this._onHide);
-            this._onHide = undefined;
+    }
+    private _onShow () {
+        // We don't know whether onShow or resolve callback in pause promise is called at first.
+        if (!this._readyToHandleOnShow) {
+            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onShow, this);
+            return;
         }
+        if (this._state === AudioState.INTERRUPTED) {
+            this.play().then(() => {
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            }).catch((e) => {});
+        }
+        this._readyToHandleOnShow = false;
     }
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
@@ -180,14 +181,13 @@ export class AudioPlayerWeb implements OperationQueueable {
         return this._audioBuffer.duration;
     }
     get currentTime (): number {
-        if (this._state !== AudioState.PLAYING) { return this._playTimeOffset; }
-        return (audioContext!.currentTime - this._startTime + this._playTimeOffset) % this._audioBuffer.duration;
+        return this._audioTimer.currentTime;
     }
 
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            this._playTimeOffset = clamp(time, 0, this._audioBuffer.duration);
+            this._audioTimer.seek(time);
             if (this._state === AudioState.PLAYING) {
                 // one AudioBufferSourceNode can't start twice
                 // need to create a new one to start from the offset
@@ -214,13 +214,12 @@ export class AudioPlayerWeb implements OperationQueueable {
             this._sourceNode.loop = this._loop;
             this._sourceNode.connect(this._gainNode);
 
-            this._sourceNode.start(0, this._playTimeOffset);
+            this._sourceNode.start(0, this._audioTimer.currentTime);
             this._state = AudioState.PLAYING;
-            this._startTime = audioContext!.currentTime;
+            this._audioTimer.start();
 
             this._sourceNode.onended = () => {
-                this._playTimeOffset = 0;
-                this._startTime = audioContext!.currentTime;
+                this._audioTimer.stop();
                 this._eventTarget.emit(AudioEvent.ENDED);
                 this._state = AudioState.INIT;
             };
@@ -244,7 +243,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
         }
-        this._playTimeOffset = (audioContext!.currentTime - this._startTime + this._playTimeOffset) % this._audioBuffer.duration;
+        this._audioTimer.pause();
         this._state = AudioState.PAUSED;
         this._stopSourceNode();
         return Promise.resolve();
@@ -255,7 +254,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (!this._sourceNode) {
             return Promise.resolve();
         }
-        this._playTimeOffset = 0;
+        this._audioTimer.stop();
         this._state = AudioState.STOPPED;
         this._stopSourceNode();
         return Promise.resolve();

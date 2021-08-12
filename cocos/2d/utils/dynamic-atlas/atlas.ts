@@ -159,8 +159,6 @@ export class DynamicAtlasTexture extends Texture2D {
             height,
             format,
         });
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**

@@ -161,7 +161,7 @@ export class PipelineUBO {
                     shadowCameraView = getShadowWorldMatrix(pipeline, mainLight.node!.getWorldRotation()!, mainLight.direction, vec3_center);
                     // if orthoSize is the smallest, auto calculate orthoSize.
                     const radius = shadowInfo.sphere.radius;
-                    x = radius * shadowInfo.aspect;
+                    x = radius;
                     y = radius;
 
                     const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
@@ -169,7 +169,7 @@ export class PipelineUBO {
                 } else {
                     shadowCameraView = mainLight.node!.getWorldMatrix();
 
-                    x = shadowInfo.orthoSize * shadowInfo.aspect;
+                    x = shadowInfo.orthoSize;
                     y = shadowInfo.orthoSize;
 
                     far = shadowInfo.far;
@@ -183,19 +183,18 @@ export class PipelineUBO {
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                const isSupportHalfFloat = supportsHalfFloatTexture(device);
-                const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
-                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = shadowInfo.near;
-                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = far;
-                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = linear;
-                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
+                const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
+                const packing = linear ? 0.0 : 1.0;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = shadowInfo.near;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = far;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 1.0 - shadowInfo.saturation;
 
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
-                const packing = shadowInfo.packing ? 1.0 : (isSupportHalfFloat ? 0.0 : 1.0);
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 0.0;
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
@@ -212,9 +211,8 @@ export class PipelineUBO {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
-        const isSupportHalfFloat = supportsHalfFloatTexture(device);
-        const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
-        const packing = shadowInfo.packing ? 1.0 : (isSupportHalfFloat ? 0.0 : 1.0);
+        const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
+        const packing = linear ? 0.0 : 1.0;
         let _x = 0; let _y = 0; let _far = 0;
         let shadowCameraView: Mat4;
         switch (light.type) {
@@ -229,7 +227,7 @@ export class PipelineUBO {
                 }
                 // if orthoSize is the smallest, auto calculate orthoSize.
                 const radius = shadowInfo.sphere.radius;
-                _x = radius * shadowInfo.aspect;
+                _x = radius;
                 _y = radius;
 
                 const halfFar = Vec3.distance(shadowInfo.sphere.center, vec3_center);
@@ -237,7 +235,7 @@ export class PipelineUBO {
             } else {
                 shadowCameraView = (light as any).node.getWorldMatrix();
 
-                _x = shadowInfo.orthoSize * shadowInfo.aspect;
+                _x = shadowInfo.orthoSize;
                 _y = shadowInfo.orthoSize;
 
                 _far = shadowInfo.far;
@@ -246,8 +244,8 @@ export class PipelineUBO {
             Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, shadowCameraView!);
 
-            vec4ShadowInfo.set(shadowInfo.near, _far, linear, shadowInfo.selfShadow ? 1.0 : 0.0);
-            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
+            vec4ShadowInfo.set(shadowInfo.near, _far, linear, 1.0 - shadowInfo.saturation);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
             vec4ShadowInfo.set(0.0, packing, shadowInfo.normalBias, 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
@@ -260,8 +258,8 @@ export class PipelineUBO {
             Mat4.toArray(sv, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, (light as any).node.getWorldMatrix());
 
-            vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, shadowInfo.selfShadow ? 1.0 : 0.0);
-            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
+            vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 1.0 - shadowInfo.saturation);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
             vec4ShadowInfo.set(1.0, packing, shadowInfo.normalBias, 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);

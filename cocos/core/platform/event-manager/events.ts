@@ -34,7 +34,8 @@ import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
-import { DeviceEvent, KeyboardEvent, SystemEventTypeUnion } from './event-enum';
+import { SystemEventTypeUnion, SystemEventType } from './event-enum';
+import { KeyCode } from './key-code';
 
 const _vec2 = new Vec2();
 
@@ -584,7 +585,7 @@ export class EventAcceleration extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
     constructor (acc: Acceleration, bubbles?: boolean) {
-        super(DeviceEvent.DEVICEMOTION, bubbles);
+        super(SystemEventType.DEVICEMOTION, bubbles);
         this.acc = acc;
     }
 }
@@ -597,15 +598,10 @@ export class EventAcceleration extends Event {
  */
 export class EventKeyboard extends Event {
     /**
-     * @en The keyCode read-only property represents a system and implementation dependent numerical code
-     * identifying the unmodified value of the pressed key.
-     * This is usually the decimal ASCII (RFC 20) or Windows 1252 code corresponding to the key.
-     * If the key can't be identified, this value is 0.
-     * @zh keyCode 是只读属性它表示一个系统和依赖于实现的数字代码，可以识别按键的未修改值。
-     * 这通常是十进制 ASCII (RFC20) 或者 Windows 1252 代码，所对应的密钥。
-     * 如果无法识别该键，则该值为 0。
+     * @en The KeyCode enum value of current keyboard event.
+     * @zh 当前键盘事件的 KeyCode 枚举值
      */
-    public keyCode: number;
+    public keyCode: KeyCode;
 
     /**
      * @en Raw DOM KeyboardEvent.
@@ -620,7 +616,7 @@ export class EventKeyboard extends Event {
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下
      *
-     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.KeyboardEvent.KEY_UP instead
+     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.EventType.KEY_UP instead
      */
     public get isPressed () {
         return this._isPressed;
@@ -637,14 +633,14 @@ export class EventKeyboard extends Event {
      * @param eventType - The type of the event
      * @param bubbles - Indicates whether the event bubbles up through the hierarchy or not.
      */
-    constructor (keyCode: number | KeyboardEvent, eventType: SystemEventTypeUnion, bubbles?: boolean);
+    constructor (keyCode: KeyCode | KeyboardEvent, eventType: SystemEventTypeUnion, bubbles?: boolean);
     constructor (keyCode: any, eventType: SystemEventTypeUnion | boolean, bubbles?: boolean) {
         if (typeof eventType === 'boolean') {
             const isPressed = eventType;
-            eventType = isPressed ? 'keydown' : KeyboardEvent.KEY_UP;
+            eventType = isPressed ? SystemEventType.KEY_DOWN : SystemEventType.KEY_UP;
         }
         super(eventType, bubbles);
-        this._isPressed = eventType !== KeyboardEvent.KEY_UP;
+        this._isPressed = eventType !== SystemEventType.KEY_UP;
 
         if (typeof keyCode === 'number') {
             this.keyCode = keyCode;

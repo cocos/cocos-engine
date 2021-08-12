@@ -35,6 +35,7 @@ import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
+import { Node } from '../core';
 
 enum AudioSourceEventType {
     STARTED = 'started',
@@ -208,11 +209,26 @@ export class AudioSource extends Component {
     }
 
     public onDisable () {
+        const rootNode = this._getRootNode();
+        if (rootNode?._persistNode) {
+            return;
+        }
         this.pause();
     }
 
     public onDestroy () {
         this.stop();
+        this._player?.destroy();
+    }
+
+    private _getRootNode (): Node | null | undefined {
+        let currentNode = this.node as Node | undefined | null;
+        let currentGrandparentNode = currentNode?.parent?.parent;
+        while (currentGrandparentNode) {
+            currentNode = currentNode?.parent;
+            currentGrandparentNode = currentNode?.parent?.parent;
+        }
+        return currentNode;
     }
 
     /**

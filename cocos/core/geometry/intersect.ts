@@ -192,10 +192,10 @@ const rayOBB = (function () {
     const Y = new Vec3();
     const Z = new Vec3();
     const p = new Vec3();
-    const size = new Array(3);
-    const f = new Array(3);
-    const e = new Array(3);
-    const t = new Array(6);
+    const size = new Array<number>(3);
+    const f = new Array<number>(3);
+    const e = new Array<number>(3);
+    const t = new Array<number>(6);
 
     return function (ray: Ray, obb: OBB): number {
         size[0] = obb.halfExtents.x;
@@ -886,7 +886,7 @@ const aabbFrustumAccurate = (function () {
         for (let i = 0; i < frustum.planes.length; i++) {
             result = aabbPlane(aabb, frustum.planes[i]);
             // frustum plane normal points to the inside
-            if (result === -1) { return 0; } // completely outside
+            if (result === -1) return 0; // completely outside
             else if (result === 1) { intersects = true; }
         }
         if (!intersects) { return 1; } // completely inside
@@ -1002,7 +1002,7 @@ const obbFrustumAccurate = (function () {
         for (let i = 0; i < frustum.planes.length; i++) {
             result = obbPlane(obb, frustum.planes[i]);
             // frustum plane normal points to the inside
-            if (result === -1) { return 0; } // completely outside
+            if (result === -1) return 0; // completely outside
             else if (result === 1) { intersects = true; }
         }
         if (!intersects) { return 1; } // completely inside
@@ -1064,9 +1064,9 @@ const obbWithOBB = (function () {
         Vec3.set(test[5], obb2.orientation.m06, obb2.orientation.m07, obb2.orientation.m08);
 
         for (let i = 0; i < 3; ++i) { // Fill out rest of axis
-            Vec3.cross(test[6 + i * 3 + 0], test[i], test[0]);
-            Vec3.cross(test[6 + i * 3 + 1], test[i], test[1]);
-            Vec3.cross(test[6 + i * 3 + 1], test[i], test[2]);
+            Vec3.cross(test[6 + i * 3 + 0], test[i], test[3]);
+            Vec3.cross(test[6 + i * 3 + 1], test[i], test[4]);
+            Vec3.cross(test[6 + i * 3 + 2], test[i], test[5]);
         }
 
         getOBBVertices(obb1.center, obb1.halfExtents, test[0], test[1], test[2], vertices);
@@ -1204,7 +1204,7 @@ const sphereFrustumAccurate = (function () {
             const n = plane.n; const d = plane.d;
             const dot = Vec3.dot(n, c);
             // frustum plane normal points to the inside
-            if (dot + r < d) { return 0; } // completely outside
+            if (dot + r < d) return 0; // completely outside
             else if (dot - r > d) { continue; }
             // in case of false positives
             // has false negatives, still working on it
@@ -1322,10 +1322,8 @@ const capsuleWithCapsule = (function () {
         const d = Vec3.dot(u, w);
         const e = Vec3.dot(v, w);
         const D = a * c - b * b;        // always >= 0
-        let sc: number;
         let sN: number;
         let sD = D;       // sc = sN / sD, default sD = D >= 0
-        let tc: number;
         let tN: number;
         let tD = D;       // tc = tN / tD, default tD = D >= 0
 
@@ -1373,8 +1371,8 @@ const capsuleWithCapsule = (function () {
             }
         }
         // finally do the division to get sc and tc
-        sc = (Math.abs(sN) < EPSILON ? 0.0 : sN / sD);
-        tc = (Math.abs(tN) < EPSILON ? 0.0 : tN / tD);
+        const sc = (Math.abs(sN) < EPSILON ? 0.0 : sN / sD);
+        const tc = (Math.abs(tN) < EPSILON ? 0.0 : tN / tD);
 
         // get the difference of the two closest points
         const dP = v3_3;
@@ -1442,8 +1440,8 @@ const intersect = {
      */
     resolve (g1: any, g2: any, outPt = null) {
         const type1 = g1._type; const type2 = g2._type;
-        const resolver = this[type1 | type2];
-        if (type1 < type2) { return resolver(g1, g2, outPt); } else { return resolver(g2, g1, outPt); }
+        const resolver = this[type1 | type2] as (...args: any) => number;
+        return type1 < type2 ? resolver(g1, g2, outPt) : resolver(g2, g1, outPt);
     },
 };
 

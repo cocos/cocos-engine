@@ -25,6 +25,7 @@
 
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform';
+import { debug } from '../../platform/debug';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
@@ -54,16 +55,6 @@ const WebGLWraps: GLenum[] = [
     0x8370, // WebGLRenderingContext.MIRRORED_REPEAT
     0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
     0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
-];
-
-const SAMPLES: number[] = [
-    1,
-    2,
-    4,
-    8,
-    16,
-    32,
-    64,
 ];
 
 const _f32v4 = new Float32Array(4);
@@ -1082,7 +1073,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                 }
 
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
+                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
                     gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
             }
         }
@@ -1160,10 +1151,6 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
 export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IWebGL2GPUTexture) {
     const { gl } = device;
 
-    gpuTexture.glInternalFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format, gl);
-    gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format, gl);
-    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, gl);
-
     let w = gpuTexture.width;
     let h = gpuTexture.height;
 
@@ -1199,18 +1186,14 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                     h = Math.max(1, h >> 1);
                 }
             }
-        } else {
-            const glRenderbuffer = gl.createRenderbuffer();
-            if (glRenderbuffer && gpuTexture.size > 0) {
-                gpuTexture.glRenderbuffer = glRenderbuffer;
-                if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
-                    gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
-                    device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
-                }
-
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
-                    gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+        } else if (gpuTexture.glRenderbuffer && gpuTexture.size > 0) {
+            if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
+                gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
             }
+
+            gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
+                gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
         }
         break;
     }
@@ -1485,7 +1468,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     }
 
     if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
-        console.info(`Shader '${gpuShader.name}' compilation succeeded.`);
+        debug(`Shader '${gpuShader.name}' compilation succeeded.`);
     } else {
         console.error(`Failed to link shader '${gpuShader.name}'.`);
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
@@ -2682,6 +2665,44 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     if (gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
         gl.generateMipmap(gpuTexture.glTarget);
     }
+}
+
+export function WebGL2CmdFuncCopyTextureToBuffers (
+    device: WebGL2Device,
+    gpuTexture: IWebGL2GPUTexture,
+    buffers: ArrayBufferView[],
+    regions: BufferTextureCopy[],
+) {
+    const { gl } = device;
+    const cache = device.stateCache;
+
+    const framebuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    let x = 0;
+    let y = 0;
+    let w = 1;
+    let h = 1;
+
+    switch (gpuTexture.glTarget) {
+    case gl.TEXTURE_2D: {
+        for (let k = 0; k < regions.length; k++) {
+            const region = regions[k];
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gpuTexture.glTarget, gpuTexture.glTexture, region.texSubres.mipLevel);
+            x = region.texOffset.x;
+            y = region.texOffset.y;
+            w = region.texExtent.width;
+            h = region.texExtent.height;
+            gl.readPixels(x, y, w, h, gpuTexture.glFormat, gpuTexture.glType, buffers[k]);
+        }
+        break;
+    }
+    default: {
+        console.error('Unsupported GL texture type, copy texture to buffers failed.');
+    }
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    cache.glFramebuffer = null;
+    gl.deleteFramebuffer(framebuffer);
 }
 
 export function WebGL2CmdFuncBlitFramebuffer (
