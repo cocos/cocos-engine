@@ -48,7 +48,7 @@ export class PhysXFixedJoint extends PhysXJoint implements IPointToPointConstrai
 
     onComponentSet (): void {
         if (this._rigidBody) {
-            this._impl = PX.PxFixedJointCreate(PhysXWorld.physics, null, _trans, null, _trans);
+            this._impl = PX.PxFixedJointCreate(PhysXInstance.physics, null, _trans, null, _trans);
             this.setPivotA(this.constraint.pivotA);
             this.setPivotB(this.constraint.pivotB);
         }

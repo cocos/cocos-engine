@@ -35,11 +35,12 @@ import { Collider, RigidBody, PhysicsMaterial, PhysicsSystem } from '../../frame
 import { IBaseShape } from '../../spec/i-physics-shape';
 import {
     addReference, getShapeFlags, getShapeMaterials, getShapeWorldBounds, getTempTransform,
-    PX, removeReference, _pxtrans, _trans,
+    PX, removeReference, _trans,
 } from '../physx-adapter';
 import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';
+import { PhysXInstance } from '../physx-instance';
 
 export enum EPhysXShapeType {
     SPHERE,
@@ -137,7 +138,7 @@ export class PhysXShape implements IBaseShape {
 
     protected getSharedMaterial (v: PhysicsMaterial): any {
         if (!PX.CACHE_MAT[v.id]) {
-            const physics = PhysXWorld.physics;
+            const physics = PhysXInstance.physics;
             const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
             mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
             mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);

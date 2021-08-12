@@ -47,24 +47,14 @@ import { PhysXContactEquation } from './physx-contact-equation';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
 import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
+import { PhysXInstance } from './physx-instance';
 
-export class PhysXWorld implements IPhysicsWorld {
+export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
     setDefaultMaterial (_v: PhysicsMaterial): void { }
     setGravity (gravity: IVec3Like): void {
         this.scene.setGravity(gravity);
     }
-
-    static foundation: any;
-    static physics: any;
-    static cooking: any;
-    static pvd: any;
-    static queryfilterData: any;
-    static singleResult: any;
-    static mutipleResults: any;
-    static simulationCB: any;
-    static queryFilterCB: any;
-    static mutipleResultSize = 12;
 
     get impl (): any { return this.scene; }
     readonly scene: any;
@@ -74,6 +64,7 @@ export class PhysXWorld implements IPhysicsWorld {
     private _isNeedFetch = false;
 
     constructor () {
+        super();
         initializeWorld(this);
     }
 

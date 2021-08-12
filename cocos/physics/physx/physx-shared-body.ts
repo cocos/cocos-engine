@@ -32,6 +32,7 @@
 import { Node, Quat, Vec3 } from '../../core';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
+import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import {
@@ -153,14 +154,14 @@ export class PhysXSharedBody {
     private _initStaticActor () {
         if (this._staticActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
-        this._staticActor = PhysXWorld.physics.createRigidStatic(t);
+        this._staticActor = PhysXInstance.physics.createRigidStatic(t);
         if (this._staticActor.$$) PX.IMPL_PTR[this._staticActor.$$.ptr] = this;
     }
 
     private _initDynamicActor () {
         if (this._dynamicActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
-        this._dynamicActor = PhysXWorld.physics.createRigidDynamic(t);
+        this._dynamicActor = PhysXInstance.physics.createRigidDynamic(t);
         if (this._dynamicActor.$$) PX.IMPL_PTR[this._dynamicActor.$$.ptr] = this;
         const wb = this.wrappedBody;
         if (wb) {

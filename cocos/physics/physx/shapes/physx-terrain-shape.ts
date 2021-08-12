@@ -33,7 +33,7 @@ import { PhysicsMaterial, TerrainCollider } from '../../framework';
 import { ITerrainAsset } from '../../spec/i-external';
 import { ITerrainShape } from '../../spec/i-physics-shape';
 import { createHeightField, createHeightFieldGeometry, getTempTransform, PX } from '../physx-adapter';
-import { PhysXWorld } from '../physx-world';
+import { PhysXInstance } from '../physx-instance';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
@@ -45,10 +45,10 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
 
     setTerrain (v: ITerrainAsset | null): void {
         if (v && this._impl == null) {
-            const physics = PhysXWorld.physics;
+            const physics = PhysXInstance.physics;
             const collider = this.collider;
             if (PX.TERRAIN_STATIC[v._uuid] == null) {
-                const cooking = PhysXWorld.cooking;
+                const cooking = PhysXInstance.cooking;
                 PX.TERRAIN_STATIC[v._uuid] = createHeightField(v, PhysXTerrainShape.heightScale, cooking, physics);
             }
             const hf = PX.TERRAIN_STATIC[v._uuid];

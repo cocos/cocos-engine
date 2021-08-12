@@ -33,14 +33,14 @@ import { Constraint, RigidBody } from '../../framework';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { PX, setJointActors, _pxtrans } from '../physx-adapter';
 import { PhysXRigidBody } from '../physx-rigid-body';
-import { PhysXWorld } from '../physx-world';
+import { PhysXInstance } from '../physx-instance';
 
 export class PhysXJoint implements IBaseConstraint {
     private static _tempActor: any;
 
     static get tempActor (): any {
         if (!this._tempActor) {
-            this._tempActor = PhysXWorld.physics.createRigidDynamic(_pxtrans);
+            this._tempActor = PhysXInstance.physics.createRigidDynamic(_pxtrans);
         }
         return this._tempActor;
     }

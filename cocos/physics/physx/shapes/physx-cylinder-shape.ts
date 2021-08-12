@@ -33,7 +33,7 @@ import cylinder from '../../../primitive/cylinder';
 import { CylinderCollider, EAxisDirection } from '../../framework';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { createConvexMesh, createMeshGeometryFlags, PX, _trans } from '../physx-adapter';
-import { PhysXWorld } from '../physx-world';
+import { PhysXInstance } from '../physx-instance';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXCylinderShape extends PhysXShape implements ICylinderShape {
@@ -62,9 +62,9 @@ export class PhysXCylinderShape extends PhysXShape implements ICylinderShape {
 
     onComponentSet (): void {
         const collider = this.collider;
-        const physics = PhysXWorld.physics;
+        const physics = PhysXInstance.physics;
         if (!PhysXCylinderShape.CONVEX_MESH) {
-            const cooking = PhysXWorld.cooking;
+            const cooking = PhysXInstance.cooking;
             const primitive = cylinder(0.5, 0.5, 2, { radialSegments: 32, heightSegments: 1 });
             PhysXCylinderShape.CONVEX_MESH = createConvexMesh(primitive.positions, cooking, physics);
         }

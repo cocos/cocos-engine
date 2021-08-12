@@ -32,7 +32,7 @@ import { absMaxComponent } from '../../../core';
 import { SphereCollider } from '../../framework';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { PX } from '../physx-adapter';
-import { PhysXWorld } from '../physx-world';
+import { PhysXInstance } from '../physx-instance';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXSphereShape extends PhysXShape implements ISphereShape {
@@ -56,7 +56,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
     onComponentSet () {
         this.updateGeometry();
         const pxmat = this.getSharedMaterial(this.collider.sharedMaterial!);
-        this._impl = PhysXWorld.physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
+        this._impl = PhysXInstance.physics.createShape(PhysXSphereShape.SPHERE_GEOMETRY, pxmat, true, this._flags);
     }
 
     updateScale () {
