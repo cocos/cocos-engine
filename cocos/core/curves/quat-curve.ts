@@ -7,7 +7,7 @@ import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import { getEasingFn } from './easing-method';
-import { bezierByTime } from '../animation';
+import { bezierByTime } from '../animation/bezier';
 
 /**
  * View to a quaternion frame value.
