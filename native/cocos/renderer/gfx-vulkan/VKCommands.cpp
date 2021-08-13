@@ -107,6 +107,10 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     if (!gpuTexture->size) return;
 
     gpuTexture->aspectMask = mapVkImageAspectFlags(gpuTexture->format);
+    // storage images has to be in general layout
+    if (hasFlag(gpuTexture->usage, TextureUsageBit::STORAGE)) gpuTexture->flags |= TextureFlagBit::GENERAL_LAYOUT;
+    // remove stencil aspect for depth textures with sampled usage
+    if (hasFlag(gpuTexture->usage, TextureUsageBit::SAMPLED)) gpuTexture->aspectMask &= ~VK_IMAGE_ASPECT_STENCIL_BIT;
 
     VkFormat             format   = mapVkFormat(gpuTexture->format);
     VkFormatFeatureFlags features = mapVkFormatFeatureFlags(gpuTexture->usage);
@@ -227,9 +231,9 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     } else if (gpuBuffer->memUsage == (MemoryUsage::HOST | MemoryUsage::DEVICE)) {
-        gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getCapabilities().uboOffsetAlignment);
-        bufferInfo.size         = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
-        allocInfo.flags         = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        //gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getCapabilities().uboOffsetAlignment);
+        //bufferInfo.size         = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
+        //allocInfo.flags         = VMA_ALLOCATION_CREATE_MAPPED_BIT;
         allocInfo.usage         = VMA_MEMORY_USAGE_CPU_TO_GPU;
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
@@ -293,7 +297,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         attachmentDescriptions[i].storeOp        = mapVkStoreOp(attachment.storeOp);
         attachmentDescriptions[i].stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachmentDescriptions[i].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachmentDescriptions[i].initialLayout  = beginAccessInfo.imageLayout;
+        attachmentDescriptions[i].initialLayout  = attachment.loadOp == gfx::LoadOp::LOAD ? beginAccessInfo.imageLayout : VK_IMAGE_LAYOUT_UNDEFINED;
         attachmentDescriptions[i].finalLayout    = endAccessInfo.imageLayout;
     }
     if (hasDepth) {
@@ -323,7 +327,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         attachmentDescriptions[colorAttachmentCount].storeOp        = mapVkStoreOp(depthStencilAttachment.depthStoreOp);
         attachmentDescriptions[colorAttachmentCount].stencilLoadOp  = mapVkLoadOp(depthStencilAttachment.stencilLoadOp);
         attachmentDescriptions[colorAttachmentCount].stencilStoreOp = mapVkStoreOp(depthStencilAttachment.stencilStoreOp);
-        attachmentDescriptions[colorAttachmentCount].initialLayout  = beginAccessInfo.imageLayout;
+        attachmentDescriptions[colorAttachmentCount].initialLayout  = depthStencilAttachment.depthLoadOp == gfx::LoadOp::LOAD ? beginAccessInfo.imageLayout : VK_IMAGE_LAYOUT_UNDEFINED;
         attachmentDescriptions[colorAttachmentCount].finalLayout    = endAccessInfo.imageLayout;
     }
 
@@ -1212,6 +1216,9 @@ CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTe
 }
 
 void cmdFuncCCVKDestroyRenderPass(CCVKGPUDevice *gpuDevice, CCVKGPURenderPass *gpuRenderPass) {
+    gpuRenderPass->beginAccesses.clear();
+    gpuRenderPass->endAccesses.clear();
+
     if (gpuRenderPass->vkRenderPass != VK_NULL_HANDLE) {
         vkDestroyRenderPass(gpuDevice->vkDevice, gpuRenderPass->vkRenderPass, nullptr);
         gpuRenderPass->vkRenderPass = VK_NULL_HANDLE;

@@ -77,8 +77,7 @@ protected:
     vector<CCVKGPUDescriptorSet *> _curGPUDescriptorSets;
     vector<VkDescriptorSet>        _curVkDescriptorSets;
     vector<uint>                   _curDynamicOffsets;
-    vector<const uint *>           _curDynamicOffsetPtrs;
-    vector<uint>                   _curDynamicOffsetCounts;
+    vector<vector<uint>>           _curDynamicOffsetsArray;
     uint                           _firstDirtyDescriptorSet = UINT_MAX;
 
     CCVKGPUInputAssembler *_curGPUInputAssember = nullptr;

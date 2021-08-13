@@ -1551,8 +1551,6 @@ cocos_source_files(
                  cocos/bindings/manual/jsb_gfx_manual.h
     NO_WERROR    cocos/bindings/manual/jsb_global.cpp
                  cocos/bindings/manual/jsb_global.h
-    NO_WERROR    cocos/bindings/manual/jsb_global_init.cpp
-                 cocos/bindings/manual/jsb_global_init.h
     NO_WERROR    cocos/bindings/manual/jsb_helper.cpp
                  cocos/bindings/manual/jsb_helper.h
                  cocos/bindings/manual/jsb_module_register.h
@@ -1693,7 +1691,9 @@ cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/State.cpp
                  cocos/bindings/jswrapper/State.h
                  cocos/bindings/jswrapper/Value.cpp
-                 cocos/bindings/jswrapper/Value.h
+                 cocos/bindings/jswrapper/Value.h 
+    NO_WERROR    cocos/bindings/manual/jsb_global_init.cpp
+                 cocos/bindings/manual/jsb_global_init.h
 )
 
 cocos_source_files(
@@ -1822,7 +1822,7 @@ if(USE_MODULES)
     add_library(ccmath ${ccmath_SOURCE_LIST})
     add_library(cclog ${cclog_SOURCE_LIST})
     add_library(ccfilesystem ${ccfilesystem_SOURCE_LIST} ${CC_TINYDIR_SOURCES})
-    add_library(ccutils ${ccutils_SOURCE_LIST} ${CC_FS_SOURCES})
+    add_library(ccutils ${ccutils_SOURCE_LIST} ${CC_UTILS_SOURCES})
     add_library(ccunzip ${ccunzip_SOURCE_LIST} ${CC_UNZIP_SOURCES})
     add_library(ccbindings ${ccbindings_SOURCE_LIST})
 
@@ -1848,6 +1848,8 @@ if(USE_MODULES)
     )
     target_include_directories(ccbindings PRIVATE
         ${CWD}/cocos
+        ${CWD}/cocos/bindings/jswrapper
+        ${CWD}/cocos/editor-support # TODO: refactor include path
         ${CWD}
         ${CC_EXTERNAL_INCLUDES}
     )
@@ -2145,11 +2147,13 @@ if(MSVC)
         file(GLOB_RECURSE WIN32_DLLS
             ${CWD}/external/win32/libs/*.dll
             ${CWD}/external/win32/libs/Debug/*.dll
+            ${CWD}/external/win32/libs/glslang/*.dll
         )
     else()
         file(GLOB_RECURSE WIN32_DLLS
             ${CWD}/external/win64/libs/*.dll
             ${CWD}/external/win64/libs/Debug/*.dll
+            ${CWD}/external/win64/libs/glslang/*.dll
         )
     endif()
     target_compile_options(cocos2d PUBLIC /MP)

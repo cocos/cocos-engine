@@ -36,7 +36,7 @@ var fs = require('fs-extra');
 const which = require('which');
 const del = require('del');
 
-function absolutePath (relativePath) {
+function absolutePath(relativePath) {
     return Path.join(__dirname, relativePath);
 }
 
@@ -54,7 +54,7 @@ else {
     gulp.task('publish', gulpSequence('update', 'init', 'bump-version', 'make-simulator'));
 }
 
-function execSync (cmd, workPath) {
+function execSync(cmd, workPath) {
     var execOptions = {
         cwd: workPath || '.',
         stdio: 'inherit'
@@ -62,7 +62,7 @@ function execSync (cmd, workPath) {
     ExecSync(cmd, execOptions);
 }
 
-function upload2Ftp (localPath, ftpPath, config, cb) {
+function upload2Ftp(localPath, ftpPath, config, cb) {
     var ftpClient = new Ftp();
     ftpClient.on('error', function (err) {
         if (err) {
@@ -96,7 +96,7 @@ function upload2Ftp (localPath, ftpPath, config, cb) {
     ftpClient.connect(config);
 }
 
-function uploadZipFile (zipFileName, path, cb) {
+function uploadZipFile(zipFileName, path, cb) {
     var branch = getCurrentBranch();
     if (branch === 'develop') {
         branch = 'dev';
@@ -110,14 +110,14 @@ function uploadZipFile (zipFileName, path, cb) {
     }, cb);
 }
 
-function getCurrentBranch () {
+function getCurrentBranch() {
     var spawnSync = require('child_process').spawnSync;
     var output = spawnSync('git', ['symbolic-ref', '--short', '-q', 'HEAD']);
     // console.log(output);
     return output.stdout.toString().trim();
 }
 
-function formatPath (p) {
+function formatPath(p) {
     return p.replace(/\\/g, '/');
 }
 
@@ -161,7 +161,16 @@ gulp.task('gen-simulator', async function () {
     console.log('make project\n');
     console.log('=====================================\n');
     await new Promise((resolve, reject) => {
-        let cmakeProcess = spawn(cmakeBin, ['-G', isWin32 ? 'Visual Studio 15 2017' : 'Xcode', absolutePath('./tools/simulator/frameworks/runtime-src/')], {
+        var args = [];
+        args.push('-G');
+        if (isWin32) {
+            args.push('Visual Studio 15 2017','-A','Win32');
+        } 
+        else {
+            args.push('Xcode');
+        }
+        args.push(absolutePath('./tools/simulator/frameworks/runtime-src/'));
+        let cmakeProcess = spawn(cmakeBin, args, {
             cwd: simulatorProject,
         });
         cmakeProcess.on('close', () => {

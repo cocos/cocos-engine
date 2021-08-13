@@ -198,6 +198,8 @@ void DeferredPipeline::prepareFrameGraph() {
 }
 
 void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
+    static gfx::TextureBarrier *present{_device->createTextureBarrier({{gfx::AccessType::COLOR_ATTACHMENT_WRITE}, {gfx::AccessType::PRESENT}})};
+    static gfx::Texture *       backBuffer{nullptr};
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
     _pipelineUBO->updateMultiCameraUBO(cameras);
@@ -217,6 +219,7 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
         _pipelineUBO->incCameraUBOOffset();
     }
 
+    _commandBuffers[0]->pipelineBarrier(nullptr, &present, &backBuffer, 1);
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);
@@ -247,10 +250,12 @@ gfx::InputAssembler *DeferredPipeline::getIAByRenderArea(const gfx::Rect &rect) 
 }
 
 void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform /*surfaceTransform*/, const gfx::Rect &renderArea, float *vbData) {
-    float minX = float(renderArea.x) / _width;
-    float maxX = float(renderArea.x + renderArea.width) / _width;
-    float minY = float(renderArea.y) / _height;
-    float maxY = float(renderArea.y + renderArea.height) / _height;
+    auto width = float(_width);
+    auto height = float(_height);
+    auto minX = float(renderArea.x) / width;
+    auto maxX = float(renderArea.x + renderArea.width) / width;
+    auto minY = float(renderArea.y) / height;
+    auto maxY = float(renderArea.y + renderArea.height) / height;
     if (_device->getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }

@@ -130,47 +130,16 @@ struct GLES2GPUInput final {
 using GLES2GPUInputList = vector<GLES2GPUInput>;
 
 struct GLES2GPUUniform final {
-    uint     binding = INVALID_BINDING;
-    String   name;
-    Type     type   = Type::UNKNOWN;
-    uint     stride = 0;
-    uint     count  = 0;
-    uint     size   = 0;
-    uint     offset = 0;
-    GLenum   glType = 0;
-    GLint    glLoc  = -1;
-    uint8_t *buff   = nullptr;
-
-    GLES2GPUUniform() = default;
-    GLES2GPUUniform(const GLES2GPUUniform &rhs) {
-        *this = rhs;
-    }
-
-    GLES2GPUUniform &operator=(const GLES2GPUUniform &rhs) {
-        if (this != &rhs) {
-            binding = rhs.binding;
-            name    = rhs.name;
-            type    = rhs.type;
-            stride  = rhs.stride;
-            count   = rhs.count;
-            offset  = rhs.offset;
-            glType  = rhs.glType;
-            glLoc   = rhs.glLoc;
-            if (size != rhs.size) {
-                size = rhs.size;
-                CC_SAFE_FREE(buff);
-                buff = static_cast<uint8_t *>(CC_MALLOC(size));
-            }
-            if (buff && rhs.buff) {
-                memcpy(buff, rhs.buff, size);
-            }
-        }
-        return *this;
-    }
-
-    ~GLES2GPUUniform() {
-        CC_SAFE_FREE(buff);
-    }
+    uint            binding = INVALID_BINDING;
+    String          name;
+    Type            type   = Type::UNKNOWN;
+    uint            stride = 0;
+    uint            count  = 0;
+    uint            size   = 0;
+    uint            offset = 0;
+    GLenum          glType = 0;
+    GLint           glLoc  = -1;
+    vector<uint8_t> buff;
 };
 using GLES2GPUUniformList = vector<GLES2GPUUniform>;
 
@@ -182,6 +151,7 @@ struct GLES2GPUUniformBlock final {
     uint                size = 0;
     GLES2GPUUniformList glUniforms;
     GLES2GPUUniformList glActiveUniforms;
+    vector<uint>        activeUniformIndices;
 };
 using GLES2GPUUniformBlockList = vector<GLES2GPUUniformBlock>;
 

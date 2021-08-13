@@ -16035,6 +16035,25 @@ static bool js_gfx_Buffer_getUsage(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_GET(js_gfx_Buffer_getUsage)
 
+static bool js_gfx_Buffer_isBufferView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Buffer_isBufferView : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->isBufferView();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Buffer_isBufferView : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Buffer_isBufferView)
+
 static bool js_gfx_Buffer_resize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::Buffer>(s);
@@ -16110,6 +16129,7 @@ bool js_register_gfx_Buffer(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
+    cls->defineFunction("isBufferView", _SE(js_gfx_Buffer_isBufferView));
     cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_Buffer_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Buffer_finalize));
@@ -20867,6 +20887,19 @@ static bool js_gfx_DeviceManager_create(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_gfx_DeviceManager_create)
 
+static bool js_gfx_DeviceManager_addCustomEvent(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::gfx::DeviceManager::addCustomEvent();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_addCustomEvent)
+
 
 static bool js_cc_gfx_DeviceManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20887,6 +20920,7 @@ bool js_register_gfx_DeviceManager(se::Object* obj) // NOLINT(readability-identi
 
     cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy));
     cls->defineStaticFunction("create", _SE(js_gfx_DeviceManager_create));
+    cls->defineStaticFunction("addCustomEvent", _SE(js_gfx_DeviceManager_addCustomEvent));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DeviceManager_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DeviceManager>(cls);

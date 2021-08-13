@@ -108,7 +108,9 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
                 } else if (hasFlag(DESCRIPTOR_TEXTURE_TYPE, binding.descriptorType)) {
                     instance.descriptorInfos[k].image.sampler     = gpuDevice->defaultSampler.vkSampler;
                     instance.descriptorInfos[k].image.imageView   = gpuDevice->defaultTextureView.vkImageView;
-                    instance.descriptorInfos[k].image.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    instance.descriptorInfos[k].image.imageLayout = hasFlag(binding.descriptorType, DescriptorType::STORAGE_IMAGE)
+                                                                        ? VK_IMAGE_LAYOUT_GENERAL
+                                                                        : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 }
             }
         }

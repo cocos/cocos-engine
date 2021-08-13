@@ -2265,6 +2265,9 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
                 if (cache->glBindUBOs[glBuffer.glBinding] != gpuDescriptor.gpuBuffer->glBuffer ||
                     cache->glBindUBOOffsets[glBuffer.glBinding] != offset) {
                     if (offset) {
+                        GLint size{0};
+                        glGetIntegeri_v(GL_UNIFORM_BUFFER_SIZE, glBuffer.glBinding, &size);
+
                         GL_CHECK(glBindBufferRange(GL_UNIFORM_BUFFER, glBuffer.glBinding, gpuDescriptor.gpuBuffer->glBuffer,
                                                    offset, gpuDescriptor.gpuBuffer->size));
                     } else {
