@@ -26,7 +26,7 @@
 /**
  * @packageDocumentation
  * 数学库
- * @module core/math
+ * @module core/math/bits
  */
 
 /**

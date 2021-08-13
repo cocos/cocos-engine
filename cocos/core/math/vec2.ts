@@ -851,6 +851,8 @@ export class Vec2 extends MathBase {
 const v2_1 = new Vec2();
 const v2_2 = new Vec2();
 
+enumerableProps(Vec2.prototype, ['x', 'y']);
+
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });
 legacyCC.Vec2 = Vec2;
 

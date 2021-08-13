@@ -245,6 +245,7 @@ Director.runSceneImmediate: scene is not valid
 ### 1217
 
 Director._initOnEngineInitialized: renderer root initialization failed
+
 ### 1218
 
 Forward render pipeline initialized.
@@ -1755,10 +1756,6 @@ Current context does not allow root motion.
 
 You provided a ill-formed track path. The last component of track path should be property key, or the setter should not be empty.
 
-### 3922
-
-Seems like we have animation for %s but are missing its parent joint %s in animation?
-
 ### 3923
 
 Root motion is ignored since root bone could not be located in animation.
@@ -3120,3 +3117,23 @@ The font size is too big to be fitted into texture atlas. Please switch to other
 ### 12101
 
 The asset %s has been destroyed!
+
+### 13100
+
+Incorrect CCON magic.
+
+### 13101
+
+Unknown CCON version number: %d.
+
+### 13102
+
+CCON Format error.
+
+### 13103
+
+Can not encode CCON binary: lack of text encoder.
+
+### 13104
+
+Can not decode CCON binary: lack of text decoder.

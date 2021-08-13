@@ -354,9 +354,9 @@ export class AnimationClip extends Asset {
             if (parentJoint >= 0) {
                 const parentJointName = joint.substring(0, parentJoint);
                 const parentJointFrame = skeletonFrames[parentJointName];
-                if (!parentJointFrame) {
-                    warnID(3922, joint, parentJointName);
-                } else {
+                // Parent joint can be nil since some of joints' parents
+                // are not in animation list. For example, joints under socket nodes.
+                if (parentJointFrame) {
                     skeletonFrame.parent = parentJointFrame;
                 }
             }

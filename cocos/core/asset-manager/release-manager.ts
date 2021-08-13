@@ -247,7 +247,7 @@ class ReleaseManager {
             }
         }
         // only release non-gc asset in editor
-        if (!EDITOR || (asset instanceof ImageAsset || asset instanceof TextureBase)) {
+        if (!EDITOR) {
             asset.destroy();
         }
         dependUtil.remove(uuid);

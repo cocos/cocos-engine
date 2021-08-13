@@ -65,7 +65,6 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(2)
     @tooltip('i18n:velocityOvertimeModule.x')
     public x = new CurveRange();
@@ -75,7 +74,6 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(3)
     @tooltip('i18n:velocityOvertimeModule.y')
     public y = new CurveRange();
@@ -85,7 +83,6 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(4)
     @tooltip('i18n:velocityOvertimeModule.z')
     public z = new CurveRange();
@@ -95,7 +92,6 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(5)
     @tooltip('i18n:velocityOvertimeModule.speedModifier')
     public speedModifier = new CurveRange();
