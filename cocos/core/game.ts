@@ -512,8 +512,8 @@ export class Game extends EventTarget {
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if ((this._engineInited && type === Game.EVENT_ENGINE_INITED)
-        || (this._inited && type === Game.EVENT_GAME_INITED)
-        || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
+            || (this._inited && type === Game.EVENT_GAME_INITED)
+            || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
             callback.call(target);
         }
         return this.eventTargetOn(type, callback, target, once);
@@ -577,7 +577,7 @@ export class Game extends EventTarget {
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @param onStart - function to be executed after game initialized
      */
-    public run(onStart?: Game.OnStart): Promise<void>;
+    public run (onStart?: Game.OnStart): Promise<void>;
 
     public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
         // To compatible with older version,
@@ -680,10 +680,10 @@ export class Game extends EventTarget {
             window.cAF = window.cancelAnimationFrame;
         } else {
             const rAF = window.requestAnimationFrame = window.requestAnimationFrame
-                     || window.webkitRequestAnimationFrame
-                     || window.mozRequestAnimationFrame
-                     || window.oRequestAnimationFrame
-                     || window.msRequestAnimationFrame;
+                || window.webkitRequestAnimationFrame
+                || window.mozRequestAnimationFrame
+                || window.oRequestAnimationFrame
+                || window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
                 window.rAF = this._stTime.bind(this);
                 window.cAF = this._ctTime;
@@ -856,6 +856,9 @@ export class Game extends EventTarget {
                 if (legacyCC.EmptyDevice) {
                     ctors.push(legacyCC.EmptyDevice);
                 }
+                // if (pretend to be a condition) {
+                // ctors.push(legacyCC.WebGPUDevice);
+                // }
 
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();
