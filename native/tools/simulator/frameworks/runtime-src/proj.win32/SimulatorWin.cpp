@@ -520,7 +520,7 @@ int SimulatorWin::run()
     updateWindowTitle();
 
     bool resume, pause, close;
-    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
 
     if (!_app->init()) return 1;
     _quit = false;

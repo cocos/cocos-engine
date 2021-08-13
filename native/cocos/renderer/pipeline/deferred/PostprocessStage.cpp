@@ -31,6 +31,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "pipeline/Define.h"
 #include "scene/SubModel.h"
 
 namespace cc {
@@ -103,7 +104,7 @@ void PostprocessStage::render(scene::Camera *camera) {
 
     cmdBf->beginRenderPass(rp, fb, renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
     uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBf->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pp->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+    cmdBf->bindDescriptorSet(globalSet, pp->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
 
     // post proces
     auto *const  sceneData     = _pipeline->getPipelineSceneData();
@@ -118,6 +119,7 @@ void PostprocessStage::render(scene::Camera *camera) {
 
         cmdBf->bindPipelineState(pso);
         cmdBf->bindInputAssembler(ia);
+        cmdBf->bindDescriptorSet(materialSet, pv->getDescriptorSet());
         cmdBf->draw(ia);
     }
 

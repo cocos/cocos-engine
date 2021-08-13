@@ -70,7 +70,7 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
             colorAttachment.loadOp = gfx::LoadOp::DISCARD;
         } else {
             colorAttachment.loadOp        = gfx::LoadOp::LOAD;
-            colorAttachment.beginAccesses = {gfx::AccessType::PRESENT};
+            colorAttachment.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
         }
     }
 
@@ -122,6 +122,8 @@ bool ForwardPipeline::activate() {
 }
 
 void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
+    static gfx::TextureBarrier *present{_device->createTextureBarrier({{gfx::AccessType::COLOR_ATTACHMENT_WRITE}, {gfx::AccessType::PRESENT}})};
+    static gfx::Texture *       backBuffer{nullptr};
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
     _pipelineUBO->updateMultiCameraUBO(cameras);
@@ -132,6 +134,7 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
         }
         _pipelineUBO->incCameraUBOOffset();
     }
+    _commandBuffers[0]->pipelineBarrier(nullptr, &present, &backBuffer, 1);
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);

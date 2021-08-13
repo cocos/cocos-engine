@@ -250,6 +250,7 @@ enum class CC_DLL SetIndex {
     MATERIAL,
     LOCAL,
 };
+CC_ENUM_CONVERSION_OPERATOR(SetIndex)
 
 extern CC_DLL uint globalSet;
 extern CC_DLL uint materialSet;

@@ -4130,7 +4130,7 @@ static bool js_scene_SubModel_getPass(se::State& s) // NOLINT(readability-identi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<int, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_SubModel_getPass : Error processing arguments");
         cc::scene::Pass* result = cobj->getPass(arg0.value());
@@ -4228,7 +4228,7 @@ static bool js_scene_SubModel_getShader(se::State& s) // NOLINT(readability-iden
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<int, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_SubModel_getShader : Error processing arguments");
         cc::gfx::Shader* result = cobj->getShader(arg0.value());

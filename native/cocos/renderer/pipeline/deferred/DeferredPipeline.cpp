@@ -71,15 +71,15 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
             colorAttachment.loadOp = gfx::LoadOp::DISCARD;
         } else {
             colorAttachment.loadOp        = gfx::LoadOp::LOAD;
-            colorAttachment.beginAccesses = {gfx::AccessType::PRESENT};
+            colorAttachment.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
         }
     }
 
     if (static_cast<gfx::ClearFlagBit>(clearFlags & gfx::ClearFlagBit::DEPTH_STENCIL) != gfx::ClearFlagBit::DEPTH_STENCIL) {
         if (!hasFlag(clearFlags, gfx::ClearFlagBit::DEPTH)) depthStencilAttachment.depthLoadOp = gfx::LoadOp::LOAD;
         if (!hasFlag(clearFlags, gfx::ClearFlagBit::STENCIL)) depthStencilAttachment.stencilLoadOp = gfx::LoadOp::LOAD;
-        depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
     }
+    depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
     auto *renderPass          = device->createRenderPass({
         {colorAttachment},
@@ -127,6 +127,8 @@ bool DeferredPipeline::activate() {
 }
 
 void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
+    static gfx::TextureBarrier *present{_device->createTextureBarrier({{gfx::AccessType::COLOR_ATTACHMENT_WRITE}, {gfx::AccessType::PRESENT}})};
+    static gfx::Texture *       backBuffer{nullptr};
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
     _pipelineUBO->updateMultiCameraUBO(cameras);
@@ -137,6 +139,7 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
         }
         _pipelineUBO->incCameraUBOOffset();
     }
+    _commandBuffers[0]->pipelineBarrier(nullptr, &present, &backBuffer, 1);
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);
@@ -154,10 +157,12 @@ void DeferredPipeline::updateQuadVertexData(const gfx::Rect &renderArea) {
 }
 
 void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform /*surfaceTransform*/, const gfx::Rect &renderArea, float *vbData) {
-    float minX = float(renderArea.x) / _width;
-    float maxX = float(renderArea.x + renderArea.width) / _width;
-    float minY = float(renderArea.y) / _height;
-    float maxY = float(renderArea.y + renderArea.height) / _height;
+    auto width = float(_width);
+    auto height = float(_height);
+    auto minX = float(renderArea.x) / width;
+    auto maxX = float(renderArea.x + renderArea.width) / width;
+    auto minY = float(renderArea.y) / height;
+    auto maxY = float(renderArea.y + renderArea.height) / height;
     if (_device->getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }
@@ -290,8 +295,8 @@ bool DeferredPipeline::activeRenderer() {
         gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
-        {},
-        {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
+        {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
+        {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
     };
 
     for (int i = 0; i < 4; i++) {
@@ -305,6 +310,8 @@ bool DeferredPipeline::activeRenderer() {
         gfx::StoreOp::STORE,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
+        {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE},
+        {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE}
     };
 
     gbufferPass.depthStencilAttachment = depth;

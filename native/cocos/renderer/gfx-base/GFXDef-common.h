@@ -1078,7 +1078,7 @@ struct ColorAttachment {
     LoadOp                  loadOp      = LoadOp::CLEAR;
     StoreOp                 storeOp     = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
-    std::vector<AccessType> endAccesses{AccessType::PRESENT};
+    std::vector<AccessType> endAccesses{AccessType::COLOR_ATTACHMENT_WRITE};
     bool                    isGeneralLayout = false;
 };
 

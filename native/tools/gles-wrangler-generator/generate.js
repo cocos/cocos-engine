@@ -7,9 +7,9 @@ const eglRegistry = { local: `${specDir}/egl.xml`, remote: 'https://www.khronos.
 const glRegistry = { local: `${specDir}/gl.xml`, remote: 'https://www.khronos.org/registry/OpenGL/xml/gl.xml' };
 
 const downloadSpec = async (specInfo) => {
-    if (fs.existsSync(specInfo.local)) return;
+    if (fs.existsSync(specInfo.local)) { return; }
     fs.writeFileSync(specInfo.local, (await axios.get(specInfo.remote)).data);
-}
+};
 
 const options = {
     clear: false,
@@ -23,7 +23,7 @@ for (let i = 2; i < argc; i++) {
 }
 
 (async () => {
-    if (!fs.existsSync(specDir)) fs.mkdirSync(specDir);
+    if (!fs.existsSync(specDir)) { fs.mkdirSync(specDir); }
     await downloadSpec(eglRegistry);
     await downloadSpec(glRegistry);
 
@@ -68,9 +68,9 @@ for (let i = 2; i < argc; i++) {
             append(`/* ${featureName} */\n`);
             const feature = spec.feature.find((f) => f.name === featureName);
             for (const manifest of feature.require) {
-                if (!manifest.command) continue;
+                if (!manifest.command) { continue; }
                 for (const command of manifest.command) {
-                    if (nameRecord.has(command.name)) continue;
+                    if (nameRecord.has(command.name)) { continue; }
                     writeCommand(command.name);
                 }
                 append(`\n`);
@@ -80,12 +80,12 @@ for (let i = 2; i < argc; i++) {
         if (!noExtension) {
             const featureAPI = spec.feature.find((f) => f.name === featureNames[0]).api;
             for (const extension of spec.extensions[0].extension) {
-                if (!extension.supported.includes(featureAPI) || !extension.require) continue;
+                if (!extension.supported.includes(featureAPI) || !extension.require) { continue; }
                 let needDeclare = false;
                 for (const require of extension.require) {
                     if (require.api && !require.api.includes(featureAPI) ||
                     !require.command || !require.command.length ||
-                    require.command.every((cmd) => nameRecord.has(cmd.name))) continue;
+                    require.command.every((cmd) => nameRecord.has(cmd.name))) { continue; }
                     if (!needDeclare) {
                         append(`#if defined(${extension.name})\n`);
                         needDeclare = true;
@@ -93,7 +93,7 @@ for (let i = 2; i < argc; i++) {
                         append(`\n`);
                     }
                     for (const command of require.command) {
-                        if (nameRecord.has(command.name)) continue;
+                        if (nameRecord.has(command.name)) { continue; }
                         writeCommand(command.name);
                     }
                 }
@@ -103,9 +103,10 @@ for (let i = 2; i < argc; i++) {
             }
         }
         return { headerDecl, sourceDef, sourceLoad };
-    }
+    };
 
-    const eglSrc = generate(eglSpec, ['EGL_VERSION_1_0', 'EGL_VERSION_1_1', 'EGL_VERSION_1_2', 'EGL_VERSION_1_3', 'EGL_VERSION_1_4', 'EGL_VERSION_1_5'], 'eglw', ['eglGetProcAddress']);
+    const eglSrc = generate(eglSpec, ['EGL_VERSION_1_0', 'EGL_VERSION_1_1', 'EGL_VERSION_1_2',
+                                      'EGL_VERSION_1_3', 'EGL_VERSION_1_4', 'EGL_VERSION_1_5'], 'eglw', ['eglGetProcAddress']);
     const es2Src = generate(glSpec, ['GL_ES_VERSION_2_0'], 'gles2w');
     const es3Src = generate(glSpec, ['GL_ES_VERSION_3_0', 'GL_ES_VERSION_3_1', 'GL_ES_VERSION_3_2'], 'gles3w', [], true);
 
@@ -113,11 +114,11 @@ for (let i = 2; i < argc; i++) {
         const flag = `/\\* ${moduleName.toUpperCase()}_GENERATE_${keyword} \\*/\n`;
         const flagRE = new RegExp(flag, 'g');
         const indices = [];
-        while (flagRE.exec(source)) indices.push(flagRE.lastIndex);
-        if (indices.length !== 2) return source;
+        while (flagRE.exec(source)) { indices.push(flagRE.lastIndex); }
+        if (indices.length !== 2) { return source; }
         indices[1] -= flag.length - 2; // two escape characters
-        if (options.clear) content = '';
-        if (indentEnd) content += '    ';
+        if (options.clear) { content = ''; }
+        if (indentEnd) { content += '    '; }
         return source.slice(0, indices[0]) + content + source.slice(indices[1]);
     };
 
