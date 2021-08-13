@@ -31,7 +31,7 @@
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
-import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
+import { BlendState, DepthStencilState, RasterizerState, DescriptorType, MemoryAccessBit,
     DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, IUniform, IAttribute } from '../gfx';
 
 import { RenderPassStage } from '../pipeline/define';
@@ -77,6 +77,13 @@ export interface IBlockInfo {
     stageFlags: ShaderStageFlags;
     descriptorType?: DescriptorType;
 }
+export interface IBufferInfo {
+    binding: number;
+    name: string;
+    stageFlags: ShaderStageFlags;
+    access: MemoryAccessBit;
+    descriptorType?: DescriptorType;
+}
 export interface ISamplerTextureInfo {
     binding: number;
     name: string;
@@ -101,6 +108,7 @@ export interface IBuiltin {
 }
 export interface IBuiltinInfo {
     blocks: IBuiltin[];
+    buffers: IBuiltin[];
     samplerTextures: IBuiltin[];
 }
 export interface IShaderInfo {
@@ -112,6 +120,7 @@ export interface IShaderInfo {
     builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
+    buffers: IBufferInfo[];
     samplerTextures: ISamplerTextureInfo[];
     attributes: IAttributeInfo[];
 }

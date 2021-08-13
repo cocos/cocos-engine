@@ -34,6 +34,9 @@ CCProgram lighting-fs %{
   #include <cc-global>
   #include <shading-standard-base>
   #include <shading-standard-additive>
+  #if CC_DEVICE_SUPPORT_COMPUTE_SHADER == 1 && CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED
+  #include <shading-cluster-additive>
+  #endif
   #include <output-standard>
   #include <cc-fog-base>
 
@@ -73,8 +76,11 @@ CCProgram lighting-fs %{
     CC_TRANSFER_SHADOW_BASE(vec4(s.position, 1), shadowPos);
 
     vec4 color = CCStandardShadingBase(s, shadowPos) +
+#if CC_DEVICE_SUPPORT_COMPUTE_SHADER == 1 && CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED
+                 CCClusterShadingAdditive(s, shadowPos);
+#else
                  CCStandardShadingAdditive(s, shadowPos);
-
+#endif
     CC_APPLY_FOG_BASE(color, fogFactor);
     fragColor = CCFragOutput(color);
   }
