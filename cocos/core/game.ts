@@ -851,7 +851,10 @@ export class Game extends EventTarget {
                     ctors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    ctors.push(legacyCC.WebGLDevice);
+                    // ctors.push(legacyCC.WebGLDevice);
+                }
+                if (legacyCC.WebGPUDevice) {
+                    ctors.push(legacyCC.WebGPUDevice);
                 }
                 if (legacyCC.EmptyDevice) {
                     ctors.push(legacyCC.EmptyDevice);

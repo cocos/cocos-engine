@@ -287,6 +287,7 @@
         "cc.VisibilityFlags",
         "cc.WebGL2Device",
         "cc.WebGLDevice",
+        "cc.WebGPUDevice",
         "cc.WidgetComponent",
         "cc._BaseNode",
         "cc._JavaScript",
