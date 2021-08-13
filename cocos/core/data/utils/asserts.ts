@@ -41,6 +41,7 @@ export function assertIsNonNullable<T> (expr: T, message?: string): asserts expr
  */
 export function assertIsTrue (expr: unknown, message?: string): asserts expr {
     if (DEBUG && !expr) {
+        debugger;
         throw new Error(`Assertion failed: ${message ?? '<no-message>'}`);
     }
 }
