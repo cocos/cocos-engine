@@ -5,14 +5,20 @@
             "label": "i18n:ENGINE.features.core.label",
             "description": "i18n:ENGINE.features.core.description",
             "required": true,
-            "default": ["base"],
+            "default": [
+                "base"
+            ],
             "wechatPlugin": true
         },
         "graphcis": {
             "label": "i18n:ENGINE.features.graphics.label",
             "multi": true,
             "description": "i18n:ENGINE.features.graphics.description",
-            "default": ["gfx-webgl", "gfx-webgl2"],
+            "default": [
+                "gfx-webgl",
+                "gfx-webgl2",
+                "gfx-webgpu"
+            ],
             "options": {
                 "gfx-webgl": {
                     "required": true,
@@ -24,18 +30,27 @@
                     "label": "i18n:ENGINE.features.gfx_webgl2.label",
                     "description": "i18n:ENGINE.features.gfx_webgl2.description",
                     "wechatPlugin": true
+                },
+                "gfx-webgpu": {
+                    "label": "i18n:ENGINE.features.gfx_webgpu.label",
+                    "description": "i18n:ENGINE.features.gfx_webgpu.description",
+                    "wechatPlugin": true
                 }
             }
         },
         "3d": {
-            "default": ["3d"],
+            "default": [
+                "3d"
+            ],
             "label": "i18n:ENGINE.features.base_3d.label",
             "description": "i18n:ENGINE.features.base_3d.description",
             "wechatPlugin": true,
             "category": "3d"
         },
         "2d": {
-            "default": ["2d"],
+            "default": [
+                "2d"
+            ],
             "label": "i18n:ENGINE.features.base_2d.label",
             "description": "i18n:ENGINE.features.base_2d.description",
             "category": "2d",
@@ -49,14 +64,18 @@
             }
         },
         "ui": {
-            "default": ["ui"],
+            "default": [
+                "ui"
+            ],
             "label": "i18n:ENGINE.features.ui.label",
             "description": "i18n:ENGINE.features.ui.description",
             "category": "2d",
             "wechatPlugin": true
         },
         "particle": {
-            "default": ["particle"],
+            "default": [
+                "particle"
+            ],
             "label": "i18n:ENGINE.features.particle.label",
             "description": "i18n:ENGINE.features.particle.description",
             "category": "3d",
@@ -65,7 +84,9 @@
         "physics": {
             "label": "i18n:ENGINE.features.physics.label",
             "description": "i18n:ENGINE.features.physics.description",
-            "default": ["physics-ammo"],
+            "default": [
+                "physics-ammo"
+            ],
             "category": "3d",
             "options": {
                 "physics-ammo": {
@@ -90,7 +111,9 @@
         "physics-2d": {
             "label": "i18n:ENGINE.features.physics_2d.label",
             "description": "i18n:ENGINE.features.physics_2d.description",
-            "default": ["physics-2d-box2d"],
+            "default": [
+                "physics-2d-box2d"
+            ],
             "category": "2d",
             "options": {
                 "physics-2d-box2d": {
@@ -104,87 +127,111 @@
             }
         },
         "intersection-2d": {
-            "default": ["intersection-2d"],
+            "default": [
+                "intersection-2d"
+            ],
             "label": "i18n:ENGINE.features.intersection_2d.label",
             "description": "i18n:ENGINE.features.intersection_2d.description",
             "wechatPlugin": true,
             "category": "2d"
         },
         "primitive": {
-            "default": ["primitive"],
+            "default": [
+                "primitive"
+            ],
             "label": "i18n:ENGINE.features.primitives.label",
             "description": "i18n:ENGINE.features.primitives.description",
             "wechatPlugin": true,
             "category": "3d"
         },
         "profiler": {
-            "default": ["profiler"],
+            "default": [
+                "profiler"
+            ],
             "label": "i18n:ENGINE.features.profiler.label",
             "description": "i18n:ENGINE.features.profiler.description",
             "wechatPlugin": true
         },
         "particle-2d": {
-            "default": ["particle-2d"],
+            "default": [
+                "particle-2d"
+            ],
             "label": "i18n:ENGINE.features.particle_2d.label",
             "description": "i18n:ENGINE.features.particle_2d.description",
             "wechatPlugin": true,
             "category": "2d"
         },
         "audio": {
-            "default": ["audio"],
+            "default": [
+                "audio"
+            ],
             "label": "i18n:ENGINE.features.audio.label",
             "description": "i18n:ENGINE.features.audio.description",
             "native": "USE_AUDIO",
             "wechatPlugin": true
         },
         "video": {
-            "default": ["video"],
+            "default": [
+                "video"
+            ],
             "label": "i18n:ENGINE.features.video.label",
             "description": "i18n:ENGINE.features.video.description",
             "native": "USE_VIDEO",
             "wechatPlugin": true
         },
         "webview": {
-            "default": ["webview"],
+            "default": [
+                "webview"
+            ],
             "label": "i18n:ENGINE.features.webview.label",
             "description": "i18n:ENGINE.features.webview.description",
             "native": "USE_WEBVIEW",
             "wechatPlugin": true
         },
         "tween": {
-            "default": ["tween"],
+            "default": [
+                "tween"
+            ],
             "label": "i18n:ENGINE.features.tween.label",
             "description": "i18n:ENGINE.features.tween.description",
             "wechatPlugin": true
         },
         "terrain": {
-            "default": ["terrain"],
+            "default": [
+                "terrain"
+            ],
             "label": "i18n:ENGINE.features.terrain.label",
             "description": "i18n:ENGINE.features.terrain.description",
             "wechatPlugin": true,
             "category": "3d"
         },
         "tiled-map": {
-            "default": ["tiled-map"],
+            "default": [
+                "tiled-map"
+            ],
             "label": "i18n:ENGINE.features.tiled_map.label",
             "description": "i18n:ENGINE.features.tiled_map.description",
             "wechatPlugin": true,
             "category": "2d"
         },
         "spine": {
-            "default": ["spine"],
+            "default": [
+                "spine"
+            ],
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
             "native": "USE_SPINE",
-	        "wechatPlugin": true,
+            "wechatPlugin": true,
             "category": "2d"
         },
         "dragon-bones": {
-            "default": ["dragon-bones"],
+            "default": [
+                "dragon-bones"
+            ],
             "label": "i18n:ENGINE.features.dragon_bones.label",
             "description": "i18n:ENGINE.features.dragon_bones.description",
             "native": "USE_DRAGONBONES",
-	        "wechatPlugin": true,
+            "wechatPlugin": true,
             "category": "2d"
         }
     },

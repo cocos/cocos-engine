@@ -127,9 +127,9 @@ module.exports = {
         atlas: 'Atlas that the image belongs to',
         type:
             'Rendering mode:\n - Simple: Modifying the size will stretch the image as a whole, which is suitable for sequence frame animation and normal images. \n' +
-        '- Sliced: When changing the size, the four corners will not stretch, which is suitable for UI buttons and panel backgrounds. \n' +
-        '- Tiled : When changing the size, the original size image will continue to be tiled. \n' +
-        '- Filled : set a certain starting position and direction of filling, and the picture can be cropped and displayed at a certain ratio.',
+            '- Sliced: When changing the size, the four corners will not stretch, which is suitable for UI buttons and panel backgrounds. \n' +
+            '- Tiled : When changing the size, the original size image will continue to be tiled. \n' +
+            '- Filled : set a certain starting position and direction of filling, and the picture can be cropped and displayed at a certain ratio.',
         original_size: "Use the Image's original size as the Node size?",
         edit_button: 'Edit',
         select_button: 'Select In Atlas',
@@ -484,7 +484,7 @@ module.exports = {
         horizontal_align: 'Horizontal alignment',
         font_size: 'Font size, in points',
         font: 'Custom TTF font of RichText',
-        font_family:'Custom System font of RichText',
+        font_family: 'Custom System font of RichText',
         use_system_font: 'Using system font',
         cache_mode: 'The cache mode of label. This mode only supports system fonts.',
         max_width: 'The maximize width of RichText, pass 0 means not limit the maximize width.',
@@ -722,6 +722,10 @@ module.exports = {
             label: "WebGL 2.0",
             description: "Include support for WebGL 2.0 graphics API.\n If WebGL 2.0 is not available on target platform, the one will fallback as WebGL 1.0.",
         },
+        gfx_webgpu: {
+            label: "WebGPU",
+            description: "neither WebGL nor WebGL 2.0",
+        },
         ui: {
             label: "User Interface",
             description: "User interface support.",
@@ -829,9 +833,9 @@ module.exports = {
         color: 'Main color for rendering, it normally multiplies with texture color.',
     },
     ui_transform: {
-        content_size:'Size of the UI node.',
-        anchor_point:'Anchor point of the UI node.',
-        priority:'Priority of rendering ordering.',
+        content_size: 'Size of the UI node.',
+        anchor_point: 'Anchor point of the UI node.',
+        priority: 'Priority of rendering ordering.',
     },
     graphics: {
         lineJoin: 'Determines how two connecting segments (of lines, arcs or curves) with non-zero lengths in a shape are joined together.',
@@ -879,7 +883,7 @@ module.exports = {
             simplex_vertex2: 'Vertex 2 of the shape',
             simplex_vertex3: 'Vertex 3 of the shape',
         },
-        constant_force:{
+        constant_force: {
             force: 'The force apply on a rigid body in the world coordinate system',
             localForce: 'The force apply on a rigid body in the local coordinate system',
             torque: 'The torque applied to the rigid body in the world coordinate system',
