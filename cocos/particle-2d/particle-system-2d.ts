@@ -42,7 +42,7 @@ import { BlendFactor } from '../core/gfx';
 import { path } from '../core/utils';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
-import codec from '../../external/compression/ZipUtils';
+import codec from '../../external/compression/ZipUtils.js';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';

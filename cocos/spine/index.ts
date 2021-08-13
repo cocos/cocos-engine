@@ -4,7 +4,7 @@
  */
 
 import { ccenum } from '../core';
-import spine from './lib/spine-core';
+import spine from './lib/spine-core.js';
 
 /**
  * @en

@@ -30,7 +30,7 @@
 /* eslint-disable no-console */
 
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
-import debugInfos from '../../../DebugInfos';
+import debugInfos from '../../../DebugInfos.json';
 import { legacyCC } from '../global-exports';
 
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
