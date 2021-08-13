@@ -231,9 +231,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量乘法 (分量积)
      */
     public static multiply<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3) {
-        out.x = a.x * b.x;
-        out.y = a.y * b.y;
-        out.z = a.z * b.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        let x = ax * bx;
+        let y = ay * by;
+        let z = az * bz;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -242,9 +274,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量除法
      */
     public static divide<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3) {
-        out.x = a.x / b.x;
-        out.y = a.y / b.y;
-        out.z = a.z / b.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        let x = ax / bx;
+        let y = ay / by;
+        let z = az / bz;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -253,9 +317,30 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量向上取整
      */
     public static ceil<Out extends IVec3Like> (out: Out, a: IVec3) {
-        out.x = Math.ceil(a.x);
-        out.y = Math.ceil(a.y);
-        out.z = Math.ceil(a.z);
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let x = Math.ceil(ax);
+        let y = Math.ceil(ay);
+        let z = Math.ceil(az);
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -264,9 +349,30 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量向下取整
      */
     public static floor<Out extends IVec3Like> (out: Out, a: IVec3) {
-        out.x = Math.floor(a.x);
-        out.y = Math.floor(a.y);
-        out.z = Math.floor(a.z);
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let x = Math.floor(ax);
+        let y = Math.floor(ay);
+        let z = Math.floor(az);
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -275,9 +381,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量最小值
      */
     public static min<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3) {
-        out.x = Math.min(a.x, b.x);
-        out.y = Math.min(a.y, b.y);
-        out.z = Math.min(a.z, b.z);
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        let x = Math.min(ax, bx);
+        let y = Math.min(ay, by);
+        let z = Math.min(az, bz);
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -286,9 +424,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量最大值
      */
     public static max<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3) {
-        out.x = Math.max(a.x, b.x);
-        out.y = Math.max(a.y, b.y);
-        out.z = Math.max(a.z, b.z);
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        let x = Math.max(ax, bx);
+        let y = Math.max(ay, by);
+        let z = Math.max(az, bz);
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -297,9 +467,30 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量四舍五入取整
      */
     public static round<Out extends IVec3Like> (out: Out, a: IVec3) {
-        out.x = Math.round(a.x);
-        out.y = Math.round(a.y);
-        out.z = Math.round(a.z);
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let x = Math.round(ax);
+        let y = Math.round(ay);
+        let z = Math.round(az);
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -308,9 +499,30 @@ export class Vec3 extends MathBase {
      * @zh 向量标量乘法
      */
     public static multiplyScalar<Out extends IVec3Like> (out: Out, a: IVec3, b: number) {
-        out.x = a.x * b;
-        out.y = a.y * b;
-        out.z = a.z * b;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let x = ax * b;
+        let y = ay * b;
+        let z = az * b;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -319,9 +531,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量乘加: A + B * scale
      */
     public static scaleAndAdd<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3, scale: number) {
-        out.x = a.x + b.x * scale;
-        out.y = a.y + b.y * scale;
-        out.z = a.z + b.z * scale;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        let x = ax + bx * scale;
+        let y = ay + by * scale;
+        let z = az + bz * scale;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -330,9 +574,31 @@ export class Vec3 extends MathBase {
      * @zh 求两向量的欧氏距离
      */
     public static distance (a: IVec3, b: IVec3) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        const z = b.z - a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        const x = bx - ax;
+        const y = by - ay;
+        const z = bz - az;
         return Math.sqrt(x * x + y * y + z * z);
     }
 
@@ -341,9 +607,31 @@ export class Vec3 extends MathBase {
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance (a: IVec3, b: IVec3) {
-        const x = b.x - a.x;
-        const y = b.y - a.y;
-        const z = b.z - a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        const x = bx - ax;
+        const y = by - ay;
+        const z = bz - az;
         return x * x + y * y + z * z;
     }
 
@@ -352,9 +640,20 @@ export class Vec3 extends MathBase {
      * @zh 求向量长度
      */
     public static len (a: IVec3) {
-        const x = a.x;
-        const y = a.y;
-        const z = a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        const x = ax;
+        const y = ay;
+        const z = az;
         return Math.sqrt(x * x + y * y + z * z);
     }
 
@@ -363,9 +662,20 @@ export class Vec3 extends MathBase {
      * @zh 求向量长度平方
      */
     public static lengthSqr (a: IVec3) {
-        const x = a.x;
-        const y = a.y;
-        const z = a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        const x = ax;
+        const y = ay;
+        const z = az;
         return x * x + y * y + z * z;
     }
 
@@ -374,9 +684,30 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量取负
      */
     public static negate<Out extends IVec3Like> (out: Out, a: IVec3) {
-        out.x = -a.x;
-        out.y = -a.y;
-        out.z = -a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        const x = -ax;
+        const y = -ay;
+        const z = -az;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -385,9 +716,30 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
     public static invert<Out extends IVec3Like> (out: Out, a: IVec3) {
-        out.x = 1.0 / a.x;
-        out.y = 1.0 / a.y;
-        out.z = 1.0 / a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        const x = 1.0 / ax;
+        const y = 1.0 / ay;
+        const z = 1.0 / az;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -426,16 +778,38 @@ export class Vec3 extends MathBase {
      * @zh 归一化向量
      */
     public static normalize<Out extends IVec3Like> (out: Out, a: IVec3) {
-        const x = a.x;
-        const y = a.y;
-        const z = a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+
+        let x = ax;
+        let y = ay;
+        let z = az;
 
         let len = x * x + y * y + z * z;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            out.x = x * len;
-            out.y = y * len;
-            out.z = z * len;
+            x = x * len;
+            y = y * len;
+            z = z * len;
+            if(out instanceof Vec3) {
+                const vArr = out._array;
+                vArr[0] = x;
+                vArr[1] = y;
+                vArr[2] = z;
+            } else {
+                out.x = x;
+                out.y = y;
+                out.z = z;
+            }
         }
         return out;
     }
@@ -445,7 +819,29 @@ export class Vec3 extends MathBase {
      * @zh 向量点积（数量积）
      */
     public static dot <Out extends IVec3Like> (a: IVec3, b: IVec3) {
-        return a.x * b.x + a.y * b.y + a.z * b.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        return ax * bx + ay * by + az * bz;
     }
 
     /**
@@ -455,9 +851,19 @@ export class Vec3 extends MathBase {
     public static cross<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3) {
         const { x: ax, y: ay, z: az } = a;
         const { x: bx, y: by, z: bz } = b;
-        out.x = ay * bz - az * by;
-        out.y = az * bx - ax * bz;
-        out.z = ax * by - ay * bx;
+        const x = ay * bz - az * by;
+        const y = az * bx - ax * bz;
+        const z = ax * by - ay * bx;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -466,9 +872,41 @@ export class Vec3 extends MathBase {
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp<Out extends IVec3Like> (out: Out, a: IVec3, b: IVec3, t: number) {
-        out.x = a.x + t * (b.x - a.x);
-        out.y = a.y + t * (b.y - a.y);
-        out.z = a.z + t * (b.z - a.z);
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        let bx, by, bz;
+        if(b instanceof Vec3) {
+            const vArr = b._array;
+            bx = vArr[0];
+            by = vArr[1];
+            bz = vArr[2];
+        } else {
+            bx = b.x;
+            by = b.y;
+            bz = b.z;
+        }
+        const x = ax + t * (bx - ax);
+        const y = ay + t * (by - ay);
+        const z = az + t * (bz - az);
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -483,10 +921,19 @@ export class Vec3 extends MathBase {
         const phi = random() * 2.0 * Math.PI;
         const cosTheta = random() * 2 - 1;
         const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
-
-        out.x = sinTheta * Math.cos(phi) * scale;
-        out.y = sinTheta * Math.sin(phi) * scale;
-        out.z = cosTheta * scale;
+        const x = sinTheta * Math.cos(phi) * scale;
+        const y = sinTheta * Math.sin(phi) * scale;
+        const z = cosTheta * scale;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = x;
+            vArr[1] = y;
+            vArr[2] = z;
+        } else {
+            out.x = x;
+            out.y = y;
+            out.z = z;
+        }
         return out;
     }
 
@@ -495,14 +942,35 @@ export class Vec3 extends MathBase {
      * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
      */
     public static transformMat4 <Out extends IVec3Like> (out: Out, a: IVec3, m: IMat4) {
-        const x = a.x;
-        const y = a.y;
-        const z = a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        const x = ax;
+        const y = ay;
+        const z = az;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z + m.m15;
         rhw = rhw ? Math.abs(1 / rhw) : 1;
-        out.x = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
-        out.y = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
-        out.z = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
+        const ox = (m.m00 * x + m.m04 * y + m.m08 * z + m.m12) * rhw;
+        const oy = (m.m01 * x + m.m05 * y + m.m09 * z + m.m13) * rhw;
+        const oz = (m.m02 * x + m.m06 * y + m.m10 * z + m.m14) * rhw;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = ox;
+            vArr[1] = oy;
+            vArr[2] = oz;
+        } else {
+            out.x = ox;
+            out.y = oy;
+            out.z = oz;
+        }
         return out;
     }
 
@@ -511,14 +979,36 @@ export class Vec3 extends MathBase {
      * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
      */
     public static transformMat4Normal<Out extends IVec3Like> (out: Out, a: IVec3, m: IMat4) {
-        const x = a.x;
-        const y = a.y;
-        const z = a.z;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        const x = ax;
+        const y = ay;
+        const z = az;
         let rhw = m.m03 * x + m.m07 * y + m.m11 * z;
         rhw = rhw ? Math.abs(1 / rhw) : 1;
-        out.x = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
-        out.y = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
-        out.z = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
+
+        const ox = (m.m00 * x + m.m04 * y + m.m08 * z) * rhw;
+        const oy = (m.m01 * x + m.m05 * y + m.m09 * z) * rhw;
+        const oz = (m.m02 * x + m.m06 * y + m.m10 * z) * rhw;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = ox;
+            vArr[1] = oy;
+            vArr[2] = oz;
+        } else {
+            out.x = ox;
+            out.y = oy;
+            out.z = oz;
+        }
         return out;
     }
 
@@ -527,12 +1017,33 @@ export class Vec3 extends MathBase {
      * @zh 向量与三维矩阵乘法
      */
     public static transformMat3<Out extends IVec3Like> (out: Out, a: IVec3, m: IMat3) {
-        const x = a.x;
-        const y = a.y;
-        const z = a.z;
-        out.x = x * m.m00 + y * m.m03 + z * m.m06;
-        out.y = x * m.m01 + y * m.m04 + z * m.m07;
-        out.z = x * m.m02 + y * m.m05 + z * m.m08;
+        let ax, ay, az;
+        if(a instanceof Vec3) {
+            const vArr = a._array;
+            ax = vArr[0];
+            ay = vArr[1];
+            az = vArr[2];
+        } else {
+            ax = a.x;
+            ay = a.y;
+            az = a.z;
+        }
+        const x = ax;
+        const y = ay;
+        const z = az;
+        const ox = x * m.m00 + y * m.m03 + z * m.m06;
+        const oy = x * m.m01 + y * m.m04 + z * m.m07;
+        const oz = x * m.m02 + y * m.m05 + z * m.m08;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = ox;
+            vArr[1] = oy;
+            vArr[2] = oz;
+        } else {
+            out.x = ox;
+            out.y = oy;
+            out.z = oz;
+        }
         return out;
     }
 
@@ -541,12 +1052,33 @@ export class Vec3 extends MathBase {
      * @zh 向量仿射变换
      */
     public static transformAffine<Out extends IVec3Like> (out: Out, v: IVec3, m: IMat4) {
-        const x = v.x;
-        const y = v.y;
-        const z = v.z;
-        out.x = m.m00 * x + m.m04 * y + m.m08 * z + m.m12;
-        out.y = m.m01 * x + m.m05 * y + m.m09 * z + m.m13;
-        out.x = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
+        let vx, vy, vz;
+        if(v instanceof Vec3) {
+            const vArr = v._array;
+            vx = vArr[0];
+            vy = vArr[1];
+            vz = vArr[2];
+        } else {
+            vx = v.x;
+            vy = v.y;
+            vz = v.z;
+        }
+        const x = vx;
+        const y = vy;
+        const z = vz;
+        const ox = m.m00 * x + m.m04 * y + m.m08 * z + m.m12;
+        const oy = m.m01 * x + m.m05 * y + m.m09 * z + m.m13;
+        const oz = m.m02 * x + m.m06 * y + m.m10 * z + m.m14;
+        if(out instanceof Vec3) {
+            const vArr = out._array;
+            vArr[0] = ox;
+            vArr[1] = oy;
+            vArr[2] = oz;
+        } else {
+            out.x = ox;
+            out.y = oy;
+            out.z = oz;
+        }
         return out;
     }
 
