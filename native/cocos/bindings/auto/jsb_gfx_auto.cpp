@@ -15839,6 +15839,21 @@ static bool js_gfx_GFXObject_getTypedID(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_gfx_GFXObject_getTypedID)
 
+static bool js_gfx_GFXObject_resizeObjectID(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GFXObject>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXObject_resizeObjectID : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->resizeObjectID();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXObject_resizeObjectID)
+
 SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_GFXObject_finalize)
 
 static bool js_gfx_GFXObject_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
@@ -15877,6 +15892,7 @@ bool js_register_gfx_GFXObject(se::Object* obj) // NOLINT(readability-identifier
     cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID), nullptr);
     cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID), nullptr);
     cls->defineProperty("objectType", _SE(js_gfx_GFXObject_getObjectType), nullptr);
+    cls->defineFunction("resizeObjectID", _SE(js_gfx_GFXObject_resizeObjectID));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXObject_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GFXObject>(cls);

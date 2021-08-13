@@ -573,6 +573,7 @@ bool js_register_cc_gfx_GFXObject(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::GFXObject);
+SE_DECLARE_FUNC(js_gfx_GFXObject_resizeObjectID);
 SE_DECLARE_FUNC(js_gfx_GFXObject_GFXObject);
 
 extern se::Object* __jsb_cc_gfx_Buffer_proto;
