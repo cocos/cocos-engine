@@ -256,11 +256,11 @@ export class Game extends EventTarget {
     public static readonly RENDER_TYPE_OPENGL = 2;
 
     /**
-     * @en If delta time since last frame is more than this threshold in milliseconds,
+     * @en If delta time since last frame is more than this threshold in seconds,
      * the game timer will consider user is debugging and adjust the delta time to [[frameTime]].
-     * @zh 如果距离上一帧的帧间隔超过了这个阈值（单位是 ms），那么就会被认为正在调试，帧间隔会被自动调节为 [[frameTime]].
+     * @zh 如果距离上一帧的帧间隔超过了这个阈值（单位是 s），那么就会被认为正在调试，帧间隔会被自动调节为 [[frameTime]].
      */
-    public static DEBUG_DT_THRESHOLD = 1000;
+    public static DEBUG_DT_THRESHOLD = 1;
 
     /**
      * @en The outer frame of the game canvas; parent of game container.
@@ -348,16 +348,16 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en The start time of the current frame.
-     * @zh 获取当前帧开始的时间。
+     * @en The start time of the current frame in milliseconds.
+     * @zh 获取当前帧开始的时间（以 ms 为单位）。
      */
     public get frameStartTime () {
         return this._startTime;
     }
 
     /**
-     * @en The expected delta time of each frame
-     * @zh 期望帧率对应的每帧时间
+     * @en The expected delta time of each frame in milliseconds
+     * @zh 期望帧率对应的每帧时间（以 ms 为单位）
      */
     public frameTime = 1000 / 60;
 
@@ -410,7 +410,7 @@ export class Game extends EventTarget {
      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        legacyCC.director.tick(this.frameTime);
+        legacyCC.director.tick(this.frameTime / 1000);
     }
 
     /**
