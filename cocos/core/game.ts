@@ -256,7 +256,7 @@ export class Game extends EventTarget {
     public static readonly RENDER_TYPE_OPENGL = 2;
 
     /**
-     * @en If delta time since last frame is more than this threshold in milliseconds, 
+     * @en If delta time since last frame is more than this threshold in milliseconds,
      * the game timer will consider user is debugging and adjust the delta time to [[frameTime]].
      * @zh 如果距离上一帧的帧间隔超过了这个阈值（单位是 ms），那么就会被认为正在调试，帧间隔会被自动调节为 [[frameTime]].
      */
