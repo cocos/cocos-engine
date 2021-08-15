@@ -231,7 +231,7 @@ export class ScrollBar extends Component {
      *
      * @param outOfBoundary - 滚动位移。
      */
-    public onScroll (outOfBoundary: Readonly<Vec2>) {
+    public onScroll (outOfBoundary: Vec2 | Readonly<Vec2>) {
         if (!this._scrollView) {
             return;
         }
