@@ -147,9 +147,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
 
     /**
      * @en
-     * Gets or sets the fixed delta time consumed by each simulation step.
+     * Gets or sets the fixed delta time consumed by each simulation step in seconds.
      * @zh
-     * 获取或设置每步模拟消耗的固定时间。
+     * 获取或设置每步模拟消耗的固定时间（以 s 为单位）。
      */
     public get fixedTimeStep () {
         return this._fixedTimeStep;
