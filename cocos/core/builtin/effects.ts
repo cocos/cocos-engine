@@ -98,7 +98,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add",
-        "hash": 3001336778,
+        "hash": 3170483155,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 60, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 38 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
@@ -227,7 +227,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle|particle-vs-legacy:lpvs_main|tinted-fs:add",
-        "hash": 1675533382,
+        "hash": 1226214400,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 49, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 38 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
@@ -236,6 +236,7 @@ export const effects = [
         "defines": [
           { "name": "CC_RENDER_MODE", "type": "number", "range": [0, 4] },
           { "name": "CC_USE_WORLD_SPACE", "type": "boolean" },
+          { "name": "ROTATION_OVER_TIME_MODULE_ENABLE", "type": "boolean" },
           { "name": "CC_USE_HDR", "type": "boolean" }
         ],
         "blocks": [

@@ -142,6 +142,15 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         p.deltaMat = Mat4.fromQuat(p.deltaMat, p.deltaQuat);
         p.localMat = p.localMat.multiply(p.deltaMat); // accumulate rotation
 
+        if (renderMode !== RenderMode.Mesh) {
+            if (renderMode === RenderMode.StrecthedBillboard) {
+                p.startEuler.set(0, 0, 0);
+            } else if (renderMode !== RenderMode.Billboard) {
+                p.startEuler.set(0, 0, p.startEuler.z);
+            }
+        }
+        Quat.fromEuler(p.startRotation, p.startEuler.x * Particle.R2D, p.startEuler.y * Particle.R2D, p.startEuler.z * Particle.R2D);
+
         this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
         this._matRot = this._startMat.multiply(p.localMat);
 
