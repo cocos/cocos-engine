@@ -60,9 +60,10 @@ function compareCurves (left: QuatCurve, right: QuatCurve, numDigits = 2) {
         expect(leftKeyframeValue.value.z).toBeCloseTo(rightKeyframeValue.value.z, numDigits);
         expect(leftKeyframeValue.value.w).toBeCloseTo(rightKeyframeValue.value.w, numDigits);
         expect(leftKeyframeValue.interpolationMode).toStrictEqual(rightKeyframeValue.interpolationMode);
-        if (!Array.isArray(leftKeyframeValue)) {
+        if (!Array.isArray(leftKeyframeValue.easingMethod)) {
             expect(leftKeyframeValue.easingMethod).toStrictEqual(rightKeyframeValue.easingMethod);
         } else {
+            expect(rightKeyframeValue.easingMethod).toHaveLength(4);
             expect(leftKeyframeValue.easingMethod[0]).toBeCloseTo((rightKeyframeValue.easingMethod as number[])[0], numDigits);
             expect(leftKeyframeValue.easingMethod[1]).toBeCloseTo((rightKeyframeValue.easingMethod as number[])[1], numDigits);
             expect(leftKeyframeValue.easingMethod[2]).toBeCloseTo((rightKeyframeValue.easingMethod as number[])[2], numDigits);
