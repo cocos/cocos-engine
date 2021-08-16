@@ -146,7 +146,7 @@ export class DependUtil {
      */
     public parse (uuid: string, json: any): IDependencies {
         let out: IDependencies | null = null;
-        if (Array.isArray(json) || json.__type__) {
+        if (!(json instanceof Asset)) {
             if (this._depends.has(uuid)) {
                 return this._depends.get(uuid)!;
             }
