@@ -23,7 +23,7 @@ layout(set = 0, binding = 1) uniform CCCamera {
   mediump vec4 cc_mainLitDir; // xyz: main direcitonal light direction
   mediump vec4 cc_mainLitColor; // xyz: main direcitonal light color, w: intensity
   mediump vec4 cc_ambientSky; //xyz: sky illumination color, w: intensity
-  mediump vec4 cc_ambientGround; // xyz: ground albedo color, w: envmap LOD
+  mediump vec4 cc_ambientRange; // xyz: ground albedo color - sky illumination color, w: envmap LOD
   mediump vec4 cc_fogColor; // xyzw: global fog color
   mediump vec4 cc_fogBase; // xyz: fogStart, fogEnd, fogDensity
   mediump vec4 cc_fogAdd; // xyz: fogTop, fogRange, fogAtten

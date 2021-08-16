@@ -118,7 +118,10 @@ export class PipelineUBO {
             skyColor[3] = ambient.skyIllum * exposure;
         }
         cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
-        cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
+        cv[UBOCamera.AMBIENT_RANGE_OFFSET] = ambient.albedoArray[0] - skyColor[0];
+        cv[UBOCamera.AMBIENT_RANGE_OFFSET + 1] = ambient.albedoArray[1] - skyColor[1];
+        cv[UBOCamera.AMBIENT_RANGE_OFFSET + 2] = ambient.albedoArray[2] - skyColor[2];
+        cv[UBOCamera.AMBIENT_RANGE_OFFSET + 3] = ambient.albedoArray[3];
 
         Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
         Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);

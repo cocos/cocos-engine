@@ -205,8 +205,8 @@ export class UBOCamera {
     public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
     public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
     public static readonly AMBIENT_SKY_OFFSET = UBOCamera.MAIN_LIT_COLOR_OFFSET + 4;
-    public static readonly AMBIENT_GROUND_OFFSET = UBOCamera.AMBIENT_SKY_OFFSET + 4;
-    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
+    public static readonly AMBIENT_RANGE_OFFSET = UBOCamera.AMBIENT_SKY_OFFSET + 4;
+    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_RANGE_OFFSET + 4;
     public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
     public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
     public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
@@ -228,7 +228,7 @@ export class UBOCamera {
         new Uniform('cc_mainLitDir', Type.FLOAT4, 1),
         new Uniform('cc_mainLitColor', Type.FLOAT4, 1),
         new Uniform('cc_ambientSky', Type.FLOAT4, 1),
-        new Uniform('cc_ambientGround', Type.FLOAT4, 1),
+        new Uniform('cc_ambientRange', Type.FLOAT4, 1),
         new Uniform('cc_fogColor', Type.FLOAT4, 1),
         new Uniform('cc_fogBase', Type.FLOAT4, 1),
         new Uniform('cc_fogAdd', Type.FLOAT4, 1),
