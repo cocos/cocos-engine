@@ -514,13 +514,13 @@ int SimulatorWin::run()
     // prepare
     _project.dump();
 
-    g_oldWindowProc = (WNDPROC)SetWindowLong(_hwnd, GWL_WNDPROC, (LONG)SimulatorWin::windowProc);
+    g_oldWindowProc = (WNDPROC)SetWindowLong(_hwnd, GWLP_WNDPROC, (LONG)SimulatorWin::windowProc);
 
     // update window title
     updateWindowTitle();
 
     bool resume, pause, close;
-    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
 
     if (!_app->init()) return 1;
     _quit = false;

@@ -156,7 +156,6 @@ SkeletonRenderer::~SkeletonRenderer() {
     if (_ownsSkeleton) delete _skeleton;
     if (_ownsAtlas && _atlas) delete _atlas;
     delete _attachmentLoader;
-    if (!_uuid.empty()) SkeletonDataMgr::getInstance()->releaseByUUID(_uuid);
     delete _clipper;
 
     if (_debugBuffer) {

@@ -32,11 +32,13 @@
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
+#include "base/Utils.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXQueue.h"
+#include "pipeline/Define.h"
 #include "scene/RenderScene.h"
 #include "scene/Sphere.h"
 #include "scene/SphereLight.h"
@@ -253,8 +255,8 @@ void LightingStage::initLightingBuffer() {
     auto *const device = _pipeline->getDevice();
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
-    uint totalSize = sizeof(Vec4) * 4 * _maxDeferredLights;
-    totalSize      = static_cast<uint>(std::ceil(static_cast<float>(totalSize) / device->getCapabilities().uboOffsetAlignment) * device->getCapabilities().uboOffsetAlignment);
+    uint stride = utils::alignTo(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
+    uint totalSize = stride * _maxDeferredLights;
 
     // create lighting buffer and view
     if (_deferredLitsBufs == nullptr) {
@@ -262,7 +264,7 @@ void LightingStage::initLightingBuffer() {
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
             totalSize,
-            static_cast<uint>(device->getCapabilities().uboOffsetAlignment),
+            stride,
         };
         _deferredLitsBufs = device->createBuffer(bfInfo);
         assert(_deferredLitsBufs != nullptr);
@@ -334,11 +336,10 @@ void LightingStage::recordCommandsLit(DeferredPipeline *pipeline, gfx::RenderPas
 
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
     vector<uint> dynamicOffsets = {0};
-    cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), _descriptorSet, dynamicOffsets);
+    cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
 
     uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
-
+    cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
     // get pso and draw quad
     auto rendeArea = pipeline->getRenderArea(pipeline->getFrameGraphCamera(), false);
 
@@ -351,6 +352,7 @@ void LightingStage::recordCommandsLit(DeferredPipeline *pipeline, gfx::RenderPas
 
     cmdBuff->bindPipelineState(pState);
     cmdBuff->bindInputAssembler(inputAssembler);
+    cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
     cmdBuff->draw(inputAssembler);
 }
 

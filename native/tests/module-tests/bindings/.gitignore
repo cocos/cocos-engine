@@ -1,0 +1,10 @@
+oldmath/
+newmath/
+out*
+dist*
+index.ts
+tsconfig.json
+webpack.config.js
+package.json
+package-lock.json
+node_modules/*

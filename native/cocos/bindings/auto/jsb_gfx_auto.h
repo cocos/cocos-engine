@@ -584,6 +584,7 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Buffer);
 SE_DECLARE_FUNC(js_gfx_Buffer_destroy);
+SE_DECLARE_FUNC(js_gfx_Buffer_isBufferView);
 SE_DECLARE_FUNC(js_gfx_Buffer_resize);
 SE_DECLARE_FUNC(js_gfx_Buffer_computeHash);
 SE_DECLARE_FUNC(js_gfx_Buffer_Buffer);
@@ -847,4 +848,5 @@ bool register_all_gfx(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
+SE_DECLARE_FUNC(js_gfx_DeviceManager_addCustomEvent);
 

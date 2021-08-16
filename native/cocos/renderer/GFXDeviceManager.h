@@ -89,6 +89,16 @@ public:
     static void destroy() {
         CC_SAFE_DESTROY(Device::instance);
     }
+    static void addCustomEvent() {
+        Device *device = Device::instance;
+        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
+            device->releaseSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
+        });
+
+        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
+            device->acquireSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
+        });
+    }
 
 private:
     template <typename DeviceCtor, typename Enable = std::enable_if_t<std::is_base_of<Device, DeviceCtor>::value>>
@@ -108,14 +118,7 @@ private:
             return false;
         }
 
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
-            device->releaseSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
-        });
-
-        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
-            device->acquireSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
-        });
-
+        addCustomEvent();
         *pDevice = device;
 
         return true;

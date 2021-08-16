@@ -209,6 +209,7 @@ bool register_all_scene_ext_manual(se::Object *obj) { //NOLINT
     globalThis                         = se::ScriptEngine::getInstance()->getGlobalObject();
     msgQueue                           = se::Object::createArrayObject(1);
     msgQueueInfo                       = se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, nullptr, sizeof(uint32_t) * 2);
+    msgQueuePtrs.clear();
 
     {
         uint8_t *data{nullptr};

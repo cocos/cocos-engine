@@ -156,7 +156,7 @@ void glThreadEntry() {
             std::this_thread::yield();
         }
 
-        if (game) {
+        if (game && cc::cocosApp.animating) {
             // Handle java events send by UI thread. Input events are handled here too.
             cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper",
                                                 "flushTasksOnGameThread");

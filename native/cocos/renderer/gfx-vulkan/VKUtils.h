@@ -37,7 +37,7 @@
 
 #include "thsvs_simpler_vulkan_synchronization.h"
 
-#define DEFAULT_TIMEOUT 1000000000 // 1 second
+#define DEFAULT_TIMEOUT 10000000000 // 10 second
 
 #define BARRIER_DEDUCTION_LEVEL_NONE  0
 #define BARRIER_DEDUCTION_LEVEL_BASIC 1

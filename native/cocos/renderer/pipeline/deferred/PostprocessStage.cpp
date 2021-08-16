@@ -32,6 +32,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "pipeline/Define.h"
 #include "scene/SubModel.h"
 #include "frame-graph/PassNodeBuilder.h"
 #include "frame-graph/DevicePass.h"

@@ -31,11 +31,11 @@
 #include <algorithm>
 #include <vector>
 
-using namespace spine;
+using namespace spine; //NOLINT
 
 namespace spine {
 
-class SkeletonDataInfo : public cc::Ref {
+class SkeletonDataInfo {
 public:
     SkeletonDataInfo() = default;
 
@@ -64,7 +64,7 @@ public:
 
 } // namespace spine
 
-SkeletonDataMgr *SkeletonDataMgr::_instance = nullptr;
+SkeletonDataMgr *SkeletonDataMgr::instance = nullptr;
 
 bool SkeletonDataMgr::hasSkeletonData(const std::string &uuid) {
     auto it = _dataMap.find(uuid);
@@ -76,7 +76,7 @@ void SkeletonDataMgr::setSkeletonData(const std::string &uuid, SkeletonData *dat
     if (it != _dataMap.end()) {
         releaseByUUID(uuid);
     }
-    SkeletonDataInfo *info = new SkeletonDataInfo();
+    auto *info = new SkeletonDataInfo();
     info->data = data;
     info->atlas = atlas;
     info->attachmentLoader = attachmentLoader;
@@ -89,7 +89,6 @@ SkeletonData *SkeletonDataMgr::retainByUUID(const std::string &uuid) {
     if (dataIt == _dataMap.end()) {
         return nullptr;
     }
-    dataIt->second->retain();
     return dataIt->second->data;
 }
 
@@ -99,15 +98,11 @@ void SkeletonDataMgr::releaseByUUID(const std::string &uuid) {
         return;
     }
     SkeletonDataInfo *info = dataIt->second;
-    // If info reference count is 1, then info will be destroy.
-    if (info->getReferenceCount() == 1) {
-        _dataMap.erase(dataIt);
-        if (_destroyCallback) {
-            auto &texturesIndex = info->texturesIndex;
-            for (auto it = texturesIndex.begin(); it != texturesIndex.end(); it++) {
-                _destroyCallback(*it);
-            }
+    _dataMap.erase(dataIt);
+    if (_destroyCallback) {
+        for (auto &item : info->texturesIndex) {
+            _destroyCallback(item);
         }
     }
-    info->release();
+    delete info;
 }

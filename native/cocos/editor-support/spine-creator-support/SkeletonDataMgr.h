@@ -47,36 +47,38 @@ class SkeletonDataInfo;
 class SkeletonDataMgr {
 public:
     static SkeletonDataMgr *getInstance() {
-        if (_instance == nullptr) {
-            _instance = new SkeletonDataMgr();
+        if (instance == nullptr) {
+            instance = new SkeletonDataMgr();
         }
-        return _instance;
+        return instance;
     }
 
     static void destroyInstance() {
-        if (_instance) {
-            delete _instance;
-            _instance = nullptr;
+        if (instance) {
+            delete instance;
+            instance = nullptr;
         }
     }
 
-    SkeletonDataMgr() {}
+    SkeletonDataMgr() = default;
 
     virtual ~SkeletonDataMgr() {
-        _destroyCallback = NULL;
+        _destroyCallback = nullptr;
     }
     bool hasSkeletonData(const std::string &uuid);
     void setSkeletonData(const std::string &uuid, SkeletonData *data, Atlas *atlas, AttachmentLoader *attachmentLoader, const std::vector<int> &texturesIndex);
+    // equal to 'findByUUID'
     SkeletonData *retainByUUID(const std::string &uuid);
+    // equal to 'deleteByUUID'
     void releaseByUUID(const std::string &uuid);
 
-    typedef std::function<void(int)> destroyCallback;
+    using destroyCallback = std::function<void(int)>;
     void setDestroyCallback(destroyCallback callback) {
-        _destroyCallback = callback;
+        _destroyCallback = std::move(callback);
     }
 
 private:
-    static SkeletonDataMgr *_instance;
+    static SkeletonDataMgr* instance;
     destroyCallback _destroyCallback = nullptr;
     std::map<std::string, SkeletonDataInfo *> _dataMap;
 };
