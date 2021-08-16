@@ -232,15 +232,15 @@ export class Node extends BaseNode implements CustomSerializable {
         if (JSB) {
             // new node
             this._nodeHandle = NodePool.alloc();
-            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
-            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
-            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
+            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as any);
+            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as any);
+            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as any);
 
-            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
-            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
-            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
+            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as any);
+            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as any);
+            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as any);
 
-            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
+            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as any);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
             this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
