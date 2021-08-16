@@ -10,6 +10,30 @@ import { getEasingFn } from './easing-method';
 import { bezierByTime } from '../animation/bezier';
 
 /**
+ * The method used for interpolation between values of a keyframe and its next keyframe.
+ */
+export enum QuatInterpolationMode {
+    /**
+     * Perform spherical linear interpolation.
+     */
+    SLERP,
+
+    /**
+     * Always use the value from this keyframe.
+     */
+    CONSTANT,
+
+    // #region TODO: Spherical Quadrangle Interpolation
+    /**
+     * TODO: Spherical Quadrangle Interpolation
+     * - https://theory.org/software/qfa/writeup/node12.html
+     * - http://digitalrune.github.io/DigitalRune-Documentation/html/58f74cca-83a3-5e9e-6d5d-63b09a723f90.htm
+     */
+    // SQUAD,
+    // #endregion
+}
+
+/**
  * View to a quaternion frame value.
  * Note, the view may be invalidated due to keyframe change/add/remove.
  */
@@ -60,30 +84,6 @@ type QuatKeyframeValueParameters = Partial<QuatKeyframeValue>;
 
 function createQuatKeyframeValue (params: QuatKeyframeValueParameters) {
     return new QuatKeyframeValue(params);
-}
-
-/**
- * The method used for interpolation between values of a keyframe and its next keyframe.
- */
-export enum QuatInterpolationMode {
-    /**
-     * Perform spherical linear interpolation.
-     */
-    SLERP,
-
-    /**
-     * Always use the value from this keyframe.
-     */
-    CONSTANT,
-
-    // #region TODO: Spherical Quadrangle Interpolation
-    /**
-     * TODO: Spherical Quadrangle Interpolation
-     * - https://theory.org/software/qfa/writeup/node12.html
-     * - http://digitalrune.github.io/DigitalRune-Documentation/html/58f74cca-83a3-5e9e-6d5d-63b09a723f90.htm
-     */
-    // SQUAD,
-    // #endregion
 }
 
 /**
