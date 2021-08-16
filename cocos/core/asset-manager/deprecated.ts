@@ -34,6 +34,7 @@ import { legacyCC } from '../global-exports';
 import { getError, warn, warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
 import { path, removeProperty, replaceProperty } from '../utils';
+import Cache from './cache';
 import assetManager, { AssetManager } from './asset-manager';
 import { resources } from './bundle';
 import dependUtil from './depend-util';
@@ -108,9 +109,17 @@ export class CCLoader {
     public _autoReleaseSetting: Record<string, boolean> = Object.create(null);
     private _parseLoadResArgs = parseLoadResArgs;
 
-    public get _cache () {
-        // @ts-expect-error return private property
-        return assets._map;
+    public get _cache (): Record<string, Asset> {
+        if (assets instanceof Cache) {
+            // @ts-expect-error return private property
+            return assets._map;
+        } else {
+            const map = {};
+            assets.forEach((val, key) => {
+                map[key] = val;
+            });
+            return map;
+        }
     }
 
     /**
