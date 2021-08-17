@@ -332,6 +332,10 @@ cocos_source_files(
                  cocos/base/memory/NedPooling.h
                  cocos/base/memory/StdAlloc.h
                  cocos/base/memory/StlAlloc.h
+                 cocos/base/memory/MemoryHook.cpp
+                 cocos/base/memory/MemoryHook.h
+                 cocos/base/memory/CallStack.cpp
+                 cocos/base/memory/CallStack.h
 )
 
 ##### threading

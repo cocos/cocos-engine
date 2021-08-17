@@ -27,6 +27,7 @@
 
 #include "base/Utils.h"
 #include "base/base64.h"
+#include "base/memory/MemoryHook.h"
 #include "platform/FileUtils.h"
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
@@ -80,4 +81,19 @@ std::string getStacktrace(uint skip, uint maxDepth) {
 }
 
 } // namespace utils
+
+#if USE_MEMORY_LEAK_DETECTOR
+
+    // Make sure GMemoryHook to be initialized first.
+    #if (CC_COMPILER == CC_COMPILER_MSVC)
+        #pragma warning(push)
+        #pragma warning(disable : 4073)
+        #pragma init_seg(lib)
+MemoryHook GMemoryHook;
+        #pragma warning(pop)
+    #elif (CC_COMPILER == CC_COMPILER_GNUC || CC_COMPILER == CC_COMPILER_CLANG)
+MemoryHook GMemoryHook __attribute__((init_priority(101)));
+    #endif
+
+#endif
 } // namespace cc
