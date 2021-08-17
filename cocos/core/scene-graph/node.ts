@@ -587,10 +587,13 @@ export class Node extends BaseNode implements CustomSerializable {
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags |= TransformBit.TRS;
         this._uiProps.uiTransformDirty = true;
+
+        // don't need to sync ChildPrefab under prefabInstance
+        const dontNeedSync = prefabInstance ? true : dontSyncChildPrefab;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
-            this._children[i]._onBatchCreated(dontSyncChildPrefab);
+            this._children[i]._onBatchCreated(dontNeedSync);
         }
 
         // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated

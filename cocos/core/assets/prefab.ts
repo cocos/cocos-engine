@@ -39,6 +39,7 @@ import { Node } from '../scene-graph/node';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as utils from '../utils/prefab';
+import { Component } from '../components/component';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
@@ -195,6 +196,35 @@ export class Prefab extends Asset {
 
     public validate () {
         return !!this.data;
+    }
+
+    public onLoaded () {
+        const rootNode = this.data as Node;
+        this._checkToExpandPrefabInstanceNode(rootNode);
+
+        utils.applyTargetOverrides(rootNode);
+    }
+
+    private _checkToExpandPrefabInstanceNode (node: Node) {
+        // @ts-expect-error private member access
+        const prefabInstance = node._prefab?.instance;
+        if (prefabInstance) {
+            utils.createNodeWithPrefab(node);
+
+            const targetMap: Record<string, any | Node | Component> = {};
+            prefabInstance.targetMap = targetMap;
+            utils.generateTargetMap(node, targetMap, true);
+
+            utils.applyMountedChildren(node, prefabInstance.mountedChildren, targetMap);
+            utils.applyRemovedComponents(node, prefabInstance.removedComponents, targetMap);
+            utils.applyMountedComponents(node, prefabInstance.mountedComponents, targetMap);
+            utils.applyPropertyOverrides(node, prefabInstance.propertyOverrides, targetMap);
+        } else {
+            const len = node.children.length;
+            for (let i = 0; i < len; i++) {
+                this._checkToExpandPrefabInstanceNode(node.children[i]);
+            }
+        }
     }
 }
 
