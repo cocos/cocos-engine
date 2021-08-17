@@ -24,7 +24,7 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, color } from '../math';
@@ -34,10 +34,25 @@ import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { Asset } from '..';
+import { Root } from '../root';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
 const _qt = new Quat();
+
+export function GenerateDiffuseReflectionMap(file : string, foo : TextureCube) : TextureCube | null
+{
+    console.log("Generating Diffuse Convolution Map...Start");
+
+    const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+
+    // TODO: Invoke CMFT generating diffuse.....
+
+    console.log("Generating Diffuse Convolution Map...Done");
+
+    return foo;
+}
 
 /**
  * @en Environment lighting information in the Scene
@@ -109,16 +124,50 @@ legacyCC.AmbientInfo = AmbientInfo;
  */
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
+    @serializable
+    protected _applyDiffuseMap = false;
+    @serializable
     @type(TextureCube)
     protected _envmap: TextureCube | null = null;
     @serializable
-    protected _isRGBE = false;
+    @type(TextureCube)
+    @readOnly
+    protected _diffusemap: TextureCube | null = null;
     @serializable
     protected _enabled = false;
     @serializable
     protected _useIBL = false;
 
     protected _resource: Skybox | null = null;
+
+    /**
+     * @en Whether to use diffuse reflection convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
+     * @zh TODO
+     */
+     @editable
+     set applyDiffuseMap (val) {
+         this._applyDiffuseMap = val;
+
+         if(val === false)
+         {
+            this._diffusemap = null;
+         }
+         else
+         {
+             if(this._envmap)
+             {
+                this._diffusemap = GenerateDiffuseReflectionMap("lala", this._envmap);
+             }
+         }
+
+        if (this._resource) {
+            this._resource.useDiffusemap = val;
+        }
+
+     }
+     get applyDiffuseMap () {
+         return this._applyDiffuseMap;
+     }
 
     /**
      * @en Whether activate skybox in the scene
@@ -159,22 +208,26 @@ export class SkyboxInfo {
     set envmap (val) {
         this._envmap = val;
         if (this._resource) { this._resource.envmap = this._envmap; }
-    }
-    get envmap () {
-        return this._envmap;
+        
+        if(this._envmap)
+        {
+            if(this.applyDiffuseMap)
+            {
+                if (this._resource) {
+                    this._resource.useDiffusemap = true;
+                }
+                this._diffusemap = GenerateDiffuseReflectionMap("lala", this._envmap);
+            }
+        }
+        else
+        {
+            this._diffusemap = null;
+            this._applyDiffuseMap = false;
+        }
     }
 
-    /**
-     * @en Whether enable RGBE data support in skybox shader
-     * @zh 是否需要开启 shader 内的 RGBE 数据支持？
-     */
-    @editable
-    set isRGBE (val) {
-        this._isRGBE = val;
-        if (this._resource) { this._resource.isRGBE = this._isRGBE; }
-    }
-    get isRGBE () {
-        return this._isRGBE;
+    get envmap () {
+        return this._envmap;
     }
 
     public activate (resource: Skybox) {
