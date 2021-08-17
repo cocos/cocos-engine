@@ -37,10 +37,10 @@ export class WebGLInputAssembler extends InputAssembler {
 
     private _gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
 
-    public initialize (info: InputAssemblerInfo): boolean {
+    public initialize (info: InputAssemblerInfo) {
         if (info.vertexBuffers.length === 0) {
             console.error('InputAssemblerInfo.vertexBuffers is null.');
-            return false;
+            return;
         }
 
         this._attributes = info.attributes;
@@ -103,8 +103,6 @@ export class WebGLInputAssembler extends InputAssembler {
         };
 
         WebGLCmdFuncCreateInputAssember(WebGLDeviceManager.instance, this._gpuInputAssembler);
-
-        return true;
     }
 
     public destroy () {

@@ -69,7 +69,7 @@ export abstract class Framebuffer extends GFXObject {
         super(ObjectType.FRAMEBUFFER);
     }
 
-    public abstract initialize (info: FramebufferInfo): boolean;
+    public abstract initialize (info: FramebufferInfo): void;
 
     public abstract destroy (): void;
 }

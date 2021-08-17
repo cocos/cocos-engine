@@ -472,7 +472,8 @@ export class Pass {
         const texName = value ? `${value as string}-texture` : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
-        const samplerInfo = info && info.samplerInfo !== undefined ? info.samplerInfo : textureBase && textureBase.getSamplerInfo();
+        const samplerInfo = info && info.samplerHash !== undefined
+            ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
         const sampler = this._device.getSampler(samplerInfo);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
@@ -764,8 +765,6 @@ export class Pass {
         this._setPipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
         this._setHash(target._hash ^ hashFactor);
     }
-
-    /* eslint-disable max-len */
 
     // infos
     get root (): Root { return this._root; }

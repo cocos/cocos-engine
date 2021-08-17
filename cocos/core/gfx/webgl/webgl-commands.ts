@@ -626,7 +626,6 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
             }
         }
     } else if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
-        // console.error("WebGL 1.0 doesn't support uniform buffer.");
         gpuBuffer.glTarget = gl.NONE;
 
         if (gpuBuffer.buffer) {
@@ -695,7 +694,6 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         device.stateCache.glElementArrayBuffer = null;
     } else if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
-        // console.error("WebGL 1.0 doesn't support uniform buffer.");
         if (gpuBuffer.buffer) {
             gpuBuffer.vf32 = new Float32Array(gpuBuffer.buffer.buffer);
         }
@@ -1330,8 +1328,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
 
             if (!isSampler) {
                 const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
-                // Note: getUniformLocation return Object on wechat platform.
-                if (glLoc !== null && (typeof glLoc === 'number' || (glLoc as any).id !== -1)) {
+                // Note: wEcHAT just returns { id: -1 } for non-existing names /eyerolling
+                if (glLoc && (glLoc as any).id !== -1) {
                     let varName: string;
                     const nameOffset = uniformInfo.name.indexOf('[');
                     if (nameOffset !== -1) {
@@ -1391,8 +1389,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
         const sampler = gpuShader.samplerTextures[i];
         const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-        // Note: getUniformLocation return Object on wechat platform.
-        if (glLoc !== null && (typeof glLoc === 'number' || (glLoc as any).id !== -1)) {
+        // Note: wEcHAT just returns { id: -1 } for non-existing names /eyerolling
+        if (glLoc && (glLoc as any).id !== -1) {
             glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
             glActiveSamplerLocations.push(glLoc);
         }

@@ -38,10 +38,8 @@ import { ShadowFlow } from '../shadow/shadow-flow';
 import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
     SurfaceTransform, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect, Swapchain, SamplerInfo } from '../../gfx';
-import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
-    UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect, Swapchain, SamplerInfo, Sampler } from '../../gfx';
+import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -67,11 +65,12 @@ class InputAssemblerData {
 }
 
 export class DeferredRenderData {
-    gbufferFrameBuffer: Framebuffer | null = null;
+    gbufferFrameBuffer: Framebuffer = null!;
     gbufferRenderTargets: Texture[] = [];
-    lightingFrameBuffer: Framebuffer | null = null;
+    lightingFrameBuffer: Framebuffer = null!;
     lightingRenderTargets: Texture[] = [];
-    depthTex: Texture | null = null;
+    depthTex: Texture = null!;
+    sampler: Sampler = null!;
 }
 
 /**
@@ -153,7 +152,7 @@ export class DeferredPipeline extends RenderPipeline {
         }
 
         this._commandBuffers[0].begin();
-        this._pipelineUBO.updateGlobalUBO(cameras[0].window!.swapchain); // TODO: window size is also camera-specific
+        this._pipelineUBO.updateGlobalUBO(cameras[0].window!); // TODO: window size is also camera-specific
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
@@ -516,37 +515,15 @@ export class DeferredPipeline extends RenderPipeline {
 
         const data: DeferredRenderData = this._deferredRenderData = new DeferredRenderData();
 
-        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-            TextureType.TEX2D,
-            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
-            this._width,
-            this._height,
-        )));
-
-        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-            TextureType.TEX2D,
-            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
-            this._width,
-            this._height,
-        )));
-
-        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-            TextureType.TEX2D,
-            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
-            this._width,
-            this._height,
-        )));
-        data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
-            TextureType.TEX2D,
-            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
-            this._width,
-            this._height,
-        )));
-
+        for (let i = 0; i < 4; ++i) {
+            data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                i % 3 ? Format.RGBA16F : Format.RGBA8, // positions & normals need more precision
+                this._width,
+                this._height,
+            )));
+        }
         data.depthTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
@@ -575,17 +552,6 @@ export class DeferredPipeline extends RenderPipeline {
             data.depthTex,
         ));
 
-        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, data.gbufferFrameBuffer.colorTextures[0]!);
-        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_POSITIONMAP_BINDING, data.gbufferFrameBuffer.colorTextures[1]!);
-        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_NORMALMAP_BINDING, data.gbufferFrameBuffer.colorTextures[2]!);
-        this._descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, data.gbufferFrameBuffer.colorTextures[3]!);
-        this._descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, data.lightingFrameBuffer.colorTextures[0]!);
-
-        const sampler = device.getSampler(_samplerInfo);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, sampler);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, sampler);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, sampler);
-        this._descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, sampler);
-        this._descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
+        data.sampler = device.getSampler(_samplerInfo);
     }
 }

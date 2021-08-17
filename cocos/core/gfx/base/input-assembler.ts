@@ -172,6 +172,6 @@ export abstract class InputAssembler extends GFXObject {
         return murmurhash2_32_gc(res, 666);
     }
 
-    public abstract initialize (info: InputAssemblerInfo): boolean;
+    public abstract initialize (info: InputAssemblerInfo): void;
     public abstract destroy (): void;
 }

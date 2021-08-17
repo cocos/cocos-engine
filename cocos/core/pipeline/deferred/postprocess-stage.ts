@@ -38,9 +38,7 @@ import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { UIPhase } from '../forward/ui-phase';
 import { MainFlow } from './main-flow';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { getPhaseID } from '../pass-phase';
+import { RenderQueueDesc } from '../pipeline-serialization';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
@@ -114,6 +112,7 @@ export class PostprocessStage extends RenderStage {
         }
 
         colors[0].w = camera.clearColor.w;
+        const deferredData = pipeline.getDeferredRenderData();
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
@@ -124,6 +123,11 @@ export class PostprocessStage extends RenderStage {
         const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMaterial;
         const pass = builtinPostProcess.passes[0];
         const shader = pass.getShaderVariant();
+
+        pass.descriptorSet.bindTexture(0, deferredData.lightingRenderTargets[0]);
+        pass.descriptorSet.bindSampler(0, deferredData.sampler);
+        pass.descriptorSet.update();
+
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
         const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;

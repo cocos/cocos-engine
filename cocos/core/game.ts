@@ -844,6 +844,9 @@ export class Game extends EventTarget {
                 if (legacyCC.WebGLDevice) {
                     ctors.push(legacyCC.WebGLDevice);
                 }
+                if (legacyCC.EmptyDevice) {
+                    ctors.push(legacyCC.EmptyDevice);
+                }
 
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();

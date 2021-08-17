@@ -36,7 +36,7 @@ export class WebGLShader extends Shader {
 
     private _gpuShader: IWebGLGPUShader | null = null;
 
-    public initialize (info: ShaderInfo): boolean {
+    public initialize (info: ShaderInfo) {
         this._name = info.name;
         this._stages = info.stages;
         this._attributes = info.attributes;
@@ -66,8 +66,6 @@ export class WebGLShader extends Shader {
         }
 
         WebGLCmdFuncCreateShader(WebGLDeviceManager.instance, this._gpuShader);
-
-        return true;
     }
 
     public destroy () {

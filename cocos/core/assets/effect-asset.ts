@@ -42,7 +42,7 @@ import { legacyCC } from '../global-exports';
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
     handleInfo?: [string, number, number]; // auto-generated from 'target'
-    samplerInfo?: SamplerInfo; // auto-generated from 'sampler'
+    samplerHash?: number; // auto-generated from 'sampler'
     value?: number[] | string;
 }
 // Pass instance itself are compliant to IPassStates too

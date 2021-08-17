@@ -97,7 +97,7 @@ export abstract class RenderPass extends GFXObject {
         return murmurhash2_32_gc(res, 666);
     }
 
-    public abstract initialize (info: RenderPassInfo): boolean;
+    public abstract initialize (info: RenderPassInfo): void;
 
     public abstract destroy (): void;
 }

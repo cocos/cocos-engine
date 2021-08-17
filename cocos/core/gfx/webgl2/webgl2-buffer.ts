@@ -41,7 +41,7 @@ export class WebGL2Buffer extends Buffer {
 
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
-    public initialize (info: BufferInfo | BufferViewInfo): boolean {
+    public initialize (info: BufferInfo | BufferViewInfo) {
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;
 
@@ -88,8 +88,6 @@ export class WebGL2Buffer extends Buffer {
 
             WebGL2DeviceManager.instance.memoryStatus.bufferSize += this._size;
         }
-
-        return true;
     }
 
     public destroy () {

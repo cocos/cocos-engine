@@ -153,7 +153,7 @@ export abstract class Texture extends GFXObject {
         super(ObjectType.TEXTURE);
     }
 
-    public abstract initialize (info: TextureInfo | TextureViewInfo): boolean;
+    public abstract initialize (info: TextureInfo | TextureViewInfo): void;
 
     public abstract destroy (): void;
 
@@ -165,5 +165,5 @@ export abstract class Texture extends GFXObject {
      */
     public abstract resize (width: number, height: number): void;
 
-    protected abstract initAsSwapchainTexture (info: ISwapchainTextureInfo): boolean;
+    protected abstract initAsSwapchainTexture (info: ISwapchainTextureInfo): void;
 }

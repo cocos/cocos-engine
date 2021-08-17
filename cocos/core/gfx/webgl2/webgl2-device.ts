@@ -242,107 +242,81 @@ export class WebGL2Device extends Device {
         // const Ctor = WebGLCommandBuffer; // opt to instant invocation
         const Ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
         const cmdBuff = new Ctor();
-        if (cmdBuff.initialize(info)) {
-            return cmdBuff;
-        }
-        return null!;
+        cmdBuff.initialize(info);
+        return cmdBuff;
     }
 
     public createSwapchain (info: SwapchainInfo): Swapchain {
         const swapchain = new WebGL2Swapchain();
         this._swapchain = swapchain;
-        if (swapchain.initialize(info)) {
-            return swapchain;
-        }
-        return null!;
+        swapchain.initialize(info);
+        return swapchain;
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
         const buffer = new WebGL2Buffer();
-        if (buffer.initialize(info)) {
-            return buffer;
-        }
-        return null!;
+        buffer.initialize(info);
+        return buffer;
     }
 
     public createTexture (info: TextureInfo | TextureViewInfo): Texture {
         const texture = new WebGL2Texture();
-        if (texture.initialize(info)) {
-            return texture;
-        }
-        return null!;
+        texture.initialize(info);
+        return texture;
     }
 
     public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
         const descriptorSet = new WebGL2DescriptorSet();
-        if (descriptorSet.initialize(info)) {
-            return descriptorSet;
-        }
-        return null!;
+        descriptorSet.initialize(info);
+        return descriptorSet;
     }
 
     public createShader (info: ShaderInfo): Shader {
         const shader = new WebGL2Shader();
-        if (shader.initialize(info)) {
-            return shader;
-        }
-        return null!;
+        shader.initialize(info);
+        return shader;
     }
 
     public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
         const inputAssembler = new WebGL2InputAssembler();
-        if (inputAssembler.initialize(info)) {
-            return inputAssembler;
-        }
-        return null!;
+        inputAssembler.initialize(info);
+        return inputAssembler;
     }
 
     public createRenderPass (info: RenderPassInfo): RenderPass {
         const renderPass = new WebGL2RenderPass();
-        if (renderPass.initialize(info)) {
-            return renderPass;
-        }
-        return null!;
+        renderPass.initialize(info);
+        return renderPass;
     }
 
     public createFramebuffer (info: FramebufferInfo): Framebuffer {
         const framebuffer = new WebGL2Framebuffer();
-        if (framebuffer.initialize(info)) {
-            return framebuffer;
-        }
-        return null!;
+        framebuffer.initialize(info);
+        return framebuffer;
     }
 
     public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
         const descriptorSetLayout = new WebGL2DescriptorSetLayout();
-        if (descriptorSetLayout.initialize(info)) {
-            return descriptorSetLayout;
-        }
-        return null!;
+        descriptorSetLayout.initialize(info);
+        return descriptorSetLayout;
     }
 
     public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
         const pipelineLayout = new WebGL2PipelineLayout();
-        if (pipelineLayout.initialize(info)) {
-            return pipelineLayout;
-        }
-        return null!;
+        pipelineLayout.initialize(info);
+        return pipelineLayout;
     }
 
     public createPipelineState (info: PipelineStateInfo): PipelineState {
         const pipelineState = new WebGL2PipelineState();
-        if (pipelineState.initialize(info)) {
-            return pipelineState;
-        }
-        return null!;
+        pipelineState.initialize(info);
+        return pipelineState;
     }
 
     public createQueue (info: QueueInfo): Queue {
         const queue = new WebGL2Queue();
-        if (queue.initialize(info)) {
-            return queue;
-        }
-        return null!;
+        queue.initialize(info);
+        return queue;
     }
 
     public getSampler (info: SamplerInfo): Sampler {

@@ -33,6 +33,7 @@ import { PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene';
+import { RenderWindow } from '../renderer/core/render-window';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -40,12 +41,12 @@ const vec3_center = new Vec3();
 const vec4ShadowInfo = new Vec4();
 
 export class PipelineUBO {
-    public static updateGlobalUBOView (swapchain: Swapchain, bufferView: Float32Array) {
+    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
         const root = legacyCC.director.root;
         const fv = bufferView;
 
-        const shadingWidth = Math.floor(swapchain.width);
-        const shadingHeight = Math.floor(swapchain.height);
+        const shadingWidth = Math.floor(window.width);
+        const shadingHeight = Math.floor(window.height);
 
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
@@ -347,12 +348,12 @@ export class PipelineUBO {
      * @en Update all UBOs
      * @zh 更新全部 UBO。
      */
-    public updateGlobalUBO (swapchain: Swapchain) {
+    public updateGlobalUBO (window: RenderWindow) {
         const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         ds.update();
-        PipelineUBO.updateGlobalUBOView(swapchain, this._globalUBO);
+        PipelineUBO.updateGlobalUBOView(window, this._globalUBO);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
 
         globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));

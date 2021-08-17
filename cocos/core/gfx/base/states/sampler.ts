@@ -34,7 +34,7 @@ import { GFXObject, ObjectType, SamplerInfo } from '../define';
  * @en GFX sampler.
  * @zh GFX 采样器。
  */
-export abstract class Sampler extends GFXObject {
+export class Sampler extends GFXObject {
     get info (): Readonly<SamplerInfo> { return this._info; }
 
     protected _info: SamplerInfo = new SamplerInfo();
@@ -54,5 +54,18 @@ export abstract class Sampler extends GFXObject {
         hash |= (info.maxAnisotropy << 12);
         hash |= (info.cmpFunc << 16);
         return hash;
+    }
+
+    static unpackFromHash (hash: number) {
+        const info = new SamplerInfo();
+        info.minFilter = (hash & ((1 << 2) - 1)) >> 0;
+        info.magFilter = (hash & ((1 << 2) - 1)) >> 2;
+        info.mipFilter = (hash & ((1 << 2) - 1)) >> 4;
+        info.addressU = (hash & ((1 << 2) - 1)) >> 6;
+        info.addressV = (hash & ((1 << 2) - 1)) >> 8;
+        info.addressW = (hash & ((1 << 2) - 1)) >> 10;
+        info.maxAnisotropy = (hash & ((1 << 4) - 1)) >> 12;
+        info.cmpFunc = (hash & ((1 << 3) - 1)) >> 16;
+        return info;
     }
 }

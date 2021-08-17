@@ -60,7 +60,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
     protected _curDynamicStates: DynamicStates = new DynamicStates();
     protected _isStateInvalied = false;
 
-    public initialize (info: CommandBufferInfo): boolean {
+    public initialize (info: CommandBufferInfo) {
         this._type = info.type;
         this._queue = info.queue;
 
@@ -68,8 +68,6 @@ export class WebGLCommandBuffer extends CommandBuffer {
         for (let i = 0; i < setCount; i++) {
             this._curGPUDescriptorSets.push(null!);
         }
-
-        return true;
     }
 
     public destroy () {
@@ -401,8 +399,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
-    }
+    public pipelineBarrier (globalBarrier: GlobalBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]) {}
 
     protected bindStates () {
         const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGLCmdBindStates);

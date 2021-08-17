@@ -38,7 +38,7 @@ export class WebGL2Framebuffer extends Framebuffer {
 
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
 
-    public initialize (info: FramebufferInfo): boolean {
+    public initialize (info: FramebufferInfo) {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
@@ -64,8 +64,6 @@ export class WebGL2Framebuffer extends Framebuffer {
         };
 
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
-
-        return true;
     }
 
     public destroy () {

@@ -28,7 +28,7 @@
  * @module gfx
  */
 
-import { murmurhash2_32_gc } from '../../../utils';
+import { murmurhash2_32_gc } from '../../../utils/murmurhash2_gc';
 import { GFXObject, ObjectType, TextureBarrierInfo } from '../define';
 
 /**

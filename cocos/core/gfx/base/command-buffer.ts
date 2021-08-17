@@ -103,7 +103,7 @@ export abstract class CommandBuffer extends GFXObject {
         super(ObjectType.COMMAND_BUFFER);
     }
 
-    public abstract initialize (info: CommandBufferInfo): boolean;
+    public abstract initialize (info: CommandBufferInfo): void;
 
     public abstract destroy (): void;
 
@@ -267,5 +267,5 @@ export abstract class CommandBuffer extends GFXObject {
      * @param globalBarrier The global memory barrier to apply.
      * @param textureBarriers The texture memory barriers to apply.
      */
-    public abstract pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[] | null): void;
+    public abstract pipelineBarrier (globalBarrier: GlobalBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]): void;
 }

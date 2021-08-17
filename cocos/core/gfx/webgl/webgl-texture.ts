@@ -36,10 +36,10 @@ export class WebGLTexture extends Texture {
 
     private _gpuTexture: IWebGLGPUTexture | null = null;
 
-    public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean): boolean {
+    public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
         if ('texture' in info) {
             console.log('WebGL does not support texture view.');
-            return false;
+            return;
         }
 
         this._type = info.type;
@@ -88,8 +88,6 @@ export class WebGLTexture extends Texture {
         WebGLCmdFuncCreateTexture(WebGLDeviceManager.instance, this._gpuTexture);
 
         WebGLDeviceManager.instance.memoryStatus.textureSize += this._size;
-
-        return true;
     }
 
     public destroy () {
@@ -119,12 +117,12 @@ export class WebGLTexture extends Texture {
 
     // ======================= Swapchain Specific ======================= //
 
-    protected initAsSwapchainTexture (info: ISwapchainTextureInfo): boolean {
+    protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {
         const texInfo = new TextureInfo();
         texInfo.format = info.format;
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;
         texInfo.width = info.width;
         texInfo.height = info.height;
-        return this.initialize(texInfo, true);
+        this.initialize(texInfo, true);
     }
 }

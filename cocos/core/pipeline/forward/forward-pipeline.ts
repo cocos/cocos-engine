@@ -105,7 +105,7 @@ export class ForwardPipeline extends RenderPipeline {
 
     public render (cameras: Camera[]) {
         this._commandBuffers[0].begin();
-        this._pipelineUBO.updateGlobalUBO(cameras[0].window!.swapchain);
+        this._pipelineUBO.updateGlobalUBO(cameras[0].window!);
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {

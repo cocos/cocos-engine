@@ -185,7 +185,7 @@ export class WebGLSwapchain extends Swapchain {
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
 
-    public initialize (info: SwapchainInfo): boolean {
+    public initialize (info: SwapchainInfo) {
         this._canvas = info.windowHandle;
 
         try {
@@ -202,11 +202,11 @@ export class WebGLSwapchain extends Swapchain {
 
             this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
         } catch (err) {
-            return false;
+            return;
         }
 
         if (!this._webGLRC) {
-            return false;
+            return;
         }
 
         this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
@@ -288,8 +288,6 @@ export class WebGLSwapchain extends Swapchain {
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube, [nullTexRegion],
         );
-
-        return true;
     }
 
     public destroy (): void {
