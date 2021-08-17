@@ -76,6 +76,7 @@ void CommandBufferValidator::begin(RenderPass *renderPass, uint subpass, Framebu
     _commandsFlushed  = false;
 
     _recorder.clear();
+    _curStates.descriptorSets.assign(_curStates.descriptorSets.size(), nullptr);
 
     /////////// execute ///////////
 
