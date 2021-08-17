@@ -53,7 +53,8 @@ export class UIPhase {
             }
 
             if (!visible) continue;
-            const count = batch.passes.length;
+            // shaders.length always equals actual used passes.length
+            const count = batch.shaders.length;
             for (let j = 0; j < count; j++) {
                 const pass = batch.passes[j];
                 if (pass.phase !== this._phaseID) continue;
