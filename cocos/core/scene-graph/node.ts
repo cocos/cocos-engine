@@ -579,7 +579,7 @@ export class Node extends BaseNode implements CustomSerializable {
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        this._setDirtyFlags(TransformBit.TRS);
+        this._dirtyFlags |= TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -714,7 +714,7 @@ export class Node extends BaseNode implements CustomSerializable {
             const cur: this = dirtyNodes[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._dirtyFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;

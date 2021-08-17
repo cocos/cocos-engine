@@ -51,6 +51,7 @@ export class UILocalBuffer {
         this._uniformBufferStride = Math.ceil(unalignedStride / alignment) * alignment; // 硬件对齐
         this._uniformBufferElementCount = this._uniformBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
+        // 长度其实是 10 个 UBO
         // 下面三条是一个 ubo // 内存布局是 0 16 32 48 这种分块内存
         this._uniformBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
