@@ -160,7 +160,7 @@ export abstract class Device {
     protected _globalBarriers = new Map<number, GlobalBarrier>();
     protected _textureBarriers = new Map<number, TextureBarrier>();
 
-    public abstract initialize (info: Readonly<DeviceInfo>): boolean;
+    public abstract initialize (info: Readonly<DeviceInfo>): boolean | Promise<boolean>;
 
     public abstract destroy (): void;
 
@@ -310,7 +310,7 @@ export abstract class Device {
      * @param buffers The buffer to copy to.
      * @param regions The region descriptions
      */
-    public abstract copyTextureToBuffers(texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
+    public abstract copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
 
     /**
      * @en Copy texture images to texture.

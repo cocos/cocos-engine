@@ -657,9 +657,15 @@ export class Game extends EventTarget {
 
     //  @Engine loading
 
+    private _initDeviceAsync () {
+        return Promise.resolve(this._initDevice()).then(() => {
+            legacyCC.director._init();
+        });
+    }
+
     private _initEngine () {
         this._initDevice();
-        return Promise.resolve(legacyCC.director._init()).then(() => {
+        return Promise.resolve(this._initDeviceAsync()).then(() => {
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
@@ -816,7 +822,7 @@ export class Game extends EventTarget {
             throw new Error(debug.getError(3820, userRenderMode));
         }
     }
-
+    // _initDevice
     private _initDevice () {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
@@ -830,7 +836,10 @@ export class Game extends EventTarget {
         }
 
         this._determineRenderType();
+        return this._constructDevice();
+    }
 
+    private async _constructDevice () {
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
@@ -848,7 +857,7 @@ export class Game extends EventTarget {
                     useWebGL2 = false;
                 }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    ctors.push(legacyCC.WebGL2Device);
+                    // ctors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
                     // ctors.push(legacyCC.WebGLDevice);
@@ -865,7 +874,11 @@ export class Game extends EventTarget {
 
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();
-                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
+                    // eslint-disable-next-line no-await-in-loop
+                    const success = await this._gfxDevice.initialize(deviceInfo);
+                    if (success) {
+                        break;
+                    }
                 }
             }
         } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {
