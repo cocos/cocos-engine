@@ -29,19 +29,18 @@
  */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Constraint, PhysicsSystem, RigidBody } from '../../framework';
+import { Constraint, RigidBody } from '../../framework';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { PX, setJointActors, _pxtrans } from '../physx-adapter';
 import { PhysXRigidBody } from '../physx-rigid-body';
-import { PhysXWorld } from '../physx-world';
+import { PhysXInstance } from '../physx-instance';
 
 export class PhysXJoint implements IBaseConstraint {
     private static _tempActor: any;
 
     static get tempActor (): any {
-        if (this._tempActor == null) {
-            const physics = (PhysicsSystem.instance.physicsWorld as PhysXWorld).physics;
-            this._tempActor = physics.createRigidDynamic(_pxtrans);
+        if (!this._tempActor) {
+            this._tempActor = PhysXInstance.physics.createRigidDynamic(_pxtrans);
         }
         return this._tempActor;
     }
@@ -68,8 +67,6 @@ export class PhysXJoint implements IBaseConstraint {
         this.setEnableCollision(this._com.enableCollision);
         if (this._impl.$$) {
             PX.IMPL_PTR[this._impl.$$.ptr] = this;
-        } else {
-            //
         }
     }
 
@@ -108,8 +105,6 @@ export class PhysXJoint implements IBaseConstraint {
         if (this._impl.$$) {
             PX.IMPL_PTR[this._impl.$$.ptr] = null;
             delete PX.IMPL_PTR[this._impl.$$.ptr];
-        } else {
-            //
         }
         this._impl.release();
         (this._com as any) = null;

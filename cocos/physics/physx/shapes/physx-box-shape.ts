@@ -28,12 +28,12 @@
  * @hidden
  */
 
-import { IVec3Like } from '../../../core';
 import { BoxCollider } from '../../framework';
 import { absolute, VEC3_0 } from '../../utils/util';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { PX } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
+import { PhysXInstance } from '../physx-instance';
 
 export class PhysXBoxShape extends PhysXShape implements IBoxShape {
     static BOX_GEOMETRY: any;
@@ -56,9 +56,8 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
 
     onComponentSet (): void {
         this.updateGeometry();
-        const physics = this._sharedBody.wrappedWorld.physics;
         const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
-        this._impl = physics.createShape(PhysXBoxShape.BOX_GEOMETRY, pxmat, true, this._flags);
+        this._impl = PhysXInstance.physics.createShape(PhysXBoxShape.BOX_GEOMETRY, pxmat, true, this._flags);
     }
 
     updateScale (): void {
