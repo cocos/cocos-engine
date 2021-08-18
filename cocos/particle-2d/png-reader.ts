@@ -32,7 +32,7 @@
  */
 
 import { getError } from '../core/platform/debug';
-import  zlib  from '../../external/compression/zlib.min';
+import zlib from '../../external/compression/zlib.min.js';
 
 /**
  * A png file reader
