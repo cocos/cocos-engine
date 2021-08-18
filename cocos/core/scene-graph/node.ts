@@ -975,9 +975,9 @@ export class Node extends BaseNode implements CustomSerializable {
             this._setDirtyNode(i++, cur);
             cur = cur._parent;
         }
-        while (i >= 1) {
-            cur = dirtyNodes[--i];
+        while (i >= 0) {
             Vec3.transformInverseRTS(out, out, cur._lrot, cur._lpos, cur._lscale);
+            cur = dirtyNodes[--i];
         }
         return out;
     }
