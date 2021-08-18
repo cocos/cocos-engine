@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 // import wasmDevice from '@cocos/webgpu/lib/webgpu_wasm';
-import wasmDevice from './lib/webgpu_wasm';
+// import fs from 'fs';
+import wasmDevice from './lib/webgpu_wasm.js';
 import { Device } from '../base/device';
 import { wasmBase64 } from './lib/tempArray.js';
+import { DeviceInfo } from '../base/define';
 // ({
 //     wasm: require('fs').readFileSync('CocosGameWASM.wasm'),
 // });
@@ -10,34 +13,67 @@ import { wasmBase64 } from './lib/tempArray.js';
 // import * as wasmDevice from './lib/webgpu_wasm';
 
 // const wasmDevice = require('./lib/webgpu_wasm');
-
 let wasmLoaded = false;
+// let wgpuWasmModule;
+// const imports = {};
+// WebAssembly.instantiateStreaming(fetch('./lib/webgpu_wasm.wasm'), wgpuWasmModule)
+//     .then((results) => {
+//         wgpuWasmModule.wasm = results;
+//         wasmDevice(wgpuWasmModule).then(() => {
+//             wasmLoaded = true;
+//             console.log(wgpuWasmModule);
+//         });
+//     });
+
 const wasmBin: Uint8Array = Uint8Array.from(atob(wasmBase64), (c) => c.charCodeAt(0));
 const wgpuWasmModule = {
     wasmBinary: wasmBin,
 };
 
-let callBack = (() => { });
-
 wasmDevice(wgpuWasmModule).then(() => {
     wasmLoaded = true;
     console.log(wgpuWasmModule);
-    callBack();
 });
 
 export class WebGPUDevice extends Device {
-    public initialize (info: DeviceInfo): boolean {
-        callBack = (() => {
-            const device = new wgpuWasmModule.Device();
-            device.initialize(info);
-            console.log('1');
-        });
+    public initialize (info: DeviceInfo): Promise<boolean> {
+        function init (): Promise<boolean> {
+            return new Promise(((resolve, reject) => {
+                (function waitForWasmLoading () {
+                    if (wasmLoaded) {
+                        const device = wgpuWasmModule.CCWGPUDevice.getInstance();
+                        const deviceInfo = {};
+                        deviceInfo.isAntiAlias = info.isAntialias;
+                        deviceInfo.windowHandle = 0;
+                        deviceInfo.width = info.width;
+                        deviceInfo.height = info.height;
+                        deviceInfo.pixelRatio = info.devicePixelRatio;
 
-        if (wasmLoaded) {
-            callBack();
+                        const bufferOffsets = new wgpuWasmModule.vector_int();
+                        for (let i = 0; i < info.bindingMappingInfo.bufferOffsets.length; i++) {
+                            bufferOffsets.push_back(info.bindingMappingInfo.bufferOffsets[i]);
+                        }
+
+                        const samplerOffsets = new wgpuWasmModule.vector_int();
+                        for (let i = 0; i < info.bindingMappingInfo.samplerOffsets.length; i++) {
+                            samplerOffsets.push_back(info.bindingMappingInfo.samplerOffsets[i]);
+                        }
+
+                        deviceInfo.bindingMappingInfo = {
+                            bufferOffsets,
+                            samplerOffsets,
+                            flexibleSet: info.bindingMappingInfo.flexibleSet,
+                        };
+
+                        device.initialize(deviceInfo);
+                        console.log('1');
+                        return resolve(true);
+                    }
+                    setTimeout(waitForWasmLoading, 30);
+                }());
+            }));
         }
-
-        return true;
+        return init();
     }
 
     public destroy (): void {
