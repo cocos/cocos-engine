@@ -686,10 +686,10 @@ class SkeletonCache {
         return animationCache;
     }
 
-    public updateAnimationCache (uuid: string, animationName: string): null | void {
+    public updateAnimationCache (uuid: string, animationName: string): void {
         if (animationName) {
             const animationCache = this.initAnimationCache(uuid, animationName);
-            if (!animationCache) return null;
+            if (!animationCache) return;
             animationCache.updateAllFrame();
         } else {
             const skeletonInfo = this._skeletonCache[uuid];
