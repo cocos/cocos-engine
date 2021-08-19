@@ -27,4 +27,6 @@ layout(set = 0, binding = 1) uniform CCCamera {
   mediump vec4 cc_fogColor; // xyzw: global fog color
   mediump vec4 cc_fogBase; // xyz: fogStart, fogEnd, fogDensity
   mediump vec4 cc_fogAdd; // xyz: fogTop, fogRange, fogAtten
+  highp   vec4 cc_nearFar; // view matrix
+  highp   vec4 cc_viewPort; // inverse view matrix
 };

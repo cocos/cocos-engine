@@ -33,8 +33,8 @@ import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDes
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
-import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
-    Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
+import { PipelineLayoutInfo, Device, Attribute, UniformBlock, UniformStorageBuffer, ShaderInfo,
+    Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE, MemoryAccessBit,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout, Shader } from '../../gfx';
 import { debug } from '../../platform/debug';
@@ -48,6 +48,7 @@ interface IDefineRecord extends IDefineInfo {
 
 export interface ITemplateInfo {
     gfxBlocks: UniformBlock[];
+    gfxBuffers: UniformStorageBuffer[];
     gfxSamplerTextures: UniformSamplerTexture[];
     gfxAttributes: Attribute[];
     blockSizes: number[];
@@ -239,7 +240,7 @@ class ProgramLib {
             const tmplInfo = {} as ITemplateInfo;
             // cache material-specific descriptor set layout
             tmplInfo.samplerStartBinding = tmpl.blocks.length;
-            tmplInfo.gfxBlocks = []; tmplInfo.gfxSamplerTextures = [];
+            tmplInfo.gfxBlocks = []; tmplInfo.gfxBuffers = []; tmplInfo.gfxSamplerTextures = [];
             tmplInfo.bindings = []; tmplInfo.blockSizes = [];
             for (let i = 0; i < tmpl.blocks.length; i++) {
                 const block = tmpl.blocks[i];
@@ -256,6 +257,15 @@ class ProgramLib {
                 tmplInfo.gfxSamplerTextures.push(new UniformSamplerTexture(
                     SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
                 ));
+            }
+            // TODO: should auto-generate buffers field in effect building, now manually insert
+            if (tmpl.buffers) {
+                for (let i = 0; i < tmpl.buffers.length; i++) {
+                    const buffer = tmpl.buffers[i];
+                    tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
+                        buffer.descriptorType || DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
+                    tmplInfo.gfxBuffers.push(new UniformStorageBuffer(SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.access));
+                }
             }
             tmplInfo.gfxAttributes = [];
             for (let i = 0; i < tmpl.attributes.length; i++) {
@@ -423,7 +433,7 @@ class ProgramLib {
         const attributes = getActiveAttributes(tmpl, tmplInfo, defines);
 
         const instanceName = getShaderInstanceName(name, macroArray);
-        const shaderInfo = new ShaderInfo(instanceName, tmplInfo.gfxStages, attributes, tmplInfo.gfxBlocks);
+        const shaderInfo = new ShaderInfo(instanceName, tmplInfo.gfxStages, attributes, tmplInfo.gfxBlocks, tmplInfo.gfxBuffers);
         shaderInfo.samplerTextures = tmplInfo.gfxSamplerTextures;
         return this._cache[key] = device.createShader(shaderInfo);
     }

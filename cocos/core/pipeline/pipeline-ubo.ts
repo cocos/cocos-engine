@@ -139,6 +139,14 @@ export class PipelineUBO {
         cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
         cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
         cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+
+        cv[UBOCamera.NEAR_FAR_OFFSET] = camera.nearClip;
+        cv[UBOCamera.NEAR_FAR_OFFSET + 1] = camera.farClip;
+
+        cv[UBOCamera.VIEW_PORT_OFFSET] = camera.viewport.x;
+        cv[UBOCamera.VIEW_PORT_OFFSET + 1] = camera.viewport.y;
+        cv[UBOCamera.VIEW_PORT_OFFSET + 2] = camera.viewport.width;
+        cv[UBOCamera.VIEW_PORT_OFFSET + 3] = camera.viewport.height;
     }
 
     public static updateShadowUBOView (pipeline: RenderPipeline, bufferView: Float32Array, camera: Camera) {
