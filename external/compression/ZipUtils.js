@@ -3,8 +3,8 @@
  All rights reserved.
  You can choose between MIT and BSD-3-Clause license. License file will be added later.
  --*/
-import Base64 from './base64.js';
-import GZip from './gzip.js';
+import Base64 from './base64';
+import GZip from './gzip';
 var codec = {name:'Jacob__Codec'};
 
 codec.Base64 = Base64;

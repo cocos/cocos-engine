@@ -31,7 +31,7 @@
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { createMesh } from '../3d/misc';
 import { Mesh } from '../3d/assets/mesh';
-import * as primitives from './index';
+import * as primitives from '.';
 import { ccenum } from '../core/value-types/enum';
 import { legacyCC } from '../core/global-exports';
 
