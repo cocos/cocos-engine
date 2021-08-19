@@ -245,9 +245,12 @@ export class UBOShadow {
     public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
-    public static readonly SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET: number = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
-    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET: number = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
+    public static readonly SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    public static readonly SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
+    public static readonly SHADOW_PROJ_INFO_OFFSET = UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 4;
+    public static readonly SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow.SHADOW_PROJ_INFO_OFFSET + 4;
+    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
+    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
     public static readonly COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
@@ -258,6 +261,9 @@ export class UBOShadow {
         new Uniform('cc_matLightPlaneProj', Type.MAT4, 1),
         new Uniform('cc_matLightView', Type.MAT4, 1),
         new Uniform('cc_matLightViewProj', Type.MAT4, 1),
+        new Uniform('cc_shadowInvProjDepthInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowProjDepthInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowProjInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowNFLSInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowWHPBInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),

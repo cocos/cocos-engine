@@ -964,7 +964,7 @@ export class Layout extends Component {
         return containerResizeBoundary;
     }
 
-    protected _doLayoutGridAxisHorizontal (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
+    protected _doLayoutGridAxisHorizontal (layoutAnchor: Vec2 | Readonly<Vec2>, layoutSize: Size) {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
@@ -997,7 +997,7 @@ export class Layout extends Component {
         }
     }
 
-    protected _doLayoutGridAxisVertical (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
+    protected _doLayoutGridAxisVertical (layoutAnchor: Vec2 | Readonly<Vec2>, layoutSize: Size) {
         const baseHeight = layoutSize.height;
 
         let sign = 1;
