@@ -237,7 +237,7 @@ DeferredPipeline.prototype.onLoaded = function () {
   this.init();
 }
 
-export class GbufferFlow extends nr.GbufferFlow {
+export class MainFlow extends nr.MainFlow {
   constructor() {
     super();
     this._name = 0;
@@ -272,24 +272,6 @@ export class GbufferStage extends nr.GbufferStage {
     }
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
-    this.initialize(info);
-  }
-}
-
-class LightingFlow extends nr.LightingFlow {
-  constructor() {
-    super();
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this._stages = [];
-  }
-  init(pipeline) {
-    for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init(pipeline);
-    }
-    let info = new nr.RenderFlowInfo(
-        this._name, this._priority, this._tag, this._stages);
     this.initialize(info);
   }
 }
@@ -337,9 +319,8 @@ export class PostprocessStage extends nr.PostprocessStage {
 }
 
 setClassName('DeferredPipeline', DeferredPipeline);
-setClassName('GbufferFlow', GbufferFlow);
+setClassName('MainFlow', MainFlow);
 setClassName('GbufferStage', GbufferStage);
-setClassName('LightingFlow', LightingFlow);
 setClassName('LightingStage', LightingStage);
 setClassName('PostprocessStage',PostprocessStage);
 setClassName('ForwardPipeline', ForwardPipeline);
