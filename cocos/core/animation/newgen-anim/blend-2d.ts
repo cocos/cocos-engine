@@ -1,88 +1,145 @@
 import { assertIsTrue } from '../../data/utils/asserts';
 import { Vec2, Vec3, clamp } from '../../math';
 
-export function sampleSimpleDirectional (weights: number[], samples: readonly Vec2[], input: Readonly<Vec2>) {
-    if (samples.length === 0) {
-        return;
-    }
+/**
+ * Blends given samples using simple directional algorithm.
+ * @param weights Result weights of each sample.
+ * @param samples Every samples' parameter.
+ * @param input Input parameter.
+ */
+export const blendSimpleDirectional = (() => {
+    const CACHE_NORMALIZED_SAMPLE = new Vec2();
 
-    if (samples.length === 1) {
-        weights[0] = 1.0;
-        return;
-    }
+    const CACHE_BARYCENTRIC_SOLUTIONS: EquationResolutions = { wA: 0, wB: 0 };
 
-    if (Vec2.strictEquals(input, Vec2.ZERO)) {
-        const iCenter = samples.findIndex((sample) => Vec2.strictEquals(sample, Vec2.ZERO));
-        if (iCenter >= 0) {
-            weights[iCenter] = 0.0;
-        } else {
-            weights.fill(1.0 / samples.length);
-        }
-        return;
-    }
+    return function blendSimpleDirectional (weights: number[], samples: readonly Vec2[], input: Readonly<Vec2>) {
+        assertIsTrue(weights.length === samples.length);
 
-    // Finds out the sector the input point locates
-    let iSectorStart = -1;
-    let iSectorEnd = -1;
-    let iCenter = -1;
-    let lhsAngle = -1.0;
-    let rhsCosAngle = -1.0;
-    for (let iSample = 0; iSample < samples.length; ++iSample) {
-        const sample = samples[iSample];
-        if (Vec2.equals(sample, Vec2.ZERO)) {
-            iCenter = iSample;
-            continue;
+        if (samples.length === 0) {
+            return;
         }
 
-        const sampleNormalized = Vec2.normalize(new Vec2(), sample);
-        const cosAngle = Vec2.dot(sampleNormalized, input);
-        const sign = sampleNormalized.x * input.y - sampleNormalized.y * input.x;
-        if (sign > 0) {
-            if (cosAngle >= rhsCosAngle) {
-                rhsCosAngle = cosAngle;
-                iSectorStart = iSample;
+        if (samples.length === 1) {
+            weights[0] = 1.0;
+            return;
+        }
+
+        if (Vec2.strictEquals(input, Vec2.ZERO)) {
+            const iCenter = samples.findIndex((sample) => Vec2.strictEquals(sample, Vec2.ZERO));
+            if (iCenter >= 0) {
+                weights[iCenter] = 1.0;
+            } else {
+                weights.fill(1.0 / samples.length);
             }
-        } else if (cosAngle >= lhsAngle) {
-            lhsAngle = cosAngle;
-            iSectorEnd = iSample;
+            return;
         }
-    }
 
-    let centerWeight = 0.0;
-    if (iSectorStart < 0 || iSectorEnd < 0) {
-        centerWeight = 1.0;
-    } else {
-        const { t1, t2 } = resolveEquation(samples[iSectorStart], samples[iSectorEnd], input);
-        const sum = t1 + t2;
-        let w1 = 0.0;
-        let w2 = 0.0;
-        if (sum > 1) {
-            w1 = t1 / sum;
-            w2 = t2 / sum;
-        } else if (sum < 0) {
-            w1 = 0.0;
-            w2 = 0.0;
+        // Finds out the sector the input point locates
+        let iSectorStart = -1;
+        let iSectorEnd = -1;
+        let iCenter = -1;
+        let lhsCosAngle = Number.NEGATIVE_INFINITY;
+        let rhsCosAngle = Number.NEGATIVE_INFINITY;
+        const { x: inputX, y: inputY } = input;
+        for (let iSample = 0; iSample < samples.length; ++iSample) {
+            const sample = samples[iSample];
+            if (Vec2.equals(sample, Vec2.ZERO)) {
+                iCenter = iSample;
+                continue;
+            }
+
+            const sampleNormalized = Vec2.normalize(CACHE_NORMALIZED_SAMPLE, sample);
+            const cosAngle = Vec2.dot(sampleNormalized, input);
+            const sign = sampleNormalized.x * inputY - sampleNormalized.y * inputX;
+            if (sign > 0) {
+                if (cosAngle >= rhsCosAngle) {
+                    rhsCosAngle = cosAngle;
+                    iSectorStart = iSample;
+                }
+            } else if (cosAngle >= lhsCosAngle) {
+                lhsCosAngle = cosAngle;
+                iSectorEnd = iSample;
+            }
+        }
+
+        let centerWeight = 0.0;
+        if (iSectorStart < 0 || iSectorEnd < 0) {
+            // Input fall at vertex.
             centerWeight = 1.0;
         } else {
-            w1 = t1;
-            w2 = t2;
-            centerWeight = 1.0 - sum;
+            const { wA, wB } = solveBarycentric(samples[iSectorStart], samples[iSectorEnd], input, CACHE_BARYCENTRIC_SOLUTIONS);
+            let w1 = 0.0;
+            let w2 = 0.0;
+            const sum = wA + wB;
+            if (sum > 1) {
+                // Input fall at line C-A or C-B but not beyond C
+                w1 = wA / sum;
+                w2 = wB / sum;
+            } else if (sum < 0) {
+                // Input fall at line C-A or C-B but beyond A or B
+                w1 = 0.0;
+                w2 = 0.0;
+                centerWeight = 1.0;
+            } else {
+                // Inside triangle
+                w1 = wA;
+                w2 = wB;
+                centerWeight = 1.0 - sum;
+            }
+            weights[iSectorStart] = w1;
+            weights[iSectorEnd] = w2;
         }
-        weights[iSectorStart] = w1;
-        weights[iSectorEnd] = w2;
-    }
 
-    // Center influence part
-    if (centerWeight > 0.0) {
-        if (iCenter >= 0) {
-            weights[iCenter] = centerWeight;
-        } else {
-            const average = centerWeight / weights.length;
-            for (let i = 0; i < weights.length; ++i) {
-                weights[i] += average;
+        // Center influence part
+        if (centerWeight > 0.0) {
+            if (iCenter >= 0) {
+                weights[iCenter] = centerWeight;
+            } else {
+                const average = centerWeight / weights.length;
+                for (let i = 0; i < weights.length; ++i) {
+                    weights[i] += average;
+                }
             }
         }
-    }
+    };
+})();
+
+/**
+ * Validates the samples if they satisfied the requirements of simple directional algorithm.
+ * @param samples Samples to validate.
+ * @returns Issues the samples containing.
+ */
+export function validateSimpleDirectionalSamples (samples: ReadonlyArray<Vec2>): SimpleDirectionalSampleIssue[] {
+    const nSamples = samples.length;
+    const issues: SimpleDirectionalSampleIssue[] = [];
+    const sameDirectionValidationFlag = new Array<boolean>(samples.length).fill(false);
+    samples.forEach((sample, iSample) => {
+        if (sameDirectionValidationFlag[iSample]) {
+            return;
+        }
+        let sameDirectionSamples: number[] | undefined;
+        for (let iCheckSample = 0; iCheckSample < nSamples; ++iCheckSample) {
+            const checkSample = samples[iCheckSample];
+            if (Vec2.equals(sample, checkSample, 1e-5)) {
+                (sameDirectionSamples ??= []).push(iCheckSample);
+                sameDirectionValidationFlag[iCheckSample] = true;
+            }
+        }
+        if (sameDirectionSamples) {
+            sameDirectionSamples.unshift(iSample);
+            issues.push(new SimpleDirectionalIssueSameDirection(sameDirectionSamples));
+        }
+    });
+    return issues;
+}
+
+type SimpleDirectionalSampleIssue = SimpleDirectionalIssueSameDirection;
+
+/**
+ * Simple directional issue representing some samples have same(or very similar) direction.
+ */
+export class SimpleDirectionalIssueSameDirection {
+    public constructor (public samples: readonly number[]) { }
 }
 
 /**
@@ -136,31 +193,37 @@ function sampleFreeform (weights: number[], samples: readonly Vec2[], value: Rea
     }
 }
 
-function resolveEquation (first: Readonly<Vec2>, second: Readonly<Vec2>, input: Readonly<Vec2>) {
-    // Let's resolve equation `input = first * t1 + second * t2` for `t1` and `t2`.
-    // |x1 x2|   |t1|   |input.x|
-    // |     | x |  | = |       |
-    // |y1 y2|   |t2|   |input.y|
-    const {
-        x: x1,
-        y: y1,
-    } = first;
-    const {
-        x: x2,
-        y: y2,
-    } = second;
+interface EquationResolutions {
+    wA: number;
+    wB: number;
+}
 
-    const det = x1 * y2 - x2 * y1;
+/**
+ * Solves the barycentric coordinates of `p` within triangle (0, `a`, `b`).
+ * @param a Triangle vertex.
+ * @param b Triangle vertex.
+ * @param p Input vector.
+ * @param resolutions The barycentric coordinates of `a` and `b`.
+ * @returns
+ */
+function solveBarycentric (
+    a: Readonly<Vec2>,
+    b: Readonly<Vec2>,
+    p: Readonly<Vec2>,
+    resolutions: EquationResolutions,
+) {
+    // Let P = p - 0, A = a - 0, B = b - 0,
+    // wA = (P x B) / (A x B)
+    // wB = (P x A) / (B x A)
+    const det = Vec2.crossProduct(a, b);
     if (!det) {
-        return { t1: 0, t2: 0 };
+        resolutions.wA = 0.0;
+        resolutions.wB = 0.0;
+    } else {
+        resolutions.wA = Vec2.crossProduct(p, b) / det;
+        resolutions.wB = Vec2.crossProduct(p, a) / -det;
     }
-
-    let t1 = (y2 * input.x - x2 * input.y) / det;
-    let t2 = (-y1 * input.x + x1 * input.y) / det;
-    if (t1 < 0 || t2 < 0) {
-        t1 = t2 = 0.5;
-    }
-    return { t1, t2 };
+    return resolutions;
 }
 
 type GetGradientBandCoords = (point: Readonly<Vec2>, pI: Readonly<Vec2>, pJ: Readonly<Vec2>, pIpInput: Vec2, pIpJ: Vec2) => void;

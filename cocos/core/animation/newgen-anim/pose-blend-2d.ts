@@ -6,7 +6,7 @@ import { PoseBlend, PoseBlendEval, validateBlendParam } from './pose-blend';
 import { Pose, PoseEvalContext } from './pose';
 import { serializable, type } from '../../data/decorators';
 import { BindingHost, parametricNum } from './parametric';
-import { sampleFreeformCartesian, sampleFreeformDirectional, sampleSimpleDirectional } from './blend-2d';
+import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 
 enum Algorithm {
     SIMPLE_DIRECTIONAL,
@@ -125,7 +125,7 @@ class PoseBlend2DDEval extends PoseBlendEval {
         weights.fill(0);
         switch (this._algorithm) {
         case Algorithm.SIMPLE_DIRECTIONAL:
-            sampleSimpleDirectional(weights, this._thresholds, this._value);
+            blendSimpleDirectional(weights, this._thresholds, this._value);
             break;
         case Algorithm.FREEFORM_CARTESIAN:
             sampleFreeformCartesian(weights, this._thresholds, this._value);

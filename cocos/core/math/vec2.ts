@@ -304,6 +304,10 @@ export class Vec2 extends ValueType {
         return out;
     }
 
+    public static crossProduct (a: IVec2Like, b: IVec2Like) {
+        return a.x * b.y - a.y * b.x;
+    }
+
     /**
      * @en Calculates the linear interpolation between two vectors with a given ratio
      * @zh 逐元素向量线性插值： A + t * (B - A)

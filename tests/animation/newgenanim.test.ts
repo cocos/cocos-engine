@@ -14,6 +14,7 @@ import gVariableNotFoundInPoseBlend from './graphs/variable-not-found-in-pose-bl
 import gPoseBlendRequiresNumbers from './graphs/pose-blend-requires-numbers';
 import { getPropertyBindingPoints } from '../../cocos/core/animation/newgen-anim/parametric';
 import { blend1D } from '../../cocos/core/animation/newgen-anim/blend-1d';
+import '../utils/matcher-deep-close-to';
 
 describe('NewGen Anim', () => {
     const demoGraphs = __getDemoGraphs();
@@ -71,7 +72,7 @@ describe('NewGen Anim', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            expect(() => layerGraph.connect(layerGraph.existNode, layerGraph.add())).toThrowError(InvalidTransitionError);
+            expect(() => layerGraph.connect(layerGraph.exitNode, layerGraph.add())).toThrowError(InvalidTransitionError);
         });
 
         test('Condition not specified', () => {
@@ -101,11 +102,11 @@ describe('NewGen Anim', () => {
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
             layerGraph.remove(layerGraph.entryNode);
-            layerGraph.remove(layerGraph.existNode);
+            layerGraph.remove(layerGraph.exitNode);
             layerGraph.remove(layerGraph.anyNode);
             expect([...layerGraph.nodes()]).toEqual(expect.arrayContaining([
                 layerGraph.entryNode,
-                layerGraph.existNode,
+                layerGraph.exitNode,
                 layerGraph.anyNode,
             ]));
         });
@@ -190,16 +191,16 @@ describe('NewGen Anim', () => {
             const weights = new Array<number>(thresholds.length).fill(0);
 
             blend1D(weights, thresholds, 0.4);
-            expect(weights).toBeCloseToArray([0.0, 1.0]);
+            expect(weights).toBeDeepCloseTo([0.0, 1.0]);
 
             blend1D(weights, thresholds, 0.1);
-            expect(weights).toBeCloseToArray([1.0, 0.0]);
+            expect(weights).toBeDeepCloseTo([1.0, 0.0]);
 
             blend1D(weights, thresholds, 0.3);
-            expect(weights).toBeCloseToArray([0.0, 1.0]);
+            expect(weights).toBeDeepCloseTo([0.0, 1.0]);
 
             blend1D(weights, thresholds, 0.2);
-            expect(weights).toBeCloseToArray([0.5, 0.5]);
+            expect(weights).toBeDeepCloseTo([0.5, 0.5]);
         });
     });
 
