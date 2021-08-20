@@ -664,7 +664,6 @@ export class Game extends EventTarget {
     }
 
     private _initEngine () {
-        this._initDevice();
         return Promise.resolve(this._initDeviceAsync()).then(() => {
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
