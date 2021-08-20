@@ -150,10 +150,7 @@ export class DrawBatch2D {
 
                 mtlPass.update();
 
-                // Hack: Cause pass.hash can not check descriptorSet
-                if (mtlPass.hash === passInUse.hash && mtlPass.descriptorSet === passInUse.descriptorSet) {
-                    continue;
-                }
+                // Hack: Cause pass.hash can not check all pass value
 
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
                 if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
