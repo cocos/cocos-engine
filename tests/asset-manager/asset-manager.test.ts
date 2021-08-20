@@ -37,6 +37,7 @@ describe('asset-manager', function () {
         redirect: [],
         debug: false,
         types: [],
+        extensionMap: {},
     });
 
     var libPath = assetDir + '/library';
@@ -57,25 +58,25 @@ describe('asset-manager', function () {
 
         assetManager.loadAny(resources, { __requestType__: 'url'}, function (finish, total, item) {
             if (item.uuid === image1) {
-                expect(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
+                expect(item.content instanceof Image).toBeTruthy();
             }
             else if (item.uuid === json1) {
-                strictEqual(item.content.width, 89, 'should give correct js object as result of JSON');
+                expect(item.content.width).toBe(89);
             }
             else if (item.uuid === json2) {
-                strictEqual(item.content._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
+                expect(item.content._native).toBe('YouKnowEverything');
             }
             else {
-                expect(false, 'should not load an unknown url');
+                fail('should not load an unknown url');
             }
         }, function (err, assets) {
-            strictEqual(assets.length, 3, 'should equal to 3');
-            expect(assets[0] instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
-            strictEqual(assets[1].width, 89, 'should give correct js object as result of JSON');
-            strictEqual(assets[2]._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
-            expect(!assetManager.assets.has(image1), 'should not cache');
-            expect(!assetManager.assets.has(json1), 'should not cache');
-            expect(!assetManager.assets.has(json2), 'should not cache');
+            expect(assets.length).toBe(3);
+            expect(assets[0] instanceof Image).toBeTruthy();
+            expect(assets[1].width).toBe(89);
+            expect(assets[2]._native).toBe('YouKnowEverything');
+            expect(assetManager.assets.has(image1)).toBeTruthy();
+            expect(assetManager.assets.has(json1)).toBeTruthy();
+            expect(assetManager.assets.has(json2)).toBeTruthy();
             
         });
     });
@@ -85,16 +86,15 @@ describe('asset-manager', function () {
 
         assetManager.loadAny({ url: image1 }, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
-                expect(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
+                expect(item.content instanceof Image).toBeTruthy();
             }
             else {
-                expect(false, 'should not load an unknown url');
+                fail('should not load an unknown url');
             }
         }, function (error, image) {
-            expect(!error, 'should not return error');
-            expect(image instanceof ImageBitmapOrImage, 'the single result should be Image');
-            expect(!assetManager.assets.has(image1), 'should not cache');
-            
+            expect(error).toBeFalsy();
+            expect(image instanceof Image).toBeTruthy();
+            expect(assetManager.assets.has(image1)).toBeFalsy();
         });
     });
 
@@ -110,25 +110,23 @@ describe('asset-manager', function () {
         ];
         var total = resources.length;
 
-        var progressCallback = new Callback(function (completedCount, totalCount, item) {
+        var progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === image) {
-                expect(item.content instanceof ImageBitmapOrImage, 'image url\'s result should be Image');
+                expect(item.content instanceof Image).toBeTruthy();
             }
             else if (item.uuid === font.url) {
-                strictEqual(item.content, 'Thonburi_LABEL', 'should set family name as content for Font type');
+                expect(item.content).toBe('Thonburi_LABEL');
             }
             else {
-                expect(false, 'should not load an unknown url');
+                fail('should not load an unknown url');
             }
-        }).enable();
+        });
 
         assetManager.loadAny(resources, { __requestType__: 'url' }, progressCallback, function (error, assets) {
-            expect(assets.length === 2, 'be able to load all resources');
-            expect(assets[0] instanceof ImageBitmapOrImage, 'the single result should be Image');
-            strictEqual(assets[1], 'Thonburi_LABEL', 'should give correct js object as result of JSON');
-            progressCallback.expect(total, 'should call ' + total + ' times progress callback for ' + total + ' resources');
-
-            
+            expect(assets.length).toBe(2);
+            expect(assets[0] instanceof Image).toBeTruthy();
+            expect(assets[1]).toBe('Thonburi_LABEL');
+            expect(progressCallback).toBeCalledTimes(total);
         });
     });
 
@@ -137,9 +135,9 @@ describe('asset-manager', function () {
         var image2 = assetDir + '/button.png?url=http://.../2';
         assetManager.loadAny({url: image1, ext: '.png' }, function (error, image1) {
             assetManager.loadAny({url: image2, ext: '.png' }, function (error, image2) {
-                expect(image1 instanceof ImageBitmapOrImage, 'image1 url\'s result should be Image');
-                expect(image2 instanceof ImageBitmapOrImage, 'image2 url\'s result should be Image');
-                expect(image1 !== image2, 'should split cache if query is different');
+                expect(image1 instanceof Image).toBeTruthy();
+                expect(image2 instanceof Image).toBeTruthy();
+                expect(image1 !== image2).toBeTruthy();
                 
             });
         });
