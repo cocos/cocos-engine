@@ -71,7 +71,6 @@ export class Pool<T> {
         }
 
         const ret = this._freepool[this._nextAvail--];
-        this._freepool.length--;
         return ret;
     }
 
@@ -81,8 +80,14 @@ export class Pool<T> {
      * @param obj The object to be put back into the pool
      */
     public free (obj: T) {
-        this._freepool.push(obj);
-        this._nextAvail++;
+        const insertIndex = this._nextAvail + 1;
+        if (insertIndex === this._freepool.length) {
+            this._freepool.push(obj);
+        } else {
+            this._freepool[insertIndex] = obj;
+        }
+
+        this._nextAvail = insertIndex;
     }
 
     /**
@@ -91,6 +96,7 @@ export class Pool<T> {
      * @param objs An array of objects to be put back into the pool
      */
     public freeArray (objs: T[]) {
+        this._freepool.length = this._nextAvail + 1;
         Array.prototype.push.apply(this._freepool, objs);
         this._nextAvail += objs.length;
     }
