@@ -63,15 +63,14 @@ export class Pool<T> {
      */
     public alloc (): T {
         if (this._nextAvail < 0) {
-            const elementsPerBatch = this._elementsPerBatch;
-            for (let i = 0; i < elementsPerBatch; i++) {
-                this._freepool.push(this._ctor());
+            this._freepool.length = this._elementsPerBatch;
+            for (let i = 0; i < this._elementsPerBatch; i++) {
+                this._freepool[i] = this._ctor();
             }
-            this._nextAvail = elementsPerBatch - 1;
+            this._nextAvail = this._elementsPerBatch - 1;
         }
 
-        const ret = this._freepool[this._nextAvail--];
-        return ret;
+        return this._freepool[this._nextAvail--];
     }
 
     /**
@@ -80,14 +79,7 @@ export class Pool<T> {
      * @param obj The object to be put back into the pool
      */
     public free (obj: T) {
-        const insertIndex = this._nextAvail + 1;
-        if (insertIndex === this._freepool.length) {
-            this._freepool.push(obj);
-        } else {
-            this._freepool[insertIndex] = obj;
-        }
-
-        this._nextAvail = insertIndex;
+        this._freepool[++this._nextAvail] = obj;
     }
 
     /**
