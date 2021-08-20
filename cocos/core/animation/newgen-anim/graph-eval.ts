@@ -1,4 +1,4 @@
-import { PoseGraph, Layer, PoseSubgraph, GraphNode, Transition } from './pose-graph';
+import { PoseGraph, Layer, PoseSubgraph, GraphNode, Transition, isGradientTransition } from './pose-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
 import { PoseEval, PoseEvalContext } from './pose';
 import type { Node } from '../../scene-graph/node';
@@ -9,7 +9,7 @@ import { ConditionEval } from './condition';
 import { VariableNotDefinedError } from './errors';
 import { PoseNode } from './pose-node';
 import { SkeletonMask } from '../skeleton-mask';
-import { debug } from '../../platform/debug';
+import { debug, warnID } from '../../platform/debug';
 import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { EventHandler } from '../../components/component-event-handler';
@@ -207,13 +207,24 @@ class SubgraphEval {
     public update (deltaTime: Readonly<number>) {
         graphDebugGroup(`[Subgraph ${this.name}]: UpdateStart ${deltaTime}s`);
         const MAX_ITERATIONS = 100;
-        let iterations = 0;
-        let remainDeltaTime = deltaTime;
         let passConsumed = 0.0;
-        while (remainDeltaTime > 0.0) {
+
+        for (let continueNextIterationForce = true, // Force next iteration even remain time piece is zero
+            iterations = 0,
+            remainTimePiece = deltaTime;
+            continueNextIterationForce || remainTimePiece > 0.0;
+        ) {
+            continueNextIterationForce = false;
+
             if (iterations !== 0) {
-                graphDebug(`Pass end. Consumed ${passConsumed}s, remain: ${remainDeltaTime}s`);
+                graphDebug(`Pass end. Consumed ${passConsumed}s, remain: ${remainTimePiece}s`);
             }
+
+            if (iterations === MAX_ITERATIONS) {
+                warnID(14000, MAX_ITERATIONS);
+                break;
+            }
+
             graphDebug(`Pass ${iterations} started.`);
 
             if (GRAPH_DEBUG_ENABLED) {
@@ -224,12 +235,12 @@ class SubgraphEval {
 
             // Update current transition if we're in transition.
             // If currently no transition, we simple fallthrough.
-            const currentUpdatingConsume = this._updateCurrentTransition(remainDeltaTime);
+            const currentUpdatingConsume = this._updateCurrentTransition(remainTimePiece);
             if (currentUpdatingConsume !== 0.0) {
                 if (GRAPH_DEBUG_ENABLED) {
                     passConsumed = currentUpdatingConsume;
                 }
-                remainDeltaTime -= currentUpdatingConsume;
+                remainTimePiece -= currentUpdatingConsume;
                 continue;
             }
 
@@ -241,12 +252,12 @@ class SubgraphEval {
             if (!satisfiedTransition) {
                 graphDebug(`[Subgraph ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
                 if (isPoseOrSubgraphNodeEval(currentNode)) {
-                    currentNode.update(remainDeltaTime);
+                    currentNode.update(remainTimePiece);
                 }
                 if (GRAPH_DEBUG_ENABLED) {
-                    passConsumed = remainDeltaTime;
+                    passConsumed = remainTimePiece;
                 }
-                remainDeltaTime = 0.0;
+                remainTimePiece = 0.0;
                 continue;
             }
 
@@ -261,8 +272,7 @@ class SubgraphEval {
                 currentNode.reenter();
             }
 
-            // Transition does not consume time piece.
-            continue;
+            continueNextIterationForce = true;
         }
 
         graphDebug(`[Subgraph ${this.name}]: UpdateEnd`);
@@ -366,6 +376,9 @@ class SubgraphEval {
                 && node.progress < transition.exitCondition) {
                 continue;
             }
+            if (!transition.condition && node.kind === NodeKind.entry) {
+                return transition;
+            }
             if (transition.condition && !transition.condition.eval()) {
                 continue;
             }
@@ -435,9 +448,10 @@ function createTransitionEval (context: SubGraphEvalContext, graph: PoseSubgraph
         }
         const toEval = nodeEvaluators[iOutgoingNode];
         const transitionEval: TransitionEval = {
+            gradient: isGradientTransition(outgoing),
             to: toEval,
             condition: outgoing.condition?.[createEval](context) ?? null,
-            duration: outgoing.duration,
+            duration: isGradientTransition(outgoing) ? outgoing.duration : 0.0,
             targetStretch: 1.0,
             exitCondition: outgoing.exitCondition,
         };
@@ -609,6 +623,7 @@ function isPoseOrSubgraphNodeEval (nodeEval: NodeEval): nodeEval is (PoseNodeEva
 }
 
 interface TransitionEval {
+    gradient: boolean;
     to: NodeEval;
     duration: number;
     condition: ConditionEval | null;

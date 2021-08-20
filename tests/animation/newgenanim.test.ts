@@ -1,5 +1,5 @@
 
-import { AnimationClip, Node, Vec2 } from '../../cocos/core';
+import { AnimationClip, Node, Vec2, warnID } from '../../cocos/core';
 import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs } from '../../cocos/core/animation/animation';
 import { PoseGraph } from '../../cocos/core/animation/newgen-anim/pose-graph';
 import { createEval } from '../../cocos/core/animation/newgen-anim/create-eval';
@@ -12,6 +12,7 @@ import gSuccessiveSatisfaction from './graphs/successive-satisfaction';
 import gVariableNotFoundInCondition from './graphs/variable-not-found-in-condition';
 import gVariableNotFoundInPoseBlend from './graphs/variable-not-found-in-pose-blend';
 import gPoseBlendRequiresNumbers from './graphs/pose-blend-requires-numbers';
+import gInfinityLoop from './graphs/infinity-loop';
 import { getPropertyBindingPoints } from '../../cocos/core/animation/newgen-anim/parametric';
 import { blend1D } from '../../cocos/core/animation/newgen-anim/blend-1d';
 import '../utils/matcher-deep-close-to';
@@ -24,8 +25,8 @@ describe('NewGen Anim', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            const n1 = layerGraph.add();
-            const n2 = layerGraph.add();
+            const n1 = layerGraph.addPoseNode();
+            const n2 = layerGraph.addPoseNode();
             layerGraph.connect(n1, n2);
             expect([...layerGraph.getOutgoings(n1)].map((t) => t.to)).toContain(n2);
             expect([...layerGraph.getIncomings(n2)].map((t) => t.from)).toContain(n1);
@@ -35,8 +36,8 @@ describe('NewGen Anim', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            const n1 = layerGraph.add();
-            const n2 = layerGraph.add();
+            const n1 = layerGraph.addPoseNode();
+            const n2 = layerGraph.addPoseNode();
             const trans1 = layerGraph.connect(n1, n2);
             const trans2 = layerGraph.connect(n1, n2);
             expect(trans1).not.toBe(trans2);
@@ -47,7 +48,7 @@ describe('NewGen Anim', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            const n1 = layerGraph.add();
+            const n1 = layerGraph.addPoseNode();
             layerGraph.connect(n1, n1);
             // TODO: what's the expectation?
         });
@@ -58,21 +59,21 @@ describe('NewGen Anim', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            expect(() => layerGraph.connect(layerGraph.add(), layerGraph.entryNode)).toThrowError(InvalidTransitionError);
+            expect(() => layerGraph.connect(layerGraph.addPoseNode(), layerGraph.entryNode)).toThrowError(InvalidTransitionError);
         });
 
         test('Could not transition to any node', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            expect(() => layerGraph.connect(layerGraph.add(), layerGraph.anyNode)).toThrowError(InvalidTransitionError);
+            expect(() => layerGraph.connect(layerGraph.addPoseNode(), layerGraph.anyNode)).toThrowError(InvalidTransitionError);
         });
 
         test('Could not transition from exit node', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            expect(() => layerGraph.connect(layerGraph.exitNode, layerGraph.add())).toThrowError(InvalidTransitionError);
+            expect(() => layerGraph.connect(layerGraph.exitNode, layerGraph.addPoseNode())).toThrowError(InvalidTransitionError);
         });
 
         test('Condition not specified', () => {
@@ -81,18 +82,30 @@ describe('NewGen Anim', () => {
             expect(graphEval.getCurrentNodeInfo(0).name).toBe('asd');
         });
 
-        test('One transition most per update', () => {
+        test('Successive transitions', () => {
             const graphEval = new PoseGraphEval(createGraphFromDescription(gSuccessiveSatisfaction), new Node());
             graphEval.update(0.0);
-            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node1');
-            graphEval.update(0.0);
-            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node2'); 
+            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node2');
         });
 
         test('Any transition', () => {
             const graphEval = new PoseGraphEval(createGraphFromDescription(gAnyTransition), new Node());
             graphEval.update(0.0);
             expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node1');
+        });
+
+        test('Infinity loop', () => {
+            const warnMockInstance = warnID as unknown as jest.MockInstance<ReturnType<typeof warnID>, Parameters<typeof warnID>>;
+            warnMockInstance.mockClear();
+
+            const graphEval = new PoseGraphEval(createGraphFromDescription(gInfinityLoop), new Node());
+            graphEval.update(0.0);
+
+            expect(warnMockInstance).toBeCalledTimes(1);
+            expect(warnMockInstance.mock.calls[0]).toStrictEqual([
+                14000,
+                100,
+            ]);
         });
     });
 
@@ -115,9 +128,9 @@ describe('NewGen Anim', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            const node1 = layerGraph.add();
-            const node2 = layerGraph.add();
-            const node3 = layerGraph.add();
+            const node1 = layerGraph.addPoseNode();
+            const node2 = layerGraph.addPoseNode();
+            const node3 = layerGraph.addPoseNode();
             layerGraph.connect(node1, node2);
             layerGraph.connect(node3, node1);
 
@@ -133,7 +146,7 @@ describe('NewGen Anim', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
             const layerGraph = layer.graph;
-            const node = layerGraph.add();
+            const node = layerGraph.addPoseNode();
             layerGraph.remove(node);
             expect(() => layerGraph.remove(node)).toThrow();
             expect(() => layerGraph.getIncomings(node)).toThrow();
@@ -146,8 +159,8 @@ describe('NewGen Anim', () => {
             const layerGraph1 = layer1.graph;
             const layer2 = graph.addLayer();
             const layerGraph2 = layer2.graph;
-            const node1 = layerGraph1.add();
-            const node2 = layerGraph2.add();
+            const node1 = layerGraph1.addPoseNode();
+            const node2 = layerGraph2.addPoseNode();
             expect(() => layerGraph2.connect(node2, node1)).toThrow();
         });
     });

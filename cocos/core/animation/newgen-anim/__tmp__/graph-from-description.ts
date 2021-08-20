@@ -28,7 +28,7 @@ function createSubgraph (subgraph: PoseSubgraph, subgraphDesc: PoseSubGraphDescr
     const nodes = subgraphDesc.nodes?.map((nodeDesc) => {
         let node: GraphNode;
         if (nodeDesc.type === 'pose') {
-            const poseNode = subgraph.add();
+            const poseNode = subgraph.addPoseNode();
             if (nodeDesc.motion) {
                 poseNode.pose = createMotion(nodeDesc.motion);
             }

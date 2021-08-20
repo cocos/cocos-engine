@@ -16,48 +16,31 @@ import { EditorExtendable } from '../../data/editor-extendable';
 import { array } from '../../utils/js';
 import { move } from '../../algorithm/move';
 import { onAfterDeserializedTag } from '../../data/deserialize-symbols';
+import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 export { GraphNode };
 
-export interface Transition extends EditorExtendable {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}Transition`)
+class Transition extends EditorExtendable implements OwnedBy<PoseSubgraph>, Transition {
+    declare [ownerSymbol]: PoseSubgraph | undefined;
+
     /**
      * The transition source.
      */
-    readonly from: GraphNode;
+    @serializable
+    public from: GraphNode;
 
     /**
      * The transition target.
      */
-    readonly to: GraphNode;
-
-    /**
-     * The duration of the transition.
-     */
-    duration: number;
+    @serializable
+    public to: GraphNode;
 
     /**
      * The transition condition.
      */
-    condition: Condition | null;
-
-    exitCondition: number;
-}
-
-@ccclass('cc.animation.TransitionInternal')
-export class TransitionInternal extends EditorExtendable implements OwnedBy<PoseSubgraph>, Transition {
-    declare [ownerSymbol]: PoseSubgraph | undefined;
-
-    @serializable
-    public from: GraphNode;
-
-    @serializable
-    public to: GraphNode;
-
     @serializable
     public condition: Condition | null;
-
-    @serializable
-    public duration = 0.3;
 
     @serializable
     public exitCondition = -1;
@@ -74,6 +57,26 @@ export class TransitionInternal extends EditorExtendable implements OwnedBy<Pose
     [ownerSymbol]: PoseSubgraph | undefined;
 }
 
+type TransitionView = Omit<Transition, 'from' | 'to'>;
+
+export type { TransitionView as Transition };
+
+export type TransitionInternal = Transition;
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}GradientTransition`)
+class GradientTransition extends Transition {
+    @serializable
+    public duration = 0.3;
+}
+
+type GradientTransitionView = Omit<GradientTransition, 'from' | 'to'>;
+
+export type { GradientTransitionView as GradientTransition };
+
+export function isGradientTransition (transition: TransitionView): transition is GradientTransitionView {
+    return transition instanceof GradientTransition;
+}
+
 @ccclass('cc.animation.PoseSubgraph')
 export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgraph> {
     [ownerSymbol]: Layer | PoseSubgraph | undefined;
@@ -82,7 +85,7 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
     private _nodes: GraphNode[] = [];
 
     @serializable
-    private _transitions: TransitionInternal[] = [];
+    private _transitions: Transition[] = [];
 
     @serializable
     private _entryNode: GraphNode;
@@ -118,50 +121,95 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
         throw new Error('Method not implemented.');
     }
 
+    /**
+     * The entry node.
+     */
     get entryNode () {
         return this._entryNode;
     }
 
+    /**
+     * The exit node.
+     */
     get exitNode () {
         return this._exitNode;
     }
 
+    /**
+     * The any node.
+     */
     get anyNode () {
         return this._anyNode;
     }
 
+    /**
+     * Gets an iterator to all nodes within this graph.
+     * @returns The iterator.
+     */
     public nodes (): Iterable<GraphNode> {
         return this._nodes;
     }
 
+    /**
+     * Gets an iterator to all transitions within this graph.
+     * @returns The iterator.
+     */
     public transitions (): Iterable<Transition> {
         return this._transitions;
     }
 
+    /**
+     * Gets the transition between specified nodes.
+     * @param from Transition source.
+     * @param to Transition target.
+     * @returns The transition, if one existed.
+     */
     public getTransition (from: GraphNode, to: GraphNode): Transition | undefined {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
         return from[outgoingsSymbol].find((transition) => transition.to === to);
     }
 
+    /**
+     * Gets all outgoing transitions of specified node.
+     * @param to The node.
+     * @returns Result transitions.
+     */
     public getOutgoings (from: GraphNode): Iterable<Transition> {
         assertsOwnedBy(from, this);
         return from[outgoingsSymbol];
     }
 
+    /**
+     * Gets all incoming transitions of specified node.
+     * @param to The node.
+     * @returns Result transitions.
+     */
     public getIncomings (to: GraphNode): Iterable<Transition> {
         assertsOwnedBy(to, this);
         return to[incomingsSymbol];
     }
 
-    public add (): PoseNode {
+    /**
+     * Adds a pose node into this subgraph.
+     * @returns The newly created pose node.
+     */
+    public addPoseNode (): PoseNode {
         return this._addNode(new PoseNode());
     }
 
+    /**
+     * Adds a subgraph into this subgraph.
+     * @returns The newly created subgraph.
+     */
     public addSubgraph (): PoseSubgraph {
         return this._addNode(new PoseSubgraph());
     }
 
+    /**
+     * Removes specified node from this subgraph.
+     * @param node The node to remove.
+     */
     public remove (node: GraphNode) {
         assertsOwnedBy(node, this);
 
@@ -179,10 +227,23 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
 
     /**
      * Connect two nodes.
-     * @param from
-     * @param to
-     * @param condition
+     * @param from Source node.
+     * @param to Target node.
+     * @param condition The transition condition.
+     * @throws `InvalidTransitionError` if:
+     * - the target node is entry or any, or
+     * - the source node is exit.
      */
+    public connect (from: GraphNode, to: GraphNode, condition?: Condition): Transition
+
+    /**
+     * Connect two nodes.
+     * @param from Source node.
+     * @param to Target node.
+     * @param condition The transition condition.
+     */
+    public connect (from: PoseNode, to: GraphNode, condition?: Condition): GradientTransition;
+
     public connect (from: GraphNode, to: GraphNode, condition?: Condition): Transition {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
@@ -198,7 +259,11 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
         }
 
         this.disconnect(from, to);
-        const transition = new TransitionInternal(from, to, condition);
+
+        const transition = from instanceof PoseNode
+            ? new GradientTransition(from, to, condition)
+            : new Transition(from, to, condition);
+
         own(transition, this);
         this._transitions.push(transition);
         from[outgoingsSymbol].push(transition);
