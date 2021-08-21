@@ -341,12 +341,19 @@ export class Root {
             this._useDeferredPipeline = true;
         }
 
+        let isCreateDefaultPipeline = false;
         if (!rppl) {
             rppl = createDefaultPipeline();
+            isCreateDefaultPipeline = true;
         }
         this._pipeline = rppl;
 
         if (!this._pipeline.activate()) {
+            if (isCreateDefaultPipeline) {
+                this._pipeline.destroy();
+            }
+            this._pipeline = null;
+
             return false;
         }
 
@@ -485,7 +492,7 @@ export class Root {
         for (const window of this._windows) {
             window.destroy();
         }
-        this._windows = [];
+        this._windows.length = 0;
     }
 
     /**
@@ -523,7 +530,7 @@ export class Root {
         for (const scene of this._scenes) {
             scene.destroy();
         }
-        this._scenes = [];
+        this._scenes.length = 0;
     }
 
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
