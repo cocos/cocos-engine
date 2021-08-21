@@ -59,6 +59,7 @@ public:
     PhysXSharedBody(PhysXSharedBody &&other)      = delete;
     void                reference(bool v);
     void                enabled(bool v);
+    inline bool         isInWorld() { return _mIndex >= 0; }
     inline bool         isStatic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::STATIC); }
     inline bool         isKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
     inline bool         isStaticOrKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::STATIC) || static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
