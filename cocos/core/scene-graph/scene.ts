@@ -100,6 +100,12 @@ export class Scene extends BaseNode {
 
     protected declare _nativeObj: NativeScene | null;
 
+    protected _lpos = Vec3.ZERO;
+
+    protected _lrot = Quat.IDENTITY;
+
+    protected _lscale = Vec3.ONE;
+
     protected _updateScene () {
         this._scene = this;
     }
