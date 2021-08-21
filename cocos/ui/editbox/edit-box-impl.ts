@@ -397,7 +397,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem.pattern = '[0-9]*';
             elem.addEventListener("wheel", function () {
                  return false;
-             });
+            });
         } else if (inputMode === InputMode.URL) {
             type = 'url';
         } else {
