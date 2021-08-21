@@ -30,8 +30,18 @@
 
 import AmmoClosure, * as AmmoJs from '@cocos/ammo';
 import { WECHAT } from 'internal:constants';
+import { log } from '../../core';
+import { legacyCC } from '../../core/global-exports';
 
+const globalThis = legacyCC._global;
 const Ammo: typeof AmmoClosure = {} as any;
+
+// User can overwrite the internal bullet libs by 'globalThis.BULLET'
+let bulletLibs = AmmoClosure;
+if (globalThis.BULLET) {
+    log("[Physics]: Using the external Bullet libs.");
+    bulletLibs = globalThis.BULLET;
+}
 
 /**
  * `'@cocos/ammo'` exports an async namespace. Let's call it `Ammo`.
@@ -81,7 +91,7 @@ export function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer | string) {
     }
 
     return new Promise<void>((resolve, reject) => {
-        (AmmoClosure as any).call(ammoClosureThis, Ammo).then(() => {
+        (bulletLibs as any).call(ammoClosureThis, Ammo).then(() => {
             resolve();
         });
     });
