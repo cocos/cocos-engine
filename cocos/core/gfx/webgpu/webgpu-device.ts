@@ -60,7 +60,6 @@ export class WebGPUDevice extends Device {
                 } else {
                     setTimeout((_) => {
                         poll(resolve);
-                        console.log('s');
                     }, 30);
                 }
             };
@@ -68,10 +67,7 @@ export class WebGPUDevice extends Device {
             return new Promise(poll);
         }
 
-        return init().then(() => {
-            console.log('111');
-            return true;
-        });
+        return init().then(() => true);
     }
 
     public destroy (): void {
