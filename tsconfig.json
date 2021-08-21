@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "lib": ["es2015", "es2017", "dom"],
+    "lib": [
+      "es2015",
+      "es2017",
+      "dom"
+    ],
     "module": "commonjs",
     "sourceMap": true,
     "outDir": "./bin/.ts",
@@ -15,9 +19,9 @@
     "isolatedModules": true,
     "baseUrl": "./",
     "paths": {
-        "cc.decorator": [
-            "cocos/core/data/decorators/index.ts"
-        ]
+      "cc.decorator": [
+        "cocos/core/data/decorators/index.ts"
+      ]
     },
     "types": [
       "./@types/globals",
@@ -30,7 +34,7 @@
       "./node_modules/@cocos/bullet/bullet",
       "./node_modules/@cocos/physx/PhysX",
       "./node_modules/@types/jest/index",
-
+      "./node_modules/@types/node",
       // pal
       "./@types/pal/system-info",
       "./@types/pal/screen-adapter",
@@ -40,8 +44,8 @@
     ]
   },
   "include": [
-      "exports/**/*.ts",
-      "index.ts",
-      "pal/**/*.ts"
+    "exports/**/*.ts",
+    "index.ts",
+    "pal/**/*.ts"
   ]
 }
