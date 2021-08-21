@@ -378,6 +378,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         } else if (inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
+            elem.addEventListener("wheel", function () {
+                 return false;
+            });
         } else if (inputMode === InputMode.URL) {
             type = 'url';
         } else {
