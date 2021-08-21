@@ -35,6 +35,7 @@ import { FloatArray, IVec3, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
 import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
 import { NativeAABB } from '../renderer/scene/native-scene';
+import { Frustum } from './frustum';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -297,5 +298,60 @@ export class AABB {
       */
     public copy (a: AABB | Readonly<AABB>): AABB {
         return AABB.copy(this, a);
+    }
+
+    /**
+      * @en AABB bounding box merges a vertex.
+      * @zh AABB包围盒合并一个顶点。
+      * @param point - 某一个位置的顶点。
+      */
+    public mergePoint (point: IVec3) {
+        // _v3_tmp is min pos
+        // _v3_tmp2 is max pos
+        this.getBoundary(_v3_tmp, _v3_tmp2);
+        if (point.x < _v3_tmp.x) { _v3_tmp.x = point.x; }
+        if (point.y < _v3_tmp.y) { _v3_tmp.y = point.y; }
+        if (point.z < _v3_tmp.z) { _v3_tmp.z = point.z; }
+        if (point.x > _v3_tmp2.x) { _v3_tmp2.x = point.x; }
+        if (point.y > _v3_tmp2.y) { _v3_tmp2.y = point.y; }
+        if (point.z > _v3_tmp2.z) { _v3_tmp2.z = point.z; }
+
+        // _v3_tmp3 is center pos
+        Vec3.add(_v3_tmp3, _v3_tmp, _v3_tmp2);
+        this.center.set(Vec3.multiplyScalar(_v3_tmp3, _v3_tmp3, 0.5));
+        this.halfExtents.set(_v3_tmp2.x - _v3_tmp3.x, _v3_tmp2.y - _v3_tmp3.y, _v3_tmp2.z - _v3_tmp3.z);
+    }
+
+    /**
+        * @en AABB bounding box merges vertexes.
+        * @zh
+        * AABB包围盒合并一系列顶点。
+        * @param points - 某一个位置的顶点。
+        */
+    public mergePoints (points: IVec3[]) {
+        if (points.length < 1) { return; }
+        for (let i = 0; i < points.length; i++) {
+            this.mergePoint(points[i]);
+        }
+    }
+
+    /**
+      * @en Frustum merge to AABB.
+      * @zh Frustum 合并 到 AABB。
+      * @param frustum 输入的 Frustum。
+      */
+    public mergeFrustum (frustum: Frustum | Readonly<Frustum>) {
+        return this.mergePoints(frustum.vertices);
+    }
+
+    /**
+      * @en get clear.
+      * @zh 获得初始化状态。
+      * @returns {AABB}
+      */
+    public clear (): AABB {
+        _v3_tmp.set(1000.0, 1000.0, 1000.0);
+        _v3_tmp2.set(-1000.0, -1000.0, -1000.0);
+        return AABB.fromPoints(this, _v3_tmp, _v3_tmp2);
     }
 }

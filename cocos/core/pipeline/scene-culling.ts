@@ -224,6 +224,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
+    _castWorldBounds.clear();
+    AABB.fromPoints(_castWorldBounds, _tempVec3, _dir_negate);
 
     let shadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
@@ -238,7 +240,9 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 const cameraBoundingSphere = shadows.cameraBoundingSphere;
                 getCameraWorldMatrix(_mat4_trans, camera);
                 Frustum.split(_validFrustum, camera, _mat4_trans, shadows.near, shadows.far);
-                Sphere.fromPointArray(cameraBoundingSphere, cameraBoundingSphere, _validFrustum.vertices);
+                _castWorldBounds.mergeFrustum(_validFrustum);
+                cameraBoundingSphere.center.set(_castWorldBounds.center);
+                cameraBoundingSphere.radius = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
                 updateDirFrustum(dirLightFrustum, cameraBoundingSphere, rotation, shadows.range);
             } else {
                 dirLightFrustum.zero();
