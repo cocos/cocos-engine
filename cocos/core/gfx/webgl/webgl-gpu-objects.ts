@@ -131,7 +131,6 @@ export interface IWebGLGPUUniform {
     glType: GLenum;
     glLoc: WebGLUniformLocation;
     array: Int32Array | Float32Array;
-    begin: number;
 }
 
 export interface IWebGLGPUUniformBlock {
