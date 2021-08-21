@@ -49,6 +49,7 @@ import ohos.vibrator.bean.VibrationPattern;
 import ohos.wifi.WifiDevice;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
@@ -336,6 +337,29 @@ public class CocosHelper {
                 fontOutputStream.close();
             if(resource != null)
                 resource.close();
+        }
+        return fontTmpFile;
+    }
+
+    public static File copyToTempFile(String path, String tmpName) throws IOException {
+        File fontTmpFile;
+        FileOutputStream fontOutputStream=null;
+        FileInputStream fis = null;
+        try {
+            fontTmpFile = File.createTempFile(tmpName, "-tmp");
+            fontOutputStream = new FileOutputStream(fontTmpFile);
+            fis = new FileInputStream(path);
+            byte[] buf = new byte[4096];
+            while (fis.available() > 0) {
+                int readBytes = fis.read(buf, 0, 4096);
+                if (readBytes > 0)
+                    fontOutputStream.write(buf, 0, readBytes);
+            }
+        } finally {
+            if(fontOutputStream!=null)
+                fontOutputStream.close();
+            if(fis != null)
+                fis.close();
         }
         return fontTmpFile;
     }
