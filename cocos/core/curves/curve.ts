@@ -166,9 +166,8 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  *
  * Every keyframe may specify an interpolation mode
  * to indicates how to perform the interpolation
- * and each keyframe 's interpolation mode may differ from each other.
- * An important thing to note is that while perform interpolation,
- * the interpolation mode used is alway taken from the previous keyframe.
+ * from current keyframe to next keyframe.
+ * Interpolation modes of keyframes may differ from each other.
  *
  * Real curve allows three interpolation modes: constant, linear and cubic.
  * The constant and linear mode is easy.
@@ -179,11 +178,9 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * - Keyframe times and numeric values.
  * - The tangent and tangent weight of the previous keyframe and next keyframe.
  *
- * Since every keyframe maybe used as "previous" or "next"
- * and the interpolations on different intervals are irrelevant.
- * Keyframes record two tangents and two tangent weights:
- * - left tangent/tangent weight, when it is used as "next" keyframe;
- * - right tangent/tangent weight, when it is used as "previous" keyframe.
+ * While performing the cubic bezier interpolation,
+ * The first control point is calculated from right tangent and right tangent weight of previous keyframe,
+ * the second control point is calculated from left tangent and left tangent weight of next keyframe.
  *
  * In equivalent bezier representation,
  * the tangent is the line slope between sample point and control point
@@ -204,8 +201,9 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * - 否则，如果输入小于第一个关键帧上的时间或大于最后一个关键帧上的时间，它会进行所谓的外推。
  * - 否则，输入落于两帧之间，将通过插值两帧得到结果。
  *
- * 每个关键帧都可以指定插值模式以表示如何进行插值，每个关键帧的插值模式都可以是各不相同的。
- * 注意，当进行插值时，总是使用前一个关键帧指定的插值模式。
+ * 每个关键帧都可以指定插值模式，
+ * 以表示从当前帧数值变化到下一帧数值所采用的插值算法，
+ * 每个关键帧的插值模式都可以是各不相同的。
  *
  * 实数曲线允许三种插值模式：常量、线性和三次方的（也称立方）。
  * 常量和线性模式都比较简单。
@@ -215,10 +213,9 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * - 关键帧上的时间和数值；
  * - 前一关键帧和后一关键帧上的切线和切线权重。
  *
- * 由于每个关键帧都可能作为“前一关键帧”或“后一关键帧”，且不同区间上的插值是互不相关的，
- * 关键帧都会记录两组切线和切线权重：
- * - 左切线/切线权重，当它作为“后一”关键帧时；
- * - 右切线/切线权重，当它作为“前一”关键帧时。
+ * 当计算两帧之间的三次贝塞尔曲线时，
+ * 会取前一帧的右切线、右切线权重来计算出第一个控制点，
+ * 会取后一帧的左切线、左切线权重来计算出第二个控制点。
  *
  * 在等效的贝塞尔表示中，
  * 切线就是样本点和控制点之间的切线斜率，而切线权重就是样本点和控制点之间的距离。
