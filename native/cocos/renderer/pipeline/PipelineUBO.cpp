@@ -195,13 +195,15 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
 
                 farClamp = shadowInfo->farValue;
             }
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowCamera.m, sizeof(matShadowCamera));
+            const auto matShadowView = matShadowCamera.getInversed();
 
-            const auto matShadowView  = matShadowCamera.getInversed();
             const auto projectionSinY = device->getCapabilities().clipSpaceSignY;
-            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getCapabilities().clipSpaceMinZ, projectionSinY, &matShadowViewProj);
-
+            Mat4 matShadowProj;
+            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getCapabilities().clipSpaceMinZ, projectionSinY, &matShadowProj);
+            matShadowViewProj = matShadowProj;
             matShadowViewProj.multiply(matShadowView);
+
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
             const float linear             = hFTexture ? 1.0F : 0.0F;
@@ -214,6 +216,12 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
             const float packing            = hFTexture ? 0.0F : 1.0F;
             float       shadowLPNNInfos[4] = {0.0F, packing, shadowInfo->normalBias, 0.0F};
             memcpy(shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
+
+            float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
+            memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
+
+            float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
+            memcpy(shadowUBO.data() + UBOShadow::SHADOW_PROJ_INFO_OFFSET, &shadowProjInfos, sizeof(shadowProjInfos));
         } else if (mainLight && shadowInfo->shadowType == scene::ShadowType::PLANAR) {
             updateDirLight(shadowInfo, mainLight, &shadowUBO);
         }
@@ -230,7 +238,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
     auto *      sphere     = sceneData->getSphere();
     auto &      shadowUBO  = *bufferView;
     const bool  hFTexture  = supportsHalfFloatTexture(device);
-    const float linear     = hFTexture ? 1.0F : 0.0F;
+    const float linear     = 0.0F;
     const float packing    = hFTexture ? 0.0F : 1.0F;
     switch (light->getType()) {
         case scene::LightType::DIRECTIONAL: {
@@ -258,9 +266,9 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
 
                 farClamp = shadowInfo->farValue;
             }
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowCamera.m, sizeof(matShadowCamera));
+            const auto matShadowView = matShadowCamera.getInversed();
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
 
-            const auto matShadowView  = matShadowCamera.getInversed();
             const auto projectionSinY = device->getCapabilities().clipSpaceSignY;
             Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getCapabilities().clipSpaceMinZ, projectionSinY, &matShadowViewProj);
 
@@ -276,9 +284,9 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
         case scene::LightType::SPOT: {
             const auto *spotLight       = static_cast<const scene::SpotLight *>(light);
             const auto &matShadowCamera = spotLight->getNode()->getWorldMatrix();
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowCamera.m, sizeof(matShadowCamera));
+            const auto  matShadowView   = matShadowCamera.getInversed();
+            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
 
-            const auto matShadowView = matShadowCamera.getInversed();
             cc::Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);

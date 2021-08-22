@@ -121,19 +121,25 @@ public class CanvasRenderingContext2DImpl {
     // url is a full path started with '@assets/'
     public static void loadTypeface(String familyName, String url) {
         Context ctx = sContext.get();
+        File fontTmpFile = null;
         if (!sTypefaceCache.containsKey(familyName)) {
             try {
                 Font.Builder typeface = null;
-
                 if (url.startsWith("/")) {
-                    typeface = new Font.Builder(url);
+                    /// No error reported here, but font render incorrect.
+                    //  typeface = new Font.Builder(url);
+                    /// TODO: Opt. 
+                    /// After copying to temporary location, we can load font successfully.
+                    /// I don't know why.
+                    fontTmpFile = CocosHelper.copyToTempFile(url, "fontFile");
+                    typeface = new Font.Builder(fontTmpFile);
                 } else if (ctx != null) {
                     final String prefix = "@assets/";
                     if (url.startsWith(prefix)) {
                         url = url.substring(prefix.length());
                     }
                     // TODO: 是否可以直接通过 rawfile 创建 font?
-                    File fontTmpFile = CocosHelper.copyOutResFile(ctx, url, "fontFile");
+                    fontTmpFile = CocosHelper.copyOutResFile(ctx, url, "fontFile");
                     typeface = new Font.Builder(fontTmpFile);
                 }
 

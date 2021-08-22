@@ -415,7 +415,10 @@ struct CC_DLL UBOShadow : public Object {
     static constexpr uint                        MAT_LIGHT_PLANE_PROJ_OFFSET                   = 0;
     static constexpr uint                        MAT_LIGHT_VIEW_OFFSET                         = MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     static constexpr uint                        MAT_LIGHT_VIEW_PROJ_OFFSET                    = UBOShadow::MAT_LIGHT_VIEW_OFFSET + 16;
-    static constexpr uint                        SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint                        SHADOW_INV_PROJ_DEPTH_INFO_OFFSET             = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint                        SHADOW_PROJ_DEPTH_INFO_OFFSET                 = UBOShadow::SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
+    static constexpr uint                        SHADOW_PROJ_INFO_OFFSET                       = UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET + 4;
+    static constexpr uint                        SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow::SHADOW_PROJ_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET      = UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET   = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_COLOR_OFFSET                           = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
