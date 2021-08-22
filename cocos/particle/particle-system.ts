@@ -843,7 +843,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     private emit (count: number, dt: number) {
-        const delta = this._time / this.duration;
+        const loopDelta = (this._time % this.duration) / this.duration; // loop delta value
 
         // refresh particle node position to update emit position
         if (this._needRefresh) {
@@ -879,11 +879,7 @@ export class ParticleSystem extends RenderableComponent {
                 this._textureAnimationModule.init(particle);
             }
 
-            let curveStartSpeed = this.startSpeed.evaluate(delta, rand)!;
-            if (this.startSpeed.mode === Mode.Curve) {
-                const current = this._time % this.duration; // loop curve value
-                curveStartSpeed = this.startSpeed.evaluate(current / this.duration, rand)!;
-            }
+            const curveStartSpeed = this.startSpeed.evaluate(loopDelta, rand)!;
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
             if (this._simulationSpace === Space.World) {
@@ -895,30 +891,30 @@ export class ParticleSystem extends RenderableComponent {
             // apply startRotation.
             if (this.startRotation3D) {
                 // eslint-disable-next-line max-len
-                particle.startEuler.set(this.startRotationX.evaluate(delta, rand), this.startRotationY.evaluate(delta, rand), this.startRotationZ.evaluate(delta, rand));
+                particle.startEuler.set(this.startRotationX.evaluate(loopDelta, rand), this.startRotationY.evaluate(loopDelta, rand), this.startRotationZ.evaluate(loopDelta, rand));
             } else {
-                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(delta, rand));
+                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
             }
             this._processRotation(particle);
             Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
 
             // apply startSize.
             if (this.startSize3D) {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(delta, rand)!,
-                    this.startSizeY.evaluate(delta, rand)!,
-                    this.startSizeZ.evaluate(delta, rand)!);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!,
+                    this.startSizeY.evaluate(loopDelta, rand)!,
+                    this.startSizeZ.evaluate(loopDelta, rand)!);
             } else {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(delta, rand)!, 1, 1);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;
             }
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
-            particle.startColor.set(this.startColor.evaluate(delta, rand));
+            particle.startColor.set(this.startColor.evaluate(loopDelta, rand));
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
-            particle.startLifetime = this.startLifetime.evaluate(delta, rand)! + dt;
+            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);
