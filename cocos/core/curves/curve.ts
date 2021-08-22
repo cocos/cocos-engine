@@ -192,6 +192,9 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * If either side weight is not specified,
  * the tangent weight is treated at `sqrt(d_t^2 + (d_t * tangent)^2) * (1 / 3)`
  * where `d_t` is the difference between two keyframes 's time and `tangent` is the tangent of that side.
+ *
+ * Note, in some cases, tangent/tangent weight/tangent weight mode may be "meaningless".
+ * The meaningless means that value can may not be stored(or serialized).
  * @zh
  * 实数曲线。
  *
@@ -223,6 +226,9 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * 若任意一端的切线权重是未指定的，
  * 此端上的切线权重将被视为 `sqrt(d_t^2 + (d_t * tangent)^2) * (1 / 3)`，其中，
  * `d_t` 是两帧时间的差，`tangent` 是此端上的切线。
+ *
+ * 注意，切线/切线权重/切线权重模式在某些情况下可能是“无意义的”。
+ * 无意义意味着这些值可能不会被存储或序列化。
  */
 @ccclass('cc.RealCurve')
 export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
