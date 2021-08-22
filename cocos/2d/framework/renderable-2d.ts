@@ -161,13 +161,13 @@ export class Renderable2D extends RenderableComponent {
         this.updateMaterial();
     }
 
-    protected updateMaterial () {
+    protected updateMaterial (useGPU = false) {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
             this._blendHash = -1; // a flag to check merge
             return;
         }
-        const mat = this._updateBuiltinMaterial();
+        const mat = this._updateBuiltinMaterial(useGPU);
         this.setMaterial(mat, 0);
         this._updateBlendFunc();
     }
@@ -322,7 +322,7 @@ export class Renderable2D extends RenderableComponent {
     public __preload () {
         this.node._uiProps.uiComp = this;
         if (this._flushAssembler) {
-            this._flushAssembler();
+            this._flushAssembler(); // 用于 createRenderData，其中的实现需要区别对待了
         }
     }
 
@@ -441,6 +441,7 @@ export class Renderable2D extends RenderableComponent {
     protected _postRender (render: Batcher2D) {}
 
     protected _checkAndUpdateRenderData () {
+        // renderDate 的标签已经失效
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
@@ -523,23 +524,27 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    protected _updateBuiltinMaterial () : Material {
+    protected _updateBuiltinMaterial (useGPU: boolean) : Material {
+        let gpuMat = '';
+        if (useGPU) {
+            gpuMat = '-gpu';
+        }
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
-            mat = builtinResMgr.get('ui-base-material');
+            mat = builtinResMgr.get(`ui-base${gpuMat}-material`);
             break;
         case InstanceMaterialType.GRAYSCALE:
-            mat = builtinResMgr.get('ui-sprite-gray-material');
+            mat = builtinResMgr.get(`ui-sprite-gray${gpuMat}-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED:
-            mat = builtinResMgr.get('ui-sprite-alpha-sep-material');
+            mat = builtinResMgr.get(`ui-sprite-alpha-sep${gpuMat}-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-            mat = builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
+            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep${gpuMat}-material`);
             break;
         default:
-            mat = builtinResMgr.get('ui-sprite-material');
+            mat = builtinResMgr.get(`ui-sprite${gpuMat}-material`);
             break;
         }
         return mat;

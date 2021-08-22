@@ -65,8 +65,69 @@ interface IRenderItem {
  * UI 渲染流程
  */
 export class Batcher2D {
+    get currBufferBatch () {
+        if (this._currMeshBuffer) return this._currMeshBuffer;
+        // create if not set
+        this._currMeshBuffer = this.acquireBufferBatch();
+        return this._currMeshBuffer;
+    }
+
+    set currBufferBatch (buffer: MeshBuffer | null) {
+        if (buffer) {
+            this._currMeshBuffer = buffer;
+        }
+    }
+
     get batches () {
         return this._batches;
+    }
+
+    /**
+     * Acquire a new mesh buffer if the vertex layout differs from the current one.
+     * @param attributes
+     */
+    public acquireBufferBatch (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
+        const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
+        if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes) !== strideBytes) {
+            this._requireBufferBatch(attributes);
+            return this._currMeshBuffer;
+        }
+        return this._currMeshBuffer;
+    }
+
+    public registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) {
+        let batch: MeshBuffer;
+        if (attributes instanceof MeshBuffer) {
+            batch = attributes;
+        } else {
+            batch = this._bufferBatchPool.add();
+            batch.initialize(attributes, callback || this._recreateMeshBuffer.bind(this, attributes));
+        }
+        const strideBytes = batch.vertexFormatBytes;
+        let buffers = this._customMeshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._customMeshBuffers.set(strideBytes, buffers); }
+        buffers.push(batch);
+        return batch;
+    }
+
+    public unRegisterCustomBuffer (buffer: MeshBuffer) {
+        const buffers = this._customMeshBuffers.get(buffer.vertexFormatBytes);
+        if (buffers) {
+            for (let i = 0; i < buffers.length; i++) {
+                if (buffers[i] === buffer) {
+                    buffers.splice(i, 1);
+                    break;
+                }
+            }
+        }
+
+        // release the buffer to recycle pool --
+        const idx = this._bufferBatchPool.data.indexOf(buffer);
+        if (idx !== -1) {
+            buffer.reset();
+            this._bufferBatchPool.removeAt(idx);
+        }
+        // ---
     }
 
     set currStaticRoot (value: UIStaticBatch | null) {
@@ -80,6 +141,12 @@ export class Batcher2D {
     public device: Device;
     private _screens: RenderRoot2D[] = [];
     private _drawBatchPool: Pool<DrawBatch2D>;
+
+    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
+    private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
+    private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
+    private _meshBufferUseCount: Map<number, number> = new Map();
+
     private _batches: CachedArray<DrawBatch2D>;
     private _doUploadBuffersCall: Map<any, ((ui: Batcher2D) => void)> = new Map();
     private _emptyMaterial = new Material();
@@ -87,6 +154,7 @@ export class Batcher2D {
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
+    private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatch | null = null;
     private _currComponent: Renderable2D | null = null;
     private _currTransform: Node | null = null;
@@ -103,6 +171,10 @@ export class Batcher2D {
     private _descriptorSetCache = new DescriptorSetCache();
     private _dummyIA: DummyIA;
     private _localUBOManager: UILocalUBOManger;
+
+    // 需要一个决定是否换批的东西
+    // 实际上存在一个问题，共存的时候不可避免的存在交叉使用，那么切换条件就很麻烦
+    private _currTypeIsGPU = false;// 决定是否使用
 
     public reloadBatchDirty = true;
     public renderQueue: IRenderItem[] = [];
@@ -240,6 +312,22 @@ export class Batcher2D {
                 value.call(key, this);
             });
 
+            const buffers = this._meshBuffers;
+            buffers.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.uploadBuffers();
+                    bb.reset();
+                });
+            });
+
+            const customs = this._customMeshBuffers;
+            customs.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.uploadBuffers();
+                    bb.reset();
+                });
+            });
+
             this._descriptorSetCache.update();
             if (this.reloadBatchDirty || this.updateBufferDirty) {
                 this._localUBOManager.updateBuffer();
@@ -268,6 +356,7 @@ export class Batcher2D {
         this._currComponent = null;
         this._currTransform = null;
         this._currScene = null;
+        this._currMeshBuffer = null;
         this._currOpacity = 1;
         this._batches.clear(); // DC 数量有问题
         StencilManager.sharedManager!.reset();
@@ -320,8 +409,17 @@ export class Batcher2D {
         // 需要优化
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
-            this.autoMergeBatches(this._currComponent!);
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== true) {
+            if (this._currTypeIsGPU) {
+                // G -> G
+                this.autoMergeBatches(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+                this._currBatch.UICapacityDirty = true;
+            } else {
+                // A -> G
+                this.autoMergeBatchesAssembler(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+            }
             this._currScene = renderScene;
             this._currComponent = renderComp;
             this._currTransform = transform;
@@ -333,9 +431,8 @@ export class Batcher2D {
             this._currBlendTargetHash = blendTargetHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
-            this._currBatch = this._drawBatchPool.alloc();
-            this._currBatch.UICapacityDirty = true;
         }
+        this._currTypeIsGPU = true;
 
         // 暂时不用新建 batch
         // if(!this._currBatch) {
@@ -382,6 +479,63 @@ export class Batcher2D {
         }
         this._currBatch.fillDrawCall(bufferInfo, localBuffer);
         ++this._currWalkIndex;
+    }
+
+    public commitCompByAssembler (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+        const renderComp = comp;
+        let texture;
+        let samp;
+        let textureHash = 0;
+        let samplerHash = 0;
+        if (frame) {
+            texture = frame.getGFXTexture();
+            samp = frame.getGFXSampler();
+            textureHash = frame.getHash();
+            samplerHash = frame.getSamplerHash();
+        } else {
+            texture = null;
+            samp = null;
+        }
+
+        const renderScene = renderComp._getRenderScene();
+        const mat = renderComp.getRenderMaterial(0)!;
+        renderComp.stencilStage = StencilManager.sharedManager!.stage;
+
+        const blendTargetHash = renderComp.blendHash;
+        const depthStencilStateStage = renderComp.stencilStage;
+
+        if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
+            || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== false) {
+            if (this._currTypeIsGPU) {
+                // G -> A
+                this.autoMergeBatches(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+                this._currBatch.UICapacityDirty = true;
+            } else {
+                // A -> A
+                this.autoMergeBatchesAssembler(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+            }
+            this._currScene = renderScene;
+            this._currComponent = renderComp;
+            this._currTransform = transform;
+            this._currMaterial = mat;
+            this._currTexture = texture;
+            this._currSampler = samp;
+            this._currTextureHash = textureHash;
+            this._currSamplerHash = samplerHash;
+            this._currBlendTargetHash = blendTargetHash;
+            this._currDepthStencilStateStage = depthStencilStateStage;
+            this._currLayer = comp.node.layer;
+            this._currBatch.UICapacityDirty = true;
+        }
+
+        this._currTypeIsGPU = false;
+
+        if (assembler) {
+            assembler.fillBuffers(renderComp, this);
+        }
     }
 
     /**
@@ -506,6 +660,49 @@ export class Batcher2D {
         this._batches.push(curDrawBatch);
     }
 
+    public autoMergeBatchesAssembler (renderComp?: Renderable2D) {
+        const buffer = this.currBufferBatch;
+        const ia = buffer?.recordBatch();
+        const mat = this._currMaterial;
+        if (!ia || !mat || !buffer) {
+            return;
+        }
+        let blendState;
+        let depthStencil;
+        let dssHash = 0;
+        let bsHash = 0;
+        if (renderComp) {
+            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
+            bsHash = renderComp.blendHash;
+            if (renderComp.customMaterial !== null) {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, mat);
+            } else {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            }
+            dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+        }
+
+        // 先有一个 currBatch，然后这 currBatch 调用方法
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
+        curDrawBatch.renderScene = this._currScene;
+        curDrawBatch.visFlags = this._currLayer;
+        curDrawBatch.bufferBatch = buffer;
+        curDrawBatch.texture = this._currTexture!;
+        curDrawBatch.sampler = this._currSampler;
+        curDrawBatch.inputAssembler = ia;
+        curDrawBatch.useLocalData = this._currTransform;
+        curDrawBatch.textureHash = this._currTextureHash;
+        curDrawBatch.samplerHash = this._currSamplerHash;
+        curDrawBatch.fillPasses(this._currMaterial, depthStencil, dssHash, blendState, bsHash, null, this);
+        curDrawBatch.fillDrawCallAssembler();
+
+        this._batches.push(curDrawBatch);
+
+        buffer.vertexStart = buffer.vertexOffset;
+        buffer.indicesStart = buffer.indicesOffset;
+        buffer.byteStart = buffer.byteOffset;
+    }
+
     /**
      * @en
      * Force changes to current batch data and merge
@@ -602,26 +799,50 @@ export class Batcher2D {
 
     private _recursiveScreenNode (screen: Node) {
         this.walk(screen);
-        this.autoMergeBatches(this._currComponent!);
+        if (this._currTypeIsGPU) {
+            this.autoMergeBatches(this._currComponent!);
+        } else {
+            this.autoMergeBatchesAssembler(this._currComponent!);
+        }
+    }
+
+    private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
+        const batch = this._bufferBatchPool.add();
+        batch.initialize(attributes, this._recreateMeshBuffer.bind(this, attributes));
+        const strideBytes = VertexFormat.getAttributeStride(attributes);
+        let buffers = this._meshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
+        buffers.push(batch);
+        return batch;
+    }
+
+    private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
+        this.autoMergeBatchesAssembler();
+        this._requireBufferBatch(attributes, vertexCount, indexCount);
+    }
+
+    private _requireBufferBatch (attributes: Attribute[], vertexCount?: number, indexCount?: number) {
+        const strideBytes = VertexFormat.getAttributeStride(attributes);
+        let buffers = this._meshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
+        let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
+        if (vertexCount && indexCount) {
+            // useCount++ when _recreateMeshBuffer
+            meshBufferUseCount++;
+        }
+
+        this._currMeshBuffer = buffers[meshBufferUseCount];
+        if (!this._currMeshBuffer) {
+            this._currMeshBuffer = this._createMeshBuffer(attributes);
+        }
+        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
+        if (vertexCount && indexCount) {
+            this._currMeshBuffer.request(vertexCount, indexCount);
+        }
     }
 
     private _screenSort (a: RenderRoot2D, b: RenderRoot2D) {
         return a.node.getSiblingIndex() - b.node.getSiblingIndex();
-    }
-
-    private _applyOpacity (comp: Renderable2D) {
-        const color = comp.color.a / 255;
-        const opacity = (this._parentOpacity *= color);
-        // const currMeshBuffer = this.currBufferBatch!;
-        // const byteOffset = currMeshBuffer.byteOffset >> 2;
-        // const vBuf = currMeshBuffer.vData!;
-        // const lastByteOffset = currMeshBuffer.lastByteOffset >> 2;
-        // const stride = currMeshBuffer.vertexFormatBytes / 4;
-        // for (let i = lastByteOffset; i < byteOffset; i += stride) {
-        //     vBuf[i + MeshBuffer.OPACITY_OFFSET] *= opacity;
-        // }
-
-        // currMeshBuffer.lastByteOffset = currMeshBuffer.byteOffset;
     }
 
     private _releaseDescriptorSetCache (textureHash: number) {

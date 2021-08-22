@@ -490,10 +490,12 @@ export class Label extends Renderable2D {
 
         if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
             this._ttfSpriteFrame._resetDynamicAtlasFrame();
+            this._canDrawByFourVertex = true;
         }
 
         if (this._cacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
+            this._canDrawByFourVertex = false;
         }
 
         this._cacheMode = value;
@@ -673,6 +675,8 @@ export class Label extends Renderable2D {
     protected _fontAtlas: FontAtlas | null = null;
     protected _letterTexture: LetterRenderTexture | null = null;
 
+    private _canDrawByFourVertex = true;
+
     constructor () {
         super();
         if (EDITOR) {
@@ -726,6 +730,7 @@ export class Label extends Renderable2D {
     }
 
     public updateRenderData (force = false) {
+        // label 有个问题，它的贴图也是这儿生成的，所以都要
         this.markForUpdateRenderData();
 
         if (force) {
@@ -740,7 +745,11 @@ export class Label extends Renderable2D {
     }
 
     protected _render (render: Batcher2D) {
-        render.commitComp(this, this._texture, this._assembler!, null);
+        if (this._canDrawByFourVertex) {
+            render.commitComp(this, this._texture, this._assembler!, null);
+        } else {
+            render.commitCompByAssembler(this, this._texture, this._assembler!, null);
+        }
     }
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
@@ -764,6 +773,7 @@ export class Label extends Renderable2D {
             if (!spriteFrame || !spriteFrame.texture) {
                 return false;
             }
+            this._canDrawByFourVertex = false;
         }
 
         return true;
@@ -797,10 +807,12 @@ export class Label extends Renderable2D {
                     this._assembler.updateRenderData(this);
                 }
             }
+            this._canDrawByFourVertex = false;
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
+                this._canDrawByFourVertex = false;
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
@@ -813,6 +825,7 @@ export class Label extends Renderable2D {
             if (this.cacheMode !== CacheMode.CHAR) {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
+                this._canDrawByFourVertex = true;
             }
             this.changeMaterialForDefine();
         }
@@ -836,6 +849,6 @@ export class Label extends Renderable2D {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this.updateMaterial();
+        this.updateMaterial(this._canDrawByFourVertex);
     }
 }

@@ -34,7 +34,6 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { Batcher2D } from '../../renderer/batcher-2d';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { TransformBit } from '../../../core/scene-graph/node-enum';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {

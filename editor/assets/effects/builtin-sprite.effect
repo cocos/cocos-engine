@@ -22,116 +22,25 @@ CCEffect %{
 CCProgram sprite-vs %{
   precision highp float;
   #include <cc-global>
+  #if USE_LOCAL
+    #include <cc-local>
+  #endif
   #if SAMPLE_FROM_RT
     #include <common>
   #endif
-
-  #define PI2 6.28318530718
-
   in vec3 a_position;
   in vec2 a_texCoord;
-  in float a_batch_id;
+  in vec4 a_color;
 
-  out vec2 uv0;
   out vec4 color;
-
-  out float uvMode;
-  out vec4 uvSizeOffset;
-  out vec4 uvParams0;
-  out vec4 uvParams1;
-
-  struct UILocalData {
-    vec4 rotation;
-    vec3 translation;
-    vec3 scale;
-
-    vec4 color;
-    vec4 uvSizeOffset;
-
-    float uvMode;
-    vec4 uvParams;
-    float filltype;
-  };
-
-  /////////////////////////////////////////////////////////
-
-  // 这儿的数量不包装的话，就会被打散//那就对 5 取整
-  #define CC_UI_VECTOR_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 5 * 5 //(需要对5取整因为边界条件)
-  // #define CC_UI_VECTOR_PER_DRAW 16 * 5 // 调试用 16
-
-  #pragma builtin(local)
-  layout(set = 2, binding = 0) uniform CCUILocal {
-    // xyz: translation w: color R.G
-    // xyzw: quat rotation
-    // xy: scale z: color B.A w: uvMode.filltype
-    // xy: uv size zw: uv offset
-    // (xyzw: sliced - left, top, right, bottom) | (xy: tiling) | (xyzw: start, end, mode, center)
-    vec4 cc_local_data[CC_UI_VECTOR_PER_DRAW];
-  };
-
-  void CCGetUILocalData(out UILocalData o) {
-    vec4 data0 = cc_local_data[int(a_batch_id) * 5];
-    vec4 data1 = cc_local_data[int(a_batch_id) * 5 + 1];
-    vec4 data2 = cc_local_data[int(a_batch_id) * 5 + 2];
-    vec4 data3 = cc_local_data[int(a_batch_id) * 5 + 3];
-    vec4 data4 = cc_local_data[int(a_batch_id) * 5 + 4];
-
-    float rg = data0.w;
-    float r = floor(rg);
-    float ba = data2.z;
-    float b = floor(ba);
-
-    o.rotation = data1;
-    o.translation = data0.xyz;
-    o.scale = vec3(data2.xy, 1.0);
-
-    o.color = vec4(r * (1.0 / 255.0), rg - r, b * (1.0 / 255.0), ba - b);
-    o.uvSizeOffset = data3;
-    o.filltype = fract(data2.w) * 10.0;
-
-    o.uvMode = data2.w;
-    o.uvParams = data4;
-  }
-
-  /////////////////////////////////////////////////////////
-
-  vec3 VectorTransformQuat (vec3 v, vec4 Q) {
-    return v + 2.0 * cross(Q.xyz, cross(Q.xyz, v) + Q.w * v);
-  }
+  out vec2 uv0;
 
   vec4 vert () {
-    UILocalData i;
-    CCGetUILocalData(i);
+    vec4 pos = vec4(a_position, 1);
 
-    vec4 pos = vec4(VectorTransformQuat(a_position * i.scale, i.rotation) + i.translation, 1.0);
-
-    if (i.uvMode >= 3.0) {
-      uv0 = a_texCoord;
-      uvSizeOffset = i.uvSizeOffset;
-      uvParams0 = vec4(i.uvParams.xy, i.filltype, 0); // HORIZONTAL OK
-      if (i.filltype >= 2.0) { // 针对 RADIAL 处理
-        uvParams1 = i.uvParams;
-      }else if (i.filltype >= 1.0) {
-        // 由于 y 坐标翻转所需要的翻转
-        uvParams0 = vec4(1.0 - uvParams0.y, 1.0 - uvParams0.x, uvParams0.zw);
-      }
-    } else if (i.uvMode >= 2.0) {
-      uv0 = a_texCoord * i.uvParams.xy;
-      uv0.y -= fract(i.uvParams.y); // 平移 一点 // 为了解决绘制起点的问题
-      uvSizeOffset = i.uvSizeOffset;
-    } else if (i.uvMode >= 1.0) {
-      uv0 = a_texCoord;
-      uvSizeOffset = i.uvSizeOffset;
-      vec4 params0 = fract(i.uvParams); // sprite 的 中间四个点的数据 // 和 Rect 相关 // LTRB
-      vec4 params1 = floor(i.uvParams) / 2048.0; // uvSilced 0-1 // 和图直接相关 // LTRB // 整数位
-      uvParams0 = vec4(params0.xy, params1.xy); // 重新整合了 // SL ST TL TT
-      uvParams1 = vec4(params0.zw, params1.zw); // 重新整合了 // SR SB TR TB
-    } else {
-      uv0 = a_texCoord * i.uvSizeOffset.xy + i.uvSizeOffset.zw;
-    }
-
-    uvMode = i.uvMode;
-    color = i.color;
+    #if USE_LOCAL
+      pos = cc_matWorld * pos;
+    #endif
 
     #if USE_PIXEL_ALIGNMENT
       pos = cc_matView * pos;
@@ -141,9 +50,11 @@ CCProgram sprite-vs %{
       pos = cc_matViewProj * pos;
     #endif
 
+    uv0 = a_texCoord;
     #if SAMPLE_FROM_RT
       CC_HANDLE_RT_SAMPLE_FLIP(uv0);
     #endif
+    color = a_color;
 
     return pos;
   }
@@ -154,96 +65,23 @@ CCProgram sprite-fs %{
   #include <embedded-alpha>
   #include <alpha-test>
 
-  #define ONE_OVER_PI 0.3183098861838
-
-  in vec2 uv0;
   in vec4 color;
 
-  in float uvMode;
-  in vec4 uvSizeOffset;
-  in vec4 uvParams0;
-  in vec4 uvParams1;
-
   #if USE_TEXTURE
+    in vec2 uv0;
     #pragma builtin(local)
     layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
   #endif
-
-  vec2 evalSlicedUV(vec2 uv) {
-    // 一定要清楚这个两点实际上是决定要取用哪个点，其信息是由点本身决定的，其数据决定是由采样点和变更的边界条件决定的
-    // 所以实际上比较的坐标为 xyxy 比较
-    // p0 的前两位为 Sprite 中的变更点，后两位为 uv 中的变更点
-    vec4 p0 = mix(vec4(0.0), uvParams0, step(uvParams0.xyxy, uv.xyxy)); // 使用了mix 其实为三目运算，非前即后    
-         p0 = mix(       p0, uvParams1, step(uvParams1.xyxy, uv.xyxy)); // 逐渐逼近
-    vec4 p1 = mix(vec4(1.0), uvParams1, step(uv.xyxy, uvParams1.xyxy));
-         p1 = mix(       p1, uvParams0, step(uv.xyxy, uvParams0.xyxy));
-
-    // 决定了线段的两点 P0 为起点，P1 为终点
-    // 两点式转一般式
-    // 找到 sprite 上的点对应的 sliced UV 的坐标
-    // sprite  的点是 X ，UV 上的点是 Y
-    vec2 k = (p1.zw - p0.zw) / (p1.xy - p0.xy); 
-    vec2 b = (p1.xy * p0.zw - p0.xy * p1.zw) / (p1.xy - p0.xy);
-
-    return k * uv + b;
-  }
-
-  float evalFilledUV(vec2 uv, float mode) {
-    float alpha = 1.0;
-    if (mode >= 2.0) {
-      float start = uvParams1.x;
-      float range = uvParams1.y;
-      vec2 dir = uv - uvParams1.zw;
-      float angle = -atan(dir.y, dir.x) * ONE_OVER_PI;
-      if (range < 0.0) {
-        angle += mix(0.0, -2.0, step(start, angle));
-        alpha = step(start + range, angle);
-      } else {
-        angle += mix(0.0, 2.0, step(angle, start));
-        alpha = step(angle, start + range);
-      }
-    } else if (mode >= 1.0) {
-      // VERTICAL
-      if (uv.y >= uvParams0.x && uv.y <= uvParams0.y) {
-        alpha = 1.0;
-      } else {
-        alpha = 0.0;
-      }
-    } else {
-      // HORIZONTAL
-      if (uv.x >= uvParams0.x && uv.x <= uvParams0.y) {
-        alpha = 1.0;
-
-      } else {
-        alpha = 0.0;
-
-      }
-    }
-    return alpha;
-  }
 
   vec4 frag () {
     vec4 o = vec4(1, 1, 1, 1);
 
     #if USE_TEXTURE
-      vec2 uv = uv0;
-
-      if(uvMode >= 3.0) {
-        uv = uv0 * uvSizeOffset.xy + uvSizeOffset.zw;
-      } else if (uvMode >= 2.0) {
-        uv = fract(uv0) * uvSizeOffset.xy + uvSizeOffset.zw;
-      } else if (uvMode >= 1.0) {
-        uv = evalSlicedUV(uv0) * uvSizeOffset.xy + uvSizeOffset.zw;
-      }
-
-      o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv);
+      o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
       #if IS_GRAY
         float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;
         o.r = o.g = o.b = gray;
       #endif
-      if (uvMode >= 3.0) {
-        o.a *= evalFilledUV(uv0, uvParams0.z);
-      }
     #endif
 
     o *= color;

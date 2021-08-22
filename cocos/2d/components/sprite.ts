@@ -41,7 +41,7 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
-import { director, Material, RenderTexture } from '../../core';
+import { director, macro, Material, RenderTexture } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 /**
@@ -567,7 +567,7 @@ export class Sprite extends Renderable2D {
     }
 
     protected _updateBuiltinMaterial () {
-        let mat = super._updateBuiltinMaterial();
+        let mat = super._updateBuiltinMaterial(true);
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
             const renderMat = new Material();
@@ -598,6 +598,9 @@ export class Sprite extends Renderable2D {
     }
 
     protected _flushAssembler () {
+        // 在 GPU 模式下不需要
+        // 但这个 _assembler 也为空？那renderData也为空？
+        // if (!macro.UI_GPU_DRIVEN) {
         const assembler = Sprite.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -614,6 +617,7 @@ export class Sprite extends Renderable2D {
                 this._updateColor();
             }
         }
+        // }
     }
 
     private _applySpriteSize () {

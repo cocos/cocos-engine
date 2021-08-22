@@ -1328,7 +1328,7 @@ export class Skeleton extends Renderable2D {
             this._blendHash = -1; // a flag to check merge
             return;
         }
-        const mat = this._updateBuiltinMaterial();
+        const mat = this._updateBuiltinMaterial(false);
         this.setMaterial(mat, 0);
         this._updateBlendFunc();
         this._blendHash = -1;

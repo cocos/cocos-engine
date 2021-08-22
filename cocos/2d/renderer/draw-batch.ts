@@ -247,6 +247,7 @@ export class DrawBatch2D {
         const { _pos: t, _rot: r, _scale: s } = renderComp.node;
         this._tempRect = renderComp.node._uiProps.uiTransformComp!;
 
+        // 由于此处没有 renderData 的 dirty，所以此处需要针对 Rect 进行更新
         // 更新 size 和 anchor 利用 dirty
         this._tempRect.checkAndUpdateRect(s);
         // this._tempScale = this._tempRect._rectWithScale;
@@ -308,6 +309,7 @@ export class DrawBatch2D {
         // 每个 UBO 能够容纳的 UI 数量
         // const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
         if (this.UICapacityDirty) {
+            // 这儿好像没处理多 pass 的情况？？？
             this._UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / this._vec4PerUI);
             this.UICapacityDirty = false;
         }
@@ -367,6 +369,22 @@ export class DrawBatch2D {
             this._drawcalls.push(dc);
         }
         dc.drawInfo.indexCount += 6;
+    }
+
+    // 为 batch 添加 drawCall 的过程
+    public fillDrawCallAssembler () {
+        let dc = this._drawcalls[0];
+        const ia = this.inputAssembler;
+        if (!dc) {
+            dc = DrawBatch2D.drawcallPool.add();
+            // 从 ia 里把信息拷贝过来
+            this._drawcalls.push(dc);
+            dc = this._drawcalls[0];
+        }
+        if (ia) {
+            dc.drawInfo.firstIndex = ia.firstIndex;
+            dc.drawInfo.indexCount = ia.indexCount;
+        }
     }
 
     // 需要针对片段进行 localBuffer 更新
