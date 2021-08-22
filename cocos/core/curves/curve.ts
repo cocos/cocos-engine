@@ -188,7 +188,8 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * In equivalent bezier representation,
  * the tangent is the line slope between sample point and control point
  * and the tangent weight is the distance between sample point and control point.
- * If either side weight is not specified due to the tangent weight mode disabled that side,
+ * The tangent weight on either side can be marked as "not specified" through tangent weight mode.
+ * If either side weight is not specified,
  * the tangent weight is treated at `sqrt(d_t^2 + (d_t * tangent)^2) * (1 / 3)`
  * where `d_t` is the difference between two keyframes 's time and `tangent` is the tangent of that side.
  * @zh
@@ -218,7 +219,8 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  *
  * 在等效的贝塞尔表示中，
  * 切线就是样本点和控制点之间的切线斜率，而切线权重就是样本点和控制点之间的距离。
- * 若任意一端的切线权重由于切线权重模式的设置而被禁用的，
+ * 任意一端的切线权重都可以通过切线权重模式来标记为“未指定的”。
+ * 若任意一端的切线权重是未指定的，
  * 此端上的切线权重将被视为 `sqrt(d_t^2 + (d_t * tangent)^2) * (1 / 3)`，其中，
  * `d_t` 是两帧时间的差，`tangent` 是此端上的切线。
  */
