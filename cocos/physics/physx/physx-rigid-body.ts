@@ -46,9 +46,9 @@ export class PhysXRigidBody implements IRigidBody {
         return !this.impl.isSleeping();
     }
 
-    get isSleeping (): boolean { 
+    get isSleeping (): boolean {
         if (!this.isInScene || this.isStatic) return true;
-        return this.impl.isSleeping(); 
+        return this.impl.isSleeping();
     }
 
     get isEnabled (): boolean { return this._isEnabled; }
