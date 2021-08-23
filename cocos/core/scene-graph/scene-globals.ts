@@ -131,6 +131,12 @@ export class SkyboxInfo {
     protected _envmap: TextureCube | null = null;
     @serializable
     @type(TextureCube)
+    @visible(function() {
+        if(this.useIBL) {
+            return true;
+        }
+        return false;
+    })
     @readOnly
     protected _diffusemap: TextureCube | null = null;
     @serializable
@@ -144,6 +150,12 @@ export class SkyboxInfo {
      * @en Whether to use diffuse reflection convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
      * @zh TODO
      */
+     @visible(function() {
+        if(this.useIBL) {
+            return true;
+        }
+        return false;
+    })
      @editable
      set applyDiffuseMap (val) {
          this._applyDiffuseMap = val;
