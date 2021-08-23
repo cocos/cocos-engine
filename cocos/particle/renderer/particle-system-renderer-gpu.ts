@@ -29,7 +29,7 @@ import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
-import { Mat4, Vec2, Vec4, Quat } from '../../core/math';
+import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
@@ -42,6 +42,8 @@ import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
 const _world_rot = new Quat();
+const _node_rot = new Quat();
+const _node_euler = new Vec3();
 
 const _sample_num = 32;
 const _sample_interval = 1.0 / _sample_num;
@@ -117,6 +119,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _animTexture: Texture2D | null = null;
     private _uTimeHandle = 0;
     private _uRotHandle = 0;
+    private _uNodeRotHandle = 0;
+    private _alignSpace = Space.Custom;
     private _inited = false;
 
     constructor (info: any) {
@@ -233,6 +237,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._model!.updateIA(this._particleNum);
     }
 
+    public updateAlignSpace (space) {
+        this._alignSpace = space;
+    }
+
     public updateShaderUniform (dt: number) {
         const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
@@ -246,6 +254,16 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         this._particleSystem.node.getWorldRotation(_world_rot);
         pass.setUniform(this._uRotHandle, _world_rot);
+
+        if (this._alignSpace === Space.Local) {
+            this._particleSystem.node.getRotation(_node_rot);
+        } else if (this._alignSpace === Space.World) {
+            this._particleSystem.node.getWorldRotation(_node_rot);
+        } else {
+            // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
+            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+        }
+        pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
     public initShaderUniform (mat: Material) {
@@ -253,6 +271,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         this._uTimeHandle = pass.getHandle('u_timeDelta');
         this._uRotHandle = pass.getHandle('u_worldRot');
+        this._uNodeRotHandle = pass.getHandle('nodeRotation');
 
         pass.setUniform(pass.getHandle('scale'), this._node_scale);
         pass.setUniform(pass.getHandle('frameTile_velLenScale'), this._unifrom_velLenScale);

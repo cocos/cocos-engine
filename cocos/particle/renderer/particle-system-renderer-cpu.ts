@@ -37,6 +37,8 @@ import { Component } from '../../core';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
+const _node_rot = new Quat();
+const _node_euler = new Vec3();
 
 const _anim_module = [
     '_colorOverLifetimeModule',
@@ -114,6 +116,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _fillDataFunc: any = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
+    private _uNodeRotHandle = 0;
+    private _alignSpace = Space.Custom;
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
@@ -232,6 +236,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
+    public updateAlignSpace (space) {
+        this._alignSpace = space;
+    }
+
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
         if (!ps) {
@@ -251,6 +259,16 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         pass.setUniform(this._uScaleHandle, this._node_scale);
+
+        if (this._alignSpace === Space.Local) {
+            this._particleSystem.node.getRotation(_node_rot);
+        } else if (this._alignSpace === Space.World) {
+            this._particleSystem.node.getWorldRotation(_node_rot);
+        } else {
+            // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
+            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+        }
+        pass.setUniform(this._uNodeRotHandle, _node_rot);
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps._simulationSpace, _tempWorldTrans);
@@ -464,6 +482,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const pass = mat.passes[0];
         this._uScaleHandle = pass.getHandle('scale');
         this._uLenHandle = pass.getHandle('frameTile_velLenScale');
+        this._uNodeRotHandle = pass.getHandle('nodeRotation');
 
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;
