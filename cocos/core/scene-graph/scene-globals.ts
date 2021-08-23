@@ -401,7 +401,7 @@ export class ShadowsInfo {
     @serializable
     protected _near = 0.1;
     @serializable
-    protected _far = 20.0;
+    protected _far = 10.0;
     @serializable
     protected _range = 50.0;
     @serializable

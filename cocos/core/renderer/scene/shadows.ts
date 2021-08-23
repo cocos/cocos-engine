@@ -399,7 +399,7 @@ export class Shadows {
     protected _distance = 0;
     protected _type = SHADOW_TYPE_NONE;
     protected _near = 0.1;
-    protected _far = 20.0;
+    protected _far = 10;
     protected _range = 50.0;
     protected _orthoSize = 1;
     protected _pcf = 0;
