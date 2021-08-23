@@ -1,4 +1,5 @@
-import { AssetManager, assetManager } from "../../cocos/core/asset-manager";
+import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
+import { AssetManager, assetManager, loader } from "../../cocos/core/asset-manager";
 import { Texture2D } from "../../cocos/core/assets/texture-2d";
 import { js } from "../../cocos/core/utils/js";
 import { TestSprite } from "./common-class";
@@ -146,86 +147,67 @@ describe('asset-manager', function () {
     test('Loading remote image', function () {
         var image = assetDir + '/button.png';
         assetManager.loadRemote(image, function (error, texture) {
-            expect(texture instanceof Texture2D, 'should be texture');
-            expect(texture._nativeAsset instanceof ImageBitmapOrImage, 'should be Image');
-            expect(texture.refCount === 0, 'reference should be 0');
+            expect(texture instanceof Texture2D).toBeTruthy();
+            expect(texture._nativeAsset instanceof Image).toBeTruthy();
+            expect(texture.refCount === 0).toBeTruthy();
             
         });
     });
 
     test('load asset with depends asset', function () {
-        var timerId = setTimeout(function () {
-            expect(false, 'time out!');
-            
-        }, 2000);
         assetManager.loadAny(grossiniSprite_uuid, function (err, asset) {
             if (err) {
-                expect(false, err.message);
-                return 
+                fail(err.message);
             }
-            clearTimeout(timerId);
-            expect(asset.texture, 'can load depends asset');
-            expect(asset.texture.refCount === 1, 'should be 1');
-            expect(asset.refCount === 0, 'should be 1');
-            strictEqual(asset.texture.height, 123, 'can get height');
+            expect((asset as SpriteFrame).texture).toBeTruthy();
+            expect((asset as SpriteFrame).texture.refCount).toBe(1);
+            expect((asset as SpriteFrame).refCount).toBe(0);
+            expect((asset as SpriteFrame).texture.height).toBe(123);
             
         });
-    });
+    }, 2000);
 
     test('load asset with depends asset recursively if no cache', function () {
-        var timerId = setTimeout(function () {
-            expect(false, 'time out!');
-            
-        }, 200);
         assetManager.loadAny(selfReferenced_uuid, function (err, asset) {
             if (err) {
-                expect(false, err.message);
-                return 
+                fail(err.message);
             }
-            clearTimeout(timerId);
             
-            expect(asset.texture === asset, 'asset could reference to itself');
-            expect(asset.refCount === 1, 'should be 1');
-            
+            expect((asset as SpriteFrame).texture).toBe(asset);
+            expect((asset as SpriteFrame).refCount).toBe(1);
         });
-    });
+    }, 200);
 
     test('load asset with circle referenced dependencies', function () {
-        var timerId = setTimeout(function () {
-            expect(false, 'time out!');
-            
-        }, 200);
         assetManager.loadAny(circleReferenced_uuid, function (err, asset) {
             if (err) {
-                expect(false, err.message);
-                return 
+                fail(err.message);
             }
-            clearTimeout(timerId);
-            expect(asset.dependency, 'can load circle referenced asset');
-            expect(asset.dependency.refCount === 1, 'should be 1');
-            expect(asset.refCount === 1, 'should be 1');
-            strictEqual(asset.dependency.dependency, asset, 'circle referenced asset should have dependency which equal to self');
+            expect((asset as any).dependency).toBeTruthy();
+            expect((asset as any).dependency.refCount).toBe(1);
+            expect(asset.refCount).toBe(1);
+            expect((asset as any).dependency.dependency).toBe(asset);
             
         });
-    });
+    }, 200);
 
     test('matching rules - 1', function () {
         resources.load('grossini', TestSprite, function (err, sprite) {
-            expect(sprite._uuid === '1232218' || sprite._uuid === '123200', 'loadRes - checking uuid');
+            expect(sprite._uuid === '1232218' || sprite._uuid === '123200').toBeTruthy();
             if (sprite._uuid === '123200') {
-                expect(sprite.refCount === 1, 'reference should be 1');
-                expect(sprite.texture.refCount === 1, 'reference should be 1');
+                expect(sprite.refCount).toBe(1);
+                expect((sprite as any).texture.refCount).toBe(1);
             }
             else {
-                expect(sprite.refCount === 0, 'reference should be 0');
-                expect(sprite.texture.refCount === 1, 'reference should be 1');
+                expect(sprite.refCount).toBe(0);
+                expect((sprite as any).texture.refCount).toBe(1);
             }
             resources.loadDir('grossini', TestSprite, function (err, array) {
-                strictEqual(array.length, 3, 'loadResDir - checking count');
+                expect(array.length).toBe(3);
                 ['123200', '1232218', '123201'].forEach(function (uuid) {
                     expect(array.some(function (item) {
                         return item._uuid === uuid;
-                    }), 'loadResDir - checking uuid ' + uuid);
+                    })).toBeTruthy();
                 });
                 
             });
@@ -237,8 +219,8 @@ describe('asset-manager', function () {
         //    expect(!texture, 'could not load texture with file extname');
 
             resources.load('grossini/grossini', function (err, texture) {
-                expect(texture instanceof Texture2D, 'should be able to load texture without file extname');
-                expect(texture.refCount === 0, 'should be able to load texture without file extname');
+                expect(texture instanceof Texture2D).toBeTruthy();
+                expect(texture.refCount).toBe(0);
                 
             });
         //});
@@ -246,10 +228,10 @@ describe('asset-manager', function () {
 
     test('load single by type', function () {
         resources.load('grossini', TestSprite, function (err, sprite) {
-            expect(sprite instanceof TestSprite, 'should be able to load asset by type');
+            expect(sprite instanceof TestSprite).toBeTruthy();
 
             resources.load('grossini', Texture2D, function (err, texture) {
-                expect(texture instanceof Texture2D, 'should be able to load asset by type');
+                expect(texture instanceof Texture2D).toBeTruthy();
                 
             });
         });
@@ -257,11 +239,11 @@ describe('asset-manager', function () {
 
     test('load main asset and sub asset by loadResDir', function () {
         resources.loadDir('grossini', function (err, results) {
-            expect(Array.isArray(results), 'result should be an array');
+            expect(Array.isArray(results)).toBeTruthy();
             ['123200', '1232218', '123201', '0000000', '0000001'].forEach(function (uuid) {
                 expect(results.some(function (item) {
                     return item._uuid === uuid;
-                }), 'checking uuid ' + uuid);
+                })).toBeTruthy();
             });
             
         });
@@ -269,9 +251,9 @@ describe('asset-manager', function () {
 
     test('loadResDir by type', function () {
         resources.loadDir('grossini', TestSprite, function (err, results) {
-            expect(Array.isArray(results), 'result should be an array');
+            expect(Array.isArray(results)).toBeTruthy();
             var sprite = results[0];
-            expect(sprite instanceof TestSprite, 'should be able to load test sprite');
+            expect(sprite instanceof TestSprite).toBeTruthy();
 
             
         });
@@ -279,8 +261,8 @@ describe('asset-manager', function () {
 
     test('load all resources by loadResDir', function () {
         resources.loadDir('', function (err, results) {
-            expect(Array.isArray(results), 'result should be an array');
-            strictEqual(results.length, 5, 'should load ' + 5 + ' assets');
+            expect(Array.isArray(results)).toBeTruthy();
+            expect(results.length).toBe(5);
 
             
         });
@@ -288,11 +270,10 @@ describe('asset-manager', function () {
 
     test('url dict of loadResDir', function () {
         resources.loadDir('', Texture2D, function (err, results) {
-            strictEqual(results.length, 2, 'url dict should contains the same count with array');
+            expect(results.length).toBe(2);
 
             resources.load('grossini', Texture2D, function (err, result) {
-                strictEqual(result, results[0], 'url is correct');
-                
+                expect(result).toBe(results[0]);
             });
         });
     });
@@ -303,19 +284,17 @@ describe('asset-manager', function () {
             'grossini'
         ];
         resources.load(urls, TestSprite, function (err, results) {
-            expect(Array.isArray(results), 'result should be an array');
+            expect(Array.isArray(results)).toBeTruthy();
             var expectCount = urls.length;
-            strictEqual(results.length, expectCount, 'should load ' + expectCount + ' assets');
-
-            
+            expect(results.length).toBe(expectCount);
         });
     });
 
     test('loader.onProgress', function () {
-        loader.onProgress = new Callback(function (completedCount, totalCount, item) {
-        }).enable();
+        loader.onProgress = jest.fn(function (completedCount, totalCount, item) {
+        });
         resources.loadDir('', Texture2D, function (err, results) {
-            expect(loader.onProgress.calledCount > 0, 'should call more than 0 times progress callback');
+            expect(loader.onProgress).toBeCalledTimes(3);
             loader.onProgress = null;
             
         });

@@ -207,6 +207,7 @@ class ReleaseManager {
         }
 
         this._toDelete.add(asset._uuid, asset);
+        if (TEST) return;
         if (!this._eventListener) {
             this._eventListener = true;
             callInNextTick(this._freeAssets.bind(this));

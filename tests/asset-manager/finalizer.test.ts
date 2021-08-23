@@ -1,8 +1,10 @@
-import { assetManager } from "../../cocos/core/asset-manager";
+import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
+import { Sprite } from "../../cocos/2d/components/sprite";
+import { assetManager, loader } from "../../cocos/core/asset-manager";
 import releaseManager from "../../cocos/core/asset-manager/release-manager";
 import { Texture2D } from "../../cocos/core/assets/texture-2d";
 import { isValid } from "../../cocos/core/data/object";
-import { Scene } from "../../cocos/core/scene-graph";
+import { Scene, Node } from "../../cocos/core/scene-graph";
 
 describe('releaseManager', () => {
 
@@ -181,16 +183,16 @@ describe('releaseManager', () => {
         // @ts-ignore
         releaseManager._free(texA);
         
-        strictEqual(assetManager.assets.count, 0, 'should equal to 4');
+        expect(assetManager.assets.count).toBe(0);
         assetManager.releaseAll();
     });
 
     test('AutoRelease', function () {
-        var originalRelease = releaseManager.tryRelease;
-        releaseManager.tryRelease = releaseManager._free;
-        var scene1 = new Scene();
+        var scene1 = new Scene('');
+        // @ts-expect-error set private property
         scene1._id = 'scene 1';
-        var scene2 = new Scene();
+        var scene2 = new Scene('');
+        // @ts-expect-error set private property
         scene2._id = 'scene 2';
         var texA = new Texture2D();
         texA._uuid = 'AAA';
@@ -198,11 +200,11 @@ describe('releaseManager', () => {
         assetManager.assets.add('AAA', texA);
         var texB = new Texture2D();
         texB._uuid = 'BBB';
-        texB._ref = 2;
+        texB.addRef().addRef();
         assetManager.assets.add('BBB', texB);
         var texC = new Texture2D();
         texC._uuid = 'CCC';
-        texC._ref = 2;
+        texC.addRef().addRef();
         assetManager.assets.add('CCC', texC);
         var texD = new Texture2D();
         texD._uuid = 'DDD';
@@ -212,62 +214,68 @@ describe('releaseManager', () => {
         assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA', 'BBB', 'CCC', 'DDD']});
         assetManager.dependUtil._depends.add('scene 2', {deps: ['BBB', 'CCC']});
         releaseManager._autoRelease(scene1, scene2, {});
-        strictEqual(assetManager.assets.count, 2, 'should equal to 2');
-        strictEqual(texB.refCount, 1, 'should equal to 1');
-        strictEqual(texC.refCount, 1, 'should equal to 1');
-        releaseManager.tryRelease = originalRelease;
+        // @ts-expect-error set private property
+        releaseManager._freeAssets();
+        expect(assetManager.assets.count).toBe(2);
+        expect(texB.refCount).toBe(1);
+        expect(texC.refCount).toBe(1);
         assetManager.releaseAll();
     });
 
     test('autoRelease_polyfill', function () {
-        var originalRelease = releaseManager.tryRelease;
-        releaseManager.tryRelease = releaseManager._free;
-        var scene1 = new Scene();
+        var scene1 = new Scene('');
+        // @ts-expect-error set private property
         scene1._id = 'scene 1';
-        var scene2 = new Scene();
+        var scene2 = new Scene('');
+        // @ts-expect-error set private property
         scene2._id = 'scene 2';
         var texA = new Texture2D();
         texA._uuid = 'AAA';
         assetManager.assets.add('AAA', texA);
         loader.setAutoRelease(texA, true);
-        strictEqual(assetManager.assets.count, 1, 'should equal to 1');
+        expect(assetManager.assets.count).toBe(1);
         releaseManager._autoRelease(scene1, scene2, {});
-        strictEqual(assetManager.assets.count, 0, 'should equal to 0');
-        releaseManager.tryRelease = originalRelease;
+        // @ts-expect-error set private property
+        releaseManager._freeAssets();
+        expect(assetManager.assets.count).toBe(0);
     });
 
     test('persistNode', function () {
-        var originalRelease = releaseManager.tryRelease;
-        releaseManager.tryRelease = releaseManager._free;
-        var scene1 = new Scene();
+        var scene1 = new Scene('');
+        // @ts-expect-error set private property
         scene1._id = 'scene 1';
-        var scene2 = new Scene();
+        var scene2 = new Scene('');
+        // @ts-expect-error set private property
         scene2._id = 'scene 2';
-        var scene3 = new Scene();
+        var scene3 = new Scene('');
+        // @ts-expect-error set private property
         scene3._id = 'scene 3';
         var sp = new SpriteFrame();
         sp._uuid = 'AAA';
         sp.addRef();
         var tex = new Texture2D();
         tex.loaded = true;
-        sp.setTexture(tex);
+        sp.texture = tex;
         assetManager.assets.add('AAA', sp);
         var persistNode = new Node();
-        persistNode.addComponent(Sprite).spriteFrame = sp;
+        (persistNode.addComponent(Sprite) as Sprite).spriteFrame = sp;
         releaseManager._addPersistNodeRef(persistNode);
         var persistNodes = {};
         persistNodes[persistNode.uuid] = persistNode;
         assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA']});
         assetManager.dependUtil._depends.add('scene 2', {deps: []});
         releaseManager._autoRelease(scene1, scene2, persistNodes);
-        strictEqual(assetManager.assets.count, 1, 'should equal to 1');
-        strictEqual(assetManager.assets.get('AAA'), sp, 'should equal to spriteFrame');
-        strictEqual(sp.refCount, 2, 'should equal to 2');
+        // @ts-expect-error set private property
+        releaseManager._freeAssets();
+        expect(assetManager.assets.count).toBe(1);
+        expect(assetManager.assets.get('AAA')).toBe(sp);
+        expect(sp.refCount).toBe(2);
         releaseManager._removePersistNodeRef(persistNode);
-        strictEqual(sp.refCount, 1, 'should equal to 1');
+        expect(sp.refCount).toBe(1);
         releaseManager._autoRelease(scene2, scene3, {});
-        strictEqual(assetManager.assets.count, 0, 'should equal to 0');
-        releaseManager.tryRelease = originalRelease;
+        // @ts-expect-error set private property
+        releaseManager._freeAssets();
+        expect(assetManager.assets.count).toBe(0);
     });
 
 });
