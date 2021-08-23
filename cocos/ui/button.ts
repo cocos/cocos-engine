@@ -590,7 +590,6 @@ export class Button extends Component {
                 }
             }, this);
         }
-        this._registerTargetEvent(this.target);
     }
 
     public onDisable () {
@@ -601,6 +600,9 @@ export class Button extends Component {
         } else {
             this.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
         }
+    }
+
+    public onDestroy () {
         this._unregisterTargetEvent(this.target);
     }
 
@@ -723,6 +725,7 @@ export class Button extends Component {
                 this._originalScale = new Vec3();
             }
             Vec3.copy(this._originalScale, this.target.getScale());
+            this._registerTargetEvent(this.target);
         }
     }
 
