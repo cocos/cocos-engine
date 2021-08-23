@@ -224,7 +224,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
-    _castWorldBounds.clear();
+    _castWorldBounds.center.set(0, 0, 0);
+    _castWorldBounds.halfExtents.set(0, 0, 0);
     AABB.fromPoints(_castWorldBounds, _tempVec3, _dir_negate);
 
     let shadowObjects: IRenderObject[] | null = null;

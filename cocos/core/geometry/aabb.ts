@@ -343,15 +343,4 @@ export class AABB {
     public mergeFrustum (frustum: Frustum | Readonly<Frustum>) {
         return this.mergePoints(frustum.vertices);
     }
-
-    /**
-      * @en get clear.
-      * @zh 获得初始化状态。
-      * @returns {AABB}
-      */
-    public clear (): AABB {
-        _v3_tmp.set(1000.0, 1000.0, 1000.0);
-        _v3_tmp2.set(-1000.0, -1000.0, -1000.0);
-        return AABB.fromPoints(this, _v3_tmp, _v3_tmp2);
-    }
 }
