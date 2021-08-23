@@ -46,6 +46,9 @@
       },
       {
         "__id__": 8
+      },
+      {
+        "__id__": 9
       }
     ]
   },
@@ -71,7 +74,7 @@
   {
     "__type__": "LightingStage",
     "_name": "LightingStage",
-    "_priority": 0,
+    "_priority": 1,
     "_tag": 0,
     "renderQueues": [
       {
@@ -90,9 +93,16 @@
     ]
   },
   {
+    "__type__": "BloomStage",
+    "_name": "BloomStage",
+    "_priority": 2,
+    "_tag": 0,
+    "_bloomMaterial": null
+  },
+  {
     "__type__": "PostprocessStage",
     "_name": "PostprocessStage",
-    "_priority": 0,
+    "_priority": 3,
     "_tag": 0,
     "_postProcessMaterial": null
   }

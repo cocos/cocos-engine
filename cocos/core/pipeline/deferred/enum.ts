@@ -36,8 +36,9 @@ export enum DeferredStagePriority {
     GBUFFER = 10,
     LIGHTING = 15,
     TRANSPARENT = 18,
-    POSTPROCESS = 19,
-    UI = 20
+    BLOOM = 19,
+    POSTPROCESS = 20,
+    UI = 30
 }
 
 /**

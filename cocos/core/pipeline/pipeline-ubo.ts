@@ -351,6 +351,13 @@ export class PipelineUBO {
         globalDSManager.update();
     }
 
+    public updateGlobalUBOTextureSize(size: Float32Array) {
+        const ds = this._pipeline.descriptorSet;
+        this._globalUBO[UBOGlobal.TEXTURE_SIZE_OFFSET] = size[0];
+        this._globalUBO[UBOGlobal.TEXTURE_SIZE_OFFSET + 1] = size[1];
+        ds.getBuffer(UBOGlobal.BINDING).update(this._globalUBO);
+    }
+
     public updateCameraUBO (camera: Camera) {
         const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;

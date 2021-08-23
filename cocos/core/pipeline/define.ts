@@ -126,6 +126,7 @@ export enum PipelineGlobalBindings {
     SAMPLER_GBUFFER_NORMALMAP,
     SAMPLER_GBUFFER_EMISSIVEMAP,
     SAMPLER_LIGHTING_RESULTMAP,
+    SAMPLER_BLOOM,
 
     COUNT,
 }
@@ -172,7 +173,8 @@ export class UBOGlobal {
     public static readonly TIME_OFFSET = 0;
     public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
     public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static readonly COUNT = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static readonly TEXTURE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static readonly COUNT = UBOGlobal.TEXTURE_SIZE_OFFSET + 4;
     public static readonly SIZE = UBOGlobal.COUNT * 4;
 
     public static readonly NAME = 'CCGlobal';
@@ -182,6 +184,7 @@ export class UBOGlobal {
         new Uniform('cc_time', Type.FLOAT4, 1),
         new Uniform('cc_screenSize', Type.FLOAT4, 1),
         new Uniform('cc_nativeSize', Type.FLOAT4, 1),
+        new Uniform('cc_textureSize', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
@@ -331,6 +334,17 @@ const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBind
 const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
 globalDescriptorSetLayout.layouts[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR;
+
+/**
+ * @en The sampler for bloom
+ * @zh 泛光纹理采样器。
+ */
+ const UNIFORM_BLOOM_TEXTURE_NAME = 'cc_bloomTexture';
+ export const UNIFORM_BLOOM_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_BLOOM;
+ const UNIFORM_BLOOM_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_BLOOM_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+ const UNIFORM_BLOOM_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_BLOOM_TEXTURE_BINDING, UNIFORM_BLOOM_TEXTURE_NAME, Type.SAMPLER2D, 1);
+ globalDescriptorSetLayout.layouts[UNIFORM_BLOOM_TEXTURE_NAME] = UNIFORM_BLOOM_TEXTURE_LAYOUT;
+ globalDescriptorSetLayout.bindings[UNIFORM_BLOOM_TEXTURE_BINDING] = UNIFORM_BLOOM_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The local uniform buffer object

@@ -46,6 +46,7 @@ export { DeferredPipeline } from './deferred/deferred-pipeline';
 export { MainFlow } from './deferred/main-flow';
 export { GbufferStage } from './deferred/gbuffer-stage';
 export { LightingStage } from './deferred/lighting-stage';
+export { BloomStage } from './deferred/bloom-stage';
 export { PostprocessStage } from './deferred/postprocess-stage';
 export { ShadowFlow } from './shadow/shadow-flow';
 export { ShadowStage } from './shadow/shadow-stage';

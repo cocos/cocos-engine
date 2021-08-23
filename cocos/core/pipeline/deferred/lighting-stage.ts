@@ -253,7 +253,7 @@ export class LightingStage extends RenderStage {
         }
 
         colors[0].w = 0;
-        const deferredData = pipeline.getDeferredRenderData(camera);
+        const deferredData = pipeline.getDeferredRenderData();
         const framebuffer = deferredData.lightingFrameBuffer!;
         const renderPass = framebuffer.renderPass;
 

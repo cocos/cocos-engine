@@ -34,6 +34,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from './enum';
 import { GbufferStage } from './gbuffer-stage';
 import { LightingStage } from './lighting-stage';
+import { BloomStage } from './bloom-stage';
 import { PostprocessStage } from './postprocess-stage';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
@@ -63,6 +64,9 @@ export class MainFlow extends RenderFlow {
             const lightingStage = new LightingStage();
             lightingStage.initialize(LightingStage.initInfo);
             this._stages.push(lightingStage);
+            const bloomStage = new BloomStage();
+            bloomStage.initialize(BloomStage.initInfo);
+            this._stages.push(bloomStage);
             const postprocessStage = new PostprocessStage();
             postprocessStage.initialize(PostprocessStage.initInfo);
             this._stages.push(postprocessStage);

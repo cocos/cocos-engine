@@ -29,7 +29,7 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
-import { SetIndex } from '../define';
+import { SetIndex, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
@@ -117,7 +117,13 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
+        let descriptorSet = pipeline.descriptorSet;
+        if (DeferredPipeline.bloomSwitch === true) {
+            const bloom = pipeline.getDeferredRenderData().bloom!;
+            descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, bloom.combineTex!);
+            descriptorSet.update();
+        }
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
 
         // Postprocess
         const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMaterial;

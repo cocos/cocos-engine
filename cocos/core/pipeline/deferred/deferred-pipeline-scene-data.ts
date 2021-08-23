@@ -30,6 +30,10 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 
+export const BLOOM_PREFILTERPASS_INDEX = 0;
+export const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
+export const BLOOM_UPSAMPLEPASS_INDEX = 2;
+export const BLOOM_COMBINEPASS_INDEX = 3;
 export class DeferredPipelineSceneData extends PipelineSceneData {
     public get deferredLightingMaterial () {
         return this._deferredLightingMaterial;
@@ -38,6 +42,16 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     public set deferredLightingMaterial (mat: Material) {
         if (this._deferredLightingMaterial === mat || !mat) return;
         this._deferredLightingMaterial = mat;
+        this.updateDeferredPassInfo();
+    }
+
+    public get deferredBloomMaterial() {
+        return this._deferredBloomMaterial;
+    }
+
+    public set deferredBloomMaterial(mat: Material) {
+        if (this._deferredBloomMaterial === mat || !mat) return;
+        this._deferredBloomMaterial = mat;
         this.updateDeferredPassInfo();
     }
 
@@ -52,6 +66,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     }
 
     protected declare _deferredLightingMaterial: Material;
+    protected declare _deferredBloomMaterial: Material;
     protected declare _deferredPostMaterial: Material;
 
     public onGlobalPipelineStateChanged () {
@@ -67,6 +82,14 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
             deferredMat.passes[i].tryCompile();
         }
         this._deferredLightingMaterial = deferredMat;
+
+        const bloomMat = new Material();
+        bloomMat._uuid = 'builtin-bloom-material';
+        bloomMat.initialize({ effectName: 'bloom' });
+        for (let i = 0; i < bloomMat.passes.length; ++i) {
+            bloomMat.passes[i].tryCompile();
+        }
+        this._deferredBloomMaterial = bloomMat;
 
         const postMat = new Material();
         postMat._uuid = 'builtin-post-process-material';
@@ -87,6 +110,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
 
     private updateDeferredPassInfo () {
         this.updateDeferredLightPass();
+        this.updateDeferredBloomPass();
         this.updateDeferredPostPass();
     }
 
@@ -101,6 +125,41 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         if (JSB) {
             this._nativeObj!.deferredLightPassShader = passLit.getShaderVariant();
             this._nativeObj!.deferredLightPass = passLit.native;
+        }
+    }
+
+    private updateDeferredBloomPass() {
+        if (!this.deferredBloomMaterial) return;
+
+        const passPrefilter = this.deferredBloomMaterial.passes[BLOOM_PREFILTERPASS_INDEX];
+        passPrefilter.beginChangeStatesSilently();
+        passPrefilter.tryCompile();
+        passPrefilter.endChangeStatesSilently();
+
+        const passDownsample = this.deferredBloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX];
+        passDownsample.beginChangeStatesSilently();
+        passDownsample.tryCompile();
+        passDownsample.endChangeStatesSilently();
+
+        const passUpsample = this.deferredBloomMaterial.passes[BLOOM_UPSAMPLEPASS_INDEX];
+        passUpsample.beginChangeStatesSilently();
+        passUpsample.tryCompile();
+        passUpsample.endChangeStatesSilently();
+
+        const passCombine = this.deferredBloomMaterial.passes[BLOOM_COMBINEPASS_INDEX];
+        passCombine.beginChangeStatesSilently();
+        passCombine.tryCompile();
+        passCombine.endChangeStatesSilently();
+
+        if (JSB) {
+            this._nativeObj!.deferredBloomPrefilterPassShader = passPrefilter.getShaderVariant();
+            this._nativeObj!.deferredBloomPrefilterPass = passPrefilter.native;
+            this._nativeObj!.deferredBloomDownsamplePassShader = passDownsample.getShaderVariant();
+            this._nativeObj!.deferredBloomDownsamplePass = passDownsample.native;
+            this._nativeObj!.deferredBloomUpsamplePassShader = passUpsample.getShaderVariant();
+            this._nativeObj!.deferredBloomUpsamplePass = passUpsample.native;
+            this._nativeObj!.deferredBloomCombinePassShader = passCombine.getShaderVariant();
+            this._nativeObj!.deferredBloomCombinePass = passCombine.native;
         }
     }
 

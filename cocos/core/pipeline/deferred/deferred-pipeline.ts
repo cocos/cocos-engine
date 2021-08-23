@@ -41,7 +41,7 @@ import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, Store
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
     TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING, UNIFORM_BLOOM_TEXTURE_BINDING } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -67,12 +67,33 @@ class InputAssemblerData {
     quadIA: InputAssembler|null = null;
 }
 
+export class BloomRenderData {
+    renderPass: RenderPass | null = null;
+    /*
+     * The down/upsample pass number should be calculated using the data passed by user
+     * through the camera, but for now we always use 2.
+     */
+    filterPassNum: number = 2;
+
+    prefiterTex: Texture | null = null;
+    downsampleTexs: Texture[] = [];
+    upsampleTexs: Texture[] = [];
+    combineTex: Texture | null = null;
+
+    prefilterFramebuffer: Framebuffer | null = null;
+    downsampleFramebuffers: Framebuffer[] = [];
+    upsampleFramebuffers: Framebuffer[] = [];
+    combineFramebuffer: Framebuffer | null = null;
+}
+
 export class DeferredRenderData {
     gbufferFrameBuffer: Framebuffer | null = null;
     gbufferRenderTargets: Texture[] = [];
     lightingFrameBuffer: Framebuffer | null = null;
     lightingRenderTargets: Texture[] = [];
     depthTex: Texture | null = null;
+
+    bloom: BloomRenderData | null = null;
 }
 
 /**
@@ -92,6 +113,7 @@ export class DeferredPipeline extends RenderPipeline {
     private _width = 0;
     private _height = 0;
     private _lastUsedRenderArea: Rect = new Rect();
+    public static bloomSwitch: boolean = false;
 
     @type([RenderTextureConfig])
     @serializable
@@ -200,7 +222,7 @@ export class DeferredPipeline extends RenderPipeline {
         return renderPass;
     }
 
-    public getDeferredRenderData (camera): DeferredRenderData {
+    public getDeferredRenderData (): DeferredRenderData {
         if (!this._deferredRenderData) {
             this._generateDeferredRenderData();
         }
@@ -270,7 +292,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         if (!this._lightingRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA8;
+            colorAttachment.format = Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -307,6 +329,36 @@ export class DeferredPipeline extends RenderPipeline {
         }
     }
 
+    private _destroyBloomData() {
+        if (DeferredPipeline.bloomSwitch === false) return;
+        const bloom = this._deferredRenderData!.bloom;
+        if (bloom === null) return;
+
+        if (bloom.prefiterTex) bloom.prefiterTex.destroy();
+        if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
+
+        for (let i = 0; i < bloom.downsampleTexs.length; ++i) {
+            bloom.downsampleTexs[i].destroy();
+            bloom.downsampleFramebuffers[i].destroy();
+        }
+        bloom.downsampleTexs.length = 0;
+        bloom.downsampleFramebuffers.length = 0;
+
+        for (let i = 0; i < bloom.upsampleTexs.length; ++i) {
+            bloom.upsampleTexs[i].destroy();
+            bloom.upsampleFramebuffers[i].destroy();
+        }
+        bloom.upsampleTexs.length = 0;
+        bloom.upsampleFramebuffers.length = 0;
+
+        if (bloom.combineTex) bloom.combineTex.destroy();
+        if (bloom.combineFramebuffer) bloom.combineFramebuffer.destroy();
+
+        bloom.renderPass?.destroy();
+
+        this._deferredRenderData!.bloom = null;
+    }
+
     private destroyDeferredData () {
         const deferredData = this._deferredRenderData;
         if (deferredData) {
@@ -323,6 +375,8 @@ export class DeferredPipeline extends RenderPipeline {
                 deferredData.lightingRenderTargets[i].destroy();
             }
             deferredData.lightingRenderTargets.length = 0;
+
+            this._destroyBloomData();
         }
 
         this._deferredRenderData = null;
@@ -509,6 +563,99 @@ export class DeferredPipeline extends RenderPipeline {
         }
     }
 
+    private _generateBloomRenderData() {
+        if (DeferredPipeline.bloomSwitch === false) return;
+
+        const bloom = this._deferredRenderData!.bloom = new BloomRenderData();
+        const device = this.device;
+
+        // create renderPass
+        const colorAttachment = new ColorAttachment();
+        colorAttachment.format = Format.RGBA16F;    // TODO: 根据效果选择是否用RGBA8
+        colorAttachment.loadOp = LoadOp.CLEAR;
+        colorAttachment.storeOp = StoreOp.STORE;
+        colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+        bloom.renderPass = device.createRenderPass(new RenderPassInfo([colorAttachment]));
+
+        let curWidth = this._width;
+        let curHeight = this._height;
+        // TODO: 计算 上下采样pass数
+
+        // prefilter
+        bloom.prefiterTex = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,     // TODO: 根据效果选择是否用RGBA8
+            curWidth >> 1,
+            curHeight >> 1,
+        ));
+        bloom.prefilterFramebuffer = device.createFramebuffer(new FramebufferInfo(
+            bloom.renderPass,
+            [bloom.prefiterTex],
+        ));
+
+        // downsample
+        curWidth >>= 1;
+        curHeight >>= 1;
+        for (let i = 0; i < bloom.filterPassNum; ++i) {
+            bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA16F,
+                curWidth >> 1,
+                curHeight >> 1,
+            )));
+            bloom.downsampleFramebuffers[i] = device.createFramebuffer(new FramebufferInfo(
+                bloom.renderPass,
+                [bloom.downsampleTexs[i]],
+            ))
+            curWidth >>= 1;
+            curHeight >>= 1;
+        }
+
+        // upsample
+        for (let i = 0; i < bloom.filterPassNum; ++i) {
+            bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA16F,
+                curWidth << 1,
+                curHeight << 1,
+            )));
+            bloom.upsampleFramebuffers[i] = device.createFramebuffer(new FramebufferInfo(
+                bloom.renderPass,
+                [bloom.upsampleTexs[i]],
+            ));
+            curWidth <<= 1;
+            curHeight <<= 1;
+        }
+
+        // combine
+        bloom.combineTex = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        ));
+        bloom.combineFramebuffer = device.createFramebuffer(new FramebufferInfo(
+            bloom.renderPass,
+            [bloom.combineTex],
+        ));
+
+        const samplerInfo = [
+            Filter.LINEAR,
+            Filter.LINEAR,
+            Filter.NONE,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
+        ];
+        const samplerHash = genSamplerHash(samplerInfo);
+        const sampler = samplerLib.getSampler(device, samplerHash);
+        this._descriptorSet.bindSampler(UNIFORM_BLOOM_TEXTURE_BINDING, sampler);
+    }
+
     private _generateDeferredRenderData () {
         const device = this.device;
 
@@ -562,7 +709,7 @@ export class DeferredPipeline extends RenderPipeline {
         data.lightingRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA8,
+            Format.RGBA16F,
             this._width,
             this._height,
         )));
@@ -579,11 +726,15 @@ export class DeferredPipeline extends RenderPipeline {
         this._descriptorSet.bindTexture(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, data.gbufferFrameBuffer.colorTextures[3]!);
         this._descriptorSet.bindTexture(UNIFORM_LIGHTING_RESULTMAP_BINDING, data.lightingFrameBuffer.colorTextures[0]!);
 
+        this._generateBloomRenderData();
+
         const sampler = samplerLib.getSampler(device, samplerHash);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, sampler);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_POSITIONMAP_BINDING, sampler);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_NORMALMAP_BINDING, sampler);
         this._descriptorSet.bindSampler(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, sampler);
         this._descriptorSet.bindSampler(UNIFORM_LIGHTING_RESULTMAP_BINDING, sampler);
+
+
     }
 }
