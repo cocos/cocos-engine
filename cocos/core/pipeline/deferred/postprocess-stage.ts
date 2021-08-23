@@ -33,11 +33,11 @@ import { SetIndex } from '../define';
 import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
-import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { UIPhase } from '../forward/ui-phase';
+import { MainFlow } from './main-flow';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { getPhaseID } from '../pass-phase';
@@ -80,7 +80,7 @@ export class PostprocessStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
         this._uiPhase.activate(pipeline);
         if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredPostMaterial = this._postProcessMaterial; }

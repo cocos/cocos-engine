@@ -66,7 +66,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
       this.renderTextures = [];
       this.materials = [];
     }
-  
+
     public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.native);
         for (let i = 0; i < this._flows.length; i++) {
