@@ -1,5 +1,6 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
 import { minigame } from 'pal/minigame';
+import { VIVO } from 'internal:constants';
 import { Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
@@ -26,13 +27,19 @@ export class TouchInputSource {
             const sysInfo = minigame.getSystemInfoSync();
             const touchDataList: TouchData[] = [];
             const length = event.changedTouches.length;
+            let targetHeight;
+            if (VIVO) {
+                targetHeight = window.innerHeight;
+            } else {
+                targetHeight = sysInfo.windowHeight;
+            }
             for (let i = 0; i < length; ++i) {
                 const touch = event.changedTouches[i];
                 const location = this._getLocation(touch);
                 const touchData: TouchData = {
                     identifier: touch.identifier,
                     x: location.x,
-                    y: sysInfo.windowHeight - location.y,
+                    y: targetHeight - location.y,
                     force: touch.force,
                 };
                 touchDataList.push(touchData);
