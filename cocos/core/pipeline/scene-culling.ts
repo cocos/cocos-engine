@@ -246,7 +246,10 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 cameraBoundingSphere.radius = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
                 updateDirFrustum(dirLightFrustum, cameraBoundingSphere, rotation, shadows.range);
             } else {
-                dirLightFrustum.zero();
+                for (let i = 0; i < 8; i++) {
+                    dirLightFrustum.vertices[i].set(0.0, 0.0, 0.0);
+                }
+                dirLightFrustum.updatePlanes();
             }
         }
     }
