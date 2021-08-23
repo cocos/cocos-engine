@@ -43,7 +43,7 @@ import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
-import { CCObject, Texture2D } from '../core';
+import { CCObject, screen, Texture2D } from '../core';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -194,13 +194,13 @@ export class SubContextView extends Component {
         const viewportRect = view.getViewportRect();
         const box = contentTrans.getBoundingBoxToWorld();
         const visibleSize = view.getVisibleSize();
-        const dpr = view.getDevicePixelRatio();
+        const resolutionScale = screen.resolutionScale;
 
         // TODO: the visibleSize need to be the size of Canvas node where the content node is.
-        const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / dpr;
-        const y = (viewportRect.height * (box.y / visibleSize.height) + viewportRect.y) / dpr;
-        const width = viewportRect.width * (box.width / visibleSize.width) / dpr;
-        const height = viewportRect.height * (box.height / visibleSize.height) / dpr;
+        const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / resolutionScale;
+        const y = (viewportRect.height * (box.y / visibleSize.height) + viewportRect.y) / resolutionScale;
+        const width = viewportRect.width * (box.width / visibleSize.width) / resolutionScale;
+        const height = viewportRect.height * (box.height / visibleSize.height) / resolutionScale;
 
         this._openDataContext.postMessage({
             fromEngine: true,  // compatible deprecated property

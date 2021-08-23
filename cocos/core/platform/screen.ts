@@ -31,25 +31,70 @@
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
-import { Size } from '../math';
-import { warnID } from './debug';
+import { Size, Vec2 } from '../math';
+import { warn, warnID } from './debug';
 
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
 class Screen {
-    // TODO: windowSize should be physical size, and deprecate sys.windowPixelResolution
-    // /**
-    //  * @en Get the size of current window.
-    //  * On Web platform, this should be the size of game frame.
-    //  * @zh 获取当前窗口尺寸。
-    //  * 在 Web 平台，这里应该是 game frame 的尺寸
-    //  * @returns {Size}
-    //  */
-    // public get windowSize (): Size {
-    //     return screenAdapter.windowSize;
-    // }
+    /**
+     * @en Get and set the size of current window in reference pixels.
+     * On Web platform, this should be the size of game frame in CSS pixels.
+     * NOTE: Setting window size is only supported on Web platform for now.
+     * @zh 获取当前窗口参考像素尺寸。
+     * 在 Web 平台，这里应该是 game frame 的 CSS 像素尺寸。
+     * 注意：设置窗口尺寸目前只在 Web 平台上支持。
+     */
+    public get windowSize (): Size {
+        return screenAdapter.windowSize;
+    }
+    public set windowSize (size: Size) {
+        screenAdapter.windowSize = size;
+    }
+
+    /**
+     * @en Get the current resolution of game.
+     * This is a readonly property, you can change the value by setting screen.resolutionScale.
+     * @zh 获取当前游戏的分辨率。
+     * 这是一个只读属性，你可以通过设置 screen.resolutionScale 来改变这个值。
+     *
+     * @readonly
+     */
+    public get resolution () {
+        return screenAdapter.resolution;
+    }
+
+    /**
+     * @en Get and set the resolution scale of screen, which will affect the quality of the rendering.
+     * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 2 by default.
+     * @zh 获取和设置屏幕的分辨率缩放比，这将会影响最终渲染的质量。
+     * 注意：如果这个值设置的太高，会降低 GPU 的渲染性能，该值默认为 2。
+     */
+    public get resolutionScale () {
+        return screenAdapter.resolutionScale;
+    }
+    public set resolutionScale (v: number) {
+        screenAdapter.resolutionScale = v;
+    }
+
+    /**
+     * @en Convert the native screen location (whose origin is at the top-left of canvas) to the location in Cocos screen coordinate (whose origin is at the bottom-left of canvas).
+     * Note: The location here has been multiplied by the resolutionScale.
+     * @zh 将原生的屏幕坐标 (坐标原点在画布左上角)，转换到 Cocos 的屏幕坐标 (坐标原点在画布左下角)
+     * 注意：这里的坐标已经乘过了 resolutionScale。
+     *
+     * @param nativeScreenX
+     * @param nativeScreenY
+     * @param out
+     */
+    public convertToScreenSpace (nativeScreenX: number, nativeScreenY: number, out: Vec2 = new Vec2(0, 0)) {
+        const windowSize = this.windowSize;
+        out.x = this.resolutionScale * nativeScreenX;
+        out.y = this.resolutionScale * (windowSize.height - nativeScreenY);
+        return out;
+    }
 
     /**
      * @en Whether it supports full screen？

@@ -31,6 +31,7 @@
  * @hidden
  */
 
+import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
@@ -102,8 +103,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
-
-        this.__autoResize = view._resizeWithBrowserSize;
     }
 
     public clear () {
@@ -226,18 +225,13 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        if (this.__autoResize) {
-            view.resizeWithBrowserSize(false);
-        }
-
+        screenAdapter.handleResizeEvent = false;
         this._adjustWindowScroll();
     }
 
     private _hideDomOnMobile () {
         if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
-            if (this.__autoResize) {
-                view.resizeWithBrowserSize(true);
-            }
+            screenAdapter.handleResizeEvent = true;
         }
 
         this._scrollBackWindow();
@@ -282,7 +276,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleX *= widthRatio;
         scaleY *= heightRatio;
         const viewport = view.getViewportRect();
-        const dpr = view.getDevicePixelRatio();
+        const resolutionScale = screen.resolutionScale;
 
         node.getWorldMatrix(_matrix);
         const transform = node._uiProps.uiTransformComp;
@@ -308,8 +302,8 @@ export class EditBoxImpl extends EditBoxImplBase {
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
         Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
-        scaleX /= dpr;
-        scaleY /= dpr;
+        scaleX /= resolutionScale;
+        scaleY /= resolutionScale;
 
         const container = legacyCC.GAME_VIEW ? legacyCC.gameView.container : game.container;
         const a = _matrix_temp.m00 * scaleX;
@@ -318,9 +312,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         const d = _matrix_temp.m05 * scaleY;
 
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
-        offsetX += viewport.x * widthRatio / dpr;
+        offsetX += viewport.x * widthRatio / resolutionScale;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
-        offsetY += viewport.y / dpr;
+        offsetY += viewport.y / resolutionScale;
         const tx = _matrix_temp.m12 * scaleX + offsetX;
         const ty = _matrix_temp.m13 * scaleY + offsetY;
 

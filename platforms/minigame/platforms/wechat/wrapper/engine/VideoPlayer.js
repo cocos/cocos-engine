@@ -356,7 +356,7 @@ if (cc.internal.VideoPlayer) {
             let canvas_width = cc.game.canvas.width;
             let canvas_height = cc.game.canvas.height;
 
-            let dpr = cc.view._devicePixelRatio;
+            let resolutionScale = cc.screen.resolutionScale;
 
             let ap = this._uiTrans.anchorPoint;
             // Vectors in node space
@@ -372,10 +372,10 @@ if (cc.internal.VideoPlayer) {
             let finalWidth = _bottomRight.x - _topLeft.x;
             let finalHeight = _topLeft.y - _bottomRight.y;
 
-            this._video.x = _topLeft.x / dpr;
-            this._video.y = (canvas_height - _topLeft.y) / dpr;
-            this._actualWidth = this._video.width = finalWidth / dpr;
-            this._video.height = finalHeight / dpr;
+            this._video.x = _topLeft.x / resolutionScale;
+            this._video.y = (canvas_height - _topLeft.y) / resolutionScale;
+            this._actualWidth = this._video.width = finalWidth / resolutionScale;
+            this._video.height = finalHeight / resolutionScale;
             this._forceUpdate = false;
         }
 

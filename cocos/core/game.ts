@@ -30,6 +30,7 @@
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
+import { screenAdapter } from 'pal/screen-adapter';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { input } from '../input';
@@ -48,6 +49,8 @@ import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
+import { screen } from './platform/screen';
+import { Size } from './math';
 
 interface ISceneInfo {
     url: string;
@@ -659,7 +662,16 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         this._initDevice();
-        return Promise.resolve(legacyCC.director._init()).then(() => {
+        const director = legacyCC.director;
+        return Promise.resolve(director._init()).then(() => {
+            screenAdapter.init(() => {
+                if (!director.root) {
+                    debug.warn('Invalid setting screen.resolutionScale, director.root has not beed defined.');
+                    return;
+                }
+                director.root.resize(screenAdapter.resolution.width, screenAdapter.resolution.height);
+            });
+            legacyCC.view.init();
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
@@ -826,7 +838,6 @@ export class Game extends EventTarget {
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
-
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && window.gfx) {

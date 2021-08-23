@@ -23,11 +23,13 @@
  THE SOFTWARE.
  */
 
+import { screenAdapter } from 'pal/screen-adapter';
 import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { sys } from './sys';
 import { View } from './view';
 import { legacyCC } from '../global-exports';
 import { screen } from './screen';
+import { Size } from '../math';
 
 // #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
@@ -50,6 +52,28 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'isAutoFullScreenEnabled',
+    },
+    {
+        name: 'setCanvasSize',
+        suggest: 'please use screen.windowSize and screen.resolutionScale instead.',
+    },
+    {
+        name: 'getCanvasSize',
+        suggest: 'please use screen.resolution instead.',
+    },
+    {
+        name: 'getDevicePixelRatio',
+        suggest: 'devicePixelRatio is a concept on web standard, please use screen.resolutionScale instead',
+    },
+    {
+        name: 'convertToLocationInView',
+        suggest: 'please use screen.convertToScreenSpace instead',
+    },
+    {
+        name: 'enableRetina',
+    },
+    {
+        name: 'isRetinaEnabled',
     },
 ]);
 markAsWarning(legacyCC, 'cc', [
@@ -138,6 +162,20 @@ removeProperty(sys, 'sys',
         'WINRT', 'WP8', 'QQ_PLAY', 'FB_PLAYABLE_ADS'].map((item) => ({
         name: item,
     })));
+replaceProperty(sys, 'sys', [
+    {
+        name: 'windowPixelResolution',
+        target: screen,
+        targetName: 'screen',
+        newName: 'resolution',
+        suggest: 'windowPixelResolution is calculated from windowSize and devicePixelRatio.',
+        customGetter () {
+            const windowSize = screenAdapter.windowSize;
+            const dpr = screenAdapter.devicePixelRatio;
+            return new Size(windowSize.width * dpr, windowSize.height * dpr);
+        },
+    },
+]);
 
 // deprecate screen API
 markAsWarning(screen, 'screen', [

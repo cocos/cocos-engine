@@ -386,9 +386,9 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._w = width;
         this._h = height;
 
-        const dpr = view.getDevicePixelRatio();
-        const scaleX = 1 / dpr;
-        const scaleY = 1 / dpr;
+        const resolutionScale = screen.resolutionScale;
+        const scaleX = 1 / resolutionScale;
+        const scaleY = 1 / resolutionScale;
 
         const container = game.container;
         const sx = _mat4_temp.m00 * scaleX; const b = _mat4_temp.m01; const c = _mat4_temp.m04; const sy = _mat4_temp.m05 * scaleY;

@@ -1,5 +1,5 @@
 import { screenAdapter } from 'pal/screen-adapter';
-import { Rect, Size, Vec2 } from '../../cocos/core';
+import { Rect, screen, Size, sys, Vec2 } from '../../cocos/core';
 import { view, ResolutionPolicy } from '../../cocos/core/platform/view';
 
 describe('cc.view', () => {
@@ -11,6 +11,27 @@ describe('cc.view', () => {
     // JSDOM uses 1024 * 768 as the window size.
     const windowSize = screenAdapter.windowSize;
     const relatedPos = { left: 0, top: 0, width: windowSize.width, height: windowSize.height };
+
+    test('test window interface', () => {
+        // legacy interface
+        expect(sys.windowPixelResolution.width).toBe(1024);
+        expect(sys.windowPixelResolution.height).toBe(768);
+        expect(view.getCanvasSize()).toEqual(new Size(1024, 768));
+        expect(view.getDevicePixelRatio()).toBe(1);
+
+        // new interface
+        screen.resolutionScale = 2;
+        expect(screen.resolutionScale).toBe(2);
+        expect(screen.windowSize).toEqual(new Size(1024, 768));
+        expect(screen.resolution).toEqual(new Size(2048, 1536));
+        expect(screen.convertToScreenSpace(tmpX, tmpY)).toEqual(new Vec2(20, 1556));
+
+        screen.resolutionScale = 1;
+        expect(screen.resolutionScale).toBe(1);
+        expect(screen.windowSize).toEqual(new Size(1024, 768));
+        expect(screen.resolution).toEqual(new Size(1024, 768));
+        expect(screen.convertToScreenSpace(tmpX, tmpY)).toEqual(new Vec2(10, 778));
+    });
 
     test('test view SHOW_ALL', () => {
         const resolutionPolicy = new ResolutionPolicy(ContainerStrategy.EQUAL_TO_FRAME, ContentStrategy.SHOW_ALL)
@@ -29,7 +50,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(12.5, -112.5));
 
         view.setDesignResolutionSize(760, 1280, resolutionPolicy);
@@ -47,7 +68,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBeCloseTo(-456.667);
         expect(tmpVec2.y).toBeCloseTo(-16.667);
     });
@@ -69,7 +90,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2).toEqual(new Vec2(12.5, -12.5));
 
         view.setDesignResolutionSize(760, 1280, resolutionPolicy);
@@ -87,7 +108,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBeCloseTo(7.422);
         expect(tmpVec2.y).toBeCloseTo(-7.422);
     });
@@ -111,7 +132,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBeCloseTo(9.896);
         expect(tmpVec2.y).toBeCloseTo(-9.896);
 
@@ -132,7 +153,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBeCloseTo(16.667);
         expect(tmpVec2.y).toBeCloseTo(-16.667);
     });
@@ -158,7 +179,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBeCloseTo(143.489);
         expect(tmpVec2.y).toBeCloseTo(-9.896);
 
@@ -181,7 +202,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBeCloseTo(7.422);
         expect(tmpVec2.y).toBeCloseTo(347.344);
     });
@@ -203,7 +224,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBe(12.5);
         expect(tmpVec2.y).toBeCloseTo(-9.896);
 
@@ -222,7 +243,7 @@ describe('cc.view', () => {
         expect(tmpVec2).toEqual(new Vec2(10, 778));
         tmpVec2.x = tmpX; tmpVec2.y = tmpY;
         // @ts-expect-error private method
-        view._convertPointWithScale(tmpVec2);
+        view._convertToUISpace(tmpVec2);
         expect(tmpVec2.x).toBeCloseTo(7.422);
         expect(tmpVec2.y).toBeCloseTo(-16.667);
     });
