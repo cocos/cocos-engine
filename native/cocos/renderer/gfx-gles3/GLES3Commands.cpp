@@ -42,6 +42,7 @@ GLenum mapGLInternalFormat(Format format) {
         case Format::A8: return GL_ALPHA;
         case Format::L8: return GL_LUMINANCE;
         case Format::LA8: return GL_LUMINANCE_ALPHA;
+
         case Format::R8: return GL_R8;
         case Format::R8SN: return GL_R8_SNORM;
         case Format::R8UI: return GL_R8UI;
@@ -86,6 +87,7 @@ GLenum mapGLInternalFormat(Format format) {
         case Format::RGBA32F: return GL_RGBA32F;
         case Format::R5G6B5: return GL_RGB565;
         case Format::RGB5A1: return GL_RGB5_A1;
+        case Format::RGB9E5: return GL_RGB9_E5;
         case Format::RGBA4: return GL_RGBA4;
         case Format::RGB10A2: return GL_RGB10_A2;
         case Format::RGB10A2UI: return GL_RGB10_A2UI;
@@ -158,7 +160,7 @@ GLenum mapGLInternalFormat(Format format) {
 
         default: {
             CCASSERT(false, "Unsupported Format, convert to GL internal format failed.");
-            return GL_RGBA;
+            return GL_NONE;
         }
     }
 }
@@ -168,53 +170,58 @@ GLenum mapGLFormat(Format format) {
         case Format::A8: return GL_ALPHA;
         case Format::L8: return GL_LUMINANCE;
         case Format::LA8: return GL_LUMINANCE_ALPHA;
+
         case Format::R8:
         case Format::R8SN:
-        case Format::R8UI:
-        case Format::R8I: return GL_RED;
+        case Format::R16F:
+        case Format::R32F: return GL_RED;
         case Format::RG8:
         case Format::RG8SN:
-        case Format::RG8UI:
-        case Format::RG8I: return GL_RG;
+        case Format::RG16F:
+        case Format::RG32F: return GL_RG;
         case Format::RGB8:
         case Format::RGB8SN:
-        case Format::RGB8UI:
-        case Format::RGB8I: return GL_RGB;
+        case Format::RGB16F:
+        case Format::RGB32F:
+        case Format::R11G11B10F:
+        case Format::R5G6B5:
+        case Format::RGB9E5: 
+        case Format::SRGB8: return GL_RGB;
         case Format::RGBA8:
         case Format::RGBA8SN:
-        case Format::RGBA8UI:
-        case Format::RGBA8I: return GL_RGBA;
+        case Format::RGBA16F:
+        case Format::RGBA32F:
+        case Format::RGBA4:
+        case Format::RGB5A1:
+        case Format::RGB10A2:
+        case Format::SRGB8_A8: return GL_RGBA;
+
+        case Format::R8UI:
+        case Format::R8I:
         case Format::R16UI:
         case Format::R16I:
-        case Format::R16F: return GL_RED;
+        case Format::R32UI:
+        case Format::R32I: return GL_RED_INTEGER;
+        case Format::RG8UI:
+        case Format::RG8I:
         case Format::RG16UI:
         case Format::RG16I:
-        case Format::RG16F: return GL_RG;
+        case Format::RG32UI:
+        case Format::RG32I: return GL_RG_INTEGER;
+        case Format::RGB8UI:
+        case Format::RGB8I:
         case Format::RGB16UI:
         case Format::RGB16I:
-        case Format::RGB16F: return GL_RGB;
+        case Format::RGB32UI:
+        case Format::RGB32I: return GL_RGB_INTEGER;
+        case Format::RGBA8UI:
+        case Format::RGBA8I:
         case Format::RGBA16UI:
         case Format::RGBA16I:
-        case Format::RGBA16F: return GL_RGBA;
-        case Format::R32UI:
-        case Format::R32I:
-        case Format::R32F: return GL_RED;
-        case Format::RG32UI:
-        case Format::RG32I:
-        case Format::RG32F: return GL_RG;
-        case Format::RGB32UI:
-        case Format::RGB32I:
-        case Format::RGB32F: return GL_RGB;
         case Format::RGBA32UI:
         case Format::RGBA32I:
-        case Format::RGBA32F:
-        case Format::RGB10A2: return GL_RGBA;
-        case Format::R11G11B10F:
-        case Format::R5G6B5: return GL_RGB;
-        case Format::RGB5A1:
-        case Format::RGBA4: return GL_RGBA;
-        case Format::SRGB8: return GL_SRGB_EXT;
-        case Format::SRGB8_A8: return GL_SRGB_ALPHA_EXT;
+        case Format::RGB10A2UI: return GL_RGBA_INTEGER;
+
         case Format::D16: return GL_DEPTH_COMPONENT;
         case Format::D16S8: return GL_DEPTH_STENCIL;
         case Format::D24: return GL_DEPTH_COMPONENT;
@@ -280,8 +287,8 @@ GLenum mapGLFormat(Format format) {
         case Format::ASTC_SRGBA_12X12: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
         default: {
-            CCASSERT(false, "Unsupported Format, convert to WebGL format failed.");
-            return GL_RGBA;
+            CCASSERT(false, "Unsupported Format, convert to GL format failed.");
+            return GL_NONE;
         }
     }
 }
@@ -315,7 +322,7 @@ GLenum mapGLType(Type type) {
         case Type::SAMPLER3D: return GL_SAMPLER_3D;
         case Type::SAMPLER_CUBE: return GL_SAMPLER_CUBE;
         default: {
-            CCASSERT(false, "Unsupported GLType, convert to GL type failed.");
+            CCASSERT(false, "Unsupported Type, convert to GL type failed.");
             return GL_NONE;
         }
     }
@@ -353,7 +360,7 @@ Type mapType(GLenum glType) {
         case GL_SAMPLER_3D: return Type::SAMPLER3D;
         case GL_SAMPLER_CUBE: return Type::SAMPLER_CUBE;
         default: {
-            CCASSERT(false, "Unsupported GLType, convert to Type failed.");
+            CCASSERT(false, "Unsupported GL type, convert to Type failed.");
             return Type::UNKNOWN;
         }
     }
@@ -413,7 +420,7 @@ GLenum formatToGLType(Format format) {
         case Format::RGBA4: return GL_UNSIGNED_SHORT_4_4_4_4;
         case Format::RGB10A2:
         case Format::RGB10A2UI: return GL_UNSIGNED_INT_2_10_10_10_REV;
-        case Format::RGB9E5: return GL_FLOAT;
+        case Format::RGB9E5: return GL_UNSIGNED_INT_5_9_9_9_REV;
 
         case Format::D16: return GL_UNSIGNED_SHORT;
         case Format::D16S8: return GL_UNSIGNED_INT_24_8; // no D16S8 support
@@ -485,7 +492,8 @@ GLenum formatToGLType(Format format) {
             return GL_UNSIGNED_BYTE;
 
         default: {
-            return GL_UNSIGNED_BYTE;
+            CCASSERT(false, "Unsupported Format, convert to GL type failed.");
+            return GL_NONE;
         }
     }
 }
@@ -531,7 +539,7 @@ uint glTypeSize(GLenum glType) {
         case GL_UNSIGNED_INT_SAMPLER_3D:
         case GL_UNSIGNED_INT_SAMPLER_CUBE: return 4;
         default: {
-            CCASSERT(false, "Unsupported GLType, get type failed.");
+            CCASSERT(false, "Unsupported GLType, get type size failed.");
             return 0;
         }
     }

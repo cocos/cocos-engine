@@ -72,7 +72,7 @@ bool PhysXRigidBody::isSleepy() {
 }
 
 bool PhysXRigidBody::isSleeping() {
-    if (getSharedBody().isStatic()) return true;
+    if (!isEnabled() || getSharedBody().isStatic()) return true;
     return getSharedBody().getImpl().rigidDynamic->isSleeping();
 }
 
@@ -126,21 +126,25 @@ void PhysXRigidBody::setAllowSleep(bool v) {
 }
 
 void PhysXRigidBody::wakeUp() {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     getSharedBody().getImpl().rigidDynamic->wakeUp();
 }
 
 void PhysXRigidBody::sleep() {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     getSharedBody().getImpl().rigidDynamic->putToSleep();
 }
 
 void PhysXRigidBody::clearState() {
+    if (!isEnabled()) return;
     clearForces();
     clearVelocity();
 }
 
 void PhysXRigidBody::clearForces() {
+    if (!isEnabled()) return;
     getSharedBody().clearForces();
 }
 
@@ -182,6 +186,7 @@ void PhysXRigidBody::setAngularVelocity(float x, float y, float z) {
 }
 
 void PhysXRigidBody::applyForce(float x, float y, float z, float rx, float ry, float rz) {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     const PxVec3 force{x, y, z};
     if (force.isZero()) return;
@@ -192,6 +197,7 @@ void PhysXRigidBody::applyForce(float x, float y, float z, float rx, float ry, f
 }
 
 void PhysXRigidBody::applyLocalForce(float x, float y, float z, float rx, float ry, float rz) {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     const PxVec3 force{x, y, z};
     if (force.isZero()) return;
@@ -205,6 +211,7 @@ void PhysXRigidBody::applyLocalForce(float x, float y, float z, float rx, float 
 }
 
 void PhysXRigidBody::applyImpulse(float x, float y, float z, float rx, float ry, float rz) {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
@@ -215,6 +222,7 @@ void PhysXRigidBody::applyImpulse(float x, float y, float z, float rx, float ry,
 }
 
 void PhysXRigidBody::applyLocalImpulse(float x, float y, float z, float rx, float ry, float rz) {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
@@ -228,6 +236,7 @@ void PhysXRigidBody::applyLocalImpulse(float x, float y, float z, float rx, floa
 }
 
 void PhysXRigidBody::applyTorque(float x, float y, float z) {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     PxVec3 torque{x, y, z};
     if (torque.isZero()) return;
@@ -235,6 +244,7 @@ void PhysXRigidBody::applyTorque(float x, float y, float z) {
 }
 
 void PhysXRigidBody::applyLocalTorque(float x, float y, float z) {
+    if (!isEnabled()) return;
     if (getSharedBody().isStatic()) return;
     PxVec3 torque{x, y, z};
     if (torque.isZero()) return;

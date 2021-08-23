@@ -428,6 +428,15 @@ bool WsThreadHelper::createWebSocketThread() {
 
 void WsThreadHelper::quitWebSocketThread() {
     _needQuit = true;
+#if WS_ENABLE_LIBUV
+    // stop libuv loop
+    if (wsContext && wsPolling) {
+        auto *loop = lws_uv_getloop(wsContext, 0);
+        if (loop) {
+            uv_stop(loop);
+        }
+    }
+#endif
 }
 
 void WsThreadHelper::onSubThreadLoop() {

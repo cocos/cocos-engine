@@ -353,6 +353,7 @@ void PhysXSharedBody::setCollisionFilter(const PxFilterData &data) {
 }
 
 void PhysXSharedBody::clearForces() {
+    if (!isInWorld()) return;
     if (isStaticOrKinematic()) return;
     _mDynamicActor->clearForce(PxForceMode::eFORCE);
     _mDynamicActor->clearForce(PxForceMode::eIMPULSE);
