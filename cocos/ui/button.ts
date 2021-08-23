@@ -590,6 +590,7 @@ export class Button extends Component {
                 }
             }, this);
         }
+        this._registerTargetEvent(this.target);
     }
 
     public onDisable () {
@@ -600,6 +601,7 @@ export class Button extends Component {
         } else {
             this.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
         }
+        this._unregisterTargetEvent(this.target);
     }
 
     public update (dt: number) {
