@@ -211,6 +211,18 @@ export class SkyboxInfo {
     }
 
     /**
+     * @en Toggle HDR (TODO: This SHOULD be moved into it's own subgroup away from skybox)
+     * @zh TODO
+     */
+     @editable
+     set useHDR (val) {
+        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = val;
+     }
+     get useHDR () {
+         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+     }
+    
+    /**
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
