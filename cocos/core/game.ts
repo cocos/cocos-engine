@@ -827,7 +827,7 @@ export class Game extends EventTarget {
 
             const opts = new DeviceInfo(
                 this.canvas as HTMLCanvasElement,
-                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                EDITOR || macro.ENABLE_ANTIALIAS,
                 false,
                 window.devicePixelRatio,
                 sys.windowPixelResolution.width,
