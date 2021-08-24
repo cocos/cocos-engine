@@ -1,5 +1,6 @@
 import { assetManager, loader } from "../../cocos/core/asset-manager";
 import { Texture2D } from "../../cocos/core/assets/texture-2d";
+import { AuidoClip } from ""
 
 describe('Loader', () => {
     const assetDir = './fixtures';
