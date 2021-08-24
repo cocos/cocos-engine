@@ -1082,6 +1082,7 @@ export class RichText extends UIComponent {
             }
         } else {
             label.fontSize = this._fontSize;
+            label.color = Color.WHITE;
         }
 
         label.cacheMode = this._cacheMode;
