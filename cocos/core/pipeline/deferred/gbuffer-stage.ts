@@ -171,7 +171,7 @@ export class GbufferStage extends RenderStage {
         colors[0].w = camera.clearColor.w;
 
         const deferredData = pipeline.getDeferredRenderData();
-        const framebuffer = deferredData.gbufferFrameBuffer!;
+        const framebuffer = deferredData.gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,

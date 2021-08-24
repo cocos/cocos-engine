@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-07-21T08:47:46.858Z"
+        "stamp": "2021-08-24T10:14:20.085Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -54,6 +54,7 @@
         "cc.ENGINE_VERSION",
         "cc.EditBoxComponent",
         "cc.EffectAsset",
+        "cc.EmptyDevice",
         "cc.Enum",
         "cc.Event",
         "cc.EventListener",
@@ -113,6 +114,7 @@
         "cc.GFXFormatType",
         "cc.GFXFramebuffer",
         "cc.GFXFramebufferInfo",
+        "cc.GFXGFXObject",
         "cc.GFXGetTypeSize",
         "cc.GFXGlobalBarrier",
         "cc.GFXGlobalBarrierInfo",
@@ -125,7 +127,6 @@
         "cc.GFXMemoryAccessBit",
         "cc.GFXMemoryStatus",
         "cc.GFXMemoryUsageBit",
-        "cc.GFXObject",
         "cc.GFXObjectType",
         "cc.GFXOffset",
         "cc.GFXPipelineBindPoint",
@@ -345,7 +346,6 @@
         "cc.renderer",
         "cc.resources",
         "cc.sampleAnimationCurve",
-        "cc.samplerLib",
         "cc.screen",
         "cc.size",
         "cc.sys",
