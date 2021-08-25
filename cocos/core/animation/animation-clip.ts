@@ -110,6 +110,7 @@ export class AnimationClip extends Asset {
         track.path =  new TrackPath().toComponent('cc.Sprite').toProperty('spriteFrame');
         const curve = track.channels()[0].curve;
         curve.assignSorted(spriteFrames.map((spriteFrame, index) => [step * index, spriteFrame]));
+        clip.addTrack(track);
         return clip;
     }
 
