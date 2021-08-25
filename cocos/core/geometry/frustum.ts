@@ -100,7 +100,7 @@ export class Frustum {
             Plane.fromPoints(out.planes[2], out.vertices[6], out.vertices[3], out.vertices[7]);
             Plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
             Plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
-            Plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
+            Plane.fromPoints(out.planes[5], out.vertices[7], out.vertices[5], out.vertices[6]);
         };
     })();
 
@@ -236,6 +236,6 @@ export class Frustum {
         Plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[7], this.vertices[3]);
         Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
         Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
-        Plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
+        Plane.fromPoints(this.planes[5], this.vertices[7], this.vertices[6], this.vertices[5]);
     }
 }
