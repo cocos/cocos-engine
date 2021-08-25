@@ -60,6 +60,8 @@ const _matShadowProj = new Mat4();
 const _matShadowViewProj = new Mat4();
 const _matShadowViewProjInv = new Mat4();
 const _vec4ShadowInfo = new Vec4();
+const _matShadowViewProjArbitaryPos = new Mat4();
+const _matShadowViewProjArbitaryPosInv = new Mat4();
 const _projPos = new Vec3();
 const _texelSize = new Vec2();
 const _projSnap = new Vec3();
@@ -241,7 +243,7 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
     // bounding box in light space
     AABB.fromPoints(_castWorldBounds, new Vec3(10000000, 10000000, 10000000), new Vec3(-10000000, -10000000, -10000000));
     _castWorldBounds.mergeFrustum(_lightViewFrustum);
-    const r = Math.abs(_lightViewFrustum.vertices[0].z - _lightViewFrustum.vertices[4].z);
+    const r = _castWorldBounds.halfExtents.z * 2.0;
     _shadowPos.set(_castWorldBounds.center.x, _castWorldBounds.center.y,
         _castWorldBounds.center.z + _castWorldBounds.halfExtents.z + range);
     Mat4.invert(_matShadowViewInv, _matShadowView);
@@ -253,6 +255,9 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
 
     // projection matrix
     const orthoHeight = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
+    // const halfExtents = _castWorldBounds.halfExtents;
+    // const orthoHeight = Math.sqrt(halfExtents.x * halfExtents.x + halfExtents.y * halfExtents.y
+    //     + halfExtents.z * halfExtents.z) * 2.0;
     shadowInfo.shadowDistance = r + range;
     Frustum.createOrtho(out, orthoHeight, orthoHeight, 0.1,  shadowInfo.shadowDistance, _matShadowViewInv);
 
@@ -260,19 +265,17 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
     const halfOrthoHeight = orthoHeight * 0.5;
     Mat4.ortho(_matShadowProj, -halfOrthoHeight, halfOrthoHeight, -halfOrthoHeight, halfOrthoHeight, 0.1,  shadowInfo.shadowDistance,
         device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-    /*
+
     if (shadowMapWidth > 0.0) {
-        const matShadowViewProjArbitaryPos = new Mat4();
-        const matShadowViewProjArbitaryPosInv = new Mat4();
-        Mat4.multiply(matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
-        Vec3.transformMat4(_projPos, _shadowPos, matShadowViewProjArbitaryPos);
+        Mat4.multiply(_matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
+        Vec3.transformMat4(_projPos, _shadowPos, _matShadowViewProjArbitaryPos);
         const invActualSize = 2.0 / shadowMapWidth;
         _texelSize.set(invActualSize, invActualSize);
         const modX = _projPos.x % _texelSize.x;
         const modY = _projPos.y % _texelSize.y;
         _projSnap.set(_projPos.x - modX, _projPos.y - modY, _projPos.z);
-        Mat4.invert(matShadowViewProjArbitaryPosInv, matShadowViewProjArbitaryPos);
-        Vec3.transformMat4(_snap, _projSnap, matShadowViewProjArbitaryPosInv);
+        Mat4.invert(_matShadowViewProjArbitaryPosInv, _matShadowViewProjArbitaryPos);
+        Vec3.transformMat4(_snap, _projSnap, _matShadowViewProjArbitaryPosInv);
 
         Vec3.add(_vec3_p, _snap, dirLight.direction);
         Mat4.lookAt(_matShadowView, _snap, _vec3_p, Vec3.UP);
@@ -281,7 +284,7 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
             out.vertices[i].set(0.0, 0.0, 0.0);
         }
         out.updatePlanes();
-    } */
+    }
 
     Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
     shadowInfo.matShadowView = _matShadowView;
