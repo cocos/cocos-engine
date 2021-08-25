@@ -31,7 +31,7 @@
 import { AABB, Frustum, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { Vec3, Mat4, Quat, Color } from '../math';
+import { Vec2, Vec3, Mat4, Quat, Vec4 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
@@ -41,12 +41,30 @@ import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
+const _shadowPos = new Vec3();
 const _mat4_trans = new Mat4();
 const _castWorldBounds = new AABB();
 const _castBoundsInited = false;
 const _validLights: Light[] = [];
 const _sphere = Sphere.create(0, 0, 0, 1);
-const _validFrustum = new  Frustum();
+const _cameraBoundingSphere = new Sphere();
+const _validFrustum = new Frustum();
+_validFrustum.accurate = true;
+let _lightViewFrustum = new Frustum();
+_lightViewFrustum.accurate = true;
+const _dirLightFrustum = new Frustum();
+const _matShadowTrans = new Mat4();
+const _matShadowView = new Mat4();
+const _matShadowViewInv = new Mat4();
+const _matShadowProj = new Mat4();
+const _matShadowViewProj = new Mat4();
+const _matShadowViewProjInv = new Mat4();
+const _vec4ShadowInfo = new Vec4();
+const _projPos = new Vec3();
+const _texelSize = new Vec2();
+const _projSnap = new Vec3();
+const _snap = new Vec3();
+const _focus = new Vec3(0, 0, 0);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -205,13 +223,70 @@ export function getCameraWorldMatrix (out: Mat4, camera: Camera) {
     out.m10 *= -1.0;
 }
 
-export function updateDirFrustum (out: Frustum, cameraBoundingSphere: Sphere, rotation: Quat, range: number) {
-    const radius = cameraBoundingSphere.radius;
-    Mat4.fromRT(_mat4_trans, rotation, cameraBoundingSphere.center);
-    _mat4_trans.m08 *= -1.0;
-    _mat4_trans.m09 *= -1.0;
-    _mat4_trans.m10 *= -1.0;
-    Frustum.createOrtho(out, radius, radius, -range, radius, _mat4_trans);
+export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipeline,
+    dirLight: DirectionalLight, camera: Camera, shadowInfo: Shadows) {
+    const device = pipeline.device;
+    const range = shadowInfo.range;
+    const shadowMapWidth = shadowInfo.size.x;
+
+    // Raw data
+    getCameraWorldMatrix(_mat4_trans, camera);
+    Frustum.split(_validFrustum, camera, _mat4_trans, shadowInfo.near, shadowInfo.far);
+    _lightViewFrustum = Frustum.clone(_validFrustum);
+
+    // view matrix with range back
+    Mat4.lookAt(_matShadowView, _focus, dirLight.direction, Vec3.UP);
+    const shadowViewArbitaryPos = _matShadowView.clone();
+    _lightViewFrustum.transform(_matShadowView);
+    // bounding box in light space
+    AABB.fromPoints(_castWorldBounds, new Vec3(10000000, 10000000, 10000000), new Vec3(-10000000, -10000000, -10000000));
+    _castWorldBounds.mergeFrustum(_lightViewFrustum);
+    const r = Math.abs(_lightViewFrustum.vertices[0].z - _lightViewFrustum.vertices[4].z);
+    _shadowPos.set(_castWorldBounds.center.x, _castWorldBounds.center.y,
+        _castWorldBounds.center.z + _castWorldBounds.halfExtents.z + range);
+    Mat4.invert(_matShadowViewInv, _matShadowView);
+    Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowViewInv);
+
+    Vec3.add(_vec3_p, _shadowPos, dirLight.direction);
+    Mat4.lookAt(_matShadowView, _shadowPos, _vec3_p, Vec3.UP);
+    Mat4.invert(_matShadowViewInv, _matShadowView);
+
+    // projection matrix
+    const orthoHeight = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
+    shadowInfo.shadowDistance = r + range;
+    Frustum.createOrtho(out, orthoHeight, orthoHeight, 0.1,  shadowInfo.shadowDistance, _matShadowViewInv);
+
+    // snap to whole texels
+    const halfOrthoHeight = orthoHeight * 0.5;
+    Mat4.ortho(_matShadowProj, -halfOrthoHeight, halfOrthoHeight, -halfOrthoHeight, halfOrthoHeight, 0.1,  shadowInfo.shadowDistance,
+        device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+    /*
+    if (shadowMapWidth > 0.0) {
+        const matShadowViewProjArbitaryPos = new Mat4();
+        const matShadowViewProjArbitaryPosInv = new Mat4();
+        Mat4.multiply(matShadowViewProjArbitaryPos, _matShadowProj, shadowViewArbitaryPos);
+        Vec3.transformMat4(_projPos, _shadowPos, matShadowViewProjArbitaryPos);
+        const invActualSize = 2.0 / shadowMapWidth;
+        _texelSize.set(invActualSize, invActualSize);
+        const modX = _projPos.x % _texelSize.x;
+        const modY = _projPos.y % _texelSize.y;
+        _projSnap.set(_projPos.x - modX, _projPos.y - modY, _projPos.z);
+        Mat4.invert(matShadowViewProjArbitaryPosInv, matShadowViewProjArbitaryPos);
+        Vec3.transformMat4(_snap, _projSnap, matShadowViewProjArbitaryPosInv);
+
+        Vec3.add(_vec3_p, _snap, dirLight.direction);
+        Mat4.lookAt(_matShadowView, _snap, _vec3_p, Vec3.UP);
+    } else {
+        for (let i = 0; i < 8; i++) {
+            out.vertices[i].set(0.0, 0.0, 0.0);
+        }
+        out.updatePlanes();
+    } */
+
+    Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+    shadowInfo.matShadowView = _matShadowView;
+    shadowInfo.matShadowProj = _matShadowProj;
+    shadowInfo.matShadowViewProj = _matShadowViewProj;
 }
 
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
@@ -220,13 +295,9 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const sceneData = pipeline.pipelineSceneData;
     const shadows = sceneData.shadows;
     const skybox = sceneData.skybox;
-    const dirLightFrustum = shadows.dirLightFrustum;
 
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
-    _castWorldBounds.center.set(0, 0, 0);
-    _castWorldBounds.halfExtents.set(0, 0, 0);
-    AABB.fromPoints(_castWorldBounds, _tempVec3, _dir_negate);
 
     let shadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
@@ -237,19 +308,12 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
-                const rotation = mainLight.node.getWorldRotation();
-                const cameraBoundingSphere = shadows.cameraBoundingSphere;
-                getCameraWorldMatrix(_mat4_trans, camera);
-                Frustum.split(_validFrustum, camera, _mat4_trans, shadows.near, shadows.far);
-                _castWorldBounds.mergeFrustum(_validFrustum);
-                cameraBoundingSphere.center.set(_castWorldBounds.center);
-                cameraBoundingSphere.radius = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
-                updateDirFrustum(dirLightFrustum, cameraBoundingSphere, rotation, shadows.range);
+                QuantizeDirLightShadowCamera(_dirLightFrustum, pipeline, mainLight, camera, shadows);
             } else {
                 for (let i = 0; i < 8; i++) {
-                    dirLightFrustum.vertices[i].set(0.0, 0.0, 0.0);
+                    _dirLightFrustum.vertices[i].set(0.0, 0.0, 0.0);
                 }
-                dirLightFrustum.updatePlanes();
+                _dirLightFrustum.updatePlanes();
             }
         }
     }
@@ -277,7 +341,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 // shadow render Object
                 if (shadowObjects != null && model.castShadow) {
                     // frustum culling
-                    if (!(model.worldBounds && !intersect.aabbFrustum(model.worldBounds, dirLightFrustum))) {
+                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
                 }

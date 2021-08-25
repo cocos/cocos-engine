@@ -386,8 +386,10 @@ export class Shadows {
     public maxReceived = 4;
 
     // local
-    public cameraBoundingSphere: Sphere = new Sphere();
-    public dirLightFrustum: Frustum = new Frustum();
+    public shadowDistance = 0;
+    public matShadowView = new Mat4();
+    public matShadowProj = new Mat4();
+    public matShadowViewProj = new Mat4();
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -538,7 +540,6 @@ export class Shadows {
             this._instancingMaterial.destroy();
         }
         this.fixedSphere.destroy();
-        this.cameraBoundingSphere.destroy();
     }
 }
 
