@@ -64,6 +64,10 @@ interface IProfilerState {
     tricount: ICounterOption;
     logic: ICounterOption;
     physics: ICounterOption;
+    particle: ICounterOption;
+    terrain: ICounterOption;
+    ui: ICounterOption;
+    animation: ICounterOption;
     render: ICounterOption;
     textureMemory: ICounterOption;
     bufferMemory: ICounterOption;
@@ -77,14 +81,18 @@ const _profileInfo = {
     tricount: { desc: 'Triangle', isInteger: true },
     logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: _average, color: '#080' },
     physics: { desc: 'Physics (ms)', min: 0, max: 50, average: _average },
+    particle: { desc: 'Particle (ms)', min: 0, max: 50, average: _average },
+    terrain: { desc: 'Terrain (ms)', min: 0, max: 50, average: _average },
+    ui: { desc: 'UI (ms)', min: 0, max: 50, average: _average },
+    animation: { desc: 'Animation (ms)', min: 0, max: 50, average: _average },
     render: { desc: 'Renderer (ms)', min: 0, max: 50, average: _average, color: '#f90' },
     textureMemory: { desc: 'GFX Texture Mem(M)' },
     bufferMemory: { desc: 'GFX Buffer Mem(M)' },
 };
 
 const _constants = {
-    fontSize: 23,
-    quadHeight: 0.4,
+    fontSize: 18,
+    quadHeight: 0.5,
     segmentsPerLine: 8,
     textureWidth: 256,
     textureHeight: 256,
@@ -142,6 +150,14 @@ export class Profiler {
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PARTICLE, this.beforeParticle, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_PARTICLE, this.afterParticle, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_TERRAIN, this.beforeTerrain, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_TERRAIN, this.afterTerrain, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_2D, this.before2D, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_2D, this.after2D, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_ANIMATION, this.beforeAnimation, this);
+            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_ANIMATION, this.afterAnimation, this);
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
@@ -170,6 +186,14 @@ export class Profiler {
             legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
             legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
             legacyCC.director.on(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_PARTICLE, this.beforeParticle, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_PARTICLE, this.afterParticle, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_TERRAIN, this.beforeTerrain, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_TERRAIN, this.afterTerrain, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_2D, this.before2D, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_2D, this.after2D, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_ANIMATION, this.beforeAnimation, this);
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_ANIMATION, this.afterAnimation, this);
             legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             legacyCC.director.on(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
@@ -372,6 +396,78 @@ export class Profiler {
 
         const now = performance.now();
         (this._stats.physics.counter as PerfCounter).end(now);
+    }
+
+    public beforeParticle () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.particle.counter as PerfCounter).start(now);
+    }
+
+    public afterParticle () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.particle.counter as PerfCounter).end(now);
+    }
+
+    public beforeTerrain () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.terrain.counter as PerfCounter).start(now);
+    }
+
+    public afterTerrain () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.terrain.counter as PerfCounter).end(now);
+    }
+
+    public before2D () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.ui.counter as PerfCounter).start(now);
+    }
+
+    public after2D () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.ui.counter as PerfCounter).end(now);
+    }
+
+    public beforeAnimation () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.animation.counter as PerfCounter).start(now);
+    }
+
+    public afterAnimation () {
+        if (!this._stats) {
+            return;
+        }
+
+        const now = performance.now();
+        (this._stats.animation.counter as PerfCounter).end(now);
     }
 
     public beforeDraw () {

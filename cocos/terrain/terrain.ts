@@ -36,7 +36,7 @@ import { Material } from '../core/assets/material';
 import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
 import { CCObject, isValid } from '../core/data/object';
-import { director } from '../core/director';
+import { director, Director } from '../core/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
@@ -414,6 +414,7 @@ export class TerrainBlock {
     }
 
     public update () {
+        director.emit(Director.EVENT_BEFORE_TERRAIN);
         this._updateMaterial(false);
 
         const useNormalMap = this._terrain.useNormalMap;
@@ -563,6 +564,7 @@ export class TerrainBlock {
                 mtl.setProperty('lightMapUVParam', this.lightmapUVParam);
             }
         }
+        director.emit(Director.EVENT_AFTER_TERRAIN);
     }
 
     public setBrushMaterial (mtl: Material|null) {

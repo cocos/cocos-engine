@@ -34,6 +34,7 @@ import { RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
+import { director, Director } from '../../core/director';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -237,6 +238,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (!ps) {
             return this._particles!.length;
         }
+        director.emit(Director.EVENT_BEFORE_PARTICLE);
         ps.node.getWorldMatrix(_tempWorldTrans);
         switch (ps.scaleSpace) {
         case Space.Local:
@@ -311,6 +313,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
 
         this._model!.enabled = this._particles!.length > 0;
+        director.emit(Director.EVENT_AFTER_PARTICLE);
         return this._particles!.length;
     }
 

@@ -784,9 +784,9 @@ export const effects = [
     "shaders": [
       {
         "name": "profiler|profiler-vs:vert|profiler-fs:frag",
-        "hash": 3552712539,
+        "hash": 2889158299,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 58, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 37 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 66, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 37 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
           "locals": { "blocks": [], "samplerTextures": [] }
         },
@@ -798,7 +798,7 @@ export const effects = [
             { "name": "offset", "type": 16, "count": 1 }
           ]},
           {"name": "PerFrameInfo", "defines": [], "binding": 1, "stageFlags": 1, "members": [
-            { "name": "digits", "type": 16, "count": 20 }
+            { "name": "digits", "type": 16, "count": 28 }
           ]}
         ],
         "samplerTextures": [

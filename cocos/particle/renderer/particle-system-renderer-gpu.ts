@@ -38,6 +38,7 @@ import { packGradientRange } from '../animator/gradient-range';
 import { Pass } from '../../core/renderer/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
+import { director, Director } from '../../core/director';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -201,6 +202,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
+        director.emit(Director.EVENT_BEFORE_PARTICLE);
         if (EDITOR) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
 
@@ -221,6 +223,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem._time, dt);
         this.updateShaderUniform(dt);
         this._model!.enabled = this._particleNum > 0;
+        director.emit(Director.EVENT_AFTER_PARTICLE);
         return this._particleNum;
     }
 

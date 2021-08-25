@@ -22,7 +22,7 @@ CCProgram profiler-vs %{
   #include <cc-global>
 
   #define ROWS 8 // multiple of 4
-  #define COLS 10
+  #define COLS 14
   #define VECTOR_COUNT ROWS * COLS / 4
 
   in vec3 a_position;

@@ -429,7 +429,9 @@ export class Root {
         for (let i = 0; i < this._scenes.length; ++i) {
             this._scenes[i].removeBatches();
         }
+        legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_2D);
         if (this._batcher) this._batcher.update();
+        legacyCC.director.emit(legacyCC.Director.EVENT_AFTER_2D);
 
         const windows = this._windows;
         const cameraList: Camera[] = [];

@@ -186,6 +186,62 @@ export class Director extends EventTarget {
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
     /**
+     * The event which will be triggered before the particle update.<br/>
+     * 粒子更新之前所触发的事件。
+     * @event Director.EVENT_BEFORE_PARTICLE
+     */
+    public static readonly EVENT_BEFORE_PARTICLE = 'director_before_particle';
+
+    /**
+      * The event which will be triggered after the particle update.<br/>
+      * 粒子更新之后所触发的事件。
+      * @event Director.EVENT_AFTER_PARTICLE
+      */
+    public static readonly EVENT_AFTER_PARTICLE = 'director_after_particle';
+
+    /**
+     * The event which will be triggered before the terrain update.<br/>
+     * 地形更新之前所触发的事件。
+     * @event Director.EVENT_BEFORE_TERRAIN
+     */
+    public static readonly EVENT_BEFORE_TERRAIN = 'director_before_terrain';
+
+    /**
+       * The event which will be triggered after the terrain update.<br/>
+       * 地形更新之后所触发的事件。
+       * @event Director.EVENT_AFTER_TERRAIN
+       */
+    public static readonly EVENT_AFTER_TERRAIN = 'director_after_terrain';
+
+    /**
+     * The event which will be triggered before the 2d update.<br/>
+     * 2d更新之前所触发的事件。
+     * @event Director.EVENT_BEFORE_2D
+     */
+    public static readonly EVENT_BEFORE_2D = 'director_before_2d';
+
+    /**
+          * The event which will be triggered after the 2d update.<br/>
+          * 2d更新之后所触发的事件。
+          * @event Director.EVENT_AFTER_2D
+          */
+    public static readonly EVENT_AFTER_2D = 'director_after_2d';
+
+    /**
+     * The event which will be triggered before the animation update.<br/>
+     * 动画更新之前所触发的事件。
+     * @event Director.EVENT_BEFORE_ANIMATION
+     */
+    public static readonly EVENT_BEFORE_ANIMATION = 'director_before_animation';
+
+    /**
+        * The event which will be triggered after the animation update.<br/>
+        * 动画更新之后所触发的事件。
+        * @event Director.EVENT_AFTER_ANIMATION
+        */
+    public static readonly EVENT_AFTER_ANIMATION = 'director_after_animation';
+
+    /**
      * The event which will be triggered at the frame begin.<br/>
      * 一帧开始时所触发的事件。
      * @event Director.EVENT_BEGIN_FRAME

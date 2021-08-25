@@ -81,6 +81,7 @@ export class AnimationManager extends System {
     }
 
     public update (dt: number) {
+        director.emit(Director.EVENT_BEFORE_ANIMATION);
         const { _delayEvents, _crossFades: crossFadesIter, _sockets } = this;
 
         { // Update cross fades
@@ -112,6 +113,7 @@ export class AnimationManager extends System {
             event.fn.apply(event.thisArg, event.args);
         }
         _delayEvents.length = 0;
+        director.emit(Director.EVENT_AFTER_ANIMATION);
     }
 
     public destruct () {
