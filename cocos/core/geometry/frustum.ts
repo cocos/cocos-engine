@@ -107,11 +107,14 @@ export class Frustum {
     })();
 
     /**
-     * @en
-     * create a new frustum.
-     * @zh
-     * 创建一个新的截锥体。
-     * @return {Frustum} frustum.
+     * @en create a new frustum.
+     * @zh 创建一个新的截锥体。
+     * @param out 返回新截锥体
+     * @param camera 相机参数
+     * @param m 变换矩阵
+     * @param start 分割开始位置
+     * @param end 分割末尾位置
+     * @return {Frustum} 返回新截锥体.
      */
     public static split (out: Frustum, camera: Camera, m: Mat4, start: number, end: number): Frustum {
         // 0: cameraNear  1:cameraFar

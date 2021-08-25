@@ -301,7 +301,7 @@ export class AABB {
     }
 
     /**
-      * @en AABB bounding box merges a vertex.
+      * @en AABB and point merge.
       * @zh AABB包围盒合并一个顶点。
       * @param point - 某一个位置的顶点。
       */
@@ -323,9 +323,8 @@ export class AABB {
     }
 
     /**
-        * @en AABB bounding box merges vertexes.
-        * @zh
-        * AABB包围盒合并一系列顶点。
+        * @en AABB and points merge.
+        * @zh AABB包围盒合并一系列顶点。
         * @param points - 某一个位置的顶点。
         */
     public mergePoints (points: IVec3[]) {
@@ -336,8 +335,8 @@ export class AABB {
     }
 
     /**
-      * @en Frustum merge to AABB.
-      * @zh Frustum 合并 到 AABB。
+      * @en AABB and frustum merge.
+      * @zh Frustum 合并到 AABB。
       * @param frustum 输入的 Frustum。
       */
     public mergeFrustum (frustum: Frustum | Readonly<Frustum>) {
