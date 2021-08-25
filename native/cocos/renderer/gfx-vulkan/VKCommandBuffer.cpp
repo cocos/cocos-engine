@@ -219,6 +219,8 @@ void CCVKCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet
     if (dynamicOffsetCount) {
         _curDynamicOffsetsArray[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         if (set < _firstDirtyDescriptorSet) _firstDirtyDescriptorSet = set;
+    } else if (!_curDynamicOffsetsArray[set].empty()) {
+        _curDynamicOffsetsArray[set].assign(_curDynamicOffsetsArray[set].size(), 0);
     }
 }
 
