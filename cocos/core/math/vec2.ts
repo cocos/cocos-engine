@@ -297,11 +297,20 @@ export class Vec2 extends ValueType {
     /**
      * @en Calculates the cross product of the vector
      * @zh 向量叉积（向量积），注意二维向量的叉积为与 Z 轴平行的三维向量
+     * @override (a:Vec2, b:Vec2) => number
+     * @override (out:Vec3, a:Vec2, b:Vec2) => Vec3
      */
-    public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out) {
-        out.x = out.y = 0;
-        out.z = a.x * b.y - a.y * b.x;
-        return out;
+    public static cross (a: IVec2Like, b: IVec2Like): number;
+    public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out): Vec3;
+
+    public static cross (out: IVec2Like | Vec3, a: IVec2Like, b?: IVec2Like) : number | Vec3 {
+        if (out instanceof Vec3) {
+            out.x = out.y = 0;
+            out.z = a.x * b!.y - a.y * b!.x;
+            return out;
+        } else {
+            return out.x * a.y - out.y * a.x;
+        }
     }
 
     /**
