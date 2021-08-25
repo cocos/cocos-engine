@@ -29,7 +29,7 @@
     CC_APPLY_FOG(color);                                           \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
-                                                                   \                                                                \
+                                                                   \
 #elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED                \
                                                                    \
   layout(location = 0) out vec4 fragColor0;                        \

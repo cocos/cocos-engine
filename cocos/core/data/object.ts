@@ -64,7 +64,7 @@ const IsPositionLocked = 1 << 21;
 
 // Distributed
 const IsReplicated = 1 << 22;
-const IsClientLoad = 1 << 23;
+export const IsClientLoad = 1 << 23;
 
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags

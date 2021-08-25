@@ -17,123 +17,6 @@ const parseTrsPathTag = Symbol('ConvertAsTrsPath');
 
 export const trackBindingTag = Symbol('TrackBinding');
 
-/**
- * A track describes the path of animate a target.
- * It's the basic unit of animation clip.
- */
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}Track`)
-export class Track {
-    get path () {
-        return this._binding.path;
-    }
-
-    set path (value) {
-        this._binding.path = value;
-    }
-
-    get proxy () {
-        return this._binding.proxy;
-    }
-
-    set proxy (value) {
-        this._binding.proxy = value;
-    }
-
-    get [trackBindingTag] () {
-        return this._binding;
-    }
-
-    public channels (): Iterable<Channel> {
-        return [];
-    }
-
-    public range (): Range {
-        const range: Range = { min: Infinity, max: -Infinity };
-        for (const channel of this.channels()) {
-            range.min = Math.min(range.min, channel.curve.rangeMin);
-            range.max = Math.max(range.max, channel.curve.rangeMax);
-        }
-        return range;
-    }
-
-    public [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval {
-        throw new Error(`No Impl`);
-    }
-
-    @serializable
-    private _binding = new TrackBinding();
-}
-
-export interface TrackEval {
-    /**
-     * Evaluates the track.
-     * @param time The time.
-     */
-    evaluate(time: number, runtimeBinding: RuntimeBinding): unknown;
-}
-
-export type Curve = RealCurve | QuatCurve | ObjectCurve<unknown>;
-
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}Channel`)
-export class Channel<T = Curve> {
-    constructor (curve: T) {
-        this._curve = curve;
-    }
-
-    /**
-     * Not used for now.
-     */
-    public name = '';
-
-    get curve () {
-        return this._curve;
-    }
-
-    @serializable
-    private _curve!: T;
-}
-
-export type RealChannel = Channel<RealCurve>;
-
-export type QuatChannel = Channel<QuatCurve>;
-
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}SingleChannelTrack`)
-export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
-    constructor () {
-        super();
-        this._channel = new Channel<TCurve>(this.createCurve());
-    }
-
-    get channel () {
-        return this._channel;
-    }
-
-    public channels (): Iterable<Channel<TCurve>> {
-        return [this._channel];
-    }
-
-    protected createCurve (): TCurve {
-        throw new Error(`Not impl`);
-    }
-
-    public [createEvalSymbol] (_runtimeBinding: RuntimeBinding): TrackEval {
-        const { curve } = this._channel;
-        return new SingleChannelTrackEval(curve);
-    }
-
-    @serializable
-    private _channel: Channel<TCurve>;
-}
-
-class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval {
-    constructor (private _curve: TCurve) {
-    }
-
-    public evaluate (time: number) {
-        return this._curve.evaluate(time);
-    }
-}
-
 export type RuntimeBinding = {
     setValue(value: unknown): void;
 
@@ -381,3 +264,120 @@ interface CustomizedTrackPathResolver {
 }
 
 export { TrackPath };
+
+/**
+ * A track describes the path of animate a target.
+ * It's the basic unit of animation clip.
+ */
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}Track`)
+export class Track {
+    get path () {
+        return this._binding.path;
+    }
+
+    set path (value) {
+        this._binding.path = value;
+    }
+
+    get proxy () {
+        return this._binding.proxy;
+    }
+
+    set proxy (value) {
+        this._binding.proxy = value;
+    }
+
+    get [trackBindingTag] () {
+        return this._binding;
+    }
+
+    public channels (): Iterable<Channel> {
+        return [];
+    }
+
+    public range (): Range {
+        const range: Range = { min: Infinity, max: -Infinity };
+        for (const channel of this.channels()) {
+            range.min = Math.min(range.min, channel.curve.rangeMin);
+            range.max = Math.max(range.max, channel.curve.rangeMax);
+        }
+        return range;
+    }
+
+    public [createEvalSymbol] (runtimeBinding: RuntimeBinding): TrackEval {
+        throw new Error(`No Impl`);
+    }
+
+    @serializable
+    private _binding = new TrackBinding();
+}
+
+export interface TrackEval {
+    /**
+      * Evaluates the track.
+      * @param time The time.
+      */
+    evaluate(time: number, runtimeBinding: RuntimeBinding): unknown;
+}
+
+export type Curve = RealCurve | QuatCurve | ObjectCurve<unknown>;
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}Channel`)
+export class Channel<T = Curve> {
+    constructor (curve: T) {
+        this._curve = curve;
+    }
+
+    /**
+     * Not used for now.
+     */
+    public name = '';
+
+    get curve () {
+        return this._curve;
+    }
+
+    @serializable
+    private _curve!: T;
+}
+
+export type RealChannel = Channel<RealCurve>;
+
+export type QuatChannel = Channel<QuatCurve>;
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}SingleChannelTrack`)
+export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
+    constructor () {
+        super();
+        this._channel = new Channel<TCurve>(this.createCurve());
+    }
+
+    get channel () {
+        return this._channel;
+    }
+
+    public channels (): Iterable<Channel<TCurve>> {
+        return [this._channel];
+    }
+
+    protected createCurve (): TCurve {
+        throw new Error(`Not impl`);
+    }
+
+    public [createEvalSymbol] (_runtimeBinding: RuntimeBinding): TrackEval {
+        const { curve } = this._channel;
+        return new SingleChannelTrackEval(curve);
+    }
+
+    @serializable
+    private _channel: Channel<TCurve>;
+}
+
+class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval {
+    constructor (private _curve: TCurve) {
+    }
+
+    public evaluate (time: number) {
+        return this._curve.evaluate(time);
+    }
+}

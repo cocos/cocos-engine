@@ -1282,12 +1282,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
             for (let u = 0; u < block.members.length; ++u) {
                 const uniform = block.members[u];
                 const glType = GFXTypeToWebGLType(uniform.type, gl);
-                const Ctor = GFXTypeToTypedArrayCtor(uniform.type);
                 const stride = WebGLGetTypeSize(glType, gl);
                 const size = stride * uniform.count;
-                const begin = glBlock.size / 4;
-                const count = size / 4;
-                const array = new Ctor(count);
 
                 glBlock.glUniforms[u] = {
                     binding: -1,
@@ -1296,42 +1292,13 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                     stride,
                     count: uniform.count,
                     size,
-                    offset: glBlock.size,
+                    offset: 0,
 
                     glType,
                     glLoc: -1,
-                    array,
-                    begin,
+                    array: null!,
                 };
-
-                glBlock.size += size;
             }
-
-            /*
-            glBlock.buffer = new ArrayBuffer(glBlock.size);
-
-            for (let k = 0; k < glBlock.glUniforms.length; k++) {
-                const glUniform = glBlock.glUniforms[k];
-                switch (glUniform.glType) {
-                    case gl.BOOL:
-                    case gl.BOOL_VEC2:
-                    case gl.BOOL_VEC3:
-                    case gl.BOOL_VEC4:
-                    case gl.INT:
-                    case gl.INT_VEC2:
-                    case gl.INT_VEC3:
-                    case gl.INT_VEC4:
-                    case gl.SAMPLER_2D:
-                    case gl.SAMPLER_CUBE: {
-                        glUniform.vi32 = new Int32Array(glBlock.buffer);
-                        break;
-                    }
-                    default: {
-                        glUniform.vf32 = new Float32Array(glBlock.buffer);
-                    }
-                }
-            }
-            */
         }
     }
 
@@ -1376,8 +1343,6 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                         varName = uniformInfo.name;
                     }
 
-                    // let stride = WebGLGetTypeSize(info.type);
-
                     // build uniform block mapping
                     for (let j = 0; j < gpuShader.glBlocks.length; j++) {
                         const glBlock = gpuShader.glBlocks[j];
@@ -1385,19 +1350,32 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                         for (let k = 0; k < glBlock.glUniforms.length; k++) {
                             const glUniform = glBlock.glUniforms[k];
                             if (glUniform.name === varName) {
-                                // let varSize = stride * info.size;
-
                                 glUniform.glLoc = glLoc;
-                                glBlock.glActiveUniforms.push(glUniform);
+                                glUniform.count = uniformInfo.size;
+                                glUniform.size = glUniform.stride * glUniform.count;
+                                glUniform.array = new (GFXTypeToTypedArrayCtor(glUniform.type))(glUniform.size / 4);
 
+                                glBlock.glActiveUniforms.push(glUniform);
                                 break;
                             }
                         }
-                    } // for
+                    }
                 }
             }
         }
-    } // for
+    }
+
+    // calculate offset & size
+    // WARNING: we can't handle inactive uniform arrays with wrong input sizes
+    // and there is no way to detect that for now
+    for (let j = 0; j < gpuShader.glBlocks.length; j++) {
+        const glBlock = gpuShader.glBlocks[j];
+        for (let k = 0; k < glBlock.glUniforms.length; k++) {
+            const glUniform = glBlock.glUniforms[k];
+            glUniform.offset = glBlock.size / 4;
+            glBlock.size += glUniform.size;
+        }
+    }
 
     // texture unit index mapping optimization
     const glActiveSamplers: IWebGLGPUUniformSamplerTexture[] = [];
@@ -2025,7 +2003,7 @@ export function WebGLCmdFuncBindStates (
                 case gl.BOOL:
                 case gl.INT: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2039,7 +2017,7 @@ export function WebGLCmdFuncBindStates (
                 case gl.BOOL_VEC2:
                 case gl.INT_VEC2: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2053,7 +2031,7 @@ export function WebGLCmdFuncBindStates (
                 case gl.BOOL_VEC3:
                 case gl.INT_VEC3: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2067,7 +2045,7 @@ export function WebGLCmdFuncBindStates (
                 case gl.BOOL_VEC4:
                 case gl.INT_VEC4: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2080,7 +2058,7 @@ export function WebGLCmdFuncBindStates (
                 }
                 case gl.FLOAT: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2093,7 +2071,7 @@ export function WebGLCmdFuncBindStates (
                 }
                 case gl.FLOAT_VEC2: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2106,7 +2084,7 @@ export function WebGLCmdFuncBindStates (
                 }
                 case gl.FLOAT_VEC3: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2119,7 +2097,7 @@ export function WebGLCmdFuncBindStates (
                 }
                 case gl.FLOAT_VEC4: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2132,7 +2110,7 @@ export function WebGLCmdFuncBindStates (
                 }
                 case gl.FLOAT_MAT2: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2145,7 +2123,7 @@ export function WebGLCmdFuncBindStates (
                 }
                 case gl.FLOAT_MAT3: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
@@ -2158,7 +2136,7 @@ export function WebGLCmdFuncBindStates (
                 }
                 case gl.FLOAT_MAT4: {
                     for (let u = 0; u < glUniform.array.length; ++u) {
-                        const idx = glUniform.begin + offset + u;
+                        const idx = glUniform.offset + offset + u;
                         if (vf32[idx] !== glUniform.array[u]) {
                             for (let n = u, m = idx; n < glUniform.array.length; ++n, ++m) {
                                 glUniform.array[n] = vf32[m];
