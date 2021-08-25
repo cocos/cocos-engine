@@ -367,8 +367,8 @@ export enum MemoryAccessBit {
 
 export enum MemoryUsageBit {
     NONE   = 0,
-    DEVICE = 0x1,
-    HOST   = 0x2,
+    DEVICE = 0x1, // for rarely-updated resources, use MemoryUsageBit::DEVICE
+    HOST   = 0x2, // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
 export enum TextureType {
@@ -1093,7 +1093,7 @@ export class TextureInfo {
         public levelCount: number = 1,
         public samples: SampleCount = SampleCount.ONE,
         public depth: number = 1,
-        public iosurface: number = 0,
+        public externalRes: number = 0,
     ) {}
 
     public copy (info: Readonly<TextureInfo>) {
@@ -1107,7 +1107,7 @@ export class TextureInfo {
         this.levelCount = info.levelCount;
         this.samples = info.samples;
         this.depth = info.depth;
-        this.iosurface = info.iosurface;
+        this.externalRes = info.externalRes;
         return this;
     }
 }

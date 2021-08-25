@@ -39,6 +39,7 @@ import { PipelineUBO } from './pipeline-ubo';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { Root } from '../root';
+import { Model } from '../renderer/scene/model';
 
 /**
  * @en Render pipeline information descriptor
@@ -146,6 +147,14 @@ export abstract class RenderPipeline extends Asset {
         return this._pipelineSceneData;
     }
 
+    set profiler (value) {
+        this._profiler = value;
+    }
+
+    get profiler () {
+        return this._profiler;
+    }
+
     protected _device!: Device;
     protected _globalDSManager!: GlobalDSManager;
     protected _descriptorSet!: DescriptorSet;
@@ -153,6 +162,7 @@ export abstract class RenderPipeline extends Asset {
     protected _pipelineUBO = new PipelineUBO();
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
+    protected _profiler: Model | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
 
     /**
