@@ -312,7 +312,7 @@ markAsWarning(macro, 'macro', [
 replaceProperty(macro, 'macro', [
     {
         name: 'ENABLE_WEBGL_ANTIALIAS',
-        newName: 'ENABLE_ANTIALIAS',
+        newName: 'ENABLE_GL_ANTIALIAS',
     },
 ]);
 

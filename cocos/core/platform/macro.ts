@@ -998,7 +998,7 @@ const macro = {
      * 仅支持 Web
      * @default true
      */
-    ENABLE_ANTIALIAS: true,
+    ENABLE_GL_ANTIALIAS: true,
 
     /**
      * @en
