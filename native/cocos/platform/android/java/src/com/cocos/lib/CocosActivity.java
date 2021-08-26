@@ -165,6 +165,8 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
             mSurfaceHolder = null;
         }
         super.onDestroy();
+        CocosHelper.unregisterBatteryLevelReceiver(this);
+        CanvasRenderingContext2DImpl.destroy();
     }
 
     @Override
