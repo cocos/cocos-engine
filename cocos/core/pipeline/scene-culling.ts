@@ -46,7 +46,6 @@ const _mat4_trans = new Mat4();
 const _castLightViewBounds = new AABB();
 const _castWorldBounds = new AABB();
 const _castBoundsInited = false;
-const _castWorldBoundsSphere = new Sphere();
 const _validLights: Light[] = [];
 const _sphere = Sphere.create(0, 0, 0, 1);
 const _cameraBoundingSphere = new Sphere();
@@ -260,7 +259,7 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
     // min value may lead to some shadow leaks
     const orthoSizeMin = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
     // max value is accurate but poor usage for shadowmap
-    _castWorldBoundsSphere.center.set(0, 0, 0);
+    _cameraBoundingSphere.center.set(0, 0, 0);
     _cameraBoundingSphere.radius = -1.0;
     _cameraBoundingSphere.mergePoints(_validFrustum.vertices);
     const orthoSizeMax = _cameraBoundingSphere.radius * 2.0;
