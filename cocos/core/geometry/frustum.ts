@@ -32,6 +32,7 @@ import { Mat4, Vec3 } from '../math';
 import { Camera } from '../renderer/scene';
 import enums from './enums';
 import { Plane } from './plane';
+import { AABB } from './aabb';
 
 const _v = new Array(8);
 _v[0] = new Vec3(1, 1, 1);
@@ -105,6 +106,36 @@ export class Frustum {
         Plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
         Plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
     })();
+
+    /**
+     * @en Create a frustum from an AABB box.
+     * @zh 从 AABB 包围盒中创建一个视锥体。
+     * @param out 视锥体。
+     * @param aabb AABB 包围盒。
+     * @return {Frustum} frustum.
+     */
+    public static createFromAABB (out: Frustum, aabb: AABB | Readonly<AABB>) : Frustum {
+        const vec3_min = new Vec3(); const vec3_max = new Vec3();
+        Vec3.subtract(vec3_min, aabb.center, aabb.halfExtents);
+        Vec3.add(vec3_max, aabb.center, aabb.halfExtents);
+
+        out.vertices[0].set(vec3_min.x, vec3_max.y, vec3_min.z);
+        out.vertices[1].set(vec3_max.x, vec3_max.y, vec3_min.z);
+        out.vertices[2].set(vec3_max.x, vec3_min.y, vec3_min.z);
+        out.vertices[3].set(vec3_min.x, vec3_min.y, vec3_min.z);
+        out.vertices[4].set(vec3_min.x, vec3_max.y, vec3_max.z);
+        out.vertices[5].set(vec3_max.x, vec3_max.y, vec3_max.z);
+        out.vertices[6].set(vec3_max.x, vec3_min.y, vec3_max.z);
+        out.vertices[7].set(vec3_min.x, vec3_min.y, vec3_max.z);
+
+        if (out._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
+            return out;
+        }
+
+        out.updatePlanes();
+
+        return out;
+    }
 
     /**
      * @en create a new frustum.

@@ -43,8 +43,10 @@ const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _shadowPos = new Vec3();
 const _mat4_trans = new Mat4();
+const _castLightViewBounds = new AABB();
 const _castWorldBounds = new AABB();
 const _castBoundsInited = false;
+const _castWorldBoundsSphere = new Sphere();
 const _validLights: Light[] = [];
 const _sphere = Sphere.create(0, 0, 0, 1);
 const _cameraBoundingSphere = new Sphere();
@@ -58,8 +60,6 @@ const _matShadowView = new Mat4();
 const _matShadowViewInv = new Mat4();
 const _matShadowProj = new Mat4();
 const _matShadowViewProj = new Mat4();
-const _matShadowViewProjInv = new Mat4();
-const _vec4ShadowInfo = new Vec4();
 const _matShadowViewProjArbitaryPos = new Mat4();
 const _matShadowViewProjArbitaryPosInv = new Mat4();
 const _projPos = new Vec3();
@@ -237,33 +237,41 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
     _lightViewFrustum = Frustum.clone(_validFrustum);
 
     // view matrix with range back
-    Mat4.lookAt(_matShadowView, _focus, dirLight.direction, Vec3.UP);
+    Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _focus);
+    Mat4.invert(_matShadowView, _matShadowTrans);
+    Mat4.invert(_matShadowViewInv, _matShadowView);
+
     const shadowViewArbitaryPos = _matShadowView.clone();
     _lightViewFrustum.transform(_matShadowView);
     // bounding box in light space
-    AABB.fromPoints(_castWorldBounds, new Vec3(10000000, 10000000, 10000000), new Vec3(-10000000, -10000000, -10000000));
-    _castWorldBounds.mergeFrustum(_lightViewFrustum);
-    const r = _castWorldBounds.halfExtents.z * 2.0;
-    _shadowPos.set(_castWorldBounds.center.x, _castWorldBounds.center.y,
-        _castWorldBounds.center.z + _castWorldBounds.halfExtents.z + range);
-    Mat4.invert(_matShadowViewInv, _matShadowView);
+    AABB.fromPoints(_castLightViewBounds, new Vec3(10000000, 10000000, 10000000), new Vec3(-10000000, -10000000, -10000000));
+    _castLightViewBounds.mergeFrustum(_lightViewFrustum);
+
+    const r = _castLightViewBounds.halfExtents.z * 2.0;
+    _shadowPos.set(_castLightViewBounds.center.x, _castLightViewBounds.center.y,
+        _castLightViewBounds.center.z + _castLightViewBounds.halfExtents.z + range);
     Vec3.transformMat4(_shadowPos, _shadowPos, _matShadowViewInv);
 
-    Vec3.add(_vec3_p, _shadowPos, dirLight.direction);
-    Mat4.lookAt(_matShadowView, _shadowPos, _vec3_p, Vec3.UP);
+    Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _shadowPos);
+    Mat4.invert(_matShadowView, _matShadowTrans);
     Mat4.invert(_matShadowViewInv, _matShadowView);
 
-    // projection matrix
-    const orthoHeight = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
-    // const halfExtents = _castWorldBounds.halfExtents;
-    // const orthoHeight = Math.sqrt(halfExtents.x * halfExtents.x + halfExtents.y * halfExtents.y
-    //     + halfExtents.z * halfExtents.z) * 2.0;
+    // calculate projection matrix params
+    // min value may lead to some shadow leaks
+    const orthoSizeMin = Vec3.distance(_validFrustum.vertices[0], _validFrustum.vertices[6]);
+    // max value is accurate but poor usage for shadowmap
+    _castWorldBoundsSphere.center.set(0, 0, 0);
+    _cameraBoundingSphere.radius = -1.0;
+    _cameraBoundingSphere.mergePoints(_validFrustum.vertices);
+    const orthoSizeMax = _cameraBoundingSphere.radius * 2.0;
+    // use lerp(min, accurate_max) to save shadowmap usage
+    const orthoSize = orthoSizeMin * 0.8 + orthoSizeMax * 0.2;
     shadowInfo.shadowDistance = r + range;
-    Frustum.createOrtho(out, orthoHeight, orthoHeight, 0.1,  shadowInfo.shadowDistance, _matShadowViewInv);
+    Frustum.createOrtho(out, orthoSize, orthoSize, 0.1,  shadowInfo.shadowDistance, _matShadowViewInv);
 
     // snap to whole texels
-    const halfOrthoHeight = orthoHeight * 0.5;
-    Mat4.ortho(_matShadowProj, -halfOrthoHeight, halfOrthoHeight, -halfOrthoHeight, halfOrthoHeight, 0.1,  shadowInfo.shadowDistance,
+    const halfOrthoSize = orthoSize * 0.5;
+    Mat4.ortho(_matShadowProj, -halfOrthoSize, halfOrthoSize, -halfOrthoSize, halfOrthoSize, 0.1,  shadowInfo.shadowDistance,
         device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
 
     if (shadowMapWidth > 0.0) {
@@ -277,8 +285,8 @@ export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipe
         Mat4.invert(_matShadowViewProjArbitaryPosInv, _matShadowViewProjArbitaryPos);
         Vec3.transformMat4(_snap, _projSnap, _matShadowViewProjArbitaryPosInv);
 
-        Vec3.add(_vec3_p, _snap, dirLight.direction);
-        Mat4.lookAt(_matShadowView, _snap, _vec3_p, Vec3.UP);
+        Mat4.fromRT(_matShadowTrans, dirLight.node!.rotation, _snap);
+        Mat4.invert(_matShadowView, _matShadowTrans);
     } else {
         for (let i = 0; i < 8; i++) {
             out.vertices[i].set(0.0, 0.0, 0.0);
