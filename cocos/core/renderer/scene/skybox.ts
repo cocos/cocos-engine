@@ -123,6 +123,15 @@ export class Skybox {
         }
     }
 
+    set diffusemap (val: TextureCube | null) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._diffusemap_hdr = val;
+        } else {
+            this._diffusemap_ldr = val;
+        }        
+    }
+
     set envmap (val: TextureCube | null) {
         console.log("Environment map set...");
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -195,9 +204,14 @@ export class Skybox {
         }
     }
 
+    private _setUseDiffusemap(val) {
+        this._useDiffusemap = val;       
+    }
+
     public initialize (skyboxInfo: SkyboxInfo) {
         this._setEnabled(skyboxInfo.enabled);
         this._setUseIBL(skyboxInfo.useIBL);
+        this._setUseDiffusemap(skyboxInfo.applyDiffuseMap);
         this.envmap = skyboxInfo.envmap;
     }
 
@@ -235,6 +249,10 @@ export class Skybox {
             this.envmap = this._default;
         }
 
+        if (!this.diffusemap) {
+            this.diffusemap = this._default;
+        }
+
         this._updateGlobalBinding();
         this._updatePipeline();
     }
@@ -246,7 +264,7 @@ export class Skybox {
         const current = pipeline.macros.CC_USE_IBL;
         //if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
-        pipeline.macros.CC_USE_DIFFUSEMAP = this._useDiffusemap ? (this.isRGBE ? 2 : 1) : 0;
+        pipeline.macros.CC_USE_DIFFUSEMAP = this.useDiffusemap ? (this.isRGBE ? 2 : 1) : 0;
         root.onGlobalPipelineStateChanged();
     }
 

@@ -237,9 +237,6 @@ export class SkyboxInfo {
         {
             if(this.applyDiffuseMap)
             {
-                if (this._resource) {
-                    this._resource.useDiffusemap = true;
-                }
                 this._diffusemap = GenerateDiffuseReflectionMap("lala", this._envmap);
             }
         }
@@ -247,6 +244,11 @@ export class SkyboxInfo {
         {
             this._diffusemap = null;
             this._applyDiffuseMap = false;
+            this.useIBL = false;
+        }
+
+        if (this._resource) {
+            this._resource.useDiffusemap = this.applyDiffuseMap;
         }
     }
 
