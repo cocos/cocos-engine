@@ -1322,6 +1322,14 @@ export class Skeleton extends Renderable2D {
         return inst;
     }
 
+    // For Redo, Undo
+    // call markForUpdateRenderData to make sure renderData will be re-built.
+    public onRestore () {
+        this.updateMaterial();
+        this._renderFlag = this._canRender();
+        this.markForUpdateRenderData();
+    }
+
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
