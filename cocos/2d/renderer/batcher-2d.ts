@@ -379,7 +379,7 @@ export class Batcher2D {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+    public commitCompByGPU (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -412,12 +412,12 @@ export class Batcher2D {
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== true) {
             if (this._currTypeIsGPU) {
                 // G -> G
-                this.autoMergeBatches(this._currComponent!);
+                this.autoMergeBatchesByGPU(this._currComponent!);
                 this._currBatch = this._drawBatchPool.alloc();
                 this._currBatch.UICapacityDirty = true;
             } else {
                 // A -> G
-                this.autoMergeBatchesAssembler(this._currComponent!);
+                this.autoMergeBatches(this._currComponent!);
                 this._currBatch = this._drawBatchPool.alloc();
             }
             this._currScene = renderScene;
@@ -481,7 +481,7 @@ export class Batcher2D {
         ++this._currWalkIndex;
     }
 
-    public commitCompByAssembler (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -509,12 +509,12 @@ export class Batcher2D {
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== false) {
             if (this._currTypeIsGPU) {
                 // G -> A
-                this.autoMergeBatches(this._currComponent!);
+                this.autoMergeBatchesByGPU(this._currComponent!);
                 this._currBatch = this._drawBatchPool.alloc();
                 this._currBatch.UICapacityDirty = true;
             } else {
                 // A -> A
-                this.autoMergeBatchesAssembler(this._currComponent!);
+                this.autoMergeBatches(this._currComponent!);
                 this._currBatch = this._drawBatchPool.alloc();
             }
             this._currScene = renderScene;
@@ -554,7 +554,11 @@ export class Batcher2D {
     public commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
-            this.autoMergeBatches(this._currComponent!);
+            if (this._currTypeIsGPU) {
+                this.autoMergeBatchesByGPU(this._currComponent!);
+            } else {
+                this.autoMergeBatches(this._currComponent!);
+            }
         }
 
         let depthStencil;
@@ -586,9 +590,10 @@ export class Batcher2D {
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
             curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches, this);
-            curDrawBatch.descriptorSet = subModel.descriptorSet;
             curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
+            curDrawBatch.fillDrawCallAssembler();
+            curDrawBatch.drawcalls[0].descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
         }
 
@@ -602,6 +607,7 @@ export class Batcher2D {
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
         this._currLayer = 0;
+        this._currTypeIsGPU = false;
     }
 
     /**
@@ -618,14 +624,7 @@ export class Batcher2D {
         this.finishMergeBatches();
     }
 
-    /**
-     * @en
-     * End a section of render data and submit according to the batch condition.
-     *
-     * @zh
-     * 根据合批条件，结束一段渲染数据并提交。
-     */
-    public autoMergeBatches (renderComp?: Renderable2D) {
+    public autoMergeBatchesByGPU (renderComp?: Renderable2D) {
         if (!this._currScene) return;
 
         let blendState;
@@ -660,7 +659,14 @@ export class Batcher2D {
         this._batches.push(curDrawBatch);
     }
 
-    public autoMergeBatchesAssembler (renderComp?: Renderable2D) {
+    /**
+     * @en
+     * End a section of render data and submit according to the batch condition.
+     *
+     * @zh
+     * 根据合批条件，结束一段渲染数据并提交。
+     */
+    public autoMergeBatches (renderComp?: Renderable2D) {
         const buffer = this.currBufferBatch;
         const ia = buffer?.recordBatch();
         const mat = this._currMaterial;
@@ -728,6 +734,7 @@ export class Batcher2D {
         this._currLayer = renderComp.node.layer;
         this._currScene = renderComp._getRenderScene();
 
+        // 可能要区分
         this.autoMergeBatches(renderComp);
     }
 
@@ -739,6 +746,7 @@ export class Batcher2D {
      * 强制合并上一个批次的数据，开启新一轮合批。
      */
     public finishMergeBatches () {
+        // 可能要区分
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
@@ -800,9 +808,9 @@ export class Batcher2D {
     private _recursiveScreenNode (screen: Node) {
         this.walk(screen);
         if (this._currTypeIsGPU) {
-            this.autoMergeBatches(this._currComponent!);
+            this.autoMergeBatchesByGPU(this._currComponent!);
         } else {
-            this.autoMergeBatchesAssembler(this._currComponent!);
+            this.autoMergeBatches(this._currComponent!);
         }
     }
 
@@ -817,7 +825,8 @@ export class Batcher2D {
     }
 
     private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
-        this.autoMergeBatchesAssembler();
+        // 这里不用区分
+        this.autoMergeBatches();
         this._requireBufferBatch(attributes, vertexCount, indexCount);
     }
 
@@ -995,7 +1004,7 @@ class DescriptorSetCache {
             } else {
                 const device = legacyCC.director.root.device;
                 _dsInfo.layout = batch.passes[0].localSetLayout;
-                const descriptorSet = root.device.createDescriptorSet(_dsInfo);
+                const descriptorSet = root.device.createDescriptorSet(_dsInfo) as DescriptorSet;
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);

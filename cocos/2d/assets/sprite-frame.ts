@@ -1310,15 +1310,11 @@ export class SpriteFrame extends Asset {
 
     private _calculateSlicedData () {
         const rect = this._rect;
-        let tex = this._texture;
         if (this._original) {
             rect.x = this._original._x;
             rect.y = this._original._y;
-            tex = this._original._texture;
         }
 
-        const atlasWidth = tex.width;
-        const atlasHeight = tex.height;
         const leftWidth = this._capInsets[INSET_LEFT];
         const rightWidth = this._capInsets[INSET_RIGHT];
         const centerWidth = rect.width - leftWidth - rightWidth;
@@ -1329,11 +1325,12 @@ export class SpriteFrame extends Asset {
         const uvSliced = this.slicedData;
         uvSliced.length = 0;
 
+        // 在 shader 中的算法中，始终是针对可渲染区域的（即trim过后的，针对sliced点的）
         // todo rotate
-        uvSliced[0] = (rect.x + leftWidth) / atlasWidth;
-        uvSliced[1] = (rect.y + topHeight) / atlasHeight;
-        uvSliced[2] = (rect.x + leftWidth + centerWidth) / atlasWidth;
-        uvSliced[3] = (rect.y + topHeight + centerHeight) / atlasHeight;
+        uvSliced[0] = leftWidth / rect.width;
+        uvSliced[1] = topHeight / rect.height;
+        uvSliced[2] = (leftWidth + centerWidth) / rect.width;
+        uvSliced[3] = (topHeight + centerHeight) / rect.height;
     }
 }
 

@@ -746,9 +746,9 @@ export class Label extends Renderable2D {
 
     protected _render (render: Batcher2D) {
         if (this._canDrawByFourVertex) {
-            render.commitComp(this, this._texture, this._assembler!, null);
+            render.commitCompByGPU(this, this._texture, this._assembler!, null);
         } else {
-            render.commitCompByAssembler(this, this._texture, this._assembler!, null);
+            render.commitComp(this, this._texture, this._assembler!, null);
         }
     }
 

@@ -581,7 +581,7 @@ export class Sprite extends Renderable2D {
     }
 
     protected _render (render: Batcher2D) {
-        render.commitComp(this, this._spriteFrame, this._assembler!, null);
+        render.commitCompByGPU(this, this._spriteFrame, this._assembler!, null);
     }
 
     protected _canRender () {
