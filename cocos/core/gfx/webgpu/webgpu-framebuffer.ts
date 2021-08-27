@@ -16,11 +16,21 @@ export class WebGPUFramebuffer extends Framebuffer {
         const framebufferInfo = new wgpuWasmModule.FramebufferInfoInstance();
         framebufferInfo.setRenderPass((info.renderPass as WebGPURenderPass).nativeObj().getThis());
         const colors = new wgpuWasmModule.TextureList();
+        const nativeDevice = (this._device as WebGPUDevice).nativeDevice();
         for (let i = 0; i < info.colorTextures.length; i++) {
-            colors.push_back((info.colorTextures[i] as WebGPUTexture).nativeTexture);
+            if (info.colorTextures[i]) {
+                colors.push_back((info.colorTextures[i] as WebGPUTexture).nativeTexture);
+            } else {
+                colors.push_back(nativeDevice.swapchainColor);
+            }
         }
         framebufferInfo.setColorTextures(colors);
-        framebufferInfo.setDepthStencilTexture((info.depthStencilTexture as WebGPUTexture).nativeTexture);
+
+        if (info.depthStencilTexture) {
+            framebufferInfo.setDepthStencilTexture((info.depthStencilTexture as WebGPUTexture).nativeTexture);
+        } else {
+            framebufferInfo.setDepthStencilTexture(nativeDevice.swapchainDepthStencil);
+        }
 
         this._nativeFramebuffer = (this._device as WebGPUDevice).nativeDevice.createFramebuffer(framebufferInfo);
         return true;
