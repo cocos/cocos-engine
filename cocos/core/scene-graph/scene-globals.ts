@@ -41,19 +41,6 @@ const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
 const _qt = new Quat();
 
-export function GenerateDiffuseReflectionMap(file : string, foo : TextureCube) : TextureCube | null
-{
-    console.log("Generating Diffuse Convolution Map...Start");
-
-    const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-
-    // TODO: Invoke CMFT generating diffuse.....
-
-    console.log("Generating Diffuse Convolution Map...Done");
-
-    return foo;
-}
-
 /**
  * @en Environment lighting information in the Scene
  * @zh 场景的环境光照相关信息
@@ -131,13 +118,6 @@ export class SkyboxInfo {
     protected _envmap: TextureCube | null = null;
     @serializable
     @type(TextureCube)
-    @visible(function() {
-        if(this.useIBL) {
-            return true;
-        }
-        return false;
-    })
-    @readOnly
     protected _diffusemap: TextureCube | null = null;
     @serializable
     protected _enabled = false;
@@ -163,13 +143,6 @@ export class SkyboxInfo {
          if(val === false)
          {
             this._diffusemap = null;
-         }
-         else
-         {
-             if(this._envmap)
-             {
-                this._diffusemap = GenerateDiffuseReflectionMap("lala", this._envmap);
-             }
          }
 
         if (this._resource) {
@@ -204,7 +177,17 @@ export class SkyboxInfo {
     @editable
     set useIBL (val) {
         this._useIBL = val;
-        if (this._resource) { this._resource.useIBL = this._useIBL; }
+
+        if(!this._useIBL) {
+            this._diffusemap = null;
+            this._applyDiffuseMap = false;
+        }
+
+        if (this._resource) { 
+            this._resource.useIBL = this._useIBL; 
+            this._resource.useDiffusemap = this.applyDiffuseMap;
+            this._resource.diffusemap = this._diffusemap
+        }
     }
     get useIBL () {
         return this._useIBL;
@@ -226,21 +209,13 @@ export class SkyboxInfo {
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-
     @editable
     @type(TextureCube)
     set envmap (val) {
         this._envmap = val;
         if (this._resource) { this._resource.envmap = this._envmap; }
         
-        if(this._envmap)
-        {
-            if(this.applyDiffuseMap)
-            {
-                this._diffusemap = GenerateDiffuseReflectionMap("lala", this._envmap);
-            }
-        }
-        else
+        if(!this._envmap)
         {
             this._diffusemap = null;
             this._applyDiffuseMap = false;
@@ -249,11 +224,36 @@ export class SkyboxInfo {
 
         if (this._resource) {
             this._resource.useDiffusemap = this.applyDiffuseMap;
+            this._resource.diffusemap = this._diffusemap
         }
     }
-
     get envmap () {
         return this._envmap;
+    }
+
+    /**
+     * @en The optional diffusion convolution map used in tandem with IBL
+     * @zh TODO
+     */
+    @visible(function() {
+        if(this.useIBL) {
+            return true;
+        }
+        return false;
+    })
+    @editable
+    @readOnly
+    @type(TextureCube)
+    set diffusemap(val : TextureCube | null) { 
+        this._diffusemap = val;
+
+        // The diffusion relfection convolution as been set by the editor at this time, so we can pass it to skybox.ts
+        if(this._resource) {
+            this._resource.diffusemap = val;
+        }
+    }
+    get diffusemap() {
+        return this._diffusemap;
     }
 
     public activate (resource: Skybox) {

@@ -111,7 +111,7 @@ export class Skybox {
     }
 
     /**
-     * @en The texture cube used diffuse relfection convultion map
+     * @en The texture cube used diffuse reflection convolution map
      * @zh TODO
      */
      get diffusemap (): TextureCube | null {
@@ -122,14 +122,15 @@ export class Skybox {
             return this._diffusemap_ldr;
         }
     }
-
     set diffusemap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._diffusemap_hdr = val;
         } else {
             this._diffusemap_ldr = val;
-        }        
+        }  
+        this._updateGlobalBinding();
+        this._updatePipeline();      
     }
 
     set envmap (val: TextureCube | null) {
@@ -137,20 +138,12 @@ export class Skybox {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._envmap_hdr = val || this._default;
-
-            // FIXME:
-            this._diffusemap_hdr = val || this._default;         
-
             if (this._envmap_hdr) {
                 (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap_hdr.mipmapLevel;
                this._updateGlobalBinding();
             }
         } else {
-            this._envmap_ldr = val || this._default;
-
-            // FIXME:
-            this._diffusemap_ldr = val || this._default;              
-
+            this._envmap_ldr = val || this._default;           
             if (this._envmap_ldr) {
                 (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap_ldr.mipmapLevel;
                 this._updateGlobalBinding();
@@ -264,19 +257,25 @@ export class Skybox {
         const current = pipeline.macros.CC_USE_IBL;
         //if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
-        pipeline.macros.CC_USE_DIFFUSEMAP = this.useDiffusemap ? (this.isRGBE ? 2 : 1) : 0;
+        pipeline.macros.CC_USE_DIFFUSEMAP = (this.useDiffusemap && this.diffusemap) ? (this.isRGBE ? 2 : 1) : 0;
         root.onGlobalPipelineStateChanged();
     }
 
     protected _updateGlobalBinding () {
         const textureEnvmap = this.envmap!.getGFXTexture()!;
         const samplerEnvmap = samplerLib.getSampler(legacyCC.director._device, this.envmap!.getSamplerHash());
-        const textureDiffusemap = this.diffusemap!.getGFXTexture()!;
-        const samplerDiffusemap = samplerLib.getSampler(legacyCC.director._device, this.diffusemap!.getSamplerHash());
+
         this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, samplerEnvmap);
         this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, textureEnvmap);
-        this._globalDSManager!.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffusemap);
-        this._globalDSManager!.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffusemap);
+
+        if(this.diffusemap) {
+            const textureDiffusemap = this.diffusemap!.getGFXTexture()!;
+            const samplerDiffusemap = samplerLib.getSampler(legacyCC.director._device, this.diffusemap!.getSamplerHash());
+
+            this._globalDSManager!.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffusemap);
+            this._globalDSManager!.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffusemap);
+        }
+
         this._globalDSManager!.update();
     }
 
