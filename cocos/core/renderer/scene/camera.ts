@@ -140,7 +140,6 @@ export class Camera {
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
-    private _matViewInv: Mat4 | null = null;
     private _matProj: Mat4 = new Mat4();
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
@@ -477,10 +476,6 @@ export class Camera {
 
     get matView () {
         return this._matView;
-    }
-
-    get matViewInv () {
-        return this._matViewInv || this._node!.worldMatrix as Mat4;
     }
 
     get matProj () {
