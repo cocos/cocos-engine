@@ -168,4 +168,7 @@ removeProperty(Camera.prototype, 'Camera.prototype', [
     {
         name: 'setMatProj',
     },
+    {
+        name: 'setMatViewProj',
+    },
 ]);
