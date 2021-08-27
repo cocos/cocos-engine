@@ -39,7 +39,7 @@ import {
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
     DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, DynamicStates,
 } from '../../gfx';
-import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
+import { EffectAsset } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
 import {
     MacroRecord, MaterialProperty, PropertyType, customizeType,
@@ -50,13 +50,13 @@ import { NativePass } from '../scene/native-scene';
 import { errorID } from '../../platform/debug';
 import { PassHandle, PassView, NULL_HANDLE, PassPool } from './memory-pools';
 
-export interface IPassInfoFull extends IPassInfo {
+export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
     passIndex: number;
     defines: MacroRecord;
     stateOverrides?: PassOverrides;
 }
-export type PassOverrides = RecursivePartial<IPassStates>;
+export type PassOverrides = RecursivePartial<EffectAsset.IPassStates>;
 
 export interface IMacroPatch {
     name: string;
@@ -72,7 +72,7 @@ interface IPassDynamics {
 
 const _bufferInfo = new BufferInfo(
     BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+    MemoryUsageBit.DEVICE,
 );
 
 const _bufferViewInfo = new BufferViewInfo(null!);
@@ -187,7 +187,7 @@ export class Pass {
     protected _blocks: Float32Array[] = [];
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
-    protected _properties: Record<string, IPropertyInfo> = {};
+    protected _properties: Record<string, EffectAsset.IPropertyInfo> = {};
     protected _shader: Shader | null = null
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
@@ -360,7 +360,7 @@ export class Pass {
      * @param original The original pass info
      * @param value The override pipeline state info
      */
-    public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
+    public overridePipelineStates (original: EffectAsset.IPassInfo, overrides: PassOverrides): void {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
@@ -772,7 +772,7 @@ export class Pass {
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
     get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
     get program (): string { return this._programName; }
-    get properties (): Record<string, IPropertyInfo> { return this._properties; }
+    get properties (): Record<string, EffectAsset.IPropertyInfo> { return this._properties; }
     get defines (): Record<string, string | number | boolean> { return this._defines; }
     get passIndex (): number { return this._passIndex; }
     get propertyIndex (): number { return this._propertyIndex; }

@@ -28,7 +28,7 @@
  * @module material
  */
 
-import { EffectAsset, IBlockInfo, IBuiltinInfo, IDefineInfo, IShaderInfo } from '../../assets/effect-asset';
+import { EffectAsset } from '../../assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
@@ -41,7 +41,7 @@ import { debug } from '../../platform/debug';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
-interface IDefineRecord extends IDefineInfo {
+interface IDefineRecord extends EffectAsset.IDefineInfo {
     _map: (value: any) => number;
     _offset: number;
 }
@@ -59,7 +59,7 @@ export interface ITemplateInfo {
     samplerStartBinding: number;
 }
 
-export interface IProgramInfo extends IShaderInfo {
+export interface IProgramInfo extends EffectAsset.IShaderInfo {
     effectName: string;
     defines: IDefineRecord[];
     constantMacros: string;
@@ -76,7 +76,7 @@ function getBitCount (cnt: number) {
     return Math.ceil(Math.log2(Math.max(cnt, 2)));
 }
 
-function mapDefine (info: IDefineInfo, def: number | string | boolean) {
+function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolean) {
     switch (info.type) {
     case 'boolean': return typeof def === 'number' ? def.toString() : (def ? '1' : '0');
     case 'string': return def !== undefined ? def as string : info.options![0];
@@ -87,7 +87,7 @@ function mapDefine (info: IDefineInfo, def: number | string | boolean) {
     }
 }
 
-function prepareDefines (defs: MacroRecord, tDefs: IDefineInfo[]) {
+function prepareDefines (defs: MacroRecord, tDefs: EffectAsset.IDefineInfo[]) {
     const macros: IMacroInfo[] = [];
     for (let i = 0; i < tDefs.length; i++) {
         const tmpl = tDefs[i];
@@ -106,9 +106,9 @@ function getShaderInstanceName (name: string, macros: IMacroInfo[]) {
 
 function insertBuiltinBindings (
     tmpl: IProgramInfo, tmplInfo: ITemplateInfo, source: IDescriptorSetLayoutInfo,
-    type: string, outBindings?: DescriptorSetLayoutBinding[],
+    type: 'locals' | 'globals', outBindings?: DescriptorSetLayoutBinding[],
 ) {
-    const target = tmpl.builtins[type] as IBuiltinInfo;
+    const target = tmpl.builtins[type];
     const tempBlocks: UniformBlock[] = [];
     for (let i = 0; i < target.blocks.length; i++) {
         const b = target.blocks[i];
@@ -138,7 +138,7 @@ function insertBuiltinBindings (
     if (outBindings) outBindings.sort((a, b) => a.binding - b.binding);
 }
 
-function getSize (block: IBlockInfo) {
+function getSize (block: EffectAsset.IBlockInfo) {
     return block.members.reduce((s, m) => s + GetTypeSize(m.type) * m.count, 0);
 }
 
@@ -205,7 +205,7 @@ class ProgramLib {
      * @en Register the shader template with the given info
      * @zh 注册 shader 模板。
      */
-    public define (shader: IShaderInfo) {
+    public define (shader: EffectAsset.IShaderInfo) {
         const curTmpl = this._templates[shader.name];
         if (curTmpl && curTmpl.hash === shader.hash) { return curTmpl; }
         const tmpl = ({ ...shader }) as IProgramInfo;

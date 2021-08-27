@@ -190,7 +190,7 @@ export class SplashScreen {
         const vbSize = vbStride * 4;
         this.vertexBuffers = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE, vbSize, vbStride,
+            MemoryUsageBit.DEVICE, vbSize, vbStride,
         ));
         this.vertexBuffers.update(verts);
 
@@ -200,7 +200,7 @@ export class SplashScreen {
         const ibSize = ibStride * 6;
         this.indicesBuffers = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE, ibSize, ibStride,
+            MemoryUsageBit.DEVICE, ibSize, ibStride,
         ));
         this.indicesBuffers.update(indices);
 

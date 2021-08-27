@@ -110,7 +110,7 @@ export class BakedSkinningModel extends MorphModel {
         if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                MemoryUsageBit.DEVICE,
                 UBOSkinningTexture.SIZE,
                 UBOSkinningTexture.SIZE,
             ));
