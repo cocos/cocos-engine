@@ -8,11 +8,13 @@ import { PoseGraphEval } from '../../cocos/core/animation/newgen-anim/graph-eval
 import { createGraphFromDescription } from '../../cocos/core/animation/newgen-anim/__tmp__/graph-from-description';
 import gAnyTransition from './graphs/any-transition';
 import gUnspecifiedCondition from './graphs/unspecified-condition';
+import glUnspecifiedConditionOnEntryNode from './graphs/unspecified-condition-for-non-entry-node';
 import gSuccessiveSatisfaction from './graphs/successive-satisfaction';
 import gVariableNotFoundInCondition from './graphs/variable-not-found-in-condition';
 import gVariableNotFoundInPoseBlend from './graphs/variable-not-found-in-pose-blend';
 import gPoseBlendRequiresNumbers from './graphs/pose-blend-requires-numbers';
 import gInfinityLoop from './graphs/infinity-loop';
+import gZeroTimePiece from './graphs/zero-time-piece';
 import { getPropertyBindingPoints } from '../../cocos/core/animation/newgen-anim/parametric';
 import { blend1D } from '../../cocos/core/animation/newgen-anim/blend-1d';
 import '../utils/matcher-deep-close-to';
@@ -76,10 +78,30 @@ describe('NewGen Anim', () => {
             expect(() => layerGraph.connect(layerGraph.exitNode, layerGraph.addPoseNode())).toThrowError(InvalidTransitionError);
         });
 
+        test('Zero time piece', () => {
+            // SPEC: Whenever zero time piece is encountered,
+            // no matter the time piece is generated since originally passed to `update()`,
+            // or was exhaused and left zero.
+            // The following updates at that time would still steadily proceed:
+            // - The graph is in transition state and the transition specified 0 duration, then the switch will happended;
+            // - The graph is in node state and a transition is judged to be happed, then the graph will run in transition state.
+            const graphEval = new PoseGraphEval(createGraphFromDescription(gZeroTimePiece), new Node());
+            graphEval.update(0.0);
+            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Exit');
+        });
+
         test('Condition not specified', () => {
             const graphEval = new PoseGraphEval(createGraphFromDescription(gUnspecifiedCondition), new Node());
             graphEval.update(0.0);
             expect(graphEval.getCurrentNodeInfo(0).name).toBe('asd');
+        });
+
+        test('Condition not specified for non-entry node', () => {
+            const graphEval = new PoseGraphEval(createGraphFromDescription(glUnspecifiedConditionOnEntryNode), new Node());
+            graphEval.update(0.0);
+            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node1');
+            graphEval.update(0.32);
+            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node2');
         });
 
         test('Successive transitions', () => {
@@ -102,10 +124,9 @@ describe('NewGen Anim', () => {
             graphEval.update(0.0);
 
             expect(warnMockInstance).toBeCalledTimes(1);
-            expect(warnMockInstance.mock.calls[0]).toStrictEqual([
-                14000,
-                100,
-            ]);
+            expect(warnMockInstance.mock.calls[0]).toHaveLength(2);
+            expect(warnMockInstance.mock.calls[0][0]).toStrictEqual(14000);
+            expect(warnMockInstance.mock.calls[0][1]).toStrictEqual(100);
         });
     });
 

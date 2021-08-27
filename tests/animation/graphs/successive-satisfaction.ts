@@ -14,6 +14,7 @@ export default {
             transitions: [{
                 from: 0,
                 to: 1,
+                exitCondition: 0.0,
             }],
         }
     }],

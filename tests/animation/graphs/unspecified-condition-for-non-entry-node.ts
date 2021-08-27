@@ -14,10 +14,9 @@ export default {
             transitions: [{
                 from: 0,
                 to: 1,
-            }, {
-                from: 1,
-                to: 0,
+                duration: 0.3,
+                exitCondition: 0.0,
             }],
-        },
+        }
     }],
 } as import('../../../cocos/core/animation/newgen-anim/__tmp__/graph-description').GraphDescription;

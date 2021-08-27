@@ -6,18 +6,27 @@ export default {
                 type: 'pose',
             }, {
                 name: 'Node2',
-                type: 'pose',
+                type: 'subgraph',
+                nodes: [{
+                    name: 'SubgraphNode1',
+                }],
+                entryTransitions: [{
+                    to: 0,
+                }],
+                exitTransitions: [{
+                    from: 0,
+                }],
             }],
             entryTransitions: [{
                 to: 0,
             }],
+            exitTransitions: [{
+                from: 1,
+            }],
             transitions: [{
                 from: 0,
                 to: 1,
-            }, {
-                from: 1,
-                to: 0,
             }],
-        },
+        }
     }],
 } as import('../../../cocos/core/animation/newgen-anim/__tmp__/graph-description').GraphDescription;

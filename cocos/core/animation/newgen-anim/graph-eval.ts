@@ -235,12 +235,17 @@ class SubgraphEval {
 
             // Update current transition if we're in transition.
             // If currently no transition, we simple fallthrough.
-            const currentUpdatingConsume = this._updateCurrentTransition(remainTimePiece);
-            if (currentUpdatingConsume !== 0.0) {
+            if (this._currentTransition) {
+                const currentUpdatingConsume = this._updateCurrentTransition(remainTimePiece);
                 if (GRAPH_DEBUG_ENABLED) {
                     passConsumed = currentUpdatingConsume;
                 }
                 remainTimePiece -= currentUpdatingConsume;
+                if (!this._currentTransition) {
+                    // If the update invocation finished the transition,
+                    // We force restart the iteration
+                    continueNextIterationForce = true;
+                }
                 continue;
             }
 
@@ -298,12 +303,21 @@ class SubgraphEval {
         };
     }
 
+    /**
+     * Update current transition.
+     * Asserts: `!!this._currentTransition`.
+     * @param deltaTime Time piece.
+     * @returns 
+     */
     private _updateCurrentTransition (deltaTime: number) {
-        if (!this._currentTransition) {
-            return 0.0;
-        }
+        const { _currentTransition: currentTransition } = this;
+        assertIsNonNullable(currentTransition);
+        
+        const {
+            duration: transitionDuration,
+            to: toNode,
+        } = currentTransition;
 
-        const transitionDuration = this._currentTransition.duration;
         assertIsTrue(transitionDuration >= this._transitionProgress);
         let contrib = 0.0;
         let ratio = 0.0;
@@ -319,7 +333,6 @@ class SubgraphEval {
         }
 
         const fromNode = this._currentNode;
-        const toNode = this._currentTransition.to;
         assertIsTrue(fromNode !== toNode);
 
         const weight = this._weight;
@@ -333,7 +346,7 @@ class SubgraphEval {
         if (isPoseOrSubgraphNodeEval(toNode)) {
             graphDebugGroup(`Update ${toNode.name}`);
             toNode.setWeight(weight * ratio);
-            toNode.update(contrib * this._currentTransition.targetStretch);
+            toNode.update(contrib * currentTransition.targetStretch);
             graphDebugGroupEnd();
         }
         graphDebugGroupEnd();
@@ -372,7 +385,7 @@ class SubgraphEval {
         for (let iTransition = 0; iTransition < outgoingTransitions.length; ++iTransition) {
             const transition = outgoingTransitions[iTransition];
             if (node.kind === NodeKind.pose
-                && transition.exitCondition >= 0.0
+                && transition.exitConditionEnabled
                 && node.progress < transition.exitCondition) {
                 continue;
             }
@@ -453,6 +466,7 @@ function createTransitionEval (context: SubGraphEvalContext, graph: PoseSubgraph
             condition: outgoing.condition?.[createEval](context) ?? null,
             duration: isPoseTransition(outgoing) ? outgoing.duration : 0.0,
             targetStretch: 1.0,
+            exitConditionEnabled: isPoseTransition(outgoing) ? outgoing.exitConditionEnabled : false,
             exitCondition: isPoseTransition(outgoing) ? outgoing.exitCondition : 0.0,
         };
         if (toEval.kind === NodeKind.pose) {
@@ -536,7 +550,7 @@ export class PoseNodeEval extends NodeBaseEval {
     public startRatio: number;
 
     get progress () {
-        return this._pose?.progress ?? -1.0;
+        return this._pose?.progress ?? 0.0;
     }
 
     public setWeight (weight: number) {
@@ -628,6 +642,7 @@ interface TransitionEval {
     duration: number;
     condition: ConditionEval | null;
     targetStretch: number;
+    exitConditionEnabled: boolean;
     exitCondition: number;
 }
 

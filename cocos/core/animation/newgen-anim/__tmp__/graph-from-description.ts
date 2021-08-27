@@ -1,12 +1,13 @@
 import { Vec2 } from '../../../math/vec2';
 import { PoseGraph, Condition, AnimatedPose } from '../../animation';
-import { GraphDescription, MotionDescription, TransitionDescriptionBase, PoseSubGraphDescription, ParametricDescription } from './graph-description';
+import { GraphDescription, MotionDescription, TransitionDescriptionBase, PoseSubGraphDescription, ParametricDescription, PoseTransitionDescription } from './graph-description';
 import { PoseBlend1D } from '../pose-blend-1d';
 import { PoseBlend2D } from '../pose-blend-2d';
-import { GraphNode, PoseSubgraph, VariableType } from '../pose-graph';
+import { GraphNode, PoseSubgraph, PoseTransition, VariableType } from '../pose-graph';
 import { Pose } from '../pose';
 import { BindingHost } from '../parametric';
 import { Value } from '../variable';
+import { PoseNode } from '../pose-node';
 
 export function createGraphFromDescription (graphDescription: GraphDescription) {
     const graph = new PoseGraph();
@@ -61,7 +62,7 @@ function createSubgraph (subgraph: PoseSubgraph, subgraphDesc: PoseSubGraphDescr
     }
     if (subgraphDesc.transitions) {
         for (const transitionDesc of subgraphDesc.transitions) {
-            createTransition(subgraph, nodes[transitionDesc.from], nodes[transitionDesc.to], transitionDesc);
+            createPoseTransition(subgraph, nodes[transitionDesc.from] as PoseNode, nodes[transitionDesc.to], transitionDesc);
         }
     }
 }
@@ -82,7 +83,26 @@ function createTransition (graph: PoseSubgraph, from: GraphNode, to: GraphNode, 
             break;
         }
     }
-    return graph.connect(from, to, condition);
+    const transition = graph.connect(from, to, condition);
+    return transition;
+}
+
+function createPoseTransition(graph: PoseSubgraph, from: PoseNode, to: GraphNode, descriptor: PoseTransitionDescription) {
+    const transition = createTransition(graph, from, to, descriptor) as PoseTransition;
+
+    const {
+        duration,
+        exitCondition,
+    } = descriptor;
+
+    transition.duration = duration ?? 0.0;
+
+    transition.exitConditionEnabled = false;
+    if (typeof exitCondition !== 'undefined') {
+        transition.exitConditionEnabled = true;
+        transition.exitCondition = exitCondition;
+    }
+    return transition;
 }
 
 function createMotion (motionDesc: MotionDescription): Pose {

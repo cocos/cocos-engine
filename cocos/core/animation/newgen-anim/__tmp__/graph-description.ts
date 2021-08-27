@@ -37,10 +37,14 @@ export interface PoseSubGraphDescription extends SubgraphNodeBaseDesc {
         to: number;
     } & TransitionDescriptionBase>;
 
-    transitions?: Array<{
-        from: number;
-        to: number;
-    } & TransitionDescriptionBase>;
+    transitions?: Array<PoseTransitionDescription>;
+}
+
+export interface PoseTransitionDescription extends TransitionDescriptionBase {
+    from: number;
+    to: number;
+    duration?: number;
+    exitCondition?: number;
 }
 
 export interface TransitionDescriptionBase {
