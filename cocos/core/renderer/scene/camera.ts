@@ -36,7 +36,6 @@ import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { preTransforms } from '../../math/mat4';
 import { NativeCamera } from './native-scene';
-import { copy } from '../../utils/array';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -141,7 +140,7 @@ export class Camera {
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
-    private _matViewInv: Mat4 = new Mat4();
+    private _matViewInv: Mat4 | null = null;
     private _matProj: Mat4 = new Mat4();
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
@@ -476,32 +475,12 @@ export class Camera {
         return this._aspect;
     }
 
-    set matView (val) {
-        this._matView = val;
-        if (JSB) {
-            this._nativeObj!.matView = this._matView;
-        }
-
-        Mat4.copy(this._matViewInv, this._matView);
-        this._matViewInv.invert();
-    }
-
     get matView () {
         return this._matView;
     }
 
     get matViewInv () {
-        return this._matViewInv;
-    }
-
-    set matProj (val) {
-        this._matProj = val;
-        Mat4.copy(this._matProjInv, this._matProj);
-        this._matProjInv.invert();
-        if (JSB) {
-            this._nativeObj!.matProj = this._matProj;
-            this._nativeObj!.matProjInv = this._matProjInv;
-        }
+        return this._matViewInv || this._node!.worldMatrix as Mat4;
     }
 
     get matProj () {
@@ -510,16 +489,6 @@ export class Camera {
 
     get matProjInv () {
         return this._matProjInv;
-    }
-
-    set matViewProj (val) {
-        this._matViewProj = val;
-        Mat4.copy(this._matViewProjInv, this._matViewProj);
-        this._matViewProjInv.invert();
-        if (JSB) {
-            this._nativeObj!.matViewProj = this._matViewProj;
-            this._nativeObj!.matViewProjInv = this._matViewProjInv;
-        }
     }
 
     get matViewProj () {

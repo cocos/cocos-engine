@@ -153,4 +153,19 @@ removeProperty(Camera.prototype, 'Camera.prototype', [
     {
         name: 'getSplitFrustum',
     },
+    {
+        name: 'setMatView',
+    },
+    {
+        name: 'setMatViewInv',
+    },
+    {
+        name: 'setMatProjInv',
+    },
+    {
+        name: 'setMatViewProjInv',
+    },
+    {
+        name: 'setMatProj',
+    },
 ]);
