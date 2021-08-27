@@ -36,6 +36,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { preTransforms } from '../../math/mat4';
 import { NativeCamera } from './native-scene';
+import { copy } from '../../utils/array';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -140,7 +141,7 @@ export class Camera {
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
-    private _matViewInv: Mat4 | null = null;
+    private _matViewInv: Mat4 = new Mat4();
     private _matProj: Mat4 = new Mat4();
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
@@ -480,36 +481,31 @@ export class Camera {
         if (JSB) {
             this._nativeObj!.matView = this._matView;
         }
+
+        Mat4.copy(this._matViewInv, this._matView);
+        this._matViewInv.invert();
     }
 
     get matView () {
         return this._matView;
     }
 
-    set matViewInv (val: Mat4 | null) {
-        this._matViewInv = val;
-    }
-
     get matViewInv () {
-        return this._matViewInv || this._node!.worldMatrix as Mat4;
+        return this._matViewInv;
     }
 
     set matProj (val) {
         this._matProj = val;
+        Mat4.copy(this._matProjInv, this._matProj);
+        this._matProjInv.invert();
         if (JSB) {
             this._nativeObj!.matProj = this._matProj;
+            this._nativeObj!.matProjInv = this._matProjInv;
         }
     }
 
     get matProj () {
         return this._matProj;
-    }
-
-    set matProjInv (val) {
-        this._matProjInv = val;
-        if (JSB) {
-            this._nativeObj!.matProjInv = this._matProjInv;
-        }
     }
 
     get matProjInv () {
@@ -518,20 +514,16 @@ export class Camera {
 
     set matViewProj (val) {
         this._matViewProj = val;
+        Mat4.copy(this._matViewProjInv, this._matViewProj);
+        this._matViewProjInv.invert();
         if (JSB) {
             this._nativeObj!.matViewProj = this._matViewProj;
+            this._nativeObj!.matViewProjInv = this._matViewProjInv;
         }
     }
 
     get matViewProj () {
         return this._matViewProj;
-    }
-
-    set matViewProjInv (val) {
-        this._matViewProjInv = val;
-        if (JSB) {
-            this._nativeObj!.matViewProjInv = this._matViewProjInv;
-        }
     }
 
     get matViewProjInv () {
