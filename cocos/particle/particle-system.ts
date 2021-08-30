@@ -111,6 +111,7 @@ export class ParticleSystem extends RenderableComponent {
      * @zh 粒子初始大小。
      */
     @formerlySerializedAs('startSize')
+    @range([0, 1])
     @type(CurveRange)
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeX')
@@ -121,6 +122,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
     public startSizeY = new CurveRange();
@@ -130,6 +132,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
     public startSizeZ = new CurveRange();
@@ -139,6 +142,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @displayOrder(11)
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
@@ -153,6 +157,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -163,6 +168,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -173,6 +179,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
+    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
@@ -183,6 +190,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(6)
     @tooltip('i18n:particle_system.startDelay')
     public startDelay = new CurveRange();
@@ -192,6 +200,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange();
@@ -280,6 +289,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
     public rateOverTime = new CurveRange();
@@ -289,6 +299,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(15)
     @tooltip('i18n:particle_system.rateOverDistance')
     public rateOverDistance = new CurveRange();
