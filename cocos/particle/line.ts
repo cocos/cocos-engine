@@ -127,6 +127,7 @@ export class Line extends Component {
      * @zh 线段的宽度。
      */
     @type(CurveRange)
+    @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:line.width')
     get width () {

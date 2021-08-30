@@ -279,6 +279,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @displayOrder(13)
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
