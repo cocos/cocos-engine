@@ -110,6 +110,7 @@ export class AnimationClip extends Asset {
         track.path =  new TrackPath().toComponent('cc.Sprite').toProperty('spriteFrame');
         const curve = track.channels()[0].curve;
         curve.assignSorted(spriteFrames.map((spriteFrame, index) => [step * index, spriteFrame]));
+        clip.addTrack(track);
         return clip;
     }
 
@@ -514,10 +515,10 @@ export class AnimationClip extends Asset {
      * Commit event data update.
      * You should call this function after you changed the `events` data to take effect.
      * @internal
-     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
+     * @deprecated Since V3.3. Please Assign to `this.events`.
      */
     public updateEventDatas () {
-        // EMPTY
+        this.events = this._events;
     }
 
     /**
