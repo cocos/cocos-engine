@@ -37,10 +37,10 @@ import { Texture2D, ImageAsset, RealCurve } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
 const SerializableTable = [
-    ['mode', 'constant', 'multiplier', 'multiplierMax'],
-    ['mode', 'spline', 'multiplier', 'multiplierMax'],
-    ['mode', 'splineMin', 'splineMax', 'multiplier', 'multiplierMax'],
-    ['mode', 'constantMin', 'constantMax', 'multiplier', 'multiplierMax'],
+    ['mode', 'constant', 'multiplier'],
+    ['mode', 'spline', 'multiplier'],
+    ['mode', 'splineMin', 'splineMax', 'multiplier'],
+    ['mode', 'constantMin', 'constantMax', 'multiplier'],
 ] as const;
 
 export const Mode = Enum({
@@ -145,10 +145,6 @@ export default class CurveRange  {
     @editable
     public multiplier = 1;
 
-    @serializable
-    @editable
-    public multiplierMax = 1;
-
     constructor () {
 
     }
@@ -161,7 +157,7 @@ export default class CurveRange  {
         case Mode.Curve:
             return this.spline.evaluate(time) * this.multiplier;
         case Mode.TwoCurves:
-            return lerp(this.splineMin.evaluate(time) * this.multiplier, this.splineMax.evaluate(time) * this.multiplierMax, rndRatio);
+            return lerp(this.splineMin.evaluate(time), this.splineMax.evaluate(time), rndRatio) * this.multiplier;
         case Mode.TwoConstants:
             return lerp(this.constantMin, this.constantMax, rndRatio);
         }
@@ -173,11 +169,11 @@ export default class CurveRange  {
         case Mode.Constant:
             return this.constant;
         case Mode.Curve:
-            return this.multiplierMax;
+            return this.multiplier;
         case Mode.TwoConstants:
             return this.constantMax;
         case Mode.TwoCurves:
-            return this.multiplierMax;
+            return this.multiplier;
         }
     }
 
@@ -198,7 +194,7 @@ function evaluateCurve (cr: CurveRange, time: number, index: number) {
     case Mode.Curve:
         return cr.spline.evaluate(time) * cr.multiplier;
     case Mode.TwoCurves:
-        return index === 0 ? cr.splineMin.evaluate(time) * cr.multiplier : cr.splineMax.evaluate(time) * cr.multiplierMax;
+        return index === 0 ? cr.splineMin.evaluate(time) * cr.multiplier : cr.splineMax.evaluate(time) * cr.multiplier;
     case Mode.TwoConstants:
         return index === 0 ? cr.constantMin : cr.constantMax;
     default:
