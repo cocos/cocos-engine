@@ -134,7 +134,6 @@ export class Skybox {
     }
 
     set envmap (val: TextureCube | null) {
-        console.log("Environment map set...");
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._envmap_hdr = val || this._default;
