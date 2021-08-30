@@ -35,7 +35,7 @@ import { SpriteFrame } from '../../../2d/assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { Type } from '../../gfx';
 import { Pass } from '../../renderer/core/pass';
-import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
+import { getDefaultFromType } from '../../renderer/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
 import { warn } from '../../platform/debug';
 import { legacyCC } from '../../global-exports';
@@ -86,8 +86,8 @@ export class UniformProxyFactory implements IValueProxyFactory {
         if (!handle) {
             throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
         }
-        const propertyType = Pass.getPropertyTypeFromHandle(handle);
-        if (propertyType === PropertyType.BUFFER) {
+        const type = Pass.getTypeFromHandle(handle);
+        if (type < Type.SAMPLER1D) {
             const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, Type.FLOAT);
             if (!realHandle) {
                 throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex!}"`);
@@ -104,7 +104,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     pass.setUniform(realHandle, value);
                 },
             };
-        } if (propertyType === PropertyType.TEXTURE) {
+        } else {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
             const texName = prop && prop.value ? `${prop.value as string}-texture` : getDefaultFromType(prop.type) as string;
@@ -125,7 +125,6 @@ export class UniformProxyFactory implements IValueProxyFactory {
                 },
             };
         }
-        throw new Error(`Animations are not available for uniforms with property type ${propertyType}.`);
     }
 }
 

@@ -34,16 +34,14 @@ import { TextureBase } from '../../assets/texture-base';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import {
-    BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
+import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, DynamicStates,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout,
 } from '../../gfx';
 import { EffectAsset } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
-import {
-    MacroRecord, MaterialProperty, PropertyType, customizeType,
-    getBindingFromHandle, getDefaultFromType, getOffsetFromHandle, getPropertyTypeFromHandle, getTypeFromHandle, type2reader, type2writer,
+import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType,
+    getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { NativePass } from '../scene/native-scene';
@@ -86,13 +84,11 @@ export enum BatchingSchemes {
 }
 
 export declare namespace Pass {
-    export type getPropertyTypeFromHandle = typeof getPropertyTypeFromHandle;
-    export type getTypeFromHandle = typeof getTypeFromHandle;
-    export type getBindingFromHandle = typeof getBindingFromHandle;
+    export type getTypeFromHandle = typeof Pass.getTypeFromHandle;
+    export type getBindingFromHandle = typeof Pass.getBindingFromHandle;
     export type fillPipelineInfo = typeof Pass.fillPipelineInfo;
     export type getPassHash = typeof Pass.getPassHash;
-    export type getOffsetFromHandle = typeof getOffsetFromHandle;
-    export type PropertyType = typeof PropertyType;
+    export type getCountFromHandle = typeof Pass.getCountFromHandle;
 }
 
 /**
@@ -101,28 +97,22 @@ export declare namespace Pass {
  */
 export class Pass {
     /**
-     * @en The binding type enums of the property
-     * @zh Uniform 的绑定类型（UBO 或贴图等）
-     */
-    public static PropertyType = PropertyType;
-
-    /**
-     * @en Gets the binding type of the property with handle
-     * @zh 根据 handle 获取 uniform 的绑定类型（UBO 或贴图等）。
-     */
-    public static getPropertyTypeFromHandle = getPropertyTypeFromHandle;
-
-    /**
-     * @en Gets the type of member in uniform buffer object with the handle
-     * @zh 根据 handle 获取 UBO member 的具体类型。
+     * @en Get the type of member in uniform buffer object with the handle
+     * @zh 根据 handle 获取 uniform 的具体类型。
      */
     public static getTypeFromHandle = getTypeFromHandle;
 
     /**
-     * @en Gets the binding with handle
+     * @en Get the binding with handle
      * @zh 根据 handle 获取 binding。
      */
     public static getBindingFromHandle = getBindingFromHandle;
+
+    /**
+     * @en Get the array length with handle
+     * @zh 根据 handle 获取数组长度。
+     */
+    public static getCountFromHandle = getCountFromHandle;
 
     protected static getOffsetFromHandle = getOffsetFromHandle;
 
@@ -451,10 +441,13 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
+        const count = Pass.getCountFromHandle(handle);
         const block = this._blocks[binding];
         const info = this._properties[name];
-        const value = (info && info.value) || getDefaultFromType(type);
-        type2writer[type](block, value, ofs);
+        const givenDefault = info && info.value;
+        const value = (givenDefault || getDefaultFromType(type)) as number[];
+        const size = (GetTypeSize(type) >> 2) * count;
+        for (let k = 0; k + value.length <= size; k += value.length) { block.set(value, ofs + k); }
         this._setRootBufferDirty(true);
     }
 

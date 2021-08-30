@@ -31,7 +31,7 @@
 import { EffectAsset } from '../../assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
-import { genHandle, MacroRecord, PropertyType } from './pass-utils';
+import { genHandle, MacroRecord } from './pass-utils';
 import { legacyCC } from '../../global-exports';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
@@ -151,14 +151,14 @@ function genHandles (tmpl: IProgramInfo) {
         let offset = 0;
         for (let j = 0; j < members.length; j++) {
             const uniform = members[j];
-            handleMap[uniform.name] = genHandle(PropertyType.BUFFER, SetIndex.MATERIAL, block.binding, uniform.type, offset);
-            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count;
+            handleMap[uniform.name] = genHandle(block.binding, uniform.type, uniform.count, offset);
+            offset += (GetTypeSize(uniform.type) >> 2) * uniform.count; // assumes no implicit padding, which is guaranteed by effect compiler
         }
     }
     // samplerTexture handles
     for (let i = 0; i < tmpl.samplerTextures.length; i++) {
         const samplerTexture = tmpl.samplerTextures[i];
-        handleMap[samplerTexture.name] = genHandle(PropertyType.TEXTURE, SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.type);
+        handleMap[samplerTexture.name] = genHandle(samplerTexture.binding, samplerTexture.type, samplerTexture.count);
     }
     return handleMap;
 }
