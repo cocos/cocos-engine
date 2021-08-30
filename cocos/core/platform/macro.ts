@@ -1017,9 +1017,9 @@ const macro = {
      * 同时，在少部分使用软件级别抗锯齿算法的设备或浏览器上，这个选项会对性能产生比较大的影响。
      * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
      * 仅影响 OpenGL ES 后端
-     * @default true
+     * @default false
      */
-    ENABLE_GLES_ANTIALIAS: true,
+    ENABLE_GLES_ANTIALIAS: false,
 
     /**
      * @en
