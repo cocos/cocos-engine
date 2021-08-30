@@ -127,7 +127,7 @@ export class UIMeshRenderer extends UIComponent {
                 pass._priority = RenderPriority.MAX - 11;
                 // Because the deferred pipeline cannot perform lighting processing on the uimodel,
                 // it may even cause the uimodel to crash in the metal backend,
-                // so uimodel forces the forward pipeline process
+                // so force rendering uimodel in forward pipeline
                 material.recompileShaders({ CC_FORCE_FORWARD_SHADING: true }, j);
             }
         }
