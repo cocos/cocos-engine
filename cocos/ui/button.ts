@@ -603,7 +603,9 @@ export class Button extends Component {
     }
 
     public onDestroy () {
-        this._unregisterTargetEvent(this.target);
+        if (this.target.isValid) {
+            this._unregisterTargetEvent(this.target);
+        }
     }
 
     public update (dt: number) {
