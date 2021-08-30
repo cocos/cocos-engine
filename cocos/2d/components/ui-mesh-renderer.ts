@@ -125,7 +125,9 @@ export class UIMeshRenderer extends UIComponent {
                 const pass = passes[j];
                 // @ts-expect-error private property access
                 pass._priority = RenderPriority.MAX - 11;
-                // Uimodel forces the forward pipeline process
+                // Because the deferred pipeline cannot perform lighting processing on the uimodel,
+                // it may even cause the uimodel to crash in the metal backend,
+                // so uimodel forces the forward pipeline process
                 material.recompileShaders({ CC_FORCE_FORWARD_SHADING: true }, j);
             }
         }
