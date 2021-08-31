@@ -80,7 +80,7 @@ export class GbufferStage extends RenderStage {
     private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('deferred');
+    private _phaseID = getPhaseID('default');
 
     constructor () {
         super();
@@ -152,7 +152,7 @@ export class GbufferStage extends RenderStage {
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
         this._renderArea = pipeline.generateRenderArea(camera);
-        pipeline.updateQuadVertexData(this._renderArea);
+        pipeline.updateQuadVertexData(this._renderArea, camera.window!);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
@@ -170,8 +170,8 @@ export class GbufferStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        const deferredData = pipeline.getDeferredRenderData(camera);
-        const framebuffer = deferredData.gbufferFrameBuffer!;
+        const deferredData = pipeline.getDeferredRenderData();
+        const framebuffer = deferredData.gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,

@@ -35,7 +35,7 @@ import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
     Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
-    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Feature } from '../../gfx';
+    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Swapchain } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
@@ -94,7 +94,7 @@ export class ShadowFlow extends RenderFlow {
             const light = validLights[l];
 
             if (!shadowFrameBufferMap.has(light)) {
-                this._initShadowFrameBuffer(pipeline, light);
+                this._initShadowFrameBuffer(pipeline, light, camera.window!.swapchain);
             }
 
             const shadowFrameBuffer = shadowFrameBufferMap.get(light);
@@ -138,8 +138,8 @@ export class ShadowFlow extends RenderFlow {
         if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
-    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light) {
-        const device = pipeline.device;
+    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
+        const { device } = pipeline;
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
@@ -153,7 +153,7 @@ export class ShadowFlow extends RenderFlow {
             colorAttachment.sampleCount = 1;
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = device.depthStencilFormat;
+            depthStencilAttachment.format = Format.DEPTH_STENCIL;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
@@ -176,7 +176,7 @@ export class ShadowFlow extends RenderFlow {
         const depth = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-            device.depthStencilFormat,
+            Format.DEPTH_STENCIL,
             shadowMapSize.x,
             shadowMapSize.y,
         ));

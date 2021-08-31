@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
-import { SamplerInfo } from '../base/define';
-import { Sampler } from '../base/sampler';
-import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
-import { IWebGL2GPUSampler } from './webgl2-gpu-objects';
+import { SamplerInfo } from '../../base/define';
+import { Sampler } from '../../base/states/sampler';
+import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from '../webgl2-commands';
+import { WebGL2DeviceManager } from '../webgl2-define';
+import { IWebGL2GPUSampler } from '../webgl2-gpu-objects';
 
 export class WebGL2Sampler extends Sampler {
     public get gpuSampler (): IWebGL2GPUSampler {
@@ -36,26 +36,17 @@ export class WebGL2Sampler extends Sampler {
 
     private _gpuSampler: IWebGL2GPUSampler | null = null;
 
-    public initialize (info: SamplerInfo): boolean {
-        this._minFilter = info.minFilter;
-        this._magFilter = info.magFilter;
-        this._mipFilter = info.mipFilter;
-        this._addressU = info.addressU;
-        this._addressV = info.addressV;
-        this._addressW = info.addressW;
-        this._maxAnisotropy = info.maxAnisotropy;
-        this._cmpFunc = info.cmpFunc;
-        this._borderColor = info.borderColor;
-        this._mipLODBias = info.mipLODBias;
+    constructor (info: SamplerInfo) {
+        super(info);
 
         this._gpuSampler = {
             glSampler: null,
-            minFilter: this._minFilter,
-            magFilter: this._magFilter,
-            mipFilter: this._mipFilter,
-            addressU: this._addressU,
-            addressV: this._addressV,
-            addressW: this._addressW,
+            minFilter: this._info.minFilter,
+            magFilter: this._info.magFilter,
+            mipFilter: this._info.mipFilter,
+            addressU: this._info.addressU,
+            addressV: this._info.addressV,
+            addressW: this._info.addressW,
 
             glMinFilter: 0,
             glMagFilter: 0,
@@ -64,14 +55,12 @@ export class WebGL2Sampler extends Sampler {
             glWrapR: 0,
         };
 
-        WebGL2CmdFuncCreateSampler(this._device as WebGL2Device, this._gpuSampler);
-
-        return true;
+        WebGL2CmdFuncCreateSampler(WebGL2DeviceManager.instance, this._gpuSampler);
     }
 
-    public destroy () {
+    destroy () {
         if (this._gpuSampler) {
-            WebGL2CmdFuncDestroySampler(this._device as WebGL2Device, this._gpuSampler);
+            WebGL2CmdFuncDestroySampler(WebGL2DeviceManager.instance, this._gpuSampler);
             this._gpuSampler = null;
         }
     }

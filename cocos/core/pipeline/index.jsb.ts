@@ -32,6 +32,8 @@ import { PipelineSceneData } from './pipeline-scene-data';
 import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
 import { Asset } from '../assets/asset';
+import { Swapchain } from '../gfx';
+import { Model } from '../renderer/scene';
 
 nr.getPhaseID = getPhaseID;
 
@@ -76,8 +78,8 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         this.initialize(info);
     }
 
-    public activate () {
-        return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+    public activate (swapchain: Swapchain) {
+        return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
     }
 
     public render (cameras) {
@@ -86,6 +88,10 @@ export class ForwardPipeline extends nr.ForwardPipeline {
           nativeObjs.push(cameras[i].native)
       }
       super.render(nativeObjs);
+    }
+
+    set profiler (value: Model) {
+      this.setProfiler(value.native);
     }
 
     public destroy () {
@@ -204,8 +210,8 @@ export class DeferredPipeline extends nr.DeferredPipeline {
     this.initialize(info);
   }
 
-  public activate () {
-    return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+  public activate (swapchain: Swapchain) {
+    return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
   }
 
   public render (cameras) {
@@ -214,6 +220,10 @@ export class DeferredPipeline extends nr.DeferredPipeline {
         nativeObjs.push(cameras[i].native)
     }
     super.render(nativeObjs);
+  }
+
+  set profiler (value: Model) {
+    this.setProfiler(value.native);
   }
 
   destroy () {

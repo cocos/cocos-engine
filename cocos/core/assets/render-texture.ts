@@ -29,17 +29,15 @@
  */
 
 import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
-import { Texture, Sampler, ColorAttachment, DepthStencilAttachment, AccessType, RenderPassInfo } from '../gfx';
+import { Texture, Sampler, ColorAttachment, DepthStencilAttachment, AccessType, RenderPassInfo, SamplerInfo, Format } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
-
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
-import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
 import { IDGenerator } from '../utils/js';
-import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 
 const idGenerator = new IDGenerator('RenderTex');
+const defaultSamplerInfo = new SamplerInfo();
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -49,8 +47,11 @@ export interface IRenderTextureCreateInfo {
 }
 
 const _colorAttachment = new ColorAttachment();
+_colorAttachment.format = Format.RGBA8;
+_colorAttachment.beginAccesses = [AccessType.FRAGMENT_SHADER_READ_TEXTURE];
 _colorAttachment.endAccesses = [AccessType.FRAGMENT_SHADER_READ_TEXTURE];
 const _depthStencilAttachment = new DepthStencilAttachment();
+_depthStencilAttachment.format = Format.DEPTH_STENCIL;
 const passInfo = new RenderPassInfo([_colorAttachment], _depthStencilAttachment);
 
 const _windowInfo: IRenderWindowInfo = {
@@ -157,15 +158,15 @@ export class RenderTexture extends TextureBase {
      */
     public getGFXSampler (): Sampler {
         const root = legacyCC.director.root as Root;
-        return samplerLib.getSampler(root.device, defaultSamplerHash);
+        return root.device.getSampler(defaultSamplerInfo);
     }
 
     /**
      * @en Gets the sampler hash for the render texture
      * @zh 获取渲染贴图的采样器哈希值
      */
-    public getSamplerHash () {
-        return defaultSamplerHash;
+    public getSamplerInfo () {
+        return defaultSamplerInfo;
     }
 
     public onLoaded () {

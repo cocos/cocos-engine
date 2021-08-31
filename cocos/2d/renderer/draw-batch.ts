@@ -94,7 +94,6 @@ export class DrawBatch2D {
     public useLocalData: Node | null = null;
     public isStatic = false;
     public textureHash = 0;
-    public samplerHash = 0;
     private _passes: Pass[] = [];
     private _shaders: Shader[] = [];
     private _visFlags: number = UI_VIS_FLAG;

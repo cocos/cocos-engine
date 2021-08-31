@@ -139,7 +139,6 @@ export function countTrailingZeros (v: number) {
  * @zh 计算大于等于v的最小的二的整数次幂的数字。
  */
 export function nextPow2 (v: number) {
-    v += ((v === 0) as unknown as number);
     --v;
     v |= v >>> 1;
     v |= v >>> 2;

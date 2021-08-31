@@ -23,29 +23,15 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
+import { RenderPassInfo } from '../base/define';
+import { RenderPass } from '../base/render-pass';
 
-import { Device } from './device';
-import { Obj, ObjectType, TextureBarrierInfo } from './define';
-
-/**
- * @en GFX shader.
- * @zh GFX 着色器。
- */
-export class TextureBarrier extends Obj {
-    protected _device: Device;
-    protected _info: TextureBarrierInfo = new TextureBarrierInfo();
-
-    constructor (device: Device) {
-        super(ObjectType.TEXTURE_BARRIER);
-        this._device = device;
+export class EmptyRenderPass extends RenderPass {
+    public initialize (info: RenderPassInfo) {
+        this._colorInfos = info.colorAttachments;
+        this._depthStencilInfo = info.depthStencilAttachment;
+        this._subpasses = info.subpasses;
+        this._hash = this.computeHash();
     }
-
-    public initialize (info: TextureBarrierInfo): boolean {
-        this._info.copy(info);
-        return true;
-    }
+    public destroy () {}
 }

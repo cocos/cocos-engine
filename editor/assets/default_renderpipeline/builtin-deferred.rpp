@@ -65,7 +65,7 @@
     "isTransparent": false,
     "sortMode": 0,
     "stages": [
-      "deferred"
+      "default"
     ]
   },
   {
@@ -73,20 +73,19 @@
     "_name": "LightingStage",
     "_priority": 0,
     "_tag": 0,
+    "_deferredMaterial": null,
     "renderQueues": [
       {
         "__id__": 7
       }
-    ],
-    "_deferredMaterial": null
+    ]
   },
   {
     "__type__": "RenderQueueDesc",
     "isTransparent": true,
     "sortMode": 1,
     "stages": [
-      "default",
-      "deferred"
+      "default"
     ]
   },
   {
@@ -94,6 +93,7 @@
     "_name": "PostprocessStage",
     "_priority": 0,
     "_tag": 0,
-    "_postProcessMaterial": null
+    "_postProcessMaterial": null,
+    "renderQueues": []
   }
 ]

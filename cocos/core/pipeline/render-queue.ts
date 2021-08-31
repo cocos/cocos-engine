@@ -112,7 +112,7 @@ export class RenderQueue {
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
-        rp.shaderId = shader.id;
+        rp.shaderId = shader.typedID;
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
