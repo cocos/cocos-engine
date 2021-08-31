@@ -97,7 +97,7 @@ class BookOfChange {
     private _createChunk () {
         this._chunks.push(new Uint32Array(BookOfChange.CAPACITY_PER_CHUNK));
         const freelist: number[] = [];
-        for (let i = 0; i < BookOfChange.CAPACITY_PER_CHUNK; ++i) freelist.push(i);
+        for (let i = BookOfChange.CAPACITY_PER_CHUNK - 1; i >= 0; i--) freelist.push(i);
         this._freelists.push(freelist);
     }
 
@@ -221,6 +221,7 @@ export class Node extends BaseNode implements CustomSerializable {
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
     protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
     protected declare _hasChangedFlagsOffset: number;
+    protected declare _hasChangedFlags: Uint32Array;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
@@ -229,6 +230,8 @@ export class Node extends BaseNode implements CustomSerializable {
         const [chunk, offset] = bookOfChange.alloc();
         this._hasChangedFlagsChunk = chunk;
         this._hasChangedFlagsOffset = offset;
+        const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
+        this._hasChangedFlags = flagBuffer;
         if (JSB) {
             // new node
             this._nodeHandle = NodePool.alloc();
@@ -247,7 +250,6 @@ export class Node extends BaseNode implements CustomSerializable {
             this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
             this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, nativeDirtyNodes);
         } else {
             this._pos = new Vec3();
@@ -708,19 +710,55 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const childDirtyBit = dirtyBit | TransformBit.POSITION;
-        this._setDirtyNode(0, this);
+        //
         let i = 0;
+        let cur: this;
+        let flag = 0;
+
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+
+        // NOTE: inflate function
+        // ```
+        // this._setDirtyNode(0, this);
+        // ```
+        dirtyNodes[0] = this;
+        if (JSB) {
+            nativeDirtyNodes[0] = this.native;
+        }
+
         while (i >= 0) {
-            const cur: this = dirtyNodes[i--];
-            const hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._dirtyFlags |= dirtyBit;
+            flag = 0;
+            cur = dirtyNodes[i--];
+            const hasChangedFlags = cur._hasChangedFlags[0];
+            if (cur.isValid && (cur._dirtyFlagsPri & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                // NOTE: inflate procedure
+                // ```
+                // cur._dirtyFlags |= dirtyBit;
+                // ```
+                flag =  cur._dirtyFlagsPri  | dirtyBit;
+                cur._dirtyFlagsPri = flag;
+                if (JSB) {
+                    cur._nativeDirtyFlag[0] = flag;
+                }
+
                 cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
-                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
-                const children = cur._children;
-                const len = children.length;
-                for (let j = 0; j < len; ++j) this._setDirtyNode(++i, children[j]);
+                // NOTE: inflate attribute accessor
+                // ```
+                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                // ```
+                cur._hasChangedFlags[0] = hasChangedFlags | dirtyBit;
+
+                // eslint-disable-next-line no-loop-func
+                cur._children.forEach((c) => {
+                    // NOTE: inflate function
+                    // ```
+                    // this._setDirtyNode(0, this);
+                    // ```
+                    dirtyNodes[++i] = c;
+                    if (JSB) {
+                        nativeDirtyNodes[i] = c.native;
+                    }
+                });
             }
             dirtyBit = childDirtyBit;
         }
