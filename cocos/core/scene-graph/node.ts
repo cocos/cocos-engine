@@ -167,6 +167,9 @@ export class Node extends BaseNode implements CustomSerializable {
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
     // UI 部分的脏数据
+    /**
+     * @private
+     */
     public _uiProps = new NodeUIProperties(this);
 
     /**
