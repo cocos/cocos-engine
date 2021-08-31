@@ -128,9 +128,12 @@ export class Skybox {
             this._diffusemap_hdr = val;
         } else {
             this._diffusemap_ldr = val;
-        }  
-        this._updateGlobalBinding();
-        this._updatePipeline();      
+        }
+        if(val)
+        {
+            this._updateGlobalBinding();
+            this._updatePipeline();
+        }
     }
 
     set envmap (val: TextureCube | null) {
@@ -205,6 +208,7 @@ export class Skybox {
         this._setUseIBL(skyboxInfo.useIBL);
         this._setUseDiffusemap(skyboxInfo.applyDiffuseMap);
         this.envmap = skyboxInfo.envmap;
+        this.diffusemap = skyboxInfo.diffusemap;
     }
 
     public activate () {
