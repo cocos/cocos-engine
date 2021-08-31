@@ -30,8 +30,6 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleIconFile</key>
-	<string>Icon</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.cocos.apps.simulator</string>
 	<key>CFBundleInfoDictionaryVersion</key>
