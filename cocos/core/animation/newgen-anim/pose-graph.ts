@@ -249,19 +249,19 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
      * @param from Source node.
      * @param to Target node.
      * @param condition The transition condition.
-     * @throws `InvalidTransitionError` if:
-     * - the target node is entry or any, or
-     * - the source node is exit.
      */
-    public connect (from: GraphNode, to: GraphNode, condition?: Condition): TransitionView
+    public connect (from: PoseNode, to: GraphNode, condition?: Condition): PoseTransitionView;
 
     /**
      * Connect two nodes.
      * @param from Source node.
      * @param to Target node.
      * @param condition The transition condition.
+     * @throws `InvalidTransitionError` if:
+     * - the target node is entry or any, or
+     * - the source node is exit.
      */
-    public connect (from: PoseNode, to: GraphNode, condition?: Condition): PoseTransitionView;
+    public connect (from: GraphNode, to: GraphNode, condition?: Condition): TransitionView;
 
     public connect (from: GraphNode, to: GraphNode, condition?: Condition): TransitionView {
         assertsOwnedBy(from, this);
