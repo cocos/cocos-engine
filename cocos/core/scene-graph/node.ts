@@ -729,12 +729,13 @@ export class Node extends BaseNode implements CustomSerializable {
         while (i >= 0) {
             cur = dirtyNodes[i--];
             hasChangedFlags = cur._hasChangedFlags[0];
-            if (cur.isValid && (cur._dirtyFlagsPri & hasChangedFlags & dirtyBit) !== dirtyBit) {
+            flag =  cur._dirtyFlagsPri;
+            if (cur.isValid && (flag & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 // NOTE: inflate procedure
                 // ```
                 // cur._dirtyFlags |= dirtyBit;
                 // ```
-                flag =  cur._dirtyFlagsPri  | dirtyBit;
+                flag |= dirtyBit;
                 cur._dirtyFlagsPri = flag;
                 if (JSB) {
                     cur._nativeDirtyFlag[0] = flag;
