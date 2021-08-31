@@ -727,7 +727,6 @@ export class Node extends BaseNode implements CustomSerializable {
         }
 
         while (i >= 0) {
-            flag = 0;
             cur = dirtyNodes[i--];
             hasChangedFlags = cur._hasChangedFlags[0];
             if (cur.isValid && (cur._dirtyFlagsPri & hasChangedFlags & dirtyBit) !== dirtyBit) {
