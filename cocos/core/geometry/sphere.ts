@@ -141,6 +141,8 @@ export class Sphere {
             return out;
         }
 
+        out.copy(s);
+
         Vec3.subtract(_offset, point, s.center);
         const dist = _offset.length();
 
