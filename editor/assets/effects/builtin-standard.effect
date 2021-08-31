@@ -80,6 +80,7 @@ CCEffect %{
     passes:
     - vert: standard-vs
       frag: standard-fs
+      embeddedMacros: { CC_STANDARD_TRANSPARENT: true }
       depthStencilState:
         depthTest: true
         depthWrite: false
@@ -341,7 +342,7 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
   #include <packing>
-  #include <cc-shadow>
+  #include <cc-shadow-map-base>
 
   in vec2 v_uv;
   in vec2 v_uv1;
@@ -372,11 +373,7 @@ CCProgram shadow-caster-fs %{
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
       if (cc_shadowNFLSInfo.z > 0.000001) {
-        vec4 viewStartPos = cc_matLightView * v_worldPos;
-        float dist = length(viewStartPos.xyz);
-        float linearDepth = cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
-
-        return vec4(linearDepth, 1.0, 1.0, 1.0);
+        return vec4(CCGetLinearDepth(v_worldPos.xyz), 1.0, 1.0, 1.0);
       }
     }
 

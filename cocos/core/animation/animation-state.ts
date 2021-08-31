@@ -487,7 +487,7 @@ export class AnimationState extends Playable {
     }
 
     protected onPlay () {
-        this.setTime(0.0);
+        this.setTime(this._getPlaybackStart());
         this._delayTime = this._delay;
         this._onReplayOrResume();
         this.emit(EventType.PLAY, this);
@@ -610,6 +610,8 @@ export class AnimationState extends Playable {
 
         let stopped = false;
         const repeatCount = this.repeatCount;
+
+        time -= playbackStart;
 
         let currentIterations = time > 0 ? (time / playbackDuration) : -(time / playbackDuration);
         if (currentIterations >= repeatCount) {

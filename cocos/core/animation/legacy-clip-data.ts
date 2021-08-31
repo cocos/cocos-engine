@@ -5,7 +5,7 @@ import { BezierControlPoints } from './bezier';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { serializable } from '../data/decorators';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode } from '../curves';
+import { QuatCurve, QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode } from '../curves';
 import { assertIsTrue } from '../data/utils/asserts';
 import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';
@@ -308,7 +308,6 @@ export class AnimationClipLegacyData {
                         return;
                     }
                     case everyInstanceOf(legacyValues, Quat): {
-                        assertIsTrue(legacyEasingMethodConverter.nil);
                         const track = new QuatTrack();
                         installPathAndSetter(track);
                         const interpolationMode = interpolate ? QuatInterpolationMode.SLERP : QuatInterpolationMode.CONSTANT;
@@ -316,6 +315,7 @@ export class AnimationClipLegacyData {
                             value: Quat.clone(value),
                             interpolationMode,
                         })));
+                        legacyEasingMethodConverter.convertQuatCurve(track.channel.curve);
                         newTracks.push(track);
                         return;
                     }
@@ -483,13 +483,21 @@ class LegacyEasingMethodConverter {
         const { easingMethods } = legacyCurveData;
         if (Array.isArray(easingMethods)) {
             // Different
-            this._easingMethods = easingMethods;
+            if (easingMethods.length === 0 && keyframesCount !== 0) {
+                // This shall not happen as specified in doc on legacy easing methods
+                // but it does in history project(see cocos-creator/3d-tasks/issues/#8468).
+                // This may be a promise breaking BUG between engine & Editor.
+                // Let's capture this case.
+                this._easingMethods = new Array(keyframesCount).fill(null);
+            } else {
+                this._easingMethods = easingMethods;
+            }
         } else if (easingMethods === undefined) {
             // Same
             this._easingMethods = new Array(keyframesCount).fill(legacyCurveData.easingMethod);
         } else {
             // Compressed as record
-            this._easingMethods = Array.from({ length: keyframesCount }, (_, index) => easingMethods[index]);
+            this._easingMethods = Array.from({ length: keyframesCount }, (_, index) => easingMethods[index] ?? null);
         }
     }
 
@@ -537,7 +545,40 @@ class LegacyEasingMethodConverter {
         }
     }
 
-    private _easingMethods: LegacyEasingMethod[]  | undefined;
+    public convertQuatCurve (curve: QuatCurve) {
+        const { _easingMethods: easingMethods } = this;
+        if (!easingMethods) {
+            return;
+        }
+
+        const nKeyframes = curve.keyFramesCount;
+        if (curve.keyFramesCount < 2) {
+            return;
+        }
+
+        if (Array.isArray(easingMethods)) {
+            assertIsTrue(nKeyframes === easingMethods.length);
+        }
+
+        const iLastKeyframe = nKeyframes - 1;
+        for (let iKeyframe = 0; iKeyframe < iLastKeyframe; ++iKeyframe) {
+            const easingMethod = easingMethods[iKeyframe];
+            if (!easingMethod) {
+                continue;
+            }
+            if (Array.isArray(easingMethod)) {
+                curve.getKeyframeValue(iKeyframe).easingMethod = easingMethod.slice() as BezierControlPoints;
+            } else {
+                applyLegacyEasingMethodNameIntoQuatCurve(
+                    easingMethod,
+                    curve,
+                    iKeyframe,
+                );
+            }
+        }
+    }
+
+    private _easingMethods: Array<LegacyEasingMethod | null>  | undefined;
 }
 
 /**
@@ -558,6 +599,18 @@ function applyLegacyEasingMethodName (
         keyframeValue.interpolationMode = RealInterpolationMode.LINEAR;
         keyframeValue.easingMethod = easingMethod;
     }
+}
+
+function applyLegacyEasingMethodNameIntoQuatCurve (
+    easingMethodName: LegacyEasingMethodName,
+    curve: QuatCurve,
+    keyframeIndex: number,
+) {
+    assertIsTrue(keyframeIndex !== curve.keyFramesCount - 1);
+    assertIsTrue(easingMethodName in easingMethodNameMap);
+    const keyframeValue = curve.getKeyframeValue(keyframeIndex);
+    const easingMethod = easingMethodNameMap[easingMethodName];
+    keyframeValue.easingMethod = easingMethod;
 }
 
 const easingMethodNameMap: Record<LegacyEasingMethodName, EasingMethod> = {

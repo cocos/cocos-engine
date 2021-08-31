@@ -63,6 +63,10 @@ exports.template = `
                 <option value="38">LoopReverse</option>
             </ui-select>
         </ui-prop>
+        <ui-prop>
+            <span slot="label">Speed</span>
+            <ui-num-input slot="content" class="speed"></ui-num-input>
+        </ui-prop>
     </div>
 </div>
 `;
@@ -285,6 +289,7 @@ exports.$ = {
     clipTo: '.clip-to',
     clipFrames: '.clip-frames',
     wrapMode: '.wrap-mode',
+    speed: '.speed',
     rulerMaking: '.ruler-making',
     rulerGear: '.ruler-gear',
     controlWrap: '.control-wrap',
@@ -481,7 +486,6 @@ const Elements = {
                 virtualControl: null,
                 clipNames: [],
             });
-
             panel.onClipNameBind = panel.onClipName.bind(panel);
             panel.$.clipName.addEventListener('confirm', panel.onClipNameBind);
 
@@ -499,6 +503,9 @@ const Elements = {
 
             panel.onWrapModeChangeBind = panel.onWrapModeChange.bind(panel);
             panel.$.wrapMode.addEventListener('confirm', panel.onWrapModeChangeBind);
+
+            panel.onSpeedChangeBind = panel.onSpeedChange.bind(panel);
+            panel.$.speed.addEventListener('confirm', panel.onSpeedChangeBind);
 
             function observer() {
                 const rect = panel.$.editor.getBoundingClientRect();
@@ -531,6 +538,7 @@ const Elements = {
             panel.$.clipFPS.removeEventListener('confirm', panel.onFpsChangeBind);
 
             panel.$.wrapMode.removeEventListener('confirm', panel.onWrapModeChangeBind);
+            panel.$.speed.removeEventListener('confirm', panel.onSpeedChangeBind);
         },
         update() {
             const panel = this;
@@ -750,6 +758,7 @@ exports.methods = {
             from: 0,
             to: panel.rawClipInfo.duration,
             wrapMode: 2 /* Loop */,
+            speed: 1,
         };
     },
     updateCurrentClipInfo() {
@@ -771,6 +780,7 @@ exports.methods = {
         const durationWidth = (duration / panel.rawClipInfo.duration) * panel.gridTableWith;
         const fps = info.fps !== undefined ? info.fps : panel.rawClipInfo.fps;
         const wrapMode = info.wrapMode ?? panel.rawClipInfo.wrapMode;
+        const speed = info.speed ?? panel.rawClipInfo.speed;
         panel.currentClipInfo = {
             name: info.name,
             from: info.from * fps,
@@ -790,6 +800,7 @@ exports.methods = {
             duration,
             fps,
             wrapMode,
+            speed,
         };
 
         const maxFrames = (panel.rawClipInfo.duration * panel.currentClipInfo.fps).toFixed(0);
@@ -807,6 +818,7 @@ exports.methods = {
         panel.$.clipTo.setAttribute('max', maxFrames);
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
+        panel.$.speed.value = panel.currentClipInfo.speed || 1;
     },
     updateRawClipInfo() {
         const panel = this;
@@ -1030,6 +1042,14 @@ exports.methods = {
         const panel = this;
 
         panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = Number(event.target.value);
+
+        Elements.editor.update.call(panel);
+        panel.dispatch('change');
+    },
+    onSpeedChange(event) {
+        const panel = this;
+
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = Number(event.target.value);
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');

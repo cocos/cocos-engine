@@ -3,6 +3,7 @@
 #define CC_PIPELINE_TYPE_FORWARD 0
 #define CC_PIPELINE_TYPE_DEFERRED 1
 #pragma define CC_PIPELINE_TYPE range([0, 1])
+#pragma define CC_STANDARD_TRANSPARENT
 
 #if CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD
 # define LIGHTS_PER_PASS 1 // indent to avoid effect-compile-time substitution
@@ -14,6 +15,6 @@
 layout(set = 2, binding = 1) uniform CCForwardLight {
   highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight
   vec4 cc_lightColor[LIGHTS_PER_PASS]; // xyz: color, w: intensity
-  vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: spotAngle
+  vec4 cc_lightSizeRangeAngle[LIGHTS_PER_PASS]; // x: size, y: range, z: cos(half outterAngle)
   vec4 cc_lightDir[LIGHTS_PER_PASS]; // xyz: dir, w: valid light count
 };

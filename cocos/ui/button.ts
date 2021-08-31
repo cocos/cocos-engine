@@ -602,6 +602,12 @@ export class Button extends Component {
         }
     }
 
+    public onDestroy () {
+        if (this.target.isValid) {
+            this._unregisterTargetEvent(this.target);
+        }
+    }
+
     public update (dt: number) {
         const target = this.target;
         if (this._transitionFinished || !target) {
@@ -721,6 +727,7 @@ export class Button extends Component {
                 this._originalScale = new Vec3();
             }
             Vec3.copy(this._originalScale, this.target.getScale());
+            this._registerTargetEvent(this.target);
         }
     }
 

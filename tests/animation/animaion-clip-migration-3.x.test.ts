@@ -528,6 +528,27 @@ describe('Animation Clip Migration 3.x', () => {
                     leftTangentWeight: 1.0071742649611337,
                 })]);
             });
+
+            test(`Empty array`, () => {
+                const curve = createClipWithEasingMethodsAndConvert(
+                    [0.1, 0.3, 0.5],
+                    [1, 3, 5],
+                    undefined,
+                    [],
+                    true,
+                );
+                expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.5]);
+                expect(Array.from(curve.values())).toStrictEqual([createRealKeyframeValueLike({
+                    interpolationMode: RealInterpolationMode.LINEAR,
+                    value: 1,
+                }), createRealKeyframeValueLike({
+                    interpolationMode: RealInterpolationMode.LINEAR,
+                    value: 3,
+                }), createRealKeyframeValueLike({
+                    interpolationMode: RealInterpolationMode.LINEAR,
+                    value: 5,
+                })]);
+            });
         });
     });
 
