@@ -233,6 +233,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem.processor) {
             const useGPU = this._useGPU && isSupportGPUParticle();
             this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            this._particleSystem.processor.updateAlignSpace(this.alignSpace);
             this._particleSystem.processor.onInit(ps);
         } else {
             errorID(6034);
