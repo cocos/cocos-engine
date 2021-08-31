@@ -35,7 +35,7 @@ namespace gfx {
 
 QueueValidator::QueueValidator(Queue *actor)
 : Agent<Queue>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 QueueValidator::~QueueValidator() {

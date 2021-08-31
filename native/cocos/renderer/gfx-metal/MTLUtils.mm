@@ -82,53 +82,7 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
     }
 }
 
-const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &source, int vulkanMinorVersion = 2) {
-    static bool glslangInitialized = false;
-    if (!glslangInitialized) {
-        glslang::InitializeProcess();
-        glslangInitialized = true;
-    }
-    vector<unsigned int> spirv;
-    auto stage = getShaderStage(type);
-    auto string = source.c_str();
-    glslang::TShader shader(stage);
-    shader.setStrings(&string, 1);
 
-    //Set up Vulkan/SpirV Environment
-    int clientInputSemanticsVersion = 100 + vulkanMinorVersion * 10;                        // maps to, say, #define VULKAN 120
-    glslang::EShTargetClientVersion clientVersion = getClientVersion(vulkanMinorVersion);   // map to, say, Vulkan 1.2
-    glslang::EShTargetLanguageVersion targetVersion = getTargetVersion(vulkanMinorVersion); // maps to, say, SPIR-V 1.5
-
-    shader.setEnvInput(glslang::EShSourceGlsl, stage, glslang::EShClientVulkan, clientInputSemanticsVersion);
-    shader.setEnvClient(glslang::EShClientVulkan, clientVersion);
-    shader.setEnvTarget(glslang::EShTargetSpv, targetVersion);
-
-    EShMessages messages = EShMsgRelaxedErrors;
-
-    if (!shader.parse(&glslang::DefaultTBuiltInResource, clientInputSemanticsVersion, false, messages)) {
-        CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", shader.getInfoLog(), shader.getInfoDebugLog());
-        CC_LOG_ERROR("%s", string);
-        return spirv;
-    }
-    glslang::TProgram program;
-    program.addShader(&shader);
-
-    if (!program.link(messages)) {
-        CC_LOG_ERROR("GLSL Linking Failed:\n%s\n%s", program.getInfoLog(), program.getInfoDebugLog());
-        CC_LOG_ERROR("%s", string);
-        return spirv;
-    }
-
-    spv::SpvBuildLogger logger;
-    glslang::SpvOptions spvOptions;
-    glslang::GlslangToSpv(*program.getIntermediate(stage), spirv, &logger, &spvOptions);
-    if (!spirv.size()) {
-        CC_LOG_ERROR("GlslangToSpv Failed:\n%s\n%s", program.getInfoLog(), program.getInfoDebugLog());
-        CC_LOG_ERROR("%s", string);
-        return spirv;
-    }
-    return spirv;
-}
 
 //See more details at https://developer.apple.com/documentation/metal/mtlfeatureset
 enum class GPUFamily {
@@ -654,27 +608,30 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
         case Format::RGB9E5: return MTLPixelFormatRGB9E5Float;
         case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
-        case Format::D16: {
+//        case Format::D16: {
+//#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+//            return MTLPixelFormatDepth16Unorm;
+//#else
+//            if (@available(iOS 13.0, *))
+//                return MTLPixelFormatDepth16Unorm;
+//            else
+//                break;
+//#endif
+//        }
+        case Format::DEPTH: return MTLPixelFormatDepth32Float;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-            return MTLPixelFormatDepth16Unorm;
-#else
-            if (@available(iOS 13.0, *))
-                return MTLPixelFormatDepth16Unorm;
-            else
-                break;
-#endif
-        }
-        case Format::D32F: return MTLPixelFormatDepth32Float;
-        case Format::D32F_S8: return MTLPixelFormatDepth32Float_Stencil8;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-        case Format::D24S8: return MTLPixelFormatDepth24Unorm_Stencil8;
+        case Format::DEPTH_STENCIL: return MTLPixelFormatDepth24Unorm_Stencil8;
+        case Format::BC1:
         case Format::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
         case Format::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
         case Format::BC2: return MTLPixelFormatBC2_RGBA;
         case Format::BC2_SRGB: return MTLPixelFormatBC2_RGBA_sRGB;
         case Format::BC3: return MTLPixelFormatBC3_RGBA;
         case Format::BC3_SRGB: return MTLPixelFormatBC3_RGBA_sRGB;
+        case Format::BC4: return MTLPixelFormatBC4_RUnorm;
+        case Format::BC4_SNORM: return MTLPixelFormatBC4_RSnorm;
 #else
+        case Format::DEPTH_STENCIL: return MTLPixelFormatDepth32Float_Stencil8;
         case Format::ASTC_RGBA_4X4: return MTLPixelFormatASTC_4x4_LDR;
         case Format::ASTC_RGBA_5X4: return MTLPixelFormatASTC_5x4_LDR;
         case Format::ASTC_RGBA_5X5: return MTLPixelFormatASTC_5x5_LDR;
@@ -903,14 +860,15 @@ MTLTextureType mu::toMTLTextureType(TextureType type) {
 }
 
 NSUInteger mu::toMTLSampleCount(SampleCount count) {
+    //TODO_Zeqiang: query from device.
     switch (count) {
-        case SampleCount::X1: return 1;
-        case SampleCount::X2: return 2;
-        case SampleCount::X4: return 4;
-        case SampleCount::X8: return 8;
-        case SampleCount::X16: return 16;
-        case SampleCount::X32: return 32;
-        case SampleCount::X64: return 64;
+        case SampleCount::ONE: return 1;
+        case SampleCount::MULTIPLE_PERFORMANCE: return 2;
+        case SampleCount::MULTIPLE_BALANCE: return 4;
+        case SampleCount::MULTIPLE_QUALITY: return 8;
+//        case SampleCount::X16: return 16;
+//        case SampleCount::X32: return 32;
+//        case SampleCount::X64: return 64;
     }
 }
 
@@ -979,18 +937,11 @@ bool mu::isFramebufferFetchSupported() {
 #endif
 }
 
-String mu::compileGLSLShader2Msl(const String &src,
-                                 ShaderStageFlagBit shaderType,
-                                 Device *device,
-                                 CCMTLGPUShader *gpuShader) {
-#if CC_USE_METAL
-    String shaderSource("#version 460\n");
-    shaderSource.append(src);
-    const auto &spv = GLSL2SPIRV(shaderType, shaderSource);
-    if (spv.size() == 0)
-        return "";
-    
-    spirv_cross::CompilerMSL msl(std::move(spv));
+String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
+                     ShaderStageFlagBit shaderType,
+                     CCMTLGPUShader *gpuShader) {
+    CCMTLDevice* device = CCMTLDevice::getInstance();
+    spirv_cross::CompilerMSL msl(ir, word_count);
 
     // The SPIR-V is now parsed, and we can perform reflection on it.
     auto executionModel = msl.get_execution_model();
@@ -1020,7 +971,7 @@ String mu::compileGLSLShader2Msl(const String &src,
 
     // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
-    uint maxBufferBindingIndex = static_cast<CCMTLDevice *>(device)->getMaximumBufferBindingIndex();
+    uint maxBufferBindingIndex = device->getMaximumBufferBindingIndex();
     const auto &bufferBindingOffset = device->bindingMappingInfo().bufferOffsets;
     for (const auto &ubo : resources.uniform_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
@@ -1069,8 +1020,8 @@ String mu::compileGLSLShader2Msl(const String &src,
     }
 
     //TODO: coulsonwang, need to set sampler binding explicitly
-    if (resources.sampled_images.size() > static_cast<CCMTLDevice *>(device)->getMaximumSamplerUnits()) {
-        CC_LOG_ERROR("Implementation limits: Should not use more than %d entries in the sampler state argument table", static_cast<CCMTLDevice *>(device)->getMaximumSamplerUnits());
+    if (resources.sampled_images.size() > device->getMaximumSamplerUnits()) {
+        CC_LOG_ERROR("Implementation limits: Should not use more than %d entries in the sampler state argument table", device->getMaximumSamplerUnits());
         return "";
     }
 
@@ -1145,13 +1096,9 @@ String mu::compileGLSLShader2Msl(const String &src,
     }
     if (!output.size()) {
         CC_LOG_ERROR("Compile to MSL failed.");
-        CC_LOG_ERROR("%s", shaderSource.c_str());
+        CC_LOG_ERROR("%s", output.c_str());
     }
     return output;
-
-#else
-    return src;
-#endif
 }
 
 const uint8_t *mu::convertRGB8ToRGBA8(const uint8_t *source, uint length) {
@@ -1491,47 +1438,48 @@ bool mu::isIndirectCommandBufferSupported(MTLFeatureSet featureSet) {
     return false;
 }
 bool mu::isDepthStencilFormatSupported(id<MTLDevice> device, Format format, uint family) {
-    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
-    switch (format) {
-        case Format::D16:
-            switch (gpuFamily) {
-                case GPUFamily::Apple1:
-                case GPUFamily::Apple2:
-                case GPUFamily::Apple3:
-                case GPUFamily::Apple4:
-                case GPUFamily::Apple5:
-                case GPUFamily::Apple6:
-                case GPUFamily::Mac1:
-                case GPUFamily::Mac2:
-                    return true;
-            }
-        case Format::D32F:
-        case Format::D32F_S8:
-            switch (gpuFamily) {
-                case GPUFamily::Apple1:
-                case GPUFamily::Apple2:
-                case GPUFamily::Apple3:
-                case GPUFamily::Apple4:
-                case GPUFamily::Apple5:
-                case GPUFamily::Apple6:
-#ifdef TARGET_OS_SIMULATOR
-                    return true;
-#else
-                    return false;
-#endif
-                case GPUFamily::Mac1:
-                case GPUFamily::Mac2:
-                    return true;
-            }
-        case Format::D24S8:
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-            return [device isDepth24Stencil8PixelFormatSupported];
-#else
-            return false;
-#endif
-        default:
-            return false;
-    }
+    return true;
+//    GPUFamily gpuFamily = static_cast<GPUFamily>(family);
+//    switch (format) {
+//        case Format::D16:
+//            switch (gpuFamily) {
+//                case GPUFamily::Apple1:
+//                case GPUFamily::Apple2:
+//                case GPUFamily::Apple3:
+//                case GPUFamily::Apple4:
+//                case GPUFamily::Apple5:
+//                case GPUFamily::Apple6:
+//                case GPUFamily::Mac1:
+//                case GPUFamily::Mac2:
+//                    return true;
+//            }
+//        case Format::D32F:
+//        case Format::D32F_S8:
+//            switch (gpuFamily) {
+//                case GPUFamily::Apple1:
+//                case GPUFamily::Apple2:
+//                case GPUFamily::Apple3:
+//                case GPUFamily::Apple4:
+//                case GPUFamily::Apple5:
+//                case GPUFamily::Apple6:
+//#ifdef TARGET_OS_SIMULATOR
+//                    return true;
+//#else
+//                    return false;
+//#endif
+//                case GPUFamily::Mac1:
+//                case GPUFamily::Mac2:
+//                    return true;
+//            }
+//        case Format::D24S8:
+//#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+//            return [device isDepth24Stencil8PixelFormatSupported];
+//#else
+//            return false;
+//#endif
+//        default:
+//            return false;
+//    }
 }
 
 bool mu::isIndirectDrawSupported(uint family) {
@@ -1543,16 +1491,11 @@ bool mu::isIndirectDrawSupported(uint family) {
 }
 
 MTLPixelFormat mu::getSupportedDepthStencilFormat(id<MTLDevice> device, uint family, uint &depthBits) {
-    vector<std::tuple<cc::gfx::Format, uint>> formats = {{Format::D24S8, 24}, {Format::D32F_S8, 32}, {Format::D16S8, 16}};
-    Format format;
-    for (const auto &formatPair : formats) {
-        std::tie(format, depthBits) = formatPair;
-        if (isDepthStencilFormatSupported(device, format, family))
-            return toMTLPixelFormat(format);
-        else
-            continue;
-    }
-    return MTLPixelFormatInvalid;
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    return MTLPixelFormatDepth24Unorm_Stencil8;
+#else
+    return MTLPixelFormatDepth32Float_Stencil8;
+#endif
 }
 
 String mu::featureSetToString(MTLFeatureSet featureSet) {

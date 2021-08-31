@@ -41,10 +41,10 @@ struct DeferredRenderData;
 class DeferredPipeline;
 
 struct RenderElem {
-    RenderObject renderObject;
+    RenderObject        renderObject;
     gfx::DescriptorSet *set;
-    uint        modelIndex;
-    uint        passIndex;
+    uint                modelIndex;
+    uint                passIndex;
 };
 
 class CC_DLL LightingStage : public RenderStage {
@@ -57,17 +57,15 @@ public:
     bool initialize(const RenderStageInfo &info) override;
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     void destroy() override;
-    void renderBAK(scene::Camera *camera);
     void render(scene::Camera *camera) override;
 
-    ReflectionComp *getReflectionComp() {return _reflectionComp;}
-    RenderElem     getRendElement();
-    void           addDenoiseIndex() {_denoiseIndex = (_denoiseIndex + 1) % _reflectionElems.size();}
-    RenderQueue    *getReflectRenderQueue() const {return _reflectionRenderQueue;}
-    uint           getSsprTexWidth() const { return _ssprTexWidth; }
-    uint           getSsprTexHeight() const { return _ssprTexHeight; }
-    Mat4           getMatViewProj() const { return _matViewProj; }
-    gfx::Sampler   *getSsprSampler() const { return _ssprSample; }
+    ReflectionComp *getReflectionComp() { return _reflectionComp; }
+    RenderElem      getRendElement();
+    void            addDenoiseIndex() { _denoiseIndex = (_denoiseIndex + 1) % _reflectionElems.size(); }
+    RenderQueue *   getReflectRenderQueue() const { return _reflectionRenderQueue; }
+    uint            getSsprTexWidth() const { return _ssprTexWidth; }
+    uint            getSsprTexHeight() const { return _ssprTexHeight; }
+    Mat4            getMatViewProj() const { return _matViewProj; }
 
 private:
     void gatherLights(scene::Camera *camera);
@@ -75,8 +73,6 @@ private:
     void fgLightingPass(scene::Camera *camera);
     void fgTransparent(scene::Camera *camera);
     void fgSsprPass(scene::Camera *camera);
-    void recordCommandsLit(DeferredPipeline *pipeline, gfx::RenderPass *renderPass);
-    void recordCommandsTransparent(DeferredPipeline *pipeline, gfx::RenderPass *renderPass);
 
     void putTransparentObj2Queue();
 
@@ -84,7 +80,6 @@ private:
     PlanarShadowQueue *    _planarShadowQueue{nullptr};
     gfx::Rect              _renderArea;
     uint                   _phaseID{0};
-    uint                   _defPhaseID{0};
 
     gfx::Buffer *             _deferredLitsBufs{nullptr};
     gfx::Buffer *             _deferredLitsBufView{nullptr};
@@ -96,19 +91,17 @@ private:
     gfx::DescriptorSetLayout *_descLayout{nullptr};
     uint                      _maxDeferredLights{UBODeferredLight::LIGHTS_PER_PASS};
 
-    ReflectionComp * _reflectionComp{nullptr};
-    RenderQueue *    _reflectionRenderQueue{nullptr};
-    uint             _reflectionPhaseID{0};
+    ReflectionComp *_reflectionComp{nullptr};
+    RenderQueue *   _reflectionRenderQueue{nullptr};
+    uint            _reflectionPhaseID{0};
 
     std::vector<RenderElem> _reflectionElems;
-    uint _denoiseIndex = 0;         // use to get corrrect texture string handle
+    uint                    _denoiseIndex = 0; // use to get corrrect texture string handle
 
     // SSPR texture size
-    uint _ssprTexWidth = 0;
+    uint _ssprTexWidth  = 0;
     uint _ssprTexHeight = 0;
     Mat4 _matViewProj;
-
-    gfx::Sampler *_ssprSample = nullptr;
 };
 
 } // namespace pipeline

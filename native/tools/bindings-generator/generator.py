@@ -639,7 +639,7 @@ class NativeType(object):
         else:
             return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
 
-    def to_string(self, generator):
+    def to_string(self, generator, omit_const=False):
         conversions = generator.config['conversions']
         if 'native_types' in conversions:
             native_types_dict = conversions['native_types']
@@ -661,7 +661,7 @@ class NativeType(object):
 
         if use_typedef and self.canonical_type:
             name = self.canonical_type.namespaced_class_name
-        return "const " + name if (self.is_pointer and self.is_const) else name
+        return "const " + name if (self.is_pointer and self.is_const and not omit_const) else name
 
     def get_whole_name(self, generator):
         conversions = generator.config['conversions']

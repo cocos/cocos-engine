@@ -35,7 +35,9 @@
 namespace cc {
 namespace gfx {
 
-CCVKPipelineState::CCVKPipelineState() = default;
+CCVKPipelineState::CCVKPipelineState() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKPipelineState::~CCVKPipelineState() {
     destroy();

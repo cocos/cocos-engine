@@ -27,15 +27,12 @@
 
 #pragma once
 
-#include "base/Ref.h"
-#include <string>
 #include <map>
+#include <string>
+#include "base/Ref.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
-
-namespace gfx {
-enum class Format;
-} // namespace gfx
 
 class Image : public Ref {
 public:
@@ -72,17 +69,17 @@ public:
     // data will be free ouside.
     inline void takeData(unsigned char **outData) {
         *outData = _data;
-        _data = nullptr;
+        _data    = nullptr;
     }
 
     // Getters
     inline unsigned char *getData() const { return _data; }
-    inline ssize_t getDataLen() const { return _dataLen; }
-    inline Format getFileType() const { return _fileType; }
-    inline gfx::Format getRenderFormat() const { return _renderFormat; }
-    inline int getWidth() const { return _width; }
-    inline int getHeight() const { return _height; }
-    inline std::string getFilePath() const { return _filePath; }
+    inline ssize_t        getDataLen() const { return _dataLen; }
+    inline Format         getFileType() const { return _fileType; }
+    inline gfx::Format    getRenderFormat() const { return _renderFormat; }
+    inline int            getWidth() const { return _width; }
+    inline int            getHeight() const { return _height; }
+    inline std::string    getFilePath() const { return _filePath; }
 
     inline bool isCompressed() const { return _isCompressed; }
 
@@ -97,25 +94,25 @@ protected:
     bool initWithETC2Data(const unsigned char *data, ssize_t dataLen);
     bool initWithASTCData(const unsigned char *data, ssize_t dataLen);
 
-    unsigned char *_data = nullptr;
-    ssize_t _dataLen = 0;
-    int _width = 0;
-    int _height = 0;
-    Format _fileType = Format::UNKNOWN;
-    gfx::Format _renderFormat;
-    std::string _filePath;
-    bool _isCompressed = false;
+    unsigned char *_data     = nullptr;
+    ssize_t        _dataLen  = 0;
+    int            _width    = 0;
+    int            _height   = 0;
+    Format         _fileType = Format::UNKNOWN;
+    gfx::Format    _renderFormat;
+    std::string    _filePath;
+    bool           _isCompressed = false;
 
     ~Image() override;
 
     static Format detectFormat(const unsigned char *data, ssize_t dataLen);
-    static bool isPng(const unsigned char *data, ssize_t dataLen);
-    static bool isJpg(const unsigned char *data, ssize_t dataLen);
-    static bool isWebp(const unsigned char *data, ssize_t dataLen);
-    static bool isPvr(const unsigned char *data, ssize_t dataLen);
-    static bool isEtc(const unsigned char *data, ssize_t dataLen);
-    static bool isEtc2(const unsigned char *data, ssize_t dataLen);
-    static bool isASTC(const unsigned char *data, ssize_t detaLen);
+    static bool   isPng(const unsigned char *data, ssize_t dataLen);
+    static bool   isJpg(const unsigned char *data, ssize_t dataLen);
+    static bool   isWebp(const unsigned char *data, ssize_t dataLen);
+    static bool   isPvr(const unsigned char *data, ssize_t dataLen);
+    static bool   isEtc(const unsigned char *data, ssize_t dataLen);
+    static bool   isEtc2(const unsigned char *data, ssize_t dataLen);
+    static bool   isASTC(const unsigned char *data, ssize_t detaLen);
 
     static gfx::Format getASTCFormat(const unsigned char *pHeader);
 };

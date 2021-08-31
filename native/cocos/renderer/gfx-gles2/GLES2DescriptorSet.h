@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_DESCRIPTOR_SET_H_
-#define CC_GFXGLES2_DESCRIPTOR_SET_H_
+#pragma once
 
+#include "GLES2Std.h"
 #include "gfx-base/GFXDescriptorSet.h"
 
 namespace cc {
@@ -36,7 +36,7 @@ class GLES2GPUDescriptorSet;
 class CC_GLES2_API GLES2DescriptorSet final : public DescriptorSet {
 public:
     GLES2DescriptorSet();
-    ~GLES2DescriptorSet();
+    ~GLES2DescriptorSet() override;
 
     void update() override;
 
@@ -51,5 +51,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXGLES2_DESCRIPTOR_SET_H_

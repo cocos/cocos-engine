@@ -88,11 +88,6 @@ public:
     inline void pipelineBarrier(const GlobalBarrier *barrier);
     inline void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures);
 
-    inline void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet);
-    inline void bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets);
-    inline void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil, const CommandBufferList &secondaryCBs);
-    inline void beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil);
-
     inline Queue *           getQueue() const { return _queue; }
     inline CommandBufferType getType() const { return _type; }
 
@@ -155,9 +150,7 @@ void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, co
 }
 
 void CommandBuffer::draw(InputAssembler *ia) {
-    DrawInfo info;
-    ia->extractDrawInfo(info);
-    draw(info);
+    draw(ia->getDrawInfo());
 }
 
 void CommandBuffer::copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions) {
@@ -174,22 +167,6 @@ void CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier) {
 
 void CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrierList &textureBarriers, const TextureList &textures) {
     pipelineBarrier(barrier, textureBarriers.data(), textures.data(), utils::toUint(textureBarriers.size()));
-}
-
-void CommandBuffer::bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet) {
-    bindDescriptorSet(set, descriptorSet, 0, nullptr);
-}
-
-void CommandBuffer::bindDescriptorSetForJS(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
-    bindDescriptorSet(set, descriptorSet, utils::toUint(dynamicOffsets.size()), dynamicOffsets.data());
-}
-
-void CommandBuffer::beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil, const CommandBufferList &secondaryCBs) {
-    beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), utils::toUint(secondaryCBs.size()));
-}
-
-void CommandBuffer::beginRenderPassForJS(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil) {
-    beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);
 }
 
 } // namespace gfx

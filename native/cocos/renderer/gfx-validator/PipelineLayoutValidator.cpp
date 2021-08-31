@@ -36,7 +36,7 @@ namespace gfx {
 
 PipelineLayoutValidator::PipelineLayoutValidator(PipelineLayout *actor)
 : Agent<PipelineLayout>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 PipelineLayoutValidator::~PipelineLayoutValidator() {

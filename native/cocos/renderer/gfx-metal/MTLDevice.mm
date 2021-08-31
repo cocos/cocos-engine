@@ -23,27 +23,28 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
+#import "MTLStd.h"
 
-#include "MTLBuffer.h"
-#include "MTLCommandBuffer.h"
-#include "MTLConfig.h"
-#include "MTLContext.h"
-#include "MTLDescriptorSet.h"
-#include "MTLDescriptorSetLayout.h"
-#include "MTLDevice.h"
-#include "MTLFramebuffer.h"
-#include "MTLInputAssembler.h"
-#include "MTLPipelineLayout.h"
-#include "MTLPipelineState.h"
-#include "MTLQueue.h"
-#include "MTLRenderPass.h"
-#include "MTLSampler.h"
-#include "MTLSemaphore.h"
-#include "MTLShader.h"
-#include "MTLTexture.h"
-#include "cocos/bindings/event/CustomEventTypes.h"
-#include "cocos/bindings/event/EventDispatcher.h"
+#import "MTLBuffer.h"
+#import "MTLCommandBuffer.h"
+#import "MTLConfig.h"
+#import "MTLDescriptorSet.h"
+#import "MTLDescriptorSetLayout.h"
+#import "MTLDevice.h"
+#import "MTLFramebuffer.h"
+#import "MTLInputAssembler.h"
+#import "MTLPipelineLayout.h"
+#import "MTLPipelineState.h"
+#import "MTLQueue.h"
+#import "MTLRenderPass.h"
+#import "MTLSampler.h"
+#import "MTLSemaphore.h"
+#import "MTLShader.h"
+#import "MTLSwapchain.h"
+#import "MTLTexture.h"
+#import "cocos/bindings/event/CustomEventTypes.h"
+#import "cocos/bindings/event/EventDispatcher.h"
+#import "MTLGPUObjects.h"
 
 namespace cc {
 namespace gfx {
@@ -70,25 +71,12 @@ CCMTLDevice::~CCMTLDevice() {
 }
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
+    _gpuDeviceObj = CC_NEW(CCMTLGPUDeviceObject);
     _inFlightSemaphore = CC_NEW(CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT));
     _currentFrameIndex = 0;
 
-#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-    NSView *view = (NSView *)_windowHandle;
-#else
-    UIView *view = (UIView *)_windowHandle;
-#endif
-
-#ifdef CC_USE_METAL
-    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
-#else
-    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view);
-#endif
-    _mtlLayer = layer;
-    layer.framebufferOnly = NO;
-    id<MTLDevice> mtlDevice = (id<MTLDevice>)layer.device;
+    id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
     _mtlDevice = mtlDevice;
-    _mtlCommandQueue = [mtlDevice newCommandQueueWithMaxCommandBufferCount: MAX_COMMAND_BUFFER_COUNT];
 
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
@@ -104,30 +92,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
     _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
-
-    if (layer.pixelFormat == MTLPixelFormatInvalid) {
-        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-    }
-    // Persistent depth stencil texture
-    MTLTextureDescriptor *dsDescriptor = [[MTLTextureDescriptor alloc] init];
-    dsDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _caps.depthBits);
-    dsDescriptor.width = info.width;
-    dsDescriptor.height = info.height;
-    dsDescriptor.storageMode = MTLStorageModePrivate;
-    dsDescriptor.usage = MTLTextureUsageRenderTarget;
-    _dsTex = [mtlDevice newTextureWithDescriptor:dsDescriptor];
-    [dsDescriptor release];
-    _caps.stencilBits = 8;
-    
-
-    ContextInfo ctxInfo;
-    ctxInfo.windowHandle = _windowHandle;
-
-    _context = CC_NEW(CCMTLContext);
-    if (!_context->initialize(ctxInfo)) {
-        destroy();
-        return false;
-    }
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
@@ -191,6 +155,9 @@ void CCMTLDevice::doDestroy() {
 //        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
 //        _memoryAlarmListenerId = 0;
 //    }
+
+    CC_DELETE(_gpuDeviceObj);
+
     if (_autoreleasePool) {
         [(NSAutoreleasePool*)_autoreleasePool drain];
         _autoreleasePool = nullptr;
@@ -202,14 +169,8 @@ void CCMTLDevice::doDestroy() {
         _inFlightSemaphore->syncAll();
     }
 
-    if (_mtlCommandQueue) {
-        [id<MTLCommandQueue>(_mtlCommandQueue) release];
-        _mtlCommandQueue = nullptr;
-    }
-
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_cmdBuff);
-    CC_SAFE_DESTROY(_context);
     CC_SAFE_DELETE(_inFlightSemaphore);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
@@ -223,25 +184,12 @@ void CCMTLDevice::doDestroy() {
     CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 }
 
-void CCMTLDevice::resize(uint w, uint h) {
-    this->_width = w;
-    this->_height = h;
-
-    [id<MTLTexture>(_dsTex) release];
-
-    MTLTextureDescriptor *dsDescriptor = [[MTLTextureDescriptor alloc] init];
-    const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
-    dsDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(id<MTLDevice>(this->_mtlDevice), gpuFamily, _caps.depthBits);
-    dsDescriptor.width = w;
-    dsDescriptor.height = h;
-    dsDescriptor.storageMode = MTLStorageModePrivate;
-    dsDescriptor.usage = MTLTextureUsageRenderTarget;
-    _dsTex = [id<MTLDevice>(this->_mtlDevice) newTextureWithDescriptor:dsDescriptor];
-    [dsDescriptor release];
-}
-
-void CCMTLDevice::acquire() {
+void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     _inFlightSemaphore->wait();
+
+    for (CCMTLSwapchain* swapchain : _swapchains) {
+        swapchain->acquire();
+    }
 
     if (!_autoreleasePool) {
         _autoreleasePool = [[NSAutoreleasePool alloc] init];
@@ -249,20 +197,36 @@ void CCMTLDevice::acquire() {
     }
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
-    queue->_numDrawCalls = 0;
-    queue->_numInstances = 0;
-    queue->_numTriangles = 0;
+    queue->gpuQueueObj()->numDrawCalls = 0;
+    queue->gpuQueueObj()->numInstances = 0;
+    queue->gpuQueueObj()->numTriangles = 0;
 }
 
 void CCMTLDevice::present() {
     CCMTLQueue *queue = (CCMTLQueue *)_queue;
-    _numDrawCalls = queue->_numDrawCalls;
-    _numInstances = queue->_numInstances;
-    _numTriangles = queue->_numTriangles;
+    _numDrawCalls = queue->gpuQueueObj()->numDrawCalls;
+    _numInstances = queue->gpuQueueObj()->numInstances;
+    _numTriangles = queue->gpuQueueObj()->numTriangles;
 
     //hold this pointer before update _currentFrameIndex
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBufferWithUnretainedReferences];
+
+    [cmdBuffer enqueue];
+
+    for (CCMTLSwapchain* swapchain: _swapchains) {
+        if (swapchain->currentDrawable()) {
+            [cmdBuffer presentDrawable:swapchain->currentDrawable()];
+            swapchain->release();
+        }
+        [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+            onPresentCompleted();
+        }];
+    }
+
+    [cmdBuffer commit];
 
     if (_autoreleasePool) {
 //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
@@ -282,18 +246,6 @@ void CCMTLDevice::onPresentCompleted() {
     _inFlightSemaphore->signal();
 }
 
-void *CCMTLDevice::getCurrentDrawable() {
-    if (!_activeDrawable)    {
-        CAMetalLayer *layer = (CAMetalLayer*)getMTLLayer();
-        _activeDrawable = [layer nextDrawable];
-    }
-    return _activeDrawable;
-}
-
-void CCMTLDevice::disposeCurrentDrawable() {
-    _activeDrawable = nil;
-}
-
 Queue *CCMTLDevice::createQueue() {
     return CC_NEW(CCMTLQueue);
 }
@@ -308,10 +260,6 @@ Buffer *CCMTLDevice::createBuffer() {
 
 Texture *CCMTLDevice::createTexture() {
     return CC_NEW(CCMTLTexture);
-}
-
-Sampler *CCMTLDevice::createSampler() {
-    return CC_NEW(CCMTLSampler);
 }
 
 Shader *CCMTLDevice::createShader() {
@@ -346,12 +294,20 @@ PipelineState *CCMTLDevice::createPipelineState() {
     return CC_NEW(CCMTLPipelineState);
 }
 
-GlobalBarrier *CCMTLDevice::createGlobalBarrier() {
-    return CC_NEW(GlobalBarrier);
+GlobalBarrier *CCMTLDevice::createGlobalBarrier(const GlobalBarrierInfo& info) {
+    return new GlobalBarrier(info);
 }
 
-TextureBarrier *CCMTLDevice::createTextureBarrier() {
-    return CC_NEW(TextureBarrier);
+TextureBarrier *CCMTLDevice::createTextureBarrier(const TextureBarrierInfo& info) {
+    return new TextureBarrier(info);
+}
+
+Sampler *CCMTLDevice::createSampler(const SamplerInfo &info) {
+    return new CCMTLSampler(info);
+}
+
+Swapchain *CCMTLDevice::createSwapchain() {
+    return new CCMTLSwapchain();
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
@@ -373,10 +329,6 @@ void CCMTLDevice::onMemoryWarning() {
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         _gpuStagingBufferPools[i]->shrinkSize();
     }
-}
-
-uint CCMTLDevice::preferredPixelFormat() {
-    return static_cast<uint>([((CAMetalLayer*)_mtlLayer) pixelFormat]);
 }
 
 } // namespace gfx

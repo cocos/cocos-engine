@@ -23,39 +23,32 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
+#import "MTLStd.h"
 
-#include "MTLDevice.h"
-#include "MTLGPUObjects.h"
-#include "MTLSampler.h"
-#include "MTLUtils.h"
+#import "MTLDevice.h"
+#import "MTLGPUObjects.h"
+#import "MTLSampler.h"
+#import "MTLUtils.h"
 #import <Metal/MTLDevice.h>
 
 namespace cc {
 namespace gfx {
 
-CCMTLSampler::CCMTLSampler() : Sampler() {
+CCMTLSampler::CCMTLSampler(const SamplerInfo& info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
-}
-
-CCMTLSampler::~CCMTLSampler() {
-    destroy();
-}
-
-void CCMTLSampler::doInit(const SamplerInfo &info) {
     MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    descriptor.borderColor = (MTLSamplerBorderColor)mu::toMTLSamplerBorderColor(_borderColor);
+    descriptor.borderColor = MTLSamplerBorderColorTransparentBlack;
 #endif
-    descriptor.sAddressMode = mu::toMTLSamplerAddressMode(_addressU);
-    descriptor.tAddressMode = mu::toMTLSamplerAddressMode(_addressV);
-    descriptor.rAddressMode = mu::toMTLSamplerAddressMode(_addressW);
-    descriptor.minFilter = mu::toMTLSamplerMinMagFilter(_minFilter);
-    descriptor.magFilter = mu::toMTLSamplerMinMagFilter(_magFilter);
-    descriptor.mipFilter = mu::toMTLSamplerMipFilter(_mipFilter);
-    descriptor.maxAnisotropy = _maxAnisotropy == 0 ? 1 : _maxAnisotropy;
+    descriptor.sAddressMode = mu::toMTLSamplerAddressMode(info.addressU);
+    descriptor.tAddressMode = mu::toMTLSamplerAddressMode(info.addressV);
+    descriptor.rAddressMode = mu::toMTLSamplerAddressMode(info.addressW);
+    descriptor.minFilter = mu::toMTLSamplerMinMagFilter(info.minFilter);
+    descriptor.magFilter = mu::toMTLSamplerMinMagFilter(info.magFilter);
+    descriptor.mipFilter = mu::toMTLSamplerMipFilter(info.mipFilter);
+    descriptor.maxAnisotropy = info.maxAnisotropy == 0 ? 1 : info.maxAnisotropy;
     if (CCMTLDevice::getInstance()->isSamplerDescriptorCompareFunctionSupported()) {
-        descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
+        descriptor.compareFunction = mu::toMTLCompareFunction(info.cmpFunc);
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
@@ -64,11 +57,11 @@ void CCMTLSampler::doInit(const SamplerInfo &info) {
     [descriptor release];
 }
 
-void CCMTLSampler::doDestroy() {
+CCMTLSampler::~CCMTLSampler() {
     id<MTLSamplerState> samplerState = _mtlSamplerState;
     _mtlSamplerState = nil;
 
-    std::function<void(void)> destroyFunc = [=]() {
+    std::function<void(void)> destroyFunc = [samplerState]() {
         if (samplerState) {
             [samplerState release];
         }

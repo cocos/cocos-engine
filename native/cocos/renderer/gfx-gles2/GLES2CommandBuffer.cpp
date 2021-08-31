@@ -27,6 +27,7 @@
 
 #include "GLES2Buffer.h"
 #include "GLES2CommandBuffer.h"
+#include "GLES2Commands.h"
 #include "GLES2DescriptorSet.h"
 #include "GLES2Device.h"
 #include "GLES2Framebuffer.h"
@@ -34,7 +35,6 @@
 #include "GLES2PipelineState.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Texture.h"
-#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {

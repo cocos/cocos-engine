@@ -29,13 +29,11 @@
 #include "MainFlow.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDef.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXFramebuffer.h"
-#include "gfx-base/GFXQueue.h"
-#include "gfx-base/GFXRenderPass.h"
-#include "gfx-base/GFXSampler.h"
-#include "gfx-base/GFXTexture.h"
+#include "gfx-base/GFXSwapchain.h"
+#include "gfx-base/states/GFXTextureBarrier.h"
 #include "platform/Application.h"
 
 namespace cc {
@@ -50,8 +48,6 @@ namespace {
     (dst)[(offset) + 1] = (src).y; \
     (dst)[(offset) + 2] = (src).z; \
     (dst)[(offset) + 3] = (src).w;
-
-const uint GBUFFER_POS_INDEX = 1;
 } // namespace
 
 void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
@@ -64,17 +60,14 @@ framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COU
     framegraph::FrameGraph::stringToHandle("gbufferAlbedoTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferPositionTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferNormalTexture"),
-    framegraph::FrameGraph::stringToHandle("gbufferEmissiveTexture")
-};
-framegraph::StringHandle DeferredPipeline::fgStrHandleDepthTexture = framegraph::FrameGraph::stringToHandle("depthTexture");
-framegraph::StringHandle DeferredPipeline::fgStrHandleDepthTexturePost = framegraph::FrameGraph::stringToHandle("depthTexturePost");
+    framegraph::FrameGraph::stringToHandle("gbufferEmissiveTexture")};
+framegraph::StringHandle DeferredPipeline::fgStrHandleDepthTexture       = framegraph::FrameGraph::stringToHandle("depthTexture");
 framegraph::StringHandle DeferredPipeline::fgStrHandleLightingOutTexture = framegraph::FrameGraph::stringToHandle("lightingOutputTexture");
-framegraph::StringHandle DeferredPipeline::fgStrHandleBackBufferTexture = framegraph::FrameGraph::stringToHandle("backBufferTexture");
 
-framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferPass = framegraph::FrameGraph::stringToHandle("deferredGbufferPass");
-framegraph::StringHandle DeferredPipeline::fgStrHandleLightingPass = framegraph::FrameGraph::stringToHandle("deferredLightingPass");
+framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferPass     = framegraph::FrameGraph::stringToHandle("deferredGbufferPass");
+framegraph::StringHandle DeferredPipeline::fgStrHandleLightingPass    = framegraph::FrameGraph::stringToHandle("deferredLightingPass");
 framegraph::StringHandle DeferredPipeline::fgStrHandleTransparentPass = framegraph::FrameGraph::stringToHandle("deferredTransparentPass");
-framegraph::StringHandle DeferredPipeline::fgStrHandleSsprPass = framegraph::FrameGraph::stringToHandle("deferredSSPRPass");
+framegraph::StringHandle DeferredPipeline::fgStrHandleSsprPass        = framegraph::FrameGraph::stringToHandle("deferredSSPRPass");
 framegraph::StringHandle DeferredPipeline::fgStrHandlePostprocessPass = framegraph::FrameGraph::stringToHandle("deferredPostPass");
 
 bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
@@ -93,15 +86,15 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     return true;
 }
 
-bool DeferredPipeline::activate() {
+bool DeferredPipeline::activate(gfx::Swapchain *swapchain) {
     _macros.setValue("CC_PIPELINE_TYPE", static_cast<float>(1.0));
 
-    if (!RenderPipeline::activate()) {
+    if (!RenderPipeline::activate(swapchain)) {
         CC_LOG_ERROR("RenderPipeline active failed.");
         return false;
     }
 
-    if (!activeRenderer()) {
+    if (!activeRenderer(swapchain)) {
         CC_LOG_ERROR("DeferredPipeline startup failed!");
         return false;
     }
@@ -109,104 +102,13 @@ bool DeferredPipeline::activate() {
     return true;
 }
 
-void DeferredPipeline::initFrameGraphExternalTexture() {
-    // gbuffer descriptorset setup
-    gfx::SamplerInfo sinfo{
-        gfx::Filter::LINEAR,
-        gfx::Filter::LINEAR,
-        gfx::Filter::NONE,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-    };
-    const auto  samplerHash = SamplerLib::genSamplerHash(sinfo);
-    auto *const sampler     = SamplerLib::getSampler(samplerHash);
-
-    // create external gbuffer and depth
-    gfx::TextureInfo info = {
-        gfx::TextureType::TEX2D,
-        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        gfx::Format::RGBA8,
-        _width,
-        _height,
-    };
-
-    gfx::TextureInfo infoPos = {
-        gfx::TextureType::TEX2D,
-        gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        gfx::Format::RGBA16F,       // POSITON cannot use RGBA8
-        _width,
-        _height,
-    };
-
-    for (uint i = 0; i < GBUFFER_COUNT; ++i) {
-        if (i != GBUFFER_POS_INDEX) {
-            fgTextureGbuffer[i] = new framegraph::Resource<gfx::Texture, gfx::TextureInfo>(info);
-            fgTextureGbuffer[i]->createPersistent();
-        } else {
-            fgTextureGbuffer[i] = new framegraph::Resource<gfx::Texture, gfx::TextureInfo>(infoPos);
-            fgTextureGbuffer[i]->createPersistent();
-        }
-
-        // bind global descriptor
-        auto *tex = static_cast<gfx::Texture *>(fgTextureGbuffer[i]->getDeviceObject());
-        _descriptorSet->bindSampler(static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP) + i, sampler);
-        _descriptorSet->bindTexture(static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP) + i, tex);
-    }
-    _descriptorSet->update();
-
-    gfx::TextureInfo depthInfo = {
-        gfx::TextureType::TEX2D,
-        gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
-        _device->getDepthStencilFormat(),
-        _width,
-        _height,
-    };
-
-    fgTextureDepth = new framegraph::Resource<gfx::Texture, gfx::TextureInfo>(depthInfo);
-    fgTextureDepth->createPersistent();
-}
-
-void DeferredPipeline::destroyFrameGraphExternalTexture() {
-    // gbuffer descriptorset setup
-    for (auto *node : fgTextureGbuffer) {
-        // bind global descriptor
-        if (node) {
-            auto *tex = static_cast<gfx::Texture *>(node->getDeviceObject());
-            CC_SAFE_DELETE(tex);
-            CC_SAFE_DELETE(node);
-        }
-    }
-
-    if (fgTextureDepth) {
-        auto *depthTex = static_cast<gfx::Texture *>(fgTextureDepth->getDeviceObject());
-        CC_SAFE_DELETE(depthTex);
-        CC_SAFE_DELETE(fgTextureDepth);
-    }
-}
-
-void DeferredPipeline::prepareFrameGraph() {
-    // prepare for the backbuffer, if the gfx::Texture is nullptr, cocos will use swapchain texture when create framebuffer
-    _fg.getBlackboard().put(fgStrHandleBackBufferTexture, _fg.importExternal(fgStrHandleBackBufferTexture, fgTextureBackBuffer));
-    _fg.getBlackboard().put(fgStrHandleDepthTexturePost, _fg.importExternal(fgStrHandleDepthTexturePost, fgTextureDepthPost));
-
-    for (uint i = 0; i < 4; ++i) {
-        _fg.getBlackboard().put(fgStrHandleGbufferTexture[i], _fg.importExternal(fgStrHandleGbufferTexture[i], *fgTextureGbuffer[i]));
-    }
-
-    _fg.getBlackboard().put(fgStrHandleDepthTexture, _fg.importExternal(fgStrHandleDepthTexture, *fgTextureDepth));
-}
-
 void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
-    static gfx::TextureBarrier *present{_device->createTextureBarrier({{gfx::AccessType::COLOR_ATTACHMENT_WRITE}, {gfx::AccessType::PRESENT}})};
-    static gfx::Texture *       backBuffer{nullptr};
     _commandBuffers[0]->begin();
-    _pipelineUBO->updateGlobalUBO();
+    _pipelineUBO->updateGlobalUBO(cameras[0]);
     _pipelineUBO->updateMultiCameraUBO(cameras);
 
     for (auto *camera : cameras) {
         _fg.reset();
-        prepareFrameGraph();
         sceneCulling(this, camera);
         _frameGraphCamera = camera;
         for (auto *const flow : _flows) {
@@ -214,12 +116,19 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
         }
 
         _fg.compile();
-        //_fg.exportGraphViz("fg_vis.dot");
+
+        /* *
+        static bool exported = false;
+        if (!exported) {
+            _fg.exportGraphViz("fg_vis.dot");
+            exported = true;
+        }
+        // */
+
         _fg.execute();
         _pipelineUBO->incCameraUBOOffset();
     }
 
-    _commandBuffers[0]->pipelineBarrier(nullptr, &present, &backBuffer, 1);
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);
@@ -238,7 +147,7 @@ gfx::InputAssembler *DeferredPipeline::getIAByRenderArea(const gfx::Rect &rect) 
         return _quadIA[value];
     }
 
-    gfx::Buffer *vb = nullptr;
+    gfx::Buffer *        vb = nullptr;
     gfx::InputAssembler *ia = nullptr;
     createQuadInputAssembler(_quadIB, &vb, &ia);
     _quadVB.push_back(vb);
@@ -250,12 +159,10 @@ gfx::InputAssembler *DeferredPipeline::getIAByRenderArea(const gfx::Rect &rect) 
 }
 
 void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform /*surfaceTransform*/, const gfx::Rect &renderArea, float *vbData) {
-    auto width = float(_width);
-    auto height = float(_height);
-    auto minX = float(renderArea.x) / width;
-    auto maxX = float(renderArea.x + renderArea.width) / width;
-    auto minY = float(renderArea.y) / height;
-    auto maxY = float(renderArea.y + renderArea.height) / height;
+    float minX = static_cast<float>(renderArea.x) / static_cast<float>(_width);
+    float maxX = static_cast<float>(renderArea.x + renderArea.width) / static_cast<float>(_width);
+    float minY = static_cast<float>(renderArea.y) / static_cast<float>(_height);
+    float maxY = static_cast<float>(renderArea.y + renderArea.height) / static_cast<float>(_height);
     if (_device->getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }
@@ -285,7 +192,7 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer
 
     if (*quadVB == nullptr) {
         *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
+                                         gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
     }
 
     if (*quadVB == nullptr) {
@@ -304,14 +211,16 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer
 
 gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera, bool onScreen) {
     gfx::Rect renderArea;
-    uint w;
-    uint h;
+
+    float w;
+    float h;
     if (onScreen) {
-        w = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
-        h = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
+        gfx::Swapchain *swapchain = camera->window->swapchain;
+        w                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->height : camera->width);
+        h                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->width : camera->height);
     } else {
-        w = camera->width;
-        h = camera->height;
+        w = static_cast<float>(camera->width);
+        h = static_cast<float>(camera->height);
     }
 
     const auto &viewport = camera->viewPort;
@@ -336,32 +245,26 @@ void DeferredPipeline::destroyQuadInputAssembler() {
     _quadIA.clear();
 }
 
-bool DeferredPipeline::activeRenderer() {
+bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
     auto *const sharedData = _pipelineSceneData->getSharedData();
 
-    gfx::SamplerInfo info{
+    gfx::Sampler *const sampler = _device->getSampler({
         gfx::Filter::POINT,
         gfx::Filter::POINT,
         gfx::Filter::NONE,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
-        {},
-        {},
-        {},
-        {},
-    };
-    const uint          samplerHash = SamplerLib::genSamplerHash(info);
-    gfx::Sampler *const sampler     = SamplerLib::getSampler(samplerHash);
+    });
 
     // Main light sampler binding
-    this->_descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
-    this->_descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
+    _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
+    _descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
 
     // Spot light sampler binding
-    this->_descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
-    this->_descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, getDefaultTexture());
+    _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
+    _descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, getDefaultTexture());
 
     _descriptorSet->update();
 
@@ -374,7 +277,7 @@ bool DeferredPipeline::activeRenderer() {
     uint ibSize   = ibStride * 6;
     if (_quadIB == nullptr) {
         _quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
+                                         gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
     }
 
     if (_quadIB == nullptr) {
@@ -384,9 +287,8 @@ bool DeferredPipeline::activeRenderer() {
     unsigned int ibData[] = {0, 1, 2, 1, 3, 2};
     _quadIB->update(ibData, sizeof(ibData));
 
-    _width  = _device->getWidth();
-    _height = _device->getHeight();
-    initFrameGraphExternalTexture();
+    _width  = swapchain->getWidth();
+    _height = swapchain->getHeight();
 
     return true;
 }
@@ -397,31 +299,10 @@ void DeferredPipeline::resize(uint width, uint height) {
     }
     _width  = width;
     _height = height;
-    destroyDeferredData();
-
-    destroyFrameGraphExternalTexture();
-    initFrameGraphExternalTexture();
 }
 
 void DeferredPipeline::destroy() {
     destroyQuadInputAssembler();
-    destroyDeferredData();
-
-    for (auto *node : fgTextureGbuffer) {
-        CC_SAFE_DELETE(node);
-    }
-
-    CC_SAFE_DELETE(fgTextureDepth);
-
-    if (_descriptorSet) {
-        _descriptorSet->getBuffer(UBOGlobal::BINDING)->destroy();
-        _descriptorSet->getBuffer(UBOCamera::BINDING)->destroy();
-        _descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
-        _descriptorSet->getSampler(SHADOWMAP::BINDING)->destroy();
-        _descriptorSet->getTexture(SHADOWMAP::BINDING)->destroy();
-        _descriptorSet->getSampler(SPOTLIGHTINGMAP::BINDING)->destroy();
-        _descriptorSet->getTexture(SPOTLIGHTINGMAP::BINDING)->destroy();
-    }
 
     for (auto &it : _renderPasses) {
         CC_DESTROY(it.second);
@@ -433,13 +314,10 @@ void DeferredPipeline::destroy() {
     RenderPipeline::destroy();
 }
 
-void DeferredPipeline::destroyDeferredData() {
-}
-
 gfx::Color DeferredPipeline::getClearcolor(scene::Camera *camera) {
-    auto *const sceneData     = getPipelineSceneData();
-    auto *const sharedData    = sceneData->getSharedData();
-    gfx::Color clearColor{0.0, 0.0, 0.0, 1.0F};
+    auto *const sceneData  = getPipelineSceneData();
+    auto *const sharedData = sceneData->getSharedData();
+    gfx::Color  clearColor{0.0, 0.0, 0.0, 1.0F};
     if (camera->clearFlag & static_cast<uint>(gfx::ClearFlagBit::COLOR)) {
         if (sharedData->isHDR) {
             srgbToLinear(&clearColor, camera->clearColor);

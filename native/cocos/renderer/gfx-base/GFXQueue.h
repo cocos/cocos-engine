@@ -43,8 +43,6 @@ public:
 
     inline void submit(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), utils::toUint(cmdBuffs.size())); }
 
-    inline void submitForJS(const CommandBufferList &cmdBuffs) { submit(cmdBuffs.data(), utils::toUint(cmdBuffs.size())); }
-
     inline QueueType getType() const { return _type; }
 
 protected:

@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "VirtualResource.h"
+
 namespace cc {
 namespace framegraph {
 

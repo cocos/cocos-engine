@@ -27,6 +27,7 @@
 
 #include "GLES3Commands.h"
 #include "GLES3RenderPass.h"
+#include "base/Utils.h"
 
 namespace cc {
 namespace gfx {
@@ -52,16 +53,15 @@ void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
         for (uint i = 0U; i < _colorAttachments.size(); ++i) {
             subpass.colors[i] = i;
         }
-        subpass.depthStencil = _colorAttachments.size();
-    } else {
-        // the depth stencil attachment is the default fallback
-        // when none are specified in subpass
-        const bool hasDepth = _depthStencilAttachment.format != Format::UNKNOWN;
-        for (auto &subpass : _gpuRenderPass->subpasses) {
-            if (hasDepth && subpass.depthStencil == INVALID_BINDING) {
-                subpass.depthStencil = static_cast<uint>(_colorAttachments.size());
-            }
+        if (_depthStencilAttachment.format != Format::UNKNOWN) {
+            subpass.depthStencil = _colorAttachments.size();
         }
+    }
+
+    _gpuRenderPass->barriers.resize(_subpasses.size() + 1);
+    for (auto &dependency : _dependencies) {
+        size_t idx = dependency.dstSubpass == SUBPASS_EXTERNAL ? _subpasses.size() : dependency.dstSubpass;
+        cmdFuncGLES3CreateGlobalBarrier(dependency.srcAccesses, dependency.dstAccesses, &_gpuRenderPass->barriers[idx]);
     }
 }
 

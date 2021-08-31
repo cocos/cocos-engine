@@ -38,7 +38,7 @@ namespace gfx {
 
 PipelineStateValidator::PipelineStateValidator(PipelineState *actor)
 : Agent<PipelineState>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 PipelineStateValidator::~PipelineStateValidator() {

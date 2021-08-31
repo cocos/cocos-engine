@@ -35,7 +35,7 @@ namespace gfx {
 
 InputAssemblerAgent::InputAssemblerAgent(InputAssembler *actor)
 : Agent<InputAssembler>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 InputAssemblerAgent::~InputAssemblerAgent() {
@@ -80,8 +80,8 @@ void InputAssemblerAgent::doDestroy() {
         });
 }
 
-void InputAssemblerAgent::setVertexCount(uint count) {
-    _vertexCount = count;
+void InputAssemblerAgent::setVertexCount(uint32_t count) {
+    _drawInfo.vertexCount = count;
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
         actor, getActor(),
@@ -91,8 +91,8 @@ void InputAssemblerAgent::setVertexCount(uint count) {
         });
 }
 
-void InputAssemblerAgent::setFirstVertex(uint first) {
-    _firstVertex = first;
+void InputAssemblerAgent::setFirstVertex(uint32_t first) {
+    _drawInfo.firstVertex = first;
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
         actor, getActor(),
@@ -102,8 +102,8 @@ void InputAssemblerAgent::setFirstVertex(uint first) {
         });
 }
 
-void InputAssemblerAgent::setIndexCount(uint count) {
-    _indexCount = count;
+void InputAssemblerAgent::setIndexCount(uint32_t count) {
+    _drawInfo.indexCount = count;
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
         actor, getActor(),
@@ -113,8 +113,8 @@ void InputAssemblerAgent::setIndexCount(uint count) {
         });
 }
 
-void InputAssemblerAgent::setFirstIndex(uint first) {
-    _firstIndex = first;
+void InputAssemblerAgent::setFirstIndex(uint32_t first) {
+    _drawInfo.firstIndex = first;
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
         actor, getActor(),
@@ -124,8 +124,8 @@ void InputAssemblerAgent::setFirstIndex(uint first) {
         });
 }
 
-void InputAssemblerAgent::setVertexOffset(uint offset) {
-    _vertexOffset = offset;
+void InputAssemblerAgent::setVertexOffset(int32_t offset) {
+    _drawInfo.vertexOffset = offset;
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
         actor, getActor(),
@@ -135,8 +135,8 @@ void InputAssemblerAgent::setVertexOffset(uint offset) {
         });
 }
 
-void InputAssemblerAgent::setInstanceCount(uint count) {
-    _instanceCount = count;
+void InputAssemblerAgent::setInstanceCount(uint32_t count) {
+    _drawInfo.instanceCount = count;
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
         actor, getActor(),
@@ -146,8 +146,8 @@ void InputAssemblerAgent::setInstanceCount(uint count) {
         });
 }
 
-void InputAssemblerAgent::setFirstInstance(uint first) {
-    _firstInstance = first;
+void InputAssemblerAgent::setFirstInstance(uint32_t first) {
+    _drawInfo.firstInstance = first;
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
         actor, getActor(),

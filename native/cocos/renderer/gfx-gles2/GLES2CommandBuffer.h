@@ -25,12 +25,16 @@
 
 #pragma once
 
-#include "GLES2Commands.h"
+#include "GLES2Std.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
 
+class GLES2CmdPackage;
+class GLES2GPUPipelineState;
+class GLES2GPUDescriptorSet;
+class GLES2GPUInputAssembler;
 class GLES2GPUCommandAllocator;
 
 class CC_GLES2_API GLES2CommandBuffer : public CommandBuffer {

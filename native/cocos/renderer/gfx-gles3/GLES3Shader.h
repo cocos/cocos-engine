@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES3Std.h"
 #include "gfx-base/GFXShader.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class GLES3GPUShader;
 class CC_GLES3_API GLES3Shader final : public Shader {
 public:
     GLES3Shader();
-    ~GLES3Shader();
+    ~GLES3Shader() override;
 
     inline GLES3GPUShader *gpuShader() const { return _gpuShader; }
 

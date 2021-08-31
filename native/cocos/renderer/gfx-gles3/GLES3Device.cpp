@@ -27,23 +27,23 @@
 
 #include "GLES3Buffer.h"
 #include "GLES3CommandBuffer.h"
-#include "GLES3Context.h"
+#include "GLES3Commands.h"
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
 #include "GLES3Device.h"
 #include "GLES3Framebuffer.h"
-#include "GLES3GlobalBarrier.h"
+#include "GLES3GPUObjects.h"
 #include "GLES3InputAssembler.h"
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3PrimaryCommandBuffer.h"
 #include "GLES3Queue.h"
 #include "GLES3RenderPass.h"
-#include "GLES3Sampler.h"
 #include "GLES3Shader.h"
+#include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
-#include "base/Utils.h"
-#include "gfx-gles-common/GLESCommandPool.h"
+#include "states/GLES3GlobalBarrier.h"
+#include "states/GLES3Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
 // renderdoc doesn't support this extension during replay
@@ -69,17 +69,16 @@ GLES3Device::~GLES3Device() {
     GLES3Device::instance = nullptr;
 }
 
-bool GLES3Device::doInit(const DeviceInfo &info) {
-    ContextInfo ctxInfo;
-    ctxInfo.windowHandle = _windowHandle;
-    ctxInfo.msaaEnabled  = info.isAntiAlias;
-    ctxInfo.performance  = Performance::HIGH_QUALITY;
+bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
+    _gpuContext             = CC_NEW(GLES3GPUContext);
+    _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
+    _gpuConstantRegistry    = CC_NEW(GLES3GPUConstantRegistry);
+    _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
 
-    _renderContext = CC_NEW(GLES3Context);
-    if (!_renderContext->initialize(ctxInfo)) {
+    if (!_gpuContext->initialize(_gpuStateCache, _gpuConstantRegistry)) {
         destroy();
         return false;
-    }
+    };
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
@@ -89,13 +88,6 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     cmdBuffInfo.type  = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
-
-    _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
-    _gpuStagingBufferPool   = CC_NEW(GLES3GPUStagingBufferPool);
-    _gpuConstantRegistry    = CC_NEW(GLES3GPUConstantRegistry);
-    _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
-
-    bindRenderContext(true);
 
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
@@ -110,8 +102,7 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     _features[toNumber(Feature::BLEND_MINMAX)]            = true;
     _features[toNumber(Feature::ELEMENT_INDEX_UINT)]      = true;
 
-    uint minorVersion = static_cast<GLES3Context *>(_context)->minorVer();
-    if (minorVersion) {
+    if (_gpuConstantRegistry->glMinorVersion) {
         _features[toNumber(Feature::COMPUTE_SHADER)] = true;
     }
 
@@ -135,17 +126,9 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
         _features[toNumber(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
     }
 
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
-    if (checkExtension("multisampled_render_to_texture")) {
-        if (checkExtension("multisampled_render_to_texture2")) {
-            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
-        } else {
-            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
-        }
-    }
-#endif
-
     String fbfLevelStr = "NONE";
+    // PVRVFrame has issues on their support
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         String nonCoherent = "framebuffer_fetch_non";
 
@@ -169,8 +152,6 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
         }
     }
 
-    // PVRVFrame has issues on their PLS support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX
     if (checkExtension("pixel_local_storage")) {
         if (checkExtension("pixel_local_storage2")) {
             _gpuConstantRegistry->mPLS = PLSSupportLevel::LEVEL2;
@@ -181,8 +162,15 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     }
 #endif
 
-    _gpuConstantRegistry->glMinorVersion     = _renderContext->minorVer();
-    _gpuConstantRegistry->defaultFramebuffer = _renderContext->getDefaultFramebuffer();
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
+    if (checkExtension("multisampled_render_to_texture")) {
+        if (checkExtension("multisampled_render_to_texture2")) {
+            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
+        } else {
+            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
+        }
+    }
+#endif
 
     String compressedFmts;
 
@@ -209,15 +197,6 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     _vendor   = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
     _version  = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
-    CC_LOG_INFO("GLES3 device initialized.");
-    CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
-    CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
-    CC_LOG_INFO("VERSION: %s", _version.c_str());
-    CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
-    CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
-    CC_LOG_INFO("PIXEL_LOCAL_STORAGE: level %d, size %d", _gpuConstantRegistry->mPLS, _gpuConstantRegistry->mPLSsize);
-    CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
-
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxFragmentUniformVectors));
@@ -229,10 +208,8 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
     glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, reinterpret_cast<GLint *>(&_caps.uboOffsetAlignment));
-    glGetIntegerv(GL_DEPTH_BITS, reinterpret_cast<GLint *>(&_caps.depthBits));
-    glGetIntegerv(GL_STENCIL_BITS, reinterpret_cast<GLint *>(&_caps.stencilBits));
 
-    if (minorVersion) {
+    if (_gpuConstantRegistry->glMinorVersion) {
         glGetIntegerv(GL_MAX_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxImageUnits));
         glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, reinterpret_cast<GLint *>(&_caps.maxShaderStorageBlockSize));
         glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, reinterpret_cast<GLint *>(&_caps.maxShaderStorageBufferBindings));
@@ -248,13 +225,20 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 
+    CC_LOG_INFO("GLES3 device initialized.");
+    CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
+    CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
+    CC_LOG_INFO("VERSION: %s", _version.c_str());
+    CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
+    CC_LOG_INFO("PIXEL_LOCAL_STORAGE: level %d, size %d", _gpuConstantRegistry->mPLS, _gpuConstantRegistry->mPLSsize);
+    CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
+
     return true;
 }
 
 void GLES3Device::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
     CC_SAFE_DELETE(_gpuConstantRegistry)
-    CC_SAFE_DELETE(_gpuStagingBufferPool)
     CC_SAFE_DELETE(_gpuStateCache)
 
     CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
@@ -262,25 +246,14 @@ void GLES3Device::doDestroy() {
 
     CC_SAFE_DESTROY(_cmdBuff)
     CC_SAFE_DESTROY(_queue)
-    CC_SAFE_DESTROY(_deviceContext)
-    CC_SAFE_DESTROY(_renderContext)
+    CC_SAFE_DESTROY(_gpuContext)
 }
 
-void GLES3Device::releaseSurface(const uintptr_t windowHandle) {
-    static_cast<GLES3Context *>(_context)->releaseSurface(windowHandle);
-}
-
-void GLES3Device::acquireSurface(const uintptr_t windowHandle) {
-    static_cast<GLES3Context *>(_context)->acquireSurface(windowHandle);
-}
-
-void GLES3Device::resize(uint width, uint height) {
-    _width  = width;
-    _height = height;
-}
-
-void GLES3Device::acquire() {
-    _gpuStagingBufferPool->reset();
+void GLES3Device::acquire(Swapchain *const *swapchains, uint32_t count) {
+    _swapchains.clear();
+    for (uint32_t i = 0; i < count; ++i) {
+        _swapchains.push_back(static_cast<GLES3Swapchain *>(swapchains[i])->gpuSwapchain());
+    }
 }
 
 void GLES3Device::present() {
@@ -289,7 +262,9 @@ void GLES3Device::present() {
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
 
-    _context->present();
+    for (auto *swapchain : _swapchains) {
+        _gpuContext->present(swapchain);
+    }
 
     // Clear queue stats
     queue->_numDrawCalls = 0;
@@ -297,32 +272,8 @@ void GLES3Device::present() {
     queue->_numTriangles = 0;
 }
 
-void GLES3Device::bindRenderContext(bool bound) {
-    _renderContext->makeCurrent(bound);
-    _context = bound ? _renderContext : nullptr;
-
-    if (bound) {
-        _gpuConstantRegistry->currentBoundThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        _gpuStateCache->reset();
-    }
-}
-
-void GLES3Device::bindDeviceContext(bool bound) {
-    if (!_deviceContext) {
-        ContextInfo ctxInfo;
-        ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx    = _renderContext;
-
-        _deviceContext = CC_NEW(GLES3Context);
-        _deviceContext->initialize(ctxInfo);
-    }
-    _deviceContext->makeCurrent(bound);
-    _context = bound ? _deviceContext : nullptr;
-
-    if (bound) {
-        _gpuConstantRegistry->currentBoundThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        _gpuStateCache->reset();
-    }
+void GLES3Device::bindContext(bool bound) {
+    _gpuContext->bindContext(bound);
 }
 
 CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
@@ -334,16 +285,16 @@ Queue *GLES3Device::createQueue() {
     return CC_NEW(GLES3Queue);
 }
 
+Swapchain *GLES3Device::createSwapchain() {
+    return CC_NEW(GLES3Swapchain);
+}
+
 Buffer *GLES3Device::createBuffer() {
     return CC_NEW(GLES3Buffer);
 }
 
 Texture *GLES3Device::createTexture() {
     return CC_NEW(GLES3Texture);
-}
-
-Sampler *GLES3Device::createSampler() {
-    return CC_NEW(GLES3Sampler);
 }
 
 Shader *GLES3Device::createShader() {
@@ -378,12 +329,16 @@ PipelineState *GLES3Device::createPipelineState() {
     return CC_NEW(GLES3PipelineState);
 }
 
-GlobalBarrier *GLES3Device::createGlobalBarrier() {
-    return CC_NEW(GLES3GlobalBarrier);
+Sampler *GLES3Device::createSampler(const SamplerInfo &info) {
+    return CC_NEW(GLES3Sampler(info));
 }
 
-TextureBarrier *GLES3Device::createTextureBarrier() {
-    return CC_NEW(TextureBarrier);
+GlobalBarrier *GLES3Device::createGlobalBarrier(const GlobalBarrierInfo &info) {
+    return CC_NEW(GLES3GlobalBarrier(info));
+}
+
+TextureBarrier *GLES3Device::createTextureBarrier(const TextureBarrierInfo &info) {
+    return CC_NEW(TextureBarrier(info));
 }
 
 void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
@@ -391,7 +346,7 @@ void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 }
 
 void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
-    cmdFuncGLES3CopyTextureToBuffers(this, srcTexture ? static_cast<GLES3Texture*>(srcTexture)->gpuTexture() : nullptr, buffers, regions, count);
+    cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTexture(), buffers, regions, count);
 }
 
 } // namespace gfx

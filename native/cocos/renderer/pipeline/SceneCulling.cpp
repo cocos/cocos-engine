@@ -41,7 +41,7 @@
 
 namespace cc {
 namespace pipeline {
-bool         castBoundsInitialized = false;
+bool        castBoundsInitialized = false;
 scene::AABB castWorldBounds;
 
 RenderObject genRenderObject(const scene::Model *model, const scene::Camera *camera) {
@@ -176,17 +176,18 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         isShadowMap = true;
     }
 
-    RenderObjectList               renderObjects;
+    RenderObjectList renderObjects;
 
     if (skyBox->enabled && skyBox->model && (camera->clearFlag & skyboxFlag)) {
         renderObjects.emplace_back(genRenderObject(skyBox->model, camera));
     }
 
+    const auto visibility = camera->visibility;
+
     for (auto *model : scene->getModels()) {
         // filter model by view visibility
         if (model->getEnabled()) {
-            const auto        visibility = camera->visibility;
-            const auto *const node       = model->getNode();
+            const auto *const node = model->getNode();
             if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
                 (visibility & model->getVisFlags())) {
                 // shadow render Object

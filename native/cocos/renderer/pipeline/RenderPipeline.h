@@ -26,12 +26,13 @@
 #pragma once
 
 #include "Define.h"
+#include "GlobalDescriptorSetManager.h"
 #include "PipelineSceneData.h"
 #include "PipelineUBO.h"
 #include "base/CoreStd.h"
-#include "GlobalDescriptorSetManager.h"
 #include "helper/DefineMap.h"
 #include "scene/Camera.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace gfx {
@@ -56,7 +57,7 @@ public:
     RenderPipeline();
     ~RenderPipeline() override;
 
-    virtual bool activate();
+    virtual bool activate(gfx::Swapchain *swapchain);
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(const vector<scene::Camera *> &cameras);
@@ -80,6 +81,9 @@ public:
     inline gfx::Device *                           getDevice() { return _device; }
     RenderStage *                                  getRenderstageByName(const String &name) const;
 
+    inline scene::Model *getProfiler() const { return _profiler; }
+    inline void          setProfiler(scene::Model *value) { _profiler = value; }
+
 protected:
     static RenderPipeline *instance;
 
@@ -92,11 +96,12 @@ protected:
     uint                             _tag = 0;
     String                           _constantMacros;
 
-    gfx::Device *             _device              = nullptr;
-    GlobalDSManager *         _globalDSManager     = nullptr;
-    gfx::DescriptorSet *      _descriptorSet       = nullptr;
-    PipelineUBO *             _pipelineUBO         = nullptr;
-    PipelineSceneData *       _pipelineSceneData   = nullptr;
+    gfx::Device *       _device            = nullptr;
+    GlobalDSManager *   _globalDSManager   = nullptr;
+    gfx::DescriptorSet *_descriptorSet     = nullptr;
+    PipelineUBO *       _pipelineUBO       = nullptr;
+    PipelineSceneData * _pipelineSceneData = nullptr;
+    scene::Model *      _profiler          = nullptr;
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
     gfx::Texture *_defaultTexture = nullptr;

@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #include "VKUtils.h"
+#include "VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
 
-VkFormat mapVkFormat(Format format) {
+VkFormat mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice) {
     switch (format) {
         case Format::R8: return VK_FORMAT_R8_UNORM;
         case Format::R8SN: return VK_FORMAT_R8_SNORM;
@@ -81,12 +82,8 @@ VkFormat mapVkFormat(Format format) {
         case Format::RGB10A2: return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
         case Format::RGB10A2UI: return VK_FORMAT_A2B10G10R10_UINT_PACK32;
         case Format::RGB9E5: return VK_FORMAT_E5B9G9R9_UFLOAT_PACK32;
-        case Format::D16: return VK_FORMAT_D16_UNORM;
-        case Format::D16S8: return VK_FORMAT_D16_UNORM_S8_UINT;
-        case Format::D24: return VK_FORMAT_X8_D24_UNORM_PACK32;
-        case Format::D24S8: return VK_FORMAT_D24_UNORM_S8_UINT;
-        case Format::D32F: return VK_FORMAT_D32_SFLOAT;
-        case Format::D32F_S8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
+        case Format::DEPTH: return gpuDevice->depthFormat;
+        case Format::DEPTH_STENCIL: return gpuDevice->depthStencilFormat;
 
         case Format::BC1: return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         case Format::BC1_ALPHA: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
@@ -350,36 +347,6 @@ String mapVendorName(uint32_t vendorID) {
     return StringUtil::format("Unknown VendorID %d", vendorID);
 }
 
-void mapDepthStencilBits(Format format, uint *pDepthBits, uint *pStencilBits) {
-    switch (format) {
-        case Format::D16:
-            *pDepthBits   = 16;
-            *pStencilBits = 0;
-            break;
-        case Format::D16S8:
-            *pDepthBits   = 16;
-            *pStencilBits = 8;
-            break;
-        case Format::D24:
-            *pDepthBits   = 24;
-            *pStencilBits = 0;
-            break;
-        case Format::D24S8:
-            *pDepthBits   = 24;
-            *pStencilBits = 8;
-            break;
-        case Format::D32F:
-            *pDepthBits   = 32;
-            *pStencilBits = 0;
-            break;
-        case Format::D32F_S8:
-            *pDepthBits   = 32;
-            *pStencilBits = 8;
-            break;
-        default: break;
-    }
-}
-
 const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING =
     VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR |
     VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR;
@@ -544,6 +511,17 @@ const VkStencilFaceFlags VK_STENCIL_FACE_FLAGS[] = {
     VK_STENCIL_FACE_FRONT_BIT,
     VK_STENCIL_FACE_BACK_BIT,
     VK_STENCIL_FACE_FRONT_AND_BACK,
+};
+
+const VkSampleCountFlags VK_SAMPLE_COUNT_FLAGS[] = {
+    VK_SAMPLE_COUNT_1_BIT,
+    VK_SAMPLE_COUNT_2_BIT,
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
+#else // desktop platforms
+    VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
+#endif
+    VK_SAMPLE_COUNT_16_BIT | VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
 };
 
 const VkAccessFlags FULL_ACCESS_FLAGS =

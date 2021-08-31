@@ -71,11 +71,13 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipeline);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_activate);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getDevice);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getProfiler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderstageByName);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_resize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setProfiler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
 
@@ -183,8 +185,8 @@ bool register_all_pipeline(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroy);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset);
-SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_get);
+SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_InstancedBuffer);
 
 extern se::Object* __jsb_cc_pipeline_DeferredPipeline_proto;
@@ -194,14 +196,11 @@ bool js_register_cc_pipeline_DeferredPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_destroyFrameGraphExternalTexture);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getClearcolor);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getFrameGraph);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getFrameGraphCamera);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getHeight);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getWidth);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_initFrameGraphExternalTexture);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_prepareFrameGraph);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_DeferredPipeline);
 
 extern se::Object* __jsb_cc_pipeline_MainFlow_proto;
@@ -243,7 +242,6 @@ bool js_register_cc_pipeline_PostprocessStage(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PostprocessStage);
-SE_DECLARE_FUNC(js_pipeline_PostprocessStage_getGlobalSet);
 SE_DECLARE_FUNC(js_pipeline_PostprocessStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_PostprocessStage_PostprocessStage);
 

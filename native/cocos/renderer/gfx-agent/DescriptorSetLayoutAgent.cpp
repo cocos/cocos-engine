@@ -34,7 +34,7 @@ namespace gfx {
 
 DescriptorSetLayoutAgent::DescriptorSetLayoutAgent(DescriptorSetLayout *actor)
 : Agent<DescriptorSetLayout>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 DescriptorSetLayoutAgent::~DescriptorSetLayoutAgent() {

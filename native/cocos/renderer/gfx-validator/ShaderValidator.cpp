@@ -35,7 +35,7 @@ namespace gfx {
 
 ShaderValidator::ShaderValidator(Shader *actor)
 : Agent<Shader>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 ShaderValidator::~ShaderValidator() {

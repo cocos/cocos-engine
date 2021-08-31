@@ -25,14 +25,17 @@
 
 #pragma once
 
+#include "GLES3Std.h"
 #include "gfx-base/GFXCommandBuffer.h"
-
-#include "GLES3Commands.h"
 
 namespace cc {
 namespace gfx {
 
 class GLES3GPUCommandAllocator;
+class GLES3CmdPackage;
+class GLES3GPUPipelineState;
+class GLES3GPUInputAssembler;
+class GLES3GPUDescriptorSet;
 
 class CC_GLES3_API GLES3CommandBuffer : public CommandBuffer {
 public:

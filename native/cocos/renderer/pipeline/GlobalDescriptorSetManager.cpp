@@ -28,12 +28,7 @@
 #include "Define.h"
 #include "RenderInstancedQueue.h"
 #include "forward/ForwardPipeline.h"
-#include "gfx-base/GFXBuffer.h"
-#include "gfx-base/GFXDescriptorSet.h"
-#include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXSampler.h"
-#include "gfx-base/GFXTexture.h"
 
 namespace cc {
 namespace pipeline {
@@ -48,35 +43,23 @@ void GlobalDSManager::activate(gfx::Device *device, RenderPipeline *pipeline) {
     _device   = device;
     _pipeline = pipeline;
 
-    const gfx::SamplerInfo linearInfo{
+    _linearSampler = device->getSampler({
         gfx::Filter::LINEAR,
         gfx::Filter::LINEAR,
         gfx::Filter::NONE,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
-        {},
-        {},
-        {},
-        {},
-    };
-    const uint linearHash = SamplerLib::genSamplerHash(linearInfo);
-    _linearSampler        = SamplerLib::getSampler(linearHash);
+    });
 
-    const gfx::SamplerInfo pointInfo{
+    _pointSampler = device->getSampler({
         gfx::Filter::POINT,
         gfx::Filter::POINT,
         gfx::Filter::NONE,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
-        {},
-        {},
-        {},
-        {},
-    };
-    const uint pointHash = SamplerLib::genSamplerHash(pointInfo);
-    _pointSampler        = SamplerLib::getSampler(pointHash);
+    });
 
     setDescriptorSetLayout();
     if (_descriptorSetLayout) {
@@ -184,12 +167,6 @@ void GlobalDSManager::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING]     = ENVIRONMENT::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[SPOTLIGHTINGMAP::NAME]    = SPOTLIGHTINGMAP::LAYOUT;
     globalDescriptorSetLayout.bindings[SPOTLIGHTINGMAP::BINDING] = SPOTLIGHTINGMAP::DESCRIPTOR;
-
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERALBEDOMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERPOSITIONMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFEREMISSIVEMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERNORMALMAP);
-    INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERLIGHTINGRESULTMAP);
 
     localDescriptorSetLayout.bindings.resize(static_cast<size_t>(ModelLocalBindings::COUNT));
     localDescriptorSetLayout.blocks[UBOLocalBatched::NAME]           = UBOLocalBatched::LAYOUT;

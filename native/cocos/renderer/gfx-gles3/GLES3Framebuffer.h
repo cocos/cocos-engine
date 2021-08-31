@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES3Std.h"
 #include "gfx-base/GFXFramebuffer.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class GLES3GPUFramebuffer;
 class CC_GLES3_API GLES3Framebuffer final : public Framebuffer {
 public:
     GLES3Framebuffer();
-    ~GLES3Framebuffer();
+    ~GLES3Framebuffer() override;
 
     inline GLES3GPUFramebuffer *gpuFBO() const { return _gpuFBO; }
 

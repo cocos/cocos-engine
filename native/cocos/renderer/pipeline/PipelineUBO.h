@@ -40,7 +40,7 @@ class RenderPipeline;
 
 class CC_DLL PipelineUBO : public Object {
 public:
-    static void    updateGlobalUBOView(const RenderPipeline *pipeline, std::array<float, UBOGlobal::COUNT> *bufferView);
+    static void    updateGlobalUBOView(const scene::Camera *camera, std::array<float, UBOGlobal::COUNT> *bufferView);
     static void    updateCameraUBOView(const RenderPipeline *pipeline, float *output, const scene::Camera *camera);
     static void    updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera);
     static void    updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Light *light);
@@ -50,7 +50,7 @@ public:
     ~PipelineUBO() override = default;
     void activate(gfx::Device *device, RenderPipeline *pipeline);
     void destroy();
-    void updateGlobalUBO();
+    void updateGlobalUBO(const scene::Camera *camera);
     void updateCameraUBO(const scene::Camera *camera);
     void updateMultiCameraUBO(const vector<scene::Camera *> &cameras);
     void updateShadowUBO(const scene::Camera *camera);

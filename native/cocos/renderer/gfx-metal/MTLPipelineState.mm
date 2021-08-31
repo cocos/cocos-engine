@@ -23,17 +23,17 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
+#import "MTLStd.h"
 
-#include "MTLDevice.h"
-#include "MTLGPUObjects.h"
-#include "MTLPipelineLayout.h"
-#include "MTLPipelineState.h"
-#include "MTLSampler.h"
-#include "MTLShader.h"
-#include "MTLTexture.h"
-#include "MTLUtils.h"
-#include "MTLRenderPass.h"
+#import "MTLDevice.h"
+#import "MTLGPUObjects.h"
+#import "MTLPipelineLayout.h"
+#import "MTLPipelineState.h"
+#import "MTLSampler.h"
+#import "MTLShader.h"
+#import "MTLTexture.h"
+#import "MTLUtils.h"
+#import "MTLRenderPass.h"
 
 #import <Metal/MTLDevice.h>
 #import <Metal/MTLVertexDescriptor.h>
@@ -99,7 +99,9 @@ bool CCMTLPipelineState::initRenderPipeline() {
     return true;
 }
 
-void CCMTLPipelineState::check() {
+void CCMTLPipelineState::check(CCMTLRenderPass* renderPass) {
+    if(renderPass)
+        _renderPass = renderPass;
     if(!_renderPipelineReady) {
         initRenderPipeline();
     }
@@ -308,9 +310,9 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
         }
     }
     
-    SampleCount sample = SampleCount::X1;
+    SampleCount sample = SampleCount::ONE;
     Format depthStencilFormat;
-    if(depthStencilTexIndex != INVALID_BINDING) {
+    if(depthStencilTexIndex != INVALID_BINDING && depthStencilTexIndex < _renderPass->getColorAttachments().size()) {
         sample = _renderPass->getColorAttachments()[depthStencilTexIndex].sampleCount;
         depthStencilFormat = _renderPass->getColorAttachments()[depthStencilTexIndex].format;
     } else {
@@ -325,8 +327,11 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
 
     mtlPixelFormat = mu::toMTLPixelFormat(depthStencilFormat);
     if (mtlPixelFormat != MTLPixelFormatInvalid) {
-        descriptor.stencilAttachmentPixelFormat = mtlPixelFormat;
+        
         descriptor.depthAttachmentPixelFormat = mtlPixelFormat;
+        
+        if(depthStencilFormat == Format::DEPTH_STENCIL)
+            descriptor.stencilAttachmentPixelFormat = mtlPixelFormat;
     }
     
 }

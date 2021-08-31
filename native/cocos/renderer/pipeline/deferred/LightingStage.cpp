@@ -25,6 +25,7 @@
 
 #include "LightingStage.h"
 #include "../BatchedBuffer.h"
+#include "../Define.h"
 #include "../InstancedBuffer.h"
 #include "../PipelineStateManager.h"
 #include "../PlanarShadowQueue.h"
@@ -33,6 +34,8 @@
 #include "../RenderQueue.h"
 #include "DeferredPipeline.h"
 #include "base/Utils.h"
+#include "frame-graph/Blackboard.h"
+#include "frame-graph/Handle.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
@@ -42,9 +45,6 @@
 #include "scene/RenderScene.h"
 #include "scene/Sphere.h"
 #include "scene/SphereLight.h"
-#include "../Define.h"
-#include "frame-graph/Blackboard.h"
-#include "frame-graph/Handle.h"
 
 namespace cc {
 namespace pipeline {
@@ -61,9 +61,9 @@ void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
     out->z = std::sqrt(linear.z);
 }
 
-const String STAGE_NAME = "LightingStage";
-const uint MAX_REFLECTOR_SIZE =  5;
-framegraph::StringHandle reflectTexHandle = framegraph::FrameGraph::stringToHandle("reflectionTex");
+const String             STAGE_NAME         = "LightingStage";
+const uint               MAX_REFLECTOR_SIZE = 5;
+framegraph::StringHandle reflectTexHandle   = framegraph::FrameGraph::stringToHandle("reflectionTex");
 framegraph::StringHandle denoiseTexHandle[MAX_REFLECTOR_SIZE];
 framegraph::StringHandle ssprClearPass[MAX_REFLECTOR_SIZE];
 framegraph::StringHandle ssprCompReflectPass[MAX_REFLECTOR_SIZE];
@@ -73,19 +73,19 @@ framegraph::StringHandle ssprRenderPass[MAX_REFLECTOR_SIZE];
 void initStrHandle() {
     std::string tmp;
     for (int i = 0; i < MAX_REFLECTOR_SIZE; ++i) {
-        tmp = std::string("denoiseTexureHandle") + std::to_string(i);
+        tmp                 = std::string("denoiseTexureHandle") + std::to_string(i);
         denoiseTexHandle[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp = std::string("ssprClearPss") + std::to_string(i);
+        tmp              = std::string("ssprClearPss") + std::to_string(i);
         ssprClearPass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp = std::string("ssprReflectPass") + std::to_string(i);
+        tmp                    = std::string("ssprReflectPass") + std::to_string(i);
         ssprCompReflectPass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp = std::string("ssprDenoisePass") + std::to_string(i);
+        tmp                    = std::string("ssprDenoisePass") + std::to_string(i);
         ssprCompDenoisePass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
 
-        tmp = std::string("ssprRenderPass") + std::to_string(i);
+        tmp               = std::string("ssprRenderPass") + std::to_string(i);
         ssprRenderPass[i] = framegraph::FrameGraph::stringToHandle(tmp.c_str());
     }
 }
@@ -110,7 +110,6 @@ bool LightingStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
     _phaseID                = getPhaseID("default");
-    _defPhaseID             = getPhaseID("deferred");
     _reflectionPhaseID      = getPhaseID("reflection");
     initStrHandle();
 
@@ -118,11 +117,7 @@ bool LightingStage::initialize(const RenderStageInfo &info) {
 }
 
 void LightingStage::gatherLights(scene::Camera *camera) {
-    auto *pipeline = dynamic_cast<DeferredPipeline *>(_pipeline);
-    if (!pipeline) {
-        return;
-    }
-
+    auto *      pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     auto *const sceneData  = _pipeline->getPipelineSceneData();
     auto *const sharedData = sceneData->getSharedData();
 
@@ -255,7 +250,7 @@ void LightingStage::initLightingBuffer() {
     auto *const device = _pipeline->getDevice();
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
-    uint stride = utils::alignTo(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
+    uint stride    = utils::alignTo(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
     uint totalSize = stride * _maxDeferredLights;
 
     // create lighting buffer and view
@@ -267,13 +262,11 @@ void LightingStage::initLightingBuffer() {
             stride,
         };
         _deferredLitsBufs = device->createBuffer(bfInfo);
-        assert(_deferredLitsBufs != nullptr);
     }
 
     if (_deferredLitsBufView == nullptr) {
         gfx::BufferViewInfo bvInfo = {_deferredLitsBufs, 0, totalSize};
         _deferredLitsBufView       = device->createBuffer(bvInfo);
-        assert(_deferredLitsBufView != nullptr);
         _descriptorSet->bindBuffer(static_cast<uint>(ModelLocalBindings::UBO_FORWARD_LIGHTS), _deferredLitsBufView);
     }
 
@@ -292,7 +285,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
     }
 
-    // create descriptorset/layout
+    // create descriptor set/layout
     gfx::DescriptorSetLayoutInfo layoutInfo = {localDescriptorSetLayout.bindings};
     _descLayout                             = device->createDescriptorSetLayout(layoutInfo);
 
@@ -310,14 +303,6 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     _reflectionComp->init(_device, 8, 8);
 
     _reflectionRenderQueue = CC_NEW(RenderQueue(std::move(info)));
-
-    gfx::SamplerInfo samplerInfo;
-    samplerInfo.minFilter = gfx::Filter::LINEAR;
-    samplerInfo.magFilter = gfx::Filter::LINEAR;
-    samplerInfo.addressU = gfx::Address::CLAMP;
-    samplerInfo.addressV = gfx::Address::CLAMP;
-    samplerInfo.addressW = gfx::Address::CLAMP;
-    _ssprSample = pipeline->getDevice()->createSampler(samplerInfo);
 }
 
 void LightingStage::destroy() {
@@ -328,50 +313,6 @@ void LightingStage::destroy() {
     RenderStage::destroy();
 
     CC_SAFE_DELETE(_reflectionComp);
-    CC_SAFE_DELETE(_ssprSample);
-}
-
-void LightingStage::recordCommandsLit(DeferredPipeline *pipeline, gfx::RenderPass *renderPass) {
-    auto *const sceneData     = pipeline->getPipelineSceneData();
-
-    auto *cmdBuff = pipeline->getCommandBuffers()[0];
-    vector<uint> dynamicOffsets = {0};
-    cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
-
-    uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
-    // get pso and draw quad
-    auto rendeArea = pipeline->getRenderArea(pipeline->getFrameGraphCamera(), false);
-
-    scene::Pass *pass   = sceneData->getSharedData()->deferredLightPass;
-    gfx::Shader *shader = sceneData->getSharedData()->deferredLightPassShader;
-    gfx::InputAssembler *inputAssembler = pipeline->getIAByRenderArea(rendeArea);
-    gfx::PipelineState *pState         = PipelineStateManager::getOrCreatePipelineState(
-        pass, shader, inputAssembler, renderPass);
-    assert(pState != nullptr);
-
-    cmdBuff->bindPipelineState(pState);
-    cmdBuff->bindInputAssembler(inputAssembler);
-    cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-    cmdBuff->draw(inputAssembler);
-}
-
-void LightingStage::recordCommandsTransparent(DeferredPipeline *pipeline, gfx::RenderPass *renderPass) {
-    auto *cmdBuff = pipeline->getCommandBuffers()[0];
-
-    vector<uint> dynamicOffsets = {0};
-    cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), _descriptorSet, dynamicOffsets);
-
-    uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
-
-    // transparent
-    for (auto *queue : _renderQueues) {
-        queue->sort();
-        queue->recordCommandBuffer(_device, renderPass, cmdBuff);
-    }
-
-    //_planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
 }
 
 void LightingStage::fgLightingPass(scene::Camera *camera) {
@@ -380,15 +321,15 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
     _descriptorSet->update();
 
     struct RenderData {
-        framegraph::TextureHandle gbuffer[4];   // read from gbuffer stage
-        framegraph::TextureHandle lightOutput;  // output texture
+        framegraph::TextureHandle gbuffer[4];  // read from gbuffer stage
+        framegraph::TextureHandle lightOutput; // output texture
         framegraph::TextureHandle depth;
     };
 
-    auto *      pipeline      = static_cast<DeferredPipeline *>(_pipeline);
+    auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     gfx::Color clearColor = pipeline->getClearcolor(camera);
 
-    auto lightingSetup = [&] (framegraph::PassNodeBuilder &builder, RenderData &data) {
+    auto lightingSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         // read gbuffer
         for (int i = 0; i < 4; i++) {
             data.gbuffer[i] = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i])));
@@ -397,48 +338,77 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         // read depth, as an attachment
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::DEPTH;
-        depthAttachmentInfo.loadOp      = gfx::LoadOp::LOAD;
-        depthAttachmentInfo.clearColor  = gfx::Color();
-        depthAttachmentInfo.endAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
+        depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
+        depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
-        data.depth = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture)));
+        data.depth = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture));
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
 
         // write to lighting output
-        framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
-        colorAttachmentInfo.clearColor  = clearColor;
-        colorAttachmentInfo.endAccesses = {gfx::AccessType::COLOR_ATTACHMENT_READ};
-
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA16F;
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
         colorTexInfo.width  = pipeline->getWidth();
         colorTexInfo.height = pipeline->getHeight();
+        data.lightOutput    = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleLightingOutTexture, colorTexInfo);
 
-        data.lightOutput = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleLightingOutTexture, colorTexInfo);
-        data.lightOutput = builder.write(data.lightOutput, colorAttachmentInfo);
+        framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
+        colorAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
+        colorAttachmentInfo.clearColor    = clearColor;
+        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        data.lightOutput                  = builder.write(data.lightOutput, colorAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture, data.lightOutput);
 
         // set render area
-        auto renderArea = pipeline->getRenderArea(camera, false);
-        gfx::Viewport viewport{ renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
+        auto          renderArea = pipeline->getRenderArea(camera, false);
+        gfx::Viewport viewport{renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
         builder.setViewport(viewport, renderArea);
     };
 
-    auto lightingExec = [] (RenderData const &data, const framegraph::DevicePassResourceTable &table) {
-        CC_UNUSED_PARAM(data);
-        auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
-        assert(pipeline != nullptr);
-        auto *stage = static_cast<LightingStage *>(pipeline->getRenderstageByName(STAGE_NAME));
-        assert(stage != nullptr);
-        gfx::RenderPass *renderPass = table.getRenderPass().get();
-        assert(renderPass != nullptr);
+    auto lightingExec = [](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
+        auto *      pipeline  = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
+        auto *      stage     = static_cast<LightingStage *>(pipeline->getRenderstageByName(STAGE_NAME));
+        auto *const sceneData = pipeline->getPipelineSceneData();
 
-        stage->recordCommandsLit(pipeline, renderPass);
+        auto *       cmdBuff        = pipeline->getCommandBuffers()[0];
+        vector<uint> dynamicOffsets = {0};
+        cmdBuff->bindDescriptorSet(localSet, stage->_descriptorSet, dynamicOffsets);
+
+        uint const globalOffsets[] = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+        // get PSO and draw quad
+        auto rendeArea = pipeline->getRenderArea(pipeline->getFrameGraphCamera(), false);
+
+        scene::Pass *        pass           = sceneData->getSharedData()->deferredLightPass;
+        gfx::Shader *        shader         = sceneData->getSharedData()->deferredLightPassShader;
+        gfx::InputAssembler *inputAssembler = pipeline->getIAByRenderArea(rendeArea);
+        gfx::PipelineState * pState         = PipelineStateManager::getOrCreatePipelineState(
+            pass, shader, inputAssembler, table.getRenderPass());
+
+        gfx::SamplerInfo sinfo{
+            gfx::Filter::POINT,
+            gfx::Filter::POINT,
+            gfx::Filter::NONE,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+            gfx::Address::CLAMP,
+        };
+        auto *sampler = pipeline->getDevice()->getSampler(sinfo);
+        for (uint i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
+            pass->getDescriptorSet()->bindTexture(i, table.getRead(data.gbuffer[i]));
+            pass->getDescriptorSet()->bindSampler(i, sampler);
+        }
+        pass->getDescriptorSet()->update();
+
+        cmdBuff->bindPipelineState(pState);
+        cmdBuff->bindInputAssembler(inputAssembler);
+        cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+        cmdBuff->draw(inputAssembler);
     };
 
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::IP_LIGHTING), DeferredPipeline::fgStrHandleLightingPass, lightingSetup, lightingExec);
@@ -446,21 +416,22 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
 void LightingStage::fgTransparent(scene::Camera *camera) {
     struct RenderData {
-        framegraph::TextureHandle lightOutput;  // output texture
+        framegraph::TextureHandle lightOutput; // output texture
         framegraph::TextureHandle depth;
     };
 
-    auto *      pipeline      = static_cast<DeferredPipeline *>(_pipeline);
+    auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     gfx::Color clearColor = pipeline->getClearcolor(camera);
 
-    auto transparentSetup = [&] (framegraph::PassNodeBuilder &builder, RenderData &data) {
+    auto transparentSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         // write to lighting output
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorAttachmentInfo.loadOp      = gfx::LoadOp::LOAD;
-        colorAttachmentInfo.endAccesses = {gfx::AccessType::COLOR_ATTACHMENT_READ};
+        colorAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
+        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
 
-        data.lightOutput = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture));
+        data.lightOutput       = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture));
         bool lightingPassValid = data.lightOutput.isValid();
         if (!lightingPassValid) {
             framegraph::Texture::Descriptor colorTexInfo;
@@ -469,8 +440,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
             colorTexInfo.width  = pipeline->getWidth();
             colorTexInfo.height = pipeline->getHeight();
 
-            colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
-            colorAttachmentInfo.clearColor  = clearColor;
+            colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
+            colorAttachmentInfo.clearColor = clearColor;
 
             data.lightOutput = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleLightingOutTexture, colorTexInfo);
         }
@@ -478,43 +449,46 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         data.lightOutput = builder.write(data.lightOutput, colorAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture, data.lightOutput);
 
-        // read depth, as an attachment
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::DEPTH;
-        depthAttachmentInfo.loadOp      = gfx::LoadOp::LOAD;
-        depthAttachmentInfo.endAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
+        depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
+        depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
-        if (!lightingPassValid) {
-            depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
-            depthAttachmentInfo.clearColor  = gfx::Color();
-        }
-
-        data.depth = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture)));
+        data.depth = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture));
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
 
         // set render area
-        auto renderArea = pipeline->getRenderArea(camera, false);
-        gfx::Viewport viewport{ renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
+        auto          renderArea = pipeline->getRenderArea(camera, false);
+        gfx::Viewport viewport{renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
         builder.setViewport(viewport, renderArea);
     };
 
-    auto transparentExec = [] (RenderData const &data, const framegraph::DevicePassResourceTable &table) {
-        CC_UNUSED_PARAM(data);
+    auto transparentExec = [](RenderData const & /*data*/, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
-        assert(pipeline != nullptr);
-        auto *stage = static_cast<LightingStage *>(pipeline->getRenderstageByName(STAGE_NAME));
-        assert(stage != nullptr);
-        gfx::RenderPass *renderPass = table.getRenderPass().get();
-        assert(renderPass != nullptr);
+        auto *stage    = static_cast<LightingStage *>(pipeline->getRenderstageByName(STAGE_NAME));
+        auto *cmdBuff  = pipeline->getCommandBuffers()[0];
 
-        stage->recordCommandsTransparent(pipeline, renderPass);
+        vector<uint> dynamicOffsets = {0};
+        cmdBuff->bindDescriptorSet(localSet, stage->_descriptorSet, dynamicOffsets);
+
+        uint const globalOffsets[] = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+        cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+
+        // transparent
+        for (auto *queue : stage->_renderQueues) {
+            queue->sort();
+            queue->recordCommandBuffer(pipeline->getDevice(), table.getRenderPass(), cmdBuff);
+        }
+
+        //_planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     };
 
     putTransparentObj2Queue();
 
     bool empty = true;
-    for (auto * node : _renderQueues) {
+    for (auto *node : _renderQueues) {
         if (!node->empty()) {
             empty = false;
             break;
@@ -523,7 +497,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 
     if (!empty) {
         pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::IP_TRANSPARENT),
-                                  DeferredPipeline::fgStrHandleTransparentPass, transparentSetup, transparentExec);
+                                                      DeferredPipeline::fgStrHandleTransparentPass, transparentSetup, transparentExec);
     }
 }
 
@@ -542,8 +516,8 @@ void LightingStage::putTransparentObj2Queue() {
         const auto *const model = ro.model;
         for (auto *subModel : model->getSubModels()) {
             for (auto *pass : subModel->getPasses()) {
-                // TODO(xwx): need fallback of unlit and gizmo material.
-                if (pass->getPhase() != _phaseID && pass->getPhase() != _defPhaseID) continue;
+                // TODO(xwx): need to fallback unlit and gizmo material.
+                if (pass->getPhase() != _phaseID) continue;
                 for (k = 0; k < _renderQueues.size(); k++) {
                     _renderQueues[k]->insertRenderPass(ro, m, p);
                 }
@@ -556,7 +530,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     // The max reflector objects is 5.
     // for each reflector, there are 4 pass, clear pass/reflection pass/denoise pass/render pass
     // each reflector has its own denoise texture, and will be used in render pass
-    // All the reflectors use the same reflect texture which is temp resoruce for the reflectors, and the reflect texture should be cleared for each reflector
+    // All the reflectors use the same reflect texture which is temp resource for the reflectors, and the reflect texture should be cleared for each reflector
     // we first calculate denoise textures of all reflectors one by one, the first 3 pass will be executed
     // then we render all reflectors one by one, the last render pass will be executed
 
@@ -566,18 +540,18 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
 
     _denoiseIndex = 0;
-    _matViewProj = camera->matViewProj;
+    _matViewProj  = camera->matViewProj;
     _reflectionElems.clear();
 
-    // step 1 prepare clear model's reflection texture pass. if imageclear command is supported, this pass can be replaced by it
-    uint minSize = 512;
-    _ssprTexWidth = pipeline->getWidth();
+    // step 1 prepare clear model's reflection texture pass. should switch to image clear command after available
+    uint minSize   = 512;
+    _ssprTexWidth  = pipeline->getWidth();
     _ssprTexHeight = pipeline->getHeight();
     if (_ssprTexHeight < _ssprTexWidth) {
-        _ssprTexWidth = minSize * _ssprTexWidth / _ssprTexHeight;
+        _ssprTexWidth  = minSize * _ssprTexWidth / _ssprTexHeight;
         _ssprTexHeight = minSize;
     } else {
-        _ssprTexWidth = minSize;
+        _ssprTexWidth  = minSize;
         _ssprTexHeight = minSize * _ssprTexHeight / _ssprTexWidth;
     }
 
@@ -585,38 +559,36 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         framegraph::TextureHandle reflection;
     };
 
-    auto clearSetup = [&] (framegraph::PassNodeBuilder &builder, DataClear &data) {
-        framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
-        colorAttachmentInfo.clearColor  = { 0.F, 0.F, 0.F, 0.F };
-        colorAttachmentInfo.endAccesses = {gfx::AccessType::COMPUTE_SHADER_WRITE};
-
+    auto clearSetup = [&](framegraph::PassNodeBuilder &builder, DataClear &data) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA8;
         colorTexInfo.usage  = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
         colorTexInfo.width  = _ssprTexWidth;
         colorTexInfo.height = _ssprTexHeight;
-        colorTexInfo.flags  = gfx::TextureFlagBit::IMMUTABLE;
+        data.reflection     = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
 
-        data.reflection = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
-        data.reflection = builder.write(data.reflection, colorAttachmentInfo);
+        framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
+        colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
+        colorAttachmentInfo.clearColor  = {0.F, 0.F, 0.F, 0.F};
+        colorAttachmentInfo.endAccesses = {gfx::AccessType::COMPUTE_SHADER_WRITE};
+        data.reflection                 = builder.write(data.reflection, colorAttachmentInfo);
         builder.writeToBlackboard(reflectTexHandle, data.reflection);
         builder.sideEffect();
     };
 
-    auto clearExec = [&] (DataClear const &data, const framegraph::DevicePassResourceTable &table) {};
+    auto clearExec = [&](DataClear const &data, const framegraph::DevicePassResourceTable &table) {};
 
     // step 2 prepare compute the reflection pass, contain 1 dispatch commands, compute pipeline
     struct DataCompReflect {
-        framegraph::TextureHandle reflection;       // compute result texture
-        framegraph::TextureHandle lightingOut;      // read from lighting pass output texture
-        framegraph::TextureHandle gbufferPosition;  // read from gbuffer.positon texture
+        framegraph::TextureHandle reflection;      // compute result texture
+        framegraph::TextureHandle lightingOut;     // read from lighting pass output texture
+        framegraph::TextureHandle gbufferPosition; // read from gbuffer.positon texture
     };
 
-    auto compReflectSetup = [&] (framegraph::PassNodeBuilder &builder, DataCompReflect &data) {
-        // if there is no attachment in the pass, renderpass willn't be created
-        // read lightingout as input
+    auto compReflectSetup = [&](framegraph::PassNodeBuilder &builder, DataCompReflect &data) {
+        // if there is no attachment in the pass, render pass will not be created
+        // read lighting out as input
         data.lightingOut = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture)));
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture, data.lightingOut);
 
@@ -632,8 +604,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
             colorTexInfo.usage  = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
             colorTexInfo.width  = _ssprTexWidth;
             colorTexInfo.height = _ssprTexHeight;
-            colorTexInfo.flags  = gfx::TextureFlagBit::IMMUTABLE;
-            data.reflection = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
+            data.reflection     = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
         }
 
         data.reflection = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(reflectTexHandle)));
@@ -643,7 +614,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         builder.writeToBlackboard(reflectTexHandle, data.reflection);
     };
 
-    auto compReflectExec = [&] (DataCompReflect const &data, const framegraph::DevicePassResourceTable &table) {
+    auto compReflectExec = [&](DataCompReflect const &data, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
         assert(pipeline != nullptr);
         auto *stage = static_cast<LightingStage *>(pipeline->getRenderstageByName(STAGE_NAME));
@@ -656,7 +627,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         auto *texLightingOut = static_cast<gfx::Texture *>(table.getRead(data.lightingOut));
         auto *texPositon     = static_cast<gfx::Texture *>(table.getRead(data.gbufferPosition));
 
-        // step 1 pipelinebarrier before exec
+        // step 1 pipeline barrier before exec
         auto *cmdBuff = pipeline->getCommandBuffers()[0];
         cmdBuff->pipelineBarrier(reflectionComp->getBarrierPre());
 
@@ -667,8 +638,8 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         // layout(set = 0, binding = 3, rgba8) writeonly uniform lowp image2D reflectionTex;
         // set 0
         gfx::DescriptorSet *reflectDesc = reflectionComp->getDescriptorSet();
-        gfx::Sampler *sampler = reflectionComp->getSampler();
-        gfx::Buffer *constBuffer = reflectionComp->getConstantsBuffer();
+        gfx::Sampler *      sampler     = reflectionComp->getSampler();
+        gfx::Buffer *       constBuffer = reflectionComp->getConstantsBuffer();
 
         reflectDesc->bindBuffer(0, constBuffer);
         reflectDesc->bindSampler(1, sampler);
@@ -681,18 +652,26 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 
         // set 1, subModel->getDescriptorSet(0)
         cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(reflectionComp->getPipelineState()));
-        cmdBuff->bindDescriptorSet(0, reflectDesc);
+        cmdBuff->bindDescriptorSet(globalSet, reflectDesc);
         cmdBuff->dispatch(reflectionComp->getDispatchInfo());
     };
 
+    gfx::SamplerInfo samplerInfo;
+    samplerInfo.minFilter = gfx::Filter::POINT;
+    samplerInfo.magFilter = gfx::Filter::POINT;
+    samplerInfo.addressU  = gfx::Address::CLAMP;
+    samplerInfo.addressV  = gfx::Address::CLAMP;
+    samplerInfo.addressW  = gfx::Address::CLAMP;
+    auto *ssprSampler     = _device->getSampler(samplerInfo);
+
     // step 3 prepare compute the denoise pass, contain 1 dispatch commands, compute pipeline
     struct DataCompDenoise {
-        framegraph::TextureHandle denoise;          // each reflector has its own denoise texture
-        framegraph::TextureHandle reflection;       // the texture from last pass
+        framegraph::TextureHandle denoise;    // each reflector has its own denoise texture
+        framegraph::TextureHandle reflection; // the texture from last pass
     };
 
-    auto compDenoiseSetup = [&] (framegraph::PassNodeBuilder &builder, DataCompDenoise &data) {
-        // if there is no attachment in the pass, renderpass willn't be created
+    auto compDenoiseSetup = [&](framegraph::PassNodeBuilder &builder, DataCompDenoise &data) {
+        // if there is no attachment in the pass, render pass will not be created
         // read reflectTexHandle
         data.reflection = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(reflectTexHandle)));
         builder.writeToBlackboard(reflectTexHandle, data.reflection);
@@ -703,20 +682,19 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         colorTexInfo.usage  = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC;
         colorTexInfo.width  = _ssprTexWidth;
         colorTexInfo.height = _ssprTexHeight;
-        colorTexInfo.flags  = gfx::TextureFlagBit::IMMUTABLE;
-        data.denoise = builder.create<framegraph::Texture>(denoiseTexHandle[_denoiseIndex], colorTexInfo);
+        data.denoise        = builder.create<framegraph::Texture>(denoiseTexHandle[_denoiseIndex], colorTexInfo);
 
         data.denoise = builder.write(data.denoise);
         builder.writeToBlackboard(denoiseTexHandle[_denoiseIndex], data.denoise);
     };
 
-    auto compDenoiseExec = [&] (DataCompDenoise const &data, const framegraph::DevicePassResourceTable &table) {
+    auto compDenoiseExec = [&](DataCompDenoise const &data, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
         assert(pipeline != nullptr);
         auto *stage = static_cast<LightingStage *>(pipeline->getRenderstageByName(STAGE_NAME));
         assert(stage != nullptr);
 
-        auto *denoiseTex  = static_cast<gfx::Texture *>(table.getWrite(data.denoise));
+        auto *denoiseTex    = static_cast<gfx::Texture *>(table.getWrite(data.denoise));
         auto *reflectionTex = static_cast<gfx::Texture *>(table.getRead(data.reflection));
 
         ReflectionComp *reflectionComp = stage->getReflectionComp();
@@ -725,22 +703,22 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         auto *cmdBuff = pipeline->getCommandBuffers()[0];
         cmdBuff->pipelineBarrier(nullptr, const_cast<gfx::TextureBarrierList &>(reflectionComp->getBarrierBeforeDenoise()), {reflectionTex, denoiseTex});
 
-        // bind descriptorset
+        // bind descriptor set
         reflectionComp->getDenoiseDescriptorSet()->bindTexture(0, reflectionTex);
         reflectionComp->getDenoiseDescriptorSet()->bindSampler(0, reflectionComp->getSampler());
         reflectionComp->getDenoiseDescriptorSet()->update();
 
         stage->getRendElement().set->bindTexture(static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION), denoiseTex);
-        stage->getRendElement().set->bindSampler(static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION), stage->getSsprSampler());
+        stage->getRendElement().set->bindSampler(static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION), ssprSampler);
 
         // for render stage usage
         stage->getRendElement().set->bindTexture(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), denoiseTex);
-        stage->getRendElement().set->bindSampler(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), stage->getSsprSampler());
+        stage->getRendElement().set->bindSampler(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), ssprSampler);
         stage->getRendElement().set->update();
 
         cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(reflectionComp->getDenoisePipelineState()));
-        cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(reflectionComp->getDenoiseDescriptorSet()));
-        cmdBuff->bindDescriptorSet(1, stage->getRendElement().set);
+        cmdBuff->bindDescriptorSet(globalSet, const_cast<gfx::DescriptorSet *>(reflectionComp->getDenoiseDescriptorSet()));
+        cmdBuff->bindDescriptorSet(materialSet, stage->getRendElement().set);
         cmdBuff->dispatch(reflectionComp->getDenioseDispatchInfo());
 
         // pipeline barrier
@@ -752,65 +730,65 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 
     // step 4 prepare render reflector objects pass, graphics pipeline
     struct DataRender {
-        framegraph::TextureHandle denoise;      // input texture
-        framegraph::TextureHandle lightingOut;  // attachment, load and write
-        framegraph::TextureHandle depth;        // attachment, load and write
+        framegraph::TextureHandle denoise;     // input texture
+        framegraph::TextureHandle lightingOut; // attachment, load and write
+        framegraph::TextureHandle depth;       // attachment, load and write
     };
 
-    auto renderSetup = [&] (framegraph::PassNodeBuilder &builder, DataRender &data) {
+    auto renderSetup = [&](framegraph::PassNodeBuilder &builder, DataRender &data) {
         data.denoise = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(denoiseTexHandle[_denoiseIndex])));
         builder.writeToBlackboard(denoiseTexHandle[_denoiseIndex], data.denoise);
 
-        // write lightingOut, as an attachment
+        // write lighting out, as an attachment
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorAttachmentInfo.loadOp      = gfx::LoadOp::LOAD;
-        colorAttachmentInfo.clearColor  = gfx::Color();
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_READ};
-        colorAttachmentInfo.endAccesses = {gfx::AccessType::COLOR_ATTACHMENT_READ};
+        colorAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
+        colorAttachmentInfo.clearColor    = gfx::Color();
+        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
 
         data.lightingOut = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture)), colorAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture, data.lightingOut);
 
         // read depth, as an attachment
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::DEPTH;
-        depthAttachmentInfo.loadOp      = gfx::LoadOp::LOAD;
-        depthAttachmentInfo.clearColor  = gfx::Color();
+        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
+        depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
+        depthAttachmentInfo.clearColor    = gfx::Color();
         depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
-        depthAttachmentInfo.endAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
+        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
 
         data.depth = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture)), depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
 
-        auto renderArea = pipeline->getRenderArea(camera, false);
-        gfx::Viewport viewport{ renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
+        auto          renderArea = pipeline->getRenderArea(camera, false);
+        gfx::Viewport viewport{renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
         builder.setViewport(viewport, renderArea);
     };
 
-    auto renderExec = [&] (DataRender const &data, const framegraph::DevicePassResourceTable &table) {
+    auto renderExec = [&](DataRender const &data, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
         assert(pipeline != nullptr);
         auto *stage = static_cast<LightingStage *>(pipeline->getRenderstageByName(STAGE_NAME));
         assert(stage != nullptr);
-        auto *cmdBuff = pipeline->getCommandBuffers()[0];
-        RenderElem elem = stage->getRendElement();
+        auto *     cmdBuff = pipeline->getCommandBuffers()[0];
+        RenderElem elem    = stage->getRendElement();
 
         // bind descriptor
-        cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
+        cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet());
 
-        gfx::DescriptorSet *descLocal = elem.set;       // submodel's descriptorset
-        auto *denoiseTex  = static_cast<gfx::Texture *>(table.getRead(data.denoise));
+        gfx::DescriptorSet *descLocal  = elem.set; // sub model descriptor set
+        auto *              denoiseTex = static_cast<gfx::Texture *>(table.getRead(data.denoise));
 
         descLocal->bindTexture(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), denoiseTex);
-        descLocal->bindSampler(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), stage->getSsprSampler());
+        descLocal->bindSampler(static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION), ssprSampler);
         descLocal->update();
-        cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), descLocal);
+        cmdBuff->bindDescriptorSet(localSet, descLocal);
 
         stage->getReflectRenderQueue()->clear();
         stage->getReflectRenderQueue()->insertRenderPass(elem.renderObject, elem.modelIndex, elem.passIndex);
 
-        gfx::RenderPass *renderPass = table.getRenderPass().get();
+        gfx::RenderPass *renderPass = table.getRenderPass();
         stage->getReflectRenderQueue()->sort();
         stage->getReflectRenderQueue()->recordCommandBuffer(pipeline->getDevice(), renderPass, cmdBuff);
     };
@@ -818,17 +796,17 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     // step 5 add framegraph passes
     auto *const sceneData     = _pipeline->getPipelineSceneData();
     const auto &renderObjects = sceneData->getRenderObjects();
-    uint   m = 0;
-    uint   p = 0;
+    uint        m             = 0;
+    uint        p             = 0;
     for (const auto &ro : renderObjects) {
-        const auto *model = ro.model;
-        const auto& subModels = model->getSubModels();
+        const auto *model     = ro.model;
+        const auto &subModels = model->getSubModels();
         for (m = 0; m < subModels.size(); ++m) {
-            const auto &subModel = subModels[m];
-            const auto& passes = subModel->getPasses();
-            auto passCount = passes.size();
+            const auto &subModel  = subModels[m];
+            const auto &passes    = subModel->getPasses();
+            auto        passCount = passes.size();
             for (p = 0; p < passCount; ++p) {
-                auto* pass = passes[p];
+                auto *pass = passes[p];
                 if (pass->getPhase() == _reflectionPhaseID) {
                     RenderElem elem = {ro, subModel->getDescriptorSet(), m, p};
                     _reflectionElems.push_back(elem);
@@ -854,16 +832,16 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 void LightingStage::render(scene::Camera *camera) {
     auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
 
-    // if gbuffer pass is inexistent, depthHandle is invalid, and then lighting pass is needless.
-    // transparent objects drawed in lighting pass, canbe put in its own pass
+    // if gbuffer pass does not exist, skip lighting pass.
+    // transparent objects draw after lighting pass, can be automatically merged by FG
     if (pipeline->getFrameGraph().isPassExist(DeferredPipeline::fgStrHandleGbufferPass)) {
         fgLightingPass(camera);
     }
 
     fgTransparent(camera);
 
-    // if lighting pass is inexistence, ignore sspr pass now.
-    // when clear image api is available, better way can be applied.
+    // if lighting pass does not exist, skip SSPR pass.
+    // switch to clear image API when available
     if (pipeline->getFrameGraph().isPassExist(DeferredPipeline::fgStrHandleLightingPass)) {
         fgSsprPass(camera);
     }

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "EmptyTexture.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace gfx {
@@ -32,6 +33,9 @@ void EmptyTexture::doInit(const TextureInfo &info) {
 }
 
 void EmptyTexture::doInit(const TextureViewInfo &info) {
+}
+
+void EmptyTexture::doInit(const SwapchainTextureInfo &info) {
 }
 
 void EmptyTexture::doDestroy() {

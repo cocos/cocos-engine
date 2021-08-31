@@ -37,7 +37,7 @@ namespace gfx {
 
 PipelineStateAgent::PipelineStateAgent(PipelineState *actor)
 : Agent<PipelineState>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 PipelineStateAgent::~PipelineStateAgent() {

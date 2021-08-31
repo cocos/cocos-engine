@@ -32,18 +32,20 @@
 namespace cc {
 namespace gfx {
 
-CCVKShader::CCVKShader() = default;
+CCVKShader::CCVKShader() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKShader::~CCVKShader() {
     destroy();
 }
 
 void CCVKShader::doInit(const ShaderInfo & /*info*/) {
-    _gpuShader = CC_NEW(CCVKGPUShader);
-    _gpuShader->name = _name;
+    _gpuShader             = CC_NEW(CCVKGPUShader);
+    _gpuShader->name       = _name;
     _gpuShader->attributes = _attributes;
-    _gpuShader->blocks = _blocks;
-    _gpuShader->samplers = _samplers;
+    _gpuShader->blocks     = _blocks;
+    _gpuShader->samplers   = _samplers;
     for (ShaderStage &stage : _stages) {
         _gpuShader->gpuStages.push_back({stage.stage, stage.source});
     }

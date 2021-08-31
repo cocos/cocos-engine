@@ -34,7 +34,9 @@
 namespace cc {
 namespace gfx {
 
-CCVKDescriptorSetLayout::CCVKDescriptorSetLayout() = default;
+CCVKDescriptorSetLayout::CCVKDescriptorSetLayout() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKDescriptorSetLayout::~CCVKDescriptorSetLayout() {
     destroy();

@@ -43,7 +43,7 @@ namespace gfx {
 
 CommandBufferAgent::CommandBufferAgent(CommandBuffer *actor)
 : Agent<CommandBuffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded) {

@@ -24,29 +24,46 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
+#include "base/Log.h"
+#include "base/Macros.h"
 #include "base/threading/MessageQueue.h"
+
+#include "bindings/jswrapper/SeApi.h"
 
 #include "BufferValidator.h"
 #include "DeviceValidator.h"
 #include "ValidationUtils.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
 
 BufferValidator::BufferValidator(Buffer *actor)
 : Agent<Buffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
     CC_SAFE_DELETE(_actor);
+
+    uint lifeTime = DeviceValidator::getInstance()->currentFrame() - _creationFrame;
+    // skip those that have never been updated
+    if (!_isBufferView && hasFlag(_memUsage, MemoryUsageBit::HOST) && _totalUpdateTimes && _totalUpdateTimes < lifeTime / 3) {
+        CC_LOG_WARNING("Triple buffer enabled for infrequently-updated buffer, consider using MemoryUsageBit::DEVICE instead");
+        CC_LOG_DEBUG("Init Stacktrace: %s", _initStack.c_str());
+    }
 }
 
 void BufferValidator::doInit(const BufferInfo &info) {
-    CCASSERT(info.usage != BufferUsageBit::NONE, "invalid source buffer");
-    CCASSERT(info.memUsage != MemoryUsageBit::NONE, "invalid source buffer");
+    CCASSERT(info.usage != BufferUsageBit::NONE, "invalid buffer param");
+    CCASSERT(info.memUsage != MemoryUsageBit::NONE, "invalid buffer param");
     // CCASSERT(info.size, "zero-sized buffer?"); // be more lenient on this for now
+
+    _initStack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
+
+    _creationFrame = DeviceValidator::getInstance()->currentFrame();
+    _totalUpdateTimes = 0U;
 
     if (hasFlag(info.usage, BufferUsageBit::VERTEX) && !info.stride) {
         CCASSERT(false, "invalid stride for vertex buffer");
@@ -99,6 +116,7 @@ void BufferValidator::update(const void *buffer, uint size) {
     }
 
     sanityCheck(buffer, size);
+    ++_totalUpdateTimes; // only count direct updates
 
     /////////// execute ///////////
 

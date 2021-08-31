@@ -6381,59 +6381,70 @@ bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identi
 se::Object* __jsb_cc_scene_RenderWindow_proto = nullptr;
 se::Class* __jsb_cc_scene_RenderWindow_class = nullptr;
 
-static bool js_scene_RenderWindow_get_hasOnScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_RenderWindow_getHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_get_hasOnScreenAttachments : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_getHeight : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getHeight();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_getHeight : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_RenderWindow_getHeight)
+
+static bool js_scene_RenderWindow_getWidth(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_getWidth : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getWidth();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_getWidth : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_RenderWindow_getWidth)
+
+static bool js_scene_RenderWindow_get_swapchain(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_get_swapchain : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->hasOnScreenAttachments, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->swapchain, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->hasOnScreenAttachments, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->swapchain, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_scene_RenderWindow_get_hasOnScreenAttachments)
+SE_BIND_PROP_GET(js_scene_RenderWindow_get_swapchain)
 
-static bool js_scene_RenderWindow_set_hasOnScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_RenderWindow_set_swapchain(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_set_hasOnScreenAttachments : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_set_swapchain : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->hasOnScreenAttachments, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_set_hasOnScreenAttachments : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->swapchain, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_set_swapchain : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_scene_RenderWindow_set_hasOnScreenAttachments)
-
-static bool js_scene_RenderWindow_get_hasOffScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_get_hasOffScreenAttachments : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->hasOffScreenAttachments, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->hasOffScreenAttachments, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_RenderWindow_get_hasOffScreenAttachments)
-
-static bool js_scene_RenderWindow_set_hasOffScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_set_hasOffScreenAttachments : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->hasOffScreenAttachments, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_RenderWindow_set_hasOffScreenAttachments : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_RenderWindow_set_hasOffScreenAttachments)
+SE_BIND_PROP_SET(js_scene_RenderWindow_set_swapchain)
 
 static bool js_scene_RenderWindow_get_frameBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -6475,13 +6486,9 @@ bool sevalue_to_native(const se::Value &from, cc::scene::RenderWindow * to, se::
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("hasOnScreenAttachments", &field);
+    json->getProperty("swapchain", &field);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->hasOnScreenAttachments), ctx);
-    }
-    json->getProperty("hasOffScreenAttachments", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->hasOffScreenAttachments), ctx);
+        ok &= sevalue_to_native(field, &(to->swapchain), ctx);
     }
     json->getProperty("frameBuffer", &field);
     if(!field.isNullOrUndefined()) {
@@ -6526,13 +6533,10 @@ static bool js_scene_RenderWindow_constructor(se::State& s) // NOLINT(readabilit
 
     cc::scene::RenderWindow* cobj = JSB_ALLOC(cc::scene::RenderWindow);
     if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->hasOnScreenAttachments), nullptr);
+        ok &= sevalue_to_native(args[0], &(cobj->swapchain), nullptr);
     }
     if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->hasOffScreenAttachments), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->frameBuffer), nullptr);
+        ok &= sevalue_to_native(args[1], &(cobj->frameBuffer), nullptr);
     }
 
     if(!ok) {
@@ -6566,9 +6570,10 @@ bool js_register_scene_RenderWindow(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("RenderWindow", obj, nullptr, _SE(js_scene_RenderWindow_constructor));
 
-    cls->defineProperty("hasOnScreenAttachments", _SE(js_scene_RenderWindow_get_hasOnScreenAttachments), _SE(js_scene_RenderWindow_set_hasOnScreenAttachments));
-    cls->defineProperty("hasOffScreenAttachments", _SE(js_scene_RenderWindow_get_hasOffScreenAttachments), _SE(js_scene_RenderWindow_set_hasOffScreenAttachments));
+    cls->defineProperty("swapchain", _SE(js_scene_RenderWindow_get_swapchain), _SE(js_scene_RenderWindow_set_swapchain));
     cls->defineProperty("frameBuffer", _SE(js_scene_RenderWindow_get_frameBuffer), _SE(js_scene_RenderWindow_set_frameBuffer));
+    cls->defineFunction("getHeight", _SE(js_scene_RenderWindow_getHeight));
+    cls->defineFunction("getWidth", _SE(js_scene_RenderWindow_getWidth));
     cls->defineFinalizeFunction(_SE(js_cc_scene_RenderWindow_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::RenderWindow>(cls);
@@ -7527,35 +7532,35 @@ bool register_all_scene(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_scene_RenderScene(ns);
-    js_register_scene_Camera(ns);
-    js_register_scene_Fog(ns);
     js_register_scene_BaseNode(ns);
+    js_register_scene_Scene(ns);
     js_register_scene_Node(ns);
-    js_register_scene_Frustum(ns);
-    js_register_scene_DrawBatch2D(ns);
     js_register_scene_Light(ns);
+    js_register_scene_DirectionalLight(ns);
+    js_register_scene_Plane(ns);
+    js_register_scene_Frustum(ns);
+    js_register_scene_AABB(ns);
+    js_register_scene_SpotLight(ns);
     js_register_scene_SphereLight(ns);
     js_register_scene_Model(ns);
-    js_register_scene_BakedSkinningModel(ns);
-    js_register_scene_Plane(ns);
-    js_register_scene_JointTransform(ns);
-    js_register_scene_RenderWindow(ns);
+    js_register_scene_Fog(ns);
     js_register_scene_Shadow(ns);
-    js_register_scene_SubModel(ns);
-    js_register_scene_BakedJointInfo(ns);
-    js_register_scene_AABB(ns);
-    js_register_scene_Ambient(ns);
-    js_register_scene_SkinningModel(ns);
-    js_register_scene_DirectionalLight(ns);
-    js_register_scene_JointInfo(ns);
-    js_register_scene_Root(ns);
-    js_register_scene_Scene(ns);
-    js_register_scene_BakedAnimInfo(ns);
-    js_register_scene_Pass(ns);
     js_register_scene_Skybox(ns);
+    js_register_scene_Ambient(ns);
     js_register_scene_PipelineSharedSceneData(ns);
-    js_register_scene_SpotLight(ns);
+    js_register_scene_Root(ns);
+    js_register_scene_SubModel(ns);
+    js_register_scene_Pass(ns);
+    js_register_scene_BakedAnimInfo(ns);
+    js_register_scene_BakedJointInfo(ns);
+    js_register_scene_BakedSkinningModel(ns);
+    js_register_scene_DrawBatch2D(ns);
+    js_register_scene_JointTransform(ns);
+    js_register_scene_JointInfo(ns);
+    js_register_scene_SkinningModel(ns);
+    js_register_scene_RenderScene(ns);
+    js_register_scene_RenderWindow(ns);
+    js_register_scene_Camera(ns);
     return true;
 }
 

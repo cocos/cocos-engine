@@ -26,7 +26,6 @@
 #pragma once
 
 #include "GLES2CommandBuffer.h"
-#include "GLES2Std.h"
 
 namespace cc {
 namespace gfx {

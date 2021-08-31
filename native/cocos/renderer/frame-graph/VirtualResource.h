@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "renderer/gfx-base/GFXObject.h"
 #include "Handle.h"
+#include "renderer/gfx-base/GFXObject.h"
 
 namespace cc {
 namespace framegraph {
@@ -37,18 +37,18 @@ using ID = uint16_t;
 
 class VirtualResource {
 public:
-    VirtualResource(const StringHandle name, ID const id, bool const imported) noexcept;
-    VirtualResource() noexcept               = delete;
-    virtual ~VirtualResource()               = default;
-    VirtualResource(const VirtualResource &) = delete;
-    VirtualResource(VirtualResource &&)      = delete;
+    VirtualResource(StringHandle name, ID id, bool imported) noexcept;
+    VirtualResource() noexcept                   = delete;
+    virtual ~VirtualResource()                   = default;
+    VirtualResource(const VirtualResource &)     = delete;
+    VirtualResource(VirtualResource &&) noexcept = delete;
     VirtualResource &operator=(const VirtualResource &) = delete;
-    VirtualResource &operator=(VirtualResource &&) = delete;
+    VirtualResource &operator=(VirtualResource &&) noexcept = delete;
 
     virtual void request() noexcept = 0;
     virtual void release() noexcept = 0;
     bool         isImported() const noexcept { return _imported; }
-    void         updateLifetime(PassNode *const passNode) noexcept;
+    void         updateLifetime(PassNode *passNode) noexcept;
     void         newVersion() noexcept { ++_version; }
 
     virtual gfx::GFXObject *getDeviceResource() const noexcept = 0;

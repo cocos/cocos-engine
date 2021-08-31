@@ -117,15 +117,15 @@ void ForwardStage::render(scene::Camera *camera) {
     uint   passIdx     = 0;
     size_t k           = 0;
     for (auto ro : renderObjects) {
-        const auto *const model = ro.model;
-        const auto& subModels = model->getSubModels();
-        auto subModelCount = subModels.size();
+        const auto *const model         = ro.model;
+        const auto &      subModels     = model->getSubModels();
+        auto              subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto& subModel = subModels[subModelIdx];
-            const auto& passes = subModel->getPasses();
-            auto passCount = passes.size();
+            const auto &subModel  = subModels[subModelIdx];
+            const auto &passes    = subModel->getPasses();
+            auto        passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
-                const auto& pass          = passes[passIdx];
+                const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                     auto *instancedBuffer = InstancedBuffer::get(pass);
@@ -143,7 +143,7 @@ void ForwardStage::render(scene::Camera *camera) {
             }
         }
     }
-        
+
     for (auto *queue : _renderQueues) {
         queue->sort();
     }
@@ -156,8 +156,9 @@ void ForwardStage::render(scene::Camera *camera) {
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
 
     // render area is not oriented
-    uint w             = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
-    uint h             = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
+    bool flipWH        = camera->window->swapchain && static_cast<uint>(camera->window->swapchain->getSurfaceTransform()) % 2;
+    auto w             = static_cast<float>(flipWH ? camera->height : camera->width);
+    auto h             = static_cast<float>(flipWH ? camera->width : camera->height);
     _renderArea.x      = static_cast<int>(camera->viewPort.x * w);
     _renderArea.y      = static_cast<int>(camera->viewPort.y * h);
     _renderArea.width  = static_cast<uint>(camera->viewPort.z * w * sharedData->shadingScale);
@@ -182,7 +183,9 @@ void ForwardStage::render(scene::Camera *camera) {
     auto *      framebuffer   = camera->window->frameBuffer;
     const auto &colorTextures = framebuffer->getColorTextures();
 
-    auto *renderPass = !colorTextures.empty() && colorTextures[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
+    auto *renderPass = camera->window->swapchain
+                           ? pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag), camera->window->swapchain)
+                           : framebuffer->getRenderPass();
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
 

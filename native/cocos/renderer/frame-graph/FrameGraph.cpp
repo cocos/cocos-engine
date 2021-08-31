@@ -35,7 +35,7 @@ namespace cc {
 namespace framegraph {
 
 namespace {
-// using function scoped static member
+// use function scoped static member
 // to ensure correct initialization order
 StringPool &getStringPool() {
     static StringPool pool;
@@ -55,7 +55,7 @@ const char *FrameGraph::handleToString(const StringHandle &handle) noexcept {
     return getStringPool().handleToString(handle);
 }
 
-void FrameGraph::present(const TextureHandle &input) {
+void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
     static const StringHandle S_NAME_PRESENT = FrameGraph::stringToHandle("Present");
     const ResourceNode &      resourceNode   = getResourceNode(input);
     CC_ASSERT(resourceNode.writer);
@@ -70,32 +70,32 @@ void FrameGraph::present(const TextureHandle &input) {
             data.input = builder.read(input);
             builder.sideEffect();
         },
-        [](const PassDataPresent &data, const DevicePassResourceTable &table) {
+        [target](const PassDataPresent &data, const DevicePassResourceTable &table) {
             auto *cmdBuff = gfx::Device::getInstance()->getCommandBuffer();
 
             gfx::Texture *input = table.getRead(data.input);
-            if (input) {
+            if (input && input != target) {
                 gfx::TextureBlit region;
                 region.srcExtent.width  = input->getWidth();
                 region.srcExtent.height = input->getHeight();
                 region.dstExtent.width  = input->getWidth();
                 region.dstExtent.height = input->getHeight();
-                cmdBuff->blitTexture(input, nullptr, &region, 1, gfx::Filter::POINT);
+                cmdBuff->blitTexture(input, target, &region, 1, gfx::Filter::POINT);
             }
         });
 }
 
-void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource) {
+void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource, gfx::Texture *target) {
     const auto it = std::find_if(_resourceNodes.rbegin(), _resourceNodes.rend(), [&virtualResource](const ResourceNode &node) {
         return node.virtualResource == virtualResource;
     });
 
     CC_ASSERT(it != _resourceNodes.rend());
-    present(TextureHandle(static_cast<Handle::IndexType>(it.base() - _resourceNodes.begin() - 1)));
+    present(TextureHandle(static_cast<Handle::IndexType>(it.base() - _resourceNodes.begin() - 1)), target);
 }
 
-void FrameGraph::presentFromBlackboard(const StringHandle &inputName) {
-    present(TextureHandle(_blackboard.get(inputName)));
+void FrameGraph::presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target) {
+    present(TextureHandle(_blackboard.get(inputName)), target);
 }
 
 void FrameGraph::compile() {
@@ -416,8 +416,7 @@ void FrameGraph::computeStoreActionAndMemoryless() {
         const gfx::TextureInfo &textureDesc = static_cast<ResourceEntry<Texture> *>(renderTarget)->get().getDesc();
 
         renderTarget->_memoryless     = renderTarget->_neverLoaded && renderTarget->_neverStored;
-        renderTarget->_memorylessMSAA = textureDesc.samples != gfx::SampleCount::X1 && renderTarget->_writerCount < 2;
-        // TODO(minggo): memoryless gfx::Texture
+        renderTarget->_memorylessMSAA = textureDesc.samples != gfx::SampleCount::ONE && renderTarget->_writerCount < 2;
     }
 }
 
@@ -429,8 +428,8 @@ void FrameGraph::generateDevicePasses() {
 
     ID passId = 1;
 
-    static std::vector<PassNode *> subPassNodes;
-    subPassNodes.clear();
+    static std::vector<PassNode *> subpassNodes;
+    subpassNodes.clear();
 
     for (const auto &passNode : _passNodes) {
         if (passNode->_refCount == 0) {
@@ -438,25 +437,25 @@ void FrameGraph::generateDevicePasses() {
         }
 
         if (passId != passNode->_devicePassId) {
-            _devicePasses.emplace_back(new DevicePass(*this, subPassNodes));
+            _devicePasses.emplace_back(new DevicePass(*this, subpassNodes));
 
-            for (PassNode *const p : subPassNodes) {
+            for (PassNode *const p : subpassNodes) {
                 p->releaseTransientResources();
             }
 
-            subPassNodes.clear();
+            subpassNodes.clear();
             passId = passNode->_devicePassId;
         }
 
         passNode->requestTransientResources();
-        subPassNodes.emplace_back(passNode.get());
+        subpassNodes.emplace_back(passNode.get());
     }
 
-    CC_ASSERT(subPassNodes.size() == 1);
+    CC_ASSERT(subpassNodes.size() == 1);
 
-    _devicePasses.emplace_back(new DevicePass(*this, subPassNodes));
+    _devicePasses.emplace_back(new DevicePass(*this, subpassNodes));
 
-    for (PassNode *const p : subPassNodes) {
+    for (PassNode *const p : subpassNodes) {
         p->releaseTransientResources();
     }
 }
@@ -529,7 +528,7 @@ void FrameGraph::exportGraphViz(const std::string &path) {
             if (attachment) {
                 switch (attachment->desc.loadOp) {
                     case gfx::LoadOp::DISCARD:
-                        out << "Discard";
+                        out << "DontCare";
                         break;
                     case gfx::LoadOp::CLEAR:
                         out << "Clear";
@@ -547,8 +546,9 @@ void FrameGraph::exportGraphViz(const std::string &path) {
         }
 
         out << "\", style=filled, fillcolor="
-            << ((node.virtualResource->isImported()) ? (node.virtualResource->_refCount ? "palegreen" : "palegreen4") : node.version == 0 ? "pink"
-                                                                                                                                          : (node.virtualResource->_refCount ? "skyblue" : "skyblue4"))
+            << ((node.virtualResource->isImported())
+                    ? (node.virtualResource->_refCount ? "palegreen" : "palegreen4")
+                    : (node.version == 0 ? "pink" : (node.virtualResource->_refCount ? "skyblue" : "skyblue4")))
             << "]\n";
     }
 

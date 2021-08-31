@@ -91,12 +91,8 @@ const FormatInfo GFX_FORMAT_INFOS[] = {
     {"RGB10A2UI", 2, 4, FormatType::UINT, true, false, false, false},
     {"RGB9E5", 2, 4, FormatType::FLOAT, true, false, false, false},
 
-    {"D16", 2, 1, FormatType::UINT, false, true, false, false},
-    {"D16S8", 3, 1, FormatType::UINT, false, true, true, false},
-    {"D24", 3, 1, FormatType::UINT, false, true, false, false},
-    {"D24S8", 2, 1, FormatType::UINT, false, true, true, false},
-    {"D32F", 4, 1, FormatType::FLOAT, false, true, false, false},
-    {"D32FS8", 5, 2, FormatType::FLOAT, false, true, true, false},
+    {"DEPTH", 4, 1, FormatType::FLOAT, false, true, false, false},
+    {"DEPTH_STENCIL", 5, 2, FormatType::FLOAT, false, true, true, false},
 
     {"BC1", 1, 3, FormatType::UNORM, false, false, false, true},
     {"BC1_ALPHA", 1, 4, FormatType::UNORM, true, false, false, true},

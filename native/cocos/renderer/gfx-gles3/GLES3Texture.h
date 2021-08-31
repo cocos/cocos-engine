@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES3Std.h"
 #include "gfx-base/GFXTexture.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class GLES3GPUTexture;
 class CC_GLES3_API GLES3Texture final : public Texture {
 public:
     GLES3Texture();
-    ~GLES3Texture();
+    ~GLES3Texture() override;
 
     inline GLES3GPUTexture *gpuTexture() const { return _gpuTexture; }
 
@@ -44,6 +45,7 @@ protected:
     void doInit(const TextureViewInfo &info) override;
     void doDestroy() override;
     void doResize(uint width, uint height, uint size) override;
+    void doInit(const SwapchainTextureInfo &info) override;
 
     GLES3GPUTexture *_gpuTexture = nullptr;
 };

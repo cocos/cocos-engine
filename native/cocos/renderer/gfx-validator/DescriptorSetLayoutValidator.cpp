@@ -35,7 +35,7 @@ namespace gfx {
 
 DescriptorSetLayoutValidator::DescriptorSetLayoutValidator(DescriptorSetLayout *actor)
 : Agent<DescriptorSetLayout>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {

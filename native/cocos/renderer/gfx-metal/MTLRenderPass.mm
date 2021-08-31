@@ -77,12 +77,7 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, CCMTLTexture* cctex, int l
         return;
     }
 
-    id<MTLTexture> texture = nil;
-    if(!cctex) {
-        texture = [static_cast<id<CAMetalDrawable>>(CCMTLDevice::getInstance()->getCurrentDrawable()) texture];
-    } else {
-        texture = cctex->getMTLTexture();
-    }
+    id<MTLTexture> texture = cctex->getMTLTexture();
 
     _mtlRenderPassDescriptor.colorAttachments[slot].texture = texture;
     _mtlRenderPassDescriptor.colorAttachments[slot].level = level;
@@ -95,17 +90,14 @@ void CCMTLRenderPass::setDepthStencilAttachment(CCMTLTexture* cctex, int level) 
         return;
     }
     
-    id<MTLTexture> texture = nil;
-    if(!cctex) {
-        texture = static_cast<id<MTLTexture>>(CCMTLDevice::getInstance()->getDSTexture());
-    } else {
-        texture = cctex->getMTLTexture();
-    }
+    id<MTLTexture> texture = cctex->getMTLTexture();
 
     _mtlRenderPassDescriptor.depthAttachment.texture = texture;
     _mtlRenderPassDescriptor.depthAttachment.level = level;
-    _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
-    _mtlRenderPassDescriptor.stencilAttachment.level = level;
+    if(cctex->getFormat() == Format::DEPTH_STENCIL) {
+        _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
+        _mtlRenderPassDescriptor.stencilAttachment.level = level;
+    }
 }
 
 } // namespace gfx

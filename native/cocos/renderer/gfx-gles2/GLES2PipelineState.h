@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES2Std.h"
 #include "gfx-base/GFXPipelineState.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class GLES2GPUPipelineState;
 class CC_GLES2_API GLES2PipelineState final : public PipelineState {
 public:
     GLES2PipelineState();
-    ~GLES2PipelineState();
+    ~GLES2PipelineState() override;
 
     inline GLES2GPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
 

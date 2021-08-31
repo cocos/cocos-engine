@@ -64,8 +64,7 @@ void CommandRecorder::recordDrawcall(const DrawcallSnapshot &drawcall) {
     command.primitive         = drawcall.pipelineState->getPrimitive();
     command.dynamicStates     = drawcall.pipelineState->getDynamicStates();
     command.bindPoint         = drawcall.pipelineState->getBindPoint();
-
-    drawcall.inputAssembler->extractDrawInfo(command.drawInfo);
+    command.drawInfo          = drawcall.inputAssembler->getDrawInfo();
 
     command.descriptorSets = drawcall.descriptorSets;
     for (const auto &offsets : drawcall.dynamicOffsets) command.dynamicOffsets.insert(command.dynamicOffsets.end(), offsets.begin(), offsets.end());

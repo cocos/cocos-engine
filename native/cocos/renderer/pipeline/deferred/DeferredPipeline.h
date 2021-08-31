@@ -27,12 +27,12 @@
 
 #include <array>
 
+#include <unordered_map>
+#include "frame-graph/FrameGraph.h"
+#include "frame-graph/Handle.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXInputAssembler.h"
 #include "pipeline/RenderPipeline.h"
-#include "frame-graph/FrameGraph.h"
-#include "frame-graph/Handle.h"
-#include <unordered_map>
 
 namespace cc {
 namespace pipeline {
@@ -49,10 +49,10 @@ struct CC_DLL DeferredRenderData {
 };
 
 enum class DeferredInsertPoint {
-    IP_GBUFFER = 100,
-    IP_LIGHTING = 200,
+    IP_GBUFFER     = 100,
+    IP_LIGHTING    = 200,
     IP_TRANSPARENT = 220,
-    IP_SSPR = 300,
+    IP_SSPR        = 300,
     IP_POSTPROCESS = 400,
     IP_INVALID
 };
@@ -64,7 +64,7 @@ public:
 
     bool initialize(const RenderPipelineInfo &info) override;
     void destroy() override;
-    bool activate() override;
+    bool activate(gfx::Swapchain *swapchain) override;
     void render(const vector<scene::Camera *> &cameras) override;
     void resize(uint width, uint height) override;
 
@@ -78,21 +78,16 @@ public:
     void                          genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *data);
 
     framegraph::FrameGraph &getFrameGraph() { return _fg; }
-    gfx::Color getClearcolor(scene::Camera *camera);
-    void prepareFrameGraph();
-    void initFrameGraphExternalTexture();
-    void destroyFrameGraphExternalTexture();
-    uint getWidth() const { return _width; }
-    uint getHeight() const { return _height; }
-    scene::Camera *getFrameGraphCamera() const { return _frameGraphCamera; }
-    gfx::InputAssembler *getIAByRenderArea(const gfx::Rect &rect);
+    gfx::Color              getClearcolor(scene::Camera *camera);
+    uint                    getWidth() const { return _width; }
+    uint                    getHeight() const { return _height; }
+    scene::Camera *         getFrameGraphCamera() const { return _frameGraphCamera; }
+    gfx::InputAssembler *   getIAByRenderArea(const gfx::Rect &rect);
 
 private:
-    bool activeRenderer();
+    bool activeRenderer(gfx::Swapchain *swapchain);
     bool createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA);
     void destroyQuadInputAssembler();
-    void destroyDeferredData();
-    void generateDeferredRenderData();
 
     gfx::Buffer *                           _lightsUBO = nullptr;
     LightList                               _validLights;
@@ -106,38 +101,26 @@ private:
     std::vector<gfx::Buffer *>                      _quadVB;
     std::unordered_map<uint, gfx::InputAssembler *> _quadIA;
 
-    uint             _width = 0;
-    uint             _height = 0;
+    uint _width  = 0;
+    uint _height = 0;
 
     framegraph::FrameGraph _fg;
-    scene::Camera *_frameGraphCamera = nullptr;
+    scene::Camera *        _frameGraphCamera = nullptr;
 
 public:
-    // deferred resource name declear
-    static framegraph::StringHandle fgStrHandleGbufferTexture[4];        // deal as external resource
-    static framegraph::StringHandle fgStrHandleDepthTexture;             // deal as external resource
-    static framegraph::StringHandle fgStrHandleDepthTexturePost;         // deal as external resource
-    static framegraph::StringHandle fgStrHandleLightingOutTexture;
-    static framegraph::StringHandle fgStrHandleBackBufferTexture;        // buffer get from swapchain, used for queuepresent
+    static constexpr uint GBUFFER_COUNT = 4;
 
-    // deferred pass name declear
+    // deferred resource names
+    static framegraph::StringHandle fgStrHandleGbufferTexture[GBUFFER_COUNT];
+    static framegraph::StringHandle fgStrHandleDepthTexture;
+    static framegraph::StringHandle fgStrHandleLightingOutTexture;
+
+    // deferred pass names
     static framegraph::StringHandle fgStrHandleGbufferPass;
     static framegraph::StringHandle fgStrHandleLightingPass;
     static framegraph::StringHandle fgStrHandleTransparentPass;
     static framegraph::StringHandle fgStrHandleSsprPass;
     static framegraph::StringHandle fgStrHandlePostprocessPass;
-
-    // external resources of framegraph
-    static const uint GBUFFER_COUNT = 4;
-
-    // In deferred pipeline, all passes use the same global descriptorset.
-    // In vulkan spec, a descriptorset cannot update after first use, so we should bind all bindings before any pass executing
-    // So gbuffer should create gfx texture and binding to global descriptorset in DeferredPipeline::activeRenderer
-    // gbuffer's depth is not the same as post-process
-    framegraph::Texture *fgTextureGbuffer[GBUFFER_COUNT] = {nullptr};
-    framegraph::Texture *fgTextureDepth = nullptr;
-    framegraph::Texture fgTextureDepthPost;
-    framegraph::Texture fgTextureBackBuffer;
 };
 
 } // namespace pipeline

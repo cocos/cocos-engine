@@ -26,7 +26,6 @@
 #pragma once
 
 #include "GLES3GPUObjects.h"
-#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace gfx {
@@ -49,18 +48,6 @@ public:
         gpuRenderPass = nullptr;
         gpuFBO        = nullptr;
     }
-};
-
-enum class GLES3State {
-    VIEWPORT,
-    SCISSOR,
-    LINE_WIDTH,
-    DEPTH_BIAS,
-    BLEND_CONSTANTS,
-    DEPTH_BOUNDS,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
-    COUNT,
 };
 
 class GLES3CmdBindStates final : public GLESCmd {
@@ -241,6 +228,7 @@ CC_GLES3_API void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPU
 CC_GLES3_API void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler);
 CC_GLES3_API void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
 CC_GLES3_API void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
+CC_GLES3_API void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier);
 
 CC_GLES3_API void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint subpassIdx,
                                               GLES3GPURenderPass * gpuRenderPass  = nullptr,

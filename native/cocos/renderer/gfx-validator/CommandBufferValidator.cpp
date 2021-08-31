@@ -37,9 +37,15 @@
 #include "RenderPassValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
+
+CommandBufferValidator::CommandBufferValidator(CommandBuffer *actor)
+: Agent<CommandBuffer>(actor) {
+    _typedID = actor->getTypedID();
+}
 
 CommandBufferValidator::~CommandBufferValidator() {
     DeviceResourceTracker<CommandBuffer>::erase(this);

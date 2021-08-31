@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXTexture.h"
 
 namespace cc {
@@ -36,14 +37,17 @@ class CCVKGPUTextureView;
 class CC_VULKAN_API CCVKTexture final : public Texture {
 public:
     CCVKTexture();
-    ~CCVKTexture();
+    ~CCVKTexture() override;
 
     inline CCVKGPUTexture *    gpuTexture() const { return _gpuTexture; }
     inline CCVKGPUTextureView *gpuTextureView() const { return _gpuTextureView; }
 
 protected:
+    friend class CCVKSwapchain;
+
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
+    void doInit(const SwapchainTextureInfo &info) override;
     void doDestroy() override;
     void doResize(uint width, uint height, uint size) override;
 

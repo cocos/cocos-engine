@@ -35,7 +35,7 @@ namespace cc {
 namespace gfx {
 
 class CCMTLCommandEncoder;
-class CCMTLGPUBuffer;
+struct CCMTLGPUBuffer;
 
 class CCMTLBuffer final : public Buffer {
 public:

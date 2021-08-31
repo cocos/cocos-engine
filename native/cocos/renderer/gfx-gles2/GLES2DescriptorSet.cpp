@@ -29,8 +29,8 @@
 #include "GLES2Commands.h"
 #include "GLES2DescriptorSet.h"
 #include "GLES2DescriptorSetLayout.h"
-#include "GLES2Sampler.h"
 #include "GLES2Texture.h"
+#include "states/GLES2Sampler.h"
 
 namespace cc {
 namespace gfx {

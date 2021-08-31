@@ -36,7 +36,7 @@ namespace gfx {
 
 QueueAgent::QueueAgent(Queue *actor)
 : Agent<Queue>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 QueueAgent::~QueueAgent() {

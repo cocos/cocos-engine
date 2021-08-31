@@ -35,7 +35,7 @@ namespace gfx {
 
 class CC_DLL CommandBufferValidator final : public Agent<CommandBuffer> {
 public:
-    using Agent::Agent;
+    explicit CommandBufferValidator(CommandBuffer *actor);
     ~CommandBufferValidator() override;
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;

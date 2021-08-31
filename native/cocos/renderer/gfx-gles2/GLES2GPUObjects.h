@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <utility>
-
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
@@ -38,8 +36,7 @@ namespace gfx {
 
 class GLES2GPUConstantRegistry {
 public:
-    uint currentBoundThreadID{0U};
-    uint defaultFramebuffer{0U};
+    size_t currentBoundThreadID{0U};
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
     FBFSupportLevel  mFBF{FBFSupportLevel::NONE};
@@ -48,6 +45,58 @@ public:
     bool useDrawInstanced      = false;
     bool useInstancedArrays    = false;
     bool useDiscardFramebuffer = false;
+};
+
+class GLES2GPUStateCache;
+class GLES2GPUSwapchain;
+class GLES2GPUContext final : public Object {
+public:
+    bool initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstantRegistry *constantRegistry);
+    void destroy();
+
+    EGLint         eglMajorVersion{0};
+    EGLint         eglMinorVersion{0};
+    EGLDisplay     eglDisplay{EGL_NO_DISPLAY};
+    EGLConfig      eglConfig{nullptr};
+    vector<EGLint> eglAttributes;
+
+    EGLSurface eglDefaultSurface{EGL_NO_SURFACE};
+    EGLContext eglDefaultContext{EGL_NO_CONTEXT};
+
+    // pass nullptr to keep the current surface
+    void makeCurrent(const GLES2GPUSwapchain *drawSwapchain = nullptr, const GLES2GPUSwapchain *readSwapchain = nullptr);
+    void bindContext(bool bound); // for context switching between threads
+
+    void present(const GLES2GPUSwapchain *swapchain);
+
+    inline bool checkExtension(const String &extension) const {
+        return std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end();
+    }
+
+private:
+    bool       makeCurrent(EGLSurface drawSurface, EGLSurface readSurface, EGLContext context, bool updateCache = true);
+    EGLContext getSharedContext();
+    void       resetStates() const;
+
+    // state caches
+    EGLSurface _eglCurrentDrawSurface{EGL_NO_SURFACE};
+    EGLSurface _eglCurrentReadSurface{EGL_NO_SURFACE};
+    EGLContext _eglCurrentContext{EGL_NO_CONTEXT};
+    EGLint     _eglCurrentInterval{0};
+
+    GLES2GPUStateCache *      _stateCache{nullptr};
+    GLES2GPUConstantRegistry *_constantRegistry{nullptr};
+
+    map<size_t, EGLContext> _sharedContexts;
+
+    StringArray _extensions;
+};
+
+class GLES2GPUSwapchain final : public Object {
+public:
+    EGLSurface eglSurface{EGL_NO_SURFACE};
+    EGLint     eglSwapInterval{0};
+    GLuint     glFramebuffer{0};
 };
 
 class GLES2GPUBuffer final : public Object {
@@ -73,31 +122,32 @@ public:
 
 class GLES2GPUTexture final : public Object {
 public:
-    TextureType  type           = TextureType::TEX2D;
-    Format       format         = Format::UNKNOWN;
-    TextureUsage usage          = TextureUsageBit::NONE;
-    uint         width          = 0;
-    uint         height         = 0;
-    uint         depth          = 1;
-    uint         size           = 0;
-    uint         arrayLayer     = 1;
-    uint         mipLevel       = 1;
-    SampleCount  samples        = SampleCount::X1;
-    TextureFlags flags          = TextureFlagBit::NONE;
-    bool         isPowerOf2     = false;
-    bool         memoryless     = false;
-    GLenum       glTarget       = 0;
-    GLenum       glInternalFmt  = 0;
-    GLenum       glFormat       = 0;
-    GLenum       glType         = 0;
-    GLenum       glUsage        = 0;
-    GLint        glSamples      = 0;
-    GLuint       glTexture      = 0;
-    GLuint       glRenderbuffer = 0;
-    GLenum       glWrapS        = 0;
-    GLenum       glWrapT        = 0;
-    GLenum       glMinFilter    = 0;
-    GLenum       glMagFilter    = 0;
+    TextureType        type{TextureType::TEX2D};
+    Format             format{Format::UNKNOWN};
+    TextureUsage       usage{TextureUsageBit::NONE};
+    uint               width{0};
+    uint               height{0};
+    uint               depth{1};
+    uint               size{0};
+    uint               arrayLayer{1};
+    uint               mipLevel{1};
+    SampleCount        samples{SampleCount::ONE};
+    TextureFlags       flags{TextureFlagBit::NONE};
+    bool               isPowerOf2{false};
+    bool               memoryless{false};
+    GLenum             glTarget{0};
+    GLenum             glInternalFmt{0};
+    GLenum             glFormat{0};
+    GLenum             glType{0};
+    GLenum             glUsage{0};
+    GLint              glSamples{0};
+    GLuint             glTexture{0};
+    GLuint             glRenderbuffer{0};
+    GLenum             glWrapS{0};
+    GLenum             glWrapT{0};
+    GLenum             glMinFilter{0};
+    GLenum             glMagFilter{0};
+    GLES2GPUSwapchain *swapchain{nullptr};
 };
 
 using GLES2GPUTextureList = vector<GLES2GPUTexture *>;
@@ -229,17 +279,31 @@ public:
     bool usesFBF = false;
 
     struct GLFramebuffer {
-        GLuint glFramebuffer = 0U;
+        inline void   initialize(GLES2GPUSwapchain *sc) { swapchain = sc; }
+        inline void   initialize(GLuint framebuffer) { _glFramebuffer = framebuffer; }
+        inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
+
+        void destroy(GLES2GPUStateCache *cache);
+
+        GLES2GPUSwapchain *swapchain{nullptr};
+
+    private:
+        GLuint _glFramebuffer{0U};
+    };
+
+    struct Framebuffer {
+        GLFramebuffer framebuffer;
 
         // for blit-based manual resolving
-        GLbitfield resolveMask          = 0U;
-        GLuint     glResolveFramebuffer = 0U;
+        GLbitfield    resolveMask{0U};
+        GLFramebuffer resolveFramebuffer;
     };
-    // one per subpass, if not using FBF
-    vector<GLFramebuffer> instances;
 
-    vector<uint>  uberColorAttachmentIndices;
-    GLFramebuffer uberInstance;
+    // one per subpass, if not using FBF
+    vector<Framebuffer> instances;
+
+    vector<uint> uberColorAttachmentIndices;
+    Framebuffer  uberInstance;
 };
 
 class GLES2GPUDescriptorSetLayout final : public Object {
@@ -459,50 +523,6 @@ private:
     using CacheMap = unordered_map<GLuint, GLuint>;
     CacheMap _renderbufferMap; // renderbuffer -> framebuffer
     CacheMap _textureMap;      // texture -> framebuffer
-};
-
-constexpr size_t                CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
-class GLES2GPUStagingBufferPool final : public Object {
-public:
-    ~GLES2GPUStagingBufferPool() override {
-        for (Buffer &buffer : _pool) {
-            CC_FREE(buffer.mappedData);
-        }
-        _pool.clear();
-    }
-
-    uint8_t *alloc(size_t size) {
-        size_t  bufferCount = _pool.size();
-        Buffer *buffer      = nullptr;
-        for (size_t idx = 0U; idx < bufferCount; idx++) {
-            Buffer *cur = &_pool[idx];
-            if (CHUNK_SIZE - cur->curOffset >= size) {
-                buffer = cur;
-                break;
-            }
-        }
-        if (!buffer) {
-            _pool.resize(bufferCount + 1);
-            buffer             = &_pool.back();
-            buffer->mappedData = static_cast<uint8_t *>(CC_MALLOC(CHUNK_SIZE));
-        }
-        uint8_t *data = buffer->mappedData + buffer->curOffset;
-        buffer->curOffset += size;
-        return data;
-    }
-
-    void reset() {
-        for (Buffer &buffer : _pool) {
-            buffer.curOffset = 0U;
-        }
-    }
-
-private:
-    struct Buffer {
-        uint8_t *mappedData = nullptr;
-        size_t   curOffset  = 0U;
-    };
-    vector<Buffer> _pool;
 };
 
 } // namespace gfx

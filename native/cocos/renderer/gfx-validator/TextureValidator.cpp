@@ -28,6 +28,7 @@
 #include "DeviceValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "gfx-validator/SwapchainValidator.h"
 
 namespace cc {
 namespace gfx {
@@ -41,16 +42,16 @@ unordered_map<Format, Feature> featureCheckMap{
 
 TextureValidator::TextureValidator(Texture *actor)
 : Agent<Texture>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 TextureValidator::~TextureValidator() {
     DeviceResourceTracker<Texture>::erase(this);
-    CC_SAFE_DELETE(_actor);
+    if (_ownTheActor) CC_SAFE_DELETE(_actor);
 }
 
 void TextureValidator::doInit(const TextureInfo &info) {
-    CCASSERT(!featureCheckMap.count(_format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_format]), "unsupported format");
+    CCASSERT(!featureCheckMap.count(_info.format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_info.format]), "unsupported format");
 
     // Potentially inefficient
     static const TextureUsageBit INEFFICIENT_MASK{TextureUsageBit::INPUT_ATTACHMENT | TextureUsageBit::SAMPLED};
@@ -66,11 +67,16 @@ void TextureValidator::doInit(const TextureViewInfo &info) {
     _actor->initialize(actorInfo);
 }
 
+void TextureValidator::doInit(const SwapchainTextureInfo &info) {
+    // the actor is already initialized
+}
+
 void TextureValidator::doDestroy() {
     _actor->destroy();
 }
 
 void TextureValidator::doResize(uint width, uint height, uint /*size*/) {
+    CCASSERT(hasFlag(_info.flags, TextureFlagBit::RESIZABLE), "Cannot resize immutable textures");
     CCASSERT(!_isTextureView, "Cannot resize texture views");
 
     _actor->resize(width, height);

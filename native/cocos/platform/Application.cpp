@@ -65,7 +65,7 @@ void Application::restartVM() {
 
     cc::EventDispatcher::init();
     init();
-    cc::gfx::DeviceManager::addCustomEvent();
+    cc::gfx::DeviceManager::addSurfaceEventListener();
 }
 
 void Application::close() { // NOLINT

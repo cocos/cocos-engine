@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_DESCRIPTOR_SET_LAYOUT_H_
-#define CC_GFXGLES2_DESCRIPTOR_SET_LAYOUT_H_
+#pragma once
 
+#include "GLES2Std.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
 
 namespace cc {
@@ -36,7 +36,7 @@ class GLES2GPUDescriptorSetLayout;
 class CC_GLES2_API GLES2DescriptorSetLayout final : public DescriptorSetLayout {
 public:
     GLES2DescriptorSetLayout();
-    ~GLES2DescriptorSetLayout();
+    ~GLES2DescriptorSetLayout() override;
 
     inline GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 
@@ -49,5 +49,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXGLES2_DESCRIPTOR_SET_LAYOUT_H_

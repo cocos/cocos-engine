@@ -51,7 +51,7 @@ const genHeader = (history) => {
 ****************************************************************************/\n\n`;
 
     return output;
-}
+};
 
 
 const headerRE = /\/\*{5,}.*?\*{5,}\/\s*/s;
@@ -60,7 +60,7 @@ const curYear = new Date().getFullYear();
 const companyName = 'Xiamen Yaji Software Co., Ltd.';
 const update = (path) => {
     const cmpPath = path.replace(/\\/g, '/');
-    if (ignoreList.some((p) => cmpPath.includes(p))) return;
+    if (ignoreList.some((p) => cmpPath.includes(p))) { return; }
 
     let content = fs.readFileSync(path, { encoding: 'utf8' });
     const history = [];
@@ -105,4 +105,4 @@ const update = (path) => {
 };
 
 const files = fsJetpack.find(`${__dirname}/../../cocos`, { matching: ['**/*.h', '**/*.cpp', '**/*.mm'] });
-for (const path of files) update(path);
+for (const path of files) { update(path); }

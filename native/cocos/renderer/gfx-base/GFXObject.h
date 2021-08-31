@@ -39,7 +39,6 @@ public:
     inline ObjectType getObjectType() const { return _objectType; }
     inline uint       getObjectID() const { return _objectID; }
     inline uint       getTypedID() const { return _typedID; }
-    inline void       resizeObjectID() { _objectID += 10000; }  // tempory api
 
 protected:
     template <typename T>

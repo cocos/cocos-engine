@@ -25,12 +25,14 @@
 
 #include "ThreadSafeLinearAllocator.h"
 #include "acl/core/memory_utils.h"
+#include "base/Macros.h"
 
 namespace cc {
 
 ThreadSafeLinearAllocator::ThreadSafeLinearAllocator(uint32_t size) noexcept
 : _capacity(size) {
     _buffer = malloc(size);
+    CCASSERT(_buffer, "Out of memory");
 }
 
 ThreadSafeLinearAllocator::~ThreadSafeLinearAllocator() {

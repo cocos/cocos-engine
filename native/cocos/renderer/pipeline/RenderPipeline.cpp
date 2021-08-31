@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "RenderPipeline.h"
+#include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "RenderFlow.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -31,7 +32,6 @@
 #include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXTexture.h"
-#include "InstancedBuffer.h"
 
 namespace cc {
 namespace pipeline {
@@ -63,7 +63,7 @@ bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
     return true;
 }
 
-bool RenderPipeline::activate() {
+bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _globalDSManager->activate(_device, this);
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
@@ -116,7 +116,6 @@ void RenderPipeline::destroy() {
 
     CC_SAFE_DELETE(_defaultTexture);
 
-    SamplerLib::destroyAll();
     PipelineStateManager::destroyAll();
     InstancedBuffer::destroyInstancedBuffer();
 }

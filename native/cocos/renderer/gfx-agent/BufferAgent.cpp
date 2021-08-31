@@ -34,7 +34,7 @@ namespace gfx {
 
 BufferAgent::BufferAgent(Buffer *actor)
 : Agent<Buffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 BufferAgent::~BufferAgent() {
@@ -161,10 +161,9 @@ void BufferAgent::update(const void *buffer, uint size) {
 }
 
 void BufferAgent::getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint size, uint8_t **pActorBuffer, bool *pNeedFreeing) {
-    uint frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
-
     if (!buffer->_stagingBuffers.empty()) { // for frequent updates on big buffers
-        *pActorBuffer = buffer->_stagingBuffers[frameIndex];
+        uint frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
+        *pActorBuffer   = buffer->_stagingBuffers[frameIndex];
     } else if (size > STAGING_BUFFER_THRESHOLD) { // less frequent updates on big buffers
         *pActorBuffer = reinterpret_cast<uint8_t *>(malloc(size));
         *pNeedFreeing = true;

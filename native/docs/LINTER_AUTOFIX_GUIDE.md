@@ -55,13 +55,13 @@ There are two important notes here:
 * The issues reported here all come from `clangd` the language server, which only supports a subset of `clang-tidy` rules.
 * It appears to be no 'fix-all' option in the editor.
 
-This is where the `Command Runner` extension comes in and saves the day: we can assign a suitable key binding to run any CLI commands, e.g. invoke `clang-tidy` itself and fix all the issues in the current file!
+This is where the `Command Runner` extension comes in and saves the day: we can assign a suitable key binding to run any CLI commands, e.g. invoke the `clang-tidy` proper and fix all the issues in the current file!
 
 * Open the VSCode settings (JSON) and add the following property:
 
     ![](imgs/vscode-settings.png)
 
-    ```json
+    ```js
     "command-runner.commands": {
         "tidy": "clang-tidy -fix '${file}'"
     }
@@ -71,7 +71,7 @@ This is where the `Command Runner` extension comes in and saves the day: we can 
 
     ![](imgs/keyboard-shortcut.png)
 
-    ```json
+    ```js
     {
         "key": "shift+alt+c", // set this to any key binding that works best for you
         "command": "command-runner.run",

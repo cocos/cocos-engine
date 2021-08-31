@@ -25,12 +25,15 @@
 
 #pragma once
 
-#include "gfx-base/GFXTexture.h"
+#import "gfx-base/GFXTexture.h"
 
 #import <Metal/MTLTexture.h>
 
 namespace cc {
 namespace gfx {
+
+struct CCMTLGPUTextureObject;
+class CCMTLSwapchain;
 
 class CCMTLTexture final : public Texture {
 public:
@@ -41,23 +44,33 @@ public:
     CCMTLTexture &operator=(const CCMTLTexture &) = delete;
     CCMTLTexture &operator=(CCMTLTexture &&) = delete;
 
-    inline id<MTLTexture> getMTLTexture() const { return _mtlTexture; }
+    inline id<MTLTexture> getMTLTexture() const {
+        return _isTextureView ? _mtlTextureView : _mtlTexture;
+    }
     inline Format getConvertedFormat() const { return _convertedFormat; }
     inline bool isArray() const { return _isArray; }
     inline bool isPVRTC() const { return _isPVRTC; }
+    const TextureInfo& textureInfo();
+    CCMTLSwapchain* swapChain();
 
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
     void doDestroy() override;
     void doResize(uint width, uint height, uint size) override;
+    void doInit(const SwapchainTextureInfo &info) override;
 
     bool createMTLTexture();
 
-    id<MTLTexture> _mtlTexture = nil;
+    //update drawable from swapchain.
+    void update();
+
     Format _convertedFormat = Format::UNKNOWN;
     bool _isArray = false;
     bool _isPVRTC = false;
+
+    id<MTLTexture> _mtlTexture = nil;
+    id<MTLTexture> _mtlTextureView = nil;
 };
 
 } // namespace gfx

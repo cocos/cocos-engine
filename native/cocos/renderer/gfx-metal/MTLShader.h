@@ -32,6 +32,7 @@
 namespace cc {
 namespace gfx {
 class CCMTLGPUShader;
+class SPIRVUtils;
 class CCMTLShader final : public Shader {
 public:
     explicit CCMTLShader();
@@ -83,6 +84,8 @@ protected:
     vector<uint> _availableFragmentBufferBindingIndex;
 
     CCMTLGPUShader *_gpuShader = nullptr;
+    
+    static SPIRVUtils* spirv;
 
     // For debug
 #ifdef DEBUG_SHADER

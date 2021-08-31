@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "gfx-base/GFXSampler.h"
+#import "gfx-base/states/GFXSampler.h"
 
 #import <Metal/MTLSampler.h>
 
@@ -34,8 +34,9 @@ namespace gfx {
 
 class CCMTLSampler final : public Sampler {
 public:
-    explicit CCMTLSampler();
+    explicit CCMTLSampler(const SamplerInfo& info);
     ~CCMTLSampler();
+    CCMTLSampler() = delete;
     CCMTLSampler(const CCMTLSampler &)=delete;
     CCMTLSampler(CCMTLSampler &&)=delete;
     CCMTLSampler &operator=(const CCMTLSampler &)=delete;
@@ -44,8 +45,6 @@ public:
     inline id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }
 
 protected:
-    void doInit(const SamplerInfo &info) override;
-    void doDestroy() override;
 
     id<MTLSamplerState> _mtlSamplerState = nil;
 };

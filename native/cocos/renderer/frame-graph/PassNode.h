@@ -40,29 +40,28 @@ class FrameGraph;
 
 class PassNode final {
 public:
-    PassNode(PassInsertPoint inserPoint, StringHandle name, const ID &id, Executable *pass) noexcept;
+    PassNode(PassInsertPoint inserPoint, StringHandle name, const ID &id, Executable *pass);
     ~PassNode()                    = default;
     PassNode(PassNode &&) noexcept = default;
     PassNode(const PassNode &)     = delete;
     PassNode &operator=(const PassNode &) = delete;
-    PassNode &operator=(PassNode &&) = delete;
+    PassNode &operator=(PassNode &&) noexcept = delete;
 
-    Handle      read(FrameGraph &graph, const Handle &input) noexcept;
-    Handle      write(FrameGraph &graph, const Handle &output) noexcept;
-    void        createRenderTargetAttachment(RenderTargetAttachment &&attachment) noexcept;
-    inline void sideEffect() noexcept;
-    inline void subpass(bool clearActionIgnoreable, bool end) noexcept;
-    inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
+    Handle      read(FrameGraph &graph, const Handle &input);
+    Handle      write(FrameGraph &graph, const Handle &output);
+    void        createRenderTargetAttachment(RenderTargetAttachment &&attachment);
+    inline void sideEffect();
+    inline void subpass(bool clearActionIgnoreable, bool end);
+    inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor);
 
 private:
-    bool                    canMerge(const FrameGraph &graph, const PassNode &passNode) const noexcept;
-    RenderTargetAttachment *getRenderTargetAttachment(const Handle &handle) noexcept;
-    RenderTargetAttachment *getRenderTargetAttachment(const FrameGraph &graph, const VirtualResource *resource) noexcept;
-    void                    requestTransientResources() noexcept;
-    void                    releaseTransientResources() noexcept;
-    bool                    check(FrameGraph &graph, const Handle &checkingHandle, std::vector<Handle> const &handles) const noexcept;
-    void                    setDevicePassId(ID id) noexcept;
-    Handle                  getWriteResourceNodeHandle(const FrameGraph &graph, const VirtualResource *resource) const noexcept;
+    bool                    canMerge(const FrameGraph &graph, const PassNode &passNode) const;
+    RenderTargetAttachment *getRenderTargetAttachment(const Handle &handle);
+    RenderTargetAttachment *getRenderTargetAttachment(const FrameGraph &graph, const VirtualResource *resource);
+    void                    requestTransientResources();
+    void                    releaseTransientResources();
+    void                    setDevicePassId(ID id);
+    Handle                  getWriteResourceNodeHandle(const FrameGraph &graph, const VirtualResource *resource) const;
 
     std::unique_ptr<Executable>         _pass{nullptr};
     std::vector<Handle>                 _reads{};
@@ -96,17 +95,17 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-void PassNode::sideEffect() noexcept {
+void PassNode::sideEffect() {
     _sideEffect = true;
 }
 
-void PassNode::subpass(bool clearActionIgnoreable, bool end) noexcept {
+void PassNode::subpass(bool clearActionIgnoreable, bool end) {
     _subpass               = true;
     _clearActionIgnoreable = clearActionIgnoreable;
     _subpassEnd            = end;
 }
 
-void PassNode::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept {
+void PassNode::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) {
     _customViewport = true;
     _viewport       = viewport;
     _scissor        = scissor;

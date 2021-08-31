@@ -23,15 +23,18 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
+#import "MTLStd.h"
 
-#include "MTLDevice.h"
-#include "MTLGPUObjects.h"
-#include "MTLShader.h"
+#import "MTLDevice.h"
+#import "MTLGPUObjects.h"
+#import "MTLShader.h"
 #import <Metal/MTLDevice.h>
+#import "gfx-base/SPIRVUtils.h"
 
 namespace cc {
 namespace gfx {
+
+SPIRVUtils* CCMTLShader::spirv = nullptr;
 
 CCMTLShader::CCMTLShader() : Shader() {
     _typedID = generateObjectID<decltype(this)>();
@@ -123,16 +126,22 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
     }
 
     id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
-
-    auto mtlShader = mu::compileGLSLShader2Msl(stage.source,
-                                               stage.stage,
-                                               CCMTLDevice::getInstance(),
-                                               _gpuShader);
+    if(!spirv) {
+        spirv = SPIRVUtils::getInstance();
+        spirv->initialize(2); // vulkan >= 1.2  spirv >= 1.5
+    }
+    
+    spirv->compileGLSL(stage.stage, "#version 450\n" + stage.source);
+    if (stage.stage == ShaderStageFlagBit::VERTEX) spirv->compressInputLocations(_attributes);
+    
+    auto* spvData = spirv->getOutputData();
+    size_t unitSize = sizeof(std::remove_pointer<decltype(spvData)>::type);
+    String mtlShaderSrc = mu::spirv2MSL(spirv->getOutputData(), spirv->getOutputSize()/unitSize, stage.stage, _gpuShader);
 
     NSString * rawSrc = [NSString stringWithUTF8String:stage.source.c_str()];
-    NSString *     shader  = [NSString stringWithUTF8String:mtlShader.c_str()];
+    NSString *     shader  = [NSString stringWithUTF8String:mtlShaderSrc.c_str()];
     NSError *      error   = nil;
-    MTLCompileOptions *opts = [[MTLCompileOptions alloc] init];;
+    MTLCompileOptions *opts = [[MTLCompileOptions alloc] init];
     //opts.languageVersion = MTLLanguageVersion2_3;
     id<MTLLibrary> &library = isVertexShader ? _vertLibrary : isFragmentShader ? _fragLibrary : _cmptLibrary;
     String shaderStage = isVertexShader ? "vertex" : isFragmentShader ? "fragment" : "compute";

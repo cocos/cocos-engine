@@ -28,23 +28,27 @@
 
 #include "DeviceAgent.h"
 #include "TextureAgent.h"
+#include "gfx-agent/SwapchainAgent.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace gfx {
 
 TextureAgent::TextureAgent(Texture *actor)
 : Agent<Texture>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 TextureAgent::~TextureAgent() {
-    ENQUEUE_MESSAGE_1(
-        DeviceAgent::getInstance()->getMessageQueue(),
-        TextureDestruct,
-        actor, _actor,
-        {
-            CC_SAFE_DELETE(actor);
-        });
+    if (_ownTheActor) {
+        ENQUEUE_MESSAGE_1(
+            DeviceAgent::getInstance()->getMessageQueue(),
+            TextureDestruct,
+            actor, _actor,
+            {
+                CC_SAFE_DELETE(actor);
+            });
+    }
 }
 
 void TextureAgent::doInit(const TextureInfo &info) {
@@ -70,6 +74,10 @@ void TextureAgent::doInit(const TextureViewInfo &info) {
         {
             actor->initialize(info);
         });
+}
+
+void TextureAgent::doInit(const SwapchainTextureInfo &info) {
+    // the actor is already initialized
 }
 
 void TextureAgent::doDestroy() {

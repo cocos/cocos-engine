@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES2_PIPELINE_LAYOUT_H_
-#define CC_GFXGLES2_PIPELINE_LAYOUT_H_
+#pragma once
 
+#include "GLES2Std.h"
 #include "gfx-base/GFXPipelineLayout.h"
 
 namespace cc {
@@ -36,7 +36,7 @@ class GLES2GPUPipelineLayout;
 class CC_GLES2_API GLES2PipelineLayout final : public PipelineLayout {
 public:
     GLES2PipelineLayout();
-    ~GLES2PipelineLayout();
+    ~GLES2PipelineLayout() override;
 
     inline GLES2GPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
 
@@ -49,5 +49,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXGLES2_PIPELINE_LAYOUT_H_

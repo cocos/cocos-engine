@@ -34,7 +34,9 @@
 namespace cc {
 namespace gfx {
 
-CCVKFramebuffer::CCVKFramebuffer() = default;
+CCVKFramebuffer::CCVKFramebuffer() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKFramebuffer::~CCVKFramebuffer() {
     destroy();

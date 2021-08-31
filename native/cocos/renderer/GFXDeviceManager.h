@@ -27,13 +27,16 @@
 
 #include "bindings/event/CustomEventTypes.h"
 #include "bindings/event/EventDispatcher.h"
+
 #include "gfx-agent/DeviceAgent.h"
 #include "gfx-empty/EmptyDevice.h"
 #include "gfx-validator/DeviceValidator.h"
 
 //#undef CC_USE_VULKAN
+//#undef CC_USE_METAL
 //#undef CC_USE_GLES3
 //#undef CC_USE_GLES2
+
 
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/GFXVulkan.h"
@@ -89,14 +92,15 @@ public:
     static void destroy() {
         CC_SAFE_DESTROY(Device::instance);
     }
-    static void addCustomEvent() {
+
+    static void addSurfaceEventListener() {
         Device *device = Device::instance;
         EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [device](const CustomEvent &e) -> void {
-            device->releaseSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
+            device->destroySurface(e.args->ptrVal);
         });
 
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
-            device->acquireSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
+            device->createSurface(e.args->ptrVal);
         });
     }
 
@@ -118,7 +122,7 @@ private:
             return false;
         }
 
-        addCustomEvent();
+        addSurfaceEventListener();
         *pDevice = device;
 
         return true;

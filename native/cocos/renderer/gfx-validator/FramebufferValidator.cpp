@@ -37,7 +37,7 @@ namespace gfx {
 
 FramebufferValidator::FramebufferValidator(Framebuffer *actor)
 : Agent<Framebuffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 FramebufferValidator::~FramebufferValidator() {

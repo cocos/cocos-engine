@@ -50,7 +50,9 @@
 namespace cc {
 namespace gfx {
 
-extern VkFormat              mapVkFormat(Format format);
+class CCVKGPUDevice;
+
+extern VkFormat              mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice);
 extern VkAttachmentLoadOp    mapVkLoadOp(LoadOp loadOp);
 extern VkAttachmentStoreOp   mapVkStoreOp(StoreOp storeOp);
 extern VkBufferUsageFlagBits mapVkBufferUsageFlagBits(BufferUsage usage);
@@ -67,7 +69,6 @@ extern VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage);
 extern VkShaderStageFlags    mapVkShaderStageFlags(ShaderStageFlagBit stages);
 extern SurfaceTransform      mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform);
 extern String                mapVendorName(uint32_t vendorID);
-extern void                  mapDepthStencilBits(Format format, uint *pDepthBits, uint *pStencilBits);
 
 extern void         fullPipelineBarrier(VkCommandBuffer cmdBuff);
 extern VkDeviceSize roundUp(VkDeviceSize numToRound, uint multiple);
@@ -90,6 +91,7 @@ extern const ThsvsAccessType            THSVS_ACCESS_TYPES[];
 extern const VkResolveModeFlagBits      VK_RESOLVE_MODES[];
 extern const VkImageLayout              VK_IMAGE_LAYOUTS[];
 extern const VkStencilFaceFlags         VK_STENCIL_FACE_FLAGS[];
+extern const VkSampleCountFlags         VK_SAMPLE_COUNT_FLAGS[];
 extern const VkAccessFlags              FULL_ACCESS_FLAGS;
 
 } // namespace gfx

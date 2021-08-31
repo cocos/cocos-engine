@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES2Std.h"
 #include "gfx-base/GFXQueue.h"
 
 namespace cc {
@@ -33,7 +34,7 @@ namespace gfx {
 class CC_GLES2_API GLES2Queue final : public Queue {
 public:
     GLES2Queue();
-    ~GLES2Queue();
+    ~GLES2Queue() override;
 
     void submit(CommandBuffer *const *cmdBuffs, uint count) override;
 

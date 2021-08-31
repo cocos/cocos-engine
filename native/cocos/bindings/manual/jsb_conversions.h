@@ -942,7 +942,7 @@ inline bool sevalue_to_native(const se::Value &from, float *to, se::Object * /*c
     *to = from.toFloat();
     return true;
 }
-inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*unused*/) {
+inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
     *to = from.toDouble();
     return true;
 }
@@ -1115,9 +1115,18 @@ bool sevalue_to_native(const se::Value &from, std::vector<T, allocator> *to, se:
 
 template <>
 inline bool sevalue_to_native(const se::Value &from, void **to, se::Object * /*ctx*/) {
-    SE_LOGE("[warn] don't know how to convert to void *\n");
-    *to = from.toObject()->getPrivateData();
-    return true;
+    assert(to != nullptr);
+    if (from.isNumber()) {
+        // NOLINTNEXTLINE(performance-no-int-to-ptr)
+        *to = reinterpret_cast<void *>(from.toUint64());
+        return true;
+    }
+    if (from.isObject()) {
+        *to = from.toObject()->getPrivateData();
+        return true;
+    }
+    SE_LOGE("[warn] failed to convert to void *\n");
+    return false;
 }
 
 template <>

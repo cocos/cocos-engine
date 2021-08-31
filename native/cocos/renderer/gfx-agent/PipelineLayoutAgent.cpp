@@ -35,7 +35,7 @@ namespace gfx {
 
 PipelineLayoutAgent::PipelineLayoutAgent(PipelineLayout *actor)
 : Agent<PipelineLayout>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 PipelineLayoutAgent::~PipelineLayoutAgent() {

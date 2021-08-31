@@ -36,7 +36,7 @@ namespace gfx {
 
 FramebufferAgent::FramebufferAgent(Framebuffer *actor)
 : Agent<Framebuffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 FramebufferAgent::~FramebufferAgent() {

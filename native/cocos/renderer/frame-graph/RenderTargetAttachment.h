@@ -67,6 +67,7 @@ struct RenderTargetAttachment final {
     uint8_t       layer{0};
     uint8_t       index{0};
     StoreOp       storeOp{StoreOp::DISCARD};
+    bool          isGeneralLayout{false};
 };
 
 inline bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {

@@ -31,10 +31,8 @@
 #include "renderer/gfx-base/GFXBuffer.h"
 #include "renderer/gfx-base/GFXDevice.h"
 #include "renderer/gfx-base/GFXFramebuffer.h"
-#include "renderer/gfx-base/GFXGlobalBarrier.h"
 #include "renderer/gfx-base/GFXRenderPass.h"
 #include "renderer/gfx-base/GFXTexture.h"
-#include "renderer/gfx-base/GFXTextureBarrier.h"
 
 namespace cc {
 namespace framegraph {
@@ -72,16 +70,13 @@ public:
     Resource &operator=(const Resource &) = default;
     Resource &operator=(Resource &&) noexcept = default;
 
-    void                       createTransient() noexcept;
-    void                       createPersistent() noexcept;
+    void createTransient() noexcept;
+    void createPersistent() noexcept;
 
-    // temporary api. framegraph donot create _deviceObject, it come from window
-    void                       createPersistent(DeviceResourceType *external) noexcept;
     void                       destroyTransient() noexcept;
     void                       destroyPersistent() noexcept;
     inline DeviceResourceType *get() const noexcept;
     inline const Descriptor &  getDesc() const noexcept;
-    DeviceResourceType *getDeviceObject() const { return _deviceObject; }
 
 private:
     void computeHash() noexcept;
@@ -89,9 +84,6 @@ private:
     Descriptor          _desc;
     DescriptorHash      _hash{0};
     DeviceResourceType *_deviceObject{nullptr};
-
-    // true : _deviceObject come form window, framegraph donot need to release it
-    bool                _devcieObjectFromWindow = false;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -105,16 +97,6 @@ template <typename DeviceResourceType, typename DescriptorType, typename DeviceR
 void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::createTransient() noexcept {
     computeHash();
     _deviceObject = Allocator::getInstance().alloc(_desc, _hash);
-}
-
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::createPersistent(DeviceResourceType *external) noexcept {
-    computeHash();
-
-    if (!_deviceObject) {
-        _devcieObjectFromWindow = true;
-        _deviceObject = external;
-    }
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
@@ -136,7 +118,7 @@ void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, Des
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
 void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::destroyPersistent() noexcept {
-    if (_deviceObject && !_devcieObjectFromWindow) {
+    if (_deviceObject) {
         delete _deviceObject;
         _deviceObject = nullptr;
     }
@@ -162,30 +144,27 @@ void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, Des
 
 //////////////////////////////////////////////////////////////////////////
 
-#define DEFINE_GFX_RESOURCE(Type)                                                                           \
-    template <>                                                                                             \
-    struct ResourceDescriptorHasher<gfx::Type##Info> final {                                                \
-        inline uint32_t operator()(const gfx::Type##Info &desc) const {                                     \
-            return gfx::Type::computeHash(desc);                                                            \
-        }                                                                                                   \
-    };                                                                                                      \
-                                                                                                            \
-    template <>                                                                                             \
-    struct DeviceResourceCreator<gfx::Type, gfx::Type##Info> final {                                        \
-        inline gfx::Type *operator()(const gfx::Type##Info &desc) const {                                   \
-            return gfx::Device::getInstance()->create##Type(desc);                                          \
-        }                                                                                                   \
-    };                                                                                                      \
-                                                                                                            \
-    using Type         = Resource<gfx::Type, gfx::Type##Info>; /* NOLINT(bugprone-macro-parentheses) N/A */ \
+#define DEFINE_GFX_RESOURCE(Type)                                         \
+    template <>                                                           \
+    struct ResourceDescriptorHasher<gfx::Type##Info> final {              \
+        inline uint32_t operator()(const gfx::Type##Info &desc) const {   \
+            return gfx::Type::computeHash(desc);                          \
+        }                                                                 \
+    };                                                                    \
+                                                                          \
+    template <>                                                           \
+    struct DeviceResourceCreator<gfx::Type, gfx::Type##Info> final {      \
+        inline gfx::Type *operator()(const gfx::Type##Info &desc) const { \
+            return gfx::Device::getInstance()->create##Type(desc);        \
+        }                                                                 \
+    };                                                                    \
+    using Type         = Resource<gfx::Type, gfx::Type##Info>;            \
     using Type##Handle = TypedHandle<Type>;
 
 DEFINE_GFX_RESOURCE(Buffer)
 DEFINE_GFX_RESOURCE(Framebuffer)
-DEFINE_GFX_RESOURCE(GlobalBarrier)
 DEFINE_GFX_RESOURCE(RenderPass)
 DEFINE_GFX_RESOURCE(Texture)
-DEFINE_GFX_RESOURCE(TextureBarrier)
 
 } // namespace framegraph
 } // namespace cc

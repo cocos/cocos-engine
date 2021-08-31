@@ -27,7 +27,6 @@
 
 #include "EmptyBuffer.h"
 #include "EmptyCommandBuffer.h"
-#include "EmptyContext.h"
 #include "EmptyDescriptorSet.h"
 #include "EmptyDescriptorSetLayout.h"
 #include "EmptyDevice.h"
@@ -37,8 +36,8 @@
 #include "EmptyPipelineState.h"
 #include "EmptyQueue.h"
 #include "EmptyRenderPass.h"
-#include "EmptySampler.h"
 #include "EmptyShader.h"
+#include "EmptySwapchain.h"
 #include "EmptyTexture.h"
 
 namespace cc {
@@ -59,15 +58,6 @@ EmptyDevice::~EmptyDevice() {
 }
 
 bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
-    ContextInfo ctxInfo;
-    ctxInfo.windowHandle = _windowHandle;
-
-    _context = CC_NEW(EmptyContext);
-    if (!_context->initialize(ctxInfo)) {
-        destroy();
-        return false;
-    }
-
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
     _queue         = createQueue(queueInfo);
@@ -78,7 +68,6 @@ bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     CC_LOG_INFO("Empty device initialized.");
-    CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
 
     return true;
 }
@@ -86,15 +75,9 @@ bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
 void EmptyDevice::doDestroy() {
     CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_context);
 }
 
-void EmptyDevice::resize(uint width, uint height) {
-    _width  = width;
-    _height = height;
-}
-
-void EmptyDevice::acquire() {
+void EmptyDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 }
 
 void EmptyDevice::present() {
@@ -109,16 +92,16 @@ Queue *EmptyDevice::createQueue() {
     return CC_NEW(EmptyQueue());
 }
 
+Swapchain *EmptyDevice::createSwapchain() {
+    return CC_NEW(EmptySwapchain());
+}
+
 Buffer *EmptyDevice::createBuffer() {
     return CC_NEW(EmptyBuffer());
 }
 
 Texture *EmptyDevice::createTexture() {
     return CC_NEW(EmptyTexture());
-}
-
-Sampler *EmptyDevice::createSampler() {
-    return CC_NEW(EmptySampler());
 }
 
 Shader *EmptyDevice::createShader() {
@@ -153,12 +136,16 @@ PipelineState *EmptyDevice::createPipelineState() {
     return CC_NEW(EmptyPipelineState());
 }
 
-GlobalBarrier *EmptyDevice::createGlobalBarrier() {
-    return CC_NEW(GlobalBarrier());
+Sampler *EmptyDevice::createSampler(const SamplerInfo &info) {
+    return CC_NEW(Sampler(info));
 }
 
-TextureBarrier *EmptyDevice::createTextureBarrier() {
-    return CC_NEW(TextureBarrier());
+GlobalBarrier *EmptyDevice::createGlobalBarrier(const GlobalBarrierInfo &info) {
+    return CC_NEW(GlobalBarrier(info));
+}
+
+TextureBarrier *EmptyDevice::createTextureBarrier(const TextureBarrierInfo &info) {
+    return CC_NEW(TextureBarrier(info));
 }
 
 void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {

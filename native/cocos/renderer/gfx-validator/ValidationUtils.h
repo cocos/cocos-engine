@@ -166,7 +166,7 @@ template <typename Resource, typename Enable>
 void DeviceResourceTracker<Resource, Enable>::checkEmpty() {
     // If this assertion is hit, it means you have leaked gfx resources.
     // You can debug this by uncomment the `record_stacktrace` template specialization for the relevant type
-    // and look up the resource initialization stacktrace in `_resources[i].initStack`.
+    // and look up the resource initialization stacktrace in `resources[i].initStack`.
     // Note: capturing stacktrace is a painfully time-consuming process,
     // so better to uncomment the exact type of resource that is leaking rather than toggle them all at once.
     CCASSERT(resources.empty(), "Resource leaked");

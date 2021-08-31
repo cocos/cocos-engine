@@ -25,13 +25,18 @@
 
 #pragma once
 
-#include "gfx-gles-common/GLESCommandPool.h"
-
 #include "GLES2GPUObjects.h"
-#include "GLES2Std.h"
 
 namespace cc {
 namespace gfx {
+
+#ifndef GL_COMPRESSED_RGB8_ETC2
+    #define GL_COMPRESSED_RGB8_ETC2 0x9274
+#endif
+
+#ifndef GL_COMPRESSED_RGBA8_ETC2_EAC
+    #define GL_COMPRESSED_RGBA8_ETC2_EAC 0x9278
+#endif
 
 class GLES2Device;
 
@@ -51,18 +56,6 @@ public:
         gpuFBO        = nullptr;
         gpuRenderPass = nullptr;
     }
-};
-
-enum class GLES2State {
-    VIEWPORT,
-    SCISSOR,
-    LINE_WIDTH,
-    DEPTH_BIAS,
-    BLEND_CONSTANTS,
-    DEPTH_BOUNDS,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
-    COUNT,
 };
 
 class GLES2CmdBindStates final : public GLESCmd {

@@ -42,7 +42,7 @@ public:
     Blackboard &operator=(Blackboard &&) = delete;
 
     inline ValueType &operator[](const KeyType &name) noexcept;
-    inline void       put(const KeyType &name, ValueType const handle) noexcept;
+    inline void       put(const KeyType &name, ValueType  handle) noexcept;
     inline ValueType  get(const KeyType &name) const noexcept;
     inline void       clear() noexcept;
     inline bool       has(const KeyType &name) const noexcept;

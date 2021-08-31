@@ -23,12 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
+#import "MTLStd.h"
 
-#include "MTLDevice.h"
-#include "MTLGPUObjects.h"
-#include "MTLTexture.h"
-#include "MTLUtils.h"
+#import "MTLDevice.h"
+#import "MTLGPUObjects.h"
+#import "MTLTexture.h"
+#import "MTLUtils.h"
+#import "MTLSwapchain.h"
+#import <CoreVideo/CVPixelBuffer.h>
+#import <CoreVideo/CVMetalTexture.h>
+#import <CoreVideo/CVMetalTextureCache.h>
 
 namespace cc {
 namespace gfx {
@@ -42,14 +46,51 @@ CCMTLTexture::~CCMTLTexture() {
 }
 
 void CCMTLTexture::doInit(const TextureInfo &info) {
-    _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
-    if (_format == Format::PVRTC_RGB2 ||
-        _format == Format::PVRTC_RGBA2 ||
-        _format == Format::PVRTC_RGB4 ||
-        _format == Format::PVRTC_RGBA4 ||
-        _format == Format::PVRTC2_2BPP ||
-        _format == Format::PVRTC2_4BPP) {
+    _isArray = _info.type == TextureType::TEX1D_ARRAY || info.type == TextureType::TEX2D_ARRAY;
+    if (_info.format == Format::PVRTC_RGB2 ||
+        _info.format == Format::PVRTC_RGBA2 ||
+        _info.format == Format::PVRTC_RGB4 ||
+        _info.format == Format::PVRTC_RGBA4 ||
+        _info.format == Format::PVRTC2_2BPP ||
+        _info.format == Format::PVRTC2_4BPP) {
         _isPVRTC = true;
+    }
+
+    if(_info.externalRes) {
+        auto pixelBuffer = static_cast<CVPixelBufferRef>(_info.externalRes);
+        size_t width = CVPixelBufferGetWidth(pixelBuffer);
+        size_t height = CVPixelBufferGetHeight(pixelBuffer);
+
+        CVReturn cvret;
+        CVMetalTextureCacheRef CVMTLTextureCache;
+        cvret = CVMetalTextureCacheCreate(
+                        kCFAllocatorDefault,
+                        nil,
+                        (id<MTLDevice>)CCMTLDevice::getInstance()->getMTLDevice(),
+                        nil,
+                        &CVMTLTextureCache);
+
+        CCASSERT(cvret == kCVReturnSuccess, @"Failed to create Metal texture cache");
+
+        _convertedFormat = mu::convertGFXPixelFormat(_info.format);
+        MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
+        CVMetalTextureRef CVMTLTexture;
+        cvret = CVMetalTextureCacheCreateTextureFromImage(
+                        kCFAllocatorDefault,
+                        CVMTLTextureCache,
+                        pixelBuffer, nil,
+                        mtlFormat,
+                        width, height,
+                        0,
+                        &CVMTLTexture);
+
+        CCASSERT(cvret == kCVReturnSuccess, @"Failed to create CoreVideo Metal texture from image");
+
+        _mtlTexture = CVMetalTextureGetTexture(CVMTLTexture);
+        CFRelease(CVMTLTexture);
+        CFRelease(CVMTLTextureCache);
+
+        CCASSERT(_mtlTexture, @"Failed to create Metal texture CoreVideo Metal Texture");
     }
 
     if (!createMTLTexture()) {
@@ -61,47 +102,62 @@ void CCMTLTexture::doInit(const TextureInfo &info) {
 }
 
 void CCMTLTexture::doInit(const TextureViewInfo &info) {
-    _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
-    if (_format == Format::PVRTC_RGB2 ||
-        _format == Format::PVRTC_RGBA2 ||
-        _format == Format::PVRTC_RGB4 ||
-        _format == Format::PVRTC_RGBA4 ||
-        _format == Format::PVRTC2_2BPP ||
-        _format == Format::PVRTC2_4BPP) {
+    _isArray = info.type == TextureType::TEX1D_ARRAY || _viewInfo.type == TextureType::TEX2D_ARRAY;
+    if (_viewInfo.format == Format::PVRTC_RGB2 ||
+        _viewInfo.format == Format::PVRTC_RGBA2 ||
+        _viewInfo.format == Format::PVRTC_RGB4 ||
+        _viewInfo.format == Format::PVRTC_RGBA4 ||
+        _viewInfo.format == Format::PVRTC2_2BPP ||
+        _viewInfo.format == Format::PVRTC2_4BPP) {
         _isPVRTC = true;
     }
-    _convertedFormat = mu::convertGFXPixelFormat(_format);
-    auto mtlTextureType = mu::toMTLTextureType(_type);
-    _mtlTexture = [id<MTLTexture>(info.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
-                                                                  textureType:mtlTextureType
-                                                                       levels:NSMakeRange(info.baseLevel, info.levelCount)
-                                                                       slices:NSMakeRange(info.baseLayer, info.layerCount)];
+    _convertedFormat = mu::convertGFXPixelFormat(_viewInfo.format);
+    auto mtlTextureType = mu::toMTLTextureType(_viewInfo.type);
+    _mtlTextureView = [id<MTLTexture>(_viewInfo.texture) newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
+                                                                                         textureType:mtlTextureType
+                                                                                              levels:NSMakeRange(_viewInfo.baseLevel, _viewInfo.levelCount)
+                                                                                              slices:NSMakeRange(_viewInfo.baseLayer, _viewInfo.layerCount)];
+}
+
+void CCMTLTexture::doInit(const SwapchainTextureInfo &info) {
+    _swapchain = info.swapchain;
+    if (info.format == Format::DEPTH_STENCIL) {
+        createMTLTexture();
+    } else {
+        _mtlTexture = [static_cast<CCMTLSwapchain*>(_swapchain)->currentDrawable() texture];
+    }
+}
+
+void CCMTLTexture::update() {
+    if(_swapchain) {
+        _mtlTexture = [static_cast<CCMTLSwapchain*>(_swapchain)->gpuSwapChainObj()->currentDrawable texture];
+    }
 }
 
 bool CCMTLTexture::createMTLTexture() {
-    if (_width == 0 || _height == 0) {
+    if (_info.width == 0 || _info.height == 0) {
         CC_LOG_ERROR("CCMTLTexture: width or height should not be zero.");
         return false;
     }
-    _convertedFormat = mu::convertGFXPixelFormat(_format);
+    _convertedFormat = mu::convertGFXPixelFormat(_info.format);
     MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
     if (mtlFormat == MTLPixelFormatInvalid)
         return false;
 
     MTLTextureDescriptor *descriptor = nullptr;
-    auto mtlTextureType = mu::toMTLTextureType(_type);
+    auto mtlTextureType = mu::toMTLTextureType(_info.type);
     switch (mtlTextureType) {
         case MTLTextureType2D:
         case MTLTextureType2DArray:
             // No need to set mipmapped flag since mipmapLevelCount was explicty set via `_levelCount`.
             descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
-                                                                            width:_width
-                                                                           height:_height
+                                                                            width:_info.width
+                                                                           height:_info.height
                                                                         mipmapped:NO];
             break;
         case MTLTextureTypeCube:
             descriptor = [MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:mtlFormat
-                                                                               size:_width
+                                                                               size:_info.width
                                                                           mipmapped:NO];
             break;
         default:
@@ -112,20 +168,20 @@ bool CCMTLTexture::createMTLTexture() {
     if (descriptor == nullptr)
         return false;
 
-    descriptor.usage = mu::toMTLTextureUsage(_usage);
-    descriptor.sampleCount = mu::toMTLSampleCount(_samples);
-    descriptor.textureType = descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_type);
-    descriptor.mipmapLevelCount = _levelCount;
-    descriptor.arrayLength = _type == TextureType::CUBE ? 1 : _layerCount;
-    
-    if(hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _usage) && mu::isImageBlockSupported()) {
+    descriptor.usage = mu::toMTLTextureUsage(_info.usage);
+    descriptor.sampleCount = mu::toMTLSampleCount(_info.samples);
+    descriptor.textureType = descriptor.sampleCount > 1 ? MTLTextureType2DMultisample : mu::toMTLTextureType(_info.type);
+    descriptor.mipmapLevelCount = _info.levelCount;
+    descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
+
+    if(hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
         //xcode OS version warning
         if (@available(macOS 11.0, *)) {
             descriptor.storageMode = MTLStorageModeMemoryless;
         } else {
             descriptor.storageMode = MTLStorageModePrivate;
         }
-    } else if (hasFlag(_usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_usage, TextureUsage::INPUT_ATTACHMENT)) {
+    } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT)) {
         descriptor.storageMode = MTLStorageModePrivate;
     }
 
@@ -135,17 +191,35 @@ bool CCMTLTexture::createMTLTexture() {
     return _mtlTexture != nil;
 }
 
+CCMTLSwapchain* CCMTLTexture::swapChain() {
+    return static_cast<CCMTLSwapchain*>(_swapchain);
+}
+
+const TextureInfo& CCMTLTexture::textureInfo() {
+    return _isTextureView ?
+     static_cast<CCMTLTexture*>(_viewInfo.texture)->_info :
+        _info;
+}
+
 void CCMTLTexture::doDestroy() {
-    if (_isTextureView) {
+    if(_swapchain) {
+        _swapchain = nullptr;
+        _mtlTexture = nil;
         return;
+    }
+
+    id<MTLTexture> mtlTexure =  nil;
+    if(_isTextureView) {
+        mtlTexure = _mtlTextureView;
+        _mtlTextureView = nil;
+    } else {
+        mtlTexure = _mtlTexture;
+        _mtlTexture = nil;
     }
 
     CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= _size;
 
-    id<MTLTexture> mtlTexure = _mtlTexture;
-    _mtlTexture = nil;
-
-    std::function<void(void)> destroyFunc = [=]() {
+    std::function<void(void)> destroyFunc = [mtlTexure]() {
         if (mtlTexure) {
             [mtlTexure setPurgeableState:MTLPurgeableStateEmpty];
             [mtlTexure release];
@@ -156,17 +230,22 @@ void CCMTLTexture::doDestroy() {
 }
 
 void CCMTLTexture::doResize(uint width, uint height, uint size) {
+    if(_isTextureView) {
+        CC_LOG_ERROR("TextureView does not support resize! at %p", this);
+        return;
+    }
     auto oldSize = _size;
-    auto oldWidth = _width;
-    auto oldHeight = _height;
+    auto oldWidth = _info.width;
+    auto oldHeight = _info.height;
+
     id<MTLTexture> oldMTLTexture = _mtlTexture;
 
-    _width = width;
-    _height = height;
+    _info.width = width;
+    _info.height = height;
     _size = size;
     if (!createMTLTexture()) {
-        _width = oldWidth;
-        _height = oldHeight;
+        _info.width = oldWidth;
+        _info.height = oldHeight;
         _size = oldSize;
         _mtlTexture = oldMTLTexture;
         CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed when try to resize the texture.");

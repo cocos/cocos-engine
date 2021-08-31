@@ -64,11 +64,6 @@ CC_DLL double atof(const char *str);
 
 CC_DLL uint alignTo(uint size, uint alignment);
 
-template <typename T, size_t Size>
-char (*countOfHelper(T (&array)[Size]))[Size];
-
-#define COUNTOF(array) (sizeof(*countOfHelper(array)) + 0)
-
 template <class T>
 uint toUint(T value) {
     static_assert(std::is_arithmetic<T>::value, "T must be numeric");

@@ -54,15 +54,14 @@ public:
     using Device::createTexture;
     using Device::createTextureBarrier;
 
-    void resize(uint width, uint height) override;
-    void acquire() override;
+    void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
     CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Queue *              createQueue() override;
+    Swapchain *          createSwapchain() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
-    Sampler *            createSampler() override;
     Shader *             createShader() override;
     InputAssembler *     createInputAssembler() override;
     RenderPass *         createRenderPass() override;
@@ -71,19 +70,19 @@ public:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
-    GlobalBarrier *      createGlobalBarrier() override;
-    TextureBarrier *     createTextureBarrier() override;
-    void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
 
-    void             flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
-    SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
-    uint             getWidth() const override { return _actor->getWidth(); }
-    uint             getHeight() const override { return _actor->getHeight(); }
-    MemoryStatus &   getMemoryStatus() override { return _actor->getMemoryStatus(); }
-    uint             getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
-    uint             getNumInstances() const override { return _actor->getNumInstances(); }
-    uint             getNumTris() const override { return _actor->getNumTris(); }
+    Sampler *       createSampler(const SamplerInfo &info) override;
+    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) override;
+
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
+    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
+
+    void          flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
+    MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
+    uint          getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    uint          getNumInstances() const override { return _actor->getNumInstances(); }
+    uint          getNumTris() const override { return _actor->getNumTris(); }
 
     inline void enableRecording(bool recording) { _recording = recording; }
     inline bool isRecording() const { return _recording; }
@@ -99,11 +98,7 @@ protected:
     bool doInit(const DeviceInfo &info) override;
     void doDestroy() override;
 
-    void releaseSurface(uintptr_t windowHandle) override { _actor->releaseSurface(windowHandle); }
-    void acquireSurface(uintptr_t windowHandle) override { _actor->acquireSurface(windowHandle); }
-
-    void bindRenderContext(bool bound) override { _actor->bindRenderContext(bound); }
-    void bindDeviceContext(bool bound) override { _actor->bindDeviceContext(bound); }
+    void bindContext(bool bound) override { _actor->bindContext(bound); }
 
     bool _recording{false};
     uint _currentFrame{1U};

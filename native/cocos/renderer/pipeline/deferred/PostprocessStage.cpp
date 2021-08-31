@@ -29,14 +29,14 @@
 #include "../RenderQueue.h"
 #include "../forward/UIPhase.h"
 #include "DeferredPipeline.h"
+#include "frame-graph/DevicePass.h"
+#include "frame-graph/PassNodeBuilder.h"
+#include "frame-graph/Resource.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/Define.h"
 #include "scene/SubModel.h"
-#include "frame-graph/PassNodeBuilder.h"
-#include "frame-graph/DevicePass.h"
-#include "frame-graph/Resource.h"
 
 namespace cc {
 namespace pipeline {
@@ -51,7 +51,6 @@ RenderStageInfo PostprocessStage::initInfo = {
     {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
 };
 const RenderStageInfo &PostprocessStage::getInitializeInfo() { return PostprocessStage::initInfo; }
-
 
 PostprocessStage::PostprocessStage() {
     _uiPhase = CC_NEW(UIPhase);
@@ -89,22 +88,17 @@ void PostprocessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
     }
-
-    gfx::DescriptorSetLayout *globalSetlayout = _device->createDescriptorSetLayout({globalDescriptorSetLayout.bindings});
-    _globalSet = _device->createDescriptorSet({ globalSetlayout });
 }
 
 void PostprocessStage::destroy() {
-    CC_SAFE_DELETE(_globalSetlayout);
-    CC_SAFE_DELETE(_globalSet);
     CC_SAFE_DELETE(_uiPhase);
 }
 
 void PostprocessStage::render(scene::Camera *camera) {
-    _fgStrHandlePostOut = DeferredPipeline::fgStrHandleBackBufferTexture;
+    static framegraph::StringHandle fgStrHandlePostProcessOutTexture = framegraph::FrameGraph::stringToHandle("postProcessOutputTexture");
     struct RenderData {
-        framegraph::TextureHandle lightingOut;      // read from lighting output
-        framegraph::TextureHandle backBuffer;       // write to back buffer
+        framegraph::TextureHandle lightingOut; // read from lighting output
+        framegraph::TextureHandle backBuffer;  // write to back buffer
         framegraph::TextureHandle depth;
         framegraph::TextureHandle placerholder;
     };
@@ -116,27 +110,8 @@ void PostprocessStage::render(scene::Camera *camera) {
     }
     _clearColors[0].w = camera->clearColor.w;
 
-    // in post-process, the output is not always backbuffer, its frame buffer should be camera->window->frameBuffer
-    // in cocos when camera->window->frameBuffer->_colorTextures[0] == nullptr, it means that render to swapchain image, that's backbuffer
-    // when camera->window->frameBuffer->_colorTextures[0] != nullptr, it means that render to a staging texture
-    auto *      pipeline      = static_cast<DeferredPipeline *>(_pipeline);
-    if (camera->window->frameBuffer->getColorTextures()[0] != nullptr) {
-        _fgStrHandlePostOut = framegraph::FrameGraph::stringToHandle("fgStrHandlePostoutTexture");
-        gfx::TextureInfo textureInfo = {
-            gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-            gfx::Format::RGBA16F,
-            camera->window->frameBuffer->getColorTextures()[0]->getWidth(),
-            camera->window->frameBuffer->getColorTextures()[0]->getHeight(),
-        };
-
-        auto *output = new framegraph::Resource<gfx::Texture, gfx::TextureInfo>(textureInfo);
-        output->createPersistent(camera->window->frameBuffer->getColorTextures()[0]);
-
-        pipeline->getFrameGraph().getBlackboard().put(_fgStrHandlePostOut, pipeline->getFrameGraph().importExternal(_fgStrHandlePostOut, *output));
-    }
-
-    auto postSetup = [&] (framegraph::PassNodeBuilder &builder, RenderData &data) {
+    auto *pipeline  = static_cast<DeferredPipeline *>(_pipeline);
+    auto  postSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         data.lightingOut = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture));
         if (!data.lightingOut.isValid()) {
             framegraph::Texture::Descriptor colorTexInfo;
@@ -151,79 +126,64 @@ void PostprocessStage::render(scene::Camera *camera) {
         data.lightingOut = builder.read(data.lightingOut);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleLightingOutTexture, data.lightingOut);
 
-        // backbuffer is as an attachment
-        if (camera->window->frameBuffer->getColorTextures()[0] != nullptr) {
-            data.placerholder = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleBackBufferTexture)));
-            builder.writeToBlackboard(DeferredPipeline::fgStrHandleBackBufferTexture, data.placerholder);
-        }
-
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorAttachmentInfo.clearColor  =  _clearColors[0];
-        colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
+        colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
+        colorAttachmentInfo.clearColor = _clearColors[0];
+        colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
 
         auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->clearFlag);
         if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
             if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
             } else {
-                colorAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
-                colorAttachmentInfo.beginAccesses = {gfx::AccessType::PRESENT};
+                colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
             }
         }
 
-        colorAttachmentInfo.endAccesses = {gfx::AccessType::PRESENT};
-        data.backBuffer = framegraph::TextureHandle(builder.readFromBlackboard(_fgStrHandlePostOut));
+        colorAttachmentInfo.beginAccesses = {gfx::AccessType::TRANSFER_READ};
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::TRANSFER_READ};
+
+        gfx::TextureInfo textureInfo = {
+            gfx::TextureType::TEX2D,
+            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::TRANSFER_SRC,
+            gfx::Format::RGBA8,
+            camera->window->getWidth(),
+            camera->window->getHeight(),
+        };
+        data.backBuffer = builder.create<framegraph::Texture>(fgStrHandlePostProcessOutTexture, textureInfo);
         data.backBuffer = builder.write(data.backBuffer, colorAttachmentInfo);
-        builder.writeToBlackboard(_fgStrHandlePostOut, data.backBuffer);
+        builder.writeToBlackboard(fgStrHandlePostProcessOutTexture, data.backBuffer);
 
         // depth
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::DEPTH;
-        depthAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
+        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
+        depthAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
         depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-        depthAttachmentInfo.endAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
+        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
 
-        data.depth = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexturePost)), depthAttachmentInfo);
-        builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
+        data.depth = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture));
+        if (data.depth.isValid()) {
+            data.depth = builder.write(data.depth, depthAttachmentInfo);
+            builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
+        }
 
-        auto renderArea = pipeline->getRenderArea(camera, !camera->window->hasOffScreenAttachments);
+        auto renderArea = pipeline->getRenderArea(camera, camera->window->swapchain);
         (void)pipeline->getIAByRenderArea(renderArea);
-        gfx::Viewport viewport{ renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
+        gfx::Viewport viewport{renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
         builder.setViewport(viewport, renderArea);
     };
 
-    auto postExec = [&] (RenderData const &data, const framegraph::DevicePassResourceTable &table) {
-        auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
-        assert(pipeline != nullptr);
-        auto *stage = static_cast<PostprocessStage *>(pipeline->getRenderstageByName(STAGE_NAME));
-        assert(stage != nullptr);
-        gfx::RenderPass *renderPass = table.getRenderPass().get();
-        assert(renderPass != nullptr);
+    auto postExec = [&](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
+        auto *           pipeline   = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
+        auto *           stage      = static_cast<PostprocessStage *>(pipeline->getRenderstageByName(STAGE_NAME));
+        gfx::RenderPass *renderPass = table.getRenderPass();
 
         // bind descriptor
         auto *lightingOut = static_cast<gfx::Texture *>(table.getRead(data.lightingOut));
 
-        gfx::SamplerInfo info{
-            gfx::Filter::LINEAR,
-            gfx::Filter::LINEAR,
-            gfx::Filter::NONE,
-            gfx::Address::CLAMP,
-            gfx::Address::CLAMP,
-            gfx::Address::CLAMP,
-        };
-
-        auto *     cmdBf           = pipeline->getCommandBuffers()[0];
-        stage->getGlobalSet()->bindBuffer(0, pipeline->getDescriptorSet()->getBuffer(0));
-        stage->getGlobalSet()->bindBuffer(1, pipeline->getDescriptorSet()->getBuffer(1));
-        const auto  samplerHash = SamplerLib::genSamplerHash(info);
-        auto *const sampler     = SamplerLib::getSampler(samplerHash);
-        stage->getGlobalSet()->bindSampler(static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP), sampler);
-        stage->getGlobalSet()->bindTexture(static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP), lightingOut);
-        stage->getGlobalSet()->update();
-
+        auto *     cmdBuff         = pipeline->getCommandBuffers()[0];
         uint const globalOffsets[] = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-        cmdBf->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), stage->getGlobalSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+        cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
 
         if (!pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
             // post process
@@ -232,79 +192,36 @@ void PostprocessStage::render(scene::Camera *camera) {
             gfx::Shader *sd        = sceneData->getSharedData()->deferredPostPassShader;
 
             // get pso and draw quad
-            auto *camera = pipeline->getFrameGraphCamera();
-            auto rendeArea = pipeline->getRenderArea(camera, !camera->window->hasOffScreenAttachments);
-            gfx::InputAssembler *ia = pipeline->getIAByRenderArea(rendeArea);
-            gfx::PipelineState * pso = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
+            auto *               camera    = pipeline->getFrameGraphCamera();
+            auto                 rendeArea = pipeline->getRenderArea(camera, camera->window->swapchain);
+            gfx::InputAssembler *ia        = pipeline->getIAByRenderArea(rendeArea);
+            gfx::PipelineState * pso       = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
             assert(pso != nullptr);
 
-            cmdBf->bindPipelineState(pso);
-            cmdBf->bindInputAssembler(ia);
-            cmdBf->draw(ia);
+            pv->getDescriptorSet()->bindTexture(0, table.getRead(data.lightingOut));
+            pv->getDescriptorSet()->bindSampler(0, pipeline->getDevice()->getSampler({
+                                                       gfx::Filter::POINT,
+                                                       gfx::Filter::POINT,
+                                                       gfx::Filter::NONE,
+                                                       gfx::Address::CLAMP,
+                                                       gfx::Address::CLAMP,
+                                                       gfx::Address::CLAMP,
+                                                   }));
+            pv->getDescriptorSet()->update();
+
+            cmdBuff->bindPipelineState(pso);
+            cmdBuff->bindDescriptorSet(materialSet, pv->getDescriptorSet());
+            cmdBuff->bindInputAssembler(ia);
+            cmdBuff->draw(ia);
         }
-        stage->getUIPhase()->render(pipeline->getFrameGraphCamera(), renderPass);
-    };
-
-    auto uiPhaseSetup = [&] (framegraph::PassNodeBuilder &builder, RenderData &data) {
-        // backbuffer is as an attachment
-        framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
-        colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
-        colorAttachmentInfo.clearColor = _clearColors[0];
-        colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
-
-        auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->clearFlag);
-        if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
-            if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
-                colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
-            } else {
-                colorAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
-                colorAttachmentInfo.beginAccesses = {gfx::AccessType::PRESENT};
-            }
-        }
-
-        colorAttachmentInfo.endAccesses = {gfx::AccessType::PRESENT};
-
-        data.backBuffer = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleBackBufferTexture)), colorAttachmentInfo);
-        builder.writeToBlackboard(DeferredPipeline::fgStrHandleBackBufferTexture, data.backBuffer);
-
-        framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::DEPTH;
-        depthAttachmentInfo.loadOp      = gfx::LoadOp::LOAD;
-        depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
-        depthAttachmentInfo.endAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
-
-        data.depth = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture)), depthAttachmentInfo);
-        builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
-
-        auto renderArea = pipeline->getRenderArea(camera, !camera->window->hasOffScreenAttachments);
-        gfx::Viewport viewport{ renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
-        builder.setViewport(viewport, renderArea);
-    };
-
-    auto uiPhaseExec = [&] (RenderData const &data, const framegraph::DevicePassResourceTable &table) {
-        CC_UNUSED_PARAM(data);
-        auto *pipeline = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
-        assert(pipeline != nullptr);
-        auto *stage = static_cast<PostprocessStage *>(pipeline->getRenderstageByName(STAGE_NAME));
-        assert(stage != nullptr);
-        gfx::RenderPass *renderPass = table.getRenderPass().get();
-        assert(renderPass != nullptr);
-
-        stage->getGlobalSet()->bindBuffer(0, pipeline->getDescriptorSet()->getBuffer(0));
-        stage->getGlobalSet()->bindBuffer(1, pipeline->getDescriptorSet()->getBuffer(1));
-
-        stage->getGlobalSet()->update();
-
-        auto *     cmdBf           = pipeline->getCommandBuffers()[0];
-        uint const globalOffsets[] = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-        cmdBf->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), stage->getGlobalSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
 
         stage->getUIPhase()->render(pipeline->getFrameGraphCamera(), renderPass);
     };
 
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::IP_POSTPROCESS), DeferredPipeline::fgStrHandlePostprocessPass, postSetup, postExec);
-    pipeline->getFrameGraph().presentFromBlackboard(DeferredPipeline::fgStrHandleBackBufferTexture);
+    pipeline->getFrameGraph().presentFromBlackboard(fgStrHandlePostProcessOutTexture, camera->window->frameBuffer->getColorTextures()[0]);
 }
+
 } // namespace pipeline
 } // namespace cc

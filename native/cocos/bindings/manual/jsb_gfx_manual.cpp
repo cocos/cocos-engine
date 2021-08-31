@@ -470,44 +470,6 @@ static bool js_gfx_CommandBuffer_copyBuffersToTexture(se::State &s) { // NOLINT(
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_copyBuffersToTexture)
 
-static bool js_gfx_InputAssembler_extractDrawInfo(se::State &s) { // NOLINT(readability-identifier-naming)
-    auto *cobj = static_cast<cc::gfx::InputAssembler *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_gfx_InputAssembler_extractDrawInfo : Invalid Native Object");
-    const auto &args = s.args();
-    size_t      argc = args.size();
-    if (argc == 1) {
-        cc::gfx::DrawInfo nativeDrawInfo;
-        cobj->extractDrawInfo(nativeDrawInfo);
-
-        se::Object *drawInfo = args[0].toObject();
-        se::Value   attrValue(nativeDrawInfo.vertexCount);
-        drawInfo->setProperty("vertexCount", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.firstVertex);
-        drawInfo->setProperty("firstVertex", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.indexCount);
-        drawInfo->setProperty("indexCount", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.firstIndex);
-        drawInfo->setProperty("firstIndex", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.vertexOffset);
-        drawInfo->setProperty("vertexOffset", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.instanceCount);
-        drawInfo->setProperty("instanceCount", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.firstInstance);
-        drawInfo->setProperty("firstInstance", attrValue);
-
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_InputAssembler_extractDrawInfo)
-
 bool js_gfx_get_deviceInstance(se::State &s) { // NOLINT(readability-identifier-naming)
     nativevalue_to_se(cc::gfx::Device::getInstance(), s.rval(), nullptr);
     return true;
@@ -527,8 +489,6 @@ bool register_all_gfx_manual(se::Object *obj) {
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("execute", _SE(js_gfx_CommandBuffer_execute));
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("updateBuffer", _SE(js_gfx_CommandBuffer_updateBuffer));
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_CommandBuffer_copyBuffersToTexture));
-
-    __jsb_cc_gfx_InputAssembler_proto->defineFunction("extractDrawInfo", _SE(js_gfx_InputAssembler_extractDrawInfo));
 
     __jsb_cc_gfx_Buffer_proto->defineFunction("initialize", _SE(js_gfx_Buffer_initialize));
     __jsb_cc_gfx_Texture_proto->defineFunction("initialize", _SE(js_gfx_Texture_initialize));

@@ -34,7 +34,7 @@ namespace gfx {
 
 class CC_VULKAN_API CCVKCommandBuffer final : public CommandBuffer {
 public:
-    CCVKCommandBuffer() = default;
+    CCVKCommandBuffer();
     ~CCVKCommandBuffer() override;
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;

@@ -36,7 +36,7 @@ namespace gfx {
 
 InputAssemblerValidator::InputAssemblerValidator(InputAssembler *actor)
 : Agent<InputAssembler>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 InputAssemblerValidator::~InputAssemblerValidator() {
@@ -63,44 +63,44 @@ void InputAssemblerValidator::doDestroy() {
     _actor->destroy();
 }
 
-void InputAssemblerValidator::setVertexCount(uint count) {
-    _vertexCount = count;
+void InputAssemblerValidator::setVertexCount(uint32_t count) {
+    _drawInfo.vertexCount = count;
 
     _actor->setVertexCount(count);
 }
 
-void InputAssemblerValidator::setFirstVertex(uint first) {
-    _firstVertex = first;
+void InputAssemblerValidator::setFirstVertex(uint32_t first) {
+    _drawInfo.firstVertex = first;
 
     _actor->setFirstVertex(first);
 }
 
-void InputAssemblerValidator::setIndexCount(uint count) {
-    _indexCount = count;
+void InputAssemblerValidator::setIndexCount(uint32_t count) {
+    _drawInfo.indexCount = count;
 
     _actor->setIndexCount(count);
 }
 
-void InputAssemblerValidator::setFirstIndex(uint first) {
-    _firstIndex = first;
+void InputAssemblerValidator::setFirstIndex(uint32_t first) {
+    _drawInfo.firstIndex = first;
 
     _actor->setFirstIndex(first);
 }
 
-void InputAssemblerValidator::setVertexOffset(uint offset) {
-    _vertexOffset = offset;
+void InputAssemblerValidator::setVertexOffset(int32_t offset) {
+    _drawInfo.vertexOffset = offset;
 
     _actor->setVertexOffset(offset);
 }
 
-void InputAssemblerValidator::setInstanceCount(uint count) {
-    _instanceCount = count;
+void InputAssemblerValidator::setInstanceCount(uint32_t count) {
+    _drawInfo.instanceCount = count;
 
     _actor->setInstanceCount(count);
 }
 
-void InputAssemblerValidator::setFirstInstance(uint first) {
-    _firstInstance = first;
+void InputAssemblerValidator::setFirstInstance(uint32_t first) {
+    _drawInfo.firstInstance = first;
 
     _actor->setFirstInstance(first);
 }

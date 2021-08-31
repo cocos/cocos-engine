@@ -5,6 +5,9 @@ namespace cc {
 
 ReflectionComp::~ReflectionComp() {
 
+    CC_DELETE(_compDescriptorSet->getLayout());
+    CC_DELETE(_compPipelineState->getPipelineLayout());
+
     CC_SAFE_DESTROY(_compShader);
     CC_SAFE_DESTROY(_compDescriptorSetLayout);
     CC_SAFE_DESTROY(_compPipelineState);
@@ -19,17 +22,6 @@ ReflectionComp::~ReflectionComp() {
     CC_SAFE_DESTROY(_localDescriptorSetLayout);
 
     CC_SAFE_DESTROY(_compConstantsBuffer);
-    CC_SAFE_DESTROY(_sampler);
-
-    delete _barrierPre;
-
-    for (auto *barrier : _barrierBeforeDenoise) {
-        delete barrier;
-    }
-
-    for (auto *barrier : _barrierAfterDenoise) {
-        delete barrier;
-    }
 }
 
 namespace {
@@ -66,7 +58,7 @@ void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
     gfx::SamplerInfo samplerInfo;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.magFilter = gfx::Filter::POINT;
-    _sampler              = _device->createSampler(samplerInfo);
+    _sampler              = _device->getSampler(samplerInfo);
 
     uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
     CCASSERT(_groupSizeX * _groupSizeY <= maxInvocations, "maxInvocations is too small");
@@ -107,10 +99,10 @@ void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
             gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE,
         }};
 
-    _barrierPre = _device->createGlobalBarrier(infoPre);
-    _barrierBeforeDenoise.push_back(_device->createTextureBarrier(infoBeforeDenoise));
-    _barrierBeforeDenoise.push_back(_device->createTextureBarrier(infoBeforeDenoise2));
-    _barrierAfterDenoise.push_back(_device->createTextureBarrier(infoAfterDenoise));
+    _barrierPre = _device->getGlobalBarrier(infoPre);
+    _barrierBeforeDenoise.push_back(_device->getTextureBarrier(infoBeforeDenoise));
+    _barrierBeforeDenoise.push_back(_device->getTextureBarrier(infoBeforeDenoise2));
+    _barrierAfterDenoise.push_back(_device->getTextureBarrier(infoAfterDenoise));
 
     initReflectionRes();
     initDenoiseRes();

@@ -28,6 +28,7 @@
 #include "GLES3Commands.h"
 #include "GLES3DescriptorSetLayout.h"
 #include "GLES3PipelineLayout.h"
+#include "base/Utils.h"
 
 namespace cc {
 namespace gfx {
@@ -43,18 +44,18 @@ GLES3PipelineLayout::~GLES3PipelineLayout() {
 void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
     _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
 
-    uint offset = 0U;
+    uint32_t offset = 0U;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
-    for (uint i = 0U; i < _setLayouts.size(); i++) {
+    for (uint32_t i = 0U; i < _setLayouts.size(); i++) {
         DescriptorSetLayout *        setLayout    = _setLayouts[i];
         GLES3GPUDescriptorSetLayout *gpuSetLayout = static_cast<GLES3DescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
-        size_t                       dynamicCount = gpuSetLayout->dynamicBindings.size();
+        uint32_t                     dynamicCount = utils::toUint(gpuSetLayout->dynamicBindings.size());
         vector<int> &                indices      = _gpuPipelineLayout->dynamicOffsetIndices[i];
         indices.assign(setLayout->getBindingIndices().size(), -1);
 
-        for (uint j = 0U; j < dynamicCount; j++) {
-            uint binding = gpuSetLayout->dynamicBindings[j];
-            if (indices[binding] < 0) indices[binding] = offset + j;
+        for (uint32_t j = 0U; j < dynamicCount; j++) {
+            uint32_t binding = gpuSetLayout->dynamicBindings[j];
+            if (indices[binding] < 0) indices[binding] = static_cast<int32_t>(offset + j);
         }
         _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
         _gpuPipelineLayout->setLayouts.push_back(gpuSetLayout);

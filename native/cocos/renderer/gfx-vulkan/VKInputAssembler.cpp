@@ -33,7 +33,9 @@
 namespace cc {
 namespace gfx {
 
-CCVKInputAssembler::CCVKInputAssembler() = default;
+CCVKInputAssembler::CCVKInputAssembler() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKInputAssembler::~CCVKInputAssembler() {
     destroy();
@@ -48,23 +50,24 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
 
     for (size_t i = 0U; i < vbCount; ++i) {
         auto *vb                                = static_cast<CCVKBuffer *>(_vertexBuffers[i]);
-        _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBuffer();
+        _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBufferView();
     }
 
     if (info.indexBuffer) {
-        _gpuInputAssembler->gpuIndexBuffer = static_cast<CCVKBuffer *>(info.indexBuffer)->gpuBuffer();
+        _gpuInputAssembler->gpuIndexBuffer = static_cast<CCVKBuffer *>(info.indexBuffer)->gpuBufferView();
     }
 
     if (info.indirectBuffer) {
-        _gpuInputAssembler->gpuIndirectBuffer = static_cast<CCVKBuffer *>(info.indirectBuffer)->gpuBuffer();
+        _gpuInputAssembler->gpuIndirectBuffer = static_cast<CCVKBuffer *>(info.indirectBuffer)->gpuBufferView();
     }
 
     _gpuInputAssembler->vertexBuffers.resize(vbCount);
     _gpuInputAssembler->vertexBufferOffsets.resize(vbCount);
 
+    CCVKGPUDevice *gpuDevice = CCVKDevice::getInstance()->gpuDevice();
     for (size_t i = 0U; i < vbCount; i++) {
-        _gpuInputAssembler->vertexBuffers[i]       = _gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
-        _gpuInputAssembler->vertexBufferOffsets[i] = _gpuInputAssembler->gpuVertexBuffers[i]->startOffset;
+        _gpuInputAssembler->vertexBuffers[i]       = _gpuInputAssembler->gpuVertexBuffers[i]->gpuBuffer->vkBuffer;
+        _gpuInputAssembler->vertexBufferOffsets[i] = _gpuInputAssembler->gpuVertexBuffers[i]->getStartOffset(gpuDevice->curBackBufferIndex);
     }
 }
 

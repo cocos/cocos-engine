@@ -53,9 +53,9 @@ public:
     static StringHandle stringToHandle(const char *name);
     static const char * handleToString(const StringHandle &handle) noexcept;
 
-    void        present(const TextureHandle &input);
-    void        presentLastVersion(const VirtualResource *virtualResource);
-    void        presentFromBlackboard(const StringHandle &inputName);
+    void        present(const TextureHandle &input, gfx::Texture *target);
+    void        presentLastVersion(const VirtualResource *virtualResource, gfx::Texture *target);
+    void        presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target);
     void        compile();
     void        execute() noexcept;
     void        reset() noexcept;
@@ -121,7 +121,7 @@ TypedHandle<ResourceType> FrameGraph::create(const StringHandle &name, const typ
 
 template <typename ResourceType>
 TypedHandle<ResourceType> FrameGraph::importExternal(const StringHandle &name, ResourceType &resource) noexcept {
-    //CC_ASSERT(resource.Get()); // back buffer doesn't have a device resource instance, for now
+    CC_ASSERT(resource.get());
     auto *const virtualResource = new ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), resource);
     return TypedHandle<ResourceType>(create(virtualResource));
 }

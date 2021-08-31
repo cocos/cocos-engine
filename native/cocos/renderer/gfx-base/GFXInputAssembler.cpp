@@ -38,16 +38,6 @@ InputAssembler::InputAssembler()
 
 InputAssembler::~InputAssembler() = default;
 
-void InputAssembler::extractDrawInfo(DrawInfo &drawInfo) const {
-    drawInfo.vertexCount   = _vertexCount;
-    drawInfo.firstVertex   = _firstVertex;
-    drawInfo.indexCount    = _indexCount;
-    drawInfo.firstIndex    = _firstIndex;
-    drawInfo.vertexOffset  = _vertexOffset;
-    drawInfo.instanceCount = _instanceCount;
-    drawInfo.firstInstance = _firstInstance;
-}
-
 uint InputAssembler::computeAttributesHash() const {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
     // 6: Attribute has 6 elements.
@@ -68,16 +58,16 @@ void InputAssembler::initialize(const InputAssemblerInfo &info) {
     _vertexBuffers  = info.vertexBuffers;
     _indexBuffer    = info.indexBuffer;
     _indirectBuffer = info.indirectBuffer;
+    _attributesHash = computeAttributesHash();
 
     if (_indexBuffer) {
-        _indexCount = _indexBuffer->getCount();
-        _firstIndex = 0;
+        _drawInfo.indexCount = _indexBuffer->getCount();
+        _drawInfo.firstIndex = 0;
     } else if (!_vertexBuffers.empty()) {
-        _vertexCount  = _vertexBuffers[0]->getCount();
-        _firstVertex  = 0;
-        _vertexOffset = 0;
+        _drawInfo.vertexCount  = _vertexBuffers[0]->getCount();
+        _drawInfo.firstVertex  = 0;
+        _drawInfo.vertexOffset = 0;
     }
-    _attributesHash = computeAttributesHash();
 
     doInit(info);
 }
@@ -86,12 +76,13 @@ void InputAssembler::destroy() {
     doDestroy();
 
     _attributes.clear();
+    _attributesHash = 0U;
+
     _vertexBuffers.clear();
     _indexBuffer    = nullptr;
     _indirectBuffer = nullptr;
-    _indexCount = _firstIndex = _vertexCount = _firstVertex = _vertexOffset = _attributesHash = 0U;
 
-    doDestroy();
+    _drawInfo = DrawInfo();
 }
 
 } // namespace gfx

@@ -30,8 +30,6 @@
 #include "PostprocessStage.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXRenderPass.h"
-#include "gfx-base/GFXSampler.h"
 #include "pipeline/SceneCulling.h"
 
 namespace cc {

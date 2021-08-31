@@ -384,7 +384,7 @@ elseif(USE_JOB_SYSTEM_TBB)
         cocos/base/job-system/job-system-tbb/TBBJobSystem.h
         cocos/base/job-system/job-system-tbb/TBBJobSystem.cpp
     )
-else() 
+else()
     cocos_source_files(
         cocos/base/job-system/job-system-dummy/DummyJobGraph.h
         cocos/base/job-system/job-system-dummy/DummyJobGraph.cpp
@@ -576,7 +576,7 @@ elseif(ANDROID)
         ${CWD}/cocos/platform/java/jni/JniImp.cpp
         ${CWD}/cocos/platform/java/jni/JniImp.h
     )
-    
+
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/android/FileUtils-android.cpp
         cocos/platform/android/FileUtils-android.h
@@ -616,7 +616,7 @@ elseif(APPLE)
                      cocos/platform/ios/Reachability.h
                      cocos/platform/ios/Reachability.cpp
     )
-    
+
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/apple/FileUtils-apple.h
         cocos/platform/apple/FileUtils-apple.mm
@@ -644,6 +644,8 @@ endif()
 cocos_source_files(
                  cocos/renderer/GFXDeviceManager.h
 
+                 cocos/renderer/gfx-base/SPIRVUtils.h
+                 cocos/renderer/gfx-base/SPIRVUtils.cpp
                  cocos/renderer/gfx-base/GFXObject.h
                  cocos/renderer/gfx-base/GFXObject.cpp
                  cocos/renderer/gfx-base/GFXBase.h
@@ -651,8 +653,6 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXBuffer.h
                  cocos/renderer/gfx-base/GFXCommandBuffer.cpp
                  cocos/renderer/gfx-base/GFXCommandBuffer.h
-                 cocos/renderer/gfx-base/GFXContext.cpp
-                 cocos/renderer/gfx-base/GFXContext.h
                  cocos/renderer/gfx-base/GFXDef.cpp
                  cocos/renderer/gfx-base/GFXDef.h
                  cocos/renderer/gfx-base/GFXDef-common.h
@@ -660,8 +660,6 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXDevice.h
                  cocos/renderer/gfx-base/GFXFramebuffer.cpp
                  cocos/renderer/gfx-base/GFXFramebuffer.h
-                 cocos/renderer/gfx-base/GFXGlobalBarrier.cpp
-                 cocos/renderer/gfx-base/GFXGlobalBarrier.h
                  cocos/renderer/gfx-base/GFXInputAssembler.cpp
                  cocos/renderer/gfx-base/GFXInputAssembler.h
                  cocos/renderer/gfx-base/GFXDescriptorSet.cpp
@@ -676,14 +674,18 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXQueue.h
                  cocos/renderer/gfx-base/GFXRenderPass.cpp
                  cocos/renderer/gfx-base/GFXRenderPass.h
-                 cocos/renderer/gfx-base/GFXSampler.cpp
-                 cocos/renderer/gfx-base/GFXSampler.h
                  cocos/renderer/gfx-base/GFXShader.cpp
                  cocos/renderer/gfx-base/GFXShader.h
+                 cocos/renderer/gfx-base/GFXSwapchain.cpp
+                 cocos/renderer/gfx-base/GFXSwapchain.h
                  cocos/renderer/gfx-base/GFXTexture.cpp
                  cocos/renderer/gfx-base/GFXTexture.h
-                 cocos/renderer/gfx-base/GFXTextureBarrier.cpp
-                 cocos/renderer/gfx-base/GFXTextureBarrier.h
+                 cocos/renderer/gfx-base/states/GFXGlobalBarrier.cpp
+                 cocos/renderer/gfx-base/states/GFXGlobalBarrier.h
+                 cocos/renderer/gfx-base/states/GFXSampler.cpp
+                 cocos/renderer/gfx-base/states/GFXSampler.h
+                 cocos/renderer/gfx-base/states/GFXTextureBarrier.cpp
+                 cocos/renderer/gfx-base/states/GFXTextureBarrier.h
 
                  cocos/renderer/gfx-agent/BufferAgent.h
                  cocos/renderer/gfx-agent/BufferAgent.cpp
@@ -707,8 +709,8 @@ cocos_source_files(
                  cocos/renderer/gfx-agent/QueueAgent.cpp
                  cocos/renderer/gfx-agent/RenderPassAgent.h
                  cocos/renderer/gfx-agent/RenderPassAgent.cpp
-                 cocos/renderer/gfx-agent/SamplerAgent.h
-                 cocos/renderer/gfx-agent/SamplerAgent.cpp
+                 cocos/renderer/gfx-agent/SwapchainAgent.h
+                 cocos/renderer/gfx-agent/SwapchainAgent.cpp
                  cocos/renderer/gfx-agent/ShaderAgent.h
                  cocos/renderer/gfx-agent/ShaderAgent.cpp
                  cocos/renderer/gfx-agent/TextureAgent.h
@@ -736,10 +738,10 @@ cocos_source_files(
                  cocos/renderer/gfx-validator/QueueValidator.cpp
                  cocos/renderer/gfx-validator/RenderPassValidator.h
                  cocos/renderer/gfx-validator/RenderPassValidator.cpp
-                 cocos/renderer/gfx-validator/SamplerValidator.h
-                 cocos/renderer/gfx-validator/SamplerValidator.cpp
                  cocos/renderer/gfx-validator/ShaderValidator.h
                  cocos/renderer/gfx-validator/ShaderValidator.cpp
+                 cocos/renderer/gfx-validator/SwapchainValidator.h
+                 cocos/renderer/gfx-validator/SwapchainValidator.cpp
                  cocos/renderer/gfx-validator/TextureValidator.h
                  cocos/renderer/gfx-validator/TextureValidator.cpp
                  cocos/renderer/gfx-validator/ValidationUtils.h
@@ -749,8 +751,6 @@ cocos_source_files(
                  cocos/renderer/gfx-empty/EmptyBuffer.cpp
                  cocos/renderer/gfx-empty/EmptyCommandBuffer.h
                  cocos/renderer/gfx-empty/EmptyCommandBuffer.cpp
-                 cocos/renderer/gfx-empty/EmptyContext.h
-                 cocos/renderer/gfx-empty/EmptyContext.cpp
                  cocos/renderer/gfx-empty/EmptyDescriptorSet.h
                  cocos/renderer/gfx-empty/EmptyDescriptorSet.cpp
                  cocos/renderer/gfx-empty/EmptyDescriptorSetLayout.h
@@ -769,10 +769,10 @@ cocos_source_files(
                  cocos/renderer/gfx-empty/EmptyQueue.cpp
                  cocos/renderer/gfx-empty/EmptyRenderPass.h
                  cocos/renderer/gfx-empty/EmptyRenderPass.cpp
-                 cocos/renderer/gfx-empty/EmptySampler.h
-                 cocos/renderer/gfx-empty/EmptySampler.cpp
                  cocos/renderer/gfx-empty/EmptyShader.h
                  cocos/renderer/gfx-empty/EmptyShader.cpp
+                 cocos/renderer/gfx-empty/EmptySwapchain.h
+                 cocos/renderer/gfx-empty/EmptySwapchain.cpp
                  cocos/renderer/gfx-empty/EmptyTexture.h
                  cocos/renderer/gfx-empty/EmptyTexture.cpp
 
@@ -902,12 +902,11 @@ if(CC_USE_GLES2)
                      cocos/renderer/gfx-gles2/GLES2CommandBuffer.h
                      cocos/renderer/gfx-gles2/GLES2Commands.cpp
                      cocos/renderer/gfx-gles2/GLES2Commands.h
-                     cocos/renderer/gfx-gles2/GLES2Context.h
-                     cocos/renderer/gfx-gles2/GLES2Context.cpp
                      cocos/renderer/gfx-gles2/GLES2Device.cpp
                      cocos/renderer/gfx-gles2/GLES2Device.h
                      cocos/renderer/gfx-gles2/GLES2Framebuffer.cpp
                      cocos/renderer/gfx-gles2/GLES2Framebuffer.h
+                     cocos/renderer/gfx-gles2/GLES2GPUContext.cpp
                      cocos/renderer/gfx-gles2/GLES2GPUObjects.h
                      cocos/renderer/gfx-gles2/GLES2InputAssembler.cpp
                      cocos/renderer/gfx-gles2/GLES2InputAssembler.h
@@ -925,31 +924,19 @@ if(CC_USE_GLES2)
                      cocos/renderer/gfx-gles2/GLES2Queue.h
                      cocos/renderer/gfx-gles2/GLES2RenderPass.cpp
                      cocos/renderer/gfx-gles2/GLES2RenderPass.h
-                     cocos/renderer/gfx-gles2/GLES2Sampler.cpp
-                     cocos/renderer/gfx-gles2/GLES2Sampler.h
                      cocos/renderer/gfx-gles2/GLES2Shader.cpp
                      cocos/renderer/gfx-gles2/GLES2Shader.h
+                     cocos/renderer/gfx-gles2/GLES2Swapchain.cpp
+                     cocos/renderer/gfx-gles2/GLES2Swapchain.h
                      cocos/renderer/gfx-gles2/GLES2Std.cpp
                      cocos/renderer/gfx-gles2/GLES2Std.h
                      cocos/renderer/gfx-gles2/GLES2Texture.cpp
                      cocos/renderer/gfx-gles2/GLES2Texture.h
+                     cocos/renderer/gfx-gles2/GLES2Wrangler.cpp
                      cocos/renderer/gfx-gles2/GLES2Wrangler.h
+                     cocos/renderer/gfx-gles2/states/GLES2Sampler.cpp
+                     cocos/renderer/gfx-gles2/states/GLES2Sampler.h
     )
-
-    if(APPLE)
-        cocos_source_files(
-            NO_WERROR    cocos/renderer/gfx-gles2/GLES2Wrangler.mm
-        )
-    else()
-        cocos_source_files(
-                         cocos/renderer/gfx-gles2/GLES2Wrangler.cpp
-        )
-    endif()
-    if(IOS)
-        cocos_source_files(
-            NO_WERROR    cocos/renderer/gfx-gles2/GLES2Context.mm
-        )
-    endif()
 endif()
 
 if(CC_USE_GLES3)
@@ -961,14 +948,11 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3CommandBuffer.h
                      cocos/renderer/gfx-gles3/GLES3Commands.cpp
                      cocos/renderer/gfx-gles3/GLES3Commands.h
-                     cocos/renderer/gfx-gles3/GLES3Context.cpp
-                     cocos/renderer/gfx-gles3/GLES3Context.h
                      cocos/renderer/gfx-gles3/GLES3Device.cpp
                      cocos/renderer/gfx-gles3/GLES3Device.h
                      cocos/renderer/gfx-gles3/GLES3Framebuffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Framebuffer.h
-                     cocos/renderer/gfx-gles3/GLES3GlobalBarrier.cpp
-                     cocos/renderer/gfx-gles3/GLES3GlobalBarrier.h
+                     cocos/renderer/gfx-gles3/GLES3GPUContext.cpp
                      cocos/renderer/gfx-gles3/GLES3GPUObjects.h
                      cocos/renderer/gfx-gles3/GLES3InputAssembler.cpp
                      cocos/renderer/gfx-gles3/GLES3InputAssembler.h
@@ -986,30 +970,21 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3Queue.h
                      cocos/renderer/gfx-gles3/GLES3RenderPass.cpp
                      cocos/renderer/gfx-gles3/GLES3RenderPass.h
-                     cocos/renderer/gfx-gles3/GLES3Sampler.cpp
-                     cocos/renderer/gfx-gles3/GLES3Sampler.h
                      cocos/renderer/gfx-gles3/GLES3Shader.cpp
                      cocos/renderer/gfx-gles3/GLES3Shader.h
+                     cocos/renderer/gfx-gles3/GLES3Swapchain.cpp
+                     cocos/renderer/gfx-gles3/GLES3Swapchain.h
                      cocos/renderer/gfx-gles3/GLES3Std.cpp
                      cocos/renderer/gfx-gles3/GLES3Std.h
                      cocos/renderer/gfx-gles3/GLES3Texture.cpp
                      cocos/renderer/gfx-gles3/GLES3Texture.h
+                     cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
                      cocos/renderer/gfx-gles3/GLES3Wrangler.h
+                     cocos/renderer/gfx-gles3/states/GLES3GlobalBarrier.cpp
+                     cocos/renderer/gfx-gles3/states/GLES3GlobalBarrier.h
+                     cocos/renderer/gfx-gles3/states/GLES3Sampler.cpp
+                     cocos/renderer/gfx-gles3/states/GLES3Sampler.h
     )
-    if(APPLE)
-        cocos_source_files(
-            NO_WERROR    cocos/renderer/gfx-gles3/GLES3Wrangler.mm
-        )
-    else()
-        cocos_source_files(
-                         cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
-        )
-    endif()
-    if(IOS)
-        cocos_source_files(
-            NO_WERROR    cocos/renderer/gfx-gles3/GLES3Context.mm
-        )
-    endif()
 endif()
 
 if(CC_USE_METAL)
@@ -1019,8 +994,6 @@ if(CC_USE_METAL)
                      cocos/renderer/gfx-metal/MTLBuffer.mm
                      cocos/renderer/gfx-metal/MTLCommandBuffer.h
                      cocos/renderer/gfx-metal/MTLCommandBuffer.mm
-                     cocos/renderer/gfx-metal/MTLContext.h
-        NO_WERROR    cocos/renderer/gfx-metal/MTLContext.mm     # CAMetalLayer bug for apple
                      cocos/renderer/gfx-metal/MTLDevice.h
         NO_WERROR    cocos/renderer/gfx-metal/MTLDevice.mm      # CAMetalLayer bug for apple
                      cocos/renderer/gfx-metal/MTLFramebuffer.mm
@@ -1055,6 +1028,8 @@ if(CC_USE_METAL)
                      cocos/renderer/gfx-metal/MTLCommandEncoder.h
                      cocos/renderer/gfx-metal/MTLConfig.h
                      cocos/renderer/gfx-metal/MTLSemaphore.h
+                     cocos/renderer/gfx-metal/MTLSwapchain.h
+                     cocos/renderer/gfx-metal/MTLSwapchain.mm
     )
 endif()
 
@@ -1069,14 +1044,11 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKCommandBuffer.h
                      cocos/renderer/gfx-vulkan/VKCommands.cpp
                      cocos/renderer/gfx-vulkan/VKCommands.h
-                     cocos/renderer/gfx-vulkan/VKContext.cpp
-                     cocos/renderer/gfx-vulkan/VKContext.h
                      cocos/renderer/gfx-vulkan/VKDevice.cpp
                      cocos/renderer/gfx-vulkan/VKDevice.h
                      cocos/renderer/gfx-vulkan/VKFramebuffer.cpp
                      cocos/renderer/gfx-vulkan/VKFramebuffer.h
-                     cocos/renderer/gfx-vulkan/VKGlobalBarrier.cpp
-                     cocos/renderer/gfx-vulkan/VKGlobalBarrier.h
+                     cocos/renderer/gfx-vulkan/VKGPUContext.cpp
                      cocos/renderer/gfx-vulkan/VKGPUObjects.h
                      cocos/renderer/gfx-vulkan/VKInputAssembler.cpp
                      cocos/renderer/gfx-vulkan/VKInputAssembler.h
@@ -1092,21 +1064,24 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKQueue.h
                      cocos/renderer/gfx-vulkan/VKRenderPass.cpp
                      cocos/renderer/gfx-vulkan/VKRenderPass.h
-                     cocos/renderer/gfx-vulkan/VKSampler.cpp
-                     cocos/renderer/gfx-vulkan/VKSampler.h
                      cocos/renderer/gfx-vulkan/VKShader.cpp
                      cocos/renderer/gfx-vulkan/VKShader.h
-                     cocos/renderer/gfx-vulkan/VKSPIRV.h
                      cocos/renderer/gfx-vulkan/VKStd.cpp
                      cocos/renderer/gfx-vulkan/VKStd.h
+                     cocos/renderer/gfx-vulkan/VKSwapchain.cpp
+                     cocos/renderer/gfx-vulkan/VKSwapchain.h
                      cocos/renderer/gfx-vulkan/VKTexture.cpp
                      cocos/renderer/gfx-vulkan/VKTexture.h
-                     cocos/renderer/gfx-vulkan/VKTextureBarrier.cpp
-                     cocos/renderer/gfx-vulkan/VKTextureBarrier.h
                      cocos/renderer/gfx-vulkan/VKUtils.cpp
                      cocos/renderer/gfx-vulkan/VKUtils.h
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
+                     cocos/renderer/gfx-vulkan/states/VKGlobalBarrier.cpp
+                     cocos/renderer/gfx-vulkan/states/VKGlobalBarrier.h
+                     cocos/renderer/gfx-vulkan/states/VKSampler.cpp
+                     cocos/renderer/gfx-vulkan/states/VKSampler.h
+                     cocos/renderer/gfx-vulkan/states/VKTextureBarrier.cpp
+                     cocos/renderer/gfx-vulkan/states/VKTextureBarrier.h
     )
 
     if(ANDROID)
@@ -1611,7 +1586,7 @@ elseif(WIN32)
     )
 endif()
 
-############# module bindings 
+############# module bindings
 if(USE_SE_V8)
     cocos_source_files(MODULE ccbindings
                      cocos/bindings/jswrapper/v8/Base.h
@@ -1695,7 +1670,7 @@ cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/State.cpp
                  cocos/bindings/jswrapper/State.h
                  cocos/bindings/jswrapper/Value.cpp
-                 cocos/bindings/jswrapper/Value.h 
+                 cocos/bindings/jswrapper/Value.h
     NO_WERROR    cocos/bindings/manual/jsb_global_init.cpp
                  cocos/bindings/manual/jsb_global_init.h
 )
@@ -1860,12 +1835,12 @@ if(USE_MODULES)
     target_link_libraries(ccunzip PUBLIC
         ${ZLIB}
     )
-    target_link_libraries(ccfilesystem PUBLIC 
-        ccunzip 
+    target_link_libraries(ccfilesystem PUBLIC
+        ccunzip
         ccutils
         cclog
     )
-    target_link_libraries(ccbindings PUBLIC 
+    target_link_libraries(ccbindings PUBLIC
         ccfilesystem
         cclog
         ${se_libs_name}
@@ -2020,7 +1995,7 @@ target_compile_definitions(cocos2d
         ${CC_EXTERNAL_PRIVATE_DEFINITIONS}
 )
 if(NOT OHOS)
-    target_include_directories(cocos2d PUBLIC 
+    target_include_directories(cocos2d PUBLIC
         ${CWD}/external/sources/EGL
         ${CWD}/external/sources/khronos
     )
@@ -2127,6 +2102,7 @@ if(APPLE)
             "-framework UIKit"
             "-framework AVKit"
             "-framework WebKit"
+            "-framework CoreVideo"
             "-framework CoreMotion"
             "-framework CFNetwork"
             "-framework CoreMedia"

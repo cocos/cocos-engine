@@ -21,7 +21,7 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
             #set $count = 0
             #while $count < $arg_idx
                 #set $arg = $func.arguments[$count]
-                #set $arg_type = $arg.to_string($generator)
+                #set $arg_type = $arg.to_string($generator, omit_const=True)
                 #if $arg.is_reference
                 #set $holder_prefix="HolderType<"+$arg_type+", true>"
                 #else

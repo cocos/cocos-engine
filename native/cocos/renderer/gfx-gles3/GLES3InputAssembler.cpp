@@ -68,15 +68,5 @@ void GLES3InputAssembler::doDestroy() {
     }
 }
 
-void GLES3InputAssembler::ExtractCmdDraw(GLES3CmdDraw *cmd) {
-    cmd->drawInfo.vertexCount   = _vertexCount;
-    cmd->drawInfo.firstVertex   = _firstVertex;
-    cmd->drawInfo.indexCount    = _indexCount;
-    cmd->drawInfo.firstIndex    = _firstIndex;
-    cmd->drawInfo.vertexOffset  = _vertexOffset;
-    cmd->drawInfo.instanceCount = _instanceCount;
-    cmd->drawInfo.firstInstance = _firstInstance;
-}
-
 } // namespace gfx
 } // namespace cc

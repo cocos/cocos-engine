@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include <cassert>
 #include <cstring>
 #include <map>
 #include <vector>
 #include "StringHandle.h"
+#include "base/Macros.h"
 #include "threading/ReadWriteLock.h"
 
 namespace cc {
@@ -120,8 +120,8 @@ inline StringHandle StringPool<ThreadSafe>::doStringToHandle(const char *str) no
 }
 
 template <bool ThreadSafe>
-inline char const *StringPool<ThreadSafe>::doHandleToString(const StringHandle &handle) const noexcept {
-    assert(handle < _handleToStrings.size());
+inline const char *StringPool<ThreadSafe>::doHandleToString(const StringHandle &handle) const noexcept {
+    CC_ASSERT(handle < _handleToStrings.size());
     return _handleToStrings[handle];
 }
 

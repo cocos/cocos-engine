@@ -41,6 +41,7 @@ class CCMTLInputAssembler;
 class CCMTLDevice;
 class CCMTLRenderPass;
 class CCMTLFence;
+class CCMTLFramebuffer;
 
 class CCMTLCommandBuffer final : public CommandBuffer {
 public:
@@ -76,8 +77,10 @@ public:
     void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count);
     inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
-    inline id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
-
+    inline CCMTLGPUCommandBufferObject* gpuCommandBufferObj() const { return _gpuCommandBufferObj; }
+    
+    void reset();
+    
 protected:
     friend class CCMTLQueue;
 
@@ -88,28 +91,20 @@ protected:
     void updateDepthStencilState(uint32_t subPassIndex, MTLRenderPassDescriptor* descriptor);
     static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
 
-    CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
-
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets; // NOLINT(bugprone-reserved-identifier)
     vector<vector<uint>> _dynamicOffsets;
     uint _firstDirtyDescriptorSet = UINT_MAX;
 
     bool _indirectDrawSuppotred = false;
     bool _commandBufferBegan = false;
-    bool _isSecondary = false;
     CCMTLDevice *_mtlDevice = nullptr;
     id<MTLCommandQueue> _mtlCommandQueue = nil;
-    id<MTLCommandBuffer> _mtlCommandBuffer = nil;
     CCMTLRenderCommandEncoder _renderEncoder;
     CCMTLComputeCommandEncoder _computeEncoder;
     id<MTLParallelRenderCommandEncoder> _parallelEncoder = nil;
-    CCMTLInputAssembler *_inputAssembler = nullptr;
     MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
-    
-    //state cache
-    RenderPass *_curRenderPass = nullptr;
-    Framebuffer *_curFBO = nullptr;
-    
+
+    CCMTLGPUCommandBufferObject* _gpuCommandBufferObj = nullptr;
 };
 
 } // namespace gfx

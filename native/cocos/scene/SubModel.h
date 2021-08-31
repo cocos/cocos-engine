@@ -64,13 +64,14 @@ public:
         _subMesh->flatBuffers = flatBuffers;
     }
 
-    inline gfx::DescriptorSet *       getDescriptorSet() const { return _descriptSet; }
-    inline gfx::InputAssembler *      getInputAssembler() const { return _ia; }
-    inline const std::vector<Pass *> &getPasses() const { return _passes; }
-    inline gfx::Shader *              getPlanarInstanceShader() const { return _planarInstanceShader; }
-    inline gfx::Shader *              getPlanarShader() const { return _planarShader; }
-    inline RenderPriority             getPriority() const { return _priority; }
-    inline RenderingSubMesh *         getSubMesh() const { return _subMesh; }
+    inline gfx::DescriptorSet *        getDescriptorSet() const { return _descriptSet; }
+    inline gfx::InputAssembler *       getInputAssembler() const { return _ia; }
+    inline std::vector<gfx::Shader *> &getShaders() { return _shaders; }
+    inline const std::vector<Pass *> & getPasses() const { return _passes; }
+    inline gfx::Shader *               getPlanarInstanceShader() const { return _planarInstanceShader; }
+    inline gfx::Shader *               getPlanarShader() const { return _planarShader; }
+    inline RenderPriority              getPriority() const { return _priority; }
+    inline RenderingSubMesh *          getSubMesh() const { return _subMesh; }
 
 private:
     RenderPriority             _priority{RenderPriority::DEFAULT};
