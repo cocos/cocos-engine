@@ -714,7 +714,7 @@ export class Node extends BaseNode implements CustomSerializable {
         let i = 0;
         let cur: this;
         let flag = 0;
-
+        let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
         // NOTE: inflate function
@@ -729,7 +729,7 @@ export class Node extends BaseNode implements CustomSerializable {
         while (i >= 0) {
             flag = 0;
             cur = dirtyNodes[i--];
-            const hasChangedFlags = cur._hasChangedFlags[0];
+            hasChangedFlags = cur._hasChangedFlags[0];
             if (cur.isValid && (cur._dirtyFlagsPri & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 // NOTE: inflate procedure
                 // ```
