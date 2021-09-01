@@ -5,6 +5,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import AudioTimer from '../audio-timer';
+import { audioBufferManager } from '../audio-buffer-manager';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -101,6 +102,9 @@ export class OneShotAudioWeb {
     private _duration: number;
     private _bufferSourceNode: AudioBufferSourceNode;
     private _onPlayCb?: () => void;
+    private _currentTimer = 0;
+    private _url: string;
+
     get onPlay () {
         return this._onPlayCb;
     }
@@ -116,8 +120,9 @@ export class OneShotAudioWeb {
         this._onEndCb = cb;
     }
 
-    private constructor (audioBuffer: AudioBuffer, volume: number) {
+    private constructor (audioBuffer: AudioBuffer, volume: number, url: string) {
         this._duration = audioBuffer.duration;
+        this._url = url;
         this._bufferSourceNode = audioContextAgent!.createBufferSource(audioBuffer, false);
         const gainNode = audioContextAgent!.createGain(volume);
         this._bufferSourceNode.connect(gainNode);
@@ -132,13 +137,16 @@ export class OneShotAudioWeb {
         audioContextAgent!.runContext().then(() => {
             this._bufferSourceNode.start();
             this.onPlay?.();
-            window.setTimeout(() => {
+            this._currentTimer = window.setTimeout(() => {
+                audioBufferManager.tryReleasingCache(this._url);
                 this.onEnd?.();
             }, this._duration * 1000);
         }).catch((e) => {});
     }
 
     public stop (): void {
+        clearTimeout(this._currentTimer);
+        audioBufferManager.tryReleasingCache(this._url);
         this._bufferSourceNode.stop();
     }
 }
@@ -174,6 +182,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             // @ts-expect-error need to release AudioBuffer instance
             this._audioBuffer = null;
         }
+        audioBufferManager.tryReleasingCache(this._src);
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);
     }
@@ -186,6 +195,12 @@ export class AudioPlayerWeb implements OperationQueueable {
     }
     static loadNative (url: string): Promise<AudioBuffer> {
         return new Promise((resolve, reject) => {
+            const cachedAudioBuffer = audioBufferManager.getCache(url);
+            if (cachedAudioBuffer) {
+                audioBufferManager.retainCache(url);
+                resolve(cachedAudioBuffer);
+                return;
+            }
             const xhr = new XMLHttpRequest();
             const errInfo = `load audio failed: ${url}, status: `;
             xhr.open('GET', url, true);
@@ -193,8 +208,9 @@ export class AudioPlayerWeb implements OperationQueueable {
 
             xhr.onload = () => {
                 if (xhr.status === 200 || xhr.status === 0) {
-                    audioContextAgent!.decodeAudioData(xhr.response).then((buffer) => {
-                        resolve(buffer);
+                    audioContextAgent!.decodeAudioData(xhr.response).then((decodedAudioBuffer) => {
+                        audioBufferManager.addCache(url, decodedAudioBuffer);
+                        resolve(decodedAudioBuffer);
                     }).catch((e) => {});
                 } else {
                     reject(new Error(`${errInfo}${xhr.status}(no response)`));
@@ -211,7 +227,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         return new Promise((resolve, reject) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new OneShotAudioWeb(audioBuffer, volume);
+                const oneShotAudio = new OneShotAudioWeb(audioBuffer, volume, url);
                 resolve(oneShotAudio);
             }).catch(reject);
         });
