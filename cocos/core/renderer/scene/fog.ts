@@ -71,9 +71,15 @@ export const FogType = Enum({
      * @readonly
      */
     LAYERED: 3,
+    /**
+     * @zh
+     * 无效雾类型。
+     * @en
+     * Invalid fog
+     * @readonly
+     */
+    NONE: 4,
 });
-
-const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
 export class Fog {
     /**
@@ -82,7 +88,7 @@ export class Fog {
      */
     set enabled (val: boolean) {
         this._setEnable(val);
-        if (!val) this._type = FOG_TYPE_NONE;
+        if (!val) this._type = FogType.NONE;
         val ? this.activate() : this._updatePipeline();
     }
 
@@ -239,7 +245,7 @@ export class Fog {
     }
 
     protected _setType (val) {
-        this._type = this.enabled ? val : FOG_TYPE_NONE;
+        this._type = this.enabled ? val : FogType.NONE;
         if (JSB) {
             this._nativeObj!.type = this._type;
         }
@@ -270,7 +276,7 @@ export class Fog {
 
     protected _updatePipeline () {
         const root = legacyCC.director.root;
-        const value = this.enabled ? this.type : FOG_TYPE_NONE;
+        const value = this.enabled ? this.type : FogType.NONE;
         const pipeline = root.pipeline;
         if (pipeline.macros.CC_USE_FOG === value) { return; }
         pipeline.macros.CC_USE_FOG = value;
