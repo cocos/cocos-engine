@@ -152,14 +152,6 @@ markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
     },
 ]);
 
-// deprecated EventKeyboard property
-markAsWarning(EventKeyboard.prototype, 'EventKeyboard.prototype', [
-    {
-        name: 'isPressed',
-        suggest: 'use EventKeyboard.prototype.type !== SystemEvent.EventType.KEY_UP instead',
-    },
-]);
-
 // deprecate languageCode field
 replaceProperty(sys, 'sys',
     ['UNKNOWN', 'ENGLISH', 'CHINESE', 'FRENCH', 'ITALIAN',
