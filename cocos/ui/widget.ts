@@ -902,6 +902,7 @@ export class Widget extends Component {
             if (target.getComponent(UITransform)) {
                 target.on(NodeEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
                 target.on(NodeEventType.SIZE_CHANGED, this._setDirtyByMode, this);
+                target.on(NodeEventType.ANCHOR_CHANGED, this._setDirtyByMode, this);
             }
         }
     }
@@ -911,6 +912,7 @@ export class Widget extends Component {
         if (target) {
             target.off(NodeEventType.TRANSFORM_CHANGED, this._setDirtyByMode, this);
             target.off(NodeEventType.SIZE_CHANGED, this._setDirtyByMode, this);
+            target.off(NodeEventType.ANCHOR_CHANGED, this._setDirtyByMode, this);
         }
     }
 
