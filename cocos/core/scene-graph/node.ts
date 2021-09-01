@@ -710,7 +710,6 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        //
         let i = 0;
         let cur: this;
         let flag = 0;
