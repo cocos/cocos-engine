@@ -4242,6 +4242,25 @@ static bool js_scene_SubModel_getShader(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_SubModel_getShader)
 
+static bool js_scene_SubModel_getShaders(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getShaders : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::vector<cc::gfx::Shader *>& result = cobj->getShaders();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_SubModel_getShaders : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_SubModel_getShaders)
+
 static bool js_scene_SubModel_setDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
@@ -4426,6 +4445,7 @@ bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifie
     cls->defineFunction("getPlanarShader", _SE(js_scene_SubModel_getPlanarShader));
     cls->defineFunction("getPriority", _SE(js_scene_SubModel_getPriority));
     cls->defineFunction("getShader", _SE(js_scene_SubModel_getShader));
+    cls->defineFunction("getShaders", _SE(js_scene_SubModel_getShaders));
     cls->defineFunction("setDescriptorSet", _SE(js_scene_SubModel_setDescriptorSet));
     cls->defineFunction("setInputAssembler", _SE(js_scene_SubModel_setInputAssembler));
     cls->defineFunction("setPasses", _SE(js_scene_SubModel_setPasses));
@@ -7532,35 +7552,35 @@ bool register_all_scene(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_scene_RenderScene(ns);
+    js_register_scene_Camera(ns);
+    js_register_scene_Fog(ns);
     js_register_scene_BaseNode(ns);
-    js_register_scene_Scene(ns);
     js_register_scene_Node(ns);
-    js_register_scene_Light(ns);
-    js_register_scene_DirectionalLight(ns);
-    js_register_scene_Plane(ns);
     js_register_scene_Frustum(ns);
-    js_register_scene_AABB(ns);
-    js_register_scene_SpotLight(ns);
+    js_register_scene_DrawBatch2D(ns);
+    js_register_scene_Light(ns);
     js_register_scene_SphereLight(ns);
     js_register_scene_Model(ns);
-    js_register_scene_Fog(ns);
-    js_register_scene_Shadow(ns);
-    js_register_scene_Skybox(ns);
-    js_register_scene_Ambient(ns);
-    js_register_scene_PipelineSharedSceneData(ns);
-    js_register_scene_Root(ns);
-    js_register_scene_SubModel(ns);
-    js_register_scene_Pass(ns);
-    js_register_scene_BakedAnimInfo(ns);
-    js_register_scene_BakedJointInfo(ns);
     js_register_scene_BakedSkinningModel(ns);
-    js_register_scene_DrawBatch2D(ns);
+    js_register_scene_Plane(ns);
     js_register_scene_JointTransform(ns);
-    js_register_scene_JointInfo(ns);
-    js_register_scene_SkinningModel(ns);
-    js_register_scene_RenderScene(ns);
     js_register_scene_RenderWindow(ns);
-    js_register_scene_Camera(ns);
+    js_register_scene_Shadow(ns);
+    js_register_scene_SubModel(ns);
+    js_register_scene_BakedJointInfo(ns);
+    js_register_scene_AABB(ns);
+    js_register_scene_Ambient(ns);
+    js_register_scene_SkinningModel(ns);
+    js_register_scene_DirectionalLight(ns);
+    js_register_scene_JointInfo(ns);
+    js_register_scene_Root(ns);
+    js_register_scene_Scene(ns);
+    js_register_scene_BakedAnimInfo(ns);
+    js_register_scene_Pass(ns);
+    js_register_scene_Skybox(ns);
+    js_register_scene_PipelineSharedSceneData(ns);
+    js_register_scene_SpotLight(ns);
     return true;
 }
 

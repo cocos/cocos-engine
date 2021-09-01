@@ -249,6 +249,7 @@ SE_DECLARE_FUNC(js_scene_SubModel_getPlanarInstanceShader);
 SE_DECLARE_FUNC(js_scene_SubModel_getPlanarShader);
 SE_DECLARE_FUNC(js_scene_SubModel_getPriority);
 SE_DECLARE_FUNC(js_scene_SubModel_getShader);
+SE_DECLARE_FUNC(js_scene_SubModel_getShaders);
 SE_DECLARE_FUNC(js_scene_SubModel_setDescriptorSet);
 SE_DECLARE_FUNC(js_scene_SubModel_setInputAssembler);
 SE_DECLARE_FUNC(js_scene_SubModel_setPasses);

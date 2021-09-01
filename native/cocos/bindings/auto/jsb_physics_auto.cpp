@@ -4826,18 +4826,18 @@ bool register_all_physics(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_physics_World(ns);
     js_register_physics_RigidBody(ns);
     js_register_physics_SphereShape(ns);
-    js_register_physics_BoxShape(ns);
-    js_register_physics_CapsuleShape(ns);
-    js_register_physics_PlaneShape(ns);
-    js_register_physics_TrimeshShape(ns);
     js_register_physics_CylinderShape(ns);
+    js_register_physics_TrimeshShape(ns);
+    js_register_physics_PlaneShape(ns);
+    js_register_physics_DistanceJoint(ns);
+    js_register_physics_RevoluteJoint(ns);
+    js_register_physics_CapsuleShape(ns);
+    js_register_physics_BoxShape(ns);
+    js_register_physics_World(ns);
     js_register_physics_ConeShape(ns);
     js_register_physics_TerrainShape(ns);
-    js_register_physics_RevoluteJoint(ns);
-    js_register_physics_DistanceJoint(ns);
     return true;
 }
 

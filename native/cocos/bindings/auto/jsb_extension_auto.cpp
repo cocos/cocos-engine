@@ -1273,9 +1273,9 @@ bool register_all_extension(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_extension_AssetsManagerEx(ns);
     js_register_extension_EventAssetsManagerEx(ns);
     js_register_extension_Manifest(ns);
-    js_register_extension_AssetsManagerEx(ns);
     return true;
 }
 
