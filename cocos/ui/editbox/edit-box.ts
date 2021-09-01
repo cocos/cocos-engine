@@ -190,7 +190,8 @@ export class EditBox extends Component {
         }
 
         this._backgroundImage = value;
-        this._createBackgroundSprite();
+        this._ensureBackgroundSprite();
+        this._background!.spriteFrame = value;
     }
 
     /**
@@ -407,6 +408,7 @@ export class EditBox extends Component {
     }
 
     public onDestroy () {
+        this._unregisterBackgroundEvent();
         if (this._impl) {
             this._impl.clear();
         }
@@ -507,7 +509,7 @@ export class EditBox extends Component {
     }
 
     protected _init () {
-        this._createBackgroundSprite();
+        this._ensureBackgroundSprite();
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
@@ -519,16 +521,20 @@ export class EditBox extends Component {
         this._syncSize();
     }
 
-    protected _createBackgroundSprite () {
+    protected _ensureBackgroundSprite () {
         if (!this._background) {
-            this._background = this.node.getComponent(Sprite);
-            if (!this._background) {
-                this._background = this.node.addComponent(Sprite);
+            let background = this.node.getComponent(Sprite);
+            if (!background) {
+                background = this.node.addComponent(Sprite);
+            }
+            if (background !== this._background) {
+                // init background
+                background.type = Sprite.Type.SLICED;
+                background.spriteFrame = this._backgroundImage;
+                this._background = background;
+                this._registerBackgroundEvent();
             }
         }
-
-        this._background.type = Sprite.Type.SLICED;
-        this._background.spriteFrame = this._backgroundImage;
     }
 
     protected _updateTextLabel () {
@@ -664,6 +670,27 @@ export class EditBox extends Component {
     protected _unregisterEvent () {
         this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+    }
+
+    private _onBackgroundSpriteFrameChanged () {
+        if (!this._background) {
+            return;
+        }
+        this.backgroundImage = this._background.spriteFrame;
+    }
+
+    private _registerBackgroundEvent () {
+        if (!this._background) {
+            return;
+        }
+        this._background.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+    }
+
+    private _unregisterBackgroundEvent () {
+        if (!this._background) {
+            return;
+        }
+        this._background.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     protected _updateLabelPosition (size: Size) {
