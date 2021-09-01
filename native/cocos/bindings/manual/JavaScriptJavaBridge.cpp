@@ -286,9 +286,13 @@ bool JavaScriptJavaBridge::CallInfo::executeWithArgs(jvalue *args) {
             break;
 
         case JavaScriptJavaBridge::ValueType::STRING: {
-            _mRetjstring         = static_cast<jstring>(_mEnv->CallStaticObjectMethodA(_mClassID, _mMethodID, args));
-            std::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
-            _mRet.stringValue    = new std::string(strValue);
+            _mRetjstring = static_cast<jstring>(_mEnv->CallStaticObjectMethodA(_mClassID, _mMethodID, args));
+            if (_mRetjstring) {
+                std::string strValue = cc::StringUtils::getStringUTFCharsJNI(_mEnv, _mRetjstring);
+                _mRet.stringValue    = new std::string(strValue);
+            } else {
+                _mRet.stringValue = nullptr;
+            }
             break;
         }
 
