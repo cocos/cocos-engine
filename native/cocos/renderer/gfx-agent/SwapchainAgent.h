@@ -38,6 +38,9 @@ public:
 
     bool isPreRotationEnabled() override { return _actor->isPreRotationEnabled(); }
 
+    // TO BE REMOVED
+    SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
+
 protected:
     void doInit(const SwapchainInfo &info) override;
     void doDestroy() override;

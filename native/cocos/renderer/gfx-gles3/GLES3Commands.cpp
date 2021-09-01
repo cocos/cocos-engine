@@ -27,6 +27,8 @@
 
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
+#include "gfx-gles-common/gles3w.h"
+#include "gfx-gles3/GLES3GPUObjects.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
 
@@ -1591,6 +1593,10 @@ static GLuint doCreateFramebuffer(GLES3Device *                    device,
         if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
     }
 
+    // register to framebuffer caches
+    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(glFramebuffer, attachments[colors[0]], 0);
+    if (depthStencil) device->framebufferCacheMap()->registerExternal(glFramebuffer, depthStencil, 0);
+
     GL_CHECK(glDrawBuffers(utils::toUint(drawBuffers.size()), drawBuffers.data()));
 
     GLenum status;
@@ -1697,7 +1703,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
     }
 }
 
-void GLES3GPUFramebuffer::GLFramebuffer::destroy(GLES3GPUStateCache *cache) {
+void GLES3GPUFramebuffer::GLFramebuffer::destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap) {
     if (swapchain) {
         swapchain = nullptr;
     } else {
@@ -1706,21 +1712,23 @@ void GLES3GPUFramebuffer::GLFramebuffer::destroy(GLES3GPUStateCache *cache) {
             cache->glDrawFramebuffer = 0;
         }
         GL_CHECK(glDeleteFramebuffers(1, &_glFramebuffer));
+        framebufferCacheMap->unregisterExternal(_glFramebuffer);
         _glFramebuffer = 0U;
     }
 }
 
 void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO) {
-    auto *cache = device->stateCache();
+    auto *cache               = device->stateCache();
+    auto *framebufferCacheMap = device->framebufferCacheMap();
 
     for (auto &instance : gpuFBO->instances) {
-        instance.framebuffer.destroy(cache);
-        instance.resolveFramebuffer.destroy(cache);
+        instance.framebuffer.destroy(cache, framebufferCacheMap);
+        instance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
     }
     gpuFBO->instances.clear();
 
-    gpuFBO->uberInstance.framebuffer.destroy(cache);
-    gpuFBO->uberInstance.resolveFramebuffer.destroy(cache);
+    gpuFBO->uberInstance.framebuffer.destroy(cache, framebufferCacheMap);
+    gpuFBO->uberInstance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
 }
 
 void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier) {

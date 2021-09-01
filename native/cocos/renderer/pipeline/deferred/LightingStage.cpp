@@ -834,7 +834,7 @@ void LightingStage::render(scene::Camera *camera) {
 
     // if gbuffer pass does not exist, skip lighting pass.
     // transparent objects draw after lighting pass, can be automatically merged by FG
-    if (pipeline->getFrameGraph().isPassExist(DeferredPipeline::fgStrHandleGbufferPass)) {
+    if (pipeline->getFrameGraph().hasPass(DeferredPipeline::fgStrHandleGbufferPass)) {
         fgLightingPass(camera);
     }
 
@@ -842,7 +842,7 @@ void LightingStage::render(scene::Camera *camera) {
 
     // if lighting pass does not exist, skip SSPR pass.
     // switch to clear image API when available
-    if (pipeline->getFrameGraph().isPassExist(DeferredPipeline::fgStrHandleLightingPass)) {
+    if (pipeline->getFrameGraph().hasPass(DeferredPipeline::fgStrHandleLightingPass)) {
         fgSsprPass(camera);
     }
 }

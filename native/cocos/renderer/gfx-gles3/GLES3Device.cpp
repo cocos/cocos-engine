@@ -150,6 +150,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
             fbfLevelStr                = "COHERENT";
         }
+        _features[toNumber(Feature::GL_FRAMEBUFFER_FETCH)] = true;
     }
 
     if (checkExtension("pixel_local_storage")) {
@@ -159,6 +160,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
             _gpuConstantRegistry->mPLS = PLSSupportLevel::LEVEL1;
         }
         glGetIntegerv(GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_SIZE_EXT, reinterpret_cast<GLint *>(&_gpuConstantRegistry->mPLSsize));
+        _features[toNumber(Feature::GL_PIXEL_LOCAL_STORAGE)] = true;
     }
 #endif
 

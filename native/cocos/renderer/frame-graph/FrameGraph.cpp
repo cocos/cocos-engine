@@ -56,7 +56,7 @@ const char *FrameGraph::handleToString(const StringHandle &handle) noexcept {
 }
 
 void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
-    static const StringHandle S_NAME_PRESENT = FrameGraph::stringToHandle("Present");
+    static const StringHandle PRESENT_PASS = FrameGraph::stringToHandle("Present");
     const ResourceNode &      resourceNode   = getResourceNode(input);
     CC_ASSERT(resourceNode.writer);
 
@@ -65,7 +65,7 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
     };
 
     addPass<PassDataPresent>(
-        resourceNode.writer->_insertPoint, S_NAME_PRESENT,
+        resourceNode.writer->_insertPoint, PRESENT_PASS,
         [&](PassNodeBuilder &builder, PassDataPresent &data) {
             data.input = builder.read(input);
             builder.sideEffect();
@@ -174,7 +174,7 @@ void FrameGraph::move(const TextureHandle from, const TextureHandle to, uint8_t 
     }
 }
 
-bool FrameGraph::isPassExist(StringHandle handle) {
+bool FrameGraph::hasPass(StringHandle handle) {
     for (const auto &passNode : _passNodes) {
         if (passNode->_name == handle) {
             return true;

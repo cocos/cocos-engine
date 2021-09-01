@@ -1045,8 +1045,8 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                          (glType == GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_OES);
         if (!isSampler) {
             for (auto &glBlock : gpuShader->glBlocks) {
-                for (uint i = 0; i < glBlock.glUniforms.size(); ++i) {
-                    auto &glUniform = glBlock.glUniforms[i];
+                for (uint j = 0; j < glBlock.glUniforms.size(); ++j) {
+                    auto &glUniform = glBlock.glUniforms[j];
                     if (glUniform.name == name) {
                         glUniform.glLoc = glGetUniformLocation(gpuShader->glProgram, glName);
                         glUniform.count = glSize;
@@ -1054,7 +1054,7 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
 
                         auto &activeUniform = glBlock.glActiveUniforms.emplace_back(glUniform);
                         activeUniform.buff.resize(activeUniform.size);
-                        glBlock.activeUniformIndices.push_back(i);
+                        glBlock.activeUniformIndices.push_back(j);
                         break;
                     }
                 }
@@ -1293,6 +1293,10 @@ static GLuint doCreateFramebuffer(GLES2Device *                    device,
         if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
     }
 
+    // register to framebuffer caches
+    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(glFramebuffer, attachments[colors[0]]);
+    if (depthStencil) device->framebufferCacheMap()->registerExternal(glFramebuffer, depthStencil);
+
     if (device->hasFeature(Feature::MULTIPLE_RENDER_TARGETS)) {
         GL_CHECK(glDrawBuffersEXT(utils::toUint(drawBuffers.size()), drawBuffers.data()));
     }
@@ -1396,7 +1400,7 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
     }
 }
 
-void GLES2GPUFramebuffer::GLFramebuffer::destroy(GLES2GPUStateCache *cache) {
+void GLES2GPUFramebuffer::GLFramebuffer::destroy(GLES2GPUStateCache *cache, GLES2GPUFramebufferCacheMap *framebufferCacheMap) {
     if (swapchain) {
         swapchain = nullptr;
     } else {
@@ -1405,21 +1409,23 @@ void GLES2GPUFramebuffer::GLFramebuffer::destroy(GLES2GPUStateCache *cache) {
             cache->glFramebuffer = 0;
         }
         GL_CHECK(glDeleteFramebuffers(1, &_glFramebuffer));
+        framebufferCacheMap->unregisterExternal(_glFramebuffer);
         _glFramebuffer = 0U;
     }
 }
 
 void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO) {
     auto *cache = device->stateCache();
+    auto *framebufferCacheMap = device->framebufferCacheMap();
 
     for (auto &instance : gpuFBO->instances) {
-        instance.framebuffer.destroy(cache);
-        instance.resolveFramebuffer.destroy(cache);
+        instance.framebuffer.destroy(cache, framebufferCacheMap);
+        instance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
     }
     gpuFBO->instances.clear();
 
-    gpuFBO->uberInstance.framebuffer.destroy(cache);
-    gpuFBO->uberInstance.resolveFramebuffer.destroy(cache);
+    gpuFBO->uberInstance.framebuffer.destroy(cache, framebufferCacheMap);
+    gpuFBO->uberInstance.resolveFramebuffer.destroy(cache, framebufferCacheMap);
 }
 
 void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint subpassIdx, GLES2GPURenderPass *gpuRenderPass, GLES2GPUFramebuffer *gpuFramebuffer,

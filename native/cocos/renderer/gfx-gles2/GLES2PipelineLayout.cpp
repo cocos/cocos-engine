@@ -25,6 +25,8 @@
 
 #include "GLES2Std.h"
 
+#include "base/Utils.h"
+
 #include "GLES2Commands.h"
 #include "GLES2DescriptorSetLayout.h"
 #include "GLES2PipelineLayout.h"
@@ -48,7 +50,7 @@ void GLES2PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
     for (uint i = 0U; i < _setLayouts.size(); i++) {
         DescriptorSetLayout *        setLayout    = _setLayouts[i];
         GLES2GPUDescriptorSetLayout *gpuSetLayout = static_cast<GLES2DescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
-        size_t                       dynamicCount = gpuSetLayout->dynamicBindings.size();
+        uint                         dynamicCount = utils::toUint(gpuSetLayout->dynamicBindings.size());
         vector<int> &                indices      = _gpuPipelineLayout->dynamicOffsetIndices[i];
         indices.assign(setLayout->getBindingIndices().size(), -1);
 

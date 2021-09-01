@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/Agent.h"
+#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
@@ -37,6 +38,9 @@ public:
     ~SwapchainValidator() override;
 
     bool isPreRotationEnabled() override { return _actor->isPreRotationEnabled(); }
+
+    // TO BE REMOVED
+    SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
 
 protected:
     void doInit(const SwapchainInfo &info) override;

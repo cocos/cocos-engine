@@ -40,9 +40,6 @@ public:
     void resize(uint32_t width, uint32_t height, SurfaceTransform transform);
     void destroy();
 
-    // TO BE REMOVED
-    inline void resize(uint32_t width, uint32_t height) { resize(width, height, SurfaceTransform::IDENTITY); }
-
     inline void destroySurface();
     inline void createSurface(void *windowHandle);
 
@@ -54,9 +51,12 @@ public:
 
     inline uint32_t getWidth() const { return _colorTexture->getWidth(); }
     inline uint32_t getHeight() const { return _colorTexture->getHeight(); }
-    inline SurfaceTransform getSurfaceTransform() const { return _transform; }
 
     virtual bool isPreRotationEnabled() { return _preRotationEnabled; }
+
+    // TO BE REMOVED
+    inline void resize(uint32_t width, uint32_t height) { resize(width, height, SurfaceTransform::IDENTITY); }
+    virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
 
 protected:
     virtual void doInit(const SwapchainInfo &info)         = 0;

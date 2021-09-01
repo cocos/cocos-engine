@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "base/Macros.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
@@ -297,6 +298,7 @@ public:
     vector<GLES3GPUGlobalBarrier> barriers;
 };
 
+class GLES3GPUFramebufferCacheMap;
 class GLES3GPUFramebuffer final : public Object {
 public:
     GLES3GPURenderPass *gpuRenderPass = nullptr;
@@ -310,7 +312,7 @@ public:
         inline void   initialize(GLuint framebuffer) { _glFramebuffer = framebuffer; }
         inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
 
-        void destroy(GLES3GPUStateCache *cache);
+        void destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap);
 
         GLES3GPUSwapchain *swapchain{nullptr};
 
@@ -504,20 +506,48 @@ public:
 
     ~GLES3GPUFramebufferCacheMap() override = default;
 
+    void registerExternal(GLuint glFramebuffer, const GLES3GPUTexture *gpuTexture, uint32_t mipLevel) {
+        bool   isTexture  = gpuTexture->glTexture;
+        GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
+        auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
+
+        if (cacheMap[glResource].empty()) cacheMap[glResource].resize(gpuTexture->mipLevel);
+        if (!cacheMap[glResource][mipLevel].glFramebuffer) {
+            cacheMap[glResource][mipLevel] = {glFramebuffer, true};
+        }
+    }
+
+    void unregisterExternal(GLuint glFramebuffer) {
+        for (auto &levels : _textureMap) {
+            for (auto &fbo : levels.second) {
+                if (fbo.glFramebuffer == glFramebuffer) {
+                    fbo.glFramebuffer = 0;
+                    return;
+                }
+            }
+        }
+        for (auto &levels : _renderbufferMap) {
+            for (auto &fbo : levels.second) {
+                if (fbo.glFramebuffer == glFramebuffer) {
+                    fbo.glFramebuffer = 0;
+                    return;
+                }
+            }
+        }
+    }
+
     GLuint getFramebufferFromTexture(const GLES3GPUTexture *gpuTexture, const TextureSubresLayers &subres) {
         bool   isTexture  = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
         auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
         uint   mipLevel   = isTexture ? subres.mipLevel : 0;
 
-        if (gpuTexture->glTexture == 0 && gpuTexture->glRenderbuffer == 0) {
-            static const uint DEFAULT_FRAMEBUFFER = 0;
-            return DEFAULT_FRAMEBUFFER;
-        }
+        if (gpuTexture->swapchain) return gpuTexture->swapchain->glFramebuffer;
+        CCASSERT(gpuTexture->glTexture || gpuTexture->glRenderbuffer, "Texture already destroyed?");
 
-        if (cacheMap[glResource].empty()) cacheMap[glResource].resize(gpuTexture->mipLevel, 0U);
+        if (cacheMap[glResource].empty()) cacheMap[glResource].resize(gpuTexture->mipLevel);
 
-        if (!cacheMap[glResource][mipLevel]) {
+        if (!cacheMap[glResource][mipLevel].glFramebuffer) {
             GLuint glFramebuffer = 0U;
             GL_CHECK(glGenFramebuffers(1, &glFramebuffer));
             if (_cache->glDrawFramebuffer != glFramebuffer) {
@@ -542,10 +572,10 @@ public:
             GL_CHECK(status = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER));
             CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
 
-            cacheMap[glResource][mipLevel] = glFramebuffer;
+            cacheMap[glResource][mipLevel].glFramebuffer = glFramebuffer;
         }
 
-        return cacheMap[glResource][mipLevel];
+        return cacheMap[glResource][mipLevel].glFramebuffer;
     }
 
     void onTextureDestroy(const GLES3GPUTexture *gpuTexture) {
@@ -554,14 +584,14 @@ public:
         auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
 
         if (cacheMap.count(glResource)) {
-            for (GLuint glFramebuffer : cacheMap[glResource]) {
-                if (!glFramebuffer) continue;
+            for (auto &record : cacheMap[glResource]) {
+                if (!record.glFramebuffer || record.isExternal) continue;
 
-                if (_cache->glDrawFramebuffer == glFramebuffer || _cache->glReadFramebuffer == glFramebuffer) {
+                if (_cache->glDrawFramebuffer == record.glFramebuffer || _cache->glReadFramebuffer == record.glFramebuffer) {
                     GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
                     _cache->glDrawFramebuffer = _cache->glReadFramebuffer = 0;
                 }
-                GL_CHECK(glDeleteFramebuffers(1, &glFramebuffer));
+                GL_CHECK(glDeleteFramebuffers(1, &record.glFramebuffer));
             }
             cacheMap.erase(glResource);
         }
@@ -570,7 +600,11 @@ public:
 private:
     GLES3GPUStateCache *_cache = nullptr;
 
-    using CacheMap = unordered_map<GLuint, vector<GLuint>>;
+    struct FramebufferRecord {
+        GLuint glFramebuffer{0};
+        bool   isExternal{false};
+    };
+    using CacheMap = unordered_map<GLuint, vector<FramebufferRecord>>;
     CacheMap _renderbufferMap; // renderbuffer -> mip level -> framebuffer
     CacheMap _textureMap;      // texture -> mip level -> framebuffer
 };

@@ -270,6 +270,7 @@ public:
     SubpassInfoList        subpasses;
 };
 
+class GLES2GPUFramebufferCacheMap;
 class GLES2GPUFramebuffer final : public Object {
 public:
     GLES2GPURenderPass *gpuRenderPass = nullptr;
@@ -283,7 +284,7 @@ public:
         inline void   initialize(GLuint framebuffer) { _glFramebuffer = framebuffer; }
         inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
 
-        void destroy(GLES2GPUStateCache *cache);
+        void destroy(GLES2GPUStateCache *cache, GLES2GPUFramebufferCacheMap *framebufferCacheMap);
 
         GLES2GPUSwapchain *swapchain{nullptr};
 
@@ -459,6 +460,31 @@ class GLES2GPUFramebufferCacheMap final : public Object {
 public:
     explicit GLES2GPUFramebufferCacheMap(GLES2GPUStateCache *cache) : _cache(cache) {}
 
+    void registerExternal(GLuint glFramebuffer, const GLES2GPUTexture *gpuTexture) {
+        bool   isTexture  = gpuTexture->glTexture;
+        GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
+        auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
+
+        if (!cacheMap[glResource].glFramebuffer) {
+            cacheMap[glResource] = {glFramebuffer, true};
+        }
+    }
+
+    void unregisterExternal(GLuint glFramebuffer) {
+        for (auto &fbos : _textureMap) {
+            if (fbos.second.glFramebuffer == glFramebuffer) {
+                fbos.second.glFramebuffer = 0;
+                return;
+            }
+        }
+        for (auto &fbos : _renderbufferMap) {
+            if (fbos.second.glFramebuffer == glFramebuffer) {
+                fbos.second.glFramebuffer = 0;
+                return;
+            }
+        }
+    }
+
     GLuint getFramebufferFromTexture(const GLES2GPUTexture *gpuTexture) {
         bool   isTexture  = gpuTexture->glTexture;
         GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
@@ -493,10 +519,10 @@ public:
             GL_CHECK(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
             CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
 
-            cacheMap[glResource] = glFramebuffer;
+            cacheMap[glResource].glFramebuffer = glFramebuffer;
         }
 
-        return cacheMap[glResource];
+        return cacheMap[glResource].glFramebuffer;
     }
 
     void onTextureDestroy(const GLES2GPUTexture *gpuTexture) {
@@ -505,7 +531,7 @@ public:
         auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
 
         if (cacheMap.count(glResource)) {
-            GLuint glFramebuffer = cacheMap[glResource];
+            GLuint glFramebuffer = cacheMap[glResource].glFramebuffer;
             if (!glFramebuffer) return;
 
             if (_cache->glFramebuffer == glFramebuffer) {
@@ -520,7 +546,11 @@ public:
 private:
     GLES2GPUStateCache *_cache = nullptr;
 
-    using CacheMap = unordered_map<GLuint, GLuint>;
+    struct FramebufferRecord {
+        GLuint glFramebuffer{0};
+        bool   isExternal{false};
+    };
+    using CacheMap = unordered_map<GLuint, FramebufferRecord>;
     CacheMap _renderbufferMap; // renderbuffer -> framebuffer
     CacheMap _textureMap;      // texture -> framebuffer
 };
