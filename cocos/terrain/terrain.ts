@@ -600,6 +600,14 @@ export class TerrainBlock {
     }
 
     /**
+     * @en get weight map
+     * @zh 获得权重图
+     */
+    get weightmap () {
+        return this._weightMap;
+    }
+
+    /**
      * @en get light map
      * @zh 获得光照图
      */
