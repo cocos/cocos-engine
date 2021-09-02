@@ -57,6 +57,7 @@ const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
 const dirtyNodes: any[] = [];
 const nativeDirtyNodes: any[] = [];
+const view_tmp:[Uint32Array, number] = [] as any;
 class BookOfChange {
     private _chunks: Uint32Array[] = [];
     private _freelists: number[][] = [];
@@ -102,9 +103,9 @@ class BookOfChange {
     }
 
     private _createView (chunkIdx: number): [Uint32Array, number] {
-        const chunk = this._chunks[chunkIdx];
-        const offset = this._freelists[chunkIdx].pop()!;
-        return [chunk, offset];
+        view_tmp[0] = this._chunks[chunkIdx];
+        view_tmp[1] = this._freelists[chunkIdx].pop()!;
+        return view_tmp;
     }
 }
 
@@ -711,8 +712,12 @@ export class Node extends BaseNode implements CustomSerializable {
      */
     public invalidateChildren (dirtyBit: TransformBit) {
         let i = 0;
+        let j = 0;
+        let l = 0;
         let cur: this;
+        let c : this;
         let flag = 0;
+        let children:this[];
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
@@ -747,17 +752,19 @@ export class Node extends BaseNode implements CustomSerializable {
                 // ```
                 cur._hasChangedFlags[0] = hasChangedFlags | dirtyBit;
 
-                // eslint-disable-next-line no-loop-func
-                cur._children.forEach((c) => {
+                children = cur._children;
+                l = children.length;
+                for (j = 0; j < l; j++) {
+                    c = children[j];
                     // NOTE: inflate function
                     // ```
-                    // this._setDirtyNode(0, this);
+                    // this._setDirtyNode(0, c);
                     // ```
                     dirtyNodes[++i] = c;
                     if (JSB) {
                         nativeDirtyNodes[i] = c.native;
                     }
-                });
+                }
             }
             dirtyBit = childDirtyBit;
         }
