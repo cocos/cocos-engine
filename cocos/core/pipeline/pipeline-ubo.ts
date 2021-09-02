@@ -175,16 +175,27 @@ export class PipelineUBO {
                     far = shadowInfo.far;
                 }
 
-                Mat4.toArray(sv, shadowCameraView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.invert(matShadowView, shadowCameraView!);
+                Mat4.toArray(sv, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
                     device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowViewProj.m10;
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowViewProj.m14;
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowViewProj.m11;
+                sv[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowViewProj.m15;
+
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 0] = matShadowViewProj.m00;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 1] = matShadowViewProj.m05;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 1.0 / matShadowViewProj.m00;
+                sv[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0 / matShadowViewProj.m05;
+
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
-                const packing = linear ? 0.0 : 1.0;
+                const linear = 0.0;
+                const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = shadowInfo.near;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = far;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
@@ -211,8 +222,8 @@ export class PipelineUBO {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
-        const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
-        const packing = linear ? 0.0 : 1.0;
+        const linear = 0.0;
+        const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
         let _x = 0; let _y = 0; let _far = 0;
         let shadowCameraView: Mat4;
         switch (light.type) {
@@ -241,8 +252,8 @@ export class PipelineUBO {
                 _far = shadowInfo.far;
             }
 
-            Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, shadowCameraView!);
+            Mat4.toArray(sv, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
             vec4ShadowInfo.set(shadowInfo.near, _far, linear, 1.0 - shadowInfo.saturation);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
@@ -254,9 +265,8 @@ export class PipelineUBO {
                 device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
             break;
         case LightType.SPOT:
-            // light view
-            Mat4.toArray(sv, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, (light as any).node.getWorldMatrix());
+            Mat4.toArray(sv, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
             vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 1.0 - shadowInfo.saturation);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
@@ -264,8 +274,7 @@ export class PipelineUBO {
             vec4ShadowInfo.set(1.0, packing, shadowInfo.normalBias, 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
-            // light proj
-            Mat4.perspective(matShadowViewProj, (light as any).spotAngle, (light as any).aspect, 0.001, (light as any).range);
+            Mat4.perspective(matShadowViewProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
             break;
         default:
         }
