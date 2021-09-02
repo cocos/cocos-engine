@@ -403,7 +403,9 @@ export class ShadowsInfo {
     @serializable
     protected _far = 10.0;
     @serializable
-    protected _range = 50.0;
+    protected _shadowDistance = 10;
+    @serializable
+    protected _invisibleOcclusionRange = 50;
     @serializable
     protected _orthoSize = 5;
     @serializable
@@ -614,11 +616,8 @@ export class ShadowsInfo {
      * @en get or set shadow camera far
      * @zh 获取或者设置阴影相机远裁剪面
      */
-    @editable
-    @range([0.0, 2000.0, 0.1])
-    @slide
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set far (val: number) {
         this._far = Math.min(val, 2000.0);
         if (this._resource) { this._resource.far = Math.min(val, 2000.0); }
@@ -636,14 +635,33 @@ export class ShadowsInfo {
     @slide
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
-    set range (val: number) {
-        this._range = Math.min(val, 2000.0);
+    set invisibleOcclusionRange (val: number) {
+        this._invisibleOcclusionRange = Math.min(val, 2000.0);
         if (this._resource) {
-            this._resource.range = Math.min(val, 2000.0);
+            this._resource.invisibleOcclusionRange = Math.min(val, 2000.0);
         }
     }
-    get range () {
-        return this._range;
+    get invisibleOcclusionRange () {
+        return this._invisibleOcclusionRange;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置潜在阴影产生的范围
+     */
+    @editable
+    @range([0.0, 2000.0, 0.1])
+    @slide
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
+    set shadowDistance (val: number) {
+        this._shadowDistance = Math.min(val, 2000.0);
+        if (this._resource) {
+            this._resource.shadowDistance = Math.min(val, 2000.0);
+        }
+    }
+    get shadowDistance () {
+        return this._shadowDistance;
     }
 
     /**

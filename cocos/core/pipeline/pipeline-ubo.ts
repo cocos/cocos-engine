@@ -156,8 +156,8 @@ export class PipelineUBO {
                 let matShadowProj;
                 let matShadowViewProj;
                 if (!shadowInfo.fixedArea) {
-                    near = shadowInfo.near;
-                    far = shadowInfo.shadowDistance;
+                    near = 0.1;
+                    far = shadowInfo.shadowCameraFar;
                     matShadowView = shadowInfo.matShadowView;
                     matShadowProj = shadowInfo.matShadowProj;
                     matShadowViewProj = shadowInfo.matShadowViewProj;
@@ -227,8 +227,8 @@ export class PipelineUBO {
         switch (light.type) {
         case LightType.DIRECTIONAL:
             if (!shadowInfo.fixedArea) {
-                near = shadowInfo.near;
-                far = shadowInfo.shadowDistance;
+                near = 0.1;
+                far = shadowInfo.shadowCameraFar;
                 matShadowView = shadowInfo.matShadowView;
                 matShadowProj = shadowInfo.matShadowProj;
                 matShadowViewProj = shadowInfo.matShadowViewProj;

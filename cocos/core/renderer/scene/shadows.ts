@@ -196,16 +196,30 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow range.
-     * @zh 控制阴影产生的范围。
+     * @en get or set shadow invisible Occlusion Range.
+     * @zh 控制潜在遮挡体产生的范围。
      */
-    public get range (): number {
-        return this._range;
+    public get invisibleOcclusionRange (): number {
+        return this._invisibleOcclusionRange;
     }
-    public set range (val: number) {
-        this._range = val;
+    public set invisibleOcclusionRange (val: number) {
+        this._invisibleOcclusionRange = val;
         if (JSB) {
-            this._nativeObj!.range = val;
+            this._nativeObj!.invisibleOcclusionRange = val;
+        }
+    }
+
+    /**
+     * @en get or set shadow distance.
+     * @zh 控制阴影的可视范围。
+     */
+    public get shadowDistance (): number {
+        return this._shadowDistance;
+    }
+    public set shadowDistance (val: number) {
+        this._shadowDistance = val;
+        if (JSB) {
+            this._nativeObj!.shadowDistance = val;
         }
     }
 
@@ -386,7 +400,7 @@ export class Shadows {
     public maxReceived = 4;
 
     // local
-    public shadowDistance = 0;
+    public shadowCameraFar = 0;
     public matShadowView = new Mat4();
     public matShadowProj = new Mat4();
     public matShadowViewProj = new Mat4();
@@ -402,7 +416,8 @@ export class Shadows {
     protected _type = SHADOW_TYPE_NONE;
     protected _near = 0.1;
     protected _far = 10;
-    protected _range = 50.0;
+    protected _invisibleOcclusionRange = 50;
+    protected _shadowDistance = 10;
     protected _orthoSize = 1;
     protected _pcf = 0;
     protected _shadowMapDirty = false;
@@ -464,7 +479,8 @@ export class Shadows {
     public initialize (shadowsInfo: ShadowsInfo) {
         this.near = shadowsInfo.near;
         this.far = shadowsInfo.far;
-        this.range = shadowsInfo.range;
+        this.invisibleOcclusionRange = shadowsInfo.invisibleOcclusionRange;
+        this.shadowDistance = shadowsInfo.shadowDistance;
         this.orthoSize = shadowsInfo.orthoSize;
         this.size = shadowsInfo.size;
         this.pcf = shadowsInfo.pcf;

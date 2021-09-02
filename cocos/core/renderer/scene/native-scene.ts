@@ -264,7 +264,8 @@ export const NativeShadow: Constructor<{
     color: Color;
     nearValue: number;
     farValue: number;
-    range: number;
+    invisibleOcclusionRange: number;
+    shadowDistance: number;
     orthoSize: number;
     size: Vec2;
     pcfType: number;
