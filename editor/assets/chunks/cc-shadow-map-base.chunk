@@ -26,14 +26,14 @@ float CCGetLinearDepth(vec3 worldPos) {
 
   vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal)
   {
-    vec4 newshadowPos = shadowPos;
+    vec4 newShadowPos = shadowPos;
     if(cc_shadowLPNNInfo.z > 0.0001)
     {
       vec4 viewNormal = cc_matLightView * vec4(worldNormal, 0.0);
       if(viewNormal.z < 0.1)
-        newshadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * cc_shadowLPNNInfo.z * clamp(viewNormal.z, 0.001, 0.1);
+        newShadowPos.xy += viewNormal.xy * cc_shadowProjInfo.xy * cc_shadowLPNNInfo.z * clamp(viewNormal.z, 0.001, 0.1);
     }
-    return newshadowPos;
+    return newShadowPos;
   }
   
   vec4 ApplyShadowDepthBias_Perspective(vec4 shadowPos, float viewspaceDepthBias)
@@ -77,7 +77,6 @@ float CCGetLinearDepth(vec3 worldPos) {
     return result;
   }
   
-
   float CCGetShadowFactorHard (vec4 shadowPos) {
     vec4 clipPosNew = ApplyShadowDepthBias_Orthographic(shadowPos, cc_shadowWHPBInfo.w);
     vec3 clipPos = clipPosNew.xyz / clipPosNew.w * 0.5 + 0.5;
@@ -224,38 +223,37 @@ float CCGetLinearDepth(vec3 worldPos) {
         clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
-    float offsetx = 1.0 / cc_shadowWHPBInfo.x;
-    float offsety = 1.0 / cc_shadowWHPBInfo.y;
-    float shadow = 0.0;
-    float depth = clipPos.z;
-    
-    float offsetDepth = depth;
-    // packing enabled?
-    if (cc_shadowLPNNInfo.y > 0.000001) {
-      float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)));
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)));
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y - offsety)));
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
-      shadow += step(offsetDepth, closestDepth);
+    float depth = 0.0;
+    if (cc_shadowNFLSInfo.z > 0.000001) {
+      depth = CCGetLinearDepth(worldPos);
     } else {
-      float closestDepth = texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)).x;
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = texture(cc_spotLightingMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)).x;
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x;
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y - offsety)).x;
-      shadow += step(offsetDepth, closestDepth);
-      closestDepth = texture(cc_spotLightingMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)).x;
-      shadow += step(offsetDepth, closestDepth);
+      depth = clipPos.z;
     }
 
-    return shadow / 5.0;
+    float bias = cc_shadowWHPBInfo.w;
+    float offsetDepth = depth - bias;
+    vec2 oneTap = 1.0 / cc_shadowWHPBInfo.xy;
+    vec2 clipPos_offset = clipPos.xy + oneTap;
+
+    float block0, block1, block2, block3;
+    if (cc_shadowLPNNInfo.y > 0.000001) {
+      block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
+      block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y))));
+      block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y))));
+      block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y))));
+    } else {
+      block0 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x);
+      block1 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y)).x);
+      block2 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y)).x);
+      block3 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y)).x);
+    }
+
+    float coefX   = mod(clipPos.x, oneTap.x) * cc_shadowWHPBInfo.x;
+    float resultX = mix(block0, block1, coefX);
+    float resultY = mix(block2, block3, coefX);
+    float coefY   = mod(clipPos.y, oneTap.y) * cc_shadowWHPBInfo.y;
+
+    return mix(resultX, resultY, coefY);
   }
 
   float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos) {
@@ -266,29 +264,66 @@ float CCGetLinearDepth(vec3 worldPos) {
         clipPos.z < 0.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
-    float offsetx = 1.0 / cc_shadowWHPBInfo.x;
-    float offsety = 1.0 / cc_shadowWHPBInfo.y;
-    float shadow = 0.0;
-    float depth = clipPos.z;
-
-    float offsetDepth = depth;
-    if (cc_shadowLPNNInfo.y > 0.000001) {
-      for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-          float closestDepth = unpackRGBAToDepth(texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)));
-          shadow += step(offsetDepth, closestDepth);
-        }
-      }
+    float depth = 0.0;
+    if (cc_shadowNFLSInfo.z > 0.000001) {
+      depth = CCGetLinearDepth(worldPos);
     } else {
-      for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-          float closestDepth = texture(cc_spotLightingMap, clipPos.xy + vec2(i, j) * vec2(offsetx, offsety)).x;
-          shadow += step(offsetDepth, closestDepth);
-        }
-      }
+      depth = clipPos.z;
     }
 
-    return shadow / 9.0;
+    float bias = cc_shadowWHPBInfo.w;
+    float offsetDepth = clipPos.z - bias;
+    vec2 mapSize = cc_shadowWHPBInfo.xy;
+    vec2 oneTap = 1.0 / mapSize;
+    float clipPos_offset_L = clipPos.x - oneTap.x;
+    float clipPos_offset_R = clipPos.x + oneTap.x;
+    float clipPos_offset_U = clipPos.y - oneTap.y;
+    float clipPos_offset_D = clipPos.y + oneTap.y;
+
+    float block0, block1, block2, block3, block4, block5, block6, block7, block8;
+    if (cc_shadowLPNNInfo.y > 0.000001) {
+      block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U))));
+      block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U))));
+      block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U))));
+      block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos.y))));
+      block4 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
+      block5 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos.y))));
+      block6 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D))));
+      block7 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D))));
+      block8 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D))));
+    } else {
+      block0 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U)).x);
+      block1 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U)).x);
+      block2 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U)).x);
+      block3 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos.y)).x);
+      block4 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x);
+      block5 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos.y)).x);
+      block6 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D)).x);
+      block7 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D)).x);
+      block8 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D)).x);
+    }
+
+    float coefX = mod(clipPos.x, oneTap.x) * mapSize.x;
+    float coefY = mod(clipPos.y, oneTap.y) * mapSize.y;
+
+    float shadow = 0.0;
+    float resultX = mix(block0, block1, coefX);
+    float resultY = mix(block3, block4, coefX);
+    shadow += mix(resultX , resultY, coefY);
+
+    resultX = mix(block1, block2, coefX);
+    resultY = mix(block4, block5, coefX);
+    shadow += mix(resultX , resultY, coefY);
+
+    resultX = mix(block3, block4, coefX);
+    resultY = mix(block6, block7, coefX);
+    shadow += mix(resultX, resultY, coefY);
+
+    resultX = mix(block4, block5, coefX);
+    resultY = mix(block7, block8, coefX);
+    shadow += mix(resultX, resultY, coefY);
+
+    return shadow * 0.25;
   }
 #endif
 
