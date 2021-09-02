@@ -212,21 +212,25 @@ void CCMTLDevice::present() {
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBufferWithUnretainedReferences];
+    // NSWindow-related(: drawable) should be udpated in main thread.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBufferWithUnretainedReferences];
 
-    [cmdBuffer enqueue];
+        [cmdBuffer enqueue];
 
-    for (CCMTLSwapchain* swapchain: _swapchains) {
-        if (swapchain->currentDrawable()) {
-            [cmdBuffer presentDrawable:swapchain->currentDrawable()];
-            swapchain->release();
+        for (CCMTLSwapchain* swapchain: _swapchains) {
+            if (swapchain->currentDrawable()) {
+                id<CAMetalDrawable> drawable = swapchain->currentDrawable();
+                [cmdBuffer presentDrawable:drawable];
+                swapchain->release();
+            }
+            [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+                onPresentCompleted();
+            }];
         }
-        [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-            onPresentCompleted();
-        }];
-    }
 
-    [cmdBuffer commit];
+        [cmdBuffer commit];
+    });
 
     if (_autoreleasePool) {
 //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);

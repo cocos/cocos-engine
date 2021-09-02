@@ -50,6 +50,10 @@ public:
     inline Format getConvertedFormat() const { return _convertedFormat; }
     inline bool isArray() const { return _isArray; }
     inline bool isPVRTC() const { return _isPVRTC; }
+    
+    //update drawable from swapchain.
+    void update();
+    
     const TextureInfo& textureInfo();
     CCMTLSwapchain* swapChain();
 
@@ -61,9 +65,6 @@ protected:
     void doInit(const SwapchainTextureInfo &info) override;
 
     bool createMTLTexture();
-
-    //update drawable from swapchain.
-    void update();
 
     Format _convertedFormat = Format::UNKNOWN;
     bool _isArray = false;

@@ -727,14 +727,93 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         } else {
             dst = ccDstTex->getMTLTexture();
         }
-
+        
         id<MTLDevice> mtlDevice = static_cast<id<MTLDevice>>(_mtlDevice->getMTLDevice());
+        
+        //format conversion
+        MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor alloc] init];
+        descriptor.width = src.width;
+        descriptor.height = src.height;
+        descriptor.depth = src.depth;
+        descriptor.pixelFormat = dst.pixelFormat;
+        descriptor.textureType = src.textureType;
+        descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
+        descriptor.storageMode = MTLStorageModePrivate;
+        
+        bool texTransient = false;
+        if(mu::isImageBlockSupported()) {
+            if (@available(macOS 11.0, *)) {
+                descriptor.storageMode = MTLStorageModeMemoryless;
+                texTransient = true;
+            }
+        }
+        
+        // 1. format conversion
+        id<MTLTexture> formatTex = [mtlDevice newTextureWithDescriptor:descriptor];
         MPSImageConversion *conversion = [[MPSImageConversion alloc] initWithDevice: mtlDevice srcAlpha:MPSAlphaTypeNonPremultiplied destAlpha:MPSAlphaTypeNonPremultiplied backgroundColor:nil conversionInfo:nil];
-        [conversion encodeToCommandBuffer:mtlCmdBuffer sourceTexture:src destinationTexture:dst];
+        [conversion encodeToCommandBuffer:mtlCmdBuffer sourceTexture:src destinationTexture:formatTex];
         [conversion release];
+        
+        double scaleFactorW = [dst width] / (double)[src width];
+        double scaleFactorH = [dst height] / (double)[src height];
+        double scaleFactorD = [dst depth] / (double)[src depth];
+        
+        double uniformScale = scaleFactorW > scaleFactorH ? scaleFactorW : scaleFactorH;
+        
+        id<MTLTexture> sizeTex = formatTex;
+        if([dst width] > [src width] || [dst height] > [src height]) {
+            // 2. size conversion
+            descriptor.width = dst.width;
+            descriptor.height = dst.height;
+            descriptor.depth = dst.depth;
+            descriptor.pixelFormat = dst.pixelFormat;
+            descriptor.textureType = dst.textureType;
+            descriptor.usage = MTLTextureUsageShaderWrite;
+            
+            sizeTex = [mtlDevice newTextureWithDescriptor:descriptor];
+            
+            MPSImageLanczosScale *imgScale = [[MPSImageLanczosScale alloc] initWithDevice:mtlDevice];
+            
+            MPSScaleTransform scale {uniformScale, uniformScale, 0, 0};
+            [imgScale setScaleTransform:&scale];
+            [imgScale encodeToCommandBuffer:mtlCmdBuffer sourceTexture:formatTex destinationTexture:sizeTex];
+            [imgScale release];
+            if(!texTransient) {
+                [formatTex release];
+            }
+        }
+        
+        //blit
+        id<MTLBlitCommandEncoder> encoder = [mtlCmdBuffer blitCommandEncoder];
+        for (uint i = 0; i < count; ++i) {
+            // source region scale
+            uint32_t width = (uint32_t)(regions[i].srcExtent.width * scaleFactorW);
+            uint32_t height = (uint32_t)(regions[i].srcExtent.height * scaleFactorH);
+            uint32_t depth = (uint32_t)(regions[i].srcExtent.depth * scaleFactorD);
+            uint32_t x = (uint32_t)(regions[i].srcOffset.x * scaleFactorW);
+            uint32_t y = (uint32_t)(regions[i].srcOffset.y * scaleFactorH);
+            uint32_t z = (uint32_t)(regions[i].srcOffset.z * scaleFactorD);
+            [encoder copyFromTexture:sizeTex
+                         sourceSlice:regions[i].srcSubres.baseArrayLayer
+                         sourceLevel:regions[i].srcSubres.mipLevel
+                        sourceOrigin:MTLOriginMake(x, y, z)
+                          sourceSize:MTLSizeMake(width, height, depth)
+                           toTexture:dst
+                    destinationSlice:regions[i].dstSubres.baseArrayLayer
+                    destinationLevel:regions[i].srcSubres.mipLevel
+                   destinationOrigin:MTLOriginMake(regions[i].dstOffset.x, regions[i].dstOffset.y, regions[i].dstOffset.z)];
+        }
+        [encoder endEncoding];
+        
+        if(!texTransient) {
+            [sizeTex release];
+        }
+        
+        [descriptor release];
 
-        if(!cmdActivated)
+        if(!cmdActivated) {
             [mtlCmdBuffer commit];
+        }
     }
 }
 
