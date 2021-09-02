@@ -860,7 +860,7 @@ export class Terrain extends Component {
     @visible(true)
     public set _asset (value: TerrainAsset|null) {
         if (this.__asset !== value) {
-            this.__asset = value ? value : null;
+            this.__asset = value;
 
             // destroy all block
             for (let i = 0; i < this._blocks.length; ++i) {
