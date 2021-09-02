@@ -198,6 +198,10 @@ export class Ambient {
         this.skyColor = ambientInfo.skyColor;
         this.groundAlbedo = ambientInfo.groundAlbedo;
         this.skyIllum = ambientInfo.skyIllum;
+
+        this._colorArray_hdr = ambientInfo.skyColor_hdr;
+        this._albedoArray_hdr = ambientInfo.groundAlbedo_hdr; 
+        this._skyIllum_hdr = ambientInfo.skyIllum_hdr; 
     }
 
     protected _destroy () {
