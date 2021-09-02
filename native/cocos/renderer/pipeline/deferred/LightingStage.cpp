@@ -276,7 +276,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     _reflectionComp            = new ReflectionComp();
 
     gfx::ColorAttachment cAttch = {
-        gfx::Format::RGBA16F,
+        gfx::Format::RGBA8,
         gfx::SampleCount::X1,
         gfx::LoadOp::LOAD,
         gfx::StoreOp::STORE,

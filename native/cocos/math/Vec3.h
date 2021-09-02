@@ -23,7 +23,6 @@
 #ifndef MATH_VEC3_H
 #define MATH_VEC3_H
 
-#include <cmath>
 #include "math/MathBase.h"
 
 /**
@@ -51,22 +50,22 @@ public:
     /**
      * The x-coordinate.
      */
-    float x;
+    float x{};
 
     /**
      * The y-coordinate.
      */
-    float y;
+    float y{};
 
     /**
      * The z-coordinate.
      */
-    float z;
+    float z{};
 
     /**
      * Constructs a new vector initialized to all zeros.
      */
-    Vec3();
+    Vec3() = default;
 
     /**
      * Constructs a new vector initialized to the specified values.
@@ -82,7 +81,7 @@ public:
      *
      * @param array An array containing the elements of the vector in the order x, y, z.
      */
-    Vec3(const float *array);
+    explicit Vec3(const float *array);
 
     /**
      * Constructs a vector that describes the direction between the specified points.
@@ -112,7 +111,7 @@ public:
     /**
      * Destructor.
      */
-    ~Vec3();
+    ~Vec3() = default;
 
     /**
      * Indicates whether this vector contains all zeros.
@@ -187,6 +186,15 @@ public:
      * @param v The vector to compute the cross product with.
      */
     void cross(const Vec3 &v);
+
+    /**
+     * Calculate cross product.
+     *
+     * @param v1 is a vector.
+     * @param v2 is a vector.
+     * @param dst is a vector used to calculate the cross product of v1 and v2. 
+     */
+    static void crossProduct(const Vec3 &v1, const Vec3 &v2, Vec3 *dst);
 
     /**
      * Computes the cross product of the specified vectors and stores the result in dst.
@@ -525,9 +533,11 @@ public:
      * @return bool
      */
     inline bool operator<(const Vec3 &rhs) const {
-        if (x < rhs.x && y < rhs.y && z < rhs.z)
-            return true;
-        return false;
+        bool temp = false;
+        if (x < rhs.x && y < rhs.y && z < rhs.z) {
+            temp =  true;
+        }  
+        return temp;
     }
 
     /**
@@ -538,9 +548,11 @@ public:
      * @return bool
      */
     inline bool operator>(const Vec3 &rhs) const {
-        if (x > rhs.x && y > rhs.y && z > rhs.z)
-            return true;
-        return false;
+        bool temp = false;
+        if (x > rhs.x && y > rhs.y && z > rhs.z) {
+            temp = true;
+        }
+        return temp;
     }
 
     /**
@@ -580,6 +592,8 @@ public:
     static const Vec3 UNIT_Y;
     /** equals to Vec3(0,0,1) */
     static const Vec3 UNIT_Z;
+    /** equals to Vec3(0,0,-1) */
+    static const Vec3 FORWARD;
 };
 
 /**

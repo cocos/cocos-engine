@@ -501,6 +501,13 @@ public:
     bool inverse();
 
     /**
+     * Clone this matrix.
+     *
+     * @return a new clone matrix.
+     */
+    Mat4 clone() const;
+
+    /**
      * Get the inversed matrix.
      */
     Mat4 getInversed() const;

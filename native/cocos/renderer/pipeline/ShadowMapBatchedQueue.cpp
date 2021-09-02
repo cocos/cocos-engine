@@ -72,8 +72,16 @@ void ShadowMapBatchedQueue::gatherLightPasses(const scene::Light *light, gfx::Co
                         add(model, cmdBuffer);
                     }
                 } break;
-                default:
-                    break;
+
+                case scene::LightType::SPHERE: {
+                } break;
+
+                case scene::LightType::UNKNOWN: {
+                } break;
+
+                default: {
+                    
+                } break;
             }
         }
     }
@@ -137,9 +145,9 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
 }
 
 void ShadowMapBatchedQueue::destroy() {
-    CC_SAFE_DELETE(_batchedQueue);
+    CC_SAFE_DELETE(_batchedQueue)
 
-    CC_SAFE_DELETE(_instancedQueue);
+    CC_SAFE_DELETE(_instancedQueue)
 
     _buffer = nullptr;
 }

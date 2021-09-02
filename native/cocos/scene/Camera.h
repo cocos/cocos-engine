@@ -44,8 +44,10 @@ struct Camera final {
     uint32_t      width{0};
     uint32_t      height{0};
     uint32_t      clearFlag{0};
-    float         exposure{0};
-    float         clearDepth{0};
+    float         exposure{0.0F};
+    float         clearDepth{0.0F};
+    float         fov{0.0F};
+    float         aspect{0.0F};
     Vec4          viewPort;
     uint32_t      clearStencil{0};
     uint32_t      visibility{0};
