@@ -19,31 +19,6 @@ export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode, EasingMeth
 @ccclass('cc.RealKeyframeValue')
 @uniquelyReferenced
 class RealKeyframeValue extends EditorExtendable {
-    constructor ({
-        interpolationMode,
-        tangentWeightMode,
-        value,
-        rightTangent,
-        rightTangentWeight,
-        leftTangent,
-        leftTangentWeight,
-        easingMethod,
-        [editorExtrasTag]: editorExtras,
-    }:  Partial<RealKeyframeValue> = { }) {
-        super();
-        this.value = value ?? this.value;
-        this.rightTangent = rightTangent ?? this.rightTangent;
-        this.rightTangentWeight = rightTangentWeight ?? this.rightTangentWeight;
-        this.leftTangent = leftTangent ?? this.leftTangent;
-        this.leftTangentWeight = leftTangentWeight ?? this.leftTangentWeight;
-        this.interpolationMode = interpolationMode ?? this.interpolationMode;
-        this.tangentWeightMode = tangentWeightMode ?? this.tangentWeightMode;
-        this.easingMethod = easingMethod ?? this.easingMethod;
-        if (editorExtras) {
-            this[editorExtrasTag] = editorExtras;
-        }
-    }
-
     /**
      * Interpolation method used for this keyframe.
      */
@@ -115,7 +90,34 @@ export type { RealKeyframeValue };
 type RealKeyframeValueParameters = number | Partial<RealKeyframeValue>;
 
 function createRealKeyframeValue (params: RealKeyframeValueParameters) {
-    return new RealKeyframeValue(typeof params === 'number' ? { value: params } : params);
+    const realKeyframeValue = new RealKeyframeValue();
+    if (typeof params === 'number') {
+        realKeyframeValue.value = params;
+    } else {
+        const {
+            interpolationMode,
+            tangentWeightMode,
+            value,
+            rightTangent,
+            rightTangentWeight,
+            leftTangent,
+            leftTangentWeight,
+            easingMethod,
+            [editorExtrasTag]: editorExtras,
+        } = params;
+        realKeyframeValue.value = value ?? realKeyframeValue.value;
+        realKeyframeValue.rightTangent = rightTangent ?? realKeyframeValue.rightTangent;
+        realKeyframeValue.rightTangentWeight = rightTangentWeight ?? realKeyframeValue.rightTangentWeight;
+        realKeyframeValue.leftTangent = leftTangent ?? realKeyframeValue.leftTangent;
+        realKeyframeValue.leftTangentWeight = leftTangentWeight ?? realKeyframeValue.leftTangentWeight;
+        realKeyframeValue.interpolationMode = interpolationMode ?? realKeyframeValue.interpolationMode;
+        realKeyframeValue.tangentWeightMode = tangentWeightMode ?? realKeyframeValue.tangentWeightMode;
+        realKeyframeValue.easingMethod = easingMethod ?? realKeyframeValue.easingMethod;
+        if (editorExtras) {
+            realKeyframeValue[editorExtrasTag] = editorExtras;
+        }
+    }
+    return realKeyframeValue;
 }
 
 /**
