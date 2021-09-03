@@ -23,6 +23,7 @@ const wasmBin: Uint8Array = Uint8Array.from(atob(wasmBase64), (c) => c.charCodeA
 const wgpuWasmModule = {
     wasmBinary: wasmBin,
     wasmLoaded: false,
+    nativeDevice: undefined,
 };
 
 wasmDevice(wgpuWasmModule).then(() => {
