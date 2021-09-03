@@ -9,7 +9,6 @@ import { EditorExtendable, EditorExtendableMixin } from '../data/editor-extendab
 import { CCClass, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';
-import { defineX } from '../data/class';
 import { getOrCreateSerializationMetadata } from '../data/serialization-metadata';
 
 export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode, EasingMethod };
@@ -68,18 +67,24 @@ class RealKeyframeValue extends EditorExtendable {
     public easingMethod = EasingMethod.LINEAR;
 }
 
-defineX(
+CCClass.fastDefine(
     'cc.RealKeyframeValue',
     RealKeyframeValue, {
-        interpolationMode: { default: RealInterpolationMode.LINEAR },
-        tangentWeightMode: { default: TangentWeightMode.NONE },
-        value: { default: 0.0 },
-        rightTangent: { default: 0.0 },
-        rightTangentWeight: { default: 0.0 },
-        leftTangent: { default: 0.0 },
-        leftTangentWeight: { default: 0.0 },
-        [editorExtrasTag]: { default: undefined, editorOnly: true },
+        interpolationMode: RealInterpolationMode.LINEAR,
+        tangentWeightMode: TangentWeightMode.NONE,
+        value: 0.0,
+        rightTangent: 0.0,
+        rightTangentWeight: 0.0,
+        leftTangent: 0.0,
+        leftTangentWeight: 0.0,
     },
+);
+
+CCClass.Attr.setClassAttr(
+    RealKeyframeValue,
+    editorExtrasTag,
+    'editorOnly',
+    true,
 );
 
 getOrCreateSerializationMetadata(RealKeyframeValue).uniquelyReferenced = true;
