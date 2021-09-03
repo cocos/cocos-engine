@@ -6,9 +6,10 @@ import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './r
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { solveCubic } from './solve-cubic';
 import { EditorExtendable, EditorExtendableMixin } from '../data/editor-extendable';
-import { deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { CCClass, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';
+import { getOrCreateSerializationMetadata } from '../data/serialization-metadata';
 
 export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode, EasingMethod };
 
@@ -16,25 +17,20 @@ export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode, EasingMeth
  * View to a real frame value.
  * Note, the view may be invalidated due to keyframe change/add/remove.
  */
-@ccclass('cc.RealKeyframeValue')
-@uniquelyReferenced
 class RealKeyframeValue extends EditorExtendable {
     /**
      * Interpolation method used for this keyframe.
      */
-    @serializable
     public interpolationMode = RealInterpolationMode.LINEAR;
 
     /**
      * Tangent weight mode.
      */
-    @serializable
     public tangentWeightMode = TangentWeightMode.NONE;
 
     /**
      * Value of the keyframe.
      */
-    @serializable
     public value = 0.0;
 
     /**
@@ -42,7 +38,6 @@ class RealKeyframeValue extends EditorExtendable {
      * when it's used as starting point during cubic interpolation.
      * Meaningless otherwise.
      */
-    @serializable
     public rightTangent = 0.0;
 
     /**
@@ -50,7 +45,6 @@ class RealKeyframeValue extends EditorExtendable {
      * when it's used as starting point during cubic interpolation.
      * Meaningless otherwise.
      */
-    @serializable
     public rightTangentWeight = 0.0;
 
     /**
@@ -58,7 +52,6 @@ class RealKeyframeValue extends EditorExtendable {
      * when it's used as ending point during cubic interpolation.
      * Meaningless otherwise.
      */
-    @serializable
     public leftTangent = 0.0;
 
     /**
@@ -66,15 +59,35 @@ class RealKeyframeValue extends EditorExtendable {
      * when it's used as starting point during cubic interpolation.
      * Meaningless otherwise.
      */
-    @serializable
     public leftTangentWeight = 0.0;
 
     /**
      * @deprecated Reserved for backward compatibility. Will be removed in future.
      */
-    @serializable
     public easingMethod = EasingMethod.LINEAR;
 }
+
+CCClass.fastDefine(
+    'cc.RealKeyframeValue',
+    RealKeyframeValue, {
+        interpolationMode: RealInterpolationMode.LINEAR,
+        tangentWeightMode: TangentWeightMode.NONE,
+        value: 0.0,
+        rightTangent: 0.0,
+        rightTangentWeight: 0.0,
+        leftTangent: 0.0,
+        leftTangentWeight: 0.0,
+    },
+);
+
+CCClass.Attr.setClassAttr(
+    RealKeyframeValue,
+    editorExtrasTag,
+    'editorOnly',
+    true,
+);
+
+getOrCreateSerializationMetadata(RealKeyframeValue).uniquelyReferenced = true;
 
 export type { RealKeyframeValue };
 
