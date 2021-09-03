@@ -153,11 +153,15 @@ export class Skeleton extends Renderable2D {
      * @zh 该骨骼动画是否暂停。
      * @property paused
      * @type {Boolean}
-     * @readOnly
      * @default false
      */
-    @visible(false)
-    public paused = false;
+    private _paused = false;
+    get paused () {
+        return this._paused;
+    }
+    set paused (value: boolean) {
+        this._paused = value;
+    }
 
     /** dstBlendFactor
      * @en
