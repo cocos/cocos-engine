@@ -439,6 +439,30 @@ CCClass.fastDefine = function (className, constructor, serializableFields) {
     }
 };
 
+/**
+ * @internal TODO
+ */
+export function defineX<T> (className: string, constructor: Constructor<T>, fields: Record<string, {
+    editorOnly?: boolean;
+    default?: unknown;
+}>) {
+    js.setClassName(className, constructor);
+    const props = (constructor as any).__props__ = (constructor as any).__values__ = Object.keys(fields);
+    const attrs = attributeUtils.getClassAttrs(constructor);
+    for (let i = 0; i < props.length; i++) {
+        const key = props[i];
+        const {
+            default: defaultValue,
+            editorOnly,
+        } = fields[key];
+        attrs[`${key + DELIMETER}visible`] = false;
+        attrs[`${key + DELIMETER}default`] = defaultValue;
+        if (editorOnly) {
+            attrs[`${key + DELIMETER}editorOnly`] = true;
+        }
+    }
+}
+
 CCClass.Attr = attributeUtils;
 CCClass.attr = attributeUtils.attr;
 
