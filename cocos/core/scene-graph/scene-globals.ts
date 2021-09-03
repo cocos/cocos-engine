@@ -78,6 +78,15 @@ export class AmbientInfo {
         return this._skyIllum_hdr;
     }
 
+    // Normalize HDR color
+    private normalizeHdrColor(color : Float32Array) {
+        var intensity = 1.0 / Math.max(Math.max(color[0], color[1]), color[2]);
+
+        for(var i = 0; i < 3; ++i) {
+            color[i] = color[i] * intensity; 
+        }
+    }
+
     /**
      * @en Sky color
      * @zh 天空颜色
@@ -87,11 +96,12 @@ export class AmbientInfo {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if(isHDR)
         {
-            var intensity = Math.max(Math.max(this._skyColor_hdr[0], this._skyColor_hdr[1]), this._skyColor_hdr[2]);
-            var normalized = Float32Array.from(this._skyColor_hdr, x => x / intensity);
+            let clampColor = (x: number) => Math.min(x * 255, 255);
 
             Vec3.toArray(this._skyColor_hdr, val);
-            if (this._resource) { this._resource.skyColor = val; }
+            this.normalizeHdrColor(this._skyColor_hdr);
+
+            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor_hdr[0]), clampColor(this._skyColor_hdr[1]), clampColor(this._skyColor_hdr[2]), 255.0); }
         } else {
             this._skyColor.set(val);
             if (this._resource) { this._resource.skyColor = this._skyColor; }
@@ -143,10 +153,12 @@ export class AmbientInfo {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if(isHDR)
         {
-            var intensity = Math.max(Math.max(this._groundAlbedo_hdr[0], this._groundAlbedo_hdr[1]), this._groundAlbedo_hdr[2]);
-            var normalized = Float32Array.from(this._groundAlbedo_hdr, x => x / intensity);
+            let clampColor = (x: number) => Math.min(x * 255, 255);
 
             Vec3.toArray(this._groundAlbedo_hdr, val);
+            this.normalizeHdrColor(this._groundAlbedo_hdr);
+
+            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._groundAlbedo_hdr[0]), clampColor(this._groundAlbedo_hdr[1]), clampColor(this._groundAlbedo_hdr[2]), 255.0); }
         } else {
             this._groundAlbedo.set(val);
         }
