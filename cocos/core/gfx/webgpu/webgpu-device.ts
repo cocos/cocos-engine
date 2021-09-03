@@ -4,11 +4,13 @@ import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUA
 // import fs from 'fs';
 import { resolve } from 'path/posix';
 import { Device } from '../base/device';
-import { DeviceInfo, RenderPassInfo, ColorAttachment, SampleCount, FramebufferInfo } from '../base/define';
+import { DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo } from '../base/define';
 import { RenderPass } from '../base/render-pass';
 import { wgpuWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
+import { WebGPUSwapchain } from './webgpu-swapchain';
+import { Swapchain } from '../base/swapchain';
 
 export class WebGPUDevice extends Device {
     private _nativeDevice = undefined;
@@ -26,6 +28,7 @@ export class WebGPUDevice extends Device {
         }
         const launch = (): boolean => {
             this._nativeDevice = wgpuWasmModule.CCWGPUDevice.getInstance();
+            wgpuWasmModule.nativeDevice = this._nativeDevice;
             const deviceInfo = {};
             deviceInfo.isAntiAlias = info.isAntialias;
             deviceInfo.windowHandle = 0;
@@ -79,12 +82,18 @@ export class WebGPUDevice extends Device {
         this._nativeDevice?.resize(width, height);
     }
 
-    public acquire (): void {
-        this._nativeDevice?.acquire();
+    public acquire (swapchains: Swapchain[]): void {
+
     }
 
     public present (): void {
         this._nativeDevice?.present();
+    }
+
+    public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
+        const swapchain = new WebGPUSwapchain();
+        swapchain.initialize(info);
+        return swapchain;
     }
 
     public flushCommands (cmdBuffs: CommandBuffer[]): void {

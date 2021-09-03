@@ -1796,6 +1796,80 @@ var ASM_CONSTS = {
   return _atexit(a0,a1);
   }
 
+  function _tzset() {
+      // TODO: Use (malleable) environment variables instead of system settings.
+      if (_tzset.called) return;
+      _tzset.called = true;
+  
+      var currentYear = new Date().getFullYear();
+      var winter = new Date(currentYear, 0, 1);
+      var summer = new Date(currentYear, 6, 1);
+      var winterOffset = winter.getTimezoneOffset();
+      var summerOffset = summer.getTimezoneOffset();
+  
+      // Local standard timezone offset. Local standard time is not adjusted for daylight savings.
+      // This code uses the fact that getTimezoneOffset returns a greater value during Standard Time versus Daylight Saving Time (DST). 
+      // Thus it determines the expected output during Standard Time, and it compares whether the output of the given date the same (Standard) or less (DST).
+      var stdTimezoneOffset = Math.max(winterOffset, summerOffset);
+  
+      // timezone is specified as seconds west of UTC ("The external variable
+      // `timezone` shall be set to the difference, in seconds, between
+      // Coordinated Universal Time (UTC) and local standard time."), the same
+      // as returned by stdTimezoneOffset.
+      // See http://pubs.opengroup.org/onlinepubs/009695399/functions/tzset.html
+      HEAP32[((__get_timezone())>>2)] = stdTimezoneOffset * 60;
+  
+      HEAP32[((__get_daylight())>>2)] = Number(winterOffset != summerOffset);
+  
+      function extractZone(date) {
+        var match = date.toTimeString().match(/\(([A-Za-z ]+)\)$/);
+        return match ? match[1] : "GMT";
+      };
+      var winterName = extractZone(winter);
+      var summerName = extractZone(summer);
+      var winterNamePtr = allocateUTF8(winterName);
+      var summerNamePtr = allocateUTF8(summerName);
+      if (summerOffset < winterOffset) {
+        // Northern hemisphere
+        HEAP32[((__get_tzname())>>2)] = winterNamePtr;
+        HEAP32[(((__get_tzname())+(4))>>2)] = summerNamePtr;
+      } else {
+        HEAP32[((__get_tzname())>>2)] = summerNamePtr;
+        HEAP32[(((__get_tzname())+(4))>>2)] = winterNamePtr;
+      }
+    }
+  function _localtime_r(time, tmPtr) {
+      _tzset();
+      var date = new Date(HEAP32[((time)>>2)]*1000);
+      HEAP32[((tmPtr)>>2)] = date.getSeconds();
+      HEAP32[(((tmPtr)+(4))>>2)] = date.getMinutes();
+      HEAP32[(((tmPtr)+(8))>>2)] = date.getHours();
+      HEAP32[(((tmPtr)+(12))>>2)] = date.getDate();
+      HEAP32[(((tmPtr)+(16))>>2)] = date.getMonth();
+      HEAP32[(((tmPtr)+(20))>>2)] = date.getFullYear()-1900;
+      HEAP32[(((tmPtr)+(24))>>2)] = date.getDay();
+  
+      var start = new Date(date.getFullYear(), 0, 1);
+      var yday = ((date.getTime() - start.getTime()) / (1000 * 60 * 60 * 24))|0;
+      HEAP32[(((tmPtr)+(28))>>2)] = yday;
+      HEAP32[(((tmPtr)+(36))>>2)] = -(date.getTimezoneOffset() * 60);
+  
+      // Attention: DST is in December in South, and some regions don't have DST at all.
+      var summerOffset = new Date(date.getFullYear(), 6, 1).getTimezoneOffset();
+      var winterOffset = start.getTimezoneOffset();
+      var dst = (summerOffset != winterOffset && date.getTimezoneOffset() == Math.min(winterOffset, summerOffset))|0;
+      HEAP32[(((tmPtr)+(32))>>2)] = dst;
+  
+      var zonePtr = HEAP32[(((__get_tzname())+(dst ? 4 : 0))>>2)];
+      HEAP32[(((tmPtr)+(40))>>2)] = zonePtr;
+  
+      return tmPtr;
+    }
+  function ___localtime_r(a0,a1
+  ) {
+  return _localtime_r(a0,a1);
+  }
+
   var structRegistrations = {};
   
   function runDestructors(destructors) {
@@ -4004,6 +4078,14 @@ var ASM_CONSTS = {
       setTempRet0(val);
     }
 
+  function _time(ptr) {
+      var ret = (Date.now()/1000)|0;
+      if (ptr) {
+        HEAP32[((ptr)>>2)] = ret;
+      }
+      return ret;
+    }
+
   function _wgpuDeviceCreateSwapChain(deviceId, surfaceId, descriptor) {
       assert(descriptor);assert(HEAP32[((descriptor)>>2)] === 0);
       var device = WebGPU["mgrDevice"].get(deviceId);
@@ -4028,6 +4110,27 @@ var ASM_CONSTS = {
       var swapChain = ctx["configureSwapChain"](desc);
   
       return WebGPU.mgrSwapChain.create(swapChain);
+    }
+
+  function _wgpuDeviceCreateTexture(deviceId, descriptor) {
+      assert(descriptor);assert(HEAP32[((descriptor)>>2)] === 0);
+  
+      var desc = {
+        "label": undefined,
+        "size": WebGPU.makeExtent3D(descriptor + 16),
+        "mipLevelCount": HEAPU32[(((descriptor)+(32))>>2)],
+        "sampleCount": HEAPU32[(((descriptor)+(36))>>2)],
+        "dimension": WebGPU.TextureDimension[
+          HEAPU32[(((descriptor)+(12))>>2)]],
+        "format": WebGPU.TextureFormat[
+          HEAPU32[(((descriptor)+(28))>>2)]],
+        "usage": HEAPU32[(((descriptor)+(8))>>2)],
+      };
+      var labelPtr = HEAP32[(((descriptor)+(4))>>2)];
+      if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+  
+      var device = WebGPU["mgrDevice"].get(deviceId);
+      return WebGPU.mgrTexture.create(device["createTexture"](desc));
     }
 
   function _wgpuDeviceGetQueue(deviceId) {
@@ -4079,13 +4182,36 @@ var ASM_CONSTS = {
       return WebGPU.mgrSurface.create(canvas);
     }
 
-  function _wgpuSurfaceRelease(id) {
-    WebGPU.mgrSurface.release(id);
-  }
+  function _wgpuSwapChainGetCurrentTextureView(swapChainId) {
+      var swapChain = WebGPU.mgrSwapChain.get(swapChainId);
+      return WebGPU.mgrTextureView.create(swapChain["getCurrentTexture"]()["createView"]());
+    }
 
-  function _wgpuSwapChainRelease(id) {
-    WebGPU.mgrSwapChain.release(id);
-  }
+  function _wgpuTextureCreateView(textureId, descriptor) {
+      var desc;
+      if (descriptor) {
+        assert(descriptor);assert(HEAP32[((descriptor)>>2)] === 0);
+        desc = {
+          "format": WebGPU.TextureFormat[
+            HEAPU32[(((descriptor)+(8))>>2)]],
+          "dimension": WebGPU.TextureViewDimension[
+            HEAPU32[(((descriptor)+(12))>>2)]],
+          "baseMipLevel": HEAPU32[(((descriptor)+(16))>>2)],
+          "mipLevelCount": HEAPU32[(((descriptor)+(20))>>2)],
+          "baseArrayLayer": HEAPU32[(((descriptor)+(24))>>2)],
+          "arrayLayerCount": HEAPU32[(((descriptor)+(28))>>2)],
+          "aspect": WebGPU.TextureAspect[
+            HEAPU32[(((descriptor)+(32))>>2)]],
+        };
+        var labelPtr = HEAP32[(((descriptor)+(4))>>2)];
+        if (labelPtr) desc["label"] = UTF8ToString(labelPtr);
+      }
+  
+      var texture = WebGPU.mgrTexture.get(textureId);
+      return WebGPU.mgrTextureView.create(texture["createView"](desc));
+    }
+
+  function _wgpuTextureDestroy(textureId) { WebGPU.mgrTexture.get(textureId)["destroy"](); }
 InternalError = Module['InternalError'] = extendError(Error, 'InternalError');;
 embind_init_charCodes();
 BindingError = Module['BindingError'] = extendError(Error, 'BindingError');;
@@ -4126,6 +4252,7 @@ function intArrayToString(array) {
 
 var asmLibraryArg = {
   "__cxa_atexit": ___cxa_atexit,
+  "__localtime_r": ___localtime_r,
   "_embind_finalize_value_object": __embind_finalize_value_object,
   "_embind_register_bigint": __embind_register_bigint,
   "_embind_register_bool": __embind_register_bool,
@@ -4157,21 +4284,24 @@ var asmLibraryArg = {
   "emscripten_webgpu_get_device": _emscripten_webgpu_get_device,
   "fd_write": _fd_write,
   "setTempRet0": _setTempRet0,
+  "time": _time,
   "wgpuDeviceCreateSwapChain": _wgpuDeviceCreateSwapChain,
+  "wgpuDeviceCreateTexture": _wgpuDeviceCreateTexture,
   "wgpuDeviceGetQueue": _wgpuDeviceGetQueue,
   "wgpuInstanceCreateSurface": _wgpuInstanceCreateSurface,
-  "wgpuSurfaceRelease": _wgpuSurfaceRelease,
-  "wgpuSwapChainRelease": _wgpuSwapChainRelease
+  "wgpuSwapChainGetCurrentTextureView": _wgpuSwapChainGetCurrentTextureView,
+  "wgpuTextureCreateView": _wgpuTextureCreateView,
+  "wgpuTextureDestroy": _wgpuTextureDestroy
 };
 var asm = createWasm();
 /** @type {function(...*):?} */
 var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");
 
 /** @type {function(...*):?} */
-var _free = Module["_free"] = createExportWrapper("free");
+var _malloc = Module["_malloc"] = createExportWrapper("malloc");
 
 /** @type {function(...*):?} */
-var _malloc = Module["_malloc"] = createExportWrapper("malloc");
+var _free = Module["_free"] = createExportWrapper("free");
 
 /** @type {function(...*):?} */
 var _fflush = Module["_fflush"] = createExportWrapper("fflush");
