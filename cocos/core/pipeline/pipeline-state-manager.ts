@@ -39,7 +39,7 @@ export class PipelineStateManager {
         const hash1 = pass.hash;
         const hash2 = renderPass.hash;
         const hash3 = ia.attributesHash;
-        const hash4 = shader.id;
+        const hash4 = shader.typedID;
 
         const newHash = hash1 ^ hash2 ^ hash3 ^ hash4;
         let pso = this._PSOHashMap.get(newHash);

@@ -40,7 +40,7 @@ export class UIPhase {
     }
 
     public render (camera: Camera, renderPass: RenderPass) {
-        const pipeline = this._pipeline as ForwardPipeline;
+        const pipeline = this._pipeline;
         const device = pipeline.device;
         const cmdBuff = pipeline.commandBuffers[0];
         const scene = camera.scene!;
@@ -68,6 +68,16 @@ export class UIPhase {
                 cmdBuff.bindInputAssembler(inputAssembler!);
                 cmdBuff.draw(inputAssembler!);
             }
+        }
+
+        if (pipeline.profiler && pipeline.profiler.enabled && camera.window!.swapchain) {
+            const { inputAssembler, passes, shaders, descriptorSet } = pipeline.profiler.subModels[0];
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, passes[0], shaders[0], renderPass, inputAssembler);
+            cmdBuff.bindPipelineState(pso);
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passes[0].descriptorSet);
+            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, descriptorSet);
+            cmdBuff.bindInputAssembler(inputAssembler);
+            cmdBuff.draw(inputAssembler);
         }
     }
 }

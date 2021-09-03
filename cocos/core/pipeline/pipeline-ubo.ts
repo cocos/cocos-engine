@@ -24,7 +24,7 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsHalfFloatTexture } from './define';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, Feature } from '../gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, Feature, Swapchain } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
@@ -33,6 +33,7 @@ import { PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene';
+import { RenderWindow } from '../renderer/core/render-window';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -40,23 +41,22 @@ const vec3_center = new Vec3();
 const vec4ShadowInfo = new Vec4();
 
 export class PipelineUBO {
-    public static updateGlobalUBOView (pipeline: RenderPipeline, bufferView: Float32Array) {
-        const device = pipeline.device;
+    public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array) {
         const root = legacyCC.director.root;
         const fv = bufferView;
 
-        const shadingWidth = Math.floor(device.width);
-        const shadingHeight = Math.floor(device.height);
+        const shadingWidth = Math.floor(window.width);
+        const shadingHeight = Math.floor(window.height);
 
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
         fv[UBOGlobal.TIME_OFFSET + 1] = root.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / device.height;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = shadingWidth;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = shadingHeight;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / shadingWidth;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / shadingHeight;
 
         fv[UBOGlobal.NATIVE_SIZE_OFFSET] = shadingWidth;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
@@ -66,14 +66,14 @@ export class PipelineUBO {
 
     public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
         camera: Camera) {
-        const device = pipeline.device;
+        const root = legacyCC.director.root;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
         const fog = sceneData.fog;
-        const shadingWidth = Math.floor(device.width);
-        const shadingHeight = Math.floor(device.height);
+        const shadingWidth = Math.floor(root.mainWindow.width);
+        const shadingHeight = Math.floor(root.mainWindow.height);
         const cv = bufferView;
         const exposure = camera.exposure;
         const isHDR = sceneData.isHDR;
@@ -348,12 +348,12 @@ export class PipelineUBO {
      * @en Update all UBOs
      * @zh 更新全部 UBO。
      */
-    public updateGlobalUBO () {
+    public updateGlobalUBO (window: RenderWindow) {
         const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         ds.update();
-        PipelineUBO.updateGlobalUBOView(this._pipeline, this._globalUBO);
+        PipelineUBO.updateGlobalUBOView(window, this._globalUBO);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
 
         globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));

@@ -23,29 +23,13 @@
  THE SOFTWARE.
  */
 
-/**
- * @packageDocumentation
- * @module gfx
- */
+import { DescriptorSet } from '../base/descriptor-set';
+import { DescriptorSetInfo } from '../base/define';
 
-import { Device } from './device';
-import { Obj, ObjectType, GlobalBarrierInfo } from './define';
-
-/**
- * @en GFX shader.
- * @zh GFX 着色器。
- */
-export class GlobalBarrier extends Obj {
-    protected _device: Device;
-    protected _info: GlobalBarrierInfo = new GlobalBarrierInfo();
-
-    constructor (device: Device) {
-        super(ObjectType.GLOBAL_BARRIER);
-        this._device = device;
+export class EmptyDescriptorSet extends DescriptorSet {
+    public initialize (info: DescriptorSetInfo) {
+        this._layout = info.layout;
     }
-
-    public initialize (info: GlobalBarrierInfo): boolean {
-        this._info.copy(info);
-        return true;
-    }
+    public destroy () {}
+    public update () {}
 }

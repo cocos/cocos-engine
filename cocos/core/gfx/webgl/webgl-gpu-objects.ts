@@ -23,13 +23,75 @@
  THE SOFTWARE.
  */
 
+import { nextPow2 } from '../../math/bits';
 import {
     DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,
-    DrawInfo, Attribute, ColorAttachment, DepthStencilAttachment,
-    UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
+    Attribute, ColorAttachment, DepthStencilAttachment,
+    UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding, DrawInfo,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
+
+export class WebGLIndirectDrawInfos {
+    public counts: Int32Array;
+    public offsets: Int32Array;
+    public instances: Int32Array;
+    public drawCount = 0;
+    public drawByIndex = false;
+    public instancedDraw = false;
+
+    // staging buffer
+    public byteOffsets: Int32Array;
+
+    private _capacity = 4;
+
+    constructor () {
+        this.counts = new Int32Array(this._capacity);
+        this.offsets = new Int32Array(this._capacity);
+        this.instances  = new Int32Array(this._capacity);
+        this.byteOffsets = new Int32Array(this._capacity);
+    }
+
+    public clearDraws () {
+        this.drawCount = 0;
+        this.drawByIndex = false;
+        this.instancedDraw = false;
+    }
+
+    public setDrawInfo (idx: number, info: DrawInfo) {
+        this._ensureCapacity(idx);
+        this.drawByIndex = info.indexCount > 0;
+        this.instancedDraw = info.instanceCount > 1;
+        this.drawCount = Math.max(idx + 1, this.drawCount);
+
+        if (this.drawByIndex) {
+            this.counts[idx] = info.indexCount;
+            this.offsets[idx] = info.firstIndex;
+        } else {
+            this.counts[idx] = info.vertexCount;
+            this.offsets[idx] = info.firstVertex;
+        }
+        this.instances[idx] = Math.max(1, info.instanceCount);
+    }
+
+    private _ensureCapacity (target: number) {
+        if (this._capacity > target) return;
+        this._capacity = nextPow2(target);
+
+        const counts = new Int32Array(this._capacity);
+        const offsets = new Int32Array(this._capacity);
+        const instances = new Int32Array(this._capacity);
+        this.byteOffsets = new Int32Array(this._capacity);
+
+        counts.set(this.counts);
+        offsets.set(this.offsets);
+        instances.set(this.instances);
+
+        this.counts = counts;
+        this.offsets = offsets;
+        this.instances = instances;
+    }
+}
 
 export interface IWebGLGPUUniformInfo {
     name: string;
@@ -57,7 +119,7 @@ export interface IWebGLGPUBuffer {
 
     buffer: ArrayBufferView | null;
     vf32: Float32Array | null;
-    indirects: DrawInfo[];
+    indirects: WebGLIndirectDrawInfos;
 }
 
 export interface IWebGLGPUTexture {
@@ -85,6 +147,8 @@ export interface IWebGLGPUTexture {
     glWrapT: GLenum;
     glMinFilter: GLenum;
     glMagFilter: GLenum;
+
+    isSwapchainTexture: boolean;
 }
 
 export interface IWebGLGPURenderPass {

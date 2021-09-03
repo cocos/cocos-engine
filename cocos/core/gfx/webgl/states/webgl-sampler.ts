@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { Filter, SamplerInfo } from '../base/define';
-import { Sampler } from '../base/sampler';
-import { IWebGLGPUSampler } from './webgl-gpu-objects';
+import { Filter, SamplerInfo } from '../../base/define';
+import { Sampler } from '../../base/states/sampler';
+import { IWebGLGPUSampler } from '../webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT,
@@ -41,24 +41,15 @@ export class WebGLSampler extends Sampler {
 
     private _gpuSampler: IWebGLGPUSampler | null = null;
 
-    public initialize (info: SamplerInfo): boolean {
-        this._minFilter = info.minFilter;
-        this._magFilter = info.magFilter;
-        this._mipFilter = info.mipFilter;
-        this._addressU = info.addressU;
-        this._addressV = info.addressV;
-        this._addressW = info.addressW;
-        this._maxAnisotropy = info.maxAnisotropy;
-        this._cmpFunc = info.cmpFunc;
-        this._borderColor = info.borderColor;
-        this._mipLODBias = info.mipLODBias;
+    constructor (info: SamplerInfo) {
+        super(info);
 
         let glMinFilter = 0;
         let glMagFilter = 0;
 
-        const minFilter = this._minFilter;
-        const magFilter = this._magFilter;
-        const mipFilter = this._mipFilter;
+        const minFilter = this._info.minFilter;
+        const magFilter = this._info.magFilter;
+        const mipFilter = this._info.mipFilter;
 
         if (minFilter === Filter.LINEAR || minFilter === Filter.ANISOTROPIC) {
             if (mipFilter === Filter.LINEAR || mipFilter === Filter.ANISOTROPIC) {
@@ -82,9 +73,9 @@ export class WebGLSampler extends Sampler {
             glMagFilter = 0x2600; // WebGLRenderingContext.NEAREST;
         }
 
-        const glWrapS = WebGLWraps[this._addressU];
-        const glWrapT = WebGLWraps[this._addressV];
-        const glWrapR = WebGLWraps[this._addressW];
+        const glWrapS = WebGLWraps[this._info.addressU];
+        const glWrapT = WebGLWraps[this._info.addressV];
+        const glWrapR = WebGLWraps[this._info.addressW];
 
         this._gpuSampler = {
             glMinFilter,
@@ -93,11 +84,5 @@ export class WebGLSampler extends Sampler {
             glWrapT,
             glWrapR,
         };
-
-        return true;
-    }
-
-    public destroy () {
-        this._gpuSampler = null;
     }
 }

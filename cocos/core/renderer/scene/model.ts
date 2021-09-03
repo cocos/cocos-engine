@@ -37,18 +37,14 @@ import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
-
 import { Mat4, Vec3, Vec4 } from '../../math';
-import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
-    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
+    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
 import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
-
-const _subModelPool = new Pool(() => new SubModel(), 32);
 
 const shadowMapPatches: IMacroPatch[] = [
     { name: 'CC_RECEIVE_SHADOW', value: true },
@@ -75,23 +71,23 @@ function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView
     v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
 }
 
-const lightmapSamplerHash = genSamplerHash([
+const lightmapSamplerHash = new SamplerInfo(
     Filter.LINEAR,
     Filter.LINEAR,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-]);
+);
 
-const lightmapSamplerWithMipHash = genSamplerHash([
+const lightmapSamplerWithMipHash = new SamplerInfo(
     Filter.LINEAR,
     Filter.LINEAR,
     Filter.LINEAR,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-]);
+);
 
 /**
  * A representation of a model
@@ -448,7 +444,7 @@ export class Model {
 
         const gfxTexture = texture.getGFXTexture();
         if (gfxTexture) {
-            const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
+            const sampler = this._device.getSampler(texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const { descriptorSet } = subModels[i];
@@ -538,7 +534,7 @@ export class Model {
         if (!this._localBuffer) {
             this._localBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                MemoryUsageBit.DEVICE,
                 UBOLocal.SIZE,
                 UBOLocal.SIZE,
             ));
