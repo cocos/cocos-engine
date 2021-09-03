@@ -41,8 +41,9 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, SurfaceTransform } from './gfx';
 import { warnID } from './platform/debug';
+import { Orientation } from '../../pal/screen-adapter/enum-type';
 
 /**
  * @zh
@@ -315,7 +316,7 @@ export class Root {
 
         this._destroy();
     }
-
+    public static xOrt: SurfaceTransform =SurfaceTransform.IDENTITY;
     /**
      * @zh
      * 重置大小
@@ -325,12 +326,14 @@ export class Root {
     public resize (width: number, height: number) {
         // const w = width / cc.view._devicePixelRatio;
         // const h = height / cc.view._devicePixelRatio;
-
+        
+        
         this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
             if (window.swapchain) {
-                window.resize(width, height);
+                console.log("XLOG: root->window->resize");
+                window.resize(width, height,Root.xOrt);
             }
         }
 

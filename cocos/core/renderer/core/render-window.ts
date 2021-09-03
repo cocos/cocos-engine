@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 import { JSB } from 'internal:constants';
+import { ScreenAdapter } from 'pal/screen-adapter';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, TextureFlagBit,
@@ -184,12 +185,15 @@ export class RenderWindow {
      * @param width The new width.
      * @param height The new height.
      */
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number, ort ?:number|null) {
         this._width = width;
         this._height = height;
-
+        
+        console.log("XLOG: renderwindow->resize with ort?"+ ort);
         if (this._swapchain) {
-            this._swapchain.resize(width, height);
+            
+            this._swapchain.resize(width, height, Root.xOrt);
+            
         } else {
             if (this._depthStencilTexture) {
                 this._depthStencilTexture.destroy();

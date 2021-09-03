@@ -1,7 +1,9 @@
 import { SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
+import { SurfaceTransform } from '../../../cocos/core/gfx';
 import { Size } from '../../../cocos/core/math';
+import { Root } from '../../../cocos/core/root';
 import { Orientation } from '../enum-type';
 
 // these value is defined in the native layer
@@ -25,10 +27,27 @@ class ScreenAdapter extends EventTarget {
             size.height /= systemInfo.pixelRatio;
 
             // TODO: remove this function calling
+            console.log("XLOG: screenAdapter->resize");
             window.resize(size.width, size.height);
             this.emit('window-resize');
         };
         jsb.onOrientationChanged = (event) => {
+            
+            console.log("XLOG: screenAdapter->orientationChanged");
+            switch (event.orientation) {
+                case 0:
+                    Root.xOrt = SurfaceTransform.IDENTITY
+                    break;
+                case 90:
+                    Root.xOrt = SurfaceTransform.ROTATE_90
+                    break;
+                case -90:
+                    Root.xOrt = SurfaceTransform.ROTATE_270
+                    break;
+                case 180:
+                    Root.xOrt = SurfaceTransform.ROTATE_180
+                    break;
+            }
             this.emit('orientation-change');
         };
     }

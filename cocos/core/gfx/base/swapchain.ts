@@ -77,6 +77,6 @@ export abstract class Swapchain extends GFXObject {
     }
 
     public abstract initialize (info: SwapchainInfo): void;
-    public abstract resize (width: number, height: number): void;
+    public abstract resize (width: number, height: number, orientation?: number|null): void;
     public abstract destroy (): void;
 }
