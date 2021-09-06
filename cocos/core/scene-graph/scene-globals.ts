@@ -24,7 +24,7 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin, tooltip } from 'cc.decorator';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, color } from '../math';
@@ -631,6 +631,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置潜在阴影产生的范围
      */
     @editable
+    @tooltip('if shadow has been culled, increase this value to fix it')
     @range([0.0, 2000.0, 0.1])
     @slide
     @type(CCFloat)
@@ -650,6 +651,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置潜在阴影产生的范围
      */
     @editable
+    @tooltip('shadow visible distance')
     @range([0.0, 2000.0, 0.1])
     @slide
     @type(CCFloat)
