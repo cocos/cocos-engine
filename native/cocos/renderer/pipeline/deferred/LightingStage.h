@@ -59,14 +59,6 @@ public:
     void destroy() override;
     void render(scene::Camera *camera) override;
 
-    ReflectionComp *getReflectionComp() { return _reflectionComp; }
-    RenderElem      getRendElement();
-    void            addDenoiseIndex() { _denoiseIndex = (_denoiseIndex + 1) % _reflectionElems.size(); }
-    RenderQueue *   getReflectRenderQueue() const { return _reflectionRenderQueue; }
-    uint            getSsprTexWidth() const { return _ssprTexWidth; }
-    uint            getSsprTexHeight() const { return _ssprTexHeight; }
-    Mat4            getMatViewProj() const { return _matViewProj; }
-
 private:
     void gatherLights(scene::Camera *camera);
     void initLightingBuffer();
@@ -97,6 +89,8 @@ private:
 
     std::vector<RenderElem> _reflectionElems;
     uint                    _denoiseIndex = 0; // use to get corrrect texture string handle
+
+    gfx::Sampler *_defaultSampler{nullptr};
 
     // SSPR texture size
     uint _ssprTexWidth  = 0;

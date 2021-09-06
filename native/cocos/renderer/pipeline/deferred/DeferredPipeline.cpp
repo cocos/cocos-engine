@@ -137,7 +137,7 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
 void DeferredPipeline::updateQuadVertexData(const gfx::Rect &renderArea, gfx::Buffer *buffer) {
     _lastUsedRenderArea = renderArea;
     float vbData[16]    = {0};
-    genQuadVertexData(gfx::SurfaceTransform::IDENTITY, renderArea, vbData);
+    genQuadVertexData(renderArea, vbData);
     buffer->update(vbData, sizeof(vbData));
 }
 
@@ -158,7 +158,7 @@ gfx::InputAssembler *DeferredPipeline::getIAByRenderArea(const gfx::Rect &rect) 
     return ia;
 }
 
-void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform /*surfaceTransform*/, const gfx::Rect &renderArea, float *vbData) {
+void DeferredPipeline::genQuadVertexData(const gfx::Rect &renderArea, float *vbData) {
     float minX = static_cast<float>(renderArea.x) / static_cast<float>(_width);
     float maxX = static_cast<float>(renderArea.x + renderArea.width) / static_cast<float>(_width);
     float minY = static_cast<float>(renderArea.y) / static_cast<float>(_height);

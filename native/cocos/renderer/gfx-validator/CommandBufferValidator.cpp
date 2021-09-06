@@ -336,6 +336,17 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
 void CommandBufferValidator::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
     CCASSERT(!_insideRenderPass, "Command 'blitTexture' must be recorded outside render passes.");
 
+    for (uint32_t i = 0; i < count; ++i) {
+        const auto &region = regions[i];
+        CCASSERT(region.srcOffset.x + region.srcExtent.width <= srcTexture->getInfo().width, "Invalid src region");
+        CCASSERT(region.srcOffset.y + region.srcExtent.height <= srcTexture->getInfo().height, "Invalid src region");
+        CCASSERT(region.srcOffset.z + region.srcExtent.depth <= srcTexture->getInfo().depth, "Invalid src region");
+
+        CCASSERT(region.dstOffset.x + region.dstExtent.width <= dstTexture->getInfo().width, "Invalid dst region");
+        CCASSERT(region.dstOffset.y + region.dstExtent.height <= dstTexture->getInfo().height, "Invalid dst region");
+        CCASSERT(region.dstOffset.z + region.dstExtent.depth <= dstTexture->getInfo().depth, "Invalid dst region");
+    }
+
     /////////// execute ///////////
 
     Texture *actorSrcTexture = nullptr;

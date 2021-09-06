@@ -44,8 +44,6 @@ public:
     void destroy() override;
     void render(scene::Camera *camera) override;
 
-    UIPhase *getUIPhase() { return _uiPhase; }
-
 private:
     gfx::Rect _renderArea;
     UIPhase * _uiPhase = nullptr;

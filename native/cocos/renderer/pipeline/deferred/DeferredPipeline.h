@@ -75,7 +75,7 @@ public:
     inline const UintList &       getLightIndices() const { return _lightIndices; }
     gfx::Rect                     getRenderArea(scene::Camera *camera, bool onScreen);
     void                          updateQuadVertexData(const gfx::Rect &renderArea, gfx::Buffer *buffer);
-    void                          genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *data);
+    void                          genQuadVertexData(const gfx::Rect &renderArea, float *data);
 
     framegraph::FrameGraph &getFrameGraph() { return _fg; }
     gfx::Color              getClearcolor(scene::Camera *camera);

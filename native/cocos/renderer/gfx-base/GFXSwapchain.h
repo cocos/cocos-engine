@@ -49,14 +49,14 @@ public:
     inline Texture *getColorTexture() const { return _colorTexture; }
     inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
 
-    inline uint32_t getWidth() const { return _colorTexture->getWidth(); }
-    inline uint32_t getHeight() const { return _colorTexture->getHeight(); }
-
     virtual bool isPreRotationEnabled() { return _preRotationEnabled; }
 
     // TO BE REMOVED
     inline void resize(uint32_t width, uint32_t height) { resize(width, height, SurfaceTransform::IDENTITY); }
+    // TO BE INLINED
     virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
+    virtual uint32_t getWidth() const { return _colorTexture->getWidth(); }
+    virtual uint32_t getHeight() const { return _colorTexture->getHeight(); }
 
 protected:
     virtual void doInit(const SwapchainInfo &info)         = 0;

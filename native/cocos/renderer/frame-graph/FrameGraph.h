@@ -62,7 +62,7 @@ public:
     static void gc(uint32_t unusedFrameCount = 30) noexcept;
 
     template <typename Data, typename SetupMethod, typename ExecuteMethod>
-    CallbackPass<Data, ExecuteMethod> const &addPass(PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept;
+    const CallbackPass<Data, ExecuteMethod> &addPass(PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept;
 
     template <typename ResourceType>
     TypedHandle<ResourceType> create(const StringHandle &name, const typename ResourceType::Descriptor &desc) noexcept;

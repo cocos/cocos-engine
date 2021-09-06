@@ -40,6 +40,8 @@ public:
 
     // TO BE REMOVED
     SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
+    uint32_t getWidth() const override { return _actor->getWidth(); }
+    uint32_t getHeight() const override { return _actor->getHeight(); }
 
 protected:
     void doInit(const SwapchainInfo &info) override;

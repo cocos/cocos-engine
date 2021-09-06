@@ -100,7 +100,6 @@ void PostprocessStage::render(scene::Camera *camera) {
         framegraph::TextureHandle lightingOut; // read from lighting output
         framegraph::TextureHandle backBuffer;  // write to back buffer
         framegraph::TextureHandle depth;
-        framegraph::TextureHandle placerholder;
     };
 
     if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
@@ -159,7 +158,7 @@ void PostprocessStage::render(scene::Camera *camera) {
         depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
         depthAttachmentInfo.loadOp        = gfx::LoadOp::CLEAR;
         depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};
+        depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleDepthTexture));
         if (data.depth.isValid()) {
@@ -173,9 +172,8 @@ void PostprocessStage::render(scene::Camera *camera) {
         builder.setViewport(viewport, renderArea);
     };
 
-    auto postExec = [&](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
-        auto *           pipeline   = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
-        auto *           stage      = static_cast<PostprocessStage *>(pipeline->getRenderstageByName(STAGE_NAME));
+    auto postExec = [this](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
+        auto *           pipeline   = static_cast<DeferredPipeline *>(_pipeline);
         gfx::RenderPass *renderPass = table.getRenderPass();
 
         // bind descriptor
@@ -196,7 +194,6 @@ void PostprocessStage::render(scene::Camera *camera) {
             auto                 rendeArea = pipeline->getRenderArea(camera, camera->window->swapchain);
             gfx::InputAssembler *ia        = pipeline->getIAByRenderArea(rendeArea);
             gfx::PipelineState * pso       = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
-            assert(pso != nullptr);
 
             pv->getDescriptorSet()->bindTexture(0, table.getRead(data.lightingOut));
             pv->getDescriptorSet()->bindSampler(0, pipeline->getDevice()->getSampler({
@@ -215,7 +212,7 @@ void PostprocessStage::render(scene::Camera *camera) {
             cmdBuff->draw(ia);
         }
 
-        stage->getUIPhase()->render(pipeline->getFrameGraphCamera(), renderPass);
+        _uiPhase->render(pipeline->getFrameGraphCamera(), renderPass);
     };
 
     // add pass

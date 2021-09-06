@@ -252,9 +252,9 @@ bool CCVKSwapchain::checkSwapchainStatus() {
     uint newHeight = surfaceCapabilities.currentExtent.height;
 
     VkSurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
-#ifdef DISABLE_PRE_TRANSFORM
-    preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-#endif
+    if (!ENABLE_PRE_ROTATION) {
+        preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+    }
 
     if (preTransform & TRANSFORMS_THAT_REQUIRE_FLIPPING) {
         newHeight = surfaceCapabilities.currentExtent.width;

@@ -52,12 +52,18 @@ void Swapchain::destroy() {
 }
 
 void Swapchain::resize(uint32_t width, uint32_t height, SurfaceTransform transform) {
-    if (width != _colorTexture->getWidth() || height != _colorTexture->getHeight()) {
+    if (width != _colorTexture->getWidth() || height != _colorTexture->getHeight() || transform != _transform) {
         doResize(width, height, transform);
 
-        _colorTexture->_info.width = _depthStencilTexture->_info.width = width;
-        _colorTexture->_info.height = _depthStencilTexture->_info.height = height;
-        if (isPreRotationEnabled()) _transform = transform;
+        // if (isPreRotationEnabled()) {
+        //     if (toNumber(transform) % 2) {
+        //         std::swap(width, height);
+        //     }
+        //     _transform = transform;
+        // }
+
+        // _colorTexture->_info.width = _depthStencilTexture->_info.width = width;
+        // _colorTexture->_info.height = _depthStencilTexture->_info.height = height;
     }
 }
 

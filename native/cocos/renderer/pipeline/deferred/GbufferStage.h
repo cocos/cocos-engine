@@ -51,10 +51,11 @@ public:
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     void destroy() override;
     void render(scene::Camera *camera) override;
+
+private:
     void dispenseRenderObject2Queues();
     void recordCommands(DeferredPipeline *pipeline, gfx::RenderPass *renderPass);
 
-private:
     static RenderStageInfo initInfo;
     PlanarShadowQueue *    _planarShadowQueue = nullptr;
     RenderBatchedQueue *   _batchedQueue      = nullptr;

@@ -230,11 +230,8 @@ void GbufferStage::render(scene::Camera *camera) {
         builder.setViewport(viewport, _renderArea);
     };
 
-    auto gbufferExec = [&](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
-        auto *           pipeline   = static_cast<DeferredPipeline *>(RenderPipeline::getInstance());
-        auto *           stage      = static_cast<GbufferStage *>(pipeline->getRenderstageByName(STAGE_NAME));
-        gfx::RenderPass *renderPass = table.getRenderPass();
-        stage->recordCommands(pipeline, renderPass);
+    auto gbufferExec = [this](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
+        recordCommands(static_cast<DeferredPipeline *>(_pipeline), table.getRenderPass());
     };
 
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda

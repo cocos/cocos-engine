@@ -87,7 +87,7 @@ CCVKDevice::~CCVKDevice() {
 bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuContext = CC_NEW(CCVKGPUContext);
     if (!_gpuContext->initialize()) {
-        destroy();
+        CC_SAFE_DESTROY(_gpuContext)
         return false;
     }
 

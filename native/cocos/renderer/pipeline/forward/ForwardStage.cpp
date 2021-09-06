@@ -156,9 +156,9 @@ void ForwardStage::render(scene::Camera *camera) {
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
 
     // render area is not oriented
-    bool flipWH        = camera->window->swapchain && static_cast<uint>(camera->window->swapchain->getSurfaceTransform()) % 2;
-    auto w             = static_cast<float>(flipWH ? camera->height : camera->width);
-    auto h             = static_cast<float>(flipWH ? camera->width : camera->height);
+    bool flipWH = camera->window->swapchain && static_cast<uint>(camera->window->swapchain->getSurfaceTransform()) % 2;
+    auto w      = static_cast<float>(flipWH ? camera->height : camera->width);
+    auto h      = static_cast<float>(flipWH ? camera->width : camera->height);
     _renderArea.x      = static_cast<int>(camera->viewPort.x * w);
     _renderArea.y      = static_cast<int>(camera->viewPort.y * h);
     _renderArea.width  = static_cast<uint>(camera->viewPort.z * w * sharedData->shadingScale);

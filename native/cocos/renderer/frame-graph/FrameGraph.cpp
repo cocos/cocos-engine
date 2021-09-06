@@ -57,7 +57,7 @@ const char *FrameGraph::handleToString(const StringHandle &handle) noexcept {
 
 void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
     static const StringHandle PRESENT_PASS = FrameGraph::stringToHandle("Present");
-    const ResourceNode &      resourceNode   = getResourceNode(input);
+    const ResourceNode &      resourceNode = getResourceNode(input);
     CC_ASSERT(resourceNode.writer);
 
     struct PassDataPresent {
