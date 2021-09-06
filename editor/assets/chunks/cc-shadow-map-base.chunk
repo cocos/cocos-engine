@@ -231,21 +231,20 @@ float CCGetLinearDepth(vec3 worldPos) {
     }
 
     float bias = cc_shadowWHPBInfo.w;
-    float offsetDepth = depth - bias;
     vec2 oneTap = 1.0 / cc_shadowWHPBInfo.xy;
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
     float block0, block1, block2, block3;
     if (cc_shadowLPNNInfo.y > 0.000001) {
-      block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
-      block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y))));
-      block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y))));
-      block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y))));
+      block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
+      block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y))));
+      block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y))));
+      block3 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y))));
     } else {
-      block0 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x);
-      block1 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y)).x);
-      block2 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y)).x);
-      block3 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y)).x);
+      block0 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x);
+      block1 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos.y)).x);
+      block2 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset.y)).x);
+      block3 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset.x, clipPos_offset.y)).x);
     }
 
     float coefX   = mod(clipPos.x, oneTap.x) * cc_shadowWHPBInfo.x;
@@ -272,7 +271,6 @@ float CCGetLinearDepth(vec3 worldPos) {
     }
 
     float bias = cc_shadowWHPBInfo.w;
-    float offsetDepth = clipPos.z - bias;
     vec2 mapSize = cc_shadowWHPBInfo.xy;
     vec2 oneTap = 1.0 / mapSize;
     float clipPos_offset_L = clipPos.x - oneTap.x;
@@ -282,25 +280,25 @@ float CCGetLinearDepth(vec3 worldPos) {
 
     float block0, block1, block2, block3, block4, block5, block6, block7, block8;
     if (cc_shadowLPNNInfo.y > 0.000001) {
-      block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U))));
-      block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U))));
-      block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U))));
-      block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos.y))));
-      block4 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
-      block5 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos.y))));
-      block6 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D))));
-      block7 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D))));
-      block8 = step(offsetDepth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D))));
+      block0 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U))));
+      block1 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U))));
+      block2 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U))));
+      block3 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos.y))));
+      block4 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y))));
+      block5 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos.y))));
+      block6 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D))));
+      block7 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D))));
+      block8 = step(depth, unpackRGBAToDepth(texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D))));
     } else {
-      block0 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U)).x);
-      block1 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U)).x);
-      block2 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U)).x);
-      block3 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos.y)).x);
-      block4 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x);
-      block5 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos.y)).x);
-      block6 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D)).x);
-      block7 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D)).x);
-      block8 = step(offsetDepth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D)).x);
+      block0 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_U)).x);
+      block1 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_U)).x);
+      block2 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_U)).x);
+      block3 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos.y)).x);
+      block4 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos.y)).x);
+      block5 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos.y)).x);
+      block6 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_L, clipPos_offset_D)).x);
+      block7 = step(depth, texture(cc_spotLightingMap, vec2(clipPos.x, clipPos_offset_D)).x);
+      block8 = step(depth, texture(cc_spotLightingMap, vec2(clipPos_offset_R, clipPos_offset_D)).x);
     }
 
     float coefX = mod(clipPos.x, oneTap.x) * mapSize.x;
