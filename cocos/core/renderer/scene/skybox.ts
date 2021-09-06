@@ -60,10 +60,23 @@ export class Skybox {
         if (val) this.activate(); else this._updatePipeline();
     }
     /**
-     * @en Whether use environment lighting
+     * @en HDR
      * @zh 是否启用环境光照？
      */
-    get useIBL (): boolean {
+    get useHDR (): boolean {
+        return this._useHDR;
+    }
+
+    set useHDR (val: boolean) {
+        this._setUseHDR(val);
+        this._updatePipeline();
+    }
+
+    /**
+     * @en Whether use HDR
+     * @zh TODO
+     */
+     get useIBL (): boolean {
         return this._useIBL;
     }
 
@@ -178,6 +191,7 @@ export class Skybox {
     protected _default: TextureCube | null = null;
     protected _enabled = false;
     protected _useIBL = false;
+    protected _useHDR = false;
     protected _useDiffusemap = false;
     protected declare _nativeObj: NaitveSkybox | null;
 
@@ -199,6 +213,15 @@ export class Skybox {
         }
     }
 
+    private _setUseHDR (val) {
+        this._useHDR = val;
+        /*
+        if (JSB) {
+            this._nativeObj!.useIBL = val;
+        }
+        */
+    }
+
     private _setUseDiffusemap(val) {
         this._useDiffusemap = val;       
     }
@@ -207,6 +230,7 @@ export class Skybox {
         this._setEnabled(skyboxInfo.enabled);
         this._setUseIBL(skyboxInfo.useIBL);
         this._setUseDiffusemap(skyboxInfo.applyDiffuseMap);
+        this._setUseHDR(skyboxInfo.useHDR);
         this.envmap = skyboxInfo.envmap;
         this.diffusemap = skyboxInfo.diffusemap;
     }
@@ -261,6 +285,7 @@ export class Skybox {
         //if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
         pipeline.macros.CC_USE_DIFFUSEMAP = (this.useDiffusemap && this.diffusemap) ? (this.isRGBE ? 2 : 1) : 0;
+        pipeline.macros.CC_USE_HDR = this.useHDR;
         root.onGlobalPipelineStateChanged();
     }
 

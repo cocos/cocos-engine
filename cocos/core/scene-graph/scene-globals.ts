@@ -158,7 +158,7 @@ export class AmbientInfo {
             Vec3.toArray(this._groundAlbedo_hdr, val);
             this.normalizeHdrColor(this._groundAlbedo_hdr);
 
-            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._groundAlbedo_hdr[0]), clampColor(this._groundAlbedo_hdr[1]), clampColor(this._groundAlbedo_hdr[2]), 255.0); }
+            if (this._resource) { this._resource.groundAlbedo = new Color(clampColor(this._groundAlbedo_hdr[0]), clampColor(this._groundAlbedo_hdr[1]), clampColor(this._groundAlbedo_hdr[2]), 255.0); }
         } else {
             this._groundAlbedo.set(val);
         }
@@ -201,16 +201,10 @@ export class SkyboxInfo {
     protected _enabled = false;
     @serializable
     protected _useIBL = false;
+    @serializable
+    protected _useHDR = false;
 
     protected _resource: Skybox | null = null;
-
-    protected _ambientInfo: AmbientInfo | null = null; // FIXME: Need to so HDR can modify color. Remove when HDR settings are independent from SkyboxInfo
-
-
-    set ambientInfo (ambientInfo : AmbientInfo)
-    {
-        this._ambientInfo = ambientInfo;
-    }
 
     /**
      * @en Whether to use diffuse reflection convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
@@ -286,22 +280,13 @@ export class SkyboxInfo {
      @editable
      set useHDR (val) {
         (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = val;
-        
-/*
-        let clampColor = (x: number) => Math.min(x * 255, 255);
-        var ground = (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray;
-        this._ambientInfo?.groundAlbedo.set(clampColor(ground[0]), clampColor(ground[1]), clampColor(ground[2]));
+        this._useHDR = val;
 
-        var sky = (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.colorArray;
-        this._ambientInfo?.skyColor.set(clampColor(sky[0]), clampColor(sky[1]), clampColor(sky[2]));
-
-        //var skyIllum = (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.skyIllum;
-        //this._ambientInfo?.skyIllum = clampColor(skyIllum);
-
-        */
+        if (this._resource) { this._resource.useHDR = this._useHDR; }
      }
      get useHDR () {
-         return (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = this._useHDR;
+         return this._useHDR;
      }
     
     /**
@@ -880,9 +865,6 @@ export class SceneGlobals {
 
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
-
-        // FIXME: Temporary only (accessor)
-        this.skybox.ambientInfo = this.ambient;
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;
