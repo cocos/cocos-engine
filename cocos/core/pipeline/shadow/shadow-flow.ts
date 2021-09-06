@@ -84,7 +84,7 @@ export class ShadowFlow extends RenderFlow {
 
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
 
-        if (shadowObjects.length === 0 || renderObjects.length === 0) {
+        if (shadowObjects.length === 0 && renderObjects.length === 0) {
             this.clearShadowMap(validLights, camera);
             return;
         }
