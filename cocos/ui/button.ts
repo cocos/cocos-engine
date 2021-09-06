@@ -34,7 +34,7 @@ import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { UITransform, Renderable2D } from '../2d/framework';
-import { EventMouse, EventTouch } from '../core/platform';
+import { EventMouse, EventTouch } from '../input/types';
 import { Color, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { lerp } from '../core/math/utils';

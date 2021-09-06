@@ -31,9 +31,9 @@
  */
 
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
-import { Component } from '../../components';
-import { legacyCC } from '../../global-exports';
-import { logID, assertID } from '../debug';
+import { Component } from '../../core/components';
+import { legacyCC } from '../../core/global-exports';
+import { logID, assertID } from '../../core/platform/debug';
 import { SystemEventType } from './event-enum';
 
 export interface IEventListenerCreateInfo {

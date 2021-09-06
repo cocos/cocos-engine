@@ -29,11 +29,11 @@
  * @module event
  */
 
-import Event from '../../event/event';
-import { Vec2 } from '../../math/vec2';
+import { Event } from './event';
+import { Vec2 } from '../../core/math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
-import { legacyCC } from '../../global-exports';
+import { legacyCC } from '../../core/global-exports';
 import { SystemEventTypeUnion, SystemEventType } from './event-enum';
 import { KeyCode } from './key-code';
 
