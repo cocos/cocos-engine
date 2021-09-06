@@ -49,6 +49,7 @@ import { Mat4 } from '../../core/math';
 import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
 import { DummyIA } from './dummy-ia';
 import { TransformBit } from '../../core/scene-graph/node-enum';
+import { Director } from '../../core/director';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -192,6 +193,9 @@ export class Batcher2D {
     }
 
     public initialize () {
+        legacyCC.director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
+            this.reloadBatchDirty = true;
+        });
         return true;
     }
 
@@ -272,6 +276,10 @@ export class Batcher2D {
         if (this.reloadBatchDirty) {
             this.renderQueue.length = 0;
             this._localUBOManager.reset(); // 需要重新录制就先清空
+            // localDS 需要进行清空
+            // 或者说根据索引部分清空
+            // 做这么耦合，怎么拆啊。。。
+            this._descriptorSetCache.releaseAllByBuffer();
         }
 
         const screens = this._screens;
@@ -282,6 +290,7 @@ export class Batcher2D {
             }
             this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
+            this._currTypeIsGPU = false;
         }
 
         let batchPriority = 0;
@@ -967,6 +976,7 @@ class LocalDescriptorSet  {
 class DescriptorSetCache {
     private _descriptorSetCache = new Map<number, DescriptorSet>();
     private _dsCacheHashByTexture = new Map<number, number>();
+    private _dsCacheHashByBuffer: number[] = [];
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
     private _localCachePool: Pool<LocalDescriptorSet>;
 
@@ -1014,6 +1024,7 @@ class DescriptorSetCache {
 
                 this._descriptorSetCache.set(hash, descriptorSet);
                 this._dsCacheHashByTexture.set(batch.textureHash, hash);
+                this._dsCacheHashByBuffer.push(hash);
 
                 return descriptorSet;
             }
@@ -1069,12 +1080,26 @@ class DescriptorSetCache {
         }
     }
 
+    public releaseAllByBuffer () {
+        const length = this._dsCacheHashByBuffer.length;
+        let hash = 0;
+        for (let i = 0; i < length; i++) {
+            hash = this._dsCacheHashByBuffer[i];
+            if (this._descriptorSetCache.has(hash)) {
+                this._descriptorSetCache.get(hash)!.destroy();
+                this._descriptorSetCache.delete(hash);
+            }
+        }
+        this._dsCacheHashByBuffer.length = 0;
+    }
+
     public destroy () {
         this._descriptorSetCache.forEach((value, key, map) => {
             value.destroy();
         });
         this._descriptorSetCache.clear();
         this._dsCacheHashByTexture.clear();
+        this._dsCacheHashByBuffer.length = 0;
         this._localDescriptorSetCache.length = 0;
         this._localCachePool.destroy((obj) => { obj.destroy(); });
     }

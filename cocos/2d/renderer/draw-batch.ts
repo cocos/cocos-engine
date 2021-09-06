@@ -425,7 +425,8 @@ export class DrawBatch2D {
             this._tempPosition.x = t.x + this._tempAnchor.x;
             this._tempPosition.y = t.y + this._tempAnchor.y;
             this._tempPosition.z = t.z;
-            if (node.hasChangedFlags & TransformBit.RS) {
+            // 这个条件判断不了 UITransform 带来的属性变化 // 或者说这里不能直接使用 node 的 dirty
+            if (node.hasChangedFlags & TransformBit.RS || this._tempRect._rectDirty) {
                 localBuffer.updateDataTRSByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition, r, this._tempRect._rectWithScale);
             } else {
                 // 只更新position
@@ -433,8 +434,9 @@ export class DrawBatch2D {
             }
         }
         // 更新 RenderData
+        // 问题是颜色的更新未能添加到这个flag中
         if (renderComp._renderDataDirty) {
-            // 这儿得处理一个级联
+            // 这儿得处理一个级联 // 这里有个dirty 的更新问题
             const c = renderComp.color;
             let mode = 0;
             let fillType = 0;

@@ -30,6 +30,7 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, editable, serializable } from 'cc.decorator';
 import { Component } from '../../core/components/component';
+import { director } from '../../core/director';
 import { clampf } from '../../core/utils/misc';
 
 /**
@@ -64,6 +65,9 @@ export class UIOpacity extends Component {
             return;
         }
         value = clampf(value, 0, 255);
+        if (this._opacity === 0 || value === 0) {
+            director.root!.batcher2D.reloadBatchDirty = true;
+        }
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
     }

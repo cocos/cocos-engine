@@ -244,6 +244,9 @@ export class Renderable2D extends RenderableComponent {
         if (this._color.equals(value)) {
             return;
         }
+        if (this._color.a === 0 || value.a === 0) {
+            director.root!.batcher2D.reloadBatchDirty = true;
+        }
 
         this._color.set(value);
         this._colorDirty = true;
@@ -297,6 +300,7 @@ export class Renderable2D extends RenderableComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
+    protected _renderFlagCache = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
@@ -331,6 +335,7 @@ export class Renderable2D extends RenderableComponent {
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
+        this._renderFlagCache = this._renderFlag;
         director.root!.batcher2D.reloadBatchDirty = true;
     }
 
@@ -338,12 +343,17 @@ export class Renderable2D extends RenderableComponent {
     public onRestore () {
         this.updateMaterial();
         this._renderFlag = this._canRender();
+        if (this._renderFlag !== this._renderFlagCache) {
+            director.root!.batcher2D.reloadBatchDirty = true;
+            this._renderFlagCache = this._renderFlag;
+        }
     }
 
     public onDisable () {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
+        this._renderFlagCache = this._renderFlag;
         director.root!.batcher2D.reloadBatchDirty = true;
     }
 
@@ -370,6 +380,10 @@ export class Renderable2D extends RenderableComponent {
      */
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
+        if (this._renderFlag !== this._renderFlagCache) {
+            director.root!.batcher2D.reloadBatchDirty = true;
+            this._renderFlagCache = this._renderFlag;
+        }
         if (enable && this._renderFlag) {
             const renderData = this._renderData;
             if (renderData) {
@@ -475,6 +489,10 @@ export class Renderable2D extends RenderableComponent {
             this._assembler.updateColor(this);
             if (opacityZero) {
                 this._renderFlag = this._canRender();
+                if (this._renderFlag !== this._renderFlagCache) { // 这里应该是不要了，除非将 color 使用单独的 flag，否则意义不大
+                    director.root!.batcher2D.reloadBatchDirty = true; // 这里的触发时机太晚了
+                    this._renderFlagCache = this._renderFlag;
+                }
             }
             this._colorDirty = false;
         }
