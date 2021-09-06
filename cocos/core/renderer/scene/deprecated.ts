@@ -29,6 +29,7 @@ import { Layers } from '../../scene-graph/layers';
 import { legacyCC } from '../../global-exports';
 import { Pass } from '../core/pass';
 import { Camera } from './camera';
+import { Shadows } from './shadows';
 
 removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'raycastUI2DNode' },
@@ -152,5 +153,23 @@ replaceProperty(Pass.prototype, 'Pass.prototype', [
 removeProperty(Camera.prototype, 'Camera.prototype', [
     {
         name: 'getSplitFrustum',
+    },
+]);
+
+removeProperty(Shadows.prototype, 'Shadows.prototype', [
+    {
+        name: 'aspect',
+    },
+    {
+        name: 'selfShadow',
+    },
+    {
+        name: 'linear',
+    },
+    {
+        name: 'packing',
+    },
+    {
+        name: 'autoAdapt',
     },
 ]);
