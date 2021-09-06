@@ -30,6 +30,7 @@
 import { ccclass, help, executeInEditMode, menu, tooltip, type, unit, serializable } from 'cc.decorator';
 import { scene } from '../../core/renderer';
 import { Light, PhotometricTerm } from './light-component';
+import { legacyCC } from '../../core/global-exports';
 
 @ccclass('cc.SphereLight')
 @help('i18n:cc.SphereLight')
@@ -39,7 +40,9 @@ export class SphereLight extends Light {
     @serializable
     protected _size = 0.15;
     @serializable
-    protected _luminance = 1700 / scene.nt2lm(0.15);
+    protected _luminance = 1700;
+    @serializable
+    protected _luminance_hdr = 1700 / scene.nt2lm(0.15);
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
     @serializable
@@ -52,14 +55,29 @@ export class SphereLight extends Light {
      * @en Luminous flux of the light.
      * @zh 光通量。
      */
-    @unit('lm')
     @tooltip('i18n:lights.luminous_flux')
     get luminousFlux () {
-        return this._luminance * scene.nt2lm(this._size);
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR)
+        {
+            return this._luminance_hdr * scene.nt2lm(this._size);
+        } else {
+            return this._luminance;
+        }
     }
     set luminousFlux (val) {
-        this._luminance = val / scene.nt2lm(this._size);
-        if (this._light) { this._light.luminance = this._luminance; }
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        let result = 0;
+        if(isHDR)
+        {
+            this._luminance_hdr = val / scene.nt2lm(this._size);
+            result = this._luminance_hdr;
+        } else {
+            this._luminance = val;
+            result = this._luminance;
+        }
+
+        if (this._light) { this._light.luminance = result; }
     }
 
     /**
@@ -69,10 +87,20 @@ export class SphereLight extends Light {
     @unit('cd/m²')
     @tooltip('i18n:lights.luminance')
     get luminance () {
-        return this._luminance;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR) {
+            return this._luminance_hdr;
+        } else {
+            return this._luminance;
+        }
     }
     set luminance (val) {
-        this._luminance = val;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR) {
+            this._luminance_hdr = val;
+        } else {
+            this._luminance = val;
+        }
         if (this._light) { this._light.luminance = val; }
     }
 
@@ -127,7 +155,8 @@ export class SphereLight extends Light {
     protected _createLight () {
         super._createLight();
         if (!this._light) { return; }
-        this.luminance = this._luminance;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        this.luminance = isHDR ? this._luminance_hdr : this._luminance;
         this.size = this._size;
         this.range = this._range;
     }

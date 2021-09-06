@@ -35,6 +35,7 @@ import { toRadian } from '../../core/math';
 import { scene } from '../../core/renderer';
 import { Light, PhotometricTerm } from './light-component';
 import { legacyCC } from '../../core/global-exports';
+import { Root } from '../../core/root';
 
 @ccclass('cc.SpotLight')
 @help('i18n:cc.SpotLight')
@@ -63,47 +64,61 @@ export class SpotLight extends Light {
 
     protected _light: scene.SpotLight | null = null;
 
-    /**
+     /**
      * @en Luminous flux of the light.
      * @zh 光通量。
      */
-     @tooltip('i18n:lights.luminous_flux')
-     get luminousFlux () {
+      @tooltip('i18n:lights.luminous_flux')
+      get luminousFlux () {
+          const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+          if(isHDR)
+          {
+              return this._luminance_hdr * scene.nt2lm(this._size);
+          } else {
+              return this._luminance;          
+          }
+      }
+  
+      set luminousFlux (val) {
+          const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+          let result = 0;
+          if(isHDR)
+          {
+              this._luminance_hdr = val / scene.nt2lm(this._size);
+              result = this._luminance_hdr;
+          } else {
+              this._luminance = val;
+              result = this._luminance;
+          }
+  
+          if (this._light) { this._light.luminance = result; }
+      }
+ 
+     /**
+      * @en Luminance of the light.
+      * @zh 光亮度。
+      */
+     @unit('cd/m²')
+     @tooltip('i18n:lights.luminance')
+     get luminance () {
          const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-         if(isHDR)
-         {
-             return this._luminance_hdr * scene.nt2lm(this._size);
+         if(isHDR) {
+             return this._luminance_hdr;
          } else {
-             return this._luminance;          
+             return this._luminance;
          }
      }
  
-     set luminousFlux (val) {
+     set luminance (val) {
          const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-         if(isHDR)
-         {
-             this._luminance_hdr = val / scene.nt2lm(this._size);
+         if(isHDR) {
+             this._luminance_hdr = val;
          } else {
              this._luminance = val;
          }
  
          if (this._light) { this._light.luminance = val; }
      }
-
-    /**
-     * @en Luminance of the light.
-     * @zh 光亮度。
-     */
-    @unit('cd/m²')
-    @tooltip('i18n:lights.luminance')
-    get luminance () {
-        return this._luminance;
-    }
-
-    set luminance (val) {
-        this._luminance = val;
-        if (this._light) { this._light.luminance = val; }
-    }
 
     /**
      * @en The photometric term currently being used.
