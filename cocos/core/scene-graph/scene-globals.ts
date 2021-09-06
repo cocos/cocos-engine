@@ -651,7 +651,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置潜在阴影产生的范围
      */
     @editable
-    @tooltip('shadow visible distance')
+    @tooltip('shadow visible distance: shadow quality is inversely proportional of the magnitude of this value')
     @range([0.0, 2000.0, 0.1])
     @slide
     @type(CCFloat)
