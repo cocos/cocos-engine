@@ -28,9 +28,10 @@
  * @module component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable, visible } from 'cc.decorator';
 import { scene } from '../../core/renderer';
 import { Light } from './light-component';
+import { legacyCC } from '../../core/global-exports';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
@@ -39,6 +40,9 @@ import { Light } from './light-component';
 export class DirectionalLight extends Light {
     @serializable
     protected _illuminance = 65000;
+
+    @serializable
+    protected _illuminance_hdr = 123;
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
@@ -49,19 +53,27 @@ export class DirectionalLight extends Light {
      * @zh
      * 光源强度。
      */
-    @unit('lx')
     @tooltip('i18n:lights.illuminance')
     get illuminance () {
-        return this._illuminance;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR)
+        {
+            return this._illuminance_hdr;
+        } else {
+            return this._illuminance;
+        }
     }
     set illuminance (val) {
-        this._illuminance = val;
-        if (this._light) { this._light.illuminance = this._illuminance; }
-    }
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR)
+        {
+            this._illuminance_hdr = val;
+        } else {
+            this._illuminance = val;
+        }
 
-    constructor () {
-        super();
-        this._lightType = scene.DirectionalLight;
+
+        if (this._light) { this._light.illuminance = this._illuminance; }
     }
 
     protected _createLight () {
