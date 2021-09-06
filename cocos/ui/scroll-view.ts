@@ -1324,7 +1324,7 @@ export class ScrollView extends ViewGroup {
         return outOfBoundaryAmount;
     }
 
-    protected _updateScrollBar (outOfBoundary: Readonly<Vec2>) {
+    protected _updateScrollBar (outOfBoundary: Vec2 | Readonly<Vec2>) {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }

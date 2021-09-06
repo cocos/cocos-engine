@@ -24,7 +24,7 @@
  */
 
 import { JSB } from 'internal:constants';
-import { Frustum, Ray } from '../../geometry';
+import { enums, Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
@@ -172,6 +172,7 @@ export class Camera {
         this._isoValue = ISOS[this._iso];
 
         this._aspect = this.screenScale = 1;
+        this._frustum.accurate = true;
 
         if (!correctionMatrices.length) {
             const ySign = device.capabilities.clipSpaceSignY;
@@ -256,6 +257,9 @@ export class Camera {
         this._setWidth(width);
         this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
+        if (JSB) {
+            this._nativeObj!.aspect = this._aspect;
+        }
         this._isProjDirty = true;
     }
 
@@ -263,6 +267,9 @@ export class Camera {
         this._setWidth(width);
         this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
+        if (JSB) {
+            this._nativeObj!.aspect = this._aspect;
+        }
         this.isWindowSize = false;
     }
 
@@ -304,6 +311,9 @@ export class Camera {
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+            }
+            if (JSB) {
+                this._nativeObj!.aspect = this._aspect;
             }
             Mat4.invert(this._matProjInv, this._matProj);
             if (JSB) {
@@ -375,6 +385,9 @@ export class Camera {
 
     set fov (fov) {
         this._fov = fov;
+        if (JSB) {
+            this._nativeObj!.fov = fov;
+        }
         this._isProjDirty = true;
     }
 
@@ -420,7 +433,7 @@ export class Camera {
 
     set viewport (val) {
         const { x, width, height } = val;
-        const y = this._device.capabilities.clipSpaceSignY < 0 ? 1 - val.y - height : val.y;
+        const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
         switch (this._device.surfaceTransform) {
         case SurfaceTransform.ROTATE_90:
@@ -793,7 +806,7 @@ export class Camera {
     /**
      * transform a world space position to screen space
      */
-    public worldToScreen (out: Vec3, worldPos: Readonly<Vec3>): Vec3 {
+    public worldToScreen (out: Vec3, worldPos: Vec3 | Readonly<Vec3>): Vec3 {
         const width = this.width;
         const height = this.height;
         const cx = this._viewport.x * width;
