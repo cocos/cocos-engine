@@ -1,6 +1,13 @@
 import { Vec2 } from '../../../math/vec2';
 import { PoseGraph, Condition, AnimatedPose } from '../../animation';
-import { GraphDescription, MotionDescription, TransitionDescriptionBase, PoseSubGraphDescription, ParametricDescription, PoseTransitionDescription } from './graph-description';
+import {
+    GraphDescription,
+    MotionDescription,
+    TransitionDescriptionBase,
+    PoseSubGraphDescription,
+    ParametricDescription,
+    PoseTransitionDescription,
+} from './graph-description';
 import { PoseBlend1D } from '../pose-blend-1d';
 import { PoseBlend2D } from '../pose-blend-2d';
 import { GraphNode, PoseSubgraph, PoseTransition, VariableType } from '../pose-graph';
@@ -8,6 +15,7 @@ import { Pose } from '../pose';
 import { BindingHost } from '../parametric';
 import { Value } from '../variable';
 import { PoseNode } from '../pose-node';
+import { BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';
 
 export function createGraphFromDescription (graphDescription: GraphDescription) {
     const graph = new PoseGraph();
@@ -52,7 +60,7 @@ function createSubgraph (subgraph: PoseSubgraph, subgraphDesc: PoseSubGraphDescr
     }
     if (subgraphDesc.exitTransitions) {
         for (const transitionDesc of subgraphDesc.exitTransitions) {
-            createTransition(subgraph, nodes[transitionDesc.from], subgraph.exitNode, transitionDesc);
+            createPoseTransition(subgraph, nodes[transitionDesc.from] as PoseNode, subgraph.exitNode, transitionDesc);
         }
     }
     if (subgraphDesc.anyTransitions) {
@@ -69,25 +77,34 @@ function createSubgraph (subgraph: PoseSubgraph, subgraphDesc: PoseSubGraphDescr
 
 function createTransition (graph: PoseSubgraph, from: GraphNode, to: GraphNode, transitionDesc: TransitionDescriptionBase) {
     let condition: Condition | undefined;
-    if (transitionDesc.condition) {
-        const conditionDesc = transitionDesc.condition;
-        condition = new Condition();
-        condition.operator = Condition.Operator[transitionDesc.condition.operator as keyof typeof Condition.Operator];
-        switch (conditionDesc.operator) {
-        case 'BE_TRUE': case 'NOT':
-            condition.lhs = createParametric(conditionDesc.lhs, condition, 'lhs');
-            break;
+    const conditions = transitionDesc.conditions?.map((conditionDesc) => {
+        switch (conditionDesc.type) {
         default:
+            throw new Error(`Unknown condition type.`);
+        case 'unary': {
+            const condition = new UnaryCondition();
+            condition.operator = UnaryCondition.Operator[conditionDesc.type];
+            condition.operand = createParametric(conditionDesc.operand, condition, 'operand');
+            return condition;
+        }
+        case 'binary': {
+            const condition = new BinaryCondition();
+            condition.operator = BinaryCondition.Operator[conditionDesc.type];
             condition.lhs = createParametric(conditionDesc.lhs, condition, 'lhs');
             condition.rhs = createParametric(conditionDesc.rhs, condition, 'rhs');
-            break;
+            return condition;
         }
-    }
-    const transition = graph.connect(from, to, condition);
+        case 'trigger': {
+            const condition = new TriggerCondition();
+            return condition;
+        }
+        }
+    });
+    const transition = graph.connect(from, to, conditions);
     return transition;
 }
 
-function createPoseTransition(graph: PoseSubgraph, from: PoseNode, to: GraphNode, descriptor: PoseTransitionDescription) {
+function createPoseTransition (graph: PoseSubgraph, from: PoseNode, to: GraphNode, descriptor: PoseTransitionDescription) {
     const transition = createTransition(graph, from, to, descriptor) as PoseTransition;
 
     const {

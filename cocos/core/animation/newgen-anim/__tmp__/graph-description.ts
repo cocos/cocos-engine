@@ -31,7 +31,7 @@ export interface PoseSubGraphDescription extends SubgraphNodeBaseDesc {
 
     exitTransitions?: Array<{
         from: number;
-    } & TransitionDescriptionBase>;
+    } & PoseTransitionDescription>;
 
     anyTransitions?: Array<{
         to: number;
@@ -48,15 +48,21 @@ export interface PoseTransitionDescription extends TransitionDescriptionBase {
 }
 
 export interface TransitionDescriptionBase {
-    condition?: {
-        operator: 'BE_TRUE' | 'NOT';
-        lhs: ParametricDescription<ValueDescription>;
-    } | {
-        operator: 'EQUAL' | 'NOT_EQUAL' | 'LESS_THAN' | 'LESS_THAN_OR_EQUAL_TO' | 'GREATER_THAN' | 'GREATER_THAN_OR_EQUAL_TO';
-        lhs: ParametricDescription<ValueDescription>;
-        rhs: ParametricDescription<ValueDescription>;
-    };
+    conditions?: ConditionDescription[];
 }
+
+export type ConditionDescription  = {
+    type: 'unary';
+    operator: 'TRUTHY' | 'FALSY';
+    operand: ParametricDescription<ValueDescription>;
+} | {
+    type: 'binary';
+    operator: 'EQUAL' | 'NOT_EQUAL' | 'LESS_THAN' | 'LESS_THAN_OR_EQUAL_TO' | 'GREATER_THAN' | 'GREATER_THAN_OR_EQUAL_TO';
+    lhs: ParametricDescription<ValueDescription>;
+    rhs: ParametricDescription<ValueDescription>;
+} | {
+    type: 'trigger';
+};
 
 export type ValueDescription = string | number | boolean;
 

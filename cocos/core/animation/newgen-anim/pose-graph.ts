@@ -3,7 +3,7 @@ import { DEBUG } from 'internal:constants';
 import { remove, removeAt, removeIf } from '../../utils/array';
 import { assertIsNonNullable, assertIsTrue } from '../../data/utils/asserts';
 import { Pose, PoseEval, PoseEvalContext } from './pose';
-import { Condition } from './condition';
+import type { Condition } from './condition';
 import { Asset } from '../../assets';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
 import { Value } from './variable';
@@ -40,16 +40,18 @@ class Transition extends EditorExtendable implements OwnedBy<PoseSubgraph>, Tran
      * The transition condition.
      */
     @serializable
-    public condition: Condition | null;
+    public conditions: Condition[] = [];
 
     /**
      * @internal
      */
-    constructor (from: GraphNode, to: GraphNode, condition?: Condition) {
+    constructor (from: GraphNode, to: GraphNode, conditions?: Condition[]) {
         super();
         this.from = from;
         this.to = to;
-        this.condition = condition ?? null;
+        if (conditions) {
+            this.conditions = conditions;
+        }
     }
 
     [ownerSymbol]: PoseSubgraph | undefined;
@@ -72,11 +74,11 @@ class PoseTransition extends Transition {
     @serializable
     public exitConditionEnabled = true;
 
-    get exitCondition() {
+    get exitCondition () {
         return this._exitCondition;
     }
 
-    set exitCondition(value) {
+    set exitCondition (value) {
         assertIsTrue(value >= 0.0);
         this._exitCondition = value;
     }
@@ -250,7 +252,7 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
      * @param to Target node.
      * @param condition The transition condition.
      */
-    public connect (from: PoseNode, to: GraphNode, condition?: Condition): PoseTransitionView;
+    public connect (from: PoseNode, to: GraphNode, conditions?: Condition[]): PoseTransitionView;
 
     /**
      * Connect two nodes.
@@ -261,9 +263,9 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
      * - the target node is entry or any, or
      * - the source node is exit.
      */
-    public connect (from: GraphNode, to: GraphNode, condition?: Condition): TransitionView;
+    public connect (from: GraphNode, to: GraphNode, conditions?: Condition[]): TransitionView;
 
-    public connect (from: GraphNode, to: GraphNode, condition?: Condition): TransitionView {
+    public connect (from: GraphNode, to: GraphNode, conditions?: Condition[]): TransitionView {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
 
@@ -280,8 +282,8 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
         this.disconnect(from, to);
 
         const transition = from instanceof PoseNode
-            ? new PoseTransition(from, to, condition)
-            : new Transition(from, to, condition);
+            ? new PoseTransition(from, to, conditions)
+            : new Transition(from, to, conditions);
 
         own(transition, this);
         this._transitions.push(transition);

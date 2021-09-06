@@ -46,11 +46,12 @@ const graphDescMap: Record<string, GraphDescription> = {
                 transitions: [{
                     from: 0,
                     to: 1,
-                    condition: {
+                    conditions: [{
+                        type: 'binary',
                         lhs: 'foo',
                         operator: 'EQUAL',
                         rhs: 2.0,
-                    },
+                    }],
                 }],
             },
         }],
@@ -131,12 +132,11 @@ const graphDescMap: Record<string, GraphDescription> = {
                 }],
                 entryTransitions: [{
                     to: 0,
-                    condition: {
-                        // @ts-expect-error
-                        operator: 'BE_TRUE',
-                        // @ts-expect-error
-                        lhs: { name: 'asd' },
-                    },
+                    conditions: [{
+                        type: 'unary',
+                        operator: 'TRUTHY',
+                        operand: { name: 'asd', value: 0.0 },
+                    }],
                 }],
             },
         }],

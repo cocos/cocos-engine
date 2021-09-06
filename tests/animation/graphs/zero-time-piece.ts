@@ -8,6 +8,7 @@ export default {
                 name: 'Node2',
                 type: 'subgraph',
                 nodes: [{
+                    type: 'pose',
                     name: 'SubgraphNode1',
                 }],
                 entryTransitions: [{
@@ -15,6 +16,7 @@ export default {
                 }],
                 exitTransitions: [{
                     from: 0,
+                    exitCondition: 0.0,
                 }],
             }],
             entryTransitions: [{

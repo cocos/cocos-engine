@@ -1,7 +1,8 @@
 export { InvalidTransitionError, VariableNotDefinedError } from './errors';
-export { PoseGraph, VariableType, LayerBlending, isPoseTransition } from './pose-graph';
-export type { Transition, PoseTransition, Layer, PoseSubgraph, GraphNode, Variable } from './pose-graph';
-export { Condition } from './condition';
+export { PoseGraph, VariableType, LayerBlending, isPoseTransition, PoseSubgraph } from './pose-graph';
+export type { Transition, PoseTransition, Layer, GraphNode, Variable } from './pose-graph';
+export { BinaryCondition, UnaryCondition, TriggerCondition } from './condition';
+export type { Condition } from './condition';
 export type { Value } from './variable';
 export { PoseNode } from './pose-node';
 export { AnimatedPose } from './animated-pose';

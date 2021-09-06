@@ -6,10 +6,11 @@ export default {
             }],
             entryTransitions: [{
                 to: 0,
-                condition: {
-                    operator: 'BE_TRUE',
-                    lhs: { name: 'asd' },
-                },
+                conditions: [{
+                    type: 'unary',
+                    operator: 'TRUTHY',
+                    operand: { name: 'asd', value: 0.0 },
+                }],
             }],
         }
     }],

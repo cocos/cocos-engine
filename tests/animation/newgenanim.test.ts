@@ -18,6 +18,7 @@ import gZeroTimePiece from './graphs/zero-time-piece';
 import { getPropertyBindingPoints } from '../../cocos/core/animation/newgen-anim/parametric';
 import { blend1D } from '../../cocos/core/animation/newgen-anim/blend-1d';
 import '../utils/matcher-deep-close-to';
+import { BinaryCondition, UnaryCondition } from '../../cocos/core/animation/newgen-anim/condition';
 
 describe('NewGen Anim', () => {
     const demoGraphs = __getDemoGraphs();
@@ -129,10 +130,10 @@ describe('NewGen Anim', () => {
         test('Zero time piece', () => {
             // SPEC: Whenever zero time piece is encountered,
             // no matter the time piece is generated since originally passed to `update()`,
-            // or was exhaused and left zero.
+            // or was exhausted and left zero.
             // The following updates at that time would still steadily proceed:
-            // - The graph is in transition state and the transition specified 0 duration, then the switch will happended;
-            // - The graph is in node state and a transition is judged to be happed, then the graph will run in transition state.
+            // - The graph is in transition state and the transition specified 0 duration, then the switch will happened;
+            // - The graph is in node state and a transition is judged to be happened, then the graph will run in transition state.
             const graphEval = new PoseGraphEval(createGraphFromDescription(gZeroTimePiece), new Node());
             graphEval.update(0.0);
             expect(graphEval.getCurrentNodeInfo(0).name).toBe('Exit');
@@ -237,18 +238,18 @@ describe('NewGen Anim', () => {
     describe('Condition', () => {
         const emptyContext: Parameters<Condition[typeof createEval]>[0] = { getParam() {} };
         test('Unary', () => {
-            const condition = new Condition();
-            condition.operator = Condition.Operator.BE_TRUE;
-            condition.lhs = false;
+            const condition = new UnaryCondition();
+            condition.operator = UnaryCondition.Operator.TRUTHY;
+            condition.operand = false;
             const conditionEval = condition[createEval](emptyContext);
             expect(conditionEval.eval()).toBe(false);
-            conditionEval.setLhs(true);
+            conditionEval.setOperand(true);
             expect(conditionEval.eval()).toBe(true);
         });
 
         test('Binary', () => {
-            const condition = new Condition();
-            condition.operator = Condition.Operator.GREATER_THAN;
+            const condition = new BinaryCondition();
+            condition.operator = BinaryCondition.Operator.GREATER_THAN;
             condition.lhs = 1;
             condition.rhs = 0.5;
             const conditionEval = condition[createEval](emptyContext);

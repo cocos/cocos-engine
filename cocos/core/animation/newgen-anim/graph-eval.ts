@@ -307,12 +307,12 @@ class SubgraphEval {
      * Update current transition.
      * Asserts: `!!this._currentTransition`.
      * @param deltaTime Time piece.
-     * @returns 
+     * @returns
      */
     private _updateCurrentTransition (deltaTime: number) {
         const { _currentTransition: currentTransition } = this;
         assertIsNonNullable(currentTransition);
-        
+
         const {
             duration: transitionDuration,
             to: toNode,
@@ -336,7 +336,10 @@ class SubgraphEval {
         assertIsTrue(fromNode !== toNode);
 
         const weight = this._weight;
-        graphDebugGroup(`[Subgraph ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNode.name} with ratio ${ratio} in base weight ${this._weight}.`);
+        graphDebugGroup(
+            `[Subgraph ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNode.name}`
+            + `with ratio ${ratio} in base weight ${this._weight}.`,
+        );
         if (isPoseOrSubgraphNodeEval(fromNode)) {
             graphDebugGroup(`Update ${fromNode.name}`);
             fromNode.setWeight(weight * (1.0 - ratio));
@@ -384,17 +387,34 @@ class SubgraphEval {
         const { outgoingTransitions } = node;
         for (let iTransition = 0; iTransition < outgoingTransitions.length; ++iTransition) {
             const transition = outgoingTransitions[iTransition];
+            const { conditions } = transition;
             if (node.kind === NodeKind.pose
                 && transition.exitConditionEnabled
                 && node.progress < transition.exitCondition) {
                 continue;
             }
-            if (!transition.condition && node.kind === NodeKind.entry) {
-                return transition;
+
+            const nConditions = conditions.length;
+            if (nConditions === 0) {
+                if (node.kind === NodeKind.entry || transition.exitConditionEnabled) {
+                    return transition;
+                } else {
+                    continue;
+                }
             }
-            if (transition.condition && !transition.condition.eval()) {
+
+            let satisfied = true;
+            for (let iCondition = 0; iCondition < nConditions; ++iCondition) {
+                const condition = conditions[iCondition];
+                if (!condition.eval()) {
+                    satisfied = false;
+                    break;
+                }
+            }
+            if (!satisfied) {
                 continue;
             }
+
             // Decides if it's valid self-transition.
             if (transition.to === realNode) {
                 assertIsTrue(isPoseOrSubgraphNodeEval(realNode));
@@ -451,7 +471,14 @@ function createNodeEval (context: SubGraphEvalContext, graph: PoseSubgraph, node
     }
 }
 
-function createTransitionEval (context: SubGraphEvalContext, graph: PoseSubgraph, node: GraphNode, nodeEval: NodeEval, nodeEvaluators: NodeEval[], mappings: GraphNode[]) {
+function createTransitionEval (
+    context: SubGraphEvalContext,
+    graph: PoseSubgraph,
+    node: GraphNode,
+    nodeEval: NodeEval,
+    nodeEvaluators: NodeEval[],
+    mappings: GraphNode[],
+) {
     const outgoingTemplates = graph.getOutgoings(node);
     const outgoingTransitions: TransitionEval[] = [];
     for (const outgoing of outgoingTemplates) {
@@ -463,7 +490,7 @@ function createTransitionEval (context: SubGraphEvalContext, graph: PoseSubgraph
         const transitionEval: TransitionEval = {
             pose: isPoseTransition(outgoing),
             to: toEval,
-            condition: outgoing.condition?.[createEval](context) ?? null,
+            conditions: outgoing.conditions.map((condition) => condition[createEval](context)),
             duration: isPoseTransition(outgoing) ? outgoing.duration : 0.0,
             targetStretch: 1.0,
             exitConditionEnabled: isPoseTransition(outgoing) ? outgoing.exitConditionEnabled : false,
@@ -476,9 +503,9 @@ function createTransitionEval (context: SubGraphEvalContext, graph: PoseSubgraph
             // }
             transitionEval.targetStretch = toScaling;
         }
-        if (transitionEval.condition && outgoing.condition) {
-            bindEvalProperties(context, outgoing.condition, transitionEval.condition);
-        }
+        transitionEval.conditions.forEach((conditionEval, iCondition) => {
+            bindEvalProperties(context, outgoing.conditions[iCondition], conditionEval);
+        });
         outgoingTransitions.push(transitionEval);
     }
     return outgoingTransitions;
@@ -640,7 +667,7 @@ interface TransitionEval {
     pose: boolean;
     to: NodeEval;
     duration: number;
-    condition: ConditionEval | null;
+    conditions: ConditionEval[];
     targetStretch: number;
     exitConditionEnabled: boolean;
     exitCondition: number;
