@@ -77,6 +77,8 @@ export default class Burst {
      * @zh 发射的粒子的数量。
      */
     @type(CurveRange)
+    @serializable
+    @range([0, 1])
     public count: CurveRange = new CurveRange();
 
     private _remainingCount: number;
