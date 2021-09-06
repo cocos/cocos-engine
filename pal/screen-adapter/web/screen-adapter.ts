@@ -126,8 +126,7 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get orientation (): Orientation {
-        // TODO
-        throw new Error('Method not implemented.');
+        return Orientation.PORTRAIT; // TO BE IMPLEMENTED
     }
     public get safeAreaEdge (): SafeAreaEdge {
         return {

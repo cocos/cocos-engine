@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { Format, SwapchainInfo } from '../base/define';
+import { Format, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { EmptyTexture } from './empty-texture';
 
@@ -48,5 +48,5 @@ export class EmptySwapchain extends Swapchain {
         });
     }
     public destroy (): void {}
-    public resize (width: number, height: number) {}
+    public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {}
 }
