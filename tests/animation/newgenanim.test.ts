@@ -1,7 +1,7 @@
 
 import { AnimationClip, Node, Vec2, warnID } from '../../cocos/core';
-import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs } from '../../cocos/core/animation/animation';
-import { PoseGraph } from '../../cocos/core/animation/newgen-anim/pose-graph';
+import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, AnimatedPose, PoseBlendDirect } from '../../cocos/core/animation/animation';
+import { LayerBlending, PoseGraph, PoseSubgraph } from '../../cocos/core/animation/newgen-anim/pose-graph';
 import { createEval } from '../../cocos/core/animation/newgen-anim/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/newgen-anim/errors';
 import { PoseGraphEval } from '../../cocos/core/animation/newgen-anim/graph-eval';
@@ -21,6 +21,54 @@ import '../utils/matcher-deep-close-to';
 
 describe('NewGen Anim', () => {
     const demoGraphs = __getDemoGraphs();
+
+    describe('Defaults', () => {
+        const graph = new PoseGraph();
+        expect(graph.layers).toHaveLength(0);
+        const layer = graph.addLayer();
+        expect(layer.blending).toBe(LayerBlending.additive);
+        expect(layer.mask).toBeNull();
+        expect(layer.weight).toBe(1.0);
+        const layerGraph = layer.graph;
+        testGraphDefaults(layerGraph);
+
+        const graphNode = layerGraph.addPoseNode();
+        expect(graphNode.name).toBe('');
+        expect(graphNode.speed).toBe(1.0);
+        expect(graphNode.loop).toBe(true);
+        expect(graphNode.pose).toBeNull();
+        expect(graphNode.startRatio).toBe(0.0);
+
+        testGraphDefaults(layerGraph.addSubgraph());
+
+        const animationPose = new AnimatedPose();
+        expect(animationPose.clip).toBeNull();
+        
+        const poseBlend1D = new PoseBlend1D();
+        expect(Array.from(poseBlend1D.children)).toHaveLength(0);
+        expect(poseBlend1D.param).toBe(0.0);
+
+        const poseBlend2D = new PoseBlend2D();
+        expect(poseBlend2D.algorithm).toBe(PoseBlend2D.Algorithm.SIMPLE_DIRECTIONAL);
+        expect(Array.from(poseBlend2D.children)).toHaveLength(0);
+        expect(poseBlend2D.paramX).toBe(0.0);
+        expect(poseBlend2D.paramY).toBe(0.0);
+
+        const poseBlendDirect = new PoseBlendDirect();
+        expect(Array.from(poseBlendDirect.children)).toHaveLength(0);
+
+        function testGraphDefaults(graph: PoseSubgraph) {
+            expect(Array.from(graph.nodes())).toStrictEqual(expect.arrayContaining([
+                graph.entryNode,
+                graph.exitNode,
+                graph.anyNode,
+            ]));
+            expect(graph.entryNode.name).toBe('Entry');
+            expect(graph.exitNode.name).toBe('Exit');
+            expect(graph.anyNode.name).toBe('Any');
+            expect(Array.from(graph.transitions())).toHaveLength(0);
+        }
+    });
 
     describe('Connecting', () => {
         test('Connecting', () => {
