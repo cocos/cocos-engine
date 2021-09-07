@@ -143,14 +143,6 @@ replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
     },
 ]);
 
-// deprecated EventKeyboard property
-markAsWarning(EventKeyboard.prototype, 'EventKeyboard.prototype', [
-    {
-        name: 'isPressed',
-        suggest: 'use EventKeyboard.prototype.type !== SystemEvent.EventType.KEY_UP instead',
-    },
-]);
-
 markAsWarning(macro.KEY, 'macro.KEY',
     [
         'back',
