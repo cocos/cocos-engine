@@ -164,7 +164,7 @@ gulp.task('gen-simulator', async function () {
         var args = [];
         args.push('-G');
         if (isWin32) {
-            args.push('Visual Studio 15 2017','-A','Win32');
+            args.push('Visual Studio 15 2017','-A','x64');
         } 
         else {
             args.push('Xcode');

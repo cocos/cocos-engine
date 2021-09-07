@@ -37,7 +37,7 @@ PlayerEditBoxServiceWin::PlayerEditBoxServiceWin(HWND hwnd)
 : _hfont(NULL)
 {
     _hwnd = hwnd;
-    HINSTANCE instance = (HINSTANCE)GetWindowLong(_hwnd, GWL_HINSTANCE);
+    HINSTANCE instance = (HINSTANCE)GetWindowLong(_hwnd, GWLP_HINSTANCE);
     DWORD style = WS_CHILD | ES_LEFT | ES_AUTOHSCROLL;
     _hwndSingle = CreateWindowEx(WS_EX_CLIENTEDGE, (LPCSTR)L"Edit", (LPCSTR)L"", style, 0, 0, 0, 0, _hwnd, NULL, instance, NULL);
     style = WS_CHILD | ES_MULTILINE | ES_LEFT | ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL;
