@@ -8,7 +8,7 @@ import {
 } from '../base/define';
 import { Texture } from '../base/texture';
 import { wgpuWasmModule } from './webgpu-utils';
-import { WebGPUDevice } from './webgpu-device';
+import { toWGPUNativeFormat } from './webgpu-commands';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 
 export class WebGPUTexture extends Texture {
@@ -19,8 +19,12 @@ export class WebGPUTexture extends Texture {
         this._swapchain = swapchain;
     }
 
+    get nativeTexture () {
+        return this._nativeTexture;
+    }
+
     public initialize (info: TextureInfo | TextureViewInfo): boolean {
-        const nativeDevice = (this._device as WebGPUDevice).nativeDevice();
+        const nativeDevice = wgpuWasmModule.nativeDevice;
         if ('texture' in info) {
             this._type = info.type;
             this._format = info.format;
@@ -35,10 +39,10 @@ export class WebGPUTexture extends Texture {
             texViewInfo.setLevelCount(info.levelCount);
             texViewInfo.setBaseLayer(info.baseLayer);
             texViewInfo.setLayerCount(info.layerCount);
-            this._nativeTexture = nativeDevice.createTexture(texViewInfo);
+            this._nativeTexture = nativeDevice.createTextureView(texViewInfo);
         } else {
             this._type = info.type;
-            this._format = info.format;
+            this._format = toWGPUNativeFormat(info.format);
             this._width = info.width;
             this._height = info.height;
             this._usage = info.usage;
@@ -53,16 +57,17 @@ export class WebGPUTexture extends Texture {
                     ? this._swapchain.nativeSwapchain.getDepthStencilTexture() : this._swapchain.nativeSwapchain.getColorTexture();
             } else {
                 const texInfo = new wgpuWasmModule.TextureInfoInstance();
-                texInfo.type = info.type;
-                texInfo.usage = info.usage;
-                texInfo.format = info.format;
-                texInfo.width = info.width;
-                texInfo.height = info.height;
-                texInfo.flags = info.flags;
-                texInfo.layerCount = info.layerCount;
-                texInfo.levelCount = info.levelCount;
-                texInfo.samples = info.samples;
-                texInfo.depth = info.depth;
+                texInfo.setType(info.type);
+                texInfo.setUsage(info.usage);
+                texInfo.setFormat(toWGPUNativeFormat(info.format));
+                texInfo.setWidth(info.width);
+                texInfo.setHeight(info.height);
+                texInfo.setFlags(info.flags);
+                texInfo.setLayerCount(info.layerCount);
+                texInfo.setLevelCount(info.levelCount);
+                texInfo.setSamples(info.samples);
+                texInfo.setDepth(info.depth);
+                texInfo.setImageBuffer(info.externalRes);
                 this._nativeTexture = nativeDevice.createTexture(texInfo);
             }
         }

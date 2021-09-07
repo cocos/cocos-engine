@@ -1,54 +1,25 @@
-import { Sampler } from '../base/sampler';
-import { WebGPUCmdFuncCreateSampler, WebGPUCmdFuncDestroySampler } from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
-import { IWebGPUGPUSampler } from './webgpu-gpu-objects';
+import { Sampler } from '../base/states/sampler';
 import { SamplerInfo } from '../base/define';
+import { wgpuWasmModule } from './webgpu-utils';
+import { toWGPUNativeAddressMode, toWGPUNativeCompareFunc, toWGPUNativeFilter } from './webgpu-commands';
 
 export class WebGPUSampler extends Sampler {
-    public get gpuSampler(): IWebGPUGPUSampler {
-        return this._gpuSampler!;
-    }
+    private _nativeSampler;
 
-    private _gpuSampler: IWebGPUGPUSampler | null = null;
+    constructor (info: SamplerInfo) {
+        super(info);
 
-    public initialize(info: SamplerInfo): boolean {
-        this._minFilter = info.minFilter;
-        this._magFilter = info.magFilter;
-        this._mipFilter = info.mipFilter;
-        this._addressU = info.addressU;
-        this._addressV = info.addressV;
-        this._addressW = info.addressW;
-        this._maxAnisotropy = info.maxAnisotropy;
-        this._cmpFunc = info.cmpFunc;
-        this._borderColor = info.borderColor;
-        this._mipLODBias = info.mipLODBias;
+        const samplerInfo = new wgpuWasmModule.SamplerInfoInstance();
+        samplerInfo.minFilter = toWGPUNativeFilter(info.minFilter);
+        samplerInfo.magFilter = toWGPUNativeFilter(info.magFilter);
+        samplerInfo.mipFilter = toWGPUNativeFilter(info.mipFilter);
+        samplerInfo.addressU = toWGPUNativeAddressMode(info.addressU);
+        samplerInfo.addressV = toWGPUNativeAddressMode(info.addressV);
+        samplerInfo.addressW = toWGPUNativeAddressMode(info.addressW);
+        samplerInfo.maxAnisotropy = info.maxAnisotropy;
+        samplerInfo.cmpFunc = toWGPUNativeCompareFunc(info.cmpFunc);
 
-        this._gpuSampler = {
-            glSampler: null,
-            minFilter: this._minFilter,
-            magFilter: this._magFilter,
-            mipFilter: this._mipFilter,
-            addressU: this._addressU,
-            addressV: this._addressV,
-            addressW: this._addressW,
-
-            glMinFilter: 'linear',
-            glMagFilter: 'linear',
-            glMipFilter: 'linear',
-            glWrapS: 'clamp-to-edge',
-            glWrapT: 'clamp-to-edge',
-            glWrapR: 'clamp-to-edge',
-        };
-
-        WebGPUCmdFuncCreateSampler(this._device as WebGPUDevice, this._gpuSampler);
-
-        return true;
-    }
-
-    public destroy() {
-        if (this._gpuSampler) {
-            WebGPUCmdFuncDestroySampler(this._device as WebGPUDevice, this._gpuSampler);
-            this._gpuSampler = null;
-        }
+        const nativeDevice = wgpuWasmModule.nativeDevice;
+        this._nativeSampler = nativeDevice.getSampler(samplerInfo);
     }
 }

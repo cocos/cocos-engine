@@ -7,7 +7,7 @@ export class WebGPURenderPass extends RenderPass {
     private _nativeRenderPass;
 
     public initialize (info: RenderPassInfo): boolean {
-        const colorVec = new wgpuWasmModule.ColorAttachmentList();
+        const renderPassInfo = new wgpuWasmModule.RenderPassInfoInstance();
         for (let i = 0; i < info.colorAttachments.length; i++) {
             const origin = info.colorAttachments[i];
             const color = new wgpuWasmModule.ColorAttachmentInstance();
@@ -28,10 +28,10 @@ export class WebGPURenderPass extends RenderPass {
             color.endAccesses = endAccesses;
             color.isGeneralLayout = origin.isGeneralLayout;
 
-            colorVec.push_back(color);
+            renderPassInfo.colorAttachments.push_back(color);
         }
 
-        const depthStencil = new wgpuWasmModule.DepthStencilAttachmentInstance();
+        const depthStencil = renderPassInfo.depthStencilAttachment;
         depthStencil.format = info.depthStencilAttachment.format;
         depthStencil.sampleCount = info.depthStencilAttachment.sampleCount;
         depthStencil.depthLoadOp = info.depthStencilAttachment.depthLoadOp;
@@ -50,7 +50,7 @@ export class WebGPURenderPass extends RenderPass {
         depthStencil.endAccesses = endAccesses;
         depthStencil.isGeneralLayout = info.depthStencilAttachment.isGeneralLayout;
 
-        const subpasses = new wgpuWasmModule.SubpassInfoList();
+        const subpasses = renderPassInfo.subpasses;
         for (let i = 0; i < info.subpasses.length; i++) {
             const originSubpass = info.subpasses[i];
             const subpass = new wgpuWasmModule.SubpassInfoInstance();
@@ -82,7 +82,7 @@ export class WebGPURenderPass extends RenderPass {
             subpasses.push_back(subpass);
         }
 
-        const dependencies = new wgpuWasmModule.SubpassDependencyList();
+        const dependencies = renderPassInfo.dependencies;
         for (let i = 0; i < info.dependencies.length; i++) {
             const originDeps = info.dependencies[i];
             const dependency = new wgpuWasmModule.SubpassDependencyInstance();
@@ -101,15 +101,8 @@ export class WebGPURenderPass extends RenderPass {
             dependencies.push_back(dependency);
         }
 
-        const renderPassInfo = {
-            colorAttachments: colorVec,
-            depthStencilAttachment: depthStencil,
-            subpasses,
-            dependencies,
-        };
-
-        const wgpuDevice = this._device as unknown as WebGPUDevice;
-        this._nativeRenderPass = wgpuDevice.nativeDevice?.createRenderPass(renderPassInfo);
+        const nativeDevice = wgpuWasmModule.nativeDevice;
+        this._nativeRenderPass = nativeDevice?.createRenderPass(renderPassInfo);
         return true;
     }
 
