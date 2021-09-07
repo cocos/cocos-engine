@@ -67,7 +67,12 @@
 
 #define WS_RX_BUFFER_SIZE              (65536)
 #define WS_RESERVE_RECEIVE_BUFFER_SIZE (4096)
-#define WS_ENABLE_LIBUV                1
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #define WS_ENABLE_LIBUV 1
+#else
+    #define WS_ENABLE_LIBUV 0
+#endif
 
 #ifdef LOG_TAG
     #undef LOG_TAG
@@ -464,7 +469,7 @@ void WsThreadHelper::onSubThreadLoop() {
         // Windows: Cause delay 40ms for event WS_MSG_TO_SUBTHREAD_CREATE_CONNECTION
         // Android: Let libuv lws to decide when to stop
         wsPolling = true;
-        lws_service(wsContext, 40);
+        lws_service(wsContext, WS_ENABLE_LIBUV ? 40 : 4);
         wsPolling = false;
     }
 }
