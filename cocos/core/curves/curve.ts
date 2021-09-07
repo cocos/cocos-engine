@@ -103,6 +103,7 @@ CCClass.fastDefine(
         rightTangentWeight: 0.0,
         leftTangent: 0.0,
         leftTangentWeight: 0.0,
+        easingMethod: EasingMethod.LINEAR,
     },
 );
 
