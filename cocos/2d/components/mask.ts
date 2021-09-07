@@ -377,6 +377,7 @@ export class Mask extends Renderable2D {
         super.updateMaterial();
         this._updateGraphics();
         this._renderFlag = this._canRender();
+        // macro.UI_GPU_DRIVEN // 怎么处理？？
         if (this._renderFlag !== this._renderFlagCache) {
             director.root!.batcher2D.reloadBatchDirty = true;
             this._renderFlagCache = this._renderFlag;

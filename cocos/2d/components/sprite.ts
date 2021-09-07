@@ -229,10 +229,6 @@ export class Sprite extends Renderable2D {
         if (EDITOR) {
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
         }
-        // hack for sprite frame animation
-        // 正确做法是同 TRS 一样只更新部分 buffer(UV)
-        // director.root!.batcher2D.reloadBatchDirty = true;
-        // 这儿不用了，应该在 renderDataDirty 里会更新
     }
 
     /**
@@ -567,7 +563,8 @@ export class Sprite extends Renderable2D {
     }
 
     protected _updateBuiltinMaterial () {
-        let mat = super._updateBuiltinMaterial(true);
+        // macro.UI_GPU_DRIVEN
+        let mat = super._updateBuiltinMaterial(true); // 在 函数内部处理
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
             const renderMat = new Material();
@@ -581,7 +578,12 @@ export class Sprite extends Renderable2D {
     }
 
     protected _render (render: Batcher2D) {
-        render.commitCompByGPU(this, this._spriteFrame, this._assembler!, null);
+        // macro.UI_GPU_DRIVEN
+        if (macro.UI_GPU_DRIVEN) {
+            render.commitCompByGPU(this, this._spriteFrame, this._assembler!, null);
+        } else {
+            render.commitComp(this, this._spriteFrame, this._assembler!, null);
+        }
     }
 
     protected _canRender () {
@@ -600,7 +602,9 @@ export class Sprite extends Renderable2D {
     protected _flushAssembler () {
         // 在 GPU 模式下不需要
         // 但这个 _assembler 也为空？那renderData也为空？
-        // if (!macro.UI_GPU_DRIVEN) {
+        // 这儿其实有个关键的更新问题，这儿会决定 fillType，实际上可以决定一个，数据的更新
+        // 需要考虑怎么更新合适
+        // if (!macro.UI_GPU_DRIVEN) {  怎么处理！！！！！
         const assembler = Sprite.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -718,8 +722,10 @@ export class Sprite extends Renderable2D {
         }
     }
 
+    // macro.UI_GPU_DRIVEN // 可以不做填充
     public slicedData: number[] = [];
 
+    // macro.UI_GPU_DRIVEN // 函数不被调用即可？？
     public _calculateSlicedData () {
         const content = this.node._uiProps.uiTransformComp!.contentSize;
 
@@ -742,6 +748,7 @@ export class Sprite extends Renderable2D {
         uvSliced[3] = (topHeight + centerHeight) / spriteHeight;
     }
 
+    // macro.UI_GPU_DRIVEN // 函数不被调用即可
     public tiledData: Vec2 = new Vec2(0, 0);
     public calculateTiledData () {
         const content = this.node._uiProps.uiTransformComp!.contentSize;

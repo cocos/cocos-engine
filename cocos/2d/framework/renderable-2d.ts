@@ -46,7 +46,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
-import { director } from '../../core';
+import { director, macro } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 // hack
@@ -161,6 +161,7 @@ export class Renderable2D extends RenderableComponent {
         this.updateMaterial();
     }
 
+    // macro.UI_GPU_DRIVEN // 处理过了
     protected updateMaterial (useGPU = false) {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
@@ -244,7 +245,8 @@ export class Renderable2D extends RenderableComponent {
         if (this._color.equals(value)) {
             return;
         }
-        if (this._color.a === 0 || value.a === 0) {
+        // macro.UI_GPU_DRIVEN
+        if (macro.UI_GPU_DRIVEN && (this._color.a === 0 || value.a === 0)) {
             director.root!.batcher2D.reloadBatchDirty = true;
         }
 
@@ -300,7 +302,7 @@ export class Renderable2D extends RenderableComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
-    protected _renderFlagCache = true;
+    protected _renderFlagCache = true; // 用于记录是否发生了渲染条件的变化，做缓存用
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
@@ -310,6 +312,7 @@ export class Renderable2D extends RenderableComponent {
     protected _colorDirty = true;
     protected _cacheAlpha = 1;
 
+    // 代替 _renderDataFlag 使用
     public _renderDataDirty = true;
 
     get blendHash () {
@@ -326,7 +329,7 @@ export class Renderable2D extends RenderableComponent {
     public __preload () {
         this.node._uiProps.uiComp = this;
         if (this._flushAssembler) {
-            this._flushAssembler(); // 用于 createRenderData，其中的实现需要区别对待了
+            this._flushAssembler(); // 用于 createRenderData，其中的实现需要区别对待了 // macro.UI_GPU_DRIVEN 部分的 GPU_Driven 不需要进行此步操作
         }
     }
 
@@ -335,6 +338,7 @@ export class Renderable2D extends RenderableComponent {
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
+        // macro.UI_GPU_DRIVEN // 这里可能需要封装之后处理？会有值未能赋值的问题
         this._renderFlagCache = this._renderFlag;
         director.root!.batcher2D.reloadBatchDirty = true;
     }
@@ -343,9 +347,10 @@ export class Renderable2D extends RenderableComponent {
     public onRestore () {
         this.updateMaterial();
         this._renderFlag = this._canRender();
+        // macro.UI_GPU_DRIVEN
         if (this._renderFlag !== this._renderFlagCache) {
-            director.root!.batcher2D.reloadBatchDirty = true;
             this._renderFlagCache = this._renderFlag;
+            director.root!.batcher2D.reloadBatchDirty = true;
         }
     }
 
@@ -353,6 +358,7 @@ export class Renderable2D extends RenderableComponent {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
+        // macro.UI_GPU_DRIVEN
         this._renderFlagCache = this._renderFlag;
         director.root!.batcher2D.reloadBatchDirty = true;
     }
@@ -380,6 +386,7 @@ export class Renderable2D extends RenderableComponent {
      */
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
+        // macro.UI_GPU_DRIVEN // 同上的操作
         if (this._renderFlag !== this._renderFlagCache) {
             director.root!.batcher2D.reloadBatchDirty = true;
             this._renderFlagCache = this._renderFlag;
@@ -459,7 +466,8 @@ export class Renderable2D extends RenderableComponent {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
-            this._renderDataDirty = true;
+            // macro.UI_GPU_DRIVEN
+            this._renderDataDirty = true; // 在某些时候是无用的
         }
     }
 
@@ -474,14 +482,6 @@ export class Renderable2D extends RenderableComponent {
     protected _postCanRender () {}
 
     protected _updateColor () {
-        // 需要重新实现
-        // this._updateWorldAlpha();
-        // if ((this._colorDirty || this._cacheAlpha !== this.node._uiProps.opacity)
-        // && this._renderFlag && this._assembler && this._assembler.updateColor) {
-        // this._assembler.updateColor(this);
-        // this._cacheAlpha = this.node._uiProps.opacity;
-        // this._colorDirty = false;
-        // }
         // Need update rendFlag when opacity changes from 0 to !0
         const opacityZero = this._cacheAlpha <= 0;
         this._updateWorldAlpha();
@@ -489,6 +489,7 @@ export class Renderable2D extends RenderableComponent {
             this._assembler.updateColor(this);
             if (opacityZero) {
                 this._renderFlag = this._canRender();
+                // macro.UI_GPU_DRIVEN // 同上
                 if (this._renderFlag !== this._renderFlagCache) { // 这里应该是不要了，除非将 color 使用单独的 flag，否则意义不大
                     director.root!.batcher2D.reloadBatchDirty = true; // 这里的触发时机太晚了
                     this._renderFlagCache = this._renderFlag;
@@ -542,9 +543,10 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
+    // macro.UI_GPU_DRIVEN // 这里可能需要考虑效率？
     protected _updateBuiltinMaterial (useGPU: boolean) : Material {
         let gpuMat = '';
-        if (useGPU) {
+        if (useGPU && macro.UI_GPU_DRIVEN) {
             gpuMat = '-gpu';
         }
         let mat : Material;

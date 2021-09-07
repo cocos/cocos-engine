@@ -50,10 +50,12 @@ import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
 import { DummyIA } from './dummy-ia';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Director } from '../../core/director';
+import { macro } from '../../core';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
+// macro.UI_GPU_DRIVEN
 interface IRenderItem {
     localBuffer: UILocalBuffer;
     bufferHash: number;
@@ -165,11 +167,15 @@ export class Batcher2D {
     private _currLayer = 0;
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
-    private _currBatch!: DrawBatch2D;
-    private _parentOpacity = 1;
     private _currOpacity = 1;
+
+    // macro.UI_GPU_DRIVEN
+    private _currBatch!: DrawBatch2D;
+
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
+
+    // macro.UI_GPU_DRIVEN
     private _dummyIA: DummyIA;
     private _localUBOManager: UILocalUBOManger;
 
@@ -183,19 +189,27 @@ export class Batcher2D {
 
     public updateBufferDirty = false;
 
+    // -------------------------------------
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
-        this._dummyIA = new DummyIA(this.device);
-        this._localUBOManager = new UILocalUBOManger(this.device);
+        // macro.UI_GPU_DRIVEN
+        if (macro.UI_GPU_DRIVEN) {
+            this._dummyIA = new DummyIA(this.device);
+            this._localUBOManager = new UILocalUBOManger(this.device);
+        }
         this._currBatch = this._drawBatchPool.alloc();
     }
 
     public initialize () {
-        legacyCC.director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
-            this.reloadBatchDirty = true;
-        });
+        // macro.UI_GPU_DRIVEN
+        if (macro.UI_GPU_DRIVEN) {
+            legacyCC.director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
+                this.reloadBatchDirty = true;
+            });
+        }
         return true;
     }
 
@@ -207,6 +221,13 @@ export class Batcher2D {
         }
         this._batches.destroy();
 
+        for (const size of this._meshBuffers.keys()) {
+            const buffers = this._meshBuffers.get(size);
+            if (buffers) {
+                buffers.forEach((buffer) => buffer.destroy());
+            }
+        }
+
         if (this._drawBatchPool) {
             this._drawBatchPool.destroy((obj) => {
                 obj.destroy(this);
@@ -214,6 +235,8 @@ export class Batcher2D {
         }
 
         this._descriptorSetCache.destroy();
+
+        this._meshBuffers.clear();
 
         StencilManager.sharedManager!.destroy();
     }
@@ -273,13 +296,16 @@ export class Batcher2D {
     }
 
     public update () {
-        if (this.reloadBatchDirty) {
-            this.renderQueue.length = 0;
-            this._localUBOManager.reset(); // 需要重新录制就先清空
-            // localDS 需要进行清空
-            // 或者说根据索引部分清空
-            // 做这么耦合，怎么拆啊。。。
-            this._descriptorSetCache.releaseAllByBuffer();
+        // macro.UI_GPU_DRIVEN
+        if (macro.UI_GPU_DRIVEN) {
+            if (this.reloadBatchDirty) {
+                this.renderQueue.length = 0;
+                this._localUBOManager.reset(); // 需要重新录制就先清空
+                // localDS 需要进行清空
+                // 或者说根据索引部分清空
+                // 做这么耦合，怎么拆啊。。。
+                this._descriptorSetCache.releaseAllByBuffer();
+            }
         }
 
         const screens = this._screens;
@@ -290,6 +316,7 @@ export class Batcher2D {
             }
             this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
+            // macro.UI_GPU_DRIVEN
             this._currTypeIsGPU = false;
         }
 
@@ -305,6 +332,7 @@ export class Batcher2D {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
+                    // macro.UI_GPU_DRIVEN
                     for (let i = 0; i < batch.drawcalls.length; i++) {
                         batch.drawcalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawcalls[i]);
                     }
@@ -338,10 +366,13 @@ export class Batcher2D {
             });
 
             this._descriptorSetCache.update();
-            if (this.reloadBatchDirty || this.updateBufferDirty) {
-                this._localUBOManager.updateBuffer();
-                this.reloadBatchDirty = false; // 这里应该是更新用
-                this.updateBufferDirty = false;
+            // macro.UI_GPU_DRIVEN
+            if (macro.UI_GPU_DRIVEN) {
+                if (this.reloadBatchDirty || this.updateBufferDirty) {
+                    this._localUBOManager.updateBuffer();
+                    this.reloadBatchDirty = false; // 这里应该是更新用
+                    this.updateBufferDirty = false;
+                }
             }
         }
     }
@@ -356,6 +387,7 @@ export class Batcher2D {
             batch.clear(); // batch 是不是需要重新录制？？？
             this._drawBatchPool.free(batch);
         }
+        // macro.UI_GPU_DRIVEN
         DrawBatch2D.drawcallPool.reset();
 
         this._currLayer = 0;
@@ -367,13 +399,17 @@ export class Batcher2D {
         this._currScene = null;
         this._currMeshBuffer = null;
         this._currOpacity = 1;
+        this._meshBufferUseCount.clear();
+        // macro.UI_GPU_DRIVEN
         this._batches.clear(); // DC 数量有问题
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
+        // macro.UI_GPU_DRIVEN
         // this._localUBOManager.reset(); // 用 dirty 来控制reset
         this._currWalkIndex = 0;
     }
 
+    // macro.UI_GPU_DRIVEN // 上层不会调用
     /**
      * @en
      * Render component data submission process of UI.
@@ -516,16 +552,23 @@ export class Batcher2D {
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== false) {
-            if (this._currTypeIsGPU) {
-                // G -> A
-                this.autoMergeBatchesByGPU(this._currComponent!);
-                this._currBatch = this._drawBatchPool.alloc();
-                this._currBatch.UICapacityDirty = true;
+            // macro.UI_GPU_DRIVEN
+            if (macro.UI_GPU_DRIVEN) {
+                if (this._currTypeIsGPU) {
+                    // G -> A
+                    this.autoMergeBatchesByGPU(this._currComponent!);
+                    this._currBatch = this._drawBatchPool.alloc();
+                    this._currBatch.UICapacityDirty = true;
+                } else {
+                    // A -> A
+                    this.autoMergeBatches(this._currComponent!);
+                    this._currBatch = this._drawBatchPool.alloc();
+                }
             } else {
-                // A -> A
                 this.autoMergeBatches(this._currComponent!);
                 this._currBatch = this._drawBatchPool.alloc();
             }
+
             this._currScene = renderScene;
             this._currComponent = renderComp;
             this._currTransform = transform;
@@ -562,6 +605,7 @@ export class Batcher2D {
      */
     public commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
+        // macro.UI_GPU_DRIVEN
         if (this._currMaterial !== this._emptyMaterial) {
             if (this._currTypeIsGPU) {
                 this.autoMergeBatchesByGPU(this._currComponent!);
@@ -633,6 +677,7 @@ export class Batcher2D {
         this.finishMergeBatches();
     }
 
+    // macro.UI_GPU_DRIVEN
     public autoMergeBatchesByGPU (renderComp?: Renderable2D) {
         if (!this._currScene) return;
 
@@ -1028,25 +1073,6 @@ class DescriptorSetCache {
 
                 return descriptorSet;
             }
-            // const descriptorSetTextureMap = this._descriptorSetCache.get(batch.textureHash);
-            // if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
-            //     return descriptorSetTextureMap.get(batch.samplerHash)!;
-            // } else {
-            //     _dsInfo.layout = batch.passes[0].localSetLayout;
-            //     const handle = DSPool.alloc(root.device, _dsInfo);
-            //     const descriptorSet = DSPool.get(handle);
-            //     const binding = ModelLocalBindings.SAMPLER_SPRITE;
-            //     descriptorSet.bindTexture(binding, batch.texture!);
-            //     descriptorSet.bindSampler(binding, batch.sampler!);
-            //     descriptorSet.update();
-
-            //     if (descriptorSetTextureMap) {
-            //         this._descriptorSetCache.get(batch.textureHash)!.set(batch.samplerHash, handle);
-            //     } else {
-            //         this._descriptorSetCache.set(batch.textureHash, new Map([[batch.samplerHash, handle]]));
-            //     }
-            //     return handle;
-            // }
         }
     }
 
@@ -1066,12 +1092,6 @@ class DescriptorSetCache {
     }
 
     public releaseDescriptorSetCache (textureHash) {
-        // if (this._descriptorSetCache.has(textureHash)) {
-        //     DSPool.free(this._descriptorSetCache.get(textureHash)!);
-        //     this._descriptorSetCache.delete(textureHash);
-        // }
-
-        // 新加缓存
         const key = this._dsCacheHashByTexture.get(textureHash);
         if (key && this._descriptorSetCache.has(key)) {
             this._descriptorSetCache.get(key)!.destroy();

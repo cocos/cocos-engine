@@ -126,7 +126,6 @@ export class RenderAdditiveLightQueue {
         this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / alignment) * alignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
-        // 下面三条是一个 ubo // 内存布局是 0 16 32 48 这种分块内存
         this._lightBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
@@ -134,10 +133,8 @@ export class RenderAdditiveLightQueue {
             this._lightBufferStride,
         ));
 
-        // 数据 view
         this._firstLightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
 
-        // 实际保存数据的地方
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
     }
 

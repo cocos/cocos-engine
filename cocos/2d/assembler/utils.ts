@@ -73,7 +73,7 @@ export function fillVertices3D (node: Node, renderer: Batcher2D, renderData: Ren
     // buffer data may be realloc, need get reference after request.
     const iBuf = buffer.iData;
     for (let i = 0; i < renderData.dataLength; i++) {
-        iBuf[indicesOffset + i] = vertexId + i;
+        iBuf![indicesOffset + i] = vertexId + i;
     }
 }
 
@@ -158,10 +158,10 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: Batcher2D, rend
 
     // buffer data may be realloc, need get reference after request.
     const iBuf = buffer.iData;
-    iBuf[indicesOffset++] = vertexId;
-    iBuf[indicesOffset++] = vertexId + 1;
-    iBuf[indicesOffset++] = vertexId + 2;
-    iBuf[indicesOffset++] = vertexId + 1;
-    iBuf[indicesOffset++] = vertexId + 3;
-    iBuf[indicesOffset++] = vertexId + 2;
+    iBuf![indicesOffset++] = vertexId;
+    iBuf![indicesOffset++] = vertexId + 1;
+    iBuf![indicesOffset++] = vertexId + 2;
+    iBuf![indicesOffset++] = vertexId + 1;
+    iBuf![indicesOffset++] = vertexId + 3;
+    iBuf![indicesOffset++] = vertexId + 2;
 }

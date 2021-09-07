@@ -40,7 +40,7 @@ import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { NodeEventType } from '../../core/scene-graph/node-event';
-import { SystemEventType } from '../../core';
+import { macro, SystemEventType } from '../../core';
 import visibleRect from '../../core/platform/visible-rect';
 
 const _vec2a = new Vec2();
@@ -95,7 +95,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     get width () {
@@ -119,7 +119,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     get height () {
@@ -143,7 +143,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     /**
@@ -167,7 +167,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.set(value);
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     get anchorX () {
@@ -181,7 +181,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.x = value;
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     get anchorY () {
@@ -195,7 +195,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.y = value;
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     /**
@@ -267,7 +267,7 @@ export class UITransform extends Component {
 
     public onEnable () {
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     public onDisable () {
@@ -346,7 +346,7 @@ export class UITransform extends Component {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
 
-        this._rectDirty = true;
+        this._markRenderDataDirty();
     }
 
     /**
@@ -395,9 +395,7 @@ export class UITransform extends Component {
         // this.setLocalDirty(LocalDirtyFlag.POSITION);
         // if (this._eventMask & ANCHOR_ON) {
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
-
-        this._rectDirty = true;
-
+        this._markRenderDataDirty();
         // }
     }
 
@@ -663,6 +661,18 @@ export class UITransform extends Component {
         }
     }
 
+    private _markRenderDataDirty () {
+        if (macro.UI_GPU_DRIVEN) {
+            this._rectDirty = true;
+            return;
+        }
+        const uiComp = this.node._uiProps.uiComp;
+        if (uiComp) {
+            uiComp.markForUpdateRenderData();
+        }
+    }
+
+    // macro.UI_GPU_DRIVEN
     public _rectDirty = true;
     public _rectWithScale = new Vec3();
     public _anchorCache = new Vec2();

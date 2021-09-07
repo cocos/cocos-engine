@@ -43,6 +43,7 @@ import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
+import { macro } from '../../core';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -497,8 +498,8 @@ export class SpriteFrame extends Asset {
     public uv: number[] = [];
     public uvHash = 0;
 
+    // macro.UI_GPU_DRIVEN
     public tillingOffset: number[] = [];
-
     public slicedData: number[] = [];
 
     public unbiasUV:number[] = [];
@@ -797,7 +798,9 @@ export class SpriteFrame extends Asset {
 
     // Calculate UV for sliced
     public _calculateSlicedUV () {
-        this._calculateSlicedData();
+        if (macro.UI_GPU_DRIVEN) {
+            this._calculateSlicedData();
+        }
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
         const tex = this.texture;
@@ -1091,7 +1094,9 @@ export class SpriteFrame extends Asset {
         }
 
         this._calculateSlicedUV();
-        this._calculateTillingOffset();
+        if (macro.UI_GPU_DRIVEN) {
+            this._calculateTillingOffset();
+        }
     }
 
     public _setDynamicAtlasFrame (frame) {
@@ -1299,6 +1304,7 @@ export class SpriteFrame extends Asset {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
     }
 
+    // macro.UI_GPU_DRIVEN
     private _calculateTillingOffset () {
         // Todo：可能由于模式不同而被影响
         // 可能需要处理旋转
@@ -1308,6 +1314,7 @@ export class SpriteFrame extends Asset {
         this.tillingOffset[3] = (this.uv[5]);
     }
 
+    // macro.UI_GPU_DRIVEN
     private _calculateSlicedData () {
         const rect = this._rect;
         if (this._original) {
