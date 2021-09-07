@@ -42,7 +42,7 @@ class TouchManager {
      * @returns
      */
     public createTouch (touchID: number, x: number, y: number): Touch | undefined {
-        if (typeof this._touchMap[touchID] !== 'undefined') {
+        if (touchID in this._touchMap) {
             console.log('Cannot create the same touch object.');
             return undefined;
         }
@@ -64,10 +64,10 @@ class TouchManager {
      * @returns
      */
     public releaseTouch (touchID: number) {
-        const availableTouchIndex = this._touchMap[touchID];
-        if (typeof availableTouchIndex === 'undefined') {
+        if (!(touchID in this._touchMap)) {
             return;
         }
+        const availableTouchIndex = this._touchMap[touchID];
         this._touches[availableTouchIndex] = undefined;
         delete this._touchMap[touchID];
     }
