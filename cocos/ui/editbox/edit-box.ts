@@ -680,17 +680,13 @@ export class EditBox extends Component {
     }
 
     private _registerBackgroundEvent () {
-        if (!this._background) {
-            return;
-        }
-        this._background.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        const node = this._background && this._background.node;
+        node?.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     private _unregisterBackgroundEvent () {
-        if (!this._background) {
-            return;
-        }
-        this._background.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        const node = this._background && this._background.node;
+        node?.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     protected _updateLabelPosition (size: Size) {
