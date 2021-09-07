@@ -387,6 +387,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         }
+        this._ensureBackgroundSprite();
         if (this._impl) {
             this._impl.onEnable();
         }
@@ -402,13 +403,13 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
         }
+        this._unregisterBackgroundEvent();
         if (this._impl) {
             this._impl.onDisable();
         }
     }
 
     public onDestroy () {
-        this._unregisterBackgroundEvent();
         if (this._impl) {
             this._impl.clear();
         }
@@ -509,7 +510,6 @@ export class EditBox extends Component {
     }
 
     protected _init () {
-        this._ensureBackgroundSprite();
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
