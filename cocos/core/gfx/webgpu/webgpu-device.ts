@@ -4,12 +4,18 @@ import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUA
 // import fs from 'fs';
 import { resolve } from 'path/posix';
 import { Device } from '../base/device';
-import { DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo } from '../base/define';
+import {
+    DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
+    SamplerInfo,
+} from '../base/define';
 import { RenderPass } from '../base/render-pass';
 import { wgpuWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
 import { WebGPUSwapchain } from './webgpu-swapchain';
+import { WebGPUSampler } from './webgpu-sampler';
+import { WebGPUTexture } from './webgpu-texture';
+import { Sampler } from '../base/states/sampler';
 import { Swapchain } from '../base/swapchain';
 
 export class WebGPUDevice extends Device {
@@ -109,11 +115,19 @@ export class WebGPUDevice extends Device {
     }
 
     public createTexture (info: TextureInfo | TextureViewInfo): Texture {
-        this._nativeDevice?.createTexture(info);
+        const texture = new WebGPUTexture();
+        if (texture.initialize(info)) {
+            return texture;
+        }
+        return null!;
     }
 
-    public createSampler (info: SamplerInfo): Sampler {
-        this._nativeDevice?.createSampler(info);
+    public getSampler (info: SamplerInfo): Sampler {
+        const hash = Sampler.computeHash(info);
+        if (!this._samplers.has(hash)) {
+            this._samplers.set(hash, new WebGPUSampler(info));
+        }
+        return this._samplers.get(hash)!;
     }
 
     public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
@@ -129,7 +143,7 @@ export class WebGPUDevice extends Device {
     }
 
     public createRenderPass (info: RenderPassInfo): RenderPass {
-        const renderPass = new WebGPURenderPass(this);
+        const renderPass = new WebGPURenderPass();
         if (renderPass.initialize(info)) {
             return renderPass;
         }
@@ -169,15 +183,53 @@ export class WebGPUDevice extends Device {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
-        this._nativeDevice?.copyBuffersToTexture(buffers, texture, regions);
+        const bufferDataList = new wgpuWasmModule.BufferDataList();
+        const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        for (let i = 0; i < buffers.length; i++) {
+            bufferDataList.push_back(buffers[i].buffer);
+
+            const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+            bufferTextureCopy.buffStride = regions[i].buffStride;
+            bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+            bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+            bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+            bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+            bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+            bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+            bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+            bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+            bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+            bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+            bufferTextureCopyList.push_back(bufferTextureCopy);
+        }
+        this._nativeDevice?.copyBuffersToTexture(bufferDataList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
     public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void {
-        this._nativeDevice?.copyTextureToBuffers(texture, buffers, regions);
+        const bufferDataList = new wgpuWasmModule.BufferDataList();
+        const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        for (let i = 0; i < buffers.length; i++) {
+            bufferDataList.push_back(buffers[i].buffer);
+
+            const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+            bufferTextureCopy.buffStride = regions[i].buffStride;
+            bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+            bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+            bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+            bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+            bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+            bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+            bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+            bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+            bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+            bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+            bufferTextureCopyList.push_back(bufferTextureCopy);
+        }
+        this._nativeDevice?.copyTextureToBuffers((texture as WebGPUTexture).nativeTexture, bufferDataList, bufferTextureCopyList);
     }
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {
-        this._nativeDevice?.copyTextureToBuffers(texImages, texture, regions);
+
     }
 
     // deprecated
