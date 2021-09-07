@@ -399,6 +399,8 @@ export enum VariableType {
     NUMBER,
 
     BOOLEAN,
+
+    TRIGGER,
 }
 
 @ccclass('cc.animation.Variable')
@@ -425,6 +427,7 @@ export class Variable {
             this._value = 0.0;
             break;
         case VariableType.BOOLEAN:
+        case VariableType.TRIGGER:
             this._value = false;
             break;
         }
@@ -471,7 +474,7 @@ export class PoseGraph extends Asset {
         return this._layers;
     }
 
-    get variables (): Iterable<[string, { value: Value }]> {
+    get variables (): Iterable<[string, { type: VariableType, value: Value }]> {
         return Object.entries(this._variables);
     }
 

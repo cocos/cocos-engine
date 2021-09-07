@@ -1,7 +1,7 @@
 
 import { AnimationClip, Node, Vec2, warnID } from '../../cocos/core';
 import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, AnimatedPose, PoseBlendDirect } from '../../cocos/core/animation/animation';
-import { LayerBlending, PoseGraph, PoseSubgraph } from '../../cocos/core/animation/newgen-anim/pose-graph';
+import { LayerBlending, PoseGraph, PoseSubgraph, VariableType } from '../../cocos/core/animation/newgen-anim/pose-graph';
 import { createEval } from '../../cocos/core/animation/newgen-anim/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/newgen-anim/errors';
 import { PoseGraphEval } from '../../cocos/core/animation/newgen-anim/graph-eval';
@@ -18,7 +18,7 @@ import gZeroTimePiece from './graphs/zero-time-piece';
 import { getPropertyBindingPoints } from '../../cocos/core/animation/newgen-anim/parametric';
 import { blend1D } from '../../cocos/core/animation/newgen-anim/blend-1d';
 import '../utils/matcher-deep-close-to';
-import { BinaryCondition, UnaryCondition } from '../../cocos/core/animation/newgen-anim/condition';
+import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/core/animation/newgen-anim/condition';
 
 describe('NewGen Anim', () => {
     const demoGraphs = __getDemoGraphs();
@@ -177,6 +177,133 @@ describe('NewGen Anim', () => {
             expect(warnMockInstance.mock.calls[0][0]).toStrictEqual(14000);
             expect(warnMockInstance.mock.calls[0][1]).toStrictEqual(100);
         });
+
+        describe('Condition', () => {
+            function createPoseGraphForConditionTest(conditions: Condition[]) {
+                const poseGraph = new PoseGraph();
+                const layer = poseGraph.addLayer();
+                const graph = layer.graph;
+                const node1 = graph.addPoseNode();
+                node1.name = 'FalsyBranchNode';
+                const node2 = graph.addPoseNode();
+                node2.name = 'TruthyBranchNode';
+                graph.connect(graph.entryNode, node1);
+                const transition = graph.connect(node1, node2, conditions);
+                transition.duration = 0.0;
+                transition.exitConditionEnabled = false;
+                return poseGraph;
+            }
+
+            test.each([
+                ['Be truthy', UnaryCondition.Operator.TRUTHY, [
+                    [true, true],
+                    [false, false]
+                ]],
+                ['Be falsy', UnaryCondition.Operator.FALSY, [
+                    [true, false],
+                    [false, true],
+                ]],
+            ] as [
+                title: string,
+                op: UnaryCondition.Operator,
+                samples: [input: boolean, output: boolean][]
+            ][])(`Unary: %s`, (_title, op, samples) => {
+                for (const [input, output] of samples) {
+                    const condition = new UnaryCondition();
+                    condition.operator = op;
+                    condition.operand = input;
+                    const graph = createPoseGraphForConditionTest([condition]);
+                    const graphEval = new PoseGraphEval(graph, new Node());
+                    graphEval.update(0.0);
+                    if (output) {
+                        expect(graphEval.getCurrentNodeInfo(0).name).toBe('TruthyBranchNode');
+                    } else {
+                        expect(graphEval.getCurrentNodeInfo(0).name).toBe('FalsyBranchNode');
+                    }
+                }
+            });
+    
+            test.each([
+                ['Equal to', BinaryCondition.Operator.EQUAL_TO, [
+                    [0.2, 0.2, true],
+                    [0.2, 0.3, false],
+                ]],
+                ['Not equal to', BinaryCondition.Operator.NOT_EQUAL_TO, [
+                    [0.2, 0.2, false],
+                    [0.2, 0.3, true],
+                ]],
+                ['Greater than', BinaryCondition.Operator.GREATER_THAN, [
+                    [0.2, 0.2, false],
+                    [0.2, 0.3, false],
+                    [0.3, 0.2, true],
+                ]],
+                ['Less than', BinaryCondition.Operator.LESS_THAN, [
+                    [0.2, 0.2, false],
+                    [0.2, 0.3, true],
+                    [0.3, 0.2, false],
+                ]],
+                ['Greater than or equal to', BinaryCondition.Operator.GREATER_THAN_OR_EQUAL_TO, [
+                    [0.2, 0.2, true],
+                    [0.2, 0.3, false],
+                    [0.3, 0.2, true],
+                ]],
+                ['Less than or equal to', BinaryCondition.Operator.LESS_THAN_OR_EQUAL_TO, [
+                    [0.2, 0.2, true],
+                    [0.2, 0.3, true],
+                    [0.3, 0.2, false],
+                ]],
+            ] as [
+                title: string,
+                op: BinaryCondition.Operator,
+                samples: [lhs: number, rhs: number, output: boolean][]
+            ][])(`Binary: %s`, (_title, op, samples) => {
+                for (const [lhs, rhs, output] of samples) {
+                    const condition = new BinaryCondition();
+                    condition.operator = op;
+                    condition.lhs = lhs;
+                    condition.rhs = rhs;
+                    const graph = createPoseGraphForConditionTest([condition]);
+                    const graphEval = new PoseGraphEval(graph, new Node());
+                    graphEval.update(0.0);
+                    if (output) {
+                        expect(graphEval.getCurrentNodeInfo(0).name).toBe('TruthyBranchNode');
+                    } else {
+                        expect(graphEval.getCurrentNodeInfo(0).name).toBe('FalsyBranchNode');
+                    }
+                }
+            });
+
+            test(`Trigger condition`, () => {
+                const condition = new TriggerCondition();
+                condition.bindProperty('trigger', 'theTrigger');
+                const poseGraph = new PoseGraph();
+                const layer = poseGraph.addLayer();
+                const graph = layer.graph;
+                const node1 = graph.addPoseNode();
+                node1.name = 'FalsyBranchNode';
+                const node2 = graph.addPoseNode();
+                node2.name = 'TruthyBranchNode';
+                const node3 = graph.addPoseNode();
+                node3.name = 'ExtraNode';
+                graph.connect(graph.entryNode, node1);
+                const transition = graph.connect(node1, node2, [condition]);
+                transition.duration = 0.0;
+                transition.exitConditionEnabled = false;
+                const transition2 = graph.connect(node2, node3, [condition]);
+                transition2.duration = 0.0;
+                transition2.exitConditionEnabled = false;
+
+                poseGraph.addVariable('theTrigger', VariableType.TRIGGER);
+
+                const graphEval = new PoseGraphEval(poseGraph, new Node());
+                graphEval.update(0.0);
+                expect(graphEval.getCurrentNodeInfo(0).name).toBe('FalsyBranchNode');
+                graphEval.setValue('theTrigger', true);
+                graphEval.update(0.0);
+                expect(graphEval.getCurrentNodeInfo(0).name).toBe('TruthyBranchNode');
+                expect(graphEval.getValue('theTrigger')).toBe(false);
+            });
+        });
     });
 
     describe('Removing nodes', () => {
@@ -232,30 +359,6 @@ describe('NewGen Anim', () => {
             const node1 = layerGraph1.addPoseNode();
             const node2 = layerGraph2.addPoseNode();
             expect(() => layerGraph2.connect(node2, node1)).toThrow();
-        });
-    });
-
-    describe('Condition', () => {
-        const emptyContext: Parameters<Condition[typeof createEval]>[0] = { getParam() {} };
-        test('Unary', () => {
-            const condition = new UnaryCondition();
-            condition.operator = UnaryCondition.Operator.TRUTHY;
-            condition.operand = false;
-            const conditionEval = condition[createEval](emptyContext);
-            expect(conditionEval.eval()).toBe(false);
-            conditionEval.setOperand(true);
-            expect(conditionEval.eval()).toBe(true);
-        });
-
-        test('Binary', () => {
-            const condition = new BinaryCondition();
-            condition.operator = BinaryCondition.Operator.GREATER_THAN;
-            condition.lhs = 1;
-            condition.rhs = 0.5;
-            const conditionEval = condition[createEval](emptyContext);
-            expect(conditionEval.eval()).toBe(true);
-            conditionEval.setRhs(2.0);
-            expect(conditionEval.eval()).toBe(false);
         });
     });
 

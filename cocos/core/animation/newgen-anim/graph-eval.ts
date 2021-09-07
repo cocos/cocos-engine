@@ -5,7 +5,7 @@ import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value } from './variable';
 import { BindingHost, getPropertyBindingPoints } from './parametric';
-import { ConditionEval } from './condition';
+import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError } from './errors';
 import { PoseNode } from './pose-node';
 import { SkeletonMask } from '../skeleton-mask';
@@ -31,6 +31,9 @@ export class PoseGraphEval {
             blendBuffer: this._blendBuffer,
             node: root,
             bind: this._bind.bind(this),
+            triggerResetFn: (name: string) => {
+                this.setValue(name, false);
+            },
             getParam: (host: BindingHost, name: string) => {
                 const varId = host.getPropertyBinding(name);
                 if (!varId) {
@@ -107,16 +110,33 @@ export class PoseGraphEval {
     }
 }
 
+type TriggerResetFn = (name: string) => void;
+
 interface LayerContext {
+    /**
+     * The root node bind to the graph.
+     */
     node: Node;
 
+    /**
+     * The blend buffer.
+     */
     blendBuffer: BlendStateBuffer;
 
+    /**
+     * The mask applied to this layer.
+     */
     mask?: SkeletonMask;
 
     getParam(host: BindingHost, name: string): unknown;
 
     bind<T, ExtraArgs extends any[]>(varId: string, fn: (value: T, ...args: ExtraArgs) => void, args: ExtraArgs): T;
+
+    /**
+     * TODO: A little hacky.
+     * A function which resets specified trigger. This function can be stored.
+     */
+    triggerResetFn: TriggerResetFn;
 }
 
 class LayerEval {
@@ -151,6 +171,7 @@ class SubgraphEval {
     private _transitionProgress = 0;
     private declare _anyNode: NodeEval;
     private declare _enterNode: NodeEval;
+    private declare _triggerReset: TriggerResetFn;
 
     public declare name: string;
 
@@ -176,6 +197,8 @@ class SubgraphEval {
         this._anyNode = anyNode;
 
         this._currentNode = entryNode;
+
+        this._resetTrigger = context.triggerResetFn;
     }
 
     /**
@@ -434,6 +457,15 @@ class SubgraphEval {
 
         graphDebugGroup(`[Subgraph ${this.name}]: STARTED ${currentNode.name} -> ${transition.to.name}.`);
 
+        const { triggers } = transition;
+        if (triggers) {
+            const nTriggers = triggers.length;
+            for (let iTrigger = 0; iTrigger < nTriggers; ++iTrigger) {
+                const trigger = triggers[iTrigger];
+                this._resetTrigger(trigger);
+            }
+        }
+
         // Apply transitions
         this._currentTransition = transition;
         this._transitionProgress = 0.0;
@@ -451,6 +483,11 @@ class SubgraphEval {
         // this._currentNode = targetNode;
 
         graphDebugGroupEnd();
+    }
+
+    private _resetTrigger (name: string) {
+        const { _triggerReset: triggerResetFn } = this;
+        triggerResetFn(name);
     }
 }
 
@@ -495,6 +532,7 @@ function createTransitionEval (
             targetStretch: 1.0,
             exitConditionEnabled: isPoseTransition(outgoing) ? outgoing.exitConditionEnabled : false,
             exitCondition: isPoseTransition(outgoing) ? outgoing.exitCondition : 0.0,
+            triggers: undefined,
         };
         if (toEval.kind === NodeKind.pose) {
             const toScaling = 1.0;
@@ -504,7 +542,12 @@ function createTransitionEval (
             transitionEval.targetStretch = toScaling;
         }
         transitionEval.conditions.forEach((conditionEval, iCondition) => {
-            bindEvalProperties(context, outgoing.conditions[iCondition], conditionEval);
+            const condition = outgoing.conditions[iCondition];
+            bindEvalProperties(context, condition, conditionEval);
+            if (condition instanceof TriggerCondition && condition.hasPropertyBinding('trigger')) {
+                const trigger = condition.getPropertyBinding('trigger');
+                (transitionEval.triggers ??= []).push(trigger);
+            }
         });
         outgoingTransitions.push(transitionEval);
     }
@@ -671,6 +714,10 @@ interface TransitionEval {
     targetStretch: number;
     exitConditionEnabled: boolean;
     exitCondition: number;
+    /**
+     * Bound triggers, once this transition satisfied. All triggers would be reset.
+     */
+    triggers: string[] | undefined;
 }
 
 interface VarRefs {

@@ -6,8 +6,8 @@ import { warn } from '../../platform/debug';
  * Describes a possibly parametric property.
  * @param options
  */
-export function parametric<Value, NotifyArgs extends any[]> (options: {
-    notify: ParamNotify<Value, NotifyArgs>;
+export function parametric<ValueInstance, NotifyArgs extends any[]> (options: {
+    notify: ParamNotify<ValueInstance, NotifyArgs>;
 }): PropertyDecorator {
     return (target, propertyName) => {
         assertIsTrue(typeof propertyName === 'string');

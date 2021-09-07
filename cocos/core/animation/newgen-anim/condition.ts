@@ -10,6 +10,9 @@ export interface Condition extends BindingHost {
 }
 
 export interface ConditionEval {
+    /**
+     * Evaluates this condition.
+     */
     eval(): boolean;
 }
 
@@ -180,7 +183,10 @@ class UnaryConditionEval implements ConditionEval {
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TriggerCondition`)
 export class TriggerCondition extends BindingHost implements Condition {
     @parametric<Value, [TriggerConditionEval]>({
-        notify: (_value: Value, conditionEval: TriggerConditionEval) => conditionEval.trigger(),
+        notify: (value: Value, conditionEval: TriggerConditionEval) => {
+            validateConditionParamBoolean(value, 'trigger');
+            conditionEval.trigger = value;
+        },
     })
     public trigger!: string;
 
@@ -190,14 +196,16 @@ export class TriggerCondition extends BindingHost implements Condition {
 }
 
 class TriggerConditionEval implements ConditionEval {
-    public trigger () {
-        this._triggered = true;
+    get trigger () {
+        return this._triggered;
+    }
+
+    set trigger (value) {
+        this._triggered = value;
     }
 
     public eval (): boolean {
-        const triggered = this._triggered;
-        this._triggered = false;
-        return triggered;
+        return this._triggered;
     }
 
     private _triggered = false;
@@ -205,14 +213,18 @@ class TriggerConditionEval implements ConditionEval {
 
 export function validateConditionParamNumber (val: unknown, name: string): asserts val is number {
     if (typeof val !== 'number') {
-        // TODO var name?
         throw new VariableTypeMismatchedError(name, 'number');
     }
 }
 
 export function validateConditionParamBoolean (val: unknown, name: string): asserts val is boolean {
     if (typeof val !== 'boolean') {
-        // TODO var name?
         throw new VariableTypeMismatchedError(name, 'boolean');
+    }
+}
+
+export function validateConditionParamTrigger (val: unknown, name: string): asserts val is boolean {
+    if (typeof val !== 'object') {
+        throw new VariableTypeMismatchedError(name, 'trigger');
     }
 }
