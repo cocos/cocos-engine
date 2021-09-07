@@ -42,7 +42,7 @@ export class DirectionalLight extends Light {
     protected _illuminance = 65000;
 
     @serializable
-    protected _illuminance_hdr = 65000;
+    protected _illuminance_ldr = 1.0;
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
@@ -58,18 +58,18 @@ export class DirectionalLight extends Light {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if(isHDR)
         {
-            return this._illuminance_hdr;
-        } else {
             return this._illuminance;
+        } else {
+            return this._illuminance_ldr;
         }
     }
     set illuminance (val) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if(isHDR)
         {
-            this._illuminance_hdr = val;
-        } else {
             this._illuminance = val;
+        } else {
+            this._illuminance_ldr = val;
         }
 
         if (this._light) { this._light.illuminance = val; }
@@ -79,6 +79,6 @@ export class DirectionalLight extends Light {
         super._createLight();
         if (!this._light) { return; }
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        this.illuminance = isHDR ? this._illuminance_hdr : this._illuminance;
+        this.illuminance = isHDR ? this._illuminance : this._illuminance_ldr;
     }
 }
