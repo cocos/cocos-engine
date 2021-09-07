@@ -29,15 +29,11 @@
  * @hidden
  */
 
-import { Event } from '../../event';
-import { EventTouch } from './events';
-import { EventListener, TouchOneByOneEventListener } from './event-listener';
-import { Node } from '../../scene-graph';
-import { macro } from '../macro';
-import { legacyCC } from '../../global-exports';
-import { errorID, warnID, logID, assertID } from '../debug';
-import { SystemEventType, SystemEventTypeUnion } from './event-enum';
-import { Touch } from './touch';
+import { Event, EventTouch, EventListener, TouchOneByOneEventListener, SystemEventType, SystemEventTypeUnion, Touch } from './types';
+import { Node } from '../core/scene-graph';
+import { macro } from '../core/platform/macro';
+import { legacyCC } from '../core/global-exports';
+import { errorID, warnID, logID, assertID } from '../core/platform/debug';
 
 const ListenerID = EventListener.ListenerID;
 

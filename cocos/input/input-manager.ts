@@ -30,15 +30,12 @@
  */
 
 import { AccelerometerInputEvent, input, MouseInputEvent, MouseWheelInputEvent, TouchInputEvent, KeyboardInputEvent, MouseInputSource, TouchData } from 'pal/input';
-import { Vec2 } from '../../math/index';
-import { macro } from '../macro';
+import { Vec2 } from '../core/math/index';
+import { macro } from '../core/platform/macro';
 import { eventManager } from './event-manager';
-import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
-import { Touch } from './touch';
-import { legacyCC } from '../../global-exports';
-import { Acceleration } from './acceleration';
-import { SystemEventType } from './event-enum';
-import { touchManager } from '../../../../pal/input/touch-manager';
+import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch, Acceleration, SystemEventType } from './types';
+import { legacyCC } from '../core/global-exports';
+import { touchManager } from '../../pal/input/touch-manager';
 
 interface IView {
     _devicePixelRatio: number;
@@ -343,8 +340,6 @@ class InputManager {
     // #endregion Accelerometer Handle
 }
 
-const inputManager = new InputManager();
-
-export default inputManager;
+export const inputManager = new InputManager();
 
 legacyCC.internal.inputManager = inputManager;

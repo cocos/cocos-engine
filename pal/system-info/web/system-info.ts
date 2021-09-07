@@ -1,6 +1,6 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
 import { SupportCapability } from 'pal/system-info';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
 class SystemInfo extends EventTarget {

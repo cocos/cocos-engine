@@ -1,5 +1,5 @@
 import { macro } from '../../cocos/core/platform/macro';
-import { Touch } from '../../cocos/core/platform/event-manager/touch';
+import { Touch } from '../../cocos/input/types';
 import { Vec2 } from '../../cocos/core/math/vec2';
 
 interface TouchMap {

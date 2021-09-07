@@ -27,9 +27,9 @@
  * @packageDocumentation
  * @module event
  */
-import { ccenum } from '../../value-types/enum';
-import { legacyCC } from '../../global-exports';
-import { NodeEventType } from '../../scene-graph/node-event';
+import { ccenum } from '../../core/value-types/enum';
+import { legacyCC } from '../../core/global-exports';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 /**
  * @en The event type supported by SystemEvent and Node events

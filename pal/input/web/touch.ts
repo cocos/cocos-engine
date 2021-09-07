@@ -1,10 +1,10 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
 import { TEST } from 'internal:constants';
 import { Rect, Vec2 } from '../../../cocos/core/math';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { SystemEvent } from '../../../cocos/input';
+import { SystemEventType } from '../../../cocos/input/types';
 
 export class TouchInputSource {
     public support: boolean;

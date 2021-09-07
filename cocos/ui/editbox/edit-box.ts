@@ -36,7 +36,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
 import { Color, Size, Vec3 } from '../../core/math';
-import { EventTouch } from '../../core/platform';
+import { EventTouch } from '../../input/types';
 import { Node } from '../../core/scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
 import { Sprite } from '../../2d/components/sprite';

@@ -31,9 +31,9 @@
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
-import { EventTarget } from './event/event-target';
+import { EventTarget } from './event';
+import { inputManager } from '../input';
 import * as debug from './platform/debug';
-import inputManager from './platform/event-manager/input-manager';
 import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';

@@ -1,9 +1,9 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
 import { minigame } from 'pal/minigame';
 import { Vec2 } from '../../../cocos/core/math';
-import { EventTarget } from '../../../cocos/core/event/event-target';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { EventTarget } from '../../../cocos/core/event';
+import { SystemEvent } from '../../../cocos/input';
+import { SystemEventType } from '../../../cocos/input/types';
 
 export class TouchInputSource {
     public support: boolean;
