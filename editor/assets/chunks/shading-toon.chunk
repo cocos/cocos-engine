@@ -88,7 +88,8 @@ struct ToonSurface {
 
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
-      if (dot(N, L) > 0.0) {
+    NL = max(dot(N, L), 0.0);
+      if (NL > 0.0) {
         CC_SHADOW_FACTOR(shadow, N, NL);
       }
     #endif
