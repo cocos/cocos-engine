@@ -387,6 +387,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         }
+        this._ensureBackgroundSprite();
         if (this._impl) {
             this._impl.onEnable();
         }
@@ -402,13 +403,13 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
         }
+        this._unregisterBackgroundEvent();
         if (this._impl) {
             this._impl.onDisable();
         }
     }
 
     public onDestroy () {
-        this._unregisterBackgroundEvent();
         if (this._impl) {
             this._impl.clear();
         }
@@ -509,7 +510,6 @@ export class EditBox extends Component {
     }
 
     protected _init () {
-        this._ensureBackgroundSprite();
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
@@ -680,17 +680,13 @@ export class EditBox extends Component {
     }
 
     private _registerBackgroundEvent () {
-        if (!this._background) {
-            return;
-        }
-        this._background.node.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        const node = this._background && this._background.node;
+        node?.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     private _unregisterBackgroundEvent () {
-        if (!this._background) {
-            return;
-        }
-        this._background.node.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        const node = this._background && this._background.node;
+        node?.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     protected _updateLabelPosition (size: Size) {
