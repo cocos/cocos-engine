@@ -48,13 +48,21 @@ namespace {
 bool setCanvasCallback(se::Object *global) { //NOLINT
     auto                viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
     se::AutoHandleScope scope;
-    se::ScriptEngine *  se              = se::ScriptEngine::getInstance();
-    char                commandBuf[200] = {0};
-    auto *              view            = cc::cocosApp.pendingWindow;
+    se::ScriptEngine *  se   = se::ScriptEngine::getInstance();
+    auto *              view = cc::cocosApp.pendingWindow;
     std::stringstream   ss;
-    ss << "window.innerWidth = " << static_cast<int>(viewLogicalSize.x) << ";"
-       << "window.innerHeight = " << static_cast<int>(viewLogicalSize.y) << ";"
-       << "window.windowHandler = " << cc::cocosApp.pendingWindow << ";";
+    {
+        auto windowPtr = reinterpret_cast<uintptr_t>(view);
+        ss << "window.innerWidth = " << static_cast<int>(viewLogicalSize.x) << ";"
+           << "window.innerHeight = " << static_cast<int>(viewLogicalSize.y) << ";"
+           << "window.windowHandler = ";
+        if constexpr (sizeof(windowPtr) == 8) { // use bigint
+            ss << static_cast<uint64_t>(windowPtr) << "n;";
+        }
+        if constexpr (sizeof(windowPtr) == 4) {
+            ss << static_cast<uint64_t>(windowPtr) << ";";
+        }
+    }
     se->evalString(ss.str().c_str());
 
     return true;
