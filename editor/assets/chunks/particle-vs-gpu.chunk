@@ -242,10 +242,10 @@ vec4 gpvs_main () {
   #if ROTATION_OVER_TIME_MODULE_ENABLE
     if (u_rotation_mode == CURVE_MODE_FIX) {
       vec3 euler = unpackCurveData(rotation_over_time_tex0, timeCoord0) * normalizedTime * a_dir_life.w;
-      vec4 quat = EulerToQuat(euler);
-      mat3 mLocal = QuatToMat3(quat);
-      mat3 mStart = QuatToMat3(rot);
-      rot = Mat3ToQuat(mStart * mLocal);
+      vec4 quat = eulerToQuat(euler);
+      mat3 mLocal = quatToMat3(quat);
+      mat3 mStart = quatToMat3(rot);
+      rot = mat3ToQuat(mStart * mLocal);
     } else {
       vec3 rotation_0 = unpackCurveData(rotation_over_time_tex0, timeCoord0);
       vec3 rotation_1 = unpackCurveData(rotation_over_time_tex0, timeCoord1);
@@ -254,10 +254,10 @@ vec4 gpvs_main () {
       #if CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_HORIZONTAL_BILLBOARD
         euler = vec3(0.0, 0.0, euler.z);
       #endif
-      vec4 quat = EulerToQuat(euler);
-      mat3 mLocal = QuatToMat3(quat);
-      mat3 mStart = QuatToMat3(rot);
-      rot = Mat3ToQuat(mStart * mLocal);
+      vec4 quat = eulerToQuat(euler);
+      mat3 mLocal = quatToMat3(quat);
+      mat3 mStart = quatToMat3(rot);
+      rot = mat3ToQuat(mStart * mLocal);
     }
   #endif
 
@@ -295,10 +295,10 @@ vec4 gpvs_main () {
       #endif
     );
   #else
-    mat3 rotMat = QuatToMat3(rot);
-    mat3 nodeMat = QuatToMat3(nodeRotation);
+    mat3 rotMat = quatToMat3(rot);
+    mat3 nodeMat = quatToMat3(nodeRotation);
     rotMat = nodeMat * rotMat;
-    rot = Mat3ToQuat(rotMat);
+    rot = mat3ToQuat(rotMat);
 
     mat4 xformNoScale = matrixFromRT(rot, pos.xyz);
     mat4 xform = matFromRTS(rot, pos.xyz, compScale);

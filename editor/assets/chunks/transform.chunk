@@ -165,7 +165,7 @@ void rotateCorner (inout vec2 corner, float angle){
   corner.y = yOS;
 }
 
-mat3 QuatToMat3(vec4 q) {
+mat3 quatToMat3(vec4 q) {
   vec3 m0 = vec3(
     1.0 - 2.0 * q.y * q.y - 2.0 * q.z * q.z, 
     2.0 * q.x * q.y + 2.0 * q.w * q.z,
@@ -181,12 +181,12 @@ mat3 QuatToMat3(vec4 q) {
   return mat3(m0, m1, m2);
 }
 
-mat4 QuatToMat4(vec4 q) {
-  mat3 m3 = QuatToMat3(q);
+mat4 quatToMat4(vec4 q) {
+  mat3 m3 = quatToMat3(q);
   return mat4(vec4(m3[0], 0.0), vec4(m3[1], 0.0), vec4(m3[2], 0.0), vec4(0.0, 0.0, 0.0, 1.0));
 }
 
-vec4 Mat3ToQuat(mat3 mat) {
+vec4 mat3ToQuat(mat3 mat) {
   float tr = mat[0][0] + mat[1][1] + mat[2][2];
 	float qw, qx, qy, qz;
   if (tr > 0.0) {
@@ -221,7 +221,7 @@ vec4 Mat3ToQuat(mat3 mat) {
   return vec4(qx, qy, qz, qw);
 }
 
-vec4 EulerToQuat(vec3 euler) {
+vec4 eulerToQuat(vec3 euler) {
   vec3 er = euler * 0.5;
   float x = er.x, y = er.y, z = er.z;
   
@@ -244,7 +244,7 @@ float atan2(float y, float x) {
   return x == 0.0 ? sign(y) * 3.1416 * 0.5 : atan(y, x);
 }
 
-vec3 QuatToEuler(vec4 q) {
+vec3 quatToEuler(vec4 q) {
   float x = q.x, y = q.y, z = q.z, w = q.w;
   float bank = 0.0, heading = 0.0, attitude = 0.0;
   float test = x * y + z * w;
