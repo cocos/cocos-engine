@@ -1,6 +1,6 @@
 
-import { AnimationClip, Node, Vec2, warnID } from '../../cocos/core';
-import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, AnimatedPose, PoseBlendDirect } from '../../cocos/core/animation/animation';
+import { AnimationClip, Node, Vec2, Vec3, warnID } from '../../cocos/core';
+import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, AnimatedPose, PoseBlendDirect, VectorTrack } from '../../cocos/core/animation/animation';
 import { LayerBlending, PoseGraph, PoseSubgraph, VariableType } from '../../cocos/core/animation/newgen-anim/pose-graph';
 import { createEval } from '../../cocos/core/animation/newgen-anim/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/newgen-anim/errors';
@@ -139,6 +139,26 @@ describe('NewGen Anim', () => {
             expect(graphEval.getCurrentNodeInfo(0).name).toBe('Exit');
         });
 
+        test(`Transition: pose -> pose`, () => {
+            const poseGraph = new PoseGraph();
+            const layer = poseGraph.addLayer();
+            const graph = layer.graph;
+            const node1 = graph.addPoseNode();
+            node1.pose = createPosePositionX(1.0, 2.0);
+            const node2 = graph.addPoseNode();
+            node2.pose = createPosePositionX(1.0, 3.0);
+            graph.connect(graph.entryNode, node1);
+            const transition = graph.connect(node1, node2);
+            transition.duration = 0.3;
+            transition.exitConditionEnabled = true;
+            transition.exitCondition = 0.0;
+            
+            const rootNode = new Node();
+            const graphEval = new PoseGraphEval(poseGraph, rootNode);
+            graphEval.update(0.15);
+            expect(rootNode.position).toBeDeepCloseTo(new Vec3(2.5));
+        });
+
         test('Condition not specified', () => {
             const graphEval = new PoseGraphEval(createGraphFromDescription(gUnspecifiedCondition), new Node());
             graphEval.update(0.0);
@@ -176,6 +196,41 @@ describe('NewGen Anim', () => {
             expect(warnMockInstance.mock.calls[0]).toHaveLength(2);
             expect(warnMockInstance.mock.calls[0][0]).toStrictEqual(14000);
             expect(warnMockInstance.mock.calls[0][1]).toStrictEqual(100);
+        });
+
+        test('Subgraph transitions are selected only when subgraph exited', () => {
+            const poseGraph = new PoseGraph();
+            const layer = poseGraph.addLayer();
+            const graph = layer.graph;
+
+            const subgraph = graph.addSubgraph();
+            subgraph.name = 'Subgraph';
+            const subgraphEntryToExit = subgraph.connect(subgraph.entryNode, subgraph.exitNode);
+            const [subgraphEntryToExitCondition] = subgraphEntryToExit.conditions = [new TriggerCondition()];
+            poseGraph.addVariable('subgraphExitTrigger', VariableType.TRIGGER, false);
+            subgraphEntryToExitCondition.bindProperty('trigger', 'subgraphExitTrigger');
+
+            graph.connect(graph.entryNode, subgraph);
+            const node = graph.addPoseNode();
+            node.name = 'Node';
+            const subgraphToNode = graph.connect(subgraph, node);
+            const [triggerCondition] = subgraphToNode.conditions = [new TriggerCondition()];
+
+            poseGraph.addVariable('trigger', VariableType.TRIGGER);
+            triggerCondition.bindProperty('trigger', 'trigger');
+
+            const graphEval = new PoseGraphEval(poseGraph, new Node());
+
+            graphEval.update(0.0);
+            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Subgraph');
+
+            graphEval.setValue('trigger', true);
+            graphEval.update(0.0);
+            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Subgraph');
+
+            graphEval.setValue('subgraphExitTrigger', true);
+            graphEval.update(0.0);
+            expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node');
         });
 
         describe('Condition', () => {
@@ -425,3 +480,17 @@ describe('NewGen Anim', () => {
         });
     });
 });
+
+function createPosePositionX(duration: number, value: number) {
+    const clip = new AnimationClip();
+    clip.enableTrsBlending = true;
+    clip.duration = duration;
+    const track = new VectorTrack();
+    track.componentsCount = 3;
+    track.path.toProperty('position');
+    track.channels()[0].curve.assignSorted([[0.0, value]]);
+    clip.addTrack(track);
+    const pose = new AnimatedPose();
+    pose.clip = clip;
+    return pose;
+}

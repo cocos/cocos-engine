@@ -227,14 +227,20 @@ class SubgraphEval {
         }
     }
 
+    /**
+     * Updates this sub graph, return when the time piece exhausted or the graph reached exit state.
+     * @param deltaTime The time piece to update.
+     * @returns Remain time piece.
+     */
     public update (deltaTime: Readonly<number>) {
+        assertIsTrue(!this.exited);
         graphDebugGroup(`[Subgraph ${this.name}]: UpdateStart ${deltaTime}s`);
         const MAX_ITERATIONS = 100;
         let passConsumed = 0.0;
 
+        let remainTimePiece = deltaTime;
         for (let continueNextIterationForce = true, // Force next iteration even remain time piece is zero
-            iterations = 0,
-            remainTimePiece = deltaTime;
+            iterations = 0;
             continueNextIterationForce || remainTimePiece > 0.0;
         ) {
             continueNextIterationForce = false;
@@ -264,6 +270,9 @@ class SubgraphEval {
                     passConsumed = currentUpdatingConsume;
                 }
                 remainTimePiece -= currentUpdatingConsume;
+                if (this._currentNode.kind === NodeKind.exit) {
+                    break;
+                }
                 if (!this._currentTransition) {
                     // If the update invocation finished the transition,
                     // We force restart the iteration
@@ -279,13 +288,24 @@ class SubgraphEval {
             // If no transition satisfied, we update current node.
             if (!satisfiedTransition) {
                 graphDebug(`[Subgraph ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
-                if (isPoseOrSubgraphNodeEval(currentNode)) {
+                if (currentNode.kind === NodeKind.pose) {
                     currentNode.update(remainTimePiece);
+                    // Poses eat all times.
+                    remainTimePiece = 0.0;
+                } else if (currentNode.kind === NodeKind.subgraph) {
+                    if (currentNode.exited) {
+                        currentNode.reenter();
+                    }
+                    remainTimePiece = currentNode.update(remainTimePiece);
+                    // If current node is subgraph and the iteration cause it reaches exit state.
+                    // we should force continue next iteration to enable the transitions emitted.
+                    if (currentNode.exited) {
+                        continueNextIterationForce = true;
+                    }
                 }
                 if (GRAPH_DEBUG_ENABLED) {
                     passConsumed = remainTimePiece;
                 }
-                remainTimePiece = 0.0;
                 continue;
             }
 
@@ -305,6 +325,8 @@ class SubgraphEval {
 
         graphDebug(`[Subgraph ${this.name}]: UpdateEnd`);
         graphDebugGroupEnd();
+
+        return remainTimePiece;
     }
 
     public sample () {
@@ -363,7 +385,7 @@ class SubgraphEval {
             `[Subgraph ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNode.name}`
             + `with ratio ${ratio} in base weight ${this._weight}.`,
         );
-        if (isPoseOrSubgraphNodeEval(fromNode)) {
+        if (fromNode.kind === NodeKind.pose) {
             graphDebugGroup(`Update ${fromNode.name}`);
             fromNode.setWeight(weight * (1.0 - ratio));
             fromNode.update(contrib);
@@ -372,7 +394,9 @@ class SubgraphEval {
         if (isPoseOrSubgraphNodeEval(toNode)) {
             graphDebugGroup(`Update ${toNode.name}`);
             toNode.setWeight(weight * ratio);
-            toNode.update(contrib * currentTransition.targetStretch);
+            if (!(toNode.kind === NodeKind.subgraph && toNode.exited)) {
+                toNode.update(contrib * currentTransition.targetStretch);
+            }
             graphDebugGroupEnd();
         }
         graphDebugGroupEnd();
@@ -390,6 +414,11 @@ class SubgraphEval {
 
     private _searchSatisfiedTransitionForCurrentNode () {
         const currentNode = this._currentNode;
+
+        // If current node is subgraph, transitions are happened after it exited.
+        if (currentNode.kind === NodeKind.subgraph && !currentNode.exited) {
+            return null;
+        }
 
         let satisfiedTransition: TransitionEval | null = null;
         if (true) {
@@ -683,7 +712,7 @@ export class SubgraphNodeEval extends NodeBaseEval {
     }
 
     public update (deltaTime: number) {
-        this.subgraphEval.update(deltaTime);
+        return this.subgraphEval.update(deltaTime);
     }
 
     public sample () {
