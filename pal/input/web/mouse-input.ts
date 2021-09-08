@@ -1,9 +1,9 @@
 import { EDITOR, TEST } from 'internal:constants';
-import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
-import { SystemEventType } from '../../../cocos/input/types';
+import { MouseCallback } from 'pal/input';
+import { SystemEventType, EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Rect, Vec2 } from '../../../cocos/core/math';
-import { SystemEvent } from '../../../cocos/input';
+import legacyCC from '../../../predefine';
 
 export class MouseInputSource {
     public support: boolean;
@@ -33,8 +33,16 @@ export class MouseInputSource {
         return new Rect(0, 0, 0, 0);
     }
 
-    private _getLocation (event: any): Vec2 {
-        return new Vec2(event.clientX, event.clientY);
+    private _getLocation (mouseEvent: MouseEvent): Vec2 {
+        const canvasRect = this._getCanvasRect();
+        let x = this._pointLocked ? (this._preMousePos.x + mouseEvent.movementX) : (mouseEvent.clientX - canvasRect.x);
+        let y = this._pointLocked ? (this._preMousePos.y - mouseEvent.movementY) : (canvasRect.y + canvasRect.height - mouseEvent.clientY);
+        // TODO: should not call engine API
+        const view = legacyCC.view;
+        const dpr = view._devicePixelRatio;
+        x *= dpr;
+        y *= dpr;
+        return new Vec2(x, y);
     }
 
     private _registerEvent () {
@@ -48,29 +56,12 @@ export class MouseInputSource {
         this._canvas?.addEventListener('mousemove', this._createCallback(SystemEventType.MOUSE_MOVE));
 
         // register mouse up event
-        window.addEventListener('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
-        this._canvas?.addEventListener('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
+        const handleMouseUp = this._createCallback(SystemEventType.MOUSE_UP);
+        window.addEventListener('mouseup', handleMouseUp);
+        this._canvas?.addEventListener('mouseup', handleMouseUp);
 
         // register wheel event
-        this._canvas?.addEventListener('wheel', (event: WheelEvent) => {
-            const canvasRect = this._getCanvasRect();
-            const location = this._getLocation(event);
-            const wheelSensitivityFactor = 5;
-            const inputEvent: MouseWheelInputEvent = {
-                type: SystemEventType.MOUSE_WHEEL,
-                x: location.x - canvasRect.x,
-                y: canvasRect.y + canvasRect.height - location.y,
-                button: event.button,  // TODO: what is the button when tracking mouse move ?
-                deltaX: event.deltaX * wheelSensitivityFactor,
-                deltaY: -event.deltaY * wheelSensitivityFactor,
-                timestamp: performance.now(),
-                movementX: event.movementX,
-                movementY: event.movementY,
-            };
-            event.stopPropagation();
-            event.preventDefault();
-            this._eventTarget.emit(SystemEventType.MOUSE_WHEEL, inputEvent);
-        });
+        this._canvas?.addEventListener('wheel', this._handleMouseWheel.bind(this));
         this._registerPointerLockEvent();
     }
 
@@ -92,46 +83,63 @@ export class MouseInputSource {
         }
     }
 
-    private _createCallback (eventType: SystemEvent.EventType) {
-        return (event: any) => {
-            const canvasRect = this._getCanvasRect();
-            const location = this._getLocation(event);
-            let button = event.button;
-            switch (event.type) {
-            case 'mousedown':
+    private _createCallback (eventType: SystemEventType) {
+        return (mouseEvent: MouseEvent) => {
+            const location = this._getLocation(mouseEvent);
+            let button = mouseEvent.button;
+            switch (eventType) {
+            case SystemEventType.MOUSE_DOWN:
                 this._canvas?.focus();
                 this._isPressed = true;
                 break;
-            case 'mouseup':
+            case SystemEventType.MOUSE_UP:
                 this._isPressed = false;
                 break;
-            case 'mousemove':
+            case SystemEventType.MOUSE_MOVE:
                 if (!this._isPressed) {
-                    button = -1;  // TODO: should not access EventMouse.BUTTON_MISSING, need a button enum type
+                    button = EventMouse.BUTTON_MISSING;
                 }
                 break;
             default:
                 break;
             }
-            const inputEvent: MouseInputEvent = {
-                type: eventType,
-                x: this._pointLocked ? (this._preMousePos.x + <number>event.movementX) : (location.x - canvasRect.x),
-                y: this._pointLocked ? (this._preMousePos.y - <number>event.movementY) : (canvasRect.y + canvasRect.height - location.y),
-                button,
-                timestamp: performance.now(),
-                // this is web only property
-                movementX: event.movementX,
-                movementY: event.movementY,
-            };
+
+            const eventMouse = new EventMouse(eventType, false, this._preMousePos);
+            eventMouse.setLocation(location.x, location.y);
+            eventMouse.setButton(button);
+            eventMouse.movementX = mouseEvent.movementX;
+            eventMouse.movementY = mouseEvent.movementY;
+
             // update previous mouse position.
-            this._preMousePos.set(inputEvent.x, inputEvent.y);
-            event.stopPropagation();
-            if (event.target === this._canvas) {
-                event.preventDefault();
+            this._preMousePos.set(location.x, location.y);
+            mouseEvent.stopPropagation();
+            if (mouseEvent.target === this._canvas) {
+                mouseEvent.preventDefault();
             }
-            // emit web mouse event
-            this._eventTarget.emit(eventType, inputEvent);
+            this._eventTarget.emit(eventType, eventMouse);
         };
+    }
+
+    private _handleMouseWheel (mouseEvent: WheelEvent) {
+        const eventType = SystemEventType.MOUSE_WHEEL;
+        const location = this._getLocation(mouseEvent);
+        const button = mouseEvent.button;
+
+        const eventMouse = new EventMouse(eventType, false, this._preMousePos);
+        eventMouse.setLocation(location.x, location.y);
+        eventMouse.setButton(button);
+        eventMouse.movementX = mouseEvent.movementX;
+        eventMouse.movementY = mouseEvent.movementY;
+
+        const wheelSensitivityFactor = 5;
+        eventMouse.setScrollData(mouseEvent.deltaX * wheelSensitivityFactor, -mouseEvent.deltaY * wheelSensitivityFactor);
+        // update previous mouse position.
+        this._preMousePos.set(location.x, location.y);
+        mouseEvent.stopPropagation();
+        if (mouseEvent.target === this._canvas) {
+            mouseEvent.preventDefault();
+        }
+        this._eventTarget.emit(eventType, eventMouse);
     }
 
     onDown (cb: MouseCallback) {
@@ -143,7 +151,7 @@ export class MouseInputSource {
     onUp (cb: MouseCallback) {
         this._eventTarget.on(SystemEventType.MOUSE_UP, cb);
     }
-    onWheel (cb: MouseWheelCallback) {
+    onWheel (cb: MouseCallback) {
         this._eventTarget.on(SystemEventType.MOUSE_WHEEL, cb);
     }
 }
