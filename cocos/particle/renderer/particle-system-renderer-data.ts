@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../core/assets';
-import { RenderMode, Space } from '../enum';
+import { AlignmentSpace, RenderMode, Space } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
@@ -203,9 +203,9 @@ export default class ParticleSystemRenderer {
     }
 
     @serializable
-    private _alignSpace = Space.Custom;
+    private _alignSpace = AlignmentSpace.View;
 
-    @type(Space)
+    @type(AlignmentSpace)
     @displayOrder(10)
     public get alignSpace () {
         return this._alignSpace;

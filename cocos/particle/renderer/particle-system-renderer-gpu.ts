@@ -32,12 +32,13 @@ import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
-import { RenderMode, Space } from '../enum';
+import { AlignmentSpace, RenderMode, Space } from '../enum';
 import { Particle, IParticleModule } from '../particle';
 import { packGradientRange } from '../animator/gradient-range';
 import { Pass } from '../../core/renderer/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
+import { Camera } from '../../core/renderer/scene/camera';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -120,7 +121,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _uTimeHandle = 0;
     private _uRotHandle = 0;
     private _uNodeRotHandle = 0;
-    private _alignSpace = Space.Custom;
+    private _alignSpace = AlignmentSpace.View;
     private _inited = false;
 
     constructor (info: any) {
@@ -255,12 +256,25 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleSystem.node.getWorldRotation(_world_rot);
         pass.setUniform(this._uRotHandle, _world_rot);
 
-        if (this._alignSpace === Space.Local) {
+        if (this._alignSpace === AlignmentSpace.Local) {
             this._particleSystem.node.getRotation(_node_rot);
-        } else if (this._alignSpace === Space.World) {
+        } else if (this._alignSpace === AlignmentSpace.World) {
             this._particleSystem.node.getWorldRotation(_node_rot);
-        } else {
+        } else if (this._alignSpace === AlignmentSpace.View) {
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
+            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+            const cameraName: string = EDITOR ? 'Editor Camera' : 'Main Camera';
+            if (cameraLst !== undefined) {
+                for (let i = 0; i < cameraLst?.length; ++i) {
+                    const camera:Camera = cameraLst[i];
+                    if (camera.name === cameraName) {
+                        Quat.fromViewUp(_node_rot, camera.forward);
+                        break;
+                    }
+                }
+            }
+        } else {
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
         }
         pass.setUniform(this._uNodeRotHandle, _node_rot);
