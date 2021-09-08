@@ -310,6 +310,9 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
+    const culledObjects = sceneData.culledObjects;
+    roPool.freeArray(culledObjects); culledObjects.length = 0;
+
     let shadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
@@ -358,7 +361,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 }
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
-                    continue;
+                    culledObjects.push(getRenderObject(model, camera));
                 }
 
                 renderObjects.push(getRenderObject(model, camera));
