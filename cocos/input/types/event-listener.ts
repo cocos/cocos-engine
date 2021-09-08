@@ -31,9 +31,9 @@
  */
 
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
-import { Component } from '../../components';
-import { legacyCC } from '../../global-exports';
-import { logID, assertID } from '../debug';
+import { Component } from '../../core/components';
+import { legacyCC } from '../../core/global-exports';
+import { logID, assertID } from '../../core/platform/debug';
 import { SystemEventType } from './event-enum';
 
 export interface IEventListenerCreateInfo {
@@ -407,7 +407,7 @@ export class TouchOneByOneEventListener extends EventListener {
     public onTouchEnded: Function | null = null;
     public onTouchCancelled: Function | null = null;
 
-    public _claimedTouches: any[] = [];
+    public _claimedTouchIDs: number[] = [];
 
     constructor () {
         super(EventListener.TOUCH_ONE_BY_ONE, ListenerID.TOUCH_ONE_BY_ONE, null);

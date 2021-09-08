@@ -1,5 +1,5 @@
 import { SupportCapability } from 'pal/system-info';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
 const networkTypeMap: Record<string, NetworkType> = {

@@ -29,8 +29,8 @@
  * @module event
  */
 
-import { legacyCC } from '../global-exports';
-import { SystemEventType, SystemEventTypeUnion } from '../platform/event-manager/event-enum';
+import { legacyCC } from '../../core/global-exports';
+import { SystemEventTypeUnion } from './event-enum';
 
 /**
  * @en
@@ -39,7 +39,7 @@ import { SystemEventType, SystemEventTypeUnion } from '../platform/event-manager
  * @zh
  * 所有事件对象的基类，包含事件相关基本信息。
  */
-export default class Event {
+export class Event {
     // Event types
 
     /**
@@ -158,7 +158,7 @@ export default class Event {
      * @zh
      * 最初事件触发的目标。
      */
-    public target: Object | null = null;
+    public target: any = null;
 
     /**
      * @en
@@ -167,7 +167,7 @@ export default class Event {
      * @zh
      * 当前目标。
      */
-    public currentTarget: Object | null = null;
+    public currentTarget: any = null;
 
     /**
      * @en
@@ -281,6 +281,7 @@ export default class Event {
      * @returns - The target with which the event associates.
      */
     public getCurrentTarget () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.currentTarget;
     }
 

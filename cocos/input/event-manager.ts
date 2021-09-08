@@ -29,14 +29,11 @@
  * @hidden
  */
 
-import { Event } from '../../event';
-import { EventTouch } from './events';
-import { EventListener, TouchOneByOneEventListener } from './event-listener';
-import { Node } from '../../scene-graph';
-import { macro } from '../macro';
-import { legacyCC } from '../../global-exports';
-import { errorID, warnID, logID, assertID } from '../debug';
-import { SystemEventType, SystemEventTypeUnion } from './event-enum';
+import { Event, EventTouch, EventListener, TouchOneByOneEventListener, SystemEventType, SystemEventTypeUnion, Touch } from './types';
+import { Node } from '../core/scene-graph';
+import { macro } from '../core/platform/macro';
+import { legacyCC } from '../core/global-exports';
+import { errorID, warnID, logID, assertID } from '../core/platform/debug';
 
 const ListenerID = EventListener.ListenerID;
 
@@ -142,7 +139,7 @@ class EventManager {
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
-    private _currentTouch = null;
+    private _currentTouch: Touch | null = null;
     private _currentTouchListener: any = null;
 
     /**
@@ -161,7 +158,7 @@ class EventManager {
             for (let i = 0, len = listeners.length; i < len; i++) {
                 const listener = listeners[i];
                 listener._setPaused(true);
-                if (listener instanceof TouchOneByOneEventListener && listener._claimedTouches.includes(this._currentTouch)) {
+                if (listener instanceof TouchOneByOneEventListener && this._currentTouch && listener._claimedTouchIDs.includes(this._currentTouch.getID())) {
                     this._clearCurTouch();
                 }
             }
@@ -966,7 +963,7 @@ class EventManager {
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
                 if (isClaimed && listener._isRegistered() && !listener._isPaused()) {
-                    listener._claimedTouches.push(selTouch);
+                    listener._claimedTouchIDs.push(selTouch.getID());
                     if (macro.ENABLE_MULTI_TOUCH || !eventManager._currentTouch) {
                         eventManager._currentTouch = selTouch;
                     }
@@ -974,8 +971,8 @@ class EventManager {
                     eventManager._currentTouchListener = listener;
                 }
             }
-        } else if (listener._claimedTouches.length > 0) {
-            removedIdx = listener._claimedTouches.indexOf(selTouch);
+        } else if (listener._claimedTouchIDs.length > 0) {
+            removedIdx = listener._claimedTouchIDs.indexOf(selTouch.getID());
             if (removedIdx !== -1) {
                 isClaimed = true;
                 if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
@@ -988,7 +985,7 @@ class EventManager {
                         listener.onTouchEnded(selTouch, event);
                     }
                     if (listener._isRegistered()) {
-                        listener._claimedTouches.splice(removedIdx, 1);
+                        listener._claimedTouchIDs.splice(removedIdx, 1);
                     }
 
                     if (macro.ENABLE_MULTI_TOUCH || eventManager._currentTouch === selTouch) {
@@ -1001,7 +998,7 @@ class EventManager {
                         listener.onTouchCancelled(selTouch, event);
                     }
                     if (listener._isRegistered()) {
-                        listener._claimedTouches.splice(removedIdx, 1);
+                        listener._claimedTouchIDs.splice(removedIdx, 1);
                     }
 
                     if (macro.ENABLE_MULTI_TOUCH || eventManager._currentTouch === selTouch) {
@@ -1036,7 +1033,7 @@ class EventManager {
         const allAtOnceListeners = this._getListeners(ListenerID.TOUCH_ALL_AT_ONCE);
 
         // If there aren't any touch listeners, return directly.
-        if (oneByOneListeners === null && allAtOnceListeners === null) {
+        if (!oneByOneListeners && !allAtOnceListeners) {
             return;
         }
 

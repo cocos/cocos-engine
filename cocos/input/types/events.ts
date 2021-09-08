@@ -29,11 +29,11 @@
  * @module event
  */
 
-import Event from '../../event/event';
-import { Vec2 } from '../../math/vec2';
+import { Event } from './event';
+import { Vec2 } from '../../core/math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
-import { legacyCC } from '../../global-exports';
+import { legacyCC } from '../../core/global-exports';
 import { SystemEventTypeUnion, SystemEventType } from './event-enum';
 import { KeyCode } from './key-code';
 
@@ -615,8 +615,6 @@ export class EventKeyboard extends Event {
     /**
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下
-     *
-     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.EventType.KEY_UP instead
      */
     public get isPressed () {
         return this._isPressed;

@@ -30,15 +30,12 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { EventTarget } from '../../event/event-target';
-import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
-import { SystemEventType } from './event-enum';
-import { EventListener } from './event-listener';
+import { EventTarget } from '../core/event';
+import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, SystemEventType, EventListener, Touch } from './types';
 import { eventManager } from './event-manager';
-import inputManager from './input-manager';
-import { Touch } from './touch';
-import { legacyCC } from '../../global-exports';
-import { logID, warnID } from '../debug';
+import { inputManager } from './input-manager';
+import { legacyCC } from '../core/global-exports';
+import { logID, warnID } from '../core/platform/debug';
 
 let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;

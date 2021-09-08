@@ -32,7 +32,8 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
-import { assert, EventTouch, warnID } from '../../core/platform';
+import { EventTouch } from '../../input/types';
+import { assert, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';

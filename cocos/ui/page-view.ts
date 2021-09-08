@@ -31,7 +31,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components';
-import { EventTouch } from '../core/platform';
+import { EventTouch } from '../input/types';
 import { Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';

@@ -1,8 +1,7 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
-import { KeyCode } from '../../../cocos/core/platform/event-manager/key-code';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
+import { SystemEventType, KeyCode } from '../../../cocos/input/types';
+import { EventTarget } from '../../../cocos/core/event';
+import { SystemEvent } from '../../../cocos/input';
 
 const code2KeyCode: Record<string, KeyCode> = {
     Backspace: KeyCode.BACKSPACE,

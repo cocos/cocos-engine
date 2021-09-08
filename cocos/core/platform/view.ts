@@ -33,7 +33,7 @@
 import '../data/class';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { EventTarget } from '../event/event-target';
+import { EventTarget } from '../event';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
