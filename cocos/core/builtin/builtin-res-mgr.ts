@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { UI_GPU_DRIVEN } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { ImageAsset } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -238,25 +239,11 @@ class BuiltinResMgr {
         materialsToBeCompiled.push(spriteMtl);
 
         // sprite material
-        const spriteGPUMtl = new legacyCC.Material();
-        spriteGPUMtl._uuid = 'ui-base-gpu-material';
-        spriteGPUMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'sprite-gpu' });
-        resources[spriteGPUMtl._uuid] = spriteGPUMtl;
-        materialsToBeCompiled.push(spriteGPUMtl);
-
-        // sprite material
         const spriteColorMtl = new legacyCC.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
         spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
         materialsToBeCompiled.push(spriteColorMtl);
-
-        // sprite material
-        const spriteColorGPUMtl = new legacyCC.Material();
-        spriteColorGPUMtl._uuid = 'ui-sprite-gpu-material';
-        spriteColorGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'sprite-gpu' });
-        resources[spriteColorGPUMtl._uuid] = spriteColorGPUMtl;
-        materialsToBeCompiled.push(spriteColorGPUMtl);
 
         // sprite alpha test material
         const alphaTestMaskMtl = new legacyCC.Material();
@@ -275,26 +262,12 @@ class BuiltinResMgr {
         resources[spriteGrayMtl._uuid] = spriteGrayMtl;
         materialsToBeCompiled.push(spriteGrayMtl);
 
-        // sprite gray material
-        const spriteGrayGPUMtl = new legacyCC.Material();
-        spriteGrayGPUMtl._uuid = 'ui-sprite-gray-gpu-material';
-        spriteGrayGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true }, effectName: 'sprite-gpu' });
-        resources[spriteGrayGPUMtl._uuid] = spriteGrayGPUMtl;
-        materialsToBeCompiled.push(spriteGrayGPUMtl);
-
         // sprite alpha material
         const spriteAlphaMtl = new legacyCC.Material();
         spriteAlphaMtl._uuid = 'ui-sprite-alpha-sep-material';
         spriteAlphaMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'sprite' });
         resources[spriteAlphaMtl._uuid] = spriteAlphaMtl;
         materialsToBeCompiled.push(spriteAlphaMtl);
-
-        // sprite alpha material
-        const spriteAlphaGPUMtl = new legacyCC.Material();
-        spriteAlphaGPUMtl._uuid = 'ui-sprite-alpha-sep-gpu-material';
-        spriteAlphaGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'sprite-gpu' });
-        resources[spriteAlphaGPUMtl._uuid] = spriteAlphaGPUMtl;
-        materialsToBeCompiled.push(spriteAlphaGPUMtl);
 
         // sprite alpha & gray material
         const spriteAlphaGrayMtl = new legacyCC.Material();
@@ -303,19 +276,49 @@ class BuiltinResMgr {
         resources[spriteAlphaGrayMtl._uuid] = spriteAlphaGrayMtl;
         materialsToBeCompiled.push(spriteAlphaGrayMtl);
 
-        // sprite alpha & gray material
-        const spriteAlphaGrayGPUMtl = new legacyCC.Material();
-        spriteAlphaGrayGPUMtl._uuid = 'ui-sprite-gray-alpha-sep-gpu-material';
-        spriteAlphaGrayGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'sprite-gpu' });
-        resources[spriteAlphaGrayGPUMtl._uuid] = spriteAlphaGrayGPUMtl;
-        materialsToBeCompiled.push(spriteAlphaGrayGPUMtl);
-
         // ui graphics material
         const defaultGraphicsMtl = new legacyCC.Material();
         defaultGraphicsMtl._uuid = 'ui-graphics-material';
         defaultGraphicsMtl.initialize({ effectName: 'graphics' });
         resources[defaultGraphicsMtl._uuid] = defaultGraphicsMtl;
         materialsToBeCompiled.push(defaultGraphicsMtl);
+
+        if (UI_GPU_DRIVEN) {
+            // sprite material
+            const spriteGPUMtl = new legacyCC.Material();
+            spriteGPUMtl._uuid = 'ui-base-gpu-material';
+            spriteGPUMtl.initialize({ defines: { USE_TEXTURE: false }, effectName: 'sprite-gpu' });
+            resources[spriteGPUMtl._uuid] = spriteGPUMtl;
+            materialsToBeCompiled.push(spriteGPUMtl);
+
+            // sprite material
+            const spriteColorGPUMtl = new legacyCC.Material();
+            spriteColorGPUMtl._uuid = 'ui-sprite-gpu-material';
+            spriteColorGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: false }, effectName: 'sprite-gpu' });
+            resources[spriteColorGPUMtl._uuid] = spriteColorGPUMtl;
+            materialsToBeCompiled.push(spriteColorGPUMtl);
+
+            // sprite gray material
+            const spriteGrayGPUMtl = new legacyCC.Material();
+            spriteGrayGPUMtl._uuid = 'ui-sprite-gray-gpu-material';
+            spriteGrayGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: false, IS_GRAY: true }, effectName: 'sprite-gpu' });
+            resources[spriteGrayGPUMtl._uuid] = spriteGrayGPUMtl;
+            materialsToBeCompiled.push(spriteGrayGPUMtl);
+
+            // sprite alpha material
+            const spriteAlphaGPUMtl = new legacyCC.Material();
+            spriteAlphaGPUMtl._uuid = 'ui-sprite-alpha-sep-gpu-material';
+            spriteAlphaGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: false }, effectName: 'sprite-gpu' });
+            resources[spriteAlphaGPUMtl._uuid] = spriteAlphaGPUMtl;
+            materialsToBeCompiled.push(spriteAlphaGPUMtl);
+
+            // sprite alpha & gray material
+            const spriteAlphaGrayGPUMtl = new legacyCC.Material();
+            spriteAlphaGrayGPUMtl._uuid = 'ui-sprite-gray-alpha-sep-gpu-material';
+            spriteAlphaGrayGPUMtl.initialize({ defines: { USE_TEXTURE: true, CC_USE_EMBEDDED_ALPHA: true, IS_GRAY: true }, effectName: 'sprite-gpu' });
+            resources[spriteAlphaGrayGPUMtl._uuid] = spriteAlphaGrayGPUMtl;
+            materialsToBeCompiled.push(spriteAlphaGrayGPUMtl);
+        }
 
         // default particle material
         const defaultParticleMtl = new legacyCC.Material();

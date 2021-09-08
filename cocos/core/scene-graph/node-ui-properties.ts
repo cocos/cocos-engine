@@ -32,7 +32,6 @@ import { UIComponent } from '../../2d/framework/ui-component';
 import { Renderable2D } from '../../2d/framework/renderable-2d';
 import { UITransform } from '../../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
-import { TransformBit } from './node-enum';
 
 /**
  * @en Node's UI properties abstraction

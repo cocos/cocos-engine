@@ -31,7 +31,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { EDITOR, TEST, BUILD } from 'internal:constants';
+import { EDITOR, TEST, BUILD, UI_GPU_DRIVEN } from 'internal:constants';
 import { Rect, Size, Vec2 } from '../../core/math';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { Asset } from '../../core/assets/asset';
@@ -43,7 +43,6 @@ import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
-import { macro } from '../../core';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -499,8 +498,8 @@ export class SpriteFrame extends Asset {
     public uvHash = 0;
 
     // macro.UI_GPU_DRIVEN
-    public tillingOffset: number[] = [];
-    public slicedData: number[] = [];
+    public declare tillingOffset: number[];
+    public declare slicedData: number[];
 
     public unbiasUV:number[] = [];
 
@@ -542,6 +541,10 @@ export class SpriteFrame extends Asset {
 
     constructor () {
         super();
+        if (UI_GPU_DRIVEN) {
+            this.tillingOffset = [];
+            this.slicedData = [];
+        }
 
         if (EDITOR) {
             // Atlas asset uuid
@@ -798,7 +801,7 @@ export class SpriteFrame extends Asset {
 
     // Calculate UV for sliced
     public _calculateSlicedUV () {
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             this._calculateSlicedData();
         }
         const rect = this._rect;
@@ -1094,7 +1097,7 @@ export class SpriteFrame extends Asset {
         }
 
         this._calculateSlicedUV();
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             this._calculateTillingOffset();
         }
     }

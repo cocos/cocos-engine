@@ -30,10 +30,10 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2 } from '../../core/math';
+import { Vec2, Vec4 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { Batcher2D } from '../renderer/batcher-2d';
@@ -41,7 +41,7 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
-import { director, macro, Material, RenderTexture } from '../../core';
+import { director, Material, RenderTexture } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 /**
@@ -564,7 +564,7 @@ export class Sprite extends Renderable2D {
 
     protected _updateBuiltinMaterial () {
         // macro.UI_GPU_DRIVEN
-        let mat = super._updateBuiltinMaterial(true); // 在 函数内部处理
+        let mat = super._updateBuiltinMaterial(UI_GPU_DRIVEN); // 在 函数内部处理
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
             const renderMat = new Material();
@@ -579,7 +579,7 @@ export class Sprite extends Renderable2D {
 
     protected _render (render: Batcher2D) {
         // macro.UI_GPU_DRIVEN
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             render.commitCompByGPU(this, this._spriteFrame, this._assembler!, null);
         } else {
             render.commitComp(this, this._spriteFrame, this._assembler!, null);
@@ -605,6 +605,7 @@ export class Sprite extends Renderable2D {
         // 这儿其实有个关键的更新问题，这儿会决定 fillType，实际上可以决定一个，数据的更新
         // 需要考虑怎么更新合适
         // if (!macro.UI_GPU_DRIVEN) {  怎么处理！！！！！
+        // 注意，这个个逻辑需要重新考虑，尚未完成，GPU模式下只决定更新
         const assembler = Sprite.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -722,11 +723,8 @@ export class Sprite extends Renderable2D {
         }
     }
 
-    // macro.UI_GPU_DRIVEN // 可以不做填充
-    public slicedData: number[] = [];
-
     // macro.UI_GPU_DRIVEN // 函数不被调用即可？？
-    public _calculateSlicedData () {
+    public _calculateSlicedData (out: number[]) {
         const content = this.node._uiProps.uiTransformComp!.contentSize;
 
         const spriteWidth = content.width;
@@ -738,23 +736,21 @@ export class Sprite extends Renderable2D {
         const bottomHeight = this.spriteFrame!.insetBottom;
         const centerHeight = spriteHeight - topHeight - bottomHeight;
 
-        const uvSliced = this.slicedData;
-        uvSliced.length = 0;
-
+        out.length = 0;
         // todo rotate
-        uvSliced[0] = (leftWidth) / spriteWidth;
-        uvSliced[1] = (topHeight) / spriteHeight;
-        uvSliced[2] = (leftWidth + centerWidth) / spriteWidth;
-        uvSliced[3] = (topHeight + centerHeight) / spriteHeight;
+        out[0] = (leftWidth) / spriteWidth;
+        out[1] = (topHeight) / spriteHeight;
+        out[2] = (leftWidth + centerWidth) / spriteWidth;
+        out[3] = (topHeight + centerHeight) / spriteHeight;
+        return out;
     }
 
     // macro.UI_GPU_DRIVEN // 函数不被调用即可
-    public tiledData: Vec2 = new Vec2(0, 0);
-    public calculateTiledData () {
+    public calculateTiledData (out: Vec4) {
         const content = this.node._uiProps.uiTransformComp!.contentSize;
         const rect = this.spriteFrame!.rect;
 
-        this.tiledData.x = content.width / rect.width;
-        this.tiledData.y = content.height / rect.height;
+        out.x = content.width / rect.width;
+        out.y = content.height / rect.height;
     }
 }

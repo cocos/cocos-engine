@@ -1035,12 +1035,6 @@ const macro = {
      * @default 20
      */
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
-
-    /**
-     * UI GPU Driven
-     * 负责模式选择的宏
-     */
-    UI_GPU_DRIVEN: false,
 };
 
 legacyCC.macro = macro;

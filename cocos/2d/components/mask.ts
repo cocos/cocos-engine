@@ -30,6 +30,7 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
+import { UI_GPU_DRIVEN } from 'internal:constants';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
@@ -378,9 +379,11 @@ export class Mask extends Renderable2D {
         this._updateGraphics();
         this._renderFlag = this._canRender();
         // macro.UI_GPU_DRIVEN // 怎么处理？？
-        if (this._renderFlag !== this._renderFlagCache) {
-            director.root!.batcher2D.reloadBatchDirty = true;
-            this._renderFlagCache = this._renderFlag;
+        if (UI_GPU_DRIVEN) {
+            if (this._renderFlag !== this._renderFlagCache) {
+                director.root!.batcher2D.reloadBatchDirty = true;
+                this._renderFlagCache = this._renderFlag;
+            }
         }
     }
 

@@ -29,7 +29,7 @@
  */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { Component } from '../../core/components';
 import { EventListener } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
@@ -40,7 +40,7 @@ import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { NodeEventType } from '../../core/scene-graph/node-event';
-import { macro, SystemEventType } from '../../core';
+import { SystemEventType } from '../../core';
 import visibleRect from '../../core/platform/visible-rect';
 
 const _vec2a = new Vec2();
@@ -254,6 +254,20 @@ export class UITransform extends Component {
     protected _contentSize = new Size(100, 100);
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
+
+    // macro.UI_GPU_DRIVEN
+    declare public _rectDirty: boolean;
+    declare public _rectWithScale: Vec3;
+    declare public _anchorCache: Vec2;
+
+    constructor () {
+        super();
+        if (UI_GPU_DRIVEN) {
+            this._rectDirty = true;
+            this._rectWithScale = new Vec3();
+            this._anchorCache = new Vec2();
+        }
+    }
 
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
@@ -662,7 +676,7 @@ export class UITransform extends Component {
     }
 
     private _markRenderDataDirty () {
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             this._rectDirty = true;
             return;
         }
@@ -671,11 +685,6 @@ export class UITransform extends Component {
             uiComp.markForUpdateRenderData();
         }
     }
-
-    // macro.UI_GPU_DRIVEN
-    public _rectDirty = true;
-    public _rectWithScale = new Vec3();
-    public _anchorCache = new Vec2();
 
     // 这个 dirty 跟着谁走？
     // 本身实际上是多个数据的影响的

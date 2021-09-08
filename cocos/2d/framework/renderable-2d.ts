@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -46,7 +46,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
-import { director, macro } from '../../core';
+import { director } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 // hack
@@ -246,8 +246,10 @@ export class Renderable2D extends RenderableComponent {
             return;
         }
         // macro.UI_GPU_DRIVEN
-        if (macro.UI_GPU_DRIVEN && (this._color.a === 0 || value.a === 0)) {
-            director.root!.batcher2D.reloadBatchDirty = true;
+        if (UI_GPU_DRIVEN) {
+            if (this._color.a === 0 || value.a === 0) {
+                director.root!.batcher2D.reloadBatchDirty = true;
+            }
         }
 
         this._color.set(value);
@@ -329,7 +331,7 @@ export class Renderable2D extends RenderableComponent {
     public __preload () {
         this.node._uiProps.uiComp = this;
         if (this._flushAssembler) {
-            this._flushAssembler(); // 用于 createRenderData，其中的实现需要区别对待了 // macro.UI_GPU_DRIVEN 部分的 GPU_Driven 不需要进行此步操作
+            this._flushAssembler(); // 用于 createRenderData，其中的实现需要区别对待了 // UI_GPU_DRIVEN 建议在子类中处理此函数的行为
         }
     }
 
@@ -339,8 +341,10 @@ export class Renderable2D extends RenderableComponent {
         this.updateMaterial();
         this._renderFlag = this._canRender();
         // macro.UI_GPU_DRIVEN // 这里可能需要封装之后处理？会有值未能赋值的问题
-        this._renderFlagCache = this._renderFlag;
-        director.root!.batcher2D.reloadBatchDirty = true;
+        if (UI_GPU_DRIVEN) {
+            this._renderFlagCache = this._renderFlag;
+            director.root!.batcher2D.reloadBatchDirty = true;
+        }
     }
 
     // For Redo, Undo
@@ -348,9 +352,11 @@ export class Renderable2D extends RenderableComponent {
         this.updateMaterial();
         this._renderFlag = this._canRender();
         // macro.UI_GPU_DRIVEN
-        if (this._renderFlag !== this._renderFlagCache) {
-            this._renderFlagCache = this._renderFlag;
-            director.root!.batcher2D.reloadBatchDirty = true;
+        if (UI_GPU_DRIVEN) {
+            if (this._renderFlag !== this._renderFlagCache) {
+                this._renderFlagCache = this._renderFlag;
+                director.root!.batcher2D.reloadBatchDirty = true;
+            }
         }
     }
 
@@ -358,9 +364,11 @@ export class Renderable2D extends RenderableComponent {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
-        // macro.UI_GPU_DRIVEN
-        this._renderFlagCache = this._renderFlag;
-        director.root!.batcher2D.reloadBatchDirty = true;
+        // macro.
+        if (UI_GPU_DRIVEN) {
+            this._renderFlagCache = this._renderFlag;
+            director.root!.batcher2D.reloadBatchDirty = true;
+        }
     }
 
     public onDestroy () {
@@ -387,9 +395,11 @@ export class Renderable2D extends RenderableComponent {
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
         // macro.UI_GPU_DRIVEN // 同上的操作
-        if (this._renderFlag !== this._renderFlagCache) {
-            director.root!.batcher2D.reloadBatchDirty = true;
-            this._renderFlagCache = this._renderFlag;
+        if (UI_GPU_DRIVEN) {
+            if (this._renderFlag !== this._renderFlagCache) {
+                director.root!.batcher2D.reloadBatchDirty = true;
+                this._renderFlagCache = this._renderFlag;
+            }
         }
         if (enable && this._renderFlag) {
             const renderData = this._renderData;
@@ -467,7 +477,9 @@ export class Renderable2D extends RenderableComponent {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
             // macro.UI_GPU_DRIVEN
-            this._renderDataDirty = true; // 在某些时候是无用的
+            if (UI_GPU_DRIVEN) {
+                this._renderDataDirty = true; // 在某些时候是无用的
+            }
         }
     }
 
@@ -489,11 +501,6 @@ export class Renderable2D extends RenderableComponent {
             this._assembler.updateColor(this);
             if (opacityZero) {
                 this._renderFlag = this._canRender();
-                // macro.UI_GPU_DRIVEN // 同上
-                if (this._renderFlag !== this._renderFlagCache) { // 这里应该是不要了，除非将 color 使用单独的 flag，否则意义不大
-                    director.root!.batcher2D.reloadBatchDirty = true; // 这里的触发时机太晚了
-                    this._renderFlagCache = this._renderFlag;
-                }
             }
             this._colorDirty = false;
         }
@@ -544,10 +551,12 @@ export class Renderable2D extends RenderableComponent {
     }
 
     // macro.UI_GPU_DRIVEN // 这里可能需要考虑效率？
-    protected _updateBuiltinMaterial (useGPU: boolean) : Material {
+    protected _updateBuiltinMaterial (useGPU = false) : Material {
         let gpuMat = '';
-        if (useGPU && macro.UI_GPU_DRIVEN) {
-            gpuMat = '-gpu';
+        if (UI_GPU_DRIVEN) {
+            if (useGPU) {
+                gpuMat = '-gpu';
+            }
         }
         let mat : Material;
         switch (this._instanceMaterialType) {

@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @hidden
  */
-import { JSB } from 'internal:constants';
+import { JSB, UI_GPU_DRIVEN } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
@@ -50,7 +50,7 @@ import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
 import { DummyIA } from './dummy-ia';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Director } from '../../core/director';
-import { macro } from '../../core';
+import { sys } from '../../core';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -176,18 +176,18 @@ export class Batcher2D {
     private _descriptorSetCache = new DescriptorSetCache();
 
     // macro.UI_GPU_DRIVEN
-    private _dummyIA: DummyIA;
-    private _localUBOManager: UILocalUBOManger;
+    declare private _dummyIA: DummyIA;
+    declare private _localUBOManager: UILocalUBOManger;
 
     // 需要一个决定是否换批的东西
     // 实际上存在一个问题，共存的时候不可避免的存在交叉使用，那么切换条件就很麻烦
     private _currTypeIsGPU = false;// 决定是否使用
 
-    public reloadBatchDirty = true;
-    public renderQueue: IRenderItem[] = [];
-    public _currWalkIndex = 0;
-
-    public updateBufferDirty = false;
+    // macro.UI_GPU_DRIVEN
+    declare public reloadBatchDirty: boolean;
+    declare public renderQueue: IRenderItem[];
+    declare public _currWalkIndex;
+    declare public updateBufferDirty;
 
     // -------------------------------------
 
@@ -196,16 +196,20 @@ export class Batcher2D {
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
         // macro.UI_GPU_DRIVEN
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             this._dummyIA = new DummyIA(this.device);
             this._localUBOManager = new UILocalUBOManger(this.device);
+            this.reloadBatchDirty = true;
+            this.renderQueue = [];
+            this._currWalkIndex = 0;
+            this.updateBufferDirty = false;
         }
         this._currBatch = this._drawBatchPool.alloc();
     }
 
     public initialize () {
         // macro.UI_GPU_DRIVEN
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             legacyCC.director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
                 this.reloadBatchDirty = true;
             });
@@ -297,7 +301,7 @@ export class Batcher2D {
 
     public update () {
         // macro.UI_GPU_DRIVEN
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             if (this.reloadBatchDirty) {
                 this.renderQueue.length = 0;
                 this._localUBOManager.reset(); // 需要重新录制就先清空
@@ -317,7 +321,9 @@ export class Batcher2D {
             this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
             // macro.UI_GPU_DRIVEN
-            this._currTypeIsGPU = false;
+            if (UI_GPU_DRIVEN) {
+                this._currTypeIsGPU = false;
+            }
         }
 
         let batchPriority = 0;
@@ -367,7 +373,7 @@ export class Batcher2D {
 
             this._descriptorSetCache.update();
             // macro.UI_GPU_DRIVEN
-            if (macro.UI_GPU_DRIVEN) {
+            if (UI_GPU_DRIVEN) {
                 if (this.reloadBatchDirty || this.updateBufferDirty) {
                     this._localUBOManager.updateBuffer();
                     this.reloadBatchDirty = false; // 这里应该是更新用
@@ -405,11 +411,12 @@ export class Batcher2D {
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
         // macro.UI_GPU_DRIVEN
-        // this._localUBOManager.reset(); // 用 dirty 来控制reset
-        this._currWalkIndex = 0;
+        if (UI_GPU_DRIVEN) {
+            this._currWalkIndex = 0;
+        }
     }
 
-    // macro.UI_GPU_DRIVEN // 上层不会调用
+    // macro.UI_GPU_DRIVEN // 上层不会调用 // 要不用 外挂的那种？
     /**
      * @en
      * Render component data submission process of UI.
@@ -553,7 +560,7 @@ export class Batcher2D {
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== false) {
             // macro.UI_GPU_DRIVEN
-            if (macro.UI_GPU_DRIVEN) {
+            if (UI_GPU_DRIVEN) {
                 if (this._currTypeIsGPU) {
                     // G -> A
                     this.autoMergeBatchesByGPU(this._currComponent!);
@@ -607,8 +614,12 @@ export class Batcher2D {
         // if the last comp is spriteComp, previous comps should be batched.
         // macro.UI_GPU_DRIVEN
         if (this._currMaterial !== this._emptyMaterial) {
-            if (this._currTypeIsGPU) {
-                this.autoMergeBatchesByGPU(this._currComponent!);
+            if (UI_GPU_DRIVEN) {
+                if (this._currTypeIsGPU) {
+                    this.autoMergeBatchesByGPU(this._currComponent!);
+                } else {
+                    this.autoMergeBatches(this._currComponent!);
+                }
             } else {
                 this.autoMergeBatches(this._currComponent!);
             }
@@ -660,7 +671,10 @@ export class Batcher2D {
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
         this._currLayer = 0;
-        this._currTypeIsGPU = false;
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            this._currTypeIsGPU = false;
+        }
     }
 
     /**
@@ -677,7 +691,7 @@ export class Batcher2D {
         this.finishMergeBatches();
     }
 
-    // macro.UI_GPU_DRIVEN
+    // macro.UI_GPU_DRIVEN // 要不用外挂？
     public autoMergeBatchesByGPU (renderComp?: Renderable2D) {
         if (!this._currScene) return;
 
@@ -761,6 +775,13 @@ export class Batcher2D {
         buffer.vertexStart = buffer.vertexOffset;
         buffer.indicesStart = buffer.indicesOffset;
         buffer.byteStart = buffer.byteOffset;
+
+        // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
+        // TODO: Maybe it can be removed after Apple fixes it?
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
+        if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
+            this._currMeshBuffer = null;
+        }
     }
 
     /**
@@ -861,8 +882,13 @@ export class Batcher2D {
 
     private _recursiveScreenNode (screen: Node) {
         this.walk(screen);
-        if (this._currTypeIsGPU) {
-            this.autoMergeBatchesByGPU(this._currComponent!);
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            if (this._currTypeIsGPU) {
+                this.autoMergeBatchesByGPU(this._currComponent!);
+            } else {
+                this.autoMergeBatches(this._currComponent!);
+            }
         } else {
             this.autoMergeBatches(this._currComponent!);
         }
@@ -912,6 +938,7 @@ export class Batcher2D {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
     }
 
+    // macro.UI_GPU_DRIVEN
     private _resetRenderDirty (comp: Renderable2D) {
         comp._renderDataDirty = false;
         comp.node._uiProps.uiTransformComp!._rectDirty = false;
@@ -1045,14 +1072,6 @@ class DescriptorSetCache {
             this._localDescriptorSetCache.push(localDs);
             return localDs.descriptorSet!;
         } else {
-            // 创建并返回缓存
-            // 双层 Map 不再适用，需要使用 hash 值了
-            // 这儿需要一个 简单且快的 hash 算法，把这个两层的 map 缩减为一层
-            // texture hash 位数不定
-            // simpler hash genSamplerHash 得来，28+ 位
-            // UBO hash 可能只要两三位就够
-            // 两个 hash + 一个拼接 hash 可以用 ^
-            // 新问题，怎么释放，texture 的 hash 把所有的释放
             hash = batch.textureHash ^ batch.samplerHash ^ drawCall.bufferHash;
             if (this._descriptorSetCache.has(hash)) {
                 return this._descriptorSetCache.get(hash)!;

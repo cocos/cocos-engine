@@ -30,7 +30,7 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
@@ -40,7 +40,6 @@ import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
-import { macro } from '../../core/platform/macro';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -492,13 +491,16 @@ export class Label extends Renderable2D {
         if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
             this._ttfSpriteFrame._resetDynamicAtlasFrame();
             // macro.UI_GPU_DRIVEN
-            this._canDrawByFourVertex = true;
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = true;
+            }
         }
-
         if (this._cacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
             // macro.UI_GPU_DRIVEN
-            this._canDrawByFourVertex = false;
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         }
 
         this._cacheMode = value;
@@ -678,11 +680,14 @@ export class Label extends Renderable2D {
     protected _fontAtlas: FontAtlas | null = null;
     protected _letterTexture: LetterRenderTexture | null = null;
 
-    // macro.UI_GPU_DRIVEN // 可以认为这个 flag 不做处理
-    private _canDrawByFourVertex = !!macro.UI_GPU_DRIVEN;
+    // macro.UI_GPU_DRIVEN
+    private declare _canDrawByFourVertex: boolean;
 
     constructor () {
         super();
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = true;
+        }
         if (EDITOR) {
             this._userDefinedFont = null;
         }
@@ -750,7 +755,7 @@ export class Label extends Renderable2D {
 
     protected _render (render: Batcher2D) {
         // macro.UI_GPU_DRIVEN
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             if (this._canDrawByFourVertex) {
                 render.commitCompByGPU(this, this._texture, this._assembler!, null);
             } else {
@@ -817,13 +822,17 @@ export class Label extends Renderable2D {
                 }
             }
             // macro.UI_GPU_DRIVEN
-            this._canDrawByFourVertex = false;
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
                 // macro.UI_GPU_DRIVEN
-                this._canDrawByFourVertex = false;
+                if (UI_GPU_DRIVEN) {
+                    this._canDrawByFourVertex = false;
+                }
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
@@ -837,7 +846,9 @@ export class Label extends Renderable2D {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
                 // macro.UI_GPU_DRIVEN
-                this._canDrawByFourVertex = true;
+                if (UI_GPU_DRIVEN) {
+                    this._canDrawByFourVertex = true;
+                }
             }
             this.changeMaterialForDefine();
         }
@@ -862,7 +873,7 @@ export class Label extends Renderable2D {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
         // macro.UI_GPU_DRIVEN
-        if (macro.UI_GPU_DRIVEN) {
+        if (UI_GPU_DRIVEN) {
             this.updateMaterial(this._canDrawByFourVertex);
         } else {
             this.updateMaterial(false);

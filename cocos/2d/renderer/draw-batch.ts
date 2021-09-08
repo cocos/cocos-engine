@@ -135,7 +135,6 @@ export class DrawBatch2D {
     private declare _nativeObj: NativeDrawBatch2D | null;
 
     private _tempRect: UITransform | null = null;
-    private _tempScale = new Vec3();
     private _tempPosition = new Vec3();
     private _tempAnchor = new Vec2();
 
@@ -180,6 +179,7 @@ export class DrawBatch2D {
         this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
+        this.renderScene = null;
         this._drawcalls.length = 0;
     }
 
@@ -236,6 +236,7 @@ export class DrawBatch2D {
 
     // private toCache = [1, 1, 0, 0];
     private tiledCache = new Vec4(1, 1, 1, 1);
+    private slicedCache = [];
     // simple version
     public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material, batcher: Batcher2D) {
         // 将一个 drawBatch 分割为多个 drawCall
@@ -267,12 +268,10 @@ export class DrawBatch2D {
         // 且在 fillBuffer 结束之后，全部的 dirty 为 false 状态
         if (mode === SpriteType.SLICED) {
             // 确保已经更新了 contextSize
-            sprite._calculateSlicedData(); // 会被 rect 影响
-            this._packageSlicedData(sprite.slicedData, frame.slicedData);
+            sprite._calculateSlicedData(this.slicedCache); // 会被 rect 影响
+            this._packageSlicedData(this.slicedCache, frame.slicedData);
         } else if (mode === SpriteType.TILED) {
-            sprite.calculateTiledData(); // 会被 rect 影响
-            this.tiledCache.x = sprite.tiledData.x;
-            this.tiledCache.y = sprite.tiledData.y;
+            sprite.calculateTiledData(this.tiledCache); // 会被 rect 影响
         } else if (mode === SpriteType.FILLED) {
             // TODO: 填充模式所需要的数据
             let start = sprite.fillStart;
@@ -451,12 +450,10 @@ export class DrawBatch2D {
                 mode = renderComp.type;
                 if (mode === SpriteType.SLICED) {
                     // 确保已经更新了 contextSize
-                    renderComp._calculateSlicedData(); // 会被 rect 影响
-                    this._packageSlicedData(renderComp.slicedData, frame.slicedData);
+                    renderComp._calculateSlicedData(this.slicedCache); // 会被 rect 影响
+                    this._packageSlicedData(this.slicedCache, frame.slicedData);
                 } else if (mode === SpriteType.TILED) {
-                    renderComp.calculateTiledData(); // 会被 rect 影响
-                    this.tiledCache.x = renderComp.tiledData.x;
-                    this.tiledCache.y = renderComp.tiledData.y;
+                    renderComp.calculateTiledData(this.tiledCache); // 会被 rect 影响
                 } else if (mode === SpriteType.FILLED) {
                     let start = renderComp.fillStart;
                     const range = renderComp.fillRange;

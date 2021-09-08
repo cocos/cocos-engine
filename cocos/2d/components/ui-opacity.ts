@@ -29,9 +29,9 @@
  */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, editable, serializable } from 'cc.decorator';
+import { UI_GPU_DRIVEN } from 'internal:constants';
 import { Component } from '../../core/components/component';
 import { director } from '../../core/director';
-import { macro } from '../../core/platform/macro';
 import { clampf } from '../../core/utils/misc';
 
 /**
@@ -68,8 +68,10 @@ export class UIOpacity extends Component {
         value = clampf(value, 0, 255);
         // macro.UI_GPU_DRIVEN
         // 为了颜色能够更新
-        if (macro.UI_GPU_DRIVEN && (this._opacity === 0 || value === 0)) {
-            director.root!.batcher2D.reloadBatchDirty = true;
+        if (UI_GPU_DRIVEN) {
+            if (this._opacity === 0 || value === 0) {
+                director.root!.batcher2D.reloadBatchDirty = true;
+            }
         }
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
