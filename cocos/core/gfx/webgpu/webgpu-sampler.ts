@@ -6,6 +6,10 @@ import { toWGPUNativeAddressMode, toWGPUNativeCompareFunc, toWGPUNativeFilter } 
 export class WebGPUSampler extends Sampler {
     private _nativeSampler;
 
+    get nativeSampler () {
+        return this._nativeSampler;
+    }
+
     constructor (info: SamplerInfo) {
         super(info);
 

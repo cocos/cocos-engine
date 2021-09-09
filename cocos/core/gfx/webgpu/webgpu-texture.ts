@@ -8,7 +8,7 @@ import {
 } from '../base/define';
 import { Texture } from '../base/texture';
 import { wgpuWasmModule } from './webgpu-utils';
-import { toWGPUNativeFormat } from './webgpu-commands';
+import { toWGPUNativeFormat, toWGPUNativeTextureType, toWGPUNativeTextureUsage, toWGPUTextureFlag, toWGPUTextureSampleCount } from './webgpu-commands';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 
 export class WebGPUTexture extends Texture {
@@ -32,9 +32,9 @@ export class WebGPUTexture extends Texture {
             this._levelCount = info.layerCount;
 
             const texViewInfo = new wgpuWasmModule.TextureViewInfoInstance();
-            texViewInfo.setTexture((info.texture as WebGPUTexture).nativeTexture().getThis());
-            texViewInfo.setType(info.type);
-            texViewInfo.setFormat(info.format);
+            texViewInfo.setTexture((info.texture as WebGPUTexture).nativeTexture());
+            texViewInfo.setType(toWGPUNativeTextureType(info.type));
+            texViewInfo.setFormat(toWGPUNativeFormat(info.format));
             texViewInfo.setBaseLevel(info.baseLevel);
             texViewInfo.setLevelCount(info.levelCount);
             texViewInfo.setBaseLayer(info.baseLayer);
@@ -42,7 +42,7 @@ export class WebGPUTexture extends Texture {
             this._nativeTexture = nativeDevice.createTextureView(texViewInfo);
         } else {
             this._type = info.type;
-            this._format = toWGPUNativeFormat(info.format);
+            this._format = info.format;
             this._width = info.width;
             this._height = info.height;
             this._usage = info.usage;
@@ -57,15 +57,15 @@ export class WebGPUTexture extends Texture {
                     ? this._swapchain.nativeSwapchain.getDepthStencilTexture() : this._swapchain.nativeSwapchain.getColorTexture();
             } else {
                 const texInfo = new wgpuWasmModule.TextureInfoInstance();
-                texInfo.setType(info.type);
-                texInfo.setUsage(info.usage);
+                texInfo.setType(toWGPUNativeTextureType(info.type));
+                texInfo.setUsage(toWGPUNativeTextureUsage(info.usage));
                 texInfo.setFormat(toWGPUNativeFormat(info.format));
                 texInfo.setWidth(info.width);
                 texInfo.setHeight(info.height);
-                texInfo.setFlags(info.flags);
+                texInfo.setFlags(toWGPUTextureFlag(info.flags));
                 texInfo.setLayerCount(info.layerCount);
                 texInfo.setLevelCount(info.levelCount);
-                texInfo.setSamples(info.samples);
+                texInfo.setSamples(toWGPUTextureSampleCount(info.samples));
                 texInfo.setDepth(info.depth);
                 texInfo.setImageBuffer(info.externalRes);
                 this._nativeTexture = nativeDevice.createTexture(texInfo);

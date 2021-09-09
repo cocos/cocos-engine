@@ -6,17 +6,23 @@ import { resolve } from 'path/posix';
 import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
-    SamplerInfo,
+    SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo,
 } from '../base/define';
 import { RenderPass } from '../base/render-pass';
+import { Sampler } from '../base/states/sampler';
+import { Swapchain } from '../base/swapchain';
+import { Buffer } from '../base/buffer';
+import { DescriptorSet, DescriptorSetLayout } from '..';
+
 import { wgpuWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUTexture } from './webgpu-texture';
-import { Sampler } from '../base/states/sampler';
-import { Swapchain } from '../base/swapchain';
+import { WebGPUBuffer } from './webgpu-buffer';
+import { WebGPUDescriptorSet } from './webgpu-descriptor-set';
+import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
 
 export class WebGPUDevice extends Device {
     private _nativeDevice = undefined;
@@ -111,7 +117,11 @@ export class WebGPUDevice extends Device {
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
-        this._nativeDevice?.createBuffer(info);
+        const buffer = new WebGPUBuffer();
+        if (buffer.initialize(info)) {
+            return buffer;
+        }
+        return null!;
     }
 
     public createTexture (info: TextureInfo | TextureViewInfo): Texture {
@@ -131,7 +141,9 @@ export class WebGPUDevice extends Device {
     }
 
     public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
-        this._nativeDevice?.createDescriptorSet(info);
+        const descriptorSet = new WebGPUDescriptorSet();
+        descriptorSet.initialize(info);
+        return descriptorSet;
     }
 
     public createShader (info: ShaderInfo): Shader {
@@ -159,7 +171,9 @@ export class WebGPUDevice extends Device {
     }
 
     public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
-        this._nativeDevice?.createDescriptorSetLayout(info);
+        const descriptorSetLayout = new WebGPUDescriptorSetLayout();
+        descriptorSetLayout.initialize(info);
+        return descriptorSetLayout;
     }
 
     public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
