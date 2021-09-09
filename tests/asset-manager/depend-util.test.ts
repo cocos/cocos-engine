@@ -3,7 +3,7 @@ import dependUtil from "../../cocos/core/asset-manager/depend-util";
 describe('dependUtils', () => {
 
     test('parse texture deps', function () {
-        var depend = dependUtil.parse('AAA', { __type__: 'cc.Texture2D', content: '0'}); 
+        var depend = dependUtil.parse('AAA', { __type__: 'cc.ImageAsset', content: '0'}); 
         expect(depend.nativeDep.uuid).toBe('AAA');
         expect(depend.nativeDep.ext).toBe('.png');
         expect(depend.deps.length).toBe(0);

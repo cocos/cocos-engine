@@ -8,7 +8,7 @@ import { Scene, Node } from "../../cocos/core/scene-graph";
 
 describe('releaseManager', () => {
 
-    var libPath = assetDir + '/library';
+    var libPath = '../fixtures/library';
     assetManager.init({importBase: libPath, nativeBase: libPath});
 
     test('reference', function () {
@@ -33,7 +33,7 @@ describe('releaseManager', () => {
         expect(isValid(tex, true)).toBeTruthy();
         assetManager.releaseAsset(tex);
         expect(assetManager.assets.count).toBe(0);
-        expect(!isValid(tex, true)).toBeFalsy();
+        expect(isValid(tex, true)).toBeFalsy();
     });
 
     test('release dependencies', function () {

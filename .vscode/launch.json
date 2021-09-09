@@ -2,6 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "npm test",
+            "request": "launch",
+            "runtimeArgs": [
+                "test",
+            ],
+            "runtimeExecutable": "npm",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Build Declarations",

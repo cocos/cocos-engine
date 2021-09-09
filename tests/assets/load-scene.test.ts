@@ -1,3 +1,5 @@
+import { js } from "../../cocos/core/utils/js";
+
 (function () {
 
     if (!TestEditorExtends) {
@@ -36,11 +38,11 @@
         root1.parent = newScene;
 
         var serialized = EditorExtends.serialize(newScene, {stringify: false});
-        strictEqual(serialized[0].__type__, cc.js._getClassId(cc.Scene), 'scene should be serialized');
+        strictEqual(serialized[0].__type__, js._getClassId(cc.Scene), 'scene should be serialized');
         ok(serialized[0]._children instanceof Array, 'children should be serialized');
 
-        var loaded = cc.deserialize(serialized);
-        ok(loaded instanceof cc.Scene, 'deserialization');
+        var loaded = deserialize(serialized);
+        ok(loaded instanceof Scene, 'deserialization');
         strictEqual(loaded._children.length, 1, 'children should be loaded');
 
         ok(cc.engine.getInstanceById(root1.uuid) == null, 'should not register uuid to engine before scene launch');

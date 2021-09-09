@@ -1,64 +1,67 @@
-﻿module('Attribute');
+﻿import { CCClass } from "../../cocos/core/data/class";
+import { js } from "../../cocos/core/utils/js";
 
-test('base', function () {
-    var MyCompBase = function () {
-        this.baseVal = [];
-    };
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'baseVal', 'data', 'waha');
-
-    strictEqual(cc.Class.attr(MyCompBase, 'baseVal').data, 'waha', 'can get attribute');
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'baseVal', 'cool', 'nice');
-    var attr = cc.Class.attr(MyCompBase, 'baseVal');
-    ok(attr.data && attr.cool, 'can have multi attribute');
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'baseVal', 'data', false);
-    attr = cc.Class.attr(MyCompBase, 'baseVal');
-    strictEqual(attr.data, false, 'can change attribute');
-});
-
-test('inherit', function () {
-    function MyCompBase () { }
-    function MyComp1 () { }
-    cc.js.extend(MyComp1, MyCompBase);
-    function MyComp2 () { }
-    cc.js.extend(MyComp2, MyCompBase);
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'baseVal', 'cool', 'nice');
-    strictEqual(cc.Class.attr(MyComp1, 'baseVal').cool, 'nice', 'can get inherited attribute');
-
-    cc.Class.Attr.setClassAttr(MyComp1, 'baseVal', 'cool', 'good');
-    strictEqual(cc.Class.attr(MyComp1, 'baseVal').cool, 'good', 'can override inherited attribute');
-    strictEqual(cc.Class.attr(MyCompBase, 'baseVal').cool, 'nice', 'Sub prop of base class should not be pulluted!');
-
-    cc.Class.Attr.setClassAttr(MyComp1, 'subVal', 'cool', 'very nice');
-    strictEqual(cc.Class.attr(MyComp1, 'subVal').cool, 'very nice', 'can have own attribute');
-
-    strictEqual(cc.Class.attr(MyCompBase, 'subVal').cool, undefined, 'main prop of base class not pulluted');
-    strictEqual(cc.Class.attr(MyComp2, 'subVal').cool, undefined, 'sibling class not pulluted');
-});
-
-test('dynamic attribute for instance', function () {
-    var MyCompBase = function () {};
-    var comp = new MyCompBase();
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'subVal', 'value', false);
-    cc.Class.Attr.setClassAttr(comp, 'subVal', 'value', true);
-    strictEqual(cc.Class.attr(MyCompBase, 'subVal').value, false, 'class attr should set to false');
-    strictEqual(cc.Class.attr(comp, 'subVal').value, true, 'instance attr should set to true');
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'baseVal', 'value', 123);
-    strictEqual(cc.Class.attr(comp, 'baseVal').value, 123, 'instance attr should inherited from base');
-
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'readonly', 'a', false);
-    cc.Class.Attr.setClassAttr(comp, 'readonly', 'b', true);
-    deepEqual(cc.Class.attr(comp, 'readonly'), {a: false, b: true}, 'object attrs should merged');
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'readonly', 'b', false);
-    deepEqual(cc.Class.attr(comp, 'readonly'), {a: false, b: true}, 'instance attr should override base');
-
-    cc.Class.Attr.setClassAttr(MyCompBase, 'readonly', 'b', false);
-    deepEqual(cc.Class.attr(MyCompBase, 'readonly'), {a: false, b: false}, 'class attrs should not changed');
+describe('Attribute', function () {
+    test('base', function () {
+        var MyCompBase = function () {
+            this.baseVal = [];
+        };
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'data', 'waha');
+    
+        expect(CCClass.attr(MyCompBase, 'baseVal').data).toBe('waha');
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'cool', 'nice');
+        var attr = CCClass.attr(MyCompBase, 'baseVal');
+        expect(attr.data && attr.cool).toBeTruthy();
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'data', false);
+        attr = CCClass.attr(MyCompBase, 'baseVal');
+        expect(attr.data).toBeFalsy();
+    });
+    
+    test('inherit', function () {
+        function MyCompBase () { }
+        function MyComp1 () { }
+        js.extend(MyComp1, MyCompBase);
+        function MyComp2 () { }
+        js.extend(MyComp2, MyCompBase);
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'cool', 'nice');
+        expect(CCClass.attr(MyComp1, 'baseVal').cool).toBe('nice');
+    
+        CCClass.Attr.setClassAttr(MyComp1, 'baseVal', 'cool', 'good');
+        expect(CCClass.attr(MyComp1, 'baseVal').cool).toBe('good');
+        expect(CCClass.attr(MyCompBase, 'baseVal').cool).toBe('nice');
+    
+        CCClass.Attr.setClassAttr(MyComp1, 'subVal', 'cool', 'very nice');
+        expect(CCClass.attr(MyComp1, 'subVal').cool).toBe('very nice');
+    
+        expect(CCClass.attr(MyCompBase, 'subVal').cool).toBe(undefined);
+        expect(CCClass.attr(MyComp2, 'subVal').cool).toBe(undefined);
+    });
+    
+    test('dynamic attribute for instance', function () {
+        var MyCompBase = function () {};
+        var comp = new MyCompBase();
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'subVal', 'value', false);
+        CCClass.Attr.setClassAttr(comp, 'subVal', 'value', true);
+        expect(CCClass.attr(MyCompBase, 'subVal').value).toBeFalsy();
+        expect(CCClass.attr(comp, 'subVal').value).toBeTruthy();
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'value', 123);
+        expect(CCClass.attr(comp, 'baseVal').value).toBe(123);
+    
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'readonly', 'a', false);
+        CCClass.Attr.setClassAttr(comp, 'readonly', 'b', true);
+        expect(CCClass.attr(comp, 'readonly')).toMatchObject({a: false, b: true});
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'readonly', 'b', false);
+        expect(CCClass.attr(comp, 'readonly')).toMatchObject({a: false, b: true});
+    
+        CCClass.Attr.setClassAttr(MyCompBase, 'readonly', 'b', false);
+        expect(CCClass.attr(MyCompBase, 'readonly')).toMatchObject({a: false, b: false});
+    });
 });

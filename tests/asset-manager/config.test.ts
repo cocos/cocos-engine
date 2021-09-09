@@ -6,12 +6,12 @@ describe('config', () => {
     var config = new Config();
     config.init({
         paths: {
-            'AAA': ['images/test', 'Texture2D'],
-            'BBB': ['images/test', 'SpriteFrame', 1],
-            'ccc': ['prefab', 'Prefab']
+            'AAA': ['images/test', 'cc.Texture2D'],
+            'BBB': ['images/test', 'cc.SpriteFrame', 1],
+            'ccc': ['prefab', 'cc.Prefab']
         },
         scenes: {
-            'db://Start.fire': 'DDD',
+            'db://Start.scene': 'DDD',
             'db://Second.scene': 'EEE',
         },
         packs: {

@@ -1,17 +1,16 @@
 import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
-import { AssetManager, assetManager, loader } from "../../cocos/core/asset-manager";
+import { AssetManager, assetManager, loader, resources } from "../../cocos/core/asset-manager";
 import { Texture2D } from "../../cocos/core/assets/texture-2d";
 import { js } from "../../cocos/core/utils/js";
 import { TestSprite } from "./common-class";
 
 describe('asset-manager', function () {
-    const assetDir = '';
+    const assetDir = '../fixtures/library';
     //_resetGame();
     assetManager.init({
         importBase: libPath, 
         nativeBase: libPath,
     });
-    var resources = new AssetManager.Bundle();
     resources.init({
         name: AssetManager.BuiltinBundleName.RESOURCES,
         importBase: libPath, 
@@ -47,7 +46,7 @@ describe('asset-manager', function () {
     var selfReferenced_uuid = '123200';
     var circleReferenced_uuid = '65535';
 
-    test('Load', function () {
+    test.concurrent('Load', function () {
         var image1 = assetDir + '/button.png';
         var json1 = assetDir + '/library/12/123200.json';
         var json2 = assetDir + '/library/deferred-loading/74/748321.json';
@@ -57,49 +56,54 @@ describe('asset-manager', function () {
             json2,
         ];
 
-        assetManager.loadAny(resources, { __requestType__: 'url'}, function (finish, total, item) {
-            if (item.uuid === image1) {
-                expect(item.content instanceof Image).toBeTruthy();
-            }
-            else if (item.uuid === json1) {
-                expect(item.content.width).toBe(89);
-            }
-            else if (item.uuid === json2) {
-                expect(item.content._native).toBe('YouKnowEverything');
-            }
-            else {
-                fail('should not load an unknown url');
-            }
-        }, function (err, assets) {
-            expect(assets.length).toBe(3);
-            expect(assets[0] instanceof Image).toBeTruthy();
-            expect(assets[1].width).toBe(89);
-            expect(assets[2]._native).toBe('YouKnowEverything');
-            expect(assetManager.assets.has(image1)).toBeTruthy();
-            expect(assetManager.assets.has(json1)).toBeTruthy();
-            expect(assetManager.assets.has(json2)).toBeTruthy();
-            
+        return new Promise<void>((resolve, reject) => {
+            assetManager.loadAny(resources, { __requestType__: 'url'}, function (finish, total, item) {
+                if (item.uuid === image1) {
+                    expect(item.content instanceof Image).toBeTruthy();
+                }
+                else if (item.uuid === json1) {
+                    expect(item.content.width).toBe(89);
+                }
+                else if (item.uuid === json2) {
+                    expect(item.content._native).toBe('YouKnowEverything');
+                }
+                else {
+                    fail('should not load an unknown url');
+                }
+            }, function (err, assets) {
+                expect(assets.length).toBe(3);
+                expect(assets[0] instanceof Image).toBeTruthy();
+                expect(assets[1].width).toBe(89);
+                expect(assets[2]._native).toBe('YouKnowEverything');
+                expect(assetManager.assets.has(image1)).toBeTruthy();
+                expect(assetManager.assets.has(json1)).toBeTruthy();
+                expect(assetManager.assets.has(json2)).toBeTruthy();
+                resolve();
+            });
         });
     });
 
-    test('Load single file', function () {
+    test.concurrent('Load single file', function () {
         var image1 = assetDir + '/button.png';
 
-        assetManager.loadAny({ url: image1 }, function (completedCount, totalCount, item) {
-            if (item.uuid === image1) {
-                expect(item.content instanceof Image).toBeTruthy();
-            }
-            else {
-                fail('should not load an unknown url');
-            }
-        }, function (error, image) {
-            expect(error).toBeFalsy();
-            expect(image instanceof Image).toBeTruthy();
-            expect(assetManager.assets.has(image1)).toBeFalsy();
+        return new Promise<void>((resolve, reject) => {
+            assetManager.loadAny({ url: image1 }, function (completedCount, totalCount, item) {
+                if (item.uuid === image1) {
+                    expect(item.content instanceof Image).toBeTruthy();
+                }
+                else {
+                    fail('should not load an unknown url');
+                }
+            }, function (error, image) {
+                expect(error).toBeFalsy();
+                expect(image instanceof Image).toBeTruthy();
+                expect(assetManager.assets.has(image1)).toBeFalsy();
+                resolve();
+            });
         });
     });
 
-    test('Loading font', function () {
+    test.concurrent('Loading font', function () {
         var image = assetDir + '/button.png';
         var font = {
             url: assetDir + '/Thonburi.ttf',
@@ -123,11 +127,14 @@ describe('asset-manager', function () {
             }
         });
 
-        assetManager.loadAny(resources, { __requestType__: 'url' }, progressCallback, function (error, assets) {
-            expect(assets.length).toBe(2);
-            expect(assets[0] instanceof Image).toBeTruthy();
-            expect(assets[1]).toBe('Thonburi_LABEL');
-            expect(progressCallback).toBeCalledTimes(total);
+        return new Promise<void>((resolve, reject) => {
+            assetManager.loadAny(resources, { __requestType__: 'url' }, progressCallback, function (error, assets) {
+                expect(assets.length).toBe(2);
+                expect(assets[0] instanceof Image).toBeTruthy();
+                expect(assets[1]).toBe('Thonburi_LABEL');
+                expect(progressCallback).toBeCalledTimes(total);
+                resolve();
+            });
         });
     });
 
@@ -254,8 +261,6 @@ describe('asset-manager', function () {
             expect(Array.isArray(results)).toBeTruthy();
             var sprite = results[0];
             expect(sprite instanceof TestSprite).toBeTruthy();
-
-            
         });
     });
 
@@ -263,8 +268,6 @@ describe('asset-manager', function () {
         resources.loadDir('', function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
             expect(results.length).toBe(5);
-
-            
         });
     });
 

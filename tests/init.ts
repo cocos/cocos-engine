@@ -61,6 +61,7 @@ jest.mock('serialization-test-helper/run-test', () => {
 import '../exports/base';
 import { DebugMode } from "../cocos/core/platform/debug";
 import { game, IGameConfig } from '../exports/base';
+import 
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');

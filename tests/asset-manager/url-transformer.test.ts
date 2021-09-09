@@ -1,16 +1,17 @@
-import { AssetManager, assetManager } from "../../cocos/core/asset-manager";
+import { assetManager, loader, resources, url } from "../../cocos/core/asset-manager";
 import Bundle from "../../cocos/core/asset-manager/bundle";
 import { transform } from "../../cocos/core/asset-manager/helper";
+import { BuiltinBundleName } from "../../cocos/core/asset-manager/shared";
 
 describe('url-transform', () => {
     test('transform url', function () {
         assetManager.init({importBase: 'import', nativeBase: 'native'});
         var result = transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ'});
-        strictEqual(result, 'import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json', 'should equal to import/0c/0cbZa5Y71CTZAccaIFluuZ.json');
+        expect(result).toBe('import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json');
         result = transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ', ext: '.png', __isNative__: true});
-        strictEqual(result, 'native/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.png', 'should equal to native/0c/0cbZa5Y71CTZAccaIFluuZ.png');
+        expect(result).toBe('native/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.png');
         result = transform({ url: 'www.cocos.com/test.jpg', __isNative__: true});
-        strictEqual(result, 'www.cocos.com/test.jpg', 'should equal to www.cocos.com/test.jpg');
+        expect(result).toBe('www.cocos.com/test.jpg');
         var bundle = new Bundle();
         bundle.init({
             name: 'test', 
@@ -22,18 +23,24 @@ describe('url-transform', () => {
                 import: ['AAA', 'dswq123sq'],
                 native: ['AAA', 'tester']
             }, 
-            uuids: ['AAA']
+            uuids: ['AAA'],
+            deps: [],
+            redirect: [],
+            debug: false,
+            types: [],
+            extensionMap: {},
+            scenes: {},
+            packs: {},
         });
         result = transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ', bundle: 'test'});
-        strictEqual(result, 'test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json', 'should equal to test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json');
+        expect(result).toBe('test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json');
         result = transform({ path: 'images/test', bundle: 'test'});
-        strictEqual(result, 'test/import/AA/AAA.dswq123sq.json', 'should equal to test/import/AA/AAA.dswq123sq.json');
+        expect(result).toBe('test/import/AA/AAA.dswq123sq.json');
     });
     
     test('raw', function () {
         assetManager.init({importBase: 'import', nativeBase: 'native'});
-        var bundle = new Bundle();
-        bundle.init({
+        resources.init({
             name: BuiltinBundleName.RESOURCES, 
             base: 'test/', 
             importBase: 'import', 
@@ -43,16 +50,22 @@ describe('url-transform', () => {
                 import: ['BBB', 'dswq123sq'],
                 native: ['BBB', 'tester']
             }, 
-            uuids: ['BBB']
+            uuids: ['BBB'],
+            deps: [],
+            redirect: [],
+            debug: false,
+            types: [],
+            extensionMap: {},
+            scenes: {},
+            packs: {},
         });
         var result = url.raw('resources/images/test.jpg');
-        strictEqual(result, 'test/native/BB/BBB.tester.jpg', 'should equal to test/native/BB/BBB.tester.jpg');
+        expect(result).toBe('test/native/BB/BBB.tester.jpg');
     });
     
     test('md5', function () {
         assetManager.init({importBase: 'import', nativeBase: 'native'});
-        var bundle = new Bundle();
-        bundle.init({
+        resources.init({
             name: BuiltinBundleName.RESOURCES, 
             base: 'test/', 
             importBase: 'import', 
@@ -61,11 +74,19 @@ describe('url-transform', () => {
                 import: ['0c6d96b9-63bd-424d-901c-71a20596eb99', 'sweqesa'],
                 native: ['0c6d96b9-63bd-424d-901c-71a20596eb99', 'sxqwe1s']
             }, 
-            uuids: ['0c6d96b9-63bd-424d-901c-71a20596eb99']
+            uuids: ['0c6d96b9-63bd-424d-901c-71a20596eb99'],
+            deps: [],
+            redirect: [],
+            debug: false,
+            types: [],
+            extensionMap: {},
+            scenes: {},
+            packs: {},
+            paths: {}
         });
         var result = loader.md5Pipe.transformURL('test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.json');
-        strictEqual(result, 'test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.sweqesa.json', 'should equal to test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.sweqesa.json');
+        expect(result).toBe('test/import/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.sweqesa.json');
         result = loader.md5Pipe.transformURL('test/native/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.jpg');
-        strictEqual(result, 'test/native/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.sxqwe1s.jpg', 'should equal to test/native/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.sxqwe1s.jpg');
+        expect(result).toBe('test/native/0c/0c6d96b9-63bd-424d-901c-71a20596eb99.sxqwe1s.jpg');
     });
 });
