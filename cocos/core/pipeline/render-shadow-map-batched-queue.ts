@@ -45,7 +45,7 @@ import { SpotLight } from '../renderer/scene/spot-light';
 import { AABB, intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera } from '../renderer/scene';
-import { Mat4 } from '..';
+import { Mat4 } from '../math';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
