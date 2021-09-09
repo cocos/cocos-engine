@@ -275,15 +275,19 @@ if (EDITOR) {
     };
 }
 
-replaceProperty(SceneGlobals, 'SceneGlobals', [
+replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'autoAdapt',
         targetName: 'fixedArea',
-        customGetter (this: SceneGlobals) {
-            return !this.shadows.fixedArea;
+        customGetter () {
+            // @ts-expect-error deprecation method
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return !this.fixedArea;
         },
-        customSetter (this: SceneGlobals, value: boolean) {
-            this.shadows.fixedArea = !value;
+        customSetter (value: boolean) {
+            // @ts-expect-error deprecation method
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            this.fixedArea = !value;
         },
     },
 ]);
