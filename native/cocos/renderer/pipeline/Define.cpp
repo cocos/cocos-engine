@@ -453,7 +453,8 @@ uint nextPow2(uint val) {
 
 bool supportsHalfFloatTexture(gfx::Device *device) {
     return device->hasFeature(gfx::Feature::COLOR_HALF_FLOAT) &&
-           device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT);
+           device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT) &&
+           device->getGfxAPI() != gfx::API::GLES2;
 }
 
 uint getPhaseID(const String &phase) {

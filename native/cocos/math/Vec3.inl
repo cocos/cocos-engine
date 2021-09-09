@@ -18,6 +18,8 @@
  This file was modified to fit the cocos2d-x project
  */
 
+#pragma once
+#include <cmath>
 #include "math/Vec3.h"
 #include "math/Mat4.h"
 

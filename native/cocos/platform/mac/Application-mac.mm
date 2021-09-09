@@ -101,11 +101,21 @@ bool setCanvasCallback(se::Object *global) {
     se::ScriptEngine *se              = se::ScriptEngine::getInstance();
     NSView *          view            = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
 
-    std::stringstream commandBuf;
-    commandBuf << "window.innerWidth = " << viewLogicalSize.x
+    std::stringstream ss;
+    {
+        auto windowPtr = reinterpret_cast<uintptr_t>(view);
+        ss << "window.innerWidth = " << viewLogicalSize.x
                << "; window.innerHeight = " << viewLogicalSize.y
-               << "; window.windowHandler = " << reinterpret_cast<uintptr_t>(view) << ";";
-    se->evalString(commandBuf.str().c_str());
+               << "; window.windowHandler = ";
+
+        if constexpr (sizeof(windowPtr) == 8) { // use bigint
+            ss << static_cast<uint64_t>(windowPtr) << "n;";
+        }
+        if constexpr (sizeof(windowPtr) == 4) {
+            ss << static_cast<uint32_t>(windowPtr) << ";";
+        }
+    }
+    se->evalString(ss.str().c_str());
 
     return true;
 }

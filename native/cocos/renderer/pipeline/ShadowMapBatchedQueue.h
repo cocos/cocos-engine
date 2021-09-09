@@ -29,6 +29,7 @@
 #include "scene/Light.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {

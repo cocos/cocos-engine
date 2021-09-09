@@ -25,6 +25,8 @@
 
 #include "AABB.h"
 
+#include "base/TypeDef.h"
+
 namespace cc {
 namespace scene {
 bool AABB::aabbAabb(AABB *aabb) const {
@@ -74,19 +76,53 @@ void AABB::getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const {
 }
 
 void AABB::merge(const AABB &aabb) {
-    cc::Vec3 minA = getCenter() - getHalfExtents();
-    cc::Vec3 minB = aabb.getCenter() - aabb.getHalfExtents();
-    cc::Vec3 maxA = getCenter() + getHalfExtents();
-    cc::Vec3 maxB = aabb.getCenter() + aabb.getHalfExtents();
+    const cc::Vec3 minA = getCenter() - getHalfExtents();
+    const cc::Vec3  minB = aabb.getCenter() - aabb.getHalfExtents();
+    const cc::Vec3  maxA = getCenter() + getHalfExtents();
+    const cc::Vec3   maxB = aabb.getCenter() + aabb.getHalfExtents();
     cc::Vec3 maxP;
     cc::Vec3 minP;
     cc::Vec3::max(maxA, maxB, &maxP);
     cc::Vec3::min(minA, minB, &minP);
 
-    cc::Vec3 addP = maxP + minP;
-    cc::Vec3 subP = maxP - minP;
+    const cc::Vec3 addP = maxP + minP;
+    const cc::Vec3  subP = maxP - minP;
     setCenter(addP * 0.5F);
     setHalfExtents(subP * 0.5F);
+}
+
+void AABB::merge(const cc::Vec3& point) {
+    cc::Vec3 minPos = getCenter() - getHalfExtents();
+    cc::Vec3 maxPos = getCenter() + getHalfExtents();
+    if (point.x < minPos.x) {
+        minPos.x = point.x;
+    } 
+    if (point.y < minPos.y) {
+        minPos.y = point.y;
+    }
+    if (point.z < minPos.z) {
+        minPos.z = point.z;
+    } 
+    if (point.x > maxPos.x) {
+        maxPos.x = point.x;
+    }  
+    if (point.y > maxPos.y) {
+        maxPos.y = point.y;
+    }
+    if (point.z > maxPos.z) {
+        maxPos.z = point.z;
+    }
+
+    const Vec3 center = (minPos + maxPos) * 0.5F;
+    setCenter(center);
+    setHalfExtents(maxPos.x - center.x, maxPos.y - center.y, maxPos.z - center.z);
+}
+
+void AABB::merge(const Frustum& frustum) {
+    const std::array<Vec3, 8> &vertices = frustum.vertices;
+    for (uint i = 0; i < vertices.max_size(); ++i) {
+        merge(vertices[i]);
+    }
 }
 
 void AABB::set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal) {

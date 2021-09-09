@@ -40,8 +40,10 @@ namespace se {
 std::unique_ptr<std::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
 
 namespace {
-v8::Isolate *__isolate      = nullptr; //NOLINT
-uint32_t     nativeObjectId = 0;
+v8::Isolate *__isolate = nullptr; //NOLINT
+    #if CC_DEBUG_JS_OBJECT_ID && CC_DEBUG
+uint32_t nativeObjectId = 0;
+    #endif
 } // namespace
 
 Object::Object()
@@ -279,7 +281,7 @@ bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
         __objectMap->emplace(this, nullptr);
     }
 
-    #if CC_DEBUG
+    #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
     this->_objectId = ++nativeObjectId;
     this->setProperty("__object_id__", se::Value(this->_objectId));
     this->setProperty("__native_class_name__", se::Value(cls ? cls->getName() : "[noname]"));
