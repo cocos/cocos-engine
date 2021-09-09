@@ -323,15 +323,15 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
-    const culledShadowObjects = sceneData.culledShadowObjects;
-    roPool.freeArray(culledShadowObjects); culledShadowObjects.length = 0;
+    const castShadowObjects = sceneData.castShadowObjects;
+    roPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
 
-    let shadowObjects: IRenderObject[] | null = null;
+    let dirShadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
-            shadowObjects = pipeline.pipelineSceneData.shadowObjects;
-            shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
+            dirShadowObjects = pipeline.pipelineSceneData.dirShadowObjects;
+            shadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
 
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
@@ -363,20 +363,21 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
         // filter model by view visibility
         if (model.enabled) {
+            if (model.castShadow) {
+                castShadowObjects.push(getCulledShadowRenderObject(model, camera));
+            }
+
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
                 || (visibility & model.visFlags)) {
                 // shadow render Object
-                if (shadowObjects != null && model.castShadow) {
+                if (dirShadowObjects != null && model.castShadow) {
                     // frustum culling
                     if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
-                        shadowObjects.push(getCastShadowRenderObject(model, camera));
+                        dirShadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
                 }
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
-                    if (model.castShadow) {
-                        culledShadowObjects.push(getCulledShadowRenderObject(model, camera));
-                    }
                     continue;
                 }
 

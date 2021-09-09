@@ -72,26 +72,15 @@ const _sphere = Sphere.create(0, 0, 0, 1);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
 const _matShadowView = new Mat4();
-const _matShadowProj = new Mat4();
 const _matShadowViewProj = new Mat4();
-const _ab = new AABB();
 
 function cullSphereLight (light: SphereLight, model: Model) {
     return !!(model.worldBounds && !intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
-function cullSpotLight (camera: Camera, light: SpotLight, model: Model, cullingMode: number) {
-    if (cullingMode === CullingMode.Normal) {
-        return !!(model.worldBounds
+function cullSpotLight (light: SpotLight, model: Model) {
+    return !!(model.worldBounds
             && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
-    }
-
-    const frustum = camera.frustum;
-    Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
-    Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
-    Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-    AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
-    return true;// intersect.aabbFrustum(_ab, frustum) === 0;
 }
 
 const _phaseID = getPhaseID('forward-add');
@@ -210,31 +199,7 @@ export class RenderAdditiveLightQueue {
 
             _lightIndices.length = 0;
 
-            this._lightCulling(camera, model, validLights, CullingMode.Normal);
-
-            if (!_lightIndices.length) { continue; }
-
-            for (let j = 0; j < subModels.length; j++) {
-                const lightPassIdx = _lightPassIndices[j];
-                if (lightPassIdx < 0) { continue; }
-                const subModel = subModels[j];
-                const pass = subModel.passes[lightPassIdx];
-                subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
-                subModel.descriptorSet.update();
-
-                this._addRenderQueue(pass, subModel, model, lightPassIdx, validLights);
-            }
-        }
-
-        const culledShadowObjects = sceneData.culledShadowObjects;
-        for (let i = 0; i < culledShadowObjects.length; i++) {
-            const model  = culledShadowObjects[i].model;
-            const subModels = model.subModels;
-            if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
-
-            _lightIndices.length = 0;
-
-            this._lightCulling(camera, model, validLights, CullingMode.Normal);
+            this._lightCulling(model, validLights);
 
             if (!_lightIndices.length) { continue; }
 
@@ -311,7 +276,7 @@ export class RenderAdditiveLightQueue {
     }
 
     // light culling
-    protected _lightCulling (camera: Camera, model:Model, validLights: Light[], cullingMode: number) {
+    protected _lightCulling (model:Model, validLights: Light[]) {
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
             let isCulled = false;
@@ -320,7 +285,7 @@ export class RenderAdditiveLightQueue {
                 isCulled = cullSphereLight(light as SphereLight, model);
                 break;
             case LightType.SPOT:
-                isCulled = cullSpotLight(camera, light as SpotLight, model, cullingMode);
+                isCulled = cullSpotLight(light as SpotLight, model);
                 break;
             default:
             }

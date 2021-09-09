@@ -42,9 +42,15 @@ import { ShadowType } from '../renderer/scene/shadows';
 import { ForwardPipeline } from './forward/forward-pipeline';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene/spot-light';
-import { intersect } from '../geometry';
+import { AABB, intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera } from '../renderer/scene';
+import { Mat4 } from '..';
+
+const _matShadowView = new Mat4();
+const _matShadowProj = new Mat4();
+const _matShadowViewProj = new Mat4();
+const _ab = new AABB();
 
 const _phaseID = getPhaseID('shadow-caster');
 const _shadowPassIndices: number[] = [];
@@ -86,29 +92,35 @@ export class RenderShadowMapBatchedQueue {
 
     public gatherLightPasses (light: Light, camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
-        const shadowInfo = this._pipeline.pipelineSceneData.shadows;
-        const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
-        const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
+        const pipelineSceneData = this._pipeline.pipelineSceneData;
+        const shadowInfo = pipelineSceneData.shadows;
+        const dirShadowObjects = pipelineSceneData.dirShadowObjects;
+        const castShadowObjects = pipelineSceneData.castShadowObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
             this._pipeline.pipelineUBO.updateShadowUBOLight(light, camera);
 
             switch (light.type) {
             case LightType.DIRECTIONAL:
-                for (let i = 0; i < shadowObjects.length; i++) {
-                    const ro = shadowObjects[i];
+                for (let i = 0; i < dirShadowObjects.length; i++) {
+                    const ro = dirShadowObjects[i];
                     const model = ro.model;
                     if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                     this.add(model, cmdBuff, _shadowPassIndices);
                 }
                 break;
             case LightType.SPOT:
-                for (let i = 0; i < renderObjects.length; i++) {
-                    const ro = renderObjects[i];
+                Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
+                Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+                Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+                for (let i = 0; i < castShadowObjects.length; i++) {
+                    const ro = castShadowObjects[i];
                     const model = ro.model;
                     if (!getShadowPassIndex(model.subModels, _shadowPassIndices) || !model.castShadow) { continue; }
-                    if ((model.worldBounds
-                            && (!intersect.aabbWithAABB(model.worldBounds, (light as SpotLight).aabb)
-                                || !intersect.aabbFrustum(model.worldBounds, (light as SpotLight).frustum)))) continue;
+                    if (model.worldBounds) {
+                        AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
+                        if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
+                    }
+
                     this.add(model, cmdBuff, _shadowPassIndices);
                 }
                 break;
