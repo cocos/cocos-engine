@@ -275,17 +275,4 @@ if (EDITOR) {
     };
 }
 
-replaceProperty(SceneGlobals, 'SceneGlobals', [
-    {
-        name: 'autoAdapt',
-        targetName: 'fixedArea',
-        customGetter (this: SceneGlobals) {
-            return !this.shadows.fixedArea;
-        },
-        customSetter (this: SceneGlobals, value: boolean) {
-            this.shadows.fixedArea = !value;
-        },
-    },
-]);
-
 legacyCC.PrivateNode = PrivateNode;
