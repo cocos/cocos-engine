@@ -3,7 +3,7 @@ import { AssetLibrary } from "../../cocos/core/asset-manager/deprecated";
 
 describe('asset-library', () => {
 
-    var libPath = '../fixture';                                                                                                                                                                                                                                                                                                                                      'fixtures/library';
+    const libPath = './tests/fixtures/library';                                                                                                                                                                                                                                                                                                                                     'fixtures/library';
     var grossini_uuid = '748321';
     var grossiniSprite_uuid = '1232218';
     var selfReferenced_uuid = '123200';

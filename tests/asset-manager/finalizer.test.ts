@@ -8,7 +8,7 @@ import { Scene, Node } from "../../cocos/core/scene-graph";
 
 describe('releaseManager', () => {
 
-    var libPath = '../fixtures/library';
+    const libPath = './tests/fixtures/library';      
     assetManager.init({importBase: libPath, nativeBase: libPath});
 
     test('reference', function () {

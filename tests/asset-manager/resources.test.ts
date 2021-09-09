@@ -17,8 +17,8 @@ describe('asset', function () {
         '123200':  ['grossini', js._getClassId(TestSprite), 1],   // sprite in plist
     };
     var options = {
-        libraryPath: '../fixtures/library',
-        rawAssetsBase: path.dirname(path.stripSep('../fixtures/library') + '.dummyExtForDirname') + '/',
+        libraryPath: './tests/fixtures/library',
+        rawAssetsBase: path.dirname(path.stripSep('./tests/fixtures/library') + '.dummyExtForDirname') + '/',
         rawAssets: {
             assets: Assets
         }

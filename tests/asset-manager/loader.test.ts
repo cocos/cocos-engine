@@ -3,7 +3,7 @@ import { Texture2D } from "../../cocos/core/assets/texture-2d";
 import { AudioClip } from "../../cocos/audio/audio-clip";
 
 describe('Loader', () => {
-    const assetDir = '../fixtures';
+    const assetDir = './tests/fixtures';
     var libPath = assetDir + '/library';
     assetManager.init({importBase: libPath, nativeBase: libPath});
     

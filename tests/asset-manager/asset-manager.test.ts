@@ -5,7 +5,7 @@ import { js } from "../../cocos/core/utils/js";
 import { TestSprite } from "./common-class";
 
 describe('asset-manager', function () {
-    const assetDir = '../fixtures/library';
+    const assetDir = './tests/fixtures';
     //_resetGame();
     assetManager.init({
         importBase: libPath, 
