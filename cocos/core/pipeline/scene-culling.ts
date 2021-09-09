@@ -68,8 +68,8 @@ const _snap = new Vec3();
 const _focus = new Vec3(0, 0, 0);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
-const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
-const culledShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+const castShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
 function getRenderObject (model: Model, camera: Camera) {
     let depth = 0;
@@ -83,25 +83,25 @@ function getRenderObject (model: Model, camera: Camera) {
     return ro;
 }
 
+function getDirShadowRenderObject (model: Model, camera: Camera) {
+    let depth = 0;
+    if (model.node) {
+        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
+        depth = Vec3.dot(_tempVec3, camera.forward);
+    }
+    const ro = dirShadowPool.alloc();
+    ro.model = model;
+    ro.depth = depth;
+    return ro;
+}
+
 function getCastShadowRenderObject (model: Model, camera: Camera) {
     let depth = 0;
     if (model.node) {
         Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
         depth = Vec3.dot(_tempVec3, camera.forward);
     }
-    const ro = shadowPool.alloc();
-    ro.model = model;
-    ro.depth = depth;
-    return ro;
-}
-
-function getCulledShadowRenderObject (model: Model, camera: Camera) {
-    let depth = 0;
-    if (model.node) {
-        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
-        depth = Vec3.dot(_tempVec3, camera.forward);
-    }
-    const ro = culledShadowPool.alloc();
+    const ro = castShadowPool.alloc();
     ro.model = model;
     ro.depth = depth;
     return ro;
@@ -324,14 +324,14 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
     const castShadowObjects = sceneData.castShadowObjects;
-    roPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
+    castShadowPool.freeArray(castShadowObjects); castShadowObjects.length = 0;
 
     let dirShadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
             dirShadowObjects = pipeline.pipelineSceneData.dirShadowObjects;
-            shadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
+            dirShadowPool.freeArray(dirShadowObjects); dirShadowObjects.length = 0;
 
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
@@ -364,7 +364,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         // filter model by view visibility
         if (model.enabled) {
             if (model.castShadow) {
-                castShadowObjects.push(getCulledShadowRenderObject(model, camera));
+                castShadowObjects.push(getCastShadowRenderObject(model, camera));
             }
 
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
@@ -373,7 +373,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 if (dirShadowObjects != null && model.castShadow) {
                     // frustum culling
                     if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
-                        dirShadowObjects.push(getCastShadowRenderObject(model, camera));
+                        dirShadowObjects.push(getDirShadowRenderObject(model, camera));
                     }
                 }
                 // frustum culling

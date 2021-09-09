@@ -34,9 +34,9 @@ import { InstancedBuffer } from './instanced-buffer';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
-import { Sphere, intersect, AABB } from '../geometry';
+import { Sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer, CullMode } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -51,7 +51,6 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
-import { Enum } from '../value-types';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -59,11 +58,6 @@ interface IAdditiveLightPass {
     dynamicOffsets: number[];
     lights: number[];
 }
-
-const CullingMode = Enum({
-    Normal: 0,
-    LightViewProj: 1,
-});
 
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
@@ -189,8 +183,7 @@ export class RenderAdditiveLightQueue {
 
         this._updateUBOs(camera, cmdBuff);
         this._updateLightDescriptorSet(camera, cmdBuff);
-        const sceneData = this._pipeline.pipelineSceneData;
-        const renderObjects = sceneData.renderObjects;
+        const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];
             const { model } = ro;
