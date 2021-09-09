@@ -48,34 +48,35 @@ const _qt = new Quat();
  */
 @ccclass('cc.AmbientInfo')
 export class AmbientInfo {
-    //LDR
+    
+    //HDR
     @serializable
-    protected _skyColor = new Color(51, 128, 204, 1.0);
+    protected _skyColor = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     @serializable
     protected _skyIllum = Ambient.SKY_ILLUM;
     @serializable
-    protected _groundAlbedo = new Color(51, 51, 51, 255);
+    protected _groundAlbedo = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
 
-    //HDR
+    //LDR
     @serializable
-    protected _skyColor_hdr = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
+    protected _skyColor_ldr = new Color(51, 128, 204, 1.0);
     @serializable
-    protected _skyIllum_hdr = Ambient.SKY_ILLUM;
+    protected _skyIllum_ldr = Ambient.SKY_ILLUM;
     @serializable
-    protected _groundAlbedo_hdr = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
+    protected _groundAlbedo_ldr = new Color(51, 51, 51, 255);
 
     protected _resource: Ambient | null = null;
 
     get skyColor_hdr() {
-        return this._skyColor_hdr;
+        return this._skyColor;
     }
 
     get groundAlbedo_hdr() {
-        return this._groundAlbedo_hdr;
+        return this._groundAlbedo;
     }
 
     get skyIllum_hdr() {
-        return this._skyIllum_hdr;
+        return this._skyIllum;
     }
 
     // Normalize HDR color
@@ -98,22 +99,22 @@ export class AmbientInfo {
         {
             let clampColor = (x: number) => Math.min(x * 255, 255);
 
-            Vec3.toArray(this._skyColor_hdr, val);
-            this.normalizeHdrColor(this._skyColor_hdr);
+            Vec3.toArray(this._skyColor, val);
+            this.normalizeHdrColor(this._skyColor);
 
-            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor_hdr[0]), clampColor(this._skyColor_hdr[1]), clampColor(this._skyColor_hdr[2]), 255.0); }
+            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor[0]), clampColor(this._skyColor[1]), clampColor(this._skyColor[2]), 255.0); }
         } else {
-            this._skyColor.set(val);
-            if (this._resource) { this._resource.skyColor = this._skyColor; }
+            this._skyColor_ldr.set(val);
+            if (this._resource) { this._resource.skyColor = this._skyColor_ldr; }
         }
     }
     get skyColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;       
         if(isHDR) {
             let clampColor = (x: number) => Math.min(x * 255, 255);
-            return new Color(clampColor(this._skyColor_hdr[0]), clampColor(this._skyColor_hdr[1]), clampColor(this._skyColor_hdr[2]), 255);
+            return new Color(clampColor(this._skyColor[0]), clampColor(this._skyColor[1]), clampColor(this._skyColor[2]), 255);
         } else {
-            return this._skyColor;
+            return this._skyColor_ldr;
         }
     }
 
@@ -127,9 +128,9 @@ export class AmbientInfo {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if(isHDR)
         {
-            this._skyIllum_hdr = val;
-        } else {
             this._skyIllum = val;
+        } else {
+            this._skyIllum_ldr = val;
         }
 
         if (this._resource) { this._resource.skyIllum = val; }
@@ -138,9 +139,9 @@ export class AmbientInfo {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if(isHDR)
         {
-            return this._skyIllum_hdr;
+            return this._skyIllum;
         } else {
-            return this._skyIllum;           
+            return this._skyIllum_ldr;           
         }
     }
 
@@ -155,12 +156,12 @@ export class AmbientInfo {
         {
             let clampColor = (x: number) => Math.min(x * 255, 255);
 
-            Vec3.toArray(this._groundAlbedo_hdr, val);
-            this.normalizeHdrColor(this._groundAlbedo_hdr);
+            Vec3.toArray(this._groundAlbedo, val);
+            this.normalizeHdrColor(this._groundAlbedo);
 
-            if (this._resource) { this._resource.groundAlbedo = new Color(clampColor(this._groundAlbedo_hdr[0]), clampColor(this._groundAlbedo_hdr[1]), clampColor(this._groundAlbedo_hdr[2]), 255.0); }
+            if (this._resource) { this._resource.groundAlbedo = new Color(clampColor(this._groundAlbedo[0]), clampColor(this._groundAlbedo[1]), clampColor(this._groundAlbedo[2]), 255.0); }
         } else {
-            this._groundAlbedo.set(val);
+            this._groundAlbedo_ldr.set(val);
         }
 
         if (this._resource) { this._resource.groundAlbedo = val; }
@@ -169,9 +170,9 @@ export class AmbientInfo {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;       
         if(isHDR) {
             let clampColor = (x: number) => Math.min(x * 255, 255);
-            return new Color(clampColor(this._groundAlbedo_hdr[0]), clampColor(this._groundAlbedo_hdr[1]), clampColor(this._groundAlbedo_hdr[2]), 255);
+            return new Color(clampColor(this._groundAlbedo[0]), clampColor(this._groundAlbedo[1]), clampColor(this._groundAlbedo[2]), 255);
         } else {
-            return this._groundAlbedo;
+            return this._groundAlbedo_ldr;
         }
     }
 

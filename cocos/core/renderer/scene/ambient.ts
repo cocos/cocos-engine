@@ -199,6 +199,7 @@ export class Ambient {
         this.groundAlbedo = ambientInfo.groundAlbedo;
         this.skyIllum = ambientInfo.skyIllum;
 
+        // Init HDR from serialized data on load
         this._colorArray_hdr = ambientInfo.skyColor_hdr;
         this._albedoArray_hdr = ambientInfo.groundAlbedo_hdr; 
         this._skyIllum_hdr = ambientInfo.skyIllum_hdr; 
