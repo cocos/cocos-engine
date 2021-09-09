@@ -46,7 +46,7 @@ public:
 
     inline CCVKGPUSwapchain *gpuSwapchain() { return _gpuSwapchain; }
 
-    bool checkSwapchainStatus();
+    bool checkSwapchainStatus(uint32_t width = 0, uint32_t height = 0);
 
 protected:
     void doInit(const SwapchainInfo &info) override;
@@ -56,7 +56,6 @@ protected:
     void doCreateSurface(void *windowHandle) override;
 
     void createVkSurface();
-
     void destroySwapchain(const CCVKGPUDevice *gpuDevice);
 
     CCVKGPUSwapchain *_gpuSwapchain = nullptr;

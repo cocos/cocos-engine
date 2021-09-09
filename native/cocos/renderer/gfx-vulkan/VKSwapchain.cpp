@@ -46,7 +46,7 @@ CCVKSwapchain::~CCVKSwapchain() {
     destroy();
 }
 
-void CCVKSwapchain::doInit(const SwapchainInfo & /*info*/) {
+void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
     _gpuSwapchain          = CC_NEW(CCVKGPUSwapchain);
@@ -205,8 +205,8 @@ void CCVKSwapchain::doInit(const SwapchainInfo & /*info*/) {
     SwapchainTextureInfo textureInfo;
     textureInfo.swapchain = this;
     textureInfo.format    = colorFmt;
-    textureInfo.width     = 1;
-    textureInfo.height    = 1;
+    textureInfo.width     = info.width;
+    textureInfo.height    = info.height;
     initTexture(textureInfo, _colorTexture);
 
     textureInfo.format = depthStencilFmt;
@@ -237,28 +237,36 @@ void CCVKSwapchain::doDestroy() {
     CC_SAFE_DELETE(_gpuSwapchain)
 }
 
-void CCVKSwapchain::doResize(uint32_t /*width*/, uint32_t /*height*/, SurfaceTransform /*transform*/) {
-    checkSwapchainStatus();
+void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
+    checkSwapchainStatus(width, height);
+
+    // If these assertions are hit that almost always means something is wrong with the
+    // resize event dispatch logic instead of the resize implementation executed above.
+    if (ENABLE_PRE_ROTATION && toNumber(transform) & 1) std::swap(width, height);
+    CCASSERT(getWidth() == width && getHeight() == height, "Wrong input size");
+    CCASSERT(_transform == transform, "Wrong surface transformation");
 }
 
-bool CCVKSwapchain::checkSwapchainStatus() {
+bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     auto *      gpuDevice  = CCVKDevice::getInstance()->gpuDevice();
     const auto *gpuContext = CCVKDevice::getInstance()->gpuContext();
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
     VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceCapabilities));
 
-    uint newWidth  = surfaceCapabilities.currentExtent.width;
-    uint newHeight = surfaceCapabilities.currentExtent.height;
+    // surfaceCapabilities.currentExtent seems to remain the same
+    // during any size/orientation change events on android devices
+    // so we prefer the system input (oriented size) here
+    uint newWidth  = width ? width : surfaceCapabilities.currentExtent.width;
+    uint newHeight = height ? height : surfaceCapabilities.currentExtent.height;
 
     VkSurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
-    if (!ENABLE_PRE_ROTATION) {
+    if (ENABLE_PRE_ROTATION) {
+        if (preTransform & TRANSFORMS_THAT_REQUIRE_FLIPPING) {
+            std::swap(newWidth, newHeight);
+        }
+    } else {
         preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-    }
-
-    if (preTransform & TRANSFORMS_THAT_REQUIRE_FLIPPING) {
-        newHeight = surfaceCapabilities.currentExtent.width;
-        newWidth  = surfaceCapabilities.currentExtent.height;
     }
 
     if (_gpuSwapchain->createInfo.preTransform == preTransform &&
@@ -306,8 +314,8 @@ bool CCVKSwapchain::checkSwapchainStatus() {
     CCASSERT(imageCount == _gpuSwapchain->createInfo.minImageCount, "swapchain image count assumption is broken");
 
     // should skip size check, since the old swapchain has already been destroyed
-    static_cast<CCVKTexture *>(_colorTexture)->_info.width        = 0;
-    static_cast<CCVKTexture *>(_depthStencilTexture)->_info.width = 0;
+    static_cast<CCVKTexture *>(_colorTexture)->_info.width        = 1;
+    static_cast<CCVKTexture *>(_depthStencilTexture)->_info.width = 1;
     _colorTexture->resize(newWidth, newHeight);
     _depthStencilTexture->resize(newWidth, newHeight);
 

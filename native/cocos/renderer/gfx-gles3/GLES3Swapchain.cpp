@@ -111,16 +111,20 @@ void GLES3Swapchain::doDestroy() {
 }
 
 void GLES3Swapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
+    doDestroySurface();
+
     _colorTexture->resize(width, height);
     _depthStencilTexture->resize(width, height);
+
+    doCreateSurface(_windowHandle);
 }
 
 void GLES3Swapchain::doDestroySurface() {
     if (_gpuSwapchain->eglSurface != EGL_NO_SURFACE) {
-        const auto* context = GLES3Device::getInstance()->context();
+        auto* context = GLES3Device::getInstance()->context();
         eglDestroySurface(context->eglDisplay, _gpuSwapchain->eglSurface);
-        EGL_CHECK(eglMakeCurrent(context->eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
         _gpuSwapchain->eglSurface = EGL_NO_SURFACE;
+        context->bindContext(false);
     }
 }
 
@@ -134,14 +138,13 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
         return;
     }
 
-// Device's size will be updated after recreate window (in resize event) and is incorrect for now.
+    auto width = static_cast<int>(_colorTexture->getWidth());
+    auto height = static_cast<int>(_colorTexture->getHeight());
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    int32_t width  = ANativeWindow_getWidth(window);
-    int32_t height = ANativeWindow_getHeight(window);
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
-    int32_t width  = NativeLayerHandle(window, NativeLayerOps::GET_WIDTH);
-    int32_t height = NativeLayerHandle(window, NativeLayerOps::GET_HEIGHT);
+    NativeLayerHandle(window, NativeLayerOps::SET_WIDTH_AND_HEIGHT, width, height);
+    NativeLayerHandle(window, SET_FORMAT, nFmt);
 #endif
 
     EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
@@ -149,6 +152,8 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
         CC_LOG_ERROR("Recreate window surface failed.");
         return;
     }
+
+    context->makeCurrent(_gpuSwapchain, _gpuSwapchain);
 }
 
 } // namespace gfx

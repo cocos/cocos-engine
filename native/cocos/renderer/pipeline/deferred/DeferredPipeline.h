@@ -33,6 +33,7 @@
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXInputAssembler.h"
 #include "pipeline/RenderPipeline.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
@@ -66,7 +67,6 @@ public:
     void destroy() override;
     bool activate(gfx::Swapchain *swapchain) override;
     void render(const vector<scene::Camera *> &cameras) override;
-    void resize(uint width, uint height) override;
 
     inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
     inline const LightList &      getValidLights() const { return _validLights; }
@@ -76,12 +76,12 @@ public:
     gfx::Rect                     getRenderArea(scene::Camera *camera, bool onScreen);
     void                          updateQuadVertexData(const gfx::Rect &renderArea, gfx::Buffer *buffer);
     void                          genQuadVertexData(const gfx::Rect &renderArea, float *data);
+    void                          ensureEnoughSize(const vector<scene::Camera *> &cameras);
 
     framegraph::FrameGraph &getFrameGraph() { return _fg; }
     gfx::Color              getClearcolor(scene::Camera *camera);
     uint                    getWidth() const { return _width; }
     uint                    getHeight() const { return _height; }
-    scene::Camera *         getFrameGraphCamera() const { return _frameGraphCamera; }
     gfx::InputAssembler *   getIAByRenderArea(const gfx::Rect &rect);
 
 private:
@@ -105,7 +105,6 @@ private:
     uint _height = 0;
 
     framegraph::FrameGraph _fg;
-    scene::Camera *        _frameGraphCamera = nullptr;
 
 public:
     static constexpr uint GBUFFER_COUNT = 4;

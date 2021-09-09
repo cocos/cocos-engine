@@ -35,7 +35,8 @@ namespace gfx {
 
 SwapchainAgent::SwapchainAgent(Swapchain *actor)
 : Agent<Swapchain>(actor) {
-    _typedID = actor->getTypedID();
+    _typedID            = actor->getTypedID();
+    _preRotationEnabled = static_cast<SwapchainAgent *>(actor)->_preRotationEnabled;
 }
 
 SwapchainAgent::~SwapchainAgent() {

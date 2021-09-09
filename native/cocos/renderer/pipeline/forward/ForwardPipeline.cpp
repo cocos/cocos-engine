@@ -118,6 +118,7 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO(cameras[0]);
     _pipelineUBO->updateMultiCameraUBO(cameras);
+
     for (auto *camera : cameras) {
         sceneCulling(this, camera);
         for (auto *const flow : _flows) {
@@ -125,6 +126,7 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
         }
         _pipelineUBO->incCameraUBOOffset();
     }
+
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);

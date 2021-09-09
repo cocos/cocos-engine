@@ -172,7 +172,7 @@ void PostprocessStage::render(scene::Camera *camera) {
         builder.setViewport(viewport, renderArea);
     };
 
-    auto postExec = [this](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
+    auto postExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
         auto *           pipeline   = static_cast<DeferredPipeline *>(_pipeline);
         gfx::RenderPass *renderPass = table.getRenderPass();
 
@@ -190,7 +190,6 @@ void PostprocessStage::render(scene::Camera *camera) {
             gfx::Shader *sd        = sceneData->getSharedData()->deferredPostPassShader;
 
             // get pso and draw quad
-            auto *               camera    = pipeline->getFrameGraphCamera();
             auto                 rendeArea = pipeline->getRenderArea(camera, camera->window->swapchain);
             gfx::InputAssembler *ia        = pipeline->getIAByRenderArea(rendeArea);
             gfx::PipelineState * pso       = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
@@ -212,7 +211,7 @@ void PostprocessStage::render(scene::Camera *camera) {
             cmdBuff->draw(ia);
         }
 
-        _uiPhase->render(pipeline->getFrameGraphCamera(), renderPass);
+        _uiPhase->render(camera, renderPass);
     };
 
     // add pass

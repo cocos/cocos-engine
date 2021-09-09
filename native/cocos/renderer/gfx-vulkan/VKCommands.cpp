@@ -25,10 +25,10 @@
 
 #include "VKStd.h"
 
-#include "gfx-base/SPIRVUtils.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKGPUObjects.h"
+#include "gfx-base/SPIRVUtils.h"
 
 namespace cc {
 namespace gfx {
@@ -1225,7 +1225,10 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     device->gpuBarrierManager()->checkIn(gpuTexture);
 }
 
-CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice * /*device*/, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer, const BufferTextureCopy *regions, uint count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice * device, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer,
+                                                   const BufferTextureCopy *regions, uint count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+    vector<ThsvsAccessType> &curTypes = srcTexture->currentAccessTypes;
+
     ThsvsImageBarrier barrier{};
     barrier.image                       = srcTexture->vkImage;
     barrier.discardContents             = false;
@@ -1234,8 +1237,8 @@ CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice * /*device*/, CCVK
     barrier.subresourceRange.levelCount = VK_REMAINING_MIP_LEVELS;
     barrier.subresourceRange.layerCount = VK_REMAINING_ARRAY_LAYERS;
     barrier.subresourceRange.aspectMask = srcTexture->aspectMask;
-    barrier.prevAccessCount             = utils::toUint(srcTexture->currentAccessTypes.size());
-    barrier.pPrevAccesses               = srcTexture->currentAccessTypes.data();
+    barrier.prevAccessCount             = utils::toUint(curTypes.size());
+    barrier.pPrevAccesses               = curTypes.data();
     barrier.nextAccessCount             = 1;
     barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::TRANSFER_READ)];
 
@@ -1264,11 +1267,9 @@ CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice * /*device*/, CCVK
     vkCmdCopyImageToBuffer(gpuCommandBuffer->vkCommandBuffer, srcTexture->vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                            destBuffer->vkBuffer, utils::toUint(stagingRegions.size()), stagingRegions.data());
 
-    if (srcTexture->transferAccess != THSVS_ACCESS_TRANSFER_READ) {
-        std::swap(barrier.prevAccessCount, barrier.nextAccessCount);
-        std::swap(barrier.pPrevAccesses, barrier.pNextAccesses);
-        cmdFuncCCVKImageMemoryBarrier(gpuCommandBuffer, barrier);
-    }
+    curTypes.assign({THSVS_ACCESS_TRANSFER_READ});
+    srcTexture->transferAccess = THSVS_ACCESS_TRANSFER_READ;
+    device->gpuBarrierManager()->checkIn(srcTexture);
 }
 
 void cmdFuncCCVKDestroyRenderPass(CCVKGPUDevice *gpuDevice, CCVKGPURenderPass *gpuRenderPass) {

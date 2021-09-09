@@ -36,13 +36,6 @@ public:
     explicit SwapchainAgent(Swapchain *actor);
     ~SwapchainAgent() override;
 
-    bool isPreRotationEnabled() override { return _actor->isPreRotationEnabled(); }
-
-    // TO BE REMOVED
-    SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
-    uint32_t getWidth() const override { return _actor->getWidth(); }
-    uint32_t getHeight() const override { return _actor->getHeight(); }
-
 protected:
     void doInit(const SwapchainInfo &info) override;
     void doDestroy() override;

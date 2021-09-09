@@ -378,7 +378,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         builder.setViewport(viewport, renderArea);
     };
 
-    auto lightingExec = [this](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
+    auto lightingExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
         auto *      pipeline  = static_cast<DeferredPipeline *>(_pipeline);
         auto *const sceneData = pipeline->getPipelineSceneData();
 
@@ -389,7 +389,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         uint const globalOffsets[] = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
         // get PSO and draw quad
-        auto rendeArea = pipeline->getRenderArea(pipeline->getFrameGraphCamera(), false);
+        auto rendeArea = pipeline->getRenderArea(camera, false);
 
         scene::Pass *        pass           = sceneData->getSharedData()->deferredLightPass;
         gfx::Shader *        shader         = sceneData->getSharedData()->deferredLightPassShader;

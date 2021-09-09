@@ -37,6 +37,7 @@ namespace gfx {
 SwapchainValidator::SwapchainValidator(Swapchain *actor)
 : Agent<Swapchain>(actor) {
     _typedID = actor->getTypedID();
+    _preRotationEnabled = static_cast<SwapchainValidator *>(actor)->_preRotationEnabled;
 }
 
 SwapchainValidator::~SwapchainValidator() {

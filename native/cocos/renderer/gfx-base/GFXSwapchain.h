@@ -37,8 +37,19 @@ public:
     ~Swapchain() override;
 
     void initialize(const SwapchainInfo &info);
-    void resize(uint32_t width, uint32_t height, SurfaceTransform transform);
     void destroy();
+
+    /**
+     * Resize the swapchain with the given metric.
+     * Note that you should invoke this function iff when there is actual
+     * size or orientation changes, with the up-to-date information about
+     * the underlying surface.
+     *
+     * @param width The width of the surface in oriented screen space
+     * @param height The height of the surface in oriented screen space
+     * @param transform The orientation of the surface
+     */
+    void resize(uint32_t width, uint32_t height, SurfaceTransform transform);
 
     inline void destroySurface();
     inline void createSurface(void *windowHandle);
@@ -49,14 +60,9 @@ public:
     inline Texture *getColorTexture() const { return _colorTexture; }
     inline Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
 
-    virtual bool isPreRotationEnabled() { return _preRotationEnabled; }
-
-    // TO BE REMOVED
-    inline void resize(uint32_t width, uint32_t height) { resize(width, height, SurfaceTransform::IDENTITY); }
-    // TO BE INLINED
-    virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
-    virtual uint32_t getWidth() const { return _colorTexture->getWidth(); }
-    virtual uint32_t getHeight() const { return _colorTexture->getHeight(); }
+    inline SurfaceTransform getSurfaceTransform() const { return _transform; }
+    inline uint32_t         getWidth() const { return _colorTexture->getWidth(); }
+    inline uint32_t         getHeight() const { return _colorTexture->getHeight(); }
 
 protected:
     virtual void doInit(const SwapchainInfo &info)         = 0;

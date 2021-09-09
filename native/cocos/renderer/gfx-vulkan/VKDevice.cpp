@@ -755,17 +755,21 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
         regionOffsetSizes[i]                = {totalSize, regionSize};
         totalSize += regionSize;
     }
+
     CCVKGPUBuffer stagingBuffer;
     stagingBuffer.size = totalSize;
     uint texelSize     = GFX_FORMAT_INFOS[toNumber(format)].size;
     gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
 
+    // make sure the src texture is up-to-date
     waitAllFences();
+
     _gpuTransportHub->checkIn(
         [&](CCVKGPUCommandBuffer *cmdBuffer) {
             cmdFuncCCVKCopyTextureToBuffers(this, static_cast<CCVKTexture *>(srcTexture)->gpuTexture(), &stagingBuffer, regions, count, cmdBuffer);
         },
         true);
+
     for (uint i = 0; i < count; ++i) {
         uint regionOffset                  = 0;
         uint regionSize                    = 0;

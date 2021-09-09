@@ -2951,8 +2951,9 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
 }
 
 CC_GLES3_API void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *device, GLES3GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
-    auto glFormat = mapGLFormat(gpuTexture->format);
-    auto glType   = formatToGLType(gpuTexture->format);
+    auto glFormat = gpuTexture->glFormat;
+    auto glType   = gpuTexture->glType;
+
     for (uint32_t i = 0; i < count; ++i) {
         auto     region      = regions[i];
         uint8_t *copyDst     = buffers[i];

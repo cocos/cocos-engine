@@ -52,18 +52,18 @@ void Swapchain::destroy() {
 }
 
 void Swapchain::resize(uint32_t width, uint32_t height, SurfaceTransform transform) {
-    if (width != _colorTexture->getWidth() || height != _colorTexture->getHeight() || transform != _transform) {
-        doResize(width, height, transform);
+    // if pre-rotation is enabled, width & height should always be measured in un-oriented space
+    uint32_t newWidth  = width;
+    uint32_t newHeight = height;
+    if (_preRotationEnabled && toNumber(transform) & 1) std::swap(newWidth, newHeight);
 
-        // if (isPreRotationEnabled()) {
-        //     if (toNumber(transform) % 2) {
-        //         std::swap(width, height);
-        //     }
-        //     _transform = transform;
-        // }
+    if (newWidth != _colorTexture->getWidth() || newHeight != _colorTexture->getHeight() ||
+        (_preRotationEnabled && transform != _transform)) {
+        doResize(width, height, transform); // pass oriented size
 
-        // _colorTexture->_info.width = _depthStencilTexture->_info.width = width;
-        // _colorTexture->_info.height = _depthStencilTexture->_info.height = height;
+        _colorTexture->_info.width = _depthStencilTexture->_info.width = newWidth;
+        _colorTexture->_info.height = _depthStencilTexture->_info.height = newHeight;
+        if (_preRotationEnabled) _transform = transform; // only update transform when using pre-rotation
     }
 }
 

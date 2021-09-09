@@ -39,7 +39,7 @@ public:
     Executable &operator=(const Executable &) = delete;
     Executable &operator=(Executable &&) noexcept = delete;
 
-    virtual void execute(const DevicePassResourceTable &resourceTable) const noexcept = 0;
+    virtual void execute(const DevicePassResourceTable &resourceTable) noexcept = 0;
 };
 
 template <typename Data, typename ExecuteMethodType>
@@ -50,7 +50,7 @@ public:
     explicit CallbackPass(ExecuteMethod &execute) noexcept;
     explicit CallbackPass(ExecuteMethod &&execute) noexcept;
 
-    void               execute(const DevicePassResourceTable &resourceTable) const noexcept override;
+    void               execute(const DevicePassResourceTable &resourceTable) noexcept override;
     inline const Data &getData() const noexcept { return _data; }
     inline Data &      getData() noexcept { return _data; }
 
@@ -74,7 +74,7 @@ CallbackPass<Data, ExecuteMethod>::CallbackPass(ExecuteMethod &&execute) noexcep
 }
 
 template <typename Data, typename ExecuteMethod>
-void CallbackPass<Data, ExecuteMethod>::execute(const DevicePassResourceTable &resourceTable) const noexcept {
+void CallbackPass<Data, ExecuteMethod>::execute(const DevicePassResourceTable &resourceTable) noexcept {
     _execute(_data, resourceTable);
 }
 

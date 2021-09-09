@@ -106,26 +106,19 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO(cameras[0]);
     _pipelineUBO->updateMultiCameraUBO(cameras);
+    ensureEnoughSize(cameras);
 
     for (auto *camera : cameras) {
-        _fg.reset();
         sceneCulling(this, camera);
-        _frameGraphCamera = camera;
+
+        _fg.reset();
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
-
         _fg.compile();
-
-        /* *
-        static bool exported = false;
-        if (!exported) {
-            _fg.exportGraphViz("fg_vis.dot");
-            exported = true;
-        }
-        // */
-
+        // _fg.exportGraphViz("fg_vis.dot");
         _fg.execute();
+
         _pipelineUBO->incCameraUBOOffset();
     }
 
@@ -293,12 +286,11 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     return true;
 }
 
-void DeferredPipeline::resize(uint width, uint height) {
-    if (_width == width && _height == height) {
-        return;
+void DeferredPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
+    for (auto *camera : cameras) {
+        _width  = std::max(camera->window->getWidth(), _width);
+        _height = std::max(camera->window->getHeight(), _height);
     }
-    _width  = width;
-    _height = height;
 }
 
 void DeferredPipeline::destroy() {

@@ -1415,7 +1415,7 @@ void GLES2GPUFramebuffer::GLFramebuffer::destroy(GLES2GPUStateCache *cache, GLES
 }
 
 void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO) {
-    auto *cache = device->stateCache();
+    auto *cache               = device->stateCache();
     auto *framebufferCacheMap = device->framebufferCacheMap();
 
     for (auto &instance : gpuFBO->instances) {
@@ -2630,13 +2630,14 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
 
 CC_GLES2_API void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *device, GLES2GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
     GLuint framebuffer = device->framebufferCacheMap()->getFramebufferFromTexture(gpuTexture);
-    auto   glFormat    = mapGLFormat(gpuTexture->format);
-    auto   glType      = formatToGLType(gpuTexture->format);
+    auto   glFormat    = gpuTexture->glFormat;
+    auto   glType      = gpuTexture->glType;
 
     if (device->stateCache()->glFramebuffer != framebuffer) {
         GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
         device->stateCache()->glFramebuffer = framebuffer;
     }
+
     for (uint32_t i = 0; i < count; ++i) {
         auto     region  = regions[i];
         uint8_t *copyDst = buffers[i];
