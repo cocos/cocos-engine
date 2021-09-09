@@ -55,16 +55,26 @@ public:
     inline const RenderObjectList &                                            getShadowObjects() const { return _shadowObjects; }
     inline void                                                                setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
     inline void                                                                setShadowObjects(RenderObjectList &&ro) { _shadowObjects = std::forward<RenderObjectList>(ro); }
-    inline scene::Sphere *                                                     getSphere() const { return _sphere; }
+    inline float                                                               getShadowCameraFar() const { return _shadowCameraFar; }
+    inline void                                                                setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
+    inline Mat4                                                                getMatShadowView() const { return _matShadowView; }
+    inline void                                                                setMatShadowView(const Mat4 &matShadowView) { _matShadowView = matShadowView; }
+    inline Mat4                                                                getMatShadowProj() const { return _matShadowProj; }
+    inline void                                                                setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
+    inline Mat4                                                                getMatShadowViewProj() const { return _matShadowViewProj; }
+    inline void                                                                setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
 
 private:
     RenderObjectList _renderObjects;
     RenderObjectList _shadowObjects;
 
-    scene::PipelineSharedSceneData *_sharedSceneData = nullptr;
-    RenderPipeline *                _pipeline        = nullptr;
-    gfx::Device *                   _device          = nullptr;
-    scene::Sphere *                 _sphere          = nullptr;
+    scene::PipelineSharedSceneData *_sharedSceneData      = nullptr;
+    RenderPipeline *                _pipeline             = nullptr;
+    gfx::Device *                   _device               = nullptr;
+    float                           _shadowCameraFar       = 0.0F;
+    Mat4                            _matShadowView;
+    Mat4                            _matShadowProj;
+    Mat4                            _matShadowViewProj;
 
     std::unordered_map<const scene::Light *, gfx::Framebuffer *> _shadowFrameBufferMap;
 };

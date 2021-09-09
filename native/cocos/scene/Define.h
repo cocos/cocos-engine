@@ -69,8 +69,10 @@ struct Shadow {
     bool       enabled{false};
     bool       dirty{false};
     bool       shadowMapDirty{false};
-    bool       autoAdapt{false};
+    bool       fixedArea{false};
     ShadowType shadowType{ShadowType::PLANAR};
+    float      invisibleOcclusionRange{0.0F};
+    float      shadowDistance{0.0F};
     float      distance{0.0F};
     Pass *     instancePass{nullptr};
     Pass *     planarPass{nullptr};

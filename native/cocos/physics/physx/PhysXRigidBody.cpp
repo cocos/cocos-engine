@@ -63,7 +63,7 @@ void PhysXRigidBody::onDestroy() {
 }
 
 bool PhysXRigidBody::isAwake() {
-    if (getSharedBody().isStatic()) return false;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStatic()) return false;
     return !getSharedBody().getImpl().rigidDynamic->isSleeping();
 }
 
@@ -72,7 +72,7 @@ bool PhysXRigidBody::isSleepy() {
 }
 
 bool PhysXRigidBody::isSleeping() {
-    if (getSharedBody().isStatic()) return true;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStatic()) return true;
     return getSharedBody().getImpl().rigidDynamic->isSleeping();
 }
 
@@ -126,21 +126,23 @@ void PhysXRigidBody::setAllowSleep(bool v) {
 }
 
 void PhysXRigidBody::wakeUp() {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStatic()) return;
     getSharedBody().getImpl().rigidDynamic->wakeUp();
 }
 
 void PhysXRigidBody::sleep() {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStatic()) return;
     getSharedBody().getImpl().rigidDynamic->putToSleep();
 }
 
 void PhysXRigidBody::clearState() {
+    if (!getSharedBody().isInWorld()) return;
     clearForces();
     clearVelocity();
 }
 
 void PhysXRigidBody::clearForces() {
+    if (!getSharedBody().isInWorld()) return;
     getSharedBody().clearForces();
 }
 
@@ -182,7 +184,7 @@ void PhysXRigidBody::setAngularVelocity(float x, float y, float z) {
 }
 
 void PhysXRigidBody::applyForce(float x, float y, float z, float rx, float ry, float rz) {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     const PxVec3 force{x, y, z};
     if (force.isZero()) return;
     auto *body = getSharedBody().getImpl().rigidDynamic;
@@ -192,7 +194,7 @@ void PhysXRigidBody::applyForce(float x, float y, float z, float rx, float ry, f
 }
 
 void PhysXRigidBody::applyLocalForce(float x, float y, float z, float rx, float ry, float rz) {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     const PxVec3 force{x, y, z};
     if (force.isZero()) return;
     auto *            body       = getSharedBody().getImpl().rigidDynamic;
@@ -205,7 +207,7 @@ void PhysXRigidBody::applyLocalForce(float x, float y, float z, float rx, float 
 }
 
 void PhysXRigidBody::applyImpulse(float x, float y, float z, float rx, float ry, float rz) {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
     auto *       body   = getSharedBody().getImpl().rigidDynamic;
@@ -215,7 +217,7 @@ void PhysXRigidBody::applyImpulse(float x, float y, float z, float rx, float ry,
 }
 
 void PhysXRigidBody::applyLocalImpulse(float x, float y, float z, float rx, float ry, float rz) {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     const PxVec3 impulse{x, y, z};
     if (impulse.isZero()) return;
     auto *            body         = getSharedBody().getImpl().rigidDynamic;
@@ -228,14 +230,14 @@ void PhysXRigidBody::applyLocalImpulse(float x, float y, float z, float rx, floa
 }
 
 void PhysXRigidBody::applyTorque(float x, float y, float z) {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     PxVec3 torque{x, y, z};
     if (torque.isZero()) return;
     getSharedBody().getImpl().rigidDynamic->addTorque(torque, PxForceMode::eFORCE, true);
 }
 
 void PhysXRigidBody::applyLocalTorque(float x, float y, float z) {
-    if (getSharedBody().isStatic()) return;
+    if (!getSharedBody().isInWorld() || getSharedBody().isStaticOrKinematic()) return;
     PxVec3 torque{x, y, z};
     if (torque.isZero()) return;
     auto *            body     = getSharedBody().getImpl().rigidDynamic;

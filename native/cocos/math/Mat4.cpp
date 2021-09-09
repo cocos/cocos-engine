@@ -99,7 +99,7 @@ void Mat4::createPerspective(float fieldOfView, float aspectRatio,
                              float zNearPlane, float zFarPlane, Mat4 *dst) {
     GP_ASSERT(dst);
     GP_ASSERT(zFarPlane != zNearPlane);
-    GP_ASSERT(fieldOfView != 0.0f);
+    GP_ASSERT(fieldOfView != 0.0F);
 
     const float minClipZ        = -1.0F;
     const float projectionSignY = 1.0F;
@@ -720,6 +720,11 @@ void Mat4::getBackVector(Vec3 *dst) const {
     dst->x = m[8];
     dst->y = m[9];
     dst->z = m[10];
+}
+
+Mat4 Mat4::clone() const {
+    Mat4 mat(*this);
+    return mat;
 }
 
 Mat4 Mat4::getInversed() const {
