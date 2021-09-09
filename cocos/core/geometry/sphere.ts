@@ -128,48 +128,6 @@ export class Sphere {
     }
 
     /**
-     * @zh
-     * 球跟点合并
-     */
-    public static mergePoint (out: Sphere, s: Sphere, point: Vec3) {
-        // if sphere.radius Less than 0,
-        // Set this point as anchor,
-        // And set radius to 0.
-        if (s.radius < 0.0) {
-            out.center.set(point);
-            out.radius = 0.0;
-            return out;
-        }
-
-        out.copy(s);
-
-        Vec3.subtract(_offset, point, s.center);
-        const dist = _offset.length();
-
-        if (dist > s.radius) {
-            const half = (dist - s.radius) * 0.5;
-            out.radius += half;
-            Vec3.multiplyScalar(_offset, _offset, half / dist);
-            Vec3.add(out.center, out.center, _offset);
-        }
-
-        return out;
-    }
-
-    /**
-     * @zh
-     * 球跟立方体合并
-     */
-    public static mergeAABB (out: Sphere, s:Sphere, a: AABB) {
-        a.getBoundary(_min, _max);
-
-        Sphere.mergePoint(out, s, _min);
-        Sphere.mergePoint(out, s, _max);
-
-        return out;
-    }
-
-    /**
      * @en
      * The center of this sphere.
      * @zh
@@ -304,5 +262,59 @@ export class Sphere {
      */
     public setScale (scale: Vec3, out: Sphere) {
         out.radius = this.radius * maxComponent(scale);
+    }
+
+    /**
+     * @en Sphere and point merge.
+     * @zh 球跟点合并
+     * @param point 点
+     */
+    public mergePoint (point: Vec3) {
+        // if sphere.radius Less than 0,
+        // Set this point as anchor,
+        // And set radius to 0.
+        if (this.radius < 0.0) {
+            this.center.set(point);
+            this.radius = 0.0;
+        }
+
+        Vec3.subtract(_offset, point, this.center);
+        const dist = _offset.length();
+
+        if (dist > this.radius) {
+            const half = (dist - this.radius) * 0.5;
+            this.radius += half;
+            Vec3.multiplyScalar(_offset, _offset, half / dist);
+            Vec3.add(this.center, this.center, _offset);
+        }
+    }
+
+    /**
+     * @en Sphere and points merge.
+     * @zh 球跟一系列点合并
+     * @param points 一系列点
+     */
+    public mergePoints (points: Vec3[]) {
+        const length = points.length;
+        if (length < 1) return;
+
+        // Init Invalid Sphere
+        this.radius = -1.0;
+
+        for (let i = 0; i < length; i++) {
+            this.mergePoint(points[i]);
+        }
+    }
+
+    /**
+     * @en Sphere and AABB merge.
+     * @zh 球跟立方体合并
+     * @param a 立方体
+     */
+    public mergeAABB (a: AABB) {
+        a.getBoundary(_min, _max);
+
+        this.mergePoint(_min);
+        this.mergePoint(_max);
     }
 }

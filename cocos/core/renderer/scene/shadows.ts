@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { Material } from '../../assets/material';
-import { Sphere } from '../../geometry';
+import { Frustum, Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
@@ -196,6 +196,34 @@ export class Shadows {
     }
 
     /**
+     * @en get or set shadow invisible Occlusion Range.
+     * @zh 控制潜在遮挡体产生的范围。
+     */
+    public get invisibleOcclusionRange (): number {
+        return this._invisibleOcclusionRange;
+    }
+    public set invisibleOcclusionRange (val: number) {
+        this._invisibleOcclusionRange = val;
+        if (JSB) {
+            this._nativeObj!.invisibleOcclusionRange = val;
+        }
+    }
+
+    /**
+     * @en get or set shadow distance.
+     * @zh 控制阴影的可视范围。
+     */
+    public get shadowDistance (): number {
+        return this._shadowDistance;
+    }
+    public set shadowDistance (val: number) {
+        this._shadowDistance = val;
+        if (JSB) {
+            this._nativeObj!.shadowDistance = val;
+        }
+    }
+
+    /**
      * @en Shadow type.
      * @zh 阴影类型。
      */
@@ -334,16 +362,16 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow auto control.
-     * @zh 获取或者设置阴影是否自动控制。
+     * @en get or set fixed area shadow
+     * @zh 是否是固定区域阴影
      */
-    public get autoAdapt (): boolean {
-        return this._autoAdapt;
+    public get fixedArea (): boolean {
+        return this._fixedArea;
     }
-    public set autoAdapt (val: boolean) {
-        this._autoAdapt = val;
+    public set fixedArea (val: boolean) {
+        this._fixedArea = val;
         if (JSB) {
-            this._nativeObj!.autoAdapt = val;
+            this._nativeObj!.fixedArea = val;
         }
     }
 
@@ -361,15 +389,21 @@ export class Shadows {
 
     /**
      * @en The bounding sphere of the shadow map.
-     * @zh 用于计算阴影 Shadow map 的场景包围球.
+     * @zh 用于计算固定区域阴影 Shadow map 的场景包围球.
      */
-    public sphere: Sphere = new Sphere(0.0, 0.0, 0.0, 0.01);
+    public fixedSphere: Sphere = new Sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
      * @en get or set shadow max received.
      * @zh 阴影接收的最大灯光数量。
      */
     public maxReceived = 4;
+
+    // local
+    public shadowCameraFar = 0;
+    public matShadowView = new Mat4();
+    public matShadowProj = new Mat4();
+    public matShadowViewProj = new Mat4();
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -380,14 +414,16 @@ export class Shadows {
     protected _enabled = false;
     protected _distance = 0;
     protected _type = SHADOW_TYPE_NONE;
-    protected _near = 0;
-    protected _far = 0;
+    protected _near = 0.1;
+    protected _far = 10;
+    protected _invisibleOcclusionRange = 200;
+    protected _shadowDistance = 100;
     protected _orthoSize = 1;
     protected _pcf = 0;
     protected _shadowMapDirty = false;
     protected _bias = 0;
     protected _normalBias = 0;
-    protected _autoAdapt = true;
+    protected _fixedArea = false;
     protected _saturation = 0.75;
     protected declare _nativeObj: NativeShadow | null;
 
@@ -443,6 +479,8 @@ export class Shadows {
     public initialize (shadowsInfo: ShadowsInfo) {
         this.near = shadowsInfo.near;
         this.far = shadowsInfo.far;
+        this.invisibleOcclusionRange = shadowsInfo.invisibleOcclusionRange;
+        this.shadowDistance = shadowsInfo.shadowDistance;
         this.orthoSize = shadowsInfo.orthoSize;
         this.size = shadowsInfo.size;
         this.pcf = shadowsInfo.pcf;
@@ -452,7 +490,7 @@ export class Shadows {
         this.bias = shadowsInfo.bias;
         this.normalBias = shadowsInfo.normalBias;
         this.maxReceived = shadowsInfo.maxReceived;
-        this.autoAdapt = shadowsInfo.autoAdapt;
+        this.fixedArea = shadowsInfo.fixedArea;
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
         this.saturation = shadowsInfo.saturation;
@@ -517,8 +555,7 @@ export class Shadows {
         if (this._instancingMaterial) {
             this._instancingMaterial.destroy();
         }
-
-        this.sphere.destroy();
+        this.fixedSphere.destroy();
     }
 }
 

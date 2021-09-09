@@ -178,6 +178,8 @@ export const NativeCamera: Constructor<{
     clearDepth: number;
     clearStencil: number;
     exposure: number;
+    fov: number;
+    aspect: number;
 }> = null!;
 export type NativeCamera = InstanceType<typeof NativeCamera>;
 
@@ -261,13 +263,15 @@ export const NativeShadow: Constructor<{
     color: Color;
     nearValue: number;
     farValue: number;
+    invisibleOcclusionRange: number;
+    shadowDistance: number;
     orthoSize: number;
     size: Vec2;
     pcfType: number;
     shadowMapDirty: boolean;
     bias: number;
     normalBias: number;
-    autoAdapt: boolean;
+    fixedArea: boolean;
     planarPass: NativePass;
     instancePass: NativePass;
     enabled: boolean;
