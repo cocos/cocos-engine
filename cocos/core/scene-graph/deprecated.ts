@@ -275,21 +275,4 @@ if (EDITOR) {
     };
 }
 
-replaceProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
-    {
-        name: 'autoAdapt',
-        targetName: 'fixedArea',
-        customGetter () {
-            // @ts-expect-error deprecation method
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return !this.fixedArea;
-        },
-        customSetter (value: boolean) {
-            // @ts-expect-error deprecation method
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            this.fixedArea = !value;
-        },
-    },
-]);
-
 legacyCC.PrivateNode = PrivateNode;
