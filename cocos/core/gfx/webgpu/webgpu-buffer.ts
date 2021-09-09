@@ -1,146 +1,63 @@
 import { Buffer } from '../base/buffer';
-
 import {
     BufferFlagBit,
     BufferUsageBit,
     IndirectBuffer,
     BufferSource,
     BufferInfo,
-    BufferViewInfo
+    BufferViewInfo,
 } from '../base/define';
-import {
-    WebGPUCmdFuncCreateBuffer,
-    WebGPUCmdFuncDestroyBuffer,
-    WebGPUCmdFuncResizeBuffer,
-    WebGPUCmdFuncUpdateBuffer,
-} from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
-import { IWebGPUGPUBuffer } from './webgpu-gpu-objects';
+
+import { toWGPUNativeBufferFlag, toWGPUNativeBufferMemUsage, toWGPUNativeBufferUsage } from './webgpu-commands';
+
+import { wgpuWasmModule } from './webgpu-utils';
 
 export class WebGPUBuffer extends Buffer {
-    get gpuBuffer(): IWebGPUGPUBuffer {
-        return this._gpuBuffer!;
+    private _nativeBuffer;
+
+    get nativeBuffer () {
+        return this._nativeBuffer;
     }
 
-    private _gpuBuffer: IWebGPUGPUBuffer | null = null;
-
-    public initialize(info: BufferInfo | BufferViewInfo): boolean {
+    public initialize (info: BufferInfo | BufferViewInfo): boolean {
+        const nativeDevice = wgpuWasmModule.nativeDevice;
         if ('buffer' in info) { // buffer view
-            // validate: webGPU buffer offset must be 256 bytes aligned
-            // which can be guaranteed by WebGPUDevice::uboOffsetAligned
-
-            this._isBufferView = true;
-
-            const buffer = info.buffer as WebGPUBuffer;
-
-            this._usage = buffer.usage;
-            this._memUsage = buffer.memUsage;
-            this._size = this._stride = Math.ceil(info.range / 4) * 4;
-            this._count = 1;
-            this._flags = buffer.flags;
-
-            this._gpuBuffer = {
-                usage: this._usage,
-                memUsage: this._memUsage,
-                size: this._size,
-                stride: this._stride,
-                buffer: null,
-                indirects: buffer.gpuBuffer.indirects,
-                glTarget: buffer.gpuBuffer.glTarget,
-                glBuffer: buffer.gpuBuffer.glBuffer,
-                glOffset: info.offset,
-                drawIndirectByIndex: false,
-            };
-        } else { // native buffer
-            this._usage = info.usage;
-            this._memUsage = info.memUsage;
-            this._size = Math.ceil(info.size / 4) * 4;
-            this._stride = Math.max(info.stride || this._size, 1);
-            this._count = this._size / this._stride;
-            this._flags = info.flags;
-
-            if (this._usage & BufferUsageBit.INDIRECT) {
-                this._indirectBuffer = new IndirectBuffer();
-            }
-
-            this._gpuBuffer = {
-                usage: this._usage,
-                memUsage: this._memUsage,
-                size: this._size,
-                stride: this._stride,
-                buffer: null,
-                indirects: [],
-                glTarget: 0,
-                glBuffer: null,
-                glOffset: 0,
-                drawIndirectByIndex: false,
-            };
-
-            if (info.usage & BufferUsageBit.INDIRECT) {
-                this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
-            }
-
-            WebGPUCmdFuncCreateBuffer(this._device as WebGPUDevice, this._gpuBuffer);
-
-            this._device.memoryStatus.bufferSize += this._size;
+            const bufferViewInfo = new wgpuWasmModule.BufferViewInfoInstance();
+            bufferViewInfo.setBuffer((info.buffer as WebGPUBuffer).nativeBuffer);
+            bufferViewInfo.setOffset(info.offset);
+            bufferViewInfo.setRange(info.range);
+            this._nativeBuffer = nativeDevice.createBufferView(bufferViewInfo);
+        } else { // buffer
+            const bufferInfo = new wgpuWasmModule.BufferInfoInstance();
+            bufferInfo.usage = toWGPUNativeBufferUsage(info.usage);
+            bufferInfo.memUsage = toWGPUNativeBufferMemUsage(info.memUsage);
+            bufferInfo.size = info.size;
+            bufferInfo.stride = info.stride;
+            bufferInfo.flags = toWGPUNativeBufferFlag(info.flags);
+            this._nativeBuffer = nativeDevice.createBuffer(bufferInfo);
         }
 
         return true;
     }
 
-    public destroy() {
-        if (this._gpuBuffer) {
-            if (!this._isBufferView) {
-                WebGPUCmdFuncDestroyBuffer(this._device as WebGPUDevice, this._gpuBuffer);
-                this._device.memoryStatus.bufferSize -= this._size;
-            }
-            this._gpuBuffer = null;
-        }
+    public destroy () {
+        this._nativeBuffer.destroy();
+        this._nativeBuffer.delete();
     }
 
-    public resize(size: number) {
-        if (this._isBufferView) {
-            console.warn('cannot resize buffer views!');
-            return;
-        }
-
-        const oldSize = this._size;
-        if (oldSize === size) { return; }
-
-        this._size = Math.ceil(size / 4) * 4;
-        this._count = this._size / this._stride;
-
-        if (this._gpuBuffer) {
-            this._gpuBuffer.size = this._size;
-            if (this._size > 0) {
-                WebGPUCmdFuncResizeBuffer(this._device as WebGPUDevice, this._gpuBuffer);
-                this._device.memoryStatus.bufferSize -= oldSize;
-                this._device.memoryStatus.bufferSize += this._size;
-            }
-        }
+    public resize (size: number) {
+        this._nativeBuffer.resize(size);
     }
 
-    public update(buffer: BufferSource, offset?: number, size?: number) {
-        if (this._isBufferView) {
-            console.warn('cannot update through buffer views!');
-            return;
-        }
-
-        let buffSize: number;
-        if (size !== undefined) {
-            buffSize = size;
-        } else if (this._usage & BufferUsageBit.INDIRECT) {
-            buffSize = 0;
+    public update (buffer: BufferSource, size?: number) {
+        if (size === undefined) {
+            const buff = buffer as ArrayBuffer;
+            const data = new Uint8Array(buff);
+            this._nativeBuffer.update(data.buffer, data.length);
         } else {
-            buffSize = (buffer as ArrayBuffer).byteLength;
+            const buff = buffer as ArrayBuffer;
+            const data = new Uint8Array(buff);
+            this._nativeBuffer.update(data.buffer, size);
         }
-
-        WebGPUCmdFuncUpdateBuffer(
-            this._device as WebGPUDevice,
-            this._gpuBuffer!,
-            buffer,
-            offset || 0,
-            buffSize,
-        );
     }
 }
