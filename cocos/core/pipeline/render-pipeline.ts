@@ -264,12 +264,6 @@ export abstract class RenderPipeline extends Asset {
         return super.destroy();
     }
 
-    /**
-     * @en Device size change.
-     * @zh 设备尺寸重置。
-     */
-    public resize (width: number, height: number) {}
-
     protected _generateConstantMacros () {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;

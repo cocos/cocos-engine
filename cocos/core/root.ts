@@ -323,19 +323,10 @@ export class Root {
      * @param height 屏幕高度
      */
     public resize (width: number, height: number) {
-        // const w = width / cc.view._devicePixelRatio;
-        // const h = height / cc.view._devicePixelRatio;
-
-        this._mainWindow!.resize(width, height);
-
         for (const window of this._windows) {
             if (window.swapchain) {
                 window.resize(width, height);
             }
-        }
-
-        if (this._pipeline) {
-            this._pipeline.resize(width, height);
         }
     }
 

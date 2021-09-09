@@ -27,7 +27,8 @@ import { EDITOR } from 'internal:constants';
 import { macro, warnID, warn, debug } from '../../platform';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
-import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo } from '../base/define';
+import { Format, TextureInfo, TextureFlagBit, TextureType,
+    TextureUsageBit, BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 
@@ -247,7 +248,7 @@ export class WebGL2Swapchain extends Swapchain {
         this._canvas = null;
     }
 
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {
         if (this._canvas!.width !== width || this._canvas!.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
