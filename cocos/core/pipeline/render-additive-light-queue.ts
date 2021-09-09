@@ -91,7 +91,7 @@ function cullSpotLight (camera: Camera, light: SpotLight, model: Model, cullingM
     Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
     Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
     AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
-    return !intersect.aabbFrustum(_ab, frustum);
+    return true;// intersect.aabbFrustum(_ab, frustum) === 0;
 }
 
 const _phaseID = getPhaseID('forward-add');
@@ -226,16 +226,15 @@ export class RenderAdditiveLightQueue {
             }
         }
 
-        const culledObjects = sceneData.culledObjects;
-        for (let i = 0; i < culledObjects.length; i++) {
-            const co = culledObjects[i];
-            const { model } = co;
-            const { subModels } = model;
+        const culledShadowObjects = sceneData.culledShadowObjects;
+        for (let i = 0; i < culledShadowObjects.length; i++) {
+            const model  = culledShadowObjects[i].model;
+            const subModels = model.subModels;
             if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
 
             _lightIndices.length = 0;
 
-            this._lightCulling(camera, model, validLights, CullingMode.LightViewProj);
+            this._lightCulling(camera, model, validLights, CullingMode.Normal);
 
             if (!_lightIndices.length) { continue; }
 

@@ -93,7 +93,7 @@ export class PipelineSceneData {
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
      */
     public renderObjects: IRenderObject[] = [];
-    public culledObjects: IRenderObject[] = [];
+    public culledShadowObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;

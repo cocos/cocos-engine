@@ -69,6 +69,7 @@ const _focus = new Vec3(0, 0, 0);
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
+const culledShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 
 function getRenderObject (model: Model, camera: Camera) {
     let depth = 0;
@@ -89,6 +90,18 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
         depth = Vec3.dot(_tempVec3, camera.forward);
     }
     const ro = shadowPool.alloc();
+    ro.model = model;
+    ro.depth = depth;
+    return ro;
+}
+
+function getCulledShadowRenderObject (model: Model, camera: Camera) {
+    let depth = 0;
+    if (model.node) {
+        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
+        depth = Vec3.dot(_tempVec3, camera.forward);
+    }
+    const ro = culledShadowPool.alloc();
     ro.model = model;
     ro.depth = depth;
     return ro;
@@ -310,8 +323,8 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
-    const culledObjects = sceneData.culledObjects;
-    roPool.freeArray(culledObjects); culledObjects.length = 0;
+    const culledShadowObjects = sceneData.culledShadowObjects;
+    roPool.freeArray(culledShadowObjects); culledShadowObjects.length = 0;
 
     let shadowObjects: IRenderObject[] | null = null;
     if (shadows.enabled) {
@@ -361,7 +374,10 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 }
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
-                    culledObjects.push(getRenderObject(model, camera));
+                    if (model.castShadow) {
+                        culledShadowObjects.push(getCulledShadowRenderObject(model, camera));
+                    }
+                    continue;
                 }
 
                 renderObjects.push(getRenderObject(model, camera));
