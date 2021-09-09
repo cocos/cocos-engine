@@ -162,13 +162,16 @@ export class Renderable2D extends RenderableComponent {
     }
 
     // macro.UI_GPU_DRIVEN // 处理过了
-    protected updateMaterial (useGPU = false) {
+    protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
             this._blendHash = -1; // a flag to check merge
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
             return;
         }
-        const mat = this._updateBuiltinMaterial(useGPU);
+        const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
         this._updateBlendFunc();
     }
@@ -248,7 +251,7 @@ export class Renderable2D extends RenderableComponent {
         // macro.UI_GPU_DRIVEN
         if (UI_GPU_DRIVEN) {
             if (this._color.a === 0 || value.a === 0) {
-                director.root!.batcher2D.reloadBatchDirty = true;
+                director.root!.batcher2D._reloadBatch();
             }
         }
 
@@ -304,6 +307,7 @@ export class Renderable2D extends RenderableComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
+    // macro.UI_GPU_DRIVEN
     protected _renderFlagCache = true; // 用于记录是否发生了渲染条件的变化，做缓存用
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
@@ -314,8 +318,18 @@ export class Renderable2D extends RenderableComponent {
     protected _colorDirty = true;
     protected _cacheAlpha = 1;
 
+    // macro.UI_GPU_DRIVEN
+    protected declare _canDrawByFourVertex: boolean;
+
     // 代替 _renderDataFlag 使用
     public _renderDataDirty = true;
+
+    constructor () {
+        super();
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = false;
+        }
+    }
 
     get blendHash () {
         return this._blendHash;
@@ -343,7 +357,7 @@ export class Renderable2D extends RenderableComponent {
         // macro.UI_GPU_DRIVEN // 这里可能需要封装之后处理？会有值未能赋值的问题
         if (UI_GPU_DRIVEN) {
             this._renderFlagCache = this._renderFlag;
-            director.root!.batcher2D.reloadBatchDirty = true;
+            director.root!.batcher2D._reloadBatch();
         }
     }
 
@@ -355,7 +369,7 @@ export class Renderable2D extends RenderableComponent {
         if (UI_GPU_DRIVEN) {
             if (this._renderFlag !== this._renderFlagCache) {
                 this._renderFlagCache = this._renderFlag;
-                director.root!.batcher2D.reloadBatchDirty = true;
+                director.root!.batcher2D._reloadBatch();
             }
         }
     }
@@ -367,7 +381,7 @@ export class Renderable2D extends RenderableComponent {
         // macro.
         if (UI_GPU_DRIVEN) {
             this._renderFlagCache = this._renderFlag;
-            director.root!.batcher2D.reloadBatchDirty = true;
+            director.root!.batcher2D._reloadBatch();
         }
     }
 
@@ -397,7 +411,7 @@ export class Renderable2D extends RenderableComponent {
         // macro.UI_GPU_DRIVEN // 同上的操作
         if (UI_GPU_DRIVEN) {
             if (this._renderFlag !== this._renderFlagCache) {
-                director.root!.batcher2D.reloadBatchDirty = true;
+                director.root!.batcher2D._reloadBatch();
                 this._renderFlagCache = this._renderFlag;
             }
         }
@@ -551,10 +565,10 @@ export class Renderable2D extends RenderableComponent {
     }
 
     // macro.UI_GPU_DRIVEN // 这里可能需要考虑效率？
-    protected _updateBuiltinMaterial (useGPU = false) : Material {
+    protected _updateBuiltinMaterial () : Material {
         let gpuMat = '';
         if (UI_GPU_DRIVEN) {
-            if (useGPU) {
+            if (this._canDrawByFourVertex) {
                 gpuMat = '-gpu';
             }
         }

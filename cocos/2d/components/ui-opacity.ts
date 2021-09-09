@@ -70,7 +70,7 @@ export class UIOpacity extends Component {
         // 为了颜色能够更新
         if (UI_GPU_DRIVEN) {
             if (this._opacity === 0 || value === 0) {
-                director.root!.batcher2D.reloadBatchDirty = true;
+                director.root!.batcher2D._reloadBatch();
             }
         }
         this._opacity = value;

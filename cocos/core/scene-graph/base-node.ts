@@ -1229,7 +1229,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public _updateSiblingIndex () {
         if (UI_GPU_DRIVEN) {
-            legacyCC.director.root!.batcher2D.reloadBatchDirty = true;
+            legacyCC.director.root!.batcher2D._reloadBatch();
         }
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;

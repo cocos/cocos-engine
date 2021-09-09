@@ -680,9 +680,6 @@ export class Label extends Renderable2D {
     protected _fontAtlas: FontAtlas | null = null;
     protected _letterTexture: LetterRenderTexture | null = null;
 
-    // macro.UI_GPU_DRIVEN
-    private declare _canDrawByFourVertex: boolean;
-
     constructor () {
         super();
         if (UI_GPU_DRIVEN) {
@@ -754,16 +751,7 @@ export class Label extends Renderable2D {
     }
 
     protected _render (render: Batcher2D) {
-        // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            if (this._canDrawByFourVertex) {
-                render.commitCompByGPU(this, this._texture, this._assembler!, null);
-            } else {
-                render.commitComp(this, this._texture, this._assembler!, null);
-            }
-        } else {
-            render.commitComp(this, this._texture, this._assembler!, null);
-        }
+        render.commitComp(this, this._texture, this._assembler!, null);
     }
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
@@ -787,7 +775,9 @@ export class Label extends Renderable2D {
             if (!spriteFrame || !spriteFrame.texture) {
                 return false;
             }
-            this._canDrawByFourVertex = false;
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         }
 
         return true;
@@ -872,11 +862,6 @@ export class Label extends Renderable2D {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            this.updateMaterial(this._canDrawByFourVertex);
-        } else {
-            this.updateMaterial(false);
-        }
+        this.updateMaterial();
     }
 }

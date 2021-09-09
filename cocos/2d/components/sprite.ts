@@ -472,6 +472,13 @@ export class Sprite extends Renderable2D {
     protected _atlas: SpriteAtlas | null = null;
     // static State = State;
 
+    constructor () {
+        super();
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = true;
+        }
+    }
+
     public __preload () {
         this.changeMaterialForDefine();
 
@@ -564,7 +571,10 @@ export class Sprite extends Renderable2D {
 
     protected _updateBuiltinMaterial () {
         // macro.UI_GPU_DRIVEN
-        let mat = super._updateBuiltinMaterial(UI_GPU_DRIVEN); // 在 函数内部处理
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = true;
+        }
+        let mat = super._updateBuiltinMaterial();
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
             const renderMat = new Material();
@@ -578,12 +588,7 @@ export class Sprite extends Renderable2D {
     }
 
     protected _render (render: Batcher2D) {
-        // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            render.commitCompByGPU(this, this._spriteFrame, this._assembler!, null);
-        } else {
-            render.commitComp(this, this._spriteFrame, this._assembler!, null);
-        }
+        render.commitComp(this, this._spriteFrame, this._assembler!, null);
     }
 
     protected _canRender () {

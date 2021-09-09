@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @hidden
  */
-import { JSB } from 'internal:constants';
+import { JSB, UI_GPU_DRIVEN } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
@@ -46,11 +46,22 @@ import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4 } from '../../core/math';
+import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
+import { DummyIA } from './dummy-ia';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Director } from '../../core/director';
 import { sys } from '../../core';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
+
+// macro.UI_GPU_DRIVEN
+interface IRenderItem {
+    localBuffer: UILocalBuffer;
+    bufferHash: number;
+    UBOIndex: number;
+    instanceID: number;
+}
 
 /**
  * @zh
@@ -164,16 +175,45 @@ export class Batcher2D {
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
+    // macro.UI_GPU_DRIVEN
+    declare private _dummyIA: DummyIA;
+    declare private _localUBOManager: UILocalUBOManger;
+
+    // 需要一个决定是否换批的东西
+    // 实际上存在一个问题，共存的时候不可避免的存在交叉使用，那么切换条件就很麻烦
+    private _currTypeIsGPU = false;// 决定是否使用
+
+    // macro.UI_GPU_DRIVEN
+    declare private _reloadBatchDirty: boolean;
+    declare public renderQueue: IRenderItem[];
+    declare public _currWalkIndex;
+    declare public updateBufferDirty;
+
     // -------------------------------------
 
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            this._dummyIA = new DummyIA(this.device);
+            this._localUBOManager = new UILocalUBOManger(this.device);
+            this._reloadBatchDirty = true;
+            this.renderQueue = [];
+            this._currWalkIndex = 0;
+            this.updateBufferDirty = false;
+        }
         this._currBatch = this._drawBatchPool.alloc();
     }
 
     public initialize () {
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            legacyCC.director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
+                this._reloadBatchDirty = true;
+            });
+        }
         return true;
     }
 
@@ -260,6 +300,18 @@ export class Batcher2D {
     }
 
     public update () {
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            if (this._reloadBatchDirty) {
+                this.renderQueue.length = 0;
+                this._localUBOManager.reset(); // 需要重新录制就先清空
+                // localDS 需要进行清空
+                // 或者说根据索引部分清空
+                // 做这么耦合，怎么拆啊。。。
+                this._descriptorSetCache.releaseAllByBuffer();
+            }
+        }
+
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
@@ -268,6 +320,10 @@ export class Batcher2D {
             }
             this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                this._currTypeIsGPU = false;
+            }
         }
 
         let batchPriority = 0;
@@ -316,6 +372,14 @@ export class Batcher2D {
             });
 
             this._descriptorSetCache.update();
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                if (this._reloadBatchDirty || this.updateBufferDirty) {
+                    this._localUBOManager.updateBuffer();
+                    this._reloadBatchDirty = false; // 这里应该是更新用
+                    this.updateBufferDirty = false;
+                }
+            }
         }
     }
 
@@ -346,23 +410,116 @@ export class Batcher2D {
         this._batches.clear(); // DC 数量有问题
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            this._currWalkIndex = 0;
+        }
     }
 
-    /**
-     * @en
-     * Render component data submission process of UI.
-     * The submitted vertex data is the UI for world coordinates.
-     * For example: The UI components except Graphics and UIModel.
-     *
-     * @zh
-     * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 Graphics 和 UIModel 的大部分 ui 组件）。
-     * 此处的数据最终会生成需要提交渲染的 model 数据。
-     *
-     * @param comp - 当前执行组件。
-     * @param frame - 当前执行组件贴图。
-     * @param assembler - 当前组件渲染数据组装器。
-     */
-    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+    // macro.UI_GPU_DRIVEN // 上层不会调用 // 要不用 外挂的那种？
+    private _commitCompByGPU (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+        const renderComp = comp;
+        let texture;
+        let samp;
+        let textureHash = 0;
+        let samplerHash = 0;
+        if (frame) {
+            texture = frame.getGFXTexture();
+            samp = frame.getGFXSampler();
+            textureHash = frame.getHash();
+            samplerHash = frame.getSamplerHash();
+        } else {
+            texture = null;
+            samp = null;
+        }
+
+        const renderScene = renderComp._getRenderScene();
+        const mat = renderComp.getRenderMaterial(0)!;
+        renderComp.stencilStage = StencilManager.sharedManager!.stage;
+
+        const blendTargetHash = renderComp.blendHash;
+        const depthStencilStateStage = renderComp.stencilStage;
+
+        // 这儿要用 material Hash 了，那 uniform 不同怎么合批？
+        // 这里需要一个 额外的 机制，判断还能不能放得下这些 uniform？
+        // 需要一个条件，这个条件是我排除用户 uniform 之后可用的 uniform 数量
+        // 可配置，怎么配置？给个变量？倒是可以随意变
+        // 需要优化
+        if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
+            || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== true) {
+            if (this._currTypeIsGPU) {
+                // G -> G
+                this.autoMergeBatchesByGPU(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+                this._currBatch.UICapacityDirty = true;
+            } else {
+                // A -> G
+                this.autoMergeBatches(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+            }
+            this._currScene = renderScene;
+            this._currComponent = renderComp;
+            this._currTransform = transform;
+            this._currMaterial = mat;
+            this._currTexture = texture;
+            this._currSampler = samp;
+            this._currTextureHash = textureHash;
+            this._currSamplerHash = samplerHash;
+            this._currBlendTargetHash = blendTargetHash;
+            this._currDepthStencilStateStage = depthStencilStateStage;
+            this._currLayer = comp.node.layer;
+        }
+        this._currTypeIsGPU = true;
+
+        // 暂时不用新建 batch
+        // if(!this._currBatch) {
+        //     this._currBatch = this._drawBatchPool.alloc();
+        // }
+        // 来一个填充一个，然后不用判断合批，直到不能合批
+        // this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
+
+        // 这个 dirty 负责将node 的 dirtyFlag 传递给 UITransform
+        // 然后 除了置位之外，这个 dirty 会影响两个 dirty
+        // 一个是 _rectDirty 更新 anchor 和 size 用
+        // 一个是 _renderDataDirty 更新所有其他数据用
+        // 考虑合并
+        // 为什么不直接使用 node._dirtyFlag 由于会被 gizmo 提前更新置位掉，这里想要使用的时候位就空了
+        const uiPros = comp.node._uiProps;
+        if (comp.node.hasChangedFlags) {
+            uiPros.uiTransformComp!.setRectDirty(comp.node.hasChangedFlags);
+        }
+        // 这个可以优化为执行不同函数？？ // 最好执行不同的函数 // 还有个 dirty 需要的，更新用的
+        let bufferInfo: IRenderItem;
+        let localBuffer;
+        if (this._reloadBatchDirty) {
+            // 由于节点树顺序发生变化，导致 buffer 中的数据发生变化，所以全部重新录制
+            // 没有集中处理的必要
+            // 全部信息都在此
+            this._currBatch.fillBuffers(comp, this._localUBOManager, mat, this);
+            bufferInfo = this.renderQueue[this._currWalkIndex];
+            localBuffer = bufferInfo.localBuffer;
+            this._resetRenderDirty(comp);
+        } else if (comp.node.hasChangedFlags || uiPros.uiTransformComp!._rectDirty || comp._renderDataDirty) {
+            // 需要考虑的是，此处的更新的 dirty
+            // 这里的更新，可以没有世界坐标的变化
+            bufferInfo = this.renderQueue[this._currWalkIndex];
+            localBuffer = bufferInfo.localBuffer;
+
+            // 全局的 dirty 因为只有上传和不上传两种状态
+            this.updateBufferDirty = true; // 决定要不要上传 buffer 的 dirty
+            this._currBatch.updateBuffer(comp, bufferInfo, localBuffer);
+            // 更新数据即可 // 需要利用组件的各种 dirty 来判断是否要更新，类似于 renderDataDirty
+            this._resetRenderDirty(comp);
+        } else {
+            bufferInfo = this.renderQueue[this._currWalkIndex];
+            localBuffer = bufferInfo.localBuffer;
+        }
+        this._currBatch.fillDrawCall(bufferInfo, localBuffer);
+        ++this._currWalkIndex;
+    }
+
+    private _commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -387,9 +544,23 @@ export class Batcher2D {
 
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
-            this.autoMergeBatches(this._currComponent!);
-            this._currBatch = this._drawBatchPool.alloc();
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== false) {
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                if (this._currTypeIsGPU) {
+                    // G -> A
+                    this.autoMergeBatchesByGPU(this._currComponent!);
+                    this._currBatch = this._drawBatchPool.alloc();
+                    this._currBatch.UICapacityDirty = true;
+                } else {
+                    // A -> A
+                    this.autoMergeBatches(this._currComponent!);
+                    this._currBatch = this._drawBatchPool.alloc();
+                }
+            } else {
+                this.autoMergeBatches(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+            }
 
             this._currScene = renderScene;
             this._currComponent = renderComp;
@@ -405,10 +576,35 @@ export class Batcher2D {
             this._currBatch.UICapacityDirty = true;
         }
 
+        this._currTypeIsGPU = false;
+
         if (assembler) {
             assembler.fillBuffers(renderComp, this);
         }
     }
+
+    /**
+     * @en
+     * Render component data submission process of UI.
+     * The submitted vertex data is the UI for world coordinates.
+     * For example: The UI components except Graphics and UIModel.
+     *
+     * @zh
+     * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 Graphics 和 UIModel 的大部分 ui 组件）。
+     * 此处的数据最终会生成需要提交渲染的 model 数据。
+     *
+     * @param comp - 当前执行组件。
+     * @param frame - 当前执行组件贴图。
+     * @param assembler - 当前组件渲染数据组装器。
+     */
+    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+        if (comp._canDrawByFourVertex) {
+            this._commitCompByGPU(comp,frame,assembler,transform);
+        } else {
+            this._commitComp(comp, frame, assembler, transform);
+        }
+    }
+
 
     /**
      * @en
@@ -425,8 +621,17 @@ export class Batcher2D {
      */
     public commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
+        // macro.UI_GPU_DRIVEN
         if (this._currMaterial !== this._emptyMaterial) {
-            this.autoMergeBatches(this._currComponent!);
+            if (UI_GPU_DRIVEN) {
+                if (this._currTypeIsGPU) {
+                    this.autoMergeBatchesByGPU(this._currComponent!);
+                } else {
+                    this.autoMergeBatches(this._currComponent!);
+                }
+            } else {
+                this.autoMergeBatches(this._currComponent!);
+            }
         }
 
         let depthStencil;
@@ -475,6 +680,10 @@ export class Batcher2D {
         this._currTextureHash = 0;
         this._currSamplerHash = 0;
         this._currLayer = 0;
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            this._currTypeIsGPU = false;
+        }
     }
 
     /**
@@ -489,6 +698,42 @@ export class Batcher2D {
     public commitStaticBatch (comp: UIStaticBatch) {
         this._batches.concat(comp.drawBatchList);
         this.finishMergeBatches();
+    }
+
+    // macro.UI_GPU_DRIVEN // 要不用外挂？
+    public autoMergeBatchesByGPU (renderComp?: Renderable2D) {
+        if (!this._currScene) return;
+
+        let blendState;
+        let depthStencil;
+        let dssHash = 0;
+        let bsHash = 0;
+        if (renderComp) {
+            blendState = renderComp.blendHash === -1 ? null : renderComp.getBlendState();
+            bsHash = renderComp.blendHash;
+            if (renderComp.customMaterial !== null) {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage, this._currMaterial);
+            } else {
+                depthStencil = StencilManager.sharedManager!.getStencilStage(renderComp.stencilStage);
+            }
+            dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
+        }
+
+        // 先有一个 currBatch，然后这 currBatch 调用方法
+        // const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
+        curDrawBatch.renderScene = this._currScene;
+        curDrawBatch.visFlags = this._currLayer;
+        curDrawBatch.texture = this._currTexture!;
+        curDrawBatch.sampler = this._currSampler;
+        curDrawBatch.inputAssembler = this._dummyIA.ia;
+        curDrawBatch.useLocalData = this._currTransform;
+        curDrawBatch.textureHash = this._currTextureHash;
+        curDrawBatch.samplerHash = this._currSamplerHash;
+        curDrawBatch.fillPasses(this._currMaterial, depthStencil, dssHash, blendState, bsHash, null, this);
+
+        // 这儿填充？？
+        this._batches.push(curDrawBatch);
     }
 
     /**
@@ -646,7 +891,16 @@ export class Batcher2D {
 
     private _recursiveScreenNode (screen: Node) {
         this.walk(screen);
-        this.autoMergeBatches(this._currComponent!);
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            if (this._currTypeIsGPU) {
+                this.autoMergeBatchesByGPU(this._currComponent!);
+            } else {
+                this.autoMergeBatches(this._currComponent!);
+            }
+        } else {
+            this.autoMergeBatches(this._currComponent!);
+        }
     }
 
     private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
@@ -693,7 +947,14 @@ export class Batcher2D {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
     }
 
+    // macro.UI_GPU_DRIVEN
+    private _resetRenderDirty (comp: Renderable2D) {
+        comp._renderDataDirty = false;
+        comp.node._uiProps.uiTransformComp!._rectDirty = false;
+    }
+
     public _reloadBatch () {
+        this._reloadBatchDirty = true;
     }
 }
 
@@ -800,6 +1061,7 @@ class LocalDescriptorSet  {
 class DescriptorSetCache {
     private _descriptorSetCache = new Map<number, DescriptorSet>();
     private _dsCacheHashByTexture = new Map<number, number>();
+    private _dsCacheHashByBuffer: number[] = [];
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
     private _localCachePool: Pool<LocalDescriptorSet>;
 
@@ -839,6 +1101,7 @@ class DescriptorSetCache {
 
                 this._descriptorSetCache.set(hash, descriptorSet);
                 this._dsCacheHashByTexture.set(batch.textureHash, hash);
+                this._dsCacheHashByBuffer.push(hash);
 
                 return descriptorSet;
             }
@@ -869,12 +1132,26 @@ class DescriptorSetCache {
         }
     }
 
+    public releaseAllByBuffer () {
+        const length = this._dsCacheHashByBuffer.length;
+        let hash = 0;
+        for (let i = 0; i < length; i++) {
+            hash = this._dsCacheHashByBuffer[i];
+            if (this._descriptorSetCache.has(hash)) {
+                this._descriptorSetCache.get(hash)!.destroy();
+                this._descriptorSetCache.delete(hash);
+            }
+        }
+        this._dsCacheHashByBuffer.length = 0;
+    }
+
     public destroy () {
         this._descriptorSetCache.forEach((value, key, map) => {
             value.destroy();
         });
         this._descriptorSetCache.clear();
         this._dsCacheHashByTexture.clear();
+        this._dsCacheHashByBuffer.length = 0;
         this._localDescriptorSetCache.length = 0;
         this._localCachePool.destroy((obj) => { obj.destroy(); });
     }

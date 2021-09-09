@@ -206,7 +206,7 @@ export default class NodeActivator {
         }
         node.emit('active-in-hierarchy-changed', node);
         if (UI_GPU_DRIVEN) {
-            legacyCC.director.root!.batcher2D.reloadBatchDirty = true; // 可能 gizmo 会产生额外影响
+            legacyCC.director.root!.batcher2D._reloadBatch(); // 可能 gizmo 会产生额外影响
         }
     }
 
