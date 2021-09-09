@@ -1,3 +1,6 @@
+// some interfaces might be overridden
+/* eslint-disable import/no-mutable-exports */
+
 /**
  * API for jsb module
  * Author: haroel
@@ -145,7 +148,8 @@ declare namespace jsb {
 
         setOnFileTaskSuccess (onSucceed: (task: DownloaderTask) => void): void;
 
-        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number, totalBytesReceived: number, totalBytesExpected: number) => void): void;
+        setOnTaskProgress (onProgress: (task: DownloaderTask, bytesReceived: number,
+            totalBytesReceived: number, totalBytesExpected: number) => void): void;
 
         setOnTaskError (onError: (task: DownloaderTask, errorCode: number, errorCodeInternal: number, errorStr: string) => void): void;
     }
@@ -191,7 +195,8 @@ declare namespace jsb {
         static UPDATE_FAILED: number;
         static ERROR_DECOMPRESS: number;
 
-        constructor (eventName: string, manager: AssetsManager, eventCode: number, assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
+        constructor (eventName: string, manager: AssetsManager, eventCode: number,
+            assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
         getAssetsManagerEx (): AssetsManager;
         isResuming (): boolean;
 
@@ -322,7 +327,8 @@ declare namespace jsb {
 
         If the new file can't be found on the file system, it will return the parameter filename directly.
 
-        This method was added to simplify multiplatform support. Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,
+        This method was added to simplify multiplatform support.
+        Whether you are using cocos2d-js or any cross-compilation toolchain like StellaSDK or Apportable,
         you might need to load different resources for a given file in the different platforms.
 
         @since v2.1
@@ -535,7 +541,7 @@ declare namespace jsb {
          *  Purges full path caches.
          */
         export function purgeCachedEntries ():void;
-            /**
+        /**
          *  Gets full path from a file name and the path of the relative file.
          *  @param filename The file name.
          *  @param relativeFile The path of the relative file.

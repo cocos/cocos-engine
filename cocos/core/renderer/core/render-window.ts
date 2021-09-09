@@ -137,7 +137,7 @@ export class RenderWindow {
             for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
                 this._colorTextures.push(device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
-                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_SRC,
                     info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
@@ -201,27 +201,13 @@ export class RenderWindow {
             this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
         } else {
             if (this._depthStencilTexture) {
-                this._depthStencilTexture.destroy();
-                this._depthStencilTexture.initialize(new TextureInfo(
-                    TextureType.TEX2D,
-                    TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
-                    this._renderPass!.depthStencilAttachment!.format,
-                    this._width,
-                    this._height,
-                ));
+                this._depthStencilTexture.resize(width, height);
             }
 
             for (let i = 0; i < this._colorTextures.length; i++) {
                 const colorTex = this._colorTextures[i];
                 if (colorTex) {
-                    colorTex.destroy();
-                    colorTex.initialize(new TextureInfo(
-                        TextureType.TEX2D,
-                        TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                        this._renderPass!.colorAttachments[i].format,
-                        this._width,
-                        this._height,
-                    ));
+                    colorTex.resize(width, height);
                 }
             }
         }

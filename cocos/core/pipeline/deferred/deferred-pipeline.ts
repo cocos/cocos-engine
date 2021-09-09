@@ -156,8 +156,11 @@ export class DeferredPipeline extends RenderPipeline {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
+                const fbo = camera.window?.framebuffer.colorTextures[0];
+                if (fbo) this.resize(fbo.width, fbo.height);
                 sceneCulling(this, camera);
                 this._pipelineUBO.updateCameraUBO(camera);
+
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }
