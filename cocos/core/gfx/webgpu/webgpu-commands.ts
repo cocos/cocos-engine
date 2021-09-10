@@ -1,11 +1,22 @@
 /* eslint-disable @typescript-eslint/indent */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+import { UIRenderable } from '../../../2d';
 import {
     Format, ComparisonFunc, Address, Filter, TextureType,
     TextureUsageBit, TextureFlagBit, SampleCount, BufferUsageBit, MemoryUsageBit, BufferFlagBit, DescriptorType, ShaderStageFlagBit,
 } from '../base/define';
 import { wgpuWasmModule } from './webgpu-utils';
+
+export function toNativeBit<T> (flags: number): T | undefined {
+    let result;
+    let i = 0;
+    while (flags << 1) {
+        result |= T[i];
+        i++;
+    }
+    return result;
+}
 
 export function toWGPUNativeFormat (format: Format): wgpuWasmModule.Format | undefined {
     switch (format) {

@@ -29,7 +29,10 @@ export class WebGPUBuffer extends Buffer {
             this._nativeBuffer = nativeDevice.createBufferView(bufferViewInfo);
         } else { // buffer
             const bufferInfo = new wgpuWasmModule.BufferInfoInstance();
-            bufferInfo.usage = toWGPUNativeBufferUsage(info.usage);
+
+            const usageStr = BufferUsageBit[info.usage];
+            bufferInfo.usage = wgpuWasmModule.BufferUsage[usageStr];
+
             bufferInfo.memUsage = toWGPUNativeBufferMemUsage(info.memUsage);
             bufferInfo.size = info.size;
             bufferInfo.stride = info.stride;
