@@ -69,7 +69,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 
     lightCollecting(camera, &_validLights);
 
-    if (sceneData->getShadowObjects().empty()) {
+    if (sceneData->getShadowObjects().empty() && sceneData->getRenderObjects().empty()) {
         clearShadowMap(camera);
         return;
     }
