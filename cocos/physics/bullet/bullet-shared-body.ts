@@ -442,10 +442,10 @@ export class BulletSharedBody {
         }
 
         const bt_quat = BulletConstant.instance.BT_QUAT_0;
-        const bt_transform = bt.CollisionObject_getWorldTransform(this.body);
-        // const bt_transform = BulletConstant.instance.BT_TRANSFORM_0;
+        // const bt_transform = bt.CollisionObject_getWorldTransform(this.body);
         // const bt_transform = bt.Transform_new();
-        // bt.MotionState_getWorldTransform(bt.RigidBody_getMotionState(this.body), bt_transform);
+        const bt_transform = BulletConstant.instance.BT_TRANSFORM_0;
+        bt.MotionState_getWorldTransform(bt.RigidBody_getMotionState(this.body), bt_transform);
         bt.Transform_getRotation(bt_transform, bt_quat);
         this.node.worldRotation = bullet2CocosQuat(quat_0, bt_quat);
         this.node.worldPosition = bullet2CocosVec3(v3_0, bt.Transform_getOrigin(bt_transform));

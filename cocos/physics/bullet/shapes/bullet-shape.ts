@@ -99,13 +99,11 @@ export class BulletShape implements IBaseShape {
     protected _collider!: Collider;
 
     protected readonly quat: Bullet.ptr;
-    // protected readonly scale: Bullet.ptr;
     protected readonly transform: Bullet.ptr;
 
     constructor () {
         this.id = BulletShape.idCounter++;
         this.quat = bt.Quat_new(0, 0, 0, 1);
-        // this.scale = bt.Vec3_new(1, 1, 1);
         this.transform = bt.Transform_new();
     }
 
@@ -247,8 +245,9 @@ export class BulletShape implements IBaseShape {
     }
 
     needCompound () {
-        if (this._collider.type === EColliderType.TERRAIN) { return true; }
-        if (this._collider.center.equals(Vec3.ZERO)) { return false; }
         return true;
+        // if (this._collider.type === EColliderType.TERRAIN) { return true; }
+        // if (this._collider.center.equals(Vec3.ZERO)) { return false; }
+        // return true;
     }
 }

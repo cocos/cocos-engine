@@ -48,21 +48,20 @@ import { BulletP2PConstraint } from './constraints/bullet-p2p-constraint';
 import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
 
 game.once(Game.EVENT_ENGINE_INITED, () => {
-    selector.register('ammo.js', {
+    selector.register('bullet', {
         PhysicsWorld: BulletWorld,
         RigidBody: BulletRigidBody,
     
         BoxShape: BulletBoxShape,
         SphereShape: BulletSphereShape,
-        // CapsuleShape: AmmoCapsuleShape,
-        // TrimeshShape: AmmoTrimeshShape,
-        // CylinderShape: AmmoCylinderShape,
-        // ConeShape: AmmoConeShape,
-        // TerrainShape: AmmoTerrainShape,
-        // SimplexShape: AmmoSimplexShape,
+        CapsuleShape: BulletCapsuleShape,
+        TrimeshShape: BulletTrimeshShape,
+        CylinderShape: BulletCylinderShape,
+        ConeShape: BulletConeShape,
+        TerrainShape: BulletTerrainShape,
+        SimplexShape: BulletSimplexShape,
         PlaneShape: BulletPlaneShape,
     
-        // PointToPointConstraint: BulletP2PConstraint,
-        // HingeConstraint: BulletHingeConstraint,
-    });
+        PointToPointConstraint: BulletP2PConstraint,
+        HingeConstraint: BulletHingeConstraint,
 });
