@@ -64,8 +64,8 @@ export class PhysicsSystem extends System implements IWorldInitData {
         return selector.id === 'cannon.js';
     }
 
-    public static get PHYSICS_AMMO () {
-        return selector.id === 'ammo.js';
+    public static get PHYSICS_BULLET () {
+        return selector.id === 'bullet';
     }
 
     public static get PHYSICS_PHYSX () {

@@ -28,16 +28,15 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
-import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { ConeCollider } from '../../../../exports/physics-framework';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
+import { bt } from '../instantiated';
+import { BulletCache } from '../bullet-cache';
 
-export class AmmoConeShape extends AmmoShape implements ICylinderShape {
+export class BulletConeShape extends BulletShape implements ICylinderShape {
     setHeight (v: number) {
         this.updateProperties(
             this.collider.radius,
@@ -66,19 +65,15 @@ export class AmmoConeShape extends AmmoShape implements ICylinderShape {
     }
 
     get impl () {
-        return this._btShape as Ammo.btConeShape;
+        return this._impl;
     }
 
     get collider () {
         return this._collider as ConeCollider;
     }
 
-    constructor () {
-        super(AmmoBroadphaseNativeTypes.CONE_SHAPE_PROXYTYPE);
-    }
-
     onComponentSet () {
-        this._btShape = new Ammo.btConeShape(0.5, 1);
+        this._impl = bt.ConeShape_new(0.5, 1);
         this.setRadius(this.collider.radius);
     }
 
@@ -90,25 +85,24 @@ export class AmmoConeShape extends AmmoShape implements ICylinderShape {
     updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
         const ws = scale;
         const upAxis = direction;
+        let wr: number; let wh: number;
         if (upAxis === 1) {
-            const wh = height * Math.abs(ws.y);
-            const wr = radius * Math.abs(absMax(ws.x, ws.z));
-            this.impl.setRadius(wr);
-            this.impl.setHeight(wh);
+            wh = height * Math.abs(ws.y);
+            wr = radius * Math.abs(absMax(ws.x, ws.z));
         } else if (upAxis === 0) {
-            const wh = height * Math.abs(ws.x);
-            const wr = radius * Math.abs(absMax(ws.y, ws.z));
-            this.impl.setRadius(wr);
-            this.impl.setHeight(wh);
+            wh = height * Math.abs(ws.x);
+            wr = radius * Math.abs(absMax(ws.y, ws.z));
         } else {
-            const wh = height * Math.abs(ws.z);
-            const wr = radius * Math.abs(absMax(ws.x, ws.y));
-            this.impl.setRadius(wr);
-            this.impl.setHeight(wh);
+            wh = height * Math.abs(ws.z);
+            wr = radius * Math.abs(absMax(ws.x, ws.y));
         }
-        this.impl.setConeUpIndex(upAxis);
-        this.scale.setValue(1, 1, 1);
-        this.impl.setLocalScaling(this.scale);
+        bt.ConeShape_setRadius(this._impl, wr);
+        bt.ConeShape_setHeight(this._impl, wh);
+        bt.ConeShape_setConeUpIndex(this._impl, upAxis);
+
+        const bt_v3 = BulletCache.instance.BT_V3_0;
+        bt.Vec3_set(bt_v3, 1, 1, 1);
+        bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();
     }
 }

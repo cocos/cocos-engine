@@ -26,51 +26,37 @@
 /**
  * @packageDocumentation
  * @hidden
- */
+*/
 
-/* eslint-disable new-cap */
-import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISphereShape } from '../../spec/i-physics-shape';
+import { BulletCache, CC_V3_0 } from '../bullet-cache';
+import { bt } from '../instantiated';
 import { absMaxComponent } from '../../../core';
-import { VEC3_0 } from '../../utils/util';
 
-export class AmmoSphereShape extends AmmoShape implements ISphereShape {
+export class BulletSphereShape extends BulletShape implements ISphereShape {
     updateRadius () {
-        this.impl.setUnscaledRadius(this.getMinUnscaledRadius());
+        bt.SphereShape_setUnscaledRadius(this.impl, this.getMinUnscaledRadius());
         this.updateCompoundTransform();
-    }
-
-    get impl () {
-        return this._btShape as Ammo.btSphereShape;
     }
 
     get collider () {
         return this._collider as SphereCollider;
     }
 
-    constructor () {
-        super(AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE);
-    }
-
     onComponentSet () {
-        const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
-        const radius = this.collider.radius;
-        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
-        const unscaledRadius = ws * radius < minVolumeSize ? minVolumeSize / ws : radius;
-        this._btShape = new Ammo.btSphereShape(unscaledRadius);
+        this._impl = bt.SphereShape_new(this.getMinUnscaledRadius());
         this.updateScale();
     }
 
     updateScale () {
         super.updateScale();
         const scale = this.getMinScale();
-        VEC3_0.set(scale, scale, scale);
-        cocos2AmmoVec3(this.scale, VEC3_0);
-        this._btShape.setLocalScaling(this.scale);
+        CC_V3_0.set(scale, scale, scale);
+        const bt_v3 = BulletCache.instance.BT_V3_0;
+        bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, CC_V3_0));
         this.updateCompoundTransform();
     }
 

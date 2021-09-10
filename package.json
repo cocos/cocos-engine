@@ -30,7 +30,7 @@
     "@babel/core": "^7.13.10",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.2.10",
+    "@cocos/build-engine": "4.2.11",
     "@cocos/typedoc-plugin-internal-external": "^1.0.1",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
     "@types/fs-extra": "^5.0.4",
@@ -62,8 +62,8 @@
     "yargs": "^12.0.5"
   },
   "dependencies": {
-    "@cocos/ammo": "1.2.0",
     "@cocos/box2d": "1.0.1",
+    "@cocos/bullet": "1.0.0",
     "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.7"

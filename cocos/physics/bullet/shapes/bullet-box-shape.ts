@@ -29,51 +29,42 @@
  * @hidden
  */
 
-import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { Vec3 } from '../../../core';
 import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { AmmoConstant } from '../ammo-const';
 import { absolute, VEC3_0 } from '../../utils/util';
+import { cocos2BulletVec3 } from '../bullet-utils';
+import { BulletCache } from '../bullet-cache';
+import { bt } from '../instantiated';
 
-export class AmmoBoxShape extends AmmoShape implements IBoxShape {
+export class BulletBoxShape extends BulletShape implements IBoxShape {
     updateSize () {
-        const hf = AmmoConstant.instance.VECTOR3_0;
-        cocos2AmmoVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
-        this.impl.setUnscaledHalfExtents(hf);
+        const hf = BulletCache.instance.BT_V3_0;
+        cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
+        bt.BoxShape_setUnscaledHalfExtents(this.impl, hf);
         this.updateCompoundTransform();
-    }
-
-    get impl () {
-        return this._btShape as Ammo.btBoxShape;
     }
 
     get collider () {
         return this._collider as BoxCollider;
     }
 
-    constructor () {
-        super(AmmoBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
-    }
-
     onComponentSet () {
-        const hf = AmmoConstant.instance.VECTOR3_0;
-        cocos2AmmoVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
-        this._btShape = new Ammo.btBoxShape(hf);
+        const hf = BulletCache.instance.BT_V3_0;
+        cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
+        this._impl = bt.BoxShape_new(hf);
         this.updateScale();
     }
 
     updateScale () {
         super.updateScale();
-        cocos2AmmoVec3(this.scale, this.getMinScale(VEC3_0));
-        this._btShape.setLocalScaling(this.scale);
+        const bt_v3 = BulletCache.instance.BT_V3_0;
+        bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this.getMinScale(VEC3_0)));
         this.updateCompoundTransform();
     }
 
-    getMinUnscaledHalfExtents (out:Vec3) {
+    getMinUnscaledHalfExtents (out: Vec3) {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
@@ -85,7 +76,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         return out;
     }
 
-    getMinScale (out:Vec3) {
+    getMinScale (out: Vec3) {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
