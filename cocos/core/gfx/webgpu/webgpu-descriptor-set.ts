@@ -1,17 +1,6 @@
 import { DescriptorSet } from '../base/descriptor-set';
-import { WebGPUBuffer } from './webgpu-buffer';
-import { IWebGPUGPUDescriptorSet, IWebGPUGPUDescriptor } from './webgpu-gpu-objects';
-import { WebGPUSampler } from './webgpu-sampler';
-import { WebGPUTexture } from './webgpu-texture';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
-import { WebGPUDevice } from './webgpu-device';
-import {
-    DescriptorType,
-    DescriptorSetLayoutBinding,
-    DescriptorSetInfo,
-    DESCRIPTOR_BUFFER_TYPE,
-    DESCRIPTOR_SAMPLER_TYPE,
-} from '../base/define';
+import { DescriptorSetInfo } from '../base/define';
 import { wgpuWasmModule } from './webgpu-utils';
 
 export class WebGPUDescriptorSet extends DescriptorSet {

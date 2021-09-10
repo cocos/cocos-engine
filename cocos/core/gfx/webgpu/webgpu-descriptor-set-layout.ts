@@ -1,18 +1,6 @@
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
-import { IWebGPUGPUDescriptorSetLayout } from './webgpu-gpu-objects';
-import { WebGPUDevice } from './webgpu-device';
 import { toWGPUNativeDescriptorType, toWGPUNativeStageFlags } from './webgpu-commands';
-import {
-    DescriptorType,
-    TextureUsage,
-    TextureUsageBit,
-    DescriptorSetLayoutInfo,
-    DESCRIPTOR_DYNAMIC_TYPE,
-    DescriptorSetLayoutBinding,
-} from '../base/define';
-import { Buffer } from '../base/buffer';
-import { Sampler } from '../base/sampler';
-import { Texture } from '../base/texture';
+import { DescriptorSetLayoutInfo } from '../base/define';
 import { wgpuWasmModule } from './webgpu-utils';
 import { WebGPUSampler } from './webgpu-sampler';
 
@@ -24,6 +12,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
     }
 
     public initialize (info: DescriptorSetLayoutInfo) {
+        this._bindings = info.bindings;
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const dsLayoutInfo = new wgpuWasmModule.DescriptorSetLayoutInfoInstance();
         dsLayoutInfo.bindings = new wgpuWasmModule.DescriptorSetLayoutBindingList();
