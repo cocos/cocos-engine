@@ -62,7 +62,6 @@
     "yargs": "^12.0.5"
   },
   "dependencies": {
-    "@cocos/ammo": "1.2.0",
     "@cocos/box2d": "1.0.1",
     "@cocos/bullet": "1.0.0-exp.3",
     "@cocos/cannon": "1.2.8",
