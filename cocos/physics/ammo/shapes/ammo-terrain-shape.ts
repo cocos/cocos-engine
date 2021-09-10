@@ -30,7 +30,7 @@
 
 /* eslint-disable new-cap */
 import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './ammo-shape';
 import { Vec3, warn } from '../../../core';
 import { TerrainCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
@@ -40,7 +40,7 @@ import { ITerrainAsset } from '../../spec/i-external';
 import { CC_V3_0, AmmoConstant } from '../ammo-const';
 import { IVec3Like } from '../../../core/math/type-define';
 
-export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
+export class AmmoTerrainShape extends BulletShape implements ITerrainShape {
     public get collider () {
         return this._collider as TerrainCollider;
     }

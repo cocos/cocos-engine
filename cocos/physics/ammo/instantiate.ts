@@ -31,8 +31,8 @@
 import { selector } from '../framework/physics-selector';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoWorld } from './ammo-world';
-import { AmmoBoxShape } from './shapes/ammo-box-shape';
-import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
+import { BulletBoxShape } from './shapes/ammo-box-shape';
+import { BulletSphereShape } from './shapes/ammo-sphere-shape';
 import { AmmoCapsuleShape } from './shapes/ammo-capsule-shape';
 import { AmmoTrimeshShape } from './shapes/ammo-trimesh-shape';
 import { AmmoCylinderShape } from './shapes/ammo-cylinder-shape';
@@ -52,8 +52,8 @@ game.once(Game.EVENT_ENGINE_INITED, () => {
         PhysicsWorld: AmmoWorld,
         RigidBody: AmmoRigidBody,
 
-        BoxShape: AmmoBoxShape,
-        SphereShape: AmmoSphereShape,
+        BoxShape: BulletBoxShape,
+        SphereShape: BulletSphereShape,
         // CapsuleShape: AmmoCapsuleShape,
         // TrimeshShape: AmmoTrimeshShape,
         // CylinderShape: AmmoCylinderShape,

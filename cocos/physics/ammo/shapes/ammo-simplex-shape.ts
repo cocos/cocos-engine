@@ -30,14 +30,14 @@
 
 /* eslint-disable new-cap */
 import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './ammo-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 
-export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
+export class AmmoSimplexShape extends BulletShape implements ISimplexShape {
     setShapeType (v: SimplexCollider.ESimplexType) {
         if (this._isBinding) {
             // TODO:

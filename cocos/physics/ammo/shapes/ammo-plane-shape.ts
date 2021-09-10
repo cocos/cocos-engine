@@ -30,7 +30,7 @@
 
 /* eslint-disable new-cap */
 // import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './ammo-shape';
 import { PlaneCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../ammo-util';
 import { btBroadphaseNativeTypes } from '../ammo-enum';
@@ -39,7 +39,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoConstant } from '../ammo-const';
 import { bt } from '../bullet.asmjs';
 
-export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
+export class AmmoPlaneShape extends BulletShape implements IPlaneShape {
     setNormal (v: IVec3Like) {
         cocos2BulletVec3(bt.StaticPlaneShape_getPlaneNormal(this.impl), v);
         this.updateCompoundTransform();

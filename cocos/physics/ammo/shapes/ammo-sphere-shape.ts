@@ -30,7 +30,7 @@
 
 /* eslint-disable new-cap */
 // import Ammo from '../ammo-instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './ammo-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../ammo-util';
 import { btBroadphaseNativeTypes } from '../ammo-enum';
@@ -39,7 +39,7 @@ import { CC_V3_0 } from '../ammo-const';
 import { bt } from '../bullet.asmjs';
 import { absMaxComponent } from '../../../core';
 
-export class AmmoSphereShape extends AmmoShape implements ISphereShape {
+export class BulletSphereShape extends BulletShape implements ISphereShape {
     updateRadius () {
         bt.SphereShape_setUnscaledRadius(this.impl, this.getMinUnscaledRadius());
         this.updateCompoundTransform();

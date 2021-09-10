@@ -29,7 +29,7 @@
  */
 
 // import Ammo from './instantiated';
-import { AmmoShape } from './shapes/ammo-shape';
+import { BulletShape } from './shapes/ammo-shape';
 
 export interface IAmmoBodyStruct {
     readonly id: number;
@@ -38,7 +38,7 @@ export interface IAmmoBodyStruct {
     readonly localInertia: Bullet.ptr;
     readonly rbInfo: Bullet.ptr;
     readonly motionState: Bullet.ptr;
-    readonly wrappedShapes: AmmoShape[];
+    readonly wrappedShapes: BulletShape[];
     useCompound: boolean;
 }
 
@@ -46,5 +46,5 @@ export interface IAmmoGhostStruct {
     readonly id: number;
     readonly ghost: Bullet.ptr;
     readonly shape: Bullet.ptr;
-    readonly wrappedShapes: AmmoShape[];
+    readonly wrappedShapes: BulletShape[];
 }

@@ -46,7 +46,7 @@ import { bt } from '../bullet.asmjs';
 
 const v3_0 = CC_V3_0;
 
-export class AmmoShape implements IBaseShape {
+export class BulletShape implements IBaseShape {
     updateEventListener (): void { }
 
     setMaterial (v: PhysicsMaterial | null) {
@@ -109,7 +109,7 @@ export class AmmoShape implements IBaseShape {
 
     constructor (type: btBroadphaseNativeTypes) {
         this.type = type;
-        this.id = AmmoShape.idCounter++;
+        this.id = BulletShape.idCounter++;
         this.quat = bt.Quat_new(0, 0, 0, 1);
         this.transform = bt.Transform_new();
         this.scale = bt.Vec3_new(1, 1, 1);

@@ -32,7 +32,7 @@
 // import Ammo from './instantiated';
 import { AmmoSharedBody } from './ammo-shared-body';
 import { AmmoRigidBody } from './ammo-rigid-body';
-import { AmmoShape } from './shapes/ammo-shape';
+import { BulletShape } from './shapes/ammo-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, AmmoConstant } from './ammo-const';
@@ -258,8 +258,8 @@ export class AmmoWorld implements IPhysicsWorld {
                 const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
                 const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
                 const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
-                let shape0: AmmoShape;
-                let shape1: AmmoShape;
+                let shape0: BulletShape;
+                let shape1: BulletShape;
                 if (bt.CollisionShape_isCompound(s0)) {
                     const index0 = bt.ManifoldPoint_get_m_index0(manifoldPoint);
                     shape0 = bt.getObjByPtr(bt.CompoundShape_getChildShape(s0, index0));
@@ -308,8 +308,8 @@ export class AmmoWorld implements IPhysicsWorld {
             CollisionEventObject.contacts.length = 0;
             const key = this.contactsDic.getKeyByIndex(dicL);
             const data = this.contactsDic.getDataByKey<any>(key);
-            const shape0: AmmoShape = data.shape0;
-            const shape1: AmmoShape = data.shape1;
+            const shape0: BulletShape = data.shape0;
+            const shape1: BulletShape = data.shape1;
             this.oldContactsDic.set(shape0.id, shape1.id, data);
             const collider0 = shape0.collider;
             const collider1 = shape1.collider;
@@ -380,8 +380,8 @@ export class AmmoWorld implements IPhysicsWorld {
         while (oldDicL--) {
             const key = this.oldContactsDic.getKeyByIndex(oldDicL);
             const data = this.oldContactsDic.getDataByKey<any>(key);
-            const shape0: AmmoShape = data.shape0;
-            const shape1: AmmoShape = data.shape1;
+            const shape0: BulletShape = data.shape0;
+            const shape1: BulletShape = data.shape1;
             const collider0 = shape0.collider;
             const collider1 = shape1.collider;
             if (collider0 && collider1) {

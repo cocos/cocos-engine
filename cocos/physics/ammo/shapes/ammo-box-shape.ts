@@ -30,7 +30,7 @@
  */
 
 // import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './ammo-shape';
 import { Vec3 } from '../../../core';
 import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
 import { btBroadphaseNativeTypes } from '../ammo-enum';
@@ -40,7 +40,7 @@ import { cocos2BulletVec3 } from '../ammo-util';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 import { bt } from '../bullet.asmjs';
 
-export class AmmoBoxShape extends AmmoShape implements IBoxShape {
+export class BulletBoxShape extends BulletShape implements IBoxShape {
     updateSize () {
         const hf = AmmoConstant.instance.VECTOR3_0;
         cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));

@@ -30,7 +30,7 @@
 
 import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Vec3, Quat } from '../../core';
-import { AmmoShape } from './shapes/ammo-shape';
+import { BulletShape } from './shapes/ammo-shape';
 import { CC_QUAT_0, AmmoConstant } from './ammo-const';
 
 export class AmmoContactEquation implements IContactEquation {

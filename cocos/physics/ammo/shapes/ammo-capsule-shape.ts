@@ -30,13 +30,13 @@
 
 /* eslint-disable new-cap */
 import { absMax } from '../../../core';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './ammo-shape';
 import { CapsuleCollider } from '../../../../exports/physics-framework';
 import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 
-export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
+export class AmmoCapsuleShape extends BulletShape implements ICapsuleShape {
     setCylinderHeight (v: number) {
         this.updateProperties(
             this.collider.radius,

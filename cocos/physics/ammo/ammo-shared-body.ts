@@ -29,7 +29,7 @@ import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
-import { AmmoShape } from './shapes/ammo-shape';
+import { BulletShape } from './shapes/ammo-shape';
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3, bullet2CocosQuat } from './ammo-util';
 import { btCollisionFlags, btCollisionObjectStates, EBtSharedBodyDirty } from './ammo-enum';
 import { AmmoInstance } from './ammo-instance';
@@ -330,7 +330,7 @@ export class AmmoSharedBody {
         }
     }
 
-    addShape (v: AmmoShape, isTrigger: boolean) {
+    addShape (v: BulletShape, isTrigger: boolean) {
         function switchShape (that: AmmoSharedBody, shape: Bullet.ptr) {
             bt.CollisionObject_setCollisionShape(that.body, shape);
             that.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
@@ -370,7 +370,7 @@ export class AmmoSharedBody {
         }
     }
 
-    removeShape (v: AmmoShape, isTrigger: boolean) {
+    removeShape (v: BulletShape, isTrigger: boolean) {
         if (isTrigger) {
             const index = this.ghostStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {

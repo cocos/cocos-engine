@@ -30,7 +30,7 @@
 
 /* eslint-disable new-cap */
 import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
+import { BulletShape } from './ammo-shape';
 import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
@@ -39,7 +39,7 @@ import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { AmmoConstant } from '../ammo-const';
 
-export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
+export class AmmoTrimeshShape extends BulletShape implements ITrimeshShape {
     public get collider () {
         return this._collider as MeshCollider;
     }
