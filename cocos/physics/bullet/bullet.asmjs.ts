@@ -23,34 +23,75 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bulletModule from '@cocos/bullet';
+import { WECHAT } from 'internal:constants';
 import { physics } from '../../../exports/physics-framework';
-import { memorySize, importFunc } from './bullet-env';
+import { pageSize, pageCount, importFunc } from './bullet-env';
 
-let instantiate: any = bulletModule;
-if (!physics.selector.runInEditor) instantiate = () => ({});
+let bulletLibs: any = bulletModule;
+if (globalThis.BULLET) {
+    console.log('[Physics][Bullet]: Using the external Bullet libs.');
+    bulletLibs = globalThis.BULLET;
+}
+if (!physics.selector.runInEditor) bulletLibs = () => ({});
 
-if (globalThis.BULLET2) instantiate = globalThis.BULLET2;
-
-// env
-const env: any = importFunc;
-
-// memory
-const wasmMemory: any = {};
-wasmMemory.buffer = new ArrayBuffer(memorySize);
-env.memory = wasmMemory;
-
-export const bt = instantiate(env, wasmMemory) as instanceExt;
-bt.ENV = env;
-bt.USE_MOTION_STATE = true;
-bt.BODY_CACHE_NAME = 'body';
+export const bt: instanceExt = {} as any;
 globalThis.Bullet = bt;
+bt.BODY_CACHE_NAME = 'body';
 
 interface instanceExt extends Bullet.instance {
     // [x: string]: any;
-    ENV: any,
-    USE_MOTION_STATE: boolean,
     CACHE: any,
     BODY_CACHE_NAME: string,
+}
+
+export async function waitForAmmoInstantiation () {
+    let btInstance: Bullet.instance;
+    if (typeof bulletModule === 'string') {
+        console.info('[Physics][Bullet]: Using wasm Bullet libs.');
+        const memory = new WebAssembly.Memory({ initial: pageCount });
+        const importObject = {
+            cc: importFunc,
+            wasi_snapshot_preview1: { fd_close: () => { }, fd_seek: () => { }, fd_write: () => { } },
+            env: { memory },
+        };
+        let buffer: ArrayBuffer | string = bulletModule;
+        if (!WECHAT) {
+            const response = await fetch(bulletModule);
+            buffer = await response.arrayBuffer();
+        }
+        const results = await WebAssembly.instantiate(buffer, importObject);
+        btInstance = results.instance.exports as unknown as Bullet.instance;
+    } else {
+        console.info('[Physics][Bullet]: Using asmjs Bullet libs.');
+        const env: any = importFunc;
+        const wasmMemory: any = {};
+        wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
+        env.memory = wasmMemory;
+        btInstance = bulletLibs(env, wasmMemory);
+    }
+    Object.assign(bt, btInstance);
+    return new Promise<void>((resolve, reject) => {
+        resolve();
+    });
+}
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+export namespace waitForAmmoInstantiation {
+    /**
+     * True if the `'@cocos/ammo'` is the WebAssembly edition.
+     */
+    export const isWasm = false;
+
+    /**
+     * The url to the WebAssembly binary.
+     * Either can be absolute or relative, depends on build options.
+     */
+    export const wasmBinaryURL = '';
 }

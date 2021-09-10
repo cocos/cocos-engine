@@ -29,9 +29,10 @@
  */
 
 // import AmmoClosure, * as AmmoJs from '@cocos/ammo';
-import { WECHAT } from 'internal:constants';
+// import { WECHAT } from 'internal:constants';
 import { log } from '../../core';
 import { legacyCC } from '../../core/global-exports';
+import { pageCount, importFunc } from './bullet-env';
 
 const globalThis = legacyCC._global;
 const Ammo: any = {} as any;
@@ -75,21 +76,18 @@ export { Ammo as default }; // Note: should not use `export default Ammo` since 
  * before `'cc.physics-ammo'` can be imported;
  * @param wasmBinary The .wasm file, if any.(In wechat, this is the path of wasm file.)
  */
-export function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer | string) {
-    // `this` needed by ammo closure.
-    // const ammoClosureThis: { Ammo: typeof import('@cocos/ammo') } = {} as any;
-    if (typeof wasmBinary !== 'undefined') {
-        if (WECHAT) {
-            const WASM_FILE_PATH = wasmBinary as string;
-            (Ammo).instantiateWasm = (importObjects: any, receiveInstance: (x: any) => void) => WebAssembly
-                .instantiate(WASM_FILE_PATH, importObjects)
-                .then((result: any) => receiveInstance(result.instance));
-        } else {
-            // See https://emscripten.org/docs/compiling/WebAssembly.html#wasm-files-and-compilation
-            (Ammo).wasmBinary = wasmBinary as ArrayBuffer;
-        }
-    }
+export async function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer | string) {
+    if (wasmBinary) {
+        const memory = new WebAssembly.Memory({ initial: pageCount });
+        const importObject = {
+            importFunc,
+            wasi_snapshot_preview1: { fd_close: () => { }, fd_seek: () => { }, fd_write: () => { } },
+            env: { memory },
 
+        };
+        const results = await WebAssembly.instantiate(wasmBinary, importObject);
+        console.log(results);
+    }
     return new Promise<void>((resolve, reject) => {
         // (bulletLibs).call(ammoClosureThis, Ammo).then(() => {
         //     resolve();

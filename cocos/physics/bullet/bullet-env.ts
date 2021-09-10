@@ -23,8 +23,13 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 // Wasm Memory Page Size is 65536
-const pageSize = 65536; // 64KiB
+export const pageSize = 65536; // 64KiB
 
 // How many pages of the wasm memory
 // TODO: let this can be canfiguable by user.
@@ -37,9 +42,7 @@ export const memorySize = pageSize * pageCount; // 16 MiB
 export const importFunc = {
     syncPhysicsToGraphics (id: number) {
         const bt = globalThis.Bullet;
-        if (bt.USE_MOTION_STATE) {
-            const body = bt.CACHE.getWrapper(id, bt.BODY_CACHE_NAME);
-            body.syncPhysicsToGraphics();
-        }
+        const body = bt.CACHE.getWrapper(id, bt.BODY_CACHE_NAME);
+        body.syncPhysicsToGraphics();
     },
 };
