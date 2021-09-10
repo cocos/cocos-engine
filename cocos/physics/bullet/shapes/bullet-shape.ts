@@ -44,7 +44,9 @@ import { EColliderType } from '../../framework';
 const v3_0 = CC_V3_0;
 const ccMaterialBooks = {};
 export abstract class BulletShape implements IBaseShape {
-    updateEventListener (): void { }
+    updateEventListener (): void {
+        this._sharedBody.wrappedWorld.updateNeedEmitEvents(this.collider.needCollisionEvent || this.collider.needTriggerEvent);
+    }
 
     setMaterial (v: PhysicsMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {

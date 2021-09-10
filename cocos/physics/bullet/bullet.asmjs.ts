@@ -11,9 +11,11 @@ if (globalThis.BULLET2) instantiate = globalThis.BULLET2;
 const pageSize = 65536; // 64KiB
 const memorySize = pageSize * 250; // 16 MiB
 const interactive = {
-    syncPhysicsToGraphics (id: number, trans) {
-        // const body = bt.CACHE.getWrapper(id);
-        // body.syncPhysicsToGraphics();
+    syncPhysicsToGraphics (id: number) {
+        if (bt.USE_MOTION_STATE) {
+            const body = bt.CACHE.getWrapper(id, "body");
+            body.syncPhysicsToGraphics();
+        }
     },
 };
 
@@ -28,6 +30,7 @@ env.memory = wasmMemory;
 
 export const bt = instantiate(env, wasmMemory) as instanceExt;
 bt.ENV = env;
+bt.USE_MOTION_STATE = true;
 globalThis.Bullet = bt;
 
 interface instanceExt extends Bullet.instance {

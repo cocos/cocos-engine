@@ -51,16 +51,47 @@ const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
 
 export class BulletWorld implements IPhysicsWorld {
+    setDefaultMaterial (v: PhysicsMaterial) { }
+
     setAllowSleep (v: boolean) {
         bt.ccDiscreteDynamicsWorld_setAllowSleep(this._world, v);
     }
-
-    setDefaultMaterial (v: PhysicsMaterial) { }
 
     setGravity (gravity: IVec3Like) {
         const TMP = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(TMP, gravity);
         bt.DynamicsWorld_setGravity(this._world, TMP);
+    }
+
+    updateNeedEmitEvents (v: boolean) {
+        if (v) {
+            this._needEmitEvents = true;
+        } else {
+            this._needEmitEvents = false;
+            for (let i = 0; i < this.ghosts.length; i++) {
+                const ghost = this.ghosts[i];
+                const shapes = ghost.ghostStruct.wrappedShapes;
+                for (let j = 0; j < shapes.length; j++) {
+                    const collider = shapes[j].collider;
+                    if (collider.needCollisionEvent || collider.needTriggerEvent) {
+                        this._needEmitEvents = true;
+                        return;
+                    }
+                }
+            }
+
+            for (let i = 0; i < this.bodies.length; i++) {
+                const body = this.bodies[i];
+                const shapes = body.bodyStruct.wrappedShapes;
+                for (let j = 0; j < shapes.length; j++) {
+                    const collider = shapes[j].collider;
+                    if (collider.needCollisionEvent || collider.needTriggerEvent) {
+                        this._needEmitEvents = true;
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     get impl () {
@@ -71,6 +102,9 @@ export class BulletWorld implements IPhysicsWorld {
     private readonly _broadphase: Bullet.ptr;
     private readonly _solver: Bullet.ptr;
     private readonly _dispatcher: Bullet.ptr;
+
+    private _needEmitEvents = false;
+    private _needSyncAfterEvents = false;
 
     readonly bodies: BulletSharedBody[] = [];
     readonly ghosts: BulletSharedBody[] = [];
@@ -111,8 +145,8 @@ export class BulletWorld implements IPhysicsWorld {
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
 
-        for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncPhysicsToScene();
+        if (!bt.USE_MOTION_STATE) {
+            for (let i = 0; i < this.bodies.length; i++) this.bodies[i].syncPhysicsToScene();
         }
     }
 
@@ -129,6 +163,7 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     syncAfterEvents (): void {
+        if (!this._needSyncAfterEvents) return;
         this.syncSceneToPhysics();
     }
 
@@ -227,38 +262,9 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
-        const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
-        for (let i = 0; i < numManifolds; i++) {
-            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
-            const numContacts = bt.PersistentManifold_getNumContacts(manifold);
-            for (let j = 0; j < numContacts; j++) {
-                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
-                const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
-                const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
-                const shape0: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
-                const shape1: BulletShape = BulletCache.getWrapper(s1, BulletShape.TYPE);
-
-                if (shape0.collider.needTriggerEvent
-                    || shape1.collider.needTriggerEvent
-                    || shape0.collider.needCollisionEvent
-                    || shape1.collider.needCollisionEvent
-                ) {
-                    // current contact
-                    let item = this.contactsDic.get<any>(shape0.id, shape1.id);
-                    if (item == null) {
-                        item = this.contactsDic.set(shape0.id, shape1.id,
-                            {
-                                shape0,
-                                shape1,
-                                contacts: [],
-                                impl: manifold,
-                            });
-                    }
-                    item.contacts.push(manifoldPoint);
-                }
-            }
-        }
-
+        if (!this._needEmitEvents) return;
+        this.gatherConatactData();
+        this._needSyncAfterEvents = false;
         // is enter or stay
         let dicL = this.contactsDic.getLength();
         while (dicL--) {
@@ -288,14 +294,15 @@ export class BulletWorld implements IPhysicsWorld {
                     TriggerEventObject.selfCollider = collider1;
                     TriggerEventObject.otherCollider = collider0;
                     collider1.emit(TriggerEventObject.type, TriggerEventObject);
+                    this._needSyncAfterEvents = true;
                 } else {
                     const body0 = collider0.attachedRigidBody;
                     const body1 = collider1.attachedRigidBody;
                     if (body0 && body1) {
                         if (body0.isSleeping && body1.isSleeping) continue;
-                    } else if (body0 == null && body1) {
+                    } else if (!body0 && body1) {
                         if (body1.isSleeping) continue;
-                    } else if (body1 == null && body0) {
+                    } else if (!body1 && body0) {
                         if (body0.isSleeping) continue;
                     }
                     if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
@@ -308,12 +315,10 @@ export class BulletWorld implements IPhysicsWorld {
                     for (let i = 0; i < data.contacts.length; i++) {
                         const cq = data.contacts[i];
                         if (contactsPool.length > 0) {
-                            const c = contactsPool.pop();
-                            c!.impl = cq;
+                            const c = contactsPool.pop(); c!.impl = cq;
                             CollisionEventObject.contacts.push(c!);
                         } else {
-                            const c = new BulletContactData(CollisionEventObject);
-                            c.impl = cq;
+                            const c = new BulletContactData(CollisionEventObject); c.impl = cq;
                             CollisionEventObject.contacts.push(c);
                         }
                     }
@@ -325,6 +330,7 @@ export class BulletWorld implements IPhysicsWorld {
                     CollisionEventObject.selfCollider = collider1;
                     CollisionEventObject.otherCollider = collider0;
                     collider1.emit(CollisionEventObject.type, CollisionEventObject);
+                    this._needSyncAfterEvents = true;
                 }
 
                 if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
@@ -358,6 +364,7 @@ export class BulletWorld implements IPhysicsWorld {
 
                             this.triggerArrayMat.set(shape0.id, shape1.id, false);
                             this.oldContactsDic.set(shape0.id, shape1.id, null);
+                            this._needSyncAfterEvents = true;
                         }
                     } else if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
                         contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as BulletContactData[]);
@@ -374,6 +381,7 @@ export class BulletWorld implements IPhysicsWorld {
 
                         this.collisionArrayMat.set(shape0.id, shape1.id, false);
                         this.oldContactsDic.set(shape0.id, shape1.id, null);
+                        this._needSyncAfterEvents = true;
                     }
                 }
             }
@@ -381,4 +389,31 @@ export class BulletWorld implements IPhysicsWorld {
 
         this.contactsDic.reset();
     }
+
+    gatherConatactData () {
+        const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
+        for (let i = 0; i < numManifolds; i++) {
+            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
+            const numContacts = bt.PersistentManifold_getNumContacts(manifold);
+            for (let j = 0; j < numContacts; j++) {
+                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
+                const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
+                const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
+                const shape0: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
+                const shape1: BulletShape = BulletCache.getWrapper(s1, BulletShape.TYPE);
+                if (shape0.collider.needTriggerEvent || shape1.collider.needTriggerEvent ||
+                    shape0.collider.needCollisionEvent || shape1.collider.needCollisionEvent
+                ) {
+                    // current contact
+                    let item = this.contactsDic.get<any>(shape0.id, shape1.id);
+                    if (!item) {
+                        item = this.contactsDic.set(shape0.id, shape1.id,
+                            { shape0, shape1, contacts: [], impl: manifold, });
+                    }
+                    item.contacts.push(manifoldPoint);
+                }
+            }
+        }
+    }
+
 }
