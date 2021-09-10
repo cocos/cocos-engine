@@ -29,43 +29,40 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
 import { AmmoConstraint } from './ammo-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
+import { bt } from '../bullet.asmjs';
+import { cocos2BulletVec3 } from '../ammo-util';
 
 export class AmmoPointToPointConstraint extends AmmoConstraint implements IPointToPointConstraint {
     setPivotA (v: IVec3Like): void {
-        // const pivotA = AmmoConstant.instance.VECTOR3_0;
-        // const cs = this.constraint;
-        // Vec3.multiply(CC_V3_0, cs.node.worldScale, cs.pivotA);
-        // cocos2AmmoVec3(pivotA, CC_V3_0);
-        // this.impl.setPivotA(pivotA);
-        // if (!cs.connectedBody) this.setPivotB(cs.pivotB);
+        const cs = this.constraint;
+        const pivotA = AmmoConstant.instance.VECTOR3_0;
+        Vec3.multiply(CC_V3_0, cs.node.worldScale, cs.pivotA);
+        cocos2BulletVec3(pivotA, CC_V3_0);
+        bt.P2PConstraint_setPivotA(this._impl, pivotA);
+        if (!cs.connectedBody) this.setPivotB(cs.pivotB);
     }
 
     setPivotB (v: IVec3Like): void {
-        // const cs = this.constraint;
-        // const node = this._rigidBody.node;
-        // const pivotB = AmmoConstant.instance.VECTOR3_0;
-        // const cb = cs.connectedBody;
-        // if (cb) {
-        //     Vec3.multiply(CC_V3_0, cb.node.worldScale, cs.pivotB);
-        //     cocos2AmmoVec3(pivotB, CC_V3_0);
-        // } else {
-        //     Vec3.multiply(CC_V3_0, node.worldScale, cs.pivotA);
-        //     Vec3.add(CC_V3_0, CC_V3_0, node.worldPosition);
-        //     Vec3.add(CC_V3_0, CC_V3_0, cs.pivotB);
-        //     cocos2AmmoVec3(pivotB, CC_V3_0);
-        // }
-        // this.impl.setPivotB(pivotB);
-    }
-
-    get impl () {
-        return this._impl;
+        const cs = this.constraint;
+        const node = this._rigidBody.node;
+        const pivotB = AmmoConstant.instance.VECTOR3_0;
+        const cb = cs.connectedBody;
+        if (cb) {
+            Vec3.multiply(CC_V3_0, cb.node.worldScale, cs.pivotB);
+            cocos2BulletVec3(pivotB, CC_V3_0);
+        } else {
+            Vec3.multiply(CC_V3_0, node.worldScale, cs.pivotA);
+            Vec3.add(CC_V3_0, CC_V3_0, node.worldPosition);
+            Vec3.add(CC_V3_0, CC_V3_0, cs.pivotB);
+            cocos2BulletVec3(pivotB, CC_V3_0);
+        }
+        bt.P2PConstraint_setPivotB(this._impl, pivotB);
     }
 
     get constraint (): PointToPointConstraint {
@@ -73,21 +70,14 @@ export class AmmoPointToPointConstraint extends AmmoConstraint implements IPoint
     }
 
     onComponentSet (): void {
-        // const bodyA = (this._rigidBody.body as AmmoRigidBody).impl;
-        // const cb = this.constraint.connectedBody;
-        // let bodyB: any;
-        // if (cb) {
-        //     bodyB = (cb.body as AmmoRigidBody).impl;
-        // }
-        // const pivotA = AmmoConstant.instance.VECTOR3_0;
-        // if (bodyB) {
-        //     const pivotB = AmmoConstant.instance.VECTOR3_1;
-        //     this._impl = new Ammo.btPoint2PointConstraint(bodyA, bodyB, pivotA, pivotB);
-        // } else {
-        //     this._impl = new Ammo.btPoint2PointConstraint(bodyA, pivotA);
-        // }
-        // this.setPivotA(this.constraint.pivotA);
-        // this.setPivotB(this.constraint.pivotB);
+        const cb = this.constraint.connectedBody;
+        const bodyA = (this._rigidBody.body as AmmoRigidBody).impl;
+        const bodyB = cb ? (cb.body as AmmoRigidBody).impl : bt.TypedConstraint_getFixedBody();
+        const pivotA = AmmoConstant.instance.VECTOR3_0;
+        const pivotB = AmmoConstant.instance.VECTOR3_1;
+        this._impl = bt.P2PConstraint_new(bodyA, bodyB, pivotA, pivotB);
+        this.setPivotA(this.constraint.pivotA);
+        this.setPivotB(this.constraint.pivotB);
     }
 
     updateScale0 () {

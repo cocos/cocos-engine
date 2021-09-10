@@ -34,7 +34,7 @@ import { Constraint, RigidBody } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
 import { bt } from '../bullet.asmjs';
 
-export class AmmoConstraint implements IBaseConstraint {
+export abstract class AmmoConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
         // TODO: support dynamic change connected body
     }
@@ -78,11 +78,10 @@ export class AmmoConstraint implements IBaseConstraint {
     }
 
     // virtual
-    protected onComponentSet () { }
+    protected abstract onComponentSet(): void;
 
-    // virtual
-    updateScale0 () { }
-    updateScale1 () { }
+    abstract updateScale0(): void;
+    abstract updateScale1(): void;
 
     onEnable (): void {
         const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
@@ -107,7 +106,7 @@ export class AmmoConstraint implements IBaseConstraint {
     }
 
     onDestroy (): void {
-        // bt.
+        bt.TypedConstraint_del(this._impl);
         (this._com as any) = null;
         (this._rigidBody as any) = null;
     }
