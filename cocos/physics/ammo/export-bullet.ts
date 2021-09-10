@@ -62,6 +62,7 @@ interface instanceExt extends Bullet.instance {
 
     CollisionShape_isCompound(p: ptr): boolean;
     CollisionShape_setLocalScaling(p: ptr, scale: ptr): void;
+    CollisionShape_calculateLocalInertia(p: ptr, localInertia: ptr): void;
 
     EmptyShape_create(): ptr;
 
@@ -112,10 +113,26 @@ interface instanceExt extends Bullet.instance {
 
     RigidBodyConstructionInfo_create(m: number, ms: ptr, shape: ptr, localInertia: ptr): ptr;
     RigidBody_create(p: ptr): ptr;
+    RigidBody_getFlags(p: ptr): number;
+    RigidBody_setFlags(p: ptr, flags: number): void;
+    RigidBody_setGravity(p: ptr, g: ptr): number;
+    RigidBody_setDamping(p: ptr, lin: number, ang: number): void;
     RigidBody_setMassProps(p: ptr, m: number, localInertia: ptr): void;
+    RigidBody_setLinearFactor(p: ptr, f: ptr): number;
+    RigidBody_setAngularFactor(p: ptr, f: ptr): number;
+    RigidBody_getLinearVelocity(p: ptr): ptr;
+    RigidBody_getAngularVelocity(p: ptr): ptr;
+    RigidBody_setLinearVelocity(p: ptr, v: ptr): void;
+    RigidBody_setAngularVelocity(p: ptr, v: ptr): void;
     RigidBody_clearState(p: ptr): void;
+    RigidBody_clearForces(p: ptr): void;
+    RigidBody_wantsSleeping(p: ptr): boolean;
     RigidBody_setSleepingThresholds(p: ptr, linear: number, angular: number): void;
+    RigidBody_getLinearSleepingThreshold(p: ptr): number;
     RigidBody_getMotionState(p: ptr): ptr;
+    RigidBody_applyTorque(p: ptr, f: ptr): void;
+    RigidBody_applyForce(p: ptr, f: ptr, rp: ptr): void;
+    RigidBody_applyImpulse(p: ptr, f: ptr, rp: ptr): void;
 
     // dynamic
 

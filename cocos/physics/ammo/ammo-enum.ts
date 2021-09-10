@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Ammo from './instantiated';
+// import Ammo from './instantiated';
 
 export enum EAmmoSharedBodyDirty {
     BODY_RE_ADD = 1,
@@ -44,7 +44,7 @@ export enum AmmoCollisionFlags {
     CF_DISABLE_VISUALIZE_OBJECT = 32, // disable debug drawing
     CF_DISABLE_SPU_COLLISION_PROCESSING = 64// disable parallel/SPU processing
 }
-(Ammo as any).AmmoCollisionFlags = AmmoCollisionFlags;
+// (Ammo as any).AmmoCollisionFlags = AmmoCollisionFlags;
 
 export enum AmmoCollisionObjectTypes {
     CO_COLLISION_OBJECT = 1,
@@ -57,7 +57,7 @@ export enum AmmoCollisionObjectTypes {
     CO_USER_TYPE = 32,
     CO_FEATHERSTONE_LINK = 64
 }
-(Ammo as any).AmmoCollisionObjectTypes = AmmoCollisionObjectTypes;
+// (Ammo as any).AmmoCollisionObjectTypes = AmmoCollisionObjectTypes;
 
 export enum AmmoCollisionObjectStates {
     ACTIVE_TAG = 1,
@@ -73,7 +73,7 @@ export enum AmmoAnisotropicFrictionFlags {
     CF_ANISOTROPIC_FRICTION = 1,
     CF_ANISOTROPIC_ROLLING_FRICTION = 2
 }
-(Ammo as any).AmmoAnisotropicFrictionFlags = AmmoAnisotropicFrictionFlags;
+// (Ammo as any).AmmoAnisotropicFrictionFlags = AmmoAnisotropicFrictionFlags;
 
 export enum AmmoRigidBodyFlags {
     BT_DISABLE_WORLD_GRAVITY = 1,
@@ -83,7 +83,7 @@ export enum AmmoRigidBodyFlags {
     /// See Demos/GyroscopicDemo for an example use
     BT_ENABLE_GYROPSCOPIC_FORCE = 2
 }
-(Ammo as any).AmmoRigidBodyFlags = AmmoRigidBodyFlags;
+// (Ammo as any).AmmoRigidBodyFlags = AmmoRigidBodyFlags;
 
 /// btDispatcher uses these types
 /// IMPORTANT NOTE:The types are ordered polyhedral, implicit convex and concave
@@ -140,7 +140,7 @@ export enum AmmoBroadphaseNativeTypes {
 
     MAX_BROADPHASE_COLLISION_TYPES
 }
-(Ammo as any).AmmoBroadphaseNativeTypes = AmmoBroadphaseNativeTypes;
+// (Ammo as any).AmmoBroadphaseNativeTypes = AmmoBroadphaseNativeTypes;
 
 export enum AmmoCollisionFilterGroups {
     DefaultFilter = 1,
@@ -151,11 +151,11 @@ export enum AmmoCollisionFilterGroups {
     CharacterFilter = 32,
     AllFilter = -1 // all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
 }
-(Ammo as any).AmmoCollisionFilterGroups = AmmoCollisionFilterGroups;
+// (Ammo as any).AmmoCollisionFilterGroups = AmmoCollisionFilterGroups;
 
 export enum AmmoDispatcherFlags {
     CD_STATIC_STATIC_REPORTED = 1,
     CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD = 2,
     CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION = 4
 }
-(Ammo as any).AmmoDispatcherFlags = AmmoDispatcherFlags;
+// (Ammo as any).AmmoDispatcherFlags = AmmoDispatcherFlags;

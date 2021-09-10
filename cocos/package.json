@@ -1,0 +1,47 @@
+{
+  "_args": [
+    [
+      "github:JayceLai/bullet-release#master",
+      "E:\\Cocos\\editor-3d\\resources\\3d\\engine"
+    ]
+  ],
+  "_from": "github:JayceLai/bullet-release#master",
+  "_id": "@cocos/bullet@github:JayceLai/bullet-release#d97a5584777692b0e4eba871c7df3976bd93e7ee",
+  "_inBundle": false,
+  "_integrity": "",
+  "_location": "/@cocos/bullet",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "git",
+    "raw": "github:JayceLai/bullet-release#master",
+    "rawSpec": "github:JayceLai/bullet-release#master",
+    "saveSpec": "github:JayceLai/bullet-release#master",
+    "fetchSpec": null,
+    "gitCommittish": "master"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "github:JayceLai/bullet-release#d97a5584777692b0e4eba871c7df3976bd93e7ee",
+  "_spec": "github:JayceLai/bullet-release#master",
+  "_where": "E:\\Cocos\\editor-3d\\resources\\3d\\engine",
+  "author": {
+    "name": "jiaxin.lai"
+  },
+  "description": "",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/plugin-transform-modules-umd": "^7.8.3",
+    "@babel/preset-env": "^7.8.7"
+  },
+  "license": "ISC",
+  "main": "bullet.cocos.js",
+  "name": "@cocos/bullet",
+  "scripts": {
+    "build": "npm run minify && node port.js && babel --plugins @babel/plugin-transform-modules-umd bullet.temp.js -o bullet.cocos.js",
+    "minify": "uglifyjs bullet.asm.js -c -m -o bullet.asm.min.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}

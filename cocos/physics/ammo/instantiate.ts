@@ -41,8 +41,8 @@ import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
 // import { AmmoSimplexShape } from './shapes/ammo-simplex-shape';
 import { AmmoPlaneShape } from './shapes/ammo-plane-shape';
 
-import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
-import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
+// import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
+// import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
 import { Game, game } from '../../core';
 
 game.once(Game.EVENT_ENGINE_INITED, () => {
@@ -60,7 +60,7 @@ game.once(Game.EVENT_ENGINE_INITED, () => {
         // SimplexShape: AmmoSimplexShape,
         PlaneShape: AmmoPlaneShape,
 
-        PointToPointConstraint: AmmoPointToPointConstraint,
-        HingeConstraint: AmmoHingeConstraint,
+        // PointToPointConstraint: AmmoPointToPointConstraint,
+        // HingeConstraint: AmmoHingeConstraint,
     });
 });
