@@ -3,7 +3,7 @@ declare module 'pal/input' {
         /**
          * Type of the input event used to quickly distinguish between event types.
          */
-        readonly type: import('../../cocos/input/types').SystemEventTypeUnion;
+        readonly type: import('cocos/input/types').SystemEventTypeUnion;
         /**
          * Timestamp when the input event is triggered.
          */
@@ -132,7 +132,7 @@ declare module 'pal/input' {
         /**
          * Numerical code identifying the unique value of the pressed key.
          */
-        readonly code: import('../../cocos/input/types').KeyCode;
+        readonly code: import('cocos/input/types').KeyCode;
     }
     type KeyboardCallback = (res: KeyboardInputEvent) => void;
     /**
