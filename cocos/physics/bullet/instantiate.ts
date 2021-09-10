@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { Game, game } from '../../core';
 import { selector } from '../framework/physics-selector';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletWorld } from './bullet-world';
@@ -40,10 +41,6 @@ import { BulletConeShape } from './shapes/bullet-cone-shape';
 import { BulletTerrainShape } from './shapes/bullet-terrain-shape';
 import { BulletSimplexShape } from './shapes/bullet-simplex-shape';
 import { BulletPlaneShape } from './shapes/bullet-plane-shape';
-
-// import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
-// import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
-import { Game, game } from '../../core';
 import { BulletP2PConstraint } from './constraints/bullet-p2p-constraint';
 import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
 
@@ -51,7 +48,7 @@ game.once(Game.EVENT_ENGINE_INITED, () => {
     selector.register('bullet', {
         PhysicsWorld: BulletWorld,
         RigidBody: BulletRigidBody,
-    
+
         BoxShape: BulletBoxShape,
         SphereShape: BulletSphereShape,
         CapsuleShape: BulletCapsuleShape,
@@ -61,7 +58,8 @@ game.once(Game.EVENT_ENGINE_INITED, () => {
         TerrainShape: BulletTerrainShape,
         SimplexShape: BulletSimplexShape,
         PlaneShape: BulletPlaneShape,
-    
+
         PointToPointConstraint: BulletP2PConstraint,
         HingeConstraint: BulletHingeConstraint,
+    });
 });
