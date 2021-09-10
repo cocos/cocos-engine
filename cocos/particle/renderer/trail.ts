@@ -358,6 +358,9 @@ export default class TrailModule {
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
         this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
+        if (this._trailNum === 0) {
+            this._enable = false;
+        }
         this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
         if (this._enable) {
             this.enable = this._enable;
@@ -624,9 +627,6 @@ export default class TrailModule {
     }
 
     private rebuild () {
-        if (this._trailNum === 0) {
-            return;
-        }
         const device: Device = director.root!.device;
         const vertexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
