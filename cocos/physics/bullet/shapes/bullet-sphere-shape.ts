@@ -32,7 +32,7 @@ import { BulletShape } from './bullet-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { BulletConst, CC_V3_0 } from '../bullet-const';
+import { BulletCache, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../bullet.asmjs';
 import { absMaxComponent } from '../../../core';
 
@@ -55,7 +55,7 @@ export class BulletSphereShape extends BulletShape implements ISphereShape {
         super.updateScale();
         const scale = this.getMinScale();
         CC_V3_0.set(scale, scale, scale);
-        const bt_v3 = BulletConst.instance.BT_V3_0;
+        const bt_v3 = BulletCache.instance.BT_V3_0;
         bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, CC_V3_0));
         this.updateCompoundTransform();
     }

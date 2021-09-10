@@ -34,7 +34,7 @@ import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
-import { BulletConst, CC_QUAT_0, CC_V3_0 } from '../bullet-const';
+import { BulletCache, CC_QUAT_0, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../bullet.asmjs';
 import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
 
@@ -59,8 +59,8 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         const cb = this.constraint.connectedBody;
         const bodyA = (this._rigidBody.body as BulletRigidBody).impl;
         const bodyB = cb ? (cb.body as BulletRigidBody).impl : bt.TypedConstraint_getFixedBody();
-        const trans0 = BulletConst.instance.BT_TRANSFORM_0;
-        const trans1 = BulletConst.instance.BT_TRANSFORM_1;
+        const trans0 = BulletCache.instance.BT_TRANSFORM_0;
+        const trans1 = BulletCache.instance.BT_TRANSFORM_1;
         this._impl = bt.HingeConstraint_new(bodyA, bodyB, trans0, trans1);
         this.updateFrames();
     }
@@ -70,15 +70,15 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         const node = cs.node;
         const v3_0 = CC_V3_0;
         const rot_0 = CC_QUAT_0;
-        const trans0 = BulletConst.instance.BT_TRANSFORM_0;
+        const trans0 = BulletCache.instance.BT_TRANSFORM_0;
         Vec3.multiply(v3_0, node.worldScale, cs.pivotA);
         cocos2BulletVec3(bt.Transform_getOrigin(trans0), v3_0);
-        const quat = BulletConst.instance.BT_QUAT_0;
+        const quat = BulletCache.instance.BT_QUAT_0;
         Quat.rotationTo(rot_0, Vec3.UNIT_Z, cs.axis);
         cocos2BulletQuat(quat, rot_0);
         bt.Transform_setRotation(trans0, quat);
 
-        const trans1 = BulletConst.instance.BT_TRANSFORM_1;
+        const trans1 = BulletCache.instance.BT_TRANSFORM_1;
         const cb = this.constraint.connectedBody;
         if (cb) {
             Vec3.multiply(v3_0, cb.node.worldScale, cs.pivotB);

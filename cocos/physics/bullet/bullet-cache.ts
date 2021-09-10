@@ -28,7 +28,6 @@
  * @hidden
  */
 
-import { IBulletBodyStruct, IBulletGhostStruct } from './bullet-interface';
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
 import { bt } from './bullet.asmjs';
@@ -48,44 +47,29 @@ export const CollisionEventObject = {
     impl: null,
 };
 
-export class BulletConst {
-    private static _instance: BulletConst;
+export class BulletCache {
+    private static _instance: BulletCache;
     static get instance () {
-        if (BulletConst._instance == null) BulletConst._instance = new BulletConst();
-        return BulletConst._instance;
+        if (BulletCache._instance == null) BulletCache._instance = new BulletCache();
+        return BulletCache._instance;
+    }
+
+    static readonly ROOT: { [x: number]: Record<string, unknown> } = {};
+
+    static setWrapper (impl: Bullet.ptr, type: string, wrap: {}) {
+        if (!this.ROOT[type]) this.ROOT[type] = {};
+        this.ROOT[type][impl] = wrap;
+    }
+
+    static delWrapper (impl: Bullet.ptr, type: string) {
+        delete this.ROOT[type][impl];
+    }
+
+    static getWrapper<T> (ptr: Bullet.ptr, type: string): T {
+        return this.ROOT[type][ptr] as T;
     }
 
     static isNotEmptyShape (ptr: Bullet.ptr) { return ptr !== bt.EmptyShape_static(); }
-
-    //////////
-    static readonly bodyAndGhosts: {
-        [x: string]: IBulletBodyStruct | IBulletGhostStruct
-    } = {};
-
-    static get bodyStructs () {
-        return this.bodyAndGhosts as { [x: string]: IBulletBodyStruct };
-    }
-
-    static get ghostStructs () {
-        return this.bodyAndGhosts as { [x: string]: IBulletGhostStruct };
-    }
-    //////////
-
-    //////////
-    static readonly ptr2WrapObj: { [x: number]: Record<string, unknown> } = {};
-
-    static setWrapper (impl: Bullet.ptr, wrap: {}) {
-        this.ptr2WrapObj[impl] = wrap;
-    }
-
-    static delWrapper (impl: Bullet.ptr) {
-        delete this.ptr2WrapObj[impl];
-    }
-
-    static getWrapper<T> (ptr: Bullet.ptr): T {
-        return this.ptr2WrapObj[ptr] as T;
-    }
-    //////////
 
     readonly BT_TRANSFORM_0 = bt.Transform_new();
     readonly BT_TRANSFORM_1 = bt.Transform_new();
@@ -98,3 +82,5 @@ export class BulletConst {
 export const CC_V3_0 = new Vec3();
 export const CC_V3_1 = new Vec3();
 export const CC_QUAT_0 = new Quat();
+
+bt.CACHE = BulletCache;

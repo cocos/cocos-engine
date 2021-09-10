@@ -34,7 +34,7 @@ import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
-import { BulletConst } from '../bullet-const';
+import { BulletCache } from '../bullet-cache';
 import { bt } from '../bullet.asmjs';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
@@ -45,7 +45,7 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     setMesh (v: Mesh | null) {
         if (!this._isInitialized) return;
 
-        if (this._impl && BulletConst.isNotEmptyShape(this._impl)) {
+        if (this._impl && BulletCache.isNotEmptyShape(this._impl)) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {
@@ -57,13 +57,13 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
                 } else {
                     this._impl = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, true);
                 }
-                const bt_v3 = BulletConst.instance.BT_V3_0;
+                const bt_v3 = BulletCache.instance.BT_V3_0;
                 cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
                 bt.CollisionShape_setMargin(this._impl, 0.01);
                 bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
-                this.setWrapper();
                 this.setCompound(this._compound);
                 this.updateByReAdd();
+                this.setWrapper();
             } else {
                 this._impl = bt.EmptyShape_static();
             }
@@ -81,36 +81,17 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
         super.onDestroy();
     }
 
-    setCompound (compound: Bullet.ptr) {
-        super.setCompound(compound);
-        bt.CollisionShape_setUserIndex(this._impl, this._index);
-    }
-
     updateScale () {
         super.updateScale();
-        const bt_v3 = BulletConst.instance.BT_V3_0;
+        const bt_v3 = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
         bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();
     }
 
     private _getBtTriangleMesh (mesh: Mesh): Bullet.ptr {
-        let btTriangleMesh: Bullet.ptr;
-        if (ENABLE_CACHE) {
-            if (CACHE[mesh._uuid] == null) {
-                const btm = bt.TriangleMesh_new();
-                CACHE[mesh._uuid] = btm;
-                cocos2BulletTriMesh(btm, mesh);
-            }
-            btTriangleMesh = CACHE[mesh._uuid];
-        } else {
-            this.refBtTriangleMesh = btTriangleMesh = bt.TriangleMesh_new();
-            cocos2BulletTriMesh(btTriangleMesh, mesh);
-        }
-        return btTriangleMesh;
+        this.refBtTriangleMesh = bt.TriangleMesh_new();
+        cocos2BulletTriMesh(this.refBtTriangleMesh, mesh);
+        return this.refBtTriangleMesh;
     }
 }
-
-// TODO: refactor
-const CACHE = {};
-const ENABLE_CACHE = true;

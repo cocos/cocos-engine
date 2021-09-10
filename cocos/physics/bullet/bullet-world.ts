@@ -34,7 +34,7 @@ import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
-import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletConst } from './bullet-const';
+import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletCache } from './bullet-cache';
 import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
@@ -58,7 +58,7 @@ export class BulletWorld implements IPhysicsWorld {
     setDefaultMaterial (v: PhysicsMaterial) { }
 
     setGravity (gravity: IVec3Like) {
-        const TMP = BulletConst.instance.BT_V3_0;
+        const TMP = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(TMP, gravity);
         bt.DynamicsWorld_setGravity(this._world, TMP);
     }
@@ -85,7 +85,7 @@ export class BulletWorld implements IPhysicsWorld {
         this._dispatcher = bt.CollisionDispatcher_new();
         this._solver = bt.SequentialImpulseConstraintSolver_new();
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
-        const TMP = BulletConst.instance.BT_V3_0;
+        const TMP = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(TMP, 0, -10, 0);
         bt.DynamicsWorld_setGravity(this._world, TMP);
     }
@@ -107,7 +107,7 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0) {
-        if (this.bodies.length === 0 && this.ghosts.length === 0) return;
+        if (!this.bodies.length && !this.ghosts.length) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
 
@@ -134,8 +134,8 @@ export class BulletWorld implements IPhysicsWorld {
 
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
-        const to = cocos2BulletVec3(BulletConst.instance.BT_V3_0, v3_0);
-        const from = cocos2BulletVec3(BulletConst.instance.BT_V3_1, worldRay.o);
+        const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
+        const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const allHitsCB = bt.ccAllRayCallback_static();
         bt.ccAllRayCallback_reset(allHitsCB, from, to, options.mask, options.queryTrigger);
         bt.CollisionWorld_rayTest(this._world, from, to, allHitsCB);
@@ -145,8 +145,8 @@ export class BulletWorld implements IPhysicsWorld {
             const ptrArray = bt.ccAllRayCallback_getCollisionShapePtrs(allHitsCB);
             for (let i = 0, n = bt.int_array_size(ptrArray); i < n; i++) {
                 bullet2CocosVec3(v3_0, bt.Vec3_array_at(posArray, i));
-                bullet2CocosVec3(v3_1, bt.Vec3_array_at(normalArray, i)); 
-                const shape = BulletConst.getWrapper<BulletShape>(bt.int_array_at(ptrArray, i));
+                bullet2CocosVec3(v3_1, bt.Vec3_array_at(normalArray, i));
+                const shape = BulletCache.getWrapper<BulletShape>(bt.int_array_at(ptrArray, i), BulletShape.TYPE);
                 const r = pool.add(); results.push(r);
                 r._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
             }
@@ -157,15 +157,15 @@ export class BulletWorld implements IPhysicsWorld {
 
     raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
-        const to = cocos2BulletVec3(BulletConst.instance.BT_V3_0, v3_0);
-        const from = cocos2BulletVec3(BulletConst.instance.BT_V3_1, worldRay.o);
+        const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
+        const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const closeHitCB = bt.ccClosestRayCallback_static();
         bt.ccClosestRayCallback_reset(closeHitCB, from, to, options.mask, options.queryTrigger);
         bt.CollisionWorld_rayTest(this._world, from, to, closeHitCB);
         if (bt.RayCallback_hasHit(closeHitCB)) {
             bullet2CocosVec3(v3_0, bt.ccClosestRayCallback_getHitPointWorld(closeHitCB));
             bullet2CocosVec3(v3_1, bt.ccClosestRayCallback_getHitNormalWorld(closeHitCB));
-            const shape = BulletConst.getWrapper<BulletShape>(bt.ccClosestRayCallback_getCollisionShapePtr(closeHitCB));
+            const shape = BulletCache.getWrapper<BulletShape>(bt.ccClosestRayCallback_getCollisionShapePtr(closeHitCB), BulletShape.TYPE);
             result._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
             return true;
         }
@@ -227,65 +227,37 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
-        // const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
-        // for (let i = 0; i < numManifolds; i++) {
-        //     const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
-        //     // const body0 = bt.PersistentManifold_getBody0(manifold);
-        //     // const body1 = bt.PersistentManifold_getBody1(manifold);
+        const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
+        for (let i = 0; i < numManifolds; i++) {
+            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
+            const numContacts = bt.PersistentManifold_getNumContacts(manifold);
+            for (let j = 0; j < numContacts; j++) {
+                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
+                const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
+                const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
+                const shape0: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
+                const shape1: BulletShape = BulletCache.getWrapper(s1, BulletShape.TYPE);
 
-        //     // // TODO: SUPPORT CHARACTER EVENT
-        //     // if (body0.useCharacter || body1.useCharacter) { continue; }
-
-        //     const numContacts = bt.PersistentManifold_getNumContacts(manifold);
-        //     for (let j = 0; j < numContacts; j++) {
-        //         // const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
-        //         // const s0 = body0.getCollisionShape();
-        //         // const s1 = body1.getCollisionShape();
-        //         const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
-        //         const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
-        //         const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
-        //         let shape0: BulletShape;
-        //         let shape1: BulletShape;
-        //         if (bt.CollisionShape_isCompound(s0)) {
-        //             const index0 = bt.ManifoldPoint_get_m_index0(manifoldPoint);
-        //             shape0 = bt.getObjByPtr(bt.CompoundShape_getChildShape(s0, index0));
-        //         } else {
-        //             // shape0 = s0.wrapped;
-        //             shape0 = bt.getObjByPtr(s0);
-        //         }
-
-        //         if (!shape0) continue;
-
-        //         if (bt.CollisionShape_isCompound(s1)) {
-        //             const index1 = bt.ManifoldPoint_get_m_index1(manifoldPoint);
-        //             shape1 = bt.getObjByPtr(bt.CompoundShape_getChildShape(s1, index1));
-        //         } else {
-        //             // shape1 = s1.wrapped;
-        //             shape1 = bt.getObjByPtr(s1);
-        //         }
-
-        //         if (!shape1) continue;
-
-        //         if (shape0.collider.needTriggerEvent
-        //             || shape1.collider.needTriggerEvent
-        //             || shape0.collider.needCollisionEvent
-        //             || shape1.collider.needCollisionEvent
-        //         ) {
-        //             // current contact
-        //             let item = this.contactsDic.get<any>(shape0.id, shape1.id);
-        //             if (item == null) {
-        //                 item = this.contactsDic.set(shape0.id, shape1.id,
-        //                     {
-        //                         shape0,
-        //                         shape1,
-        //                         contacts: [],
-        //                         impl: manifold,
-        //                     });
-        //             }
-        //             item.contacts.push(manifoldPoint);
-        //         }
-        //     }
-        // }
+                if (shape0.collider.needTriggerEvent
+                    || shape1.collider.needTriggerEvent
+                    || shape0.collider.needCollisionEvent
+                    || shape1.collider.needCollisionEvent
+                ) {
+                    // current contact
+                    let item = this.contactsDic.get<any>(shape0.id, shape1.id);
+                    if (item == null) {
+                        item = this.contactsDic.set(shape0.id, shape1.id,
+                            {
+                                shape0,
+                                shape1,
+                                contacts: [],
+                                impl: manifold,
+                            });
+                    }
+                    item.contacts.push(manifoldPoint);
+                }
+            }
+        }
 
         // is enter or stay
         let dicL = this.contactsDic.getLength();

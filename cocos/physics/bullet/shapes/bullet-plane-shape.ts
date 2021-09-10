@@ -33,7 +33,7 @@ import { PlaneCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { BulletConst } from '../bullet-const';
+import { BulletCache } from '../bullet-cache';
 import { bt } from '../bullet.asmjs';
 
 export class BulletPlaneShape extends BulletShape implements IPlaneShape {
@@ -49,7 +49,7 @@ export class BulletPlaneShape extends BulletShape implements IPlaneShape {
 
     updateScale () {
         super.updateScale();
-        const bt_v3 = BulletConst.instance.BT_V3_0;
+        const bt_v3 = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
         bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();
@@ -60,7 +60,7 @@ export class BulletPlaneShape extends BulletShape implements IPlaneShape {
     }
 
     onComponentSet () {
-        const normal = BulletConst.instance.BT_V3_0;
+        const normal = BulletCache.instance.BT_V3_0;
         cocos2BulletVec3(normal, this.collider.normal);
         this._impl = bt.StaticPlaneShape_new(normal, this.collider.constant);
         this.updateScale();

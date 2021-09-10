@@ -34,7 +34,7 @@ import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
 import { bt } from '../bullet.asmjs';
-import { BulletConst } from '../bullet-const';
+import { BulletCache } from '../bullet-cache';
 
 export class BulletConeShape extends BulletShape implements ICylinderShape {
     setHeight (v: number) {
@@ -100,7 +100,7 @@ export class BulletConeShape extends BulletShape implements ICylinderShape {
         bt.ConeShape_setHeight(this._impl, wh);
         bt.ConeShape_setConeUpIndex(this._impl, upAxis);
 
-        const bt_v3 = BulletConst.instance.BT_V3_0;
+        const bt_v3 = BulletCache.instance.BT_V3_0;
         bt.Vec3_set(bt_v3, 1, 1, 1);
         bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();

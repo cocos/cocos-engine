@@ -34,7 +34,7 @@ import { TerrainCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { ITerrainShape } from '../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../spec/i-external';
-import { CC_V3_0, BulletConst } from '../bullet-const';
+import { CC_V3_0, BulletCache } from '../bullet-cache';
 import { IVec3Like } from '../../../core/math/type-define';
 import { bt } from '../bullet.asmjs';
 
@@ -46,7 +46,7 @@ export class BulletTerrainShape extends BulletShape implements ITerrainShape {
     setTerrain (v: ITerrainAsset | null): void {
         if (!this._isInitialized) return;
 
-        if (this._impl && BulletConst.isNotEmptyShape(this._impl)) {
+        if (this._impl && BulletCache.isNotEmptyShape(this._impl)) {
             // TODO: change the terrain asset after initialization
             warn('[Physics][Bullet]: change the terrain asset after initialization is not support.');
         } else {
@@ -71,11 +71,12 @@ export class BulletTerrainShape extends BulletShape implements ITerrainShape {
                 max += 0.01; min -= 0.01;
                 this._localOffset.set((sizeI - 1) / 2 * this._tileSize, (max + min) / 2, (sizeJ - 1) / 2 * this._tileSize);
                 this._impl = bt.TerrainShape_new(sizeI, sizeJ, this._bufPtr, 1, min, max);
-                const bt_v3 = BulletConst.instance.BT_V3_0;
+                const bt_v3 = BulletCache.instance.BT_V3_0;
                 bt.Vec3_set(bt_v3, this._tileSize, 1, this._tileSize);
                 bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
                 this.setCompound(this._compound);
                 this.updateByReAdd();
+                this.setWrapper();
             } else {
                 this._impl = bt.EmptyShape_static();
             }
@@ -93,11 +94,6 @@ export class BulletTerrainShape extends BulletShape implements ITerrainShape {
     onDestroy () {
         if (this._bufPtr) bt._free(this._bufPtr);
         super.onDestroy();
-    }
-
-    setCompound (compound: Bullet.ptr) {
-        super.setCompound(compound);
-        bt.CollisionShape_setUserIndex(this._impl, this._index);
     }
 
     setCenter (v: IVec3Like) {

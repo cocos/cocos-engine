@@ -37,21 +37,24 @@ import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BulletSharedBody } from '../bullet-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
-import { BulletConst, CC_V3_0 } from '../bullet-const';
+import { BulletCache, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../bullet.asmjs';
 import { EColliderType } from '../../framework';
 
 const v3_0 = CC_V3_0;
-
+const ccMaterialBooks = {};
 export abstract class BulletShape implements IBaseShape {
     updateEventListener (): void { }
 
     setMaterial (v: PhysicsMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
             if (this._compound) {
-                bt.CompoundShape_setMaterial(this._compound, this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
+                if (!ccMaterialBooks[v._uuid]) ccMaterialBooks[v._uuid] = bt.ccMaterial_new();
+                const mat = ccMaterialBooks[v._uuid];
+                bt.ccMaterial_set(mat, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
+                bt.CollisionShape_setMaterial(mat);
             } else {
-                bt.CollisionObject_setMaterial(this._sharedBody.body, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
+                bt.CollisionObject_setMaterial(this._sharedBody.body, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
             }
         }
     }
@@ -81,11 +84,10 @@ export abstract class BulletShape implements IBaseShape {
     get impl () { return this._impl; }
     get collider (): Collider { return this._collider; }
     get sharedBody (): BulletSharedBody { return this._sharedBody; }
-    get index () { return this._index; }
 
+    static readonly TYPE = "shape";
     private static idCounter = 0;
     readonly id = BulletShape.idCounter++;
-    protected _index = -1;
     protected _isEnabled = false;
     protected _isTrigger = false;
     protected _isInitialized = false;
@@ -96,12 +98,13 @@ export abstract class BulletShape implements IBaseShape {
     protected _collider!: Collider;
     protected _sharedBody!: BulletSharedBody;
 
+
     getAABB (v: AABB) {
-        const bt_transform = BulletConst.instance.BT_TRANSFORM_0;
+        const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
         bt.Transform_setIdentity(bt_transform);
-        bt.Transform_setRotation(bt_transform, cocos2BulletQuat(BulletConst.instance.BT_QUAT_0, this._collider.node.worldRotation));
-        const MIN = BulletConst.instance.BT_V3_0;
-        const MAX = BulletConst.instance.BT_V3_1;
+        bt.Transform_setRotation(bt_transform, cocos2BulletQuat(BulletCache.instance.BT_QUAT_0, this._collider.node.worldRotation));
+        const MIN = BulletCache.instance.BT_V3_0;
+        const MAX = BulletCache.instance.BT_V3_1;
         bt.CollisionShape_getAabb(this._impl, bt_transform, MIN, MAX);
         v.halfExtents.x = (bt.Vec3_x(MAX) - bt.Vec3_x(MIN)) / 2;
         v.halfExtents.y = (bt.Vec3_y(MAX) - bt.Vec3_y(MIN)) / 2;
@@ -124,9 +127,9 @@ export abstract class BulletShape implements IBaseShape {
     }
 
     setWrapper () {
-        if (BulletConst.isNotEmptyShape(this._impl)) {
+        if (BulletCache.isNotEmptyShape(this._impl)) {
             bt.CollisionShape_setUserPointer(this._impl, this._impl);
-            BulletConst.setWrapper(this._impl, this);
+            BulletCache.setWrapper(this._impl, BulletShape.TYPE, this);
         }
     }
 
@@ -156,9 +159,9 @@ export abstract class BulletShape implements IBaseShape {
         bt.Quat_del(this.quat);
         bt.Transform_del(this.transform);
         if (this._compound) bt.CollisionShape_del(this._compound);
-        if (BulletConst.isNotEmptyShape(this._impl)) {
+        if (BulletCache.isNotEmptyShape(this._impl)) {
             bt.CollisionShape_del(this._impl);
-            BulletConst.delWrapper(this._impl);
+            BulletCache.delWrapper(this._impl, BulletShape.TYPE);
         }
     }
 
@@ -202,14 +205,8 @@ export abstract class BulletShape implements IBaseShape {
     }
 
     setCompound (compound: Bullet.ptr) {
-        if (this._compound) {
-            bt.CompoundShape_removeChildShape(this._compound, this._impl);
-            this._index = -1;
-        }
-        if (compound) {
-            this._index = bt.CompoundShape_getNumChildShapes(compound);
-            bt.CompoundShape_addChildShape(compound, this.transform, this._impl);
-        }
+        if (this._compound) bt.CompoundShape_removeChildShape(this._compound, this._impl);
+        if (compound) bt.CompoundShape_addChildShape(compound, this.transform, this._impl);
         this._compound = compound;
     }
 
@@ -219,7 +216,7 @@ export abstract class BulletShape implements IBaseShape {
 
     updateCompoundTransform () {
         if (this._compound) {
-            bt.CompoundShape_updateChildTransform(this._compound, this._index, this.transform, true);
+            bt.CompoundShape_updateChildTransform(this._compound, this._impl, this.transform, true);
         } else if (this._isEnabled && !this._isTrigger) {
             if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
                 this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;

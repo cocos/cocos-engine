@@ -32,7 +32,7 @@ import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 import { Mesh } from '../../3d';
 import { PrimitiveMode } from '../../core/gfx';
 import { bt } from './bullet.asmjs';
-import { BulletConst } from './bullet-const';
+import { BulletCache } from './bullet-cache';
 
 export function cocos2BulletVec3 (out: Bullet.ptr, v: IVec3Like): Bullet.ptr {
     bt.Vec3_set(out, v.x, v.y, v.z);
@@ -68,9 +68,9 @@ export function cocos2BulletTriMesh (out: Bullet.ptr, mesh: Mesh): any {
             const primitiveMode = subMesh.primitiveMode;
             const vb = geoInfo.positions;
             const ib = geoInfo.indices!;
-            const v0 = BulletConst.instance.BT_V3_0;
-            const v1 = BulletConst.instance.BT_V3_1;
-            const v2 = BulletConst.instance.BT_V3_2;
+            const v0 = BulletCache.instance.BT_V3_0;
+            const v1 = BulletCache.instance.BT_V3_1;
+            const v2 = BulletCache.instance.BT_V3_2;
             if (primitiveMode === PrimitiveMode.TRIANGLE_LIST) {
                 const cnt = ib.length;
                 for (let j = 0; j < cnt; j += 3) {
