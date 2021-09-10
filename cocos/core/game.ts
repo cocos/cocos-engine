@@ -824,7 +824,7 @@ export class Game extends EventTarget {
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
-            const antiAlias = EDITOR || (JSB ? macro.ENABLE_GLES_ANTIALIAS : macro.ENABLE_WEBGL_ANTIALIAS);
+            const antiAlias = EDITOR || macro.ENABLE_WEBGL_ANTIALIAS;
 
             const opts = new DeviceInfo(
                 this.canvas as HTMLCanvasElement,
