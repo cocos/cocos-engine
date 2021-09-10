@@ -141,10 +141,6 @@ export class BulletWorld implements IPhysicsWorld {
         if (!this.bodies.length && !this.ghosts.length) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
-
-        if (!bt.USE_MOTION_STATE) {
-            for (let i = 0; i < this.bodies.length; i++) this.bodies[i].syncPhysicsToScene();
-        }
     }
 
     syncSceneToPhysics (): void {
