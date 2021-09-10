@@ -34,7 +34,7 @@ import { AmmoShape } from './ammo-shape';
 import { Vec3, warn } from '../../../core';
 import { TerrainCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ITerrainShape } from '../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../spec/i-external';
 import { CC_V3_0, AmmoConstant } from '../ammo-const';
@@ -100,7 +100,7 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
     private _localOffset: Vec3;
 
     constructor () {
-        super(AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE);
+        super(btBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE);
         this._buffPtr = 0;
         this._tileSize = 0;
         this._localOffset = new Vec3();

@@ -35,7 +35,7 @@ import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { AmmoConstant } from '../ammo-const';
 
@@ -78,7 +78,7 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
     private refBtTriangleMesh: Ammo.btTriangleMesh | null = null;
 
     constructor () {
-        super(AmmoBroadphaseNativeTypes.TRIANGLE_MESH_SHAPE_PROXYTYPE);
+        super(btBroadphaseNativeTypes.TRIANGLE_MESH_SHAPE_PROXYTYPE);
     }
 
     onComponentSet () {

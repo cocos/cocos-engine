@@ -33,7 +33,7 @@
 import { AmmoShape } from './ammo-shape';
 import { Vec3 } from '../../../core';
 import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { absolute, VEC3_0 } from '../../utils/util';
 import { cocos2BulletVec3 } from '../ammo-util';
@@ -53,7 +53,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     }
 
     constructor () {
-        super(AmmoBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
+        super(btBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
     }
 
     onComponentSet () {
@@ -70,7 +70,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         this.updateCompoundTransform();
     }
 
-    getMinUnscaledHalfExtents (out:Vec3) {
+    getMinUnscaledHalfExtents (out: Vec3) {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
@@ -82,7 +82,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         return out;
     }
 
-    getMinScale (out:Vec3) {
+    getMinScale (out: Vec3) {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
         const minVolumeSize = PhysicsSystem.instance.minVolumeSize;

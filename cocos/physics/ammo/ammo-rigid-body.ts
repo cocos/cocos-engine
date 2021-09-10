@@ -33,7 +33,7 @@ import { Vec3, Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { cocos2BulletVec3, bullet2CocosVec3 } from './ammo-util';
 import { RigidBody, PhysicsSystem } from '../../../exports/physics-framework';
-import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } from './ammo-enum';
+import { btCollisionFlags, btRigidBodyFlags, btCollisionObjectStates, EBtSharedBodyDirty } from './ammo-enum';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
 import { AmmoSharedBody } from './ammo-shared-body';
@@ -47,18 +47,18 @@ const v3_1 = CC_V3_1;
 export class AmmoRigidBody implements IRigidBody {
     get isAwake (): boolean {
         const state = bt.CollisionObject_getActivationState(this.impl);
-        return state === AmmoCollisionObjectStates.ACTIVE_TAG
-            || state === AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
+        return state === btCollisionObjectStates.ACTIVE_TAG
+            || state === btCollisionObjectStates.DISABLE_DEACTIVATION;
     }
 
     get isSleepy (): boolean {
         const state = bt.CollisionObject_getActivationState(this.impl);
-        return state === AmmoCollisionObjectStates.WANTS_DEACTIVATION;
+        return state === btCollisionObjectStates.WANTS_DEACTIVATION;
     }
 
     get isSleeping (): boolean {
         const state = bt.CollisionObject_getActivationState(this.impl);
-        return state === AmmoCollisionObjectStates.ISLAND_SLEEPING;
+        return state === btCollisionObjectStates.ISLAND_SLEEPING;
     }
 
     setMass (value: number) {
@@ -76,7 +76,7 @@ export class AmmoRigidBody implements IRigidBody {
         }
         bt.RigidBody_setMassProps(this.impl, value, localInertia);
         this._wakeUpIfSleep();
-        this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+        this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
     }
 
     setType (v: ERigidBodyType) {
@@ -95,14 +95,14 @@ export class AmmoRigidBody implements IRigidBody {
         if (!this._rigidBody.isDynamic) return;
         let m_rigidBodyFlag = bt.RigidBody_getFlags(this.impl);
         if (value) {
-            m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
+            m_rigidBodyFlag &= (~btRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         } else {
             bt.RigidBody_setGravity(this.impl, cocos2BulletVec3(AmmoConstant.instance.VECTOR3_0, Vec3.ZERO));
-            m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
+            m_rigidBodyFlag |= btRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         bt.RigidBody_setFlags(this.impl, m_rigidBodyFlag);
         this._wakeUpIfSleep();
-        this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+        this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
     }
 
     useCCD (value: boolean) {
@@ -120,6 +120,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     get impl () { return this._sharedBody.body; }
     get rigidBody () { return this._rigidBody; }
+    get sharedBody () { return this._sharedBody; }
     get isEnabled () { return this._isEnabled; }
 
     private _isEnabled = false;

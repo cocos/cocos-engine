@@ -29,10 +29,10 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
+import { bt } from '../bullet.asmjs';
 
 export class AmmoConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
@@ -46,7 +46,7 @@ export class AmmoConstraint implements IBaseConstraint {
         }
     }
 
-    get impl (): Ammo.btTypedConstraint {
+    get impl () {
         return this._impl;
     }
 
@@ -57,7 +57,7 @@ export class AmmoConstraint implements IBaseConstraint {
     dirty = 0;
     index = -1;
 
-    protected _impl!: Ammo.btTypedConstraint;
+    protected _impl: Bullet.ptr = 0;
     protected _com!: Constraint;
     protected _rigidBody!: RigidBody;
     protected _collided = false;
@@ -107,9 +107,8 @@ export class AmmoConstraint implements IBaseConstraint {
     }
 
     onDestroy (): void {
-        Ammo.destroy(this._impl);
+        // bt.
         (this._com as any) = null;
         (this._rigidBody as any) = null;
-        (this._impl as any) = null;
     }
 }

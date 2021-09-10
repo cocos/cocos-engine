@@ -33,7 +33,7 @@ import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 
@@ -67,7 +67,7 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
     readonly VERTICES: Ammo.btVector3[] = [];
 
     constructor () {
-        super(AmmoBroadphaseNativeTypes.TETRAHEDRAL_SHAPE_PROXYTYPE);
+        super(btBroadphaseNativeTypes.TETRAHEDRAL_SHAPE_PROXYTYPE);
     }
 
     protected onComponentSet () {

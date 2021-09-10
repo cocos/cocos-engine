@@ -35,38 +35,37 @@ import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
-import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 
 export class AmmoPointToPointConstraint extends AmmoConstraint implements IPointToPointConstraint {
     setPivotA (v: IVec3Like): void {
-        const pivotA = AmmoConstant.instance.VECTOR3_0;
-        const cs = this.constraint;
-        Vec3.multiply(CC_V3_0, cs.node.worldScale, cs.pivotA);
-        cocos2AmmoVec3(pivotA, CC_V3_0);
-        this.impl.setPivotA(pivotA);
-        if (!cs.connectedBody) this.setPivotB(cs.pivotB);
+        // const pivotA = AmmoConstant.instance.VECTOR3_0;
+        // const cs = this.constraint;
+        // Vec3.multiply(CC_V3_0, cs.node.worldScale, cs.pivotA);
+        // cocos2AmmoVec3(pivotA, CC_V3_0);
+        // this.impl.setPivotA(pivotA);
+        // if (!cs.connectedBody) this.setPivotB(cs.pivotB);
     }
 
     setPivotB (v: IVec3Like): void {
-        const cs = this.constraint;
-        const node = this._rigidBody.node;
-        const pivotB = AmmoConstant.instance.VECTOR3_0;
-        const cb = cs.connectedBody;
-        if (cb) {
-            Vec3.multiply(CC_V3_0, cb.node.worldScale, cs.pivotB);
-            cocos2AmmoVec3(pivotB, CC_V3_0);
-        } else {
-            Vec3.multiply(CC_V3_0, node.worldScale, cs.pivotA);
-            Vec3.add(CC_V3_0, CC_V3_0, node.worldPosition);
-            Vec3.add(CC_V3_0, CC_V3_0, cs.pivotB);
-            cocos2AmmoVec3(pivotB, CC_V3_0);
-        }
-        this.impl.setPivotB(pivotB);
+        // const cs = this.constraint;
+        // const node = this._rigidBody.node;
+        // const pivotB = AmmoConstant.instance.VECTOR3_0;
+        // const cb = cs.connectedBody;
+        // if (cb) {
+        //     Vec3.multiply(CC_V3_0, cb.node.worldScale, cs.pivotB);
+        //     cocos2AmmoVec3(pivotB, CC_V3_0);
+        // } else {
+        //     Vec3.multiply(CC_V3_0, node.worldScale, cs.pivotA);
+        //     Vec3.add(CC_V3_0, CC_V3_0, node.worldPosition);
+        //     Vec3.add(CC_V3_0, CC_V3_0, cs.pivotB);
+        //     cocos2AmmoVec3(pivotB, CC_V3_0);
+        // }
+        // this.impl.setPivotB(pivotB);
     }
 
-    get impl (): Ammo.btPoint2PointConstraint {
-        return this._impl as Ammo.btPoint2PointConstraint;
+    get impl () {
+        return this._impl;
     }
 
     get constraint (): PointToPointConstraint {
@@ -74,21 +73,21 @@ export class AmmoPointToPointConstraint extends AmmoConstraint implements IPoint
     }
 
     onComponentSet (): void {
-        const bodyA = (this._rigidBody.body as AmmoRigidBody).impl;
-        const cb = this.constraint.connectedBody;
-        let bodyB: Ammo.btRigidBody | undefined;
-        if (cb) {
-            bodyB = (cb.body as AmmoRigidBody).impl;
-        }
-        const pivotA = AmmoConstant.instance.VECTOR3_0;
-        if (bodyB) {
-            const pivotB = AmmoConstant.instance.VECTOR3_1;
-            this._impl = new Ammo.btPoint2PointConstraint(bodyA, bodyB, pivotA, pivotB);
-        } else {
-            this._impl = new Ammo.btPoint2PointConstraint(bodyA, pivotA);
-        }
-        this.setPivotA(this.constraint.pivotA);
-        this.setPivotB(this.constraint.pivotB);
+        // const bodyA = (this._rigidBody.body as AmmoRigidBody).impl;
+        // const cb = this.constraint.connectedBody;
+        // let bodyB: any;
+        // if (cb) {
+        //     bodyB = (cb.body as AmmoRigidBody).impl;
+        // }
+        // const pivotA = AmmoConstant.instance.VECTOR3_0;
+        // if (bodyB) {
+        //     const pivotB = AmmoConstant.instance.VECTOR3_1;
+        //     this._impl = new Ammo.btPoint2PointConstraint(bodyA, bodyB, pivotA, pivotB);
+        // } else {
+        //     this._impl = new Ammo.btPoint2PointConstraint(bodyA, pivotA);
+        // }
+        // this.setPivotA(this.constraint.pivotA);
+        // this.setPivotB(this.constraint.pivotB);
     }
 
     updateScale0 () {

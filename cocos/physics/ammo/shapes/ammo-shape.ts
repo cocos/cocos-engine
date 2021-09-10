@@ -33,7 +33,7 @@
 import { Vec3, Quat } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { AmmoWorld } from '../ammo-world';
-import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
+import { btBroadphaseNativeTypes, EBtSharedBodyDirty } from '../ammo-enum';
 import { cocos2BulletVec3 } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
@@ -92,7 +92,7 @@ export class AmmoShape implements IBaseShape {
 
     private static idCounter = 0;
     readonly id: number;
-    readonly type: AmmoBroadphaseNativeTypes;
+    readonly type: btBroadphaseNativeTypes;
 
     protected _index = -1;
     protected _isEnabled = false;
@@ -107,7 +107,7 @@ export class AmmoShape implements IBaseShape {
     protected readonly quat: Bullet.ptr;
     protected readonly scale: Bullet.ptr;
 
-    constructor (type: AmmoBroadphaseNativeTypes) {
+    constructor (type: btBroadphaseNativeTypes) {
         this.type = type;
         this.id = AmmoShape.idCounter++;
         this.quat = bt.Quat_new(0, 0, 0, 1);
@@ -250,13 +250,13 @@ export class AmmoShape implements IBaseShape {
             bt.CompoundShape_updateChildTransform(this._btCompound, this.index, this.transform, true);
         } else if (this._isEnabled && !this._isTrigger) {
             if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
-                this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+                this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
             }
         }
     }
 
     needCompound () {
-        if (this.type === AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE) { return true; }
+        if (this.type === btBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE) { return true; }
         if (this._collider.center.equals(Vec3.ZERO)) { return false; }
         return true;
     }

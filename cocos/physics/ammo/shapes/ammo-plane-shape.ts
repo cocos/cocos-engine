@@ -33,7 +33,7 @@
 import { AmmoShape } from './ammo-shape';
 import { PlaneCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../ammo-util';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoConstant } from '../ammo-const';
@@ -62,7 +62,7 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
     }
 
     constructor () {
-        super(AmmoBroadphaseNativeTypes.STATIC_PLANE_PROXYTYPE);
+        super(btBroadphaseNativeTypes.STATIC_PLANE_PROXYTYPE);
     }
 
     onComponentSet () {

@@ -31,7 +31,7 @@ import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3, bullet2CocosQuat } from './ammo-util';
-import { AmmoCollisionFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } from './ammo-enum';
+import { btCollisionFlags, btCollisionObjectStates, EBtSharedBodyDirty } from './ammo-enum';
 import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
@@ -107,8 +107,8 @@ export class AmmoSharedBody {
     set collisionFilterGroup (v: number) {
         if (v !== this._collisionFilterGroup) {
             this._collisionFilterGroup = v;
-            this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
-            this.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
+            this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
+            this.dirty |= EBtSharedBodyDirty.GHOST_RE_ADD;
         }
     }
 
@@ -116,8 +116,8 @@ export class AmmoSharedBody {
     set collisionFilterMask (v: number) {
         if (v !== this._collisionFilterMask) {
             this._collisionFilterMask = v;
-            this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
-            this.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
+            this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
+            this.dirty |= EBtSharedBodyDirty.GHOST_RE_ADD;
         }
     }
 
@@ -136,7 +136,7 @@ export class AmmoSharedBody {
     readonly wrappedWorld: AmmoWorld;
     readonly wrappedJoints0: AmmoConstraint[] = [];
     readonly wrappedJoints1: AmmoConstraint[] = [];
-    dirty: EAmmoSharedBodyDirty = 0;
+    dirty: EBtSharedBodyDirty = 0;
 
     private _collisionFilterGroup: number = PhysicsSystem.PhysicsGroup.DEFAULT;
     private _collisionFilterMask = -1;
@@ -250,7 +250,7 @@ export class AmmoSharedBody {
         const ghost = bt.CollisionObject_new();
         const ghostShape = bt.CompoundShape_new(true);
         bt.CollisionObject_setCollisionShape(ghost, ghostShape);
-        bt.CollisionObject_setCollisionFlags(ghost, AmmoCollisionFlags.CF_STATIC_OBJECT | AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
+        bt.CollisionObject_setCollisionFlags(ghost, btCollisionFlags.CF_STATIC_OBJECT | btCollisionFlags.CF_NO_CONTACT_RESPONSE);
         this._ghostStruct = {
             id: sharedIDCounter++,
             ghost,
@@ -277,8 +277,8 @@ export class AmmoSharedBody {
             const localInertia = AmmoConstant.instance.VECTOR3_0;
             switch (v) {
             case ERigidBodyType.DYNAMIC:
-                m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-                m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
                 bt.CollisionObject_setCollisionFlags(body, m_bcf);
                 wrap.setMass(com.mass);
                 wrap.useGravity(com.useGravity);
@@ -287,22 +287,22 @@ export class AmmoSharedBody {
             case ERigidBodyType.KINEMATIC:
                 bt.Vec3_set(localInertia, 0, 0, 0);
                 bt.RigidBody_setMassProps(body, 0, localInertia);
-                m_bcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
-                m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                m_bcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
+                m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
                 bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                bt.CollisionObject_forceActivationState(body, AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.DISABLE_DEACTIVATION);
                 break;
             case ERigidBodyType.STATIC:
             default:
                 bt.Vec3_set(localInertia, 0, 0, 0);
                 bt.RigidBody_setMassProps(body, 0, localInertia);
-                m_bcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
-                m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_bcf |= btCollisionFlags.CF_STATIC_OBJECT;
+                m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
                 bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                bt.CollisionObject_forceActivationState(body, AmmoCollisionObjectStates.ISLAND_SLEEPING);
+                bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.ISLAND_SLEEPING);
                 break;
             }
-            this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+            this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
         }
     }
 
@@ -313,27 +313,27 @@ export class AmmoSharedBody {
             switch (v) {
             case ERigidBodyType.DYNAMIC:
             case ERigidBodyType.KINEMATIC:
-                m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
-                m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+                m_gcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
+                m_gcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
                 bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
-                bt.CollisionObject_forceActivationState(ghost, AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.DISABLE_DEACTIVATION);
                 break;
             case ERigidBodyType.STATIC:
             default:
-                m_gcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-                m_gcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
+                m_gcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_gcf |= btCollisionFlags.CF_STATIC_OBJECT;
                 bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
-                bt.CollisionObject_forceActivationState(ghost, AmmoCollisionObjectStates.ISLAND_SLEEPING);
+                bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.ISLAND_SLEEPING);
                 break;
             }
-            this.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
+            this.dirty |= EBtSharedBodyDirty.GHOST_RE_ADD;
         }
     }
 
     addShape (v: AmmoShape, isTrigger: boolean) {
         function switchShape (that: AmmoSharedBody, shape: Bullet.ptr) {
             bt.CollisionObject_setCollisionShape(that.body, shape);
-            that.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+            that.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
             if (that._wrappedBody && that._wrappedBody.isEnabled) {
                 that._wrappedBody.setMass(that._wrappedBody.rigidBody.mass);
             }
@@ -387,7 +387,7 @@ export class AmmoSharedBody {
                     bt.CollisionObject_setCollisionShape(this.body, AmmoConstant.instance.EMPTY_SHAPE);
                 }
                 bt.CollisionObject_activate(this.body, true);
-                this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+                this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
                 fastRemoveAt(this.bodyStruct.wrappedShapes, index);
                 this.bodyEnabled = false;
             }
@@ -416,8 +416,8 @@ export class AmmoSharedBody {
 
     updateDirty () {
         if (this.dirty) {
-            if (this.bodyIndex >= 0 && this.dirty & EAmmoSharedBodyDirty.BODY_RE_ADD) this.updateBodyByReAdd();
-            if (this.ghostIndex >= 0 && this.dirty & EAmmoSharedBodyDirty.GHOST_RE_ADD) this.updateGhostByReAdd();
+            if (this.bodyIndex >= 0 && this.dirty & EBtSharedBodyDirty.BODY_RE_ADD) this.updateBodyByReAdd();
+            if (this.ghostIndex >= 0 && this.dirty & EBtSharedBodyDirty.GHOST_RE_ADD) this.updateGhostByReAdd();
             this.dirty = 0;
         }
     }
@@ -571,6 +571,6 @@ export class AmmoSharedBody {
 
     private isBodySleeping () {
         const state = bt.CollisionObject_getActivationState(this.body);
-        return state === AmmoCollisionObjectStates.ISLAND_SLEEPING;
+        return state === btCollisionObjectStates.ISLAND_SLEEPING;
     }
 }

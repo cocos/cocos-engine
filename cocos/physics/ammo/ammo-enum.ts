@@ -28,14 +28,12 @@
  * @hidden
  */
 
-// import Ammo from './instantiated';
-
-export enum EAmmoSharedBodyDirty {
+export enum EBtSharedBodyDirty {
     BODY_RE_ADD = 1,
     GHOST_RE_ADD = 2,
 }
 
-export enum AmmoCollisionFlags {
+export enum btCollisionFlags {
     CF_STATIC_OBJECT = 1,
     CF_KINEMATIC_OBJECT = 2,
     CF_NO_CONTACT_RESPONSE = 4,
@@ -44,9 +42,8 @@ export enum AmmoCollisionFlags {
     CF_DISABLE_VISUALIZE_OBJECT = 32, // disable debug drawing
     CF_DISABLE_SPU_COLLISION_PROCESSING = 64// disable parallel/SPU processing
 }
-// (Ammo as any).AmmoCollisionFlags = AmmoCollisionFlags;
 
-export enum AmmoCollisionObjectTypes {
+export enum btCollisionObjectTypes {
     CO_COLLISION_OBJECT = 1,
     CO_RIGID_BODY = 2,
     /// CO_GHOST_OBJECT keeps track of all objects overlapping its AABB and that pass its collision filter
@@ -57,9 +54,8 @@ export enum AmmoCollisionObjectTypes {
     CO_USER_TYPE = 32,
     CO_FEATHERSTONE_LINK = 64
 }
-// (Ammo as any).AmmoCollisionObjectTypes = AmmoCollisionObjectTypes;
 
-export enum AmmoCollisionObjectStates {
+export enum btCollisionObjectStates {
     ACTIVE_TAG = 1,
     ISLAND_SLEEPING = 2,
     WANTS_DEACTIVATION = 3,
@@ -68,14 +64,7 @@ export enum AmmoCollisionObjectStates {
     DISABLE_SIMULATION = 5,
 }
 
-export enum AmmoAnisotropicFrictionFlags {
-    CF_ANISOTROPIC_FRICTION_DISABLED = 0,
-    CF_ANISOTROPIC_FRICTION = 1,
-    CF_ANISOTROPIC_ROLLING_FRICTION = 2
-}
-// (Ammo as any).AmmoAnisotropicFrictionFlags = AmmoAnisotropicFrictionFlags;
-
-export enum AmmoRigidBodyFlags {
+export enum btRigidBodyFlags {
     BT_DISABLE_WORLD_GRAVITY = 1,
     /// The BT_ENABLE_GYROPSCOPIC_FORCE can easily introduce instability
     /// So generally it is best to not enable it.
@@ -83,13 +72,12 @@ export enum AmmoRigidBodyFlags {
     /// See Demos/GyroscopicDemo for an example use
     BT_ENABLE_GYROPSCOPIC_FORCE = 2
 }
-// (Ammo as any).AmmoRigidBodyFlags = AmmoRigidBodyFlags;
 
 /// btDispatcher uses these types
 /// IMPORTANT NOTE:The types are ordered polyhedral, implicit convex and concave
 /// to facilitate type checking
 /// CUSTOM_POLYHEDRAL_SHAPE_TYPE,CUSTOM_CONVEX_SHAPE_TYPE and CUSTOM_CONCAVE_SHAPE_TYPE can be used to extend Bullet without modifying source code
-export enum AmmoBroadphaseNativeTypes {
+export enum btBroadphaseNativeTypes {
     // polyhedral convex shapes
     BOX_SHAPE_PROXYTYPE,
     TRIANGLE_SHAPE_PROXYTYPE,
@@ -140,22 +128,3 @@ export enum AmmoBroadphaseNativeTypes {
 
     MAX_BROADPHASE_COLLISION_TYPES
 }
-// (Ammo as any).AmmoBroadphaseNativeTypes = AmmoBroadphaseNativeTypes;
-
-export enum AmmoCollisionFilterGroups {
-    DefaultFilter = 1,
-    StaticFilter = 2,
-    KinematicFilter = 4,
-    DebrisFilter = 8,
-    SensorTrigger = 16,
-    CharacterFilter = 32,
-    AllFilter = -1 // all bits sets: DefaultFilter | StaticFilter | KinematicFilter | DebrisFilter | SensorTrigger
-}
-// (Ammo as any).AmmoCollisionFilterGroups = AmmoCollisionFilterGroups;
-
-export enum AmmoDispatcherFlags {
-    CD_STATIC_STATIC_REPORTED = 1,
-    CD_USE_RELATIVE_CONTACT_BREAKING_THRESHOLD = 2,
-    CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION = 4
-}
-// (Ammo as any).AmmoDispatcherFlags = AmmoDispatcherFlags;

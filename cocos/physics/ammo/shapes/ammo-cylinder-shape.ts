@@ -32,7 +32,7 @@
 import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { CylinderCollider } from '../../../../exports/physics-framework';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
@@ -75,7 +75,7 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     }
 
     constructor () {
-        super(AmmoBroadphaseNativeTypes.CYLINDER_SHAPE_PROXYTYPE);
+        super(btBroadphaseNativeTypes.CYLINDER_SHAPE_PROXYTYPE);
     }
 
     onComponentSet () {

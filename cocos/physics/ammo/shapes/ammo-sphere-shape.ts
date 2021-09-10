@@ -33,7 +33,7 @@
 import { AmmoShape } from './ammo-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../ammo-util';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
+import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { CC_V3_0 } from '../ammo-const';
 import { bt } from '../bullet.asmjs';
@@ -50,7 +50,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     }
 
     constructor () {
-        super(AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE);
+        super(btBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE);
     }
 
     onComponentSet () {
