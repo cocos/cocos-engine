@@ -38,7 +38,7 @@ import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 import { bt } from '../bullet.asmjs';
 import { cocos2BulletVec3 } from '../ammo-util';
 
-export class BulletPointToPointConstraint extends BulletConstraint implements IPointToPointConstraint {
+export class BulletP2PConstraint extends BulletConstraint implements IPointToPointConstraint {
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
         const pivotA = AmmoConstant.instance.VECTOR3_0;

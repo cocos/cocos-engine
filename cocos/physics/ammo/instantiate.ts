@@ -44,7 +44,7 @@ import { AmmoPlaneShape } from './shapes/ammo-plane-shape';
 // import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
 // import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
 import { Game, game } from '../../core';
-import { BulletPointToPointConstraint } from './constraints/bullet-p2p-constraint';
+import { BulletP2PConstraint } from './constraints/bullet-p2p-constraint';
 import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
 
 game.once(Game.EVENT_ENGINE_INITED, () => {
