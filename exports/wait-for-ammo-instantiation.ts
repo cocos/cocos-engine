@@ -23,6 +23,4 @@
  THE SOFTWARE.
  */
 
-import '../cocos/physics/bullet/polyfill-atob';
-
 export { waitForAmmoInstantiation as default } from '../cocos/physics/bullet/instantiated';

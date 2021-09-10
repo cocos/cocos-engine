@@ -28,18 +28,18 @@
  * @hidden
  */
 
-import AmmoClosure, * as AmmoJs from '@cocos/ammo';
+// import AmmoClosure, * as AmmoJs from '@cocos/ammo';
 import { WECHAT } from 'internal:constants';
 import { log } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 
 const globalThis = legacyCC._global;
-const Ammo: typeof AmmoClosure = {} as any;
+const Ammo: any = {} as any;
 
 // User can overwrite the internal bullet libs by 'globalThis.BULLET'
-let bulletLibs = AmmoClosure;
+let bulletLibs: any = null;
 if (globalThis.BULLET) {
-    log("[Physics]: Using the external Bullet libs.");
+    log('[Physics]: Using the external Bullet libs.');
     bulletLibs = globalThis.BULLET;
 }
 
@@ -77,23 +77,25 @@ export { Ammo as default }; // Note: should not use `export default Ammo` since 
  */
 export function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer | string) {
     // `this` needed by ammo closure.
-    const ammoClosureThis: { Ammo: typeof import('@cocos/ammo') } = {} as any;
+    // const ammoClosureThis: { Ammo: typeof import('@cocos/ammo') } = {} as any;
     if (typeof wasmBinary !== 'undefined') {
         if (WECHAT) {
             const WASM_FILE_PATH = wasmBinary as string;
-            (Ammo as any).instantiateWasm = (importObjects: any, receiveInstance: (x: any) => void) => WebAssembly
+            (Ammo).instantiateWasm = (importObjects: any, receiveInstance: (x: any) => void) => WebAssembly
                 .instantiate(WASM_FILE_PATH, importObjects)
                 .then((result: any) => receiveInstance(result.instance));
         } else {
             // See https://emscripten.org/docs/compiling/WebAssembly.html#wasm-files-and-compilation
-            (Ammo as any).wasmBinary = wasmBinary as ArrayBuffer;
+            (Ammo).wasmBinary = wasmBinary as ArrayBuffer;
         }
     }
 
     return new Promise<void>((resolve, reject) => {
-        (bulletLibs as any).call(ammoClosureThis, Ammo).then(() => {
-            resolve();
-        });
+        // (bulletLibs).call(ammoClosureThis, Ammo).then(() => {
+        //     resolve();
+        // });
+
+        resolve();
     });
 }
 
@@ -102,11 +104,11 @@ export namespace waitForAmmoInstantiation {
     /**
      * True if the `'@cocos/ammo'` is the WebAssembly edition.
      */
-    export const isWasm = (AmmoJs as any).isWasm;
+    export const isWasm = false;
 
     /**
      * The url to the WebAssembly binary.
      * Either can be absolute or relative, depends on build options.
      */
-    export const wasmBinaryURL = (AmmoJs as any).wasmBinaryURL;
+    export const wasmBinaryURL = '';
 }
