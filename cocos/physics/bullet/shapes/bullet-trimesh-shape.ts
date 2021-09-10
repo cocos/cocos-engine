@@ -28,14 +28,13 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
 import { BulletShape } from './bullet-shape';
 import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
-import { BulletConstant } from '../bullet-const';
+import { BulletConst } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
@@ -46,7 +45,7 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     setMesh (v: Mesh | null) {
         if (!this._isInitialized) return;
 
-        if (this._impl && BulletConstant.isNotEmptyShape(this._impl)) {
+        if (this._impl && BulletConst.isNotEmptyShape(this._impl)) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {
@@ -58,7 +57,7 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
                 } else {
                     this._impl = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, true);
                 }
-                const bt_v3 = BulletConstant.instance.BT_V3_0;
+                const bt_v3 = BulletConst.instance.BT_V3_0;
                 cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
                 bt.CollisionShape_setMargin(this._impl, 0.01);
                 bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
@@ -89,7 +88,7 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
 
     updateScale () {
         super.updateScale();
-        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        const bt_v3 = BulletConst.instance.BT_V3_0;
         cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
         bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();

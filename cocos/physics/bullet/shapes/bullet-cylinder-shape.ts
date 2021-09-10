@@ -28,13 +28,12 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
 import { BulletShape } from './bullet-shape';
 import { CylinderCollider } from '../../../../exports/physics-framework';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
-import { BulletConstant } from '../bullet-const';
+import { BulletConst } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
 
 export class BulletCylinderShape extends BulletShape implements ICylinderShape {
@@ -70,7 +69,7 @@ export class BulletCylinderShape extends BulletShape implements ICylinderShape {
     }
 
     onComponentSet () {
-        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        const bt_v3 = BulletConst.instance.BT_V3_0;
         bt.Vec3_set(bt_v3, 0.5, 1, 0.5);
         this._impl = bt.CylinderShape_new(bt_v3);
         this.setRadius(this.collider.radius);

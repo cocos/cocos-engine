@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { IBulletBodyStruct, IBulletGhostStruct } from './bullet-interface';
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
 import { bt } from './bullet.asmjs';
@@ -47,22 +48,51 @@ export const CollisionEventObject = {
     impl: null,
 };
 
-export class BulletConstant {
-    private static _instance: BulletConstant;
+export class BulletConst {
+    private static _instance: BulletConst;
     static get instance () {
-        if (BulletConstant._instance == null) BulletConstant._instance = new BulletConstant();
-        return BulletConstant._instance;
+        if (BulletConst._instance == null) BulletConst._instance = new BulletConst();
+        return BulletConst._instance;
     }
+
+    static isNotEmptyShape (ptr: Bullet.ptr) { return ptr !== bt.EmptyShape_static(); }
+
+    //////////
+    static readonly bodyAndGhosts: {
+        [x: string]: IBulletBodyStruct | IBulletGhostStruct
+    } = {};
+
+    static get bodyStructs () {
+        return this.bodyAndGhosts as { [x: string]: IBulletBodyStruct };
+    }
+
+    static get ghostStructs () {
+        return this.bodyAndGhosts as { [x: string]: IBulletGhostStruct };
+    }
+    //////////
+
+    //////////
+    static readonly ptr2WrapObj: { [x: number]: Record<string, unknown> } = {};
+
+    static setWrapper (impl: Bullet.ptr, wrap: {}) {
+        this.ptr2WrapObj[impl] = wrap;
+    }
+
+    static delWrapper (impl: Bullet.ptr) {
+        delete this.ptr2WrapObj[impl];
+    }
+
+    static getWrapper<T> (ptr: Bullet.ptr): T {
+        return this.ptr2WrapObj[ptr] as T;
+    }
+    //////////
+
     readonly BT_TRANSFORM_0 = bt.Transform_new();
     readonly BT_TRANSFORM_1 = bt.Transform_new();
     readonly BT_V3_0 = bt.Vec3_new(0, 0, 0);
     readonly BT_V3_1 = bt.Vec3_new(0, 0, 0);
     readonly BT_V3_2 = bt.Vec3_new(0, 0, 0);
     readonly BT_QUAT_0 = bt.Quat_new(0, 0, 0, 1);
-
-    static isNotEmptyShape (ptr: Bullet.ptr) {
-        return ptr !== bt.EmptyShape_static();
-    }
 }
 
 export const CC_V3_0 = new Vec3();

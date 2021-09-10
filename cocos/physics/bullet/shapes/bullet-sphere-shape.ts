@@ -26,15 +26,13 @@
 /**
  * @packageDocumentation
  * @hidden
- */
+*/
 
-/* eslint-disable new-cap */
-// import Ammo from '../ammo-instantiated';
 import { BulletShape } from './bullet-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { BulletConstant, CC_V3_0 } from '../bullet-const';
+import { BulletConst, CC_V3_0 } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
 import { absMaxComponent } from '../../../core';
 
@@ -57,7 +55,7 @@ export class BulletSphereShape extends BulletShape implements ISphereShape {
         super.updateScale();
         const scale = this.getMinScale();
         CC_V3_0.set(scale, scale, scale);
-        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        const bt_v3 = BulletConst.instance.BT_V3_0;
         bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, CC_V3_0));
         this.updateCompoundTransform();
     }

@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-/* eslint-disable new-cap */
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { BulletWorld } from './bullet-world';
@@ -31,9 +30,8 @@ import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3, bullet2CocosQuat } from './bullet-utils';
 import { btCollisionFlags, btCollisionObjectStates, EBtSharedBodyDirty } from './bullet-enum';
-import { BulletInstance } from './bullet-instance';
 import { IBulletBodyStruct, IBulletGhostStruct } from './bullet-interface';
-import { CC_V3_0, CC_QUAT_0, BulletConstant } from './bullet-const';
+import { CC_V3_0, CC_QUAT_0, BulletConst } from './bullet-const';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { fastRemoveAt } from '../../core/utils/array';
@@ -213,8 +211,8 @@ export class BulletSharedBody {
             mass = this._wrappedBody.rigidBody.mass;
         }
 
-        const trans = BulletConstant.instance.BT_TRANSFORM_0;
-        const quat = BulletConstant.instance.BT_QUAT_0;
+        const trans = BulletConst.instance.BT_TRANSFORM_0;
+        const quat = BulletConst.instance.BT_QUAT_0;
         cocos2BulletVec3(bt.Transform_getOrigin(trans), this.node.worldPosition);
         cocos2BulletQuat(quat, this.node.worldRotation);
         bt.Transform_setRotation(trans, quat);
@@ -229,7 +227,7 @@ export class BulletSharedBody {
         this._bodyStruct = {
             id: IDCounter++, body, motionState, compound: bt.CompoundShape_new(true), wrappedShapes: [], useCompound: false,
         };
-        BulletInstance.bodyStructs[this._bodyStruct.id] = this._bodyStruct;
+        BulletConst.bodyStructs[this._bodyStruct.id] = this._bodyStruct;
         bt.CollisionObject_setUserIndex(this.body, this._bodyStruct.id);
         if (this._ghostStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.ghost, this.body, true);
         if (this._wrappedBody) this.setBodyType(this._wrappedBody.rigidBody.type);
@@ -242,7 +240,7 @@ export class BulletSharedBody {
         bt.CollisionObject_setCollisionShape(ghost, ghostShape);
         bt.CollisionObject_setCollisionFlags(ghost, btCollisionFlags.CF_STATIC_OBJECT | btCollisionFlags.CF_NO_CONTACT_RESPONSE);
         this._ghostStruct = { id: IDCounter++, ghost, compound: ghostShape, wrappedShapes: [] };
-        BulletInstance.ghostStructs[this._ghostStruct.id] = this._ghostStruct;
+        BulletConst.ghostStructs[this._ghostStruct.id] = this._ghostStruct;
         bt.CollisionObject_setUserIndex(this.ghost, this._ghostStruct.id);
         if (this._bodyStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.body, this.ghost, true);
         if (this._wrappedBody) this.setGhostType(this._wrappedBody.rigidBody.type);
@@ -259,33 +257,33 @@ export class BulletSharedBody {
             const wrap = this._wrappedBody;
             const com = wrap.rigidBody;
             let m_bcf = bt.CollisionObject_getCollisionFlags(body);
-            const localInertia = BulletConstant.instance.BT_V3_0;
+            const localInertia = BulletConst.instance.BT_V3_0;
             switch (v) {
-            case ERigidBodyType.DYNAMIC:
-                m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
-                m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
-                bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                wrap.setMass(com.mass);
-                wrap.useGravity(com.useGravity);
-                wrap.setAllowSleep(com.allowSleep);
-                break;
-            case ERigidBodyType.KINEMATIC:
-                bt.Vec3_set(localInertia, 0, 0, 0);
-                bt.RigidBody_setMassProps(body, 0, localInertia);
-                m_bcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
-                m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
-                bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.DISABLE_DEACTIVATION);
-                break;
-            case ERigidBodyType.STATIC:
-            default:
-                bt.Vec3_set(localInertia, 0, 0, 0);
-                bt.RigidBody_setMassProps(body, 0, localInertia);
-                m_bcf |= btCollisionFlags.CF_STATIC_OBJECT;
-                m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
-                bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.ISLAND_SLEEPING);
-                break;
+                case ERigidBodyType.DYNAMIC:
+                    m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                    m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
+                    bt.CollisionObject_setCollisionFlags(body, m_bcf);
+                    wrap.setMass(com.mass);
+                    wrap.useGravity(com.useGravity);
+                    wrap.setAllowSleep(com.allowSleep);
+                    break;
+                case ERigidBodyType.KINEMATIC:
+                    bt.Vec3_set(localInertia, 0, 0, 0);
+                    bt.RigidBody_setMassProps(body, 0, localInertia);
+                    m_bcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
+                    m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
+                    bt.CollisionObject_setCollisionFlags(body, m_bcf);
+                    bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.DISABLE_DEACTIVATION);
+                    break;
+                case ERigidBodyType.STATIC:
+                default:
+                    bt.Vec3_set(localInertia, 0, 0, 0);
+                    bt.RigidBody_setMassProps(body, 0, localInertia);
+                    m_bcf |= btCollisionFlags.CF_STATIC_OBJECT;
+                    m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                    bt.CollisionObject_setCollisionFlags(body, m_bcf);
+                    bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.ISLAND_SLEEPING);
+                    break;
             }
             this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
         }
@@ -296,20 +294,20 @@ export class BulletSharedBody {
             const ghost = this._ghostStruct.ghost;
             let m_gcf = bt.CollisionObject_getCollisionFlags(ghost);
             switch (v) {
-            case ERigidBodyType.DYNAMIC:
-            case ERigidBodyType.KINEMATIC:
-                m_gcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
-                m_gcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
-                bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
-                bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.DISABLE_DEACTIVATION);
-                break;
-            case ERigidBodyType.STATIC:
-            default:
-                m_gcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
-                m_gcf |= btCollisionFlags.CF_STATIC_OBJECT;
-                bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
-                bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.ISLAND_SLEEPING);
-                break;
+                case ERigidBodyType.DYNAMIC:
+                case ERigidBodyType.KINEMATIC:
+                    m_gcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
+                    m_gcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
+                    bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
+                    bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.DISABLE_DEACTIVATION);
+                    break;
+                case ERigidBodyType.STATIC:
+                default:
+                    m_gcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                    m_gcf |= btCollisionFlags.CF_STATIC_OBJECT;
+                    bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
+                    bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.ISLAND_SLEEPING);
+                    break;
             }
             this.dirty |= EBtSharedBodyDirty.GHOST_RE_ADD;
         }
@@ -409,7 +407,7 @@ export class BulletSharedBody {
 
     syncSceneToPhysics () {
         if (this.node.hasChangedFlags) {
-            const bt_quat = BulletConstant.instance.BT_QUAT_0;
+            const bt_quat = BulletConst.instance.BT_QUAT_0;
             const bt_transform = bt.CollisionObject_getWorldTransform(this.body);
             cocos2BulletQuat(bt_quat, this.node.worldRotation);
             cocos2BulletVec3(bt.Transform_getOrigin(bt_transform), this.node.worldPosition);
@@ -435,10 +433,10 @@ export class BulletSharedBody {
             return;
         }
 
-        const bt_quat = BulletConstant.instance.BT_QUAT_0;
+        const bt_quat = BulletConst.instance.BT_QUAT_0;
         // const bt_transform = bt.CollisionObject_getWorldTransform(this.body);
         // const bt_transform = bt.Transform_new();
-        const bt_transform = BulletConstant.instance.BT_TRANSFORM_0;
+        const bt_transform = BulletConst.instance.BT_TRANSFORM_0;
         bt.MotionState_getWorldTransform(bt.RigidBody_getMotionState(this.body), bt_transform);
         bt.Transform_getRotation(bt_transform, bt_quat);
         this.node.worldRotation = bullet2CocosQuat(quat_0, bt_quat);
@@ -455,7 +453,7 @@ export class BulletSharedBody {
 
     syncSceneToGhost () {
         if (this.node.hasChangedFlags) {
-            const bt_quat = BulletConstant.instance.BT_QUAT_0;
+            const bt_quat = BulletConst.instance.BT_QUAT_0;
             const bt_transform = bt.CollisionObject_getWorldTransform(this.ghost);
             cocos2BulletVec3(bt.Transform_getOrigin(bt_transform), this.node.worldPosition);
             cocos2BulletQuat(bt_quat, this.node.worldRotation);
@@ -466,7 +464,7 @@ export class BulletSharedBody {
     }
 
     syncInitialBody () {
-        const bt_quat = BulletConstant.instance.BT_QUAT_0;
+        const bt_quat = BulletConst.instance.BT_QUAT_0;
         const bt_transform = bt.CollisionObject_getWorldTransform(this.body);
         cocos2BulletVec3(bt.Transform_getOrigin(bt_transform), this.node.worldPosition);
         cocos2BulletQuat(bt_quat, this.node.worldRotation);
@@ -476,7 +474,7 @@ export class BulletSharedBody {
     }
 
     syncInitialGhost () {
-        const bt_quat = BulletConstant.instance.BT_QUAT_0;
+        const bt_quat = BulletConst.instance.BT_QUAT_0;
         const bt_transform = bt.CollisionObject_getWorldTransform(this.ghost);
         cocos2BulletVec3(bt.Transform_getOrigin(bt_transform), this.node.worldPosition);
         cocos2BulletQuat(bt_quat, this.node.worldRotation);
@@ -531,7 +529,7 @@ export class BulletSharedBody {
             bt.MotionState_del(bodyStruct.motionState);
             bt.CollisionShape_del(bodyStruct.compound);
             bt.CollisionObject_del(bodyStruct.body);
-            delete BulletInstance.bodyStructs[bodyStruct.id];
+            delete BulletConst.bodyStructs[bodyStruct.id];
             (this._bodyStruct as any) = null;
         }
 
@@ -539,7 +537,7 @@ export class BulletSharedBody {
             const ghostStruct = this._ghostStruct;
             bt.CollisionShape_del(ghostStruct.compound);
             bt.CollisionObject_del(ghostStruct.ghost);
-            delete BulletInstance.bodyStructs[ghostStruct.id];
+            delete BulletConst.bodyStructs[ghostStruct.id];
             (this._ghostStruct as any) = null;
         }
     }

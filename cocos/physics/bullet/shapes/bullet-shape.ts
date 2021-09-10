@@ -28,9 +28,7 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
-// import Ammo from '../instantiated';
-import { Vec3, Quat } from '../../../core/math';
+import { Vec3 } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { BulletWorld } from '../bullet-world';
 import { EBtSharedBodyDirty } from '../bullet-enum';
@@ -39,14 +37,13 @@ import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BulletSharedBody } from '../bullet-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
-import { BulletConstant, CC_V3_0 } from '../bullet-const';
-import { BulletInstance } from '../bullet-instance';
+import { BulletConst, CC_V3_0 } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
 import { EColliderType } from '../../framework';
 
 const v3_0 = CC_V3_0;
 
-export class BulletShape implements IBaseShape {
+export abstract class BulletShape implements IBaseShape {
     updateEventListener (): void { }
 
     setMaterial (v: PhysicsMaterial | null) {
@@ -87,32 +84,24 @@ export class BulletShape implements IBaseShape {
     get index () { return this._index; }
 
     private static idCounter = 0;
-    readonly id: number;
-
+    readonly id = BulletShape.idCounter++;
     protected _index = -1;
     protected _isEnabled = false;
     protected _isTrigger = false;
     protected _isInitialized = false;
     protected _impl: Bullet.ptr = 0;
     protected _compound: Bullet.ptr = 0;
-    protected _sharedBody!: BulletSharedBody;
+    protected readonly quat = bt.Quat_new(0, 0, 0, 1);
+    protected readonly transform = bt.Transform_new();
     protected _collider!: Collider;
-
-    protected readonly quat: Bullet.ptr;
-    protected readonly transform: Bullet.ptr;
-
-    constructor () {
-        this.id = BulletShape.idCounter++;
-        this.quat = bt.Quat_new(0, 0, 0, 1);
-        this.transform = bt.Transform_new();
-    }
+    protected _sharedBody!: BulletSharedBody;
 
     getAABB (v: AABB) {
-        const bt_transform = BulletConstant.instance.BT_TRANSFORM_0;
+        const bt_transform = BulletConst.instance.BT_TRANSFORM_0;
         bt.Transform_setIdentity(bt_transform);
-        bt.Transform_setRotation(bt_transform, cocos2BulletQuat(BulletConstant.instance.BT_QUAT_0, this._collider.node.worldRotation));
-        const MIN = BulletConstant.instance.BT_V3_0;
-        const MAX = BulletConstant.instance.BT_V3_1;
+        bt.Transform_setRotation(bt_transform, cocos2BulletQuat(BulletConst.instance.BT_QUAT_0, this._collider.node.worldRotation));
+        const MIN = BulletConst.instance.BT_V3_0;
+        const MAX = BulletConst.instance.BT_V3_1;
         bt.CollisionShape_getAabb(this._impl, bt_transform, MIN, MAX);
         v.halfExtents.x = (bt.Vec3_x(MAX) - bt.Vec3_x(MIN)) / 2;
         v.halfExtents.y = (bt.Vec3_y(MAX) - bt.Vec3_y(MIN)) / 2;
@@ -135,14 +124,14 @@ export class BulletShape implements IBaseShape {
     }
 
     setWrapper () {
-        if (BulletConstant.isNotEmptyShape(this._impl)) {
-            // bt.collisionshape_sety(this._impl, this._impl);
-            // this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
+        if (BulletConst.isNotEmptyShape(this._impl)) {
+            bt.CollisionShape_setUserPointer(this._impl, this._impl);
+            BulletConst.setWrapper(this._impl, this);
         }
     }
 
     // virtual
-    protected onComponentSet () { }
+    protected abstract onComponentSet (): void;
 
     onLoad () {
         this.setCenter(this._collider.center);
@@ -167,14 +156,10 @@ export class BulletShape implements IBaseShape {
         bt.Quat_del(this.quat);
         bt.Transform_del(this.transform);
         if (this._compound) bt.CollisionShape_del(this._compound);
-        if (BulletConstant.isNotEmptyShape(this._impl)) bt.CollisionShape_del(this._impl);
-        // const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-        // (shape as any).wrapped = null;
-        // if (AmmoConstant.isNotEmptyShape(this._btShape)) {
-        //     AmmoInstance.delWrapper(this);
-        //     Ammo.destroy(this._btShape);
-        //     ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
-        // }
+        if (BulletConst.isNotEmptyShape(this._impl)) {
+            bt.CollisionShape_del(this._impl);
+            BulletConst.delWrapper(this._impl);
+        }
     }
 
     updateByReAdd () {

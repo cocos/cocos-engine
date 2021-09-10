@@ -31,7 +31,7 @@
 import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Vec3, Quat } from '../../core';
 import { BulletShape } from './shapes/bullet-shape';
-import { CC_QUAT_0, BulletConstant } from './bullet-const';
+import { CC_QUAT_0, BulletConst } from './bullet-const';
 
 export class BulletContactData implements IContactEquation {
     get isBodyA (): boolean {

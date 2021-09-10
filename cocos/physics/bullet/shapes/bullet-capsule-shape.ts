@@ -28,7 +28,6 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
 import { absMax } from '../../../core';
 import { BulletShape } from './bullet-shape';
 import { CapsuleCollider } from '../../../../exports/physics-framework';

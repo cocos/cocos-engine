@@ -29,19 +29,17 @@
  * @hidden
  */
 
-// import Ammo from './instantiated';
 import { BulletSharedBody } from './bullet-shared-body';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
-import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletConstant } from './bullet-const';
-import { cocos2BulletVec3 } from './bullet-utils';
+import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletConst } from './bullet-const';
+import { bullet2CocosVec3, cocos2BulletVec3 } from './bullet-utils';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial } from '../framework';
-import { error, Node, RecyclePool } from '../../core';
-import { BulletInstance } from './bullet-instance';
+import { error, Node, RecyclePool, Vec3 } from '../../core';
 import { IVec3Like } from '../../core/math/type-define';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
@@ -60,7 +58,7 @@ export class BulletWorld implements IPhysicsWorld {
     setDefaultMaterial (v: PhysicsMaterial) { }
 
     setGravity (gravity: IVec3Like) {
-        const TMP = BulletConstant.instance.BT_V3_0;
+        const TMP = BulletConst.instance.BT_V3_0;
         cocos2BulletVec3(TMP, gravity);
         bt.DynamicsWorld_setGravity(this._world, TMP);
     }
@@ -87,7 +85,7 @@ export class BulletWorld implements IPhysicsWorld {
         this._dispatcher = bt.CollisionDispatcher_new();
         this._solver = bt.SequentialImpulseConstraintSolver_new();
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
-        const TMP = BulletConstant.instance.BT_V3_0;
+        const TMP = BulletConst.instance.BT_V3_0;
         bt.Vec3_set(TMP, 0, -10, 0);
         bt.DynamicsWorld_setGravity(this._world, TMP);
     }
@@ -135,43 +133,42 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        // const allHitsCB = AmmoWorld.allHitsCB;
-        // const from = cocos2AmmoVec3(allHitsCB.m_rayFromWorld, worldRay.o);
-        // worldRay.computeHit(v3_0, options.maxDistance);
-        // const to = cocos2AmmoVec3(allHitsCB.m_rayToWorld, v3_0);
-        // allHitsCB.reset(options.mask, options.queryTrigger);
-        // this._btWorld.rayTest(from, to, allHitsCB);
-        // if (allHitsCB.hasHit()) {
-        //     const shapePtrs = allHitsCB.getCollisionShapePtrs();
-        //     const hp = allHitsCB.getHitPointWorld();
-        //     const hn = allHitsCB.getHitNormalWorld();
-        //     for (let i = 0, n = shapePtrs.size(); i < n; i++) {
-        //         const shape: AmmoShape = AmmoInstance.getWrapperByPtr(shapePtrs.at(i));
-        //         ammo2CocosVec3(v3_0, hp.at(i));
-        //         ammo2CocosVec3(v3_1, hn.at(i));
-        //         const r = pool.add();
-        //         r._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
-        //         results.push(r);
-        //     }
-        //     return true;
-        // }
+        worldRay.computeHit(v3_0, options.maxDistance);
+        const to = cocos2BulletVec3(BulletConst.instance.BT_V3_0, v3_0);
+        const from = cocos2BulletVec3(BulletConst.instance.BT_V3_1, worldRay.o);
+        const allHitsCB = bt.ccAllRayCallback_static();
+        bt.ccAllRayCallback_reset(allHitsCB, from, to, options.mask, options.queryTrigger);
+        bt.CollisionWorld_rayTest(this._world, from, to, allHitsCB);
+        if (bt.RayCallback_hasHit(allHitsCB)) {
+            const posArray = bt.ccAllRayCallback_getHitPointWorld(allHitsCB);
+            const normalArray = bt.ccAllRayCallback_getHitNormalWorld(allHitsCB);
+            const ptrArray = bt.ccAllRayCallback_getCollisionShapePtrs(allHitsCB);
+            for (let i = 0, n = bt.int_array_size(ptrArray); i < n; i++) {
+                bullet2CocosVec3(v3_0, bt.Vec3_array_at(posArray, i));
+                bullet2CocosVec3(v3_1, bt.Vec3_array_at(normalArray, i)); 
+                const shape = BulletConst.getWrapper<BulletShape>(bt.int_array_at(ptrArray, i));
+                const r = pool.add(); results.push(r);
+                r._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
+            }
+            return true;
+        }
         return false;
     }
 
     raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
-        // const closeHitCB = AmmoWorld.closeHitCB;
-        // const from = cocos2AmmoVec3(closeHitCB.m_rayFromWorld, worldRay.o);
-        // worldRay.computeHit(v3_0, options.maxDistance);
-        // const to = cocos2AmmoVec3(closeHitCB.m_rayToWorld, v3_0);
-        // closeHitCB.reset(options.mask, options.queryTrigger);
-        // this._btWorld.rayTest(from, to, closeHitCB);
-        // if (closeHitCB.hasHit()) {
-        //     const shape: AmmoShape = AmmoInstance.getWrapperByPtr(closeHitCB.getCollisionShapePtr());
-        //     ammo2CocosVec3(v3_0, closeHitCB.getHitPointWorld());
-        //     ammo2CocosVec3(v3_1, closeHitCB.getHitNormalWorld());
-        //     result._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
-        //     return true;
-        // }
+        worldRay.computeHit(v3_0, options.maxDistance);
+        const to = cocos2BulletVec3(BulletConst.instance.BT_V3_0, v3_0);
+        const from = cocos2BulletVec3(BulletConst.instance.BT_V3_1, worldRay.o);
+        const closeHitCB = bt.ccClosestRayCallback_static();
+        bt.ccClosestRayCallback_reset(closeHitCB, from, to, options.mask, options.queryTrigger);
+        bt.CollisionWorld_rayTest(this._world, from, to, closeHitCB);
+        if (bt.RayCallback_hasHit(closeHitCB)) {
+            bullet2CocosVec3(v3_0, bt.ccClosestRayCallback_getHitPointWorld(closeHitCB));
+            bullet2CocosVec3(v3_1, bt.ccClosestRayCallback_getHitNormalWorld(closeHitCB));
+            const shape = BulletConst.getWrapper<BulletShape>(bt.ccClosestRayCallback_getCollisionShapePtr(closeHitCB));
+            result._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
+            return true;
+        }
         return false;
     }
 

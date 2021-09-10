@@ -28,15 +28,13 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
-import Ammo from '../instantiated';
 import { BulletShape } from './bullet-shape';
 import { ConeCollider } from '../../../../exports/physics-framework';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
 import { bt } from '../bullet.asmjs';
-import { BulletConstant } from '../bullet-const';
+import { BulletConst } from '../bullet-const';
 
 export class BulletConeShape extends BulletShape implements ICylinderShape {
     setHeight (v: number) {
@@ -75,7 +73,7 @@ export class BulletConeShape extends BulletShape implements ICylinderShape {
     }
 
     onComponentSet () {
-        this._impl = new Ammo.btConeShape(0.5, 1);
+        this._impl = bt.ConeShape_new(0.5, 1);
         this.setRadius(this.collider.radius);
     }
 
@@ -102,7 +100,7 @@ export class BulletConeShape extends BulletShape implements ICylinderShape {
         bt.ConeShape_setHeight(this._impl, wh);
         bt.ConeShape_setConeUpIndex(this._impl, upAxis);
 
-        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        const bt_v3 = BulletConst.instance.BT_V3_0;
         bt.Vec3_set(bt_v3, 1, 1, 1);
         bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();

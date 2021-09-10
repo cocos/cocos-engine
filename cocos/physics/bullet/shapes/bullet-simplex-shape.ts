@@ -28,14 +28,13 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
 import { BulletShape } from './bullet-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { bt } from '../bullet.asmjs';
-import { BulletConstant } from '../bullet-const';
+import { BulletConst } from '../bullet-const';
 
 export class BulletSimplexShape extends BulletShape implements ISimplexShape {
     setShapeType (v: SimplexCollider.ESimplexType) {
@@ -54,7 +53,7 @@ export class BulletSimplexShape extends BulletShape implements ISimplexShape {
         this._impl = bt.SimplexShape_new();
         const length = this.collider.shapeType;
         const vertices = this.collider.vertices;
-        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        const bt_v3 = BulletConst.instance.BT_V3_0;
         for (let i = 0; i < length; i++) {
             bt.SimplexShape_addVertex(this._impl, cocos2BulletVec3(bt_v3, vertices[i]));
         }
@@ -68,7 +67,7 @@ export class BulletSimplexShape extends BulletShape implements ISimplexShape {
 
     updateScale () {
         super.updateScale();
-        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        const bt_v3 = BulletConst.instance.BT_V3_0;
         bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this._collider.node.worldScale));
     }
 }
