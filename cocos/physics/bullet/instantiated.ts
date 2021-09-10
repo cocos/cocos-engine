@@ -51,7 +51,7 @@ export const bt: instanceExt = {} as any;
 globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 
-export async function waitForAmmoInstantiation () {
+export async function waitForAmmoInstantiation (dirRoot: string) {
     let btInstance: Bullet.instance;
     if (typeof bulletModule === 'string') {
         console.info('[Physics][Bullet]: Using wasm Bullet libs.');
@@ -61,7 +61,8 @@ export async function waitForAmmoInstantiation () {
             wasi_snapshot_preview1: { fd_close: () => { }, fd_seek: () => { }, fd_write: () => { } },
             env: { memory },
         };
-        let buffer: ArrayBuffer | string = bulletModule;
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        let buffer: any = `${dirRoot}${bulletModule}`;
         if (!WECHAT) {
             const response = await fetch(bulletModule);
             buffer = await response.arrayBuffer();
