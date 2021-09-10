@@ -87,6 +87,9 @@ export class BulletWorld implements IPhysicsWorld {
         this._dispatcher = bt.CollisionDispatcher_new();
         this._solver = bt.SequentialImpulseConstraintSolver_new();
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
+        const TMP = BulletConstant.instance.BT_V3_0;
+        bt.Vec3_set(TMP, 0, -10, 0);
+        bt.DynamicsWorld_setGravity(this._world, TMP);
     }
 
     destroy (): void {
@@ -227,65 +230,65 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
-        const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
-        for (let i = 0; i < numManifolds; i++) {
-            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
-            // const body0 = bt.PersistentManifold_getBody0(manifold);
-            // const body1 = bt.PersistentManifold_getBody1(manifold);
+        // const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
+        // for (let i = 0; i < numManifolds; i++) {
+        //     const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
+        //     // const body0 = bt.PersistentManifold_getBody0(manifold);
+        //     // const body1 = bt.PersistentManifold_getBody1(manifold);
 
-            // // TODO: SUPPORT CHARACTER EVENT
-            // if (body0.useCharacter || body1.useCharacter) { continue; }
+        //     // // TODO: SUPPORT CHARACTER EVENT
+        //     // if (body0.useCharacter || body1.useCharacter) { continue; }
 
-            const numContacts = bt.PersistentManifold_getNumContacts(manifold);
-            for (let j = 0; j < numContacts; j++) {
-                // const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
-                // const s0 = body0.getCollisionShape();
-                // const s1 = body1.getCollisionShape();
-                const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
-                const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
-                const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
-                let shape0: BulletShape;
-                let shape1: BulletShape;
-                if (bt.CollisionShape_isCompound(s0)) {
-                    const index0 = bt.ManifoldPoint_get_m_index0(manifoldPoint);
-                    shape0 = bt.getObjByPtr(bt.CompoundShape_getChildShape(s0, index0));
-                } else {
-                    // shape0 = s0.wrapped;
-                    shape0 = bt.getObjByPtr(s0);
-                }
+        //     const numContacts = bt.PersistentManifold_getNumContacts(manifold);
+        //     for (let j = 0; j < numContacts; j++) {
+        //         // const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
+        //         // const s0 = body0.getCollisionShape();
+        //         // const s1 = body1.getCollisionShape();
+        //         const manifoldPoint = bt.PersistentManifold_getContactPoint(manifold, j);
+        //         const s0 = bt.ManifoldPoint_getShape0(manifoldPoint);
+        //         const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
+        //         let shape0: BulletShape;
+        //         let shape1: BulletShape;
+        //         if (bt.CollisionShape_isCompound(s0)) {
+        //             const index0 = bt.ManifoldPoint_get_m_index0(manifoldPoint);
+        //             shape0 = bt.getObjByPtr(bt.CompoundShape_getChildShape(s0, index0));
+        //         } else {
+        //             // shape0 = s0.wrapped;
+        //             shape0 = bt.getObjByPtr(s0);
+        //         }
 
-                if (!shape0) continue;
+        //         if (!shape0) continue;
 
-                if (bt.CollisionShape_isCompound(s1)) {
-                    const index1 = bt.ManifoldPoint_get_m_index1(manifoldPoint);
-                    shape1 = bt.getObjByPtr(bt.CompoundShape_getChildShape(s1, index1));
-                } else {
-                    // shape1 = s1.wrapped;
-                    shape1 = bt.getObjByPtr(s1);
-                }
+        //         if (bt.CollisionShape_isCompound(s1)) {
+        //             const index1 = bt.ManifoldPoint_get_m_index1(manifoldPoint);
+        //             shape1 = bt.getObjByPtr(bt.CompoundShape_getChildShape(s1, index1));
+        //         } else {
+        //             // shape1 = s1.wrapped;
+        //             shape1 = bt.getObjByPtr(s1);
+        //         }
 
-                if (!shape1) continue;
+        //         if (!shape1) continue;
 
-                if (shape0.collider.needTriggerEvent
-                    || shape1.collider.needTriggerEvent
-                    || shape0.collider.needCollisionEvent
-                    || shape1.collider.needCollisionEvent
-                ) {
-                    // current contact
-                    let item = this.contactsDic.get<any>(shape0.id, shape1.id);
-                    if (item == null) {
-                        item = this.contactsDic.set(shape0.id, shape1.id,
-                            {
-                                shape0,
-                                shape1,
-                                contacts: [],
-                                impl: manifold,
-                            });
-                    }
-                    item.contacts.push(manifoldPoint);
-                }
-            }
-        }
+        //         if (shape0.collider.needTriggerEvent
+        //             || shape1.collider.needTriggerEvent
+        //             || shape0.collider.needCollisionEvent
+        //             || shape1.collider.needCollisionEvent
+        //         ) {
+        //             // current contact
+        //             let item = this.contactsDic.get<any>(shape0.id, shape1.id);
+        //             if (item == null) {
+        //                 item = this.contactsDic.set(shape0.id, shape1.id,
+        //                     {
+        //                         shape0,
+        //                         shape1,
+        //                         contacts: [],
+        //                         impl: manifold,
+        //                     });
+        //             }
+        //             item.contacts.push(manifoldPoint);
+        //         }
+        //     }
+        // }
 
         // is enter or stay
         let dicL = this.contactsDic.getLength();

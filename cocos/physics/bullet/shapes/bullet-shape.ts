@@ -236,7 +236,7 @@ export class BulletShape implements IBaseShape {
 
     updateCompoundTransform () {
         if (this._compound) {
-            bt.CompoundShape_updateChildTransform(this._compound, this.index, this.transform, true);
+            bt.CompoundShape_updateChildTransform(this._compound, this._index, this.transform, true);
         } else if (this._isEnabled && !this._isTrigger) {
             if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
                 this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
@@ -245,9 +245,8 @@ export class BulletShape implements IBaseShape {
     }
 
     needCompound () {
+        if (this._collider.type === EColliderType.TERRAIN) { return true; }
+        if (this._collider.center.equals(Vec3.ZERO)) { return false; }
         return true;
-        // if (this._collider.type === EColliderType.TERRAIN) { return true; }
-        // if (this._collider.center.equals(Vec3.ZERO)) { return false; }
-        // return true;
     }
 }

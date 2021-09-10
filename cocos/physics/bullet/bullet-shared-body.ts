@@ -208,6 +208,11 @@ export class BulletSharedBody {
 
     private _instantiateBodyStruct () {
         if (this._bodyStruct) return;
+        let mass = 0;
+        if (this._wrappedBody && this._wrappedBody.rigidBody.enabled && this._wrappedBody.rigidBody.isDynamic) {
+            mass = this._wrappedBody.rigidBody.mass;
+        }
+
         const trans = BulletConstant.instance.BT_TRANSFORM_0;
         const quat = BulletConstant.instance.BT_QUAT_0;
         cocos2BulletVec3(bt.Transform_getOrigin(trans), this.node.worldPosition);
@@ -218,27 +223,16 @@ export class BulletSharedBody {
         // const motionState = bt.DefaultMotionState_new(trans);
         // const motionState = 0;
 
-        const bodyShape = bt.CompoundShape_new(true);
-        let mass = 0;
-        if (this._wrappedBody && this._wrappedBody.rigidBody.enabled && this._wrappedBody.rigidBody.isDynamic) {
-            mass = this._wrappedBody.rigidBody.mass;
-        }
-        const localInertia = BulletConstant.instance.BT_V3_0;
-        if (mass === 0) {
-            bt.Vec3_set(localInertia, 0, 0, 0);
-        } else {
-            bt.Vec3_set(localInertia, 1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
-        }
         const body = bt.RigidBody_new(mass, motionState);
         const sleepTd = PhysicsSystem.instance.sleepThreshold;
         bt.RigidBody_setSleepingThresholds(body, sleepTd, sleepTd);
         this._bodyStruct = {
-            id: IDCounter++, body, motionState, compound: bodyShape, wrappedShapes: [], useCompound: false,
+            id: IDCounter++, body, motionState, compound: bt.CompoundShape_new(true), wrappedShapes: [], useCompound: false,
         };
         BulletInstance.bodyStructs[this._bodyStruct.id] = this._bodyStruct;
         bt.CollisionObject_setUserIndex(this.body, this._bodyStruct.id);
         if (this._ghostStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.ghost, this.body, true);
-        if (this.wrappedBody) this.setBodyType(this.wrappedBody.rigidBody.type);
+        if (this._wrappedBody) this.setBodyType(this._wrappedBody.rigidBody.type);
     }
 
     private _instantiateGhostStruct () {
@@ -251,7 +245,7 @@ export class BulletSharedBody {
         BulletInstance.ghostStructs[this._ghostStruct.id] = this._ghostStruct;
         bt.CollisionObject_setUserIndex(this.ghost, this._ghostStruct.id);
         if (this._bodyStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.body, this.ghost, true);
-        if (this.wrappedBody) this.setGhostType(this.wrappedBody.rigidBody.type);
+        if (this._wrappedBody) this.setGhostType(this._wrappedBody.rigidBody.type);
     }
 
     setType (v: ERigidBodyType) {
@@ -324,10 +318,10 @@ export class BulletSharedBody {
     addShape (v: BulletShape, isTrigger: boolean) {
         function switchShape (that: BulletSharedBody, shape: Bullet.ptr) {
             bt.CollisionObject_setCollisionShape(that.body, shape);
-            that.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
             if (that._wrappedBody && that._wrappedBody.isEnabled) {
                 that._wrappedBody.setMass(that._wrappedBody.rigidBody.mass);
             }
+            that.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
         }
 
         if (isTrigger) {
