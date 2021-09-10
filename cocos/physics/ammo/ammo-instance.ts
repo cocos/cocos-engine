@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Ammo from './instantiated';
+// import Ammo from './instantiated';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 
 export class AmmoInstance {

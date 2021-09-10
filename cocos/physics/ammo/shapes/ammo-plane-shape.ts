@@ -29,35 +29,32 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
+// import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { PlaneCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3, cocos2BulletVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoConstant } from '../ammo-const';
+import { bt } from '../export-bullet';
 
 export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
     setNormal (v: IVec3Like) {
-        cocos2AmmoVec3(this.impl.getPlaneNormal(), v);
+        cocos2BulletVec3(bt.StaticPlaneShape_getPlaneNormal(this.impl), v);
         this.updateCompoundTransform();
     }
 
     setConstant (v: number) {
-        this.impl.setPlaneConstant(v);
+        bt.StaticPlaneShape_setPlaneConstant(this.impl, v);
         this.updateCompoundTransform();
     }
 
     updateScale () {
         super.updateScale();
-        cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
-        this._btShape.setLocalScaling(this.scale);
+        cocos2BulletVec3(this.scale, this._collider.node.worldScale);
+        bt.CollisionShape_setLocalScaling(this._btShape, this.scale);
         this.updateCompoundTransform();
-    }
-
-    get impl () {
-        return this._btShape as Ammo.btStaticPlaneShape;
     }
 
     get collider () {
@@ -70,8 +67,8 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
 
     onComponentSet () {
         const normal = AmmoConstant.instance.VECTOR3_0;
-        cocos2AmmoVec3(normal, this.collider.normal);
-        this._btShape = new Ammo.btStaticPlaneShape(normal, this.collider.constant);
+        cocos2BulletVec3(normal, this.collider.normal);
+        this._btShape = bt.StaticPlaneShape_create(normal, this.collider.constant);
         this.updateScale();
     }
 }

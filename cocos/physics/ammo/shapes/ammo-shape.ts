@@ -29,12 +29,12 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
+// import Ammo from '../instantiated';
 import { Vec3, Quat } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
-import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat } from '../ammo-util';
+import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat, cocos2BulletVec3 } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -42,6 +42,7 @@ import { AmmoSharedBody } from '../ammo-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 import { AmmoInstance } from '../ammo-instance';
+import { bt } from '../export-bullet';
 
 const v3_0 = CC_V3_0;
 
@@ -51,13 +52,13 @@ export class AmmoShape implements IBaseShape {
     setMaterial (v: PhysicsMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {
-                this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction, 2);
+                // this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction, 2);
             } else {
-                this._sharedBody.body.setFriction(v.friction);
-                this._sharedBody.body.setRestitution(v.restitution);
-                this._sharedBody.body.setRollingFriction(v.rollingFriction);
-                this._sharedBody.body.setSpinningFriction(v.spinningFriction);
-                this._sharedBody.body.setUserIndex2(2);
+                // this._sharedBody.body.setFriction(v.friction);
+                // this._sharedBody.body.setRestitution(v.restitution);
+                // this._sharedBody.body.setRollingFriction(v.rollingFriction);
+                // this._sharedBody.body.setSpinningFriction(v.spinningFriction);
+                // this._sharedBody.body.setUserIndex2(2);
             }
         }
     }
@@ -65,7 +66,7 @@ export class AmmoShape implements IBaseShape {
     setCenter (v: IVec3Like) {
         Vec3.copy(v3_0, v);
         v3_0.multiply(this._collider.node.worldScale);
-        cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
+        cocos2BulletVec3(bt.Transform_getOrigin(this.transform), v3_0);
         this.updateCompoundTransform();
     }
 
@@ -98,37 +99,36 @@ export class AmmoShape implements IBaseShape {
     protected _isBinding = false;
     protected _isTrigger = false;
     protected _sharedBody!: AmmoSharedBody;
-    protected _btShape!: Ammo.btCollisionShape;
-    protected _btCompound: Ammo.btCompoundShape | null = null;
+    protected _btShape!: Bullet.ptr;
+    protected _btCompound: number | null = null;
     protected _collider!: Collider;
 
-    protected readonly transform: Ammo.btTransform;
-    protected readonly quat: Ammo.btQuaternion;
-    protected readonly scale: Ammo.btVector3;
+    protected readonly transform: Bullet.ptr;
+    protected readonly quat: Bullet.ptr;
+    protected readonly scale: Bullet.ptr;
 
     constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
         this.id = AmmoShape.idCounter++;
-        this.quat = new Ammo.btQuaternion();
-        this.transform = new Ammo.btTransform();
-        this.transform.setIdentity();
-        this.scale = new Ammo.btVector3(1, 1, 1);
+        this.quat = bt.Quaternion_create(0, 0, 0, 1);
+        this.transform = bt.Transform_create();
+        this.scale = bt.Vector3_create(1, 1, 1);
     }
 
     getAABB (v: AABB) {
-        const TRANS = AmmoConstant.instance.TRANSFORM;
-        TRANS.setIdentity();
-        TRANS.setRotation(cocos2AmmoQuat(AmmoConstant.instance.QUAT_0, this._collider.node.worldRotation));
-        const MIN = AmmoConstant.instance.VECTOR3_0;
-        const MAX = AmmoConstant.instance.VECTOR3_1;
-        this._btShape.getAabb(TRANS, MIN, MAX);
-        v.halfExtents.set((MAX.x() - MIN.x()) / 2, (MAX.y() - MIN.y()) / 2, (MAX.z() - MIN.z()) / 2);
-        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+        // const TRANS = AmmoConstant.instance.TRANSFORM;
+        // bt.btTransform_setIdentity(TRANS);
+        // TRANS.setRotation(cocos2AmmoQuat(AmmoConstant.instance.QUAT_0, this._collider.node.worldRotation));
+        // const MIN = AmmoConstant.instance.VECTOR3_0;
+        // const MAX = AmmoConstant.instance.VECTOR3_1;
+        // this._btShape.getAabb(TRANS, MIN, MAX);
+        // v.halfExtents.set((MAX.x() - MIN.x()) / 2, (MAX.y() - MIN.y()) / 2, (MAX.z() - MIN.z()) / 2);
+        // Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
     getBoundingSphere (v: Sphere) {
-        v.radius = this._btShape.getLocalBoundingSphere();
-        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+        // v.radius = this._btShape.getLocalBoundingSphere();
+        // Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
     initialize (com: Collider) {
@@ -229,14 +229,14 @@ export class AmmoShape implements IBaseShape {
         this._sharedBody.collisionFilterMask &= ~v;
     }
 
-    setCompound (compound: Ammo.btCompoundShape | null) {
+    setCompound (compound: number | null) {
         if (this._btCompound) {
-            this._btCompound.removeChildShape(this._btShape);
+            bt.CompoundShape_removeChildShape(this._btCompound, this._btShape);
             this._index = -1;
         }
         if (compound) {
-            this._index = compound.getNumChildShapes();
-            compound.addChildShape(this.transform, this._btShape);
+            this._index = bt.CompoundShape_getNumChildShapes(compound);
+            bt.CompoundShape_addChildShape(compound, this.transform, this._btShape);
         }
         this._btCompound = compound;
     }
@@ -247,7 +247,7 @@ export class AmmoShape implements IBaseShape {
 
     updateCompoundTransform () {
         if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
+            bt.CompoundShape_updateChildTransform(this._btCompound, this.index, this.transform, true);
         } else if (this._isEnabled && !this._isTrigger) {
             if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
                 this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;

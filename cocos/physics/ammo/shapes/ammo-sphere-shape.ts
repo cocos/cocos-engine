@@ -29,23 +29,20 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
+// import Ammo from '../ammo-instantiated';
 import { AmmoShape } from './ammo-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3, cocos2BulletVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
+import { CC_V3_0 } from '../ammo-const';
+import { bt } from '../export-bullet';
 import { absMaxComponent } from '../../../core';
-import { VEC3_0 } from '../../utils/util';
 
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     updateRadius () {
-        this.impl.setUnscaledRadius(this.getMinUnscaledRadius());
+        bt.SphereShape_setUnscaledRadius(this.impl, this.getMinUnscaledRadius());
         this.updateCompoundTransform();
-    }
-
-    get impl () {
-        return this._btShape as Ammo.btSphereShape;
     }
 
     get collider () {
@@ -57,20 +54,16 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     }
 
     onComponentSet () {
-        const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
-        const radius = this.collider.radius;
-        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
-        const unscaledRadius = ws * radius < minVolumeSize ? minVolumeSize / ws : radius;
-        this._btShape = new Ammo.btSphereShape(unscaledRadius);
+        this._btShape = bt.SphereShape_create(this.getMinUnscaledRadius());
         this.updateScale();
     }
 
     updateScale () {
         super.updateScale();
         const scale = this.getMinScale();
-        VEC3_0.set(scale, scale, scale);
-        cocos2AmmoVec3(this.scale, VEC3_0);
-        this._btShape.setLocalScaling(this.scale);
+        CC_V3_0.set(scale, scale, scale);
+        cocos2BulletVec3(this.scale, CC_V3_0);
+        bt.CollisionShape_setLocalScaling(this._btShape, this.scale);
         this.updateCompoundTransform();
     }
 

@@ -33,22 +33,19 @@ import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { Vec3 } from '../../../core';
 import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { AmmoConstant } from '../ammo-const';
 import { absolute, VEC3_0 } from '../../utils/util';
+import { cocos2AmmoVec3, cocos2BulletVec3 } from '../ammo-util';
+import { AmmoConstant, CC_V3_0 } from '../ammo-const';
+import { bt } from '../export-bullet';
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     updateSize () {
         const hf = AmmoConstant.instance.VECTOR3_0;
-        cocos2AmmoVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
-        this.impl.setUnscaledHalfExtents(hf);
+        cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
+        bt.BoxShape_setUnscaledHalfExtents(this.impl, hf);
         this.updateCompoundTransform();
-    }
-
-    get impl () {
-        return this._btShape as Ammo.btBoxShape;
     }
 
     get collider () {
@@ -62,7 +59,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     onComponentSet () {
         const hf = AmmoConstant.instance.VECTOR3_0;
         cocos2AmmoVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
-        this._btShape = new Ammo.btBoxShape(hf);
+        this._btShape = bt.BoxShape_create(hf);
         this.updateScale();
     }
 
