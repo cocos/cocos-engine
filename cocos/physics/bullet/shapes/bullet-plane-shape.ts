@@ -34,7 +34,7 @@ import { cocos2BulletVec3 } from '../bullet-utils';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BulletCache } from '../bullet-cache';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 
 export class BulletPlaneShape extends BulletShape implements IPlaneShape {
     setNormal (v: IVec3Like) {

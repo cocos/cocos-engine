@@ -35,7 +35,7 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_QUAT_0, CC_V3_0 } from '../bullet-cache';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
 
 export class BulletHingeConstraint extends BulletConstraint implements IHingeConstraint {

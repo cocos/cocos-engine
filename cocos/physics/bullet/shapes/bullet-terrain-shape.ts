@@ -36,7 +36,7 @@ import { ITerrainShape } from '../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../spec/i-external';
 import { CC_V3_0, BulletCache } from '../bullet-cache';
 import { IVec3Like } from '../../../core/math/type-define';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 
 export class BulletTerrainShape extends BulletShape implements ITerrainShape {
     public get collider () {

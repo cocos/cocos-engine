@@ -32,7 +32,7 @@ import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Vec3, Quat } from '../../core';
 import { BulletShape } from './shapes/bullet-shape';
 import { CC_QUAT_0, BulletCache } from './bullet-cache';
-import { bt } from './bullet.asmjs';
+import { bt } from './instantiated';
 import { bullet2CocosQuat, bullet2CocosVec3 } from './bullet-utils';
 
 export class BulletContactData implements IContactEquation {

@@ -35,7 +35,7 @@ import { CC_V3_0, CC_QUAT_0, BulletCache } from './bullet-cache';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { fastRemoveAt } from '../../core/utils/array';
-import { bt } from './bullet.asmjs';
+import { bt } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 
 /**

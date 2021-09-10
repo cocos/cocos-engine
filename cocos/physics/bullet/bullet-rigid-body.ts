@@ -38,7 +38,7 @@ import { ERigidBodyType } from '../framework/physics-enum';
 import { BulletSharedBody } from './bullet-shared-body';
 import { IVec3Like } from '../../core/math/type-define';
 import { BulletCache, CC_V3_0, CC_V3_1 } from './bullet-cache';
-import { bt } from './bullet.asmjs';
+import { bt } from './instantiated';
 
 const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;

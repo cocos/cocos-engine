@@ -30,7 +30,7 @@
 
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
-import { bt } from './bullet.asmjs';
+import { bt } from './instantiated';
 
 export const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,

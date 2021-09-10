@@ -36,7 +36,7 @@ import { IBoxShape } from '../../spec/i-physics-shape';
 import { absolute, VEC3_0 } from '../../utils/util';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { BulletCache } from '../bullet-cache';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 
 export class BulletBoxShape extends BulletShape implements IBoxShape {
     updateSize () {

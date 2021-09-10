@@ -33,7 +33,7 @@ import { BulletShape } from './bullet-shape';
 import { CapsuleCollider } from '../../../../exports/physics-framework';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 
 export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {
     setCylinderHeight (v: number) {

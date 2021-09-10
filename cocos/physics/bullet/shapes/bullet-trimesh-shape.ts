@@ -35,7 +35,7 @@ import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { BulletCache } from '../bullet-cache';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 
 export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     public get collider () {

@@ -34,7 +34,7 @@ import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
 import { BulletCache } from '../bullet-cache';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 
 export class BulletCylinderShape extends BulletShape implements ICylinderShape {
     setHeight (v: number) {

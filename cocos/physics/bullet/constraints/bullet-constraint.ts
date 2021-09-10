@@ -32,7 +32,7 @@
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 
 export abstract class BulletConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {

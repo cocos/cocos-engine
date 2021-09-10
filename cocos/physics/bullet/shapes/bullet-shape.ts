@@ -38,7 +38,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { BulletSharedBody } from '../bullet-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
 import { BulletCache, CC_V3_0 } from '../bullet-cache';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 import { EColliderType } from '../../framework';
 
 const v3_0 = CC_V3_0;

@@ -33,7 +33,7 @@ import { ConeCollider } from '../../../../exports/physics-framework';
 import { ICylinderShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 import { BulletCache } from '../bullet-cache';
 
 export class BulletConeShape extends BulletShape implements ICylinderShape {

@@ -28,73 +28,56 @@
  * @hidden
  */
 
-// import AmmoClosure, * as AmmoJs from '@cocos/ammo';
-// import { WECHAT } from 'internal:constants';
-import { log } from '../../core';
-import { legacyCC } from '../../core/global-exports';
-import { pageCount, importFunc } from './bullet-env';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import bulletModule from '@cocos/bullet';
+import { WECHAT } from 'internal:constants';
+import { physics } from '../../../exports/physics-framework';
+import { pageSize, pageCount, importFunc } from './bullet-env';
 
-const globalThis = legacyCC._global;
-const Ammo: any = {} as any;
-
-// User can overwrite the internal bullet libs by 'globalThis.BULLET'
-let bulletLibs: any = null;
+let bulletLibs: any = bulletModule;
 if (globalThis.BULLET) {
-    log('[Physics]: Using the external Bullet libs.');
+    console.log('[Physics][Bullet]: Using the external Bullet libs.');
     bulletLibs = globalThis.BULLET;
 }
 
-/**
- * `'@cocos/ammo'` exports an async namespace. Let's call it `Ammo`.
- * Contents of `Ammo` are only valid for access once `Ammo().then()` is called.
- * That means we should not only import the `Ammo` but also wait for its instantiation:
- * ```ts
- * import Ammo from '@cocos/ammo';
- * const v = Ammo.btVector3(); // Error: Ammo is not instantiated!
- * ```
- *
- * That's why this module comes ---
- * The default export `Ammo` from this module has the meaning:
- * when you got the export, it had been instantiated.
- *
- */
-export { Ammo as default }; // Note: should not use `export default Ammo` since that's only a copy but we need live binding.
+if (!physics.selector.runInEditor) bulletLibs = () => ({});
 
-/**
- * With the stage 3 proposal "top level await",
- * we may got a simple `await waitForAmmoInstantiation();` statement in this module.
- * It guarantees the promise `waitForAmmoInstantiation()`
- * is resolved before this module finished its execution.
- * But this technique is rarely implemented for now and can not be implemented in CommonJS.
- * We have to expose this waiting function to beg for earlier invocation by the external.
- * In Cocos Creator Editor's implementation,
- * it awaits for the:
- * ```ts
- * import thisFunction from 'cc.wait-for-ammo-instantiated';
- * await thisFunction();
- * ```
- * before `'cc.physics-ammo'` can be imported;
- * @param wasmBinary The .wasm file, if any.(In wechat, this is the path of wasm file.)
- */
-export async function waitForAmmoInstantiation (wasmBinary?: ArrayBuffer | string) {
-    if (wasmBinary) {
+interface instanceExt extends Bullet.instance {
+    CACHE: any,
+    BODY_CACHE_NAME: string,
+}
+
+export const bt: instanceExt = {} as any;
+globalThis.Bullet = bt;
+bt.BODY_CACHE_NAME = 'body';
+
+export async function waitForAmmoInstantiation () {
+    let btInstance: Bullet.instance;
+    if (typeof bulletModule === 'string') {
+        console.info('[Physics][Bullet]: Using wasm Bullet libs.');
         const memory = new WebAssembly.Memory({ initial: pageCount });
         const importObject = {
-            importFunc,
+            cc: importFunc,
             wasi_snapshot_preview1: { fd_close: () => { }, fd_seek: () => { }, fd_write: () => { } },
             env: { memory },
-
         };
-        const results = await WebAssembly.instantiate(wasmBinary, importObject);
-        console.log(results);
+        let buffer: ArrayBuffer | string = bulletModule;
+        if (!WECHAT) {
+            const response = await fetch(bulletModule);
+            buffer = await response.arrayBuffer();
+        }
+        const results = await WebAssembly.instantiate(buffer, importObject);
+        btInstance = results.instance.exports as unknown as Bullet.instance;
+    } else {
+        console.info('[Physics][Bullet]: Using asmjs Bullet libs.');
+        const env: any = importFunc;
+        const wasmMemory: any = {};
+        wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
+        env.memory = wasmMemory;
+        btInstance = bulletLibs(env, wasmMemory);
     }
-    return new Promise<void>((resolve, reject) => {
-        // (bulletLibs).call(ammoClosureThis, Ammo).then(() => {
-        //     resolve();
-        // });
-
-        resolve();
-    });
+    Object.assign(bt, btInstance);
+    return new Promise<void>((resolve, reject) => { resolve(); });
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace

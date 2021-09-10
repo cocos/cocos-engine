@@ -31,7 +31,7 @@
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 import { Mesh } from '../../3d';
 import { PrimitiveMode } from '../../core/gfx';
-import { bt } from './bullet.asmjs';
+import { bt } from './instantiated';
 import { BulletCache } from './bullet-cache';
 
 export function cocos2BulletVec3 (out: Bullet.ptr, v: IVec3Like): Bullet.ptr {

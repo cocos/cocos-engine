@@ -44,7 +44,7 @@ import { IVec3Like } from '../../core/math/type-define';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { fastRemoveAt } from '../../core/utils/array';
-import { bt } from './bullet.asmjs';
+import { bt } from './instantiated';
 
 const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;

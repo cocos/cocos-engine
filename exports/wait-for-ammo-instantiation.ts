@@ -23,5 +23,4 @@
  THE SOFTWARE.
  */
 
-// export { waitForAmmoInstantiation as default } from '../cocos/physics/bullet/instantiated';
-export { waitForAmmoInstantiation as default } from '../cocos/physics/bullet/bullet.asmjs';
+export { waitForAmmoInstantiation as default } from '../cocos/physics/bullet/instantiated';

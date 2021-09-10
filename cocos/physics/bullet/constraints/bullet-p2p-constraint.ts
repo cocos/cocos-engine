@@ -35,7 +35,7 @@ import { IVec3Like, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_V3_0 } from '../bullet-cache';
-import { bt } from '../bullet.asmjs';
+import { bt } from '../instantiated';
 import { cocos2BulletVec3 } from '../bullet-utils';
 
 export class BulletP2PConstraint extends BulletConstraint implements IPointToPointConstraint {
