@@ -119,9 +119,6 @@ export class BulletWorld implements IPhysicsWorld {
         this._dispatcher = bt.CollisionDispatcher_new();
         this._solver = bt.SequentialImpulseConstraintSolver_new();
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
-        const TMP = BulletCache.instance.BT_V3_0;
-        bt.Vec3_set(TMP, 0, -10, 0);
-        bt.DynamicsWorld_setGravity(this._world, TMP);
     }
 
     destroy (): void {
@@ -262,9 +259,9 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
+        this._needSyncAfterEvents = false;
         if (!this._needEmitEvents) return;
         this.gatherConatactData();
-        this._needSyncAfterEvents = false;
         // is enter or stay
         let dicL = this.contactsDic.getLength();
         while (dicL--) {
