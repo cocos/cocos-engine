@@ -28,8 +28,6 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
-// import Ammo from './instantiated';
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
 import { bt } from './bullet.asmjs';
@@ -49,21 +47,21 @@ export const CollisionEventObject = {
     impl: null,
 };
 
-export class AmmoConstant {
-    private static _instance: AmmoConstant;
+export class BulletConstant {
+    private static _instance: BulletConstant;
     static get instance () {
-        if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant();
-        return AmmoConstant._instance;
+        if (BulletConstant._instance == null) BulletConstant._instance = new BulletConstant();
+        return BulletConstant._instance;
     }
-    readonly EMPTY_SHAPE = bt.EmptyShape_static();
-    readonly TRANSFORM = bt.Transform_new();
-    readonly TRANSFORM_1 = bt.Transform_new();
-    readonly VECTOR3_0 = bt.Vec3_new(0, 0, 0);
-    readonly VECTOR3_1 = bt.Vec3_new(0, 0, 0);
-    readonly QUAT_0 = bt.Quat_new(0, 0, 0, 1);
+    readonly BT_TRANSFORM_0 = bt.Transform_new();
+    readonly BT_TRANSFORM_1 = bt.Transform_new();
+    readonly BT_V3_0 = bt.Vec3_new(0, 0, 0);
+    readonly BT_V3_1 = bt.Vec3_new(0, 0, 0);
+    readonly BT_V3_2 = bt.Vec3_new(0, 0, 0);
+    readonly BT_QUAT_0 = bt.Quat_new(0, 0, 0, 1);
 
-    static isNotEmptyShape (btShape: any) {
-        return btShape !== this.instance.EMPTY_SHAPE;
+    static isNotEmptyShape (ptr: Bullet.ptr) {
+        return ptr !== bt.EmptyShape_static();
     }
 }
 

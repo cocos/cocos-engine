@@ -31,7 +31,7 @@
 /* eslint-disable new-cap */
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
 import { Constraint, RigidBody } from '../../framework';
-import { AmmoRigidBody } from '../ammo-rigid-body';
+import { BulletRigidBody } from '../bullet-rigid-body';
 import { bt } from '../bullet.asmjs';
 
 export abstract class BulletConstraint implements IBaseConstraint {
@@ -64,7 +64,7 @@ export abstract class BulletConstraint implements IBaseConstraint {
 
     updateByReAdd () {
         if (this._rigidBody && this.index >= 0) {
-            const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+            const sb = (this._rigidBody.body as BulletRigidBody).sharedBody;
             sb.wrappedWorld.removeConstraint(this);
             sb.wrappedWorld.addConstraint(this);
         }
@@ -84,23 +84,23 @@ export abstract class BulletConstraint implements IBaseConstraint {
     abstract updateScale1(): void;
 
     onEnable (): void {
-        const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+        const sb = (this._rigidBody.body as BulletRigidBody).sharedBody;
         sb.wrappedWorld.addConstraint(this);
         sb.addJoint(this, 0);
         const connect = this.constraint.connectedBody;
         if (connect) {
-            const sb2 = (connect.body as AmmoRigidBody).sharedBody;
+            const sb2 = (connect.body as BulletRigidBody).sharedBody;
             sb2.addJoint(this, 1);
         }
     }
 
     onDisable (): void {
-        const sb = (this._rigidBody.body as AmmoRigidBody).sharedBody;
+        const sb = (this._rigidBody.body as BulletRigidBody).sharedBody;
         sb.wrappedWorld.removeConstraint(this);
         sb.removeJoint(this, 0);
         const connect = this.constraint.connectedBody;
         if (connect) {
-            const sb2 = (connect.body as AmmoRigidBody).sharedBody;
+            const sb2 = (connect.body as BulletRigidBody).sharedBody;
             sb2.removeJoint(this, 1);
         }
     }

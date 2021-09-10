@@ -33,15 +33,15 @@ import { BulletConstraint } from './bullet-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
-import { AmmoRigidBody } from '../ammo-rigid-body';
-import { AmmoConstant, CC_V3_0 } from '../ammo-const';
+import { BulletRigidBody } from '../bullet-rigid-body';
+import { BulletConstant, CC_V3_0 } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
-import { cocos2BulletVec3 } from '../ammo-util';
+import { cocos2BulletVec3 } from '../bullet-utils';
 
 export class BulletP2PConstraint extends BulletConstraint implements IPointToPointConstraint {
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
-        const pivotA = AmmoConstant.instance.VECTOR3_0;
+        const pivotA = BulletConstant.instance.BT_V3_0;
         Vec3.multiply(CC_V3_0, cs.node.worldScale, cs.pivotA);
         cocos2BulletVec3(pivotA, CC_V3_0);
         bt.P2PConstraint_setPivotA(this._impl, pivotA);
@@ -51,7 +51,7 @@ export class BulletP2PConstraint extends BulletConstraint implements IPointToPoi
     setPivotB (v: IVec3Like): void {
         const cs = this.constraint;
         const node = this._rigidBody.node;
-        const pivotB = AmmoConstant.instance.VECTOR3_0;
+        const pivotB = BulletConstant.instance.BT_V3_0;
         const cb = cs.connectedBody;
         if (cb) {
             Vec3.multiply(CC_V3_0, cb.node.worldScale, cs.pivotB);
@@ -71,10 +71,10 @@ export class BulletP2PConstraint extends BulletConstraint implements IPointToPoi
 
     onComponentSet (): void {
         const cb = this.constraint.connectedBody;
-        const bodyA = (this._rigidBody.body as AmmoRigidBody).impl;
-        const bodyB = cb ? (cb.body as AmmoRigidBody).impl : bt.TypedConstraint_getFixedBody();
-        const pivotA = AmmoConstant.instance.VECTOR3_0;
-        const pivotB = AmmoConstant.instance.VECTOR3_1;
+        const bodyA = (this._rigidBody.body as BulletRigidBody).impl;
+        const bodyB = cb ? (cb.body as BulletRigidBody).impl : bt.TypedConstraint_getFixedBody();
+        const pivotA = BulletConstant.instance.BT_V3_0;
+        const pivotB = BulletConstant.instance.BT_V3_1;
         this._impl = bt.P2PConstraint_new(bodyA, bodyB, pivotA, pivotB);
         this.setPivotA(this.constraint.pivotA);
         this.setPivotB(this.constraint.pivotB);

@@ -29,20 +29,18 @@
  * @hidden
  */
 
-// import Ammo from '../instantiated';
-import { BulletShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { Vec3 } from '../../../core';
 import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
-import { btBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { absolute, VEC3_0 } from '../../utils/util';
-import { cocos2BulletVec3 } from '../ammo-util';
-import { AmmoConstant, CC_V3_0 } from '../ammo-const';
+import { cocos2BulletVec3 } from '../bullet-utils';
+import { BulletConstant } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
 
 export class BulletBoxShape extends BulletShape implements IBoxShape {
     updateSize () {
-        const hf = AmmoConstant.instance.VECTOR3_0;
+        const hf = BulletConstant.instance.BT_V3_0;
         cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
         bt.BoxShape_setUnscaledHalfExtents(this.impl, hf);
         this.updateCompoundTransform();
@@ -52,21 +50,17 @@ export class BulletBoxShape extends BulletShape implements IBoxShape {
         return this._collider as BoxCollider;
     }
 
-    constructor () {
-        super(btBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
-    }
-
     onComponentSet () {
-        const hf = AmmoConstant.instance.VECTOR3_0;
+        const hf = BulletConstant.instance.BT_V3_0;
         cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
-        this._btShape = bt.BoxShape_new(hf);
+        this._impl = bt.BoxShape_new(hf);
         this.updateScale();
     }
 
     updateScale () {
         super.updateScale();
-        cocos2BulletVec3(this.scale, this.getMinScale(VEC3_0));
-        bt.CollisionShape_setLocalScaling(this._btShape, this.scale);
+        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this.getMinScale(VEC3_0)));
         this.updateCompoundTransform();
     }
 

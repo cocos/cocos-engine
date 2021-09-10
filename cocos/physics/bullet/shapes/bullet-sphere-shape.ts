@@ -30,12 +30,11 @@
 
 /* eslint-disable new-cap */
 // import Ammo from '../ammo-instantiated';
-import { BulletShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
-import { cocos2BulletVec3 } from '../ammo-util';
-import { btBroadphaseNativeTypes } from '../ammo-enum';
+import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { CC_V3_0 } from '../ammo-const';
+import { BulletConstant, CC_V3_0 } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
 import { absMaxComponent } from '../../../core';
 
@@ -49,12 +48,8 @@ export class BulletSphereShape extends BulletShape implements ISphereShape {
         return this._collider as SphereCollider;
     }
 
-    constructor () {
-        super(btBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE);
-    }
-
     onComponentSet () {
-        this._btShape = bt.SphereShape_new(this.getMinUnscaledRadius());
+        this._impl = bt.SphereShape_new(this.getMinUnscaledRadius());
         this.updateScale();
     }
 
@@ -62,8 +57,8 @@ export class BulletSphereShape extends BulletShape implements ISphereShape {
         super.updateScale();
         const scale = this.getMinScale();
         CC_V3_0.set(scale, scale, scale);
-        cocos2BulletVec3(this.scale, CC_V3_0);
-        bt.CollisionShape_setLocalScaling(this._btShape, this.scale);
+        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, CC_V3_0));
         this.updateCompoundTransform();
     }
 

@@ -29,58 +29,36 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
-import { BulletShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3 } from '../ammo-util';
-import { btBroadphaseNativeTypes } from '../ammo-enum';
+import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
+import { bt } from '../bullet.asmjs';
+import { BulletConstant } from '../bullet-const';
 
-export class AmmoSimplexShape extends BulletShape implements ISimplexShape {
+export class BulletSimplexShape extends BulletShape implements ISimplexShape {
     setShapeType (v: SimplexCollider.ESimplexType) {
-        if (this._isBinding) {
-            // TODO:
-        }
+        // TODO:
     }
 
     setVertices (v: IVec3Like[]) {
-        const length = this.VERTICES.length;
-        for (let i = 0; i < length; i++) {
-            cocos2AmmoVec3(this.VERTICES[i], v[i]);
-        }
-        cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
-        this._btShape.setLocalScaling(this.scale);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
-    }
-
-    get impl () {
-        return this._btShape as Ammo.btBU_Simplex1to4;
+        // TODO:
     }
 
     get collider () {
         return this._collider as SimplexCollider;
     }
 
-    readonly VERTICES: Ammo.btVector3[] = [];
-
-    constructor () {
-        super(btBroadphaseNativeTypes.TETRAHEDRAL_SHAPE_PROXYTYPE);
-    }
-
     protected onComponentSet () {
-        this._btShape = new Ammo.btBU_Simplex1to4();
+        this._impl = bt.SimplexShape_new();
         const length = this.collider.shapeType;
         const vertices = this.collider.vertices;
+        const bt_v3 = BulletConstant.instance.BT_V3_0;
         for (let i = 0; i < length; i++) {
-            this.VERTICES[i] = new Ammo.btVector3();
-            cocos2AmmoVec3(this.VERTICES[i], vertices[i]);
-            this.impl.addVertex(this.VERTICES[i]);
+            bt.SimplexShape_addVertex(this._impl, cocos2BulletVec3(bt_v3, vertices[i]));
         }
-        cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
-        this._btShape.setLocalScaling(this.scale);
+        bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this._collider.node.worldScale));
     }
 
     onLoad () {
@@ -88,21 +66,9 @@ export class AmmoSimplexShape extends BulletShape implements ISimplexShape {
         this.collider.updateVertices();
     }
 
-    onDestroy () {
-        const length = this.VERTICES.length;
-        for (let i = 0; i < length; i++) {
-            Ammo.destroy(this.VERTICES[i]);
-        }
-        (this.VERTICES as any) = null;
-        super.onDestroy();
-    }
-
     updateScale () {
         super.updateScale();
-        cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
-        this._btShape.setLocalScaling(this.scale);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
+        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        bt.CollisionShape_setLocalScaling(this._impl, cocos2BulletVec3(bt_v3, this._collider.node.worldScale));
     }
 }

@@ -29,19 +29,18 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
-import { BulletShape } from './ammo-shape';
-import { ConeCollider } from '../../../../exports/physics-framework';
-import { btBroadphaseNativeTypes } from '../ammo-enum';
-import { ICylinderShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
+import { BulletShape } from './bullet-shape';
+import { CapsuleCollider } from '../../../../exports/physics-framework';
+import { ICapsuleShape } from '../../spec/i-physics-shape';
+import { IVec3Like } from '../../../core/math/type-define';
+import { bt } from '../bullet.asmjs';
 
-export class AmmoConeShape extends BulletShape implements ICylinderShape {
-    setHeight (v: number) {
+export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {
+    setCylinderHeight (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale,
         );
@@ -50,7 +49,7 @@ export class AmmoConeShape extends BulletShape implements ICylinderShape {
     setDirection (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale,
         );
@@ -59,26 +58,18 @@ export class AmmoConeShape extends BulletShape implements ICylinderShape {
     setRadius (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale,
         );
     }
 
-    get impl () {
-        return this._btShape;
-    }
-
     get collider () {
-        return this._collider as ConeCollider;
-    }
-
-    constructor () {
-        super(btBroadphaseNativeTypes.CONE_SHAPE_PROXYTYPE);
+        return this._collider as CapsuleCollider;
     }
 
     onComponentSet () {
-        this._btShape = new Ammo.btConeShape(0.5, 1);
+        this._impl = bt.CapsuleShape_new(0.5, 1);
         this.setRadius(this.collider.radius);
     }
 
@@ -90,25 +81,18 @@ export class AmmoConeShape extends BulletShape implements ICylinderShape {
     updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
         const ws = scale;
         const upAxis = direction;
-        // if (upAxis === 1) {
-        //     const wh = height * Math.abs(ws.y);
-        //     const wr = radius * Math.abs(absMax(ws.x, ws.z));
-        //     this.impl.setRadius(wr);
-        //     this.impl.setHeight(wh);
-        // } else if (upAxis === 0) {
-        //     const wh = height * Math.abs(ws.x);
-        //     const wr = radius * Math.abs(absMax(ws.y, ws.z));
-        //     this.impl.setRadius(wr);
-        //     this.impl.setHeight(wh);
-        // } else {
-        //     const wh = height * Math.abs(ws.z);
-        //     const wr = radius * Math.abs(absMax(ws.x, ws.y));
-        //     this.impl.setRadius(wr);
-        //     this.impl.setHeight(wh);
-        // }
-        // this.impl.setConeUpIndex(upAxis);
-        // this.scale.setValue(1, 1, 1);
-        // this.impl.setLocalScaling(this.scale);
+        let wr: number; let halfH: number;
+        if (upAxis === 1) {
+            wr = radius * Math.abs(absMax(ws.x, ws.z));
+            halfH = height / 2 * Math.abs(ws.y);
+        } else if (upAxis === 0) {
+            wr = radius * Math.abs(absMax(ws.y, ws.z));
+            halfH = height / 2 * Math.abs(ws.x);
+        } else {
+            wr = radius * Math.abs(absMax(ws.x, ws.y));
+            halfH = height / 2 * Math.abs(ws.z);
+        }
+        bt.CapsuleShape_updateProp(this._impl, wr, halfH, upAxis);
         this.updateCompoundTransform();
     }
 }

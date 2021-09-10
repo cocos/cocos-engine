@@ -30,10 +30,10 @@
 
 import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Vec3, Quat } from '../../core';
-import { BulletShape } from './shapes/ammo-shape';
-import { CC_QUAT_0, AmmoConstant } from './ammo-const';
+import { BulletShape } from './shapes/bullet-shape';
+import { CC_QUAT_0, BulletConstant } from './bullet-const';
 
-export class AmmoContactEquation implements IContactEquation {
+export class BulletContactData implements IContactEquation {
     get isBodyA (): boolean {
         // const sb = (this.event.selfCollider.shape as AmmoShape).sharedBody.body;
         // const b0 = (this.event.impl as Ammo.btPersistentManifold).getBody0();

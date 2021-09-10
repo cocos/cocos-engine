@@ -32,17 +32,17 @@
 // import Ammo from '../instantiated';
 import { Vec3, Quat } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
-import { AmmoWorld } from '../ammo-world';
-import { btBroadphaseNativeTypes, EBtSharedBodyDirty } from '../ammo-enum';
-import { cocos2BulletVec3 } from '../ammo-util';
-import { Node } from '../../../core';
+import { BulletWorld } from '../bullet-world';
+import { EBtSharedBodyDirty } from '../bullet-enum';
+import { cocos2BulletQuat, cocos2BulletVec3 } from '../bullet-utils';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { AmmoSharedBody } from '../ammo-shared-body';
+import { BulletSharedBody } from '../bullet-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
-import { AmmoConstant, CC_V3_0 } from '../ammo-const';
-import { AmmoInstance } from '../ammo-instance';
+import { BulletConstant, CC_V3_0 } from '../bullet-const';
+import { BulletInstance } from '../bullet-instance';
 import { bt } from '../bullet.asmjs';
+import { EColliderType } from '../../framework';
 
 const v3_0 = CC_V3_0;
 
@@ -51,14 +51,10 @@ export class BulletShape implements IBaseShape {
 
     setMaterial (v: PhysicsMaterial | null) {
         if (!this._isTrigger && this._isEnabled && v) {
-            if (this._btCompound) {
-                // this._btCompound.setMaterial(this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction, 2);
+            if (this._compound) {
+                bt.CompoundShape_setMaterial(this._compound, this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
             } else {
-                // this._sharedBody.body.setFriction(v.friction);
-                // this._sharedBody.body.setRestitution(v.restitution);
-                // this._sharedBody.body.setRollingFriction(v.rollingFriction);
-                // this._sharedBody.body.setSpinningFriction(v.spinningFriction);
-                // this._sharedBody.body.setUserIndex2(2);
+                bt.CollisionObject_setMaterial(this._impl, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
             }
         }
     }
@@ -71,7 +67,7 @@ export class BulletShape implements IBaseShape {
     }
 
     setAsTrigger (v: boolean) {
-        if (this._isTrigger === v) { return; }
+        if (this._isTrigger === v) return;
 
         if (this._isEnabled) {
             this._sharedBody.removeShape(this, !v);
@@ -81,67 +77,67 @@ export class BulletShape implements IBaseShape {
     }
 
     get attachedRigidBody () {
-        if (this._sharedBody.wrappedBody) { return this._sharedBody.wrappedBody.rigidBody; }
+        if (this._sharedBody.wrappedBody) return this._sharedBody.wrappedBody.rigidBody;
         return null;
     }
 
-    get impl () { return this._btShape; }
+    get impl () { return this._impl; }
     get collider (): Collider { return this._collider; }
-    get sharedBody (): AmmoSharedBody { return this._sharedBody; }
+    get sharedBody (): BulletSharedBody { return this._sharedBody; }
     get index () { return this._index; }
 
     private static idCounter = 0;
     readonly id: number;
-    readonly type: btBroadphaseNativeTypes;
 
     protected _index = -1;
     protected _isEnabled = false;
-    protected _isBinding = false;
     protected _isTrigger = false;
-    protected _sharedBody!: AmmoSharedBody;
-    protected _btShape!: Bullet.ptr;
-    protected _btCompound: number | null = null;
+    protected _isInitialized = false;
+    protected _impl: Bullet.ptr = 0;
+    protected _compound: Bullet.ptr = 0;
+    protected _sharedBody!: BulletSharedBody;
     protected _collider!: Collider;
 
-    protected readonly transform: Bullet.ptr;
     protected readonly quat: Bullet.ptr;
-    protected readonly scale: Bullet.ptr;
+    // protected readonly scale: Bullet.ptr;
+    protected readonly transform: Bullet.ptr;
 
-    constructor (type: btBroadphaseNativeTypes) {
-        this.type = type;
+    constructor () {
         this.id = BulletShape.idCounter++;
         this.quat = bt.Quat_new(0, 0, 0, 1);
+        // this.scale = bt.Vec3_new(1, 1, 1);
         this.transform = bt.Transform_new();
-        this.scale = bt.Vec3_new(1, 1, 1);
     }
 
     getAABB (v: AABB) {
-        // const TRANS = AmmoConstant.instance.TRANSFORM;
-        // bt.Transform_setIdentity(TRANS);
-        // TRANS.setRotation(cocos2AmmoQuat(AmmoConstant.instance.QUAT_0, this._collider.node.worldRotation));
-        // const MIN = AmmoConstant.instance.VECTOR3_0;
-        // const MAX = AmmoConstant.instance.VECTOR3_1;
-        // this._btShape.getAabb(TRANS, MIN, MAX);
-        // v.halfExtents.set((MAX.x() - MIN.x()) / 2, (MAX.y() - MIN.y()) / 2, (MAX.z() - MIN.z()) / 2);
-        // Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+        const t = BulletConstant.instance.BT_TRANSFORM_0;
+        bt.Transform_setIdentity(t);
+        bt.Transform_setRotation(t, cocos2BulletQuat(BulletConstant.instance.BT_QUAT_0, this._collider.node.worldRotation));
+        const MIN = BulletConstant.instance.BT_V3_0;
+        const MAX = BulletConstant.instance.BT_V3_1;
+        bt.CollisionShape_getAabb(this._impl, t, MIN, MAX);
+        v.halfExtents.x = (bt.Vec3_x(MAX) - bt.Vec3_x(MIN)) / 2;
+        v.halfExtents.y = (bt.Vec3_y(MAX) - bt.Vec3_y(MIN)) / 2;
+        v.halfExtents.z = (bt.Vec3_z(MAX) - bt.Vec3_z(MIN)) / 2;
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
     getBoundingSphere (v: Sphere) {
-        // v.radius = this._btShape.getLocalBoundingSphere();
-        // Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
+        v.radius = bt.CollisionShape_getLocalBoundingSphere(this._impl);
+        Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
     initialize (com: Collider) {
         this._collider = com;
-        this._isBinding = true;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node);
+        this._isInitialized = true;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BulletWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
         this.setWrapper();
     }
 
     setWrapper () {
-        if (AmmoConstant.isNotEmptyShape(this._btShape)) {
+        if (BulletConstant.isNotEmptyShape(this._impl)) {
             // AmmoInstance.setWrapper(this);
             // this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
             // const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
@@ -171,22 +167,18 @@ export class BulletShape implements IBaseShape {
 
     onDestroy () {
         this._sharedBody.reference = false;
-        // this._btCompound = null;
-        // (this._collider as any) = null;
+        (this._collider as any) = null;
+        bt.Quat_del(this.quat);
+        bt.Transform_del(this.transform);
+        if (this._compound) bt.CollisionShape_del(this._compound);
+        if (BulletConstant.isNotEmptyShape(this._impl)) bt.CollisionShape_del(this._impl);
         // const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
         // (shape as any).wrapped = null;
-        // Ammo.destroy(this.quat);
-        // Ammo.destroy(this.scale);
-        // Ammo.destroy(this.transform);
         // if (AmmoConstant.isNotEmptyShape(this._btShape)) {
         //     AmmoInstance.delWrapper(this);
         //     Ammo.destroy(this._btShape);
         //     ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
         // }
-        // (this._btShape as any) = null;
-        // (this.transform as any) = null;
-        // (this.quat as any) = null;
-        // (this.scale as any) = null;
     }
 
     updateByReAdd () {
@@ -196,7 +188,6 @@ export class BulletShape implements IBaseShape {
         }
     }
 
-    /** group mask */
     getGroup (): number {
         return this._sharedBody.collisionFilterGroup;
     }
@@ -229,16 +220,16 @@ export class BulletShape implements IBaseShape {
         this._sharedBody.collisionFilterMask &= ~v;
     }
 
-    setCompound (compound: number | null) {
-        if (this._btCompound) {
-            bt.CompoundShape_removeChildShape(this._btCompound, this._btShape);
+    setCompound (compound: Bullet.ptr) {
+        if (this._compound) {
+            bt.CompoundShape_removeChildShape(this._compound, this._impl);
             this._index = -1;
         }
         if (compound) {
             this._index = bt.CompoundShape_getNumChildShapes(compound);
-            bt.CompoundShape_addChildShape(compound, this.transform, this._btShape);
+            bt.CompoundShape_addChildShape(compound, this.transform, this._impl);
         }
-        this._btCompound = compound;
+        this._compound = compound;
     }
 
     updateScale () {
@@ -246,8 +237,8 @@ export class BulletShape implements IBaseShape {
     }
 
     updateCompoundTransform () {
-        if (this._btCompound) {
-            bt.CompoundShape_updateChildTransform(this._btCompound, this.index, this.transform, true);
+        if (this._compound) {
+            bt.CompoundShape_updateChildTransform(this._compound, this.index, this.transform, true);
         } else if (this._isEnabled && !this._isTrigger) {
             if (this._sharedBody && !this._sharedBody.bodyStruct.useCompound) {
                 this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
@@ -256,7 +247,7 @@ export class BulletShape implements IBaseShape {
     }
 
     needCompound () {
-        if (this.type === btBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE) { return true; }
+        if (this._collider.type === EColliderType.TERRAIN) { return true; }
         if (this._collider.center.equals(Vec3.ZERO)) { return false; }
         return true;
     }

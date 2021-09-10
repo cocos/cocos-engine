@@ -30,99 +30,85 @@
  */
 
 // import Ammo from './instantiated';
-import { AmmoSharedBody } from './ammo-shared-body';
-import { AmmoRigidBody } from './ammo-rigid-body';
-import { BulletShape } from './shapes/ammo-shape';
+import { BulletSharedBody } from './bullet-shared-body';
+import { BulletRigidBody } from './bullet-rigid-body';
+import { BulletShape } from './shapes/bullet-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
-import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, AmmoConstant } from './ammo-const';
-import { cocos2BulletVec3 } from './ammo-util';
+import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, BulletConstant } from './bullet-const';
+import { cocos2BulletVec3 } from './bullet-utils';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial } from '../framework';
 import { error, Node, RecyclePool } from '../../core';
-import { AmmoInstance } from './ammo-instance';
+import { BulletInstance } from './bullet-instance';
 import { IVec3Like } from '../../core/math/type-define';
-import { AmmoContactEquation } from './ammo-contact-equation';
+import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { fastRemoveAt } from '../../core/utils/array';
 import { bt } from './bullet.asmjs';
 
-const contactsPool: AmmoContactEquation[] = [];
+const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
 
-export class AmmoWorld implements IPhysicsWorld {
+export class BulletWorld implements IPhysicsWorld {
     setAllowSleep (v: boolean) {
-        // this._btWorld.setAllowSleep(v);
+        bt.ccDiscreteDynamicsWorld_setAllowSleep(this._world, v);
     }
 
     setDefaultMaterial (v: PhysicsMaterial) { }
 
     setGravity (gravity: IVec3Like) {
-        const TMP = AmmoConstant.instance.VECTOR3_0;
+        const TMP = BulletConstant.instance.BT_V3_0;
         cocos2BulletVec3(TMP, gravity);
-        bt.DynamicsWorld_setGravity(this._btWorld, TMP);
+        bt.DynamicsWorld_setGravity(this._world, TMP);
     }
 
     get impl () {
-        return this._btWorld;
+        return this._world;
     }
 
-    private readonly _btWorld: Bullet.ptr;
-    private readonly _btBroadphase: Bullet.ptr;
-    private readonly _btSolver: Bullet.ptr;
-    private readonly _btDispatcher: Bullet.ptr;
-    private readonly _btCollisionConfiguration: Bullet.ptr;
+    private readonly _world: Bullet.ptr;
+    private readonly _broadphase: Bullet.ptr;
+    private readonly _solver: Bullet.ptr;
+    private readonly _dispatcher: Bullet.ptr;
 
-    readonly bodies: AmmoSharedBody[] = [];
-    readonly ghosts: AmmoSharedBody[] = [];
+    readonly bodies: BulletSharedBody[] = [];
+    readonly ghosts: BulletSharedBody[] = [];
     readonly constraints: BulletConstraint[] = [];
     readonly triggerArrayMat = new ArrayCollisionMatrix();
     readonly collisionArrayMat = new ArrayCollisionMatrix();
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
 
-    static closeHitCB: any;
-    static allHitsCB: any;
-
-    constructor (options?: any) {
-        this._btCollisionConfiguration = bt.DefaultCollisionConfiguration_static();
-        this._btDispatcher = bt.CollisionDispatcher_new(this._btCollisionConfiguration);
-        this._btBroadphase = bt.DbvtBroadphase_new();
-        this._btSolver = bt.SequentialImpulseConstraintSolver_new();
-        this._btWorld = bt.ccDiscreteDynamicsWorld_new(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
-        this.setGravity(v3_0.set(0, -10, 0));
-        // if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ccClosestRayResultCallback(TMP, TMP);
-        // if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.ccAllHitsRayResultCallback(TMP, TMP);
+    constructor () {
+        this._broadphase = bt.DbvtBroadphase_new();
+        this._dispatcher = bt.CollisionDispatcher_new();
+        this._solver = bt.SequentialImpulseConstraintSolver_new();
+        this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
     }
 
     destroy (): void {
         if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
-        // Ammo.destroy(this._btWorld);
-        // Ammo.destroy(this._btSolver);
-        // Ammo.destroy(this._btBroadphase);
-        // Ammo.destroy(this._btDispatcher);
-        // Ammo.destroy(this._btCollisionConfiguration);
-        // (this as any)._btCollisionConfiguration = null;
-        // (this as any)._btDispatcher = null;
-        // (this as any)._btBroadphase = null;
-        // (this as any)._btSolver = null;
-        // (this as any)._btWorld = null;
-        // (this as any).bodies = null;
-        // (this as any).ghosts = null;
-        // (this as any).constraints = null;
-        // (this as any).triggerArrayMat = null;
-        // (this as any).collisionArrayMat = null;
-        // (this as any).contactsDic = null;
-        // (this as any).oldContactsDic = null;
-        // contactsPool.length = 0;
+        bt.CollisionWorld_del(this._world);
+        bt.DbvtBroadphase_del(this._broadphase);
+        bt.CollisionDispatcher_del(this._dispatcher);
+        bt.SequentialImpulseConstraintSolver_del(this._solver);
+        (this as any).bodies = null;
+        (this as any).ghosts = null;
+        (this as any).constraints = null;
+        (this as any).triggerArrayMat = null;
+        (this as any).collisionArrayMat = null;
+        (this as any).contactsDic = null;
+        (this as any).oldContactsDic = null;
+        contactsPool.length = 0;
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0) {
         if (this.bodies.length === 0 && this.ghosts.length === 0) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
-        bt.DynamicsWorld_stepSimulation(this._btWorld, timeSinceLastCalled, maxSubStep, deltaTime);
+        bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
 
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
@@ -186,39 +172,39 @@ export class AmmoWorld implements IPhysicsWorld {
         return false;
     }
 
-    getSharedBody (node: Node, wrappedBody?: AmmoRigidBody) {
-        return AmmoSharedBody.getSharedBody(node, this, wrappedBody);
+    getSharedBody (node: Node, wrappedBody?: BulletRigidBody) {
+        return BulletSharedBody.getSharedBody(node, this, wrappedBody);
     }
 
-    addSharedBody (sharedBody: AmmoSharedBody) {
+    addSharedBody (sharedBody: BulletSharedBody) {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
-            bt.DynamicsWorld_addRigidBody(this._btWorld, sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            bt.DynamicsWorld_addRigidBody(this._world, sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
         }
     }
 
-    removeSharedBody (sharedBody: AmmoSharedBody) {
+    removeSharedBody (sharedBody: BulletSharedBody) {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
             fastRemoveAt(this.bodies, i);
-            bt.DynamicsWorld_removeRigidBody(this._btWorld, sharedBody.body);
+            bt.DynamicsWorld_removeRigidBody(this._world, sharedBody.body);
         }
     }
 
-    addGhostObject (sharedBody: AmmoSharedBody) {
+    addGhostObject (sharedBody: BulletSharedBody) {
         const i = this.ghosts.indexOf(sharedBody);
         if (i < 0) {
             this.ghosts.push(sharedBody);
-            bt.CollisionWorld_addCollisionObject(this._btWorld, sharedBody.ghost, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            bt.CollisionWorld_addCollisionObject(this._world, sharedBody.ghost, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
         }
     }
 
-    removeGhostObject (sharedBody: AmmoSharedBody) {
+    removeGhostObject (sharedBody: BulletSharedBody) {
         const i = this.ghosts.indexOf(sharedBody);
         if (i >= 0) {
             fastRemoveAt(this.ghosts, i);
-            bt.CollisionWorld_removeCollisionObject(this._btWorld, sharedBody.ghost);
+            bt.CollisionWorld_removeCollisionObject(this._world, sharedBody.ghost);
         }
     }
 
@@ -241,9 +227,9 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
-        const numManifolds = bt.Dispatcher_getNumManifolds(this._btDispatcher);
+        const numManifolds = bt.Dispatcher_getNumManifolds(this._dispatcher);
         for (let i = 0; i < numManifolds; i++) {
-            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._btDispatcher, i);
+            const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._dispatcher, i);
             // const body0 = bt.PersistentManifold_getBody0(manifold);
             // const body1 = bt.PersistentManifold_getBody1(manifold);
 
@@ -304,7 +290,7 @@ export class AmmoWorld implements IPhysicsWorld {
         // is enter or stay
         let dicL = this.contactsDic.getLength();
         while (dicL--) {
-            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
+            contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as BulletContactData[]);
             CollisionEventObject.contacts.length = 0;
             const key = this.contactsDic.getKeyByIndex(dicL);
             const data = this.contactsDic.getDataByKey<any>(key);
@@ -354,7 +340,7 @@ export class AmmoWorld implements IPhysicsWorld {
                             c!.impl = cq;
                             CollisionEventObject.contacts.push(c!);
                         } else {
-                            const c = new AmmoContactEquation(CollisionEventObject);
+                            const c = new BulletContactData(CollisionEventObject);
                             c.impl = cq;
                             CollisionEventObject.contacts.push(c);
                         }
@@ -402,7 +388,7 @@ export class AmmoWorld implements IPhysicsWorld {
                             this.oldContactsDic.set(shape0.id, shape1.id, null);
                         }
                     } else if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
-                        contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as AmmoContactEquation[]);
+                        contactsPool.push.apply(contactsPool, CollisionEventObject.contacts as BulletContactData[]);
                         CollisionEventObject.contacts.length = 0;
 
                         CollisionEventObject.type = 'onCollisionExit';

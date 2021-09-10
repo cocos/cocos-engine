@@ -29,17 +29,17 @@
  */
 
 import { selector } from '../framework/physics-selector';
-import { AmmoRigidBody } from './ammo-rigid-body';
-import { AmmoWorld } from './ammo-world';
-import { BulletBoxShape } from './shapes/ammo-box-shape';
-import { BulletSphereShape } from './shapes/ammo-sphere-shape';
-import { AmmoCapsuleShape } from './shapes/ammo-capsule-shape';
-import { AmmoTrimeshShape } from './shapes/ammo-trimesh-shape';
-import { AmmoCylinderShape } from './shapes/ammo-cylinder-shape';
-import { AmmoConeShape } from './shapes/ammo-cone-shape';
-import { AmmoTerrainShape } from './shapes/ammo-terrain-shape';
-import { AmmoSimplexShape } from './shapes/ammo-simplex-shape';
-import { AmmoPlaneShape } from './shapes/ammo-plane-shape';
+import { BulletRigidBody } from './bullet-rigid-body';
+import { BulletWorld } from './bullet-world';
+import { BulletBoxShape } from './shapes/bullet-box-shape';
+import { BulletSphereShape } from './shapes/bullet-sphere-shape';
+import { BulletCapsuleShape } from './shapes/bullet-capsule-shape';
+import { BulletTrimeshShape } from './shapes/bullet-trimesh-shape';
+import { BulletCylinderShape } from './shapes/bullet-cylinder-shape';
+import { BulletConeShape } from './shapes/bullet-cone-shape';
+import { BulletTerrainShape } from './shapes/bullet-terrain-shape';
+import { BulletSimplexShape } from './shapes/bullet-simplex-shape';
+import { BulletPlaneShape } from './shapes/bullet-plane-shape';
 
 // import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
 // import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
@@ -49,9 +49,9 @@ import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
 
 game.once(Game.EVENT_ENGINE_INITED, () => {
     selector.register('ammo.js', {
-        PhysicsWorld: AmmoWorld,
-        RigidBody: AmmoRigidBody,
-
+        PhysicsWorld: BulletWorld,
+        RigidBody: BulletRigidBody,
+    
         BoxShape: BulletBoxShape,
         SphereShape: BulletSphereShape,
         // CapsuleShape: AmmoCapsuleShape,
@@ -60,9 +60,9 @@ game.once(Game.EVENT_ENGINE_INITED, () => {
         // ConeShape: AmmoConeShape,
         // TerrainShape: AmmoTerrainShape,
         // SimplexShape: AmmoSimplexShape,
-        PlaneShape: AmmoPlaneShape,
-
-        // PointToPointConstraint: AmmoPointToPointConstraint,
-        // HingeConstraint: AmmoHingeConstraint,
+        PlaneShape: BulletPlaneShape,
+    
+        // PointToPointConstraint: BulletP2PConstraint,
+        // HingeConstraint: BulletHingeConstraint,
     });
 });

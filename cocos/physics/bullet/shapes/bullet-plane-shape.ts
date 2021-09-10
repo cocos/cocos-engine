@@ -30,16 +30,15 @@
 
 /* eslint-disable new-cap */
 // import Ammo from '../instantiated';
-import { BulletShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { PlaneCollider } from '../../../../exports/physics-framework';
-import { cocos2BulletVec3 } from '../ammo-util';
-import { btBroadphaseNativeTypes } from '../ammo-enum';
+import { cocos2BulletVec3 } from '../bullet-utils';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { AmmoConstant } from '../ammo-const';
+import { BulletConstant } from '../bullet-const';
 import { bt } from '../bullet.asmjs';
 
-export class AmmoPlaneShape extends BulletShape implements IPlaneShape {
+export class BulletPlaneShape extends BulletShape implements IPlaneShape {
     setNormal (v: IVec3Like) {
         cocos2BulletVec3(bt.StaticPlaneShape_getPlaneNormal(this.impl), v);
         this.updateCompoundTransform();
@@ -52,8 +51,9 @@ export class AmmoPlaneShape extends BulletShape implements IPlaneShape {
 
     updateScale () {
         super.updateScale();
-        cocos2BulletVec3(this.scale, this._collider.node.worldScale);
-        bt.CollisionShape_setLocalScaling(this._btShape, this.scale);
+        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
+        bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();
     }
 
@@ -61,14 +61,10 @@ export class AmmoPlaneShape extends BulletShape implements IPlaneShape {
         return this._collider as PlaneCollider;
     }
 
-    constructor () {
-        super(btBroadphaseNativeTypes.STATIC_PLANE_PROXYTYPE);
-    }
-
     onComponentSet () {
-        const normal = AmmoConstant.instance.VECTOR3_0;
+        const normal = BulletConstant.instance.BT_V3_0;
         cocos2BulletVec3(normal, this.collider.normal);
-        this._btShape = bt.StaticPlaneShape_new(normal, this.collider.constant);
+        this._impl = bt.StaticPlaneShape_new(normal, this.collider.constant);
         this.updateScale();
     }
 }

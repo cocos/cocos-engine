@@ -28,23 +28,34 @@
  * @hidden
  */
 
-// import Ammo from './instantiated';
-import { BulletShape } from './shapes/ammo-shape';
+import { IBulletBodyStruct, IBulletGhostStruct } from './bullet-interface';
 
-export interface IAmmoBodyStruct {
-    readonly id: number;
-    readonly body: Bullet.ptr;
-    readonly shape: Bullet.ptr;
-    readonly localInertia: Bullet.ptr;
-    readonly rbInfo: Bullet.ptr;
-    readonly motionState: Bullet.ptr;
-    readonly wrappedShapes: BulletShape[];
-    useCompound: boolean;
-}
+export class BulletInstance {
+    static readonly bodyAndGhosts: {
+        [x: string]: IBulletBodyStruct | IBulletGhostStruct
+    } = {};
 
-export interface IAmmoGhostStruct {
-    readonly id: number;
-    readonly ghost: Bullet.ptr;
-    readonly shape: Bullet.ptr;
-    readonly wrappedShapes: BulletShape[];
+    static get bodyStructs () {
+        return this.bodyAndGhosts as { [x: string]: IBulletBodyStruct };
+    }
+
+    static get ghostStructs () {
+        return this.bodyAndGhosts as { [x: string]: IBulletGhostStruct };
+    }
+
+    static readonly ptr2WrapObj: {
+        [x: number]: Record<string, unknown>
+    } = {};
+
+    // static setWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
+    //     this.ptr2WrapObj[Ammo.getPointer(wrap.impl)] = wrap;
+    // }
+
+    // static delWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
+    //     delete this.ptr2WrapObj[Ammo.getPointer(wrap.impl)];
+    // }
+
+    // static getWrapperByPtr<T extends { impl: Ammo.Type }> (ptr: number): T {
+    //     return this.ptr2WrapObj[ptr] as T;
+    // }
 }

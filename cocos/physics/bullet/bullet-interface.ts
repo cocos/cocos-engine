@@ -28,35 +28,20 @@
  * @hidden
  */
 
-// import Ammo from './instantiated';
-import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
+import { BulletShape } from './shapes/bullet-shape';
 
-export class AmmoInstance {
-    static readonly bodyAndGhosts: {
-        [x: string]: IAmmoBodyStruct | IAmmoGhostStruct
-    } = {};
+export interface IBulletBodyStruct {
+    readonly id: number;
+    readonly body: Bullet.ptr;
+    readonly compound: Bullet.ptr;
+    readonly motionState: Bullet.ptr;
+    readonly wrappedShapes: BulletShape[];
+    useCompound: boolean;
+}
 
-    static get bodyStructs () {
-        return this.bodyAndGhosts as { [x: string]: IAmmoBodyStruct };
-    }
-
-    static get ghostStructs () {
-        return this.bodyAndGhosts as { [x: string]: IAmmoGhostStruct };
-    }
-
-    static readonly ptr2WrapObj: {
-        [x: number]: Record<string, unknown>
-    } = {};
-
-    // static setWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
-    //     this.ptr2WrapObj[Ammo.getPointer(wrap.impl)] = wrap;
-    // }
-
-    // static delWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
-    //     delete this.ptr2WrapObj[Ammo.getPointer(wrap.impl)];
-    // }
-
-    // static getWrapperByPtr<T extends { impl: Ammo.Type }> (ptr: number): T {
-    //     return this.ptr2WrapObj[ptr] as T;
-    // }
+export interface IBulletGhostStruct {
+    readonly id: number;
+    readonly ghost: Bullet.ptr;
+    readonly compound: Bullet.ptr;
+    readonly wrappedShapes: BulletShape[];
 }

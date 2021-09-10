@@ -27,7 +27,7 @@ wasmMemory.buffer = new ArrayBuffer(memorySize);
 env.memory = wasmMemory;
 
 export const bt = instantiate(env, wasmMemory) as instanceExt;
-globalThis.bullet = bt;
+globalThis.Bullet = bt;
 bt.ptr2obj = {};
 bt.getObjByPtr = function getObjByPtr<T> (p: ptr) {
     return bt.ptr2obj[p] as T;

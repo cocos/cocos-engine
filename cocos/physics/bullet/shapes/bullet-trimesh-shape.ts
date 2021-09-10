@@ -29,93 +29,89 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../instantiated';
-import { BulletShape } from './ammo-shape';
+import { BulletShape } from './bullet-shape';
 import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3, cocos2AmmoTriMesh } from '../ammo-util';
-import { btBroadphaseNativeTypes } from '../ammo-enum';
+import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
-import { AmmoConstant } from '../ammo-const';
+import { BulletConstant } from '../bullet-const';
+import { bt } from '../bullet.asmjs';
 
-export class AmmoTrimeshShape extends BulletShape implements ITrimeshShape {
+export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     public get collider () {
         return this._collider as MeshCollider;
     }
 
-    public get impl () {
-        return this._btShape as Ammo.btBvhTriangleMeshShape | Ammo.btConvexTriangleMeshShape;
-    }
-
     setMesh (v: Mesh | null) {
-        if (!this._isBinding) return;
+        if (!this._isInitialized) return;
 
-        if (this._btShape != null && AmmoConstant.isNotEmptyShape(this._btShape)) {
+        if (this._impl != null && BulletConstant.isNotEmptyShape(this._impl)) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {
             const mesh = v;
             if (mesh && mesh.renderingSubMeshes.length > 0) {
-                const btTriangleMesh: Ammo.btTriangleMesh = this._getBtTriangleMesh(mesh);
+                const btTriangleMesh = this._getBtTriangleMesh(mesh);
                 if (this.collider.convex) {
-                    this._btShape = new Ammo.btConvexTriangleMeshShape(btTriangleMesh, true);
+                    this._impl = bt.ConvexTriangleMeshShape_new(btTriangleMesh);
                 } else {
-                    this._btShape = new Ammo.btBvhTriangleMeshShape(btTriangleMesh, true, true);
+                    this._impl = bt.BvhTriangleMeshShape_new(btTriangleMesh, true, true);
                 }
-                cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
-                this._btShape.setMargin(0.01);
-                this._btShape.setLocalScaling(this.scale);
+                const bt_v3 = BulletConstant.instance.BT_V3_0;
+                cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
+                bt.CollisionShape_setMargin(this._impl, 0.01);
+                bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
                 this.setWrapper();
-                this.setCompound(this._btCompound);
+                this.setCompound(this._compound);
                 this.updateByReAdd();
             } else {
-                this._btShape = AmmoConstant.instance.EMPTY_SHAPE;
+                this._impl = bt.EmptyShape_static();
             }
         }
     }
 
-    private refBtTriangleMesh: Ammo.btTriangleMesh | null = null;
-
-    constructor () {
-        super(btBroadphaseNativeTypes.TRIANGLE_MESH_SHAPE_PROXYTYPE);
-    }
+    private refBtTriangleMesh: Bullet.ptr = 0;
 
     onComponentSet () {
         this.setMesh(this.collider.mesh);
     }
 
     onDestroy () {
-        if (this.refBtTriangleMesh) { Ammo.destroy(this.refBtTriangleMesh); }
+        if (this.refBtTriangleMesh) { bt.TriangleMesh_del(this.refBtTriangleMesh); }
         super.onDestroy();
     }
 
-    setCompound (compound: Ammo.btCompoundShape | null) {
+    setCompound (compound: Bullet.ptr) {
         super.setCompound(compound);
-        this.impl.setUserIndex(this._index);
+        bt.CollisionShape_setUserIndex(this._impl, this._index);
     }
 
     updateScale () {
         super.updateScale();
-        cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
-        this._btShape.setLocalScaling(this.scale);
+        const bt_v3 = BulletConstant.instance.BT_V3_0;
+        cocos2BulletVec3(bt_v3, this._collider.node.worldScale);
+        bt.CollisionShape_setLocalScaling(this._impl, bt_v3);
         this.updateCompoundTransform();
     }
 
-    private _getBtTriangleMesh (mesh: Mesh): Ammo.btTriangleMesh {
-        let btTriangleMesh: Ammo.btTriangleMesh;
-        const cache = (Ammo as any).CC_CACHE;
-        if (cache.btTriangleMesh.enable) {
-            if (cache.btTriangleMesh[mesh._uuid] == null) {
-                const btm = new Ammo.btTriangleMesh();
-                cache.btTriangleMesh[mesh._uuid] = btm;
-                cocos2AmmoTriMesh(btm, mesh);
+    private _getBtTriangleMesh (mesh: Mesh): Bullet.ptr {
+        let btTriangleMesh: Bullet.ptr;
+        if (ENABLE_CACHE) {
+            if (CACHE[mesh._uuid] == null) {
+                const btm = bt.TriangleMesh_new();
+                CACHE[mesh._uuid] = btm;
+                cocos2BulletTriMesh(btm, mesh);
             }
-            btTriangleMesh = cache.btTriangleMesh[mesh._uuid];
+            btTriangleMesh = CACHE[mesh._uuid];
         } else {
-            this.refBtTriangleMesh = btTriangleMesh = new Ammo.btTriangleMesh();
-            cocos2AmmoTriMesh(btTriangleMesh, mesh);
+            this.refBtTriangleMesh = btTriangleMesh = bt.TriangleMesh_new();
+            cocos2BulletTriMesh(btTriangleMesh, mesh);
         }
         return btTriangleMesh;
     }
 }
+
+// TODO: refactor
+const CACHE = {};
+const ENABLE_CACHE = true;
