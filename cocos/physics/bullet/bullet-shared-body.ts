@@ -224,7 +224,6 @@ export class BulletSharedBody {
         this._bodyStruct = {
             id: IDCounter++, body, motionState, compound: bt.ccCompoundShape_new(), wrappedShapes: [], useCompound: false,
         };
-        bt.CollisionObject_setUserIndex(this.body, this._bodyStruct.id);
         BulletCache.setWrapper(this.id, bt.BODY_CACHE_NAME, this);
         if (this._ghostStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.ghost, this.body, true);
         if (this._wrappedBody) this.setBodyType(this._wrappedBody.rigidBody.type);
@@ -237,7 +236,6 @@ export class BulletSharedBody {
         bt.CollisionObject_setCollisionShape(ghost, ghostShape);
         bt.CollisionObject_setCollisionFlags(ghost, btCollisionFlags.CF_STATIC_OBJECT | btCollisionFlags.CF_NO_CONTACT_RESPONSE);
         this._ghostStruct = { id: IDCounter++, ghost, compound: ghostShape, wrappedShapes: [] };
-        bt.CollisionObject_setUserIndex(this.ghost, this._ghostStruct.id);
         if (this._bodyStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.body, this.ghost, true);
         if (this._wrappedBody) this.setGhostType(this._wrappedBody.rigidBody.type);
     }
