@@ -660,7 +660,8 @@ export class Batcher2D {
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
         let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
-        if (vertexCount && indexCount) {
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
+        if (vertexCount && indexCount || sys.__isWebIOS14OrIPadOS14Env) {
             // useCount++ when _recreateMeshBuffer
             meshBufferUseCount++;
         }

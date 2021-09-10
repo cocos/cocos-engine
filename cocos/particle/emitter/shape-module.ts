@@ -28,7 +28,7 @@
  * @module particle
  */
 
-import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
 import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
 
 import CurveRange from '../animator/curve-range';
@@ -244,6 +244,7 @@ export default class ShapeModule {
      */
     @type(CurveRange)
     @visible(function noArc (this: ShapeModule) { return this.arcMode !== ArcMode.Random; }) // Bug fix: Hide this input when arcMode is random
+    @range([0, 1])
     @serializable
     @displayOrder(10)
     @tooltip('i18n:shapeModule.arcSpeed')
