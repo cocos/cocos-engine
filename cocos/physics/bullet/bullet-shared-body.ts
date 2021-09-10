@@ -421,17 +421,13 @@ export class BulletSharedBody {
         }
     }
 
-    /**
-     * TODO: use motion state
-     */
     syncPhysicsToScene () {
-        if (bt.CollisionObject_isStaticOrKinematicObject(this.body) || this.isBodySleeping()) {
-            return;
-        }
+        if (bt.CollisionObject_isStaticOrKinematicObject(this.body)) return;
         this.syncPhysicsToGraphics();
     }
 
     syncPhysicsToGraphics () {
+        if (this.isBodySleeping()) return;
         const bt_quat = BulletCache.instance.BT_QUAT_0;
         const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
         bt.MotionState_getWorldTransform(bt.RigidBody_getMotionState(this.body), bt_transform);
