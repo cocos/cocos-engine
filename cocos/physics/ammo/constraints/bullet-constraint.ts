@@ -34,7 +34,7 @@ import { Constraint, RigidBody } from '../../framework';
 import { AmmoRigidBody } from '../ammo-rigid-body';
 import { bt } from '../bullet.asmjs';
 
-export abstract class AmmoConstraint implements IBaseConstraint {
+export abstract class BulletConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
         // TODO: support dynamic change connected body
     }

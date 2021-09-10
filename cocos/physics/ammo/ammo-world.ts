@@ -44,11 +44,10 @@ import { error, Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
 import { IVec3Like } from '../../core/math/type-define';
 import { AmmoContactEquation } from './ammo-contact-equation';
-// import { AmmoConstraint } from './constraints/ammo-constraint';
+import { BulletConstraint } from './constraints/bullet-constraint';
 import { fastRemoveAt } from '../../core/utils/array';
 import { bt } from './bullet.asmjs';
 
-type AmmoConstraint = any;
 const contactsPool: AmmoContactEquation[] = [];
 const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
@@ -78,7 +77,7 @@ export class AmmoWorld implements IPhysicsWorld {
 
     readonly bodies: AmmoSharedBody[] = [];
     readonly ghosts: AmmoSharedBody[] = [];
-    readonly constraints: AmmoConstraint[] = [];
+    readonly constraints: BulletConstraint[] = [];
     readonly triggerArrayMat = new ArrayCollisionMatrix();
     readonly collisionArrayMat = new ArrayCollisionMatrix();
     readonly contactsDic = new TupleDictionary();
@@ -223,47 +222,25 @@ export class AmmoWorld implements IPhysicsWorld {
         }
     }
 
-    addConstraint (constraint: AmmoConstraint) {
-        // const i = this.constraints.indexOf(constraint);
-        // if (i < 0) {
-        //     this.constraints.push(constraint);
-        //     this._btWorld.addConstraint(constraint.impl, !constraint.constraint.enableCollision);
-        //     constraint.index = i;
-        // }
+    addConstraint (constraint: BulletConstraint) {
+        const i = this.constraints.indexOf(constraint);
+        if (i < 0) {
+            this.constraints.push(constraint);
+            bt.DynamicsWorld_addConstraint(this.impl, constraint.impl, !constraint.constraint.enableCollision);
+            constraint.index = i;
+        }
     }
 
-    removeConstraint (constraint: AmmoConstraint) {
-        // const i = this.constraints.indexOf(constraint);
-        // if (i >= 0) {
-        //     this.constraints.splice(i, 1);
-        //     this._btWorld.removeConstraint(constraint.impl);
-        //     constraint.index = -1;
-        // }
+    removeConstraint (constraint: BulletConstraint) {
+        const i = this.constraints.indexOf(constraint);
+        if (i >= 0) {
+            this.constraints.splice(i, 1);
+            bt.DynamicsWorld_removeConstraint(this.impl, constraint.impl);
+            constraint.index = -1;
+        }
     }
 
     emitEvents () {
-        // trigger with ccd
-        // const ccdTriggerRecord = this._btWorld.getCcdTriggerRecorder();
-        // const nRecordSize =  ccdTriggerRecord.size();
-        // let offset = 0;
-        // for (let i = 0; i < nRecordSize; i += offset) {
-        //     const count = ccdTriggerRecord.at(offset);
-        //     const shape0: AmmoShape = AmmoInstance.getWrapperByPtr(ccdTriggerRecord.at(offset + 1));
-        //     for (let j = 0; j < count; j++) {
-        //         const shape1: AmmoShape = AmmoInstance.getWrapperByPtr(ccdTriggerRecord.at(offset + j + 2));
-        //         if (shape0.collider.needTriggerEvent || shape1.collider.needTriggerEvent) {
-        //             // current contact
-        //             let item = this.contactsDic.get<any>(shape0.id, shape1.id);
-        //             if (item == null) {
-        //                 item = this.contactsDic.set(shape0.id, shape1.id,
-        //                     { shape0, shape1, contacts: [], impl: ccdTriggerRecord });
-        //             }
-        //         }
-        //     }
-
-        //     offset += count + 2;
-        // }
-
         const numManifolds = bt.Dispatcher_getNumManifolds(this._btDispatcher);
         for (let i = 0; i < numManifolds; i++) {
             const manifold = bt.Dispatcher_getManifoldByIndexInternal(this._btDispatcher, i);

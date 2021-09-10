@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import { AmmoConstraint } from './ammo-constraint';
+import { BulletConstraint } from './bullet-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint } from '../../framework';
@@ -38,7 +38,7 @@ import { AmmoConstant, CC_QUAT_0, CC_V3_0 } from '../ammo-const';
 import { bt } from '../bullet.asmjs';
 import { cocos2BulletQuat, cocos2BulletVec3 } from '../ammo-util';
 
-export class AmmoHingeConstraint extends AmmoConstraint implements IHingeConstraint {
+export class BulletHingeConstraint extends BulletConstraint implements IHingeConstraint {
     setPivotA (v: IVec3Like): void {
         this.updateFrames();
     }

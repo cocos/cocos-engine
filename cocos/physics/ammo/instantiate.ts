@@ -33,17 +33,19 @@ import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoWorld } from './ammo-world';
 import { AmmoBoxShape } from './shapes/ammo-box-shape';
 import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
-// import { AmmoCapsuleShape } from './shapes/ammo-capsule-shape';
-// import { AmmoTrimeshShape } from './shapes/ammo-trimesh-shape';
-// import { AmmoCylinderShape } from './shapes/ammo-cylinder-shape';
-// import { AmmoConeShape } from './shapes/ammo-cone-shape';
-// import { AmmoTerrainShape } from './shapes/ammo-terrain-shape';
-// import { AmmoSimplexShape } from './shapes/ammo-simplex-shape';
+import { AmmoCapsuleShape } from './shapes/ammo-capsule-shape';
+import { AmmoTrimeshShape } from './shapes/ammo-trimesh-shape';
+import { AmmoCylinderShape } from './shapes/ammo-cylinder-shape';
+import { AmmoConeShape } from './shapes/ammo-cone-shape';
+import { AmmoTerrainShape } from './shapes/ammo-terrain-shape';
+import { AmmoSimplexShape } from './shapes/ammo-simplex-shape';
 import { AmmoPlaneShape } from './shapes/ammo-plane-shape';
 
 // import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
 // import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
 import { Game, game } from '../../core';
+import { BulletPointToPointConstraint } from './constraints/bullet-p2p-constraint';
+import { BulletHingeConstraint } from './constraints/bullet-hinge-constraint';
 
 game.once(Game.EVENT_ENGINE_INITED, () => {
     selector.register('ammo.js', {

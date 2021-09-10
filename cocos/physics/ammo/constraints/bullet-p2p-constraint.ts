@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import { AmmoConstraint } from './ammo-constraint';
+import { BulletConstraint } from './bullet-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
 import { IVec3Like, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
@@ -38,7 +38,7 @@ import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 import { bt } from '../bullet.asmjs';
 import { cocos2BulletVec3 } from '../ammo-util';
 
-export class AmmoPointToPointConstraint extends AmmoConstraint implements IPointToPointConstraint {
+export class BulletPointToPointConstraint extends BulletConstraint implements IPointToPointConstraint {
     setPivotA (v: IVec3Like): void {
         const cs = this.constraint;
         const pivotA = AmmoConstant.instance.VECTOR3_0;
