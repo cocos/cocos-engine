@@ -6,13 +6,13 @@ import { resolve } from 'path/posix';
 import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
-    SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo,
+    SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
 } from '../base/define';
 import { RenderPass } from '../base/render-pass';
 import { Sampler } from '../base/states/sampler';
 import { Swapchain } from '../base/swapchain';
 import { Buffer } from '../base/buffer';
-import { DescriptorSet, DescriptorSetLayout } from '..';
+import { DescriptorSet, DescriptorSetLayout, PipelineLayout } from '..';
 
 import { wgpuWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
@@ -23,6 +23,7 @@ import { WebGPUTexture } from './webgpu-texture';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUDescriptorSet } from './webgpu-descriptor-set';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
+import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 
 export class WebGPUDevice extends Device {
     private _nativeDevice = undefined;
@@ -177,7 +178,11 @@ export class WebGPUDevice extends Device {
     }
 
     public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
-        this._nativeDevice?.createPipelineLayout(info);
+        const pipelineLayout = new WebGPUPipelineLayout();
+        if (pipelineLayout.initialize(info)) {
+            return pipelineLayout;
+        }
+        return null!;
     }
 
     public createPipelineState (info: PipelineStateInfo): PipelineState {
