@@ -94,17 +94,3 @@ export function waitForAmmoInstantiation (dirRoot: string) {
         return new Promise<void>((resolve, reject) => { resolve(); });
     }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
-export namespace waitForAmmoInstantiation {
-    /**
-     * True if the `'@cocos/ammo'` is the WebAssembly edition.
-     */
-    export const isWasm = false;
-
-    /**
-     * The url to the WebAssembly binary.
-     * Either can be absolute or relative, depends on build options.
-     */
-    export const wasmBinaryURL = '';
-}
