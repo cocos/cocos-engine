@@ -144,14 +144,16 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     syncSceneToPhysics (): void {
-        for (let i = 0; i < this.ghosts.length; i++) {
-            this.ghosts[i].updateDirty();
-            this.ghosts[i].syncSceneToGhost();
+        for (let i = this.ghosts.length - 1; i >= 0; i--) {
+            const ghost = this.ghosts[i];
+            ghost.updateDirty();
+            ghost.syncSceneToGhost();
         }
 
-        for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].updateDirty();
-            this.bodies[i].syncSceneToPhysics();
+        for (let i = this.bodies.length - 1; i >= 0; i--) {
+            const body = this.bodies[i];
+            body.updateDirty();
+            body.syncSceneToPhysics();
         }
     }
 
