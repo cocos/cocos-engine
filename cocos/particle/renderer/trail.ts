@@ -358,9 +358,6 @@ export default class TrailModule {
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
         this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
-        if (this._trailNum === 0) {
-            this._enable = false;
-        }
         this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
         if (this._enable) {
             this.enable = this._enable;
@@ -627,14 +624,15 @@ export default class TrailModule {
     }
 
     private rebuild () {
+        const trailNum = this._trailNum === 0 ? 1 : this._trailNum;
         const device: Device = director.root!.device;
         const vertexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._vertSize * (this._trailNum + 1) * 2,
+            this._vertSize * (trailNum + 1) * 2,
             this._vertSize,
         ));
-        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * (this._trailNum + 1) * 2);
+        const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * (trailNum + 1) * 2);
         this._vbF32 = new Float32Array(vBuffer);
         this._vbUint32 = new Uint32Array(vBuffer);
         vertexBuffer.update(vBuffer);
@@ -642,10 +640,10 @@ export default class TrailModule {
         const indexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
-        this._iBuffer = new Uint16Array(this._trailNum * 6);
+        this._iBuffer = new Uint16Array(trailNum * 6);
         indexBuffer.update(this._iBuffer);
 
         this._iaInfoBuffer = device.createBuffer(new BufferInfo(
@@ -654,8 +652,8 @@ export default class TrailModule {
             DRAW_INFO_SIZE,
             DRAW_INFO_SIZE,
         ));
-        this._iaInfo.drawInfos[0].vertexCount = (this._trailNum + 1) * 2;
-        this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
+        this._iaInfo.drawInfos[0].vertexCount = (trailNum + 1) * 2;
+        this._iaInfo.drawInfos[0].indexCount = trailNum * 6;
         this._iaInfoBuffer.update(this._iaInfo);
 
         this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
