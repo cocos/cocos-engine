@@ -318,10 +318,10 @@ export class BulletSharedBody {
     addShape (v: BulletShape, isTrigger: boolean) {
         function switchShape (that: BulletSharedBody, shape: Bullet.ptr) {
             bt.CollisionObject_setCollisionShape(that.body, shape);
+            that.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
             if (that._wrappedBody && that._wrappedBody.isEnabled) {
                 that._wrappedBody.setMass(that._wrappedBody.rigidBody.mass);
             }
-            that.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
         }
 
         if (isTrigger) {
@@ -446,20 +446,20 @@ export class BulletSharedBody {
 
         // sync node to ghost
         if (this._ghostStruct) {
-            const wt1 = bt.CollisionObject_getWorldTransform(this.ghost);
-            cocos2BulletVec3(bt.Transform_getOrigin(wt1), this.node.worldPosition);
+            const bt_transform1 = bt.CollisionObject_getWorldTransform(this.ghost);
+            cocos2BulletVec3(bt.Transform_getOrigin(bt_transform1), this.node.worldPosition);
             cocos2BulletQuat(bt_quat, this.node.worldRotation);
-            bt.Transform_setRotation(wt1, bt_quat);
+            bt.Transform_setRotation(bt_transform1, bt_quat);
         }
     }
 
     syncSceneToGhost () {
         if (this.node.hasChangedFlags) {
-            const wq = BulletConstant.instance.BT_QUAT_0;
-            const wt1 = bt.CollisionObject_getWorldTransform(this.ghost);
-            cocos2BulletVec3(bt.Transform_getOrigin(wt1), this.node.worldPosition);
-            cocos2BulletQuat(wq, this.node.worldRotation);
-            bt.Transform_setRotation(wt1, wq);
+            const bt_quat = BulletConstant.instance.BT_QUAT_0;
+            const bt_transform = bt.CollisionObject_getWorldTransform(this.ghost);
+            cocos2BulletVec3(bt.Transform_getOrigin(bt_transform), this.node.worldPosition);
+            cocos2BulletQuat(bt_quat, this.node.worldRotation);
+            bt.Transform_setRotation(bt_transform, bt_quat);
             if (this.node.hasChangedFlags & TransformBit.SCALE) this.syncGhostScale();
             bt.CollisionObject_activate(this.ghost);
         }

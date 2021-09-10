@@ -47,7 +47,7 @@ export class BulletTerrainShape extends BulletShape implements ITerrainShape {
     setTerrain (v: ITerrainAsset | null): void {
         if (!this._isInitialized) return;
 
-        if (this._impl != null && BulletConstant.isNotEmptyShape(this._impl)) {
+        if (this._impl && BulletConstant.isNotEmptyShape(this._impl)) {
             // TODO: change the terrain asset after initialization
             warn('[Physics][Bullet]: change the terrain asset after initialization is not support.');
         } else {

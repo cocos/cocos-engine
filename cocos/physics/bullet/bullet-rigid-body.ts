@@ -63,7 +63,19 @@ export class BulletRigidBody implements IRigidBody {
 
     setMass (value: number) {
         if (!this._rigidBody.isDynamic) return;
-        bt.RigidBody_setMass(this.impl, value);
+        // bt.RigidBody_setMass(this.impl, value);
+        const mass = this._rigidBody.mass;
+        const shape = bt.CollisionObject_getCollisionShape(this.impl);
+        const localInertia = BulletConstant.instance.BT_V3_0;
+        bt.Vec3_set(localInertia, 1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
+        if (bt.CollisionShape_isCompound(shape)) {
+            if (bt.CompoundShape_getNumChildShapes(shape) > 0) {
+                bt.CollisionShape_calculateLocalInertia(shape, mass, localInertia);
+            }
+        } else {
+            bt.CollisionShape_calculateLocalInertia(shape, mass, localInertia);
+        }
+        bt.RigidBody_setMassProps(this.impl, mass, localInertia);
         this._wakeUpIfSleep();
         this._sharedBody.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
     }
@@ -104,6 +116,24 @@ export class BulletRigidBody implements IRigidBody {
         return this._isUsingCCD;
     }
 
+    setLinearFactor (v: IVec3Like) {
+
+    }
+
+    setAngularFactor (v: IVec3Like) {
+
+    }
+
+    setAllowSleep (v: boolean) {
+        if (!this._rigidBody.isDynamic) return;
+        if (v) {
+            bt.CollisionObject_forceActivationState(this.impl, btCollisionObjectStates.ACTIVE_TAG);
+        } else {
+            bt.CollisionObject_forceActivationState(this.impl, btCollisionObjectStates.DISABLE_DEACTIVATION);
+        }
+        this._wakeUpIfSleep();
+    }
+
     private static idCounter = 0;
     readonly id: number;
 
@@ -119,18 +149,6 @@ export class BulletRigidBody implements IRigidBody {
 
     constructor () {
         this.id = BulletRigidBody.idCounter++;
-    }
-
-    setLinearFactor (v: IVec3Like) {
-
-    }
-
-    setAngularFactor (v: IVec3Like) {
-
-    }
-
-    setAllowSleep (v: boolean) {
-
     }
 
     clearState (): void {

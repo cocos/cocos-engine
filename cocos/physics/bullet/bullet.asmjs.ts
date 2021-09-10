@@ -45,6 +45,6 @@ bt.getObjByPtr = function getObjByPtr<T> (p: ptr) {
 type ptr = Bullet.ptr;
 interface instanceExt extends Bullet.instance {
     ptr2obj: Record<string, unknown>,
-    getObjByPtr<T>(p: ptr): T;
-    // [x: string]: any;
+    getObjByPtr<T> (p: ptr): T;
+    [x: string]: any;
 }

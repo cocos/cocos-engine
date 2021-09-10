@@ -46,7 +46,7 @@ export class BulletTrimeshShape extends BulletShape implements ITrimeshShape {
     setMesh (v: Mesh | null) {
         if (!this._isInitialized) return;
 
-        if (this._impl != null && BulletConstant.isNotEmptyShape(this._impl)) {
+        if (this._impl && BulletConstant.isNotEmptyShape(this._impl)) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {

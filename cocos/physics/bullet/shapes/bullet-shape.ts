@@ -54,7 +54,7 @@ export class BulletShape implements IBaseShape {
             if (this._compound) {
                 bt.CompoundShape_setMaterial(this._compound, this._index, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
             } else {
-                bt.CollisionObject_setMaterial(this._impl, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
+                bt.CollisionObject_setMaterial(this._sharedBody.body, v.friction, v.restitution, v.rollingFriction, v.spinningFriction);
             }
         }
     }
@@ -108,12 +108,12 @@ export class BulletShape implements IBaseShape {
     }
 
     getAABB (v: AABB) {
-        const t = BulletConstant.instance.BT_TRANSFORM_0;
-        bt.Transform_setIdentity(t);
-        bt.Transform_setRotation(t, cocos2BulletQuat(BulletConstant.instance.BT_QUAT_0, this._collider.node.worldRotation));
+        const bt_transform = BulletConstant.instance.BT_TRANSFORM_0;
+        bt.Transform_setIdentity(bt_transform);
+        bt.Transform_setRotation(bt_transform, cocos2BulletQuat(BulletConstant.instance.BT_QUAT_0, this._collider.node.worldRotation));
         const MIN = BulletConstant.instance.BT_V3_0;
         const MAX = BulletConstant.instance.BT_V3_1;
-        bt.CollisionShape_getAabb(this._impl, t, MIN, MAX);
+        bt.CollisionShape_getAabb(this._impl, bt_transform, MIN, MAX);
         v.halfExtents.x = (bt.Vec3_x(MAX) - bt.Vec3_x(MIN)) / 2;
         v.halfExtents.y = (bt.Vec3_y(MAX) - bt.Vec3_y(MIN)) / 2;
         v.halfExtents.z = (bt.Vec3_z(MAX) - bt.Vec3_z(MIN)) / 2;
@@ -136,10 +136,8 @@ export class BulletShape implements IBaseShape {
 
     setWrapper () {
         if (BulletConstant.isNotEmptyShape(this._impl)) {
-            // AmmoInstance.setWrapper(this);
+            // bt.collisionshape_sety(this._impl, this._impl);
             // this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
-            // const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-            // (shape as any).wrapped = this;
         }
     }
 
