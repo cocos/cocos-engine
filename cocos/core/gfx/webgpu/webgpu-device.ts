@@ -6,12 +6,14 @@ import { resolve } from 'path/posix';
 import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
-    SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
+    SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo, ShaderInfo,
 } from '../base/define';
 import { RenderPass } from '../base/render-pass';
 import { Sampler } from '../base/states/sampler';
 import { Swapchain } from '../base/swapchain';
 import { Buffer } from '../base/buffer';
+import { Shader } from '../base/shader';
+
 import { DescriptorSet, DescriptorSetLayout, PipelineLayout } from '..';
 
 import { wgpuWasmModule } from './webgpu-utils';
@@ -24,6 +26,8 @@ import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUDescriptorSet } from './webgpu-descriptor-set';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
+import { WebGPUShader } from './webgpu-shader';
+import { assert } from '../../platform';
 
 export class WebGPUDevice extends Device {
     private _nativeDevice = undefined;
@@ -92,15 +96,15 @@ export class WebGPUDevice extends Device {
     }
 
     public resize (width: number, height: number): void {
-        this._nativeDevice?.resize(width, height);
+        assert(false, 'resize not impl!');
     }
 
     public acquire (swapchains: Swapchain[]): void {
-
+        assert(false, 'acquire not impl!');
     }
 
     public present (): void {
-        this._nativeDevice?.present();
+        assert(false, 'present not impl!');
     }
 
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
@@ -110,11 +114,11 @@ export class WebGPUDevice extends Device {
     }
 
     public flushCommands (cmdBuffs: CommandBuffer[]): void {
-        this._nativeDevice?.flushCommands(cmdBuffs);
+        assert(false, 'flushCommands not impl!');
     }
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
-        this._nativeDevice?.createCommandBuffer(info);
+        assert(false, 'createCommandBuffer not impl!');
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
@@ -148,11 +152,15 @@ export class WebGPUDevice extends Device {
     }
 
     public createShader (info: ShaderInfo): Shader {
-        this._nativeDevice?.createShader(info);
+        const shader = new WebGPUShader();
+        if (shader.initialize(info)) {
+            return shader;
+        }
+        return null!;
     }
 
     public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
-        this._nativeDevice?.createInputAssembler(info);
+        assert(false, 'createInputAssembler not impl!');
     }
 
     public createRenderPass (info: RenderPassInfo): RenderPass {
@@ -186,19 +194,19 @@ export class WebGPUDevice extends Device {
     }
 
     public createPipelineState (info: PipelineStateInfo): PipelineState {
-        this._nativeDevice?.createPipelineState(info);
+        assert(false, 'createPipelineState not impl!');
     }
 
     public createQueue (info: QueueInfo): Queue {
-        this._nativeDevice?.createQueue(info);
+        assert(false, 'createQueue not impl!');
     }
 
     public createGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier {
-        this._nativeDevice?.createGlobalBarrier(info);
+        assert(false, 'createGlobalBarrier not impl!');
     }
 
     public createTextureBarrier (info: TextureBarrierInfo): TextureBarrier {
-        this._nativeDevice?.createTextureBarrier(info);
+        assert(false, 'createTextureBarrier not impl!');
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {

@@ -8,6 +8,7 @@ import {
     TextureUsageBit,
     SampleCount,
     Format,
+    SurfaceTransform,
 } from '../base/define';
 import { Texture } from '../base/texture';
 import { wgpuWasmModule } from './webgpu-utils';
@@ -70,7 +71,7 @@ export class WebGPUSwapchain extends Swapchain {
     }
 
     public resize (width: number, height: number): void {
-        this._nativeSwapchain.resize(width, height);
+        this._nativeSwapchain.resize(width, height, wgpuWasmModule.SurfaceTransform.IDENTITY);
     }
 
     public destroy (): void {
