@@ -31,7 +31,7 @@
 // import Ammo from './instantiated';
 import { Vec3, Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
-import { cocos2AmmoVec3, ammo2CocosVec3, cocos2BulletVec3, bullet2CocosVec3 } from './ammo-util';
+import { cocos2BulletVec3, bullet2CocosVec3 } from './ammo-util';
 import { RigidBody, PhysicsSystem } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } from './ammo-enum';
 import { IRigidBody } from '../spec/i-rigid-body';
@@ -69,10 +69,10 @@ export class AmmoRigidBody implements IRigidBody {
         const shape = bt.CollisionObject_getCollisionShape(this.impl);
         if (bt.CollisionShape_isCompound(shape)) {
             if (bt.CompoundShape_getNumChildShapes(this._sharedBody.bodyCompoundShape) > 0) {
-                bt.CollisionShape_calculateLocalInertia(this._rigidBody.mass, localInertia);
+                bt.CollisionShape_calculateLocalInertia(shape, this._rigidBody.mass, localInertia);
             }
         } else {
-            bt.CollisionShape_calculateLocalInertia(this._rigidBody.mass, localInertia);
+            bt.CollisionShape_calculateLocalInertia(shape, this._rigidBody.mass, localInertia);
         }
         bt.RigidBody_setMassProps(this.impl, value, localInertia);
         this._wakeUpIfSleep();

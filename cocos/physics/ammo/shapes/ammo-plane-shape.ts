@@ -32,7 +32,7 @@
 // import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { PlaneCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3, cocos2BulletVec3 } from '../ammo-util';
+import { cocos2BulletVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';

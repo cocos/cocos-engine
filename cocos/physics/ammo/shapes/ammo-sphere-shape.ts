@@ -32,7 +32,7 @@
 // import Ammo from '../ammo-instantiated';
 import { AmmoShape } from './ammo-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
-import { cocos2AmmoVec3, cocos2BulletVec3 } from '../ammo-util';
+import { cocos2BulletVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { CC_V3_0 } from '../ammo-const';

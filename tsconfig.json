@@ -27,7 +27,6 @@
       "./@types/webGL.extras",
       "./@types/webGL2.extras",
       "./node_modules/@cocos/cannon/CANNON",
-      "./node_modules/@cocos/ammo/Ammo",
       "./node_modules/@cocos/bullet/bullet",
       "./node_modules/@cocos/physx/PhysX",
       "./node_modules/@types/jest/index",

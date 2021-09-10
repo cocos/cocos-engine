@@ -1,4 +1,7 @@
-import instantiate from '@cocos/bullet';
+// import instantiate from '@cocos/bullet';
+
+let instantiate = (...args: any) => ({});
+if (globalThis.Bullet) instantiate = globalThis.Bullet;
 
 const pageSize = 65536; // 64KiB
 const memorySize = pageSize * 250; // 16 MiB
@@ -62,7 +65,7 @@ interface instanceExt extends Bullet.instance {
 
     CollisionShape_isCompound(p: ptr): boolean;
     CollisionShape_setLocalScaling(p: ptr, scale: ptr): void;
-    CollisionShape_calculateLocalInertia(p: ptr, localInertia: ptr): void;
+    CollisionShape_calculateLocalInertia(p: ptr, mass: number, localInertia: ptr): void;
 
     EmptyShape_create(): ptr;
 

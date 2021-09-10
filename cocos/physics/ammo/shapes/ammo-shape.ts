@@ -34,7 +34,7 @@ import { Vec3, Quat } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes, EAmmoSharedBodyDirty } from '../ammo-enum';
-import { cocos2AmmoVec3, ammoDeletePtr, cocos2AmmoQuat, cocos2BulletVec3 } from '../ammo-util';
+import { cocos2BulletVec3 } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -143,9 +143,9 @@ export class AmmoShape implements IBaseShape {
     setWrapper () {
         if (AmmoConstant.isNotEmptyShape(this._btShape)) {
             AmmoInstance.setWrapper(this);
-            this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
-            const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-            (shape as any).wrapped = this;
+            // this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
+            // const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+            // (shape as any).wrapped = this;
         }
     }
 
@@ -171,22 +171,22 @@ export class AmmoShape implements IBaseShape {
 
     onDestroy () {
         this._sharedBody.reference = false;
-        this._btCompound = null;
-        (this._collider as any) = null;
-        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-        (shape as any).wrapped = null;
-        Ammo.destroy(this.quat);
-        Ammo.destroy(this.scale);
-        Ammo.destroy(this.transform);
-        if (AmmoConstant.isNotEmptyShape(this._btShape)) {
-            AmmoInstance.delWrapper(this);
-            Ammo.destroy(this._btShape);
-            ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
-        }
-        (this._btShape as any) = null;
-        (this.transform as any) = null;
-        (this.quat as any) = null;
-        (this.scale as any) = null;
+        // this._btCompound = null;
+        // (this._collider as any) = null;
+        // const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+        // (shape as any).wrapped = null;
+        // Ammo.destroy(this.quat);
+        // Ammo.destroy(this.scale);
+        // Ammo.destroy(this.transform);
+        // if (AmmoConstant.isNotEmptyShape(this._btShape)) {
+        //     AmmoInstance.delWrapper(this);
+        //     Ammo.destroy(this._btShape);
+        //     ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
+        // }
+        // (this._btShape as any) = null;
+        // (this.transform as any) = null;
+        // (this.quat as any) = null;
+        // (this.scale as any) = null;
     }
 
     updateByReAdd () {

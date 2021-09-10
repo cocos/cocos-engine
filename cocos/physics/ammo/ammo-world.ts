@@ -36,7 +36,7 @@ import { AmmoShape } from './shapes/ammo-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, AmmoConstant } from './ammo-const';
-import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat, bullet2CocosVec3, cocos2BulletVec3 } from './ammo-util';
+import { cocos2BulletVec3 } from './ammo-util';
 import { Ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial } from '../framework';
@@ -44,10 +44,11 @@ import { error, Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
 import { IVec3Like } from '../../core/math/type-define';
 import { AmmoContactEquation } from './ammo-contact-equation';
-import { AmmoConstraint } from './constraints/ammo-constraint';
+// import { AmmoConstraint } from './constraints/ammo-constraint';
 import { fastRemoveAt } from '../../core/utils/array';
 import { bt } from './export-bullet';
 
+type AmmoConstraint = any;
 const contactsPool: AmmoContactEquation[] = [];
 const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
@@ -83,8 +84,8 @@ export class AmmoWorld implements IPhysicsWorld {
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
 
-    static closeHitCB: Ammo.ccClosestRayResultCallback;
-    static allHitsCB: Ammo.ccAllHitsRayResultCallback;
+    static closeHitCB: any;
+    static allHitsCB: any;
 
     constructor (options?: any) {
         this._btCollisionConfiguration = bt.DefaultCollisionConfiguration_create();
@@ -373,7 +374,7 @@ export class AmmoWorld implements IPhysicsWorld {
                     }
 
                     for (let i = 0; i < data.contacts.length; i++) {
-                        const cq = data.contacts[i] as Ammo.btManifoldPoint;
+                        const cq = data.contacts[i];
                         if (contactsPool.length > 0) {
                             const c = contactsPool.pop();
                             c!.impl = cq;

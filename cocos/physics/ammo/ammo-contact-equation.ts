@@ -30,7 +30,6 @@
 
 import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Vec3, Quat } from '../../core';
-import { ammo2CocosVec3, ammo2CocosQuat } from './ammo-util';
 import { AmmoShape } from './shapes/ammo-shape';
 import { CC_QUAT_0, AmmoConstant } from './ammo-const';
 
@@ -42,7 +41,7 @@ export class AmmoContactEquation implements IContactEquation {
         return false;
     }
 
-    impl: Ammo.btManifoldPoint | null = null;
+    impl: any | null = null;
     event: ICollisionEvent;
 
     constructor (event: ICollisionEvent) {
@@ -50,19 +49,19 @@ export class AmmoContactEquation implements IContactEquation {
     }
 
     getLocalPointOnA (out: IVec3Like): void {
-        if (this.impl) ammo2CocosVec3(out, this.impl.m_localPointA);
+        // if (this.impl) ammo2CocosVec3(out, this.impl.m_localPointA);
     }
 
     getLocalPointOnB (out: IVec3Like): void {
-        if (this.impl) ammo2CocosVec3(out, this.impl.m_localPointB);
+        // if (this.impl) ammo2CocosVec3(out, this.impl.m_localPointB);
     }
 
     getWorldPointOnA (out: IVec3Like): void {
-        if (this.impl) ammo2CocosVec3(out, this.impl.m_positionWorldOnA);
+        // if (this.impl) ammo2CocosVec3(out, this.impl.m_positionWorldOnA);
     }
 
     getWorldPointOnB (out: IVec3Like): void {
-        if (this.impl) ammo2CocosVec3(out, this.impl.m_positionWorldOnB);
+        // if (this.impl) ammo2CocosVec3(out, this.impl.m_positionWorldOnB);
     }
 
     getLocalNormalOnA (out: IVec3Like): void {
