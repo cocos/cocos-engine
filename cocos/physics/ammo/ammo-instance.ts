@@ -48,15 +48,15 @@ export class AmmoInstance {
         [x: number]: Record<string, unknown>
     } = {};
 
-    static setWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
-        this.ptr2WrapObj[Ammo.getPointer(wrap.impl)] = wrap;
-    }
+    // static setWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
+    //     this.ptr2WrapObj[Ammo.getPointer(wrap.impl)] = wrap;
+    // }
 
-    static delWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
-        delete this.ptr2WrapObj[Ammo.getPointer(wrap.impl)];
-    }
+    // static delWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
+    //     delete this.ptr2WrapObj[Ammo.getPointer(wrap.impl)];
+    // }
 
-    static getWrapperByPtr<T extends { impl: Ammo.Type }> (ptr: number): T {
-        return this.ptr2WrapObj[ptr] as T;
-    }
+    // static getWrapperByPtr<T extends { impl: Ammo.Type }> (ptr: number): T {
+    //     return this.ptr2WrapObj[ptr] as T;
+    // }
 }

@@ -68,7 +68,7 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
     onComponentSet () {
         const normal = AmmoConstant.instance.VECTOR3_0;
         cocos2BulletVec3(normal, this.collider.normal);
-        this._btShape = bt.StaticPlaneShape_create(normal, this.collider.constant);
+        this._btShape = bt.StaticPlaneShape_new(normal, this.collider.constant);
         this.updateScale();
     }
 }

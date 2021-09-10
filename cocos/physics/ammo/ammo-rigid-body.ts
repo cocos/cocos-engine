@@ -65,7 +65,7 @@ export class AmmoRigidBody implements IRigidBody {
         if (!this._rigidBody.isDynamic) return;
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         const localInertia = this._sharedBody.bodyStruct.localInertia;
-        bt.Vector3_setValue(localInertia, 1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
+        bt.Vec3_set(localInertia, 1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const shape = bt.CollisionObject_getCollisionShape(this.impl);
         if (bt.CollisionShape_isCompound(shape)) {
             if (bt.CompoundShape_getNumChildShapes(this._sharedBody.bodyCompoundShape) > 0) {
@@ -105,9 +105,9 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
-    useCCD (value:boolean) {
-        this.impl.setCcdMotionThreshold(value ? 0.01 : 0);
-        this.impl.setCcdSweptSphereRadius(value ? 0.1 : 0);
+    useCCD (value: boolean) {
+        // this.impl.setCcdMotionThreshold(value ? 0.01 : 0);
+        // this.impl.setCcdSweptSphereRadius(value ? 0.1 : 0);
         this._isUsingCCD = value;
     }
 
@@ -118,6 +118,10 @@ export class AmmoRigidBody implements IRigidBody {
     private static idCounter = 0;
     readonly id: number;
 
+    get impl () { return this._sharedBody.body; }
+    get rigidBody () { return this._rigidBody; }
+    get isEnabled () { return this._isEnabled; }
+
     private _isEnabled = false;
     private _isUsingCCD = false;
     private _sharedBody!: AmmoSharedBody;
@@ -126,17 +130,18 @@ export class AmmoRigidBody implements IRigidBody {
     constructor () {
         this.id = AmmoRigidBody.idCounter++;
     }
-    impl: any;
-    rigidBody: RigidBody;
-    setType: (v: ERigidBodyType) => void;
-    setLinearDamping: (v: number) => void;
-    setAngularDamping: (v: number) => void;
-    useGravity: (v: boolean) => void;
-    setLinearFactor: (v: IVec3Like) => void;
-    setAngularFactor: (v: IVec3Like) => void;
-    setAllowSleep: (v: boolean) => void;
-    useCCD: (v: boolean) => void;
-    isUsingCCD: () => boolean;
+
+    setLinearFactor (v: IVec3Like) {
+
+    }
+
+    setAngularFactor (v: IVec3Like) {
+
+    }
+
+    setAllowSleep (v: boolean) {
+
+    }
 
     clearState (): void {
         bt.RigidBody_clearState(this.impl);

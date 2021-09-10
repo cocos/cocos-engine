@@ -64,8 +64,8 @@
   "dependencies": {
     "@cocos/ammo": "1.2.0",
     "@cocos/box2d": "1.0.1",
+    "@cocos/bullet": "1.0.0-exp.2",
     "@cocos/cannon": "1.2.8",
-    "@cocos/bullet": "github:JayceLai/bullet-release#master",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.7"
   }

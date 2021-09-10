@@ -36,27 +36,27 @@ import { PrimitiveMode } from '../../core/gfx';
 import { bt } from './export-bullet';
 
 export function cocos2BulletVec3 (out: Bullet.ptr, v: IVec3Like): Bullet.ptr {
-    bt.Vector3_setValue(out, v.x, v.y, v.z);
+    bt.Vec3_set(out, v.x, v.y, v.z);
     return out;
 }
 
 export function bullet2CocosVec3<T extends IVec3Like> (out: T, v: Bullet.ptr): T {
-    out.x = bt.Vector3_x(v);
-    out.y = bt.Vector3_y(v);
-    out.z = bt.Vector3_z(v);
+    out.x = bt.Vec3_x(v);
+    out.y = bt.Vec3_y(v);
+    out.z = bt.Vec3_z(v);
     return out;
 }
 
 export function cocos2BulletQuat (out: Bullet.ptr, q: IQuatLike): Bullet.ptr {
-    bt.Quaternion_setValue(out, q.x, q.y, q.z, q.w);
+    bt.Quat_set(out, q.x, q.y, q.z, q.w);
     return out;
 }
 
 export function bullet2CocosQuat<T extends IQuatLike> (out: T, q: Bullet.ptr): T {
-    out.x = bt.Quaternion_x(q);
-    out.y = bt.Quaternion_y(q);
-    out.z = bt.Quaternion_z(q);
-    out.w = bt.Quaternion_w(q);
+    out.x = bt.Quat_x(q);
+    out.y = bt.Quat_y(q);
+    out.z = bt.Quat_z(q);
+    out.w = bt.Quat_w(q);
     return out;
 }
 

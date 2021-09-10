@@ -54,7 +54,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     }
 
     onComponentSet () {
-        this._btShape = bt.SphereShape_create(this.getMinUnscaledRadius());
+        this._btShape = bt.SphereShape_new(this.getMinUnscaledRadius());
         this.updateScale();
     }
 

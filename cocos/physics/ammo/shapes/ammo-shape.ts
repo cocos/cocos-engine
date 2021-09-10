@@ -110,14 +110,14 @@ export class AmmoShape implements IBaseShape {
     constructor (type: AmmoBroadphaseNativeTypes) {
         this.type = type;
         this.id = AmmoShape.idCounter++;
-        this.quat = bt.Quaternion_create(0, 0, 0, 1);
-        this.transform = bt.Transform_create();
-        this.scale = bt.Vector3_create(1, 1, 1);
+        this.quat = bt.Quat_new(0, 0, 0, 1);
+        this.transform = bt.Transform_new();
+        this.scale = bt.Vec3_new(1, 1, 1);
     }
 
     getAABB (v: AABB) {
         // const TRANS = AmmoConstant.instance.TRANSFORM;
-        // bt.btTransform_setIdentity(TRANS);
+        // bt.Transform_setIdentity(TRANS);
         // TRANS.setRotation(cocos2AmmoQuat(AmmoConstant.instance.QUAT_0, this._collider.node.worldRotation));
         // const MIN = AmmoConstant.instance.VECTOR3_0;
         // const MAX = AmmoConstant.instance.VECTOR3_1;
@@ -142,7 +142,7 @@ export class AmmoShape implements IBaseShape {
 
     setWrapper () {
         if (AmmoConstant.isNotEmptyShape(this._btShape)) {
-            AmmoInstance.setWrapper(this);
+            // AmmoInstance.setWrapper(this);
             // this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
             // const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
             // (shape as any).wrapped = this;

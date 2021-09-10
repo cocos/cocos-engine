@@ -55,7 +55,7 @@ const v3_1 = CC_V3_1;
 
 export class AmmoWorld implements IPhysicsWorld {
     setAllowSleep (v: boolean) {
-        this._btWorld.setAllowSleep(v);
+        // this._btWorld.setAllowSleep(v);
     }
 
     setDefaultMaterial (v: PhysicsMaterial) { }
@@ -63,7 +63,7 @@ export class AmmoWorld implements IPhysicsWorld {
     setGravity (gravity: IVec3Like) {
         const TMP = AmmoConstant.instance.VECTOR3_0;
         cocos2BulletVec3(TMP, gravity);
-        bt.DiscreteDynamicsWorld_setGravity(this._btWorld, TMP);
+        bt.DynamicsWorld_setGravity(this._btWorld, TMP);
     }
 
     get impl () {
@@ -88,17 +88,14 @@ export class AmmoWorld implements IPhysicsWorld {
     static allHitsCB: any;
 
     constructor (options?: any) {
-        this._btCollisionConfiguration = bt.DefaultCollisionConfiguration_create();
-        this._btDispatcher = bt.CollisionDispatcher_create(this._btCollisionConfiguration);
-        this._btBroadphase = bt.DbvtBroadphase_create();
-        this._btSolver = bt.SequentialImpulseConstraintSolver_create();
-        this._btWorld = bt.DiscreteDynamicsWorld_create(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
+        this._btCollisionConfiguration = bt.DefaultCollisionConfiguration_static();
+        this._btDispatcher = bt.CollisionDispatcher_new(this._btCollisionConfiguration);
+        this._btBroadphase = bt.DbvtBroadphase_new();
+        this._btSolver = bt.SequentialImpulseConstraintSolver_new();
+        this._btWorld = bt.ccDiscreteDynamicsWorld_new(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
         this.setGravity(v3_0.set(0, -10, 0));
-        const TMP = AmmoConstant.instance.VECTOR3_0;
-        TMP.setValue(0, -10, 0);
-        this._btWorld.setGravity(TMP);
-        if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ccClosestRayResultCallback(TMP, TMP);
-        if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.ccAllHitsRayResultCallback(TMP, TMP);
+        // if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ccClosestRayResultCallback(TMP, TMP);
+        // if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.ccAllHitsRayResultCallback(TMP, TMP);
     }
 
     destroy (): void {
@@ -126,7 +123,7 @@ export class AmmoWorld implements IPhysicsWorld {
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep = 0) {
         if (this.bodies.length === 0 && this.ghosts.length === 0) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
-        bt.DiscreteDynamicsWorld_stepSimulation(this._btWorld, timeSinceLastCalled, maxSubStep, deltaTime);
+        bt.DynamicsWorld_stepSimulation(this._btWorld, timeSinceLastCalled, maxSubStep, deltaTime);
 
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
@@ -198,7 +195,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
-            bt.DiscreteDynamicsWorld_addRigidBody(this._btWorld, sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            bt.DynamicsWorld_addRigidBody(this._btWorld, sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
         }
     }
 
@@ -206,7 +203,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
             fastRemoveAt(this.bodies, i);
-            bt.DiscreteDynamicsWorld_removeRigidBody(this._btWorld, sharedBody.body);
+            bt.DynamicsWorld_removeRigidBody(this._btWorld, sharedBody.body);
         }
     }
 

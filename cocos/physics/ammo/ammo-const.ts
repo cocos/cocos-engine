@@ -55,14 +55,14 @@ export class AmmoConstant {
         if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant();
         return AmmoConstant._instance;
     }
-    readonly EMPTY_SHAPE = bt.EmptyShape_create();
-    readonly TRANSFORM = bt.Transform_create();
-    readonly TRANSFORM_1 = bt.Transform_create();
-    readonly VECTOR3_0 = bt.Vector3_create(0, 0, 0);
-    readonly VECTOR3_1 = bt.Vector3_create(0, 0, 0);
-    readonly QUAT_0 = bt.Quaternion_create(0, 0, 0, 1);
+    readonly EMPTY_SHAPE = bt.EmptyShape_static();
+    readonly TRANSFORM = bt.Transform_new();
+    readonly TRANSFORM_1 = bt.Transform_new();
+    readonly VECTOR3_0 = bt.Vec3_new(0, 0, 0);
+    readonly VECTOR3_1 = bt.Vec3_new(0, 0, 0);
+    readonly QUAT_0 = bt.Quat_new(0, 0, 0, 1);
 
-    static isNotEmptyShape (btShape: Ammo.btCollisionShape) {
+    static isNotEmptyShape (btShape: any) {
         return btShape !== this.instance.EMPTY_SHAPE;
     }
 }

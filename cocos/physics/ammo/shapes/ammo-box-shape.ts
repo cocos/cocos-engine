@@ -59,14 +59,14 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     onComponentSet () {
         const hf = AmmoConstant.instance.VECTOR3_0;
         cocos2BulletVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
-        this._btShape = bt.BoxShape_create(hf);
+        this._btShape = bt.BoxShape_new(hf);
         this.updateScale();
     }
 
     updateScale () {
         super.updateScale();
         cocos2BulletVec3(this.scale, this.getMinScale(VEC3_0));
-        this._btShape.setLocalScaling(this.scale);
+        bt.CollisionShape_setLocalScaling(this._btShape, this.scale);
         this.updateCompoundTransform();
     }
 

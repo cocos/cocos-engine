@@ -216,17 +216,16 @@ export class AmmoSharedBody {
         const bodyQuat = AmmoConstant.instance.QUAT_0;
         cocos2BulletQuat(bodyQuat, this.node.worldRotation);
         bt.Transform_setRotation(st, bodyQuat);
-        const motionState = bt.DefaultMotionState_create(st);
+        const motionState = bt.ccMotionState_new(st);
         const localInertia = AmmoConstant.instance.VECTOR3_0;
-        bt.Vector3_setValue(localInertia, 1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
-        const bodyShape = bt.CompoundShape_create(true);
+        bt.Vec3_set(localInertia, 1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
+        const bodyShape = bt.CompoundShape_new(true);
         let mass = 0;
         if (this._wrappedBody && this._wrappedBody.rigidBody.enabled && this._wrappedBody.rigidBody.isDynamic) {
             mass = this._wrappedBody.rigidBody.mass;
         }
-        if (mass === 0) bt.Vector3_setValue(localInertia, 0, 0, 0);
-        const rbInfo = bt.RigidBodyConstructionInfo_create(mass, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
-        const body = bt.RigidBody_create(rbInfo);
+        if (mass === 0) bt.Vec3_set(localInertia, 0, 0, 0);
+        const body = bt.RigidBody_new(mass, motionState);
         const sleepTd = PhysicsSystem.instance.sleepThreshold;
         bt.RigidBody_setSleepingThresholds(body, sleepTd, sleepTd);
         this._bodyStruct = {
@@ -235,7 +234,7 @@ export class AmmoSharedBody {
             localInertia,
             motionState,
             shape: bodyShape,
-            rbInfo,
+            rbInfo: null as any,
             wrappedShapes: [],
             useCompound: false,
         };
@@ -248,8 +247,8 @@ export class AmmoSharedBody {
     private _instantiateGhostStruct () {
         if (this._ghostStruct) return;
         /** ghost struct */
-        const ghost = bt.CollisionObject_create();
-        const ghostShape = bt.CompoundShape_create(true);
+        const ghost = bt.CollisionObject_new();
+        const ghostShape = bt.CompoundShape_new(true);
         bt.CollisionObject_setCollisionShape(ghost, ghostShape);
         bt.CollisionObject_setCollisionFlags(ghost, AmmoCollisionFlags.CF_STATIC_OBJECT | AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
         this._ghostStruct = {
@@ -286,7 +285,7 @@ export class AmmoSharedBody {
                 wrap.setAllowSleep(com.allowSleep);
                 break;
             case ERigidBodyType.KINEMATIC:
-                bt.Vector3_setValue(localInertia, 0, 0, 0);
+                bt.Vec3_set(localInertia, 0, 0, 0);
                 bt.RigidBody_setMassProps(body, 0, localInertia);
                 m_bcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
                 m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
@@ -295,7 +294,7 @@ export class AmmoSharedBody {
                 break;
             case ERigidBodyType.STATIC:
             default:
-                bt.Vector3_setValue(localInertia, 0, 0, 0);
+                bt.Vec3_set(localInertia, 0, 0, 0);
                 bt.RigidBody_setMassProps(body, 0, localInertia);
                 m_bcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
                 m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
@@ -438,7 +437,7 @@ export class AmmoSharedBody {
             if (bt.CollisionObject_isKinematicObject(this.body)) {
                 // Kinematic objects must be updated using motion state
                 const ms = bt.RigidBody_getMotionState(this.body);
-                if (ms) bt.MotionState_setWorldTransform(ms, wt);
+                if (ms) bt.ccMotionState_setWorldTransform(ms, wt);
             } else if (this.isBodySleeping()) bt.CollisionObject_activate(this.body);
         }
     }
@@ -447,25 +446,25 @@ export class AmmoSharedBody {
      * TODO: use motion state
      */
     syncPhysicsToScene () {
-        if (bt.CollisionObject_isStaticOrKinematicObject(this.body) || this.isBodySleeping()) {
-            return;
-        }
+        // if (bt.CollisionObject_isStaticOrKinematicObject(this.body) || this.isBodySleeping()) {
+        //     return;
+        // }
 
-        const wq = AmmoConstant.instance.QUAT_0;
-        const wt0 = AmmoConstant.instance.TRANSFORM;
-        const ms = bt.RigidBody_getMotionState(this.body);
-        bt.MotionState_getWorldTransform(ms, wt0);
-        this.node.worldPosition = bullet2CocosVec3(v3_0, bt.Transform_getOrigin(wt0));
-        bt.Transform_getRotationRef(wt0, wq);
-        this.node.worldRotation = bullet2CocosQuat(quat_0, wq);
+        // const wq = AmmoConstant.instance.QUAT_0;
+        // const wt0 = AmmoConstant.instance.TRANSFORM;
+        // const ms = bt.RigidBody_getMotionState(this.body);
+        // bt.ccMotionState_getWorldTransform(ms, wt0);
+        // this.node.worldPosition = bullet2CocosVec3(v3_0, bt.Transform_getOrigin(wt0));
+        // bt.Transform_getRotation(wt0, wq);
+        // this.node.worldRotation = bullet2CocosQuat(quat_0, wq);
 
-        // sync node to ghost
-        if (this._ghostStruct) {
-            const wt1 = bt.CollisionObject_getWorldTransform(this.ghost);
-            cocos2BulletVec3(bt.Transform_getOrigin(wt1), this.node.worldPosition);
-            cocos2BulletQuat(wq, this.node.worldRotation);
-            bt.Transform_setRotation(wt1, wq);
-        }
+        // // sync node to ghost
+        // if (this._ghostStruct) {
+        //     const wt1 = bt.CollisionObject_getWorldTransform(this.ghost);
+        //     cocos2BulletVec3(bt.Transform_getOrigin(wt1), this.node.worldPosition);
+        //     cocos2BulletQuat(wq, this.node.worldRotation);
+        //     bt.Transform_setRotation(wt1, wq);
+        // }
     }
 
     syncSceneToGhost () {
