@@ -58,12 +58,11 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     setGravity (gravity: IVec3Like) {
-        const TMP = BulletCache.instance.BT_V3_0;
-        cocos2BulletVec3(TMP, gravity);
-        bt.DynamicsWorld_setGravity(this._world, TMP);
+        bt.DynamicsWorld_setGravity(this._world, cocos2BulletVec3(BulletCache.instance.BT_V3_0, gravity));
     }
 
     updateNeedEmitEvents (v: boolean) {
+        if (!this.ghosts) return; // return if destroyed
         if (v) {
             this._needEmitEvents = true;
         } else {
@@ -144,8 +143,9 @@ export class BulletWorld implements IPhysicsWorld {
     }
 
     syncSceneToPhysics (): void {
+        // Use reverse traversal order, because update dirty will mess up the ghosts or bodyies array.
         for (let i = this.ghosts.length - 1; i >= 0; i--) {
-            const ghost = this.ghosts[i];
+            const ghost = this.ghosts[i]; // Use temporary object, same reason as above
             ghost.updateDirty();
             ghost.syncSceneToGhost();
         }
