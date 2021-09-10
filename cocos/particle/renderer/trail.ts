@@ -624,6 +624,9 @@ export default class TrailModule {
     }
 
     private rebuild () {
+        if (this._trailNum === 0) {
+            return;
+        }
         const device: Device = director.root!.device;
         const vertexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
