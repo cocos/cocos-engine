@@ -23,34 +23,23 @@
  THE SOFTWARE.
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
-import bulletModule from '@cocos/bullet';
-import { physics } from '../../../exports/physics-framework';
-import { memorySize, importFunc } from './bullet-env';
+// Wasm Memory Page Size is 65536
+const pageSize = 65536; // 64KiB
 
-let instantiate: any = bulletModule;
-if (!physics.selector.runInEditor) instantiate = () => ({});
+// How many pages of the wasm memory
+// TODO: let this can be canfiguable by user.
+export const pageCount = 250;
 
-if (globalThis.BULLET2) instantiate = globalThis.BULLET2;
+// How mush memory size of the wasm memory
+export const memorySize = pageSize * pageCount; // 16 MiB
 
-// env
-const env: any = importFunc;
-
-// memory
-const wasmMemory: any = {};
-wasmMemory.buffer = new ArrayBuffer(memorySize);
-env.memory = wasmMemory;
-
-export const bt = instantiate(env, wasmMemory) as instanceExt;
-bt.ENV = env;
-bt.USE_MOTION_STATE = true;
-bt.BODY_CACHE_NAME = 'body';
-globalThis.Bullet = bt;
-
-interface instanceExt extends Bullet.instance {
-    // [x: string]: any;
-    ENV: any,
-    USE_MOTION_STATE: boolean,
-    CACHE: any,
-    BODY_CACHE_NAME: string,
-}
+// The import function used in c++ code, same as DLL Import
+export const importFunc = {
+    syncPhysicsToGraphics (id: number) {
+        const bt = globalThis.Bullet;
+        if (bt.USE_MOTION_STATE) {
+            const body = bt.CACHE.getWrapper(id, bt.BODY_CACHE_NAME);
+            body.syncPhysicsToGraphics();
+        }
+    },
+};

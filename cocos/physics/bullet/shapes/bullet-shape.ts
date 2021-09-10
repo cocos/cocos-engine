@@ -54,7 +54,7 @@ export abstract class BulletShape implements IBaseShape {
                 if (!ccMaterialBooks[v._uuid]) ccMaterialBooks[v._uuid] = bt.ccMaterial_new();
                 const mat = ccMaterialBooks[v._uuid];
                 bt.ccMaterial_set(mat, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
-                bt.CollisionShape_setMaterial(mat);
+                bt.CollisionShape_setMaterial(this._impl, mat);
             } else {
                 bt.CollisionObject_setMaterial(this._sharedBody.body, v.restitution, v.friction, v.rollingFriction, v.spinningFriction);
             }
@@ -87,7 +87,7 @@ export abstract class BulletShape implements IBaseShape {
     get collider (): Collider { return this._collider; }
     get sharedBody (): BulletSharedBody { return this._sharedBody; }
 
-    static readonly TYPE = "shape";
+    static readonly TYPE = 'shape';
     private static idCounter = 0;
     readonly id = BulletShape.idCounter++;
     protected _isEnabled = false;
@@ -99,7 +99,6 @@ export abstract class BulletShape implements IBaseShape {
     protected readonly transform = bt.Transform_new();
     protected _collider!: Collider;
     protected _sharedBody!: BulletSharedBody;
-
 
     getAABB (v: AABB) {
         const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
@@ -136,7 +135,7 @@ export abstract class BulletShape implements IBaseShape {
     }
 
     // virtual
-    protected abstract onComponentSet (): void;
+    protected abstract onComponentSet(): void;
 
     onLoad () {
         this.setCenter(this._collider.center);

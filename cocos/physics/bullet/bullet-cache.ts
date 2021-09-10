@@ -56,7 +56,7 @@ export class BulletCache {
 
     static readonly ROOT: { [x: number]: Record<string, unknown> } = {};
 
-    static setWrapper (impl: Bullet.ptr, type: string, wrap: {}) {
+    static setWrapper (impl: Bullet.ptr, type: string, wrap: any) {
         if (!this.ROOT[type]) this.ROOT[type] = {};
         this.ROOT[type][impl] = wrap;
     }

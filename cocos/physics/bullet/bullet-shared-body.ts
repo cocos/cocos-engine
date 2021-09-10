@@ -53,7 +53,6 @@ let IDCounter = 0;
  * ghost for trigger
  */
 export class BulletSharedBody {
-    static readonly TYPE = "body";
     private static idCounter = 0;
     private static readonly sharedBodesMap = new Map<string, BulletSharedBody>();
 
@@ -226,7 +225,7 @@ export class BulletSharedBody {
             id: IDCounter++, body, motionState, compound: bt.ccCompoundShape_new(), wrappedShapes: [], useCompound: false,
         };
         bt.CollisionObject_setUserIndex(this.body, this._bodyStruct.id);
-        BulletCache.setWrapper(this.id, BulletSharedBody.TYPE, this);
+        BulletCache.setWrapper(this.id, bt.BODY_CACHE_NAME, this);
         if (this._ghostStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.ghost, this.body, true);
         if (this._wrappedBody) this.setBodyType(this._wrappedBody.rigidBody.type);
     }
@@ -256,31 +255,31 @@ export class BulletSharedBody {
             let m_bcf = bt.CollisionObject_getCollisionFlags(body);
             const localInertia = BulletCache.instance.BT_V3_0;
             switch (v) {
-                case ERigidBodyType.DYNAMIC:
-                    m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
-                    m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
-                    bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                    wrap.setMass(com.mass);
-                    wrap.useGravity(com.useGravity);
-                    wrap.setAllowSleep(com.allowSleep);
-                    break;
-                case ERigidBodyType.KINEMATIC:
-                    bt.Vec3_set(localInertia, 0, 0, 0);
-                    bt.RigidBody_setMassProps(body, 0, localInertia);
-                    m_bcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
-                    m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
-                    bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                    bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.DISABLE_DEACTIVATION);
-                    break;
-                case ERigidBodyType.STATIC:
-                default:
-                    bt.Vec3_set(localInertia, 0, 0, 0);
-                    bt.RigidBody_setMassProps(body, 0, localInertia);
-                    m_bcf |= btCollisionFlags.CF_STATIC_OBJECT;
-                    m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
-                    bt.CollisionObject_setCollisionFlags(body, m_bcf);
-                    bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.ISLAND_SLEEPING);
-                    break;
+            case ERigidBodyType.DYNAMIC:
+                m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
+                bt.CollisionObject_setCollisionFlags(body, m_bcf);
+                wrap.setMass(com.mass);
+                wrap.useGravity(com.useGravity);
+                wrap.setAllowSleep(com.allowSleep);
+                break;
+            case ERigidBodyType.KINEMATIC:
+                bt.Vec3_set(localInertia, 0, 0, 0);
+                bt.RigidBody_setMassProps(body, 0, localInertia);
+                m_bcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
+                m_bcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
+                bt.CollisionObject_setCollisionFlags(body, m_bcf);
+                bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.DISABLE_DEACTIVATION);
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                bt.Vec3_set(localInertia, 0, 0, 0);
+                bt.RigidBody_setMassProps(body, 0, localInertia);
+                m_bcf |= btCollisionFlags.CF_STATIC_OBJECT;
+                m_bcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                bt.CollisionObject_setCollisionFlags(body, m_bcf);
+                bt.CollisionObject_forceActivationState(body, btCollisionObjectStates.ISLAND_SLEEPING);
+                break;
             }
             this.dirty |= EBtSharedBodyDirty.BODY_RE_ADD;
         }
@@ -291,20 +290,20 @@ export class BulletSharedBody {
             const ghost = this._ghostStruct.ghost;
             let m_gcf = bt.CollisionObject_getCollisionFlags(ghost);
             switch (v) {
-                case ERigidBodyType.DYNAMIC:
-                case ERigidBodyType.KINEMATIC:
-                    m_gcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
-                    m_gcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
-                    bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
-                    bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.DISABLE_DEACTIVATION);
-                    break;
-                case ERigidBodyType.STATIC:
-                default:
-                    m_gcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
-                    m_gcf |= btCollisionFlags.CF_STATIC_OBJECT;
-                    bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
-                    bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.ISLAND_SLEEPING);
-                    break;
+            case ERigidBodyType.DYNAMIC:
+            case ERigidBodyType.KINEMATIC:
+                m_gcf &= (~btCollisionFlags.CF_STATIC_OBJECT);
+                m_gcf |= btCollisionFlags.CF_KINEMATIC_OBJECT;
+                bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
+                bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.DISABLE_DEACTIVATION);
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                m_gcf &= (~btCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_gcf |= btCollisionFlags.CF_STATIC_OBJECT;
+                bt.CollisionObject_setCollisionFlags(ghost, m_gcf);
+                bt.CollisionObject_forceActivationState(ghost, btCollisionObjectStates.ISLAND_SLEEPING);
+                break;
             }
             this.dirty |= EBtSharedBodyDirty.GHOST_RE_ADD;
         }
@@ -524,7 +523,7 @@ export class BulletSharedBody {
         (this.wrappedWorld as any) = null;
         if (this._bodyStruct) {
             const bodyStruct = this._bodyStruct;
-            BulletCache.delWrapper(bodyStruct.body, BulletSharedBody.TYPE);
+            BulletCache.delWrapper(bodyStruct.body, bt.BODY_CACHE_NAME);
             bt.MotionState_del(bodyStruct.motionState);
             bt.CollisionShape_del(bodyStruct.compound);
             bt.CollisionObject_del(bodyStruct.body);

@@ -398,19 +398,18 @@ export class BulletWorld implements IPhysicsWorld {
                 const s1 = bt.ManifoldPoint_getShape1(manifoldPoint);
                 const shape0: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
                 const shape1: BulletShape = BulletCache.getWrapper(s1, BulletShape.TYPE);
-                if (shape0.collider.needTriggerEvent || shape1.collider.needTriggerEvent ||
-                    shape0.collider.needCollisionEvent || shape1.collider.needCollisionEvent
+                if (shape0.collider.needTriggerEvent || shape1.collider.needTriggerEvent
+                    || shape0.collider.needCollisionEvent || shape1.collider.needCollisionEvent
                 ) {
                     // current contact
                     let item = this.contactsDic.get<any>(shape0.id, shape1.id);
                     if (!item) {
                         item = this.contactsDic.set(shape0.id, shape1.id,
-                            { shape0, shape1, contacts: [], impl: manifold, });
+                            { shape0, shape1, contacts: [], impl: manifold });
                     }
                     item.contacts.push(manifoldPoint);
                 }
             }
         }
     }
-
 }
