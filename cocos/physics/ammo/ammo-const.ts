@@ -32,7 +32,7 @@
 // import Ammo from './instantiated';
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
-import { bt } from './export-bullet';
+import { bt } from './bullet.asmjs';
 
 export const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,

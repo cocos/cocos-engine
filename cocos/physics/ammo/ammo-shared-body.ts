@@ -39,7 +39,7 @@ import { PhysicsSystem } from '../framework';
 // import { AmmoConstraint } from './constraints/ammo-constraint';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { fastRemoveAt } from '../../core/utils/array';
-import { bt } from './export-bullet';
+import { bt } from './bullet.asmjs';
 
 type AmmoConstraint = any;
 /**

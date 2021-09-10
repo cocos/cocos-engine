@@ -46,7 +46,7 @@ import { IVec3Like } from '../../core/math/type-define';
 import { AmmoContactEquation } from './ammo-contact-equation';
 // import { AmmoConstraint } from './constraints/ammo-constraint';
 import { fastRemoveAt } from '../../core/utils/array';
-import { bt } from './export-bullet';
+import { bt } from './bullet.asmjs';
 
 type AmmoConstraint = any;
 const contactsPool: AmmoContactEquation[] = [];

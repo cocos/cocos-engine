@@ -42,7 +42,7 @@ import { AmmoSharedBody } from '../ammo-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
 import { AmmoInstance } from '../ammo-instance';
-import { bt } from '../export-bullet';
+import { bt } from '../bullet.asmjs';
 
 const v3_0 = CC_V3_0;
 

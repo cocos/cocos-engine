@@ -9,12 +9,13 @@ const memorySize = pageSize * 250; // 16 MiB
 const interactive = {
     getWorldTransform (id: number, physicsTransform) { },
     setWorldTransform (id: number, physicsTransform) {
-        const nativePosition = bt.Transform_getOrigin(physicsTransform);
-        const x = bt.Vec3_x(nativePosition);
-        const y = bt.Vec3_y(nativePosition);
-        const z = bt.Vec3_z(nativePosition);
+        const btVec3 = bt.Transform_getOrigin(physicsTransform);
+        const x = bt.Vec3_x(btVec3);
+        const y = bt.Vec3_y(btVec3);
+        const z = bt.Vec3_z(btVec3);
     },
 };
+
 // env
 const env: any = {};
 env.getWorldTransform = interactive.getWorldTransform;

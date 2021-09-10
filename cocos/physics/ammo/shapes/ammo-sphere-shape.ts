@@ -36,7 +36,7 @@ import { cocos2BulletVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { CC_V3_0 } from '../ammo-const';
-import { bt } from '../export-bullet';
+import { bt } from '../bullet.asmjs';
 import { absMaxComponent } from '../../../core';
 
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {

@@ -37,7 +37,7 @@ import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IPlaneShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoConstant } from '../ammo-const';
-import { bt } from '../export-bullet';
+import { bt } from '../bullet.asmjs';
 
 export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
     setNormal (v: IVec3Like) {

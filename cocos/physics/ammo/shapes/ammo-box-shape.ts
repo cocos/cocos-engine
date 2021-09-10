@@ -38,7 +38,7 @@ import { IBoxShape } from '../../spec/i-physics-shape';
 import { absolute, VEC3_0 } from '../../utils/util';
 import { cocos2BulletVec3 } from '../ammo-util';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
-import { bt } from '../export-bullet';
+import { bt } from '../bullet.asmjs';
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     updateSize () {
