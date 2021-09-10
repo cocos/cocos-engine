@@ -115,7 +115,7 @@ export class RenderShadowMapBatchedQueue {
                 for (let i = 0; i < castShadowObjects.length; i++) {
                     const ro = castShadowObjects[i];
                     const model = ro.model;
-                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices) || !model.castShadow) { continue; }
+                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                     if (model.worldBounds) {
                         AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
                         if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
