@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
 import RequestItem from './request-item';

@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @module asset-manager
  */
-import { BUILD, EDITOR, TEST } from 'internal:constants';
+import { BUILD, EDITOR } from 'internal:constants';
 import { sys } from '../platform/sys';
 import { js, path } from '../utils';
 import { callInNextTick } from '../utils/misc';
