@@ -32,6 +32,8 @@ import { PipelineSceneData } from './pipeline-scene-data';
 import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
 import { Asset } from '../assets/asset';
+import { Swapchain } from '../gfx';
+import { Model } from '../renderer/scene';
 
 nr.getPhaseID = getPhaseID;
 
@@ -66,7 +68,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
       this.renderTextures = [];
       this.materials = [];
     }
-  
+
     public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.native);
         for (let i = 0; i < this._flows.length; i++) {
@@ -76,8 +78,8 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         this.initialize(info);
     }
 
-    public activate () {
-        return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+    public activate (swapchain: Swapchain) {
+        return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
     }
 
     public render (cameras) {
@@ -86,6 +88,10 @@ export class ForwardPipeline extends nr.ForwardPipeline {
           nativeObjs.push(cameras[i].native)
       }
       super.render(nativeObjs);
+    }
+
+    set profiler (value: Model) {
+      this.setProfiler(value.native);
     }
 
     public destroy () {
@@ -204,8 +210,8 @@ export class DeferredPipeline extends nr.DeferredPipeline {
     this.initialize(info);
   }
 
-  public activate () {
-    return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
+  public activate (swapchain: Swapchain) {
+    return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
   }
 
   public render (cameras) {
@@ -214,6 +220,10 @@ export class DeferredPipeline extends nr.DeferredPipeline {
         nativeObjs.push(cameras[i].native)
     }
     super.render(nativeObjs);
+  }
+
+  set profiler (value: Model) {
+    this.setProfiler(value.native);
   }
 
   destroy () {
@@ -237,7 +247,7 @@ DeferredPipeline.prototype.onLoaded = function () {
   this.init();
 }
 
-export class GbufferFlow extends nr.GbufferFlow {
+export class MainFlow extends nr.MainFlow {
   constructor() {
     super();
     this._name = 0;
@@ -272,24 +282,6 @@ export class GbufferStage extends nr.GbufferStage {
     }
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
-    this.initialize(info);
-  }
-}
-
-class LightingFlow extends nr.LightingFlow {
-  constructor() {
-    super();
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this._stages = [];
-  }
-  init(pipeline) {
-    for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init(pipeline);
-    }
-    let info = new nr.RenderFlowInfo(
-        this._name, this._priority, this._tag, this._stages);
     this.initialize(info);
   }
 }
@@ -337,9 +329,8 @@ export class PostprocessStage extends nr.PostprocessStage {
 }
 
 setClassName('DeferredPipeline', DeferredPipeline);
-setClassName('GbufferFlow', GbufferFlow);
+setClassName('MainFlow', MainFlow);
 setClassName('GbufferStage', GbufferStage);
-setClassName('LightingFlow', LightingFlow);
 setClassName('LightingStage', LightingStage);
 setClassName('PostprocessStage',PostprocessStage);
 setClassName('ForwardPipeline', ForwardPipeline);

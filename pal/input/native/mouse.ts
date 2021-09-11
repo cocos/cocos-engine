@@ -1,10 +1,10 @@
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { screenAdapter } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { SystemEventType } from '../../../cocos/input/types';
+import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
+import { SystemEvent } from '../../../cocos/input';
 
 export class MouseInputSource {
     public support: boolean;

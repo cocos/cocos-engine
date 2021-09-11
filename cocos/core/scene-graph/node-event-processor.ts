@@ -28,15 +28,12 @@
  * @hidden
  */
 
-import Event from '../event/event';
+import { CallbacksInvoker } from '../event/callbacks-invoker';
+import { Event, EventListener, EventMouse, EventTouch, Touch } from '../../input/types';
 import { Vec2 } from '../math/vec2';
-import { EventListener } from '../platform/event-manager/event-listener';
-import { eventManager } from '../platform/event-manager/event-manager';
-import { EventMouse, EventTouch } from '../platform/event-manager/events';
-import { Touch } from '../platform/event-manager/touch';
+import { eventManager } from '../../input';
 import { BaseNode } from './base-node';
 import { Node } from './node';
-import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { errorID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';

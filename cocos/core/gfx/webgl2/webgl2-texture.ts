@@ -23,10 +23,11 @@
  THE SOFTWARE.
  */
 
-import { TextureFlagBit, FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo } from '../base/define';
+import { FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
+    FormatInfos, TextureUsageBit, TextureFlagBit } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
-import { WebGL2Device } from './webgl2-device';
+import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUTexture } from './webgl2-gpu-objects';
 
 export class WebGL2Texture extends Texture {
@@ -36,10 +37,10 @@ export class WebGL2Texture extends Texture {
 
     private _gpuTexture: IWebGL2GPUTexture | null = null;
 
-    public initialize (info: TextureInfo | TextureViewInfo): boolean {
+    public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean) {
         if ('texture' in info) {
             console.log('WebGL2 does not support texture view.');
-            return false;
+            return;
         }
 
         this._type = info.type;
@@ -81,24 +82,28 @@ export class WebGL2Texture extends Texture {
             glWrapT: 0,
             glMinFilter: 0,
             glMagFilter: 0,
+
+            isSwapchainTexture: isSwapchainTexture || false,
         };
 
-        WebGL2CmdFuncCreateTexture(this._device as WebGL2Device, this._gpuTexture);
+        WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
 
-        this._device.memoryStatus.textureSize += this._size;
-
-        return true;
+        WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
     }
 
     public destroy () {
         if (this._gpuTexture) {
-            WebGL2CmdFuncDestroyTexture(this._device as WebGL2Device, this._gpuTexture);
-            this._device.memoryStatus.textureSize -= this._size;
+            WebGL2CmdFuncDestroyTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+            WebGL2DeviceManager.instance.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
     }
 
     public resize (width: number, height: number) {
+        if (!(this._flags & TextureFlagBit.RESIZABLE)) {
+            console.error('Cannot resize immutable textures');
+        }
+
         const oldSize = this._size;
         this._width = width;
         this._height = height;
@@ -109,9 +114,20 @@ export class WebGL2Texture extends Texture {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            WebGL2CmdFuncResizeTexture(this._device as WebGL2Device, this._gpuTexture);
-            this._device.memoryStatus.textureSize -= oldSize;
-            this._device.memoryStatus.textureSize += this._size;
+            WebGL2CmdFuncResizeTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+            WebGL2DeviceManager.instance.memoryStatus.textureSize -= oldSize;
+            WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size;
         }
+    }
+
+    // ======================= Swapchain Specific ======================= //
+
+    protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {
+        const texInfo = new TextureInfo();
+        texInfo.format = info.format;
+        texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;
+        texInfo.width = info.width;
+        texInfo.height = info.height;
+        this.initialize(texInfo, true);
     }
 }

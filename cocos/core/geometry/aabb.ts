@@ -35,6 +35,7 @@ import { FloatArray, IVec3, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
 import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
 import { NativeAABB } from '../renderer/scene/native-scene';
+import { Frustum } from './frustum';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -171,21 +172,8 @@ export class AABB {
       * @param a 输入的 AABB。
       */
     public static toBoundingSphere (out: Sphere, a: AABB | Readonly<AABB>) {
-        a.getBoundary(_v3_tmp, _v3_tmp2);
-
-        // Initialize sphere
-        out.center.set(_v3_tmp);
-        out.radius = 0.0;
-
-        // Calculate sphere
-        Vec3.subtract(_v3_tmp3, _v3_tmp2, out.center);
-        const dist = _v3_tmp3.length();
-
-        const half = dist * 0.5;
-        out.radius += half;
-        Vec3.multiplyScalar(_v3_tmp3, _v3_tmp3, half / dist);
-        Vec3.add(out.center, out.center, _v3_tmp3);
-
+        out.center.set(a.center);
+        out.radius = a.halfExtents.length();
         return out;
     }
 
@@ -297,5 +285,48 @@ export class AABB {
       */
     public copy (a: AABB | Readonly<AABB>): AABB {
         return AABB.copy(this, a);
+    }
+
+    /**
+      * @en AABB and point merge.
+      * @zh AABB包围盒合并一个顶点。
+      * @param point - 某一个位置的顶点。
+      */
+    public mergePoint (point: IVec3) {
+        // _v3_tmp is min pos
+        // _v3_tmp2 is max pos
+        this.getBoundary(_v3_tmp, _v3_tmp2);
+        if (point.x < _v3_tmp.x) { _v3_tmp.x = point.x; }
+        if (point.y < _v3_tmp.y) { _v3_tmp.y = point.y; }
+        if (point.z < _v3_tmp.z) { _v3_tmp.z = point.z; }
+        if (point.x > _v3_tmp2.x) { _v3_tmp2.x = point.x; }
+        if (point.y > _v3_tmp2.y) { _v3_tmp2.y = point.y; }
+        if (point.z > _v3_tmp2.z) { _v3_tmp2.z = point.z; }
+
+        // _v3_tmp3 is center pos
+        Vec3.add(_v3_tmp3, _v3_tmp, _v3_tmp2);
+        this.center.set(Vec3.multiplyScalar(_v3_tmp3, _v3_tmp3, 0.5));
+        this.halfExtents.set(_v3_tmp2.x - _v3_tmp3.x, _v3_tmp2.y - _v3_tmp3.y, _v3_tmp2.z - _v3_tmp3.z);
+    }
+
+    /**
+        * @en AABB and points merge.
+        * @zh AABB包围盒合并一系列顶点。
+        * @param points - 某一个位置的顶点。
+        */
+    public mergePoints (points: IVec3[]) {
+        if (points.length < 1) { return; }
+        for (let i = 0; i < points.length; i++) {
+            this.mergePoint(points[i]);
+        }
+    }
+
+    /**
+      * @en AABB and frustum merge.
+      * @zh Frustum 合并到 AABB。
+      * @param frustum 输入的 Frustum。
+      */
+    public mergeFrustum (frustum: Frustum | Readonly<Frustum>) {
+        return this.mergePoints(frustum.vertices);
     }
 }

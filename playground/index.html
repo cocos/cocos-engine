@@ -66,13 +66,17 @@
   <script src="../../node_modules/vconsole/dist/vconsole.min.js"></script>
   <script src="../../node_modules/stats.js/build/stats.min.js"></script>
   <script src="../../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script src="../bin/dev/polyfills.bundle.js"> </script>
+  <script src="../bin/dev/system.bundle.js"> </script>
   <script src="../bin/dev/cc.js"></script>
   <script src="./common/camera.js"></script>
   <script src="./shell.js"></script>
 </head>
 
 <body class="fit">
-  <div id="view" class="view"></div>
+  <div id="view" class="view">
+    <canvas id="GameCanvas"></canvas>>
+  </div>
   <div class="toolbar">
     <div>
       <div class="field">

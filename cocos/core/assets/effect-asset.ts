@@ -32,91 +32,113 @@ import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
 import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, IUniform, IAttribute } from '../gfx';
-
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, SamplerInfo, Uniform, Attribute, MemoryAccess } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
-export interface IPropertyInfo {
-    type: number; // auto-extracted from shader
-    handleInfo?: [string, number, number]; // auto-generated from 'target'
-    samplerHash?: number; // auto-generated from 'sampler'
-    value?: number[] | string;
-}
-// Pass instance itself are compliant to IPassStates too
-export interface IPassStates {
-    priority?: number;
-    primitive?: PrimitiveMode;
-    stage?: RenderPassStage;
-    rasterizerState?: RasterizerState;
-    depthStencilState?: DepthStencilState;
-    blendState?: BlendState;
-    dynamicStates?: DynamicStateFlags;
-    phase?: string | number;
-}
-export interface IPassInfo extends IPassStates {
-    program: string; // auto-generated from 'vert' and 'frag'
-    embeddedMacros?: MacroRecord;
-    propertyIndex?: number;
-    switch?: string;
-    properties?: Record<string, IPropertyInfo>;
-}
-export interface ITechniqueInfo {
-    passes: IPassInfo[];
-    name?: string;
-}
+export declare namespace EffectAsset {
+    export interface IPropertyInfo {
+        type: number; // auto-extracted from shader
+        handleInfo?: [string, number, number]; // auto-generated from 'target'
+        samplerHash?: number; // auto-generated from 'sampler'
+        value?: number[] | string;
+    }
+    // Pass instance itself are compliant to IPassStates too
+    export interface IPassStates {
+        priority?: number;
+        primitive?: PrimitiveMode;
+        stage?: RenderPassStage;
+        rasterizerState?: RasterizerState;
+        depthStencilState?: DepthStencilState;
+        blendState?: BlendState;
+        dynamicStates?: DynamicStateFlags;
+        phase?: string | number;
+    }
+    export interface IPassInfo extends IPassStates {
+        program: string; // auto-generated from 'vert' and 'frag'
+        embeddedMacros?: MacroRecord;
+        propertyIndex?: number;
+        switch?: string;
+        properties?: Record<string, IPropertyInfo>;
+    }
+    export interface ITechniqueInfo {
+        passes: IPassInfo[];
+        name?: string;
+    }
 
-export interface IBlockInfo {
-    binding: number;
-    name: string;
-    members: IUniform[];
-    count: number;
-    stageFlags: ShaderStageFlags;
-    descriptorType?: DescriptorType;
-}
-export interface ISamplerTextureInfo {
-    binding: number;
-    name: string;
-    type: Type;
-    count: number;
-    stageFlags: ShaderStageFlags;
-    descriptorType?: DescriptorType;
-}
-export interface IAttributeInfo extends IAttribute {
-    defines: string[];
-}
-export interface IDefineInfo {
-    name: string;
-    type: string;
-    range?: number[];
-    options?: string[];
-    default?: string;
-}
-export interface IBuiltin {
-    name: string;
-    defines: string[];
-}
-export interface IBuiltinInfo {
-    blocks: IBuiltin[];
-    samplerTextures: IBuiltin[];
-}
-export interface IShaderInfo {
-    name: string;
-    hash: number;
-    glsl4: { vert: string, frag: string };
-    glsl3: { vert: string, frag: string };
-    glsl1: { vert: string, frag: string };
-    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
-    defines: IDefineInfo[];
-    blocks: IBlockInfo[];
-    samplerTextures: ISamplerTextureInfo[];
-    attributes: IAttributeInfo[];
-}
-export interface IPreCompileInfo {
-    [name: string]: boolean[] | number[] | string[];
+    export interface IBufferInfo {
+        binding: number;
+        name: string;
+        count: number;
+        stageFlags: ShaderStageFlags;
+        memoryAccess: MemoryAccess;
+        descriptorType?: DescriptorType;
+    }
+    export interface IBlockInfo {
+        binding: number;
+        name: string;
+        members: Uniform[];
+        count: number;
+        stageFlags: ShaderStageFlags;
+        descriptorType?: DescriptorType;
+    }
+    export interface ISamplerTextureInfo {
+        binding: number;
+        name: string;
+        type: Type;
+        count: number;
+        stageFlags: ShaderStageFlags;
+        descriptorType?: DescriptorType;
+    }
+    export interface IImageInfo {
+        binding: number;
+        name: string;
+        type: Type;
+        count: number;
+        stageFlags: ShaderStageFlags;
+        memoryAccess: MemoryAccess;
+        descriptorType?: DescriptorType;
+    }
+    export interface IAttributeInfo extends Attribute {
+        defines: string[];
+    }
+    export interface IDefineInfo {
+        name: string;
+        type: string;
+        range?: number[];
+        options?: string[];
+        default?: string;
+    }
+    export interface IBuiltin {
+        name: string;
+        defines: string[];
+    }
+    export interface IBuiltinInfo {
+        buffers: IBuiltin[];
+        blocks: IBuiltin[];
+        samplerTextures: IBuiltin[];
+        images: IBuiltin[];
+    }
+    export interface IShaderInfo {
+        name: string;
+        hash: number;
+        glsl4: { vert: string, frag: string };
+        glsl3: { vert: string, frag: string };
+        glsl1: { vert: string, frag: string };
+        builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
+        defines: IDefineInfo[];
+        buffers: IBufferInfo[];
+        blocks: IBlockInfo[];
+        samplerTextures: ISamplerTextureInfo[];
+        images: IImageInfo[];
+        attributes: IAttributeInfo[];
+    }
+    export interface IPreCompileInfo {
+        [name: string]: boolean[] | number[] | string[];
+    }
 }
 
 /**
@@ -180,7 +202,7 @@ export class EffectAsset extends Asset {
      */
     @serializable
     @editable
-    public techniques: ITechniqueInfo[] = [];
+    public techniques: EffectAsset.ITechniqueInfo[] = [];
 
     /**
      * @en The shaders used by the current effect.
@@ -188,7 +210,7 @@ export class EffectAsset extends Asset {
      */
     @serializable
     @editable
-    public shaders: IShaderInfo[] = [];
+    public shaders: EffectAsset.IShaderInfo[] = [];
 
     /**
      * @en The preprocess macro combinations for the shader
@@ -196,7 +218,7 @@ export class EffectAsset extends Asset {
      */
     @serializable
     @editable
-    public combinations: IPreCompileInfo[] = [];
+    public combinations: EffectAsset.IPreCompileInfo[] = [];
 
     @serializable
     @editorOnly

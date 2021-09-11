@@ -38,6 +38,7 @@ const _ab = new AABB();
 
 export class PlanarShadowQueue {
     private _pendingModels: Model[] = [];
+    private _castModels:Model[] = [];
     private _instancedQueue = new RenderInstancedQueue();
     private _pipeline: RenderPipeline;
 
@@ -51,6 +52,7 @@ export class PlanarShadowQueue {
         const shadows = pipelineSceneData.shadows;
         this._instancedQueue.clear();
         this._pendingModels.length = 0;
+        this._castModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
         pipelineUBO.updateShadowUBO(camera);
@@ -60,13 +62,16 @@ export class PlanarShadowQueue {
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
         if (!scene.mainLight || !shadowVisible) { return; }
 
-        const renderObjects = pipelineSceneData.renderObjects;
+        const models = scene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+            if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
+        }
         const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
         this._instancedQueue.queue.add(instancedBuffer);
 
-        for (let i = 0; i < renderObjects.length; i++) {
-            const model = renderObjects[i].model;
-            if (!model.enabled || !model.node || !model.castShadow) { continue; }
+        for (let i = 0; i < this._castModels.length; i++) {
+            const model = this._castModels[i];
             if (model.worldBounds) {
                 AABB.transform(_ab, model.worldBounds, shadows.matLight);
                 if (!intersect.aabbFrustum(_ab, frustum)) { continue; }

@@ -33,8 +33,6 @@ import { Node, Scene } from '../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
-import { ImageAsset } from '../assets/image-asset';
-import { TextureBase } from '../assets/texture-base';
 import { callInNextTick } from '../utils/misc';
 import { js } from '../utils/js';
 

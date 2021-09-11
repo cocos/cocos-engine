@@ -38,6 +38,7 @@ import type { BaseNode } from '../../scene-graph/base-node';
 import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
 import { MountedComponentsInfo, TargetInfo } from '.';
 import { editorExtrasTag } from '../../data';
+import { ValueType } from '../../value-types';
 
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
@@ -316,6 +317,8 @@ export function applyPropertyOverrides (node: Node, propertyOverrides: PropertyO
                             targetPropOwner[targetPropName] = propOverride.value;
                         }
                     }
+                } else if (targetPropOwner[targetPropName] instanceof ValueType) {
+                    targetPropOwner[targetPropName].set(propOverride.value);
                 } else {
                     targetPropOwner[targetPropName] = propOverride.value;
                 }

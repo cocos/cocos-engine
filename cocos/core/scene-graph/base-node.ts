@@ -33,7 +33,7 @@ import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
 import { CCObject } from '../data/object';
-import { Event } from '../event';
+import { Event } from '../../input/types';
 import { errorID, warnID, error, log, getError } from '../platform/debug';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';

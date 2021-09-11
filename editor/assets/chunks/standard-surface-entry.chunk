@@ -19,7 +19,7 @@
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \
-#elif (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_STANDARD_TRANSPARENT) \
+#elif (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING) \
                                                                    \
   layout(location = 0) out vec4 fragColorX;                        \
                                                                    \
