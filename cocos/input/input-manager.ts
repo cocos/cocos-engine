@@ -49,10 +49,10 @@ class InputManager {
     public _keyboard = new KeyboardInputSource();
     public _accelerometer = new AccelerometerInputSource();
 
-    private _touchEvents: EventTouch[] = [];
-    private _mouseEvents: EventMouse[] = [];
-    private _keyboardEvents: EventKeyboard[] = [];
-    private _accelerometerEvents: EventAcceleration[] = [];
+    private _eventTouchList: EventTouch[] = [];
+    private _eventMouseList: EventMouse[] = [];
+    private _eventKeyboardList: EventKeyboard[] = [];
+    private _eventAccelerationList: EventAcceleration[] = [];
 
     private _needSimulateTouchMoveEvent = false;
 
@@ -72,49 +72,49 @@ class InputManager {
         if (eventType === SystemEventType.TOUCH_END) {
             touchManager.releaseTouch(touchID);
         }
-        this._touchEvents.push(eventTouch);
+        this._eventTouchList.push(eventTouch);
     }
 
     private _registerEvent () {
         if (this._touch.support) {
-            const touchEvents = this._touchEvents;
-            this._touch.onStart((event) => { touchEvents.push(event); });
-            this._touch.onMove((event) => { touchEvents.push(event); });
-            this._touch.onEnd((event) => { touchEvents.push(event); });
-            this._touch.onCancel((event) => { touchEvents.push(event); });
+            const eventTouchList = this._eventTouchList;
+            this._touch.onStart((event) => { eventTouchList.push(event); });
+            this._touch.onMove((event) => { eventTouchList.push(event); });
+            this._touch.onEnd((event) => { eventTouchList.push(event); });
+            this._touch.onCancel((event) => { eventTouchList.push(event); });
         }
 
         if (this._mouse.support) {
-            const mouseEvents = this._mouseEvents;
+            const eventMouseList = this._eventMouseList;
             this._mouse.onDown((event) => {
                 this._needSimulateTouchMoveEvent = true;
                 this._simulateEventTouch(event);
-                mouseEvents.push(event);
+                eventMouseList.push(event);
             });
             this._mouse.onMove((event) => {
                 if (this._needSimulateTouchMoveEvent) {
                     this._simulateEventTouch(event);
                 }
-                mouseEvents.push(event);
+                eventMouseList.push(event);
             });
             this._mouse.onUp((event) => {
                 this._needSimulateTouchMoveEvent = false;
                 this._simulateEventTouch(event);
-                mouseEvents.push(event);
+                eventMouseList.push(event);
             });
-            this._mouse.onWheel((event) => { mouseEvents.push(event); });
+            this._mouse.onWheel((event) => { eventMouseList.push(event); });
         }
 
         if (this._keyboard.support) {
-            const keyboardEvents = this._keyboardEvents;
+            const eventKeyboardList = this._eventKeyboardList;
             // this._keyboard.onDown((event) => { keyboardEvents.push(event); });
-            this._keyboard.onPressing((event) => { keyboardEvents.push(event); });
-            this._keyboard.onUp((event) => { keyboardEvents.push(event); });
+            this._keyboard.onPressing((event) => { eventKeyboardList.push(event); });
+            this._keyboard.onUp((event) => { eventKeyboardList.push(event); });
         }
 
         if (this._accelerometer.support) {
-            const accelerometerEvents = this._accelerometerEvents;
-            this._accelerometer.onChange((event) => { accelerometerEvents.push(event); });
+            const eventAccelerationList = this._eventAccelerationList;
+            this._accelerometer.onChange((event) => { eventAccelerationList.push(event); });
         }
     }
 
@@ -122,38 +122,38 @@ class InputManager {
      * Clear events when game is resumed.
      */
     public clearEvents () {
-        this._mouseEvents.length = 0;
-        this._touchEvents.length = 0;
-        this._keyboardEvents.length = 0;
-        this._accelerometerEvents.length = 0;
+        this._eventMouseList.length = 0;
+        this._eventTouchList.length = 0;
+        this._eventKeyboardList.length = 0;
+        this._eventAccelerationList.length = 0;
     }
 
     public frameDispatchEvents () {
-        const mouseEvents = this._mouseEvents;
+        const eventMouseList = this._eventMouseList;
         // TODO: culling event queue
-        for (let i = 0, length = mouseEvents.length; i < length; ++i) {
-            const eventMouse = mouseEvents[i];
+        for (let i = 0, length = eventMouseList.length; i < length; ++i) {
+            const eventMouse = eventMouseList[i];
             eventManager.dispatchEvent(eventMouse);
         }
 
-        const touchEvents = this._touchEvents;
+        const eventTouchList = this._eventTouchList;
         // TODO: culling event queue
-        for (let i = 0, length = touchEvents.length; i < length; ++i) {
-            const eventTouch = touchEvents[i];
+        for (let i = 0, length = eventTouchList.length; i < length; ++i) {
+            const eventTouch = eventTouchList[i];
             eventManager.dispatchEvent(eventTouch);
         }
 
-        const keyboardEvents = this._keyboardEvents;
+        const eventKeyboardList = this._eventKeyboardList;
         // TODO: culling event queue
-        for (let i = 0, length = keyboardEvents.length; i < length; ++i) {
-            const eventKeyboard = keyboardEvents[i];
+        for (let i = 0, length = eventKeyboardList.length; i < length; ++i) {
+            const eventKeyboard = eventKeyboardList[i];
             eventManager.dispatchEvent(eventKeyboard);
         }
 
-        const accelerometerEvents = this._accelerometerEvents;
+        const eventAccelerationList = this._eventAccelerationList;
         // TODO: culling event queue
-        for (let i = 0, length = accelerometerEvents.length; i < length; ++i) {
-            const eventAcceleration = accelerometerEvents[i];
+        for (let i = 0, length = eventAccelerationList.length; i < length; ++i) {
+            const eventAcceleration = eventAccelerationList[i];
             eventManager.dispatchEvent(eventAcceleration);
         }
 
