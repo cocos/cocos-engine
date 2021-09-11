@@ -5,7 +5,7 @@ import { EventTarget } from '../../../cocos/core/event';
 import { EventTouch, SystemEventType, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { macro } from '../../../cocos/core';
+import { macro } from '../../../cocos/core/platform/macro';
 
 export class TouchInputSource {
     public support: boolean;
