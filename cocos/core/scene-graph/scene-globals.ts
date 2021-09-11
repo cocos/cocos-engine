@@ -391,7 +391,7 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
-    protected _autoAdapt = true;
+    protected _autoAdapt = false;
     @serializable
     protected _fixedArea = false;
     @serializable
