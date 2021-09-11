@@ -391,6 +391,8 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
+    protected _autoAdapt = true;
+    @serializable
     protected _fixedArea = false;
     @serializable
     protected _pcf = PCFType.HARD;
@@ -582,6 +584,23 @@ export class ShadowsInfo {
     }
     get size () {
         return this._size;
+    }
+
+    /**
+     * @en get or set whether to perform a pre-calculation of the visible distance of the shadow
+     * @zh 获取或设置是否要进行一次阴影可视距离的预计算
+     */
+    @type(CCBoolean)
+    // eslint-disable-next-line prefer-arrow-callback
+    @visible(function (this: ShadowsInfo) { return false; })
+    set autoAdapt (val) {
+        this._autoAdapt = val;
+        if (this._resource) {
+            this._resource.firstSetCSM = val;
+        }
+    }
+    get autoAdapt () {
+        return this._autoAdapt;
     }
 
     /**
