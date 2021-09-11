@@ -150,6 +150,9 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     {
         name: 'packing',
     },
+    {
+        name: 'autoAdapt',
+    },
 ]);
 
 removeProperty(Node.prototype, 'Node.prototype', [
@@ -312,4 +315,16 @@ replaceProperty(Node.EventType, 'Node.EventType', [
     },
 ]);
 
+replaceProperty(SceneGlobals, 'SceneGlobals', [
+    {
+        name: 'autoAdapt',
+        targetName: 'fixedArea',
+        customGetter (this: SceneGlobals) {
+            return !this.shadows.fixedArea;
+        },
+        customSetter (this: SceneGlobals, value: boolean) {
+            this.shadows.fixedArea = !value;
+        },
+    },
+]);
 legacyCC.PrivateNode = PrivateNode;

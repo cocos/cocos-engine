@@ -28,7 +28,7 @@
  * @module particle
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material, Texture2D } from '../core/assets';
 import { Component } from '../core/components';
 import { Vec3, Vec2, Vec4 } from '../core/math';
@@ -120,12 +120,14 @@ export class Line extends Component {
     }
 
     @type(CurveRange)
+    @range([0, 1])
     private _width = new CurveRange();
 
     /**
      * @zh 线段的宽度。
      */
     @type(CurveRange)
+    @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:line.width')
     get width () {

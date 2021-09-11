@@ -23,9 +23,11 @@
  THE SOFTWARE.
  */
 import { JSB } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
+import { Orientation } from '../../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, TextureFlagBit,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera, NativeRenderWindow } from '../scene';
@@ -37,6 +39,13 @@ export interface IRenderWindowInfo {
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
 }
+
+const orientationMap: Record<Orientation, SurfaceTransform> = {
+    [Orientation.PORTRAIT]: SurfaceTransform.IDENTITY,
+    [Orientation.LANDSCAPE_RIGHT]: SurfaceTransform.ROTATE_90,
+    [Orientation.PORTRAIT_UPSIDE_DOWN]: SurfaceTransform.ROTATE_180,
+    [Orientation.LANDSCAPE_LEFT]: SurfaceTransform.ROTATE_270,
+};
 
 /**
  * @en The render window represents the render target, it could be an off screen frame buffer or the on screen buffer.
@@ -128,7 +137,7 @@ export class RenderWindow {
             for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
                 this._colorTextures.push(device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
-                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_SRC,
                     info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
@@ -189,30 +198,16 @@ export class RenderWindow {
         this._height = height;
 
         if (this._swapchain) {
-            this._swapchain.resize(width, height);
+            this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
         } else {
             if (this._depthStencilTexture) {
-                this._depthStencilTexture.destroy();
-                this._depthStencilTexture.initialize(new TextureInfo(
-                    TextureType.TEX2D,
-                    TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
-                    this._renderPass!.depthStencilAttachment!.format,
-                    this._width,
-                    this._height,
-                ));
+                this._depthStencilTexture.resize(width, height);
             }
 
             for (let i = 0; i < this._colorTextures.length; i++) {
                 const colorTex = this._colorTextures[i];
                 if (colorTex) {
-                    colorTex.destroy();
-                    colorTex.initialize(new TextureInfo(
-                        TextureType.TEX2D,
-                        TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                        this._renderPass!.colorAttachments[i].format,
-                        this._width,
-                        this._height,
-                    ));
+                    colorTex.resize(width, height);
                 }
             }
         }

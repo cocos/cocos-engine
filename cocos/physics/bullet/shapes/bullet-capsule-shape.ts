@@ -28,21 +28,18 @@
  * @hidden
  */
 
-/* eslint-disable new-cap */
-import Ammo from '../instantiated';
-import { AmmoShape } from './ammo-shape';
-import { CylinderCollider } from '../../../../exports/physics-framework';
-import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
-import { ICylinderShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { absMax } from '../../../core';
-import { AmmoConstant } from '../ammo-const';
+import { BulletShape } from './bullet-shape';
+import { CapsuleCollider } from '../../../../exports/physics-framework';
+import { ICapsuleShape } from '../../spec/i-physics-shape';
+import { IVec3Like } from '../../../core/math/type-define';
+import { bt } from '../instantiated';
 
-export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
-    setHeight (v: number) {
+export class BulletCapsuleShape extends BulletShape implements ICapsuleShape {
+    setCylinderHeight (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale,
         );
@@ -51,7 +48,7 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     setDirection (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale,
         );
@@ -60,28 +57,18 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     setRadius (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale,
         );
     }
 
-    get impl () {
-        return this._btShape as Ammo.btCylinderShape;
-    }
-
     get collider () {
-        return this._collider as CylinderCollider;
-    }
-
-    constructor () {
-        super(AmmoBroadphaseNativeTypes.CYLINDER_SHAPE_PROXYTYPE);
+        return this._collider as CapsuleCollider;
     }
 
     onComponentSet () {
-        const hf = AmmoConstant.instance.VECTOR3_0;
-        hf.setValue(0.5, 1, 0.5);
-        this._btShape = new Ammo.btCylinderShape(hf);
+        this._impl = bt.CapsuleShape_new(0.5, 1);
         this.setRadius(this.collider.radius);
     }
 
@@ -93,22 +80,18 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
         const ws = scale;
         const upAxis = direction;
+        let wr: number; let halfH: number;
         if (upAxis === 1) {
-            const wh = height * Math.abs(ws.y);
-            const wr = radius * Math.abs(absMax(ws.x, ws.z));
-            const halfH = wh / 2;
-            this.impl.updateProp(wr, halfH, upAxis);
+            wr = radius * Math.abs(absMax(ws.x, ws.z));
+            halfH = height / 2 * Math.abs(ws.y);
         } else if (upAxis === 0) {
-            const wh = height * Math.abs(ws.x);
-            const wr = radius * Math.abs(absMax(ws.y, ws.z));
-            const halfH = wh / 2;
-            this.impl.updateProp(wr, halfH, upAxis);
+            wr = radius * Math.abs(absMax(ws.y, ws.z));
+            halfH = height / 2 * Math.abs(ws.x);
         } else {
-            const wh = height * Math.abs(ws.z);
-            const wr = radius * Math.abs(absMax(ws.x, ws.y));
-            const halfH = wh / 2;
-            this.impl.updateProp(wr, halfH, upAxis);
+            wr = radius * Math.abs(absMax(ws.x, ws.y));
+            halfH = height / 2 * Math.abs(ws.z);
         }
+        bt.CapsuleShape_updateProp(this._impl, wr, halfH, upAxis);
         this.updateCompoundTransform();
     }
 }

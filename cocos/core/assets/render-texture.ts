@@ -29,14 +29,13 @@
  */
 
 import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
-import { Texture, Sampler, ColorAttachment, DepthStencilAttachment, AccessType, RenderPassInfo, SamplerInfo, Format } from '../gfx';
+import { Texture, Sampler, ColorAttachment, DepthStencilAttachment,
+    AccessType, RenderPassInfo, SamplerInfo, Format } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
-import { IDGenerator } from '../utils/js';
 
-const idGenerator = new IDGenerator('RenderTex');
 const defaultSamplerInfo = new SamplerInfo();
 
 export interface IRenderTextureCreateInfo {

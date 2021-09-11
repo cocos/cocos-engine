@@ -29,7 +29,8 @@ import { sys } from '../../platform/sys';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
-import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo } from '../base/define';
+import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit,
+    BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
@@ -311,7 +312,7 @@ export class WebGLSwapchain extends Swapchain {
         this._canvas = null;
     }
 
-    public resize (width: number, height: number) {
+    public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {
         if (this._canvas!.width !== width || this._canvas!.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;

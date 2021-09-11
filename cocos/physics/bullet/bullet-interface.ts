@@ -28,26 +28,20 @@
  * @hidden
  */
 
-import Ammo from './instantiated';
-import { AmmoShape } from './shapes/ammo-shape';
+import { BulletShape } from './shapes/bullet-shape';
 
-export interface IAmmoBodyStruct {
+export interface IBulletBodyStruct {
     readonly id: number;
-    readonly body: Ammo.btRigidBody;
-    readonly shape: Ammo.btCollisionShape;
-    readonly worldQuat: Ammo.btQuaternion;
-    readonly localInertia: Ammo.btVector3;
-    readonly rbInfo: Ammo.btRigidBodyConstructionInfo;
-    readonly startTransform: Ammo.btTransform;
-    readonly motionState: Ammo.btDefaultMotionState;
-    readonly wrappedShapes: AmmoShape[];
+    readonly body: Bullet.ptr;
+    readonly compound: Bullet.ptr;
+    readonly motionState: Bullet.ptr;
+    readonly wrappedShapes: BulletShape[];
     useCompound: boolean;
 }
 
-export interface IAmmoGhostStruct {
+export interface IBulletGhostStruct {
     readonly id: number;
-    readonly ghost: Ammo.btCollisionObject;
-    readonly shape: Ammo.btCollisionShape;
-    readonly worldQuat: Ammo.btQuaternion;
-    readonly wrappedShapes: AmmoShape[];
+    readonly ghost: Bullet.ptr;
+    readonly compound: Bullet.ptr;
+    readonly wrappedShapes: BulletShape[];
 }
