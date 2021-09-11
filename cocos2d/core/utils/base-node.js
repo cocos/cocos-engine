@@ -382,6 +382,7 @@ var BaseNode = cc.Class({
             value._children.push(this);
             value.emit && value.emit(CHILD_ADDED, this);
             value._renderFlag |= RenderFlow.FLAG_CHILDREN;
+            this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
         }
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
