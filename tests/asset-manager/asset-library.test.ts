@@ -12,59 +12,49 @@ describe('asset-library', () => {
     //_resetGame();
     AssetLibrary.init({libraryPath: libPath});
 
-    test.concurrent('load asset with raw', function () {
+    test('load asset with raw', function (done) {
         //var texture = new TestTexture();
         //texture.height = 123;
         //texture.width = 321;
         //cc.log(EditorExtends.serialize(texture));
-        return new Promise<void>((resolve, reject) => {
-            AssetLibrary.loadAsset(grossini_uuid, function (err, asset) {
-                expect(asset).toBeTruthy();
-                expect(asset.width).toBe(321);
-                expect(asset.height).toBe(123);
-                expect(asset.image).toBeTruthy();
-                resolve();
-            });
+        AssetLibrary.loadAsset(grossini_uuid, function (err, asset) {
+            expect(asset).toBeTruthy();
+            expect(asset.width).toBe(321);
+            expect(asset.height).toBe(123);
+            done();
         });
     }, 1000);
 
-    test.concurrent('load asset with depends asset', function () {
+    test('load asset with depends asset', function (done) {
         //var sprite = new cc.SpriteFrame();
         //sprite.texture = new TestTexture();
         //sprite.texture._uuid = grossini_uuid;
         //cc.log(EditorExtends.serialize(sprite));
-        return new Promise<void>((resolve, reject) => {
-            AssetLibrary.loadAsset(grossiniSprite_uuid, function (err, asset) {
-                expect(err).toBeNull();
-                expect(asset.texture).toBeTruthy();
-                expect(asset.texture.height).toBe(123);
-                expect(asset.texture.image).toBeTruthy();
-                resolve();
-            });
+        AssetLibrary.loadAsset(grossiniSprite_uuid, function (err, asset) {
+            expect(err).toBeFalsy();
+            expect(asset.texture).toBeTruthy();
+            expect(asset.texture.height).toBe(123);
+            done();
         });
     }, 2000);
 
-    test.concurrent('load asset with depends asset recursively if no cache', function () {
-        return new Promise<void>((resolve, reject) => {
-            AssetLibrary.loadAsset(selfReferenced_uuid, function (err, asset) {
-                expect(err).toBeNull();
-                expect(asset.texture).toBe(asset);
-                resolve();
-            }, {
-                readMainCache: false,
-                writeMainCache: false,
-            });
+    test('load asset with depends asset recursively if no cache', function (done) {
+        AssetLibrary.loadAsset(selfReferenced_uuid, function (err, asset) {
+            expect(err).toBeFalsy();
+            expect(asset.texture).toBe(asset);
+            done();
+        }, {
+            readMainCache: false,
+            writeMainCache: false,
         });
     }, 200);
 
-    test.concurrent('load asset with circle referenced dependencies', function () {
-        return new Promise<void>((resolve, reject) => {
-            AssetLibrary.loadAsset(circleReferenced_uuid, function (err, asset) {
-                expect(err).toBeNull();
-                expect(asset.dependency).toBeTruthy();
-                expect(asset.dependency.dependency).toBe(asset);
-                resolve();
-            });
+    test('load asset with circle referenced dependencies', function (done) {
+        AssetLibrary.loadAsset(circleReferenced_uuid, function (err, asset) {
+            expect(err).toBeFalsy();
+            expect(asset.dependency).toBeTruthy();
+            expect(asset.dependency.dependency).toBe(asset);
+            done();
         });
     }, 200);
 });

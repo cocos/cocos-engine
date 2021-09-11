@@ -110,12 +110,13 @@ describe('Pipeline', () => {
         expect(onProgress).toBeCalledTimes(1);
     });
     
-    test('flow empty array', function () {
+    test('flow empty array', function (done) {
         var onComplete = jest.fn(function (error, items) {
             expect(onProgress).toBeCalledTimes(0);
             expect(error).toBe(null);
             expect(task.source.length).toBe(0);
             expect(items.length).toBe(0);
+            done();
         });
         var onProgress = jest.fn(() => {});
     
@@ -156,7 +157,7 @@ describe('Pipeline', () => {
         expect(result[1]).toBe('resources/native/1a/100101.sqwe123');
     });
     
-    test('content manipulation', function () {
+    test('content manipulation', function (done) {
         var init = function (task, callback) {
             var input = task.input;
             var output = task.output = [];
@@ -198,6 +199,7 @@ describe('Pipeline', () => {
         var onComplete = function (error, items) {
             expect(items.length).toBe(1);
             expect(items[0].content).toBe(items[0].url + '_Downloaded' + '_Loaded');
+            done();
         };
     
         var onProgress = function (completed, total, item) {

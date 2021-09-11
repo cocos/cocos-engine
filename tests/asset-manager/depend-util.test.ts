@@ -1,4 +1,6 @@
 import dependUtil from "../../cocos/core/asset-manager/depend-util";
+import { AudioClip } from '../../cocos/audio';
+import { js } from "../../cocos/core/utils/js";
 
 describe('dependUtils', () => {
 
@@ -11,7 +13,7 @@ describe('dependUtils', () => {
 
     test('parse audio deps', function () {
         var depend = dependUtil.parse('BBB', {
-            "__type__": "cc.AudioClip",
+            "__type__": js._getClassId(AudioClip),
             "_native": ".mp3",
             "loadMode": 0
         }); 

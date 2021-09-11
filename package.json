@@ -52,6 +52,7 @@
     "jest": "^26.6.3",
     "jest-matcher-deep-close-to": "^2.0.1",
     "path": "^0.12.7",
+    "pngjs": "^6.0.0",
     "spectorjs": "^0.9.15",
     "stats.js": "^0.17.0",
     "ts-jest": "^26.5.4",

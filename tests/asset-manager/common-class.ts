@@ -1,17 +1,18 @@
 import { Asset } from "../../cocos/core/assets/asset"
+import { Component } from "../../cocos/core/components";
 import { serializable, type } from "../../cocos/core/data/decorators";
 import { ccclass } from "../../cocos/core/data/decorators/ccclass";
 import { Vec2 } from "../../cocos/core/math";
 
 
-@ccclass('cc.TestTexture')
+@ccclass('TestTexture')
 class TestTexture extends Asset{
     @serializable
     public width = 0;
     @serializable
     public height = 0;
 }
-@ccclass('cc.TestSprite')
+@ccclass('TestSprite')
 export class TestSprite extends Asset {
     @serializable
     public pivot = new Vec2(0.5, 0.5);
@@ -51,4 +52,18 @@ export class TestSprite extends Asset {
     get rotatedHeight () {
         return this.rotated ? this.width : this.height;
     }
+}
+
+@ccclass('TestScript')
+class TestScript extends Component {
+    @type(Node)
+    target = null;
+    @type(Node)
+    target2 = null;
+}
+
+@ccclass('TestDependency')
+class TestDependency extends Asset {
+    @serializable
+    dependency = null;
 }

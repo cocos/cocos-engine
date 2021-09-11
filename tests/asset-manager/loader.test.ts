@@ -1,13 +1,12 @@
 import { assetManager, loader } from "../../cocos/core/asset-manager";
-import { Texture2D } from "../../cocos/core/assets/texture-2d";
-import { AudioClip } from "../../cocos/audio/audio-clip";
+import { ImageAsset } from "../../cocos/core/assets/image-asset";
 
 describe('Loader', () => {
     const assetDir = './tests/fixtures';
     var libPath = assetDir + '/library';
     assetManager.init({importBase: libPath, nativeBase: libPath});
     
-    test('Load', function () {
+    test('Load', function (done) {
         var image1 = assetDir + '/button.png';
         var json1 = assetDir + '/library/12/123200.json';
         var json2 = assetDir + '/library/deferred-loading/74/748321.json';
@@ -19,7 +18,7 @@ describe('Loader', () => {
     
         loader.load(resources, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
-                expect(item.content instanceof Image).toBeTruthy();
+                expect(item.content).toBeInstanceOf(Image);
             }
             else if (item.uuid === json1) {
                 expect(item.content.width).toBe(89);
@@ -35,28 +34,30 @@ describe('Loader', () => {
     
             loader.releaseAll();
             expect(Object.keys(loader._cache).length).toBe(0);
+            done();
         });
     });
     
-    test('Load single file', function () {
+    test('Load single file', function (done) {
         var image1 = assetDir + '/button.png';
     
         loader.load(image1, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
-                expect(item.content instanceof Image).toBeTruthy();
+                expect(item.content).toBeInstanceOf(Image);
             }
             else {
                 fail('should not load an unknown url');
             }
         }, function (error, texture) {
             expect(!error).toBeTruthy();
-            expect(texture instanceof Texture2D).toBeTruthy();
+            expect(texture).toBeInstanceOf(ImageAsset);
     
             loader.releaseAll();
+            done();
         });
     });
     
-    test('Load with dependencies', function () {
+    test('Load with dependencies', function (done) {
         var dep1 = assetDir + '/button.png';
         var dep2 = assetDir + '/library/12/123200.json';
         var dep3 = assetDir + '/library/65/6545543.png';
@@ -101,11 +102,11 @@ describe('Loader', () => {
         var progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === json1.url) {
                 var dep = loader.getRes(dep1);
-                expect(dep instanceof Texture2D).toBeTruthy();
+                expect(dep).toBeInstanceOf(ImageAsset);
                 dep = loader.getRes(dep2);
                 expect((dep as any).width).toBe(89);
                 dep = loader.getRes(dep3);
-                expect(dep instanceof Texture2D).toBeTruthy();
+                expect(dep).toBeInstanceOf(ImageAsset);
     
                 expect(item.content.__type__).toBe('TestTexture');
             }
@@ -114,7 +115,7 @@ describe('Loader', () => {
             }
             else if (item.uuid === audio) {
                 // Test environment doesn't support audio
-                expect(item.content instanceof AudioClip).toBeTruthy();
+                expect(item.content).toBeTruthy();
             }
             else if (item.uuid === dep1 || item.uuid === dep2 || item.uuid === dep3) {
                 depsProgression();
@@ -131,10 +132,11 @@ describe('Loader', () => {
             var count = loader.getResCount();
             expect(count).toBe(total);
             loader.releaseAll();
+            done();
         });
     });
     
-    test('Loading font', function () {
+    test('Loading font', function (done) {
         var image = assetDir + '/button.png';
         var font = {
             url: assetDir + '/Thonburi.ttf',
@@ -150,7 +152,7 @@ describe('Loader', () => {
     
         var progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === image) {
-                expect(item.content instanceof Image).toBeTruthy();
+                expect(item.content).toBeInstanceOf(Image);
             }
             else if (item.uuid === font.url) {
                 expect(item.content).toBe('Thonburi_LABEL');
@@ -163,15 +165,17 @@ describe('Loader', () => {
         loader.load(resources, progressCallback, function (error, items) {
             expect(items.isCompleted()).toBeTruthy();
             expect(progressCallback).toBeCalledTimes(total);
+            done();
         });
     });
     
-    test('Loading texture with query', function () {
+    test('Loading texture with query', function (done) {
         var image1 = assetDir + '/button.png?url=http://.../1';
         var image2 = assetDir + '/button.png?url=http://.../2';
         loader.load({url: image1, type: 'png'}, function (error) {
             loader.load({url: image2, type: 'png'}, function (error) {
                 expect(loader.getItem(image1).content !== loader.getItem(image2).content).toBeTruthy();
+                done();
             });
         });
     });

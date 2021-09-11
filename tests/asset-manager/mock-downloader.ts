@@ -1,5 +1,6 @@
 import downloader from '../../cocos/core/asset-manager/downloader';
 import * as fs from 'fs';
+import { PNG } from 'pngjs';
 
 function downloadArrayBuffer (url, option, cb) {
     fs.readFile(url, null, (err, data) => {
@@ -31,19 +32,23 @@ function downloadJson (url, options, cb) {
     });
 }
 
-function downloadImage (url, options, cb) {
+function downloadImage (url: string, options: any, cb) {
+    const index = url.indexOf('?');
+    if (index !== -1) {
+        url = url.substring(0, index);
+    }
     fs.readFile(url, null, (err, data) => {
         if (err) {
             cb(err);
         } else {
             var image = new Image();
-            image.src = URL.createObjectURL(data);
-            image.onload = () => {
-                cb(null, image);
-            }
-            image.onerror = () => {
-                cb(new Error('fail to load image'), null);
-            }
+            var png = new PNG();
+            png.on('metadata', (meta) => {
+                image.width = meta.width;
+                image.height = meta.height;
+                cb(err, image);
+            });
+            png.parse(data);
         }
     });
 }

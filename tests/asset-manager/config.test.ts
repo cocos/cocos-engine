@@ -1,5 +1,5 @@
 import { SpriteFrame } from '../../cocos/2d/assets/sprite-frame';
-import Config, { IAddressableInfo } from '../../cocos/core/asset-manager/config'
+import Config, { IAddressableInfo, IPackInfo } from '../../cocos/core/asset-manager/config'
 import { Texture2D } from '../../cocos/core/assets/texture-2d';
 describe('config', () => {
 
@@ -41,8 +41,8 @@ describe('config', () => {
         const result2 = config.getAssetInfo('BBB');
         expect(result2.ver).toBe('dsqeqqb');
         expect(result2.nativeVer).toBe('how do you do');
-        const result3 = config.getAssetInfo('pack A');
-        expect(result3.packs[0]).toBe('AAA');
+        const result3 = config.getAssetInfo('pack A') as IPackInfo;
+        expect(result3.packedUuids[0]).toBe('AAA');
     });
 
     test('get scene info', function () {

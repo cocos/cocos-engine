@@ -1,6 +1,6 @@
 import { AssetLibrary, loader, resources } from "../../cocos/core/asset-manager";
 import { parseLoadResArgs } from "../../cocos/core/asset-manager/utilities";
-import { Texture2D } from "../../cocos/core/assets/texture-2d";
+import { ImageAsset } from "../../cocos/core/assets/image-asset";
 import { path } from "../../cocos/core/utils";
 import { js } from "../../cocos/core/utils/js";
 import { TestSprite } from "./common-class";
@@ -10,9 +10,9 @@ describe('asset', function () {
     var Assets;
 
     Assets = {
-        '0000001': ['grossini/grossini', js._getClassId(Texture2D)],
+        '0000001': ['grossini/grossini', js._getClassId(ImageAsset)],
         '123201':  ['grossini/grossini', js._getClassId(TestSprite), 1],
-        '0000000': ['grossini', js._getClassId(Texture2D)],
+        '0000000': ['grossini', js._getClassId(ImageAsset)],
         '1232218': ['grossini', js._getClassId(TestSprite), 1],   // sprite in texture
         '123200':  ['grossini', js._getClassId(TestSprite), 1],   // sprite in plist
     };
@@ -26,7 +26,7 @@ describe('asset', function () {
     AssetLibrary.init(options);
     loader.releaseAll();
 
-    test('matching rules - 1', function () {
+    test('matching rules - 1', function (done) {
         loader.loadRes('grossini', TestSprite, function (err, sprite) {
             expect(sprite._uuid === '1232218' || sprite._uuid === '123200').toBeTruthy();
 
@@ -37,28 +37,30 @@ describe('asset', function () {
                         return item._uuid === uuid;
                     })).toBeTruthy();
                 });
-                
+                done();
             });
         });
     });
 
-    test('load single', function () {
+    test('load single', function (done) {
         loader.loadRes('grossini/grossini', function (err, texture) {
-            expect(texture instanceof Texture2D).toBeTruthy();
+            expect(texture).toBeInstanceOf(ImageAsset);
+            done();
         });
     });
 
-    test('load single by type', function () {
+    test('load single by type', function (done) {
         loader.loadRes('grossini', TestSprite, function (err, sprite) {
-            expect(sprite instanceof TestSprite).toBeTruthy();
+            expect(sprite).toBeInstanceOf(TestSprite);
 
-            loader.loadRes('grossini', Texture2D, function (err, texture) {
-                expect(texture instanceof Texture2D).toBeTruthy();
+            loader.loadRes('grossini', ImageAsset, function (err, texture) {
+                expect(texture).toBeInstanceOf(ImageAsset);
+                done();
             });
         });
     });
 
-    test('load main asset and sub asset by loadResDir', function () {
+    test('load main asset and sub asset by loadResDir', function (done) {
         loader.loadResDir('grossini', function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
             ['123200', '1232218', '123201', '0000000', '0000001'].forEach(function (uuid) {
@@ -66,38 +68,41 @@ describe('asset', function () {
                     return item._uuid === uuid;
                 })).toBeTruthy();
             });
-            
+            done();
         });
     });
 
-    test('loadResDir by type', function () {
+    test('loadResDir by type', function (done) {
         loader.loadResDir('grossini', TestSprite, function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
             var sprite = results[0];
-            expect(sprite instanceof TestSprite).toBeTruthy();
+            expect(sprite).toBeInstanceOf(TestSprite);
+            done();
         });
     });
 
-    test('load all resources by loadResDir', function () {
+    test('load all resources by loadResDir', function (done) {
         loader.loadResDir('', function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
             var expectCount = Object.keys(Assets).length;
             expect(results.length).toBe(expectCount);
+            done();
         });
     });
 
-    test('url dict of loadResDir', function () {
-        loader.loadResDir('', Texture2D, function (err, results, urls) {
+    test('url dict of loadResDir', function (done) {
+        loader.loadResDir('', ImageAsset, function (err, results, urls) {
             expect(results.length).toBe(urls.length);
 
             var url = urls[0];
-            resources.load(url, Texture2D, null, function (err, result) {
+            resources.load(url, ImageAsset, null, function (err, result) {
                 expect(result).toBe(results[0]);
+                done();
             });
         });
     });
 
-    test('loadResArray', function () {
+    test('loadResArray', function (done) {
         var urls = [
             'grossini/grossini',
             'grossini'
@@ -106,6 +111,7 @@ describe('asset', function () {
             expect(Array.isArray(results)).toBeTruthy();
             var expectCount = urls.length;
             expect(results.length).toBe(expectCount);
+            done();
         });
     });
 
@@ -116,8 +122,8 @@ describe('asset', function () {
 
         function assert (args, type, onProgress, onComplete, testName) {
             expect(args.type).toBe(type);
-            expect(args.onProgress).toBe(onProgress);
-            expect(args.onComplete).toBe(onComplete);
+            expect(args.onProgress == onProgress).toBeTruthy();
+            expect(args.onComplete == onComplete).toBeTruthy();
         }
 
         args = parseLoadResArgs(TestSprite, onProgress, onComplete);
