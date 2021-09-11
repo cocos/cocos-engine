@@ -25,10 +25,10 @@
 /**
  * @packageDocumentation
  * @hidden
- */
+*/
 import { JSB, UI_GPU_DRIVEN } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
-import { UIStaticBatch } from '../components';
+import { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../core/gfx';
@@ -39,7 +39,7 @@ import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
 import { MeshBuffer } from './mesh-buffer';
 import { Stage, StencilManager } from './stencil-manager';
-import { DrawBatch2D, DrawCall } from './draw-batch';
+import { DrawBatch2D, DrawCall } from './draw-batch-GPU';
 import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
@@ -48,9 +48,8 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4 } from '../../core/math';
 import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
 import { DummyIA } from './dummy-ia';
-import { TransformBit } from '../../core/scene-graph/node-enum';
-import { Director } from '../../core/director';
-import { sys } from '../../core';
+import { sys } from '../../core/platform/sys';
+import { IBatcher } from './i-batcher';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -67,7 +66,7 @@ interface IRenderItem {
  * @zh
  * UI 渲染流程
  */
-export class Batcher2D {
+export class Batcher2D implements IBatcher {
     get currBufferBatch () {
         if (this._currMeshBuffer) return this._currMeshBuffer;
         // create if not set
@@ -186,8 +185,8 @@ export class Batcher2D {
     // macro.UI_GPU_DRIVEN
     declare private _reloadBatchDirty: boolean;
     declare public renderQueue: IRenderItem[];
-    declare public _currWalkIndex;
-    declare public updateBufferDirty;
+    declare public _currWalkIndex: number;
+    declare public updateBufferDirty: boolean;
 
     // -------------------------------------
 
@@ -210,7 +209,7 @@ export class Batcher2D {
     public initialize () {
         // macro.UI_GPU_DRIVEN
         if (UI_GPU_DRIVEN) {
-            legacyCC.director.on(Director.EVENT_AFTER_SCENE_LAUNCH, () => {
+            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, () => {
                 this._reloadBatchDirty = true;
             });
         }
@@ -291,7 +290,7 @@ export class Batcher2D {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target: any, func: ((ui: Batcher2D) => void)) {
+    public addUploadBuffersFunc (target, func: ((ui: IBatcher) => void)) {
         this._doUploadBuffersCall.set(target, func);
     }
 
@@ -599,12 +598,11 @@ export class Batcher2D {
      */
     public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         if (comp._canDrawByFourVertex) {
-            this._commitCompByGPU(comp,frame,assembler,transform);
+            this._commitCompByGPU(comp, frame, assembler, transform);
         } else {
             this._commitComp(comp, frame, assembler, transform);
         }
     }
-
 
     /**
      * @en
@@ -701,7 +699,7 @@ export class Batcher2D {
     }
 
     // macro.UI_GPU_DRIVEN // 要不用外挂？
-    public autoMergeBatchesByGPU (renderComp?: Renderable2D) {
+    private autoMergeBatchesByGPU (renderComp?: Renderable2D) {
         if (!this._currScene) return;
 
         let blendState;
@@ -1157,4 +1155,4 @@ class DescriptorSetCache {
     }
 }
 
-legacyCC.internal.Batcher2D = Batcher2D;
+// legacyCC.internal.Batcher2D = Batcher2D;

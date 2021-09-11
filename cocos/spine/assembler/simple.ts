@@ -5,7 +5,7 @@
 
 import spine from '../lib/spine-core.js';
 import { IAssembler } from '../../2d/renderer/base';
-import { Batcher2D } from '../../2d/renderer/batcher-2d';
+import { IBatcher } from '../../2d/renderer/i-batcher.js';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
@@ -159,7 +159,7 @@ export const simple: IAssembler = {
     createData () {
     },
 
-    updateRenderData (comp: Skeleton, ui: Batcher2D) {
+    updateRenderData (comp: Skeleton, ui: IBatcher) {
         _comp = comp;
         const skeleton = comp._skeleton;
         if (!comp.isAnimationCached() && skeleton) {
@@ -176,7 +176,7 @@ export const simple: IAssembler = {
         _comp.markForUpdateRenderData();
     },
 
-    fillBuffers (comp: Skeleton, renderer: Batcher2D) {
+    fillBuffers (comp: Skeleton, renderer: IBatcher) {
         if (!comp || !comp.meshRenderDataArray) return;
         _comp = comp;
         const dataArray = comp.meshRenderDataArray;
@@ -226,7 +226,7 @@ export const simple: IAssembler = {
     },
 };
 
-function updateComponentRenderData (comp: Skeleton, ui: Batcher2D) {
+function updateComponentRenderData (comp: Skeleton, ui: IBatcher) {
     if (!comp._skeleton) return;
 
     const nodeColor = comp.color;

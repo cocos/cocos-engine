@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR, PREVIEW, UI_GPU_DRIVEN } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -38,7 +38,7 @@ import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
 import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { UITransform } from './ui-transform';
@@ -459,7 +459,7 @@ export class Renderable2D extends RenderableComponent {
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public updateAssembler (render: Batcher2D) {
+    public updateAssembler (render: IBatcher) {
         this._updateColor();
         if (this._renderFlag) {
             this._checkAndUpdateRenderData();
@@ -475,15 +475,15 @@ export class Renderable2D extends RenderableComponent {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: Batcher2D) {
+    public postUpdateAssembler (render: IBatcher) {
         if (this._renderFlag) {
             this._postRender(render);
         }
     }
 
-    protected _render (render: Batcher2D) {}
+    protected _render (render: IBatcher) {}
 
-    protected _postRender (render: Batcher2D) {}
+    protected _postRender (render: IBatcher) {}
 
     protected _checkAndUpdateRenderData () {
         // renderDate 的标签已经失效

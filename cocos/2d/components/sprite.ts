@@ -36,7 +36,7 @@ import { SpriteFrame } from '../assets/sprite-frame';
 import { Vec2, Vec4 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
@@ -587,7 +587,7 @@ export class Sprite extends Renderable2D {
         return mat;
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         render.commitComp(this, this._spriteFrame, this._assembler!, null);
     }
 

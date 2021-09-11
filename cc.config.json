@@ -103,14 +103,6 @@
             "overrides": {
                 "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
             }
-        },
-        {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.UI_GPU_DRIVEN",
-            "isVirtualModule": false,
-            "overrides": {
-                "cocos/2d/renderer/batcher-2d.ts": "cocos/2d/renderer/batcher-2d-GPU.ts",
-                "cocos/2d/renderer/draw-batch.ts": "cocos/2d/renderer/draw-batch-GPU.ts"
-            }
         }
     ]
 }

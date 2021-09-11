@@ -46,8 +46,8 @@ import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4 } from '../../core/math';
-import { Director } from '../../core/director';
-import { sys } from '../../core';
+import { sys } from '../../core/platform/sys';
+import { IBatcher } from './i-batcher';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -56,7 +56,7 @@ const m4_1 = new Mat4();
  * @zh
  * UI 渲染流程
  */
-export class Batcher2D {
+export class Batcher2D implements IBatcher {
     get currBufferBatch () {
         if (this._currMeshBuffer) return this._currMeshBuffer;
         // create if not set
@@ -172,6 +172,9 @@ export class Batcher2D {
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
         this._currBatch = this._drawBatchPool.alloc();
     }
+    renderQueue?: any;
+    _currWalkIndex?: number | undefined;
+    updateBufferDirty?: boolean | undefined;
 
     public initialize () {
         return true;
@@ -251,7 +254,7 @@ export class Batcher2D {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target: any, func: ((ui: Batcher2D) => void)) {
+    public addUploadBuffersFunc (target, func: ((ui: Batcher2D) => void)) {
         this._doUploadBuffersCall.set(target, func);
     }
 
@@ -880,4 +883,4 @@ class DescriptorSetCache {
     }
 }
 
-legacyCC.internal.Batcher2D = Batcher2D;
+// legacyCC.internal.Batcher2D = Batcher2D;

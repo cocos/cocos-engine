@@ -34,7 +34,7 @@ import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
@@ -750,7 +750,7 @@ export class Label extends Renderable2D {
         }
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         render.commitComp(this, this._texture, this._assembler!, null);
     }
 

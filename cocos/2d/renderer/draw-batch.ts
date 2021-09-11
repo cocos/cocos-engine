@@ -40,8 +40,9 @@ import { Batcher2D } from './batcher-2d';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
-import { RecyclePool } from '../../core';
+import { RecyclePool } from '../../core/memop/recycle-pool';
 import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
+import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -131,7 +132,7 @@ export class DrawBatch2D {
         }
     }
 
-    public destroy (ui: Batcher2D) {
+    public destroy (ui: IBatcher) {
         this._passes = [];
         if (JSB) {
             this._nativeObj = null;

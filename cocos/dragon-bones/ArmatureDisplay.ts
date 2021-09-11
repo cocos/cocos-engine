@@ -18,7 +18,7 @@ import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 import { ArmatureSystem } from './ArmatureSystem';
@@ -557,7 +557,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: Batcher2D) {
+    protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 // HACK
