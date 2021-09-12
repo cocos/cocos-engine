@@ -29,10 +29,7 @@ export class WebGPUBuffer extends Buffer {
             this._nativeBuffer = nativeDevice.createBufferView(bufferViewInfo);
         } else { // buffer
             const bufferInfo = new wgpuWasmModule.BufferInfoInstance();
-
-            const usageStr = BufferUsageBit[info.usage];
-            bufferInfo.usage = wgpuWasmModule.BufferUsage[usageStr];
-
+            bufferInfo.usage = toWGPUNativeBufferUsage(info.usage);
             bufferInfo.memUsage = toWGPUNativeBufferMemUsage(info.memUsage);
             bufferInfo.size = info.size;
             bufferInfo.stride = info.stride;
@@ -53,14 +50,14 @@ export class WebGPUBuffer extends Buffer {
     }
 
     public update (buffer: BufferSource, size?: number) {
-        if (size === undefined) {
-            const buff = buffer as ArrayBuffer;
-            const data = new Uint8Array(buff);
-            this._nativeBuffer.update(data.buffer, data.length);
-        } else {
-            const buff = buffer as ArrayBuffer;
-            const data = new Uint8Array(buff);
-            this._nativeBuffer.update(data.buffer, size);
-        }
+        const buff = buffer as ArrayBuffer;
+        //const data = new Uint8Array(buff);
+        const bufferSize = size === undefined ? buff.byteLength : size;
+        const utf8decoder = new TextDecoder('ascii'); // default 'utf-8' or 'utf8'
+        // const u8arr = new Uint8Array([97, 65, 98, 66]);
+        // console.log(utf8decoder.decode(u8arr));
+        const str = utf8decoder.decode(buff);
+        this._nativeBuffer.update(str, bufferSize);
+        console.log(bufferSize);
     }
 }
