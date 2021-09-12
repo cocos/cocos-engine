@@ -29,6 +29,12 @@ import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 import { WebGPUShader } from './webgpu-shader';
 import { assert } from '../../platform';
 
+function getChromeVersion () {
+    const raw = /Chrom(e|ium)\/([0-9]+)\./.exec(navigator.userAgent);
+
+    return raw ? parseInt(raw[2], 10) : false;
+}
+
 export class WebGPUDevice extends Device {
     private _nativeDevice = undefined;
 
@@ -38,6 +44,7 @@ export class WebGPUDevice extends Device {
 
     public initialize (info: DeviceInfo): Promise<boolean> {
         async function getDevice () {
+            const chromeVersion = getChromeVersion();
             const adapter = await navigator.gpu.requestAdapter();
             const device = await adapter.requestDevice();
             wgpuWasmModule.preinitializedWebGPUDevice = device;
@@ -87,7 +94,10 @@ export class WebGPUDevice extends Device {
             return new Promise(poll);
         }
 
-        return init().then(() => true);
+        return init().then(() => {
+            this._caps.uboOffsetAlignment = 4;
+            return true;
+        });
     }
 
     public destroy (): void {
