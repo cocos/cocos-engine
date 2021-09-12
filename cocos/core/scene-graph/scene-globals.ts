@@ -391,7 +391,7 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
-    protected _autoAdapt = false;
+    protected _firstSetCSM = false;
     @serializable
     protected _fixedArea = false;
     @serializable
@@ -593,14 +593,14 @@ export class ShadowsInfo {
     @type(CCBoolean)
     // eslint-disable-next-line prefer-arrow-callback
     @visible(function (this: ShadowsInfo) { return false; })
-    set autoAdapt (val) {
-        this._autoAdapt = val;
+    set firstSetCSM (val) {
+        this._firstSetCSM = val;
         if (this._resource) {
             this._resource.firstSetCSM = val;
         }
     }
-    get autoAdapt () {
-        return this._autoAdapt;
+    get firstSetCSM () {
+        return this._firstSetCSM;
     }
 
     /**

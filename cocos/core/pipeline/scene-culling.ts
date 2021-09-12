@@ -375,11 +375,14 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         }
     }
 
+    // FirstSetCSM flag Bit Control
     if (shadows.firstSetCSM) {
         shadows.shadowDistance = _castWorldBounds.halfExtents.length() * 2.0;
         shadows.firstSetCSM = false;
+
+        // Editor display parameter settings
         if (shadows.sceneGlobalInfo) {
-            shadows.sceneGlobalInfo.autoAdapt = false;
+            shadows.sceneGlobalInfo.firstSetCSM = false;
             shadows.sceneGlobalInfo.shadowDistance = shadows.shadowDistance;
         }
     }

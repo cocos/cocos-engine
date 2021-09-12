@@ -375,17 +375,6 @@ export class Shadows {
         }
     }
 
-    /**
-     * @en get or set need to pre-calculate CSM parameters
-     * @zh 是否需要预计算 CSM 参数
-     */
-    public get firstSetCSM (): boolean {
-        return this._firstSetCSM;
-    }
-    public set firstSetCSM (val: boolean) {
-        this._firstSetCSM = val;
-    }
-
     public get matLight () {
         return this._matLight;
     }
@@ -410,7 +399,8 @@ export class Shadows {
      */
     public maxReceived = 4;
 
-    // local
+    // local set
+    public firstSetCSM = false;
     public shadowCameraFar = 0;
     public matShadowView = new Mat4();
     public matShadowProj = new Mat4();
@@ -436,7 +426,6 @@ export class Shadows {
     protected _bias = 0;
     protected _normalBias = 0;
     protected _fixedArea = false;
-    protected _firstSetCSM = false;
     protected _saturation = 0.75;
     protected declare _nativeObj: NativeShadow | null;
 
@@ -508,7 +497,7 @@ export class Shadows {
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
         this.saturation = shadowsInfo.saturation;
-        this.firstSetCSM = shadowsInfo.autoAdapt;
+        this.firstSetCSM = shadowsInfo.firstSetCSM;
     }
 
     public activate () {
