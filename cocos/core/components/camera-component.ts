@@ -580,18 +580,16 @@ export class Camera extends Component {
     }
 
     protected _checkTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (window: RenderWindow) => {
-            if (this._camera) {
-                this._camera.setFixedSize(window.width, window.height);
-            }
-        };
-
         if (old) {
             old.off('resize');
         }
 
         if (this._targetTexture) {
-            this._targetTexture.on('resize', resizeFunc, this);
+            this._targetTexture.on('resize', (window: RenderWindow) => {
+                if (this._camera) {
+                    this._camera.setFixedSize(window.width, window.height);
+                }
+            }, this);
         }
     }
 
