@@ -106,7 +106,7 @@ export function getUrlWithUuid (uuid: string, options?: IOptions | null): string
  *
  */
 export function isScene (asset) {
-    return asset && (asset instanceof legacyCC.SceneAsset || asset instanceof legacyCC.Scene);
+    return !!asset && (asset instanceof legacyCC.SceneAsset || asset instanceof legacyCC.Scene);
 }
 
 /**

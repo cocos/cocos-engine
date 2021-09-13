@@ -36,10 +36,10 @@ import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
-import { EventTarget } from './event/event-target';
+import { EventTarget } from './event';
+import { eventManager, inputManager } from '../input';
 import { game, Game } from './game';
 import { v2, Vec2 } from './math';
-import { eventManager } from './platform/event-manager/event-manager';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
 import { ComponentScheduler } from './scene-graph/component-scheduler';
@@ -48,7 +48,6 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
-import inputManager from './platform/event-manager/input-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -793,8 +792,7 @@ export class Director extends EventTarget {
     private _init () {
         // The test environment does not currently support the renderer
         if (TEST) return Promise.resolve();
-        // @ts-expect-error internal api usage
-        this._root = new Root(game._gfxDevice);
+        this._root = new Root(game._gfxDevice!);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {
             errorID(1217);

@@ -28,11 +28,11 @@
  * @hidden
  */
 
-import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { IVec3Like } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
-import { PX, _trans } from '../export-physx';
-import { PhysXRigidBody } from '../physx-rigid-body';
+import { PX, _trans } from '../physx-adapter';
+import { PhysXWorld } from '../physx-world';
 import { PhysXJoint } from './physx-joint';
 
 export class PhysXFixedJoint extends PhysXJoint implements IPointToPointConstraint {
@@ -48,9 +48,7 @@ export class PhysXFixedJoint extends PhysXJoint implements IPointToPointConstrai
 
     onComponentSet (): void {
         if (this._rigidBody) {
-            const sb = (this._rigidBody.body as PhysXRigidBody).sharedBody;
-            const physics = sb.wrappedWorld.physics;
-            this._impl = PX.PxFixedJointCreate(physics, null, _trans, null, _trans);
+            this._impl = PX.PxFixedJointCreate(PhysXInstance.physics, null, _trans, null, _trans);
             this.setPivotA(this.constraint.pivotA);
             this.setPivotB(this.constraint.pivotB);
         }

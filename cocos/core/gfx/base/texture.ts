@@ -28,10 +28,9 @@
  * @module gfx
  */
 
-import { Device } from './device';
 import {
     Format,
-    Obj,
+    GFXObject,
     ObjectType,
     SampleCount,
     TextureFlagBit,
@@ -41,13 +40,14 @@ import {
     TextureUsageBit,
     TextureInfo,
     TextureViewInfo,
+    ISwapchainTextureInfo,
 } from './define';
 
 /**
  * @en GFX texture.
  * @zh GFX 纹理。
  */
-export abstract class Texture extends Obj {
+export abstract class Texture extends GFXObject {
     /**
      * @en Get texture type.
      * @zh 纹理类型。
@@ -136,8 +136,6 @@ export abstract class Texture extends Obj {
         return this._size;
     }
 
-    protected _device: Device;
-
     protected _type: TextureType = TextureType.TEX2D;
     protected _usage: TextureUsage = TextureUsageBit.NONE;
     protected _format: Format = Format.UNKNOWN;
@@ -146,17 +144,16 @@ export abstract class Texture extends Obj {
     protected _depth = 1;
     protected _layerCount = 1;
     protected _levelCount = 1;
-    protected _samples: SampleCount = SampleCount.X1;
+    protected _samples: SampleCount = SampleCount.ONE;
     protected _flags: TextureFlags = TextureFlagBit.NONE;
     protected _isPowerOf2 = false;
     protected _size = 0;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.TEXTURE);
-        this._device = device;
     }
 
-    public abstract initialize (info: TextureInfo | TextureViewInfo): boolean;
+    public abstract initialize (info: TextureInfo | TextureViewInfo): void;
 
     public abstract destroy (): void;
 
@@ -167,4 +164,6 @@ export abstract class Texture extends Obj {
      * @param height The new height.
      */
     public abstract resize (width: number, height: number): void;
+
+    protected abstract initAsSwapchainTexture (info: ISwapchainTextureInfo): void;
 }

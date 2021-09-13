@@ -689,8 +689,8 @@ export class SpriteFrame extends Asset {
      * @en Gets the sampler hash of its texture
      * @zh 贴图资源的采样器哈希值
      */
-    public getSamplerHash () {
-        return this._texture.getSamplerHash();
+    public getSamplerInfo () {
+        return this._texture.getSamplerInfo();
     }
 
     /**

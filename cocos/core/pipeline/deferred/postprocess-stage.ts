@@ -33,14 +33,12 @@ import { SetIndex } from '../define';
 import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
-import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { UIPhase } from '../forward/ui-phase';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { getPhaseID } from '../pass-phase';
+import { MainFlow } from './main-flow';
+import { RenderQueueDesc } from '../pipeline-serialization';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
@@ -80,7 +78,7 @@ export class PostprocessStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
         this._uiPhase.activate(pipeline);
         if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredPostMaterial = this._postProcessMaterial; }
@@ -104,7 +102,8 @@ export class PostprocessStage extends RenderStage {
         this._renderArea.height = vp.height * camera.height * sceneData.shadingScale;
 
         const framebuffer = camera.window!.framebuffer;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
+        const swapchain = camera.window!.swapchain;
+        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag, swapchain) : framebuffer.renderPass;
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
@@ -113,6 +112,7 @@ export class PostprocessStage extends RenderStage {
         }
 
         colors[0].w = camera.clearColor.w;
+        const deferredData = pipeline.getDeferredRenderData();
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
@@ -123,9 +123,14 @@ export class PostprocessStage extends RenderStage {
         const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMaterial;
         const pass = builtinPostProcess.passes[0];
         const shader = pass.getShaderVariant();
+
+        pass.descriptorSet.bindTexture(0, deferredData.lightingRenderTargets[0]);
+        pass.descriptorSet.bindSampler(0, deferredData.sampler);
+        pass.descriptorSet.update();
+
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-        const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
+        const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
         let pso:PipelineState|null = null;
         if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);

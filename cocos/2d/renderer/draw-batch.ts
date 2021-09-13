@@ -110,7 +110,6 @@ export class DrawBatch2D {
     public useLocalData: Node | null = null;
     public isStatic = false;
     public textureHash = 0;
-    public samplerHash = 0;
     private _passes: Pass[] = [];
     private _shaders: Shader[] = [];
     private _visFlags: number = UI_VIS_FLAG;
@@ -173,9 +172,7 @@ export class DrawBatch2D {
 
                 mtlPass.update();
 
-                if (mtlPass.hash === passInUse.hash) {
-                    continue;
-                }
+                // Hack: Cause pass.hash can not check all pass value
 
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
                 if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
@@ -185,7 +182,7 @@ export class DrawBatch2D {
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
 
-                this._shaders[i] = passInUse.getShaderVariant()!;
+                this._shaders[i] = passInUse.getShaderVariant(patches)!;
 
                 dirty = true;
             }

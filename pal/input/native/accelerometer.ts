@@ -1,10 +1,10 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../../screen-adapter/enum-type';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { SystemEventType } from '../../../cocos/input/types';
 
 export class AccelerometerInputSource {
     public support: boolean;

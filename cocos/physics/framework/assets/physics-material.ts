@@ -138,10 +138,10 @@ export class PhysicsMaterial extends Asset {
     private _friction = 0.6;
 
     @serializable
-    private _rollingFriction = 0.1;
+    private _rollingFriction = 0.0;
 
     @serializable
-    private _spinningFriction = 0.1;
+    private _spinningFriction = 0.0;
 
     @serializable
     private _restitution = 0.0;

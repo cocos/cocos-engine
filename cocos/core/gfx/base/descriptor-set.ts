@@ -30,21 +30,18 @@
 
 import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
-import { Device } from './device';
-import { Sampler } from './sampler';
+import { Sampler } from './states/sampler';
 import { Texture } from './texture';
-import { Obj, ObjectType, DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './define';
+import { GFXObject, ObjectType, DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from './define';
 
 /**
  * @en GFX descriptor sets.
  * @zh GFX 描述符集组。
  */
-export abstract class DescriptorSet extends Obj {
+export abstract class DescriptorSet extends GFXObject {
     get layout () {
         return this._layout!;
     }
-
-    protected _device: Device;
 
     protected _layout: DescriptorSetLayout | null = null;
     protected _buffers: Buffer[] = [];
@@ -53,12 +50,11 @@ export abstract class DescriptorSet extends Obj {
 
     protected _isDirty = false;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.DESCRIPTOR_SET);
-        this._device = device;
     }
 
-    public abstract initialize (info: DescriptorSetInfo): boolean;
+    public abstract initialize (info: DescriptorSetInfo): void;
 
     public abstract destroy (): void;
 

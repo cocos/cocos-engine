@@ -40,6 +40,8 @@ import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
 import { SceneGlobals } from './scene-globals';
+import { SystemEventType } from '../../input/types';
+import { SystemEvent } from '../../input';
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {
@@ -147,6 +149,9 @@ removeProperty(SceneGlobals.prototype, 'SceneGlobals.prototype', [
     },
     {
         name: 'packing',
+    },
+    {
+        name: 'autoAdapt',
     },
 ]);
 
@@ -272,4 +277,54 @@ if (EDITOR) {
     };
 }
 
+replaceProperty(SystemEventType, 'SystemEventType', [
+    'MOUSE_ENTER',
+    'MOUSE_LEAVE',
+    'TRANSFORM_CHANGED',
+    'SCENE_CHANGED_FOR_PERSISTS',
+    'SIZE_CHANGED',
+    'ANCHOR_CHANGED',
+    'COLOR_CHANGED',
+    'CHILD_ADDED',
+    'CHILD_REMOVED',
+    'PARENT_CHANGED',
+    'NODE_DESTROYED',
+    'LAYER_CHANGED',
+    'SIBLING_ORDER_CHANGED',
+].map((name: string) => ({
+    name,
+    target: Node.EventType,
+    targetName: 'Node.EventType',
+})));
+
+replaceProperty(Node.EventType, 'Node.EventType', [
+    {
+        name: 'DEVICEMOTION',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'KEY_DOWN',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'KEY_UP',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+]);
+
+replaceProperty(SceneGlobals, 'SceneGlobals', [
+    {
+        name: 'autoAdapt',
+        targetName: 'fixedArea',
+        customGetter (this: SceneGlobals) {
+            return !this.shadows.fixedArea;
+        },
+        customSetter (this: SceneGlobals, value: boolean) {
+            this.shadows.fixedArea = !value;
+        },
+    },
+]);
 legacyCC.PrivateNode = PrivateNode;

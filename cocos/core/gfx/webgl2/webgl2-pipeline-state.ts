@@ -54,7 +54,7 @@ export class WebGL2PipelineState extends PipelineState {
 
     private _gpuPipelineState: IWebGL2GPUPipelineState | null = null;
 
-    public initialize (info: PipelineStateInfo): boolean {
+    public initialize (info: PipelineStateInfo) {
         this._primitive = info.primitive;
         this._shader = info.shader;
         this._pipelineLayout = info.pipelineLayout;
@@ -95,8 +95,6 @@ export class WebGL2PipelineState extends PipelineState {
             gpuRenderPass: (info.renderPass as WebGL2RenderPass).gpuRenderPass,
             dynamicStates,
         };
-
-        return true;
     }
 
     public destroy () {

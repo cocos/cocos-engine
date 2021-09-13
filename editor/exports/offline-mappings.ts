@@ -1,13 +1,13 @@
+/* eslint-disable camelcase */
 
 import {
     Address, BlendFactor, BlendOp, ColorMask, ComparisonFunc, CullMode, DynamicStateFlagBit,
     Filter, Format, FormatInfos, FormatType, GetTypeSize, PolygonMode, PrimitiveMode,
-    ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType,
+    ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo,
 } from '../../cocos/core/gfx/base/define';
-import { RenderQueue } from '../../cocos/core/renderer/core/constants';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/core/pipeline/define';
 import { murmurhash2_32_gc } from '../../cocos/core/utils/murmurhash2_gc';
-import { SamplerInfoIndex, genSamplerHash } from '../../cocos/core/renderer/core/sampler-lib';
+import { Sampler } from '../../cocos/core/gfx/base/states/sampler';
 
 const typeMap: Record<string, Type | string> = {};
 typeMap[typeMap.bool = Type.BOOL] = 'bool';
@@ -275,8 +275,8 @@ const effectStructure = {
 
 export {
     murmurhash2_32_gc,
-    SamplerInfoIndex,
-    genSamplerHash,
+    Sampler,
+    SamplerInfo,
     effectStructure,
     isSampler,
     typeMap,
@@ -287,7 +287,6 @@ export {
     isNormalized,
     isPaddedMatrix,
     passParams,
-    RenderQueue,
     SetIndex,
     RenderPriority,
     GetTypeSize,

@@ -32,6 +32,7 @@ import { absMax, Quat } from '../../../core';
 import { CapsuleCollider, EAxisDirection } from '../../framework';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { PX } from '../physx-adapter';
+import { PhysXInstance } from '../physx-instance';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
@@ -62,9 +63,8 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
 
     onComponentSet (): void {
         this.updateGeometry();
-        const physics = this._sharedBody.wrappedWorld.physics;
         const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
-        this._impl = physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
+        this._impl = PhysXInstance.physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
     }
 
     updateScale (): void {

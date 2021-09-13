@@ -28,10 +28,7 @@
  */
 
 import { ImageAsset, Texture2D } from '../assets';
-import MissingScript from '../components/missing-script';
 import { packCustomObjData, unpackJSONs } from '../data/deserialize';
-// import MissingScript from '../components/missing-script';
-// import { packCustomObjData, unpackJSONs } from '../data/deserialize-compiled';
 import { error, errorID } from '../platform/debug';
 import { js } from '../utils/js';
 import Cache from './cache';

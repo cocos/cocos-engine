@@ -600,6 +600,14 @@ export class TerrainBlock {
     }
 
     /**
+     * @en get weight map
+     * @zh 获得权重图
+     */
+    get weightmap () {
+        return this._weightMap;
+    }
+
+    /**
      * @en get light map
      * @zh 获得光照图
      */
@@ -853,14 +861,35 @@ export class Terrain extends Component {
     public set _asset (value: TerrainAsset|null) {
         if (this.__asset !== value) {
             this.__asset = value;
-            if (this.__asset != null && this.valid) {
-                // rebuild
-                for (let i = 0; i < this._blocks.length; ++i) {
-                    this._blocks[i].destroy();
-                }
-                this._blocks = [];
-                this._buildImp();
+
+            // destroy all block
+            for (let i = 0; i < this._blocks.length; ++i) {
+                this._blocks[i].destroy();
             }
+            this._blocks = [];
+
+            // restore to defualt
+            if (this.__asset === null) {
+                this._effectAsset = null;
+                this._lightmapInfos = [];
+                this._receiveShadow = false;
+                this._useNormalmap = false;
+                this._usePBR = false;
+                this._tileSize = 1;
+                this._blockCount = [1, 1];
+                this._weightMapSize = 128;
+                this._lightMapSize = 128;
+                this._heights = new Uint16Array();
+                this._weights = new Uint8Array();
+                this._normals = [];
+                this._layerList = [];
+                this._layerBuffer = [];
+                this._blocks = [];
+                this._sharedIndexBuffer = null;
+            }
+
+            // rebuild
+            this._buildImp();
         }
     }
 

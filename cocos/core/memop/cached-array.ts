@@ -100,7 +100,7 @@ export class CachedArray<T> {
      * @param idx The index of the requested element
      * @return The element at given index
      */
-    public get (idx: number): T {
+    public get (idx: number): T | undefined {
         return this.array[idx];
     }
 
@@ -168,6 +168,11 @@ export class CachedArray<T> {
      * @param val The element
      */
     public indexOf (val: T) {
-        return this.array.indexOf(val);
+        for (let i = 0, len = this.length; i < len; ++i) {
+            if (this.array[i] === val) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

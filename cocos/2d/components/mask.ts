@@ -366,6 +366,7 @@ export class Mask extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._updateGraphics();
+        this._enableGraphics();
     }
 
     /**
@@ -581,6 +582,12 @@ export class Mask extends Renderable2D {
                 target.setMaterial(mat, 0);
                 target.getMaterialInstance(0);
             }
+        }
+    }
+
+    protected _enableGraphics () {
+        if (this._graphics) {
+            this._graphics.onEnable();
         }
     }
 
