@@ -13,11 +13,16 @@ import { debug, warnID } from '../../platform/debug';
 import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { EventHandler } from '../../components/component-event-handler';
+import { AnimationClip } from '..';
 
 export class PoseGraphEval {
     private _varRefMap: Record<string, VarRefs> = {};
     private declare _layerEvaluations: LayerEval[];
     private _blendBuffer = new BlendStateBuffer();
+    private _currentTransitionCache: TransitionStatus = {
+        duration: 0.0,
+        time: 0.0,
+    };
 
     constructor (graph: PoseGraph, root: Node) {
         for (const [name, { value }] of graph.variables) {
@@ -71,6 +76,24 @@ export class PoseGraphEval {
         graphDebugGroupEnd();
     }
 
+    public getCurrentPoses (layer: number): Iterable<PoseStatus> {
+        return this._layerEvaluations[layer].getCurrentPoses();
+    }
+
+    public getCurrentTransition (layer: number): Readonly<TransitionStatus> | null {
+        const {
+            _layerEvaluations: layers,
+            _currentTransitionCache: currentTransition,
+        } = this;
+        const isInTransition = layers[layer].getCurrentTransition(currentTransition);
+        return isInTransition ? currentTransition : null;
+    }
+
+    public getNextPoses (layer: number): Iterable<PoseStatus> {
+        assertIsNonNullable(this.getCurrentTransition(layer), '!!this.getCurrentTransition(layer)');
+        return this._layerEvaluations[layer].getNextPoses();
+    }
+
     public getValue (name: string) {
         const varRefs = this._varRefMap[name];
         if (!varRefs) {
@@ -108,6 +131,16 @@ export class PoseGraphEval {
         });
         return varRefs.value as unknown as T;
     }
+}
+
+interface TransitionStatus {
+    duration: number;
+    time: number;
+}
+
+export interface PoseStatus {
+    clip: AnimationClip;
+    weight: number;
 }
 
 type TriggerResetFn = (name: string) => void;
@@ -156,10 +189,37 @@ class LayerEval {
         }
     }
 
+    public getCurrentPoses (): Iterable<PoseStatus> {
+        return this._graphEval.getCurrentPoses();
+    }
+
+    public getCurrentTransition (transitionStatus: TransitionStatus): boolean {
+        return this._graphEval.getCurrentTransition(transitionStatus);
+    }
+
+    public getNextPoses (): Iterable<PoseStatus> {
+        return this._graphEval.getNextPoses();
+    }
+
     public getCurrentNodeInfo () {
         return this._graphEval.getCurrentNodeInfo();
     }
 }
+
+const emptyPoseIterator: Iterator<PoseStatus> = Object.freeze({
+    next () {
+        return {
+            done: true,
+            value: undefined,
+        };
+    },
+});
+
+const emptyPoseIterable: Iterable<PoseStatus> = Object.freeze({
+    [Symbol.iterator] () {
+        return emptyPoseIterator;
+    },
+});
 
 type SubGraphEvalContext = LayerContext;
 
@@ -206,6 +266,19 @@ class SubgraphEval {
      */
     get exited () {
         return this._currentNode.kind === NodeKind.exit;
+    }
+
+    public enter () {
+        assertIsTrue(this._currentNode.kind === NodeKind.entry);
+        const transitionMatch = this._matchCurrentNodeTransition(0.0);
+        if (!transitionMatch) {
+            return;
+        }
+        const { transition } = transitionMatch;
+        assertIsTrue(transitionMatch.requires === 0.0);
+        assertIsTrue(transition.to !== this._currentNode);
+        this._switchTo(transition);
+        this._updateCurrentTransition(0.0);
     }
 
     /**
@@ -283,10 +356,10 @@ class SubgraphEval {
 
             const { _currentNode: currentNode } = this;
 
-            const satisfiedTransition = this._searchSatisfiedTransitionForCurrentNode();
+            const transitionMatch = this._matchCurrentNodeTransition(remainTimePiece);
 
-            // If no transition satisfied, we update current node.
-            if (!satisfiedTransition) {
+            // If no transition matched, we update current node.
+            if (!transitionMatch) {
                 graphDebug(`[Subgraph ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
                 if (currentNode.kind === NodeKind.pose) {
                     currentNode.update(remainTimePiece);
@@ -311,12 +384,29 @@ class SubgraphEval {
 
             // Transition happened.
 
-            if (satisfiedTransition.to !== currentNode) {
-                this._switchTo(satisfiedTransition);
+            if (transitionMatch.transition.to !== currentNode) {
+                const {
+                    transition,
+                    requires: updateRequires,
+                } = transitionMatch;
+
+                graphDebug(`[Subgraph ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
+                if (currentNode.kind === NodeKind.pose) {
+                    currentNode.update(updateRequires);
+                } else if (currentNode.kind === NodeKind.subgraph) {
+                    assertIsTrue(currentNode.exited);
+                    assertIsTrue(updateRequires === 0.0);
+                }
+                if (GRAPH_DEBUG_ENABLED) {
+                    passConsumed = remainTimePiece;
+                }
+
+                remainTimePiece -= updateRequires;
+                this._switchTo(transition);
             } else if (currentNode.kind === NodeKind.subgraph) {
                 // Self transition
                 assertIsTrue(currentNode.exited);
-                graphDebug(`[Subgraph ${this.name}]: REINTERRED ${currentNode.name} -> ${satisfiedTransition.to.name}.`);
+                graphDebug(`[Subgraph ${this.name}]: REINTERRED ${currentNode.name} -> ${transitionMatch.transition.to.name}.`);
                 currentNode.reenter();
             }
 
@@ -327,6 +417,16 @@ class SubgraphEval {
         graphDebugGroupEnd();
 
         return remainTimePiece;
+    }
+
+    public transitionUpdate (deltaTime: Readonly<number>) {
+        assertIsTrue(!this.exited);
+        const { _currentNode: currentNode } = this;
+        if (currentNode.kind === NodeKind.pose) {
+            currentNode.update(deltaTime);
+        } else if (currentNode.kind === NodeKind.subgraph) {
+            currentNode.transitionUpdate(deltaTime);
+        }
     }
 
     public sample () {
@@ -346,6 +446,53 @@ class SubgraphEval {
         return {
             name: this._currentNode.name,
         };
+    }
+
+    public getCurrentPoses (): Iterable<PoseStatus> {
+        if (this._currentNode.kind === NodeKind.subgraph) {
+            return this._currentNode.subgraphEval.getCurrentPoses();
+        } else if (this._currentNode.kind === NodeKind.pose) {
+            const iterator = this._currentNode.getPoses();
+            return {
+                [Symbol.iterator]: () => iterator,
+            };
+        } else {
+            return emptyPoseIterable;
+        }
+    }
+
+    public getCurrentTransition (transitionStatus: TransitionStatus): boolean {
+        const { _currentTransition: currentTransition } = this;
+        if (currentTransition) {
+            transitionStatus.duration = currentTransition.duration;
+            transitionStatus.time = this._transitionProgress;
+            return true;
+        } else if (this._currentNode.kind === NodeKind.subgraph) {
+            return this._currentNode.subgraphEval.getCurrentTransition(transitionStatus);
+        } else {
+            return false;
+        }
+    }
+
+    public getNextPoses (): Iterable<PoseStatus> {
+        const { _currentTransition: currentTransition } = this;
+        if (currentTransition) {
+            const { to } = currentTransition;
+            if (to.kind === NodeKind.pose) {
+                const iterator = to.getPoses();
+                return {
+                    [Symbol.iterator]: () => iterator,
+                };
+            } else if (to.kind === NodeKind.subgraph) {
+                return to.subgraphEval.getCurrentPoses();
+            } else {
+                return emptyPoseIterable;
+            }
+        } else {
+            const { _currentNode: currentNode } = this;
+            assertIsTrue(currentNode.kind === NodeKind.subgraph, 'Current graph has not transition');
+            return currentNode.subgraphEval.getNextPoses();
+        }
     }
 
     /**
@@ -394,8 +541,12 @@ class SubgraphEval {
         if (isPoseOrSubgraphNodeEval(toNode)) {
             graphDebugGroup(`Update ${toNode.name}`);
             toNode.setWeight(weight * ratio);
-            if (!(toNode.kind === NodeKind.subgraph && toNode.exited)) {
-                toNode.update(contrib * currentTransition.targetStretch);
+            const stretchedTime = contrib * currentTransition.targetStretch;
+            if (toNode.kind === NodeKind.pose) {
+                toNode.update(stretchedTime);
+            } else {
+                assertIsTrue(toNode.kind === NodeKind.subgraph);
+                toNode.transitionUpdate(stretchedTime);
             }
             graphDebugGroupEnd();
         }
@@ -412,7 +563,13 @@ class SubgraphEval {
         return contrib;
     }
 
-    private _searchSatisfiedTransitionForCurrentNode () {
+    /**
+     * Searches for a transition which should be performed
+     * if current node update for no more than `deltaTime`.
+     * @param deltaTime
+     * @returns
+     */
+    private _matchCurrentNodeTransition (deltaTime: Readonly<number>) {
         const currentNode = this._currentNode;
 
         // If current node is subgraph, transitions are happened after it exited.
@@ -420,37 +577,85 @@ class SubgraphEval {
             return null;
         }
 
-        let satisfiedTransition: TransitionEval | null = null;
-        if (true) {
-            // If current node is subgraph,
-            // we should wait for its exiting before we can look for its transitions.
-            satisfiedTransition = this._getSatisfiedTransition(currentNode, currentNode);
+        let minDeltaTimeRequired = Infinity;
+        let transitionRequiringMinDeltaTime: TransitionEval | null = null;
+
+        const match0 = this._matchTransition(
+            currentNode,
+            currentNode,
+            deltaTime,
+            transitionMatchCacheRegular,
+        );
+        if (match0) {
+            ({
+                requires: minDeltaTimeRequired,
+                transition: transitionRequiringMinDeltaTime,
+            } = match0);
         }
 
-        if (!satisfiedTransition) {
-            satisfiedTransition = this._getSatisfiedTransition(this._anyNode, currentNode);
+        if (currentNode.kind === NodeKind.pose) {
+            const anyMatch = this._matchTransition(
+                this._anyNode,
+                currentNode,
+                deltaTime,
+                transitionMatchCacheAny,
+            );
+            if (anyMatch && anyMatch.requires < minDeltaTimeRequired) {
+                ({
+                    requires: minDeltaTimeRequired,
+                    transition: transitionRequiringMinDeltaTime,
+                } = anyMatch);
+            }
         }
 
-        return satisfiedTransition;
+        const result = transitionMatchCache;
+
+        if (transitionRequiringMinDeltaTime) {
+            return result.set(transitionRequiringMinDeltaTime, minDeltaTimeRequired);
+        }
+
+        return null;
     }
 
-    private _getSatisfiedTransition (node: NodeEval, realNode: NodeEval): TransitionEval | null {
+    /**
+     * Searches for a transition which should be performed
+     * if specified node update for no more than `deltaTime`.
+     * @param node
+     * @param realNode
+     * @param deltaTime
+     * @returns
+     */
+    private _matchTransition (
+        node: NodeEval, realNode: NodeEval, deltaTime: Readonly<number>, result: TransitionMatchCache,
+    ): TransitionMatch | null {
         assertIsTrue(node === realNode || node.kind === NodeKind.any);
         const { outgoingTransitions } = node;
-        for (let iTransition = 0; iTransition < outgoingTransitions.length; ++iTransition) {
+        const nTransitions = outgoingTransitions.length;
+        let minDeltaTimeRequired = Infinity;
+        let transitionRequiringMinDeltaTime: TransitionEval | null = null;
+        for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
             const transition = outgoingTransitions[iTransition];
             const { conditions } = transition;
-            if (node.kind === NodeKind.pose
-                && transition.exitConditionEnabled
-                && node.progress < transition.exitCondition) {
-                continue;
+            const nConditions = conditions.length;
+
+            // Handle empty condition case.
+            if (nConditions === 0) {
+                if (node.kind === NodeKind.entry) {
+                    // This kind of transition is definitely chosen.
+                    return result.set(transition, 0.0);
+                }
+                if (!transition.exitConditionEnabled) {
+                    // Invalid transition, ignored.
+                    continue;
+                }
             }
 
-            const nConditions = conditions.length;
-            if (nConditions === 0) {
-                if (node.kind === NodeKind.entry || transition.exitConditionEnabled) {
-                    return transition;
-                } else {
+            let deltaTimeRequired = 0.0;
+
+            if (node.kind === NodeKind.pose && transition.exitConditionEnabled) {
+                deltaTimeRequired = node.duration * (transition.exitCondition - node.progress);
+                assertIsTrue(deltaTimeRequired >= 0.0);
+                if (deltaTimeRequired > deltaTime) {
                     continue;
                 }
             }
@@ -476,7 +681,19 @@ class SubgraphEval {
                     continue;
                 }
             }
-            return transition;
+
+            if (deltaTimeRequired === 0.0) {
+                // Exit condition is disabled or the exit condition is just 0.0.
+                return result.set(transition, 0.0);
+            }
+
+            if (deltaTimeRequired < minDeltaTimeRequired) {
+                minDeltaTimeRequired = deltaTimeRequired;
+                transitionRequiringMinDeltaTime = transition;
+            }
+        }
+        if (transitionRequiringMinDeltaTime) {
+            return result.set(transitionRequiringMinDeltaTime, minDeltaTimeRequired);
         }
         return null;
     }
@@ -519,6 +736,36 @@ class SubgraphEval {
         triggerResetFn(name);
     }
 }
+
+interface TransitionMatch {
+    /**
+     * The matched result.
+     */
+    transition: TransitionEval;
+
+    /**
+     * The after after which the transition can happen.
+     */
+    requires: number;
+}
+
+class TransitionMatchCache {
+    public transition: TransitionMatch['transition'] | null = null;
+
+    public requires = 0.0;
+
+    public set (transition: TransitionMatch['transition'], requires: number) {
+        this.transition = transition;
+        this.requires = requires;
+        return this as TransitionMatch;
+    }
+}
+
+const transitionMatchCache = new TransitionMatchCache();
+
+const transitionMatchCacheRegular = new TransitionMatchCache();
+
+const transitionMatchCacheAny = new TransitionMatchCache();
 
 function createNodeEval (context: SubGraphEvalContext, graph: PoseSubgraph, node: GraphNode): NodeEval {
     if (node instanceof PoseNode) {
@@ -652,6 +899,10 @@ export class PoseNodeEval extends NodeBaseEval {
         return this._pose?.progress ?? 0.0;
     }
 
+    get duration () {
+        return this._pose?.duration ?? 0.0;
+    }
+
     public setWeight (weight: number) {
         this._pose?.setBaseWeight(weight);
     }
@@ -674,6 +925,10 @@ export class PoseNodeEval extends NodeBaseEval {
         this._pose?.sample();
     }
 
+    public getPoses (): Iterator<PoseStatus> {
+        return this._pose?.poses() ?? emptyPoseIterator;
+    }
+
     private _pose: PoseEval | null = null;
 }
 
@@ -694,6 +949,7 @@ export class SubgraphNodeEval extends NodeBaseEval {
 
     public enter () {
         super.enter();
+        this.subgraphEval.enter();
     }
 
     public exit () {
@@ -713,6 +969,10 @@ export class SubgraphNodeEval extends NodeBaseEval {
 
     public update (deltaTime: number) {
         return this.subgraphEval.update(deltaTime);
+    }
+
+    public transitionUpdate (deltaTime: number) {
+        this.subgraphEval.transitionUpdate(deltaTime);
     }
 
     public sample () {

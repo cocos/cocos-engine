@@ -233,6 +233,128 @@ describe('NewGen Anim', () => {
             expect(graphEval.getCurrentNodeInfo(0).name).toBe('Node');
         });
 
+        test(`In single frame: exit condition just satisfied or satisfied and remain time`, () => {
+            const poseGraph = new PoseGraph();
+            const layer = poseGraph.addLayer();
+            const graph = layer.graph;
+
+            const poseNode1 = graph.addPoseNode();
+            poseNode1.name = 'PoseNode';
+            const poseNode1Clip = poseNode1.pose = createPosePositionX(1.0, 2.0, 'PoseNode1Clip');
+            
+            const poseNode2 = graph.addPoseNode();
+            poseNode2.name = 'PoseNode';
+            const poseNode2Clip = poseNode2.pose = createPosePositionX(1.0, 2.0, 'PoseNode2Clip');
+
+            graph.connect(graph.entryNode, poseNode1);
+            const node1To2 = graph.connect(poseNode1, poseNode2);
+            node1To2.duration = 0.0;
+            node1To2.exitConditionEnabled = true;
+            node1To2.exitCondition = 1.0;
+
+            {
+                const graphEval = new PoseGraphEval(poseGraph, new Node());
+                graphEval.update(poseNode1Clip.clip!.duration);
+                expect(graphEval.getCurrentTransition(0)).toBeNull();
+                const fromPoseStatues = Array.from(graphEval.getCurrentPoses(0));
+                expect(fromPoseStatues).toHaveLength(1);
+                expect(fromPoseStatues[0].clip).toBe(poseNode2Clip.clip!);
+                expect(fromPoseStatues[0].weight).toBeCloseTo(1.0, 5);
+            }
+
+            {
+                const graphEval = new PoseGraphEval(poseGraph, new Node());
+                graphEval.update(poseNode1Clip.clip!.duration + 0.1);
+                expect(graphEval.getCurrentTransition(0)).toBeNull();
+                const fromPoseStatues = Array.from(graphEval.getCurrentPoses(0));
+                expect(fromPoseStatues).toHaveLength(1);
+                expect(fromPoseStatues[0].clip).toBe(poseNode2Clip.clip!);
+                expect(fromPoseStatues[0].weight).toBeCloseTo(1.0, 5);
+            }
+        });
+
+        test(`Transition into subgraph`, () => {
+            const poseGraph = new PoseGraph();
+            const layer = poseGraph.addLayer();
+            const graph = layer.graph;
+
+            const poseNode = graph.addPoseNode();
+            poseNode.name = 'PoseNode';
+            const poseNodeClip = poseNode.pose = createPosePositionX(1.0, 2.0, 'PoseNodeClip');
+
+            const subgraph = graph.addSubgraph();
+            subgraph.name = 'Subgraph';
+
+            const subgraphPoseNode = subgraph.addPoseNode();
+            subgraphPoseNode.name = 'SubgraphPoseNode';
+            const subgraphPoseNodeClip = subgraphPoseNode.pose = createPosePositionX(1.0, 3.0, 'SubgraphPoseNodeClip');
+            subgraph.connect(subgraph.entryNode, subgraphPoseNode);
+
+            const subgraphPoseNode2 = subgraph.addPoseNode();
+            subgraphPoseNode2.name = 'SubgraphPoseNode2';
+            const subgraphPoseNode2Clip = subgraphPoseNode2.pose = createPosePositionX(0.1, 3.0, 'SubgraphPoseNode2Clip');
+            const poseToSubgraphPose1ToPose2 = subgraph.connect(subgraphPoseNode, subgraphPoseNode2);
+            poseToSubgraphPose1ToPose2.duration = 0.3;
+            poseToSubgraphPose1ToPose2.exitConditionEnabled = true;
+            poseToSubgraphPose1ToPose2.exitCondition = 1.0;
+
+            graph.connect(graph.entryNode, poseNode);
+            const poseToSubgraph = graph.connect(poseNode, subgraph);
+            poseToSubgraph.duration = 0.3;
+            poseToSubgraph.exitConditionEnabled = true;
+            poseToSubgraph.exitCondition = 0.0;
+
+            const graphEval = new PoseGraphEval(poseGraph, new Node());
+
+            {
+                graphEval.update(0.2);
+
+                const currentTransition = graphEval.getCurrentTransition(0);
+                expect(currentTransition).not.toBeNull();
+                expect(currentTransition.time).toBeCloseTo(0.2);
+
+                const fromPoseStatues = Array.from(graphEval.getCurrentPoses(0));
+                expect(fromPoseStatues).toHaveLength(1);
+                expect(fromPoseStatues[0].clip).toBe(poseNodeClip.clip!);
+                expect(fromPoseStatues[0].weight).toBeCloseTo(0.33333, 5);
+
+                const toPoseStatues = Array.from(graphEval.getNextPoses(0));
+                expect(toPoseStatues).toHaveLength(1);
+                expect(toPoseStatues[0].clip).toBe(subgraphPoseNodeClip.clip!);
+                expect(toPoseStatues[0].weight).toBeCloseTo(0.66667, 5);
+            }
+
+            {
+                graphEval.update(0.1);
+
+                const currentTransition = graphEval.getCurrentTransition(0);
+                expect(currentTransition).toBeNull();
+
+                const fromPoseStatues = Array.from(graphEval.getCurrentPoses(0));
+                expect(fromPoseStatues).toHaveLength(1);
+                expect(fromPoseStatues[0].clip).toBe(subgraphPoseNodeClip.clip!);
+                expect(fromPoseStatues[0].weight).toBeCloseTo(1.0, 5);
+            }
+
+            {
+                graphEval.update(subgraphPoseNodeClip.clip!.duration - 0.3 + 0.1);
+
+                const currentTransition = graphEval.getCurrentTransition(0);
+                expect(currentTransition).not.toBeNull();
+                expect(currentTransition.time).toBeCloseTo(0.1, 5);
+
+                const fromPoseStatues = Array.from(graphEval.getCurrentPoses(0));
+                expect(fromPoseStatues).toHaveLength(1);
+                expect(fromPoseStatues[0].clip).toBe(subgraphPoseNodeClip.clip!);
+                expect(fromPoseStatues[0].weight).toBeCloseTo(0.66667, 5);
+
+                const toPoseStatues = Array.from(graphEval.getNextPoses(0));
+                expect(toPoseStatues).toHaveLength(1);
+                expect(toPoseStatues[0].clip).toBe(subgraphPoseNode2Clip.clip!);
+                expect(toPoseStatues[0].weight).toBeCloseTo(0.33333, 5);
+            }
+        });
+
         describe('Condition', () => {
             function createPoseGraphForConditionTest(conditions: Condition[]) {
                 const poseGraph = new PoseGraph();
@@ -481,8 +603,9 @@ describe('NewGen Anim', () => {
     });
 });
 
-function createPosePositionX(duration: number, value: number) {
+function createPosePositionX(duration: number, value: number, name = '') {
     const clip = new AnimationClip();
+    clip.name = name;
     clip.enableTrsBlending = true;
     clip.duration = duration;
     const track = new VectorTrack();
@@ -494,3 +617,4 @@ function createPosePositionX(duration: number, value: number) {
     pose.clip = clip;
     return pose;
 }
+

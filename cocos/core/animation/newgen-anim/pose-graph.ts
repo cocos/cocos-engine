@@ -370,7 +370,7 @@ export class Layer implements OwnedBy<PoseGraph> {
     private _graph!: PoseSubgraph;
 
     @serializable
-    public name: string = '';
+    public name = '';
 
     @serializable
     public weight = 1.0;

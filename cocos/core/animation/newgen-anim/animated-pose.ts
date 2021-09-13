@@ -3,6 +3,7 @@ import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
 import { createEval } from './create-eval';
 import { graphDebug, GRAPH_DEBUG_ENABLED, pushWeight } from './graph-debug';
+import { PoseStatus } from './graph-eval';
 import { PoseEvalContext, Pose, PoseEval } from './pose';
 
 @ccclass('cc.animation.AnimatedPose')
@@ -25,6 +26,29 @@ class AnimatedPoseEval implements PoseEval {
         this.duration = clip.duration;
         this._state = new AnimationState(clip);
         this._state.initialize(context.node, context.blendBuffer);
+    }
+
+    public poses (): Iterator<PoseStatus, any, undefined> {
+        let got = false;
+        return {
+            next: () => {
+                if (got) {
+                    return {
+                        done: true,
+                        value: undefined,
+                    };
+                } else {
+                    got = true;
+                    return {
+                        done: false,
+                        value: {
+                            clip: this._state.clip,
+                            weight: this._state.weight,
+                        },
+                    };
+                }
+            },
+        };
     }
 
     get progress () {

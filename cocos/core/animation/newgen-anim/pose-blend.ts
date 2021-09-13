@@ -4,6 +4,7 @@ import { Value } from './variable';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
 import { serializable } from '../../data/decorators';
+import { PoseStatus } from './graph-eval';
 
 export interface PoseBlend extends Pose {
     [createEval] (_context: PoseEvalContext): PoseEval | null;
@@ -26,6 +27,33 @@ export class PoseBlendEval implements PoseEval {
         // this.duration = this._poseEvaluators.reduce(() => {}, 0.0);
         this._weights = new Array(this._poseEvaluators.length).fill(0);
         this._inputs = [...inputs];
+    }
+
+    public poses (): Iterator<PoseStatus, any, undefined> {
+        const { _poseEvaluators: children } = this;
+        const nChildren = children.length;
+        let iChild = 0;
+        let currentChildIterator: Iterator<PoseStatus> | undefined;
+        return {
+            next () {
+                // eslint-disable-next-line no-constant-condition
+                while (true) {
+                    if (currentChildIterator) {
+                        const result = currentChildIterator.next();
+                        if (!result.done) {
+                            return result;
+                        }
+                    }
+                    if (iChild >= nChildren) {
+                        return { done: true, value: undefined };
+                    } else {
+                        const child = children[iChild];
+                        currentChildIterator = child?.poses();
+                        ++iChild;
+                    }
+                }
+            },
+        };
     }
 
     get progress () {
