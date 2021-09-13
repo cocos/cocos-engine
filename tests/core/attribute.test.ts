@@ -3,8 +3,8 @@ import { js } from "../../cocos/core/utils/js";
 
 describe('Attribute', function () {
     test('base', function () {
-        var MyCompBase = function () {
-            this.baseVal = [];
+        class MyCompBase {
+            baseVal = [];
         };
     
         CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'data', 'waha');
@@ -12,7 +12,7 @@ describe('Attribute', function () {
         expect(CCClass.attr(MyCompBase, 'baseVal').data).toBe('waha');
     
         CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'cool', 'nice');
-        var attr = CCClass.attr(MyCompBase, 'baseVal');
+        let attr = CCClass.attr(MyCompBase, 'baseVal');
         expect(attr.data && attr.cool).toBeTruthy();
     
         CCClass.Attr.setClassAttr(MyCompBase, 'baseVal', 'data', false);
@@ -42,8 +42,8 @@ describe('Attribute', function () {
     });
     
     test('dynamic attribute for instance', function () {
-        var MyCompBase = function () {};
-        var comp = new MyCompBase();
+        class MyCompBase {};
+        const comp = new MyCompBase();
     
         CCClass.Attr.setClassAttr(MyCompBase, 'subVal', 'value', false);
         CCClass.Attr.setClassAttr(comp, 'subVal', 'value', true);
