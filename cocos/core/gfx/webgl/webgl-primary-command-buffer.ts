@@ -25,7 +25,7 @@
 
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit } from '../base/define';
+import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
@@ -88,6 +88,38 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
             }
         } else {
             console.error('Command \'draw\' must be recorded inside a render pass.');
+        }
+    }
+
+    public setViewport (viewport: Viewport) {
+        const { stateCache: cache, gl } = WebGLDeviceManager.instance;
+
+        if (cache.viewport.left !== viewport.left
+            || cache.viewport.top !== viewport.top
+            || cache.viewport.width !== viewport.width
+            || cache.viewport.height !== viewport.height) {
+            gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
+
+            cache.viewport.left = viewport.left;
+            cache.viewport.top = viewport.top;
+            cache.viewport.width = viewport.width;
+            cache.viewport.height = viewport.height;
+        }
+    }
+
+    public setScissor (scissor: Rect) {
+        const { stateCache: cache, gl } = WebGLDeviceManager.instance;
+
+        if (cache.scissorRect.x !== scissor.x
+            || cache.scissorRect.y !== scissor.y
+            || cache.scissorRect.width !== scissor.width
+            || cache.scissorRect.height !== scissor.height) {
+            gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
+
+            cache.scissorRect.x = scissor.x;
+            cache.scissorRect.y = scissor.y;
+            cache.scissorRect.width = scissor.width;
+            cache.scissorRect.height = scissor.height;
         }
     }
 
