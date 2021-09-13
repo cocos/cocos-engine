@@ -39,7 +39,7 @@ import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
 import { MeshBuffer } from './mesh-buffer';
 import { Stage, StencilManager } from './stencil-manager';
-import { DrawBatch2DGPU } from './draw-batch-gpu0';
+import { DrawBatch2DGPU } from './draw-batch-gpu';
 import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
