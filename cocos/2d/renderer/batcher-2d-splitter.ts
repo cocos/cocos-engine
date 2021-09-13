@@ -1,7 +1,7 @@
 import { UI_GPU_DRIVEN } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { Batcher2D as Batcher2D_CPU } from './batcher-2d';
-import { Batcher2D as Batcher2D_GPU } from './batcher-2d-GPU';
+import { Batcher2D as Batcher2D_GPU } from './batcher-2d-gpu0';
 
 export const Batcher2D = UI_GPU_DRIVEN ? Batcher2D_GPU : Batcher2D_CPU;
 
