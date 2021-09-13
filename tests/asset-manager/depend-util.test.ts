@@ -5,14 +5,14 @@ import { js } from "../../cocos/core/utils/js";
 describe('dependUtils', () => {
 
     test('parse texture deps', function () {
-        var depend = dependUtil.parse('AAA', { __type__: 'cc.ImageAsset', content: '0'}); 
+        const depend = dependUtil.parse('AAA', { __type__: 'cc.ImageAsset', content: '0'}); 
         expect(depend.nativeDep.uuid).toBe('AAA');
         expect(depend.nativeDep.ext).toBe('.png');
         expect(depend.deps.length).toBe(0);
     });
 
     test('parse audio deps', function () {
-        var depend = dependUtil.parse('BBB', {
+        const depend = dependUtil.parse('BBB', {
             "__type__": js._getClassId(AudioClip),
             "_native": ".mp3",
             "loadMode": 0
@@ -23,7 +23,7 @@ describe('dependUtils', () => {
     });
 
     test('parse asset', function () {
-        var depend = dependUtil.parse('ccc', {
+        const depend = dependUtil.parse('ccc', {
             "__type__": "TestSprite",
             "rawTexture": null,
             "texture": {

@@ -7,16 +7,14 @@ import { TestSprite } from "./common-class";
 
 describe('asset', function () {
 
-    var Assets;
-
-    Assets = {
+    const Assets = {
         '0000001': ['grossini/grossini', js._getClassId(ImageAsset)],
         '123201':  ['grossini/grossini', js._getClassId(TestSprite), 1],
         '0000000': ['grossini', js._getClassId(ImageAsset)],
         '1232218': ['grossini', js._getClassId(TestSprite), 1],   // sprite in texture
         '123200':  ['grossini', js._getClassId(TestSprite), 1],   // sprite in plist
     };
-    var options = {
+    const options = {
         libraryPath: './tests/fixtures/library',
         rawAssetsBase: path.dirname(path.stripSep('./tests/fixtures/library') + '.dummyExtForDirname') + '/',
         rawAssets: {
@@ -75,7 +73,7 @@ describe('asset', function () {
     test('loadResDir by type', function (done) {
         loader.loadResDir('grossini', TestSprite, function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
-            var sprite = results[0];
+            const sprite = results[0];
             expect(sprite).toBeInstanceOf(TestSprite);
             done();
         });
@@ -84,7 +82,7 @@ describe('asset', function () {
     test('load all resources by loadResDir', function (done) {
         loader.loadResDir('', function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
-            var expectCount = Object.keys(Assets).length;
+            const expectCount = Object.keys(Assets).length;
             expect(results.length).toBe(expectCount);
             done();
         });
@@ -94,7 +92,7 @@ describe('asset', function () {
         loader.loadResDir('', ImageAsset, function (err, results, urls) {
             expect(results.length).toBe(urls.length);
 
-            var url = urls[0];
+            const url = urls[0];
             resources.load(url, ImageAsset, null, function (err, result) {
                 expect(result).toBe(results[0]);
                 done();
@@ -103,20 +101,20 @@ describe('asset', function () {
     });
 
     test('loadResArray', function (done) {
-        var urls = [
+        const urls = [
             'grossini/grossini',
             'grossini'
         ];
         loader.loadResArray(urls, TestSprite, function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
-            var expectCount = urls.length;
+            const expectCount = urls.length;
             expect(results.length).toBe(expectCount);
             done();
         });
     });
 
     test('parse loadRes arguments', function () {
-        var args;
+        let args;
         function onProgress () {}
         function onComplete () {}
 

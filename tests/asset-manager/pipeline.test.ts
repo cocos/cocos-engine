@@ -2,20 +2,20 @@ import { Pipeline } from "../../cocos/core/asset-manager/pipeline";
 import Task from "../../cocos/core/asset-manager/task";
 
 describe('Pipeline', () => {
-    var download = function (task, callback) {
+    const download = function (task, callback) {
         task.output = task.input;
         callback(null, null);
     };
     
-    var load = function (task, callback) {
+    const load = function (task, callback) {
         task.output = task.input;
         callback(null, null);
     };
     
-    var pipeline = new Pipeline('test', [download, load]);
+    const pipeline = new Pipeline('test', [download, load]);
     
     test('construction', function () {
-        var pipes = pipeline.pipes;
+        const pipes = pipeline.pipes;
         expect(pipes[0]).toBe(download);
         expect(pipes[1]).toBe(load);
         expect(pipeline.name).toBe('test');
@@ -23,7 +23,7 @@ describe('Pipeline', () => {
     
     test('operate pipe', function () {
         pipeline.insert(function () {}, 1);
-        var pipes = pipeline.pipes;
+        const pipes = pipeline.pipes;
         expect(pipes[0]).toBe(download);
         expect(pipes[2]).toBe(load);
         expect(pipes[1] !== load).toBeTruthy();
@@ -38,7 +38,7 @@ describe('Pipeline', () => {
     });
     
     test('task', function () {
-        var task = Task.create({input: [
+        const task = Task.create({input: [
             'res/Background.png',
             {
                 url: 'res/scene.json',
@@ -47,7 +47,7 @@ describe('Pipeline', () => {
             }
         ]});
     
-        var source = task.source;
+        const source = task.source;
     
         expect(source).toBeTruthy();
         expect(source[0]).toBe('res/Background.png');
@@ -61,10 +61,10 @@ describe('Pipeline', () => {
     });
     
     test('pipeline flow', function () {
-        var download = jest.fn(function (task, callback) {
-            var input = task.input;
-            for (var i = 0; i < input.length; i++) {
-                var item = input[i];
+        const download = jest.fn(function (task, callback) {
+            const input = task.input;
+            for (let i = 0; i < input.length; i++) {
+                const item = input[i];
                 if (!item.type) {
                     return callback(new Error(item));
                 }
@@ -75,19 +75,19 @@ describe('Pipeline', () => {
             callback(null, null);
             
         });
-        var load = jest.fn(function (task, callback) {
+        const load = jest.fn(function (task, callback) {
             task.output = task.input;
             callback(null, null);
         });
-        var pipeline = new Pipeline('pipeline flow', [download, load]);
+        const pipeline = new Pipeline('pipeline flow', [download, load]);
     
-        var onComplete = jest.fn(function (error, items) {
+        const onComplete = jest.fn(function (error, items) {
             expect(error.message).toBe('res/Background.png');
         });
-        var onProgress = jest.fn(() => {});
+        const onProgress = jest.fn(() => {});
 
     
-        var task = Task.create({ input: [
+        const task = Task.create({ input: [
             {
                 url: 'res/scene.json',
                 type: 'scene',
@@ -111,58 +111,58 @@ describe('Pipeline', () => {
     });
     
     test('flow empty array', function (done) {
-        var onComplete = jest.fn(function (error, items) {
+        const onComplete = jest.fn(function (error, items) {
             expect(onProgress).toBeCalledTimes(0);
             expect(error).toBe(null);
             expect(task.source.length).toBe(0);
             expect(items.length).toBe(0);
             done();
         });
-        var onProgress = jest.fn(() => {});
+        const onProgress = jest.fn(() => {});
     
-        var task = Task.create({input: [], onProgress: onProgress, onComplete: onComplete});
+        const task = Task.create({input: [], onProgress: onProgress, onComplete: onComplete});
         pipeline.async(task);
     });
     
     test('sync', function () {
-        var map = {
+        const map = {
             'AAA': 'resources/import/2a/100101',
             'BBB': 'resources/native/1a/100101'
         };
-        var md5Map = {
+        const md5Map = {
             'resources/import/2a/100101': '123sawe',
             'resources/native/1a/100101': 'sqwe123'
         };
-        var parse = function (task) {
-            var output = [];
-            for (var i = 0, l = task.input.length; i < l; i++) {
-                var str = task.input[i];
+        const parse = function (task) {
+            const output = [];
+            for (let i = 0, l = task.input.length; i < l; i++) {
+                const str = task.input[i];
                 output.push(map[str]);
             }
             task.output = output;
         };
-        var combine = function (task) {
-            var output = [];
-            for (var i = 0, l = task.input.length; i < l; i++) {
-                var str = task.input[i];
+        const combine = function (task) {
+            const output = [];
+            for (let i = 0, l = task.input.length; i < l; i++) {
+                const str = task.input[i];
                 output.push(str + '.' + md5Map[str]);
             }
             task.output = output;
         }
-        var pipeline = new Pipeline('sync', [parse, combine]);
+        const pipeline = new Pipeline('sync', [parse, combine]);
     
-        var task = Task.create({input: ['AAA', 'BBB']});
-        var result = pipeline.sync(task);
+        const task = Task.create({input: ['AAA', 'BBB']});
+        const result = pipeline.sync(task);
         expect(result[0]).toBe('resources/import/2a/100101.123sawe');
         expect(result[1]).toBe('resources/native/1a/100101.sqwe123');
     });
     
     test('content manipulation', function (done) {
-        var init = function (task, callback) {
-            var input = task.input;
-            var output = task.output = [];
-            for (var i = 0; i < input.length; i++) {
-                var item = input[i];
+        const init = function (task, callback) {
+            const input = task.input;
+            const output = task.output = [];
+            for (let i = 0; i < input.length; i++) {
+                const item = input[i];
                 if (!item.type) {
                     continue;
                 }
@@ -174,39 +174,39 @@ describe('Pipeline', () => {
             }
             callback(null);
         };
-        var download = function (task, callback) {
+        const download = function (task, callback) {
             setTimeout(function () {
-                var input = task.input;
+                const input = task.input;
                 task.output = input;
-                for (var i = 0; i < input.length; i++) {
-                    var item = input[i];
+                for (let i = 0; i < input.length; i++) {
+                    const item = input[i];
                     item.content += '_Downloaded';
                 }
                 callback(null);
             }, 1);
         };
-        var load = function (task, callback) {
-            var input = task.input;
+        const load = function (task, callback) {
+            const input = task.input;
             task.output = input;
-            for (var i = 0; i < input.length; i++) {
-                var item = input[i];
+            for (let i = 0; i < input.length; i++) {
+                const item = input[i];
                 item.content += '_Loaded';
             }
             callback(null);
         };
-        var pipeline = new Pipeline('content manipulation', [init, download, load]);
+        const pipeline = new Pipeline('content manipulation', [init, download, load]);
     
-        var onComplete = function (error, items) {
+        const onComplete = function (error, items) {
             expect(items.length).toBe(1);
             expect(items[0].content).toBe(items[0].url + '_Downloaded' + '_Loaded');
             done();
         };
     
-        var onProgress = function (completed, total, item) {
+        const onProgress = function (completed, total, item) {
             expect(completed).toBe(1);
         };
     
-        var task = Task.create({input: [
+        const task = Task.create({input: [
             'res/Background.png',
             {
                 url: 'res/scene.json',

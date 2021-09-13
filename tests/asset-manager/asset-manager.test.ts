@@ -6,7 +6,7 @@ import { TestSprite } from "./common-class";
 
 describe('asset-manager', function () {
     const assetDir = './tests/fixtures';
-    var libPath = assetDir + '/library';
+    const libPath = assetDir + '/library';
     //_resetGame();
     assetManager.init({
         importBase: libPath, 
@@ -40,16 +40,16 @@ describe('asset-manager', function () {
         types: [],
         extensionMap: {},
     });
-    var grossini_uuid = '748321';
-    var grossiniSprite_uuid = '1232218';
-    var selfReferenced_uuid = '123200';
-    var circleReferenced_uuid = '65535';
+    const grossini_uuid = '748321';
+    const grossiniSprite_uuid = '1232218';
+    const selfReferenced_uuid = '123200';
+    const circleReferenced_uuid = '65535';
 
     test('Load', function (done) {
-        var image1 = assetDir + '/button.png';
-        var json1 = assetDir + '/library/12/123200.json';
-        var json2 = assetDir + '/library/deferred-loading/74/748321.json';
-        var resources = [
+        const image1 = assetDir + '/button.png';
+        const json1 = assetDir + '/library/12/123200.json';
+        const json2 = assetDir + '/library/deferred-loading/74/748321.json';
+        const resources = [
             image1,
             json1,
             json2,
@@ -81,7 +81,7 @@ describe('asset-manager', function () {
     });
 
     test('Load single file', function (done) {
-        var image1 = assetDir + '/button.png';
+        const image1 = assetDir + '/button.png';
 
         assetManager.loadAny({ url: image1 }, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
@@ -99,18 +99,18 @@ describe('asset-manager', function () {
     });
 
     test('Loading font', function (done) {
-        var image = assetDir + '/button.png';
-        var font = {
+        const image = assetDir + '/button.png';
+        const font = {
             url: assetDir + '/Thonburi.ttf',
             ext: '.ttf',
         };
-        var resources = [
+        const resources = [
             image,
             font
         ];
-        var total = resources.length;
+        const total = resources.length;
 
-        var progressCallback = jest.fn(function (completedCount, totalCount, item) {
+        const progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === image) {
                 expect(item.content).toBeInstanceOf(Image);
             }
@@ -132,8 +132,8 @@ describe('asset-manager', function () {
     });
 
     test('Loading texture with query', function (done) {
-        var image1 = assetDir + '/button.png?url=http://.../1';
-        var image2 = assetDir + '/button.png?url=http://.../2';
+        const image1 = assetDir + '/button.png?url=http://.../1';
+        const image2 = assetDir + '/button.png?url=http://.../2';
         assetManager.loadAny({url: image1, ext: '.png' }, function (error, image1) {
             assetManager.loadAny({url: image2, ext: '.png' }, function (error, image2) {
                 expect(image1).toBeInstanceOf(Image);;
@@ -145,7 +145,7 @@ describe('asset-manager', function () {
     });
 
     test('Loading remote image', function (done) {
-        var image = assetDir + '/button.png';
+        const image = assetDir + '/button.png';
         assetManager.loadRemote(image, function (error, texture) {
             expect(texture).toBeInstanceOf(ImageAsset);;
             expect(texture._nativeAsset).toBeInstanceOf(Image);;
@@ -253,7 +253,7 @@ describe('asset-manager', function () {
     test('loadResDir by type', function (done) {
         resources.loadDir('grossini', TestSprite, function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
-            var sprite = results[0];
+            const sprite = results[0];
             expect(sprite instanceof TestSprite).toBeTruthy();
             done();
         });
@@ -279,13 +279,13 @@ describe('asset-manager', function () {
     });
 
     test('loadResArray', function (done) {
-        var urls = [
+        const urls = [
             'grossini/grossini',
             'grossini'
         ];
         resources.load(urls, TestSprite, function (err, results) {
             expect(Array.isArray(results)).toBeTruthy();
-            var expectCount = urls.length;
+            const expectCount = urls.length;
             expect(results.length).toBe(expectCount);
             done();
         });

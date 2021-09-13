@@ -4,11 +4,11 @@ import RequestItem from "../../cocos/core/asset-manager/request-item";
 import { files } from '../../cocos/core/asset-manager/shared';
 
 describe('pack-manager', function () {
-    var packManager = assetManager.packManager;
+    const packManager = assetManager.packManager;
     packManager.register('.json', function (pack, json, options, onComplete) {
-        var out = {};
+        const out = {};
         if (Array.isArray(json)) {
-            for (var i = 0; i < pack.length; i++) {
+            for (let i = 0; i < pack.length; i++) {
                 out[pack[i] + '@import'] = json[i];
             }
             onComplete && onComplete(null, out);
@@ -19,7 +19,7 @@ describe('pack-manager', function () {
     });
 
     test('basic', function (done) {
-        var PACKS = {
+        const PACKS = {
             "/01/01102378e.json": [
                 "da9b7d82",
                 "f9673f4b"
@@ -53,7 +53,7 @@ describe('pack-manager', function () {
 
     function testDuplicatedAssets (firstToLoad) {
         test('packs with duplicated assets, load pack ' + firstToLoad + ' first', function (done) {
-            var PACKS = {
+            const PACKS = {
                 "/PA/PACK 1.json": [
                     "A",
                     "1",
@@ -69,7 +69,7 @@ describe('pack-manager', function () {
             };
             //
             packManager.load(firstToLoad, null, function (err, data) {
-                var result = files.remove('A@import');
+                const result = files.remove('A@import');
                 expect(result).toBe("A");
                 done();
             });
@@ -81,7 +81,7 @@ describe('pack-manager', function () {
     testDuplicatedAssets({ id: '2@import' , info: { packs: [{ uuid: "PACK 2", packedUuids: [ "A", "2" ], ext: '.json'}]},  config: {}});
 
     test('packs with duplicated assets, if no one downloaded', function (done) {
-        var PACKS = {
+        const PACKS = {
             "/PA/PACK 1.json": [
                 "1",
             ],

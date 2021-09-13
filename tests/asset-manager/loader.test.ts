@@ -3,14 +3,14 @@ import { ImageAsset } from "../../cocos/core/assets/image-asset";
 
 describe('Loader', () => {
     const assetDir = './tests/fixtures';
-    var libPath = assetDir + '/library';
+    const libPath = assetDir + '/library';
     assetManager.init({importBase: libPath, nativeBase: libPath});
     
     test('Load', function (done) {
-        var image1 = assetDir + '/button.png';
-        var json1 = assetDir + '/library/12/123200.json';
-        var json2 = assetDir + '/library/deferred-loading/74/748321.json';
-        var resources = [
+        const image1 = assetDir + '/button.png';
+        const json1 = assetDir + '/library/12/123200.json';
+        const json2 = assetDir + '/library/deferred-loading/74/748321.json';
+        const resources = [
             image1,
             json1,
             json2,
@@ -39,7 +39,7 @@ describe('Loader', () => {
     });
     
     test('Load single file', function (done) {
-        var image1 = assetDir + '/button.png';
+        const image1 = assetDir + '/button.png';
     
         loader.load(image1, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
@@ -58,10 +58,10 @@ describe('Loader', () => {
     });
     
     test('Load with dependencies', function (done) {
-        var dep1 = assetDir + '/button.png';
-        var dep2 = assetDir + '/library/12/123200.json';
-        var dep3 = assetDir + '/library/65/6545543.png';
-        var depsCount = 3;
+        const dep1 = assetDir + '/button.png';
+        const dep2 = assetDir + '/library/12/123200.json';
+        const dep3 = assetDir + '/library/65/6545543.png';
+        const depsCount = 3;
     
         function loadWithDeps (item, callback) {
             try {
@@ -70,7 +70,7 @@ describe('Loader', () => {
             catch (e) {
                 callback( new Error('JSON Loader: Parse json [' + item.id + '] failed : ' + e) );
             }
-            var resources = [
+            const resources = [
                 dep1,
                 dep2,
                 dep3
@@ -84,24 +84,24 @@ describe('Loader', () => {
             'deps': loadWithDeps
         });
     
-        var json1 = {
+        const json1 = {
             url: assetDir + '/library/65/6545543',
             type: 'deps'
         };
-        var json2 = assetDir + '/library/deferred-loading/74/748321.json';
-        var audio = assetDir + '/library/12/1258a1.json';
-        var resources = [
+        const json2 = assetDir + '/library/deferred-loading/74/748321.json';
+        const audio = assetDir + '/library/12/1258a1.json';
+        const resources = [
             json1,
             json2,
             audio
         ];
     
-        var total = resources.length + depsCount;
+        const total = resources.length + depsCount;
     
-        var depsProgression = jest.fn(() => {});
-        var progressCallback = jest.fn(function (completedCount, totalCount, item) {
+        const depsProgression = jest.fn(() => {});
+        const progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === json1.url) {
-                var dep = loader.getRes(dep1);
+                let dep = loader.getRes(dep1);
                 expect(dep).toBeInstanceOf(ImageAsset);
                 dep = loader.getRes(dep2);
                 expect((dep as any).width).toBe(89);
@@ -129,7 +129,7 @@ describe('Loader', () => {
             expect(items.isCompleted()).toBeTruthy();
             expect(depsProgression).toBeCalledTimes(depsCount);
             expect(progressCallback).toBeCalledTimes(total);
-            var count = loader.getResCount();
+            const count = loader.getResCount();
             expect(count).toBe(total);
             loader.releaseAll();
             done();
@@ -137,20 +137,20 @@ describe('Loader', () => {
     });
     
     test('Loading font', function (done) {
-        var image = assetDir + '/button.png';
-        var font = {
+        const image = assetDir + '/button.png';
+        const font = {
             url: assetDir + '/Thonburi.ttf',
             type: 'font',
             name: 'Thonburi',
             srcs: [assetDir + '/Thonburi.eot']
         };
-        var resources = [
+        const resources = [
             image,
             font
         ];
-        var total = resources.length;
+        const total = resources.length;
     
-        var progressCallback = jest.fn(function (completedCount, totalCount, item) {
+        const progressCallback = jest.fn(function (completedCount, totalCount, item) {
             if (item.uuid === image) {
                 expect(item.content).toBeInstanceOf(Image);
             }
@@ -170,8 +170,8 @@ describe('Loader', () => {
     });
     
     test('Loading texture with query', function (done) {
-        var image1 = assetDir + '/button.png?url=http://.../1';
-        var image2 = assetDir + '/button.png?url=http://.../2';
+        const image1 = assetDir + '/button.png?url=http://.../1';
+        const image2 = assetDir + '/button.png?url=http://.../2';
         loader.load({url: image1, type: 'png'}, function (error) {
             loader.load({url: image2, type: 'png'}, function (error) {
                 expect(loader.getItem(image1).content !== loader.getItem(image2).content).toBeTruthy();

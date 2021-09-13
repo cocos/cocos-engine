@@ -12,7 +12,7 @@ describe('releaseManager', () => {
     assetManager.init({importBase: libPath, nativeBase: libPath});
 
     test('reference', function () {
-        var tex = new Texture2D();
+        const tex = new Texture2D();
         tex._uuid = 'AAA';
         expect(tex.refCount).toBe(0);
         tex.addRef();
@@ -22,7 +22,7 @@ describe('releaseManager', () => {
     });
 
     test('release', function () {
-        var tex = new Texture2D();
+        const tex = new Texture2D();
         tex._uuid = 'AAA';
         tex.addRef();
         assetManager.assets.add('AAA', tex);
@@ -37,10 +37,10 @@ describe('releaseManager', () => {
     });
 
     test('release dependencies', function () {
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         assetManager.assets.add('AAA', texA);
-        var texB = new Texture2D();
+        const texB = new Texture2D();
         texB._uuid = 'BBB';
         texB.addRef();
         assetManager.assets.add('BBB', texB);
@@ -51,20 +51,20 @@ describe('releaseManager', () => {
     });
 
     test('release circle reference', function () {
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         texA.addRef();
         assetManager.assets.add('AAA', texA);
-        var texB = new Texture2D();
+        const texB = new Texture2D();
         texB._uuid = 'BBB';
         texB.addRef();
         texB.addRef();
         assetManager.assets.add('BBB', texB);
-        var texC = new Texture2D();
+        const texC = new Texture2D();
         texC._uuid = 'CCC';
         texC.addRef();
         assetManager.assets.add('CCC', texC);
-        var texD = new Texture2D();
+        const texD = new Texture2D();
         texD._uuid = 'DDD';
         texD.addRef();
         assetManager.assets.add('DDD', texD);
@@ -78,21 +78,21 @@ describe('releaseManager', () => {
     });
 
     test('release circle reference2', function () {
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         texA.addRef();
         assetManager.assets.add('AAA', texA);
-        var texB = new Texture2D();
+        const texB = new Texture2D();
         texB._uuid = 'BBB';
         texB.addRef();
         texB.addRef();
         texB.addRef();
         assetManager.assets.add('BBB', texB);
-        var texC = new Texture2D();
+        const texC = new Texture2D();
         texC._uuid = 'CCC';
         texC.addRef();
         assetManager.assets.add('CCC', texC);
-        var texD = new Texture2D();
+        const texD = new Texture2D();
         texD._uuid = 'DDD';
         texD.addRef();
         assetManager.assets.add('DDD', texD);
@@ -107,19 +107,19 @@ describe('releaseManager', () => {
     });
 
     test('release circle reference3', function () {
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         texA.addRef().addRef();
         assetManager.assets.add('AAA', texA);
-        var texB = new Texture2D();
+        const texB = new Texture2D();
         texB._uuid = 'BBB';
         texB.addRef().addRef();
         assetManager.assets.add('BBB', texB);
-        var texC = new Texture2D();
+        const texC = new Texture2D();
         texC._uuid = 'CCC';
         texC.addRef();
         assetManager.assets.add('CCC', texC);
-        var texD = new Texture2D();
+        const texD = new Texture2D();
         texD._uuid = 'DDD';
         texD.addRef();
         assetManager.assets.add('DDD', texD);
@@ -133,19 +133,19 @@ describe('releaseManager', () => {
     });
 
     test('release circle reference4', function () {
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         texA.addRef().addRef();
         assetManager.assets.add('AAA', texA);
-        var texB = new Texture2D();
+        const texB = new Texture2D();
         texB._uuid = 'BBB';
         texB.addRef().addRef().addRef();
         assetManager.assets.add('BBB', texB);
-        var texC = new Texture2D();
+        const texC = new Texture2D();
         texC._uuid = 'CCC';
         texC.addRef().addRef();
         assetManager.assets.add('CCC', texC);
-        var texD = new Texture2D();
+        const texD = new Texture2D();
         texD._uuid = 'DDD';
         texD.addRef();
         assetManager.assets.add('DDD', texD);
@@ -160,19 +160,19 @@ describe('releaseManager', () => {
     });
 
     test('release circle reference5', function () {
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         texA.addRef();
         assetManager.assets.add('AAA', texA);
-        var texB = new Texture2D();
+        const texB = new Texture2D();
         texB._uuid = 'BBB';
         texB.addRef();
         assetManager.assets.add('BBB', texB);
-        var texC = new Texture2D();
+        const texC = new Texture2D();
         texC._uuid = 'CCC';
         texC.addRef();
         assetManager.assets.add('CCC', texC);
-        var texD = new Texture2D();
+        const texD = new Texture2D();
         texD._uuid = 'DDD';
         texD.addRef().addRef();
         assetManager.assets.add('DDD', texD);
@@ -188,25 +188,25 @@ describe('releaseManager', () => {
     });
 
     test('AutoRelease', function () {
-        var scene1 = new Scene('');
+        const scene1 = new Scene('');
         // @ts-expect-error set private property
         scene1._id = 'scene 1';
-        var scene2 = new Scene('');
+        const scene2 = new Scene('');
         // @ts-expect-error set private property
         scene2._id = 'scene 2';
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         texA.addRef();
         assetManager.assets.add('AAA', texA);
-        var texB = new Texture2D();
+        const texB = new Texture2D();
         texB._uuid = 'BBB';
         texB.addRef().addRef();
         assetManager.assets.add('BBB', texB);
-        var texC = new Texture2D();
+        const texC = new Texture2D();
         texC._uuid = 'CCC';
         texC.addRef().addRef();
         assetManager.assets.add('CCC', texC);
-        var texD = new Texture2D();
+        const texD = new Texture2D();
         texD._uuid = 'DDD';
         texD.addRef();
         assetManager.assets.add('DDD', texD);
@@ -223,13 +223,13 @@ describe('releaseManager', () => {
     });
 
     test('autoRelease_polyfill', function () {
-        var scene1 = new Scene('');
+        const scene1 = new Scene('');
         // @ts-expect-error set private property
         scene1._id = 'scene 1';
-        var scene2 = new Scene('');
+        const scene2 = new Scene('');
         // @ts-expect-error set private property
         scene2._id = 'scene 2';
-        var texA = new Texture2D();
+        const texA = new Texture2D();
         texA._uuid = 'AAA';
         assetManager.assets.add('AAA', texA);
         loader.setAutoRelease(texA, true);
@@ -241,26 +241,26 @@ describe('releaseManager', () => {
     });
 
     test('persistNode', function () {
-        var scene1 = new Scene('');
+        const scene1 = new Scene('');
         // @ts-expect-error set private property
         scene1._id = 'scene 1';
-        var scene2 = new Scene('');
+        const scene2 = new Scene('');
         // @ts-expect-error set private property
         scene2._id = 'scene 2';
-        var scene3 = new Scene('');
+        const scene3 = new Scene('');
         // @ts-expect-error set private property
         scene3._id = 'scene 3';
-        var sp = new SpriteFrame();
+        const sp = new SpriteFrame();
         sp._uuid = 'AAA';
         sp.addRef();
-        var tex = new Texture2D();
+        const tex = new Texture2D();
         tex.loaded = true;
         sp.texture = tex;
         assetManager.assets.add('AAA', sp);
-        var persistNode = new Node();
+        const persistNode = new Node();
         (persistNode.addComponent(Sprite) as Sprite).spriteFrame = sp;
         releaseManager._addPersistNodeRef(persistNode);
-        var persistNodes = {};
+        const persistNodes = {};
         persistNodes[persistNode.uuid] = persistNode;
         assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA']});
         assetManager.dependUtil._depends.add('scene 2', {deps: []});

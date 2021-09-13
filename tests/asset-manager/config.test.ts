@@ -3,7 +3,7 @@ import Config, { IAddressableInfo, IPackInfo } from '../../cocos/core/asset-mana
 import { Texture2D } from '../../cocos/core/assets/texture-2d';
 describe('config', () => {
 
-    var config = new Config();
+    const config = new Config();
     config.init({
         paths: {
             'AAA': ['images/test', 'cc.Texture2D'],
@@ -46,14 +46,14 @@ describe('config', () => {
     });
 
     test('get scene info', function () {
-        var result = config.getSceneInfo('Start');
+        const result = config.getSceneInfo('Start');
         expect(result.uuid).toBe('DDD');
         expect(result.ver).toBe('12saqwe');
         expect(result.packs.length).toBe(1);
     });
 
     test('get info with path', function () {
-        var result = config.getInfoWithPath('images/test', Texture2D);
+        let result = config.getInfoWithPath('images/test', Texture2D);
         expect(result.uuid).toBe('AAA');
         expect(result.ver).toBe('dswq123sq');
         expect(result.nativeVer).toBe('tester');
@@ -65,7 +65,7 @@ describe('config', () => {
     });
 
     test('get dir with path', function () {
-        var result = config.getDirWithPath('images/test');
+        let result = config.getDirWithPath('images/test');
         expect(result.length).toBe(2);
         result = config.getDirWithPath('images/test', Texture2D);
         expect(result.length).toBe(1)
