@@ -50,7 +50,8 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
     // when none are specified in subpass
     const bool hasDepth = _depthStencilAttachment.format != Format::UNKNOWN;
     if (_gpuRenderPass->subpasses.empty()) {
-        auto &subpass = _gpuRenderPass->subpasses.emplace_back();
+        _gpuRenderPass->subpasses.emplace_back(SubpassInfo());
+        auto &subpass = *_gpuRenderPass->subpasses.rbegin();
         subpass.colors.resize(_colorAttachments.size());
         for (uint i = 0U; i < _colorAttachments.size(); ++i) {
             subpass.colors[i] = i;

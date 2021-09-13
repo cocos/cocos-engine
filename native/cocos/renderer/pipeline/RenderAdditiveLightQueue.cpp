@@ -31,6 +31,7 @@
 #include "RenderAdditiveLightQueue.h"
 
 #include "Define.h"
+#include "GlobalDescriptorSetManager.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
@@ -44,7 +45,6 @@
 #include "gfx-base/GFXTexture.h"
 #include "scene/RenderScene.h"
 #include "scene/Sphere.h"
-#include "GlobalDescriptorSetManager.h"
 
 namespace cc {
 namespace pipeline {
@@ -63,7 +63,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
         _lightBufferStride,
     });
     _firstLightBufferView    = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
-    _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
+    _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
     _dynamicOffsets.resize(1, 0);
     _phaseID = getPhaseID("forward-add");
     _shadowUBO.fill(0.F);
@@ -237,16 +237,17 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     const auto  validLightCount = _validLights.size();
     auto *const sceneData       = _pipeline->getPipelineSceneData();
     auto *const sharedData      = sceneData->getSharedData();
+    size_t      offset          = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
         _lightBufferCount = nextPow2(static_cast<uint>(validLightCount));
-        _lightBuffer->resize(_lightBufferStride * _lightBufferCount);
-        _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
+        _lightBuffer->resize(static_cast<uint>(_lightBufferStride * _lightBufferCount));
+        _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
         _firstLightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
     }
 
-    for (unsigned l = 0, offset = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
+    for (unsigned l = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
         auto *      light       = _validLights[l];
         const bool  isSpotLight = scene::LightType::SPOT == light->getType();
         const auto *spotLight   = isSpotLight ? static_cast<scene::SpotLight *>(light) : nullptr;
@@ -306,14 +307,14 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 }
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    auto *const         sceneData          = _pipeline->getPipelineSceneData();
-    auto *              shadowInfo         = sceneData->getSharedData()->shadow;
-    const auto *const   scene              = camera->scene;
-    auto *              device             = gfx::Device::getInstance();
-    const bool          hFTexture          = supportsHalfFloatTexture(device);
-    const float         linear             = 0.0F;
-    const float         packing            = hFTexture ? 0.0F : 1.0F;
-    const scene::Light *mainLight          = scene->getMainLight();
+    auto *const         sceneData  = _pipeline->getPipelineSceneData();
+    auto *              shadowInfo = sceneData->getSharedData()->shadow;
+    const auto *const   scene      = camera->scene;
+    auto *              device     = gfx::Device::getInstance();
+    const bool          hFTexture  = supportsHalfFloatTexture(device);
+    const float         linear     = 0.0F;
+    const float         packing    = hFTexture ? 0.0F : 1.0F;
+    const scene::Light *mainLight  = scene->getMainLight();
 
     for (uint i = 0; i < _validLights.size(); ++i) {
         const auto *light         = _validLights[i];
@@ -351,7 +352,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 cc::Mat4 matShadowProj;
                 cc::Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowProj);
                 cc::Mat4 matShadowViewProj = matShadowProj;
-                cc::Mat4 matShadowInvProj = matShadowProj;
+                cc::Mat4 matShadowInvProj  = matShadowProj;
                 matShadowInvProj.inverse();
 
                 matShadowViewProj.multiply(matShadowView);
@@ -435,7 +436,7 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
                 break;
         }
         if (!isCulled) {
-            _lightIndices.emplace_back(i);
+            _lightIndices.emplace_back(static_cast<uint>(i));
         }
     }
 }

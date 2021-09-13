@@ -190,6 +190,7 @@ jobs:
           echo "set(CC_USE_VULKAN OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_GLES2 OFF)" >> build-ios/proj/cfg.cmake
           echo "set(CC_USE_METAL ON)" >> build-ios/proj/cfg.cmake
+          echo "set(TARGET_IOS_VERSION 12.0)" >> build-ios/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-ios/proj/cfg.cmake
           echo "set(USE_DRAGONBONES OFF)" >> build-ios/proj/cfg.cmake
           echo "set(MACOSX_BUNDLE_GUI_IDENTIFIER com.cocos.demo.ios)" >> build-ios/proj/cfg.cmake

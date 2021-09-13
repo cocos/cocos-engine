@@ -73,7 +73,7 @@ static void _winLog(const char *format, va_list args) {
     strcat(buf, "\n");
 
     int   pos                         = 0;
-    int   len                         = strlen(buf);
+    auto  len                         = static_cast<int>(strlen(buf));
     char  tempBuf[MAX_LOG_LENGTH + 1] = {0};
     WCHAR wszBuf[MAX_LOG_LENGTH + 1]  = {0};
 
@@ -92,14 +92,14 @@ static void _winLog(const char *format, va_list args) {
     delete[] buf;
 }
 
-#ifndef audioLog
+    #ifndef audioLog
 void audioLog(const char *format, ...) {
     va_list args;
     va_start(args, format);
     _winLog(format, args);
     va_end(args);
 }
-#endif
+    #endif
 
 #else
 

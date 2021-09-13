@@ -28,9 +28,9 @@
 #include "base/Log.h"
 #include "gfx-base/GFXDef.h"
 
-#include "glslang/StandAlone/ResourceLimits.h"
 #include "glslang/Public/ShaderLang.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
+#include "glslang/StandAlone/ResourceLimits.h"
 
 namespace cc {
 namespace gfx {
@@ -74,7 +74,7 @@ inline glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion
     }
 }
 
-inline bool glslangInitialized = false;
+extern bool glslangInitialized;
 
 inline vector<unsigned int> glsl2spirv(ShaderStageFlagBit type, const String &source, int vulkanMinorVersion = 0) {
     if (!glslangInitialized) {

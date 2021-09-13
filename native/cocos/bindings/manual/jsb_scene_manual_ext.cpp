@@ -47,12 +47,12 @@ void fastSetPasses(void *buffer) {
         uint32_t                           passSize;
         AlignedPtr<cc::scene::Pass>        passes[0];
     };
-    static_assert(offsetof(Heap, passes) == 12);
+    //static_assert(offsetof(Heap, passes) == 12); // c++17
 
     Heap *heap   = reinterpret_cast<Heap *>(buffer);
     auto &passes = heap->selfPtr.get()->passes;
     passes.resize(heap->passSize);
-    for (auto i = 0; i < heap->passSize; i++) {
+    for (size_t i = 0; i < heap->passSize; i++) {
         passes[i] = heap->passes[i].get();
     }
 }
@@ -66,7 +66,7 @@ void fastSetShaders(void *buffer) {
     Heap *heap    = reinterpret_cast<Heap *>(buffer);
     auto &shaders = heap->selfPtr.get()->shaders;
     shaders.resize(heap->shaderSize);
-    for (auto i = 0; i < heap->shaderSize; i++) {
+    for (size_t i = 0; i < heap->shaderSize; i++) {
         shaders[i] = heap->shaders[i].get();
     }
 }

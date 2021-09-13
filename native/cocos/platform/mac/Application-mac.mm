@@ -108,10 +108,10 @@ bool setCanvasCallback(se::Object *global) {
                << "; window.innerHeight = " << viewLogicalSize.y
                << "; window.windowHandler = ";
 
-        if constexpr (sizeof(windowPtr) == 8) { // use bigint
+        if (sizeof(windowPtr) == 8) { // use bigint
             ss << static_cast<uint64_t>(windowPtr) << "n;";
         }
-        if constexpr (sizeof(windowPtr) == 4) {
+        if (sizeof(windowPtr) == 4) {
             ss << static_cast<uint32_t>(windowPtr) << ";";
         }
     }

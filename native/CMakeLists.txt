@@ -89,10 +89,12 @@ if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
     set(USE_JOB_SYSTEM_TBB      OFF)
 endif()
 
-# if(USE_JOB_SYSTEM_TASKFLOW)
-#     set(CMAKE_CXX_STANDARD 17)
-#     set(TARGET_IOS_VERSION "12.0"  CACHE STRING "Target iOS version" FORCE)
-# endif()
+if(USE_JOB_SYSTEM_TASKFLOW)
+    set(CMAKE_CXX_STANDARD 17)
+    if("${TARGET_IOS_VERSION}" VERSION_LESS "12.0")
+        message(FATAL_ERROR "Target iOS version requires 12.0+ when enable taskflow")
+    endif()
+endif()
 
 ################################# list all option values ##############################
 
@@ -1095,6 +1097,7 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKShader.cpp
                      cocos/renderer/gfx-vulkan/VKShader.h
                      cocos/renderer/gfx-vulkan/VKSPIRV.h
+                     cocos/renderer/gfx-vulkan/VKSPIRV.cpp
                      cocos/renderer/gfx-vulkan/VKStd.cpp
                      cocos/renderer/gfx-vulkan/VKStd.h
                      cocos/renderer/gfx-vulkan/VKTexture.cpp

@@ -43,7 +43,7 @@ GLES3PipelineLayout::~GLES3PipelineLayout() {
 void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
     _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
 
-    uint offset = 0U;
+    size_t offset = 0;
     _gpuPipelineLayout->dynamicOffsetIndices.resize(_setLayouts.size());
     for (uint i = 0U; i < _setLayouts.size(); i++) {
         DescriptorSetLayout *        setLayout    = _setLayouts[i];
@@ -54,14 +54,14 @@ void GLES3PipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
 
         for (uint j = 0U; j < dynamicCount; j++) {
             uint binding = gpuSetLayout->dynamicBindings[j];
-            if (indices[binding] < 0) indices[binding] = offset + j;
+            if (indices[binding] < 0) indices[binding] = static_cast<uint>(offset + j);
         }
-        _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
+        _gpuPipelineLayout->dynamicOffsetOffsets.push_back(static_cast<uint>(offset));
         _gpuPipelineLayout->setLayouts.push_back(gpuSetLayout);
         offset += dynamicCount;
     }
-    _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
-    _gpuPipelineLayout->dynamicOffsetCount = offset;
+    _gpuPipelineLayout->dynamicOffsetOffsets.push_back(static_cast<uint>(offset));
+    _gpuPipelineLayout->dynamicOffsetCount = static_cast<uint>(offset);
     _gpuPipelineLayout->dynamicOffsets.resize(offset);
 }
 

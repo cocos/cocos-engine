@@ -23,56 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-
-#include <uv.h>
-#include <functional>
+#include "renderer/gfx-vulkan/VKSPIRV.h"
 
 namespace cc {
+namespace gfx {
 
-class ReadWriteLock final {
-public:
-    ReadWriteLock() {
-        uv_rwlock_init(&_lock);
-    };
-    ~ReadWriteLock() {
-        uv_rwlock_destroy(&_lock);
-    }
+bool glslangInitialized = false;
 
-    template <typename Function, typename... Args>
-    auto lockRead(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...));
-
-    template <typename Function, typename... Args>
-    auto lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...));
-
-private:
-    uv_rwlock_t _lock;
-
-    struct Defer final {
-        Defer(std::function<void()> &&f) : fn(f) {}
-        ~Defer() {
-            fn();
-        }
-        std::function<void()> fn;
-    };
-};
-
-template <typename Function, typename... Args>
-auto ReadWriteLock::lockRead(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
-    uv_rwlock_rdlock(&_lock);
-    auto defer = Defer([&]() {
-        uv_rwlock_rdunlock(&_lock);
-    });
-    return func(std::forward<Args>(args)...);
-}
-
-template <typename Function, typename... Args>
-auto ReadWriteLock::lockWrite(Function &&func, Args &&...args) noexcept -> decltype(func(std::forward<Args>(args)...)) {
-    uv_rwlock_wrlock(&_lock);
-    auto defer = Defer([&]() {
-        uv_rwlock_wrunlock(&_lock);
-    });
-    return func(std::forward<Args>(args)...);
-}
-
+} // namespace gfx
 } // namespace cc

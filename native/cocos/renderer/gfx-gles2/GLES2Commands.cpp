@@ -1002,7 +1002,8 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
     // fallback subpassInputs into samplerTextures if not using FBF or PLS
     if (device->constantRegistry()->mFBF == FBFSupportLevel::NONE) {
         for (const auto &subpassInput : gpuShader->subpassInputs) {
-            auto &samplerTexture   = gpuShader->samplerTextures.emplace_back();
+            gpuShader->samplerTextures.emplace_back(UniformSamplerTexture());
+            auto &samplerTexture   = *gpuShader->samplerTextures.rbegin();
             samplerTexture.name    = subpassInput.name;
             samplerTexture.set     = subpassInput.set;
             samplerTexture.binding = subpassInput.binding;
@@ -1056,7 +1057,8 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                         glUniform.count = glSize;
                         glUniform.size  = glUniform.stride * glUniform.count;
 
-                        auto &activeUniform = glBlock.glActiveUniforms.emplace_back(glUniform);
+                        glBlock.glActiveUniforms.emplace_back(GLES2GPUUniform());
+                        auto &activeUniform = *glBlock.glActiveUniforms.rbegin();
                         activeUniform.buff.resize(activeUniform.size);
                         glBlock.activeUniformIndices.push_back(i);
                         break;
@@ -1375,7 +1377,9 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
         doCreateFramebufferInstance(device, gpuFBO, gpuFBO->uberColorAttachmentIndices, gpuFBO->gpuColorTextures.size(), &gpuFBO->uberInstance);
     } else {
         for (const auto &subpass : gpuFBO->gpuRenderPass->subpasses) {
-            doCreateFramebufferInstance(device, gpuFBO, subpass.colors, subpass.depthStencil, &gpuFBO->instances.emplace_back(),
+            gpuFBO->instances.emplace_back(GLES2GPUFramebuffer::GLFramebuffer());
+            auto &fboInst = *gpuFBO->instances.rbegin();
+            doCreateFramebufferInstance(device, gpuFBO, subpass.colors, subpass.depthStencil, &fboInst,
                                         subpass.resolves.empty() ? nullptr : subpass.resolves.data(), subpass.depthStencilResolve);
         }
     }
@@ -1713,6 +1717,7 @@ void cmdFuncGLES2EndRenderPass(GLES2Device *device) {
     }
 }
 
+// NOLINTNEXTLINE
 void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipelineState, GLES2GPUInputAssembler *gpuInputAssembler,
                            const GLES2GPUDescriptorSet *const *gpuDescriptorSets, const uint *dynamicOffsets,
                            const DynamicStates *dynamicStates) {

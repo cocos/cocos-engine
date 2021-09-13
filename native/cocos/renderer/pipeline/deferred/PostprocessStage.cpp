@@ -103,8 +103,8 @@ void PostprocessStage::render(scene::Camera *camera) {
     gfx::RenderPass * rp            = !colorTextures.empty() && colorTextures[0] ? fb->getRenderPass() : pp->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->clearFlag));
 
     cmdBf->beginRenderPass(rp, fb, renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
-    uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBf->bindDescriptorSet(globalSet, pp->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+    const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    cmdBf->bindDescriptorSet(globalSet, pp->getDescriptorSet(), static_cast<uint>(globalOffsets.size()), globalOffsets.data());
 
     // post proces
     auto *const  sceneData     = _pipeline->getPipelineSceneData();

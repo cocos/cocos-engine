@@ -126,26 +126,26 @@ uint RenderPass::computeHash(const RenderPassInfo &info) {
             for (const uint iaIndex : subPass.inputs) {
                 if (iaIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ia = info.colorAttachments[iaIndex];
-                seed += 4 + ia.beginAccesses.size() + ia.endAccesses.size();
+                seed += static_cast<uint>(4 + ia.beginAccesses.size() + ia.endAccesses.size());
             }
             for (const uint caIndex : subPass.colors) {
                 if (caIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ca = info.colorAttachments[caIndex];
-                seed += 4 + ca.beginAccesses.size() + ca.endAccesses.size();
+                seed += static_cast<uint>(4 + ca.beginAccesses.size() + ca.endAccesses.size());
             }
             for (const uint raIndex : subPass.resolves) {
                 if (raIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ra = info.colorAttachments[raIndex];
-                seed += 4 + ra.beginAccesses.size() + ra.endAccesses.size();
+                seed += static_cast<uint>(4 + ra.beginAccesses.size() + ra.endAccesses.size());
             }
             for (const uint paIndex : subPass.preserves) {
                 if (paIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &pa = info.colorAttachments[paIndex];
-                seed += 4 + pa.beginAccesses.size() + pa.endAccesses.size();
+                seed += static_cast<uint>(4 + pa.beginAccesses.size() + pa.endAccesses.size());
             }
             if (subPass.depthStencil < info.colorAttachments.size()) {
                 const ColorAttachment &ds = info.colorAttachments[subPass.depthStencil];
-                seed += 4 + ds.beginAccesses.size() + ds.endAccesses.size();
+                seed += static_cast<uint>(4 + ds.beginAccesses.size() + ds.endAccesses.size());
             }
         }
         for (const SubpassInfo &subpass : info.subpasses) {
@@ -171,9 +171,9 @@ uint RenderPass::computeHash(const RenderPassInfo &info) {
         }
     } else {
         for (const ColorAttachment &ca : info.colorAttachments) {
-            seed += 4 + ca.beginAccesses.size() + ca.endAccesses.size();
+            seed += static_cast<uint>(4 + ca.beginAccesses.size() + ca.endAccesses.size());
         }
-        seed += 6 + info.depthStencilAttachment.beginAccesses.size() + info.depthStencilAttachment.endAccesses.size();
+        seed += static_cast<uint>(6 + info.depthStencilAttachment.beginAccesses.size() + info.depthStencilAttachment.endAccesses.size());
 
         for (const ColorAttachment &ca : info.colorAttachments) {
             computeAttachmentHash(ca, seed);

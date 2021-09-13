@@ -77,8 +77,10 @@ void Device::destroy() {
 
     _bindingMappingInfo.bufferOffsets.clear();
     _bindingMappingInfo.samplerOffsets.clear();
-    _width = _height = _windowHandle = 0U;
-    _pixelRatio                      = 1.0F;
+    _width        = 0;
+    _height       = 0;
+    _windowHandle = 0;
+    _pixelRatio   = 1.0F;
 }
 
 } // namespace gfx

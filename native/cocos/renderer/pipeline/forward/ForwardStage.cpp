@@ -117,15 +117,15 @@ void ForwardStage::render(scene::Camera *camera) {
     uint   passIdx     = 0;
     size_t k           = 0;
     for (auto ro : renderObjects) {
-        const auto *const model = ro.model;
-        const auto& subModels = model->getSubModels();
-        auto subModelCount = subModels.size();
+        const auto *const model         = ro.model;
+        const auto &      subModels     = model->getSubModels();
+        auto              subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto& subModel = subModels[subModelIdx];
-            const auto& passes = subModel->getPasses();
-            auto passCount = passes.size();
+            const auto &subModel  = subModels[subModelIdx];
+            const auto &passes    = subModel->getPasses();
+            auto        passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
-                const auto& pass          = passes[passIdx];
+                const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                     auto *instancedBuffer = InstancedBuffer::get(pass);
@@ -143,7 +143,7 @@ void ForwardStage::render(scene::Camera *camera) {
             }
         }
     }
-        
+
     for (auto *queue : _renderQueues) {
         queue->sort();
     }
@@ -186,8 +186,8 @@ void ForwardStage::render(scene::Camera *camera) {
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
 
-    uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+    const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), static_cast<uint>(globalOffsets.size()), globalOffsets.data());
 
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);

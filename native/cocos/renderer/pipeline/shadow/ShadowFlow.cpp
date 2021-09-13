@@ -34,7 +34,8 @@
 #include "gfx-base/GFXRenderPass.h"
 #include "gfx-base/GFXTexture.h"
 
-namespace cc::pipeline {
+namespace cc {
+namespace pipeline {
 std::unordered_map<uint, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
 
 RenderFlowInfo ShadowFlow::initInfo = {
@@ -175,7 +176,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
     const auto  format        = supportsHalfFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
-    
+
     const gfx::ColorAttachment colorAttachment = {
         format,
         gfx::SampleCount::X1,
@@ -256,4 +257,5 @@ void ShadowFlow::destroy() {
     RenderFlow::destroy();
 }
 
-} // namespace cc::pipeline
+} // namespace pipeline
+} // namespace cc

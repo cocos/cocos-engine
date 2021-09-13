@@ -234,7 +234,7 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         //gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getCapabilities().uboOffsetAlignment);
         //bufferInfo.size         = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
         //allocInfo.flags         = VMA_ALLOCATION_CREATE_MAPPED_BIT;
-        allocInfo.usage         = VMA_MEMORY_USAGE_CPU_TO_GPU;
+        allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
 
@@ -1472,7 +1472,8 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
 
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
-        thsvsGetVulkanImageMemoryBarrier(imageBarrier, &tempSrcStageMask, &tempDstStageMask, &vkImageBarriers.emplace_back());
+        vkImageBarriers.emplace_back(VkImageMemoryBarrier());
+        thsvsGetVulkanImageMemoryBarrier(imageBarrier, &tempSrcStageMask, &tempDstStageMask, &(*vkImageBarriers.rbegin()));
         srcStageMask |= tempSrcStageMask;
         dstStageMask |= tempDstStageMask;
 

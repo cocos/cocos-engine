@@ -302,7 +302,7 @@ void GLES3Device::bindRenderContext(bool bound) {
     _context = bound ? _renderContext : nullptr;
 
     if (bound) {
-        _gpuConstantRegistry->currentBoundThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        _gpuConstantRegistry->currentBoundThreadID = static_cast<uint>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
         _gpuStateCache->reset();
     }
 }
@@ -320,7 +320,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
     _context = bound ? _deviceContext : nullptr;
 
     if (bound) {
-        _gpuConstantRegistry->currentBoundThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
+        _gpuConstantRegistry->currentBoundThreadID = static_cast<uint>(std::hash<std::thread::id>{}(std::this_thread::get_id()));
         _gpuStateCache->reset();
     }
 }
@@ -391,7 +391,7 @@ void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 }
 
 void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
-    cmdFuncGLES3CopyTextureToBuffers(this, srcTexture ? static_cast<GLES3Texture*>(srcTexture)->gpuTexture() : nullptr, buffers, regions, count);
+    cmdFuncGLES3CopyTextureToBuffers(this, srcTexture ? static_cast<GLES3Texture *>(srcTexture)->gpuTexture() : nullptr, buffers, regions, count);
 }
 
 } // namespace gfx
