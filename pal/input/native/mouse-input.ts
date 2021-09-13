@@ -1,10 +1,11 @@
 import { MouseCallback } from 'pal/input';
 import { screenAdapter } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
-import { EventMouse, SystemEventType } from '../../../cocos/input/types';
+import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { legacyCC } from '../../../cocos/core/global-exports';
+import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class MouseInputSource {
     public support: boolean;
@@ -30,24 +31,24 @@ export class MouseInputSource {
     }
 
     private _registerEvent () {
-        jsb.onMouseDown = this._createCallback(SystemEventType.MOUSE_DOWN);
-        jsb.onMouseMove = this._createCallback(SystemEventType.MOUSE_MOVE);
-        jsb.onMouseUp =  this._createCallback(SystemEventType.MOUSE_UP);
+        jsb.onMouseDown = this._createCallback(InputEventType.MOUSE_DOWN);
+        jsb.onMouseMove = this._createCallback(InputEventType.MOUSE_MOVE);
+        jsb.onMouseUp =  this._createCallback(InputEventType.MOUSE_UP);
         jsb.onMouseWheel = this._handleMouseWheel.bind(this);
     }
 
-    private _createCallback (eventType: SystemEventType) {
+    private _createCallback (eventType: InputEventType) {
         return (mouseEvent: jsb.MouseEvent) => {
             const location = this._getLocation(mouseEvent);
             let button = mouseEvent.button;
             switch (eventType) {
-            case SystemEventType.MOUSE_DOWN:
+            case InputEventType.MOUSE_DOWN:
                 this._isPressed = true;
                 break;
-            case SystemEventType.MOUSE_UP:
+            case InputEventType.MOUSE_UP:
                 this._isPressed = false;
                 break;
-            case SystemEventType.MOUSE_MOVE:
+            case InputEventType.MOUSE_MOVE:
                 if (!this._isPressed) {
                     button = EventMouse.BUTTON_MISSING;
                 }
@@ -69,7 +70,7 @@ export class MouseInputSource {
     }
 
     private _handleMouseWheel (mouseEvent: jsb.MouseWheelEvent) {
-        const eventType = SystemEventType.MOUSE_WHEEL;
+        const eventType = InputEventType.MOUSE_WHEEL;
         const location = this._getLocation(mouseEvent);
         const button = mouseEvent.button;
 
@@ -86,16 +87,7 @@ export class MouseInputSource {
         this._eventTarget.emit(eventType, eventMouse);
     }
 
-    onDown (cb: MouseCallback) {
-        this._eventTarget.on(SystemEventType.MOUSE_DOWN, cb);
-    }
-    onMove (cb: MouseCallback) {
-        this._eventTarget.on(SystemEventType.MOUSE_MOVE, cb);
-    }
-    onUp (cb: MouseCallback) {
-        this._eventTarget.on(SystemEventType.MOUSE_UP, cb);
-    }
-    onWheel (cb: MouseCallback) {
-        this._eventTarget.on(SystemEventType.MOUSE_WHEEL, cb);
+    public on (eventType: InputEventType, callback: MouseCallback, target?: any) {
+        this._eventTarget.on(eventType, callback, target);
     }
 }

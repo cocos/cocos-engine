@@ -32,7 +32,7 @@ import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
-import { inputManager } from '../input';
+import { input } from '../input';
 import * as debug from './platform/debug';
 import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
@@ -436,7 +436,8 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
-        inputManager.clearEvents();
+        // @ts-expect-error _clearEvents is a private method.
+        input._clearEvents();
         if (this._intervalId) {
             window.cAF(this._intervalId);
             this._intervalId = 0;

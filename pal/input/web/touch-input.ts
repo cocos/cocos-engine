@@ -3,9 +3,10 @@ import { TEST } from 'internal:constants';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { SystemEventType, Touch, EventTouch } from '../../../cocos/input/types';
+import { Touch, EventTouch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
+import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class TouchInputSource {
     public support: boolean;
@@ -25,13 +26,13 @@ export class TouchInputSource {
 
     private _registerEvent () {
         // IDEA: need to register on window ?
-        this._canvas?.addEventListener('touchstart', this._createCallback(SystemEventType.TOUCH_START));
-        this._canvas?.addEventListener('touchmove', this._createCallback(SystemEventType.TOUCH_MOVE));
-        this._canvas?.addEventListener('touchend', this._createCallback(SystemEventType.TOUCH_END));
-        this._canvas?.addEventListener('touchcancel', this._createCallback(SystemEventType.TOUCH_CANCEL));
+        this._canvas?.addEventListener('touchstart', this._createCallback(InputEventType.TOUCH_START));
+        this._canvas?.addEventListener('touchmove', this._createCallback(InputEventType.TOUCH_MOVE));
+        this._canvas?.addEventListener('touchend', this._createCallback(InputEventType.TOUCH_END));
+        this._canvas?.addEventListener('touchcancel', this._createCallback(InputEventType.TOUCH_CANCEL));
     }
 
-    private _createCallback (eventType: SystemEventType) {
+    private _createCallback (eventType: InputEventType) {
         return (event: TouchEvent) => {
             const canvasRect = this._getCanvasRect();
             const handleTouches: Touch[] = [];
@@ -47,7 +48,7 @@ export class TouchInputSource {
                 if (!touch) {
                     continue;
                 }
-                if (eventType === SystemEventType.TOUCH_END || eventType === SystemEventType.TOUCH_CANCEL) {
+                if (eventType === InputEventType.TOUCH_END || eventType === InputEventType.TOUCH_CANCEL) {
                     touchManager.releaseTouch(touchID);
                 }
                 handleTouches.push(touch);
@@ -59,7 +60,7 @@ export class TouchInputSource {
             if (event.target === this._canvas) {
                 event.preventDefault();
             }
-            if (eventType === SystemEventType.TOUCH_START) {
+            if (eventType === InputEventType.TOUCH_START) {
                 this._canvas?.focus();
             }
             if (handleTouches.length > 0) {
@@ -95,16 +96,7 @@ export class TouchInputSource {
         return new Vec2(x, y);
     }
 
-    public onStart (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_START, cb);
-    }
-    public onMove (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_MOVE, cb);
-    }
-    public onEnd (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_END, cb);
-    }
-    public onCancel (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_CANCEL, cb);
+    public on (eventType: InputEventType, callback: TouchCallback, target?: any) {
+        this._eventTarget.on(eventType, callback, target);
     }
 }
