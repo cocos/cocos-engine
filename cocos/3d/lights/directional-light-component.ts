@@ -28,7 +28,7 @@
  * @module component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable, visible } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, serializable } from 'cc.decorator';
 import { scene } from '../../core/renderer';
 import { Light } from './light-component';
 import { legacyCC } from '../../core/global-exports';
@@ -73,6 +73,11 @@ export class DirectionalLight extends Light {
         }
 
         if (this._light) { this._light.illuminance = val; }
+    }
+
+    constructor () {
+        super();
+        this._lightType = scene.DirectionalLight;
     }
 
     protected _createLight () {
