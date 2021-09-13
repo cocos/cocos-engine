@@ -172,9 +172,6 @@ export class Batcher2D implements IBatcher {
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
         this._currBatch = this._drawBatchPool.alloc();
     }
-    renderQueue?: any;
-    _currWalkIndex?: number | undefined;
-    updateBufferDirty?: boolean | undefined;
 
     public initialize () {
         return true;
@@ -694,9 +691,6 @@ export class Batcher2D implements IBatcher {
 
     private _releaseDescriptorSetCache (textureHash: number) {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
-    }
-
-    public _reloadBatch () {
     }
 }
 

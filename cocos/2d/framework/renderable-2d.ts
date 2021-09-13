@@ -248,12 +248,6 @@ export class Renderable2D extends RenderableComponent {
         if (this._color.equals(value)) {
             return;
         }
-        // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            if (this._color.a === 0 || value.a === 0) {
-                director.root!.batcher2D._reloadBatch();
-            }
-        }
 
         this._color.set(value);
         this._colorDirty = true;
@@ -307,8 +301,6 @@ export class Renderable2D extends RenderableComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
-    // macro.UI_GPU_DRIVEN
-    protected _renderFlagCache = true; // 用于记录是否发生了渲染条件的变化，做缓存用
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
@@ -320,9 +312,6 @@ export class Renderable2D extends RenderableComponent {
 
     // macro.UI_GPU_DRIVEN
     protected declare _canDrawByFourVertex: boolean;
-
-    // 代替 _renderDataFlag 使用
-    public _renderDataDirty = true;
 
     constructor () {
         super();
@@ -354,35 +343,18 @@ export class Renderable2D extends RenderableComponent {
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
-        // macro.UI_GPU_DRIVEN // 这里可能需要封装之后处理？会有值未能赋值的问题
-        if (UI_GPU_DRIVEN) {
-            this._renderFlagCache = this._renderFlag;
-            director.root!.batcher2D._reloadBatch();
-        }
     }
 
     // For Redo, Undo
     public onRestore () {
         this.updateMaterial();
         this._renderFlag = this._canRender();
-        // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            if (this._renderFlag !== this._renderFlagCache) {
-                this._renderFlagCache = this._renderFlag;
-                director.root!.batcher2D._reloadBatch();
-            }
-        }
     }
 
     public onDisable () {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
-        // macro.
-        if (UI_GPU_DRIVEN) {
-            this._renderFlagCache = this._renderFlag;
-            director.root!.batcher2D._reloadBatch();
-        }
     }
 
     public onDestroy () {
@@ -408,13 +380,6 @@ export class Renderable2D extends RenderableComponent {
      */
     public markForUpdateRenderData (enable = true) {
         this._renderFlag = this._canRender();
-        // macro.UI_GPU_DRIVEN // 同上的操作
-        if (UI_GPU_DRIVEN) {
-            if (this._renderFlag !== this._renderFlagCache) {
-                director.root!.batcher2D._reloadBatch();
-                this._renderFlagCache = this._renderFlag;
-            }
-        }
         if (enable && this._renderFlag) {
             const renderData = this._renderData;
             if (renderData) {
@@ -490,10 +455,6 @@ export class Renderable2D extends RenderableComponent {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
-            // macro.UI_GPU_DRIVEN
-            if (UI_GPU_DRIVEN) {
-                this._renderDataDirty = true; // 在某些时候是无用的
-            }
         }
     }
 

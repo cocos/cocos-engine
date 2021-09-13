@@ -9,12 +9,11 @@ import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
 import { Renderable2D, RenderRoot2D, UIComponent } from '../framework';
 import { DrawBatch2D } from './draw-batch';
-import { DrawBatch2D as DrawBatch2DGPU } from './draw-batch-GPU';
 import { MeshBuffer } from './mesh-buffer';
 
 export interface IBatcher {
     currBufferBatch: MeshBuffer | null;
-    readonly batches: CachedArray<DrawBatch2D | DrawBatch2DGPU>; // 这儿好像也缺个接口，tmd
+    readonly batches: CachedArray<DrawBatch2D>;
     acquireBufferBatch (attributes?: Attribute[]): MeshBuffer | null;
     registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
     unRegisterCustomBuffer (buffer: MeshBuffer);
@@ -23,12 +22,6 @@ export interface IBatcher {
     currIsStatic: boolean;
 
     device: Device;
-
-    renderQueue?;
-    _currWalkIndex?: number;
-    updateBufferDirty?: boolean;
-
-    /// new (_root?:Root);
 
     initialize(): boolean;
     destroy();
@@ -55,7 +48,4 @@ export interface IBatcher {
     flushMaterial (mat: Material);
 
     walk (node: Node, level?: number);
-
-    _reloadBatch ();
-
 }

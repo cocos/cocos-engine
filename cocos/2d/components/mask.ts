@@ -30,7 +30,6 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
-import { UI_GPU_DRIVEN } from 'internal:constants';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
@@ -378,13 +377,6 @@ export class Mask extends Renderable2D {
         super.updateMaterial();
         this._updateGraphics();
         this._renderFlag = this._canRender();
-        // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            if (this._renderFlag !== this._renderFlagCache) {
-                director.root!.batcher2D._reloadBatch();
-                this._renderFlagCache = this._renderFlag;
-            }
-        }
     }
 
     public onDisable () {

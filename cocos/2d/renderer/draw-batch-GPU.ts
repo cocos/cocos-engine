@@ -28,82 +28,21 @@
  * @hidden
  */
 
-import { JSB } from 'internal:constants';
-import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
-import { Texture, Sampler, DrawInfo, Buffer, Device, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
-import { Node } from '../../core/scene-graph';
-import { Camera } from '../../core/renderer/scene/camera';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
-import { Model } from '../../core/renderer/scene/model';
-import { Batcher2D } from './batcher-2d-GPU';
-import { Layers } from '../../core/scene-graph/layers';
+import { Device } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
 import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
-import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D, UITransform } from '../framework';
 import { Label, Sprite } from '../components';
-import { RecyclePool } from '../../core/memop/recycle-pool';
 import { Vec3, Vec2, Vec4 } from '../../core/math';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteType } from '../components/sprite';
-import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
+import { DrawBatch2D, DrawCall } from './draw-batch';
+import { IBatcher } from './i-batcher';
 
-const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 const EPSILON = 1 / 4096; // ulp(2049)
 
-export class DrawCall {
-    // UBO info
-    public bufferHash = 0;
-    public bufferUboIndex = 0;
-    public bufferView!: Buffer; // 直接存 ubo
-
-    // actual draw call info
-    public descriptorSet: DescriptorSet = null!;
-    public dynamicOffsets = [0]; // 偏移用 // uboindex * _uniformBufferStride
-    public drawInfo = new DrawInfo();
-}
-
-export class DrawBatch2D {
-    static drawcallPool = new RecyclePool(() => new DrawCall(), 100);
-
-    public get native (): NativeDrawBatch2D {
-        return this._nativeObj!;
-    }
-
-    public get inputAssembler () {
-        return this._inputAssember;
-    }
-    public set inputAssembler (ia: InputAssembler | null) {
-        this._inputAssember = ia;
-        if (JSB) {
-            this._nativeObj!.inputAssembler = ia;
-        }
-    }
-    public get descriptorSet () {
-        return this._descriptorSet;
-    }
-    public set descriptorSet (ds: DescriptorSet | null) {
-        this._descriptorSet = ds;
-        if (JSB) {
-            this._nativeObj!.descriptorSet = ds;
-        }
-    }
-    public get visFlags () {
-        return this._visFlags;
-    }
-    public set visFlags (vis) {
-        this._visFlags = vis;
-
-        if (JSB) {
-            this._nativeObj!.visFlags = vis;
-        }
-    }
-
-    get passes () {
-        return this._passes;
-    }
-
+export class DrawBatch2DGPU extends DrawBatch2D {
     set vec4PerUI (val: number) {
         this._vec4PerUI = val;
         this.UICapacityDirty = true;
@@ -112,27 +51,6 @@ export class DrawBatch2D {
     get vec4PerUI () {
         return this._vec4PerUI;
     }
-
-    public get shaders () {
-        return this._shaders;
-    }
-
-    public bufferBatch: MeshBuffer | null = null;
-    public camera: Camera | null = null;
-    public renderScene: RenderScene | null = null;
-    public model: Model | null = null;
-    public texture: Texture | null = null;
-    public sampler: Sampler | null = null;
-    public useLocalData: Node | null = null;
-    public isStatic = false;
-    public textureHash = 0;
-    public samplerHash = 0;
-    private _passes: Pass[] = [];
-    private _shaders: Shader[] = [];
-    private _visFlags: number = UI_VIS_FLAG;
-    private _inputAssember: InputAssembler | null = null;
-    private _descriptorSet: DescriptorSet | null = null;
-    private declare _nativeObj: NativeDrawBatch2D | null;
 
     private _tempRect: UITransform | null = null;
     private _tempPosition = new Vec3();
@@ -153,92 +71,15 @@ export class DrawBatch2D {
     get drawcalls () { return this._drawcalls; }
 
     constructor () {
+        super();
         this._device = legacyCC.director.root.device;
-
-        if (JSB) {
-            this._nativeObj = new NativeDrawBatch2D();
-            this._nativeObj.visFlags = this._visFlags;
-        }
-    }
-
-    public destroy (ui: Batcher2D) {
-        this._passes = [];
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    public clear () {
-        this.bufferBatch = null;
-        this.inputAssembler = null;
-        this.descriptorSet = null;
-        this.camera = null;
-        this.texture = null;
-        this.sampler = null;
-        this.model = null;
-        this.isStatic = false;
-        this.useLocalData = null;
-        this.visFlags = UI_VIS_FLAG;
-        this.renderScene = null;
-        this._drawcalls.length = 0;
-    }
-
-    // object version
-    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches, batcher: Batcher2D) {
-        if (mat) {
-            const passes = mat.passes;
-            if (!passes) { return; }
-
-            let hashFactor = 0;
-            let dirty = false;
-
-            this._shaders.length = passes.length;
-
-            for (let i = 0; i < passes.length; i++) {
-                if (!this._passes[i]) {
-                    this._passes[i] = new Pass(legacyCC.director.root);
-                }
-                const mtlPass = passes[i];
-                const passInUse = this._passes[i];
-
-                mtlPass.update();
-
-                if (mtlPass.hash === passInUse.hash) {
-                    continue;
-                }
-
-                if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
-                if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
-                if (bsHash === -1) { bsHash = 0; }
-
-                hashFactor = (dssHash << 16) | bsHash;
-                // @ts-expect-error hack for UI use pass object
-                passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
-
-                this._shaders[i] = passInUse.getShaderVariant()!;
-
-                dirty = true;
-            }
-
-            if (JSB) {
-                if (dirty) {
-                    const nativePasses: NativePass[] = [];
-                    const passes = this._passes;
-                    for (let i = 0; i < passes.length; i++) {
-                        nativePasses.push(passes[i].native);
-                    }
-                    this._nativeObj!.passes = nativePasses;
-                    this._nativeObj!.shaders = this._shaders;
-                }
-            }
-        }
     }
 
     // private toCache = [1, 1, 0, 0];
     private tiledCache = new Vec4(1, 1, 1, 1);
     private slicedCache = [];
     // simple version
-    public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material, batcher: Batcher2D) {
+    public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material, batcher: IBatcher) {
         // 将一个 drawBatch 分割为多个 drawCall
         // 分割条件， uboHash 要一致，buffer View 要一致
         // 从 Node 里取 TRS，comp 上取 to 和 color， 计算出 tiled 和其他
@@ -315,15 +156,7 @@ export class DrawBatch2D {
         // const UIPerUBO = 16; // 调试用 16
         // 上传数据
         const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempRect._rectWithScale, to, c, mode, this._UIPerUBO, this._vec4PerUI, this.tiledCache, fillType);
-        // 执行完了之后，uboindex 已经更新了 hash 也是确定的 indtanceID 也是更新过后的，这几个值能够找到 localBuffer 中具体是哪一段
-        // 所以这几个值是和数组的顺序严格绑定的，需要缓存下来，更新的话就是 一个指针，每次到了这里就 +1 ，要更新就这个指针取出这些值，然后将对应的 buffer 找到，然后更新，最后上传
-        // 录制 渲染缓存数组
-        batcher.renderQueue.push({
-            localBuffer,
-            bufferHash: localBuffer.hash,
-            UBOIndex: localBuffer.prevUBOIndex,
-            instanceID: localBuffer.prevInstanceID,
-        });
+        return localBuffer;
         // // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         // let dc = this._drawcalls[this._dcIndex];
         // if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
@@ -347,43 +180,27 @@ export class DrawBatch2D {
     }
 
     // DrawCall 很难进行缓存，双层结构导致了它的上下层变化都需要 dirty
-    public fillDrawCall (bufferInfo, localBuffer: UILocalBuffer) {
+    public fillDrawCall (localBuffer: UILocalBuffer) {
         // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         let dc = this._drawcalls[this._dcIndex];
-        if (dc && (dc.bufferHash !== bufferInfo.bufferHash || dc.bufferUboIndex !== bufferInfo.UBOIndex)) { // 存在但不能合批
+        if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
             this._dcIndex++; // 索引加一
             dc = this._drawcalls[this._dcIndex]; // 再取取不到
         }
         if (!dc) {
-            dc = DrawBatch2D.drawcallPool.add();
+            dc = DrawBatch2DGPU.drawcallPool.add();
             // make sure to assign initial values to all members here
-            dc.bufferHash = bufferInfo.bufferHash;
-            dc.bufferUboIndex = bufferInfo.UBOIndex;
+            dc.bufferHash = localBuffer.hash;
+            dc.bufferUboIndex = localBuffer.prevUBOIndex;
             dc.bufferView = localBuffer.getBufferView();
-            dc.dynamicOffsets[0] = bufferInfo.UBOIndex * localBuffer.uniformBufferStride;
-            dc.drawInfo.firstIndex = bufferInfo.instanceID * 6; // 每个 UI 是个索引
+            dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
+            dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6; // 每个 UI 是个索引
             dc.drawInfo.indexCount = 0;
             this._dcIndex = this._drawcalls.length;
 
             this._drawcalls.push(dc);
         }
         dc.drawInfo.indexCount += 6;
-    }
-
-    // 为 batch 添加 drawCall 的过程
-    public fillDrawCallAssembler () {
-        let dc = this._drawcalls[0];
-        const ia = this.inputAssembler;
-        if (!dc) {
-            dc = DrawBatch2D.drawcallPool.add();
-            // 从 ia 里把信息拷贝过来
-            this._drawcalls.push(dc);
-            dc = this._drawcalls[0];
-        }
-        if (ia) {
-            dc.drawInfo.firstIndex = ia.firstIndex;
-            dc.drawInfo.indexCount = ia.indexCount;
-        }
     }
 
     // 需要针对片段进行 localBuffer 更新
@@ -434,50 +251,50 @@ export class DrawBatch2D {
         }
         // 更新 RenderData
         // 问题是颜色的更新未能添加到这个flag中
-        if (renderComp._renderDataDirty) {
-            // 这儿得处理一个级联 // 这里有个dirty 的更新问题
-            const c = renderComp.color;
-            let mode = 0;
-            let fillType = 0;
-            let frame;
-            let to;
-            if (renderComp instanceof Sprite || renderComp instanceof Label) {
-                frame = renderComp.spriteFrame;
-                to = frame.tillingOffset;
-            }
-            if (renderComp instanceof Sprite) {
-                fillType = renderComp.fillType / 10 + 0.01;
-                mode = renderComp.type;
-                if (mode === SpriteType.SLICED) {
-                    // 确保已经更新了 contextSize
-                    renderComp._calculateSlicedData(this.slicedCache); // 会被 rect 影响
-                    this._packageSlicedData(this.slicedCache, frame.slicedData);
-                } else if (mode === SpriteType.TILED) {
-                    renderComp.calculateTiledData(this.tiledCache); // 会被 rect 影响
-                } else if (mode === SpriteType.FILLED) {
-                    let start = renderComp.fillStart;
-                    const range = renderComp.fillRange;
-                    let end;
-                    if (renderComp.fillType === 2) { // RADIAL
-                        // 范围界定到 0-1 start < end
-                        // start 取值为 [-1,1] 先处理下
-                        this.tiledCache.x = start > 0.5 ? start * 2 - 2 : start * 2;
-                        this.tiledCache.y = range * 2;
-                        this.tiledCache.z = renderComp.fillCenter.x;
-                        this.tiledCache.w = 1 - renderComp.fillCenter.y;
-                    } else {
-                        end = Math.min(1, start + range);
-                        if (range < 0) {
-                            end = start;
-                            start = Math.max(0, renderComp.fillStart + range);
-                        }
-                        this.tiledCache.x = start;
-                        this.tiledCache.y = end;
+        // if (renderComp._renderDataDirty) {
+        // 这儿得处理一个级联 // 这里有个dirty 的更新问题
+        const c = renderComp.color;
+        let mode = 0;
+        let fillType = 0;
+        let frame;
+        let to;
+        if (renderComp instanceof Sprite || renderComp instanceof Label) {
+            frame = renderComp.spriteFrame;
+            to = frame.tillingOffset;
+        }
+        if (renderComp instanceof Sprite) {
+            fillType = renderComp.fillType / 10 + 0.01;
+            mode = renderComp.type;
+            if (mode === SpriteType.SLICED) {
+                // 确保已经更新了 contextSize
+                renderComp._calculateSlicedData(this.slicedCache); // 会被 rect 影响
+                this._packageSlicedData(this.slicedCache, frame.slicedData);
+            } else if (mode === SpriteType.TILED) {
+                renderComp.calculateTiledData(this.tiledCache); // 会被 rect 影响
+            } else if (mode === SpriteType.FILLED) {
+                let start = renderComp.fillStart;
+                const range = renderComp.fillRange;
+                let end;
+                if (renderComp.fillType === 2) { // RADIAL
+                    // 范围界定到 0-1 start < end
+                    // start 取值为 [-1,1] 先处理下
+                    this.tiledCache.x = start > 0.5 ? start * 2 - 2 : start * 2;
+                    this.tiledCache.y = range * 2;
+                    this.tiledCache.z = renderComp.fillCenter.x;
+                    this.tiledCache.w = 1 - renderComp.fillCenter.y;
+                } else {
+                    end = Math.min(1, start + range);
+                    if (range < 0) {
+                        end = start;
+                        start = Math.max(0, renderComp.fillStart + range);
                     }
+                    this.tiledCache.x = start;
+                    this.tiledCache.y = end;
                 }
             }
-            localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, c, mode, to, this.tiledCache, fillType);
         }
+        localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, c, mode, to, this.tiledCache, fillType);
+        // }
     }
 
     private _packageSlicedData (spriteData: number[], frameData: number[]) { // LTRB

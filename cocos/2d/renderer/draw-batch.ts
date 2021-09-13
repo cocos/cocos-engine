@@ -36,7 +36,6 @@ import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Model } from '../../core/renderer/scene/model';
-import { Batcher2D } from './batcher-2d';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
@@ -155,7 +154,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches, batcher: Batcher2D) {
+    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches, batcher: IBatcher) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }

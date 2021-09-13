@@ -28,7 +28,7 @@
  * @module scene-graph
  */
 
-import { EDITOR, DEV, TEST, SUPPORT_JIT, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
@@ -205,9 +205,6 @@ export default class NodeActivator {
             }
         }
         node.emit('active-in-hierarchy-changed', node);
-        if (UI_GPU_DRIVEN) {
-            legacyCC.director.root!.batcher2D._reloadBatch(); // 可能 gizmo 会产生额外影响
-        }
     }
 
     /**

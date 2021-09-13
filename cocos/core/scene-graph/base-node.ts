@@ -29,7 +29,7 @@
  */
 
 import { ccclass, editable, serializable } from 'cc.decorator';
-import { DEV, DEBUG, EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
+import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
 import { CCObject } from '../data/object';
@@ -1228,9 +1228,6 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     public _updateSiblingIndex () {
-        if (UI_GPU_DRIVEN) {
-            legacyCC.director.root!.batcher2D._reloadBatch();
-        }
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;
         }
