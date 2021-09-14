@@ -1116,7 +1116,7 @@ bool sevalue_to_native(const se::Value &from, std::vector<T, allocator> *to, se:
 template <>
 inline bool sevalue_to_native(const se::Value &from, void **to, se::Object * /*ctx*/) {
     assert(to != nullptr);
-    if (from.isNumber()) {
+    if (from.isNumber() || from.isBigInt()) {
         // NOLINTNEXTLINE(performance-no-int-to-ptr)
         *to = reinterpret_cast<void *>(from.toUint64());
         return true;
