@@ -27,10 +27,8 @@ export interface PoseEval {
     readonly progress: number;
     active(): void;
     inactive(): void;
-    setBaseWeight (weight: number): void;
-    update(deltaTime: number): void;
-    sample(): void;
-    poses(): Iterator<PoseStatus>;
+    sample(time: number, baseWeight: number): void;
+    poses(baseWeight: number): Iterator<PoseStatus>;
 }
 
 export interface Pose {

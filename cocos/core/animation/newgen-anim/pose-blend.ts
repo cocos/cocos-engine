@@ -14,7 +14,6 @@ export class PoseBlendEval implements PoseEval {
     private declare _poseEvaluators: (PoseEval | null)[];
     private declare _weights: number[];
     private declare _inputs: number[];
-    private _baseWeight = 1.0;
 
     public declare readonly duration: number;
 
@@ -29,8 +28,8 @@ export class PoseBlendEval implements PoseEval {
         this._inputs = [...inputs];
     }
 
-    public poses (): Iterator<PoseStatus, any, undefined> {
-        const { _poseEvaluators: children } = this;
+    public poses (baseWeight: number): Iterator<PoseStatus, any, undefined> {
+        const { _poseEvaluators: children, _weights: weights } = this;
         const nChildren = children.length;
         let iChild = 0;
         let currentChildIterator: Iterator<PoseStatus> | undefined;
@@ -48,7 +47,7 @@ export class PoseBlendEval implements PoseEval {
                         return { done: true, value: undefined };
                     } else {
                         const child = children[iChild];
-                        currentChildIterator = child?.poses();
+                        currentChildIterator = child?.poses(baseWeight * weights[iChild]);
                         ++iChild;
                     }
                 }
@@ -64,7 +63,6 @@ export class PoseBlendEval implements PoseEval {
         for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
             this._poseEvaluators[iPose]?.active();
         }
-        this._flushPoseBaseWeights();
     }
 
     public inactive () {
@@ -73,15 +71,9 @@ export class PoseBlendEval implements PoseEval {
         }
     }
 
-    public update (deltaTime: number) {
+    public sample (time: number, weight: number) {
         for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            this._poseEvaluators[iPose]?.update(deltaTime);
-        }
-    }
-
-    public sample () {
-        for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            this._poseEvaluators[iPose]?.sample();
+            this._poseEvaluators[iPose]?.sample(time, weight * this._weights[iPose]);
         }
     }
 
@@ -90,24 +82,12 @@ export class PoseBlendEval implements PoseEval {
         this.doEval();
     }
 
-    public setBaseWeight (weight: number) {
-        this._baseWeight = weight;
-        this._flushPoseBaseWeights();
-    }
-
     protected doEval () {
         this.eval(this._weights, this._inputs);
-        this._flushPoseBaseWeights();
     }
 
     protected eval (_weights: number[], _inputs: readonly number[]) {
 
-    }
-
-    private _flushPoseBaseWeights () {
-        for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            this._poseEvaluators[iPose]?.setBaseWeight(this._baseWeight * this._weights[iPose]);
-        }
     }
 }
 
