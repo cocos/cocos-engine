@@ -1267,29 +1267,24 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                 set: block.set,
                 binding: block.binding,
                 name: block.name,
+                size: 0,
                 glUniforms: new Array<IWebGLGPUUniform>(block.members.length),
                 glActiveUniforms: [],
             };
 
             gpuShader.glBlocks[i] = glBlock;
 
-            let blockSize = 0;
-            const array: Float32Array = null!;
-
             for (let u = 0; u < block.members.length; ++u) {
                 const uniform = block.members[u];
-
-                const begin = blockSize / 4;
-
                 const glType = GFXTypeToWebGLType(uniform.type, gl);
                 const stride = WebGLGetTypeSize(glType, gl);
-                blockSize += stride * uniform.count;
                 const size = stride * uniform.count;
 
                 glBlock.glUniforms[u] = {
                     binding: -1,
                     name: uniform.name,
                     type: uniform.type,
+                    stride,
                     count: uniform.count,
                     size,
                     offset: 0,
@@ -1350,18 +1345,6 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                         for (let k = 0; k < glBlock.glUniforms.length; k++) {
                             const glUniform = glBlock.glUniforms[k];
                             if (glUniform.name === varName) {
-                                const Ctor = GFXTypeToTypedArrayCtor(glUniform.type);
-                                const stride = WebGLGetTypeSize(glUniform.glType, gl);
-                                const size = stride * uniformInfo.size;
-                                const count = size / 4;
-                                glUniform.array = new Ctor(count);
-                                if (uniformInfo.size !== glUniform.count) {
-                                    const diff = stride * (uniformInfo.size - glUniform.count);
-                                    for (let l = k + 1; l < glBlock.glUniforms.length; ++l) {
-                                        glBlock.glUniforms[l].begin += diff;
-                                    }
-                                }
-
                                 glUniform.glLoc = glLoc;
                                 glUniform.count = uniformInfo.size;
                                 glUniform.size = glUniform.stride * glUniform.count;

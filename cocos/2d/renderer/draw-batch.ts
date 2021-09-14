@@ -213,8 +213,8 @@ export class DrawBatch2D {
             dc = this._drawcalls[0];
         }
         if (ia) {
-            dc.drawInfo.firstIndex = ia.firstIndex;
-            dc.drawInfo.indexCount = ia.indexCount;
+            dc.drawInfo.firstIndex = ia.drawInfo.firstIndex;
+            dc.drawInfo.indexCount = ia.drawInfo.indexCount;
         }
     }
 }
