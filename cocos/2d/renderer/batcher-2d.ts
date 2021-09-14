@@ -48,7 +48,6 @@ import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4 } from '../../core/math';
 import { sys } from '../../core/platform/sys';
-import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -153,6 +152,7 @@ export class Batcher2D implements IBatcher {
     private _currComponent: Renderable2D | null = null;
     private _currTransform: Node | null = null;
     private _currTextureHash = 0;
+    private _currSamplerHash = 0;
     private _currBlendTargetHash = 0;
     private _currLayer = 0;
     private _currDepthStencilStateStage: any | null = null;
@@ -368,10 +368,12 @@ export class Batcher2D implements IBatcher {
         let texture;
         let samp;
         let textureHash = 0;
+        let samplerHash = 0;
         if (frame) {
             texture = frame.getGFXTexture();
             samp = frame.getGFXSampler();
             textureHash = frame.getHash();
+            samplerHash = samp.hash;
         } else {
             texture = null;
             samp = null;
@@ -386,7 +388,7 @@ export class Batcher2D implements IBatcher {
 
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-            || this._currTextureHash !== textureHash || this._currSampler !== samp || this._currTransform !== transform) {
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
             this._currBatch = this._drawBatchPool.alloc();
 
@@ -397,6 +399,7 @@ export class Batcher2D implements IBatcher {
             this._currTexture = texture;
             this._currSampler = samp;
             this._currTextureHash = textureHash;
+            this._currSamplerHash = samplerHash;
             this._currBlendTargetHash = blendTargetHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
@@ -562,9 +565,10 @@ export class Batcher2D implements IBatcher {
             this._currTexture = frame.getGFXTexture();
             this._currSampler = frame.getGFXSampler();
             this._currTextureHash = frame.getHash();
+            this._currSamplerHash = this._currSampler.hash;
         } else {
             this._currTexture = this._currSampler = null;
-            this._currTextureHash = 0;
+            this._currTextureHash = this._currSamplerHash = 0;
         }
         this._currLayer = renderComp.node.layer;
         this._currScene = renderComp._getRenderScene();
@@ -588,6 +592,7 @@ export class Batcher2D implements IBatcher {
         this._currComponent = null;
         this._currTransform = null;
         this._currTextureHash = 0;
+        this._currSamplerHash = 0;
         this._currLayer = 0;
     }
 

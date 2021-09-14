@@ -322,7 +322,7 @@ export class WebGL2Device extends Device {
     public getSampler (info: SamplerInfo): Sampler {
         const hash = Sampler.computeHash(info);
         if (!this._samplers.has(hash)) {
-            this._samplers.set(hash, new WebGL2Sampler(info));
+            this._samplers.set(hash, new WebGL2Sampler(info, hash));
         }
         return this._samplers.get(hash)!;
     }

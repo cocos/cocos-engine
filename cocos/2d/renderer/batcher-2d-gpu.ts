@@ -403,7 +403,7 @@ export class Batcher2D implements IBatcher {
             texture = frame.getGFXTexture();
             samp = frame.getGFXSampler();
             textureHash = frame.getHash();
-            samplerHash = frame.getSamplerHash();
+            samplerHash = samp.hash;
         } else {
             texture = null;
             samp = null;
@@ -484,7 +484,7 @@ export class Batcher2D implements IBatcher {
             texture = frame.getGFXTexture();
             samp = frame.getGFXSampler();
             textureHash = frame.getHash();
-            samplerHash = frame.getSamplerHash();
+            samplerHash = samp.hash;
         } else {
             texture = null;
             samp = null;
@@ -765,7 +765,7 @@ export class Batcher2D implements IBatcher {
             this._currTexture = frame.getGFXTexture();
             this._currSampler = frame.getGFXSampler();
             this._currTextureHash = frame.getHash();
-            this._currSamplerHash = frame.getSamplerHash();
+            this._currSamplerHash = this._currSampler.hash;
         } else {
             this._currTexture = this._currSampler = null;
             this._currTextureHash = this._currSamplerHash = 0;
