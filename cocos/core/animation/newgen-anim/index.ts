@@ -13,5 +13,6 @@ export { PoseBlend2D } from './pose-blend-2d';
 export { NewGenAnim } from './newgenanim-component';
 export { getPropertyBindingPoints } from './parametric';
 export { SkeletonMask } from '../skeleton-mask';
+export { StateMachineComponent } from './state-machine-component';
 
 export { __getDemoGraphs } from './__tmp__/get-demo-graphs';

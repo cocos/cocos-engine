@@ -55,22 +55,6 @@ export class PoseBlendEval implements PoseEval {
         };
     }
 
-    get progress () {
-        return -1.0;
-    }
-
-    public active () {
-        for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            this._poseEvaluators[iPose]?.active();
-        }
-    }
-
-    public inactive () {
-        for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            this._poseEvaluators[iPose]?.inactive();
-        }
-    }
-
     public sample (time: number, weight: number) {
         for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
             this._poseEvaluators[iPose]?.sample(time, weight * this._weights[iPose]);

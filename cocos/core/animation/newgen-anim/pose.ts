@@ -21,12 +21,6 @@ export interface PoseEvalContext {
 
 export interface PoseEval {
     readonly duration: number;
-    /**
-     * The progress of this animation, or 0.0 if this is not a animation pose.
-     */
-    readonly progress: number;
-    active(): void;
-    inactive(): void;
     sample(time: number, baseWeight: number): void;
     poses(baseWeight: number): Iterator<PoseStatus>;
 }

@@ -10,13 +10,14 @@ import { Value } from './variable';
 import { InvalidTransitionError } from './errors';
 import { createEval } from './create-eval';
 import { PoseNode } from './pose-node';
-import { GraphNode, outgoingsSymbol, incomingsSymbol } from './graph-node';
+import { GraphNode, outgoingsSymbol, incomingsSymbol, InteractiveGraphNode } from './graph-node';
 import { SkeletonMask } from '../skeleton-mask';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { array } from '../../utils/js';
 import { move } from '../../algorithm/move';
 import { onAfterDeserializedTag } from '../../data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { StateMachineComponent } from './state-machine-component';
 
 export { GraphNode };
 
@@ -99,7 +100,7 @@ export function isPoseTransition (transition: TransitionView): transition is Pos
 }
 
 @ccclass('cc.animation.PoseSubgraph')
-export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgraph> {
+export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer | PoseSubgraph> {
     [ownerSymbol]: Layer | PoseSubgraph | undefined;
 
     @serializable

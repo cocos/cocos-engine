@@ -14,7 +14,7 @@ export class NewGenAnim extends Component {
 
     public start () {
         if (this.graph) {
-            this._graphEval = new PoseGraphEval(this.graph, this.node);
+            this._graphEval = new PoseGraphEval(this.graph, this.node, this);
         }
     }
 

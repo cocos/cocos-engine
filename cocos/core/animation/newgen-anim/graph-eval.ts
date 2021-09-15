@@ -13,8 +13,10 @@ import { SkeletonMask } from '../skeleton-mask';
 import { debug, warnID } from '../../platform/debug';
 import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
-import { EventHandler } from '../../components/component-event-handler';
-import { AnimationClip } from '..';
+import { AnimationClip } from '../animation-clip';
+import type { NewGenAnim } from './newgenanim-component';
+import { StateMachineComponent } from './state-machine-component';
+import { InteractiveGraphNode } from './graph-node';
 
 export class PoseGraphEval {
     private _varRefMap: Record<string, VarRefs> = {};
@@ -25,7 +27,7 @@ export class PoseGraphEval {
         time: 0.0,
     };
 
-    constructor (graph: PoseGraph, root: Node) {
+    constructor (graph: PoseGraph, root: Node, newGenAnim: NewGenAnim) {
         for (const [name, { value }] of graph.variables) {
             this._varRefMap[name] = {
                 value,
@@ -34,6 +36,7 @@ export class PoseGraphEval {
         }
 
         const context: LayerContext = {
+            newGenAnim,
             blendBuffer: this._blendBuffer,
             node: root,
             bind: this._bind.bind(this),
@@ -170,6 +173,8 @@ export interface PoseNodeStats {
 type TriggerResetFn = (name: string) => void;
 
 interface LayerContext {
+    newGenAnim: NewGenAnim;
+
     /**
      * The root node bind to the graph.
      */
@@ -201,6 +206,7 @@ class LayerEval {
 
     constructor (layer: Layer, context: LayerContext) {
         this.name = layer.name;
+        this._newGenAnim = context.newGenAnim;
         this._weight = layer.weight;
         const { entry, exit } = this._addSubgraph(layer.graph, null, {
             ...context,
@@ -273,6 +279,7 @@ class LayerEval {
         return to.getPoses(this._toWeight) ?? emptyPoseIterable;
     }
 
+    private declare _newGenAnim: NewGenAnim;
     private _weight: number;
     private _nodes: NodeEval[] = [];
     private _topLevelEntry: NodeEval;
@@ -314,7 +321,10 @@ class LayerEval {
         assertIsNonNullable(exitEval, 'Exit node is missing');
         assertIsNonNullable(anyNode, 'Any node is missing');
 
+        const components = new InstantiatedComponents(graph);
+
         const subgraphInfo: SubgraphInfo = {
+            components,
             parent: parentSubgraphInfo,
             entry: entryEval,
             exit: exitEval,
@@ -662,11 +672,15 @@ class LayerEval {
         let currentTransition = transition;
         const { _currentTransitionPath: currentTransitionPath } = this;
         for (; ;) {
+            // Reset triggers
+            this._resetTriggersOnTransition(currentTransition);
+
             currentTransitionPath.push(currentTransition);
             const { to } = currentTransition;
             if (to.kind === NodeKind.pose) {
                 break;
             }
+
             const transitionMatch = this._matchTransition(
                 to,
                 to,
@@ -682,22 +696,10 @@ class LayerEval {
         const realTargetNode = currentTransition.to;
         if (realTargetNode.kind !== NodeKind.pose) {
             // We ran into a exit/entry node.
-            // TODO: what about triggers?
+            // Current: ignore the transition, but triggers are consumed
+            // TODO: what should we done here?
             currentTransitionPath.length = 0;
             return;
-        }
-
-        // Reset triggers
-        const nTransitions = currentTransitionPath.length;
-        for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
-            const { triggers } = currentTransitionPath[iTransition];
-            if (triggers) {
-                const nTriggers = triggers.length;
-                for (let iTrigger = 0; iTrigger < nTriggers; ++iTrigger) {
-                    const trigger = triggers[iTrigger];
-                    this._resetTrigger(trigger);
-                }
-            }
         }
 
         // Apply transitions
@@ -705,6 +707,7 @@ class LayerEval {
         this._currentTransitionToNode = realTargetNode;
 
         realTargetNode.resetToPort();
+        this._callEnterMethods(realTargetNode);
 
         graphDebugGroupEnd();
     }
@@ -777,19 +780,18 @@ class LayerEval {
             // Transition done.
             graphDebug(`[Subgraph ${this.name}]: Transition finished:  ${fromNode.name} -> ${toNodeName}.`);
 
-            fromNode.exit();
+            this._callExitMethods(fromNode);
             const { _currentTransitionPath: transitions } = this;
             const nTransition = transitions.length;
             for (let iTransition = 0; iTransition < nTransition; ++iTransition) {
                 const { to } = transitions[iTransition];
                 if (to.kind === NodeKind.exit) {
-                    to.exit();
+                    this._callExitMethods(to);
                 } else if (to.kind === NodeKind.entry) {
-                    to.enter();
+                    this._callEnterMethods(to);
                 }
             }
             toNode.finishTransition();
-            toNode.exit();
             this._currentNode = toNode;
             this._currentTransitionToNode = null;
             this._currentTransitionPath.length = 0;
@@ -800,9 +802,48 @@ class LayerEval {
         return contrib;
     }
 
+    private _resetTriggersOnTransition (transition: TransitionEval) {
+        const { triggers } = transition;
+        if (triggers) {
+            const nTriggers = triggers.length;
+            for (let iTrigger = 0; iTrigger < nTriggers; ++iTrigger) {
+                const trigger = triggers[iTrigger];
+                this._resetTrigger(trigger);
+            }
+        }
+    }
+
     private _resetTrigger (name: string) {
         const { _triggerReset: triggerResetFn } = this;
         triggerResetFn(name);
+    }
+
+    private _callEnterMethods (node: NodeEval) {
+        const { _newGenAnim: newGenAnim } = this;
+        switch (node.kind) {
+        default:
+            break;
+        case NodeKind.pose:
+            node.components.callEnterMethods(newGenAnim);
+            break;
+        case NodeKind.entry:
+            node.subgraph.components.callEnterMethods(newGenAnim);
+            break;
+        }
+    }
+
+    private _callExitMethods (node: NodeEval) {
+        const { _newGenAnim: newGenAnim } = this;
+        switch (node.kind) {
+        default:
+            break;
+        case NodeKind.pose:
+            node.components.callExitMethods(newGenAnim);
+            break;
+        case NodeKind.exit:
+            node.subgraph.components.callExitMethods(newGenAnim);
+            break;
+        }
     }
 
     /**
@@ -923,25 +964,45 @@ export class NodeBaseEval {
 
     constructor (node: GraphNode) {
         this.name = node.name;
-        this._onEnter = node.onEnter;
-        this._onExit = node.onExit;
     }
 
     public readonly name: string;
 
     public outgoingTransitions: readonly TransitionEval[] = [];
+}
 
-    private _onEnter: EventHandler | null;
+const DEFAULT_ENTER_METHOD = StateMachineComponent.prototype.onEnter;
 
-    private _onExit: EventHandler | null;
+const DEFAULT_EXIT_METHOD = StateMachineComponent.prototype.onExit;
 
-    public enter () {
-        this._onEnter?.emit([]);
+class InstantiatedComponents {
+    constructor (node: InteractiveGraphNode) {
+        this._components = node.instantiateComponents();
     }
 
-    public exit () {
-        this._onExit?.emit([]);
+    public callEnterMethods (newGenAnim: NewGenAnim) {
+        const { _components: components } = this;
+        const nComponents = components.length;
+        for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
+            const component = components[iComponent];
+            if (component.onEnter !== DEFAULT_ENTER_METHOD) {
+                component.onEnter(newGenAnim);
+            }
+        }
     }
+
+    public callExitMethods (newGenAnim: NewGenAnim) {
+        const { _components: components } = this;
+        const nComponents = components.length;
+        for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
+            const component = components[iComponent];
+            if (component.onExit !== DEFAULT_EXIT_METHOD) {
+                component.onExit(newGenAnim);
+            }
+        }
+    }
+
+    private declare _components: StateMachineComponent[];
 }
 
 interface SubgraphInfo {
@@ -949,6 +1010,7 @@ interface SubgraphInfo {
     entry: NodeEval;
     exit: NodeEval;
     any: NodeEval;
+    components: InstantiatedComponents;
 }
 
 export class PoseNodeEval extends NodeBaseEval {
@@ -970,6 +1032,7 @@ export class PoseNodeEval extends NodeBaseEval {
             Object.defineProperty(poseEval, '__DEBUG_ID__', { value: this.name });
         }
         this._pose = poseEval;
+        this.components = new InstantiatedComponents(node);
     }
 
     public readonly kind = NodeKind.pose;
@@ -978,23 +1041,14 @@ export class PoseNodeEval extends NodeBaseEval {
 
     public startRatio: number;
 
+    public declare components: InstantiatedComponents;
+
     get duration () {
         return this._pose?.duration ?? 0.0;
     }
 
     get fromPortTime () {
         return this._fromPort.time;
-    }
-
-    public enter () {
-        super.enter();
-        this._pose?.active();
-        return this;
-    }
-
-    public exit () {
-        super.exit();
-        this._pose?.inactive();
     }
 
     public updateFromPort (deltaTime: number) {
