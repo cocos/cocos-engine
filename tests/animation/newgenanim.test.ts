@@ -23,7 +23,7 @@ import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/c
 describe('NewGen Anim', () => {
     const demoGraphs = __getDemoGraphs();
 
-    describe('Defaults', () => {
+    test('Defaults', () => {
         const graph = new PoseGraph();
         expect(graph.layers).toHaveLength(0);
         const layer = graph.addLayer();
@@ -58,6 +58,15 @@ describe('NewGen Anim', () => {
         const poseBlendDirect = new PoseBlendDirect();
         expect(Array.from(poseBlendDirect.children)).toHaveLength(0);
 
+        const transition = layerGraph.connect(layerGraph.entryNode, graphNode);
+        testTransitionDefaults(transition);
+
+        const poseTransition = layerGraph.connect(graphNode, graphNode);
+        testTransitionDefaults(poseTransition);
+        expect(poseTransition.duration).toBe(0.3);
+        expect(poseTransition.exitConditionEnabled).toBe(true);
+        expect(poseTransition.exitCondition).toBe(1.0);
+
         function testGraphDefaults(graph: PoseSubgraph) {
             expect(Array.from(graph.nodes())).toStrictEqual(expect.arrayContaining([
                 graph.entryNode,
@@ -68,6 +77,10 @@ describe('NewGen Anim', () => {
             expect(graph.exitNode.name).toBe('Exit');
             expect(graph.anyNode.name).toBe('Any');
             expect(Array.from(graph.transitions())).toHaveLength(0);
+        }
+
+        function testTransitionDefaults (transition: Transition) {
+            expect(transition.conditions).toHaveLength(0);
         }
     });
 
@@ -754,6 +767,23 @@ describe('NewGen Anim', () => {
             });
             const triggerStates = Array.from({ length: nTriggers }, (_, iTrigger) => graphEval.getValue(`trigger${iTrigger}`));
             expect(triggerStates).toStrictEqual(new Array(nTriggers).fill(false));
+        });
+    });
+
+    describe('Animation properties', () => {
+        test('Speed', () => {
+            const graph = new PoseGraph();
+            expect(graph.layers).toHaveLength(0);
+            const layer = graph.addLayer();
+            const layerGraph = layer.graph;
+            const poseNode = layerGraph.addPoseNode();
+            poseNode.pose = createPosePositionXLinear(1.0, 0.3, 1.7);
+            poseNode.speed = 1.2;
+            layerGraph.connect(layerGraph.entryNode, poseNode);
+
+            const node = new Node();
+            const poseGraphEval = new PoseGraphEval(graph, node);
+            poseGraphEval.update(0.5);
         });
     });
 
