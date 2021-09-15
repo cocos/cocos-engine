@@ -523,6 +523,7 @@ MTLMultisampleDepthResolveFilter mu::toMTLDepthResolveMode(ResolveMode mode) {
     }
 }
 
+API_AVAILABLE(ios(12.0))
 MTLMultisampleStencilResolveFilter mu::toMTLStencilResolveMode(ResolveMode mode) {
     switch (mode) {
         case ResolveMode::SAMPLE_ZERO:
