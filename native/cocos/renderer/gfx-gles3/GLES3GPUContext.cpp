@@ -281,6 +281,8 @@ void GLES3GPUContext::bindContext(bool bound) {
         resetStates();
     } else {
         makeCurrent(EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT, false);
+        _eglCurrentDrawSurface = EGL_NO_SURFACE;
+        _eglCurrentReadSurface = EGL_NO_SURFACE;
     }
 }
 
@@ -329,7 +331,8 @@ bool GLES3GPUContext::makeCurrent(EGLSurface drawSurface, EGLSurface readSurface
     return succeeded;
 }
 
-void GLES3GPUContext::resetStates() const {
+void GLES3GPUContext::resetStates() const { // NOLINT
+
     GL_CHECK(glPixelStorei(GL_PACK_ALIGNMENT, 1));
     GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
     GL_CHECK(glActiveTexture(GL_TEXTURE0));
