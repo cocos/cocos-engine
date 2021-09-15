@@ -1,6 +1,6 @@
-import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
+import { KeyboardCallback } from 'pal/input';
 import { KeyboardEventData, minigame } from 'pal/minigame';
-import { SystemEventType, KeyCode } from '../../../cocos/input/types';
+import { SystemEventType, KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { SystemEvent } from '../../../cocos/input';
 
@@ -128,34 +128,26 @@ export class KeyboardInputSource {
     private _registerEvent () {
         minigame.wx?.onKeyDown?.((res) => {
             const keyCode = getKeyCode(res.code);
-            if (!this._keyStateMap[keyCode]) {
-                const keyDownInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
-                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
-            }
-            const keyPressingInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
-            this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
+            // if (!this._keyStateMap[keyCode]) {
+            //     const eventKeyDown = this._getInputEvent(res, 'keypress');
+            //     this._eventTarget.emit('keypress', eventKeyDown);
+            // }
+            const eventKeyPressing = this._getInputEvent(res, SystemEventType.KEY_DOWN);
+            this._eventTarget.emit(SystemEventType.KEY_DOWN, eventKeyPressing);
             this._keyStateMap[keyCode] = true;
         });
         minigame.wx?.onKeyUp?.((res) => {
             const keyCode = getKeyCode(res.code);
-            const inputEvent: KeyboardInputEvent = {
-                code: keyCode,
-                type: SystemEventType.KEY_UP,
-                timestamp: performance.now(),
-            };
+            const eventKeyUp = this._getInputEvent(res, SystemEventType.KEY_UP);
             this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
+            this._eventTarget.emit(SystemEventType.KEY_UP, eventKeyUp);
         });
     }
 
     private _getInputEvent (event: KeyboardEventData, eventType: SystemEvent.EventType) {
         const keyCode = getKeyCode(event.code);
-        const inputEvent: KeyboardInputEvent = {
-            type: eventType,
-            code: keyCode,
-            timestamp: performance.now(),
-        };
-        return inputEvent;
+        const eventKeyboard = new EventKeyboard(keyCode, eventType);
+        return eventKeyboard;
     }
 
     public onDown (cb: KeyboardCallback) {

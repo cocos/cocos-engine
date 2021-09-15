@@ -1,5 +1,5 @@
-import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { SystemEventType, KeyCode } from '../../../cocos/input/types';
+import { KeyboardCallback } from 'pal/input';
+import { SystemEventType, KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { SystemEvent } from '../../../cocos/input';
 
@@ -141,12 +141,8 @@ export class KeyboardInputSource {
 
     private _getInputEvent (event: any, eventType: SystemEvent.EventType) {
         const keyCode = getKeyCode(event.code);
-        const inputEvent: KeyboardInputEvent = {
-            type: eventType,
-            code: keyCode,
-            timestamp: performance.now(),
-        };
-        return inputEvent;
+        const eventKeyboard = new EventKeyboard(keyCode, eventType);
+        return eventKeyboard;
     }
 
     public onDown (cb: KeyboardCallback) {

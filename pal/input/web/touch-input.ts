@@ -1,10 +1,11 @@
-import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
+import { TouchCallback } from 'pal/input';
 import { TEST } from 'internal:constants';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { SystemEvent } from '../../../cocos/input';
-import { SystemEventType } from '../../../cocos/input/types';
+import { SystemEventType, Touch, EventTouch } from '../../../cocos/input/types';
+import { touchManager } from '../touch-manager';
+import { macro } from '../../../cocos/core/platform/macro';
 
 export class TouchInputSource {
     public support: boolean;
@@ -30,44 +31,42 @@ export class TouchInputSource {
         this._canvas?.addEventListener('touchcancel', this._createCallback(SystemEventType.TOUCH_CANCEL));
     }
 
-    private _createCallback (eventType: SystemEvent.EventType) {
-        return (event: any) => {
+    private _createCallback (eventType: SystemEventType) {
+        return (event: TouchEvent) => {
             const canvasRect = this._getCanvasRect();
-            const touchDataList: TouchData[] = [];
+            const handleTouches: Touch[] = [];
             const length = event.changedTouches.length;
             for (let i = 0; i < length; ++i) {
-                const touch = event.changedTouches[i];
-                const location = this._getLocation(touch);
-                let x = location.x - canvasRect.x;
-                let y = canvasRect.y + canvasRect.height - location.y;
-                // TODO: should not call engine API
-                if (legacyCC.view._isRotated) {
-                    const tmp = x;
-                    x = canvasRect.height - y;
-                    y = tmp;
+                const changedTouch = event.changedTouches[i];
+                const touchID = changedTouch.identifier;
+                if (touchID === null) {
+                    continue;
                 }
-
-                const touchData: TouchData = {
-                    identifier: touch.identifier,
-                    x,
-                    y,
-                    force: touch.force,
-                };
-                touchDataList.push(touchData);
+                const location = this._getLocation(changedTouch, canvasRect);
+                const touch = touchManager.getTouch(touchID, location.x, location.y);
+                if (!touch) {
+                    continue;
+                }
+                if (eventType === SystemEventType.TOUCH_END || eventType === SystemEventType.TOUCH_CANCEL) {
+                    touchManager.releaseTouch(touchID);
+                }
+                handleTouches.push(touch);
+                if (!macro.ENABLE_MULTI_TOUCH) {
+                    break;
+                }
             }
-            const inputEvent: TouchInputEvent = {
-                type: eventType,
-                changedTouches: touchDataList,
-                timestamp: performance.now(),
-            };
             event.stopPropagation();
             if (event.target === this._canvas) {
                 event.preventDefault();
             }
-            if (event.type === 'touchstart') {
+            if (eventType === SystemEventType.TOUCH_START) {
                 this._canvas?.focus();
             }
-            this._eventTarget.emit(eventType, inputEvent);
+            if (handleTouches.length > 0) {
+                const eventTouch = new EventTouch(handleTouches, false, eventType,
+                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches);
+                this._eventTarget.emit(eventType, eventTouch);
+            }
         };
     }
 
@@ -80,8 +79,20 @@ export class TouchInputSource {
         return new Rect(0, 0, 0, 0);
     }
 
-    private _getLocation (event: Touch): Vec2 {
-        return new Vec2(event.clientX, event.clientY);
+    private _getLocation (touch: globalThis.Touch, canvasRect: Rect): Vec2 {
+        let x = touch.clientX - canvasRect.x;
+        let y = canvasRect.y + canvasRect.height - touch.clientY;
+        // TODO: should not call engine API
+        const view = legacyCC.view;
+        if (view._isRotated) {
+            const tmp = x;
+            x = canvasRect.height - y;
+            y = tmp;
+        }
+        const dpr = view._devicePixelRatio;
+        x *= dpr;
+        y *= dpr;
+        return new Vec2(x, y);
     }
 
     public onStart (cb: TouchCallback) {
