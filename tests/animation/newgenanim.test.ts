@@ -1,7 +1,7 @@
 
 import { AnimationClip, Node, Vec2, Vec3, warnID } from '../../cocos/core';
 import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, AnimatedPose, PoseBlendDirect, VectorTrack } from '../../cocos/core/animation/animation';
-import { LayerBlending, PoseGraph, PoseSubgraph, VariableType, Transition } from '../../cocos/core/animation/newgen-anim/pose-graph';
+import { LayerBlending, PoseGraph, PoseSubgraph, VariableType, Transition, isPoseTransition, PoseTransition } from '../../cocos/core/animation/newgen-anim/pose-graph';
 import { createEval } from '../../cocos/core/animation/newgen-anim/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/newgen-anim/errors';
 import { PoseGraphEval, PoseNodeStats, PoseStatus } from '../../cocos/core/animation/newgen-anim/graph-eval';
@@ -126,13 +126,6 @@ describe('NewGen Anim', () => {
             expect(() => layerGraph.connect(layerGraph.addPoseNode(), layerGraph.entryNode)).toThrowError(InvalidTransitionError);
         });
 
-        test('Could not transition to any node', () => {
-            const graph = new PoseGraph();
-            const layer = graph.addLayer();
-            const layerGraph = layer.graph;
-            expect(() => layerGraph.connect(layerGraph.addPoseNode(), layerGraph.anyNode)).toThrowError(InvalidTransitionError);
-        });
-
         test('Could not transition from exit node', () => {
             const graph = new PoseGraph();
             const layer = graph.addLayer();
@@ -203,14 +196,6 @@ describe('NewGen Anim', () => {
             
             expectPoseGraphEvalStatusLayer0(graphEval, {
                 currentNode: { __DEBUG_ID__: 'Node2' },
-            });
-        });
-
-        test('Any transition', () => {
-            const graphEval = new PoseGraphEval(createGraphFromDescription(gAnyTransition), new Node());
-            graphEval.update(0.0);
-            expectPoseGraphEvalStatusLayer0(graphEval, {
-                currentNode: { __DEBUG_ID__: 'Node1' },
             });
         });
 
@@ -767,6 +752,78 @@ describe('NewGen Anim', () => {
             });
             const triggerStates = Array.from({ length: nTriggers }, (_, iTrigger) => graphEval.getValue(`trigger${iTrigger}`));
             expect(triggerStates).toStrictEqual(new Array(nTriggers).fill(false));
+        });
+    });
+
+    describe(`Any state`, () => {
+        test('Could not transition to any node', () => {
+            const graph = new PoseGraph();
+            const layer = graph.addLayer();
+            const layerGraph = layer.graph;
+            expect(() => layerGraph.connect(layerGraph.addPoseNode(), layerGraph.anyNode)).toThrowError(InvalidTransitionError);
+        });
+
+        test('Transition from any state node is a kind of pose transition', () => {
+            const graph = new PoseGraph();
+            const layer = graph.addLayer();
+            const layerGraph = layer.graph;
+            const poseNode = layerGraph.addPoseNode();
+            const anyTransition = layerGraph.connect(layerGraph.anyNode, poseNode);
+            expect(isPoseTransition(anyTransition)).toBe(true);
+        });
+
+        test('Any transition', () => {
+            const graphEval = new PoseGraphEval(createGraphFromDescription(gAnyTransition), new Node());
+            graphEval.update(0.0);
+            expectPoseGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Node1' },
+            });
+        });
+
+        test('Inheritance', () => {
+            const graph = new PoseGraph();
+            const layer = graph.addLayer();
+            const layerGraph = layer.graph;
+            const poseNode = layerGraph.addPoseNode();
+            const poseNodeClip = poseNode.pose = createPosePositionX(1.0, 0.5, 'PoseNodeClip');
+
+            const subgraph = layerGraph.addSubgraph();
+            const subgraphPoseNode = subgraph.addPoseNode();
+            const subgraphPoseNodeClip = subgraphPoseNode.pose = createPosePositionX(1.0, 0.7, 'SubgraphPoseNodeClip');
+            subgraph.connect(subgraph.entryNode, subgraphPoseNode);
+
+            layerGraph.connect(layerGraph.entryNode, subgraph);
+            const anyTransition = layerGraph.connect(layerGraph.anyNode, poseNode) as PoseTransition;
+            anyTransition.duration = 0.3;
+            anyTransition.exitConditionEnabled = true;
+            anyTransition.exitCondition = 0.1;
+            const [ triggerCondition ] = anyTransition.conditions = [new TriggerCondition()];
+            triggerCondition.bindProperty('trigger', 'trigger');
+            graph.addVariable('trigger', VariableType.TRIGGER, true);
+
+            const graphEval = new PoseGraphEval(graph, new Node());
+            graphEval.update(0.2);
+            expectPoseGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: subgraphPoseNodeClip.clip!,
+                    weight: 0.666667,
+                },
+                transition: {
+                    time: 0.1,
+                    next: {
+                        clip: poseNodeClip.clip!,
+                        weight: 0.333333,
+                    },
+                },
+            });
+
+            graphEval.update(0.2);
+            expectPoseGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: poseNodeClip.clip!,
+                    weight: 1.0,
+                },
+            });
         });
     });
 

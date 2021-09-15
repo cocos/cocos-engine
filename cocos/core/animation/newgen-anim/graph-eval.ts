@@ -202,7 +202,7 @@ class LayerEval {
     constructor (layer: Layer, context: LayerContext) {
         this.name = layer.name;
         this._weight = layer.weight;
-        const { entry, exit } = this._addSubgraph(layer.graph, {
+        const { entry, exit } = this._addSubgraph(layer.graph, null, {
             ...context,
         });
         this._topLevelEntry = entry;
@@ -285,36 +285,60 @@ class LayerEval {
     private _fromWeight = 0.0;
     private _toWeight = 0.0;
 
-    private _addSubgraph (graph: PoseSubgraph, context: LayerContext): {
+    private _addSubgraph (graph: PoseSubgraph, parentSubgraphInfo: SubgraphInfo | null, context: LayerContext): {
         entry: NodeEval;
         exit: NodeEval;
     } {
         const nodes = Array.from(graph.nodes());
 
-        const nodeEvaluations = nodes.map((node) => {
+        let entryEval: SpecialNodeEval | undefined;
+        let anyNode: SpecialNodeEval | undefined;
+        let exitEval: SpecialNodeEval | undefined;
+
+        const nodeEvaluations = nodes.map((node): NodeEval | null => {
             if (node instanceof PoseNode) {
                 return new PoseNodeEval(node, context);
-            } else if (node instanceof PoseSubgraph) {
-                const subgraphEval = this._addSubgraph(node, context);
-                return {
-                    kind: 'subgraph',
-                    ...subgraphEval,
-                } as const;
+            } else if (node === graph.entryNode) {
+                return entryEval = new SpecialNodeEval(node, NodeKind.entry, node.name);
+            } else if (node === graph.exitNode) {
+                return exitEval = new SpecialNodeEval(node, NodeKind.exit, node.name);
+            }  else if (node === graph.anyNode) {
+                return anyNode = new SpecialNodeEval(node, NodeKind.any, node.name);
             } else {
-                const kind = node === graph.entryNode
-                    ? NodeKind.entry
-                    : node === graph.exitNode
-                        ? NodeKind.exit
-                        : node === graph.anyNode
-                            ? NodeKind.any
-                            : NodeKind.exit;
-                return new SpecialNodeEval(node, kind, node.name);
+                assertIsTrue(node instanceof PoseSubgraph);
+                return null;
+            }
+        });
+
+        assertIsNonNullable(entryEval, 'Entry node is missing');
+        assertIsNonNullable(exitEval, 'Exit node is missing');
+        assertIsNonNullable(anyNode, 'Any node is missing');
+
+        const subgraphInfo: SubgraphInfo = {
+            parent: parentSubgraphInfo,
+            entry: entryEval,
+            exit: exitEval,
+            any: anyNode,
+        };
+
+        for (let iNode = 0; iNode < nodes.length; ++iNode) {
+            const nodeEval = nodeEvaluations[iNode];
+            if (nodeEval) {
+                nodeEval.subgraph = subgraphInfo;
+            }
+        }
+
+        const subgraphInfos = nodes.map((node) => {
+            if (node instanceof PoseSubgraph) {
+                return this._addSubgraph(node, subgraphInfo, context);
+            } else {
+                return null;
             }
         });
 
         if (DEBUG) {
             for (const nodeEval of nodeEvaluations) {
-                if (nodeEval.kind !== 'subgraph') {
+                if (nodeEval) {
                     nodeEval.__DEBUG_ID__ = `${nodeEval.name}(from ${graph.name})`;
                 }
             }
@@ -322,29 +346,36 @@ class LayerEval {
 
         for (let iNode = 0; iNode < nodes.length; ++iNode) {
             const node = nodes[iNode];
-            const nodeEval = nodeEvaluations[iNode];
             const outgoingTemplates = graph.getOutgoings(node);
             const outgoingTransitions: TransitionEval[] = [];
 
             let fromNode: NodeEval;
-            if (nodeEval.kind === 'subgraph') {
-                fromNode = nodeEval.exit;
+            if (node instanceof PoseSubgraph) {
+                const subgraphInfo = subgraphInfos[iNode];
+                assertIsNonNullable(subgraphInfo);
+                fromNode = subgraphInfo.exit;
             } else {
+                const nodeEval = nodeEvaluations[iNode];
+                assertIsNonNullable(nodeEval);
                 fromNode = nodeEval;
             }
 
             for (const outgoing of outgoingTemplates) {
+                const outgoingNode = outgoing.to;
                 const iOutgoingNode = nodes.findIndex((nodeTemplate) => nodeTemplate === outgoing.to);
                 if (iOutgoingNode < 0) {
                     assertIsTrue(false, 'Bad animation data');
                 }
 
                 let toNode: NodeEval;
-                const toEval = nodeEvaluations[iOutgoingNode];
-                if (toEval.kind === 'subgraph') {
-                    toNode = toEval.entry;
+                if (outgoingNode instanceof PoseSubgraph) {
+                    const subgraphInfo = subgraphInfos[iOutgoingNode];
+                    assertIsNonNullable(subgraphInfo);
+                    toNode = subgraphInfo.entry;
                 } else {
-                    toNode = toEval;
+                    const nodeEval = nodeEvaluations[iOutgoingNode];
+                    assertIsNonNullable(nodeEval);
+                    toNode = nodeEval;
                 }
 
                 const transitionEval: TransitionEval = {
@@ -357,7 +388,7 @@ class LayerEval {
                     exitCondition: isPoseTransition(outgoing) ? outgoing.exitCondition : 0.0,
                     triggers: undefined,
                 };
-                if (toEval.kind === NodeKind.pose) {
+                if (toNode.kind === NodeKind.pose) {
                     const toScaling = 1.0;
                     // if (transitionEval.duration !== 0.0 && nodeEval.kind === NodeKind.pose && nodeEval.pose && toEval.pose) {
                     //     // toScaling = toEval.pose.duration / transitionEval.duration;
@@ -376,28 +407,6 @@ class LayerEval {
             }
 
             fromNode.outgoingTransitions = outgoingTransitions;
-        }
-
-        const entryEval = nodeEvaluations.find((node): node is SpecialNodeEval => node.kind === NodeKind.entry);
-        assertIsNonNullable(entryEval, 'Entry node is missing');
-
-        const anyNode = nodeEvaluations.find((node): node is SpecialNodeEval => node.kind === NodeKind.any);
-        assertIsNonNullable(anyNode, 'Any node is missing');
-
-        const exitEval = nodeEvaluations.find((node): node is SpecialNodeEval => node.kind === NodeKind.exit);
-        assertIsNonNullable(exitEval, 'Exit node is missing');
-
-        const subgraphInfo: SubgraphInfo = {
-            entry: entryEval,
-            exit: exitEval,
-            any: anyNode,
-        };
-
-        for (let iNode = 0; iNode < nodes.length; ++iNode) {
-            const nodeEval = nodeEvaluations[iNode];
-            if (nodeEval.kind !== 'subgraph') {
-                nodeEval.subgraph = subgraphInfo;
-            }
         }
 
         return {
@@ -545,17 +554,21 @@ class LayerEval {
         }
 
         if (currentNode.kind === NodeKind.pose) {
-            const anyMatch = this._matchTransition(
-                currentNode.subgraph.any,
-                currentNode,
-                deltaTime,
-                transitionMatchCacheAny,
-            );
-            if (anyMatch && anyMatch.requires < minDeltaTimeRequired) {
-                ({
-                    requires: minDeltaTimeRequired,
-                    transition: transitionRequiringMinDeltaTime,
-                } = anyMatch);
+            for (let ancestor: SubgraphInfo | null = currentNode.subgraph;
+                ancestor !== null;
+                ancestor = ancestor.parent) {
+                const anyMatch = this._matchTransition(
+                    ancestor.any,
+                    currentNode,
+                    deltaTime,
+                    transitionMatchCacheAny,
+                );
+                if (anyMatch && anyMatch.requires < minDeltaTimeRequired) {
+                    ({
+                        requires: minDeltaTimeRequired,
+                        transition: transitionRequiringMinDeltaTime,
+                    } = anyMatch);
+                }
             }
         }
 
@@ -603,10 +616,9 @@ class LayerEval {
 
             let deltaTimeRequired = 0.0;
 
-            if (node.kind === NodeKind.pose && transition.exitConditionEnabled) {
-                const exitTime = node.duration * transition.exitCondition;
-                deltaTimeRequired = exitTime - node.fromPortTime;
-                assertIsTrue(deltaTimeRequired >= 0.0);
+            if (realNode.kind === NodeKind.pose && transition.exitConditionEnabled) {
+                const exitTime = realNode.duration * transition.exitCondition;
+                deltaTimeRequired = Math.max(exitTime - realNode.fromPortTime, 0.0);
                 if (deltaTimeRequired > deltaTime) {
                     continue;
                 }
@@ -933,6 +945,7 @@ export class NodeBaseEval {
 }
 
 interface SubgraphInfo {
+    parent: SubgraphInfo | null;
     entry: NodeEval;
     exit: NodeEval;
     any: NodeEval;

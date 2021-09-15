@@ -281,7 +281,7 @@ export class PoseSubgraph extends GraphNode implements OwnedBy<Layer | PoseSubgr
 
         this.disconnect(from, to);
 
-        const transition = from instanceof PoseNode
+        const transition = from instanceof PoseNode || from === this._anyNode
             ? new PoseTransition(from, to, conditions)
             : new Transition(from, to, conditions);
 

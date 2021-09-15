@@ -191,11 +191,17 @@ export class TriggerCondition extends BindingHost implements Condition {
     public trigger!: string;
 
     [createEval] (context: { getParam(host: BindingHost, name: string): unknown; }): ConditionEval {
-        return new TriggerConditionEval();
+        const value = context.getParam(this, 'trigger') ?? false;
+        validateConditionParamBoolean(value, 'trigger');
+        return new TriggerConditionEval(value);
     }
 }
 
 class TriggerConditionEval implements ConditionEval {
+    constructor (triggered: boolean) {
+        this._triggered = triggered;
+    }
+
     get trigger () {
         return this._triggered;
     }
