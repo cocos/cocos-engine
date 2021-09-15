@@ -16,13 +16,17 @@
     "_graph": {
       "__id__": 2
     },
+    "name": "",
     "weight": 1,
     "mask": null,
     "blending": 1
   },
   {
     "__type__": "cc.animation.PoseSubgraph",
+    "_bindings": {},
     "name": "",
+    "onEnter": null,
+    "onExit": null,
     "_nodes": [
       {
         "__id__": 3
@@ -47,14 +51,23 @@
   },
   {
     "__type__": "cc.animation.GraphNode",
-    "name": ""
+    "_bindings": {},
+    "name": "Entry",
+    "onEnter": null,
+    "onExit": null
   },
   {
     "__type__": "cc.animation.GraphNode",
-    "name": ""
+    "_bindings": {},
+    "name": "Exit",
+    "onEnter": null,
+    "onExit": null
   },
   {
     "__type__": "cc.animation.GraphNode",
-    "name": ""
+    "_bindings": {},
+    "name": "Any",
+    "onEnter": null,
+    "onExit": null
   }
 ]
