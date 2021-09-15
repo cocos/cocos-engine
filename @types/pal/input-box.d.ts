@@ -2,7 +2,7 @@
  * Class designed for UI input box.
  * TODO: add more description for this class
  */
-    export class InputBox {
+export class InputBox {
     /**
      * Asynchronously show the UI input box, also show the soft keyboard on mobile.
      */
@@ -15,20 +15,20 @@
      * Register the UI input box change event callback.
      * @param cb
      */
-    public onChange (cb: ()=>void);
+    public onChange (cb: () => void);
     /**
      * Register the UI input box complete event callback.
      * @param cb
      */
-    public onComplete (cb: ()=>void);
+    public onComplete (cb: () => void);
     /**
      * Unregister the UI input box change event callback.
      * @param cb If not specified, all callback would be unregistered.
      */
-    public offChange (cb?: ()=>void);
+    public offChange (cb?: () => void);
     /**
      * Unregister the UI input box complete event callback.
      * @param cb If not specified, all callback would be unregistered.
      */
-    public offComplete (cb?: ()=>void);
+    public offComplete (cb?: () => void);
 }
