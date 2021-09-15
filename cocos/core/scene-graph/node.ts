@@ -747,7 +747,6 @@ export class Node extends BaseNode implements CustomSerializable {
                     cur._nativeDirtyFlag[0] = flag;
                 }
 
-                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 // NOTE: inflate attribute accessor
                 // ```
                 // cur.hasChangedFlags = hasChangedFlags | dirtyBit;

@@ -150,9 +150,7 @@ export const simple: IAssembler = {
         }
 
         const vData = sprite.renderData!.vData!;
-        // 这里是认为在 updateRenderData 的时候已经进行了更新
-        // 也确实做过了更新
-        if (sprite.node._uiProps.UITransformDirty) {
+        if (sprite.node.hasChangedFlags) {
             this.updateWorldVerts(sprite, vData);
         }
 
@@ -161,13 +159,12 @@ export const simple: IAssembler = {
         //     sprite.renderData!.indicesCount,
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
-        const dataList: IRenderData[] = sprite.renderData!.data; // 四个顶点数据
-        const node = sprite.node;
 
-        let buffer = renderer.acquireBufferBatch()!; // 申请了 vfmtPosUvColor 格式的 buffer，即 3 2 4
-        let vertexOffset = buffer.byteOffset >> 2; // 顶点数据 offset 距离
-        let indicesOffset = buffer.indicesOffset; // 索引offset 距离
-        let vertexId = buffer.vertexOffset; // 顶点索引ID
+        let buffer = renderer.acquireBufferBatch()!;
+
+        let vertexOffset = buffer.byteOffset >> 2;
+        let indicesOffset = buffer.indicesOffset;
+        let vertexId = buffer.vertexOffset;
 
         const bufferUnchanged = buffer.request();
         if (!bufferUnchanged) {
@@ -177,45 +174,22 @@ export const simple: IAssembler = {
             vertexId = 0;
         }
 
-        // 如果把 renderData 的相关属性都移动到使用 uniform 实现，那么，这里还剩下些什么？
-
         // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!; // 顶点数据
-        const iBuf = buffer.iData!; // 索引数据
-        const data0 = dataList[0];  // 渲染 data
-        const data3 = dataList[3]; // 渲染 data
-        const matrix = node.worldMatrix; // 世界矩阵
-        const a = matrix.m00; const b = matrix.m01; // m00 scale x  m05 scale y m10 scale z
-        const c = matrix.m04; const d = matrix.m05; // m00 m01 m04 m05 rotation with z // 所以 0145 是 RS
-        const tx = matrix.m12; const ty = matrix.m13; // m12 pos x m12 pos y m14 pos z
-        const vl = data0.x; const vr = data3.x; // 这个是 RECT
-        const vb = data0.y; const vt = data3.y;
-        const al = a * vl; const ar = a * vr; // 左右的 X 位置，RS 过的
-        const bl = b * vl; const br = b * vr; // 左右的 Y 位置，RS 过的
-        const cb = c * vb; const ct = c * vt; // 上下的位置
-        const db = d * vb; const dt = d * vt; // 上下的位置
-        // left bottom
-        vData[0] = al + cb + tx; // 左X加下X 加 POS X
-        vData[1] = bl + db + ty; // 左Y加下Y 加 POS Y
-        // right bottom
-        vData[9] = ar + cb + tx; // 右X加下X 加 POS X
-        vData[10] = br + db + ty; // 右X加下X 加 POS Y
-        // left top
-        vData[18] = al + ct + tx; // 左X加上X 加 POS X
-        vData[19] = bl + dt + ty; // 左X加上X 加 POS Y
-        // right top
-        vData[27] = ar + ct + tx; // 右X加上X 加 POS X
-        vData[28] = br + dt + ty; // 右X加上X 加 POS Y
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
 
-        vBuf.set(vData, vertexOffset); // 其实是都赋值了，只是说 vData 要不要更新
+        vBuf.set(vData, vertexOffset);
 
-        // fill index data // 0122113
-        iBuf[indicesOffset++] = vertexId;
-        iBuf[indicesOffset++] = vertexId + 1;
-        iBuf[indicesOffset++] = vertexId + 2;
-        iBuf[indicesOffset++] = vertexId + 2;
-        iBuf[indicesOffset++] = vertexId + 1;
-        iBuf[indicesOffset++] = vertexId + 3;
+        const index0 = vertexId; const index1 = vertexId + 1;
+        const index2 = vertexId + 2; const index3 = vertexId + 3;
+
+        // fill index data
+        iBuf[indicesOffset++] = index0;
+        iBuf[indicesOffset++] = index1;
+        iBuf[indicesOffset++] = index2;
+        iBuf[indicesOffset++] = index2;
+        iBuf[indicesOffset++] = index1;
+        iBuf[indicesOffset++] = index3;
     },
 
     updateVertexData (sprite: Sprite) {
