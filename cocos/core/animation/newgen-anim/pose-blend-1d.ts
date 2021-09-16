@@ -5,6 +5,7 @@ import { BindableNumber, bindOr } from './parametric';
 import { Pose, PoseEval, PoseEvalContext } from './pose';
 import { PoseBlend, PoseBlendEval, validateBlendParam } from './pose-blend';
 import { blend1D } from './blend-1d';
+import { VariableType } from '.';
 
 @ccclass('cc.animation.Blender1D')
 export class PoseBlend1D implements PoseBlend {
@@ -32,6 +33,7 @@ export class PoseBlend1D implements PoseBlend {
         const initialValue = bindOr(
             context,
             this.param,
+            VariableType.NUMBER,
             evaluation.setInput,
             evaluation,
             0,

@@ -1,7 +1,6 @@
 import { serializable } from 'cc.decorator';
 import { ccclass } from '../../data/class-decorator';
 import { createEval } from './create-eval';
-import { parametricNum } from './parametric';
 import { Pose, PoseEval, PoseEvalContext } from './pose';
 import { PoseBlend, PoseBlendEval } from './pose-blend';
 

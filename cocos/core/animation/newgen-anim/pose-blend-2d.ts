@@ -7,6 +7,7 @@ import { Pose, PoseEvalContext } from './pose';
 import { serializable, type } from '../../data/decorators';
 import { BindableNumber, bindOr } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
+import { VariableType } from '.';
 
 enum Algorithm {
     SIMPLE_DIRECTIONAL,
@@ -58,6 +59,7 @@ export class PoseBlend2D implements PoseBlend {
         const initialValueX = bindOr(
             context,
             this.paramX,
+            VariableType.NUMBER,
             evaluation.setInput,
             evaluation,
             0,
@@ -65,6 +67,7 @@ export class PoseBlend2D implements PoseBlend {
         const initialValueY = bindOr(
             context,
             this.paramY,
+            VariableType.NUMBER,
             evaluation.setInput,
             evaluation,
             1,
