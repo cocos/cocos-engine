@@ -20,11 +20,17 @@ class TouchManager {
         this._touches = new Array(this._maxTouches);
     }
 
-    // The original touch object can't be modified, so we need to return the cloned touch object.
+    /**
+     * The original touch object can't be modified, so we need to return the cloned touch object.
+     * @param touch
+     * @returns
+     */
     private _cloneTouch (touch: Touch): Touch {
         const touchID = touch.getID();
-        touch.getLocation(tempVec2);
+        touch.getStartLocation(tempVec2);
         const clonedTouch = new Touch(tempVec2.x, tempVec2.y, touchID);
+        touch.getLocation(tempVec2);
+        clonedTouch.setPoint(tempVec2.x, tempVec2.y);
         touch.getPreviousLocation(tempVec2);
         clonedTouch.setPrevPoint(tempVec2);
         return clonedTouch;
@@ -41,7 +47,7 @@ class TouchManager {
      * @param y
      * @returns
      */
-    public createTouch (touchID: number, x: number, y: number): Touch | undefined {
+    private _createTouch (touchID: number, x: number, y: number): Touch | undefined {
         if (touchID in this._touchMap) {
             console.log('Cannot create the same touch object.');
             return undefined;
@@ -54,7 +60,7 @@ class TouchManager {
         const touch = new Touch(x, y, touchID);
         this._touches[availableTouchIndex] = touch;
         this._touchMap[touchID] = availableTouchIndex;
-        this.updateTouch(touchID, x, y);
+        this._updateTouch(touch, x, y);
         return this._cloneTouch(touch);
     }
 
@@ -73,34 +79,19 @@ class TouchManager {
     }
 
     /**
-     * Update the location and previous location of current touch ID.
-     * @param touchID
-     * @param x The current location X
-     * @param y The current location Y
-     */
-    public updateTouch (touchID: number, x: number, y: number) {
-        const availableTouchIndex = this._touchMap[touchID];
-        const touch = this._touches[availableTouchIndex];
-        if (!touch) {
-            return;
-        }
-        touch.getLocation(tempVec2);
-        touch.setPrevPoint(tempVec2);
-        touch.setPoint(x, y);
-    }
-
-    /**
      * Get touch object by touch ID.
      * @param touchID
      * @returns
      */
-    public getTouch (touchID: number): Touch | undefined {
+    public getTouch (touchID: number, x: number, y: number): Touch | undefined {
         const availableTouchIndex = this._touchMap[touchID];
-        const touch = this._touches[availableTouchIndex];
+        let touch = this._touches[availableTouchIndex];
         if (!touch) {
-            return undefined;
+            touch = this._createTouch(touchID, x, y);
+        } else {
+            this._updateTouch(touch, x, y);
         }
-        return this._cloneTouch(touch);
+        return touch ? this._cloneTouch(touch) : undefined;
     }
 
     /**
@@ -116,6 +107,18 @@ class TouchManager {
             }
         });
         return touches;
+    }
+
+    /**
+     * Update the location and previous location of current touch ID.
+     * @param touchID
+     * @param x The current location X
+     * @param y The current location Y
+     */
+    private _updateTouch (touch: Touch, x: number, y: number) {
+        touch.getLocation(tempVec2);
+        touch.setPrevPoint(tempVec2);
+        touch.setPoint(x, y);
     }
 
     private _getAvailableTouchIndex (touchID: number) {

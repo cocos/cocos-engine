@@ -1,10 +1,10 @@
-import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
+import { AccelerometerCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../../screen-adapter/enum-type';
-import { SystemEventType } from '../../../cocos/input/types';
+import { Acceleration, EventAcceleration, SystemEventType } from '../../../cocos/input/types';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -45,15 +45,11 @@ export class AccelerometerInputSource {
             x = -x;
             y = -y;
         }
-        const accelerometer: AccelerometerInputEvent = {
-            type: SystemEventType.DEVICEMOTION,
-            x,
-            y,
-            z,
-            timestamp: performance.now(),
-        };
 
-        this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
+        const timestamp = performance.now();
+        const acceleration = new Acceleration(x, y, z, timestamp);
+        const eventAcceleration = new EventAcceleration(acceleration);
+        this._eventTarget.emit(SystemEventType.DEVICEMOTION, eventAcceleration);
     }
 
     public start () {
