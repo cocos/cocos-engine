@@ -62,6 +62,7 @@ const _uvs = [
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
 
 const CC_RENDER_MODE = 'CC_RENDER_MODE';
+const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
 const RENDER_MODE_BILLBOARD = 0;
 const RENDER_MODE_STRETCHED_BILLBOARD = 1;
 const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
@@ -236,6 +237,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._runAnimateList.push(p);
             }
         }
+
+        this.updateMaterialParams();
     }
 
     public updateAlignSpace (space) {
@@ -525,6 +528,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         } else {
             pass.setUniform(this._uLenHandle, vlenScale);
         }
+
+        let enable = false;
+        const roationModule = this._particleSystem._rotationOvertimeModule;
+        enable = roationModule && roationModule.enable;
+        this._defines[ROTATION_OVER_TIME_MODULE_ENABLE] = enable;
+
         mat.recompileShaders(this._defines);
         if (this._model) {
             this._model.updateMaterial(mat);

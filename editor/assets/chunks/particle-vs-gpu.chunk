@@ -238,7 +238,19 @@ vec4 gpvs_main () {
 
   // rotation
   vec3 startRotation = a_rotation_uv.xyz;
-  vec4 rot = toQuat(startRotation);
+  #if CC_RENDER_MODE != RENDER_MODE_MESH
+    #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
+      vec3 rotEuler = startRotation.xyz;
+    #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+      vec3 rotEuler = vec3(0.);
+    #else
+      vec3 rotEuler = vec3(0., 0., startRotation.z);
+    #endif
+    vec4 rot = quaternionFromEuler(rotEuler);
+  #else
+    vec4 rot = quaternionFromEuler(startRotation);
+  #endif
+
   #if ROTATION_OVER_TIME_MODULE_ENABLE
     if (u_rotation_mode == CURVE_MODE_FIX) {
       vec3 euler = unpackCurveData(rotation_over_time_tex0, timeCoord0) * normalizedTime * a_dir_life.w;
