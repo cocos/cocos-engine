@@ -36,7 +36,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
 import { Color, Size, Vec3 } from '../../core/math';
-import { EventTouch } from '../../core/platform';
+import { EventTouch } from '../../input/types';
 import { Node } from '../../core/scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
 import { Sprite } from '../../2d/components/sprite';
@@ -190,7 +190,8 @@ export class EditBox extends Component {
         }
 
         this._backgroundImage = value;
-        this._createBackgroundSprite();
+        this._ensureBackgroundSprite();
+        this._background!.spriteFrame = value;
     }
 
     /**
@@ -386,6 +387,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._registerEvent();
         }
+        this._ensureBackgroundSprite();
         if (this._impl) {
             this._impl.onEnable();
         }
@@ -401,6 +403,7 @@ export class EditBox extends Component {
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._unregisterEvent();
         }
+        this._unregisterBackgroundEvent();
         if (this._impl) {
             this._impl.onDisable();
         }
@@ -507,7 +510,6 @@ export class EditBox extends Component {
     }
 
     protected _init () {
-        this._createBackgroundSprite();
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
@@ -519,16 +521,20 @@ export class EditBox extends Component {
         this._syncSize();
     }
 
-    protected _createBackgroundSprite () {
+    protected _ensureBackgroundSprite () {
         if (!this._background) {
-            this._background = this.node.getComponent(Sprite);
-            if (!this._background) {
-                this._background = this.node.addComponent(Sprite);
+            let background = this.node.getComponent(Sprite);
+            if (!background) {
+                background = this.node.addComponent(Sprite);
+            }
+            if (background !== this._background) {
+                // init background
+                background.type = Sprite.Type.SLICED;
+                background.spriteFrame = this._backgroundImage;
+                this._background = background;
+                this._registerBackgroundEvent();
             }
         }
-
-        this._background.type = Sprite.Type.SLICED;
-        this._background.spriteFrame = this._backgroundImage;
     }
 
     protected _updateTextLabel () {
@@ -664,6 +670,23 @@ export class EditBox extends Component {
     protected _unregisterEvent () {
         this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
         this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+    }
+
+    private _onBackgroundSpriteFrameChanged () {
+        if (!this._background) {
+            return;
+        }
+        this.backgroundImage = this._background.spriteFrame;
+    }
+
+    private _registerBackgroundEvent () {
+        const node = this._background && this._background.node;
+        node?.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+    }
+
+    private _unregisterBackgroundEvent () {
+        const node = this._background && this._background.node;
+        node?.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     protected _updateLabelPosition (size: Size) {

@@ -786,7 +786,8 @@ function cacheTraverse (worldMat?: Mat4) {
         if (!_needColor) continue;
 
         // handle color
-        let frameColorOffset = frameVFOffset - segVFCount;
+        // tip: step of frameColorOffset should fix with vertex attributes, (xyzuvrgbargba--xyuvcc)
+        let frameColorOffset = (frameVFOffset - segVFCount) / 13 * 6;
         for (let ii = _vfOffset, iEnd = _vfOffset + segVFCount; ii < iEnd; ii += _perVertexSize, frameColorOffset += 6) {
             if (frameColorOffset >= maxVFOffset) {
                 nowColor = colors[colorOffset++];

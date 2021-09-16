@@ -33,8 +33,8 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, display
 import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
 import { UITransform } from '../2d/framework';
-import { Event } from '../core/event';
-import { EventMouse, EventTouch, Touch, logID, SystemEventType } from '../core/platform';
+import { Event, EventMouse, EventTouch, Touch, SystemEventType } from '../input/types';
+import { logID } from '../core/platform/debug';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
@@ -1324,7 +1324,7 @@ export class ScrollView extends ViewGroup {
         return outOfBoundaryAmount;
     }
 
-    protected _updateScrollBar (outOfBoundary: Readonly<Vec2>) {
+    protected _updateScrollBar (outOfBoundary: Vec2 | Readonly<Vec2>) {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }

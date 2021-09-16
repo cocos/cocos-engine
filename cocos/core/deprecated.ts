@@ -31,7 +31,6 @@
 import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
-import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
 import { Root } from './root';
@@ -225,17 +224,6 @@ removeProperty(Scheduler, 'Scheduler', [
     {
         name: 'PRIORITY_NON_SYSTEM',
         suggest: 'Use enum` System.Priority` instead',
-    },
-]);
-
-// Events
-
-replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
-    {
-        name: 'getUILocationInView',
-        newName: 'getLocationInView',
-        target: EventTouch,
-        targetName: 'EventTouch',
     },
 ]);
 

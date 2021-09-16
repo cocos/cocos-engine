@@ -28,14 +28,13 @@
  * @module gfx
  */
 
-import { Device } from './device';
-import { Obj, ObjectType, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo } from './define';
+import { GFXObject, ObjectType, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo } from './define';
 
 /**
  * @en GFX descriptor sets layout.
  * @zh GFX 描述符集布局。
  */
-export abstract class DescriptorSetLayout extends Obj {
+export abstract class DescriptorSetLayout extends GFXObject {
     get bindings () {
         return this._bindings;
     }
@@ -48,20 +47,15 @@ export abstract class DescriptorSetLayout extends Obj {
         return this._descriptorIndices;
     }
 
-    protected _device: Device;
-
     protected _bindings: DescriptorSetLayoutBinding[] = [];
-
     protected _bindingIndices: number[] = [];
-
     protected _descriptorIndices: number[] = [];
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.DESCRIPTOR_SET_LAYOUT);
-        this._device = device;
     }
 
-    public abstract initialize (info: DescriptorSetLayoutInfo): boolean;
+    public abstract initialize (info: DescriptorSetLayoutInfo): void;
 
     public abstract destroy (): void;
 }

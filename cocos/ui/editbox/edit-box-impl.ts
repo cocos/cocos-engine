@@ -35,7 +35,8 @@ import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
 import { Color, Mat4, Size, Vec3 } from '../../core/math';
-import { KeyCode, screen, view } from '../../core/platform';
+import { view } from '../../core/platform';
+import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
@@ -378,6 +379,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         } else if (inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
+            elem.addEventListener("wheel", () => false);
         } else if (inputMode === InputMode.URL) {
             type = 'url';
         } else {

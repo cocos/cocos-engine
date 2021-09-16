@@ -32,7 +32,8 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
-import { assert, EventTouch, warnID } from '../../core/platform';
+import { EventTouch } from '../../input/types';
+import { assert, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
@@ -1043,6 +1044,7 @@ export class RichText extends UIComponent {
         if (!label) {
             return;
         }
+        this._resetLabelState(label);
 
         const index = labelSeg.styleIndex;
 
@@ -1080,8 +1082,6 @@ export class RichText extends UIComponent {
                 labelSeg.clickHandler = event.click || '';
                 labelSeg.clickParam = event.param || '';
             }
-        } else {
-            label.fontSize = this._fontSize;
         }
 
         label.cacheMode = this._cacheMode;
@@ -1108,5 +1108,13 @@ export class RichText extends UIComponent {
         for (const seg of this._segments) {
             seg.node.layer = this.node.layer;
         }
+    }
+
+    protected _resetLabelState (label: Label) {
+        label.fontSize = this._fontSize;
+        label.color = Color.WHITE;
+        label.isBold = false;
+        label.isItalic = false;
+        label.isUnderline = false;
     }
 }

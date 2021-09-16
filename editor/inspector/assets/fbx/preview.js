@@ -596,7 +596,7 @@ exports.methods = {
     async setCurrentFrame(frame) {
         frame = Editor.Utils.Math.clamp(frame, 0, this.curTotalFrames);
 
-        const curTime = frame / this.curEditClipInfo.fps;
+        const curTime = frame / this.curEditClipInfo.fps + this.curEditClipInfo.from;
         await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setCurEditTime', curTime);
     },
 
@@ -605,7 +605,9 @@ exports.methods = {
             return;
         }
         if (this.$.animationTime) {
-            this.$.animationTime.value = Math.round((time - this.curEditClipInfo.from) * this.curEditClipInfo.fps);
+            let timeFromRangeStart = Math.max(time - this.curEditClipInfo.from, 0);
+
+            this.$.animationTime.value = Math.round(timeFromRangeStart * this.curEditClipInfo.fps);
             this.$.currentTime.value = this.$.animationTime.value;
         }
 

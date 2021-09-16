@@ -30,27 +30,26 @@
 
 import { RenderPipeline } from './render-pipeline';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
-    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout } from '../gfx';
+    DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
-import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 
-const _samplerLinearInfo = [
+const _samplerLinearInfo = new SamplerInfo(
     Filter.LINEAR,
     Filter.LINEAR,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-];
+);
 
-const _samplerPointInfo = [
+const _samplerPointInfo = new SamplerInfo(
     Filter.POINT,
     Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-];
+);
 
 export class GlobalDSManager {
     private _device: Device;
@@ -85,11 +84,8 @@ export class GlobalDSManager {
     constructor (pipeline: RenderPipeline) {
         this._device = pipeline.device;
 
-        const linearSamplerHash = genSamplerHash(_samplerLinearInfo);
-        this._linearSampler = samplerLib.getSampler(this._device, linearSamplerHash);
-
-        const pointSamplerHash = genSamplerHash(_samplerPointInfo);
-        this._pointSampler = samplerLib.getSampler(this._device, pointSamplerHash);
+        this._linearSampler = this._device.getSampler(_samplerLinearInfo);
+        this._pointSampler = this._device.getSampler(_samplerPointInfo);
 
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
@@ -201,7 +197,5 @@ export class GlobalDSManager {
 
     public destroy () {
         this._descriptorSetLayout.destroy();
-        this._linearSampler.destroy();
-        this._pointSampler.destroy();
     }
 }

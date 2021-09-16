@@ -1,6 +1,6 @@
 import { minigame } from 'pal/minigame';
 import { SafeAreaEdge } from 'pal/screen-adapter';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 
