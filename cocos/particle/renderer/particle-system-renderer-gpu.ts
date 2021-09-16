@@ -264,11 +264,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
             const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
-            const cameraName: string = EDITOR ? 'Editor Camera' : 'Main Camera';
             if (cameraLst !== undefined) {
                 for (let i = 0; i < cameraLst?.length; ++i) {
                     const camera:Camera = cameraLst[i];
-                    if (camera.name === cameraName) {
+                    if ((camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer) {
                         Quat.fromViewUp(_node_rot, camera.forward);
                         break;
                     }
