@@ -36,6 +36,12 @@ export const Space = Enum({
     Custom: 2,
 });
 
+export const AlignmentSpace = Enum({
+    World: 0,
+    Local: 1,
+    View: 2,
+});
+
 /**
  * 粒子的生成模式。
  * @enum ParticleSystemRenderer.RenderMode

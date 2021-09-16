@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
@@ -30,13 +31,16 @@ import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
-import { RenderMode, Space } from '../enum';
+import { AlignmentSpace, RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
+import { Camera } from '../../core/renderer/scene/camera';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
+const _node_rot = new Quat();
+const _node_euler = new Vec3();
 
 const _anim_module = [
     '_colorOverLifetimeModule',
@@ -115,6 +119,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _fillDataFunc: any = null;
     private _uScaleHandle = 0;
     private _uLenHandle = 0;
+    private _uNodeRotHandle = 0;
+    private _alignSpace = AlignmentSpace.View;
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
@@ -235,6 +241,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateMaterialParams();
     }
 
+    public updateAlignSpace (space) {
+        this._alignSpace = space;
+    }
+
     public updateParticles (dt: number) {
         const ps = this._particleSystem;
         if (!ps) {
@@ -254,6 +264,30 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         pass.setUniform(this._uScaleHandle, this._node_scale);
+
+        if (this._alignSpace === AlignmentSpace.Local) {
+            this._particleSystem.node.getRotation(_node_rot);
+        } else if (this._alignSpace === AlignmentSpace.World) {
+            this._particleSystem.node.getWorldRotation(_node_rot);
+        } else if (this._alignSpace === AlignmentSpace.View) {
+            // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
+            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+            if (cameraLst !== undefined) {
+                for (let i = 0; i < cameraLst?.length; ++i) {
+                    const camera:Camera = cameraLst[i];
+                    // eslint-disable-next-line max-len
+                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    if (checkCamera) {
+                        Quat.fromViewUp(_node_rot, camera.forward);
+                        break;
+                    }
+                }
+            }
+        } else {
+            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+        }
+        pass.setUniform(this._uNodeRotHandle, _node_rot);
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps._simulationSpace, _tempWorldTrans);
@@ -467,6 +501,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const pass = mat.passes[0];
         this._uScaleHandle = pass.getHandle('scale');
         this._uLenHandle = pass.getHandle('frameTile_velLenScale');
+        this._uNodeRotHandle = pass.getHandle('nodeRotation');
 
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;
