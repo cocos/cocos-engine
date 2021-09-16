@@ -742,6 +742,70 @@ describe('NewGen Anim', () => {
             const triggerStates = Array.from({ length: nTriggers }, (_, iTrigger) => graphEval.getValue(`trigger${iTrigger}`));
             expect(triggerStates).toStrictEqual(new Array(nTriggers).fill(false));
         });
+
+        describe(`Transition priority`, () => {
+            test('Transitions to different nodes, use the first-connected and first-matched transition', () => {
+                const poseGraph = new PoseGraph();
+                const layer = poseGraph.addLayer();
+                const graph = layer.graph;
+                const poseNode1 = graph.addPoseNode();
+                poseNode1.name = 'Node1';
+                poseNode1.pose = createEmptyClipPose(1.0);
+                const poseNode2 = graph.addPoseNode();
+                poseNode2.name = 'Node2';
+                poseNode2.pose = createEmptyClipPose(1.0);
+                const poseNode3 = graph.addPoseNode();
+                poseNode3.name = 'Node3';
+                poseNode3.pose = createEmptyClipPose(1.0);
+                const transition1 = graph.connect(poseNode1, poseNode2);
+                transition1.exitConditionEnabled = true;
+                transition1.exitCondition = 0.8;
+                const [ transition1Condition ] = transition1.conditions = [ new UnaryCondition() ];
+                transition1Condition.operator = UnaryCondition.Operator.TRUTHY;
+                transition1Condition.bindProperty('operand', 'switch1');
+                const transition2 = graph.connect(poseNode1, poseNode3);
+                transition2.exitConditionEnabled = true;
+                transition2.exitCondition = 0.8;
+                const [ transition2Condition ] = transition2.conditions = [ new UnaryCondition() ];
+                transition2Condition.operator = UnaryCondition.Operator.TRUTHY;
+                transition2Condition.bindProperty('operand', 'switch2');
+                graph.connect(graph.entryNode, poseNode1);
+                poseGraph.addVariable('switch1', VariableType.BOOLEAN, false);
+                poseGraph.addVariable('switch2', VariableType.BOOLEAN, false);
+
+                // #region Both satisfied
+                {
+                    const graphEval = createPoseGraphEval(poseGraph, new Node());
+                    graphEval.setValue('switch1', true);
+                    graphEval.setValue('switch2', true);
+                    graphEval.update(0.9);
+                    expectPoseGraphEvalStatusLayer0(graphEval, {
+                        currentNode: { __DEBUG_ID__: 'Node1' },
+                        transition: {
+                            time: 0.1,
+                            nextNode: { __DEBUG_ID__: 'Node2' },
+                        },
+                    });
+                }
+                // #endregion
+
+                // #region The later satisfied
+                {
+                    const graphEval = createPoseGraphEval(poseGraph, new Node());
+                    graphEval.setValue('switch1', false);
+                    graphEval.setValue('switch2', true);
+                    graphEval.update(0.9);
+                    expectPoseGraphEvalStatusLayer0(graphEval, {
+                        currentNode: { __DEBUG_ID__: 'Node1' },
+                        transition: {
+                            time: 0.1,
+                            nextNode: { __DEBUG_ID__: 'Node3' },
+                        },
+                    });
+                }
+                // #endregion
+            });
+        });
     });
 
     describe(`Any state`, () => {
@@ -1121,6 +1185,16 @@ describe('NewGen Anim', () => {
         });
     });
 });
+
+function createEmptyClipPose (duration: number, name = '') {
+    const clip = new AnimationClip();
+    clip.name = name;
+    clip.enableTrsBlending = true;
+    clip.duration = duration;
+    const pose = new AnimatedPose();
+    pose.clip = clip;
+    return pose;
+}
 
 function createPosePositionX(duration: number, value: number, name = '') {
     const clip = new AnimationClip();
