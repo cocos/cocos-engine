@@ -389,8 +389,13 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
-    public updateShadowUBOLight (light: Light, camera: Camera) {
-        const ds = this._pipeline.descriptorSet;
+    public updateShadowUBOLight (pipeline: RenderPipeline, idx: number, light: Light, camera: Camera) {
+        let ds;
+        if (light.type === LightType.DIRECTIONAL) {
+            ds = pipeline.descriptorSet;
+        } else {
+            ds = pipeline.globalDSManager.getOrCreateDescriptorSet(idx)!;
+        }
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, camera);
         ds.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }

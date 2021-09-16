@@ -29,8 +29,8 @@
  */
 
 import { SubModel } from '../renderer/scene/submodel';
-import { SetIndex, UBOShadow } from './define';
-import { Device, RenderPass, Buffer, Shader, CommandBuffer } from '../gfx';
+import { SetIndex } from './define';
+import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';
@@ -39,12 +39,12 @@ import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
 import { ShadowType } from '../renderer/scene/shadows';
-import { ForwardPipeline } from './forward/forward-pipeline';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene/spot-light';
 import { intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera } from '../renderer/scene';
+import { RenderPipeline } from './render-pipeline';
 
 const _phaseID = getPhaseID('shadow-caster');
 const _shadowPassIndices: number[] = [];
@@ -71,26 +71,27 @@ function getShadowPassIndex (subModels: SubModel[], shadowPassIndices: number[])
  * 阴影渲染队列
  */
 export class RenderShadowMapBatchedQueue {
-    private _pipeline: ForwardPipeline;
+    private _pipeline: RenderPipeline;
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
 
-    public constructor (pipeline: ForwardPipeline) {
+    public constructor (pipeline: RenderPipeline) {
         this._pipeline = pipeline;
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (light: Light, camera: Camera, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (idx: number, light: Light, camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
+
         const shadowInfo = this._pipeline.pipelineSceneData.shadows;
         const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            this._pipeline.pipelineUBO.updateShadowUBOLight(light, camera);
+            this._pipeline.pipelineUBO.updateShadowUBOLight(this._pipeline, idx, light, camera);
 
             switch (light.type) {
             case LightType.DIRECTIONAL:

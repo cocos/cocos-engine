@@ -185,13 +185,13 @@ export class GlobalDSManager {
                 descriptorSet.bindTexture(i, globalDescriptorSet.getTexture(i));
             }
 
-            const shadowBUO = device.createBuffer(new BufferInfo(
+            const shadowUBO = device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 UBOShadow.SIZE,
                 UBOShadow.SIZE,
             ));
-            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
+            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 
             descriptorSet.update();
         }
