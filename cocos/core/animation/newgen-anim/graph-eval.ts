@@ -5,9 +5,9 @@ import { PoseEval, PoseEvalContext } from './pose';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value } from './variable';
-import { BindingHost, getPropertyBindingPoints } from './parametric';
+import { BindContext } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
-import { VariableNotDefinedError } from './errors';
+import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { PoseNode } from './pose-node';
 import { SkeletonMask } from '../skeleton-mask';
 import { debug, warnID } from '../../platform/debug';
@@ -17,6 +17,7 @@ import { AnimationClip } from '../animation-clip';
 import type { NewGenAnim } from './newgenanim-component';
 import { StateMachineComponent } from './state-machine-component';
 import { InteractiveGraphNode } from './graph-node';
+import { VariableType } from '.';
 
 export class PoseGraphEval {
     private _varRefMap: Record<string, VarRefs> = {};
@@ -28,8 +29,9 @@ export class PoseGraphEval {
     };
 
     constructor (graph: PoseGraph, root: Node, newGenAnim: NewGenAnim) {
-        for (const [name, { value }] of graph.variables) {
+        for (const [name, { type, value }] of graph.variables) {
             this._varRefMap[name] = {
+                type,
                 value,
                 refs: [],
             };
@@ -42,17 +44,6 @@ export class PoseGraphEval {
             bind: this._bind.bind(this),
             triggerResetFn: (name: string) => {
                 this.setValue(name, false);
-            },
-            getParam: (host: BindingHost, name: string) => {
-                const varId = host.getPropertyBinding(name);
-                if (!varId) {
-                    return undefined;
-                }
-                const varRefs = this._varRefMap[varId];
-                if (!varRefs) {
-                    throw new VariableNotDefinedError(varId);
-                }
-                return varRefs.value;
             },
         };
 
@@ -134,18 +125,28 @@ export class PoseGraphEval {
         }
 
         varRefs.value = value;
-        for (const { fn, args } of varRefs.refs) {
-            fn(value, ...args);
+        for (const { fn, thisArg, args } of varRefs.refs) {
+            fn.call(thisArg, value, ...args);
         }
     }
 
-    private _bind<T, ExtraArgs extends any[]> (varId: string, fn: (value: T, ...args: ExtraArgs) => void, args: ExtraArgs): T {
+    private _bind<T, TThis, ExtraArgs extends any[]> (
+        varId: string,
+        type: VariableType,
+        fn: (this: TThis, value: T, ...args: ExtraArgs) => void,
+        thisArg: TThis,
+        ...args: ExtraArgs
+    ): T {
         const varRefs = this._varRefMap[varId];
         if (!varRefs) {
             throw new VariableNotDefinedError(varId);
         }
+        if (type !== varRefs.type) {
+            throw new VariableTypeMismatchedError(varId, VariableType[type], VariableType[varRefs.type]);
+        }
         varRefs.refs.push({
             fn: fn as (value: unknown, ...args: unknown[]) => T,
+            thisArg,
             args,
         });
         return varRefs.value as unknown as T;
@@ -172,7 +173,7 @@ export interface PoseNodeStats {
 
 type TriggerResetFn = (name: string) => void;
 
-interface LayerContext {
+interface LayerContext extends BindContext {
     newGenAnim: NewGenAnim;
 
     /**
@@ -189,10 +190,6 @@ interface LayerContext {
      * The mask applied to this layer.
      */
     mask?: SkeletonMask;
-
-    getParam(host: BindingHost, name: string): unknown;
-
-    bind<T, ExtraArgs extends any[]>(varId: string, fn: (value: T, ...args: ExtraArgs) => void, args: ExtraArgs): T;
 
     /**
      * TODO: A little hacky.
@@ -407,10 +404,9 @@ class LayerEval {
                 }
                 transitionEval.conditions.forEach((conditionEval, iCondition) => {
                     const condition = outgoing.conditions[iCondition];
-                    bindEvalProperties(context, condition, conditionEval);
-                    if (condition instanceof TriggerCondition && condition.hasPropertyBinding('trigger')) {
-                        const trigger = condition.getPropertyBinding('trigger');
-                        (transitionEval.triggers ??= []).push(trigger);
+                    if (condition instanceof TriggerCondition && condition.trigger) {
+                        // TODO: validates the existence of trigger?
+                        (transitionEval.triggers ??= []).push(condition.trigger);
                     }
                 });
                 outgoingTransitions.push(transitionEval);
@@ -943,19 +939,6 @@ const transitionMatchCacheRegular = new TransitionMatchCache();
 
 const transitionMatchCacheAny = new TransitionMatchCache();
 
-function bindEvalProperties<T extends BindingHost, EvalT> (context: LayerContext, source: T, evalObject: EvalT) {
-    const propertyBindingPoints = getPropertyBindingPoints(source);
-    if (!propertyBindingPoints) {
-        return;
-    }
-    for (const [bindingPointId, bindingPoint] of Object.entries(propertyBindingPoints)) {
-        const varName = source.getPropertyBinding(bindingPointId);
-        if (varName) {
-            context.bind(varName, bindingPoint.notify, [evalObject]);
-        }
-    }
-}
-
 enum NodeKind {
     entry, exit, any, pose,
 }
@@ -1019,18 +1002,14 @@ interface SubgraphInfo {
 export class PoseNodeEval extends NodeBaseEval {
     constructor (node: PoseNode, context: LayerContext) {
         super(node);
-        this.speed = node.speed;
-        this.startRatio = node.startRatio;
-        bindEvalProperties(context, node, this);
+        this.speed = node.speed.value;
+        this.startRatio = node.startRatio.value;
         const poseEvalContext: PoseEvalContext = {
             ...context,
-            speed: node.speed,
-            startRatio: node.startRatio,
+            speed: node.speed.value,
+            startRatio: node.startRatio.value,
         };
         const poseEval = node.pose?.[createEval](poseEvalContext) ?? null;
-        if (poseEval && node.pose instanceof BindingHost) {
-            bindEvalProperties(context, node.pose, poseEval);
-        }
         if (poseEval) {
             Object.defineProperty(poseEval, '__DEBUG_ID__', { value: this.name });
         }
@@ -1128,6 +1107,8 @@ interface TransitionEval {
 }
 
 interface VarRefs {
+    type: VariableType;
+
     value: Value;
 
     refs: VarRef[];
@@ -1135,6 +1116,8 @@ interface VarRefs {
 
 interface VarRef {
     fn: (value: unknown, ...args: unknown[]) => void;
+
+    thisArg: unknown;
 
     args: unknown[];
 }

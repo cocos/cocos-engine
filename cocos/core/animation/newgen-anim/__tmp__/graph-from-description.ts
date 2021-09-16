@@ -12,7 +12,7 @@ import { PoseBlend1D } from '../pose-blend-1d';
 import { PoseBlend2D } from '../pose-blend-2d';
 import { GraphNode, PoseSubgraph, PoseTransition, VariableType } from '../pose-graph';
 import { Pose } from '../pose';
-import { BindingHost } from '../parametric';
+import { Bindable } from '../parametric';
 import { Value } from '../variable';
 import { PoseNode } from '../pose-node';
 import { BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';
@@ -84,14 +84,14 @@ function createTransition (graph: PoseSubgraph, from: GraphNode, to: GraphNode, 
         case 'unary': {
             const condition = new UnaryCondition();
             condition.operator = UnaryCondition.Operator[conditionDesc.type];
-            condition.operand = createParametric(conditionDesc.operand, condition, 'operand');
+            createParametric(conditionDesc.operand, condition.operand);
             return condition;
         }
         case 'binary': {
             const condition = new BinaryCondition();
             condition.operator = BinaryCondition.Operator[conditionDesc.type];
-            condition.lhs = createParametric(conditionDesc.lhs, condition, 'lhs');
-            condition.rhs = createParametric(conditionDesc.rhs, condition, 'rhs');
+            createParametric(conditionDesc.lhs, condition.lhs);
+            createParametric(conditionDesc.rhs, condition.rhs);
             return condition;
         }
         case 'trigger': {
@@ -133,7 +133,7 @@ function createMotion (motionDesc: MotionDescription): Pose {
             createMotion(childMotionDesc),
             thresholds[iMotion],
         ] as [Pose, number]);
-        motion.param = createParametric(motionDesc.blender.value, motion, 'param');
+        createParametric(motionDesc.blender.value, motion.param);
         return motion;
     } else {
         const algorithm = PoseBlend2D.Algorithm[motionDesc.blender.algorithm];
@@ -144,18 +144,18 @@ function createMotion (motionDesc: MotionDescription): Pose {
             createMotion(childMotionDesc),
             new Vec2(thresholds[iMotion].x, thresholds[iMotion].y),
         ] as [Pose, Vec2]);
-        motion.paramX = createParametric(motionDesc.blender.values[0], motion, 'paramX');
-        motion.paramY = createParametric(motionDesc.blender.values[1], motion, 'paramY');
+        createParametric(motionDesc.blender.values[0], motion.paramX);
+        createParametric(motionDesc.blender.values[1], motion.paramY);
         return motion;
     }
 }
 
-function createParametric<T extends string | number | boolean> (paramDesc: ParametricDescription<T>, host: BindingHost, bindingPointId: string) {
+function createParametric<T extends string | number | boolean> (paramDesc: ParametricDescription<T>, bindable: Bindable<T>) {
     if (typeof paramDesc === 'object') {
-        host.bindProperty(bindingPointId, paramDesc.name);
-        return paramDesc.value;
+        bindable.variable = paramDesc.name;
+        bindable.value = paramDesc.value;
     } else {
-        return paramDesc;
+        bindable.value = paramDesc;
     }
 }
 

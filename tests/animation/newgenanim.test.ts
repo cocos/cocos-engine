@@ -15,7 +15,6 @@ import gVariableNotFoundInPoseBlend from './graphs/variable-not-found-in-pose-bl
 import gPoseBlendRequiresNumbers from './graphs/pose-blend-requires-numbers';
 import gInfinityLoop from './graphs/infinity-loop';
 import gZeroTimePiece from './graphs/zero-time-piece';
-import { getPropertyBindingPoints } from '../../cocos/core/animation/newgen-anim/parametric';
 import { blend1D } from '../../cocos/core/animation/newgen-anim/blend-1d';
 import '../utils/matcher-deep-close-to';
 import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/core/animation/newgen-anim/condition';
@@ -37,10 +36,12 @@ describe('NewGen Anim', () => {
 
         const graphNode = layerGraph.addPoseNode();
         expect(graphNode.name).toBe('');
-        expect(graphNode.speed).toBe(1.0);
+        expect(graphNode.speed.variable).toBe('');
+        expect(graphNode.speed.value).toBe(1.0);
         expect(graphNode.loop).toBe(true);
         expect(graphNode.pose).toBeNull();
-        expect(graphNode.startRatio).toBe(0.0);
+        expect(graphNode.startRatio.variable).toBe('');
+        expect(graphNode.startRatio.value).toBe(0.0);
 
         testGraphDefaults(layerGraph.addSubgraph());
 
@@ -49,13 +50,16 @@ describe('NewGen Anim', () => {
         
         const poseBlend1D = new PoseBlend1D();
         expect(Array.from(poseBlend1D.children)).toHaveLength(0);
-        expect(poseBlend1D.param).toBe(0.0);
+        expect(poseBlend1D.param.variable).toBe('');
+        expect(poseBlend1D.param.value).toBe(0.0);
 
         const poseBlend2D = new PoseBlend2D();
         expect(poseBlend2D.algorithm).toBe(PoseBlend2D.Algorithm.SIMPLE_DIRECTIONAL);
         expect(Array.from(poseBlend2D.children)).toHaveLength(0);
-        expect(poseBlend2D.paramX).toBe(0.0);
-        expect(poseBlend2D.paramY).toBe(0.0);
+        expect(poseBlend2D.paramX.variable).toBe('');
+        expect(poseBlend2D.paramX.value).toBe(0.0);
+        expect(poseBlend2D.paramY.variable).toBe('');
+        expect(poseBlend2D.paramY.value).toBe(0.0);
 
         const poseBlendDirect = new PoseBlendDirect();
         expect(Array.from(poseBlendDirect.children)).toHaveLength(0);
@@ -260,7 +264,7 @@ describe('NewGen Anim', () => {
             const subgraphEntryToExit = subgraph.connect(subgraph.entryNode, subgraph.exitNode);
             const [subgraphEntryToExitCondition] = subgraphEntryToExit.conditions = [new TriggerCondition()];
             poseGraph.addVariable('subgraphExitTrigger', VariableType.TRIGGER, false);
-            subgraphEntryToExitCondition.bindProperty('trigger', 'subgraphExitTrigger');
+            subgraphEntryToExitCondition.trigger = 'subgraphExitTrigger';
 
             graph.connect(graph.entryNode, subgraph);
             const node = graph.addPoseNode();
@@ -269,7 +273,7 @@ describe('NewGen Anim', () => {
             const [triggerCondition] = subgraphToNode.conditions = [new TriggerCondition()];
 
             poseGraph.addVariable('trigger', VariableType.TRIGGER);
-            triggerCondition.bindProperty('trigger', 'trigger');
+            triggerCondition.trigger = 'trigger';
 
             const graphEval = createPoseGraphEval(poseGraph, new Node());
 
@@ -575,7 +579,7 @@ describe('NewGen Anim', () => {
                 for (const [input, output] of samples) {
                     const condition = new UnaryCondition();
                     condition.operator = op;
-                    condition.operand = input;
+                    condition.operand.value = input;
                     const graph = createPoseGraphForConditionTest([condition]);
                     const graphEval = createPoseGraphEval(graph, new Node());
                     graphEval.update(0.0);
@@ -628,8 +632,8 @@ describe('NewGen Anim', () => {
                 for (const [lhs, rhs, output] of samples) {
                     const condition = new BinaryCondition();
                     condition.operator = op;
-                    condition.lhs = lhs;
-                    condition.rhs = rhs;
+                    condition.lhs.value = lhs;
+                    condition.rhs.value = rhs;
                     const graph = createPoseGraphForConditionTest([condition]);
                     const graphEval = createPoseGraphEval(graph, new Node());
                     graphEval.update(0.0);
@@ -647,7 +651,7 @@ describe('NewGen Anim', () => {
 
             test(`Trigger condition`, () => {
                 const condition = new TriggerCondition();
-                condition.bindProperty('trigger', 'theTrigger');
+                condition.trigger = 'theTrigger';
                 const poseGraph = new PoseGraph();
                 const layer = poseGraph.addLayer();
                 const graph = layer.graph;
@@ -702,7 +706,7 @@ describe('NewGen Anim', () => {
 
             const addTriggerCondition = (transition: Transition) => {
                 const [condition] = transition.conditions = [new TriggerCondition()];
-                condition.bindProperty('trigger', `trigger${nTriggers}`);
+                condition.trigger = `trigger${nTriggers}`;
                 poseGraph.addVariable(`trigger${nTriggers}`, VariableType.TRIGGER);
                 ++nTriggers;
             };
@@ -762,13 +766,13 @@ describe('NewGen Anim', () => {
                 transition1.exitCondition = 0.8;
                 const [ transition1Condition ] = transition1.conditions = [ new UnaryCondition() ];
                 transition1Condition.operator = UnaryCondition.Operator.TRUTHY;
-                transition1Condition.bindProperty('operand', 'switch1');
+                transition1Condition.operand.variable = 'switch1';
                 const transition2 = graph.connect(poseNode1, poseNode3);
                 transition2.exitConditionEnabled = true;
                 transition2.exitCondition = 0.8;
                 const [ transition2Condition ] = transition2.conditions = [ new UnaryCondition() ];
                 transition2Condition.operator = UnaryCondition.Operator.TRUTHY;
-                transition2Condition.bindProperty('operand', 'switch2');
+                transition2Condition.operand.variable = 'switch2';
                 graph.connect(graph.entryNode, poseNode1);
                 poseGraph.addVariable('switch1', VariableType.BOOLEAN, false);
                 poseGraph.addVariable('switch2', VariableType.BOOLEAN, false);
@@ -841,6 +845,7 @@ describe('NewGen Anim', () => {
             const poseNodeClip = poseNode.pose = createPosePositionX(1.0, 0.5, 'PoseNodeClip');
 
             const subgraph = layerGraph.addSubgraph();
+            subgraph.name = 'Subgraph';
             const subgraphPoseNode = subgraph.addPoseNode();
             const subgraphPoseNodeClip = subgraphPoseNode.pose = createPosePositionX(1.0, 0.7, 'SubgraphPoseNodeClip');
             subgraph.connect(subgraph.entryNode, subgraphPoseNode);
@@ -851,7 +856,7 @@ describe('NewGen Anim', () => {
             anyTransition.exitConditionEnabled = true;
             anyTransition.exitCondition = 0.1;
             const [ triggerCondition ] = anyTransition.conditions = [new TriggerCondition()];
-            triggerCondition.bindProperty('trigger', 'trigger');
+            triggerCondition.trigger = 'trigger';
             graph.addVariable('trigger', VariableType.TRIGGER, true);
 
             const graphEval = createPoseGraphEval(graph, new Node());
@@ -1057,7 +1062,7 @@ describe('NewGen Anim', () => {
             const layerGraph = layer.graph;
             const poseNode = layerGraph.addPoseNode();
             poseNode.pose = createPosePositionXLinear(1.0, 0.3, 1.7);
-            poseNode.speed = 1.2;
+            poseNode.speed.value = 1.2;
             layerGraph.connect(layerGraph.entryNode, poseNode);
 
             const node = new Node();
@@ -1167,22 +1172,6 @@ describe('NewGen Anim', () => {
     });
 
     describe('Property binding', () => {
-        test('Bind property', () => {
-            const poseBlend2D = new PoseBlend2D();
-            const bindingPoints = getPropertyBindingPoints(poseBlend2D);
-            expect(Object.keys(bindingPoints)).toEqual(expect.arrayContaining([
-                'paramX',
-                'paramY',
-            ]));
-            poseBlend2D.bindProperty('paramX', 'x');
-            expect(poseBlend2D.getPropertyBinding('paramX')).toBe('x');
-        });
-
-        test('Serialization', () => {
-            const poseBlend2D = new PoseBlend2D();
-            poseBlend2D.bindProperty('paramX', 'x');
-            expect(poseBlend2D.getPropertyBinding('paramX')).toBe('x');
-        });
     });
 });
 

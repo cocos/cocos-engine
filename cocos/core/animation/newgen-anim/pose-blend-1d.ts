@@ -1,13 +1,13 @@
 import { serializable } from 'cc.decorator';
 import { ccclass } from '../../data/class-decorator';
 import { createEval } from './create-eval';
-import { BindingHost, parametricNum } from './parametric';
+import { BindableNumber, bindOr } from './parametric';
 import { Pose, PoseEval, PoseEvalContext } from './pose';
 import { PoseBlend, PoseBlendEval, validateBlendParam } from './pose-blend';
 import { blend1D } from './blend-1d';
 
 @ccclass('cc.animation.Blender1D')
-export class PoseBlend1D extends BindingHost implements PoseBlend {
+export class PoseBlend1D implements PoseBlend {
     @serializable
     protected _poses: (Pose | null)[] = [];
 
@@ -15,11 +15,7 @@ export class PoseBlend1D extends BindingHost implements PoseBlend {
     private _thresholds: number[] = [];
 
     @serializable
-    private _param = 0.0;
-
-    constructor () {
-        super();
-    }
+    public param = new BindableNumber();
 
     get children () {
         return this._listChildren();
@@ -31,24 +27,17 @@ export class PoseBlend1D extends BindingHost implements PoseBlend {
         this._thresholds = sorted.map(([, threshold]) => threshold);
     }
 
-    @parametricNum<[PoseBlend1DEval]>({
-        notify: (value, host) => {
-            validateBlendParam(value, 'param');
-            host.setInput(value, 0);
-        },
-    })
-    get param () {
-        return this._param;
-    }
-
-    set param (value: number) {
-        this._param = value;
-    }
-
     public [createEval] (context: PoseEvalContext) {
-        const param = context.getParam(this, 'param') ?? this._param;
-        validateBlendParam(param, 'param');
-        return new PoseBlend1DEval(context, this._poses, this._thresholds, param);
+        const evaluation = new PoseBlend1DEval(context, this._poses, this._thresholds, 0.0);
+        const initialValue = bindOr(
+            context,
+            this.param,
+            evaluation.setInput,
+            evaluation,
+            0,
+        );
+        evaluation.setInput(initialValue, 0);
+        return evaluation;
     }
 
     private* _listChildren (): Iterable<[Pose | null, number]> {

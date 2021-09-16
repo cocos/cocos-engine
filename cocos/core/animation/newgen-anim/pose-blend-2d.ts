@@ -5,7 +5,7 @@ import { createEval } from './create-eval';
 import { PoseBlend, PoseBlendEval, validateBlendParam } from './pose-blend';
 import { Pose, PoseEvalContext } from './pose';
 import { serializable, type } from '../../data/decorators';
-import { BindingHost, parametricNum } from './parametric';
+import { BindableNumber, bindOr } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 
 enum Algorithm {
@@ -17,7 +17,7 @@ enum Algorithm {
 ccenum(Algorithm);
 
 @ccclass('cc.animation.Blender2D')
-export class PoseBlend2D extends BindingHost implements PoseBlend {
+export class PoseBlend2D implements PoseBlend {
     public static Algorithm = Algorithm;
 
     @serializable
@@ -30,14 +30,10 @@ export class PoseBlend2D extends BindingHost implements PoseBlend {
     private _thresholds: Vec2[] = [];
 
     @serializable
-    private _paramX = 0.0;
+    public paramX = new BindableNumber();
 
     @serializable
-    private _paramY = 0.0;
-
-    constructor () {
-        super();
-    }
+    public paramY = new BindableNumber();
 
     get children () {
         return this._listChildren();
@@ -49,7 +45,6 @@ export class PoseBlend2D extends BindingHost implements PoseBlend {
         this._thresholds = childArray.map(([, threshold]) => threshold);
     }
 
-    @property
     get thresholds () {
         return this._thresholds;
     }
@@ -58,40 +53,25 @@ export class PoseBlend2D extends BindingHost implements PoseBlend {
         this._thresholds = thresholds.slice().map((threshold) => threshold.clone());
     }
 
-    @parametricNum<[PoseBlend2DDEval]>({
-        notify: (value, host) => {
-            validateBlendParam(value, 'paramX');
-            host.setInput(value, 0);
-        },
-    })
-    get paramX () {
-        return this._paramX;
-    }
-
-    set paramX (value: number) {
-        this._paramX = value;
-    }
-
-    @parametricNum<[PoseBlend2DDEval]>({
-        notify: (value, host) => {
-            validateBlendParam(value, 'paramY');
-            host.setInput(value, 1);
-        },
-    })
-    get paramY () {
-        return this._paramY;
-    }
-
-    set paramY (value: number) {
-        this._paramY = value;
-    }
-
     public [createEval] (context: PoseEvalContext) {
-        const paramX = context.getParam(this, 'paramX') ?? this._paramX;
-        validateBlendParam(paramX, 'paramX');
-        const paramY = context.getParam(this, 'paramY') ?? this._paramY;
-        validateBlendParam(paramY, 'paramY');
-        return new PoseBlend2DDEval(context, this.poses, this.thresholds, this.algorithm, [paramX, paramY]);
+        const evaluation = new PoseBlend2DDEval(context, this.poses, this.thresholds, this.algorithm, [0.0, 0.0]);
+        const initialValueX = bindOr(
+            context,
+            this.paramX,
+            evaluation.setInput,
+            evaluation,
+            0,
+        );
+        const initialValueY = bindOr(
+            context,
+            this.paramY,
+            evaluation.setInput,
+            evaluation,
+            1,
+        );
+        evaluation.setInput(initialValueX, 0);
+        evaluation.setInput(initialValueY, 1);
+        return evaluation;
     }
 
     private* _listChildren (): Iterable<[Pose | null, Vec2]> {

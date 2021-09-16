@@ -1,12 +1,15 @@
+import { VariableNotDefinedError, VariableType } from '.';
 import { ccclass, serializable } from '../../data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
-import { BindingHost, parametric } from './parametric';
+import { BindableBoolean, BindableNumber, BindContext, bindOr } from './parametric';
 import type { Value } from './variable';
 
-export interface Condition extends BindingHost {
-    [createEval] (context: { getParam(host: BindingHost, name: string): unknown; }): ConditionEval;
+export type ConditionEvalContext = BindContext;
+
+export interface Condition {
+    [createEval] (context: BindContext): ConditionEval;
 }
 
 export interface ConditionEval {
@@ -26,31 +29,37 @@ enum BinaryOperator {
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}BinaryCondition`)
-export class BinaryCondition extends BindingHost implements Condition {
+export class BinaryCondition implements Condition {
     public static readonly Operator = BinaryOperator;
 
     @serializable
     public operator!: BinaryOperator;
 
     @serializable
-    @parametric<Value, [BinaryConditionEval]>({
-        notify: (value: Value, conditionEval: BinaryConditionEval) => conditionEval.setLhs(value),
-    })
-    public lhs!: Value;
+    public lhs: BindableNumber = new BindableNumber();
 
     @serializable
-    @parametric<Value, [BinaryConditionEval]>({
-        notify: (value: Value, conditionEval: BinaryConditionEval) => conditionEval.setRhs(value),
-    })
-    public rhs: Value | undefined;
+    public rhs: BindableNumber = new BindableNumber();
 
-    public [createEval] (context: { getParam(host: BindingHost, name: string): unknown; }) {
-        const { operator } = this;
-        const lhs = context.getParam(this, 'lhs') ?? this.lhs;
-        const rhs = context.getParam(this, 'rhs') ?? this.rhs;
-        validateConditionParamNumber(lhs, 'lhs');
-        validateConditionParamNumber(rhs, 'rhs');
-        return new BinaryConditionEval(operator, lhs, rhs as Value | undefined);
+    public [createEval] (context: BindContext) {
+        const { operator, lhs, rhs } = this;
+        const evaluation = new BinaryConditionEval(operator, 0.0, 0.0);
+        const lhsValue = bindOr(
+            context,
+            lhs,
+            VariableType.NUMBER,
+            evaluation.setLhs,
+            evaluation,
+        );
+        const rhsValue = bindOr(
+            context,
+            rhs,
+            VariableType.NUMBER,
+            evaluation.setRhs,
+            evaluation,
+        );
+        evaluation.reset(lhsValue, rhsValue);
+        return evaluation;
     }
 }
 
@@ -65,6 +74,11 @@ class BinaryConditionEval implements ConditionEval {
 
     constructor (operator: BinaryOperator, lhs: Value, rhs?: Value) {
         this._operator = operator;
+        this._operands = [lhs, rhs];
+        this._eval();
+    }
+
+    public reset (lhs: Value, rhs?: Value) {
         this._operands = [lhs, rhs];
         this._eval();
     }
@@ -119,23 +133,27 @@ enum UnaryOperator {
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}UnaryCondition`)
-export class UnaryCondition extends BindingHost implements Condition {
+export class UnaryCondition implements Condition {
     public static readonly Operator = UnaryOperator;
 
     @serializable
     public operator!: UnaryOperator;
 
     @serializable
-    @parametric<Value, [UnaryConditionEval]>({
-        notify: (value: Value, conditionEval: UnaryConditionEval) => conditionEval.setOperand(value),
-    })
-    public operand!: Value;
+    public operand = new BindableBoolean();
 
-    public [createEval] (context: { getParam(host: BindingHost, name: string): unknown; }) {
-        const { operator } = this;
-        const operand = context.getParam(this, 'operand') ?? this.operand;
-        validateConditionParamBoolean(operand, 'operand');
-        return new UnaryConditionEval(operator, operand);
+    public [createEval] (context: ConditionEvalContext) {
+        const { operator, operand } = this;
+        const evaluation = new UnaryConditionEval(operator, 0.0);
+        const value = bindOr(
+            context,
+            operand,
+            VariableType.BOOLEAN,
+            evaluation.setOperand,
+            evaluation,
+        );
+        evaluation.reset(value);
+        return evaluation;
     }
 }
 
@@ -152,6 +170,10 @@ class UnaryConditionEval implements ConditionEval {
         this._operator = operator;
         this._operand = operand;
         this._eval();
+    }
+
+    public reset (value: Value) {
+        this.setOperand(value);
     }
 
     public setOperand (value: Value) {
@@ -181,19 +203,22 @@ class UnaryConditionEval implements ConditionEval {
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TriggerCondition`)
-export class TriggerCondition extends BindingHost implements Condition {
-    @parametric<Value, [TriggerConditionEval]>({
-        notify: (value: Value, conditionEval: TriggerConditionEval) => {
-            validateConditionParamBoolean(value, 'trigger');
-            conditionEval.trigger = value;
-        },
-    })
+export class TriggerCondition implements Condition {
+    @serializable
     public trigger!: string;
 
-    [createEval] (context: { getParam(host: BindingHost, name: string): unknown; }): ConditionEval {
-        const value = context.getParam(this, 'trigger') ?? false;
-        validateConditionParamBoolean(value, 'trigger');
-        return new TriggerConditionEval(value);
+    [createEval] (context: BindContext): ConditionEval {
+        const evaluation = new TriggerConditionEval(false);
+        const initialValue = context.bind(
+            this.trigger,
+            VariableType.TRIGGER,
+            evaluation.setTrigger,
+            evaluation,
+        );
+        if (typeof initialValue !== 'undefined') {
+            evaluation.setTrigger(initialValue);
+        }
+        return evaluation;
     }
 }
 
@@ -202,12 +227,8 @@ class TriggerConditionEval implements ConditionEval {
         this._triggered = triggered;
     }
 
-    get trigger () {
-        return this._triggered;
-    }
-
-    set trigger (value) {
-        this._triggered = value;
+    public setTrigger (trigger: boolean) {
+        this._triggered = trigger;
     }
 
     public eval (): boolean {

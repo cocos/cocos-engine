@@ -11,7 +11,7 @@ export { PoseBlendDirect } from './pose-blend-direct';
 export { PoseBlend1D } from './pose-blend-1d';
 export { PoseBlend2D } from './pose-blend-2d';
 export { NewGenAnim } from './newgenanim-component';
-export { getPropertyBindingPoints } from './parametric';
+export type { BindableNumber, BindableBoolean } from './parametric';
 export { SkeletonMask } from '../skeleton-mask';
 export { StateMachineComponent } from './state-machine-component';
 

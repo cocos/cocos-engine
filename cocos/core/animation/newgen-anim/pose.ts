@@ -1,11 +1,11 @@
 import { Node } from '../../scene-graph';
 import { SkeletonMask } from '../skeleton-mask';
 import { createEval } from './create-eval';
-import type { BindingHost } from './parametric';
+import type { BindContext } from './parametric';
 import type { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
 import type { PoseStatus } from './graph-eval';
 
-export interface PoseEvalContext {
+export interface PoseEvalContext extends BindContext {
     node: Node;
 
     blendBuffer: BlendStateBuffer;
@@ -15,8 +15,6 @@ export interface PoseEvalContext {
     speed: number;
 
     startRatio: number;
-
-    getParam(host: BindingHost, name: string): unknown;
 }
 
 export interface PoseEval {
