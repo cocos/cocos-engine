@@ -609,8 +609,7 @@ export class Sprite extends Renderable2D {
         // 但这个 _assembler 也为空？那renderData也为空？
         // 这儿其实有个关键的更新问题，这儿会决定 fillType，实际上可以决定一个，数据的更新
         // 需要考虑怎么更新合适
-        // if (!macro.UI_GPU_DRIVEN) {  怎么处理！！！！！
-        // 注意，这个个逻辑需要重新考虑，尚未完成，GPU模式下只决定更新
+        // macro.UI_GPU_DRIVEN
         const assembler = Sprite.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -728,7 +727,7 @@ export class Sprite extends Renderable2D {
         }
     }
 
-    // macro.UI_GPU_DRIVEN // 函数不被调用即可？？
+    // macro.UI_GPU_DRIVEN
     public _calculateSlicedData (out: number[]) {
         const content = this.node._uiProps.uiTransformComp!.contentSize;
 
@@ -742,7 +741,6 @@ export class Sprite extends Renderable2D {
         const centerHeight = spriteHeight - topHeight - bottomHeight;
 
         out.length = 0;
-        // todo rotate
         out[0] = (leftWidth) / spriteWidth;
         out[1] = (topHeight) / spriteHeight;
         out[2] = (leftWidth + centerWidth) / spriteWidth;
@@ -750,7 +748,7 @@ export class Sprite extends Renderable2D {
         return out;
     }
 
-    // macro.UI_GPU_DRIVEN // 函数不被调用即可
+    // macro.UI_GPU_DRIVEN
     public calculateTiledData (out: Vec4) {
         const content = this.node._uiProps.uiTransformComp!.contentSize;
         const rect = this.spriteFrame!.rect;

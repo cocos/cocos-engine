@@ -26,8 +26,6 @@ CCProgram sprite-vs-gpu %{
     #include <common>
   #endif
 
-  #define PI2 6.28318530718
-
   in vec3 a_position;
   in vec2 a_texCoord;
   in float a_batch_id;
@@ -64,7 +62,7 @@ CCProgram sprite-vs-gpu %{
     // xyz: translation w: color R.G
     // xyzw: quat rotation
     // xy: scale z: color B.A w: uvMode.filltype
-    // xy: uv size zw: uv offset
+    // xy: uv size zw: uv offset // xy 的正负值决定旋转
     // (xyzw: sliced - left, top, right, bottom) | (xy: tiling) | (xyzw: start, end, mode, center)
     vec4 cc_local_data[CC_UI_VECTOR_PER_DRAW];
   };
@@ -102,11 +100,32 @@ CCProgram sprite-vs-gpu %{
   vec4 vert () {
     UILocalData i;
     CCGetUILocalData(i);
+    mat2 roatMat[4];
+    roatMat[0] = mat2( 1.0,  0.0,  0.0,  1.0);
+    roatMat[1] = mat2( 0.0,  1.0, -1.0,  0.0);
+    roatMat[2] = mat2(-1.0,  0.0,  0.0, -1.0);
+    roatMat[3] = mat2( 0.0, -1.0,  1.0,  0.0);
+    mat2 rotMat;
 
     vec4 pos = vec4(VectorTransformQuat(a_position * i.scale, i.rotation) + i.translation, 1.0);
 
+    vec2 uvWithRotation;
+    if (i.uvSizeOffset.x < 0.0 && i.uvSizeOffset.y < 0.0) {
+      i.uvSizeOffset.x = abs(i.uvSizeOffset.x);
+      i.uvSizeOffset.y = abs(i.uvSizeOffset.y);
+      rotMat = roatMat[3];
+    } else if (i.uvSizeOffset.x < 0.0 && i.uvSizeOffset.y >= 0.0) {
+      i.uvSizeOffset.x = abs(i.uvSizeOffset.x);
+      rotMat = roatMat[1];
+    } else if (i.uvSizeOffset.x >= 0.0 && i.uvSizeOffset.y < 0.0) {
+      i.uvSizeOffset.y = abs(i.uvSizeOffset.y);
+      rotMat = roatMat[2];
+    } else {
+      rotMat = roatMat[0];
+    }
+    uvWithRotation = rotMat * (a_texCoord - vec2(0.5)) + vec2(0.5);
     if (i.uvMode >= 3.0) {
-      uv0 = a_texCoord;
+      uv0 = uvWithRotation;
       uvSizeOffset = i.uvSizeOffset;
       uvParams0 = vec4(i.uvParams.xy, i.filltype, 0); // HORIZONTAL OK
       if (i.filltype >= 2.0) { // 针对 RADIAL 处理
@@ -116,18 +135,27 @@ CCProgram sprite-vs-gpu %{
         uvParams0 = vec4(1.0 - uvParams0.y, 1.0 - uvParams0.x, uvParams0.zw);
       }
     } else if (i.uvMode >= 2.0) {
-      uv0 = a_texCoord * i.uvParams.xy;
+      uv0 = uvWithRotation * i.uvParams.xy;
       uv0.y -= fract(i.uvParams.y); // 平移 一点 // 为了解决绘制起点的问题
       uvSizeOffset = i.uvSizeOffset;
     } else if (i.uvMode >= 1.0) {
-      uv0 = a_texCoord;
+      uv0 = uvWithRotation;
       uvSizeOffset = i.uvSizeOffset;
       vec4 params0 = fract(i.uvParams); // sprite 的 中间四个点的数据 // 和 Rect 相关 // LTRB
       vec4 params1 = floor(i.uvParams) / 2048.0; // uvSilced 0-1 // 和图直接相关 // LTRB // 整数位
+      // for roation
+      // params0.xy = rotMat * (params0.xy - vec2(0.5)) + vec2(0.5);
+      // params0.zw = rotMat * (params0.zw - vec2(0.5)) + vec2(0.5);
+      params1.xy = rotMat * (params1.xy - vec2(0.5)) + vec2(0.5);
+      params1.zw = rotMat * (params1.zw - vec2(0.5)) + vec2(0.5);
+      // params0.xy = rotMat * (params0.xy);
+      // params0.zw = rotMat * (params0.zw);
+      // params1.xy = rotMat * (params1.xy);
+      // params1.zw = rotMat * (params1.zw);
       uvParams0 = vec4(params0.xy, params1.xy); // 重新整合了 // SL ST TL TT
       uvParams1 = vec4(params0.zw, params1.zw); // 重新整合了 // SR SB TR TB
     } else {
-      uv0 = a_texCoord * i.uvSizeOffset.xy + i.uvSizeOffset.zw;
+      uv0 = uvWithRotation * i.uvSizeOffset.xy + i.uvSizeOffset.zw;
     }
 
     uvMode = i.uvMode;

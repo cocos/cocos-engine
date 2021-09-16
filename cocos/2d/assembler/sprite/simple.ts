@@ -70,6 +70,8 @@ export const simple: IAssembler = {
         //     }
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        // @ts-expect-error hack
+        if (sprite._canDrawByFourVertex) { return; }
 
         const renderData = sprite.renderData;
         if (renderData && frame) {

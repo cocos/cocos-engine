@@ -1311,10 +1311,18 @@ export class SpriteFrame extends Asset {
     private _calculateTillingOffset () {
         // Todo：可能由于模式不同而被影响
         // 可能需要处理旋转
-        this.tillingOffset[0] = (this.uv[2] - this.uv[0]);
-        this.tillingOffset[1] = (this.uv[1] - this.uv[5]);
-        this.tillingOffset[2] = (this.uv[4]);
-        this.tillingOffset[3] = (this.uv[5]);
+        if (this._rotated) {
+            this.tillingOffset[0] = (this.uv[4] - this.uv[0]);//r-l
+            this.tillingOffset[1] = (this.uv[3] - this.uv[5]);//b-t
+            this.tillingOffset[2] = (this.uv[0]);//l
+            this.tillingOffset[3] = (this.uv[5]);//t
+            this.tillingOffset[0] = -this.tillingOffset[0];
+        } else {
+            this.tillingOffset[0] = (this.uv[2] - this.uv[0]);//r-l
+            this.tillingOffset[1] = (this.uv[1] - this.uv[5]);//b-t
+            this.tillingOffset[2] = (this.uv[4]);//l
+            this.tillingOffset[3] = (this.uv[5]);//t
+        }
     }
 
     // macro.UI_GPU_DRIVEN
@@ -1336,7 +1344,6 @@ export class SpriteFrame extends Asset {
         uvSliced.length = 0;
 
         // 在 shader 中的算法中，始终是针对可渲染区域的（即trim过后的，针对sliced点的）
-        // todo rotate
         uvSliced[0] = leftWidth / rect.width;
         uvSliced[1] = topHeight / rect.height;
         uvSliced[2] = (leftWidth + centerWidth) / rect.width;

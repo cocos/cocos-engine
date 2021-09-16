@@ -34,7 +34,7 @@ import { legacyCC } from '../../core/global-exports';
 import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
 import { Renderable2D, UITransform } from '../framework';
 import { Label, Sprite } from '../components';
-import { Vec3, Vec2, Vec4 } from '../../core/math';
+import { Vec3, Vec2, Vec4, Color } from '../../core/math';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteType } from '../components/sprite';
 import { DrawBatch2D, DrawCall } from './draw-batch';
@@ -78,6 +78,7 @@ export class DrawBatch2DGPU extends DrawBatch2D {
     // private toCache = [1, 1, 0, 0];
     private tiledCache = new Vec4(1, 1, 1, 1);
     private slicedCache = [];
+    private col = new Color();
     // simple version
     public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material, batcher: IBatcher) {
         // 将一个 drawBatch 分割为多个 drawCall
@@ -143,6 +144,7 @@ export class DrawBatch2DGPU extends DrawBatch2D {
         const fillType = sprite.fillType / 10 + 0.01; // 给 progress 预留 // 处理浮点数误差
         // 这儿得处理一个级联
         const c = renderComp.color;
+        this.col.set(c.r, c.g, c.b, renderComp.node._uiProps.opacity * 255);
 
         // 每个对象占用的 vec4 数量
         // const vec4PerUI = 5; // 替换为了 this._vec4PerUI
@@ -155,7 +157,7 @@ export class DrawBatch2DGPU extends DrawBatch2D {
         }
         // const UIPerUBO = 16; // 调试用 16
         // 上传数据
-        const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempRect._rectWithScale, to, c, mode, this._UIPerUBO, this._vec4PerUI, this.tiledCache, fillType);
+        const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempRect._rectWithScale, to, this.col, mode, this._UIPerUBO, this._vec4PerUI, this.tiledCache, fillType);
         return localBuffer;
         // // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         // let dc = this._drawcalls[this._dcIndex];
