@@ -28,7 +28,7 @@
  * @module material
  */
 
-import { IPassInfo } from '../../assets/effect-asset';
+import { EffectAsset } from '../../assets/effect-asset';
 import { MaterialInstance } from './material-instance';
 import { BatchingSchemes, Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
@@ -82,7 +82,7 @@ export class PassInstance extends Pass {
      * @param original The original pass info
      * @param value The override pipeline state info
      */
-    public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
+    public overridePipelineStates (original: EffectAsset.IPassInfo, overrides: PassOverrides): void {
         this._bs.reset();
         this._rs.reset();
         this._dss.reset();

@@ -28,14 +28,14 @@ import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemblerInfo, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, TextureFlagBit, Shader } from '../../gfx';
+    Format, Sampler, Filter, Address, Shader, SamplerInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform/debug';
 import { Shadows } from './shadows';
 import { NativePass, NativeSubModel } from './native-scene';
 import { getPhaseID } from '../../pipeline/pass-phase';
-import { genSamplerHash, samplerLib } from '../core/sampler-lib';
+import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -169,7 +169,8 @@ export class SubModel {
     }
 
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
-        this._device = legacyCC.director.root.device as Device;
+        const root = legacyCC.director.root as Root;
+        this._device = root.device;
         _dsInfo.layout = passes[0].localSetLayout;
         this._init();
         this._setInputAssembler(subMesh.iaInfo);
@@ -185,8 +186,8 @@ export class SubModel {
 
         // initialize resources for reflection material
         if (passes[0].phase === getPhaseID('reflection')) {
-            let texWidth = this._device.width;
-            let texHeight = this._device.height;
+            let texWidth = root.mainWindow!.width;
+            let texHeight = root.mainWindow!.height;
             const minSize = 512;
 
             if (texHeight < texWidth) {
@@ -203,22 +204,18 @@ export class SubModel {
                 Format.RGBA8,
                 texWidth,
                 texHeight,
-                TextureFlagBit.IMMUTABLE,
             ));
 
             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionTex);
 
-            const samplerInfo = [
+            this._reflectionSampler = this._device.getSampler(new SamplerInfo(
                 Filter.LINEAR,
                 Filter.LINEAR,
                 Filter.NONE,
                 Address.CLAMP,
                 Address.CLAMP,
                 Address.CLAMP,
-            ];
-
-            const samplerHash = genSamplerHash(samplerInfo);
-            this._reflectionSampler = samplerLib.getSampler(this._device, samplerHash);
+            ));
             this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
         }
@@ -273,7 +270,6 @@ export class SubModel {
 
         if (this._reflectionTex) this._reflectionTex.destroy();
         this._reflectionTex = null;
-        if (this._reflectionSampler) this._reflectionSampler.destroy();
         this._reflectionSampler = null;
 
         this._destroy();

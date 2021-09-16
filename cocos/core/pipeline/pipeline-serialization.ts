@@ -121,7 +121,7 @@ export class ColorDesc {
     @type([AccessType])
     public beginAccesses: AccessType[] = [];
     @type([AccessType])
-    public endAccesses: AccessType[] = [AccessType.PRESENT];
+    public endAccesses: AccessType[] = [AccessType.COLOR_ATTACHMENT_WRITE];
 }
 
 @ccclass('DepthStencilDesc')

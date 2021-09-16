@@ -33,8 +33,6 @@ import { Node, Scene } from '../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
 import { assets, references } from './shared';
-import { ImageAsset } from '../assets/image-asset';
-import { TextureBase } from '../assets/texture-base';
 import { callInNextTick } from '../utils/misc';
 import { js } from '../utils/js';
 
@@ -207,6 +205,7 @@ class ReleaseManager {
         }
 
         this._toDelete.add(asset._uuid, asset);
+        if (TEST) return;
         if (!this._eventListener) {
             this._eventListener = true;
             callInNextTick(this._freeAssets.bind(this));

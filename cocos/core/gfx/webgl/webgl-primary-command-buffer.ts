@@ -25,7 +25,7 @@
 
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit } from '../base/define';
+import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
@@ -34,11 +34,11 @@ import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
     WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncCopyBuffersToTexture,
     WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
-import { WebGLDevice } from './webgl-device';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
+import { WebGLDeviceManager } from './webgl-define';
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     public beginRenderPass (
@@ -50,7 +50,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         clearStencil: number,
     ) {
         WebGLCmdFuncBeginRenderPass(
-            this._device as WebGLDevice,
+            WebGLDeviceManager.instance,
             (renderPass as WebGLRenderPass).gpuRenderPass,
             (framebuffer as WebGLFramebuffer).gpuFramebuffer,
             renderArea, clearColors, clearDepth, clearStencil,
@@ -58,13 +58,15 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public draw (info: DrawInfo | InputAssembler) {
+    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
 
-            WebGLCmdFuncDraw(this._device as WebGLDevice, info as DrawInfo);
+            const info = 'drawInfo' in infoOrAssembler ? infoOrAssembler.drawInfo : infoOrAssembler;
+
+            WebGLCmdFuncDraw(WebGLDeviceManager.instance, info as DrawInfo);
 
             ++this._numDrawCalls;
             this._numInstances += info.instanceCount;
@@ -89,6 +91,38 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         }
     }
 
+    public setViewport (viewport: Viewport) {
+        const { stateCache: cache, gl } = WebGLDeviceManager.instance;
+
+        if (cache.viewport.left !== viewport.left
+            || cache.viewport.top !== viewport.top
+            || cache.viewport.width !== viewport.width
+            || cache.viewport.height !== viewport.height) {
+            gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
+
+            cache.viewport.left = viewport.left;
+            cache.viewport.top = viewport.top;
+            cache.viewport.width = viewport.width;
+            cache.viewport.height = viewport.height;
+        }
+    }
+
+    public setScissor (scissor: Rect) {
+        const { stateCache: cache, gl } = WebGLDeviceManager.instance;
+
+        if (cache.scissorRect.x !== scissor.x
+            || cache.scissorRect.y !== scissor.y
+            || cache.scissorRect.width !== scissor.width
+            || cache.scissorRect.height !== scissor.height) {
+            gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
+
+            cache.scissorRect.x = scissor.x;
+            cache.scissorRect.y = scissor.y;
+            cache.scissorRect.width = scissor.width;
+            cache.scissorRect.height = scissor.height;
+        }
+    }
+
     public updateBuffer (buffer: Buffer, data: BufferSource, size?: number) {
         if (!this._isInRenderPass) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
@@ -102,7 +136,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                     buffSize = (data as ArrayBuffer).byteLength;
                 }
 
-                WebGLCmdFuncUpdateBuffer(this._device as WebGLDevice, gpuBuffer, data as ArrayBuffer, 0, buffSize);
+                WebGLCmdFuncUpdateBuffer(WebGLDeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
             console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
@@ -113,7 +147,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         if (!this._isInRenderPass) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
-                WebGLCmdFuncCopyBuffersToTexture(this._device as WebGLDevice, buffers, gpuTexture, regions);
+                WebGLCmdFuncCopyBuffersToTexture(WebGLDeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
             console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
@@ -124,7 +158,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         for (let i = 0; i < count; ++i) {
             // actually they are secondary buffers, the cast here is only for type checking
             const webGLCmdBuff = cmdBuffs[i] as WebGLPrimaryCommandBuffer;
-            WebGLCmdFuncExecuteCmds(this._device as WebGLDevice, webGLCmdBuff.cmdPackage);
+            WebGLCmdFuncExecuteCmds(WebGLDeviceManager.instance, webGLCmdBuff.cmdPackage);
             this._numDrawCalls += webGLCmdBuff._numDrawCalls;
             this._numInstances += webGLCmdBuff._numInstances;
             this._numTris += webGLCmdBuff._numTris;
@@ -132,7 +166,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     }
 
     protected bindStates () {
-        WebGLCmdFuncBindStates(this._device as WebGLDevice, this._curGPUPipelineState, this._curGPUInputAssembler,
+        WebGLCmdFuncBindStates(WebGLDeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
             this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
     }

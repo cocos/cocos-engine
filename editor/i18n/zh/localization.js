@@ -728,8 +728,8 @@ module.exports = {
             description: "基于 cannon.js 的物理系统支持。",
         },
         physics_ammo: {
-            label: "基于 bullet(ammo.js) 的物理系统",
-            description: "基于 bullet(ammo.js) 的物理系统支持。",
+            label: "基于 Bullet 的物理系统",
+            description: "基于 Bullet 的物理系统支持。",
         },
         physics_physx: {
             label: "基于 PhysX 的物理系统",

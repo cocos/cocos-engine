@@ -39,24 +39,20 @@ CCProgram lighting-fs %{
 
   in vec2 v_uv;
 
-  #pragma builtin(global)
-  layout (set = 0, binding = 6) uniform sampler2D cc_gbuffer_albedoMap;
-  #pragma builtin(global)
-  layout (set = 0, binding = 7) uniform sampler2D cc_gbuffer_positionMap;
-  #pragma builtin(global)
-  layout (set = 0, binding = 8) uniform sampler2D cc_gbuffer_normalMap;
-  #pragma builtin(global)
-  layout (set = 0, binding = 9) uniform sampler2D cc_gbuffer_emissiveMap;
+  layout(binding = 0) uniform sampler2D gbuffer_albedoMap;
+  layout(binding = 1) uniform sampler2D gbuffer_positionMap;
+  layout(binding = 2) uniform sampler2D gbuffer_normalMap;
+  layout(binding = 3) uniform sampler2D gbuffer_emissiveMap;
 
   layout(location = 0) out vec4 fragColor;
 
   void main () {
     StandardSurface s;
 
-    vec4 albedoMap = texture(cc_gbuffer_albedoMap,v_uv);
-    vec4 positionMap = texture(cc_gbuffer_positionMap,v_uv);
-    vec4 normalMap = texture(cc_gbuffer_normalMap,v_uv);
-    vec4 emissiveMap = texture(cc_gbuffer_emissiveMap,v_uv);
+    vec4 albedoMap = texture(gbuffer_albedoMap,v_uv);
+    vec4 positionMap = texture(gbuffer_positionMap,v_uv);
+    vec4 normalMap = texture(gbuffer_normalMap,v_uv);
+    vec4 emissiveMap = texture(gbuffer_emissiveMap,v_uv);
 
     s.albedo = albedoMap;
     s.position = positionMap.xyz;

@@ -129,9 +129,12 @@ const Elements = {
             }
 
             function observer() {
-                const { clientWidth, clientHeight } = panel.$.container;
-                const size = Math.round(Math.min((clientWidth - 40) / 4, (clientHeight - 40) / 3));
-                panel.$.container.style.setProperty('--size', `${size}px`);
+                cancelAnimationFrame(panel.animationFrameId);
+                panel.animationFrameId = window.requestAnimationFrame(() => {
+                    const { clientWidth, clientHeight } = panel.$.container;
+                    const size = Math.round(Math.min((clientWidth - 40) / 4, (clientHeight - 40) / 3));
+                    panel.$.container.style.setProperty('--size', `${size}px`);
+                });
             }
 
             panel.resizeObserver = new window.ResizeObserver(observer);

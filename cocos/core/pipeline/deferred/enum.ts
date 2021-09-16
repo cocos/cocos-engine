@@ -46,7 +46,6 @@ export enum DeferredStagePriority {
  */
 export enum DeferredFlowPriority {
     SHADOW = 0,
-    GBUFFER = 1,
-    LIGHTING = 5,
+    MAIN = 1,
     UI = 10,
 }

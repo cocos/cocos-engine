@@ -31,7 +31,7 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Component } from '../components/component';
-import { Eventify } from '../event/eventify';
+import { Eventify } from '../event';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
 import { createMap } from '../utils/js-typed';
