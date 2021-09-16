@@ -102,7 +102,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
         }
 
         if (instance.stride != stride) {
-            return;
+            continue;
         }
         if (instance.count >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
