@@ -681,6 +681,11 @@ class LayerEval {
                 break;
             }
 
+            if (to.kind === NodeKind.entry) {
+                // We're entering a state machine
+                this._callEnterMethods(to);
+            }
+
             const transitionMatch = this._matchTransition(
                 to,
                 to,
@@ -787,8 +792,6 @@ class LayerEval {
                 const { to } = transitions[iTransition];
                 if (to.kind === NodeKind.exit) {
                     this._callExitMethods(to);
-                } else if (to.kind === NodeKind.entry) {
-                    this._callEnterMethods(to);
                 }
             }
             toNode.finishTransition();

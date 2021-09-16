@@ -86,38 +86,25 @@ describe('NewGen Anim', () => {
         }
     });
 
-    describe('Connecting', () => {
-        test('Connecting', () => {
-            const graph = new PoseGraph();
-            const layer = graph.addLayer();
-            const layerGraph = layer.graph;
-            const n1 = layerGraph.addPoseNode();
-            const n2 = layerGraph.addPoseNode();
-            layerGraph.connect(n1, n2);
-            expect([...layerGraph.getOutgoings(n1)].map((t) => t.to)).toContain(n2);
-            expect([...layerGraph.getIncomings(n2)].map((t) => t.from)).toContain(n1);
-        });
+    describe('Asset transition API', () => {
+        const graph = new PoseGraph();
+        const layer = graph.addLayer();
+        const layerGraph = layer.graph;
+        const n1 = layerGraph.addPoseNode();
+        const n2 = layerGraph.addPoseNode();
+        const trans1 = layerGraph.connect(n1, n2);
+        expect([...layerGraph.getOutgoings(n1)].map((t) => t.to)).toContain(n2);
+        expect([...layerGraph.getIncomings(n2)].map((t) => t.from)).toContain(n1);
 
-        test('Reconnecting', () => {
-            const graph = new PoseGraph();
-            const layer = graph.addLayer();
-            const layerGraph = layer.graph;
-            const n1 = layerGraph.addPoseNode();
-            const n2 = layerGraph.addPoseNode();
-            const trans1 = layerGraph.connect(n1, n2);
-            const trans2 = layerGraph.connect(n1, n2);
-            expect(trans1).not.toBe(trans2);
-            expect(layerGraph.getTransition(n1, n2)).toBe(trans2);
-        });
+        // There may be multiple transitions between two nodes.
+        const trans2 = layerGraph.connect(n1, n2);
+        expect(trans2).not.toBe(trans1);
+        expect([...layerGraph.getTransition(n1, n2)]).toEqual(expect.arrayContaining([trans1, trans2]));
 
-        test('Self connecting', () => {
-            const graph = new PoseGraph();
-            const layer = graph.addLayer();
-            const layerGraph = layer.graph;
-            const n1 = layerGraph.addPoseNode();
-            layerGraph.connect(n1, n1);
-            // TODO: what's the expectation?
-        });
+        // Self transitions are also allowed.
+        const n3 = layerGraph.addPoseNode();
+        const selfTransition = layerGraph.connect(n3, n3);
+        expect([...layerGraph.getTransition(n3, n3)]).toMatchObject([selfTransition]);
     });
 
     describe('Transitions', () => {
@@ -830,23 +817,45 @@ describe('NewGen Anim', () => {
     });
 
     test('State events', () => {
-        class ResultReceiver extends Component {
-            public onEnter = jest.fn<void, Parameters<StateMachineComponent['onEnter']>>();
+        type Invocation = {
+            kind: 'onEnter',
+            id: string,
+            args: Parameters<StateMachineComponent['onEnter']>;
+        } | {
+            kind: 'onExit',
+            id: string,
+            args: Parameters<StateMachineComponent['onExit']>;
+        };
 
-            public onExit = jest.fn<void, Parameters<StateMachineComponent['onExit']>>();
+        class Recorder extends Component {
+            public record = jest.fn<void, [Invocation]>();
+
+            public clear () {
+                this.record.mockClear();
+            }
         }
 
-        class TestComponent extends StateMachineComponent {
+        class StatsComponent extends StateMachineComponent {
+            public id: string = '';
+
             onEnter (...args: Parameters<StateMachineComponent['onEnter']>) {
-                this._getResultReceiver(args[0]).onEnter(...args);
+                this._getRecorder(args[0]).record({
+                    kind: 'onEnter',
+                    id: this.id,
+                    args,
+                });
             }
 
             onExit (...args: Parameters<StateMachineComponent['onExit']>) {
-                this._getResultReceiver(args[0]).onExit(...args);
+                this._getRecorder(args[0]).record({
+                    kind: 'onExit',
+                    id: this.id,
+                    args,
+                });
             }
 
-            private _getResultReceiver(newGenAnim: NewGenAnim): ResultReceiver {
-                const receiver = newGenAnim.node.getComponent(ResultReceiver) as ResultReceiver | null;
+            private _getRecorder(newGenAnim: NewGenAnim): Recorder {
+                const receiver = newGenAnim.node.getComponent(Recorder) as Recorder | null;
                 expect(receiver).not.toBeNull();
                 return receiver!;
             }
@@ -855,28 +864,125 @@ describe('NewGen Anim', () => {
         const graph = new PoseGraph();
         const layer = graph.addLayer();
         const layerGraph = layer.graph;
+
         const poseNode = layerGraph.addPoseNode();
-        poseNode.addComponent(TestComponent);
-        const poseNodeClip = poseNode.pose = createPosePositionX(1.0, 0.5, 'PoseNodeClip');
+        const poseNodeStats = poseNode.addComponent(StatsComponent);
+        poseNodeStats.id = 'PoseNode';
+        poseNode.pose = createPosePositionX(1.0, 0.5, 'PoseNodeClip');
+
         const poseNode2 = layerGraph.addPoseNode();
-        poseNode2.addComponent(TestComponent);
-        const poseNode2Clip = poseNode2.pose = createPosePositionX(1.0, 0.5, 'PoseNode2Clip');
+        const poseNode2Stats = poseNode2.addComponent(StatsComponent);
+        poseNode2Stats.id = 'PoseNode2';
+        poseNode2.pose = createPosePositionX(1.0, 0.5, 'PoseNode2Clip');
+
+        const poseNode3 = layerGraph.addPoseNode();
+        const poseNode3Stats = poseNode3.addComponent(StatsComponent);
+        poseNode3Stats.id = 'PoseNode3';
+        poseNode3.pose = createPosePositionX(1.0, 0.5, 'PoseNode3Clip');
+
+        const subgraph = layerGraph.addSubgraph();
+        const subgraphStats = subgraph.addComponent(StatsComponent);
+        subgraphStats.id = 'Subgraph';
+        const subgraphPoseNode = subgraph.addPoseNode();
+        const subgraphPoseNodeStats = subgraphPoseNode.addComponent(StatsComponent);
+        subgraphPoseNodeStats.id = 'SubgraphPoseNode';
+        subgraphPoseNode.pose = createPosePositionX(1.0, 0.5, 'SubgraphPoseNodeClip');
+        subgraph.connect(subgraph.entryNode, subgraphPoseNode);
+        const subgraphTransition = subgraph.connect(subgraphPoseNode, subgraph.exitNode);
+        subgraphTransition.duration = 0.3;
+        subgraphTransition.exitConditionEnabled = true;
+        subgraphTransition.exitCondition = 0.7;
 
         layerGraph.connect(layerGraph.entryNode, poseNode);
         const transition = layerGraph.connect(poseNode, poseNode2);
         transition.duration = 0.3;
         transition.exitConditionEnabled = true;
         transition.exitCondition = 0.7;
+        layerGraph.connect(poseNode2, subgraph);
+        layerGraph.connect(subgraph, poseNode3);
 
         const node = new Node();
-        const receiver = node.addComponent(ResultReceiver) as ResultReceiver;
-        const graphEval = createPoseGraphEval(graph, node);
+        const recorder = node.addComponent(Recorder) as Recorder;
+        const { graphEval, newGenAnim } = createPoseGraphEval2(graph, node);
+
         graphEval.update(0.1);
-        expect(receiver.onEnter).toBeCalledTimes(1);
-        expect(receiver.onExit).toBeCalledTimes(0);
+        expect(recorder.record).toHaveBeenCalledTimes(1);
+        expect(recorder.record).toHaveBeenNthCalledWith(1, {
+            kind: 'onEnter',
+            id: 'PoseNode',
+            args: [
+                newGenAnim,
+            ],
+        });
+        recorder.clear();
+
         graphEval.update(1.1);
-        expect(receiver.onEnter).toBeCalledTimes(2);
-        expect(receiver.onExit).toBeCalledTimes(1);
+        expect(recorder.record).toHaveBeenCalledTimes(2);
+        expect(recorder.record).toHaveBeenNthCalledWith(1, {
+            kind: 'onEnter',
+            id: 'PoseNode2',
+            args: [
+                newGenAnim,
+            ],
+        });
+        expect(recorder.record).toHaveBeenNthCalledWith(2, {
+            kind: 'onExit',
+            id: 'PoseNode',
+            args: [
+                newGenAnim,
+            ],
+        });
+        recorder.clear();
+
+        graphEval.update(1.0);
+        expect(recorder.record).toHaveBeenCalledTimes(3);
+        expect(recorder.record).toHaveBeenNthCalledWith(1, {
+            kind: 'onEnter',
+            id: 'Subgraph',
+            args: [
+                newGenAnim,
+            ],
+        });
+        expect(recorder.record).toHaveBeenNthCalledWith(2, {
+            kind: 'onEnter',
+            id: 'SubgraphPoseNode',
+            args: [
+                newGenAnim,
+            ],
+        });
+        expect(recorder.record).toHaveBeenNthCalledWith(3, {
+            kind: 'onExit',
+            id: 'PoseNode2',
+            args: [
+                newGenAnim,
+            ],
+        });
+        recorder.clear();
+
+        graphEval.update(1.0);
+        expect(recorder.record).toHaveBeenCalledTimes(3);
+        expect(recorder.record).toHaveBeenNthCalledWith(1, {
+            kind: 'onEnter',
+            id: 'PoseNode3',
+            args: [
+                newGenAnim,
+            ],
+        });
+        expect(recorder.record).toHaveBeenNthCalledWith(2, {
+            kind: 'onExit',
+            id: 'SubgraphPoseNode',
+            args: [
+                newGenAnim,
+            ],
+        });
+        expect(recorder.record).toHaveBeenNthCalledWith(3, {
+            kind: 'onExit',
+            id: 'Subgraph',
+            args: [
+                newGenAnim,
+            ],
+        });
+        recorder.clear();
     });
 
     describe('Animation properties', () => {
@@ -1121,4 +1227,19 @@ function createPoseGraphEval (poseGraph: PoseGraph, node: Node): PoseGraphEval {
     // @ts-expect-error HACK
     newGenAnim._graphEval = graphEval;
     return graphEval;
+}
+
+function createPoseGraphEval2 (poseGraph: PoseGraph, node: Node) {
+    const newGenAnim = node.addComponent(NewGenAnim) as NewGenAnim;
+    const graphEval = new PoseGraphEval(
+        poseGraph,
+        node,
+        newGenAnim,
+    );
+    // @ts-expect-error HACK
+    newGenAnim._graphEval = graphEval;
+    return {
+        graphEval,
+        newGenAnim,
+    };
 }

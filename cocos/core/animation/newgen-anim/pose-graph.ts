@@ -186,10 +186,10 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
      * @param to Transition target.
      * @returns The transition, if one existed.
      */
-    public getTransition (from: GraphNode, to: GraphNode): Transition | undefined {
+    public getTransition (from: GraphNode, to: GraphNode): Iterable<Transition> {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
-        return from[outgoingsSymbol].find((transition) => transition.to === to);
+        return from[outgoingsSymbol].filter((transition) => transition.to === to);
     }
 
     /**
@@ -279,8 +279,6 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
         if (from === this.exitNode) {
             throw new InvalidTransitionError('from-exit');
         }
-
-        this.disconnect(from, to);
 
         const transition = from instanceof PoseNode || from === this._anyNode
             ? new PoseTransition(from, to, conditions)
