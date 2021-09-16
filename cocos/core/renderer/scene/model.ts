@@ -434,7 +434,7 @@ export class Model {
 
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
-        this._applyLocalData();
+        this._transformUpdated = true;
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
 
