@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXFramebuffer.h"
 
 namespace cc {

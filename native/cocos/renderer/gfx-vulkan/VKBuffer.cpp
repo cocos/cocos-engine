@@ -95,7 +95,7 @@ void CCVKBuffer::doDestroy() {
     }
 }
 
-void CCVKBuffer::doResize(uint size, uint count) {
+void CCVKBuffer::doResize(uint32_t size, uint32_t count) {
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
 
@@ -114,7 +114,7 @@ void CCVKBuffer::doResize(uint size, uint count) {
     CCVKDevice::getInstance()->getMemoryStatus().bufferSize += size;
 }
 
-void CCVKBuffer::update(const void *buffer, uint size) {
+void CCVKBuffer::update(const void *buffer, uint32_t size) {
     cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
 }
 

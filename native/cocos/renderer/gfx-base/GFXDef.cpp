@@ -163,11 +163,11 @@ bool isCombinedImageSampler(Type type) { return type >= Type::SAMPLER1D && type 
 bool isSampledImage(Type type) { return type >= Type::TEXTURE1D && type <= Type::TEXTURE_CUBE; }
 bool isStorageImage(Type type) { return type >= Type::IMAGE1D && type <= Type::IMAGE_CUBE; }
 
-uint ceilDiv(uint x, uint y) { return (x - 1) / y + 1; }
+uint32_t ceilDiv(uint32_t x, uint32_t y) { return (x - 1) / y + 1; }
 
-uint formatSize(Format format, uint width, uint height, uint depth) {
-    if (!GFX_FORMAT_INFOS[static_cast<uint>(format)].isCompressed) {
-        return (width * height * depth * GFX_FORMAT_INFOS[static_cast<uint>(format)].size);
+uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t depth) {
+    if (!GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].isCompressed) {
+        return (width * height * depth * GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size);
     }
     switch (format) {
         case Format::BC1:
@@ -259,7 +259,7 @@ uint formatSize(Format format, uint width, uint height, uint depth) {
     }
 }
 
-const uint GFX_TYPE_SIZES[] = {
+const uint32_t GFX_TYPE_SIZES[] = {
     0,  // UNKNOWN
     4,  // BOOL
     8,  // BOOL2
@@ -294,10 +294,10 @@ const uint GFX_TYPE_SIZES[] = {
     4,  // SAMPLER_CUBE
 };
 
-uint formatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips) {
-    uint size = 0;
+uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips) {
+    uint32_t size = 0;
 
-    for (uint i = 0; i < mips; ++i) {
+    for (uint32_t i = 0; i < mips; ++i) {
         size += formatSize(format, width, height, depth);
         width  = std::max(width >> 1, 1U);
         height = std::max(height >> 1, 1U);

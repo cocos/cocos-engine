@@ -111,8 +111,6 @@ void GLES3Swapchain::doDestroy() {
 }
 
 void GLES3Swapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
-    doDestroySurface();
-
     _colorTexture->resize(width, height);
     _depthStencilTexture->resize(width, height);
 
@@ -138,7 +136,7 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
         return;
     }
 
-    auto width = static_cast<int>(_colorTexture->getWidth());
+    auto width  = static_cast<int>(_colorTexture->getWidth());
     auto height = static_cast<int>(_colorTexture->getHeight());
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
@@ -147,10 +145,12 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
     NativeLayerHandle(window, SET_FORMAT, nFmt);
 #endif
 
-    EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
     if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
-        CC_LOG_ERROR("Recreate window surface failed.");
-        return;
+        EGL_CHECK(_gpuSwapchain->eglSurface = eglCreateWindowSurface(context->eglDisplay, context->eglConfig, window, nullptr));
+        if (_gpuSwapchain->eglSurface == EGL_NO_SURFACE) {
+            CC_LOG_ERROR("Recreate window surface failed.");
+            return;
+        }
     }
 
     context->makeCurrent(_gpuSwapchain, _gpuSwapchain);

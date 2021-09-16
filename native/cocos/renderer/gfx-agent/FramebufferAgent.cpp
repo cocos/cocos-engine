@@ -51,7 +51,7 @@ FramebufferAgent::~FramebufferAgent() {
 
 void FramebufferAgent::doInit(const FramebufferInfo &info) {
     FramebufferInfo actorInfo = info;
-    for (uint i = 0U; i < info.colorTextures.size(); ++i) {
+    for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
         if (info.colorTextures[i]) {
             actorInfo.colorTextures[i] = static_cast<TextureAgent *>(info.colorTextures[i])->getActor();
         }

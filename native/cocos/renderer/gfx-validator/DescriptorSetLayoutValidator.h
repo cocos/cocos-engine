@@ -36,9 +36,13 @@ public:
     explicit DescriptorSetLayoutValidator(DescriptorSetLayout *actor);
     ~DescriptorSetLayoutValidator() override;
 
+    inline bool isInited() const { return _inited; }
+
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

@@ -44,6 +44,9 @@ DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
 }
 
 void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
     for (const DescriptorSetLayoutBinding &binding : info.bindings) {
         CCASSERT(binding.binding != INVALID_BINDING, "Invalid binding");
         CCASSERT(binding.descriptorType != DescriptorType::UNKNOWN, "Invalid binding type");
@@ -60,6 +63,11 @@ void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
 }
 
 void DescriptorSetLayoutValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 

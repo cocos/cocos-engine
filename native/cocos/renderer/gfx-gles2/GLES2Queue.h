@@ -36,7 +36,7 @@ public:
     GLES2Queue();
     ~GLES2Queue() override;
 
-    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 protected:
     friend class GLES2Device;
@@ -44,9 +44,9 @@ protected:
     void doInit(const QueueInfo &info) override;
     void doDestroy() override;
 
-    uint _numDrawCalls = 0;
-    uint _numInstances = 0;
-    uint _numTriangles = 0;
+    uint32_t _numDrawCalls = 0;
+    uint32_t _numInstances = 0;
+    uint32_t _numTriangles = 0;
 };
 
 } // namespace gfx

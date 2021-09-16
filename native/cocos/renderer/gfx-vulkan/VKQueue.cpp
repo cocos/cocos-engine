@@ -56,7 +56,7 @@ void CCVKQueue::doDestroy() {
     }
 }
 
-void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
+void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     CCVKDevice *device = CCVKDevice::getInstance();
     _gpuQueue->commandBuffers.clear();
 
@@ -69,7 +69,7 @@ void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
         _gpuQueue->commandBuffers.push_back(device->gpuTransportHub()->packageForFlight(false));
     }
 
-    for (uint i = 0U; i < count; ++i) {
+    for (uint32_t i = 0U; i < count; ++i) {
         auto *cmdBuff = static_cast<CCVKCommandBuffer *>(cmdBuffs[i]);
         if (!cmdBuff->_pendingQueue.empty()) {
             _gpuQueue->commandBuffers.push_back(cmdBuff->_pendingQueue.front());

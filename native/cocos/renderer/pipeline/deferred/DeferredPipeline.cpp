@@ -26,6 +26,7 @@
 #include "DeferredPipeline.h"
 #include "../SceneCulling.h"
 #include "../shadow/ShadowFlow.h"
+#include "../helper/Utils.h"
 #include "MainFlow.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -38,7 +39,6 @@
 
 namespace cc {
 namespace pipeline {
-namespace {
 #define TO_VEC3(dst, src, offset)  \
     dst[offset]         = (src).x; \
     (dst)[(offset) + 1] = (src).y; \
@@ -48,13 +48,6 @@ namespace {
     (dst)[(offset) + 1] = (src).y; \
     (dst)[(offset) + 2] = (src).z; \
     (dst)[(offset) + 3] = (src).w;
-} // namespace
-
-void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
-    out->x = gamma.x * gamma.x;
-    out->y = gamma.y * gamma.y;
-    out->z = gamma.z * gamma.z;
-}
 
 framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COUNT] = {
     framegraph::FrameGraph::stringToHandle("gbufferAlbedoTexture"),

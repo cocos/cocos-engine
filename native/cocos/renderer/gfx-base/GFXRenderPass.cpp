@@ -38,24 +38,24 @@ RenderPass::RenderPass()
 RenderPass::~RenderPass() = default;
 
 // Based on render pass compatibility
-uint RenderPass::computeHash() {
+uint32_t RenderPass::computeHash() {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
-    uint seed = 0;
+    uint32_t seed = 0;
     if (!_subpasses.empty()) {
         for (const SubpassInfo &subPass : _subpasses) {
-            for (const uint iaIndex : subPass.inputs) {
+            for (const uint32_t iaIndex : subPass.inputs) {
                 if (iaIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
-            for (const uint caIndex : subPass.colors) {
+            for (const uint32_t caIndex : subPass.colors) {
                 if (caIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
-            for (const uint raIndex : subPass.resolves) {
+            for (const uint32_t raIndex : subPass.resolves) {
                 if (raIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
-            for (const uint paIndex : subPass.preserves) {
+            for (const uint32_t paIndex : subPass.preserves) {
                 if (paIndex >= _colorAttachments.size()) break;
                 seed += 2;
             }
@@ -64,101 +64,101 @@ uint RenderPass::computeHash() {
             }
         }
         for (const SubpassInfo &subpass : _subpasses) {
-            for (const uint iaIndex : subpass.inputs) {
+            for (const uint32_t iaIndex : subpass.inputs) {
                 if (iaIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ia = _colorAttachments[iaIndex];
-                seed ^= static_cast<uint>(ia.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= static_cast<uint>(ia.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ia.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ia.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
-            for (const uint caIndex : subpass.colors) {
+            for (const uint32_t caIndex : subpass.colors) {
                 if (caIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[caIndex];
-                seed ^= static_cast<uint>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= static_cast<uint>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
-            for (const uint raIndex : subpass.resolves) {
+            for (const uint32_t raIndex : subpass.resolves) {
                 if (raIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[raIndex];
-                seed ^= static_cast<uint>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= static_cast<uint>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
-            for (const uint paIndex : subpass.preserves) {
+            for (const uint32_t paIndex : subpass.preserves) {
                 if (paIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[paIndex];
-                seed ^= static_cast<uint>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= static_cast<uint>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint32_t>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             if (subpass.depthStencil != INVALID_BINDING) {
                 if (subpass.depthStencil < _colorAttachments.size()) {
                     const auto &ds = _colorAttachments[subpass.depthStencil];
-                    seed ^= static_cast<uint>(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                    seed ^= static_cast<uint>(ds.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                    seed ^= static_cast<uint32_t>(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                    seed ^= static_cast<uint32_t>(ds.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 } else {
                     const auto &ds = _depthStencilAttachment;
-                    seed ^= static_cast<uint>(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                    seed ^= static_cast<uint>(ds.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                    seed ^= static_cast<uint32_t>(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                    seed ^= static_cast<uint32_t>(ds.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
                 }
             }
         }
     } else {
-        seed = static_cast<uint>(_colorAttachments.size() * 2 + 2);
+        seed = static_cast<uint32_t>(_colorAttachments.size() * 2 + 2);
         for (const ColorAttachment &colorAttachment : _colorAttachments) {
-            seed ^= static_cast<uint>(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= static_cast<uint>(colorAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint32_t>(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint32_t>(colorAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
-        seed ^= static_cast<uint>(_depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(_depthStencilAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(_depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(_depthStencilAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
     return seed;
 }
 
-uint RenderPass::computeHash(const RenderPassInfo &info) {
-    static auto computeAttachmentHash = [](const ColorAttachment &attachment, uint &seed) {
-        seed ^= static_cast<uint>(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.loadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.storeOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+uint32_t RenderPass::computeHash(const RenderPassInfo &info) {
+    static auto computeAttachmentHash = [](const ColorAttachment &attachment, uint32_t &seed) {
+        seed ^= static_cast<uint32_t>(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.loadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.storeOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         for (AccessType type : attachment.beginAccesses) {
-            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
         for (AccessType type : attachment.endAccesses) {
-            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
     };
-    static auto computeDSAttachmentHash = [](const DepthStencilAttachment &attachment, uint &seed) {
-        seed ^= static_cast<uint>(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.depthLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.depthStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.stencilLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attachment.stencilStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    static auto computeDSAttachmentHash = [](const DepthStencilAttachment &attachment, uint32_t &seed) {
+        seed ^= static_cast<uint32_t>(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.depthLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.depthStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.stencilLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attachment.stencilStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         for (AccessType type : attachment.beginAccesses) {
-            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
         for (AccessType type : attachment.endAccesses) {
-            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
     };
-    uint seed = 0;
+    uint32_t seed = 0;
     if (!info.subpasses.empty()) {
         for (const SubpassInfo &subpass : info.subpasses) {
-            for (const uint iaIndex : subpass.inputs) {
+            for (const uint32_t iaIndex : subpass.inputs) {
                 if (iaIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ia = info.colorAttachments[iaIndex];
                 seed += 4 + ia.beginAccesses.size() + ia.endAccesses.size();
             }
-            for (const uint caIndex : subpass.colors) {
+            for (const uint32_t caIndex : subpass.colors) {
                 if (caIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ca = info.colorAttachments[caIndex];
                 seed += 4 + ca.beginAccesses.size() + ca.endAccesses.size();
             }
-            for (const uint raIndex : subpass.resolves) {
+            for (const uint32_t raIndex : subpass.resolves) {
                 if (raIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ra = info.colorAttachments[raIndex];
                 seed += 4 + ra.beginAccesses.size() + ra.endAccesses.size();
             }
-            for (const uint paIndex : subpass.preserves) {
+            for (const uint32_t paIndex : subpass.preserves) {
                 if (paIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &pa = info.colorAttachments[paIndex];
                 seed += 4 + pa.beginAccesses.size() + pa.endAccesses.size();
@@ -174,19 +174,19 @@ uint RenderPass::computeHash(const RenderPassInfo &info) {
             }
         }
         for (const SubpassInfo &subpass : info.subpasses) {
-            for (const uint iaIndex : subpass.inputs) {
+            for (const uint32_t iaIndex : subpass.inputs) {
                 if (iaIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[iaIndex], seed);
             }
-            for (const uint caIndex : subpass.colors) {
+            for (const uint32_t caIndex : subpass.colors) {
                 if (caIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[caIndex], seed);
             }
-            for (const uint raIndex : subpass.resolves) {
+            for (const uint32_t raIndex : subpass.resolves) {
                 if (raIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[raIndex], seed);
             }
-            for (const uint paIndex : subpass.preserves) {
+            for (const uint32_t paIndex : subpass.preserves) {
                 if (paIndex >= info.colorAttachments.size()) break;
                 computeAttachmentHash(info.colorAttachments[paIndex], seed);
             }

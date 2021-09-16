@@ -51,7 +51,7 @@ public:
     Handle      write(FrameGraph &graph, const Handle &output);
     void        createRenderTargetAttachment(RenderTargetAttachment &&attachment);
     inline void sideEffect();
-    inline void subpass(bool clearActionIgnoreable, bool end);
+    inline void subpass(bool end, bool clearActionIgnorable);
     inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor);
 
 private:
@@ -82,7 +82,7 @@ private:
     bool                                _subpass{false};
     bool                                _subpassEnd{false};
     bool                                _hasClearedAttachment{false};
-    bool                                _clearActionIgnoreable{false};
+    bool                                _clearActionIgnorable{false};
 
     bool          _customViewport{false};
     gfx::Viewport _viewport;
@@ -99,10 +99,10 @@ void PassNode::sideEffect() {
     _sideEffect = true;
 }
 
-void PassNode::subpass(bool clearActionIgnoreable, bool end) {
+void PassNode::subpass(bool end, bool clearActionIgnorable) {
     _subpass               = true;
-    _clearActionIgnoreable = clearActionIgnoreable;
     _subpassEnd            = end;
+    _clearActionIgnorable = clearActionIgnorable;
 }
 
 void PassNode::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) {

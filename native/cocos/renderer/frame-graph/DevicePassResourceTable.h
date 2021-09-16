@@ -55,6 +55,7 @@ public:
     getWrite(TypedHandle<Type> handle) const noexcept;
 
     gfx::RenderPass *getRenderPass() const { return _renderPass; }
+    uint32_t getSubpassIndex() const { return _subpassIndex; }
 
 private:
     using ResourceDictionary = std::unordered_map<Handle, gfx::GFXObject *, Handle::Hasher>;
@@ -67,6 +68,7 @@ private:
     ResourceDictionary _writes{};
 
     gfx::RenderPass *_renderPass{nullptr};
+    uint32_t _subpassIndex{0U};
 
     friend class DevicePass;
 };

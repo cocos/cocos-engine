@@ -36,9 +36,13 @@ public:
     explicit PipelineLayoutValidator(PipelineLayout *actor);
     ~PipelineLayoutValidator() override;
 
+    inline bool isInited() const { return _inited; }
+
 protected:
     void doInit(const PipelineLayoutInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

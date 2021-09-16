@@ -46,8 +46,21 @@ FramebufferValidator::~FramebufferValidator() {
 }
 
 void FramebufferValidator::doInit(const FramebufferInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    for (auto *colorTexture : info.colorTextures) {
+        CCASSERT(static_cast<TextureValidator *>(colorTexture)->isInited(), "already destroyed?");
+    }
+    if (info.depthStencilTexture) {
+        CCASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited(), "already destroyed?");
+    }
+    CCASSERT(static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
+
+    /////////// execute ///////////
+
     FramebufferInfo actorInfo = info;
-    for (uint i = 0U; i < info.colorTextures.size(); ++i) {
+    for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
         if (info.colorTextures[i]) {
             actorInfo.colorTextures[i] = static_cast<TextureValidator *>(info.colorTextures[i])->getActor();
         }
@@ -61,6 +74,11 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
 }
 
 void FramebufferValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 

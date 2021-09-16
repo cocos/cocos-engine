@@ -38,19 +38,19 @@ InputAssembler::InputAssembler()
 
 InputAssembler::~InputAssembler() = default;
 
-uint InputAssembler::computeAttributesHash() const {
+uint32_t InputAssembler::computeAttributesHash() const {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
     // 6: Attribute has 6 elements.
     std::size_t seed = _attributes.size() * 6;
     for (const auto &attribute : _attributes) {
         seed ^= std::hash<std::string>{}(attribute.name) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint>(attribute.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint32_t>(attribute.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.isNormalized + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.stream + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.isInstanced + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.location + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
-    return static_cast<uint>(seed);
+    return static_cast<uint32_t>(seed);
 }
 
 void InputAssembler::initialize(const InputAssemblerInfo &info) {

@@ -39,16 +39,16 @@ public:
     GLES2Buffer();
     ~GLES2Buffer() override;
 
-    void update(const void *buffer, uint size) override;
+    void update(const void *buffer, uint32_t size) override;
 
-    inline GLES2GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
+    inline GLES2GPUBuffer *    gpuBuffer() const { return _gpuBuffer; }
     inline GLES2GPUBufferView *gpuBufferView() const { return _gpuBufferView; }
 
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
 
     GLES2GPUBuffer *    _gpuBuffer     = nullptr;
     GLES2GPUBufferView *_gpuBufferView = nullptr;

@@ -71,22 +71,22 @@ public:
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
 
-    Sampler *       createSampler(const SamplerInfo &info) override;
-    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info) override;
-    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) override;
+    Sampler *       createSampler(const SamplerInfo &info, uint32_t hash) override;
+    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) override;
 
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
+    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
 
-    void          flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
+    void          flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
-    uint          getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
-    uint          getNumInstances() const override { return _actor->getNumInstances(); }
-    uint          getNumTris() const override { return _actor->getNumTris(); }
+    uint32_t      getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    uint32_t      getNumInstances() const override { return _actor->getNumInstances(); }
+    uint32_t      getNumTris() const override { return _actor->getNumTris(); }
 
-    inline void enableRecording(bool recording) { _recording = recording; }
-    inline bool isRecording() const { return _recording; }
-    inline uint currentFrame() const { return _currentFrame; }
+    inline void     enableRecording(bool recording) { _recording = recording; }
+    inline bool     isRecording() const { return _recording; }
+    inline uint32_t currentFrame() const { return _currentFrame; }
 
 protected:
     static DeviceValidator *instance;
@@ -100,8 +100,8 @@ protected:
 
     void bindContext(bool bound) override { _actor->bindContext(bound); }
 
-    bool _recording{false};
-    uint _currentFrame{1U};
+    bool     _recording{false};
+    uint32_t _currentFrame{1U};
 };
 
 } // namespace gfx

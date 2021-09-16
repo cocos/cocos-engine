@@ -58,20 +58,6 @@ void UIPhase::render(scene::Camera *camera, gfx::RenderPass *renderPass) {
             cmdBuff->draw(inputAssembler);
         }
     }
-
-    auto *profiler = _pipeline->getProfiler();
-    if (profiler && profiler->getEnabled() && camera->window->swapchain) {
-        auto *submodel       = profiler->getSubModels()[0];
-        auto *pass           = submodel->getPasses()[0];
-        auto *inputAssembler = submodel->getInputAssembler();
-        auto *pso            = PipelineStateManager::getOrCreatePipelineState(
-            pass, submodel->getShaders()[0], inputAssembler, renderPass);
-        cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-        cmdBuff->bindDescriptorSet(localSet, submodel->getDescriptorSet());
-        cmdBuff->bindInputAssembler(inputAssembler);
-        cmdBuff->draw(inputAssembler);
-    }
 }
 
 } // namespace pipeline

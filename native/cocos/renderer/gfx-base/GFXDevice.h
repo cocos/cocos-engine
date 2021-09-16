@@ -59,12 +59,12 @@ public:
     virtual void acquire(Swapchain *const *swapchains, uint32_t count) = 0;
     virtual void present()                                             = 0;
 
-    virtual void flushCommands(CommandBuffer *const *cmdBuffs, uint count) {}
+    virtual void flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) {}
 
     virtual MemoryStatus &getMemoryStatus() { return _memoryStatus; }
-    virtual uint          getNumDrawCalls() const { return _numDrawCalls; }
-    virtual uint          getNumInstances() const { return _numInstances; }
-    virtual uint          getNumTris() const { return _numTriangles; }
+    virtual uint32_t      getNumDrawCalls() const { return _numDrawCalls; }
+    virtual uint32_t      getNumInstances() const { return _numInstances; }
+    virtual uint32_t      getNumTris() const { return _numTriangles; }
 
     inline CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info);
     inline Queue *              createQueue(const QueueInfo &info);
@@ -86,8 +86,8 @@ public:
     inline GlobalBarrier * getGlobalBarrier(const GlobalBarrierInfo &info);
     inline TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info);
 
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
-    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count)        = 0;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) = 0;
+    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count)        = 0;
 
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
     inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);
@@ -100,7 +100,7 @@ public:
     inline const String &    getDeviceName() const { return _deviceName; }
     inline const String &    getRenderer() const { return _renderer; }
     inline const String &    getVendor() const { return _vendor; }
-    inline bool              hasFeature(Feature feature) const { return _features[static_cast<uint>(feature)]; }
+    inline bool              hasFeature(Feature feature) const { return _features[static_cast<uint32_t>(feature)]; }
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
@@ -133,9 +133,9 @@ protected:
     virtual PipelineLayout *     createPipelineLayout()                                            = 0;
     virtual PipelineState *      createPipelineState()                                             = 0;
 
-    virtual Sampler *       createSampler(const SamplerInfo &info)               = 0;
-    virtual GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info)   = 0;
-    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) = 0;
+    virtual Sampler *       createSampler(const SamplerInfo &info, uint32_t hash)               = 0;
+    virtual GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash)   = 0;
+    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) = 0;
 
     // For context switching between threads
     virtual void bindContext(bool bound) {}
@@ -154,14 +154,14 @@ protected:
     Queue *        _queue{nullptr};
     CommandBuffer *_cmdBuff{nullptr};
 
-    uint         _numDrawCalls{0U};
-    uint         _numInstances{0U};
-    uint         _numTriangles{0U};
+    uint32_t     _numDrawCalls{0U};
+    uint32_t     _numInstances{0U};
+    uint32_t     _numTriangles{0U};
     MemoryStatus _memoryStatus;
 
-    unordered_map<uint, Sampler *>        _samplers;
-    unordered_map<uint, GlobalBarrier *>  _globalBarriers;
-    unordered_map<uint, TextureBarrier *> _textureBarriers;
+    unordered_map<uint32_t, Sampler *>        _samplers;
+    unordered_map<uint32_t, GlobalBarrier *>  _globalBarriers;
+    unordered_map<uint32_t, TextureBarrier *> _textureBarriers;
 
 private:
     vector<Swapchain *> _swapchains;
@@ -261,25 +261,25 @@ PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {
-    uint hash = gfx::Sampler::computeHash(info);
+    uint32_t hash = gfx::Sampler::computeHash(info);
     if (!_samplers.count(hash)) {
-        _samplers[hash] = createSampler(info);
+        _samplers[hash] = createSampler(info, hash);
     }
     return _samplers[hash];
 }
 
 GlobalBarrier *Device::getGlobalBarrier(const GlobalBarrierInfo &info) {
-    uint hash = gfx::GlobalBarrier::computeHash(info);
+    uint32_t hash = gfx::GlobalBarrier::computeHash(info);
     if (!_globalBarriers.count(hash)) {
-        _globalBarriers[hash] = createGlobalBarrier(info);
+        _globalBarriers[hash] = createGlobalBarrier(info, hash);
     }
     return _globalBarriers[hash];
 }
 
 TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
-    uint hash = gfx::TextureBarrier::computeHash(info);
+    uint32_t hash = gfx::TextureBarrier::computeHash(info);
     if (!_textureBarriers.count(hash)) {
-        _textureBarriers[hash] = createTextureBarrier(info);
+        _textureBarriers[hash] = createTextureBarrier(info, hash);
     }
     return _textureBarriers[hash];
 }

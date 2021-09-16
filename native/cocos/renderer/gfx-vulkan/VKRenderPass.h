@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class CCVKGPURenderPass;
 class CC_VULKAN_API CCVKRenderPass final : public RenderPass {
 public:
     CCVKRenderPass();
-    ~CCVKRenderPass();
+    ~CCVKRenderPass() override;
 
     inline CCVKGPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
 

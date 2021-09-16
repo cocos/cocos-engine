@@ -34,13 +34,13 @@ void EmptyCommandBuffer::doInit(const CommandBufferInfo &info) {
 void EmptyCommandBuffer::doDestroy() {
 }
 
-void EmptyCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+void EmptyCommandBuffer::begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) {
 }
 
 void EmptyCommandBuffer::end() {
 }
 
-void EmptyCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+void EmptyCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
 }
 
 void EmptyCommandBuffer::endRenderPass() {
@@ -52,7 +52,7 @@ void EmptyCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
 void EmptyCommandBuffer::bindPipelineState(PipelineState *pso) {
 }
 
-void EmptyCommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
+void EmptyCommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
 }
 
 void EmptyCommandBuffer::bindInputAssembler(InputAssembler *ia) {
@@ -76,10 +76,10 @@ void EmptyCommandBuffer::setBlendConstants(const Color &constants) {
 void EmptyCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
 }
 
-void EmptyCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
+void EmptyCommandBuffer::setStencilWriteMask(StencilFace face, uint32_t mask) {
 }
 
-void EmptyCommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
+void EmptyCommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) {
 }
 
 void EmptyCommandBuffer::nextSubpass() {
@@ -88,19 +88,19 @@ void EmptyCommandBuffer::nextSubpass() {
 void EmptyCommandBuffer::draw(const DrawInfo &info) {
 }
 
-void EmptyCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
+void EmptyCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
 }
 
-void EmptyCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+void EmptyCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
 }
 
-void EmptyCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+void EmptyCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
 }
 
 void EmptyCommandBuffer::dispatch(const DispatchInfo &info) {
 }
 
-void EmptyCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+void EmptyCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
 }
 
 } // namespace gfx

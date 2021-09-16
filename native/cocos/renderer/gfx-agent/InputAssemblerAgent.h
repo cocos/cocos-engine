@@ -36,14 +36,6 @@ public:
     explicit InputAssemblerAgent(InputAssembler *actor);
     ~InputAssemblerAgent() override;
 
-    void setVertexCount(uint32_t count) override;
-    void setFirstVertex(uint32_t first) override;
-    void setIndexCount(uint32_t count) override;
-    void setFirstIndex(uint32_t first) override;
-    void setVertexOffset(int32_t offset) override;
-    void setInstanceCount(uint32_t count) override;
-    void setFirstInstance(uint32_t first) override;
-
 protected:
     void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;

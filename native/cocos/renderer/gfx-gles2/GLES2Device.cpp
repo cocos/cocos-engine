@@ -168,7 +168,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
             fbfLevelStr                = "COHERENT";
         }
-        _features[toNumber(Feature::GL_FRAMEBUFFER_FETCH)] = true;
+        _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
     }
 #endif
 
@@ -327,23 +327,23 @@ PipelineState *GLES2Device::createPipelineState() {
     return CC_NEW(GLES2PipelineState);
 }
 
-Sampler *GLES2Device::createSampler(const SamplerInfo &info) {
-    return CC_NEW(GLES2Sampler(info));
+Sampler *GLES2Device::createSampler(const SamplerInfo &info, uint32_t hash) {
+    return CC_NEW(GLES2Sampler(info, hash));
 }
 
-GlobalBarrier *GLES2Device::createGlobalBarrier(const GlobalBarrierInfo &info) {
-    return CC_NEW(GlobalBarrier(info));
+GlobalBarrier *GLES2Device::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(GlobalBarrier(info, hash));
 }
 
-TextureBarrier *GLES2Device::createTextureBarrier(const TextureBarrierInfo &info) {
-    return CC_NEW(TextureBarrier(info));
+TextureBarrier *GLES2Device::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(TextureBarrier(info, hash));
 }
 
-void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     cmdFuncGLES2CopyBuffersToTexture(this, buffers, static_cast<GLES2Texture *>(dst)->gpuTexture(), regions, count);
 }
 
-void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     cmdFuncGLES2CopyTextureToBuffers(this, static_cast<GLES2Texture *>(src)->gpuTexture(), buffers, region, count);
 }
 

@@ -36,9 +36,13 @@ public:
     explicit FramebufferValidator(Framebuffer *actor);
     ~FramebufferValidator() override;
 
+    inline bool isInited() const { return _inited; }
+
 protected:
     void doInit(const FramebufferInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

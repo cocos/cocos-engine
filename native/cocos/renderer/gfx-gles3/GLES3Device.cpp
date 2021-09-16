@@ -150,17 +150,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
             fbfLevelStr                = "COHERENT";
         }
-        _features[toNumber(Feature::GL_FRAMEBUFFER_FETCH)] = true;
-    }
-
-    if (checkExtension("pixel_local_storage")) {
-        if (checkExtension("pixel_local_storage2")) {
-            _gpuConstantRegistry->mPLS = PLSSupportLevel::LEVEL2;
-        } else {
-            _gpuConstantRegistry->mPLS = PLSSupportLevel::LEVEL1;
-        }
-        glGetIntegerv(GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_SIZE_EXT, reinterpret_cast<GLint *>(&_gpuConstantRegistry->mPLSsize));
-        _features[toNumber(Feature::GL_PIXEL_LOCAL_STORAGE)] = true;
+        _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
     }
 #endif
 
@@ -232,7 +222,6 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
     CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
-    CC_LOG_INFO("PIXEL_LOCAL_STORAGE: level %d, size %d", _gpuConstantRegistry->mPLS, _gpuConstantRegistry->mPLSsize);
     CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
 
     return true;
@@ -331,23 +320,23 @@ PipelineState *GLES3Device::createPipelineState() {
     return CC_NEW(GLES3PipelineState);
 }
 
-Sampler *GLES3Device::createSampler(const SamplerInfo &info) {
-    return CC_NEW(GLES3Sampler(info));
+Sampler *GLES3Device::createSampler(const SamplerInfo &info, uint32_t hash) {
+    return CC_NEW(GLES3Sampler(info, hash));
 }
 
-GlobalBarrier *GLES3Device::createGlobalBarrier(const GlobalBarrierInfo &info) {
-    return CC_NEW(GLES3GlobalBarrier(info));
+GlobalBarrier *GLES3Device::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(GLES3GlobalBarrier(info, hash));
 }
 
-TextureBarrier *GLES3Device::createTextureBarrier(const TextureBarrierInfo &info) {
-    return CC_NEW(TextureBarrier(info));
+TextureBarrier *GLES3Device::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(TextureBarrier(info, hash));
 }
 
-void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     cmdFuncGLES3CopyBuffersToTexture(this, buffers, static_cast<GLES3Texture *>(dst)->gpuTexture(), regions, count);
 }
 
-void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTexture(), buffers, regions, count);
 }
 

@@ -40,9 +40,9 @@ class CommandBufferAgent;
 
 class CC_DLL DeviceAgent final : public Agent<Device> {
 public:
-    static DeviceAgent *  getInstance();
-    static constexpr uint MAX_CPU_FRAME_AHEAD = 1;
-    static constexpr uint MAX_FRAME_INDEX     = MAX_CPU_FRAME_AHEAD + 1;
+    static DeviceAgent *      getInstance();
+    static constexpr uint32_t MAX_CPU_FRAME_AHEAD = 1;
+    static constexpr uint32_t MAX_FRAME_INDEX     = MAX_CPU_FRAME_AHEAD + 1;
 
     ~DeviceAgent() override;
 
@@ -80,20 +80,20 @@ public:
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
 
-    Sampler *       createSampler(const SamplerInfo &info) override;
-    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info) override;
-    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) override;
+    Sampler *       createSampler(const SamplerInfo &info, uint32_t hash) override;
+    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) override;
 
-    void          copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    void          copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
-    void          flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
+    void          copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
+    void          copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
+    void          flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
-    uint          getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
-    uint          getNumInstances() const override { return _actor->getNumInstances(); }
-    uint          getNumTris() const override { return _actor->getNumTris(); }
+    uint32_t      getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
+    uint32_t      getNumInstances() const override { return _actor->getNumInstances(); }
+    uint32_t      getNumTris() const override { return _actor->getNumTris(); }
 
-    uint getCurrentIndex() const { return _currentIndex; }
-    void setMultithreaded(bool multithreaded);
+    uint32_t getCurrentIndex() const { return _currentIndex; }
+    void     setMultithreaded(bool multithreaded);
 
     inline MessageQueue *getMessageQueue() const { return _mainMessageQueue; }
 
@@ -111,7 +111,7 @@ protected:
     bool          _multithreaded{false};
     MessageQueue *_mainMessageQueue{nullptr};
 
-    uint      _currentIndex = 0U;
+    uint32_t  _currentIndex = 0U;
     Semaphore _frameBoundarySemaphore{MAX_CPU_FRAME_AHEAD};
 
     unordered_set<CommandBufferAgent *> _cmdBuffRefs;

@@ -136,22 +136,22 @@ PipelineState *EmptyDevice::createPipelineState() {
     return CC_NEW(EmptyPipelineState());
 }
 
-Sampler *EmptyDevice::createSampler(const SamplerInfo &info) {
-    return CC_NEW(Sampler(info));
+Sampler *EmptyDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
+    return CC_NEW(Sampler(info, hash));
 }
 
-GlobalBarrier *EmptyDevice::createGlobalBarrier(const GlobalBarrierInfo &info) {
-    return CC_NEW(GlobalBarrier(info));
+GlobalBarrier *EmptyDevice::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(GlobalBarrier(info, hash));
 }
 
-TextureBarrier *EmptyDevice::createTextureBarrier(const TextureBarrierInfo &info) {
-    return CC_NEW(TextureBarrier(info));
+TextureBarrier *EmptyDevice::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(TextureBarrier(info, hash));
 }
 
-void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
 }
 
-void EmptyDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+void EmptyDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
 }
 
 } // namespace gfx

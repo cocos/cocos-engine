@@ -79,7 +79,7 @@ void GLES3Texture::doDestroy() {
     }
 }
 
-void GLES3Texture::doResize(uint width, uint height, uint size) {
+void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     if (!_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
     }

@@ -35,7 +35,7 @@ class CCVKGPUTextureBarrier;
 
 class CC_VULKAN_API CCVKTextureBarrier : public TextureBarrier {
 public:
-    explicit CCVKTextureBarrier(const TextureBarrierInfo &info);
+    explicit CCVKTextureBarrier(const TextureBarrierInfo &info, uint32_t hash);
     ~CCVKTextureBarrier() override;
 
     inline const CCVKGPUTextureBarrier *gpuBarrier() const { return _gpuBarrier; }

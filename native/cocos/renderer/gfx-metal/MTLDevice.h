@@ -78,7 +78,7 @@ public:
     inline CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     inline bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
     inline uint currentFrameIndex() const { return _currentFrameIndex; }
-    
+
     inline void registerSwapchain(CCMTLSwapchain* swapchain) { _swapchains.push_back(swapchain); }
     inline void unRegisterSwapchain(CCMTLSwapchain* swapchain) {
         auto iter = std::find(_swapchains.begin(), _swapchains.end(), swapchain);
@@ -106,9 +106,9 @@ protected:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *createPipelineLayout() override;
     PipelineState *createPipelineState() override;
-    GlobalBarrier *createGlobalBarrier(const GlobalBarrierInfo &info) override;
-    TextureBarrier *createTextureBarrier(const TextureBarrierInfo& info) override;
-    Sampler *createSampler(const SamplerInfo& info) override;
+    GlobalBarrier *createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo& info, uint32_t hash) override;
+    Sampler *createSampler(const SamplerInfo& info, uint32_t hash) override;
     Swapchain *createSwapchain() override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
@@ -130,9 +130,9 @@ protected:
     uint _currentFrameIndex = 0;
     CCMTLSemaphore *_inFlightSemaphore = nullptr;
     CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
-    
+
     std::vector<CCMTLSwapchain*> _swapchains;
-    
+
     CCMTLGPUDeviceObject* _gpuDeviceObj = nullptr;
 };
 

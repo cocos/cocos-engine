@@ -35,7 +35,7 @@ class GLES3GPUGlobalBarrier;
 
 class CC_GLES3_API GLES3GlobalBarrier : public GlobalBarrier {
 public:
-    explicit GLES3GlobalBarrier(const GlobalBarrierInfo &info);
+    explicit GLES3GlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash);
     ~GLES3GlobalBarrier() override;
 
     inline const GLES3GPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }

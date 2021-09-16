@@ -131,12 +131,12 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     }
 
     // check extensions
-    uint availableLayerCount;
+    uint32_t availableLayerCount;
     VK_CHECK(vkEnumerateDeviceLayerProperties(_gpuContext->physicalDevice, &availableLayerCount, nullptr));
     _gpuDevice->layers.resize(availableLayerCount);
     VK_CHECK(vkEnumerateDeviceLayerProperties(_gpuContext->physicalDevice, &availableLayerCount, _gpuDevice->layers.data()));
 
-    uint availableExtensionCount;
+    uint32_t availableExtensionCount;
     VK_CHECK(vkEnumerateDeviceExtensionProperties(_gpuContext->physicalDevice, nullptr, &availableExtensionCount, nullptr));
     _gpuDevice->extensions.resize(availableExtensionCount);
     VK_CHECK(vkEnumerateDeviceExtensionProperties(_gpuContext->physicalDevice, nullptr, &availableExtensionCount, _gpuDevice->extensions.data()));
@@ -154,11 +154,11 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     }
 
     // prepare the device queues
-    uint                            queueFamilyPropertiesCount = utils::toUint(_gpuContext->queueFamilyProperties.size());
+    uint32_t                        queueFamilyPropertiesCount = utils::toUint(_gpuContext->queueFamilyProperties.size());
     vector<VkDeviceQueueCreateInfo> queueCreateInfos(queueFamilyPropertiesCount, {VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO});
     vector<vector<float>>           queuePriorities(queueFamilyPropertiesCount);
 
-    for (uint queueFamilyIndex = 0U; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex) {
+    for (uint32_t queueFamilyIndex = 0U; queueFamilyIndex < queueFamilyPropertiesCount; ++queueFamilyIndex) {
         const VkQueueFamilyProperties &queueFamilyProperty = _gpuContext->queueFamilyProperties[queueFamilyIndex];
 
         queuePriorities[queueFamilyIndex].resize(queueFamilyProperty.queueCount, 1.0F);
@@ -238,6 +238,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)]   = true;
     _features[toNumber(Feature::BLEND_MINMAX)]              = true;
     _features[toNumber(Feature::COMPUTE_SHADER)]            = true;
+    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)]  = true;
 
     _gpuDevice->useMultiDrawIndirect        = deviceFeatures.multiDrawIndirect;
     _gpuDevice->useDescriptorUpdateTemplate = _gpuDevice->minorVersion > 0 || checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
@@ -279,7 +280,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _caps.maxVertexTextureUnits          = limits.maxPerStageDescriptorSampledImages;
     _caps.maxTextureSize                 = limits.maxImageDimension2D;
     _caps.maxCubeMapTextureSize          = limits.maxImageDimensionCube;
-    _caps.uboOffsetAlignment             = static_cast<uint>(limits.minUniformBufferOffsetAlignment);
+    _caps.uboOffsetAlignment             = static_cast<uint32_t>(limits.minUniformBufferOffsetAlignment);
     // compute shaders
     _caps.maxComputeSharedMemorySize     = limits.maxComputeSharedMemorySize;
     _caps.maxComputeWorkGroupInvocations = limits.maxComputeWorkGroupInvocations;
@@ -355,8 +356,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     VK_CHECK(vmaCreateAllocator(&allocatorInfo, &_gpuDevice->memoryAllocator));
 
-    uint backBufferCount = _gpuDevice->backBufferCount;
-    for (uint i = 0U; i < backBufferCount; i++) {
+    uint32_t backBufferCount = _gpuDevice->backBufferCount;
+    for (uint32_t i = 0U; i < backBufferCount; i++) {
         _gpuFencePools.push_back(CC_NEW(CCVKGPUFencePool(_gpuDevice)));
         _gpuRecycleBins.push_back(CC_NEW(CCVKGPURecycleBin(_gpuDevice)));
         _gpuStagingBufferPools.push_back(CC_NEW(CCVKGPUStagingBufferPool(_gpuDevice)));
@@ -465,8 +466,8 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuBarrierManager)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
-    uint backBufferCount = _gpuDevice->backBufferCount;
-    for (uint i = 0U; i < backBufferCount; i++) {
+    uint32_t backBufferCount = _gpuDevice->backBufferCount;
+    for (uint32_t i = 0U; i < backBufferCount; i++) {
         _gpuRecycleBins[i]->clear();
 
         CC_SAFE_DELETE(_gpuStagingBufferPools[i])
@@ -641,7 +642,7 @@ void CCVKDevice::present() {
 
     _gpuDevice->curBackBufferIndex = (_gpuDevice->curBackBufferIndex + 1) % _gpuDevice->backBufferCount;
 
-    uint fenceCount = gpuFencePool()->size();
+    uint32_t fenceCount = gpuFencePool()->size();
     if (fenceCount) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fenceCount,
                                  gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
@@ -725,40 +726,40 @@ PipelineState *CCVKDevice::createPipelineState() {
     return CC_NEW(CCVKPipelineState);
 }
 
-Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {
-    return CC_NEW(CCVKSampler(info));
+Sampler *CCVKDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
+    return CC_NEW(CCVKSampler(info, hash));
 }
 
-GlobalBarrier *CCVKDevice::createGlobalBarrier(const GlobalBarrierInfo &info) {
-    return CC_NEW(CCVKGlobalBarrier(info));
+GlobalBarrier *CCVKDevice::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(CCVKGlobalBarrier(info, hash));
 }
 
-TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info) {
-    return CC_NEW(CCVKTextureBarrier(info));
+TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(CCVKTextureBarrier(info, hash));
 }
 
-void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     gpuTransportHub()->checkIn([this, buffers, dst, regions, count](CCVKGPUCommandBuffer *gpuCommandBuffer) {
         cmdFuncCCVKCopyBuffersToTexture(this, buffers, static_cast<CCVKTexture *>(dst)->gpuTexture(), regions, count, gpuCommandBuffer);
     });
 }
 
-void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
-    uint                          totalSize = 0U;
-    Format                        format    = srcTexture->getFormat();
-    vector<std::pair<uint, uint>> regionOffsetSizes(count);
+void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
+    uint32_t                              totalSize = 0U;
+    Format                                format    = srcTexture->getFormat();
+    vector<std::pair<uint32_t, uint32_t>> regionOffsetSizes(count);
     for (size_t i = 0U; i < count; ++i) {
         const BufferTextureCopy &region     = regions[i];
-        uint                     w          = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
-        uint                     h          = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
-        uint                     regionSize = formatSize(format, w, h, region.texExtent.depth);
+        uint32_t                 w          = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        uint32_t                 h          = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+        uint32_t                 regionSize = formatSize(format, w, h, region.texExtent.depth);
         regionOffsetSizes[i]                = {totalSize, regionSize};
         totalSize += regionSize;
     }
 
     CCVKGPUBuffer stagingBuffer;
     stagingBuffer.size = totalSize;
-    uint texelSize     = GFX_FORMAT_INFOS[toNumber(format)].size;
+    uint32_t texelSize = GFX_FORMAT_INFOS[toNumber(format)].size;
     gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
 
     // make sure the src texture is up-to-date
@@ -770,9 +771,9 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
         },
         true);
 
-    for (uint i = 0; i < count; ++i) {
-        uint regionOffset                  = 0;
-        uint regionSize                    = 0;
+    for (uint32_t i = 0; i < count; ++i) {
+        uint32_t regionOffset              = 0;
+        uint32_t regionSize                = 0;
         std::tie(regionOffset, regionSize) = regionOffsetSizes[i];
         memcpy(buffers[i], stagingBuffer.mappedData + regionOffset, regionSize);
     }
@@ -795,7 +796,7 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
     static vector<size_t>                  depths;
 
     attachmentDescriptions.resize(pCreateInfo->attachmentCount);
-    for (uint i = 0; i < pCreateInfo->attachmentCount; ++i) {
+    for (uint32_t i = 0; i < pCreateInfo->attachmentCount; ++i) {
         VkAttachmentDescription &       desc{attachmentDescriptions[i]};
         const VkAttachmentDescription2 &desc2{pCreateInfo->pAttachments[i]};
         desc.flags          = desc2.flags;
@@ -815,22 +816,22 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
     colors.assign(pCreateInfo->subpassCount, std::numeric_limits<size_t>::max());
     resolves.assign(pCreateInfo->subpassCount, std::numeric_limits<size_t>::max());
     depths.assign(pCreateInfo->subpassCount, std::numeric_limits<size_t>::max());
-    for (uint i = 0; i < pCreateInfo->subpassCount; ++i) {
+    for (uint32_t i = 0; i < pCreateInfo->subpassCount; ++i) {
         const VkSubpassDescription2 &desc2{pCreateInfo->pSubpasses[i]};
         if (desc2.inputAttachmentCount) {
             inputs[i] = attachmentReferences.size();
-            for (uint j = 0; j < desc2.inputAttachmentCount; ++j) {
+            for (uint32_t j = 0; j < desc2.inputAttachmentCount; ++j) {
                 attachmentReferences.push_back({desc2.pInputAttachments[j].attachment, desc2.pInputAttachments[j].layout});
             }
         }
         if (desc2.colorAttachmentCount) {
             colors[i] = attachmentReferences.size();
-            for (uint j = 0; j < desc2.colorAttachmentCount; ++j) {
+            for (uint32_t j = 0; j < desc2.colorAttachmentCount; ++j) {
                 attachmentReferences.push_back({desc2.pColorAttachments[j].attachment, desc2.pColorAttachments[j].layout});
             }
             if (desc2.pResolveAttachments) {
                 resolves[i] = attachmentReferences.size();
-                for (uint j = 0; j < desc2.colorAttachmentCount; ++j) {
+                for (uint32_t j = 0; j < desc2.colorAttachmentCount; ++j) {
                     attachmentReferences.push_back({desc2.pResolveAttachments[j].attachment, desc2.pResolveAttachments[j].layout});
                 }
             }
@@ -840,7 +841,7 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
             attachmentReferences.push_back({desc2.pDepthStencilAttachment->attachment, desc2.pDepthStencilAttachment->layout});
         }
     }
-    for (uint i = 0; i < pCreateInfo->subpassCount; ++i) {
+    for (uint32_t i = 0; i < pCreateInfo->subpassCount; ++i) {
         VkSubpassDescription &       desc{subpassDescriptions[i]};
         const VkSubpassDescription2 &desc2{pCreateInfo->pSubpasses[i]};
         desc.flags                   = desc2.flags;
@@ -856,7 +857,7 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
     }
 
     subpassDependencies.resize(pCreateInfo->dependencyCount);
-    for (uint i = 0; i < pCreateInfo->dependencyCount; ++i) {
+    for (uint32_t i = 0; i < pCreateInfo->dependencyCount; ++i) {
         VkSubpassDependency &       desc{subpassDependencies[i]};
         const VkSubpassDependency2 &desc2{pCreateInfo->pDependencies[i]};
         desc.srcSubpass      = desc2.srcSubpass;

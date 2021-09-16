@@ -35,7 +35,7 @@ public:
     RenderPass();
     ~RenderPass() override;
 
-    static uint computeHash(const RenderPassInfo &info);
+    static uint32_t computeHash(const RenderPassInfo &info);
 
     void initialize(const RenderPassInfo &info);
     void destroy();
@@ -44,10 +44,10 @@ public:
     inline const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
     inline const SubpassInfoList &       getSubpasses() const { return _subpasses; }
     inline const SubpassDependencyList & getDependencies() const { return _dependencies; }
-    inline uint                          getHash() const { return _hash; }
+    inline uint32_t                      getHash() const { return _hash; }
 
 protected:
-    uint computeHash();
+    uint32_t computeHash();
 
     virtual void doInit(const RenderPassInfo &info) = 0;
     virtual void doDestroy()                        = 0;
@@ -56,7 +56,7 @@ protected:
     DepthStencilAttachment _depthStencilAttachment;
     SubpassInfoList        _subpasses;
     SubpassDependencyList  _dependencies;
-    uint                   _hash = 0;
+    uint32_t               _hash = 0;
 };
 
 } // namespace gfx

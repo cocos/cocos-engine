@@ -45,6 +45,21 @@ InputAssemblerValidator::~InputAssemblerValidator() {
 }
 
 void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    for (auto *vertexBuffer : info.vertexBuffers) {
+        CCASSERT(static_cast<BufferValidator *>(vertexBuffer)->isInited(), "already destroyed?");
+    }
+    if (info.indexBuffer) {
+        CCASSERT(static_cast<BufferValidator *>(info.indexBuffer)->isInited(), "already destroyed?");
+    }
+    if (info.indirectBuffer) {
+        CCASSERT(static_cast<BufferValidator *>(info.indirectBuffer)->isInited(), "already destroyed?");
+    }
+
+    /////////// execute ///////////
+
     InputAssemblerInfo actorInfo = info;
     for (auto &vertexBuffer : actorInfo.vertexBuffers) {
         vertexBuffer = static_cast<BufferValidator *>(vertexBuffer)->getActor();
@@ -60,49 +75,12 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
 }
 
 void InputAssemblerValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
-}
-
-void InputAssemblerValidator::setVertexCount(uint32_t count) {
-    _drawInfo.vertexCount = count;
-
-    _actor->setVertexCount(count);
-}
-
-void InputAssemblerValidator::setFirstVertex(uint32_t first) {
-    _drawInfo.firstVertex = first;
-
-    _actor->setFirstVertex(first);
-}
-
-void InputAssemblerValidator::setIndexCount(uint32_t count) {
-    _drawInfo.indexCount = count;
-
-    _actor->setIndexCount(count);
-}
-
-void InputAssemblerValidator::setFirstIndex(uint32_t first) {
-    _drawInfo.firstIndex = first;
-
-    _actor->setFirstIndex(first);
-}
-
-void InputAssemblerValidator::setVertexOffset(int32_t offset) {
-    _drawInfo.vertexOffset = offset;
-
-    _actor->setVertexOffset(offset);
-}
-
-void InputAssemblerValidator::setInstanceCount(uint32_t count) {
-    _drawInfo.instanceCount = count;
-
-    _actor->setInstanceCount(count);
-}
-
-void InputAssemblerValidator::setFirstInstance(uint32_t first) {
-    _drawInfo.firstInstance = first;
-
-    _actor->setFirstInstance(first);
 }
 
 } // namespace gfx

@@ -83,7 +83,7 @@ void GLES2CommandBuffer::doDestroy() {
     CC_SAFE_DELETE(_cmdAllocator);
 }
 
-void GLES2CommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subpass*/, Framebuffer * /*frameBuffer*/) {
+void GLES2CommandBuffer::begin(RenderPass * /*renderPass*/, uint32_t /*subpass*/, Framebuffer * /*frameBuffer*/) {
     _cmdAllocator->clearCmds(_curCmdPackage);
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
@@ -108,7 +108,7 @@ void GLES2CommandBuffer::end() {
     }
 }
 
-void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
+void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
     GLES2CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();
@@ -123,7 +123,7 @@ void GLES2CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     _curCmdPackage->beginRenderPassCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BEGIN_RENDER_PASS);
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor = renderArea;
+    _curDynamicStates.scissor  = renderArea;
 }
 
 void GLES2CommandBuffer::endRenderPass() {
@@ -146,7 +146,7 @@ void GLES2CommandBuffer::bindPipelineState(PipelineState *pso) {
     }
 }
 
-void GLES2CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
+void GLES2CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
     CCASSERT(_curGPUDescriptorSets.size() > set, "Invalid set index");
 
     GLES2GPUDescriptorSet *gpuDescriptorSet = static_cast<GLES2DescriptorSet *>(descriptorSet)->gpuDescriptorSet();
@@ -227,7 +227,7 @@ void GLES2CommandBuffer::setDepthBound(float minBounds, float maxBounds) {
     }
 }
 
-void GLES2CommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
+void GLES2CommandBuffer::setStencilWriteMask(StencilFace face, uint32_t mask) {
     auto update = [&](DynamicStencilStates &stencilState) {
         if (stencilState.writeMask != mask) {
             stencilState.writeMask = mask;
@@ -238,7 +238,7 @@ void GLES2CommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
     if (hasFlag(face, StencilFace::BACK)) update(_curDynamicStates.stencilStatesBack);
 }
 
-void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
+void GLES2CommandBuffer::setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) {
     auto update = [&](DynamicStencilStates &stencilState) {
         if ((stencilState.reference != ref) ||
             (stencilState.compareMask != mask)) {
@@ -263,7 +263,7 @@ void GLES2CommandBuffer::draw(const DrawInfo &info) {
 
     ++_numDrawCalls;
     _numInstances += info.instanceCount;
-    uint indexCount = info.indexCount ? info.indexCount : info.vertexCount;
+    uint32_t indexCount = info.indexCount ? info.indexCount : info.vertexCount;
     if (_curGPUPipelineState) {
         switch (_curGPUPipelineState->glPrimitive) {
             case GL_TRIANGLES: {
@@ -281,7 +281,7 @@ void GLES2CommandBuffer::draw(const DrawInfo &info) {
     }
 }
 
-void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
+void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
     GLES2GPUBuffer *gpuBuffer = static_cast<GLES2Buffer *>(buff)->gpuBuffer();
     if (gpuBuffer) {
         GLES2CmdUpdateBuffer *cmd = _cmdAllocator->updateBufferCmdPool.alloc();
@@ -294,7 +294,7 @@ void GLES2CommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
     }
 }
 
-void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     GLES2GPUTexture *gpuTexture = static_cast<GLES2Texture *>(texture)->gpuTexture();
     if (gpuTexture) {
         GLES2CmdCopyBufferToTexture *cmd = _cmdAllocator->copyBufferToTextureCmdPool.alloc();
@@ -308,7 +308,7 @@ void GLES2CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     }
 }
 
-void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES2CmdBlitTexture *cmd = _cmdAllocator->blitTextureCmdPool.alloc();
     if (srcTexture) cmd->gpuTextureSrc = static_cast<GLES2Texture *>(srcTexture)->gpuTexture();
     if (dstTexture) cmd->gpuTextureDst = static_cast<GLES2Texture *>(dstTexture)->gpuTexture();
@@ -323,36 +323,36 @@ void GLES2CommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 void GLES2CommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     CCASSERT(false, "Command 'execute' must be recorded in primary command buffers.");
 
-    for (uint i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         auto *           cmdBuff    = static_cast<GLES2CommandBuffer *>(cmdBuffs[i]);
         GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-        for (uint j = 0; j < cmdPackage->beginRenderPassCmds.size(); ++j) {
+        for (uint32_t j = 0; j < cmdPackage->beginRenderPassCmds.size(); ++j) {
             GLES2CmdBeginRenderPass *cmd = cmdPackage->beginRenderPassCmds[j];
             ++cmd->refCount;
             _curCmdPackage->beginRenderPassCmds.push(cmd);
         }
-        for (uint j = 0; j < cmdPackage->bindStatesCmds.size(); ++j) {
+        for (uint32_t j = 0; j < cmdPackage->bindStatesCmds.size(); ++j) {
             GLES2CmdBindStates *cmd = cmdPackage->bindStatesCmds[j];
             ++cmd->refCount;
             _curCmdPackage->bindStatesCmds.push(cmd);
         }
-        for (uint j = 0; j < cmdPackage->drawCmds.size(); ++j) {
+        for (uint32_t j = 0; j < cmdPackage->drawCmds.size(); ++j) {
             GLES2CmdDraw *cmd = cmdPackage->drawCmds[j];
             ++cmd->refCount;
             _curCmdPackage->drawCmds.push(cmd);
         }
-        for (uint j = 0; j < cmdPackage->updateBufferCmds.size(); ++j) {
+        for (uint32_t j = 0; j < cmdPackage->updateBufferCmds.size(); ++j) {
             GLES2CmdUpdateBuffer *cmd = cmdPackage->updateBufferCmds[j];
             ++cmd->refCount;
             _curCmdPackage->updateBufferCmds.push(cmd);
         }
-        for (uint j = 0; j < cmdPackage->copyBufferToTextureCmds.size(); ++j) {
+        for (uint32_t j = 0; j < cmdPackage->copyBufferToTextureCmds.size(); ++j) {
             GLES2CmdCopyBufferToTexture *cmd = cmdPackage->copyBufferToTextureCmds[j];
             ++cmd->refCount;
             _curCmdPackage->copyBufferToTextureCmds.push(cmd);
         }
-        for (uint j = 0; j < cmdPackage->blitTextureCmds.size(); ++j) {
+        for (uint32_t j = 0; j < cmdPackage->blitTextureCmds.size(); ++j) {
             GLES2CmdBlitTexture *cmd = cmdPackage->blitTextureCmds[j];
             ++cmd->refCount;
             _curCmdPackage->blitTextureCmds.push(cmd);
@@ -381,13 +381,13 @@ void GLES2CommandBuffer::bindStates() {
     cmd->gpuDescriptorSets = _curGPUDescriptorSets;
 
     if (_curGPUPipelineState) {
-        vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
         cmd->dynamicOffsets.resize(_curGPUPipelineState->gpuPipelineLayout->dynamicOffsetCount);
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
             //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
             count = std::min(count, _curDynamicOffsets[i].size());
-            if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+            if (count) memcpy(&cmd->dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint32_t));
         }
     }
     cmd->dynamicStates = _curDynamicStates;

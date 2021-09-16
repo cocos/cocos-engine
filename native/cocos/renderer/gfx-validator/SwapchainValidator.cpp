@@ -49,6 +49,11 @@ SwapchainValidator::~SwapchainValidator() {
 }
 
 void SwapchainValidator::doInit(const SwapchainInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    /////////// execute ///////////
+
     _actor->initialize(info);
 
     auto *colorTexture = CC_NEW(TextureValidator(_actor->getColorTexture()));
@@ -73,6 +78,11 @@ void SwapchainValidator::doInit(const SwapchainInfo &info) {
 }
 
 void SwapchainValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     CC_SAFE_DELETE(_depthStencilTexture);
     CC_SAFE_DELETE(_colorTexture);
 
@@ -80,14 +90,20 @@ void SwapchainValidator::doDestroy() {
 }
 
 void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
+    CCASSERT(isInited(), "alread destroyed?");
+
     _actor->resize(width, height, transform);
 }
 
 void SwapchainValidator::doDestroySurface() {
+    CCASSERT(isInited(), "alread destroyed?");
+
     _actor->destroySurface();
 }
 
 void SwapchainValidator::doCreateSurface(void *windowHandle) {
+    CCASSERT(isInited(), "alread destroyed?");
+
     _actor->createSurface(windowHandle);
 }
 

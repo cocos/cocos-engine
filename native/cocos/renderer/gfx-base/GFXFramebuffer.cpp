@@ -27,6 +27,7 @@
 
 #include "GFXFramebuffer.h"
 #include "GFXTexture.h"
+#include "base/Utils.h"
 
 namespace cc {
 namespace gfx {
@@ -37,8 +38,8 @@ Framebuffer::Framebuffer()
 
 Framebuffer::~Framebuffer() = default;
 
-uint Framebuffer::computeHash(const FramebufferInfo &info) {
-    uint seed = static_cast<uint>(info.colorTextures.size() * 2 + (info.depthStencilTexture ? 2 : 0));
+uint32_t Framebuffer::computeHash(const FramebufferInfo &info) {
+    auto seed = utils::toUint(info.colorTextures.size() * 2 + (info.depthStencilTexture ? 2 : 0));
     for (const Texture *attachment : info.colorTextures) {
         seed ^= attachment->getHash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attachment->getTypedID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);

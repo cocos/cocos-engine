@@ -38,7 +38,7 @@ public:
     explicit QueueAgent(Queue *actor);
     ~QueueAgent() override;
 
-    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 protected:
     friend class DeviceAgent;

@@ -81,12 +81,12 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
     VkSurfaceCapabilitiesKHR surfaceCapabilities{};
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceCapabilities);
 
-    uint surfaceFormatCount = 0U;
+    uint32_t surfaceFormatCount = 0U;
     VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceFormatCount, nullptr));
     vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
     VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &surfaceFormatCount, surfaceFormats.data()));
 
-    uint presentModeCount = 0U;
+    uint32_t presentModeCount = 0U;
     VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &presentModeCount, nullptr));
     vector<VkPresentModeKHR> presentModes(presentModeCount);
     VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(gpuContext->physicalDevice, _gpuSwapchain->vkSurface, &presentModeCount, presentModes.data()));
@@ -151,7 +151,7 @@ void CCVKSwapchain::doInit(const SwapchainInfo &info) {
 
     // Determine the number of images
     // for now we assume triple buffer is universal
-    uint desiredNumberOfSwapchainImages = gpuDevice->backBufferCount;
+    uint32_t desiredNumberOfSwapchainImages = gpuDevice->backBufferCount;
     CCASSERT(desiredNumberOfSwapchainImages <= surfaceCapabilities.maxImageCount &&
                  desiredNumberOfSwapchainImages >= surfaceCapabilities.minImageCount,
              "Swapchain image count assumption broken");
@@ -257,8 +257,8 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     // surfaceCapabilities.currentExtent seems to remain the same
     // during any size/orientation change events on android devices
     // so we prefer the system input (oriented size) here
-    uint newWidth  = width ? width : surfaceCapabilities.currentExtent.width;
-    uint newHeight = height ? height : surfaceCapabilities.currentExtent.height;
+    uint32_t newWidth  = width ? width : surfaceCapabilities.currentExtent.width;
+    uint32_t newHeight = height ? height : surfaceCapabilities.currentExtent.height;
 
     VkSurfaceTransformFlagBitsKHR preTransform = surfaceCapabilities.currentTransform;
     if (ENABLE_PRE_ROTATION) {
@@ -275,7 +275,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
         return true;
     }
 
-    if (newWidth == static_cast<uint>(-1)) {
+    if (newWidth == static_cast<uint32_t>(-1)) {
         _gpuSwapchain->createInfo.imageExtent.width  = _colorTexture->getWidth();
         _gpuSwapchain->createInfo.imageExtent.height = _colorTexture->getHeight();
     } else {
@@ -293,7 +293,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     _gpuSwapchain->createInfo.surface      = _gpuSwapchain->vkSurface;
     _gpuSwapchain->createInfo.oldSwapchain = _gpuSwapchain->vkSwapchain;
 
-    CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, (uint)_transform * 90);
+    CC_LOG_INFO("Resizing surface: %dx%d, surface rotation: %d degrees", newWidth, newHeight, (uint32_t)_transform * 90);
 
     CCVKDevice::getInstance()->waitAllFences();
 
@@ -306,7 +306,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     _gpuSwapchain->curImageIndex  = 0;
     _gpuSwapchain->vkSwapchain    = vkSwapchain;
 
-    uint imageCount;
+    uint32_t imageCount;
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
     _gpuSwapchain->swapchainImages.resize(imageCount);
     VK_CHECK(vkGetSwapchainImagesKHR(gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
@@ -332,7 +332,7 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     VkPipelineStageFlags tempDstStageMask       = 0;
     auto *               colorGPUTexture        = static_cast<CCVKTexture *>(_colorTexture)->gpuTexture();
     auto *               depthStencilGPUTexture = static_cast<CCVKTexture *>(_depthStencilTexture)->gpuTexture();
-    for (uint i = 0U; i < imageCount; i++) {
+    for (uint32_t i = 0U; i < imageCount; i++) {
         tempBarrier.nextAccessCount             = 1;
         tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::PRESENT)];
         tempBarrier.image                       = _gpuSwapchain->swapchainImages[i];

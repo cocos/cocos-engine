@@ -52,7 +52,7 @@ void CCVKDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo& /*info*/) {
 
     for (auto& binding : _bindings) {
         if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
-            for (uint j = 0U; j < binding.count; j++) {
+            for (uint32_t j = 0U; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
             }
         }

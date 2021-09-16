@@ -26,6 +26,7 @@
 #pragma once
 
 #include "base/Macros.h"
+#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-gles-common/GLESCommandPool.h"
 
@@ -37,13 +38,11 @@ namespace gfx {
 
 class GLES3GPUConstantRegistry final : public Object {
 public:
-    size_t currentBoundThreadID{0U};
-    uint   glMinorVersion{0U};
+    size_t   currentBoundThreadID{0U};
+    uint32_t glMinorVersion{0U};
 
     MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
     FBFSupportLevel  mFBF{FBFSupportLevel::NONE};
-    PLSSupportLevel  mPLS{PLSSupportLevel::NONE};
-    uint             mPLSsize{0U};
 };
 
 class GLES3GPUStateCache;
@@ -102,9 +101,9 @@ class GLES3GPUBuffer final : public Object {
 public:
     BufferUsage  usage    = BufferUsage::NONE;
     MemoryUsage  memUsage = MemoryUsage::NONE;
-    uint         size     = 0;
-    uint         stride   = 0;
-    uint         count    = 0;
+    uint32_t     size     = 0;
+    uint32_t     stride   = 0;
+    uint32_t     count    = 0;
     GLenum       glTarget = 0;
     GLuint       glBuffer = 0;
     GLuint       glOffset = 0;
@@ -118,12 +117,12 @@ public:
     TextureType        type{TextureType::TEX2D};
     Format             format{Format::UNKNOWN};
     TextureUsage       usage{TextureUsageBit::NONE};
-    uint               width{0};
-    uint               height{0};
-    uint               depth{1};
-    uint               size{0};
-    uint               arrayLayer{1};
-    uint               mipLevel{1};
+    uint32_t           width{0};
+    uint32_t           height{0};
+    uint32_t           depth{1};
+    uint32_t           size{0};
+    uint32_t           arrayLayer{1};
+    uint32_t           mipLevel{1};
     SampleCount        samples{SampleCount::ONE};
     TextureFlags       flags{TextureFlagBit::NONE};
     bool               isPowerOf2{false};
@@ -163,49 +162,49 @@ public:
 
 class GLES3GPUInput final : public Object {
 public:
-    uint   binding = 0;
-    String name;
-    Type   type   = Type::UNKNOWN;
-    uint   stride = 0;
-    uint   count  = 0;
-    uint   size   = 0;
-    GLenum glType = 0;
-    GLint  glLoc  = -1;
+    uint32_t binding = 0;
+    String   name;
+    Type     type   = Type::UNKNOWN;
+    uint32_t stride = 0;
+    uint32_t count  = 0;
+    uint32_t size   = 0;
+    GLenum   glType = 0;
+    GLint    glLoc  = -1;
 };
 using GLES3GPUInputList = vector<GLES3GPUInput>;
 
 class GLES3GPUUniform final : public Object {
 public:
-    uint   binding = INVALID_BINDING;
-    String name;
-    Type   type   = Type::UNKNOWN;
-    uint   stride = 0;
-    uint   count  = 0;
-    uint   size   = 0;
-    uint   offset = 0;
-    GLenum glType = 0;
-    GLint  glLoc  = -1;
+    uint32_t binding = INVALID_BINDING;
+    String   name;
+    Type     type   = Type::UNKNOWN;
+    uint32_t stride = 0;
+    uint32_t count  = 0;
+    uint32_t size   = 0;
+    uint32_t offset = 0;
+    GLenum   glType = 0;
+    GLint    glLoc  = -1;
 };
 using GLES3GPUUniformList = vector<GLES3GPUUniform>;
 
 class GLES3GPUUniformBuffer final : public Object {
 public:
-    uint   set     = INVALID_BINDING;
-    uint   binding = INVALID_BINDING;
-    String name;
-    uint   size      = 0;
-    uint   glBinding = 0xffffffff;
-    bool   isStorage = false;
+    uint32_t set     = INVALID_BINDING;
+    uint32_t binding = INVALID_BINDING;
+    String   name;
+    uint32_t size      = 0;
+    uint32_t glBinding = 0xffffffff;
+    bool     isStorage = false;
 };
 using GLES3GPUUniformBufferList = vector<GLES3GPUUniformBuffer>;
 
 class GLES3GPUUniformSamplerTexture final : public Object {
 public:
-    uint   set     = 0;
-    uint   binding = 0;
-    String name;
-    Type   type  = Type::UNKNOWN;
-    uint   count = 0U;
+    uint32_t set     = 0;
+    uint32_t binding = 0;
+    String   name;
+    Type     type  = Type::UNKNOWN;
+    uint32_t count = 0U;
 
     vector<GLint> units;
     GLenum        glType = 0;
@@ -215,11 +214,11 @@ using GLES3GPUUniformSamplerTextureList = vector<GLES3GPUUniformSamplerTexture>;
 
 class GLES3GPUUniformStorageImage final : public Object {
 public:
-    uint   set     = 0;
-    uint   binding = 0;
-    String name;
-    Type   type  = Type::UNKNOWN;
-    uint   count = 0U;
+    uint32_t set     = 0;
+    uint32_t binding = 0;
+    String   name;
+    Type     type  = Type::UNKNOWN;
+    uint32_t count = 0U;
 
     vector<int> units;
     GLenum      glMemoryAccess = GL_READ_WRITE;
@@ -260,16 +259,16 @@ public:
 
 class GLES3GPUAttribute final : public Object {
 public:
-    String name;
-    GLuint glBuffer       = 0;
-    GLenum glType         = 0;
-    uint   size           = 0;
-    uint   count          = 0;
-    uint   stride         = 1;
-    uint   componentCount = 1;
-    bool   isNormalized   = false;
-    bool   isInstanced    = false;
-    uint   offset         = 0;
+    String   name;
+    GLuint   glBuffer       = 0;
+    GLenum   glType         = 0;
+    uint32_t size           = 0;
+    uint32_t count          = 0;
+    uint32_t stride         = 1;
+    uint32_t componentCount = 1;
+    bool     isNormalized   = false;
+    bool     isInstanced    = false;
+    uint32_t offset         = 0;
 };
 using GLES3GPUAttributeList = vector<GLES3GPUAttribute>;
 
@@ -292,20 +291,27 @@ public:
 
 class GLES3GPURenderPass final : public Object {
 public:
-    ColorAttachmentList           colorAttachments;
-    DepthStencilAttachment        depthStencilAttachment;
-    SubpassInfoList               subpasses;
-    vector<GLES3GPUGlobalBarrier> barriers;
+    struct AttachmentStatistics {
+        uint32_t loadSubpass{SUBPASS_EXTERNAL};
+        uint32_t storeSubpass{SUBPASS_EXTERNAL};
+    };
+
+    ColorAttachmentList    colorAttachments;
+    DepthStencilAttachment depthStencilAttachment;
+    SubpassInfoList        subpasses;
+
+    vector<AttachmentStatistics> statistics; // per attachment
+
+    vector<GLES3GPUGlobalBarrier> barriers; // per subpass
 };
 
 class GLES3GPUFramebufferCacheMap;
 class GLES3GPUFramebuffer final : public Object {
 public:
-    GLES3GPURenderPass *gpuRenderPass = nullptr;
+    GLES3GPURenderPass *gpuRenderPass{nullptr};
     GLES3GPUTextureList gpuColorTextures;
-    GLES3GPUTexture *   gpuDepthStencilTexture = nullptr;
-    bool                usesPLS                = false;
-    bool                usesFBF                = false;
+    GLES3GPUTexture *   gpuDepthStencilTexture{nullptr};
+    bool                usesFBF{false};
 
     struct GLFramebuffer {
         inline void   initialize(GLES3GPUSwapchain *sc) { swapchain = sc; }
@@ -328,21 +334,27 @@ public:
         GLFramebuffer resolveFramebuffer;
     };
 
-    // one per subpass, if not using FBF or PLS
+    // one per subpass, if not using FBF
     vector<Framebuffer> instances;
 
-    vector<uint> uberColorAttachmentIndices;
-    Framebuffer  uberInstance;
+    vector<uint32_t> uberColorAttachmentIndices;
+    uint32_t         uberDepthStencil{INVALID_BINDING};
+    Framebuffer      uberInstance;
+
+    // the assumed shader output, may differ from actual subpass output
+    // see Feature::INPUT_ATTACHMENT_BENEFIT for more details on this
+    uint32_t uberOnChipOutput{INVALID_BINDING};
+    uint32_t uberFinalOutput{INVALID_BINDING};
 };
 
 class GLES3GPUDescriptorSetLayout final : public Object {
 public:
     DescriptorSetLayoutBindingList bindings;
-    vector<uint>                   dynamicBindings;
+    vector<uint32_t>               dynamicBindings;
 
-    vector<uint> bindingIndices;
-    vector<uint> descriptorIndices;
-    uint         descriptorCount = 0U;
+    vector<uint32_t> bindingIndices;
+    vector<uint32_t> descriptorIndices;
+    uint32_t         descriptorCount = 0U;
 };
 using GLES3GPUDescriptorSetLayoutList = vector<GLES3GPUDescriptorSetLayout *>;
 
@@ -352,9 +364,9 @@ public:
 
     // helper storages
     vector<vector<int>> dynamicOffsetIndices;
-    vector<uint>        dynamicOffsetOffsets;
-    vector<uint>        dynamicOffsets;
-    uint                dynamicOffsetCount;
+    vector<uint32_t>    dynamicOffsetOffsets;
+    vector<uint32_t>    dynamicOffsets;
+    uint32_t            dynamicOffsetCount;
 };
 
 class GLES3GPUPipelineState final : public Object {
@@ -381,23 +393,23 @@ using GLES3GPUDescriptorList = vector<GLES3GPUDescriptor>;
 
 class GLES3GPUDescriptorSet final : public Object {
 public:
-    GLES3GPUDescriptorList gpuDescriptors;
-    const vector<uint> *   descriptorIndices = nullptr;
+    GLES3GPUDescriptorList  gpuDescriptors;
+    const vector<uint32_t> *descriptorIndices = nullptr;
 };
 
 class GLES3GPUDispatchInfo final : public Object {
 public:
-    uint groupCountX = 0;
-    uint groupCountY = 0;
-    uint groupCountZ = 0;
+    uint32_t groupCountX = 0;
+    uint32_t groupCountY = 0;
+    uint32_t groupCountZ = 0;
 
     GLES3GPUBuffer *indirectBuffer = nullptr;
-    uint            indirectOffset = 0;
+    uint32_t        indirectOffset = 0;
 };
 
 class GLES3ObjectCache final : public Object {
 public:
-    uint                    subpassIdx        = 0U;
+    uint32_t                subpassIdx        = 0U;
     GLES3GPURenderPass *    gpuRenderPass     = nullptr;
     GLES3GPUFramebuffer *   gpuFramebuffer    = nullptr;
     GLES3GPUPipelineState * gpuPipelineState  = nullptr;
@@ -406,41 +418,40 @@ public:
     Rect                    renderArea;
     ColorList               clearColors;
     float                   clearDepth   = 1.F;
-    uint                    clearStencil = 0U;
+    uint32_t                clearStencil = 0U;
 };
 
 class GLES3GPUStateCache final : public Object {
 public:
-    GLuint                      glArrayBuffer        = 0;
-    GLuint                      glElementArrayBuffer = 0;
-    GLuint                      glUniformBuffer      = 0;
-    vector<GLuint>              glBindUBOs;
-    vector<GLuint>              glBindUBOOffsets;
-    GLuint                      glShaderStorageBuffer = 0;
-    vector<GLuint>              glBindSSBOs;
-    vector<GLuint>              glBindSSBOOffsets;
-    GLuint                      glDispatchIndirectBuffer = 0;
-    GLuint                      glVAO                    = 0;
-    uint                        texUint                  = 0;
-    vector<GLuint>              glTextures;
-    vector<GLuint>              glImages;
-    vector<GLuint>              glSamplers;
-    GLuint                      glProgram = 0;
-    vector<bool>                glEnabledAttribLocs;
-    vector<bool>                glCurrentAttribLocs;
-    GLuint                      glReadFramebuffer = 0;
-    GLuint                      glDrawFramebuffer = 0;
-    GLuint                      glRenderbuffer    = 0;
-    Viewport                    viewport;
-    Rect                        scissor;
-    RasterizerState             rs;
-    DepthStencilState           dss;
-    BlendState                  bs;
-    bool                        isCullFaceEnabled    = true;
-    bool                        isStencilTestEnabled = false;
-    bool                        isPLSEnabled         = false;
-    unordered_map<String, uint> texUnitCacheMap;
-    GLES3ObjectCache            gfxStateCache;
+    GLuint                          glArrayBuffer        = 0;
+    GLuint                          glElementArrayBuffer = 0;
+    GLuint                          glUniformBuffer      = 0;
+    vector<GLuint>                  glBindUBOs;
+    vector<GLuint>                  glBindUBOOffsets;
+    GLuint                          glShaderStorageBuffer = 0;
+    vector<GLuint>                  glBindSSBOs;
+    vector<GLuint>                  glBindSSBOOffsets;
+    GLuint                          glDispatchIndirectBuffer = 0;
+    GLuint                          glVAO                    = 0;
+    uint32_t                        texUint                  = 0;
+    vector<GLuint>                  glTextures;
+    vector<GLuint>                  glImages;
+    vector<GLuint>                  glSamplers;
+    GLuint                          glProgram = 0;
+    vector<bool>                    glEnabledAttribLocs;
+    vector<bool>                    glCurrentAttribLocs;
+    GLuint                          glReadFramebuffer = 0;
+    GLuint                          glDrawFramebuffer = 0;
+    GLuint                          glRenderbuffer    = 0;
+    Viewport                        viewport;
+    Rect                            scissor;
+    RasterizerState                 rs;
+    DepthStencilState               dss;
+    BlendState                      bs;
+    bool                            isCullFaceEnabled    = true;
+    bool                            isStencilTestEnabled = false;
+    unordered_map<String, uint32_t> texUnitCacheMap;
+    GLES3ObjectCache                gfxStateCache;
 
     void initialize(size_t texUnits, size_t imageUnits, size_t uboBindings, size_t ssboBindings, size_t vertexAttributes) {
         glBindUBOs.resize(uboBindings, 0U);
@@ -480,7 +491,6 @@ public:
         glRenderbuffer       = 0;
         isCullFaceEnabled    = true;
         isStencilTestEnabled = false;
-        isPLSEnabled         = false;
 
         viewport = Viewport();
         scissor  = Rect();
@@ -537,10 +547,10 @@ public:
     }
 
     GLuint getFramebufferFromTexture(const GLES3GPUTexture *gpuTexture, const TextureSubresLayers &subres) {
-        bool   isTexture  = gpuTexture->glTexture;
-        GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
-        auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
-        uint   mipLevel   = isTexture ? subres.mipLevel : 0;
+        bool     isTexture  = gpuTexture->glTexture;
+        GLuint   glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
+        auto &   cacheMap   = isTexture ? _textureMap : _renderbufferMap;
+        uint32_t mipLevel   = isTexture ? subres.mipLevel : 0;
 
         if (gpuTexture->swapchain) return gpuTexture->swapchain->glFramebuffer;
         CCASSERT(gpuTexture->glTexture || gpuTexture->glRenderbuffer, "Texture already destroyed?");
@@ -555,7 +565,7 @@ public:
                 _cache->glDrawFramebuffer = glFramebuffer;
             }
 
-            const FormatInfo &info       = GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)];
+            const FormatInfo &info       = GFX_FORMAT_INFOS[static_cast<uint32_t>(gpuTexture->format)];
             GLenum            attachment = GL_COLOR_ATTACHMENT0;
             if (info.hasStencil) {
                 attachment = GL_DEPTH_STENCIL_ATTACHMENT;

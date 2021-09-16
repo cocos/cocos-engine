@@ -38,7 +38,7 @@ protected:
     void doInit(const TextureViewInfo &info) override;
     void doInit(const SwapchainTextureInfo &info) override;
     void doDestroy() override;
-    void doResize(uint width, uint height, uint size) override;
+    void doResize(uint32_t width, uint32_t height, uint32_t size) override;
 };
 
 } // namespace gfx

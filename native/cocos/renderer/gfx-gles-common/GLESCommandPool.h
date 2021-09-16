@@ -47,13 +47,6 @@ enum class FBFSupportLevel {
     NON_COHERENT_QCOM,
 };
 
-// Pixel Local Storage
-enum class PLSSupportLevel {
-    NONE,
-    LEVEL1,
-    LEVEL2,
-};
-
 enum class GLESCmdType : uint8_t {
     BEGIN_RENDER_PASS,
     END_RENDER_PASS,
@@ -70,7 +63,7 @@ enum class GLESCmdType : uint8_t {
 class GLESCmd : public Object {
 public:
     GLESCmdType type;
-    uint refCount = 0;
+    uint32_t refCount = 0;
 
     explicit GLESCmd(GLESCmdType type) : type(type) {}
     ~GLESCmd() override = default;
@@ -87,18 +80,18 @@ public:
         _frees = new T *[INITIAL_CAPACITY];
         _count = INITIAL_CAPACITY;
         _freeIdx = INITIAL_CAPACITY - 1;
-        for (uint i = 0; i < _count; ++i) {
+        for (uint32_t i = 0; i < _count; ++i) {
             _frees[i] = CC_NEW(T);
         }
     }
 
     ~CommandPool() {
-        for (uint i = 0; i < _count; ++i) {
+        for (uint32_t i = 0; i < _count; ++i) {
             CC_DELETE(_frees[i]);
         }
         delete[](_frees);
 
-        for (uint i = 0; i < _freeCmds.size(); ++i) {
+        for (uint32_t i = 0; i < _freeCmds.size(); ++i) {
             CC_DELETE(_freeCmds[i]);
         }
         _freeCmds.clear();
@@ -107,13 +100,13 @@ public:
     T *alloc() {
         if (_freeIdx < 0) {
             T **oldFrees = _frees;
-            uint size = _count * 2;
+            uint32_t size = _count * 2;
             _frees = new T *[size];
-            uint increase = size - _count;
-            for (uint i = 0; i < increase; ++i) {
+            uint32_t increase = size - _count;
+            for (uint32_t i = 0; i < increase; ++i) {
                 _frees[i] = CC_NEW(T);
             }
-            for (uint i = increase, j = 0; i < size; ++i, ++j) {
+            for (uint32_t i = increase, j = 0; i < size; ++i, ++j) {
                 _frees[i] = oldFrees[j];
             }
             delete[](oldFrees);
@@ -135,7 +128,7 @@ public:
     }
 
     void freeCmds(CachedArray<T *> &cmds) {
-        for (uint i = 0; i < cmds.size(); ++i) {
+        for (uint32_t i = 0; i < cmds.size(); ++i) {
             if (--cmds[i]->refCount == 0) {
                 _freeCmds.push(cmds[i]);
             }
@@ -144,7 +137,7 @@ public:
     }
 
     void release() {
-        for (uint i = 0; i < _freeCmds.size(); ++i) {
+        for (uint32_t i = 0; i < _freeCmds.size(); ++i) {
             T *cmd = _freeCmds[i];
             cmd->clear();
             _frees[++_freeIdx] = cmd;
@@ -154,7 +147,7 @@ public:
 
 protected:
     T **_frees = nullptr;
-    uint _count = 0;
+    uint32_t _count = 0;
     CachedArray<T *> _freeCmds;
     int _freeIdx = 0;
 };

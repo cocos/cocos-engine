@@ -29,18 +29,18 @@
 namespace cc {
 namespace gfx {
 
-CCVKGlobalBarrier::CCVKGlobalBarrier(const GlobalBarrierInfo &info) : GlobalBarrier(info) {
+CCVKGlobalBarrier::CCVKGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) : GlobalBarrier(info, hash) {
     _typedID = generateObjectID<decltype(this)>();
 
     _gpuBarrier = CC_NEW(CCVKGPUGlobalBarrier);
     _gpuBarrier->accessTypes.resize(info.prevAccesses.size() + info.nextAccesses.size());
 
-    uint index = 0U;
+    uint32_t index = 0U;
     for (AccessType type : info.prevAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint>(type)];
+        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint32_t>(type)];
     }
     for (AccessType type : info.nextAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint>(type)];
+        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint32_t>(type)];
     }
 
     _gpuBarrier->barrier.prevAccessCount = utils::toUint(info.prevAccesses.size());

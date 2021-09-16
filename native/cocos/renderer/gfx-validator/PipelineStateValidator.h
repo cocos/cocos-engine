@@ -36,9 +36,13 @@ public:
     explicit PipelineStateValidator(PipelineState *actor);
     ~PipelineStateValidator() override;
 
+    inline bool isInited() const { return _inited; }
+
 protected:
     void doInit(const PipelineStateInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

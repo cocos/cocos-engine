@@ -71,7 +71,7 @@ extern SurfaceTransform      mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR t
 extern String                mapVendorName(uint32_t vendorID);
 
 extern void         fullPipelineBarrier(VkCommandBuffer cmdBuff);
-extern VkDeviceSize roundUp(VkDeviceSize numToRound, uint multiple);
+extern VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple);
 extern bool         isLayerSupported(const char *required, const vector<VkLayerProperties> &available);
 extern bool         isExtensionSupported(const char *required, const vector<VkExtensionProperties> &available);
 

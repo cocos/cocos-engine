@@ -31,6 +31,7 @@
 #include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
+#include "../helper/Utils.h"
 #include "ForwardPipeline.h"
 #include "UIPhase.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -40,19 +41,6 @@
 
 namespace cc {
 namespace pipeline {
-namespace {
-void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
-    out->x = gamma.x * gamma.x;
-    out->y = gamma.y * gamma.y;
-    out->z = gamma.z * gamma.z;
-}
-
-void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
-    out->x = std::sqrt(linear.x);
-    out->y = std::sqrt(linear.y);
-    out->z = std::sqrt(linear.z);
-}
-} // namespace
 
 RenderStageInfo ForwardStage::initInfo = {
     "ForwardStage",
@@ -156,9 +144,9 @@ void ForwardStage::render(scene::Camera *camera) {
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
 
     // render area is not oriented
-    bool flipWH = camera->window->swapchain && static_cast<uint>(camera->window->swapchain->getSurfaceTransform()) % 2;
-    auto w      = static_cast<float>(flipWH ? camera->height : camera->width);
-    auto h      = static_cast<float>(flipWH ? camera->width : camera->height);
+    bool flipWH        = camera->window->swapchain && static_cast<uint>(camera->window->swapchain->getSurfaceTransform()) % 2;
+    auto w             = static_cast<float>(flipWH ? camera->height : camera->width);
+    auto h             = static_cast<float>(flipWH ? camera->width : camera->height);
     _renderArea.x      = static_cast<int>(camera->viewPort.x * w);
     _renderArea.y      = static_cast<int>(camera->viewPort.y * h);
     _renderArea.width  = static_cast<uint>(camera->viewPort.z * w * sharedData->shadingScale);
@@ -199,6 +187,7 @@ void ForwardStage::render(scene::Camera *camera) {
     _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
     _uiPhase->render(camera, renderPass);
+    renderProfiler(renderPass, cmdBuff, pipeline->getProfiler(), camera->window->swapchain);
 
     cmdBuff->endRenderPass();
 }

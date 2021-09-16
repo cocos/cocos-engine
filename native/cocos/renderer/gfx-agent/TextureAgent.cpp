@@ -90,7 +90,7 @@ void TextureAgent::doDestroy() {
         });
 }
 
-void TextureAgent::doResize(uint width, uint height, uint /*size*/) {
+void TextureAgent::doResize(uint32_t width, uint32_t height, uint32_t /*size*/) {
     ENQUEUE_MESSAGE_3(
         DeviceAgent::getInstance()->getMessageQueue(),
         TextureResize,

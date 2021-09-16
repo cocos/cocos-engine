@@ -55,7 +55,7 @@ void Swapchain::resize(uint32_t width, uint32_t height, SurfaceTransform transfo
     // if pre-rotation is enabled, width & height should always be measured in un-oriented space
     uint32_t newWidth  = width;
     uint32_t newHeight = height;
-    if (_preRotationEnabled && toNumber(transform) & 1) std::swap(newWidth, newHeight);
+    if (_preRotationEnabled && (toNumber(transform) & 1)) std::swap(newWidth, newHeight);
 
     if (newWidth != _colorTexture->getWidth() || newHeight != _colorTexture->getHeight() ||
         (_preRotationEnabled && transform != _transform)) {

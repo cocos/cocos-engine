@@ -36,9 +36,13 @@ public:
     explicit ShaderValidator(Shader *actor);
     ~ShaderValidator() override;
 
+    inline bool isInited() const { return _inited; }
+
 protected:
     void doInit(const ShaderInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

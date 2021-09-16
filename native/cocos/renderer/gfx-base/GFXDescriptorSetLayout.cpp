@@ -25,6 +25,7 @@
 
 #include "GFXObject.h"
 #include "base/CoreStd.h"
+#include "base/Utils.h"
 
 #include "GFXDescriptorSetLayout.h"
 
@@ -39,13 +40,13 @@ DescriptorSetLayout::~DescriptorSetLayout() = default;
 
 void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     _bindings         = info.bindings;
-    uint bindingCount = static_cast<uint>(_bindings.size());
+    auto bindingCount = utils::toUint(_bindings.size());
     _descriptorCount  = 0U;
 
     if (bindingCount) {
-        uint         maxBinding = 0U;
-        vector<uint> flattenedIndices(bindingCount);
-        for (uint i = 0U; i < bindingCount; i++) {
+        uint32_t         maxBinding = 0U;
+        vector<uint32_t> flattenedIndices(bindingCount);
+        for (uint32_t i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
             if (binding.binding > maxBinding) maxBinding = binding.binding;
             flattenedIndices[i] = _descriptorCount;
@@ -54,12 +55,12 @@ void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
 
         _bindingIndices.resize(maxBinding + 1, INVALID_BINDING);
         _descriptorIndices.resize(maxBinding + 1, INVALID_BINDING);
-        for (uint i = 0U; i < bindingCount; i++) {
+        for (uint32_t i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
             _bindingIndices[binding.binding]          = i;
             _descriptorIndices[binding.binding]       = flattenedIndices[i];
             if (hasFlag(DESCRIPTOR_DYNAMIC_TYPE, binding.descriptorType)) {
-                for (uint j = 0U; j < binding.count; ++j) {
+                for (uint32_t j = 0U; j < binding.count; ++j) {
                     _dynamicBindings.push_back(binding.binding);
                 }
             }

@@ -37,20 +37,20 @@ public:
     ~GFXObject() override = default;
 
     inline ObjectType getObjectType() const { return _objectType; }
-    inline uint       getObjectID() const { return _objectID; }
-    inline uint       getTypedID() const { return _typedID; }
+    inline uint32_t   getObjectID() const { return _objectID; }
+    inline uint32_t   getTypedID() const { return _typedID; }
 
 protected:
     template <typename T>
-    static uint generateObjectID() noexcept {
-        static uint generator = 1 << 16;
+    static uint32_t generateObjectID() noexcept {
+        static uint32_t generator = 1 << 16;
         return ++generator;
     }
 
     ObjectType _objectType = ObjectType::UNKNOWN;
-    uint       _objectID   = 0U;
+    uint32_t   _objectID   = 0U;
 
-    uint _typedID = 0U; // inited by sub-classes
+    uint32_t _typedID = 0U; // inited by sub-classes
 };
 
 } // namespace gfx

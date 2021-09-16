@@ -32,11 +32,10 @@
 #include "gfx-empty/EmptyDevice.h"
 #include "gfx-validator/DeviceValidator.h"
 
-//#undef CC_USE_VULKAN
+#undef CC_USE_VULKAN
 //#undef CC_USE_METAL
 //#undef CC_USE_GLES3
 //#undef CC_USE_GLES2
-
 
 #ifdef CC_USE_VULKAN
     #include "gfx-vulkan/GFXVulkan.h"
@@ -58,7 +57,7 @@ namespace cc {
 namespace gfx {
 
 class CC_DLL DeviceManager final {
-    static constexpr bool DETACH_DEVICE_THREAD{true};
+    static constexpr bool DETACH_DEVICE_THREAD{0};
     static constexpr bool FORCE_DISABLE_VALIDATION{false};
     static constexpr bool FORCE_ENABLE_VALIDATION{false};
 

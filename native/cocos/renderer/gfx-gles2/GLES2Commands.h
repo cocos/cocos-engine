@@ -47,8 +47,8 @@ public:
     Rect                 renderArea;
     Color                clearColors[MAX_ATTACHMENTS];
     float                clearDepth   = 1.0F;
-    uint                 clearStencil = 0;
-    uint                 subpassIdx   = 0U;
+    uint32_t             clearStencil = 0;
+    uint32_t             subpassIdx   = 0U;
 
     GLES2CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
@@ -63,7 +63,7 @@ public:
     GLES2GPUPipelineState *         gpuPipelineState  = nullptr;
     GLES2GPUInputAssembler *        gpuInputAssembler = nullptr;
     vector<GLES2GPUDescriptorSet *> gpuDescriptorSets;
-    vector<uint>                    dynamicOffsets;
+    vector<uint32_t>                dynamicOffsets;
     DynamicStates                   dynamicStates;
 
     GLES2CmdBindStates() : GLESCmd(GLESCmdType::BIND_STATES) {}
@@ -88,8 +88,8 @@ class GLES2CmdUpdateBuffer final : public GLESCmd {
 public:
     GLES2GPUBuffer *gpuBuffer = nullptr;
     const uint8_t * buffer    = nullptr;
-    uint            size      = 0;
-    uint            offset    = 0;
+    uint32_t        size      = 0;
+    uint32_t        offset    = 0;
 
     GLES2CmdUpdateBuffer() : GLESCmd(GLESCmdType::UPDATE_BUFFER) {}
 
@@ -103,7 +103,7 @@ class GLES2CmdCopyBufferToTexture final : public GLESCmd {
 public:
     GLES2GPUTexture *        gpuTexture = nullptr;
     const BufferTextureCopy *regions    = nullptr;
-    uint                     count      = 0U;
+    uint32_t                 count      = 0U;
     const uint8_t *const *   buffers;
 
     GLES2CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
@@ -121,7 +121,7 @@ public:
     GLES2GPUTexture *  gpuTextureSrc = nullptr;
     GLES2GPUTexture *  gpuTextureDst = nullptr;
     const TextureBlit *regions       = nullptr;
-    uint               count         = 0U;
+    uint32_t           count         = 0U;
     Filter             filter        = Filter::POINT;
 
     GLES2CmdBlitTexture() : GLESCmd(GLESCmdType::BLIT_TEXTURE) {}
@@ -197,18 +197,20 @@ CC_GLES2_API void cmdFuncGLES2CreateSampler(GLES2Device *device, GLES2GPUSampler
 CC_GLES2_API void cmdFuncGLES2DestroySampler(GLES2Device *device, GLES2GPUSampler *gpuSampler);
 CC_GLES2_API void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader);
 CC_GLES2_API void cmdFuncGLES2DestroyShader(GLES2Device *device, GLES2GPUShader *gpuShader);
+CC_GLES2_API void cmdFuncGLES2CreateRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRenderPass);
+CC_GLES2_API void cmdFuncGLES2DestroyRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRenderPass);
 CC_GLES2_API void cmdFuncGLES2CreateInputAssembler(GLES2Device *device, GLES2GPUInputAssembler *gpuInputAssembler);
 CC_GLES2_API void cmdFuncGLES2DestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembler *gpuInputAssembler);
 CC_GLES2_API void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
 CC_GLES2_API void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
 
-CC_GLES2_API void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint subpassIdx,
+CC_GLES2_API void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx,
                                               GLES2GPURenderPass * gpuRenderPass  = nullptr,
                                               GLES2GPUFramebuffer *gpuFramebuffer = nullptr,
                                               const Rect *         renderArea     = nullptr,
                                               const Color *        clearColors    = nullptr,
                                               float                clearDepth     = 1.F,
-                                              uint                 clearStencil   = 0);
+                                              uint32_t             clearStencil   = 0);
 
 CC_GLES2_API void cmdFuncGLES2EndRenderPass(GLES2Device *device);
 
@@ -216,7 +218,7 @@ CC_GLES2_API void cmdFuncGLES2BindState(GLES2Device *                       devi
                                         GLES2GPUPipelineState *             gpuPipelineState,
                                         GLES2GPUInputAssembler *            gpuInputAssembler,
                                         const GLES2GPUDescriptorSet *const *gpuDescriptorSets,
-                                        const uint *                        dynamicOffsets = nullptr,
+                                        const uint32_t *                    dynamicOffsets = nullptr,
                                         const DynamicStates *               dynamicStates  = nullptr);
 
 CC_GLES2_API void cmdFuncGLES2Draw(GLES2Device *device, const DrawInfo &drawInfo);
@@ -224,26 +226,26 @@ CC_GLES2_API void cmdFuncGLES2Draw(GLES2Device *device, const DrawInfo &drawInfo
 CC_GLES2_API void cmdFuncGLES2UpdateBuffer(GLES2Device *   device,
                                            GLES2GPUBuffer *gpuBuffer,
                                            const void *    buffer,
-                                           uint            offset,
-                                           uint            size);
+                                           uint32_t        offset,
+                                           uint32_t        size);
 
 CC_GLES2_API void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *            device,
                                                    const uint8_t *const *   buffers,
                                                    GLES2GPUTexture *        gpuTexture,
                                                    const BufferTextureCopy *regions,
-                                                   uint                     count);
+                                                   uint32_t                 count);
 
 CC_GLES2_API void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *            device,
                                                    GLES2GPUTexture *        gpuTexture,
                                                    uint8_t *const *         buffers,
                                                    const BufferTextureCopy *regions,
-                                                   uint                     count);
+                                                   uint32_t                 count);
 
 CC_GLES2_API void cmdFuncGLES2BlitTexture(GLES2Device *      device,
                                           GLES2GPUTexture *  gpuTextureSrc,
                                           GLES2GPUTexture *  gpuTextureDst,
                                           const TextureBlit *regions,
-                                          uint               count,
+                                          uint32_t           count,
                                           Filter             filter);
 
 CC_GLES2_API void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage);

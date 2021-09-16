@@ -41,44 +41,44 @@ public:
     void initialize(const CommandBufferInfo &info);
     void destroy();
 
-    virtual void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer)                                                                                                                        = 0;
-    virtual void end()                                                                                                                                                                                        = 0;
-    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) = 0;
-    virtual void endRenderPass()                                                                                                                                                                              = 0;
-    virtual void bindPipelineState(PipelineState *pso)                                                                                                                                                        = 0;
-    virtual void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets)                                                                               = 0;
-    virtual void bindInputAssembler(InputAssembler *ia)                                                                                                                                                       = 0;
-    virtual void setViewport(const Viewport &vp)                                                                                                                                                              = 0;
-    virtual void setScissor(const Rect &rect)                                                                                                                                                                 = 0;
-    virtual void setLineWidth(float width)                                                                                                                                                                    = 0;
-    virtual void setDepthBias(float constant, float clamp, float slope)                                                                                                                                       = 0;
-    virtual void setBlendConstants(const Color &constants)                                                                                                                                                    = 0;
-    virtual void setDepthBound(float minBounds, float maxBounds)                                                                                                                                              = 0;
-    virtual void setStencilWriteMask(StencilFace face, uint mask)                                                                                                                                             = 0;
-    virtual void setStencilCompareMask(StencilFace face, uint ref, uint mask)                                                                                                                                 = 0;
-    virtual void nextSubpass()                                                                                                                                                                                = 0;
-    virtual void draw(const DrawInfo &info)                                                                                                                                                                   = 0;
-    virtual void updateBuffer(Buffer *buff, const void *data, uint size)                                                                                                                                      = 0;
-    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count)                                                                          = 0;
-    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter)                                                                                 = 0;
-    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count)                                                                                                                                      = 0;
-    virtual void dispatch(const DispatchInfo &info)                                                                                                                                                           = 0;
-    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount)                                        = 0;
+    virtual void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer)                                                                                                                            = 0;
+    virtual void end()                                                                                                                                                                                                = 0;
+    virtual void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) = 0;
+    virtual void endRenderPass()                                                                                                                                                                                      = 0;
+    virtual void bindPipelineState(PipelineState *pso)                                                                                                                                                                = 0;
+    virtual void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets)                                                                           = 0;
+    virtual void bindInputAssembler(InputAssembler *ia)                                                                                                                                                               = 0;
+    virtual void setViewport(const Viewport &vp)                                                                                                                                                                      = 0;
+    virtual void setScissor(const Rect &rect)                                                                                                                                                                         = 0;
+    virtual void setLineWidth(float width)                                                                                                                                                                            = 0;
+    virtual void setDepthBias(float constant, float clamp, float slope)                                                                                                                                               = 0;
+    virtual void setBlendConstants(const Color &constants)                                                                                                                                                            = 0;
+    virtual void setDepthBound(float minBounds, float maxBounds)                                                                                                                                                      = 0;
+    virtual void setStencilWriteMask(StencilFace face, uint32_t mask)                                                                                                                                                 = 0;
+    virtual void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask)                                                                                                                                 = 0;
+    virtual void nextSubpass()                                                                                                                                                                                        = 0;
+    virtual void draw(const DrawInfo &info)                                                                                                                                                                           = 0;
+    virtual void updateBuffer(Buffer *buff, const void *data, uint32_t size)                                                                                                                                          = 0;
+    virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count)                                                                              = 0;
+    virtual void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter)                                                                                     = 0;
+    virtual void execute(CommandBuffer *const *cmdBuffs, uint32_t count)                                                                                                                                              = 0;
+    virtual void dispatch(const DispatchInfo &info)                                                                                                                                                                   = 0;
+    virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
 
     inline void begin();
     inline void begin(RenderPass *renderPass);
-    inline void begin(RenderPass *renderPass, uint subpass);
+    inline void begin(RenderPass *renderPass, uint32_t subpass);
 
     inline void updateBuffer(Buffer *buff, const void *data);
 
     inline void execute(const CommandBufferList &cmdBuffs, uint32_t count);
 
-    inline void bindDescriptorSet(uint set, DescriptorSet *descriptorSet);
-    inline void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets);
+    inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet);
+    inline void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const vector<uint32_t> &dynamicOffsets);
 
-    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil, const CommandBufferList &secondaryCBs);
-    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil);
-    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil);
+    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil, const CommandBufferList &secondaryCBs);
+    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil);
+    inline void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil);
 
     inline void draw(InputAssembler *ia);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *texture, const BufferTextureCopyList &regions);
@@ -91,9 +91,9 @@ public:
     inline Queue *           getQueue() const { return _queue; }
     inline CommandBufferType getType() const { return _type; }
 
-    virtual uint getNumDrawCalls() const { return _numDrawCalls; }
-    virtual uint getNumInstances() const { return _numInstances; }
-    virtual uint getNumTris() const { return _numTriangles; }
+    virtual uint32_t getNumDrawCalls() const { return _numDrawCalls; }
+    virtual uint32_t getNumInstances() const { return _numInstances; }
+    virtual uint32_t getNumTris() const { return _numTriangles; }
 
 protected:
     virtual void doInit(const CommandBufferInfo &info) = 0;
@@ -117,7 +117,7 @@ void CommandBuffer::begin(RenderPass *renderPass) {
     begin(renderPass, 0, nullptr);
 }
 
-void CommandBuffer::begin(RenderPass *renderPass, uint subpass) {
+void CommandBuffer::begin(RenderPass *renderPass, uint32_t subpass) {
     begin(renderPass, subpass, nullptr);
 }
 
@@ -129,23 +129,23 @@ void CommandBuffer::execute(const CommandBufferList &cmdBuffs, uint32_t count) {
     execute(cmdBuffs.data(), count);
 }
 
-void CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet) {
+void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet) {
     bindDescriptorSet(set, descriptorSet, 0, nullptr);
 }
 
-void CommandBuffer::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, const vector<uint> &dynamicOffsets) {
+void CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, const vector<uint32_t> &dynamicOffsets) {
     bindDescriptorSet(set, descriptorSet, utils::toUint(dynamicOffsets.size()), dynamicOffsets.data());
 }
 
-void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil, const CommandBufferList &secondaryCBs) {
+void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil, const CommandBufferList &secondaryCBs) {
     beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, secondaryCBs.data(), utils::toUint(secondaryCBs.size()));
 }
 
-void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint stencil) {
+void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const ColorList &colors, float depth, uint32_t stencil) {
     beginRenderPass(renderPass, fbo, renderArea, colors.data(), depth, stencil, nullptr, 0);
 }
 
-void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil) {
+void CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil) {
     beginRenderPass(renderPass, fbo, renderArea, colors, depth, stencil, nullptr, 0);
 }
 

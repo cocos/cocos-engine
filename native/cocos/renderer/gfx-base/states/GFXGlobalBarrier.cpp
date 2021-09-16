@@ -26,23 +26,25 @@
 #include "base/CoreStd.h"
 
 #include "GFXGlobalBarrier.h"
+#include "base/Utils.h"
 
 namespace cc {
 namespace gfx {
 
-GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info)
+GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash)
 : GFXObject(ObjectType::GLOBAL_BARRIER) {
     _info = info;
+    _hash = hash;
 }
 
-uint GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
-    uint seed = static_cast<uint>(info.prevAccesses.size() + info.nextAccesses.size());
+uint32_t GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
+    auto seed = utils::toUint(info.prevAccesses.size() + info.nextAccesses.size());
 
     for (const AccessType type : info.prevAccesses) {
-        seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
     for (const AccessType type : info.nextAccesses) {
-        seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
     return seed;

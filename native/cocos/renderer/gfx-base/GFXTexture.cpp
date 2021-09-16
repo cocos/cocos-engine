@@ -37,13 +37,13 @@ Texture::Texture()
 
 Texture::~Texture() = default;
 
-uint Texture::computeHash(const TextureInfo &info) {
-    uint seed = 10;
-    seed ^= static_cast<uint>(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.samples) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+uint32_t Texture::computeHash(const TextureInfo &info) {
+    uint32_t seed = 10;
+    seed ^= toNumber(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.samples) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= (info.width) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= (info.height) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= (info.depth) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -52,11 +52,11 @@ uint Texture::computeHash(const TextureInfo &info) {
     return seed;
 }
 
-uint Texture::computeHash(const TextureViewInfo &info) {
-    uint seed = 7;
-    seed ^= static_cast<uint>(info.texture->getHash()) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+uint32_t Texture::computeHash(const TextureViewInfo &info) {
+    uint32_t seed = 7;
+    seed ^= info.texture->getHash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= (info.baseLevel) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= (info.levelCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= (info.baseLayer) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -64,8 +64,8 @@ uint Texture::computeHash(const TextureViewInfo &info) {
     return seed;
 }
 
-uint Texture::computeHash(const Texture *texture) {
-    uint hash = texture->isTextureView() ? computeHash(texture->getViewInfo()) : computeHash(texture->getInfo());
+uint32_t Texture::computeHash(const Texture *texture) {
+    uint32_t hash = texture->isTextureView() ? computeHash(texture->getViewInfo()) : computeHash(texture->getInfo());
     if (texture->_swapchain) hash ^= (texture->_swapchain->getObjectID()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
     return hash;
 }
@@ -97,9 +97,9 @@ void Texture::initialize(const TextureViewInfo &info) {
     doInit(info);
 }
 
-void Texture::resize(uint width, uint height) {
+void Texture::resize(uint32_t width, uint32_t height) {
     if (_info.width != width || _info.height != height) {
-        uint size = formatSize(_info.format, width, height, _info.depth);
+        uint32_t size = formatSize(_info.format, width, height, _info.depth);
         doResize(width, height, size);
 
         _info.width  = width;
@@ -119,7 +119,7 @@ void Texture::destroy() {
     _size = _hash = 0;
 }
 
-///////////////////////////// Swapchian Specific /////////////////////////////
+///////////////////////////// Swapchain Specific /////////////////////////////
 
 void Texture::initialize(const SwapchainTextureInfo &info, Texture *out) {
     out->_info.type       = TextureType::TEX2D;

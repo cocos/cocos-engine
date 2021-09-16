@@ -42,24 +42,8 @@
 
 namespace cc {
 namespace pipeline {
-namespace {
-const String STAGE_NAME = "GbufferStage";
-
-void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
-    out->x = gamma.x * gamma.x;
-    out->y = gamma.y * gamma.y;
-    out->z = gamma.z * gamma.z;
-}
-
-void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
-    out->x = std::sqrt(linear.x);
-    out->y = std::sqrt(linear.y);
-    out->z = std::sqrt(linear.z);
-}
-} // namespace
-
 RenderStageInfo GbufferStage::initInfo = {
-    STAGE_NAME,
+    "GbufferStage",
     static_cast<uint>(DeferredStagePriority::GBUFFER),
     static_cast<uint>(RenderFlowTag::SCENE),
     {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},

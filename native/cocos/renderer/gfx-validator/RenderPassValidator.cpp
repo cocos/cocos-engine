@@ -44,6 +44,9 @@ RenderPassValidator::~RenderPassValidator() {
 }
 
 void RenderPassValidator::doInit(const RenderPassInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
     bool hasDepth = info.depthStencilAttachment.format != Format::UNKNOWN;
     if (!hasDepth) {
         for (const auto &subpass : info.subpasses) {
@@ -52,10 +55,17 @@ void RenderPassValidator::doInit(const RenderPassInfo &info) {
         }
     }
 
+    /////////// execute ///////////
+
     _actor->initialize(info);
 }
 
 void RenderPassValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 

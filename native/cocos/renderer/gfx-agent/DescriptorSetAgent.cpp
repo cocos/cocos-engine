@@ -89,7 +89,7 @@ void DescriptorSetAgent::update() {
         });
 }
 
-void DescriptorSetAgent::bindBuffer(uint binding, Buffer *buffer, uint index) {
+void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
     DescriptorSet::bindBuffer(binding, buffer, index);
 
     ENQUEUE_MESSAGE_4(
@@ -104,7 +104,7 @@ void DescriptorSetAgent::bindBuffer(uint binding, Buffer *buffer, uint index) {
         });
 }
 
-void DescriptorSetAgent::bindTexture(uint binding, Texture *texture, uint index) {
+void DescriptorSetAgent::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {
     DescriptorSet::bindTexture(binding, texture, index);
 
     ENQUEUE_MESSAGE_4(
@@ -119,7 +119,7 @@ void DescriptorSetAgent::bindTexture(uint binding, Texture *texture, uint index)
         });
 }
 
-void DescriptorSetAgent::bindSampler(uint binding, Sampler *sampler, uint index) {
+void DescriptorSetAgent::bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) {
     DescriptorSet::bindSampler(binding, sampler, index);
 
     ENQUEUE_MESSAGE_4(

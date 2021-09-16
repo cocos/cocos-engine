@@ -26,6 +26,7 @@
 #include "GLES2Std.h"
 
 #include "GLES2Commands.h"
+#include "GLES2Device.h"
 #include "GLES2RenderPass.h"
 
 namespace cc {
@@ -49,17 +50,31 @@ void GLES2RenderPass::doInit(const RenderPassInfo & /*info*/) {
     if (_gpuRenderPass->subpasses.empty()) {
         auto &subpass = _gpuRenderPass->subpasses.emplace_back();
         subpass.colors.resize(_colorAttachments.size());
-        for (uint i = 0U; i < _colorAttachments.size(); ++i) {
+        for (uint32_t i = 0U; i < _colorAttachments.size(); ++i) {
             subpass.colors[i] = i;
         }
         if (_depthStencilAttachment.format != Format::UNKNOWN) {
             subpass.depthStencil = _colorAttachments.size();
         }
+    } else {
+        // unify depth stencil index
+        uint32_t colorCount = _gpuRenderPass->colorAttachments.size();
+        for (auto &subpass : _gpuRenderPass->subpasses) {
+            if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil > colorCount) {
+                subpass.depthStencil = colorCount;
+            }
+            if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencilResolve > colorCount) {
+                subpass.depthStencilResolve = colorCount;
+            }
+        }
     }
+
+    cmdFuncGLES2CreateRenderPass(GLES2Device::getInstance(), _gpuRenderPass);
 }
 
 void GLES2RenderPass::doDestroy() {
     if (_gpuRenderPass) {
+        cmdFuncGLES2CreateRenderPass(GLES2Device::getInstance(), _gpuRenderPass);
         CC_DELETE(_gpuRenderPass);
         _gpuRenderPass = nullptr;
     }

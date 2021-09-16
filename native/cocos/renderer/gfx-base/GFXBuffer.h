@@ -35,37 +35,37 @@ public:
     Buffer();
     ~Buffer() override;
 
-    static uint computeHash(const BufferInfo &info);
+    static uint32_t computeHash(const BufferInfo &info);
 
     void initialize(const BufferInfo &info);
     void initialize(const BufferViewInfo &info);
-    void resize(uint size);
+    void resize(uint32_t size);
     void destroy();
 
-    virtual void update(const void *buffer, uint size) = 0;
+    virtual void update(const void *buffer, uint32_t size) = 0;
 
     inline void update(const void *buffer) { update(buffer, _size); }
 
     inline BufferUsage getUsage() const { return _usage; }
     inline MemoryUsage getMemUsage() const { return _memUsage; }
-    inline uint        getStride() const { return _stride; }
-    inline uint        getCount() const { return _count; }
-    inline uint        getSize() const { return _size; }
+    inline uint32_t    getStride() const { return _stride; }
+    inline uint32_t    getCount() const { return _count; }
+    inline uint32_t    getSize() const { return _size; }
     inline BufferFlags getFlags() const { return _flags; }
     inline bool        isBufferView() const { return _isBufferView; }
 
 protected:
-    virtual void doInit(const BufferInfo &info)     = 0;
-    virtual void doInit(const BufferViewInfo &info) = 0;
-    virtual void doResize(uint size, uint count)    = 0;
-    virtual void doDestroy()                        = 0;
+    virtual void doInit(const BufferInfo &info)          = 0;
+    virtual void doInit(const BufferViewInfo &info)      = 0;
+    virtual void doResize(uint32_t size, uint32_t count) = 0;
+    virtual void doDestroy()                             = 0;
 
     BufferUsage _usage        = BufferUsageBit::NONE;
     MemoryUsage _memUsage     = MemoryUsageBit::NONE;
-    uint        _stride       = 0U;
-    uint        _count        = 0U;
-    uint        _size         = 0U;
-    uint        _offset       = 0U;
+    uint32_t    _stride       = 0U;
+    uint32_t    _count        = 0U;
+    uint32_t    _size         = 0U;
+    uint32_t    _offset       = 0U;
     BufferFlags _flags        = BufferFlagBit::NONE;
     bool        _isBufferView = false;
 };

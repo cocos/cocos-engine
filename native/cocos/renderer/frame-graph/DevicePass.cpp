@@ -30,6 +30,7 @@
 #include "FrameGraph.h"
 #include "PassNode.h"
 #include "ResourceNode.h"
+#include "base/Utils.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
@@ -68,8 +69,10 @@ void DevicePass::execute() {
 
     begin(cmdBuff);
 
-    for (size_t i = 0; i < _subpasses.size(); ++i) {
-        Subpass &subpass = _subpasses[i];
+    for (uint32_t i = 0; i < utils::toUint(_subpasses.size()); ++i) {
+        Subpass &subpass             = _subpasses[i];
+        _resourceTable._subpassIndex = i;
+
         for (LogicPass &pass : subpass.logicPasses) {
             gfx::Viewport &viewport = pass.customViewport ? pass.viewport : _viewport;
             gfx::Rect &    scissor  = pass.customViewport ? pass.scissor : _scissor;
@@ -112,7 +115,7 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::
                 return attachment.textureHandle == handle;
             });
             if (it != attachments->end()) {
-                uint input = utils::toUint(it - attachments->begin());
+                uint32_t input = utils::toUint(it - attachments->begin());
                 if (std::find(subpass.desc.inputs.begin(), subpass.desc.inputs.end(), input) == subpass.desc.inputs.end()) {
                     subpass.desc.inputs.push_back(input);
                 }
@@ -175,7 +178,7 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     gfx::RenderPassInfo            rpInfo;
     gfx::FramebufferInfo           fboInfo;
     float                          clearDepth   = 1.F;
-    uint                           clearStencil = 0;
+    uint32_t                       clearStencil = 0;
     static std::vector<gfx::Color> clearColors;
     clearColors.clear();
     _viewport = gfx::Viewport();

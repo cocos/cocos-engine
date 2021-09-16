@@ -106,40 +106,41 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
         _gpuStagingBufferPools[i] = CC_NEW(CCMTLGPUStagingBufferPool(mtlDevice));
     }
 
-    _features[static_cast<uint>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
-    _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
-    _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
-    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[toNumber(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
+    _features[toNumber(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
+    _features[toNumber(Feature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[toNumber(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
 
     String compressedFormats;
     if (mu::isPVRTCSuppported(gpuFamily)) {
-        _features[static_cast<uint>(Feature::FORMAT_PVRTC)] = true;
+        _features[toNumber(Feature::FORMAT_PVRTC)] = true;
         compressedFormats += "pvrtc ";
     }
     if (mu::isEAC_ETCCSuppported(gpuFamily)) {
-        _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
+        _features[toNumber(Feature::FORMAT_ETC2)] = true;
         compressedFormats += "etc2 ";
     }
     if (mu::isASTCSuppported(gpuFamily)) {
-        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
+        _features[toNumber(Feature::FORMAT_ASTC)] = true;
         compressedFormats += "astc ";
     }
     if (mu::isBCSupported(gpuFamily)) {
-        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
+        _features[toNumber(Feature::FORMAT_ASTC)] = true;
         compressedFormats += "dxt ";
     }
 
-    _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
-    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_SRGB)] = true;
-    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = true;
-    _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
-    _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
-    _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
-    _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
+    _features[toNumber(Feature::TEXTURE_FLOAT)] = true;
+    _features[toNumber(Feature::TEXTURE_HALF_FLOAT)] = true;
+    _features[toNumber(Feature::FORMAT_R11G11B10F)] = true;
+    _features[toNumber(Feature::FORMAT_SRGB)] = true;
+    _features[toNumber(Feature::INSTANCED_ARRAYS)] = true;
+    _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+    _features[toNumber(Feature::BLEND_MINMAX)] = true;
+    _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
+    _features[toNumber(Feature::COMPUTE_SHADER)] = true;
+    _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
 
-    _features[static_cast<uint>(Feature::FORMAT_RGB8)] = false;
+    _features[toNumber(Feature::FORMAT_RGB8)] = false;
 
 //    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
@@ -298,16 +299,16 @@ PipelineState *CCMTLDevice::createPipelineState() {
     return CC_NEW(CCMTLPipelineState);
 }
 
-GlobalBarrier *CCMTLDevice::createGlobalBarrier(const GlobalBarrierInfo& info) {
-    return new GlobalBarrier(info);
+GlobalBarrier *CCMTLDevice::createGlobalBarrier(const GlobalBarrierInfo& info, uint32_t hash) {
+    return new GlobalBarrier(info, hash);
 }
 
-TextureBarrier *CCMTLDevice::createTextureBarrier(const TextureBarrierInfo& info) {
-    return new TextureBarrier(info);
+TextureBarrier *CCMTLDevice::createTextureBarrier(const TextureBarrierInfo& info, uint32_t hash) {
+    return new TextureBarrier(info, hash);
 }
 
-Sampler *CCMTLDevice::createSampler(const SamplerInfo &info) {
-    return new CCMTLSampler(info);
+Sampler *CCMTLDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
+    return new CCMTLSampler(info, hash);
 }
 
 Swapchain *CCMTLDevice::createSwapchain() {

@@ -103,9 +103,9 @@ class GLES2GPUBuffer final : public Object {
 public:
     BufferUsage  usage    = BufferUsage::NONE;
     MemoryUsage  memUsage = MemoryUsage::NONE;
-    uint         size     = 0;
-    uint         stride   = 0;
-    uint         count    = 0;
+    uint32_t     size     = 0;
+    uint32_t     stride   = 0;
+    uint32_t     count    = 0;
     GLenum       glTarget = 0;
     GLuint       glBuffer = 0;
     uint8_t *    buffer   = nullptr;
@@ -116,8 +116,8 @@ using GLES2GPUBufferList = vector<GLES2GPUBuffer *>;
 class GLES2GPUBufferView final : public Object {
 public:
     GLES2GPUBuffer *gpuBuffer = nullptr;
-    uint            offset    = 0U;
-    uint            range     = 0U;
+    uint32_t        offset    = 0U;
+    uint32_t        range     = 0U;
 };
 
 class GLES2GPUTexture final : public Object {
@@ -125,12 +125,12 @@ public:
     TextureType        type{TextureType::TEX2D};
     Format             format{Format::UNKNOWN};
     TextureUsage       usage{TextureUsageBit::NONE};
-    uint               width{0};
-    uint               height{0};
-    uint               depth{1};
-    uint               size{0};
-    uint               arrayLayer{1};
-    uint               mipLevel{1};
+    uint32_t           width{0};
+    uint32_t           height{0};
+    uint32_t           depth{1};
+    uint32_t           size{0};
+    uint32_t           arrayLayer{1};
+    uint32_t           mipLevel{1};
     SampleCount        samples{SampleCount::ONE};
     TextureFlags       flags{TextureFlagBit::NONE};
     bool               isPowerOf2{false};
@@ -168,25 +168,25 @@ public:
 };
 
 struct GLES2GPUInput final {
-    uint   binding = 0;
-    String name;
-    Type   type   = Type::UNKNOWN;
-    uint   stride = 0;
-    uint   count  = 0;
-    uint   size   = 0;
-    GLenum glType = 0;
-    GLint  glLoc  = -1;
+    uint32_t binding = 0;
+    String   name;
+    Type     type   = Type::UNKNOWN;
+    uint32_t stride = 0;
+    uint32_t count  = 0;
+    uint32_t size   = 0;
+    GLenum   glType = 0;
+    GLint    glLoc  = -1;
 };
 using GLES2GPUInputList = vector<GLES2GPUInput>;
 
 struct GLES2GPUUniform final {
-    uint            binding = INVALID_BINDING;
+    uint32_t        binding = INVALID_BINDING;
     String          name;
     Type            type   = Type::UNKNOWN;
-    uint            stride = 0;
-    uint            count  = 0;
-    uint            size   = 0;
-    uint            offset = 0;
+    uint32_t        stride = 0;
+    uint32_t        count  = 0;
+    uint32_t        size   = 0;
+    uint32_t        offset = 0;
     GLenum          glType = 0;
     GLint           glLoc  = -1;
     vector<uint8_t> buff;
@@ -194,23 +194,23 @@ struct GLES2GPUUniform final {
 using GLES2GPUUniformList = vector<GLES2GPUUniform>;
 
 struct GLES2GPUUniformBlock final {
-    uint                set     = 0;
-    uint                binding = 0;
-    uint                idx     = 0;
+    uint32_t            set     = 0;
+    uint32_t            binding = 0;
+    uint32_t            idx     = 0;
     String              name;
-    uint                size = 0;
+    uint32_t            size = 0;
     GLES2GPUUniformList glUniforms;
     GLES2GPUUniformList glActiveUniforms;
-    vector<uint>        activeUniformIndices;
+    vector<uint32_t>    activeUniformIndices;
 };
 using GLES2GPUUniformBlockList = vector<GLES2GPUUniformBlock>;
 
 struct GLES2GPUUniformSamplerTexture final {
-    uint   set     = 0;
-    uint   binding = 0;
-    String name;
-    Type   type  = Type::UNKNOWN;
-    uint   count = 0U;
+    uint32_t set     = 0;
+    uint32_t binding = 0;
+    String   name;
+    Type     type  = Type::UNKNOWN;
+    uint32_t count = 0U;
 
     vector<GLint> units;
     GLenum        glType = 0;
@@ -239,16 +239,16 @@ public:
 };
 
 struct GLES2GPUAttribute final {
-    String name;
-    GLuint glBuffer       = 0;
-    GLenum glType         = 0;
-    uint   size           = 0;
-    uint   count          = 0;
-    uint   stride         = 1;
-    uint   componentCount = 1;
-    bool   isNormalized   = false;
-    bool   isInstanced    = false;
-    uint   offset         = 0;
+    String   name;
+    GLuint   glBuffer       = 0;
+    GLenum   glType         = 0;
+    uint32_t size           = 0;
+    uint32_t count          = 0;
+    uint32_t stride         = 1;
+    uint32_t componentCount = 1;
+    bool     isNormalized   = false;
+    bool     isInstanced    = false;
+    uint32_t offset         = 0;
 };
 using GLES2GPUAttributeList = vector<GLES2GPUAttribute>;
 
@@ -265,19 +265,25 @@ public:
 
 class GLES2GPURenderPass final : public Object {
 public:
+    struct AttachmentStatistics {
+        uint32_t loadSubpass{SUBPASS_EXTERNAL};
+        uint32_t storeSubpass{SUBPASS_EXTERNAL};
+    };
+
     ColorAttachmentList    colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList        subpasses;
+
+    vector<AttachmentStatistics> statistics; // per attachment
 };
 
 class GLES2GPUFramebufferCacheMap;
 class GLES2GPUFramebuffer final : public Object {
 public:
-    GLES2GPURenderPass *gpuRenderPass = nullptr;
+    GLES2GPURenderPass *gpuRenderPass{nullptr};
     GLES2GPUTextureList gpuColorTextures;
-    GLES2GPUTexture *   gpuDepthStencilTexture = nullptr;
-
-    bool usesFBF = false;
+    GLES2GPUTexture *   gpuDepthStencilTexture{nullptr};
+    bool                usesFBF{false};
 
     struct GLFramebuffer {
         inline void   initialize(GLES2GPUSwapchain *sc) { swapchain = sc; }
@@ -303,18 +309,24 @@ public:
     // one per subpass, if not using FBF
     vector<Framebuffer> instances;
 
-    vector<uint> uberColorAttachmentIndices;
-    Framebuffer  uberInstance;
+    vector<uint32_t> uberColorAttachmentIndices;
+    uint32_t         uberDepthStencil{INVALID_BINDING};
+    Framebuffer      uberInstance;
+
+    // the assumed shader output, may differ from actual subpass output
+    // see Feature::INPUT_ATTACHMENT_BENEFIT for more
+    uint32_t uberOnChipOutput{INVALID_BINDING};
+    uint32_t uberFinalOutput{INVALID_BINDING};
 };
 
 class GLES2GPUDescriptorSetLayout final : public Object {
 public:
     DescriptorSetLayoutBindingList bindings;
-    vector<uint>                   dynamicBindings;
+    vector<uint32_t>               dynamicBindings;
 
-    vector<uint> bindingIndices;
-    vector<uint> descriptorIndices;
-    uint         descriptorCount = 0U;
+    vector<uint32_t> bindingIndices;
+    vector<uint32_t> descriptorIndices;
+    uint32_t         descriptorCount = 0U;
 };
 using GLES2GPUDescriptorSetLayoutList = vector<GLES2GPUDescriptorSetLayout *>;
 
@@ -324,9 +336,9 @@ public:
 
     // helper storages
     vector<vector<int>> dynamicOffsetIndices;
-    vector<uint>        dynamicOffsetOffsets;
-    vector<uint>        dynamicOffsets;
-    uint                dynamicOffsetCount = 0U;
+    vector<uint32_t>    dynamicOffsetOffsets;
+    vector<uint32_t>    dynamicOffsets;
+    uint32_t            dynamicOffsetCount = 0U;
 };
 
 class GLES2GPUPipelineState final : public Object {
@@ -353,8 +365,8 @@ using GLES2GPUDescriptorList = vector<GLES2GPUDescriptor>;
 
 class GLES2GPUDescriptorSet final : public Object {
 public:
-    GLES2GPUDescriptorList gpuDescriptors;
-    const vector<uint> *   descriptorIndices = nullptr;
+    GLES2GPUDescriptorList  gpuDescriptors;
+    const vector<uint32_t> *descriptorIndices = nullptr;
 };
 
 class GLES2GPUFence final : public Object {
@@ -362,7 +374,7 @@ public:
 };
 
 struct GLES2ObjectCache final {
-    uint                    subpassIdx        = 0U;
+    uint32_t                subpassIdx        = 0U;
     GLES2GPURenderPass *    gpuRenderPass     = nullptr;
     GLES2GPUFramebuffer *   gpuFramebuffer    = nullptr;
     GLES2GPUPipelineState * gpuPipelineState  = nullptr;
@@ -371,32 +383,32 @@ struct GLES2ObjectCache final {
     Rect                    renderArea;
     ColorList               clearColors;
     float                   clearDepth   = 1.F;
-    uint                    clearStencil = 0U;
+    uint32_t                clearStencil = 0U;
 };
 
 class GLES2GPUStateCache final : public Object {
 public:
-    GLuint                      glArrayBuffer        = 0;
-    GLuint                      glElementArrayBuffer = 0;
-    GLuint                      glUniformBuffer      = 0;
-    GLuint                      glVAO                = 0;
-    uint                        texUint              = 0;
-    vector<GLuint>              glTextures;
-    GLuint                      glProgram = 0;
-    vector<bool>                glEnabledAttribLocs;
-    vector<bool>                glCurrentAttribLocs;
-    GLuint                      glFramebuffer  = 0;
-    GLuint                      glRenderbuffer = 0;
-    GLuint                      glReadFBO      = 0;
-    Viewport                    viewport;
-    Rect                        scissor;
-    RasterizerState             rs;
-    DepthStencilState           dss;
-    BlendState                  bs;
-    bool                        isCullFaceEnabled    = true;
-    bool                        isStencilTestEnabled = false;
-    unordered_map<String, uint> texUnitCacheMap;
-    GLES2ObjectCache            gfxStateCache;
+    GLuint                          glArrayBuffer        = 0;
+    GLuint                          glElementArrayBuffer = 0;
+    GLuint                          glUniformBuffer      = 0;
+    GLuint                          glVAO                = 0;
+    uint32_t                        texUint              = 0;
+    vector<GLuint>                  glTextures;
+    GLuint                          glProgram = 0;
+    vector<bool>                    glEnabledAttribLocs;
+    vector<bool>                    glCurrentAttribLocs;
+    GLuint                          glFramebuffer  = 0;
+    GLuint                          glRenderbuffer = 0;
+    GLuint                          glReadFBO      = 0;
+    Viewport                        viewport;
+    Rect                            scissor;
+    RasterizerState                 rs;
+    DepthStencilState               dss;
+    BlendState                      bs;
+    bool                            isCullFaceEnabled    = true;
+    bool                            isStencilTestEnabled = false;
+    unordered_map<String, uint32_t> texUnitCacheMap;
+    GLES2ObjectCache                gfxStateCache;
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
         glTextures.resize(texUnits, 0U);
@@ -438,7 +450,7 @@ class GLES2GPUBlitManager final : public Object {
 public:
     void initialize();
     void destroy();
-    void draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureBlit *regions, uint count, Filter filter);
+    void draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureBlit *regions, uint32_t count, Filter filter);
 
 private:
     GLES2GPUShader              _gpuShader;
@@ -498,7 +510,7 @@ public:
                 _cache->glFramebuffer = glFramebuffer;
             }
 
-            const FormatInfo &info = GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)];
+            const FormatInfo &info = GFX_FORMAT_INFOS[static_cast<uint32_t>(gpuTexture->format)];
             if (isTexture) {
                 if (info.hasDepth) {
                     GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, gpuTexture->glTarget, glResource, 0));

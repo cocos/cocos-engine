@@ -153,8 +153,21 @@ enum class Feature : uint32_t {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
-    GL_FRAMEBUFFER_FETCH,
-    GL_PIXEL_LOCAL_STORAGE,
+    // This flag indicates whether the device can benefit from subpass-style usages.
+    // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
+    // extension is used to simulate input attachments, so the flag is not set when
+    // the extension is not supported, and you should switch to the fallback branch
+    // (without the extension requirement) in GLSL shader sources accordingly.
+    // Everything else can remain the same.
+    //
+    // Another caveat when using the Framebuffer Fetch extensions in shaders is that
+    // for subpasses with exactly 4 inout attachments the output is automatically set
+    // to the last attachment (taking advantage of 'inout' property), and a separate
+    // blit operation (if needed) will be added for you afterwards to transfer the
+    // rendering result to the corrent subpass output texture. This is to ameliorate
+    // the maxnumber of attachment limit(4) situation for many devices, and shader
+    // sources inside this kind of subpass must match this behavior.
+    INPUT_ATTACHMENT_BENEFIT,
     COUNT,
 };
 CC_ENUM_CONVERSION_OPERATOR(Feature);
@@ -685,14 +698,12 @@ CC_ENUM_CONVERSION_OPERATOR(CullMode);
 
 enum class DynamicStateFlagBit : uint32_t {
     NONE                 = 0x0,
-    VIEWPORT             = 0x1,
-    SCISSOR              = 0x2,
-    LINE_WIDTH           = 0x4,
-    DEPTH_BIAS           = 0x8,
-    BLEND_CONSTANTS      = 0x10,
-    DEPTH_BOUNDS         = 0x20,
-    STENCIL_WRITE_MASK   = 0x40,
-    STENCIL_COMPARE_MASK = 0x80,
+    LINE_WIDTH           = 0x1,
+    DEPTH_BIAS           = 0x2,
+    BLEND_CONSTANTS      = 0x4,
+    DEPTH_BOUNDS         = 0x8,
+    STENCIL_WRITE_MASK   = 0x10,
+    STENCIL_COMPARE_MASK = 0x20,
 };
 using DynamicStateFlags = DynamicStateFlagBit;
 CC_ENUM_BITWISE_OPERATORS(DynamicStateFlagBit);

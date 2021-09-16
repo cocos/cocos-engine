@@ -34,7 +34,7 @@ namespace gfx {
 
 class CCMTLSampler final : public Sampler {
 public:
-    explicit CCMTLSampler(const SamplerInfo& info);
+    explicit CCMTLSampler(const SamplerInfo& info, uint32_t hash);
     ~CCMTLSampler();
     CCMTLSampler() = delete;
     CCMTLSampler(const CCMTLSampler &)=delete;

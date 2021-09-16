@@ -36,7 +36,7 @@ class GLES2GPUSampler;
 
 class CC_GLES2_API GLES2Sampler final : public Sampler {
 public:
-    explicit GLES2Sampler(const SamplerInfo &info);
+    GLES2Sampler(const SamplerInfo &info, uint32_t hash);
     ~GLES2Sampler() override;
 
     inline GLES2GPUSampler *gpuSampler() const { return _gpuSampler; }

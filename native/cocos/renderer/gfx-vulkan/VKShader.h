@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXShader.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class CCVKGPUShader;
 class CC_VULKAN_API CCVKShader final : public Shader {
 public:
     CCVKShader();
-    ~CCVKShader();
+    ~CCVKShader() override;
 
     inline CCVKGPUShader *gpuShader() const { return _gpuShader; }
 

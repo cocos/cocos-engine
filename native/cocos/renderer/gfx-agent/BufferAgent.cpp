@@ -48,7 +48,7 @@ BufferAgent::~BufferAgent() {
 }
 
 void BufferAgent::doInit(const BufferInfo &info) {
-    uint size = getSize();
+    uint32_t size = getSize();
     if (size > STAGING_BUFFER_THRESHOLD && hasFlag(_memUsage, MemoryUsageBit::HOST)) {
         for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
             _stagingBuffers.push_back(reinterpret_cast<uint8_t *>(malloc(size)));
@@ -81,7 +81,7 @@ void BufferAgent::doInit(const BufferViewInfo &info) {
         });
 }
 
-void BufferAgent::doResize(uint size, uint /*count*/) {
+void BufferAgent::doResize(uint32_t size, uint32_t /*count*/) {
     auto *mq = DeviceAgent::getInstance()->getMessageQueue();
 
     if (!_stagingBuffers.empty()) {
@@ -140,7 +140,7 @@ void BufferAgent::doDestroy() {
         });
 }
 
-void BufferAgent::update(const void *buffer, uint size) {
+void BufferAgent::update(const void *buffer, uint32_t size) {
     uint8_t *actorBuffer{nullptr};
     bool     needFreeing{false};
     auto *   mq{DeviceAgent::getInstance()->getMessageQueue()};
@@ -160,10 +160,10 @@ void BufferAgent::update(const void *buffer, uint size) {
         });
 }
 
-void BufferAgent::getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint size, uint8_t **pActorBuffer, bool *pNeedFreeing) {
+void BufferAgent::getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint32_t size, uint8_t **pActorBuffer, bool *pNeedFreeing) {
     if (!buffer->_stagingBuffers.empty()) { // for frequent updates on big buffers
-        uint frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
-        *pActorBuffer   = buffer->_stagingBuffers[frameIndex];
+        uint32_t frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
+        *pActorBuffer       = buffer->_stagingBuffers[frameIndex];
     } else if (size > STAGING_BUFFER_THRESHOLD) { // less frequent updates on big buffers
         *pActorBuffer = reinterpret_cast<uint8_t *>(malloc(size));
         *pNeedFreeing = true;

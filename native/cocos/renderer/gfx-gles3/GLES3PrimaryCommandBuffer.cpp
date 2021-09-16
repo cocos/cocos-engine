@@ -44,7 +44,7 @@ GLES3PrimaryCommandBuffer::~GLES3PrimaryCommandBuffer() {
     destroy();
 }
 
-void GLES3PrimaryCommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subpass*/, Framebuffer * /*frameBuffer*/) {
+void GLES3PrimaryCommandBuffer::begin(RenderPass * /*renderPass*/, uint32_t /*subpass*/, Framebuffer * /*frameBuffer*/) {
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
@@ -60,7 +60,7 @@ void GLES3PrimaryCommandBuffer::end() {
     }
 }
 
-void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
+void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const * /*secondaryCBs*/, uint32_t /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
     GLES3GPURenderPass * gpuRenderPass  = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
@@ -70,7 +70,7 @@ void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuf
                                 &renderArea, colors, depth, stencil);
 
     _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
-    _curDynamicStates.scissor = renderArea;
+    _curDynamicStates.scissor  = renderArea;
 }
 
 void GLES3PrimaryCommandBuffer::endRenderPass() {
@@ -92,7 +92,7 @@ void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     ++_numDrawCalls;
     _numInstances += info.instanceCount;
     if (_curGPUPipelineState) {
-        uint indexCount = info.indexCount ? info.indexCount : info.vertexCount;
+        uint32_t indexCount = info.indexCount ? info.indexCount : info.vertexCount;
         switch (_curGPUPipelineState->glPrimitive) {
             case GL_TRIANGLES: {
                 _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
@@ -109,21 +109,37 @@ void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     }
 }
 
-void GLES3PrimaryCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
+void GLES3PrimaryCommandBuffer::setViewport(const Viewport &vp) {
+    auto *cache = GLES3Device::getInstance()->stateCache();
+    if (cache->viewport != vp) {
+        cache->viewport = vp;
+        GL_CHECK(glViewport(vp.left, vp.top, vp.width, vp.height));
+    }
+}
+
+void GLES3PrimaryCommandBuffer::setScissor(const Rect &rect) {
+    auto *cache = GLES3Device::getInstance()->stateCache();
+    if (cache->scissor != rect) {
+        cache->scissor = rect;
+        GL_CHECK(glScissor(rect.x, rect.y, rect.width, rect.height));
+    }
+}
+
+void GLES3PrimaryCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
     GLES3GPUBuffer *gpuBuffer = static_cast<GLES3Buffer *>(buff)->gpuBuffer();
     if (gpuBuffer) {
         cmdFuncGLES3UpdateBuffer(GLES3Device::getInstance(), gpuBuffer, data, 0U, size);
     }
 }
 
-void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
+void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
     GLES3GPUTexture *gpuTexture = static_cast<GLES3Texture *>(texture)->gpuTexture();
     if (gpuTexture) {
         cmdFuncGLES3CopyBuffersToTexture(GLES3Device::getInstance(), buffers, gpuTexture, regions, count);
     }
 }
 
-void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     GLES3GPUTexture *gpuTextureSrc = nullptr;
     GLES3GPUTexture *gpuTextureDst = nullptr;
     if (srcTexture) gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();
@@ -133,7 +149,7 @@ void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTex
 }
 
 void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
-    for (uint i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         auto *cmdBuff = static_cast<GLES3PrimaryCommandBuffer *>(cmdBuffs[i]);
 
         if (!cmdBuff->_pendingPackages.empty()) {
@@ -155,13 +171,13 @@ void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
 
 void GLES3PrimaryCommandBuffer::bindStates() {
     if (_curGPUPipelineState) {
-        vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-        vector<uint> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+        vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+        vector<uint32_t> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U, len = dynamicOffsetOffsets.size() - 1; i < len; i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
             //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
             count = std::min(count, _curDynamicOffsets[i].size());
-            if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+            if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint32_t));
         }
         cmdFuncGLES3BindState(GLES3Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember,
                               _curGPUDescriptorSets.data(), dynamicOffsets.data(), &_curDynamicStates);
@@ -187,7 +203,7 @@ void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
     cmdFuncGLES3Dispatch(GLES3Device::getInstance(), gpuInfo);
 }
 
-void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint /*textureBarrierCount*/) {
+void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint32_t /*textureBarrierCount*/) {
     if (!barrier) return;
 
     const auto *gpuBarrier = static_cast<const GLES3GlobalBarrier *>(barrier)->gpuBarrier();

@@ -38,35 +38,35 @@ struct SwapchainTextureInfo {
 };
 
 constexpr TextureUsage TEXTURE_USAGE_TRANSIENT = static_cast<TextureUsage>(
-    static_cast<uint>(TextureUsageBit::COLOR_ATTACHMENT) |
-    static_cast<uint>(TextureUsageBit::DEPTH_STENCIL_ATTACHMENT) |
-    static_cast<uint>(TextureUsageBit::INPUT_ATTACHMENT));
+    static_cast<uint32_t>(TextureUsageBit::COLOR_ATTACHMENT) |
+    static_cast<uint32_t>(TextureUsageBit::DEPTH_STENCIL_ATTACHMENT) |
+    static_cast<uint32_t>(TextureUsageBit::INPUT_ATTACHMENT));
 
 constexpr DescriptorType DESCRIPTOR_BUFFER_TYPE = static_cast<DescriptorType>(
-    static_cast<uint>(DescriptorType::STORAGE_BUFFER) |
-    static_cast<uint>(DescriptorType::DYNAMIC_STORAGE_BUFFER) |
-    static_cast<uint>(DescriptorType::UNIFORM_BUFFER) |
-    static_cast<uint>(DescriptorType::DYNAMIC_UNIFORM_BUFFER));
+    static_cast<uint32_t>(DescriptorType::STORAGE_BUFFER) |
+    static_cast<uint32_t>(DescriptorType::DYNAMIC_STORAGE_BUFFER) |
+    static_cast<uint32_t>(DescriptorType::UNIFORM_BUFFER) |
+    static_cast<uint32_t>(DescriptorType::DYNAMIC_UNIFORM_BUFFER));
 
 constexpr DescriptorType DESCRIPTOR_TEXTURE_TYPE = static_cast<DescriptorType>(
-    static_cast<uint>(DescriptorType::SAMPLER_TEXTURE) |
-    static_cast<uint>(DescriptorType::SAMPLER) |
-    static_cast<uint>(DescriptorType::TEXTURE) |
-    static_cast<uint>(DescriptorType::STORAGE_IMAGE) |
-    static_cast<uint>(DescriptorType::INPUT_ATTACHMENT));
+    static_cast<uint32_t>(DescriptorType::SAMPLER_TEXTURE) |
+    static_cast<uint32_t>(DescriptorType::SAMPLER) |
+    static_cast<uint32_t>(DescriptorType::TEXTURE) |
+    static_cast<uint32_t>(DescriptorType::STORAGE_IMAGE) |
+    static_cast<uint32_t>(DescriptorType::INPUT_ATTACHMENT));
 
 constexpr DescriptorType DESCRIPTOR_DYNAMIC_TYPE = static_cast<DescriptorType>(
-    static_cast<uint>(DescriptorType::DYNAMIC_STORAGE_BUFFER) |
-    static_cast<uint>(DescriptorType::DYNAMIC_UNIFORM_BUFFER));
+    static_cast<uint32_t>(DescriptorType::DYNAMIC_STORAGE_BUFFER) |
+    static_cast<uint32_t>(DescriptorType::DYNAMIC_UNIFORM_BUFFER));
 
-constexpr uint DRAW_INFO_SIZE = 28U;
+constexpr uint32_t DRAW_INFO_SIZE = 28U;
 
 extern const FormatInfo GFX_FORMAT_INFOS[];
-extern const uint       GFX_TYPE_SIZES[];
+extern const uint32_t   GFX_TYPE_SIZES[];
 
-extern uint formatSize(Format format, uint width, uint height, uint depth);
+extern uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t depth);
 
-extern uint formatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips);
+extern uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
 
 } // namespace gfx
 } // namespace cc

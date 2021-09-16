@@ -836,6 +836,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowStage.h
                  cocos/renderer/pipeline/helper/DefineMap.h
                  cocos/renderer/pipeline/helper/DefineMap.cpp
+                 cocos/renderer/pipeline/helper/Utils.h
 )
 
 ##### scene

@@ -38,9 +38,9 @@ public:
 
     void update() override;
 
-    void bindBuffer(uint binding, Buffer *buffer, uint index) override;
-    void bindTexture(uint binding, Texture *texture, uint index) override;
-    void bindSampler(uint binding, Sampler *sampler, uint index) override;
+    void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) override;
+    void bindTexture(uint32_t binding, Texture *texture, uint32_t index) override;
+    void bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) override;
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;

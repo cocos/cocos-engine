@@ -29,7 +29,7 @@
 namespace cc {
 namespace gfx {
 
-GLES3GlobalBarrier::GLES3GlobalBarrier(const GlobalBarrierInfo &info) : GlobalBarrier(info) {
+GLES3GlobalBarrier::GLES3GlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) : GlobalBarrier(info, hash) {
     _typedID = generateObjectID<decltype(this)>();
 
     _gpuBarrier = CC_NEW(GLES3GPUGlobalBarrier);
