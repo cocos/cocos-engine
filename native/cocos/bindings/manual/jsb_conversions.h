@@ -778,6 +778,15 @@ struct HolderType {
 };
 
 template <>
+struct HolderType<char *, false> {
+    using type       = const char *;
+    using local_type = std::string;
+    local_type                 data;
+    std::remove_const_t<type> *ptr = nullptr;
+    inline type                value() const { return data.c_str(); }
+};
+
+template <>
 struct HolderType<const char *, false> {
     using type       = const char *;
     using local_type = std::string;
