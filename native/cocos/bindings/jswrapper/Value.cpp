@@ -25,15 +25,42 @@
 ****************************************************************************/
 
 #include "Value.h"
+#include <cmath>
+#include <cstdint>
 #include <sstream>
+#include <type_traits>
 #include "Object.h"
 
 namespace se {
 
+#ifndef LIKELY
+    #ifdef __GNUC__
+        #define LIKELY(expr) __builtin_expect(!!(expr), 1)
+    #else
+        #define LIKELY(expr) expr
+    #endif
+#endif
+
+template <typename T>
+inline
+    typename std::enable_if<std::is_unsigned<T>::value, T>::type
+    fromDoubleToIntegral(double d) {
+    return static_cast<T>(static_cast<int64_t>(d));
+}
+
+template <typename T>
+inline
+    typename std::enable_if<std::is_signed<T>::value, T>::type
+    fromDoubleToIntegral(double d) {
+    return static_cast<T>(d);
+}
+
+#define CONVERT_TO_TYPE(type) fromDoubleToIntegral<type>(toDouble())
+
 ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
-Value Value::Null      = Value(Type::Null);
-Value Value::Undefined = Value(Type::Undefined);
+Value Value::Null      = Value(Type::Null);      //NOLINT(readability-identifier-naming)
+Value Value::Undefined = Value(Type::Undefined); //NOLINT(readability-identifier-naming)
 
 Value::Value()
 : _type(Type::Undefined),
@@ -377,37 +404,37 @@ void Value::setObject(const HandleObject &o, bool autoRootUnroot /* = false*/) {
 }
 
 int8_t Value::toInt8() const {
-    return static_cast<int8_t>(toDouble());
+    return CONVERT_TO_TYPE(int8_t);
 }
 
 uint8_t Value::toUint8() const {
-    return static_cast<uint8_t>(toDouble());
+    return CONVERT_TO_TYPE(uint8_t);
 }
 
 int16_t Value::toInt16() const {
-    return static_cast<int16_t>(toDouble());
+    return CONVERT_TO_TYPE(int16_t);
 }
 
 uint16_t Value::toUint16() const {
-    return static_cast<uint16_t>(toDouble());
+    return CONVERT_TO_TYPE(uint16_t);
 }
 
 int32_t Value::toInt32() const {
-    return static_cast<int32_t>(toDouble());
+    return CONVERT_TO_TYPE(int32_t);
 }
 
 uint32_t Value::toUint32() const {
-    return static_cast<uint32_t>(toDouble());
+    return CONVERT_TO_TYPE(uint32_t);
 }
 
 int64_t Value::toInt64() const {
     assert(isBigInt() || isNumber());
-    return _type == Type::BigInt ? _u._bigint : static_cast<uint64_t>(_u._number);
+    return _type == Type::BigInt ? _u._bigint : CONVERT_TO_TYPE(int64_t);
 }
 
 uint64_t Value::toUint64() const {
     assert(isBigInt() || isNumber());
-    return _type == Type::BigInt ? static_cast<uint64_t>(_u._bigint) : static_cast<uint64_t>(_u._number);
+    return _type == Type::BigInt ? static_cast<uint64_t>(_u._bigint) : CONVERT_TO_TYPE(uint64_t);
 }
 
 float Value::toFloat() const {
@@ -416,17 +443,14 @@ float Value::toFloat() const {
 
 double Value::toDouble() const {
     assert(_type == Type::Number || _type == Type::Boolean || _type == Type::BigInt);
-    if (_type == Type::Boolean) {
-        if (_u._boolean) {
-            return 1.0;
-        }
-        return 0.0;
+    if(LIKELY(_type == Type::Number)) {
+        return _u._number;
     }
     if (_type == Type::BigInt) {
         // CC_LOG_WARNING("convert int64 to double");
         return static_cast<double>(_u._bigint);
     }
-    return _u._number;
+    return _u._boolean ? 1.0 : 0.0;
 }
 
 bool Value::toBoolean() const {
@@ -523,15 +547,15 @@ void Value::setNumber(double v) {
 }
 
 unsigned int Value::toUint() const {
-    return static_cast<unsigned int>(toDouble());
+    return CONVERT_TO_TYPE(unsigned int);
 }
 
 long Value::toLong() const {              // NOLINT(google-runtime-int)
-    return static_cast<long>(toDouble()); // NOLINT(google-runtime-int)
+    return CONVERT_TO_TYPE(long);
 }
 
-unsigned long Value::toUlong() const {             // NOLINT(google-runtime-int)
-    return static_cast<unsigned long>(toDouble()); // NOLINT(google-runtime-int)
+unsigned long Value::toUlong() const {                                // NOLINT(google-runtime-int)
+    return CONVERT_TO_TYPE(unsigned long);
 }
 
 double Value::toNumber() const {
