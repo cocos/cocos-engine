@@ -27,7 +27,6 @@ import { RenderPass } from '../../gfx';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { SetIndex } from '../define';
 import { Camera } from '../../renderer/scene/camera';
-import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 import { getPhaseID } from '../pass-phase';
 
@@ -68,16 +67,6 @@ export class UIPhase {
                 cmdBuff.bindInputAssembler(inputAssembler!);
                 cmdBuff.draw(inputAssembler!);
             }
-        }
-
-        if (pipeline.profiler && pipeline.profiler.enabled && camera.window!.swapchain) {
-            const { inputAssembler, passes, shaders, descriptorSet } = pipeline.profiler.subModels[0];
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, passes[0], shaders[0], renderPass, inputAssembler);
-            cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passes[0].descriptorSet);
-            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, descriptorSet);
-            cmdBuff.bindInputAssembler(inputAssembler);
-            cmdBuff.draw(inputAssembler);
         }
     }
 }

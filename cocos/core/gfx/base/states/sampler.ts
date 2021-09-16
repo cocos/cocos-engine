@@ -36,12 +36,15 @@ import { GFXObject, ObjectType, SamplerInfo } from '../define';
  */
 export class Sampler extends GFXObject {
     get info (): Readonly<SamplerInfo> { return this._info; }
+    get hash (): number { return this._hash; }
 
     protected _info: SamplerInfo = new SamplerInfo();
+    protected _hash = 0;
 
-    constructor (info: SamplerInfo) {
+    constructor (info: SamplerInfo, hash: number) {
         super(ObjectType.SAMPLER);
         this._info.copy(info);
+        this._hash = hash;
     }
 
     static computeHash (info: SamplerInfo) {
