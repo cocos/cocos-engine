@@ -375,7 +375,7 @@ let TiledLayer = cc.Class({
     /**
      * !#en Set the layer name.
      * !#zh 设置层的名称
-     * @method SetLayerName
+     * @method setLayerName
      * @param {String} layerName
      * @example
      * tiledLayer.setLayerName("New Layer");

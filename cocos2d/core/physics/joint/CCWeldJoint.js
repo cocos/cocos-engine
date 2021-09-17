@@ -90,7 +90,7 @@ var WeldJoint = cc.Class({
          * !#zh
          * 阻尼，表示关节变形后，恢复到初始状态受到的阻力。
          * @property {Number} dampingRatio
-         * @property 0
+         * @default 0
          */
         dampingRatio: {
             tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.dampingRatio',            
