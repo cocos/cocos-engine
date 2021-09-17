@@ -1670,7 +1670,8 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
                 performLoadOp(attachmentIndex, glAttachmentIndex++);
             }
             auto depthIndex = gpuRenderPass->subpasses[subpassIdx].depthStencil;
-            performDepthStencilLoadOp(depthIndex, gpuRenderPass->statistics[depthIndex].loadSubpass != subpassIdx);
+            bool skipLoad   = depthIndex == INVALID_BINDING || gpuRenderPass->statistics[depthIndex].loadSubpass != subpassIdx;
+            performDepthStencilLoadOp(depthIndex, skipLoad);
         }
     }
 }
@@ -1806,7 +1807,9 @@ void cmdFuncGLES2EndRenderPass(GLES2Device *device) {
             if (gpuRenderPass->statistics[attachmentIndex].storeSubpass != gfxStateCache.subpassIdx) continue;
             performStoreOp(attachmentIndex, glAttachmentIndex++);
         }
-        performDepthStencilStoreOp(subpass.depthStencil, gpuRenderPass->statistics[subpass.depthStencil].loadSubpass != gfxStateCache.subpassIdx);
+        bool skipStore = subpass.depthStencil == INVALID_BINDING ||
+                         gpuRenderPass->statistics[subpass.depthStencil].loadSubpass != gfxStateCache.subpassIdx;
+        performDepthStencilStoreOp(subpass.depthStencil, skipStore);
     }
 }
 

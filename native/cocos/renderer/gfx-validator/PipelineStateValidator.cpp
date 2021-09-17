@@ -51,12 +51,14 @@ void PipelineStateValidator::doInit(const PipelineStateInfo &info) {
     _inited = true;
     CCASSERT(static_cast<ShaderValidator *>(info.shader)->isInited(), "already destroyed?");
     CCASSERT(static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->isInited(), "already destroyed?");
+    CCASSERT(!info.renderPass || static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
 
     /////////// execute ///////////
 
     PipelineStateInfo actorInfo = info;
     actorInfo.shader            = static_cast<ShaderValidator *>(info.shader)->getActor();
     actorInfo.pipelineLayout    = static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->getActor();
+    if (info.renderPass) actorInfo.renderPass = static_cast<RenderPassValidator *>(info.renderPass)->getActor();
 
     _actor->initialize(actorInfo);
 }

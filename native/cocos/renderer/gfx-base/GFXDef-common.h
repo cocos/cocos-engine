@@ -165,7 +165,7 @@ enum class Feature : uint32_t {
     // to the last attachment (taking advantage of 'inout' property), and a separate
     // blit operation (if needed) will be added for you afterwards to transfer the
     // rendering result to the corrent subpass output texture. This is to ameliorate
-    // the maxnumber of attachment limit(4) situation for many devices, and shader
+    // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
     COUNT,
