@@ -133,7 +133,7 @@ export function validateSimpleDirectionalSamples (samples: ReadonlyArray<Vec2>):
     return issues;
 }
 
-type SimpleDirectionalSampleIssue = SimpleDirectionalIssueSameDirection;
+export type SimpleDirectionalSampleIssue = SimpleDirectionalIssueSameDirection;
 
 /**
  * Simple directional issue representing some samples have same(or very similar) direction.
