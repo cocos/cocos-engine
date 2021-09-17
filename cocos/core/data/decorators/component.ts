@@ -87,6 +87,6 @@ export const executionOrder: (priority: number) => ClassDecorator = makeEditorCl
  */
 export const disallowMultiple: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator('disallowMultiple', true) : emptySmartClassDecorator;
 
-export const allowReplicated: ClassDecorator = (target) => {
-    CCClass.Attr.setClassAttr(target.constructor, 'replicated', 'visible', true);
+export const allowReplicated: ClassDecorator = (ctor) => {
+    CCClass.Attr.setClassAttr(ctor, 'replicated', 'visible', true);
 }
