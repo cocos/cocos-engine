@@ -353,7 +353,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 // shadow render Object
                 if (shadowObjects != null && model.castShadow) {
                     // frustum culling
-                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
+                    if (model.worldBounds && intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
                 }
