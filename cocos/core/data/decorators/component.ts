@@ -28,7 +28,7 @@
  * @module decorator
  */
 
-import { CCClass } from 'exports/base';
+import { CCClass } from '../class';
 import { DEV } from 'internal:constants';
 import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
 
