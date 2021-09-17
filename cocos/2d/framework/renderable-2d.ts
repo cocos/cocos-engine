@@ -472,11 +472,7 @@ export class Renderable2D extends RenderableComponent {
         if (UI_GPU_DRIVEN) {
             if (this._canDrawByFourVertex) {
                 const opacityZero = this._cacheAlpha <= 0;
-                const localAlpha = this.color.a / 255;
-                const alpha = this.node._uiProps.opacity * localAlpha;
-                this.node._uiProps.opacity = alpha;
-                this._colorDirty = this._colorDirty || alpha !== this._cacheAlpha;
-                this._cacheAlpha = alpha;
+                this._updateWorldAlpha();
                 if (this._colorDirty) {
                     if (opacityZero) {
                         this._renderFlag = this._canRender();

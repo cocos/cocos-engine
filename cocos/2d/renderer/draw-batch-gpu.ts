@@ -111,7 +111,7 @@ export class DrawBatch2DGPU extends DrawBatch2D {
         if (mode === SpriteType.SLICED) {
             // 确保已经更新了 contextSize
             sprite._calculateSlicedData(this.slicedCache); // 会被 rect 影响
-            this._packageSlicedData(this.slicedCache, frame.slicedData);
+            this._packageSlicedData(this.slicedCache, frame.slicedData, frame.rotated);
         } else if (mode === SpriteType.TILED) {
             sprite.calculateTiledData(this.tiledCache); // 会被 rect 影响
         } else if (mode === SpriteType.FILLED) {
@@ -270,7 +270,7 @@ export class DrawBatch2DGPU extends DrawBatch2D {
             if (mode === SpriteType.SLICED) {
                 // 确保已经更新了 contextSize
                 renderComp._calculateSlicedData(this.slicedCache); // 会被 rect 影响
-                this._packageSlicedData(this.slicedCache, frame.slicedData);
+                this._packageSlicedData(this.slicedCache, frame.slicedData, frame.rotated);
             } else if (mode === SpriteType.TILED) {
                 renderComp.calculateTiledData(this.tiledCache); // 会被 rect 影响
             } else if (mode === SpriteType.FILLED) {
@@ -299,12 +299,18 @@ export class DrawBatch2DGPU extends DrawBatch2D {
         // }
     }
 
-    private _packageSlicedData (spriteData: number[], frameData: number[]) { // LTRB
-        this.tiledCache.x = spriteData[0] + Math.floor(frameData[0] * 2048.0);
-        this.tiledCache.y = spriteData[1] + Math.floor(frameData[1] * 2048.0);
-        // for sprite frames with 0 borders we have to clamp this
-        // EPSILON should be at least ulp(2049) to avoid being rounded up again
-        this.tiledCache.z = Math.min(spriteData[2], 1 - EPSILON) + Math.floor(frameData[2] * 2048.0);
-        this.tiledCache.w = Math.min(spriteData[3], 1 - EPSILON) + Math.floor(frameData[3] * 2048.0);
+    // Need Dirty
+    private _packageSlicedData (spriteData: number[], frameData: number[], rotated: boolean) { // LTRB
+        if (rotated) {
+            this.tiledCache.x = 1 - spriteData[3] + Math.floor((1 - frameData[3]) * 2048.0);
+            this.tiledCache.y = spriteData[0] + Math.floor(frameData[0] * 2048.0);
+            this.tiledCache.z = Math.min(1 - spriteData[1], 1 - EPSILON) + Math.floor((1 - frameData[1]) * 2048.0);
+            this.tiledCache.w = Math.min(spriteData[2], 1 - EPSILON) + Math.floor(frameData[2] * 2048.0);
+        } else {
+            this.tiledCache.x = spriteData[0] + Math.floor(frameData[0] * 2048.0);
+            this.tiledCache.y = spriteData[1] + Math.floor(frameData[1] * 2048.0);
+            this.tiledCache.z = Math.min(spriteData[2], 1 - EPSILON) + Math.floor(frameData[2] * 2048.0);
+            this.tiledCache.w = Math.min(spriteData[3], 1 - EPSILON) + Math.floor(frameData[3] * 2048.0);
+        }
     }
 }
