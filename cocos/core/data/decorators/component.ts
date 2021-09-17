@@ -28,6 +28,7 @@
  * @module decorator
  */
 
+import { CCClass } from 'exports/base';
 import { DEV } from 'internal:constants';
 import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
 
@@ -85,3 +86,7 @@ export const executionOrder: (priority: number) => ClassDecorator = makeEditorCl
  * ```
  */
 export const disallowMultiple: ClassDecorator & ((yes?: boolean) => ClassDecorator) =    DEV ? makeSmartEditorClassDecorator('disallowMultiple', true) : emptySmartClassDecorator;
+
+export const allowReplicated: ClassDecorator = (target) => {
+    CCClass.Attr.setClassAttr(target.constructor, 'replicated', 'visible', true);
+}
