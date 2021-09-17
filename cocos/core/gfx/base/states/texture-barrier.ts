@@ -37,12 +37,15 @@ import { GFXObject, ObjectType, TextureBarrierInfo } from '../define';
  */
 export class TextureBarrier extends GFXObject {
     get info (): Readonly<TextureBarrierInfo> { return this._info; }
+    get hash (): number { return this._hash; }
 
     protected _info: TextureBarrierInfo = new TextureBarrierInfo();
+    protected _hash = 0;
 
-    constructor (info: TextureBarrierInfo) {
+    constructor (info: TextureBarrierInfo, hash: number) {
         super(ObjectType.TEXTURE_BARRIER);
         this._info.copy(info);
+        this._hash = hash;
     }
 
     static computeHash (info: TextureBarrierInfo) {

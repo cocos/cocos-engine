@@ -330,7 +330,7 @@ export class WebGL2Device extends Device {
     public getGlobalBarrier (info: GlobalBarrierInfo) {
         const hash = GlobalBarrier.computeHash(info);
         if (!this._globalBarriers.has(hash)) {
-            this._globalBarriers.set(hash, new GlobalBarrier(info));
+            this._globalBarriers.set(hash, new GlobalBarrier(info, hash));
         }
         return this._globalBarriers.get(hash)!;
     }
@@ -338,7 +338,7 @@ export class WebGL2Device extends Device {
     public getTextureBarrier (info: TextureBarrierInfo) {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
-            this._textureBarriers.set(hash, new TextureBarrier(info));
+            this._textureBarriers.set(hash, new TextureBarrier(info, hash));
         }
         return this._textureBarriers.get(hash)!;
     }

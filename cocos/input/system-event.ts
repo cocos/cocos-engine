@@ -97,18 +97,7 @@ export class SystemEvent extends EventTarget {
             return;
         }
 
-        // for iOS 13+
-        if (isEnabled && window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
-            DeviceMotionEvent.requestPermission().then((response) => {
-                logID(3520, response);
-                inputManager.setAccelerometerEnabled(response === 'granted');
-            }).catch((error) => {
-                warnID(3521, error.message);
-                inputManager.setAccelerometerEnabled(false);
-            });
-        } else {
-            inputManager.setAccelerometerEnabled(isEnabled);
-        }
+        inputManager.setAccelerometerEnabled(isEnabled);
     }
 
     /**
