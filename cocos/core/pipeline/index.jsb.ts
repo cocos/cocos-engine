@@ -35,6 +35,8 @@ import { Swapchain } from '../gfx';
 import { Model, Camera } from '../renderer/scene';
 import { IPipelineEvent, PipelineEventType } from './pipeline-event';
 import { PipelineSceneData } from './pipeline-scene-data';
+import * as pipeline from './define';
+export { pipeline };
 
 nr.getPhaseID = getPhaseID;
 

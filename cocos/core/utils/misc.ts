@@ -133,14 +133,7 @@ export function isDomNode (obj) {
 }
 
 export function callInNextTick (callback, p1?: any, p2?: any) {
-    if (EDITOR) {
-        if (callback) {
-            // @ts-expect-error
-            process.nextTick(() => {
-                callback(p1, p2);
-            });
-        }
-    } else if (callback) {
+    if (callback) {
         setTimeout(() => {
             callback(p1, p2);
         }, 0);

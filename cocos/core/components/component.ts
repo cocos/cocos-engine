@@ -377,12 +377,6 @@ class Component extends CCObject {
         // Schedules
         this.unscheduleAllCallbacks();
 
-        //
-        if (EDITOR && !TEST) {
-            // @ts-expect-error expected
-            _Scene.AssetsWatcher.stop(this);
-        }
-
         // onDestroy
         legacyCC.director._nodeActivator.destroyComp(this);
 

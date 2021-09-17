@@ -314,7 +314,7 @@ class CCObject implements EditorExtendableObject {
         if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
             // auto destroy immediate in edit mode
             // @ts-expect-error no function
-            deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
+            deferredDestroyTimer = setTimeout(CCObject._deferredDestroy);
         }
         return true;
     }
