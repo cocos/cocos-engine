@@ -26,7 +26,7 @@
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../core/assets';
-import { RenderMode } from '../enum';
+import { AlignmentSpace, RenderMode, Space } from '../enum';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
@@ -202,6 +202,20 @@ export default class ParticleSystemRenderer {
         this._switchProcessor();
     }
 
+    @serializable
+    private _alignSpace = AlignmentSpace.View;
+
+    @type(AlignmentSpace)
+    @displayOrder(10)
+    public get alignSpace () {
+        return this._alignSpace;
+    }
+
+    public set alignSpace (val) {
+        this._alignSpace = val;
+        this._particleSystem.processor.updateAlignSpace(this._alignSpace);
+    }
+
     private _particleSystem: any = null!; // ParticleSystem
 
     create (ps) {
@@ -219,6 +233,7 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem.processor) {
             const useGPU = this._useGPU && isSupportGPUParticle();
             this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            this._particleSystem.processor.updateAlignSpace(this.alignSpace);
             this._particleSystem.processor.onInit(ps);
         } else {
             errorID(6034);
