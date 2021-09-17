@@ -19275,6 +19275,25 @@ bool js_register_gfx_Swapchain(se::Object* obj) // NOLINT(readability-identifier
 se::Object* __jsb_cc_gfx_GlobalBarrier_proto = nullptr;
 se::Class* __jsb_cc_gfx_GlobalBarrier_class = nullptr;
 
+static bool js_gfx_GlobalBarrier_getHash(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrier>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_GlobalBarrier_getHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const unsigned int& result = cobj->getHash();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_getHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GlobalBarrier_getHash)
+
 static bool js_gfx_GlobalBarrier_getInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::GlobalBarrier>(s);
@@ -19343,6 +19362,7 @@ bool js_register_gfx_GlobalBarrier(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("GlobalBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_GlobalBarrier_constructor));
 
+    cls->defineFunction("getHash", _SE(js_gfx_GlobalBarrier_getHash));
     cls->defineFunction("getInfo", _SE(js_gfx_GlobalBarrier_getInfo));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_GlobalBarrier_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GlobalBarrier_finalize));
@@ -19357,6 +19377,25 @@ bool js_register_gfx_GlobalBarrier(se::Object* obj) // NOLINT(readability-identi
 }
 se::Object* __jsb_cc_gfx_Sampler_proto = nullptr;
 se::Class* __jsb_cc_gfx_Sampler_class = nullptr;
+
+static bool js_gfx_Sampler_getHash(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::Sampler>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_Sampler_getHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const unsigned int& result = cobj->getHash();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_Sampler_getHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_Sampler_getHash)
 
 static bool js_gfx_Sampler_getInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19427,6 +19466,7 @@ bool js_register_gfx_Sampler(se::Object* obj) // NOLINT(readability-identifier-n
     auto* cls = se::Class::create("Sampler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Sampler_constructor));
 
     cls->defineProperty("info", _SE(js_gfx_Sampler_getInfo), nullptr);
+    cls->defineFunction("getHash", _SE(js_gfx_Sampler_getHash));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_Sampler_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_Sampler_finalize));
     cls->install();
@@ -19440,6 +19480,25 @@ bool js_register_gfx_Sampler(se::Object* obj) // NOLINT(readability-identifier-n
 }
 se::Object* __jsb_cc_gfx_TextureBarrier_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureBarrier_class = nullptr;
+
+static bool js_gfx_TextureBarrier_getHash(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureBarrier>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_TextureBarrier_getHash : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const unsigned int& result = cobj->getHash();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_getHash : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_TextureBarrier_getHash)
 
 static bool js_gfx_TextureBarrier_getInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -19509,6 +19568,7 @@ bool js_register_gfx_TextureBarrier(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("TextureBarrier", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_TextureBarrier_constructor));
 
+    cls->defineFunction("getHash", _SE(js_gfx_TextureBarrier_getHash));
     cls->defineFunction("getInfo", _SE(js_gfx_TextureBarrier_getInfo));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_TextureBarrier_computeHash));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_TextureBarrier_finalize));
