@@ -91,7 +91,7 @@ export class RenderShadowMapBatchedQueue {
         const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            this._pipeline.pipelineUBO.updateShadowUBOLight(this._pipeline, idx, light, camera);
+            this._pipeline.pipelineUBO.updateShadowUBOLight(this._pipeline, idx, light);
 
             switch (light.type) {
             case LightType.DIRECTIONAL:
