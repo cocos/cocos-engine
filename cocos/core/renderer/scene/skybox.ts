@@ -76,7 +76,7 @@ export class Skybox {
      * @en Whether use HDR
      * @zh TODO
      */
-     get useIBL (): boolean {
+    get useIBL (): boolean {
         return this._useIBL;
     }
 
@@ -89,7 +89,7 @@ export class Skybox {
      * @en Whether use diffuse convolution map lighting
      * @zh TODO
      */
-     get useDiffusemap (): boolean {
+    get useDiffusemap (): boolean {
         return this._useDiffusemap;
     }
 
@@ -127,7 +127,7 @@ export class Skybox {
      * @en The texture cube used diffuse reflection convolution map
      * @zh TODO
      */
-     get diffusemap (): TextureCube | null {
+    get diffusemap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._diffusemap_hdr;
@@ -142,8 +142,7 @@ export class Skybox {
         } else {
             this._diffusemap_ldr = val;
         }
-        if(val)
-        {
+        if (val) {
             this._updateGlobalBinding();
             this._updatePipeline();
         }
@@ -155,30 +154,30 @@ export class Skybox {
             this._envmap_hdr = val || this._default;
             if (this._envmap_hdr) {
                 (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap_hdr.mipmapLevel;
-               this._updateGlobalBinding();
+                this._updateGlobalBinding();
             }
         } else {
-            this._envmap_ldr = val || this._default;           
+            this._envmap_ldr = val || this._default;
             if (this._envmap_ldr) {
                 (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap_ldr.mipmapLevel;
                 this._updateGlobalBinding();
-            }   
+            }
         }
-        
+
         if (val) {
             if (JSB) {
-               this._nativeObj!.isRGBE = val.isRGBE;
+                this._nativeObj!.isRGBE = val.isRGBE;
             }
-        
+
             if (skybox_material) {
                 skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: val.isRGBE });
             }
-        
+
             if (this._model) {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
         }
-        
+
         this._updatePipeline();
     }
 
@@ -222,8 +221,8 @@ export class Skybox {
         */
     }
 
-    private _setUseDiffusemap(val) {
-        this._useDiffusemap = val;       
+    private _setUseDiffusemap (val) {
+        this._useDiffusemap = val;
     }
 
     public initialize (skyboxInfo: SkyboxInfo) {
@@ -282,7 +281,7 @@ export class Skybox {
         const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;
-        //if (current === value) { return; }
+        // if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
         pipeline.macros.CC_USE_DIFFUSEMAP = (this.useDiffusemap && this.diffusemap) ? (this.isRGBE ? 2 : 1) : 0;
         pipeline.macros.CC_USE_HDR = this.useHDR;
@@ -296,9 +295,9 @@ export class Skybox {
         this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, samplerEnvmap);
         this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, textureEnvmap);
 
-        if(this.diffusemap) {
-            const textureDiffusemap = this.diffusemap!.getGFXTexture()!;
-            const samplerDiffusemap = samplerLib.getSampler(legacyCC.director._device, this.diffusemap!.getSamplerHash());
+        if (this.diffusemap) {
+            const textureDiffusemap = this.diffusemap.getGFXTexture()!;
+            const samplerDiffusemap = samplerLib.getSampler(legacyCC.director._device, this.diffusemap.getSamplerHash());
 
             this._globalDSManager!.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffusemap);
             this._globalDSManager!.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffusemap);

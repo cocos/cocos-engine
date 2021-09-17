@@ -35,6 +35,7 @@ const _v3 = new Vec3();
 export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminance: number = Ambient.SUN_ILLUM;
+    protected _illuminance_ldr: number = 1.0;
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
@@ -57,6 +58,17 @@ export class DirectionalLight extends Light {
 
     get illuminance (): number {
         return this._illuminance;
+    }
+
+    set illuminance_ldr (illum: number) {
+        this._illuminance_ldr = illum;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setIlluminance(illum);
+        }
+    }
+
+    get illuminance_ldr (): number {
+        return this._illuminance_ldr;
     }
 
     constructor () {

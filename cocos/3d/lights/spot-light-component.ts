@@ -49,7 +49,7 @@ export class SpotLight extends Light {
     protected _luminance = 1700 / scene.nt2lm(0.15);
 
     @serializable
-    protected _luminance_ldr = 1700;
+    protected _luminance_ldr = 1.0;
 
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
@@ -98,7 +98,6 @@ export class SpotLight extends Light {
       * @en Luminance of the light.
       * @zh 光亮度。
       */
-     @unit('cd/m²')
      @tooltip('i18n:lights.luminance')
      get luminance () {
          const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -117,7 +116,10 @@ export class SpotLight extends Light {
              this._luminance_ldr = val;
          }
  
-         if (this._light) { this._light.luminance = val; }
+         if (this._light) { 
+            this._light.luminance = this._luminance; 
+            this._light.luminance_ldr = this._luminance_ldr; 
+        }
      }
 
     /**
@@ -193,9 +195,13 @@ export class SpotLight extends Light {
         super._createLight();
         if (!this._light) { return; }
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        this.luminance = isHDR ? this._luminance : this._luminance_ldr;
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
+
+        if (this._light) { 
+            this._light.luminance = this._luminance; 
+            this._light.luminance_ldr = this._luminance_ldr; 
+        }
     }
 }

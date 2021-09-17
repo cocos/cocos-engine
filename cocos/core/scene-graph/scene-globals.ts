@@ -203,7 +203,7 @@ export class SkyboxInfo {
     @serializable
     protected _useIBL = false;
     @serializable
-    protected _useHDR = true;
+    protected _useHDR = false;
 
     protected _resource: Skybox | null = null;
 

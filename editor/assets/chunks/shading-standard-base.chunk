@@ -127,10 +127,6 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   finalColor += ambDiff.rgb * cc_ambientSky.w * diffuse * s.occlusion;
   
 
-  #if CC_USE_HDR
-    s.emissive *= cc_exposure.w;
-  #endif
-  
   finalColor += s.emissive;
 
   return vec4(finalColor, s.albedo.a);

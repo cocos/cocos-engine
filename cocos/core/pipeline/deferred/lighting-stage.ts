@@ -47,6 +47,7 @@ import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { Pass } from '../../renderer/core/pass';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';
+import { legacyCC } from '../../global-exports';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -89,6 +90,7 @@ export class LightingStage extends RenderStage {
     }
     public gatherLights (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
+        const useDeferredPipeline = true;
         const cmdBuff = pipeline.commandBuffers[0];
 
         const sphereLights = camera.scene!.sphereLights;
@@ -120,9 +122,13 @@ export class LightingStage extends RenderStage {
                 }
 
                 if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
+                    if (useDeferredPipeline) {
+                        _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
+                    } else {
+                        _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                    }
                 } else {
-                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                    _vec4Array[3] = light.luminance;
                 }
 
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
@@ -153,9 +159,13 @@ export class LightingStage extends RenderStage {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
+                    if (useDeferredPipeline) {
+                        _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
+                    } else {
+                        _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                    }
                 } else {
-                    _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                    _vec4Array[3] = light.luminance;
                 }
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 

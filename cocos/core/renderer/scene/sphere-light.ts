@@ -81,6 +81,20 @@ export class SphereLight extends Light {
         return this._luminance;
     }
 
+    set luminance_ldr (lum: number) {
+        this._luminance_ldr = lum;
+
+        /*
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
+        }
+        */
+    }
+
+    get luminance_ldr (): number {
+        return this._luminance_ldr;
+    }
+
     get aabb () {
         return this._aabb;
     }
@@ -89,6 +103,7 @@ export class SphereLight extends Light {
     protected _size = 0.15;
     protected _range = 1.0;
     protected _luminance = 0;
+    protected _luminance_ldr = 0;
     protected _pos: Vec3;
     protected _aabb: AABB;
 
@@ -106,6 +121,7 @@ export class SphereLight extends Light {
         this.size = size;
         this.range = 1.0;
         this.luminance = 1700 / nt2lm(size);
+        this.luminance_ldr = 1.0;
     }
 
     public update () {

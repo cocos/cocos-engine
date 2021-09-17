@@ -84,7 +84,6 @@ export class SphereLight extends Light {
      * @en Luminance of the light.
      * @zh 光亮度。
      */
-    @unit('cd/m²')
     @tooltip('i18n:lights.luminance')
     get luminance () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -101,7 +100,11 @@ export class SphereLight extends Light {
         } else {
             this._luminance_ldr = val;
         }
-        if (this._light) { this._light.luminance = val; }
+
+        if (this._light) { 
+            this._light.luminance = this._luminance; 
+            this._light.luminance_ldr = this._luminance_ldr; 
+        }
     }
 
     /**
@@ -156,8 +159,12 @@ export class SphereLight extends Light {
         super._createLight();
         if (!this._light) { return; }
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        this.luminance = isHDR ? this._luminance : this._luminance_ldr;
         this.size = this._size;
         this.range = this._range;
+
+        if (this._light) { 
+            this._light.luminance = this._luminance; 
+            this._light.luminance_ldr = this._luminance_ldr; 
+        }
     }
 }

@@ -72,7 +72,10 @@ export class DirectionalLight extends Light {
             this._illuminance_ldr = val;
         }
 
-        if (this._light) { this._light.illuminance = val; }
+        if (this._light) { 
+            this._light.illuminance = this._illuminance; 
+            this._light.illuminance_ldr = this._illuminance_ldr;
+        }
     }
 
     constructor () {
@@ -84,6 +87,11 @@ export class DirectionalLight extends Light {
         super._createLight();
         if (!this._light) { return; }
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        this.illuminance = isHDR ? this._illuminance : this._illuminance_ldr;
+        //this.illuminance = this._illuminance;
+
+        if (this._light) { 
+            this._light.illuminance = this._illuminance; 
+            this._light.illuminance_ldr = this._illuminance_ldr;
+        }
     }
 }

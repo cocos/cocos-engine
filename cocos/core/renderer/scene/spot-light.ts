@@ -65,6 +65,8 @@ export class SpotLight extends Light {
 
     protected _luminance = 0;
 
+    protected _luminance_ldr = 0;
+
     protected _aspect = 0;
 
     protected _init (): void {
@@ -128,6 +130,20 @@ export class SpotLight extends Light {
         return this._luminance;
     }
 
+    set luminance_ldr (lum: number) {
+        this._luminance_ldr = lum;
+
+        /*
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
+        }
+        */
+    }
+
+    get luminance_ldr (): number {
+        return this._luminance_ldr;
+    }
+
     get direction (): Vec3 {
         return this._dir;
     }
@@ -184,6 +200,7 @@ export class SpotLight extends Light {
         this.size = size;
         this.aspect = 1.0;
         this.luminance = 1700 / nt2lm(size);
+        this.luminance_ldr = 1.0;
         this.range = Math.cos(Math.PI / 6);
         this._setDirection(new Vec3(1.0, -1.0, -1.0));
     }
