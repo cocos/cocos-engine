@@ -46,6 +46,9 @@ enum class ModelType {
 
 // SubModel.h -> Define.h -> Model.h, so do not include SubModel.h here.
 class SubModel;
+class RenderScene;
+class OctreeNode;
+class Octree;
 
 struct InstancedAttributeBlock {
     std::vector<uint8_t *> views{};
@@ -82,6 +85,8 @@ public:
         _instanceAttributeBlock = std::move(block);
         _instanceAttributes     = attributes;
     }
+    inline void setOctreeNode(OctreeNode *node) { _octreeNode = node; }
+    inline void setScene(RenderScene *scene) { _scene = scene; }
 
     inline bool                               getCastShadow() const { return _castShadow; }
     inline bool                               getEnabled() const { return _enabled; }
@@ -102,12 +107,16 @@ public:
     inline uint32_t                           getVisFlags() const { return _visFlags; }
     inline AABB *                             getWorldBounds() const { return _worldBounds; }
     inline ModelType                          getType() const { return _type; };
+    inline OctreeNode *                       getOctreeNode() const { return _octreeNode; }
+    inline RenderScene *                      getScene() const { return _scene; }
 
 protected:
-    ModelType _type{ModelType::DEFAULT};
-    bool      _transformUpdated{false};
-    AABB *    _worldBounds{nullptr};
-    AABB      _modelBounds;
+    ModelType    _type{ModelType::DEFAULT};
+    bool         _transformUpdated{false};
+    AABB *       _worldBounds{nullptr};
+    AABB         _modelBounds;
+    OctreeNode * _octreeNode{nullptr};
+    RenderScene *_scene{nullptr};
 
 private:
     bool _enabled{false};

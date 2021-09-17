@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
@@ -22,41 +22,32 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "scene/BakedSkinningModel.h"
-#include "scene/RenderScene.h"
+
+#pragma once
+
+#include <chrono>
+#include <cstdint>
+#include "base/Macros.h"
+
 
 namespace cc {
-namespace scene {
-void BakedSkinningModel::updateTransform(uint32_t stamp) {
-    Model::updateTransform(stamp);
-    if (!_isUploadAnim) {
-        return;
-    }
-    BakedAnimInfo& animInfo  = _jointMedium.animInfo;
-    AABB*          skelBound = !_jointMedium.boundsInfo.empty() ? _jointMedium.boundsInfo[*animInfo.data] : nullptr;
-    if (_worldBounds && skelBound) {
-        Node* node = getTransform();
-        skelBound->transform(node->getWorldMatrix(), _worldBounds);
-    }
+namespace utils {
 
-    // Fix me: update twice
-    if (_scene) {
-        _scene->updateOctree(this);
-    }
-}
+class CC_DLL Timer {
+public:
+    using Clock     = std::chrono::high_resolution_clock;
+    using TimePoint = Clock::time_point;
 
-void BakedSkinningModel::updateUBOs(uint32_t stamp) {
-    Model::updateUBOs(stamp);
-    BakedAnimInfo& info = _jointMedium.animInfo;
-    int            idx  = _instAnimInfoIdx;
-    if (idx >= 0) {
-        std::vector<uint8_t*>& views        = getInstancedAttributeBlock()->views;
-        *reinterpret_cast<float*>(views[0]) = *reinterpret_cast<float*>(info.data);
-    } else if (info.getDirty()) {
-        info.buffer->update(info.data, info.buffer->getSize());
-        *info.dirty = 0;
-    }
-}
+    explicit Timer(bool doReset = true);
 
-} // namespace scene
+    void    reset();
+    int64_t getMicroseconds() const;
+    int64_t getMilliseconds() const;
+    float   getSeconds() const;
+
+private:
+    TimePoint _startTime;
+};
+
+} // namespace utils
 } // namespace cc

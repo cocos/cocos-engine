@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
  
  http://www.cocos.com
  
@@ -22,41 +22,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "scene/BakedSkinningModel.h"
-#include "scene/RenderScene.h"
+
+#include "Timer.h"
 
 namespace cc {
-namespace scene {
-void BakedSkinningModel::updateTransform(uint32_t stamp) {
-    Model::updateTransform(stamp);
-    if (!_isUploadAnim) {
-        return;
-    }
-    BakedAnimInfo& animInfo  = _jointMedium.animInfo;
-    AABB*          skelBound = !_jointMedium.boundsInfo.empty() ? _jointMedium.boundsInfo[*animInfo.data] : nullptr;
-    if (_worldBounds && skelBound) {
-        Node* node = getTransform();
-        skelBound->transform(node->getWorldMatrix(), _worldBounds);
-    }
+namespace utils {
 
-    // Fix me: update twice
-    if (_scene) {
-        _scene->updateOctree(this);
+Timer::Timer(bool doReset) {
+    if (doReset) {
+        reset();
     }
 }
 
-void BakedSkinningModel::updateUBOs(uint32_t stamp) {
-    Model::updateUBOs(stamp);
-    BakedAnimInfo& info = _jointMedium.animInfo;
-    int            idx  = _instAnimInfoIdx;
-    if (idx >= 0) {
-        std::vector<uint8_t*>& views        = getInstancedAttributeBlock()->views;
-        *reinterpret_cast<float*>(views[0]) = *reinterpret_cast<float*>(info.data);
-    } else if (info.getDirty()) {
-        info.buffer->update(info.data, info.buffer->getSize());
-        *info.dirty = 0;
-    }
+void Timer::reset() {
+    _startTime = Clock::now();
 }
 
-} // namespace scene
+int64_t Timer::getMicroseconds() const {
+    auto currentTime = Clock::now();
+    auto duration    = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - _startTime).count();
+    if (duration < 0) {
+        duration = 0;
+    }
+
+    return duration;
+}
+
+int64_t Timer::getMilliseconds() const {
+    auto currentTime = Clock::now();
+    auto duration    = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - _startTime).count();
+    if (duration < 0) {
+        duration = 0;
+    }
+
+    return duration;
+}
+
+float Timer::getSeconds() const {
+    int64_t msecs = getMilliseconds();
+    return static_cast<float>(msecs) / 1000.0F;
+}
+
+} // namespace utils
 } // namespace cc

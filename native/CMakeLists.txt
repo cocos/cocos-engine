@@ -525,6 +525,8 @@ cocos_source_files(MODULE ccutils
     cocos/platform/SAXParser.h
     cocos/base/Utils.cpp
     cocos/base/Utils.h
+    cocos/base/Timer.cpp
+    cocos/base/Timer.h
 )
 
 ########## module ccfilesystem
@@ -879,6 +881,8 @@ cocos_source_files(
                  cocos/scene/SpotLight.cpp
                  cocos/scene/SubModel.h
                  cocos/scene/SubModel.cpp
+                 cocos/scene/Octree.h
+                 cocos/scene/Octree.cpp
 )
 
 if(CC_USE_GLES2 OR CC_USE_GLES3)

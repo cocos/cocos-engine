@@ -53,12 +53,12 @@ void Plane::define(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2) {
 // Define from a normal vector and a point on the plane.
 void Plane::define(const Vec3 &normal, const Vec3 &point) {
     n = normal.getNormalized();
-    d = -normal.dot(point);
+    d = normal.dot(point);
 }
 
 // Return signed distance to a point.
 float Plane::distance(const Vec3 &point) const {
-    return n.dot(point) + d;
+    return n.dot(point) - d;
 }
 
 Plane Plane::clone() const {
@@ -69,23 +69,23 @@ Plane Plane::clone() const {
     return plane;
 }
 
-void Frustum::createOrtho(const float width, const float height, const float near, const float far, const Mat4& transform) {
+void Frustum::createOrtho(const float width, const float height, const float near, const float far, const Mat4 &transform) {
     const float halfWidth  = width * 0.5F;
     const float halfHeight = height * 0.5F;
 
-    vertices[0].transformMat4( Vec3(halfWidth, halfHeight, near), transform);
-    vertices[1].transformMat4(Vec3(-halfWidth, halfHeight, near), transform);
-    vertices[2].transformMat4(Vec3(-halfWidth, -halfHeight, near), transform);
-    vertices[3].transformMat4(Vec3(halfWidth, -halfHeight, near), transform);
-    vertices[4].transformMat4(Vec3(halfWidth, halfHeight, far), transform);
-    vertices[5].transformMat4(Vec3(-halfWidth, halfHeight, far), transform);
-    vertices[6].transformMat4(Vec3(-halfWidth, -halfHeight, far), transform);
-    vertices[7].transformMat4(Vec3(halfWidth, -halfHeight, far), transform);
+    vertices[0].transformMat4(Vec3(halfWidth, halfHeight, -near), transform);
+    vertices[1].transformMat4(Vec3(-halfWidth, halfHeight, -near), transform);
+    vertices[2].transformMat4(Vec3(-halfWidth, -halfHeight, -near), transform);
+    vertices[3].transformMat4(Vec3(halfWidth, -halfHeight, -near), transform);
+    vertices[4].transformMat4(Vec3(halfWidth, halfHeight, -far), transform);
+    vertices[5].transformMat4(Vec3(-halfWidth, halfHeight, -far), transform);
+    vertices[6].transformMat4(Vec3(-halfWidth, -halfHeight, -far), transform);
+    vertices[7].transformMat4(Vec3(halfWidth, -halfHeight, -far), transform);
 
     updatePlanes();
 }
 
-void Frustum::split(float start, float end, float aspect, float fov, const Mat4& transform) {
+void Frustum::split(float start, float end, float aspect, float fov, const Mat4 &transform) {
     const float h = tanf(fov * 0.5F);
     const float w = h * aspect;
     const Vec3  nearTemp(start * w, start * h, start);
@@ -105,17 +105,17 @@ void Frustum::split(float start, float end, float aspect, float fov, const Mat4&
 
 void Frustum::updatePlanes() {
     // left plane
-    planes[0].define(vertices[1], vertices[5], vertices[6]);
+    planes[0].define(vertices[1], vertices[6], vertices[5]);
     // right plane
-    planes[1].define(vertices[3], vertices[7], vertices[4]);
+    planes[1].define(vertices[3], vertices[4], vertices[7]);
     // bottom plane
-    planes[2].define(vertices[6], vertices[7], vertices[3]);
+    planes[2].define(vertices[6], vertices[3], vertices[7]);
     // top plane
-    planes[3].define(vertices[0], vertices[4], vertices[5]);
+    planes[3].define(vertices[0], vertices[5], vertices[4]);
     // near plane
-    planes[4].define(vertices[2], vertices[3], vertices[0]);
+    planes[4].define(vertices[2], vertices[0], vertices[3]);
     // far plane
-    planes[5].define(vertices[7], vertices[6], vertices[5]);
+    planes[5].define(vertices[7], vertices[5], vertices[6]);
 }
 
 void Frustum::update(const Mat4 &m, const Mat4 &inv) {
