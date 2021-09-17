@@ -49,11 +49,11 @@ export class DrawCall {
     // UBO info
     public bufferHash = 0;
     public bufferUboIndex = 0;
-    public bufferView!: Buffer; // 直接存 ubo
+    public bufferView!: Buffer;
 
     // actual draw call info
     public descriptorSet: DescriptorSet = null!;
-    public dynamicOffsets = [0]; // 偏移用 // uboindex * _uniformBufferStride
+    public dynamicOffsets = [0];// uboindex * _uniformBufferStride
     public drawInfo = new DrawInfo();
 }
 
@@ -118,11 +118,9 @@ export class DrawBatch2D {
     private _descriptorSet: DescriptorSet | null = null;
     private declare _nativeObj: NativeDrawBatch2D | null;
 
-    public UICapacityDirty = true;
+    protected _drawCalls: DrawCall[] = [];
 
-    protected _drawcalls: DrawCall[] = []; // 意味着一个 batch 里会有多个 DC
-
-    get drawcalls () { return this._drawcalls; }
+    get drawCalls () { return this._drawCalls; }
 
     constructor () {
         if (JSB) {
@@ -150,7 +148,7 @@ export class DrawBatch2D {
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
         this.renderScene = null;
-        this._drawcalls.length = 0;
+        this._drawCalls.length = 0;
     }
 
     // object version
@@ -202,15 +200,13 @@ export class DrawBatch2D {
         }
     }
 
-    // 为 batch 添加 drawCall 的过程
     public fillDrawCallAssembler () {
-        let dc = this._drawcalls[0];
+        let dc = this._drawCalls[0];
         const ia = this.inputAssembler;
         if (!dc) {
             dc = DrawBatch2D.drawcallPool.add();
-            // 从 ia 里把信息拷贝过来
-            this._drawcalls.push(dc);
-            dc = this._drawcalls[0];
+            this._drawCalls.push(dc);
+            dc = this._drawCalls[0];
         }
         if (ia) {
             dc.drawInfo.firstIndex = ia.drawInfo.firstIndex;

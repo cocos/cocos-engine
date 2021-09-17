@@ -46,8 +46,8 @@ import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
-import { Mat4 } from '../../core/math';
 import { sys } from '../../core/platform/sys';
+import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -164,8 +164,6 @@ export class Batcher2D implements IBatcher {
 
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
-
-    // -------------------------------------
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -284,8 +282,8 @@ export class Batcher2D implements IBatcher {
                     }
                 } else {
                     // macro.UI_GPU_DRIVEN
-                    for (let i = 0; i < batch.drawcalls.length; i++) {
-                        batch.drawcalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawcalls[i]);
+                    for (let i = 0; i < batch.drawCalls.length; i++) {
+                        batch.drawCalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawCalls[i]);
                     }
                 }
                 batch.renderScene.addBatch(batch);
@@ -327,7 +325,7 @@ export class Batcher2D implements IBatcher {
                 continue;
             }
 
-            batch.clear(); // batch 是不是需要重新录制？？？
+            batch.clear();
             this._drawBatchPool.free(batch);
         }
         // macro.UI_GPU_DRIVEN
@@ -344,7 +342,7 @@ export class Batcher2D implements IBatcher {
         this._currOpacity = 1;
         this._meshBufferUseCount.clear();
         // macro.UI_GPU_DRIVEN
-        this._batches.clear(); // DC 数量有问题
+        this._batches.clear();
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
     }
@@ -380,7 +378,7 @@ export class Batcher2D implements IBatcher {
         }
 
         const renderScene = renderComp._getRenderScene();
-        const mat = renderComp.getRenderMaterial(0)!;
+        const mat = renderComp.getRenderMaterial(0);
         renderComp.stencilStage = StencilManager.sharedManager!.stage;
 
         const blendTargetHash = renderComp.blendHash;
@@ -395,7 +393,7 @@ export class Batcher2D implements IBatcher {
             this._currScene = renderScene;
             this._currComponent = renderComp;
             this._currTransform = transform;
-            this._currMaterial = mat;
+            this._currMaterial = mat!;
             this._currTexture = texture;
             this._currSampler = samp;
             this._currTextureHash = textureHash;
@@ -403,7 +401,6 @@ export class Batcher2D implements IBatcher {
             this._currBlendTargetHash = blendTargetHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
-            this._currBatch.UICapacityDirty = true;
         }
 
         if (assembler) {
@@ -462,7 +459,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
             curDrawBatch.fillDrawCallAssembler();
-            curDrawBatch.drawcalls[0].descriptorSet = subModel.descriptorSet;
+            curDrawBatch.drawCalls[0].descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
         }
 
@@ -520,7 +517,6 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        // 先有一个 currBatch，然后这 currBatch 调用方法
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
         curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
@@ -573,7 +569,6 @@ export class Batcher2D implements IBatcher {
         this._currLayer = renderComp.node.layer;
         this._currScene = renderComp._getRenderScene();
 
-        // 可能要区分
         this.autoMergeBatches(renderComp);
     }
 
@@ -585,7 +580,6 @@ export class Batcher2D implements IBatcher {
      * 强制合并上一个批次的数据，开启新一轮合批。
      */
     public finishMergeBatches () {
-        // 可能要区分
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
@@ -660,7 +654,6 @@ export class Batcher2D implements IBatcher {
     }
 
     private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
-        // 这里不用区分
         this.autoMergeBatches();
         this._requireBufferBatch(attributes, vertexCount, indexCount);
     }
@@ -877,5 +870,3 @@ class DescriptorSetCache {
         this._localCachePool.destroy((obj) => { obj.destroy(); });
     }
 }
-
-// legacyCC.internal.Batcher2D = Batcher2D;

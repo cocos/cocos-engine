@@ -1,5 +1,3 @@
-// Uniform 数据传输结构体
-
 import { Color, murmurhash2_32_gc, Vec2, Vec3, Vec4 } from '../../core';
 import { Buffer } from '../../core/gfx';
 import { BufferInfo, BufferUsageBit, BufferViewInfo, MemoryUsageBit } from '../../core/gfx/base/define';
@@ -111,18 +109,10 @@ export class UILocalBuffer {
         data[offset + 3] = mode + Math.min(fillType, 0.999); // Mode 和 progress 使用同一位
         // tilling offset
         offset += 4;
-        if (to) {
-            data[offset + 0] = to[0];
-            data[offset + 1] = to[1];
-            data[offset + 2] = to[2];
-            data[offset + 3] = to[3];
-        } else {
-            // 为 label 提供？ 可能是不需要的 // todo remove
-            data[offset + 0] = 1;
-            data[offset + 1] = 1;
-            data[offset + 2] = 0;
-            data[offset + 3] = 0;
-        }
+        data[offset + 0] = to[0];
+        data[offset + 1] = to[1];
+        data[offset + 2] = to[2];
+        data[offset + 3] = to[3];
         offset += 4;
         // uvExtra
         if (mode > 0) {
@@ -200,8 +190,6 @@ interface ILocalBuffers {
 }
 
 export class UILocalUBOManger {
-    // 给个接口吧
-    // public _localBuffers = new Map<number,  ILocalBufferPool>(); // UIPerUBO -> buffer[]
     public _localBuffers: ILocalBuffers[] = []; // UIPerUBO -> buffer[]
     private _device: Device;
 
@@ -214,13 +202,6 @@ export class UILocalUBOManger {
         // 根据 UIPerUBO 查找/创建 UILocalBuffer
         // UIPerUBO 结构标识，决定 UI 的排布结构
         // 如果修改的话，修改这个值，修改 shader 即可
-        // 先取一次这个 数组，之后处理
-        // if (!this._localBuffers.has(UIPerUBO)) {
-        //     this._localBuffers.set(UIPerUBO, {
-        //         pool: [this._createLocalBuffer(UIPerUBO, vec4PerUI, 0)],
-        //         currentIdx: 0,
-        //     });
-        // }
         const element = this._localBuffers.find(
             (element)  => element.key === UIPerUBO,
         );
@@ -233,7 +214,6 @@ export class UILocalUBOManger {
                 },
             });
         }
-        // const localBufferPool = this._localBuffers.get(UIPerUBO)!;
         const localBufferPool = this._localBuffers.find((element)  => element.key === UIPerUBO)!.value;
         while (localBufferPool.pool[localBufferPool.currentIdx].checkFull()) {
             if (++localBufferPool.currentIdx >= localBufferPool.pool.length) {
@@ -241,23 +221,12 @@ export class UILocalUBOManger {
                 localBufferPool.pool.push(this._createLocalBuffer(UIPerUBO, vec4PerUI, localBufferPool.currentIdx));
             }
         }
-        const localBuffer = localBufferPool.pool[localBufferPool.currentIdx]; // 取出实际要填充的对象
-        // 密集排列填充 // 避免内存浪费
-        // 直接在 upload 中更新索引值吧
-        // upload
+        const localBuffer = localBufferPool.pool[localBufferPool.currentIdx];
         localBuffer.upload(t, r, s, to, c, mode, uvExtra, fillType);
         return localBuffer;
     }
 
     public updateBuffer () {
-        // const it = this._localBuffers.values();
-        // let res = it.next();
-        // while (!res.done) {
-        //     for (let i = 0; i <= res.value.currentIdx; ++i) {
-        //         res.value.pool[i].updateBuffer();
-        //     }
-        //     res = it.next();
-        // }
         const length = this._localBuffers.length;
         let res;
         for (let i = 0; i < length; ++i) {
@@ -269,15 +238,6 @@ export class UILocalUBOManger {
     }
 
     public reset () {
-        // const it = this._localBuffers.values();
-        // let res = it.next();
-        // while (!res.done) {
-        //     for (let i = 0; i <= res.value.currentIdx; ++i) {
-        //         res.value.pool[i].reset();
-        //     }
-        //     res.value.currentIdx = 0;
-        //     res = it.next();
-        // }
         const length = this._localBuffers.length;
         let res;
         for (let i = 0; i < length; ++i) {

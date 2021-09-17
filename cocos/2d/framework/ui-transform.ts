@@ -685,12 +685,6 @@ export class UITransform extends Component {
         }
     }
 
-    // 这个 dirty 跟着谁走？
-    // 本身实际上是多个数据的影响的
-    // node 的 TRS Transform 的 rect sprite 的 renderData
-    // 先放这里是因为这儿能访问到
-    // 或者放到 uiPros 里？
-
     public checkAndUpdateRect (scale: Vec3) {
         if (this._rectDirty) {
             this._rectWithScale.x = scale.x * this.width;
@@ -703,9 +697,6 @@ export class UITransform extends Component {
             const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;
             this._anchorCache.x = (lenX) * Math.cos(eulerZ) - (lenY) * Math.sin(eulerZ);
             this._anchorCache.y = (lenX) * Math.sin(eulerZ) + (lenY) * Math.cos(eulerZ);
-
-            // 后面要用的话就先别置位
-            // this._rectDirty = false;
         }
     }
 

@@ -18,7 +18,7 @@ export interface IBatcher {
     registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
     unRegisterCustomBuffer (buffer: MeshBuffer);
 
-    currStaticRoot: UIStaticBatch | null;// 这俩函数没有 get
+    currStaticRoot: UIStaticBatch | null;
     currIsStatic: boolean;
 
     device: Device;

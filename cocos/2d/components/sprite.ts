@@ -605,10 +605,6 @@ export class Sprite extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        // 在 GPU 模式下不需要
-        // 但这个 _assembler 也为空？那renderData也为空？
-        // 这儿其实有个关键的更新问题，这儿会决定 fillType，实际上可以决定一个，数据的更新
-        // 需要考虑怎么更新合适
         // macro.UI_GPU_DRIVEN
         const assembler = Sprite.Assembler!.getAssembler(this);
 
@@ -626,7 +622,6 @@ export class Sprite extends Renderable2D {
                 this._updateColor();
             }
         }
-        // }
     }
 
     private _applySpriteSize () {

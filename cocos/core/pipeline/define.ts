@@ -446,8 +446,8 @@ export class UBOMorph {
 localDescriptorSetLayout.layouts[UBOMorph.NAME] = UBOMorph.LAYOUT;
 localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
 
-// UI uniform 数据填充的 UBO
-export class UBOUILocal { // 每个是 1 个 vec4
+// UI local uniform UBO
+export class UBOUILocal { // pre one vec4
     public static readonly NAME = 'CCUILocal';
     public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOUILocal.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);

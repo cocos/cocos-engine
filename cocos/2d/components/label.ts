@@ -736,7 +736,6 @@ export class Label extends Renderable2D {
     }
 
     public updateRenderData (force = false) {
-        // label 有个问题，它的贴图也是这儿生成的，所以都要
         this.markForUpdateRenderData();
 
         if (force) {

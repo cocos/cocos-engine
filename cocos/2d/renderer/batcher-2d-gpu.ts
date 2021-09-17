@@ -47,7 +47,7 @@ import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4 } from '../../core/math';
 import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
-import { DummyIA } from './dummy-ia';
+import { GenesisBlock } from './genesis-block';
 import { sys } from '../../core/platform/sys';
 import { IBatcher } from './i-batcher';
 import { DrawBatch2D, DrawCall } from './draw-batch';
@@ -168,12 +168,10 @@ export class Batcher2D implements IBatcher {
     private _descriptorSetCache = new DescriptorSetCache();
 
     // macro.UI_GPU_DRIVEN
-    declare private _dummyIA: DummyIA;
+    declare private _dummyIA: GenesisBlock;
     declare private _localUBOManager: UILocalUBOManger;
 
-    // 需要一个决定是否换批的东西
-    // 实际上存在一个问题，共存的时候不可避免的存在交叉使用，那么切换条件就很麻烦
-    private _currTypeIsGPU = false;// 决定是否使用
+    private _currTypeIsGPU = false;
 
     // macro.UI_GPU_DRIVEN
     declare private _reloadBatchDirty: boolean;
@@ -186,7 +184,7 @@ export class Batcher2D implements IBatcher {
         this._drawBatchPool = new Pool(() => new DrawBatch2DGPU(), 128);
         // macro.UI_GPU_DRIVEN
         if (UI_GPU_DRIVEN) {
-            this._dummyIA = new DummyIA(this.device);
+            this._dummyIA = new GenesisBlock(this.device);
             this._localUBOManager = new UILocalUBOManger(this.device);
             this._reloadBatchDirty = true;
         }
@@ -290,7 +288,7 @@ export class Batcher2D implements IBatcher {
         if (UI_GPU_DRIVEN) {
             this._localUBOManager.reset();
             if (this._reloadBatchDirty) {
-                // localDS 需要进行清空
+                // release localDS
                 this._descriptorSetCache.releaseAllByBuffer();
             }
         }
@@ -322,8 +320,8 @@ export class Batcher2D implements IBatcher {
                     }
                 } else {
                     // macro.UI_GPU_DRIVEN
-                    for (let i = 0; i < batch.drawcalls.length; i++) {
-                        batch.drawcalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawcalls[i]);
+                    for (let i = 0; i < batch.drawCalls.length; i++) {
+                        batch.drawCalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawCalls[i]);
                     }
                 }
                 batch.renderScene.addBatch(batch);
@@ -358,7 +356,7 @@ export class Batcher2D implements IBatcher {
             // macro.UI_GPU_DRIVEN
             if (UI_GPU_DRIVEN) {
                 this._localUBOManager.updateBuffer();
-                this._reloadBatchDirty = false; // 这里应该是更新用
+                this._reloadBatchDirty = false;
             }
         }
     }
@@ -370,7 +368,7 @@ export class Batcher2D implements IBatcher {
                 continue;
             }
 
-            batch.clear(); // batch 是不是需要重新录制？？？
+            batch.clear();
             this._drawBatchPool.free(batch as DrawBatch2DGPU);
         }
         // macro.UI_GPU_DRIVEN
@@ -387,12 +385,12 @@ export class Batcher2D implements IBatcher {
         this._currOpacity = 1;
         this._meshBufferUseCount.clear();
         // macro.UI_GPU_DRIVEN
-        this._batches.clear(); // DC 数量有问题
+        this._batches.clear();
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
     }
 
-    // macro.UI_GPU_DRIVEN // 上层不会调用 // 要不用 外挂的那种？
+    // macro.UI_GPU_DRIVEN
     private _commitCompByGPU (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
@@ -416,11 +414,6 @@ export class Batcher2D implements IBatcher {
         const blendTargetHash = renderComp.blendHash;
         const depthStencilStateStage = renderComp.stencilStage;
 
-        // 这儿要用 material Hash 了，那 uniform 不同怎么合批？
-        // 这里需要一个 额外的 机制，判断还能不能放得下这些 uniform？
-        // 需要一个条件，这个条件是我排除用户 uniform 之后可用的 uniform 数量
-        // 可配置，怎么配置？给个变量？倒是可以随意变
-        // 需要优化
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== true) {
@@ -448,27 +441,10 @@ export class Batcher2D implements IBatcher {
         }
         this._currTypeIsGPU = true;
 
-        // 暂时不用新建 batch
-        // if(!this._currBatch) {
-        //     this._currBatch = this._drawBatchPool.alloc();
-        // }
-        // 来一个填充一个，然后不用判断合批，直到不能合批
-        // this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
-
-        // 这个 dirty 负责将node 的 dirtyFlag 传递给 UITransform
-        // 然后 除了置位之外，这个 dirty 会影响两个 dirty
-        // 一个是 _rectDirty 更新 anchor 和 size 用
-        // 一个是 _renderDataDirty 更新所有其他数据用
-        // 考虑合并
-        // 为什么不直接使用 node._dirtyFlag 由于会被 gizmo 提前更新置位掉，这里想要使用的时候位就空了
         const uiPros = comp.node._uiProps;
         if (comp.node.hasChangedFlags) {
             uiPros.uiTransformComp!.setRectDirty(comp.node.hasChangedFlags);
         }
-        // 这个可以优化为执行不同函数？？ // 最好执行不同的函数 // 还有个 dirty 需要的，更新用的
-        // 由于节点树顺序发生变化，导致 buffer 中的数据发生变化，所以全部重新录制
-        // 没有集中处理的必要
-        // 全部信息都在此
         const localBuffer = this._currBatch.fillBuffers(comp, this._localUBOManager, mat, this);
         this._resetRenderDirty(comp);
         this._currBatch.fillDrawCall(localBuffer);
@@ -621,7 +597,7 @@ export class Batcher2D implements IBatcher {
             curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
             curDrawBatch.fillDrawCallAssembler();
-            curDrawBatch.drawcalls[0].descriptorSet = subModel.descriptorSet;
+            curDrawBatch.drawCalls[0].descriptorSet = subModel.descriptorSet;
             this._batches.push(curDrawBatch);
         }
 
@@ -655,7 +631,7 @@ export class Batcher2D implements IBatcher {
         this.finishMergeBatches();
     }
 
-    // macro.UI_GPU_DRIVEN // 要不用外挂？
+    // macro.UI_GPU_DRIVEN
     private autoMergeBatchesByGPU (renderComp?: Renderable2D) {
         if (!this._currScene) return;
 
@@ -674,8 +650,6 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        // 先有一个 currBatch，然后这 currBatch 调用方法
-        // const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
         curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
@@ -687,7 +661,6 @@ export class Batcher2D implements IBatcher {
         curDrawBatch.samplerHash = this._currSamplerHash;
         curDrawBatch.fillPasses(this._currMaterial, depthStencil, dssHash, blendState, bsHash, null, this);
 
-        // 这儿填充？？
         this._batches.push(curDrawBatch);
     }
 
@@ -720,7 +693,6 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        // 先有一个 currBatch，然后这 currBatch 调用方法
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
         curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
@@ -772,8 +744,6 @@ export class Batcher2D implements IBatcher {
         }
         this._currLayer = renderComp.node.layer;
         this._currScene = renderComp._getRenderScene();
-
-        // 可能要区分
         this.autoMergeBatches(renderComp);
     }
 
@@ -785,7 +755,6 @@ export class Batcher2D implements IBatcher {
      * 强制合并上一个批次的数据，开启新一轮合批。
      */
     public finishMergeBatches () {
-        // 可能要区分
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
@@ -869,7 +838,6 @@ export class Batcher2D implements IBatcher {
     }
 
     private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
-        // 这里不用区分
         this.autoMergeBatches();
         this._requireBufferBatch(attributes, vertexCount, indexCount);
     }
@@ -1046,7 +1014,7 @@ class DescriptorSetCache {
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);
                 const localBufferView = drawCall.bufferView;
-                descriptorSet.bindBuffer(ModelLocalBindings.UBO_LOCAL, localBufferView); // 这儿绑定的是 bufferView
+                descriptorSet.bindBuffer(ModelLocalBindings.UBO_LOCAL, localBufferView);
                 descriptorSet.update();
 
                 this._descriptorSetCache.set(hash, descriptorSet);
@@ -1106,5 +1074,3 @@ class DescriptorSetCache {
         this._localCachePool.destroy((obj) => { obj.destroy(); });
     }
 }
-
-// legacyCC.internal.Batcher2D = Batcher2D;

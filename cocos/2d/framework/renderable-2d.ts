@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { EDITOR, PREVIEW, UI_GPU_DRIVEN } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -161,7 +161,7 @@ export class Renderable2D extends RenderableComponent {
         this.updateMaterial();
     }
 
-    // macro.UI_GPU_DRIVEN // 处理过了
+    // macro.UI_GPU_DRIVEN
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
@@ -334,7 +334,7 @@ export class Renderable2D extends RenderableComponent {
     public __preload () {
         this.node._uiProps.uiComp = this;
         if (this._flushAssembler) {
-            this._flushAssembler(); // 用于 createRenderData，其中的实现需要区别对待了 // UI_GPU_DRIVEN 建议在子类中处理此函数的行为
+            this._flushAssembler();
         }
     }
 
@@ -451,7 +451,6 @@ export class Renderable2D extends RenderableComponent {
     protected _postRender (render: IBatcher) {}
 
     protected _checkAndUpdateRenderData () {
-        // renderDate 的标签已经失效
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
@@ -538,7 +537,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    // macro.UI_GPU_DRIVEN // 这里可能需要考虑效率？
+    // macro.UI_GPU_DRIVEN
     protected _updateBuiltinMaterial () : Material {
         let gpuMat = '';
         if (UI_GPU_DRIVEN) {
