@@ -84,7 +84,7 @@ exports.methods = {
                 const name = relatePath.split(sep)[0];
                 const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
                 const path = join(packagePath, relatePath.split(name)[1]);
-                if (this.$.customPanel.getAttribute('src') !== join(path)) {
+                if (this.$.customPanel.getAttribute('src') !== path) {
                     this.$.customPanel.setAttribute('src', path);
                 }
                 this.$.customPanel.update(this.material, this.assetList, this.metaList);
@@ -612,8 +612,10 @@ exports.ready = async function() {
         effectOption += `<option>${effect.name}</option>`;
     }
     this.$.effect.innerHTML = effectOption;
-    this.$.customPanel.addEventListener('change', () => {
+    this.$.customPanel.addEventListener('change', async () => {
         this.storeCache();
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
+        Editor.Message.broadcast('material-inspector:change-dump');
         this.setDirtyData();
         this.dispatch('change');
         this.updatePreview();
