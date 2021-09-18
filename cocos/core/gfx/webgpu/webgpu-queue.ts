@@ -1,40 +1,36 @@
 import { CommandBuffer } from '../base/command-buffer';
 import { Queue } from '../base/queue';
 import { WebGPUCommandBuffer } from './webgpu-command-buffer';
-import { QueueInfo } from '../base/define';
+import { QueueInfo, QueueType } from '../base/define';
+import { wgpuWasmModule } from './webgpu-utils';
 
 export class WebGPUQueue extends Queue {
-    public numDrawCalls = 0;
-    public numInstances = 0;
-    public numTris = 0;
 
-    private _nativeQueue: GPUQueue | null = null;
+    private _nativeQueue;
 
-    public initialize(info: QueueInfo): boolean {
+    get nativeQueue () {
+        return this._nativeQueue;
+    }
+
+    public initialize (info: QueueInfo): boolean {
         this._type = info.type;
 
+        const nativeDevice = wgpuWasmModule.nativeDevice;
+
+        const queueInfo = new wgpuWasmModule.QueueInfoInstance();
+        const qTypeStr = QueueType[info.type];
+        queueInfo.type = wgpuWasmModule.QueueType[qTypeStr];
+        this._nativeQueue = nativeDevice.createQueue(queueInfo);
         return true;
     }
 
-    public destroy() {
+    public destroy () {
+        this._nativeQueue.destroy();
+        this._nativeQueue.delete();
     }
 
-    public submit(cmdBuffs: CommandBuffer[]) {
-        // TODO: Async
-        if (!this._isAsync) {
-            for (let i = 0; i < cmdBuffs.length; i++) {
-                const cmdBuff = cmdBuffs[i] as WebGPUCommandBuffer;
-                // WebGPUCmdFuncExecuteCmds(this._device as WebGPUDevice, cmdBuff.cmdPackage); // opted out
-                this.numDrawCalls += cmdBuff.numDrawCalls;
-                this.numInstances += cmdBuff.numInstances;
-                this.numTris += cmdBuff.numTris;
-            }
-        }
+    public submit (cmdBuffs: CommandBuffer[]) {
+
     }
 
-    public clear() {
-        this.numDrawCalls = 0;
-        this.numInstances = 0;
-        this.numTris = 0;
-    }
 }

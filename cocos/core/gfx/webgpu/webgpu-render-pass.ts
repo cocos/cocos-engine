@@ -106,7 +106,7 @@ export class WebGPURenderPass extends RenderPass {
         return true;
     }
 
-    public nativeObj () {
+    get nativeRenderPass () {
         return this._nativeRenderPass;
     }
 

@@ -8,6 +8,10 @@ import { wgpuWasmModule } from './webgpu-utils';
 export class WebGPUPipelineLayout extends PipelineLayout {
     private _nativePipelineLayout;
 
+    get nativePipelineLayout () {
+        return this._nativePipelineLayout;
+    }
+
     public initialize (info: PipelineLayoutInfo) {
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const pipelineLayoutInfo = new wgpuWasmModule.PipelineLayoutInfoInstance();

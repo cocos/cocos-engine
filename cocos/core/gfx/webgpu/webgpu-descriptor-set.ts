@@ -6,6 +6,10 @@ import { wgpuWasmModule } from './webgpu-utils';
 export class WebGPUDescriptorSet extends DescriptorSet {
     private _nativeDescriptorSet;
 
+    get nativeDescriptorSet () {
+        return this._nativeDescriptorSet;
+    }
+
     public initialize (info: DescriptorSetInfo) {
         this._layout = info.layout;
         const nativeDevice = wgpuWasmModule.nativeDevice;
