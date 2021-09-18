@@ -69,7 +69,8 @@ export class Skybox {
 
     set useHDR (val: boolean) {
         this._setUseHDR(val);
-        this._updatePipeline();
+        const tex = this.envmap;
+        this.envmap = tex;
     }
 
     /**
@@ -95,6 +96,7 @@ export class Skybox {
 
     set useDiffusemap (val: boolean) {
         this._useDiffusemap = val;
+        this._updateGlobalBinding();
         this._updatePipeline();
     }
 
