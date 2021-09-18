@@ -8,13 +8,13 @@ import { WebGPURenderPass } from './webgpu-render-pass';
 export class WebGPUFramebuffer extends Framebuffer {
     private _nativeFramebuffer;
 
-    get nativeObj () {
+    get nativeFrameBuffer () {
         return this._nativeFramebuffer;
     }
 
     public initialize (info: FramebufferInfo): boolean {
         const framebufferInfo = new wgpuWasmModule.FramebufferInfoInstance();
-        framebufferInfo.setRenderPass((info.renderPass as WebGPURenderPass).nativeObj().getThis());
+        framebufferInfo.setRenderPass((info.renderPass as WebGPURenderPass).nativeRenderPass);
         const colors = new wgpuWasmModule.TextureList();
         const nativeDevice = wgpuWasmModule.nativeDevice;
         for (let i = 0; i < info.colorTextures.length; i++) {

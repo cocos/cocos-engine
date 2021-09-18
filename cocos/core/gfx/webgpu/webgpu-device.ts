@@ -7,14 +7,15 @@ import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
     SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo, ShaderInfo,
+    InputAssemblerInfo,
 } from '../base/define';
+import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { RenderPass } from '../base/render-pass';
 import { Sampler } from '../base/states/sampler';
 import { Swapchain } from '../base/swapchain';
 import { Buffer } from '../base/buffer';
 import { Shader } from '../base/shader';
-
-import { DescriptorSet, DescriptorSetLayout, PipelineLayout } from '..';
+import { InputAssembler, DescriptorSet, DescriptorSetLayout, PipelineLayout } from '..';
 
 import { wgpuWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
@@ -27,6 +28,8 @@ import { WebGPUDescriptorSet } from './webgpu-descriptor-set';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 import { WebGPUShader } from './webgpu-shader';
+import { WebGPUPipelineState } from './webgpu-pipeline-state';
+import { WebGPUInputAssembler } from './webgpu-input-assembler';
 import { assert } from '../../platform';
 
 function getChromeVersion () {
@@ -94,19 +97,14 @@ export class WebGPUDevice extends Device {
             return new Promise(poll);
         }
 
-        return init().then(() => {
-            this._caps.uboOffsetAlignment = 4;
-            return true;
-        });
+        this._caps.uboOffsetAlignment = 4;
+
+        return init().then(() => true);
     }
 
     public destroy (): void {
         this._nativeDevice?.destroy();
         this._nativeDevice?.delete();
-    }
-
-    public resize (width: number, height: number): void {
-        assert(false, 'resize not impl!');
     }
 
     public acquire (swapchains: Swapchain[]): void {
@@ -170,7 +168,11 @@ export class WebGPUDevice extends Device {
     }
 
     public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
-        assert(false, 'createInputAssembler not impl!');
+        const ia = new WebGPUInputAssembler();
+        if (ia.initialize(info)) {
+            return ia;
+        }
+        return null!;
     }
 
     public createRenderPass (info: RenderPassInfo): RenderPass {
@@ -204,7 +206,11 @@ export class WebGPUDevice extends Device {
     }
 
     public createPipelineState (info: PipelineStateInfo): PipelineState {
-        assert(false, 'createPipelineState not impl!');
+        const pipelineState = new WebGPUPipelineState();
+        if (pipelineState.initialize(info)) {
+            return pipelineState;
+        }
+        return null!;
     }
 
     public createQueue (info: QueueInfo): Queue {

@@ -6,6 +6,10 @@ import { wgpuWasmModule } from './webgpu-utils';
 export class WebGPUShader extends Shader {
     private _nativeShader;
 
+    get nativeShader () {
+        return this._nativeShader;
+    }
+
     public initialize (info: ShaderInfo): boolean {
         this._name = info.name;
         this._stages = info.stages;
