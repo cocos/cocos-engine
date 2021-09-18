@@ -761,8 +761,7 @@ export class Director extends EventTarget {
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
-            // The test environment does not currently support the renderer
-            if (!TEST) this._root!.frameMove(dt);
+            this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
@@ -790,8 +789,6 @@ export class Director extends EventTarget {
     }
 
     private _init () {
-        // The test environment does not currently support the renderer
-        if (TEST) return Promise.resolve();
         this._root = new Root(game._gfxDevice!);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {

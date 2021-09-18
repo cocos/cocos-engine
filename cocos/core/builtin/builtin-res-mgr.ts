@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { ImageAsset } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -40,6 +41,7 @@ class BuiltinResMgr {
 
     // this should be called after renderer initialized
     public initBuiltinRes (device: Device): Promise<void> {
+        if (TEST) return Promise.resolve();
         this._device = device;
         const resources = this._resources;
         const canvas = document.createElement('canvas');
