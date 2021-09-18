@@ -14,8 +14,12 @@ describe('render-texture', () => {
         expect(rt.getGFXTexture().width).toBe(256);
         expect(rt.getGFXTexture().height).toBe(256);
 
-        rt.width = 128;
+        rt.resize(128, 256);
         expect(rt.getGFXTexture().width).toBe(128);
+
+        rt.resize(0, 4096);
+        expect(rt.getGFXTexture().width).toBe(1);
+        expect(rt.getGFXTexture().height).toBe(2048);
     });
 
     test('serialize', () => {
@@ -23,8 +27,7 @@ describe('render-texture', () => {
         const rtData1 = rt._serialize(null);
         expect(rtData1).toStrictEqual({ base: '2,2,0,0,0,0', w: 1, h: 1, n: '' });
 
-        rt.width = 256;
-        rt.height = 128;
+        rt.resize(256, 128);
         rt.name = 'test';
         rt.setAnisotropy(16);
         rt.setFilters(Filter.NEAREST, Filter.NEAREST);

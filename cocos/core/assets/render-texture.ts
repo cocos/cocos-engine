@@ -28,9 +28,9 @@
  * @module asset
  */
 
-import { ccclass, rangeMin, rangeMax, serializable, range, rangeStep } from 'cc.decorator';
+import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { clamp } from '..';
+import { clamp } from '../math/utils';
 import { Texture, ColorAttachment, DepthStencilAttachment,
     AccessType, RenderPassInfo, Format } from '../gfx';
 import { legacyCC } from '../global-exports';
@@ -107,7 +107,7 @@ export class RenderTexture extends TextureBase {
         this._width = Math.floor(clamp(width, 1, 2048));
         this._height = Math.floor(clamp(height, 1, 2048));
         if (this._window) {
-            this._window.resize(width, height);
+            this._window.resize(this._width, this._height);
         }
         this.emit('resize', this._window);
     }
