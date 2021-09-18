@@ -51,6 +51,7 @@ const m4_1 = new Mat4();
 const _subModelPool = new Pool(() => new SubModel(), 32);
 
 const shadowMapPatches: IMacroPatch[] = [
+    { name: 'CC_ENABLE_DIR_SHADOW', value: true },
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
