@@ -31,11 +31,11 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable, inspector } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, Vec4 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { scene } from '../core/renderer';
 import ColorOverLifetimeModule from './animator/color-overtime';
@@ -57,6 +57,9 @@ import { IParticleSystemRenderer } from './renderer/particle-system-renderer-bas
 import { Particle, PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
+import { AABB, intersect } from '../core/geometry';
+import { Camera } from '../core/renderer/scene';
+import { ParticleCuller } from './particle-culler';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -564,6 +567,11 @@ export class ParticleSystem extends RenderableComponent {
     private _oldWPos: Vec3;
     private _curWPos: Vec3;
 
+    private _boundingBox: AABB | null;
+    private _boundPoints:Vec4[] = [];
+    private _boundExtends:Vec4[] = [];
+    private _culler: ParticleCuller | null;
+
     private _customData1: Vec2;
     private _customData2: Vec2;
 
@@ -600,6 +608,13 @@ export class ParticleSystem extends RenderableComponent {
         this._emitRateDistanceCounter = 0.0;
         this._oldWPos = new Vec3();
         this._curWPos = new Vec3();
+
+        this._boundingBox = null;
+        for (let i = 0; i < 8; ++i) {
+            this._boundPoints.push(new Vec4());
+            this._boundExtends.push(new Vec4());
+        }
+        this._culler = null;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -744,6 +759,7 @@ export class ParticleSystem extends RenderableComponent {
             this.processor.clear();
             if (this._trailModule) this._trailModule.clear();
         }
+        this._calculateBounding();
     }
 
     /**
@@ -769,6 +785,10 @@ export class ParticleSystem extends RenderableComponent {
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
+        if (this._culler) {
+            this._culler.clear();
+            this._culler.destroy();
+        }
     }
 
     protected onEnable () {
@@ -784,7 +804,57 @@ export class ParticleSystem extends RenderableComponent {
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
     }
+
+    private _calculateBounding () {
+        if (this._boundingBox) {
+            if (!this._culler) {
+                this._culler = new ParticleCuller(this);
+            }
+            this._culler.calculatePositions();
+            AABB.fromPoints(this._boundingBox, this._culler.minPos, this._culler.maxPos);
+            this._culler.clear();
+        }
+    }
+
     protected update (dt: number) {
+        if (this.enableCulling) {
+            if (!this._boundingBox) {
+                this._boundingBox = new AABB();
+                this._calculateBounding();
+            }
+
+            const cameraLst: Camera[]|undefined = this.node.scene.renderScene?.cameras;
+            let culled = true;
+            if (cameraLst !== undefined && this._boundingBox) {
+                for (let i = 0; i < cameraLst.length; ++i) {
+                    const camera:Camera = cameraLst[i];
+                    if (EDITOR) {
+                        if (camera.name === 'Editor Camera' && intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                            culled = false;
+                            break;
+                        }
+                    } else if (intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                        culled = false;
+                        break;
+                    }
+                }
+            }
+            if (culled) {
+                this.pause();
+            } else if (!this._isPlaying) {
+                this.play();
+            }
+        } else {
+            if (this._boundingBox) {
+                this._boundingBox = null;
+            }
+            if (this._culler) {
+                this._culler.clear();
+                this._culler.destroy();
+                this._culler = null;
+            }
+        }
+
         const scaledDeltaTime = dt * this.simulationSpeed;
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
