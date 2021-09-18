@@ -36,11 +36,11 @@ export class MouseInputSource {
 
     private _getLocation (mouseEvent: MouseEvent): Vec2 {
         const canvasRect = this._getCanvasRect();
-        let x = this._pointLocked ? (this._preMousePos.x + mouseEvent.movementX) : (mouseEvent.clientX - canvasRect.x);
-        let y = this._pointLocked ? (this._preMousePos.y - mouseEvent.movementY) : (canvasRect.y + canvasRect.height - mouseEvent.clientY);
         // TODO: should not call engine API
         const view = legacyCC.view;
         const dpr = view._devicePixelRatio;
+        let x = this._pointLocked ? (this._preMousePos.x / dpr + mouseEvent.movementX) : (mouseEvent.clientX - canvasRect.x);
+        let y = this._pointLocked ? (this._preMousePos.y / dpr - mouseEvent.movementY) : (canvasRect.y + canvasRect.height - mouseEvent.clientY);
         x *= dpr;
         y *= dpr;
         return new Vec2(x, y);
