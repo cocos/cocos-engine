@@ -16,8 +16,6 @@ export class PoseBlendEval implements PoseEval {
     private declare _weights: number[];
     private declare _inputs: number[];
 
-    public declare readonly duration: number;
-
     constructor (
         context: PoseEvalContext,
         poses: (Pose | null)[],
@@ -27,6 +25,14 @@ export class PoseBlendEval implements PoseEval {
         // this.duration = this._poseEvaluators.reduce(() => {}, 0.0);
         this._weights = new Array(this._poseEvaluators.length).fill(0);
         this._inputs = [...inputs];
+    }
+
+    get duration () {
+        let uniformDuration = 0.0;
+        for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
+            uniformDuration += (this._poseEvaluators[iPose]?.duration ?? 0.0) * this._weights[iPose];
+        }
+        return uniformDuration;
     }
 
     public poses (baseWeight: number): Iterator<PoseStatus, any, undefined> {
@@ -56,9 +62,9 @@ export class PoseBlendEval implements PoseEval {
         };
     }
 
-    public sample (time: number, weight: number) {
+    public sample (progress: number, weight: number) {
         for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            this._poseEvaluators[iPose]?.sample(time, weight * this._weights[iPose]);
+            this._poseEvaluators[iPose]?.sample(progress, weight * this._weights[iPose]);
         }
     }
 

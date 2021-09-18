@@ -17,7 +17,7 @@ export interface PoseEvalContext extends BindContext {
 
 export interface PoseEval {
     readonly duration: number;
-    sample(time: number, baseWeight: number): void;
+    sample(progress: number, baseWeight: number): void;
     poses(baseWeight: number): Iterator<PoseStatus>;
 }
 

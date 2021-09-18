@@ -1034,31 +1034,39 @@ export class PoseNodeEval extends NodeBaseEval {
     }
 
     get fromPortTime () {
-        return this._fromPort.time;
+        return this._fromPort.progress * this.duration;
     }
 
     public updateFromPort (deltaTime: number) {
-        this._fromPort.time += deltaTime * this._speed;
+        this._fromPort.progress = calcProgressUpdate(
+            this._fromPort.progress,
+            this.duration,
+            deltaTime * this._speed,
+        );
     }
 
     public updateToPort (deltaTime: number) {
-        this._toPort.time += deltaTime * this._speed;
+        this._toPort.progress = calcProgressUpdate(
+            this._toPort.progress,
+            this.duration,
+            deltaTime * this._speed,
+        );
     }
 
     public resetToPort () {
-        this._toPort.time = 0.0;
+        this._toPort.progress = 0.0;
     }
 
     public finishTransition () {
-        this._fromPort.time = this._toPort.time;
+        this._fromPort.progress = this._toPort.progress;
     }
 
     public sampleFromPort (weight: number) {
-        this._pose?.sample(this._fromPort.time, weight);
+        this._pose?.sample(this._fromPort.progress, weight);
     }
 
     public sampleToPort (weight: number) {
-        this._pose?.sample(this._toPort.time, weight);
+        this._pose?.sample(this._toPort.progress, weight);
     }
 
     public getPoses (baseWeight: number): Iterable<PoseStatus> {
@@ -1073,12 +1081,12 @@ export class PoseNodeEval extends NodeBaseEval {
     }
 
     private _pose: PoseEval | null = null;
-    private _speed = 0.0;
+    private _speed = 1.0;
     private _fromPort: PoseEvalPort = {
-        time: 0.0,
+        progress: 0.0,
     };
     private _toPort: PoseEvalPort = {
-        time: 0.0,
+        progress: 0.0,
     };
 
     private _setSpeed(value: number) {
@@ -1086,8 +1094,13 @@ export class PoseNodeEval extends NodeBaseEval {
     }
 }
 
+function calcProgressUpdate (currentProgress: number, duration: number, deltaTime: number) {
+    const progress = currentProgress + deltaTime / duration;
+    return progress - Math.trunc(progress);
+}
+
 interface PoseEvalPort {
-    time: number;
+    progress: number;
 }
 
 export class SpecialNodeEval extends NodeBaseEval {
