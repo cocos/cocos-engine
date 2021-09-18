@@ -32,7 +32,7 @@ import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemble
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform/debug';
-import { Shadows } from './shadows';
+import { ShadowInfo } from './shadow-info';
 import { NativePass, NativeSubModel } from './native-scene';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
@@ -225,7 +225,7 @@ export class SubModel {
         }
     }
 
-    private _initNativePlanarShadowShader (shadowInfo: Shadows) {
+    private _initNativePlanarShadowShader (shadowInfo: ShadowInfo) {
         this._planarShader = shadowInfo.getPlanarShader(this._patches);
         if (JSB) {
             this._nativeObj!.setPlanarShader(this._planarShader);
@@ -240,7 +240,7 @@ export class SubModel {
         this._initNativePlanarShadowShader(shadowInfo);
     }
 
-    private _initNativePlanarShadowInstanceShader (shadowInfo: Shadows) {
+    private _initNativePlanarShadowInstanceShader (shadowInfo: ShadowInfo) {
         this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
         if (JSB) {
             this._nativeObj!.setPlanarInstanceShader(this._planarInstanceShader);

@@ -38,7 +38,7 @@ import { RenderInstancedQueue } from './render-instanced-queue';
 import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
-import { ShadowType } from '../renderer/scene/shadows';
+import { ShadowType } from '../renderer/scene/shadow-info';
 import { ForwardPipeline } from './forward/forward-pipeline';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene/spot-light';

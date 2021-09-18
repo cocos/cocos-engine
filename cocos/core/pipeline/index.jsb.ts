@@ -220,7 +220,7 @@ export class DeferredPipeline extends nr.DeferredPipeline {
     this.fog.destroy();
     this.ambient.destroy();
     this.skybox.destroy();
-    this.shadows.destroy();
+    this.shadowInfo.destroy();
     this.pipelineSceneData.destroy();
     super.destroy();
   }

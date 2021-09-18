@@ -325,7 +325,7 @@ export class RenderAdditiveLightQueue {
     protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
         const device = this._pipeline.device;
         const sceneData = this._pipeline.pipelineSceneData;
-        const shadowInfo = sceneData.shadows;
+        const shadowInfo = sceneData.shadowInfo;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
         const linear = 0.0;

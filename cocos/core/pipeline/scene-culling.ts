@@ -35,7 +35,7 @@ import { Vec2, Vec3, Mat4, Quat, Vec4 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
-import { ShadowType, Shadows } from '../renderer/scene/shadows';
+import { ShadowType, ShadowInfo } from '../renderer/scene/shadow-info';
 import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
 
 const _tempVec3 = new Vec3();
@@ -95,11 +95,11 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
 }
 
 export function getShadowWorldMatrix (pipeline: RenderPipeline, rotation: Quat, dir: Vec3, out: Vec3) {
-    const shadows = pipeline.pipelineSceneData.shadows;
+    const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
     Vec3.negate(_dir_negate, dir);
-    const distance: number = shadows.fixedSphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
+    const distance: number = shadowInfo.fixedSphere.radius * ShadowInfo.COEFFICIENT_OF_EXPANSION;
     Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
-    Vec3.add(_vec3_p, _vec3_p, shadows.fixedSphere.center);
+    Vec3.add(_vec3_p, _vec3_p, shadowInfo.fixedSphere.center);
     out.set(_vec3_p);
 
     Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
@@ -108,14 +108,14 @@ export function getShadowWorldMatrix (pipeline: RenderPipeline, rotation: Quat, 
 }
 
 function updateSphereLight (pipeline: RenderPipeline, light: SphereLight) {
-    const shadows = pipeline.pipelineSceneData.shadows;
+    const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
 
     const pos = light.node!.worldPosition;
-    const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
+    const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
     const NdL = Vec3.dot(n, pos);
     const lx = pos.x; const ly = pos.y; const lz = pos.z;
     const nx = n.x; const ny = n.y; const nz = n.z;
-    const m = shadows.matLight;
+    const m = shadowInfo.matLight;
     m.m00 = NdL - d - lx * nx;
     m.m01 = -ly * nx;
     m.m02 = -lz * nx;
@@ -133,18 +133,18 @@ function updateSphereLight (pipeline: RenderPipeline, light: SphereLight) {
     m.m14 = lz * d;
     m.m15 = NdL;
 
-    pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET, shadows.matLight);
+    pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET, shadowInfo.matLight);
 }
 
 function updateDirLight (pipeline: RenderPipeline, light: DirectionalLight) {
-    const shadows = pipeline.pipelineSceneData.shadows;
+    const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
 
     const dir = light.direction;
-    const n = shadows.normal; const d = shadows.distance + 0.001; // avoid z-fighting
+    const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
     const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
     const lx = dir.x * scale; const ly = dir.y * scale; const lz = dir.z * scale;
     const nx = n.x; const ny = n.y; const nz = n.z;
-    const m = shadows.matLight;
+    const m = shadowInfo.matLight;
     m.m00 = 1 - nx * lx;
     m.m01 = -nx * ly;
     m.m02 = -nx * lz;
@@ -162,10 +162,10 @@ function updateDirLight (pipeline: RenderPipeline, light: DirectionalLight) {
     m.m14 = lz * d;
     m.m15 = 1;
 
-    pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET, shadows.matLight);
+    pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET, shadowInfo.matLight);
 }
 
-export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, shadowUBO: Float32Array) {
+export function updatePlanarPROJ (shadowInfo: ShadowInfo, light: DirectionalLight, shadowUBO: Float32Array) {
     const dir = light.direction;
     const n = shadowInfo.normal; const d = shadowInfo.distance + 0.001; // avoid z-fighting
     const NdL = Vec3.dot(n, dir); const scale = 1 / NdL;
@@ -225,7 +225,7 @@ export function getCameraWorldMatrix (out: Mat4, camera: Camera) {
 }
 
 export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipeline,
-    dirLight: DirectionalLight, camera: Camera, shadowInfo: Shadows) {
+    dirLight: DirectionalLight, camera: Camera, shadowInfo: ShadowInfo) {
     const device = pipeline.device;
     const invisibleOcclusionRange = shadowInfo.invisibleOcclusionRange;
     const shadowMapWidth = shadowInfo.size.x;
@@ -304,22 +304,22 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
     const sceneData = pipeline.pipelineSceneData;
-    const shadows = sceneData.shadows;
+    const shadowInfo = sceneData.shadowInfo;
     const skybox = sceneData.skybox;
 
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
     let shadowObjects: IRenderObject[] | null = null;
-    if (shadows.enabled) {
-        pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
-        if (shadows.type === ShadowType.ShadowMap) {
+    if (shadowInfo.enabled) {
+        pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadowInfo.shadowColor);
+        if (shadowInfo.type === ShadowType.ShadowMap) {
             shadowObjects = pipeline.pipelineSceneData.shadowObjects;
             shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
-                QuantizeDirLightShadowCamera(_dirLightFrustum, pipeline, mainLight, camera, shadows);
+                QuantizeDirLightShadowCamera(_dirLightFrustum, pipeline, mainLight, camera, shadowInfo);
             } else {
                 for (let i = 0; i < 8; i++) {
                     _dirLightFrustum.vertices[i].set(0.0, 0.0, 0.0);
@@ -330,7 +330,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     }
 
     if (mainLight) {
-        if (shadows.type === ShadowType.Planar) {
+        if (shadowInfo.type === ShadowType.Planar) {
             updateDirLight(pipeline, mainLight);
         }
     }

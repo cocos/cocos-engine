@@ -39,7 +39,7 @@ import { RenderPass, LoadOp, StoreOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
-import { Shadows, ShadowType } from '../../renderer/scene/shadows';
+import { ShadowType } from '../../renderer/scene/shadow-info';
 import { Light } from '../../renderer/scene/light';
 import { lightCollecting } from '../scene-culling';
 import { Camera } from '../../renderer/scene';
@@ -76,7 +76,7 @@ export class ShadowFlow extends RenderFlow {
 
     public render (camera: Camera) {
         const pipeline = this._pipeline as ForwardPipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
+        const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
         const shadowObjects = pipeline.pipelineSceneData.shadowObjects;
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
@@ -141,8 +141,8 @@ export class ShadowFlow extends RenderFlow {
 
     public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light) {
         const device = pipeline.device;
-        const shadows = pipeline.pipelineSceneData.shadows;
-        const shadowMapSize = shadows.size;
+        const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
+        const shadowMapSize = shadowInfo.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
         const format = supportsHalfFloatTexture(device) ? Format.R32F : Format.RGBA8;
 
@@ -209,8 +209,8 @@ export class ShadowFlow extends RenderFlow {
     }
 
     private resizeShadowMap () {
-        const shadows = this._pipeline.pipelineSceneData.shadows;
-        const shadowMapSize = shadows.size;
+        const shadowInfo = this._pipeline.pipelineSceneData.shadowInfo;
+        const shadowMapSize = shadowInfo.size;
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
@@ -248,6 +248,6 @@ export class ShadowFlow extends RenderFlow {
             res = it.next();
         }
 
-        shadows.shadowMapDirty = false;
+        shadowInfo.shadowMapDirty = false;
     }
 }

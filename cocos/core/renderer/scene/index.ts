@@ -29,7 +29,7 @@ export * from './deprecated';
 export * from './directional-light';
 export * from './light';
 export * from './model';
-export * from './shadows';
+export * from './shadow-info';
 export * from './render-scene';
 export * from './skybox';
 export * from './sphere-light';

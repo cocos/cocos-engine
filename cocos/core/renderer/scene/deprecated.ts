@@ -29,7 +29,8 @@ import { Layers } from '../../scene-graph/layers';
 import { legacyCC } from '../../global-exports';
 import { Pass } from '../core/pass';
 import { Camera } from './camera';
-import { Shadows } from './shadows';
+import { ShadowInfo } from './shadow-info';
+import { warnID } from '../../platform/debug';
 
 removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     { name: 'raycastUI2DNode' },
@@ -156,7 +157,14 @@ removeProperty(Camera.prototype, 'Camera.prototype', [
     },
 ]);
 
-removeProperty(Shadows.prototype, 'Shadows.prototype', [
+export class Shadows extends ShadowInfo {
+    constructor () {
+        super();
+        warnID(13105, this);
+    }
+}
+
+removeProperty(ShadowInfo.prototype, 'ShadowsInfo.prototype', [
     {
         name: 'aspect',
     },

@@ -27,7 +27,7 @@ import { JSB } from 'internal:constants';
 import { Fog } from '../renderer/scene/fog';
 import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
-import { Shadows } from '../renderer/scene/shadows';
+import { ShadowInfo } from '../renderer/scene/shadow-info';
 import { IRenderObject } from './define';
 import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
@@ -41,7 +41,7 @@ export class PipelineSceneData {
             this._nativeObj.fog = this.fog.native;
             this._nativeObj.ambient = this.ambient.native;
             this._nativeObj.skybox = this.skybox.native;
-            this._nativeObj.shadow = this.shadows.native;
+            this._nativeObj.shadow = this.shadowInfo.native;
         }
     }
 
@@ -87,7 +87,7 @@ export class PipelineSceneData {
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
-    public shadows: Shadows = new Shadows();
+    public shadowInfo: ShadowInfo = new ShadowInfo();
     /**
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
@@ -121,7 +121,7 @@ export class PipelineSceneData {
         this.ambient.destroy();
         this.skybox.destroy();
         this.fog.destroy();
-        this.shadows.destroy();
+        this.shadowInfo.destroy();
         if (JSB) {
             this._nativeObj = null;
         }

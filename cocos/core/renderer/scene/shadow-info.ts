@@ -38,7 +38,7 @@ import { Shader } from '../../gfx';
  * @zh 阴影贴图分辨率。
  * @en The shadow map size.
  * @static
- * @enum Shadows.ShadowSize
+ * @enum ShadowInfo.ShadowSize
  */
 export const ShadowSize = Enum({
     /**
@@ -73,7 +73,7 @@ export const ShadowSize = Enum({
 /**
  * @zh 阴影类型。
  * @en The shadow type
- * @enum Shadows.ShadowType
+ * @enum ShadowInfo.ShadowType
  */
 export const ShadowType = Enum({
     /**
@@ -97,7 +97,7 @@ export const ShadowType = Enum({
  * @zh pcf阴影等级。
  * @en The pcf type
  * @static
- * @enum Shadows.PCFType
+ * @enum ShadowInfo.PCFType
  */
 export const PCFType = Enum({
     /**
@@ -124,7 +124,7 @@ export const PCFType = Enum({
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
 
-export class Shadows {
+export class ShadowInfo {
     /**
      * @en MAX_FAR. This is shadow camera max far.
      * @zh 阴影相机的最远视距。
@@ -559,4 +559,4 @@ export class Shadows {
     }
 }
 
-legacyCC.Shadows = Shadows;
+legacyCC.ShadowInfo = ShadowInfo;

@@ -29,7 +29,7 @@ import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, color } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
-import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
+import { ShadowInfo, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadow-info';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
@@ -415,7 +415,7 @@ export class ShadowsInfo {
     @serializable
     protected _saturation = 0.75;
 
-    protected _resource: Shadows | null = null;
+    protected _resource: ShadowInfo | null = null;
 
     /**
      * @en Whether activate planar shadow
@@ -692,7 +692,7 @@ export class ShadowsInfo {
         this.distance = Vec3.dot(this._normal, _v3);
     }
 
-    public activate (resource: Shadows) {
+    public activate (resource: ShadowInfo) {
         this._resource = resource;
         this.pcf = Math.min(this._pcf, PCFType.SOFT_2X);
         this._resource.initialize(this);
@@ -744,7 +744,7 @@ export class SceneGlobals {
         const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
         this.ambient.activate(sceneData.ambient);
         this.skybox.activate(sceneData.skybox);
-        this.shadows.activate(sceneData.shadows);
+        this.shadows.activate(sceneData.shadowInfo);
         this.fog.activate(sceneData.fog);
     }
 }

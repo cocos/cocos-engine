@@ -30,7 +30,7 @@ import { InstancedBuffer } from './instanced-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Model, Camera } from '../renderer/scene';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { ShadowType } from '../renderer/scene/shadows';
+import { ShadowType } from '../renderer/scene/shadow-info';
 import { Layers } from '../scene-graph/layers';
 import { RenderPipeline } from './render-pipeline';
 
@@ -49,11 +49,11 @@ export class PlanarShadowQueue {
     public gatherShadowPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const pipelineUBO = this._pipeline.pipelineUBO;
-        const shadows = pipelineSceneData.shadows;
+        const shadowInfo = pipelineSceneData.shadowInfo;
         this._instancedQueue.clear();
         this._pendingModels.length = 0;
         this._castModels.length = 0;
-        if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
+        if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.Planar) { return; }
 
         pipelineUBO.updateShadowUBO(camera);
 
@@ -67,13 +67,13 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
-        const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
+        const instancedBuffer = InstancedBuffer.get(shadowInfo.instancingMaterial.passes[0]);
         this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < this._castModels.length; i++) {
             const model = this._castModels[i];
             if (model.worldBounds) {
-                AABB.transform(_ab, model.worldBounds, shadows.matLight);
+                AABB.transform(_ab, model.worldBounds, shadowInfo.matLight);
                 if (!intersect.aabbFrustum(_ab, frustum)) { continue; }
             }
             if (model.isInstancingEnabled) {
@@ -90,13 +90,13 @@ export class PlanarShadowQueue {
     }
 
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
-        const shadows = this._pipeline.pipelineSceneData.shadows;
+        const shadowInfo = this._pipeline.pipelineSceneData.shadowInfo;
 
-        if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
+        if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.Planar) { return; }
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         if (!this._pendingModels.length) { return; }
-        const pass = shadows.material.passes[0];
+        const pass = shadowInfo.material.passes[0];
         const descriptorSet = pass.descriptorSet;
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
 

@@ -3141,3 +3141,7 @@ Can not encode CCON binary: lack of text encoder.
 ### 13104
 
 Can not decode CCON binary: lack of text decoder.
+
+### 13105
+
+The Shadows is deprecated, please use ShadowInfo

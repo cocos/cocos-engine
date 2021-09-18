@@ -29,7 +29,7 @@ import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec2, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { ShadowType } from '../renderer/scene/shadows';
+import { ShadowType } from '../renderer/scene/shadow-info';
 import { updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene';
@@ -145,7 +145,7 @@ export class PipelineUBO {
         const device = pipeline.device;
         const mainLight = camera.scene!.mainLight;
         const sceneData = pipeline.pipelineSceneData;
-        const shadowInfo = sceneData.shadows;
+        const shadowInfo = sceneData.shadowInfo;
         const sv = bufferView;
 
         if (shadowInfo.enabled) {
@@ -215,7 +215,7 @@ export class PipelineUBO {
 
     public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light, camera: Camera) {
         const device = pipeline.device;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
+        const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
         const sv = bufferView;
         const linear = 0.0;
         const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
@@ -374,7 +374,7 @@ export class PipelineUBO {
 
     public updateShadowUBO (camera: Camera) {
         const sceneData = this._pipeline.pipelineSceneData;
-        const shadowInfo = sceneData.shadows;
+        const shadowInfo = sceneData.shadowInfo;
         if (!shadowInfo.enabled) return;
 
         const ds = this._pipeline.descriptorSet;
