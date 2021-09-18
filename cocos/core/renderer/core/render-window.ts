@@ -201,13 +201,29 @@ export class RenderWindow {
             this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
         } else {
             if (this._depthStencilTexture) {
-                this._depthStencilTexture.resize(width, height);
+                const dsTexInfo = new TextureInfo(
+                    this._depthStencilTexture.type,
+                    this._depthStencilTexture.usage,
+                    this._depthStencilTexture.format,
+                    width,
+                    height,
+                );
+                this._depthStencilTexture.destroy();
+                this._depthStencilTexture.initialize(dsTexInfo);
             }
 
             for (let i = 0; i < this._colorTextures.length; i++) {
                 const colorTex = this._colorTextures[i];
                 if (colorTex) {
-                    colorTex.resize(width, height);
+                    const colorTexInfo = new TextureInfo(
+                        colorTex.type,
+                        colorTex.usage,
+                        colorTex.format,
+                        width,
+                        height,
+                    );
+                    colorTex.destroy();
+                    colorTex.initialize(colorTexInfo);
                 }
             }
         }
