@@ -141,10 +141,7 @@ CCProgram standard-vs %{
     
     #if USE_TWOSIDE
       vec3 viewDirect = normalize(cc_cameraPos.xyz - v_position);
-      float judgeside = dot(v_normal, viewDirect);
-          if (judgeside < 0.0) {
-              v_normal = -v_normal;
-            }
+      v_normal *= dot(v_normal, viewDirect) < 0.0 ? -1.0 : 1.0;
     #endif
 
     #if USE_NORMAL_MAP
