@@ -113,13 +113,13 @@ export interface IGameConfig {
      * - 0 - 通过引擎自动选择。
      * - 1 - 强制使用 canvas 渲染。
      * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
-     * - 3 - 使用空渲染器，可以用于测试和服务器端环境
+     * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
      * @en
      * Sets the renderer type, only useful on web:
      * - 0 - Automatically chosen by engine.
      * - 1 - Forced to use canvas renderer.
      * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
-     * - 3 - Use Headless Renderer, which is useful in test or server env
+     * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
      */
     renderMode?: 0 | 1 | 2 | 3;
 
