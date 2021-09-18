@@ -108,10 +108,10 @@ bool setCanvasCallback(se::Object *global) {
            << "; window.nativeWidth= " << nativeWidth
            << "; window.nativeHeight = " << nativeHeight
            << "; window.windowHandler = ";
-        if constexpr (sizeof(windowHandle) == 8) { // use bigint
+        if (sizeof(windowHandle) == 8) { // use bigint
             ss << static_cast<uint64_t>(windowHandle) << "n;";
         }
-        if constexpr (sizeof(windowHandle) == 4) {
+        if (sizeof(windowHandle) == 4) {
             ss << static_cast<uint32_t>(windowHandle) << ";";
         }
     }

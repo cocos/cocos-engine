@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include <algorithm>
 #include "scene/Sphere.h"
+#include <algorithm>
 #include "base/TypeDef.h"
 
 namespace cc {
@@ -60,8 +60,9 @@ void Sphere::merge(const Vec3 &point) {
         return;
     }
 
-    Vec3 offset   = point - _center;
-    if (const float distance = offset.length(); distance > _radius) {
+    Vec3        offset   = point - _center;
+    const float distance = offset.length();
+    if (distance > _radius) {
         const float half = (distance - _radius) * 0.5F;
         _radius += half;
         offset.scale(half / distance);

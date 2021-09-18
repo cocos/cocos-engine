@@ -50,12 +50,12 @@ struct CC_DLL DeferredRenderData {
 };
 
 enum class DeferredInsertPoint {
-    IP_GBUFFER     = 100,
-    IP_LIGHTING    = 200,
-    IP_TRANSPARENT = 220,
-    IP_SSPR        = 300,
-    IP_POSTPROCESS = 400,
-    IP_INVALID
+    DIP_GBUFFER     = 100,
+    DIP_LIGHTING    = 200,
+    DIP_TRANSPARENT = 220,
+    DIP_SSPR        = 300,
+    DIP_POSTPROCESS = 400,
+    DIP_INVALID
 };
 
 class CC_DLL DeferredPipeline : public RenderPipeline {

@@ -1327,7 +1327,8 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
     // fallback subpassInputs into samplerTextures if not using FBF
     if (device->constantRegistry()->mFBF == FBFSupportLevel::NONE) {
         for (const auto &subpassInput : gpuShader->subpassInputs) {
-            auto &samplerTexture   = gpuShader->samplerTextures.emplace_back();
+            gpuShader->samplerTextures.emplace_back(UniformSamplerTexture());
+            auto &samplerTexture   = *gpuShader->samplerTextures.rbegin();
             samplerTexture.name    = subpassInput.name;
             samplerTexture.set     = subpassInput.set;
             samplerTexture.binding = subpassInput.binding;
@@ -1478,9 +1479,9 @@ void cmdFuncGLES3DestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
 
 void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *gpuRenderPass) {
     // calculate the life cycle of each attachments
-    auto updateLifeCycle = [](GLES3GPURenderPass::AttachmentStatistics &statistics, uint32_t index) {
-        if (statistics.loadSubpass == SUBPASS_EXTERNAL) statistics.loadSubpass = index;
-        statistics.storeSubpass = index;
+    auto updateLifeCycle = [](GLES3GPURenderPass::AttachmentStatistics &statistics, size_t index) {
+        if (statistics.loadSubpass == SUBPASS_EXTERNAL) statistics.loadSubpass = utils::toUint(index);
+        statistics.storeSubpass = utils::toUint(index);
     };
     auto calculateLifeCycle = [&](GLES3GPURenderPass::AttachmentStatistics &statistics, uint32_t targetAttachment) {
         for (size_t j = 0U; j < gpuRenderPass->subpasses.size(); ++j) {
@@ -1510,7 +1511,7 @@ void cmdFuncGLES3CreateRenderPass(GLES3Device * /*device*/, GLES3GPURenderPass *
     bool hasDepth = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN;
     gpuRenderPass->statistics.resize(gpuRenderPass->colorAttachments.size() + hasDepth);
     for (size_t i = 0U; i < gpuRenderPass->statistics.size(); ++i) {
-        calculateLifeCycle(gpuRenderPass->statistics[i], i);
+        calculateLifeCycle(gpuRenderPass->statistics[i], static_cast<uint32_t>(i));
         CC_ASSERT(gpuRenderPass->statistics[i].loadSubpass != SUBPASS_EXTERNAL &&
                   gpuRenderPass->statistics[i].storeSubpass != SUBPASS_EXTERNAL);
     }
@@ -1731,7 +1732,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
 
         gpuFBO->uberColorAttachmentIndices.clear();
         bool hasDepth{gpuFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN};
-        gpuFBO->uberDepthStencil = hasDepth ? gpuFBO->gpuColorTextures.size() : INVALID_BINDING;
+        gpuFBO->uberDepthStencil = hasDepth ? utils::toUint(gpuFBO->gpuColorTextures.size()) : INVALID_BINDING;
         for (uint32_t i = 0U; i < gpuFBO->gpuColorTextures.size(); ++i) {
             if (i == gpuFBO->uberFinalOutput) continue;
             const auto *gpuTexture = gpuFBO->gpuColorTextures[i];
@@ -1744,7 +1745,9 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
         doCreateFramebufferInstance(device, gpuFBO, gpuFBO->uberColorAttachmentIndices, gpuFBO->uberDepthStencil, &gpuFBO->uberInstance);
     } else {
         for (const auto &subpass : gpuFBO->gpuRenderPass->subpasses) {
-            doCreateFramebufferInstance(device, gpuFBO, subpass.colors, subpass.depthStencil, &gpuFBO->instances.emplace_back(),
+            gpuFBO->instances.emplace_back(GLES3GPUFramebuffer::Framebuffer());
+            auto &fboInst = *gpuFBO->instances.rbegin();
+            doCreateFramebufferInstance(device, gpuFBO, subpass.colors, subpass.depthStencil, &fboInst,
                                         subpass.resolves.empty() ? nullptr : subpass.resolves.data(), subpass.depthStencilResolve);
         }
     }

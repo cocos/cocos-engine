@@ -89,10 +89,12 @@ if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
     set(USE_JOB_SYSTEM_TBB      OFF)
 endif()
 
-# if(USE_JOB_SYSTEM_TASKFLOW)
-#     set(CMAKE_CXX_STANDARD 17)
-#     set(TARGET_IOS_VERSION "12.0"  CACHE STRING "Target iOS version" FORCE)
-# endif()
+if(USE_JOB_SYSTEM_TASKFLOW)
+    set(CMAKE_CXX_STANDARD 17)
+    if("${TARGET_IOS_VERSION}" VERSION_LESS "12.0")
+        message(FATAL_ERROR "Target iOS version requires 12.0+ when enable taskflow")
+    endif()
+endif()
 
 ################################# list all option values ##############################
 
@@ -253,12 +255,12 @@ if(USE_AUDIO)
     elseif(APPLE)
         cocos_source_files(
                          cocos/audio/apple/AudioDecoder.h
-                         cocos/audio/apple/AudioPlayer.mm
-                         cocos/audio/apple/AudioDecoder.mm
+            NO_WERROR    cocos/audio/apple/AudioPlayer.mm
+            NO_WERROR    cocos/audio/apple/AudioDecoder.mm
                          cocos/audio/apple/AudioPlayer.h
             NO_WERROR    cocos/audio/apple/AudioEngine-inl.mm
                          cocos/audio/apple/AudioMacros.h
-                         cocos/audio/apple/AudioCache.mm
+            NO_WERROR    cocos/audio/apple/AudioCache.mm
                          cocos/audio/apple/AudioCache.h
                          cocos/audio/apple/AudioEngine-inl.h
         )
@@ -636,8 +638,8 @@ elseif(APPLE)
         cocos_source_files(
                          cocos/platform/ios/View.h
             NO_WERROR    cocos/platform/ios/View.mm     # CAMetalLayer bug for apple
-                         cocos/platform/ios/Application-ios.mm
-                         cocos/platform/ios/Device-ios.mm
+            NO_WERROR    cocos/platform/ios/Application-ios.mm
+            NO_WERROR    cocos/platform/ios/Device-ios.mm
         )
     endif()
 endif()
@@ -1762,7 +1764,7 @@ elseif(MACOSX)
 elseif(IOS)
     if(USE_EDIT_BOX)
         cocos_source_files(
-                         cocos/ui/edit-box/EditBox-ios.mm
+             NO_WERROR   cocos/ui/edit-box/EditBox-ios.mm
         )
     endif()
     if(USE_VIDEO)
@@ -1999,12 +2001,10 @@ target_compile_definitions(cocos2d
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_DEFINITIONS}
 )
-if(NOT OHOS)
-    target_include_directories(cocos2d PUBLIC
-        ${CWD}/external/sources/EGL
-        ${CWD}/external/sources/khronos
-    )
-endif()
+target_include_directories(cocos2d PUBLIC
+    ${CWD}/external/sources/EGL
+    ${CWD}/external/sources/khronos
+)
 
 
 if(WIN32)

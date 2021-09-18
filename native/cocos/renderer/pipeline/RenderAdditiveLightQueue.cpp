@@ -35,6 +35,7 @@
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
+#include "base/Utils.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/RenderScene.h"
@@ -57,7 +58,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
         _lightBufferStride,
     });
     _firstLightBufferView    = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
-    _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
+    _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
     _dynamicOffsets.resize(1, 0);
     _phaseID = getPhaseID("forward-add");
     _shadowUBO.fill(0.F);
@@ -235,8 +236,8 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
         _firstLightBufferView->destroy();
 
         _lightBufferCount = nextPow2(static_cast<uint>(validLightCount));
-        _lightBuffer->resize(_lightBufferStride * _lightBufferCount);
-        _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
+        _lightBuffer->resize(utils::toUint(_lightBufferStride * _lightBufferCount));
+        _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
         _firstLightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
     }
 
@@ -429,7 +430,7 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
                 break;
         }
         if (!isCulled) {
-            _lightIndices.emplace_back(i);
+            _lightIndices.emplace_back(utils::toUint(i));
         }
     }
 }

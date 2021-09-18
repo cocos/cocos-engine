@@ -131,8 +131,8 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, gfx::RenderPass *r
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
     // DescriptorSet bindings
-    uint const globalOffsets[] = {pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+    const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
     // record commands
     _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
@@ -227,7 +227,7 @@ void GbufferStage::render(scene::Camera *camera) {
     // if empty == true, gbuffer and lightig passes will be ignored
     bool empty = _renderQueues[0]->empty() && _instancedQueue->empty() && _batchedQueue->empty();
     if (!empty) {
-        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::IP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
+        pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_GBUFFER), DeferredPipeline::fgStrHandleGbufferPass, gbufferSetup, gbufferExec);
     }
 }
 } // namespace pipeline

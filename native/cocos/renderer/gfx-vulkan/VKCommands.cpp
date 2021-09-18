@@ -1632,7 +1632,8 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
 
         VkPipelineStageFlags tempSrcStageMask = 0;
         VkPipelineStageFlags tempDstStageMask = 0;
-        thsvsGetVulkanImageMemoryBarrier(imageBarrier, &tempSrcStageMask, &tempDstStageMask, &vkImageBarriers.emplace_back());
+        vkImageBarriers.emplace_back(VkImageMemoryBarrier());
+        thsvsGetVulkanImageMemoryBarrier(imageBarrier, &tempSrcStageMask, &tempDstStageMask, &(*vkImageBarriers.rbegin()));
         srcStageMask |= tempSrcStageMask;
         dstStageMask |= tempDstStageMask;
 

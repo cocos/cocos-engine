@@ -33,11 +33,10 @@
 namespace cc {
 namespace pipeline {
 
-enum class ForwaedInsertPoint {
-    IP_FORWARD     = 100,
+enum class ForwardInsertPoint {
+    IP_FORWARD = 100,
     IP_INVALID
 };
-
 
 struct UBOGlobal;
 struct UBOCamera;
@@ -54,7 +53,7 @@ public:
     void render(const vector<scene::Camera *> &cameras) override;
 
     framegraph::FrameGraph &getFrameGraph() { return _fg; }
-    gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags, gfx::Swapchain *swapchain);
+    gfx::RenderPass *       getOrCreateRenderPass(gfx::ClearFlags clearFlags, gfx::Swapchain *swapchain);
 
     inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
     inline const LightList &      getValidLights() const { return _validLights; }

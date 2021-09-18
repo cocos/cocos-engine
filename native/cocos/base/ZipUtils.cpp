@@ -400,7 +400,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
 
     uLongf      destlen = len;
     const auto *source  = reinterpret_cast<const Bytef *>(buffer + sizeof(*header));
-    int         ret     = uncompress(*out, &destlen, source, bufferLen - sizeof(*header));
+    int         ret     = uncompress(*out, &destlen, source, static_cast<uLong>(bufferLen - sizeof(*header)));
 
     if (ret != Z_OK) {
         CC_LOG_DEBUG("CCZ: Failed to uncompress data");

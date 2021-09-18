@@ -23,34 +23,37 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-// clang-format: off
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-// Fix ssize_t defination
-#include "cocos/bindings/jswrapper/config.h"
-#endif
+// clang-format off
+#include "base/Macros.h"
 #include "uv.h"
-// clang-format: on
+// clang-format on
+
+#include "jsb_global_init.h"
+#include <chrono>
+#include <regex>
+#include <sstream>
+#include <type_traits>
+#include <utility>
 
 #include "base/CoreStd.h"
 #include "base/Scheduler.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
+#include "base/memory/Memory.h"
 #include "jsb_conversions.h"
-#include "jsb_global_init.h"
 #include "xxtea/xxtea.h"
-
-#include <chrono>
-#include <regex>
-#include <sstream>
 
 using namespace cc; //NOLINT
 
 se::Object *__jsbObj = nullptr; //NOLINT
 se::Object *__glObj  = nullptr; //NOLINT
 
-static std::string xxteaKey;
-void               jsb_set_xxtea_key(const std::string &key) { //NOLINT
-    xxteaKey = key;
+namespace {
+std::basic_string<unsigned char> xxteaKey;
+}
+
+void jsb_set_xxtea_key(const std::string &key) { //NOLINT
+    xxteaKey.assign(key.begin(), key.end());
 }
 
 static const char *BYTE_CODE_FILE_EXT = ".jsc"; //NOLINT
@@ -103,7 +106,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 size_t   dataLen = 0;
                 uint8_t *data    = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
-                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
+                                              const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
 
                 if (data == nullptr) {
@@ -144,7 +147,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 uint32_t dataLen;
                 uint8_t *data = xxtea_decrypt(static_cast<uint8_t *>(fileData.getBytes()), static_cast<uint32_t>(fileData.getSize()),
-                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
+                                              const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), &dataLen);
 
                 if (data == nullptr) {

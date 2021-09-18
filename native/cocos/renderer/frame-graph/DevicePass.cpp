@@ -32,6 +32,7 @@
 #include "ResourceNode.h"
 #include "base/Utils.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace framegraph {
@@ -96,7 +97,8 @@ void DevicePass::execute() {
 }
 
 void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> *attachments) {
-    Subpass &subpass = _subpasses.emplace_back();
+    _subpasses.emplace_back(Subpass());
+    Subpass &subpass = *_subpasses.rbegin();
 
     do {
         subpass.logicPasses.emplace_back();
@@ -135,7 +137,8 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
     RenderTargetAttachment *output{nullptr};
 
     if (it == attachments->end()) {
-        output = &attachments->emplace_back(attachment);
+        attachments->emplace_back(attachment);
+        output = &(*attachments->rbegin());
         _usedRenderTargetSlotMask |= 1 << attachment.desc.slot;
     } else {
         const ResourceNode &resourceNodeA = graph.getResourceNode(it->textureHandle);
@@ -152,7 +155,8 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
             }
         } else {
             CC_ASSERT(attachment.desc.usage == RenderTargetAttachment::Usage::COLOR);
-            output = &attachments->emplace_back(attachment);
+            attachments->emplace_back(attachment);
+            output = &(*attachments->rbegin());
 
             for (uint8_t i = 0; i < RenderTargetAttachment::DEPTH_STENCIL_SLOT_START; ++i) {
                 if ((_usedRenderTargetSlotMask & (1 << i)) == 0) {
@@ -187,8 +191,9 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;
         if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
-            auto &attachmentInfo           = rpInfo.colorAttachments.emplace_back();
-            attachmentInfo.format          = attachment->getFormat();
+            rpInfo.colorAttachments.emplace_back(gfx::ColorAttachment());
+            auto &attachmentInfo  = *rpInfo.colorAttachments.rbegin();
+            attachmentInfo.format = attachment->getFormat();
             attachmentInfo.loadOp          = attachElem.attachment.desc.loadOp;
             attachmentInfo.storeOp         = attachElem.attachment.storeOp;
             attachmentInfo.beginAccesses   = attachElem.attachment.desc.beginAccesses;

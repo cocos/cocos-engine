@@ -84,13 +84,16 @@ void CommandBufferAgent::initMessageQueue() {
     DeviceAgent *device = DeviceAgent::getInstance();
     device->_cmdBuffRefs.insert(this);
 
-    _messageQueue = CC_NEW(MessageQueue);
+    // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
+    _messageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue));
     if (device->_multithreaded) _messageQueue->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
-    CC_SAFE_DELETE(_messageQueue);
+    // TODO(PatriceJiang): replace with:  CC_SAFE_DELETE(_messageQueue);
+    _CC_DELETE_T_ALIGN(_messageQueue, MessageQueue, alignof(MessageQueue));
+    _messageQueue = nullptr;
 
     DeviceAgent::getInstance()->_cmdBuffRefs.erase(this);
 }
@@ -381,7 +384,8 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         totalSize += size * region.texSubres.layerCount;
     }
 
-    auto *allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
+    // TODO(PatriceJiang): in C++17 replace with:  auto *allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
+    auto *allocator = _CC_NEW_T_ALIGN_ARGS(ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator), totalSize);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
@@ -408,8 +412,9 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            CC_DELETE(allocator);
-        });
+            // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
+            _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
+            allocator = nullptr; });
 }
 
 void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {

@@ -29,7 +29,9 @@
 * "[WebSocket module] is based in part on the work of the libwebsockets  project
 * (http://libwebsockets.org)"
 *****************************************************************************/
+
 // clang-format off
+#include "base/Macros.h"
 #include "uv.h"
 // clang-format on
 

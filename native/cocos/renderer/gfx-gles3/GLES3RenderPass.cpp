@@ -49,17 +49,18 @@ void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
 
     // assign a dummy subpass if not specified
     if (_gpuRenderPass->subpasses.empty()) {
-        auto &subpass = _gpuRenderPass->subpasses.emplace_back();
+        _gpuRenderPass->subpasses.emplace_back(SubpassInfo());
+        auto &subpass = *_gpuRenderPass->subpasses.rbegin();
         subpass.colors.resize(_colorAttachments.size());
         for (uint32_t i = 0U; i < _colorAttachments.size(); ++i) {
             subpass.colors[i] = i;
         }
         if (_depthStencilAttachment.format != Format::UNKNOWN) {
-            subpass.depthStencil = _colorAttachments.size();
+            subpass.depthStencil = utils::toUint(_colorAttachments.size());
         }
     } else {
         // unify depth stencil index
-        uint32_t colorCount = _gpuRenderPass->colorAttachments.size();
+        uint32_t colorCount = utils::toUint(_gpuRenderPass->colorAttachments.size());
         for (auto &subpass : _gpuRenderPass->subpasses) {
             if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil > colorCount) {
                 subpass.depthStencil = colorCount;

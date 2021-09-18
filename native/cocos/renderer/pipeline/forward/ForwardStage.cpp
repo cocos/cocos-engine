@@ -138,9 +138,9 @@ void ForwardStage::dispenseRenderObject2Queues() {
 }
 
 void ForwardStage::recordCommands(scene::Camera *camera, gfx::RenderPass *renderPass) {
-    auto *     cmdBuff         = _pipeline->getCommandBuffers()[0];
-    uint const globalOffsets[] = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), static_cast<uint>(std::size(globalOffsets)), globalOffsets);
+    auto *                    cmdBuff       = _pipeline->getCommandBuffers()[0];
+    const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
+    cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), static_cast<uint>(globalOffsets.size()), globalOffsets.data());
     if (!_pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
         _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
         _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
@@ -158,15 +158,15 @@ void ForwardStage::render(scene::Camera *camera) {
         framegraph::TextureHandle backBuffer;
         framegraph::TextureHandle depth;
     };
-    auto *      pipeline      = static_cast<ForwardPipeline *>(_pipeline);
-    auto *const sceneData     = _pipeline->getPipelineSceneData();
-    auto *const sharedData    = sceneData->getSharedData();
+    auto *      pipeline   = static_cast<ForwardPipeline *>(_pipeline);
+    auto *const sceneData  = _pipeline->getPipelineSceneData();
+    auto *const sharedData = sceneData->getSharedData();
 
     // render area is not oriented
     _renderArea = pipeline->getRenderArea(camera, false);
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda
     dispenseRenderObject2Queues();
-    auto *cmdBuff{ pipeline->getCommandBuffers()[0] };
+    auto *cmdBuff{pipeline->getCommandBuffers()[0]};
 
     _instancedQueue->uploadBuffers(cmdBuff);
     _batchedQueue->uploadBuffers(cmdBuff);
@@ -175,21 +175,21 @@ void ForwardStage::render(scene::Camera *camera) {
 
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
-        if (sharedData->isHDR) {
-            srgbToLinear(&_clearColors[0], camera->clearColor);
-            auto scale{ sharedData->fpScale / camera->exposure };
-            _clearColors[0].x *= scale;
-            _clearColors[0].y *= scale;
-            _clearColors[0].z *= scale;
-        } else {
-            _clearColors[0].x = camera->clearColor.x;
-            _clearColors[0].y = camera->clearColor.y;
-            _clearColors[0].z = camera->clearColor.z;
-        }
+            if (sharedData->isHDR) {
+                srgbToLinear(&_clearColors[0], camera->clearColor);
+                auto scale{sharedData->fpScale / camera->exposure};
+                _clearColors[0].x *= scale;
+                _clearColors[0].y *= scale;
+                _clearColors[0].z *= scale;
+            } else {
+                _clearColors[0].x = camera->clearColor.x;
+                _clearColors[0].y = camera->clearColor.y;
+                _clearColors[0].z = camera->clearColor.z;
+            }
         }
         _clearColors[0].w = camera->clearColor.w;
         // color
-        gfx::TextureInfo colorTexInfo {
+        gfx::TextureInfo colorTexInfo{
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::TRANSFER_SRC,
             sharedData->isHDR ? gfx::Format::RGBA16F : gfx::Format::RGBA8,
@@ -215,7 +215,7 @@ void ForwardStage::render(scene::Camera *camera) {
         data.backBuffer                   = builder.write(data.backBuffer, colorAttachmentInfo);
         builder.writeToBlackboard(ForwardPipeline::fgStrHandleForwardColorTexture, data.backBuffer);
         // depth
-        gfx::TextureInfo depthTexInfo {
+        gfx::TextureInfo depthTexInfo{
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
             gfx::Format::DEPTH_STENCIL,
@@ -224,9 +224,9 @@ void ForwardStage::render(scene::Camera *camera) {
         };
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
-        depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
-        depthAttachmentInfo.clearDepth = camera->clearDepth;
+        depthAttachmentInfo.usage        = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
+        depthAttachmentInfo.loadOp       = gfx::LoadOp::CLEAR;
+        depthAttachmentInfo.clearDepth   = camera->clearDepth;
         depthAttachmentInfo.clearStencil = camera->clearStencil;
         depthAttachmentInfo.endAccesses  = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
@@ -243,9 +243,8 @@ void ForwardStage::render(scene::Camera *camera) {
     };
 
     // add pass
-    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(ForwaedInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
+    pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
     pipeline->getFrameGraph().presentFromBlackboard(ForwardPipeline::fgStrHandleForwardColorTexture, camera->window->frameBuffer->getColorTextures()[0]);
-
 }
 
 } // namespace pipeline

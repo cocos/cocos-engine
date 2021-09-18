@@ -146,30 +146,30 @@ uint32_t RenderPass::computeHash(const RenderPassInfo &info) {
             for (const uint32_t iaIndex : subpass.inputs) {
                 if (iaIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ia = info.colorAttachments[iaIndex];
-                seed += 4 + ia.beginAccesses.size() + ia.endAccesses.size();
+                seed += static_cast<uint32_t>(4 + ia.beginAccesses.size() + ia.endAccesses.size());
             }
             for (const uint32_t caIndex : subpass.colors) {
                 if (caIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ca = info.colorAttachments[caIndex];
-                seed += 4 + ca.beginAccesses.size() + ca.endAccesses.size();
+                seed += static_cast<uint32_t>(4 + ca.beginAccesses.size() + ca.endAccesses.size());
             }
             for (const uint32_t raIndex : subpass.resolves) {
                 if (raIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &ra = info.colorAttachments[raIndex];
-                seed += 4 + ra.beginAccesses.size() + ra.endAccesses.size();
+                seed += static_cast<uint32_t>(4 + ra.beginAccesses.size() + ra.endAccesses.size());
             }
             for (const uint32_t paIndex : subpass.preserves) {
                 if (paIndex >= info.colorAttachments.size()) break;
                 const ColorAttachment &pa = info.colorAttachments[paIndex];
-                seed += 4 + pa.beginAccesses.size() + pa.endAccesses.size();
+                seed += static_cast<uint32_t>(4 + pa.beginAccesses.size() + pa.endAccesses.size());
             }
             if (subpass.depthStencil != INVALID_BINDING) {
                 if (subpass.depthStencil < info.colorAttachments.size()) {
                     const auto &ds = info.colorAttachments[subpass.depthStencil];
-                    seed += 4 + ds.beginAccesses.size() + ds.endAccesses.size();
+                    seed += static_cast<uint32_t>(4 + ds.beginAccesses.size() + ds.endAccesses.size());
                 } else {
                     const auto &ds = info.depthStencilAttachment;
-                    seed += 6 + ds.beginAccesses.size() + ds.endAccesses.size();
+                    seed += static_cast<uint32_t>(6 + ds.beginAccesses.size() + ds.endAccesses.size());
                 }
             }
         }
@@ -200,9 +200,9 @@ uint32_t RenderPass::computeHash(const RenderPassInfo &info) {
         }
     } else {
         for (const ColorAttachment &ca : info.colorAttachments) {
-            seed += 4 + ca.beginAccesses.size() + ca.endAccesses.size();
+            seed += static_cast<uint32_t>(4 + ca.beginAccesses.size() + ca.endAccesses.size());
         }
-        seed += 6 + info.depthStencilAttachment.beginAccesses.size() + info.depthStencilAttachment.endAccesses.size();
+        seed += static_cast<uint32_t>(6 + info.depthStencilAttachment.beginAccesses.size() + info.depthStencilAttachment.endAccesses.size());
 
         for (const ColorAttachment &ca : info.colorAttachments) {
             computeAttachmentHash(ca, seed);

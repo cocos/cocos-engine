@@ -34,7 +34,8 @@
 #include "gfx-base/GFXRenderPass.h"
 #include "gfx-base/GFXTexture.h"
 
-namespace cc::pipeline {
+namespace cc {
+namespace pipeline {
 std::unordered_map<uint, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
 
 RenderFlowInfo ShadowFlow::initInfo = {
@@ -255,5 +256,5 @@ void ShadowFlow::destroy() {
 
     RenderFlow::destroy();
 }
-
-} // namespace cc::pipeline
+} // namespace pipeline
+} // namespace cc

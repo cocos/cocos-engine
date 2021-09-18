@@ -76,7 +76,9 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     _caps       = _actor->_caps;
     memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
 
-    _mainMessageQueue = CC_NEW(MessageQueue);
+    // NOTE: C++17 is required when enable alignment
+    // TODO(PatriceJiang): replace with: _mainMessageQueue = CC_NEW(MessageQueue);
+    _mainMessageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue)); //NOLINT
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
     static_cast<CommandBufferAgent *>(_cmdBuff)->initMessageQueue();
@@ -107,7 +109,10 @@ void DeviceAgent::doDestroy() {
     }
 
     _mainMessageQueue->terminateConsumerThread();
-    CC_SAFE_DELETE(_mainMessageQueue);
+    // NOTE: C++17 required when enable alignment
+    // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
+    _CC_DELETE_T_ALIGN(_mainMessageQueue, MessageQueue, alignof(MessageQueue)); // NOLINT
+    _mainMessageQueue = nullptr;
 }
 
 void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
@@ -267,7 +272,8 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         totalSize += size * region.texSubres.layerCount;
     }
 
-    auto *allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
+    //TODO(PatriceJiang): in C++17 replace with:*allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
+    auto *allocator = _CC_NEW_T_ALIGN_ARGS(ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator), totalSize);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
@@ -294,8 +300,9 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            CC_DELETE(allocator);
-        });
+            // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
+            _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
+            allocator = nullptr; });
 }
 
 void DeviceAgent::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
