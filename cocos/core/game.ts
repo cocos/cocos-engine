@@ -772,7 +772,7 @@ export class Game extends EventTarget {
         }
         const renderMode = config.renderMode;
         if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
-            config.renderMode = 3;
+            config.renderMode = 0;
         }
         config.showFPS = !!config.showFPS;
 
