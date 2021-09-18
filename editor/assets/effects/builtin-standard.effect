@@ -138,6 +138,15 @@ CCProgram standard-vs %{
 
     v_position = pos.xyz;
     v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+    
+    #if USE_TWOSIDE
+      vec3 viewDirect = normalize(cc_cameraPos.xyz - v_position);
+      float judgeside = dot(v_normal, viewDirect);
+          if (judgeside < 0.0) {
+              v_normal = -v_normal;
+            }
+    #endif
+
     #if USE_NORMAL_MAP
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
       v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
