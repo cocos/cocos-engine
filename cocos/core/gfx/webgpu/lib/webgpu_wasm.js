@@ -5251,6 +5251,18 @@ var ASM_CONSTS = {
     WebGPU.mgrPipelineLayout.release(id);
   }
 
+  function _wgpuQueueRelease(id) {
+    WebGPU.mgrQueue.release(id);
+  }
+
+  function _wgpuQueueSubmit(queueId, commandCount, commands) {
+      assert(commands % 4 === 0);
+      var queue = WebGPU.mgrQueue.get(queueId);
+      var cmds = Array.from(HEAP32.subarray(commands >> 2, (commands >> 2) + commandCount),
+        function(id) { return WebGPU.mgrCommandBuffer.get(id); });
+      queue["submit"](cmds);
+    }
+
   function _wgpuQueueWriteBuffer(queueId,
         bufferId, bufferOffset_low, bufferOffset_high, data, size) {
       
@@ -5502,6 +5514,8 @@ var asmLibraryArg = {
   "wgpuDeviceGetQueue": _wgpuDeviceGetQueue,
   "wgpuInstanceCreateSurface": _wgpuInstanceCreateSurface,
   "wgpuPipelineLayoutRelease": _wgpuPipelineLayoutRelease,
+  "wgpuQueueRelease": _wgpuQueueRelease,
+  "wgpuQueueSubmit": _wgpuQueueSubmit,
   "wgpuQueueWriteBuffer": _wgpuQueueWriteBuffer,
   "wgpuQueueWriteTexture": _wgpuQueueWriteTexture,
   "wgpuRenderPassEncoderDraw": _wgpuRenderPassEncoderDraw,
