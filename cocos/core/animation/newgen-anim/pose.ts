@@ -12,8 +12,6 @@ export interface PoseEvalContext extends BindContext {
 
     mask?: SkeletonMask;
 
-    speed: number;
-
     startRatio: number;
 }
 

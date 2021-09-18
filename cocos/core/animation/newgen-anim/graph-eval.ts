@@ -5,7 +5,7 @@ import { PoseEval, PoseEvalContext } from './pose';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value } from './variable';
-import { BindContext } from './parametric';
+import { BindContext, bindOr } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { PoseNode } from './pose-node';
@@ -1002,11 +1002,17 @@ interface SubgraphInfo {
 export class PoseNodeEval extends NodeBaseEval {
     constructor (node: PoseNode, context: LayerContext) {
         super(node);
-        this.speed = node.speed.value;
+        const speed = bindOr(
+            context,
+            node.speed,
+            VariableType.NUMBER,
+            this._setSpeed,
+            this,
+        );
+        this._speed = speed;
         this.startRatio = node.startRatio.value;
         const poseEvalContext: PoseEvalContext = {
             ...context,
-            speed: node.speed.value,
             startRatio: node.startRatio.value,
         };
         const poseEval = node.pose?.[createEval](poseEvalContext) ?? null;
@@ -1018,8 +1024,6 @@ export class PoseNodeEval extends NodeBaseEval {
     }
 
     public readonly kind = NodeKind.pose;
-
-    public speed: number;
 
     public startRatio: number;
 
@@ -1034,11 +1038,11 @@ export class PoseNodeEval extends NodeBaseEval {
     }
 
     public updateFromPort (deltaTime: number) {
-        this._fromPort.time += deltaTime;
+        this._fromPort.time += deltaTime * this._speed;
     }
 
     public updateToPort (deltaTime: number) {
-        this._toPort.time += deltaTime;
+        this._toPort.time += deltaTime * this._speed;
     }
 
     public resetToPort () {
@@ -1069,12 +1073,17 @@ export class PoseNodeEval extends NodeBaseEval {
     }
 
     private _pose: PoseEval | null = null;
+    private _speed = 0.0;
     private _fromPort: PoseEvalPort = {
         time: 0.0,
     };
     private _toPort: PoseEvalPort = {
         time: 0.0,
     };
+
+    private _setSpeed(value: number) {
+        this._speed = value;
+    }
 }
 
 interface PoseEvalPort {

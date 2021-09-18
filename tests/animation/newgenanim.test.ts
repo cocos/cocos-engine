@@ -1055,19 +1055,50 @@ describe('NewGen Anim', () => {
     });
 
     describe('Animation properties', () => {
-        test('Speed', () => {
-            const graph = new PoseGraph();
-            expect(graph.layers).toHaveLength(0);
-            const layer = graph.addLayer();
-            const layerGraph = layer.graph;
-            const poseNode = layerGraph.addPoseNode();
-            poseNode.pose = createPosePositionXLinear(1.0, 0.3, 1.7);
-            poseNode.speed.value = 1.2;
-            layerGraph.connect(layerGraph.entryNode, poseNode);
+        describe('Speed', () => {
+            test(`Constant`, () => {
+                const graph = new PoseGraph();
+                expect(graph.layers).toHaveLength(0);
+                const layer = graph.addLayer();
+                const layerGraph = layer.graph;
+                const poseNode = layerGraph.addPoseNode();
+                poseNode.pose = createPosePositionXLinear(1.0, 0.3, 1.7);
+                poseNode.speed.value = 1.2;
+                layerGraph.connect(layerGraph.entryNode, poseNode);
 
-            const node = new Node();
-            const poseGraphEval = createPoseGraphEval(graph, node);
-            poseGraphEval.update(0.5);
+                const node = new Node();
+                const poseGraphEval = createPoseGraphEval(graph, node);
+                poseGraphEval.update(0.2);
+                expect(node.position.x).toBeCloseTo(
+                    0.3 + (1.7 - 0.3) * (0.2 * 1.2 / 1.0),
+                );
+            });
+
+            test(`Variable`, () => {
+                const graph = new PoseGraph();
+                expect(graph.layers).toHaveLength(0);
+                const layer = graph.addLayer();
+                const layerGraph = layer.graph;
+                const poseNode = layerGraph.addPoseNode();
+                poseNode.pose = createPosePositionXLinear(1.0, 0.3, 1.7);
+                poseNode.speed.variable = 'speed';
+                poseNode.speed.value = 1.2;
+                graph.addVariable('speed', VariableType.NUMBER, 0.5);
+                layerGraph.connect(layerGraph.entryNode, poseNode);
+
+                const node = new Node();
+                const poseGraphEval = createPoseGraphEval(graph, node);
+                poseGraphEval.update(0.2);
+                expect(node.position.x).toBeCloseTo(
+                    0.3 + (1.7 - 0.3) * (0.2 * 0.5 / 1.0),
+                );
+
+                poseGraphEval.setValue('speed', 1.2);
+                poseGraphEval.update(0.2);
+                expect(node.position.x).toBeCloseTo(
+                    0.3 + (1.7 - 0.3) * ((0.2 * 0.5 + 0.2 * 1.2) / 1.0),
+                );
+            });
         });
     });
 
