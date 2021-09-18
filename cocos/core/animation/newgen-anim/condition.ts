@@ -33,7 +33,7 @@ export class BinaryCondition implements Condition {
     public static readonly Operator = BinaryOperator;
 
     @serializable
-    public operator!: BinaryOperator;
+    public operator: BinaryOperator = BinaryOperator.EQUAL_TO;
 
     @serializable
     public lhs: BindableNumber = new BindableNumber();
@@ -137,7 +137,7 @@ export class UnaryCondition implements Condition {
     public static readonly Operator = UnaryOperator;
 
     @serializable
-    public operator!: UnaryOperator;
+    public operator: UnaryOperator = UnaryOperator.TRUTHY;
 
     @serializable
     public operand = new BindableBoolean();

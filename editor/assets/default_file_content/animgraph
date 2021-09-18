@@ -23,10 +23,8 @@
   },
   {
     "__type__": "cc.animation.PoseSubgraph",
-    "_bindings": {},
     "name": "",
-    "onEnter": null,
-    "onExit": null,
+    "_components": [],
     "_nodes": [
       {
         "__id__": 3
@@ -51,23 +49,14 @@
   },
   {
     "__type__": "cc.animation.GraphNode",
-    "_bindings": {},
-    "name": "Entry",
-    "onEnter": null,
-    "onExit": null
+    "name": "Entry"
   },
   {
     "__type__": "cc.animation.GraphNode",
-    "_bindings": {},
-    "name": "Exit",
-    "onEnter": null,
-    "onExit": null
+    "name": "Exit"
   },
   {
     "__type__": "cc.animation.GraphNode",
-    "_bindings": {},
-    "name": "Any",
-    "onEnter": null,
-    "onExit": null
+    "name": "Any"
   }
 ]
