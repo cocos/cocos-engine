@@ -6,9 +6,10 @@ import { Pose, PoseEval, PoseEvalContext } from './pose';
 import { PoseBlend, PoseBlendEval, validateBlendParam } from './pose-blend';
 import { blend1D } from './blend-1d';
 import { VariableType } from '.';
+import { EditorExtendable } from '../../data/editor-extendable';
 
 @ccclass('cc.animation.Blender1D')
-export class PoseBlend1D implements PoseBlend {
+export class PoseBlend1D extends EditorExtendable implements PoseBlend {
     @serializable
     protected _poses: (Pose | null)[] = [];
 

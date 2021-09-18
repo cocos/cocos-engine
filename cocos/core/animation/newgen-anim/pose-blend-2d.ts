@@ -8,6 +8,7 @@ import { serializable, type } from '../../data/decorators';
 import { BindableNumber, bindOr } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 import { VariableType } from '.';
+import { EditorExtendable } from '../../data/editor-extendable';
 
 enum Algorithm {
     SIMPLE_DIRECTIONAL,
@@ -18,7 +19,7 @@ enum Algorithm {
 ccenum(Algorithm);
 
 @ccclass('cc.animation.Blender2D')
-export class PoseBlend2D implements PoseBlend {
+export class PoseBlend2D extends EditorExtendable implements PoseBlend {
     public static Algorithm = Algorithm;
 
     @serializable

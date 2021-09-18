@@ -5,8 +5,9 @@ import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
 import { serializable } from '../../data/decorators';
 import { PoseStatus } from './graph-eval';
+import { EditorExtendable } from '../../data/editor-extendable';
 
-export interface PoseBlend extends Pose {
+export interface PoseBlend extends Pose, EditorExtendable {
     [createEval] (_context: PoseEvalContext): PoseEval | null;
 }
 
