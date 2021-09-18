@@ -149,6 +149,7 @@ export class Profiler {
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
+            this._pipeline.profiler = null;
             legacyCC.game.config.showFPS = false;
         }
     }
@@ -373,7 +374,7 @@ export class Profiler {
     }
 
     public beforeDraw () {
-        if (!this._stats) {
+        if (!this._stats || !this._inited) {
             return;
         }
 
