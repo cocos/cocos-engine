@@ -37,7 +37,8 @@ import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event';
-import { eventManager, inputManager } from '../input';
+import { input } from '../input';
+import { eventManager } from '../input/event-manager';
 import { game, Game } from './game';
 import { v2, Vec2 } from './math';
 import { Root } from './root';
@@ -734,7 +735,8 @@ export class Director extends EventTarget {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR) {
-                inputManager.frameDispatchEvents();
+                // @ts-expect-error _frameDispatchEvents is a private method.
+                input._frameDispatchEvents();
             }
             // Update
             if (!this._paused) {
