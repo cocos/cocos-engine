@@ -98,7 +98,7 @@ export class MorphWeightsAllValueProxy implements IValueProxyFactory {
     public forTarget (target: MeshRenderer) {
         return {
             set: (value: number[]) => {
-                const nSubMeshes = target.mesh?.struct.primitives.length ?? 0;
+                const nSubMeshes = target.mesh?.subMeshes.length ?? 0;
                 for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
                     target.setWeights(value, iSubMesh);
                 }

@@ -29,18 +29,20 @@
  */
 
 import { AttributeName, Buffer, BufferUsageBit, Device, Feature, MemoryUsageBit, DescriptorSet, BufferInfo } from '../../core/gfx';
-import { Mesh } from './mesh';
+import { Mesh, SubMesh } from './mesh';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { ImageAsset } from '../../core/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
-import { warn } from '../../core/platform/debug';
-import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
+import { warn, warnID } from '../../core/platform/debug';
+import { MorphRendering, MorphRenderingInstance } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
 import { log2, nextPow2 } from '../../core/math/bits';
 import { IMacroPatch } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
+
+type SubMeshMorph = NonNullable<SubMesh['morph']>;
 
 /**
  * True if force to use cpu computing based sub-mesh rendering.
@@ -58,50 +60,40 @@ export class StdMorphRendering implements MorphRendering {
 
     constructor (mesh: Mesh, gfxDevice: Device) {
         this._mesh = mesh;
-        if (!this._mesh.struct.morph) {
-            return;
-        }
 
-        const nSubMeshes = this._mesh.struct.primitives.length;
-        this._subMeshRenderings = new Array(nSubMeshes).fill(null);
-        for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
-            const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[iSubMesh];
+        this._subMeshRenderings = mesh.subMeshes.map((subMesh, iSubMesh) => {
+            const { morph: subMeshMorph } = subMesh;
             if (!subMeshMorph) {
-                continue;
+                return null;
             }
-
             if (preferCpuComputing || subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
-                this._subMeshRenderings[iSubMesh] = new CpuComputing(
+                return new CpuComputing(
                     this._mesh,
                     iSubMesh,
-                    this._mesh.struct.morph,
+                    subMeshMorph,
                     gfxDevice,
                 );
             } else {
-                this._subMeshRenderings[iSubMesh] = new GpuComputing(
+                return new GpuComputing(
                     this._mesh,
                     iSubMesh,
-                    this._mesh.struct.morph,
+                    subMeshMorph,
                     gfxDevice,
                 );
             }
-        }
+        });
     }
 
     public createInstance (): MorphRenderingInstance {
-        const nSubMeshes = this._mesh.struct.primitives.length;
-        const subMeshInstances: (SubMeshMorphRenderingInstance | null)[] = new Array(nSubMeshes);
-        for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
-            subMeshInstances[iSubMesh] = this._subMeshRenderings[iSubMesh]?.createInstance() ?? null;
-        }
+        const subMeshInstances = this._subMeshRenderings.map((subMeshRendering) => subMeshRendering?.createInstance() ?? null);
         return {
             setWeights (subMeshIndex: number, weights: number[]) {
                 subMeshInstances[subMeshIndex]?.setWeights(weights);
             },
 
             requiredPatches: (subMeshIndex: number) => {
-                assertIsNonNullable(this._mesh.struct.morph);
-                const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[subMeshIndex];
+                const subMeshMorph = this._mesh.subMeshes[subMeshIndex].morph;
+                assertIsNonNullable(subMeshMorph);
                 const subMeshRenderingInstance = subMeshInstances[subMeshIndex];
                 if (subMeshRenderingInstance === null) {
                     return null;
@@ -192,15 +184,13 @@ class GpuComputing implements SubMeshMorphRendering {
     }[];
     private _verticesCount: number;
 
-    constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: Device) {
+    constructor (mesh: Mesh, subMeshIndex: number, subMeshMorph: SubMeshMorph, gfxDevice: Device) {
         this._gfxDevice = gfxDevice;
-        const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
-        assertIsNonNullable(subMeshMorph);
         this._subMeshMorph = subMeshMorph;
 
         enableVertexId(mesh, subMeshIndex, gfxDevice);
 
-        const nVertices = mesh.struct.vertexBundles[mesh.struct.primitives[subMeshIndex].vertexBundelIndices[0]].view.count;
+        const nVertices = mesh.subMeshes[subMeshIndex].vertexCount;
         this._verticesCount = nVertices;
         const nTargets = subMeshMorph.targets.length;
         const vec4Required = nVertices * nTargets;
@@ -222,7 +212,7 @@ class GpuComputing implements SubMeshMorphRendering {
             // }
             subMeshMorph.targets.forEach((morphTarget, morphTargetIndex) => {
                 const displacementsView = morphTarget.displacements[attributeIndex];
-                const displacements = new Float32Array(mesh.data.buffer, mesh.data.byteOffset + displacementsView.offset, displacementsView.count);
+                const displacements = displacementsView;
                 const displacementsOffset = (nVertices * morphTargetIndex) * 4;
                 for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
                     valueView[displacementsOffset + 4 * iVertex + 0] = displacements[3 * iVertex + 0];
@@ -297,19 +287,13 @@ class CpuComputing implements SubMeshMorphRendering {
         }[];
     }[] = [];
 
-    constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: Device) {
+    constructor (mesh: Mesh, subMeshIndex: number, subMeshMorph: SubMeshMorph, gfxDevice: Device) {
         this._gfxDevice = gfxDevice;
-        const subMeshMorph = morph.subMeshMorphs[subMeshIndex];
-        assertIsNonNullable(subMeshMorph);
         enableVertexId(mesh, subMeshIndex, gfxDevice);
         this._attributes = subMeshMorph.attributes.map((attributeName, attributeIndex) =>  ({
             name: attributeName,
             targets: subMeshMorph.targets.map((attributeDisplacement) => ({
-                displacements: new Float32Array(
-                    mesh.data.buffer,
-                    mesh.data.byteOffset + attributeDisplacement.displacements[attributeIndex].offset,
-                    attributeDisplacement.displacements[attributeIndex].count,
-                ),
+                displacements: attributeDisplacement.displacements[attributeIndex],
             })),
         }));
     }

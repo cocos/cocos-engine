@@ -18,6 +18,7 @@ module.exports = {
     setupFiles: [
         './tests/init.ts',
     ],
+    setupFilesAfterEnv: ["jest-extended"],
     coverageDirectory: './test/report/',
     globals: {
         CC_DEV: true,

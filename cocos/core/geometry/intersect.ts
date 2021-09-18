@@ -454,8 +454,8 @@ const rayMesh = (function () {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const length = mesh.renderingSubMeshes.length;
-        const min = mesh.struct.minPosition;
-        const max = mesh.struct.maxPosition;
+        const min = mesh.minPosition;
+        const max = mesh.maxPosition;
         if (min && max && !rayAABB2(ray, min, max)) return minDis;
         for (let i = 0; i < length; i++) {
             const sm = mesh.renderingSubMeshes[i];

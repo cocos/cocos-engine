@@ -37,20 +37,15 @@ enum _keyMap {
 
 export function readMesh (mesh: Mesh, iPrimitive = 0) {
     const out: IGeometry = { positions: [] };
-    const dataView = new DataView(mesh.data.buffer, mesh.data.byteOffset, mesh.data.byteLength);
-    const struct = mesh.struct;
-    const primitive = struct.primitives[iPrimitive];
-    for (const idx of primitive.vertexBundelIndices) {
-        const bundle = struct.vertexBundles[idx];
-        let offset = bundle.view.offset;
-        const { length, stride } = bundle.view;
-        for (const attr of bundle.attributes) {
-            const name: AttributeName = _keyMap[attr.name];
-            if (name) { out[name] = (out[name] || []).concat(readBuffer(dataView, attr.format, offset, length, stride)); }
-            offset += FormatInfos[attr.format].size;
+    const subMesh = mesh.subMeshes[iPrimitive];
+    subMesh.attributeNames.forEach((attributeName) => {
+        const name: AttributeName = _keyMap[attributeName];
+        if (name) {
+            out[name] = (out[name] || []).concat(subMesh.viewAttribute(attributeName).read());
         }
+    });
+    if (subMesh.hasIndices()) {
+        out.indices = Array.from(subMesh.readIndices()!);
     }
-    const view = primitive.indexView!;
-    out.indices = readBuffer(dataView, Format[`R${view.stride * 8}UI`], view.offset, view.length);
     return out;
 }

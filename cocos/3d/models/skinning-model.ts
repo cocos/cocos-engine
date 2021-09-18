@@ -122,7 +122,7 @@ export class SkinningModel extends MorphModel {
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this.transform = skinningRoot;
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
-        const jointMaps = mesh.struct.jointMaps;
+        const jointMaps = mesh.jointMaps;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
         this._bufferIndices = mesh.jointBufferIndices;
         const nativeJoints: NativeJointInfo[] = [];

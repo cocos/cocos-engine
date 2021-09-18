@@ -229,6 +229,9 @@ export class MeshRenderer extends RenderableComponent {
         const old = this._mesh;
         const mesh = this._mesh = val;
         mesh?.initialize();
+        mesh?.once(Mesh.EventType.RENDERING_SUB_MESH_RECONSTITUTED, () => {
+            this.mesh = val;
+        });
         this._initSubMeshShapesWeights();
         this._watchMorphInMesh();
         this._onMeshChanged(old);
@@ -246,11 +249,7 @@ export class MeshRenderer extends RenderableComponent {
 
     // eslint-disable-next-line func-names
     @visible(function (this: MeshRenderer) {
-        return !!(
-            this.mesh
-            && this.mesh.struct.morph
-            && this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
-        );
+        return !!this.mesh?.hasMorph();
     })
     @disallowAnimation
     get enableMorph () {
@@ -418,7 +417,7 @@ export class MeshRenderer extends RenderableComponent {
         }
 
         if (this._model) {
-            this._model.createBoundingShape(this._mesh.struct.minPosition, this._mesh.struct.maxPosition);
+            this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
             this._updateModelParams();
             this._onUpdateLightingmap();
         }
@@ -574,13 +573,13 @@ export class MeshRenderer extends RenderableComponent {
         }
 
         if (!this._mesh
-            || !this._mesh.struct.morph
+            || !this._mesh.hasMorph()
             || !this._mesh.morphRendering) {
             return;
         }
 
         this._morphInstance = this._mesh.morphRendering.createInstance();
-        const nSubMeshes = this._mesh.struct.primitives.length;
+        const nSubMeshes = this._mesh.subMeshes.length;
         for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
             this._uploadSubMeshShapesWeights(iSubMesh);
         }
@@ -599,22 +598,17 @@ export class MeshRenderer extends RenderableComponent {
             return;
         }
 
-        const morph = mesh.struct.morph;
-        if (!morph) {
+        if (!mesh.hasMorph()) {
             return;
         }
 
-        const commonWeights = morph.weights;
-        this._subMeshShapesWeights = morph.subMeshMorphs.map((subMeshMorph) => {
-            if (!subMeshMorph) {
+        this._subMeshShapesWeights = mesh.subMeshes.map(({ morph }) => {
+            if (!morph) {
                 return [];
-            } else if (subMeshMorph.weights) {
-                return subMeshMorph.weights.slice(0);
-            } else if (commonWeights) {
-                assertIsTrue(commonWeights.length === subMeshMorph.targets.length);
-                return commonWeights.slice(0);
+            } else if (morph.weights) {
+                return morph.weights.slice(0);
             } else {
-                return new Array<number>(subMeshMorph.targets.length).fill(0.0);
+                return new Array<number>(morph.targets.length).fill(0.0);
             }
         });
     }
@@ -625,17 +619,16 @@ export class MeshRenderer extends RenderableComponent {
             _subMeshShapesWeights: subMeshShapesWeights,
         } = this;
 
-        if (!mesh || !mesh.struct.morph) {
+        if (!mesh || !mesh.hasMorph()) {
             return subMeshShapesWeights.length === 0;
         }
 
-        const { morph } = mesh.struct;
-        if (morph.subMeshMorphs.length !== subMeshShapesWeights.length) {
+        if (mesh.subMeshes.length !== subMeshShapesWeights.length) {
             return false;
         }
 
         return subMeshShapesWeights.every(
-            ({ length: shapeCount }, subMeshIndex) => (morph.subMeshMorphs[subMeshIndex]?.targets.length ?? 0) === shapeCount,
+            ({ length: shapeCount }, subMeshIndex) => (mesh.subMeshes[subMeshIndex].morph?.targets.length ?? 0) === shapeCount,
         );
     }
 
