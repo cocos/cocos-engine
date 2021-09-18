@@ -45,6 +45,10 @@ namespace {
     (dst)[(offset) + 3] = (src).w;
 } // namespace
 
+framegraph::StringHandle ForwardPipeline::fgStrHandleForwardColorTexture = framegraph::FrameGraph::stringToHandle("forwardColorTexture");
+framegraph::StringHandle ForwardPipeline::fgStrHandleForwardDepthTexture = framegraph::FrameGraph::stringToHandle("forwardDepthTexture");
+framegraph::StringHandle ForwardPipeline::fgStrHandleForwardPass         = framegraph::FrameGraph::stringToHandle("forwardPass");
+
 gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFlags, gfx::Swapchain *swapchain) {
     if (_renderPasses.count(clearFlags)) {
         return _renderPasses[clearFlags];
@@ -114,6 +118,27 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
     return true;
 }
 
+gfx::Rect ForwardPipeline::getRenderArea(scene::Camera *camera, bool onScreen) {
+    float w;
+    float h;
+    if (onScreen) {
+        gfx::Swapchain *swapchain = camera->window->swapchain;
+        w                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->height : camera->width);
+        h                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->width : camera->height);
+    } else {
+        w = static_cast<float>(camera->width);
+        h = static_cast<float>(camera->height);
+    }
+
+    const auto &viewport = camera->viewPort;
+    return gfx::Rect{
+        static_cast<int>(viewport.x * w),
+        static_cast<int>(viewport.y * h),
+        static_cast<uint>(viewport.z * w * _pipelineSceneData->getSharedData()->shadingScale),
+        static_cast<uint>(viewport.w * h * _pipelineSceneData->getSharedData()->shadingScale)
+    };
+}
+
 void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO(cameras[0]);
@@ -121,9 +146,12 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
 
     for (auto *camera : cameras) {
         sceneCulling(this, camera);
+        _fg.reset();
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
+        _fg.compile();
+        _fg.execute();
         _pipelineUBO->incCameraUBOOffset();
     }
 
