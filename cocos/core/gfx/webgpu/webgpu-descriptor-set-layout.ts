@@ -13,10 +13,23 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
 
     public initialize (info: DescriptorSetLayoutInfo) {
         this._bindings = info.bindings;
+        let descriptorCount = 0; let maxBinding = -1;
+        const flattenedIndices: number[] = [];
+        for (let i = 0; i < this._bindings.length; i++) {
+            const binding = this._bindings[i];
+            flattenedIndices.push(descriptorCount);
+            descriptorCount += binding.count;
+            if (binding.binding > maxBinding) maxBinding = binding.binding;
+        }
+
+        this._bindingIndices = Array(maxBinding + 1).fill(-1);
+
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const dsLayoutInfo = new wgpuWasmModule.DescriptorSetLayoutInfoInstance();
         dsLayoutInfo.bindings = new wgpuWasmModule.DescriptorSetLayoutBindingList();
         for (let i = 0; i < info.bindings.length; i++) {
+            this._bindingIndices[info.bindings[i].binding] = i;
+
             const binding = new wgpuWasmModule.DescriptorSetLayoutBindingInstance();
             binding.binding = info.bindings[i].binding;
             binding.descriptorType = toWGPUNativeDescriptorType(info.bindings[i].descriptorType);

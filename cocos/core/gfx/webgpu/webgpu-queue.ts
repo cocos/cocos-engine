@@ -5,11 +5,15 @@ import { QueueInfo, QueueType } from '../base/define';
 import { wgpuWasmModule } from './webgpu-utils';
 
 export class WebGPUQueue extends Queue {
-
     private _nativeQueue;
+    private _device;
 
     get nativeQueue () {
         return this._nativeQueue;
+    }
+
+    set device (device) {
+        this._device = device;
     }
 
     public initialize (info: QueueInfo): boolean {
@@ -17,10 +21,15 @@ export class WebGPUQueue extends Queue {
 
         const nativeDevice = wgpuWasmModule.nativeDevice;
 
-        const queueInfo = new wgpuWasmModule.QueueInfoInstance();
-        const qTypeStr = QueueType[info.type];
-        queueInfo.type = wgpuWasmModule.QueueType[qTypeStr];
-        this._nativeQueue = nativeDevice.createQueue(queueInfo);
+        if (this._device) {
+            this._nativeQueue = nativeDevice.getQueue();
+        } else {
+            const queueInfo = new wgpuWasmModule.QueueInfoInstance();
+            const qTypeStr = QueueType[info.type];
+            queueInfo.type = wgpuWasmModule.QueueType[qTypeStr];
+            this._nativeQueue = nativeDevice.createQueue(queueInfo);
+        }
+
         return true;
     }
 
@@ -32,5 +41,4 @@ export class WebGPUQueue extends Queue {
     public submit (cmdBuffs: CommandBuffer[]) {
 
     }
-
 }

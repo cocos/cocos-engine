@@ -7,7 +7,7 @@ import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
     SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo, ShaderInfo,
-    InputAssemblerInfo,
+    InputAssemblerInfo, CommandBufferInfo, QueueInfo, QueueType, CommandBufferType,
 } from '../base/define';
 import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { RenderPass } from '../base/render-pass';
@@ -30,7 +30,11 @@ import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 import { WebGPUShader } from './webgpu-shader';
 import { WebGPUPipelineState } from './webgpu-pipeline-state';
 import { WebGPUInputAssembler } from './webgpu-input-assembler';
+import { WebGPUCommandBuffer } from './webgpu-command-buffer';
 import { assert } from '../../platform';
+import { Queue } from '../base/queue';
+import { Graphics } from '../../../2d';
+import { WebGPUQueue } from './webgpu-queue';
 
 function getChromeVersion () {
     const raw = /Chrom(e|ium)\/([0-9]+)\./.exec(navigator.userAgent);
@@ -99,7 +103,19 @@ export class WebGPUDevice extends Device {
 
         this._caps.uboOffsetAlignment = 4;
 
-        return init().then(() => true);
+        return init().then(() => {
+            const queueInfo = new QueueInfo(QueueType.GRAPHICS);
+            this._queue = new WebGPUQueue();
+            (this._queue as WebGPUQueue).device = this;
+            this._queue.initialize(queueInfo);
+
+            const cmdBufferInfo = new CommandBufferInfo(this._queue, CommandBufferType.PRIMARY);
+            this._cmdBuff = new WebGPUCommandBuffer();
+            (this._cmdBuff as WebGPUCommandBuffer).device = this;
+            this._cmdBuff.initialize(cmdBufferInfo);
+
+            return true;
+        });
     }
 
     public destroy (): void {
@@ -126,7 +142,11 @@ export class WebGPUDevice extends Device {
     }
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
-        assert(false, 'createCommandBuffer not impl!');
+        const buffer = new WebGPUCommandBuffer();
+        if (buffer.initialize(info)) {
+            return buffer;
+        }
+        return null!;
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
@@ -214,7 +234,11 @@ export class WebGPUDevice extends Device {
     }
 
     public createQueue (info: QueueInfo): Queue {
-        assert(false, 'createQueue not impl!');
+        const queue = new WebGPUQueue();
+        if (queue.initialize(info)) {
+            return queue;
+        }
+        return null!;
     }
 
     public createGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier {
@@ -272,11 +296,12 @@ export class WebGPUDevice extends Device {
     }
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {
-
+        assert('copyTexImagesToTexture not impled!');
     }
 
     // deprecated
     public copyFramebufferToBuffer (srcFramebuffer: Framebuffer, dstBuffer: ArrayBuffer, regions: BufferTextureCopy[]): void {
+        assert('copyTexImagesToTexture not impled!');
         // this._nativeDevice?.copyTextureToBuffers(srcFramebuffer, dstBuffer, regions);
     }
 }
