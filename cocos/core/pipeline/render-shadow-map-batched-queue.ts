@@ -86,7 +86,7 @@ export class RenderShadowMapBatchedQueue {
 
     public gatherLightPasses (light: Light, camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
-        const shadowInfo = this._pipeline.pipelineSceneData.shadows;
+        const shadowInfo = this._pipeline.pipelineSceneData.shadowInfo;
         const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {

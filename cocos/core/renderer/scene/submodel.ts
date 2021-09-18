@@ -236,7 +236,7 @@ export class SubModel {
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowShader () {
         const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
+        const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
         this._initNativePlanarShadowShader(shadowInfo);
     }
 
@@ -251,7 +251,7 @@ export class SubModel {
     // It should not be written in a fixed way, or modified by the user
     public initPlanarShadowInstanceShader () {
         const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
+        const shadowInfo = pipeline.pipelineSceneData.shadowInfo;
         this._initNativePlanarShadowInstanceShader(shadowInfo);
     }
 
