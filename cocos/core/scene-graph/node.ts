@@ -607,8 +607,6 @@ export class Node extends BaseNode implements CustomSerializable {
             applyMountedComponents(this, prefabInstance.mountedComponents, targetMap);
             applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
         }
-
-        applyTargetOverrides(this);
     }
 
     public _onBeforeSerialize () {

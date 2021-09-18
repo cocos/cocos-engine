@@ -207,23 +207,25 @@ export class Prefab extends Asset {
 
     private _checkToExpandPrefabInstanceNode (node: Node) {
         // @ts-expect-error private member access
-        const prefabInstance = node._prefab?.instance;
-        if (prefabInstance) {
-            utils.createNodeWithPrefab(node);
+        const prefabInfo = node._prefab;
 
-            const targetMap: Record<string, any | Node | Component> = {};
-            prefabInstance.targetMap = targetMap;
-            utils.generateTargetMap(node, targetMap, true);
-
-            utils.applyMountedChildren(node, prefabInstance.mountedChildren, targetMap);
-            utils.applyRemovedComponents(node, prefabInstance.removedComponents, targetMap);
-            utils.applyMountedComponents(node, prefabInstance.mountedComponents, targetMap);
-            utils.applyPropertyOverrides(node, prefabInstance.propertyOverrides, targetMap);
-        } else {
-            const len = node.children.length;
-            for (let i = 0; i < len; i++) {
-                this._checkToExpandPrefabInstanceNode(node.children[i]);
-            }
+        if (prefabInfo && prefabInfo.nestedInstanceNodes) {
+            prefabInfo.nestedInstanceNodes.forEach((nestedNode: Node) => {
+                // @ts-expect-error private member access
+                const nestedPrefabInstance = nestedNode._prefab?.instance;
+                if (nestedPrefabInstance) {
+                    utils.createNodeWithPrefab(nestedNode);
+        
+                    const targetMap: Record<string, any | Node | Component> = {};
+                    nestedPrefabInstance.targetMap = targetMap;
+                    utils.generateTargetMap(nestedNode, targetMap, true);
+        
+                    utils.applyMountedChildren(nestedNode, nestedPrefabInstance.mountedChildren, targetMap);
+                    utils.applyRemovedComponents(nestedNode, nestedPrefabInstance.removedComponents, targetMap);
+                    utils.applyMountedComponents(nestedNode, nestedPrefabInstance.mountedComponents, targetMap);
+                    utils.applyPropertyOverrides(nestedNode, nestedPrefabInstance.propertyOverrides, targetMap);
+                }
+            });
         }
     }
 }
