@@ -885,7 +885,6 @@ export class Terrain extends Component {
                 this._layerList = [];
                 this._layerBuffer = [];
                 this._blocks = [];
-                this._sharedIndexBuffer = null;
             }
 
             // rebuild
