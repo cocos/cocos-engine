@@ -130,7 +130,8 @@ void CCMTLTexture::doInit(const SwapchainTextureInfo &info) {
 
 void CCMTLTexture::update() {
     if(_swapchain) {
-        _mtlTexture = [static_cast<CCMTLSwapchain*>(_swapchain)->gpuSwapChainObj()->currentDrawable texture];
+        id<CAMetalDrawable> drawable = static_cast<CCMTLSwapchain*>(_swapchain)->currentDrawable();
+        _mtlTexture = drawable ? [drawable texture] : nil;
     }
 }
 
@@ -174,7 +175,7 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.mipmapLevelCount = _info.levelCount;
     descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
-    if(hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
+    if(hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
         //xcode OS version warning
         if (@available(macOS 11.0, *)) {
             descriptor.storageMode = MTLStorageModeMemoryless;

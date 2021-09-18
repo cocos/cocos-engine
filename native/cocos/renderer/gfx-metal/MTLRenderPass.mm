@@ -29,6 +29,7 @@
 #include "MTLRenderPass.h"
 #include "MTLUtils.h"
 #include "MTLTexture.h"
+#include "MTLSwapchain.h"
 
 namespace cc {
 namespace gfx {
@@ -77,7 +78,13 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, CCMTLTexture* cctex, int l
         return;
     }
 
-    id<MTLTexture> texture = cctex->getMTLTexture();
+    id<MTLTexture> texture = nil;
+    if(cctex->swapChain()) {
+        auto* swapchain = static_cast<CCMTLSwapchain*>(cctex->swapChain());
+        texture = swapchain->colorTexture()->getMTLTexture();
+    } else {
+        texture = cctex->getMTLTexture();
+    }
 
     _mtlRenderPassDescriptor.colorAttachments[slot].texture = texture;
     _mtlRenderPassDescriptor.colorAttachments[slot].level = level;
@@ -90,7 +97,13 @@ void CCMTLRenderPass::setDepthStencilAttachment(CCMTLTexture* cctex, int level) 
         return;
     }
     
-    id<MTLTexture> texture = cctex->getMTLTexture();
+    id<MTLTexture> texture = nil;
+    if(cctex->swapChain()) {
+        auto* swapchain = static_cast<CCMTLSwapchain*>(cctex->swapChain());
+        texture = swapchain->depthStencilTexture()->getMTLTexture();
+    } else {
+        texture = cctex->getMTLTexture();
+    }
 
     _mtlRenderPassDescriptor.depthAttachment.texture = texture;
     _mtlRenderPassDescriptor.depthAttachment.level = level;

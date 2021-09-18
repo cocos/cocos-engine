@@ -149,23 +149,19 @@ CCMTLTexture* CCMTLSwapchain::depthStencilTexture() {
 }
 
 id<CAMetalDrawable> CCMTLSwapchain::currentDrawable() {
-    if(!_gpuSwapchainObj->currentDrawable) {
-        _gpuSwapchainObj->currentDrawable = [[_gpuSwapchainObj->mtlLayer nextDrawable] retain];
-        static_cast<CCMTLTexture*>(_colorTexture)->update();
-    }
     return _gpuSwapchainObj->currentDrawable;
 }
 
 void CCMTLSwapchain::release() {
-    [_gpuSwapchainObj->currentDrawable release];
     _gpuSwapchainObj->currentDrawable = nil;
     static_cast<CCMTLTexture*>(_colorTexture)->update();
 }
 
 void CCMTLSwapchain::acquire() {
     // hang on here if next drawable not available
-    while(!currentDrawable()) {
-        ;
+    while(!_gpuSwapchainObj->currentDrawable) {
+        _gpuSwapchainObj->currentDrawable = [_gpuSwapchainObj->mtlLayer nextDrawable] ;
+        static_cast<CCMTLTexture*>(_colorTexture)->update();
     }
 }
 

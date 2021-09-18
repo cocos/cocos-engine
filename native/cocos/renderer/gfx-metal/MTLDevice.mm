@@ -212,6 +212,15 @@ void CCMTLDevice::present() {
     //hold this pointer before update _currentFrameIndex
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+    
+    std::vector<id<CAMetalDrawable>> releaseQ;
+    for (auto* swapchain: _swapchains) {
+        auto drawable = swapchain->currentDrawable();
+        if(drawable) {
+            releaseQ.push_back([drawable retain]);
+        }
+        swapchain->release();
+    }
 
     // NSWindow-related(: drawable) should be udpated in main thread.
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -219,16 +228,14 @@ void CCMTLDevice::present() {
 
         [cmdBuffer enqueue];
 
-        for (CCMTLSwapchain* swapchain: _swapchains) {
-            if (swapchain->currentDrawable()) {
-                id<CAMetalDrawable> drawable = swapchain->currentDrawable();
-                [cmdBuffer presentDrawable:drawable];
-                swapchain->release();
-            }
-            [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-                onPresentCompleted();
-            }];
+        for (auto drawable: releaseQ) {
+            [cmdBuffer presentDrawable:drawable];
+            [drawable release];
         }
+        
+        [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+            onPresentCompleted();
+        }];
 
         [cmdBuffer commit];
     });

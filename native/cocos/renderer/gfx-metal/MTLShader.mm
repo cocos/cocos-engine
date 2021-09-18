@@ -82,7 +82,7 @@ void CCMTLShader::doDestroy() {
     CC_SAFE_DELETE(_gpuShader);
 
     std::function<void(void)> destroyFunc = [=]() {
-        if(specFragFuncs.count > 0) {
+        if([specFragFuncs count]) {
             for (NSString* key in [specFragFuncs allKeys]) {
                 [[specFragFuncs valueForKey:key] release];
             }

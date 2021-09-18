@@ -197,7 +197,7 @@ void SPIRVUtils::compressInputLocations(gfx::AttributeList& attributes) {
     newLocations.assign(attributes.size(), UINT_MAX);
 
     for (auto& id : ids) {
-        if (id.opcode == SpvOpVariable && id.storageClass == SpvStorageClassInput) {
+        if (id.opcode == SpvOpVariable && id.storageClass == SpvStorageClassInput && id.pLocation) {
             uint32_t oldLocation = *id.pLocation;
 
             // update locations in SPIRV
