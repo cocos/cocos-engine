@@ -2,7 +2,6 @@
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 // import wasmDevice from '@cocos/webgpu/lib/webgpu_wasm';
 // import fs from 'fs';
-import { resolve } from 'path/posix';
 import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
@@ -35,6 +34,7 @@ import { assert } from '../../platform';
 import { Queue } from '../base/queue';
 import { Graphics } from '../../../2d';
 import { WebGPUQueue } from './webgpu-queue';
+import wasmDevice from './lib/webgpu_wasm.js';
 
 function getChromeVersion () {
     const raw = /Chrom(e|ium)\/([0-9]+)\./.exec(navigator.userAgent);
@@ -55,6 +55,9 @@ export class WebGPUDevice extends Device {
             const adapter = await navigator.gpu.requestAdapter();
             const device = await adapter.requestDevice();
             wgpuWasmModule.preinitializedWebGPUDevice = device;
+            device.lost.then((info) => {
+                console.error('Device was lost.', info);
+            });
             console.log(adapter);
         }
         const launch = (): boolean => {
@@ -84,26 +87,7 @@ export class WebGPUDevice extends Device {
             };
 
             this._nativeDevice?.initialize(deviceInfo);
-            return true;
-        };
 
-        function init (): Promise<boolean> {
-            const poll = (resolve) => {
-                if (wgpuWasmModule.wasmLoaded) {
-                    return resolve(getDevice().then(() => launch()));
-                } else {
-                    setTimeout((_) => {
-                        poll(resolve);
-                    }, 30);
-                }
-            };
-
-            return new Promise(poll);
-        }
-
-        this._caps.uboOffsetAlignment = 4;
-
-        return init().then(() => {
             const queueInfo = new QueueInfo(QueueType.GRAPHICS);
             this._queue = new WebGPUQueue();
             (this._queue as WebGPUQueue).device = this;
@@ -114,8 +98,17 @@ export class WebGPUDevice extends Device {
             (this._cmdBuff as WebGPUCommandBuffer).device = this;
             this._cmdBuff.initialize(cmdBufferInfo);
 
+            this._caps.uboOffsetAlignment = 4;
             return true;
+        };
+
+        const mainEntry:Promise<boolean> = wasmDevice(wgpuWasmModule).then(() => {
+            wgpuWasmModule.wasmLoaded = true;
+            console.log(wgpuWasmModule);
+            return Promise.resolve(getDevice().then(() => launch()));
         });
+
+        return Promise.resolve(mainEntry);
     }
 
     public destroy (): void {
@@ -124,11 +117,12 @@ export class WebGPUDevice extends Device {
     }
 
     public acquire (swapchains: Swapchain[]): void {
-        assert(false, 'acquire not impl!');
+        //TODO: @hana-alice
+        //assert(false, 'acquire not impl!');
     }
 
     public present (): void {
-        assert(false, 'present not impl!');
+        //assert(false, 'present not impl!');
     }
 
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
@@ -138,7 +132,7 @@ export class WebGPUDevice extends Device {
     }
 
     public flushCommands (cmdBuffs: CommandBuffer[]): void {
-        assert(false, 'flushCommands not impl!');
+        //assert(false, 'flushCommands not impl!');
     }
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
@@ -242,11 +236,11 @@ export class WebGPUDevice extends Device {
     }
 
     public createGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier {
-        assert(false, 'createGlobalBarrier not impl!');
+        //assert(false, 'createGlobalBarrier not impl!');
     }
 
     public createTextureBarrier (info: TextureBarrierInfo): TextureBarrier {
-        assert(false, 'createTextureBarrier not impl!');
+        //assert(false, 'createTextureBarrier not impl!');
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
@@ -296,12 +290,14 @@ export class WebGPUDevice extends Device {
     }
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {
-        assert('copyTexImagesToTexture not impled!');
+        //assert('copyTexImagesToTexture not impled!');
+        console.log('copyTexImagesToTexture not impled!');
     }
 
     // deprecated
     public copyFramebufferToBuffer (srcFramebuffer: Framebuffer, dstBuffer: ArrayBuffer, regions: BufferTextureCopy[]): void {
-        assert('copyTexImagesToTexture not impled!');
+        console.log('copyFramebufferToBuffer not impled!');
+        // assert('copyTexImagesToTexture not impled!');
         // this._nativeDevice?.copyTextureToBuffers(srcFramebuffer, dstBuffer, regions);
     }
 }

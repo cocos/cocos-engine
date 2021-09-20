@@ -3,7 +3,7 @@ import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUShader } from './webgpu-shader';
 import {
     ComparisonFunc, CullMode, Format, PolygonMode, ShadeModel, StencilOp, BlendFactor,
-    BlendOp, ColorMask, PrimitiveMode, DynamicStateFlagBit, PipelineBindPoint
+    BlendOp, ColorMask, PrimitiveMode, DynamicStateFlagBit, PipelineBindPoint,
 } from '../base/define';
 import { WebGPUDevice } from './webgpu-device';
 import {
@@ -14,6 +14,10 @@ import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 
 export class WebGPUPipelineState extends PipelineState {
     private _nativePipelineState;
+
+    get nativePipelineState () {
+        return  this._nativePipelineState;
+    }
 
     public initialize (info: PipelineStateInfo): boolean {
         this._primitive = info.primitive;
@@ -76,11 +80,11 @@ export class WebGPUPipelineState extends PipelineState {
         depthStencilState.stencilReadMaskFront = info.depthStencilState.stencilReadMaskFront;
         depthStencilState.stencilWriteMaskFront = info.depthStencilState.stencilWriteMaskFront;
         const stencilFailOpFrontStr = StencilOp[info.depthStencilState.stencilFailOpFront];
-        depthStencilState.stencilFailOpFront = wgpuWasmModule.ComparisonFunc[stencilFailOpFrontStr];
+        depthStencilState.stencilFailOpFront = wgpuWasmModule.StencilOp[stencilFailOpFrontStr];
         const stencilZFailOpFrontStr = StencilOp[info.depthStencilState.stencilZFailOpFront];
-        depthStencilState.stencilZFailOpFront = wgpuWasmModule.ComparisonFunc[stencilZFailOpFrontStr];
+        depthStencilState.stencilZFailOpFront = wgpuWasmModule.StencilOp[stencilZFailOpFrontStr];
         const stencilPassOpFrontStr = StencilOp[info.depthStencilState.stencilPassOpFront];
-        depthStencilState.stencilPassOpFront = wgpuWasmModule.ComparisonFunc[stencilPassOpFrontStr];
+        depthStencilState.stencilPassOpFront = wgpuWasmModule.StencilOp[stencilPassOpFrontStr];
         depthStencilState.stencilRefFront = info.depthStencilState.stencilRefFront;
         depthStencilState.stencilTestBack = info.depthStencilState.stencilTestBack;
         const stencilFuncBackStr = ComparisonFunc[info.depthStencilState.stencilFuncBack];
@@ -88,11 +92,11 @@ export class WebGPUPipelineState extends PipelineState {
         depthStencilState.stencilReadMaskBack = info.depthStencilState.stencilReadMaskBack;
         depthStencilState.stencilWriteMaskBack = info.depthStencilState.stencilWriteMaskBack;
         const stencilFailOpBackStr = StencilOp[info.depthStencilState.stencilFailOpBack];
-        depthStencilState.stencilFailOpBack = wgpuWasmModule.ComparisonFunc[stencilFailOpBackStr];
+        depthStencilState.stencilFailOpBack = wgpuWasmModule.StencilOp[stencilFailOpBackStr];
         const stencilZFailOpBackStr = StencilOp[info.depthStencilState.stencilZFailOpBack];
-        depthStencilState.stencilZFailOpBack = wgpuWasmModule.ComparisonFunc[stencilZFailOpBackStr];
+        depthStencilState.stencilZFailOpBack = wgpuWasmModule.StencilOp[stencilZFailOpBackStr];
         const stencilPassOpBackStr = StencilOp[info.depthStencilState.stencilPassOpBack];
-        depthStencilState.stencilPassOpBack = wgpuWasmModule.ComparisonFunc[stencilPassOpBackStr];
+        depthStencilState.stencilPassOpBack = wgpuWasmModule.StencilOp[stencilPassOpBackStr];
         depthStencilState.stencilRefBack = info.depthStencilState.stencilRefBack;
         pipelineStateInfo.setDepthStencilState(depthStencilState);
 
@@ -117,7 +121,7 @@ export class WebGPUPipelineState extends PipelineState {
             const blendAlphaEqStr = BlendOp[target.blendAlphaEq];
             nativeTarget.blendAlphaEq = wgpuWasmModule.BlendOp[blendAlphaEqStr];
             const colorMaskStr = ColorMask[target.blendColorMask];
-            nativeTarget.blendColorMask = wgpuWasmModule.BlendOp[colorMaskStr];
+            nativeTarget.blendColorMask = wgpuWasmModule.ColorMask[colorMaskStr];
             blendState.targets.push_back(nativeTarget);
         }
         pipelineStateInfo.setBlendState(blendState);

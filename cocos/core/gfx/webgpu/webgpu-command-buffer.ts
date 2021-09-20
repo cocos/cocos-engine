@@ -125,7 +125,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public bindPipelineState (pipelineState: PipelineState) {
-        this._nativeCommandBuffer.bindPipelineState(pipelineState);
+        this._nativeCommandBuffer.bindPipelineState((pipelineState as WebGPUPipelineState).nativePipelineState);
     }
 
     public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]) {
@@ -196,7 +196,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public draw (inputAssembler: InputAssembler) {
-        this._nativeCommandBuffer.draw((inputAssembler as WebGPUInputAssembler).nativeInputAssembler);
+        this._nativeCommandBuffer.drawIA((inputAssembler as WebGPUInputAssembler).nativeInputAssembler);
     }
 
     public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {

@@ -1,4 +1,3 @@
-import wasmDevice from './lib/webgpu_wasm.js';
 import { wasmBase64 } from './lib/tempArray.js';
 // ({
 //     wasm: require('fs').readFileSync('CocosGameWASM.wasm'),
@@ -25,10 +24,5 @@ const wgpuWasmModule = {
     wasmLoaded: false,
     nativeDevice: undefined,
 };
-
-wasmDevice(wgpuWasmModule).then(() => {
-    wgpuWasmModule.wasmLoaded = true;
-    console.log(wgpuWasmModule);
-});
 
 export { wgpuWasmModule };

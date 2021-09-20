@@ -1,20 +1,29 @@
 import { RenderPass } from '../base/render-pass';
 import { RenderPassInfo } from '../base/define';
 import { wgpuWasmModule } from './webgpu-utils';
+import { SampleCount, Format, LoadOp, StoreOp, ResolveMode } from '..';
 import { WebGPUDevice } from './webgpu-device';
 
 export class WebGPURenderPass extends RenderPass {
     private _nativeRenderPass;
 
     public initialize (info: RenderPassInfo): boolean {
+        this._colorInfos = info.colorAttachments;
+        this._depthStencilInfo = info.depthStencilAttachment;
+        this._subpasses = info.subpasses;
+
         const renderPassInfo = new wgpuWasmModule.RenderPassInfoInstance();
         for (let i = 0; i < info.colorAttachments.length; i++) {
             const origin = info.colorAttachments[i];
             const color = new wgpuWasmModule.ColorAttachmentInstance();
-            color.format = origin.format;
-            color.sampleCount = origin.sampleCount;
-            color.loadOp = origin.loadOp;
-            color.storeOp = origin.storeOp;
+            const formatStr = Format[origin.format];
+            color.format = wgpuWasmModule.Format[formatStr];
+            const samplerStr = SampleCount[origin.sampleCount];
+            color.sampleCount = wgpuWasmModule.SampleCount[samplerStr];
+            const loadOpStr = LoadOp[origin.loadOp];
+            color.loadOp = wgpuWasmModule.LoadOp[loadOpStr];
+            const storeOpStr = StoreOp[origin.storeOp];
+            color.storeOp = wgpuWasmModule.StoreOp[storeOpStr];
             const beginAccesses = new wgpuWasmModule.AccessTypeList();
             for (let left = 0; left < origin.beginAccesses.length; left++) {
                 beginAccesses.push_back(origin.beginAccesses[left]);
@@ -32,12 +41,19 @@ export class WebGPURenderPass extends RenderPass {
         }
 
         const depthStencil = renderPassInfo.depthStencilAttachment;
-        depthStencil.format = info.depthStencilAttachment.format;
-        depthStencil.sampleCount = info.depthStencilAttachment.sampleCount;
-        depthStencil.depthLoadOp = info.depthStencilAttachment.depthLoadOp;
-        depthStencil.depthStoreOp = info.depthStencilAttachment.depthStoreOp;
-        depthStencil.stencilLoadOp = info.depthStencilAttachment.stencilLoadOp;
-        depthStencil.stencilStoreOp = info.depthStencilAttachment.stencilStoreOp;
+        const formatStr = Format[info.depthStencilAttachment.format];
+        depthStencil.format = wgpuWasmModule.Format[formatStr];
+        const sampleStr = SampleCount[info.depthStencilAttachment.sampleCount];
+        depthStencil.sampleCount = wgpuWasmModule.SampleCount[sampleStr];
+        const depthLoadOpStr = LoadOp[info.depthStencilAttachment.depthLoadOp];
+        depthStencil.depthLoadOp = wgpuWasmModule.LoadOp[depthLoadOpStr];
+        const depthStoreOpStr = StoreOp[info.depthStencilAttachment.depthStoreOp];
+        depthStencil.depthStoreOp = wgpuWasmModule.StoreOp[depthStoreOpStr];
+        const stencilLoadOpStr = LoadOp[info.depthStencilAttachment.stencilLoadOp];
+        depthStencil.stencilLoadOp = wgpuWasmModule.LoadOp[stencilLoadOpStr];
+        const stencilStoreOpStr = StoreOp[info.depthStencilAttachment.stencilStoreOp];
+        depthStencil.stencilStoreOp = wgpuWasmModule.StoreOp[stencilStoreOpStr];
+
         const beginAccesses = new wgpuWasmModule.AccessTypeList();
         for (let i = 0; i < info.depthStencilAttachment.beginAccesses.length; i++) {
             beginAccesses.push_back(info.depthStencilAttachment.beginAccesses[i]);
@@ -76,8 +92,10 @@ export class WebGPURenderPass extends RenderPass {
             subpass.preserves = preserves;
             subpass.depthStencil = originSubpass.depthStencil;
             subpass.depthStencilResolve = originSubpass.depthStencilResolve;
-            subpass.depthResolveMode = originSubpass.depthResolveMode;
-            subpass.stencilResolveMode = originSubpass.stencilResolveMode;
+            const depthResolveModeStr = ResolveMode[info.depthStencilAttachment.depthResolveMode];
+            depthStencil.depthResolveMode = wgpuWasmModule.ResolveMode[depthResolveModeStr];
+            const stencilResolveModeStr = ResolveMode[info.depthStencilAttachment.stencilResolveMode];
+            depthStencil.stencilResolveMode = wgpuWasmModule.ResolveMode[stencilResolveModeStr];
 
             subpasses.push_back(subpass);
         }
