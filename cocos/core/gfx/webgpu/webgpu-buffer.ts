@@ -58,6 +58,5 @@ export class WebGPUBuffer extends Buffer {
         // console.log(utf8decoder.decode(u8arr));
         const str = utf8decoder.decode(buff);
         this._nativeBuffer.update(str, bufferSize);
-        console.log(bufferSize);
     }
 }

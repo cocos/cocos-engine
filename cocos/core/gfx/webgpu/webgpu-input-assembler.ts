@@ -1,12 +1,10 @@
 import { InputAssembler } from '../base/input-assembler';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUDevice } from './webgpu-device';
-import { InputAssemblerInfo } from '../base/define';
+import { InputAssemblerInfo, Format } from '../base/define';
 import { wgpuWasmModule } from './webgpu-utils';
-import { Format } from '../base/define'
 
 export class WebGPUInputAssembler extends InputAssembler {
-
     private _nativeInputAssembler;
 
     get nativeInputAssembler () {
@@ -14,7 +12,6 @@ export class WebGPUInputAssembler extends InputAssembler {
     }
 
     public initialize (info: InputAssemblerInfo): boolean {
-
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const inputAssemblerInfo = new wgpuWasmModule.InputAssemblerInfoInstance();
 
@@ -40,7 +37,9 @@ export class WebGPUInputAssembler extends InputAssembler {
         inputAssemblerInfo.setBuffers(buffers);
 
         inputAssemblerInfo.setIndexBuffer((info.indexBuffer as WebGPUBuffer).nativeBuffer);
-        inputAssemblerInfo.setIndirectBuffer((info.indirectBuffer as WebGPUBuffer).nativeBuffer);
+        if (info.indirectBuffer) {
+            inputAssemblerInfo.setIndirectBuffer((info.indirectBuffer as WebGPUBuffer).nativeBuffer);
+        }
 
         this._nativeInputAssembler = nativeDevice.createInputAssembler(inputAssemblerInfo);
         return true;
