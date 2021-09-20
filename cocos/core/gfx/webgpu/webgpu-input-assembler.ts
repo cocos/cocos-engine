@@ -12,6 +12,11 @@ export class WebGPUInputAssembler extends InputAssembler {
     }
 
     public initialize (info: InputAssemblerInfo): boolean {
+        this._attributes = info.attributes;
+        this._vertexBuffers = info.vertexBuffers.slice();
+        this._indexBuffer = info.indexBuffer;
+        this._indirectBuffer = info.indirectBuffer;
+
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const inputAssemblerInfo = new wgpuWasmModule.InputAssemblerInfoInstance();
 

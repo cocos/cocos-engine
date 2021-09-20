@@ -13,6 +13,8 @@ export class WebGPUPipelineLayout extends PipelineLayout {
     }
 
     public initialize (info: PipelineLayoutInfo) {
+        this._setLayouts = info.setLayouts;
+
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const pipelineLayoutInfo = new wgpuWasmModule.PipelineLayoutInfoInstance();
         for (let i = 0; i < info.setLayouts.length; i++) {
