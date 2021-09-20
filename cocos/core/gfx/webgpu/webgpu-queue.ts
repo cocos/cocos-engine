@@ -39,6 +39,10 @@ export class WebGPUQueue extends Queue {
     }
 
     public submit (cmdBuffs: CommandBuffer[]) {
-
+        const commandBufferList = new wgpuWasmModule.CommandBufferList();
+        for (let i = 0; i < cmdBuffs.length; i++) {
+            commandBufferList.push_back((cmdBuffs[i] as WebGPUCommandBuffer).nativeCommandBuffer);
+        }
+        this._nativeQueue.submit(commandBufferList);
     }
 }
