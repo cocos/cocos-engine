@@ -13,6 +13,9 @@ export class WebGPUFramebuffer extends Framebuffer {
     }
 
     public initialize (info: FramebufferInfo): boolean {
+        this._renderPass = info.renderPass;
+        this._colorTextures = info.colorTextures.slice();
+        this._depthStencilTexture = info.depthStencilTexture;
         const framebufferInfo = new wgpuWasmModule.FramebufferInfoInstance();
         framebufferInfo.setRenderPass((info.renderPass as WebGPURenderPass).nativeRenderPass);
         const colors = new wgpuWasmModule.TextureList();
