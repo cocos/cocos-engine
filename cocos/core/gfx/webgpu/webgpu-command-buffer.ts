@@ -41,6 +41,10 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         this._device = device;
     }
 
+    get nativeCommandBuffer () {
+        return this._nativeCommandBuffer;
+    }
+
     public initialize (info: CommandBufferInfo): boolean {
         this._queue = info.queue;
         this._type = info.type;

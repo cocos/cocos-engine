@@ -13,8 +13,7 @@ export class WebGPUInputAssembler extends InputAssembler {
 
     public initialize (info: InputAssemblerInfo): boolean {
         this._attributes = info.attributes;
-        this._vertexBuffers = info.vertexBuffers.slice();
-        this._indexBuffer = info.indexBuffer;
+        this._vertexBuffers = info.vertexBuffers;
         this._indirectBuffer = info.indirectBuffer;
 
         const nativeDevice = wgpuWasmModule.nativeDevice;
@@ -41,7 +40,20 @@ export class WebGPUInputAssembler extends InputAssembler {
         }
         inputAssemblerInfo.setBuffers(buffers);
 
-        inputAssemblerInfo.setIndexBuffer((info.indexBuffer as WebGPUBuffer).nativeBuffer);
+        if (info.indexBuffer) {
+            this._indexBuffer = info.indexBuffer;
+            this._drawInfo.indexCount = this._indexBuffer.size / this._indexBuffer.stride;
+            this._drawInfo.firstIndex = 0;
+            inputAssemblerInfo.setIndexBuffer((info.indexBuffer as WebGPUBuffer).nativeBuffer);
+        } else {
+            const vertBuff = this._vertexBuffers[0];
+            this._drawInfo.vertexCount = vertBuff.size / vertBuff.stride;
+            this._drawInfo.firstVertex = 0;
+            this._drawInfo.vertexOffset = 0;
+        }
+        this._drawInfo.instanceCount = 0;
+        this._drawInfo.firstInstance = 0;
+
         if (info.indirectBuffer) {
             inputAssemblerInfo.setIndirectBuffer((info.indirectBuffer as WebGPUBuffer).nativeBuffer);
         }
