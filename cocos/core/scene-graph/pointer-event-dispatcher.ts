@@ -78,7 +78,8 @@ class PointerEventDispatcher {
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventMouse
-                && pointerEventProcessor.handleEventMouse(eventMouse)) {
+                // @ts-expect-error access private method
+                && pointerEventProcessor._handleEventMouse(eventMouse)) {
                 break;
             }
         }
@@ -97,14 +98,16 @@ class PointerEventDispatcher {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventTouch) {
                 if (eventTouch.type === InputEventType.TOUCH_START) {
-                    if (pointerEventProcessor.handleEventTouch(eventTouch)) {
+                    // @ts-expect-error access private method
+                    if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
                         break;
                     }
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
                     const index = pointerEventProcessor.claimedTouchIdList.indexOf(touch.getID());
                     if (index !== -1) {
-                        pointerEventProcessor.handleEventTouch(eventTouch);
+                        // @ts-expect-error access private method
+                        pointerEventProcessor._handleEventTouch(eventTouch);
                         if (eventTouch.type === InputEventType.TOUCH_END || eventTouch.type === InputEventType.TOUCH_CANCEL) {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
                         }

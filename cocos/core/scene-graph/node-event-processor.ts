@@ -416,7 +416,7 @@ export class NodeEventProcessor {
 
     // #region handle mouse event
 
-    public handleEventMouse (eventMouse: EventMouse): boolean {
+    private _handleEventMouse (eventMouse: EventMouse): boolean {
         switch (eventMouse.type) {
         case InputEventType.MOUSE_DOWN:
             return this._handleMouseDown(eventMouse);
@@ -525,7 +525,7 @@ export class NodeEventProcessor {
 
     // #region handle touch event
 
-    public handleEventTouch (eventTouch: EventTouch) {
+    private _handleEventTouch (eventTouch: EventTouch) {
         switch (eventTouch.type) {
         case InputEventType.TOUCH_START:
             return this._handleTouchStart(eventTouch);
