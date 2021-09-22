@@ -36,11 +36,10 @@ import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
 import { Address, BufferUsageBit, Filter, Format, FormatInfos,
-    MemoryUsageBit, Feature, Device, Buffer, BufferInfo } from '../../core/gfx';
+    MemoryUsageBit, Feature, Device, Buffer, BufferInfo, Sampler, SamplerInfo } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
-import { genSamplerHash } from '../../core/renderer/core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
@@ -103,14 +102,14 @@ function roundUpTextureSize (targetLength: number, formatSize: number) {
     return Math.ceil(Math.max(MINIMUM_JOINT_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
-export const jointTextureSamplerHash = genSamplerHash([
+export const jointTextureSamplerInfo = new SamplerInfo(
     Filter.POINT,
     Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-]);
+);
 
 interface IInternalJointAnimInfo {
     downstream?: Mat4; // downstream default pose, if present

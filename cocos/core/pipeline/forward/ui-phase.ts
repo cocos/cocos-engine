@@ -27,7 +27,6 @@ import { RenderPass } from '../../gfx';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { SetIndex } from '../define';
 import { Camera } from '../../renderer/scene/camera';
-import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 import { getPhaseID } from '../pass-phase';
 
@@ -40,7 +39,7 @@ export class UIPhase {
     }
 
     public render (camera: Camera, renderPass: RenderPass) {
-        const pipeline = this._pipeline as ForwardPipeline;
+        const pipeline = this._pipeline;
         const device = pipeline.device;
         const cmdBuff = pipeline.commandBuffers[0];
         const scene = camera.scene!;

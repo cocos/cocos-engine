@@ -33,11 +33,13 @@ import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
 import { RenderFlow } from './render-flow';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, Feature, Rect } from '../gfx';
+import { Device, DescriptorSet, CommandBuffer, Feature, Rect, Swapchain } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { PipelineUBO } from './pipeline-ubo';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { Root } from '../root';
+import { Model } from '../renderer/scene/model';
 
 /**
  * @en Render pipeline information descriptor
@@ -145,6 +147,14 @@ export abstract class RenderPipeline extends Asset {
         return this._pipelineSceneData;
     }
 
+    set profiler (value) {
+        this._profiler = value;
+    }
+
+    get profiler () {
+        return this._profiler;
+    }
+
     protected _device!: Device;
     protected _globalDSManager!: GlobalDSManager;
     protected _descriptorSet!: DescriptorSet;
@@ -152,6 +162,7 @@ export abstract class RenderPipeline extends Asset {
     protected _pipelineUBO = new PipelineUBO();
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
+    protected _profiler: Model | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
 
     /**
@@ -171,13 +182,14 @@ export abstract class RenderPipeline extends Asset {
      * @param camera the camera
      * @returns
      */
-    public generateRenderArea (camera: Camera): Rect {
-        const res = new Rect();
+    public generateRenderArea (camera: Camera, out?: Rect): Rect {
+        const res = out || new Rect();
         const vp = camera.viewport;
         const sceneData = this.pipelineSceneData;
         // render area is not oriented
-        const w = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.width : camera.height;
+        const swapchain = camera.window!.swapchain;
+        const w = swapchain && swapchain.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = swapchain && swapchain.surfaceTransform % 2 ? camera.width : camera.height;
         res.x = vp.x * w;
         res.y = vp.y * h;
         res.width = vp.width * w * sceneData.shadingScale;
@@ -188,9 +200,12 @@ export abstract class RenderPipeline extends Asset {
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
+     * TODO: remove swapchain dependency at this stage
+     * after deferred pipeline can handle multiple swapchains
      */
-    public activate (): boolean {
-        this._device = legacyCC.director.root.device;
+    public activate (swapchain: Swapchain): boolean {
+        const root = legacyCC.director.root as Root;
+        this._device = root.device;
         this._globalDSManager = new GlobalDSManager(this);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
@@ -248,12 +263,6 @@ export abstract class RenderPipeline extends Asset {
 
         return super.destroy();
     }
-
-    /**
-     * @en Device size change.
-     * @zh 设备尺寸重置。
-     */
-    public resize (width: number, height: number) {}
 
     protected _generateConstantMacros () {
         let str = '';

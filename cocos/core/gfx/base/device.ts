@@ -28,12 +28,11 @@
  * @module gfx
  */
 
-import { ccenum } from '../../value-types/enum';
 import {
-    API, Feature, Filter, Format, MemoryStatus, SurfaceTransform, Rect,
+    API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo, SwapchainInfo, BindingMappingInfo,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -45,35 +44,18 @@ import { InputAssembler } from './input-assembler';
 import { PipelineState, PipelineStateInfo } from './pipeline-state';
 import { Queue } from './queue';
 import { RenderPass } from './render-pass';
-import { Sampler } from './sampler';
+import { Sampler } from './states/sampler';
 import { Shader } from './shader';
 import { Texture } from './texture';
-import { GlobalBarrier } from './global-barrier';
-import { TextureBarrier } from './texture-barrier';
-
-ccenum(Format);
+import { GlobalBarrier } from './states/global-barrier';
+import { TextureBarrier } from './states/texture-barrier';
+import { Swapchain } from './swapchain';
 
 /**
  * @en GFX Device.
  * @zh GFX 设备。
  */
 export abstract class Device {
-    /**
-     * @en The HTML canvas element.
-     * @zh HTML 画布。
-     */
-    get canvas (): HTMLCanvasElement {
-        return this._canvas as HTMLCanvasElement;
-    }
-
-    /**
-     * @en The HTML canvas element for 2D rendering.
-     * @zh 用于 2D 绘制的 HTML 画布。
-     */
-    get canvas2D (): HTMLCanvasElement {
-        return this._canvas2D as HTMLCanvasElement;
-    }
-
     /**
      * @en Current rendering API.
      * @zh 当前 GFX 使用的渲染 API。
@@ -99,30 +81,6 @@ export abstract class Device {
     }
 
     /**
-     * @en Device pixel ratio.
-     * @zh DPR 设备像素比。
-     */
-    get devicePixelRatio (): number {
-        return this._devicePixelRatio;
-    }
-
-    /**
-     * @en Device pixel width.
-     * @zh 设备像素宽度。
-     */
-    get width (): number {
-        return this._width;
-    }
-
-    /**
-     * @en Device pixel height.
-     * @zh 设备像素高度。
-     */
-    get height (): number {
-        return this._height;
-    }
-
-    /**
      * @en Renderer description.
      * @zh 渲染器描述。
      */
@@ -136,22 +94,6 @@ export abstract class Device {
      */
     get vendor (): string {
         return this._vendor;
-    }
-
-    /**
-     * @en Device color format.
-     * @zh 颜色格式。
-     */
-    get colorFormat (): Format {
-        return this._colorFmt;
-    }
-
-    /**
-     * @en Device depth stencil format.
-     * @zh 深度模板格式。
-     */
-    get depthStencilFormat (): Format {
-        return this._depthStencilFmt;
     }
 
     /**
@@ -188,59 +130,45 @@ export abstract class Device {
 
     /**
      * @en Current device capabilities.
-     * @zh 当前设备能立数据。
+     * @zh 当前设备能力数据。
      */
     get capabilities (): DeviceCaps {
         return this._caps;
     }
 
     /**
-     * @en The surface transform to be applied in projection matrices.
-     * @zh 需要在投影矩阵中应用的表面变换。
+     * @en Current device binding mappings.
+     * @zh 当前设备的绑定槽位映射关系。
      */
-    get surfaceTransform () {
-        return this._transform;
+    get bindingMappingInfo () {
+        return this._bindingMappingInfo;
     }
 
-    protected _canvas: HTMLCanvasElement | null = null;
-    protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI = API.UNKNOWN;
-    protected _transform = SurfaceTransform.IDENTITY;
-    protected _deviceName = '';
     protected _renderer = '';
     protected _vendor = '';
-    protected _version = '';
     protected _features = new Array<boolean>(Feature.COUNT);
     protected _queue: Queue | null = null;
     protected _cmdBuff: CommandBuffer | null = null;
-    protected _devicePixelRatio = 1.0;
-    protected _width = 0;
-    protected _height = 0;
-    protected _colorFmt = Format.UNKNOWN;
-    protected _depthStencilFmt = Format.UNKNOWN;
     protected _numDrawCalls = 0;
     protected _numInstances = 0;
     protected _numTris = 0;
     protected _memoryStatus = new MemoryStatus();
     protected _caps = new DeviceCaps();
+    protected _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
+    protected _samplers = new Map<number, Sampler>();
+    protected _globalBarriers = new Map<number, GlobalBarrier>();
+    protected _textureBarriers = new Map<number, TextureBarrier>();
 
-    public abstract initialize (info: DeviceInfo): boolean;
+    public abstract initialize (info: Readonly<DeviceInfo>): boolean;
 
     public abstract destroy (): void;
-
-    /**
-     * @en Resize the device.
-     * @zh 重置设备大小。
-     * @param width The device width.
-     * @param height The device height.
-     */
-    public abstract resize (width: number, height: number): void;
 
     /**
      * @en Acquire next swapchain image.
      * @zh 获取下一个交换链缓冲。
      */
-    public abstract acquire (): void;
+    public abstract acquire (swapchains: Swapchain[]): void;
 
     /**
      * @en Present current swapchain image.
@@ -259,105 +187,112 @@ export abstract class Device {
      * @zh 创建命令缓冲。
      * @param info GFX command buffer description info.
      */
-    public abstract createCommandBuffer (info: CommandBufferInfo): CommandBuffer;
+    public abstract createCommandBuffer (info: Readonly<CommandBufferInfo>): CommandBuffer;
+
+    /**
+     * @en Create swapchain.
+     * @zh 创建交换链。
+     * @param info GFX swapchain description info.
+     */
+    public abstract createSwapchain (info: Readonly<SwapchainInfo>): Swapchain;
 
     /**
      * @en Create buffer.
      * @zh 创建缓冲。
      * @param info GFX buffer description info.
      */
-    public abstract createBuffer (info: BufferInfo | BufferViewInfo): Buffer;
+    public abstract createBuffer (info: Readonly<BufferInfo> | BufferViewInfo): Buffer;
 
     /**
      * @en Create texture.
      * @zh 创建纹理。
      * @param info GFX texture description info.
      */
-    public abstract createTexture (info: TextureInfo | TextureViewInfo): Texture;
-
-    /**
-     * @en Create sampler.
-     * @zh 创建采样器。
-     * @param info GFX sampler description info.
-     */
-    public abstract createSampler (info: SamplerInfo): Sampler;
+    public abstract createTexture (info: Readonly<TextureInfo> | TextureViewInfo): Texture;
 
     /**
      * @en Create descriptor sets.
      * @zh 创建描述符集组。
      * @param info GFX descriptor sets description info.
      */
-    public abstract createDescriptorSet (info: DescriptorSetInfo): DescriptorSet;
+    public abstract createDescriptorSet (info: Readonly<DescriptorSetInfo>): DescriptorSet;
 
     /**
      * @en Create shader.
      * @zh 创建着色器。
      * @param info GFX shader description info.
      */
-    public abstract createShader (info: ShaderInfo): Shader;
+    public abstract createShader (info: Readonly<ShaderInfo>): Shader;
 
     /**
      * @en Create input assembler.
      * @zh 创建纹理。
      * @param info GFX input assembler description info.
      */
-    public abstract createInputAssembler (info: InputAssemblerInfo): InputAssembler;
+    public abstract createInputAssembler (info: Readonly<InputAssemblerInfo>): InputAssembler;
 
     /**
      * @en Create render pass.
      * @zh 创建渲染过程。
      * @param info GFX render pass description info.
      */
-    public abstract createRenderPass (info: RenderPassInfo): RenderPass;
+    public abstract createRenderPass (info: Readonly<RenderPassInfo>): RenderPass;
 
     /**
      * @en Create frame buffer.
      * @zh 创建帧缓冲。
      * @param info GFX frame buffer description info.
      */
-    public abstract createFramebuffer (info: FramebufferInfo): Framebuffer;
+    public abstract createFramebuffer (info: Readonly<FramebufferInfo>): Framebuffer;
 
     /**
      * @en Create descriptor set layout.
      * @zh 创建描述符集布局。
      * @param info GFX descriptor set layout description info.
      */
-    public abstract createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout;
+    public abstract createDescriptorSetLayout (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayout;
 
     /**
      * @en Create pipeline layout.
      * @zh 创建管线布局。
      * @param info GFX pipeline layout description info.
      */
-    public abstract createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout;
+    public abstract createPipelineLayout (info: Readonly<PipelineLayoutInfo>): PipelineLayout;
 
     /**
      * @en Create pipeline state.
      * @zh 创建管线状态。
      * @param info GFX pipeline state description info.
      */
-    public abstract createPipelineState (info: PipelineStateInfo): PipelineState;
+    public abstract createPipelineState (info: Readonly<PipelineStateInfo>): PipelineState;
 
     /**
      * @en Create queue.
      * @zh 创建队列。
      * @param info GFX queue description info.
      */
-    public abstract createQueue (info: QueueInfo): Queue;
+    public abstract createQueue (info: Readonly<QueueInfo>): Queue;
+
+    /**
+     * @en Create sampler.
+     * @zh 创建采样器。
+     * @param info GFX sampler description info.
+     */
+    public abstract getSampler (info: Readonly<SamplerInfo>): Sampler;
 
     /**
      * @en Create global barrier.
      * @zh 创建全局内存屏障。
      * @param info GFX global barrier description info.
      */
-    public abstract createGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier;
+    public abstract getGlobalBarrier (info: Readonly<GlobalBarrierInfo>): GlobalBarrier;
 
     /**
      * @en Create texture barrier.
      * @zh 创建贴图内存屏障。
      * @param info GFX texture barrier description info.
      */
-    public abstract createTextureBarrier (info: TextureBarrierInfo): TextureBarrier;
+    public abstract getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier;
 
     /**
      * @en Copy buffers to texture.
@@ -366,10 +301,9 @@ export abstract class Device {
      * @param texture The texture to copy to.
      * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void;
+    public abstract copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: BufferTextureCopy[]): void;
 
     /**
-     *
      * @en Copy texture to buffers
      * @zh 拷贝纹理到缓冲
      * @param texture The texture to be copied.
@@ -386,15 +320,6 @@ export abstract class Device {
      * @param regions The region descriptions.
      */
     public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void;
-
-    /**
-     * @en Copy frame buffer to buffer.
-     * @zh 拷贝帧缓冲到缓冲。
-     * @param srcFramebuffer The frame buffer to be copied.
-     * @param dstBuffer The buffer to copy to.
-     * @param regions The region descriptions.
-     */
-    public abstract copyFramebufferToBuffer (srcFramebuffer: Framebuffer, dstBuffer: ArrayBuffer, regions: BufferTextureCopy[]): void;
 
     /**
      * @en Whether the device has specific feature.

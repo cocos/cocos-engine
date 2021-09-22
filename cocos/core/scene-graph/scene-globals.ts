@@ -403,9 +403,9 @@ export class ShadowsInfo {
     @serializable
     protected _far = 10.0;
     @serializable
-    protected _shadowDistance = 10;
+    protected _shadowDistance = 100;
     @serializable
-    protected _invisibleOcclusionRange = 50;
+    protected _invisibleOcclusionRange = 200;
     @serializable
     protected _orthoSize = 5;
     @serializable
@@ -694,6 +694,7 @@ export class ShadowsInfo {
 
     public activate (resource: Shadows) {
         this._resource = resource;
+        this.pcf = Math.min(this._pcf, PCFType.SOFT_2X);
         this._resource.initialize(this);
         this._resource.activate();
     }

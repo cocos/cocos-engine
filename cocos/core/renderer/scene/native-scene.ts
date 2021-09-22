@@ -1,7 +1,7 @@
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
-import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader,
-    BlendState, DepthStencilState, RasterizerState } from '../../gfx';
+import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
+    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -152,8 +152,7 @@ export const NativeFog: Constructor<{
 export type NativeFog = InstanceType<typeof NativeFog>;
 
 export const NativeRenderWindow: Constructor<{
-    hasOffScreenAttachments: boolean;
-    hasOnScreenAttachments: boolean;
+    swapchain: Swapchain;
     frameBuffer: Framebuffer;
 }> = null!;
 export type NativeRenderWindow = InstanceType<typeof NativeRenderWindow>;

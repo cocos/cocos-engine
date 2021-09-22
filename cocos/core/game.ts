@@ -31,10 +31,10 @@
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
-import { EventTarget } from './event/event-target';
+import { EventTarget } from './event';
+import { input } from '../input';
 import * as debug from './platform/debug';
-import inputManager from './platform/event-manager/input-manager';
-import { Device, DeviceInfo } from './gfx';
+import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
@@ -113,13 +113,15 @@ export interface IGameConfig {
      * - 0 - 通过引擎自动选择。
      * - 1 - 强制使用 canvas 渲染。
      * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
+     * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
      * @en
      * Sets the renderer type, only useful on web:
      * - 0 - Automatically chosen by engine.
      * - 1 - Forced to use canvas renderer.
      * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
+     * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
      */
-    renderMode?: 0 | 1 | 2;
+    renderMode?: 0 | 1 | 2 | 3;
 
     /**
      * @zh
@@ -256,6 +258,12 @@ export class Game extends EventTarget {
     public static readonly RENDER_TYPE_OPENGL = 2;
 
     /**
+     * @en Headless Renderer, usually used in test or server env
+     * @zh 空渲染器，通常用于测试环境或服务器端模式
+     */
+    public static readonly RENDER_TYPE_HEADLESS = 3;
+
+    /**
      * @en If delta time since last frame is more than this threshold in seconds,
      * the game timer will consider user is debugging and adjust the delta time to [[frameTime]].
      * @zh 如果距离上一帧的帧间隔超过了这个阈值（单位是 s），那么就会被认为正在调试，帧间隔会被自动调节为 [[frameTime]].
@@ -366,7 +374,8 @@ export class Game extends EventTarget {
 
     public _persistRootNodes = {};
 
-    private _gfxDevice: Device | null = null;
+    public _gfxDevice: Device | null = null;
+    public _swapchain: Swapchain | null = null;
     // states
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
@@ -435,7 +444,8 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
-        inputManager.clearEvents();
+        // @ts-expect-error _clearEvents is a private method.
+        input._clearEvents();
         if (this._intervalId) {
             window.cAF(this._intervalId);
             this._intervalId = 0;
@@ -762,7 +772,7 @@ export class Game extends EventTarget {
             config.frameRate = 60;
         }
         const renderMode = config.renderMode;
-        if (typeof renderMode !== 'number' || renderMode > 2 || renderMode < 0) {
+        if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
             config.renderMode = 0;
         }
         config.showFPS = !!config.showFPS;
@@ -797,6 +807,9 @@ export class Game extends EventTarget {
         } else if (userRenderMode === 2 && sys.capabilities.opengl) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
+        } else if (userRenderMode === 3) {
+            this.renderType = Game.RENDER_TYPE_HEADLESS;
+            supportRender = true;
         }
 
         if (!supportRender) {
@@ -816,28 +829,16 @@ export class Game extends EventTarget {
             this.container = adapter.container;
         }
 
-        // The test environment does not currently support the renderer
-        if (TEST) return;
-
         this._determineRenderType();
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
-            const antiAlias = EDITOR || (JSB ? macro.ENABLE_GLES_ANTIALIAS : macro.ENABLE_WEBGL_ANTIALIAS);
 
-            const opts = new DeviceInfo(
-                this.canvas as HTMLCanvasElement,
-                antiAlias,
-                false,
-                window.devicePixelRatio,
-                sys.windowPixelResolution.width,
-                sys.windowPixelResolution.height,
-                bindingMappingInfo,
-            );
+            const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && window.gfx) {
-                this._gfxDevice = gfx.DeviceManager.create(opts);
+                this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
@@ -852,12 +853,18 @@ export class Game extends EventTarget {
                 if (legacyCC.WebGLDevice) {
                     ctors.push(legacyCC.WebGLDevice);
                 }
+                if (legacyCC.EmptyDevice) {
+                    ctors.push(legacyCC.EmptyDevice);
+                }
 
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();
-                    if (this._gfxDevice.initialize(opts)) { break; }
+                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
             }
+        } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {
+            this._gfxDevice = new legacyCC.EmptyDevice();
+            this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
         }
 
         if (!this._gfxDevice) {
@@ -866,6 +873,11 @@ export class Game extends EventTarget {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             return;
         }
+
+        const swapchainInfo = new SwapchainInfo(this.canvas!);
+        swapchainInfo.width = sys.windowPixelResolution.width;
+        swapchainInfo.height = sys.windowPixelResolution.height;
+        this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         this.canvas!.oncontextmenu = () => false;
     }

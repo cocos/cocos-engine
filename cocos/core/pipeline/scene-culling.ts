@@ -37,6 +37,7 @@ import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
+import { Layers } from '../scene-graph';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
@@ -372,7 +373,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 // shadow render Object
                 if (dirShadowObjects != null && model.castShadow) {
                     // frustum culling
-                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
+                    if (model.worldBounds && intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
                         dirShadowObjects.push(getDirShadowRenderObject(model, camera));
                     }
                 }

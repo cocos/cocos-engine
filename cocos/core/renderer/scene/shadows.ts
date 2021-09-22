@@ -416,8 +416,8 @@ export class Shadows {
     protected _type = SHADOW_TYPE_NONE;
     protected _near = 0.1;
     protected _far = 10;
-    protected _invisibleOcclusionRange = 50;
-    protected _shadowDistance = 10;
+    protected _invisibleOcclusionRange = 200;
+    protected _shadowDistance = 100;
     protected _orthoSize = 1;
     protected _pcf = 0;
     protected _shadowMapDirty = false;
