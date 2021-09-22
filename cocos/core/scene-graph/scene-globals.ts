@@ -708,7 +708,7 @@ export class ShadowsInfo {
                 if (this._resource) {
                     this.shadowDistance = Math.min(this._resource.shadowDistance, Shadows.MAX_FAR);
                 }
-            })
+            });
         }
         this._resource.initialize(this);
         this._resource.activate();
