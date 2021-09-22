@@ -405,11 +405,11 @@ export function checkToExpandPrefabInstanceNode (node: BaseNode) {
             const childPrefabInstance = instanceChild._prefab?.instance;
             if (childPrefabInstance) {
                 createNodeWithPrefab(instanceChild);
-    
+
                 const targetMap: Record<string, any | Node | Component> = {};
                 childPrefabInstance.targetMap = targetMap;
                 generateTargetMap(instanceChild, targetMap, true);
-    
+
                 applyMountedChildren(instanceChild, childPrefabInstance.mountedChildren, targetMap);
                 applyRemovedComponents(instanceChild, childPrefabInstance.removedComponents, targetMap);
                 applyMountedComponents(instanceChild, childPrefabInstance.mountedComponents, targetMap);
