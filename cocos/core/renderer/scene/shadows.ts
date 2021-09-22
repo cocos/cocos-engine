@@ -399,11 +399,13 @@ export class Shadows {
      */
     public maxReceived = 4;
 
-    // local
+    // local set
+    public firstSetCSM = false;
     public shadowCameraFar = 0;
     public matShadowView = new Mat4();
     public matShadowProj = new Mat4();
     public matShadowViewProj = new Mat4();
+    public sceneGlobalInfo: ShadowsInfo | null = null;
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -477,6 +479,7 @@ export class Shadows {
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {
+        this.sceneGlobalInfo = shadowsInfo;
         this.near = shadowsInfo.near;
         this.far = shadowsInfo.far;
         this.invisibleOcclusionRange = shadowsInfo.invisibleOcclusionRange;
@@ -494,6 +497,7 @@ export class Shadows {
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
         this.saturation = shadowsInfo.saturation;
+        this.firstSetCSM = shadowsInfo.firstSetCSM;
     }
 
     public activate () {
