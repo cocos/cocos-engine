@@ -402,18 +402,18 @@ export function checkToExpandPrefabInstanceNode (node: BaseNode) {
     if (prefabInfo && prefabInfo.instanceChildren) {
         prefabInfo.instanceChildren.forEach((instanceChild: Node) => {
             // @ts-expect-error private member access
-            const nestedPrefabInstance = instanceChild._prefab?.instance;
-            if (nestedPrefabInstance) {
+            const childPrefabInstance = instanceChild._prefab?.instance;
+            if (childPrefabInstance) {
                 createNodeWithPrefab(instanceChild);
     
                 const targetMap: Record<string, any | Node | Component> = {};
-                nestedPrefabInstance.targetMap = targetMap;
+                childPrefabInstance.targetMap = targetMap;
                 generateTargetMap(instanceChild, targetMap, true);
     
-                applyMountedChildren(instanceChild, nestedPrefabInstance.mountedChildren, targetMap);
-                applyRemovedComponents(instanceChild, nestedPrefabInstance.removedComponents, targetMap);
-                applyMountedComponents(instanceChild, nestedPrefabInstance.mountedComponents, targetMap);
-                applyPropertyOverrides(instanceChild, nestedPrefabInstance.propertyOverrides, targetMap);
+                applyMountedChildren(instanceChild, childPrefabInstance.mountedChildren, targetMap);
+                applyRemovedComponents(instanceChild, childPrefabInstance.removedComponents, targetMap);
+                applyMountedComponents(instanceChild, childPrefabInstance.mountedComponents, targetMap);
+                applyPropertyOverrides(instanceChild, childPrefabInstance.propertyOverrides, targetMap);
             }
         });
     }
