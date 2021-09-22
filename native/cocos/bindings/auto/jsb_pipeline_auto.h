@@ -87,6 +87,10 @@ bool js_register_cc_pipeline_ForwardPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getFrameGraph);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getHeight);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getRenderArea);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
 
 extern se::Object* __jsb_cc_pipeline_RenderFlowInfo_proto;
