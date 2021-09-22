@@ -25,6 +25,7 @@
  */
 
 import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin, tooltip } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, color } from '../math';
@@ -34,7 +35,6 @@ import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
-import { EDITOR } from 'internal:constants';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
