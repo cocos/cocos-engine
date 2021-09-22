@@ -30,7 +30,7 @@
  * @hidden
  */
 
-import { EventKeyboard, EventAcceleration, EventMouse } from './event';
+import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 import { Component } from '../../core/components';
 import { legacyCC } from '../../core/global-exports';
 import { logID, assertID } from '../../core/platform/debug';

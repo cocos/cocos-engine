@@ -27,6 +27,7 @@
  * @packageDocumentation
  * @module event
  */
+import { ccenum } from '../../core/value-types/enum';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
@@ -131,20 +132,20 @@ export enum SystemEventType {
     MOUSE_LEAVE = 'mouse-leave',
 
     /**
-     * @en The event type for the key down event, the event will be continuously dispatched in the key pressed state
+     * @en The event type for press the key down event, the event will be continuously dispatched in the key pressed state
      * @zh 当按下按键时触发的事件, 该事件在按下状态会持续派发
      */
     KEY_DOWN = 'keydown',
 
     /**
-     * @en The event type for the key up event
+     * @en The event type for press the key up event
      * @zh 当松开按键时触发的事件
      */
     KEY_UP = 'keyup',
 
     /**
      * @en
-     * The event type for the devicemotion event
+     * The event type for press the devicemotion event
      *
      * @zh
      * 重力感应
@@ -275,110 +276,8 @@ export enum SystemEventType {
     SIBLING_ORDER_CHANGED = 'sibling-order-changed',
 }
 
-/**
- * @en The input event type
- * @zh 输入事件类型
- */
-export enum InputEventType {
-    /**
-     * @en
-     * The event type for touch start event
-     *
-     * @zh
-     * 手指开始触摸事件。
-     */
-    TOUCH_START = 'touch-start',
+ccenum(SystemEventType);
 
-    /**
-     * @en
-     * The event type for touch move event
-     *
-     * @zh
-     * 当手指在屏幕上移动时。
-     */
-    TOUCH_MOVE = 'touch-move',
-
-    /**
-     * @en
-     * The event type for touch end event
-     *
-     * @zh
-     * 手指结束触摸事件。
-     */
-    TOUCH_END = 'touch-end',
-
-    /**
-     * @en
-     * The event type for touch end event
-     *
-     * @zh
-     * 当手指在目标节点区域外离开屏幕时。
-     */
-    TOUCH_CANCEL = 'touch-cancel',
-
-    /**
-     * @en
-     * The event type for mouse down events
-     *
-     * @zh
-     * 当鼠标按下时触发一次。
-     */
-    MOUSE_DOWN = 'mouse-down',
-
-    /**
-     * @en
-     * The event type for mouse move events
-     *
-     * @zh
-     * 当鼠标在目标节点在目标节点区域中移动时，不论是否按下。
-     */
-    MOUSE_MOVE = 'mouse-move',
-
-    /**
-     * @en
-     * The event type for mouse up events
-     *
-     * @zh
-     * 当鼠标从按下状态松开时触发一次。
-     */
-    MOUSE_UP = 'mouse-up',
-
-    /**
-     * @en
-     * The event type for mouse wheel events
-     *
-     * @zh 手指开始触摸事件
-     */
-    MOUSE_WHEEL = 'mouse-wheel',
-
-    /**
-     * @en The event type for the key down event
-     * @zh 当按下按键时触发的事件
-     */
-    KEY_DOWN = 'keydown',
-
-    /**
-     * @en The event type for the key pressing event, the event will be continuously dispatched in the key pressed state
-     * @zh 当按着按键时触发的事件, 该事件在按下状态会持续派发
-     */
-    KEY_PRESSING = 'key-pressing',
-
-    /**
-     * @en The event type for the key up event
-     * @zh 当松开按键时触发的事件
-     */
-    KEY_UP = 'keyup',
-
-    /**
-     * @en
-     * The event type for the devicemotion event
-     *
-     * @zh
-     * 重力感应
-     */
-    DEVICEMOTION = 'devicemotion',
-}
-
-export type SystemEventTypeUnion = SystemEventType | NodeEventType | InputEventType;
+export type SystemEventTypeUnion = SystemEventType | NodeEventType;
 
 legacyCC.SystemEventType = SystemEventType;

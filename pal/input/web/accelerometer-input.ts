@@ -3,8 +3,7 @@ import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, OS } from '../../system-info/enum-type';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { EventAcceleration, Acceleration } from '../../../cocos/input/types';
-import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { SystemEventType, EventAcceleration, Acceleration } from '../../../cocos/input/types';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -96,7 +95,7 @@ export class AccelerometerInputSource {
         const timestamp = performance.now();
         const acceleration = new Acceleration(x, y, z, timestamp);
         const eventAcceleration = new EventAcceleration(acceleration);
-        this._eventTarget.emit(InputEventType.DEVICEMOTION, eventAcceleration);
+        this._eventTarget.emit(SystemEventType.DEVICEMOTION, eventAcceleration);
     }
 
     public start () {
@@ -117,7 +116,7 @@ export class AccelerometerInputSource {
     public setInterval (intervalInMileSeconds: number) {
         this._intervalInMileSeconds = intervalInMileSeconds;
     }
-    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any) {
-        this._eventTarget.on(eventType, callback, target);
+    public onChange (cb: AccelerometerCallback) {
+        this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
     }
 }

@@ -1,8 +1,8 @@
 import { KeyboardCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
-import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
+import { SystemEventType, KeyCode, EventKeyboard } from '../../../cocos/input/types';
+import { SystemEvent } from '../../../cocos/input';
 import { EventTarget } from '../../../cocos/core/event';
-import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 const nativeKeyCode2KeyCode: Record<number, KeyCode> = {
     12: KeyCode.NUM_LOCK,
@@ -41,30 +41,37 @@ export class KeyboardInputSource {
     private _registerEvent () {
         jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
-            if (!this._keyStateMap[keyCode]) {
-                const eventKeyDown = this._getInputEvent(event, InputEventType.KEY_DOWN);
-                this._eventTarget.emit(InputEventType.KEY_DOWN, eventKeyDown);
-            } else {
-                const eventKeyPressing = this._getInputEvent(event, InputEventType.KEY_PRESSING);
-                this._eventTarget.emit(InputEventType.KEY_PRESSING, eventKeyPressing);
-            }
+            // if (!this._keyStateMap[keyCode]) {
+            //     const eventKeyDown = this._getInputEvent(event, 'keypress');
+            //     this._eventTarget.emit('keypress', eventKeyDown);
+            // }
+            const eventKeyPressing = this._getInputEvent(event, SystemEventType.KEY_DOWN);
+            this._eventTarget.emit(SystemEventType.KEY_DOWN, eventKeyPressing);
             this._keyStateMap[keyCode] = true;
         };
         jsb.onKeyUp = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
-            const eventKeyUp = this._getInputEvent(event, InputEventType.KEY_UP);
+            const eventKeyUp = this._getInputEvent(event, SystemEventType.KEY_UP);
             this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(InputEventType.KEY_UP, eventKeyUp);
+            this._eventTarget.emit(SystemEventType.KEY_UP, eventKeyUp);
         };
     }
 
-    private _getInputEvent (event: jsb.KeyboardEvent, eventType: InputEventType) {
+    private _getInputEvent (event: jsb.KeyboardEvent, eventType: SystemEvent.EventType) {
         const keyCode = getKeyCode(event.keyCode);
         const eventKeyboard = new EventKeyboard(keyCode, eventType);
         return eventKeyboard;
     }
 
-    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
-        this._eventTarget.on(eventType, callback,  target);
+    public onDown (cb: KeyboardCallback) {
+        this._eventTarget.on('keypress', cb);
+    }
+
+    public onPressing (cb: KeyboardCallback) {
+        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
+    }
+
+    public onUp (cb: KeyboardCallback) {
+        this._eventTarget.on(SystemEventType.KEY_UP, cb);
     }
 }

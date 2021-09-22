@@ -3,11 +3,11 @@ import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Size, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
-import { EventTouch, Touch } from '../../../cocos/input/types';
+import { SystemEvent } from '../../../cocos/input';
+import { EventTouch, SystemEventType, Touch } from '../../../cocos/input/types';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
-import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class TouchInputSource {
     public support: boolean;
@@ -19,13 +19,13 @@ export class TouchInputSource {
     }
 
     private _registerEvent () {
-        minigame.onTouchStart(this._createCallback(InputEventType.TOUCH_START));
-        minigame.onTouchMove(this._createCallback(InputEventType.TOUCH_MOVE));
-        minigame.onTouchEnd(this._createCallback(InputEventType.TOUCH_END));
-        minigame.onTouchCancel(this._createCallback(InputEventType.TOUCH_CANCEL));
+        minigame.onTouchStart(this._createCallback(SystemEventType.TOUCH_START));
+        minigame.onTouchMove(this._createCallback(SystemEventType.TOUCH_MOVE));
+        minigame.onTouchEnd(this._createCallback(SystemEventType.TOUCH_END));
+        minigame.onTouchCancel(this._createCallback(SystemEventType.TOUCH_CANCEL));
     }
 
-    private _createCallback (eventType: InputEventType) {
+    private _createCallback (eventType: SystemEvent.EventType) {
         return (event: any) => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
@@ -41,7 +41,7 @@ export class TouchInputSource {
                 if (!touch) {
                     continue;
                 }
-                if (eventType === InputEventType.TOUCH_END || eventType === InputEventType.TOUCH_CANCEL) {
+                if (eventType === SystemEventType.TOUCH_END || eventType === SystemEventType.TOUCH_CANCEL) {
                     touchManager.releaseTouch(touchID);
                 }
                 handleTouches.push(touch);
@@ -68,7 +68,16 @@ export class TouchInputSource {
         return new Vec2(x, y);
     }
 
-    public on (eventType: InputEventType, callback: TouchCallback, target?: any) {
-        this._eventTarget.on(eventType, callback, target);
+    public onStart (cb: TouchCallback) {
+        this._eventTarget.on(SystemEventType.TOUCH_START, cb);
+    }
+    public onMove (cb: TouchCallback) {
+        this._eventTarget.on(SystemEventType.TOUCH_MOVE, cb);
+    }
+    public onEnd (cb: TouchCallback) {
+        this._eventTarget.on(SystemEventType.TOUCH_END, cb);
+    }
+    public onCancel (cb: TouchCallback) {
+        this._eventTarget.on(SystemEventType.TOUCH_CANCEL, cb);
     }
 }
