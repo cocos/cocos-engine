@@ -3,7 +3,7 @@
 import {
     Address, BlendFactor, BlendOp, ColorMask, ComparisonFunc, CullMode, DynamicStateFlagBit,
     Filter, Format, FormatInfos, FormatType, GetTypeSize, PolygonMode, PrimitiveMode,
-    ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo,
+    ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType, SamplerInfo, MemoryAccessBit,
 } from '../../cocos/core/gfx/base/define';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/core/pipeline/define';
 import { murmurhash2_32_gc } from '../../cocos/core/utils/murmurhash2_gc';
@@ -41,6 +41,20 @@ typeMap[typeMap.sampler2D = Type.SAMPLER2D] = 'sampler2D';
 typeMap[typeMap.sampler2DArray = Type.SAMPLER2D_ARRAY] = 'sampler2DArray';
 typeMap[typeMap.sampler3D = Type.SAMPLER3D] = 'sampler3D';
 typeMap[typeMap.samplerCube = Type.SAMPLER_CUBE] = 'samplerCube';
+typeMap[typeMap.sampler = Type.SAMPLER] = 'sampler';
+typeMap[typeMap.texture1D = Type.TEXTURE1D] = 'texture1D';
+typeMap[typeMap.texture1DArray = Type.TEXTURE1D_ARRAY] = 'texture1DArray';
+typeMap[typeMap.texture2D = Type.TEXTURE2D] = 'texture2D';
+typeMap[typeMap.texture2DArray = Type.TEXTURE2D_ARRAY] = 'texture2DArray';
+typeMap[typeMap.texture3D = Type.TEXTURE3D] = 'texture3D';
+typeMap[typeMap.textureCube = Type.TEXTURE_CUBE] = 'textureCube';
+typeMap[typeMap.image1D = Type.IMAGE1D] = 'image1D';
+typeMap[typeMap.image1DArray = Type.IMAGE1D_ARRAY] = 'image1DArray';
+typeMap[typeMap.image2D = Type.IMAGE2D] = 'image2D';
+typeMap[typeMap.image2DArray = Type.IMAGE2D_ARRAY] = 'image2DArray';
+typeMap[typeMap.image3D = Type.IMAGE3D] = 'image3D';
+typeMap[typeMap.imageCube = Type.IMAGE_CUBE] = 'imageCube';
+typeMap[typeMap.subpassInput = Type.SUBPASS_INPUT] = 'subpassInput';
 // variations
 typeMap.int8_t = Type.INT;
 typeMap.i8vec2 = Type.INT2;
@@ -137,12 +151,17 @@ const formatMap = {
     mat4x2: Format.RGBA32F,
     mat4x3: Format.RGBA32F,
 };
-const getFormat = (name) => typeof name === 'string' && Format[name.toUpperCase()];
-const getShaderStage = (name) => typeof name === 'string' && ShaderStageFlagBit[name.toUpperCase()];
-const getDescriptorType = (name) => typeof name === 'string' && DescriptorType[name.toUpperCase()];
-const isNormalized = (format) => {
+const getFormat = (name: string) => Format[name.toUpperCase()];
+const getShaderStage = (name: string) => ShaderStageFlagBit[name.toUpperCase()];
+const getDescriptorType = (name: string) => DescriptorType[name.toUpperCase()];
+const isNormalized = (format: string) => {
     const type = FormatInfos[format] && FormatInfos[format].type;
     return type === FormatType.UNORM || type === FormatType.SNORM;
+};
+const getMemoryAccessFlag = (access: string) => {
+    if (access === 'writeonly') { return MemoryAccessBit.WRITE_ONLY; }
+    if (access === 'readonly') { return MemoryAccessBit.READ_ONLY; }
+    return MemoryAccessBit.READ_WRITE;
 };
 
 const passParams = {
@@ -239,8 +258,6 @@ const passParams = {
     CLAMP: Address.CLAMP,
     BORDER: Address.BORDER,
 
-    VIEWPORT: DynamicStateFlagBit.VIEWPORT,
-    SCISSOR: DynamicStateFlagBit.SCISSOR,
     LINE_WIDTH: DynamicStateFlagBit.LINE_WIDTH,
     DEPTH_BIAS: DynamicStateFlagBit.DEPTH_BIAS,
     BLEND_CONSTANTS: DynamicStateFlagBit.BLEND_CONSTANTS,
@@ -286,6 +303,7 @@ export {
     getDescriptorType,
     isNormalized,
     isPaddedMatrix,
+    getMemoryAccessFlag,
     passParams,
     SetIndex,
     RenderPriority,
