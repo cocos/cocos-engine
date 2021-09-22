@@ -383,9 +383,6 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
         // Editor display parameter settings
         if (shadows.sceneGlobalInfo) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            //@ts-ignore
-            shadows.sceneGlobalInfo._firstSetCSM = false;
             shadows.sceneGlobalInfo.shadowDistance = shadows.shadowDistance;
         }
     }

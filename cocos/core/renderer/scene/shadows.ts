@@ -497,9 +497,6 @@ export class Shadows {
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
         this.saturation = shadowsInfo.saturation;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        this.firstSetCSM = shadowsInfo._firstSetCSM;
     }
 
     public activate () {
