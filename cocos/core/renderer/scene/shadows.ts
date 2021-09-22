@@ -497,7 +497,7 @@ export class Shadows {
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
         this.saturation = shadowsInfo.saturation;
-        this.firstSetCSM = shadowsInfo.firstSetCSM;
+        this.firstSetCSM = shadowsInfo._firstSetCSM;
     }
 
     public activate () {

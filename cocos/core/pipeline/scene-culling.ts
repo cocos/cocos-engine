@@ -383,7 +383,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
         // Editor display parameter settings
         if (shadows.sceneGlobalInfo) {
-            shadows.sceneGlobalInfo.firstSetCSM = false;
+            shadows.sceneGlobalInfo._firstSetCSM = false;
             shadows.sceneGlobalInfo.shadowDistance = shadows.shadowDistance;
         }
     }
