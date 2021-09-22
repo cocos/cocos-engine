@@ -380,10 +380,5 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     if (shadows.firstSetCSM) {
         shadows.shadowDistance = _castWorldBounds.halfExtents.length() * 2.0;
         shadows.firstSetCSM = false;
-
-        // Editor display parameter settings
-        if (shadows.sceneGlobalInfo) {
-            shadows.sceneGlobalInfo.shadowDistance = shadows.shadowDistance;
-        }
     }
 }

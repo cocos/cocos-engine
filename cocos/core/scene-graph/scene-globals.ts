@@ -34,6 +34,7 @@ import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { EDITOR } from 'internal:constants';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -621,8 +622,8 @@ export class ShadowsInfo {
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set far (val: number) {
-        this._far = Math.min(val, 2000.0);
-        if (this._resource) { this._resource.far = Math.min(val, 2000.0); }
+        this._far = Math.min(val, Shadows.MAX_FAR);
+        if (this._resource) { this._resource.far = this._far; }
     }
     get far () {
         return this._far;
@@ -639,9 +640,9 @@ export class ShadowsInfo {
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
     set invisibleOcclusionRange (val: number) {
-        this._invisibleOcclusionRange = Math.min(val, 2000.0);
+        this._invisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
         if (this._resource) {
-            this._resource.invisibleOcclusionRange = Math.min(val, 2000.0);
+            this._resource.invisibleOcclusionRange = this._invisibleOcclusionRange;
         }
     }
     get invisibleOcclusionRange () {
@@ -659,10 +660,9 @@ export class ShadowsInfo {
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
     set shadowDistance (val: number) {
-        this._shadowDistance = Math.min(val, 2000.0);
-        this._firstSetCSM = false;
+        this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
         if (this._resource) {
-            this._resource.shadowDistance = Math.min(val, 2000.0);
+            this._resource.shadowDistance = this._shadowDistance;
         }
     }
     get shadowDistance () {
@@ -696,9 +696,20 @@ export class ShadowsInfo {
     }
 
     public activate (resource: Shadows) {
-        this._resource = resource;
         this.pcf = Math.min(this._pcf, PCFType.SOFT_2X);
-        this._resource.firstSetCSM = this._firstSetCSM;
+
+        this._resource = resource;
+        if (EDITOR && this._firstSetCSM) {
+            this._resource.firstSetCSM = this._firstSetCSM;
+            // Only the first time render in editor will trigger the auto calculation of shadowDistance
+            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
+                // Sync automatic calculated shadowDistance in renderer
+                this._firstSetCSM = false;
+                if (this._resource) {
+                    this.shadowDistance = Math.min(this._resource.shadowDistance, Shadows.MAX_FAR);
+                }
+            })
+        }
         this._resource.initialize(this);
         this._resource.activate();
     }
