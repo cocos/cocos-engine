@@ -72,6 +72,8 @@ void CCMTLShader::doDestroy() {
     id<MTLFunction> cmptFunc = _cmptFunction;
     _cmptFunction      = nil;
     
+    [_gpuShader->shaderSrc release];
+    
     // [_specializedFragFuncs release];
     const auto specFragFuncs = [_specializedFragFuncs retain];
     [_specializedFragFuncs release];
@@ -79,7 +81,7 @@ void CCMTLShader::doDestroy() {
     CC_SAFE_DELETE(_gpuShader);
 
     std::function<void(void)> destroyFunc = [=]() {
-        if(specFragFuncs.count > 0) {
+        if([specFragFuncs count] > 0) {
             for (NSString* key in [specFragFuncs allKeys]) {
                 [[specFragFuncs valueForKey:key] release];
             }
@@ -132,18 +134,35 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
     NSString * rawSrc = [NSString stringWithUTF8String:stage.source.c_str()];
     NSString *     shader  = [NSString stringWithUTF8String:mtlShader.c_str()];
     NSError *      error   = nil;
-    MTLCompileOptions *opts = [[MTLCompileOptions alloc] init];;
-    //opts.languageVersion = MTLLanguageVersion2_3;
+    MTLCompileOptions *opts = [[MTLCompileOptions alloc] init];
     id<MTLLibrary> &library = isVertexShader ? _vertLibrary : isFragmentShader ? _fragLibrary : _cmptLibrary;
     String shaderStage = isVertexShader ? "vertex" : isFragmentShader ? "fragment" : "compute";
     
-    library = [mtlDevice newLibraryWithSource:shader options:opts error:&error];
-    [opts release];
-    if (!library) {
-        CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
-        CC_LOG_ERROR("%s", stage.source.c_str());
-        return false;
+    if(isFragmentShader) {
+        if(@available(iOS 11.0, *)) {
+            library = [mtlDevice newLibraryWithSource:shader options:opts error:&error];
+            if (!library) {
+                CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
+                CC_LOG_ERROR("%s", stage.source.c_str());
+                return false;
+            }
+        } else {
+            //delayed instance and pretend tobe specialized function.
+            _gpuShader->specializeColor = false;
+            _gpuShader->shaderSrc = [shader retain];
+            assert(_gpuShader->shaderSrc != nil);
+            return true;
+        }
+    } else {
+        library = [mtlDevice newLibraryWithSource:shader options:opts error:&error];
+        if (!library) {
+            CC_LOG_ERROR("Can not compile %s shader: %s", shaderStage.c_str(), [[error localizedDescription] UTF8String]);
+            CC_LOG_ERROR("%s", stage.source.c_str());
+            return false;
+        }
     }
+    
+    [opts release];
 
     if (isVertexShader) {
         _vertFunction = [library newFunctionWithName:@"main0"];
@@ -192,22 +211,51 @@ id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint* index, int* val, u
     for (size_t i = 0; i < count; i++) {
         notEvenHash += val[i] * std::pow(10, index[i]);
     }
-    
     NSString *hashStr = [NSString stringWithFormat:@"%d", notEvenHash];
     id<MTLFunction> specFunc = [_specializedFragFuncs objectForKey:hashStr];
+    
     if(!specFunc) {
-        MTLFunctionConstantValues* constantValues = [MTLFunctionConstantValues new];
-        for (size_t i = 0; i < count; i++) {
-            [constantValues setConstantValue:&val[i] type:MTLDataTypeInt atIndex:index[i]];
+        if(_gpuShader->specializeColor) {
+            MTLFunctionConstantValues* constantValues = [MTLFunctionConstantValues new];
+            for (size_t i = 0; i < count; i++) {
+                [constantValues setConstantValue:&val[i] type:MTLDataTypeInt atIndex:index[i]];
+            }
+            
+            NSError *      error   = nil;
+            id<MTLFunction> specFragFunc = [_fragLibrary newFunctionWithName:@"main0" constantValues:constantValues error:&error];
+            [constantValues release];
+            if (!specFragFunc) {
+                CC_LOG_ERROR("Can not specialize shader: %s", [[error localizedDescription] UTF8String]);
+            }
+            [_specializedFragFuncs setObject:specFragFunc forKey:hashStr];
+        } else {
+            NSString* res = nil;
+            for(size_t i = 0; i < count; i++) {
+                NSString* targetStr = [NSString stringWithFormat:@"(indexOffset%u)", static_cast<unsigned int>(i)];
+                NSString* index = [NSString stringWithFormat:@"(%u)", static_cast<unsigned int>(i)];
+                res = [_gpuShader->shaderSrc stringByReplacingOccurrencesOfString:targetStr withString:index];
+                
+            }
+            id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+            NSError *      error   = nil;
+            MTLCompileOptions *opts = [[MTLCompileOptions alloc] init];
+            // always current
+            if(_fragLibrary) {
+                [_fragLibrary release];
+            }
+            _fragLibrary = [mtlDevice newLibraryWithSource:res options:opts error:&error];
+            if (!_fragLibrary) {
+                CC_LOG_ERROR("Can not compile frag shader: %s", [[error localizedDescription] UTF8String]);
+            }
+            [opts release];
+            _fragFunction = [_fragLibrary newFunctionWithName:@"main0"];
+            if (!_fragFunction) {
+                [_fragLibrary release];
+                CC_LOG_ERROR("Can not create fragment function: main0");
+            }
+            
+            [_specializedFragFuncs setObject:_fragFunction forKey:hashStr];
         }
-        
-        NSError *      error   = nil;
-        id<MTLFunction> specFragFunc = [_fragLibrary newFunctionWithName:@"main0" constantValues:constantValues error:&error];
-        [constantValues release];
-        if (!specFragFunc) {
-            CC_LOG_ERROR("Can not specialize shader: %s", [[error localizedDescription] UTF8String]);
-        }
-        [_specializedFragFuncs setObject:specFragFunc forKey:hashStr];
     }
     return [_specializedFragFuncs valueForKey:hashStr];
 }

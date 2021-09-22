@@ -1140,7 +1140,7 @@ String mu::compileGLSLShader2Msl(const String &src,
         int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
         for(int i = maxIndex; i >=0; --i) {
             String indexStr = std::to_string(i);
-            output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[ function_constant(" + indexStr + ") ]];\n");
+            output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[function_constant(" + indexStr + ")]];\n");
             output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
         }
     }
