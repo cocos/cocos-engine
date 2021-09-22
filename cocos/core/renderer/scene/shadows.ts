@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { Material } from '../../assets/material';
-import { Frustum, Sphere } from '../../geometry';
+import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
@@ -405,7 +405,6 @@ export class Shadows {
     public matShadowView = new Mat4();
     public matShadowProj = new Mat4();
     public matShadowViewProj = new Mat4();
-    public sceneGlobalInfo: ShadowsInfo | null = null;
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -479,7 +478,6 @@ export class Shadows {
     }
 
     public initialize (shadowsInfo: ShadowsInfo) {
-        this.sceneGlobalInfo = shadowsInfo;
         this.near = shadowsInfo.near;
         this.far = shadowsInfo.far;
         this.invisibleOcclusionRange = shadowsInfo.invisibleOcclusionRange;
