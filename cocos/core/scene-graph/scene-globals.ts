@@ -391,6 +391,8 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
+    protected _firstSetCSM = false;
+    @serializable
     protected _fixedArea = false;
     @serializable
     protected _pcf = PCFType.HARD;
@@ -658,6 +660,7 @@ export class ShadowsInfo {
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
     set shadowDistance (val: number) {
         this._shadowDistance = Math.min(val, 2000.0);
+        this._firstSetCSM = false;
         if (this._resource) {
             this._resource.shadowDistance = Math.min(val, 2000.0);
         }
@@ -695,6 +698,7 @@ export class ShadowsInfo {
     public activate (resource: Shadows) {
         this._resource = resource;
         this.pcf = Math.min(this._pcf, PCFType.SOFT_2X);
+        this._resource.firstSetCSM = this._firstSetCSM;
         this._resource.initialize(this);
         this._resource.activate();
     }
