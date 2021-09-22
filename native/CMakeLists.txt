@@ -91,7 +91,7 @@ endif()
 
 if(USE_JOB_SYSTEM_TASKFLOW)
     set(CMAKE_CXX_STANDARD 17)
-    if("${TARGET_IOS_VERSION}" VERSION_LESS "12.0")
+    if(IOS AND "${TARGET_IOS_VERSION}" VERSION_LESS "12.0")
         message(FATAL_ERROR "Target iOS version requires 12.0+ when enable taskflow")
     endif()
 endif()
