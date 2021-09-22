@@ -4,14 +4,14 @@
  */
 
 import { EDITOR, DEBUG } from 'internal:constants';
-import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify } from '../../core';
+import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { createPhysicsWorld } from './instance';
 import { physicsEngineId } from './physics-selector';
 import { DelayEvent } from './physics-internal-types';
 import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO } from './physics-types';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
 
 let instance: PhysicsSystem2D | null = null;
@@ -156,6 +156,16 @@ export class PhysicsSystem2D extends Eventify(System) {
 
     /**
      * @en
+     * Gets the predefined physics groups.
+     * @zh
+     * 获取预定义的物理分组。
+     */
+     public static get PhysicsGroup () {
+        return PhysicsGroup;
+    }
+
+    /**
+     * @en
      * Gets the physical system instance.
      * @zh
      * 获取物理系统实例。
@@ -208,6 +218,14 @@ export class PhysicsSystem2D extends Eventify(System) {
                     const bit = parseInt(i);
                     const value = 1 << parseInt(i);
                     this.collisionMatrix[`${value}`] = config.collisionMatrix[bit];
+                }
+            }
+
+            if (config.collisionGroups) {
+                const cg = config.collisionGroups;
+                if (cg instanceof Array) {
+                    cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                    Enum.update(PhysicsGroup);
                 }
             }
         }
