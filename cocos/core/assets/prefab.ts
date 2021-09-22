@@ -39,7 +39,6 @@ import { Node } from '../scene-graph/node';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as utils from '../utils/prefab';
-import { Component } from '../components/component';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
