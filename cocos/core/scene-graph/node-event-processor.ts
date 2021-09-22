@@ -439,7 +439,7 @@ export class NodeEventProcessor {
 
         pos = event.getUILocation();
 
-        if (node._uiProps.uiTransformComp.isHit(pos, this)) {
+        if (node._uiProps.uiTransformComp.isHit(pos)) {
             event.type = NodeEventType.MOUSE_DOWN;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -457,7 +457,7 @@ export class NodeEventProcessor {
 
         pos = event.getUILocation();
 
-        const hit = node._uiProps.uiTransformComp.isHit(pos, this);
+        const hit = node._uiProps.uiTransformComp.isHit(pos);
         if (hit) {
             if (!this.previousMouseIn) {
                 // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -493,7 +493,7 @@ export class NodeEventProcessor {
 
         pos = event.getUILocation();
 
-        if (node._uiProps.uiTransformComp.isHit(pos, this)) {
+        if (node._uiProps.uiTransformComp.isHit(pos)) {
             event.type = NodeEventType.MOUSE_UP;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -511,7 +511,7 @@ export class NodeEventProcessor {
 
         pos = event.getUILocation();
 
-        if (node._uiProps.uiTransformComp.isHit(pos, this)) {
+        if (node._uiProps.uiTransformComp.isHit(pos)) {
             event.type = NodeEventType.MOUSE_WHEEL;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -548,7 +548,7 @@ export class NodeEventProcessor {
 
         event.getUILocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos, this)) {
+        if (node._uiProps.uiTransformComp.isHit(pos)) {
             event.type = NodeEventType.TOUCH_START;
             event.bubbles = true;
             node.dispatchEvent(event);
@@ -578,7 +578,7 @@ export class NodeEventProcessor {
 
         event.getUILocation(pos);
 
-        if (node._uiProps.uiTransformComp.isHit(pos, this)) {
+        if (node._uiProps.uiTransformComp.isHit(pos)) {
             event.type = NodeEventType.TOUCH_END;
         } else {
             event.type = NodeEventType.TOUCH_CANCEL;
