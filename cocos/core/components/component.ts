@@ -353,9 +353,9 @@ class Component extends CCObject {
         if (EDITOR) {
             // @ts-expect-error private function access
             const depend = this.node._getDependComponent(this);
-            if (depend) {
+            if (depend.length > 0) {
                 errorID(3626,
-                    getClassName(this), getClassName(depend));
+                    getClassName(this), getClassName(depend[0]));
                 return false;
             }
         }
@@ -696,8 +696,11 @@ if (EDITOR || TEST) {
 
 // we make this non-enumerable, to prevent inherited by sub classes.
 value(Component, '_registerEditorProps', (cls, props) => {
-    const reqComp = props.requireComponent;
+    let reqComp = props.requireComponent;
     if (reqComp) {
+        if (Array.isArray(reqComp)) {
+            reqComp = reqComp.filter((comp) => comp);
+        }
         cls._requireComponent = reqComp;
     }
     const order = props.executionOrder;

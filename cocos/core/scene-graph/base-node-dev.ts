@@ -37,7 +37,7 @@ import { error, errorID, getError } from '../platform/debug';
 const Destroying = CCObject.Flags.Destroying;
 
 export function baseNodePolyfill (BaseNode) {
-    if (EDITOR) {
+    if (EDITOR || TEST) {
         BaseNode.prototype._checkMultipleComp = function (ctor) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
@@ -105,19 +105,28 @@ export function baseNodePolyfill (BaseNode) {
         /**
          * @method _getDependComponent
          * @param {Component} depended
-         * @return {Component}
+         * @return {Component[]}
          */
         BaseNode.prototype._getDependComponent = function (depended) {
+            const dependant: any[] = [];
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
                 if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
-                    const depend = comp.constructor._requireComponent;
-                    if (depend && depended instanceof depend) {
-                        return comp;
+                    const reqComps = comp.constructor._requireComponent;
+                    if (reqComps) {
+                        if (Array.isArray(reqComps)) {
+                            for (let i = 0; i < reqComps.length; i++) {
+                                if (depended instanceof reqComps[i]) {
+                                    dependant.push(comp);
+                                }
+                            }
+                        } else if (depended instanceof reqComps) {
+                            dependant.push(comp);
+                        }
                     }
                 }
             }
-            return null;
+            return dependant;
         };
 
         BaseNode.prototype.onRestore = function () {
