@@ -206,7 +206,8 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     // @ts-expect-error private member access
                     childNode._siblingIndex = target._children.length - 1;
-                    childNode._onBatchCreated(false);
+                    //childNode._onBatchCreated(false);
+                    checkToExpandPrefabInstanceNode(childNode);
                 }
             }
         }
@@ -391,5 +392,29 @@ export function applyTargetOverrides (node: BaseNode) {
                 targetPropOwner[targetPropName] = target;
             }
         }
+    }
+}
+
+export function checkToExpandPrefabInstanceNode (node: BaseNode) {
+    // @ts-expect-error private member access
+    const prefabInfo = node._prefab;
+
+    if (prefabInfo && prefabInfo.instanceChildren) {
+        prefabInfo.instanceChildren.forEach((instanceChild: Node) => {
+            // @ts-expect-error private member access
+            const nestedPrefabInstance = instanceChild._prefab?.instance;
+            if (nestedPrefabInstance) {
+                createNodeWithPrefab(instanceChild);
+    
+                const targetMap: Record<string, any | Node | Component> = {};
+                nestedPrefabInstance.targetMap = targetMap;
+                generateTargetMap(instanceChild, targetMap, true);
+    
+                applyMountedChildren(instanceChild, nestedPrefabInstance.mountedChildren, targetMap);
+                applyRemovedComponents(instanceChild, nestedPrefabInstance.removedComponents, targetMap);
+                applyMountedComponents(instanceChild, nestedPrefabInstance.mountedComponents, targetMap);
+                applyPropertyOverrides(instanceChild, nestedPrefabInstance.propertyOverrides, targetMap);
+            }
+        });
     }
 }

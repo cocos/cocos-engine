@@ -200,33 +200,8 @@ export class Prefab extends Asset {
 
     public onLoaded () {
         const rootNode = this.data as Node;
-        this._checkToExpandPrefabInstanceNode(rootNode);
-
+        utils.checkToExpandPrefabInstanceNode(rootNode);
         utils.applyTargetOverrides(rootNode);
-    }
-
-    private _checkToExpandPrefabInstanceNode (node: Node) {
-        // @ts-expect-error private member access
-        const prefabInfo = node._prefab;
-
-        if (prefabInfo && prefabInfo.nestedInstanceNodes) {
-            prefabInfo.nestedInstanceNodes.forEach((nestedNode: Node) => {
-                // @ts-expect-error private member access
-                const nestedPrefabInstance = nestedNode._prefab?.instance;
-                if (nestedPrefabInstance) {
-                    utils.createNodeWithPrefab(nestedNode);
-        
-                    const targetMap: Record<string, any | Node | Component> = {};
-                    nestedPrefabInstance.targetMap = targetMap;
-                    utils.generateTargetMap(nestedNode, targetMap, true);
-        
-                    utils.applyMountedChildren(nestedNode, nestedPrefabInstance.mountedChildren, targetMap);
-                    utils.applyRemovedComponents(nestedNode, nestedPrefabInstance.removedComponents, targetMap);
-                    utils.applyMountedComponents(nestedNode, nestedPrefabInstance.mountedComponents, targetMap);
-                    utils.applyPropertyOverrides(nestedNode, nestedPrefabInstance.propertyOverrides, targetMap);
-                }
-            });
-        }
     }
 }
 

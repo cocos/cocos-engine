@@ -579,33 +579,14 @@ export class Node extends BaseNode implements CustomSerializable {
             this._nativeLayer[0] = this._layer;
             this._nativeObj!.setParent(this.parent?.native);
         }
-        const prefabInstance = this._prefab?.instance;
-        if (!dontSyncChildPrefab && prefabInstance) {
-            createNodeWithPrefab(this);
-        }
-
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags |= TransformBit.TRS;
         this._uiProps.uiTransformDirty = true;
 
-        // don't need to sync ChildPrefab under prefabInstance
-        const dontNeedSync = prefabInstance ? true : dontSyncChildPrefab;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
-            this._children[i]._onBatchCreated(dontNeedSync);
-        }
-
-        // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
-        if (!dontSyncChildPrefab && prefabInstance) {
-            const targetMap: Record<string, any | Node | Component> = {};
-            prefabInstance.targetMap = targetMap;
-            generateTargetMap(this, targetMap, true);
-
-            applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
-            applyRemovedComponents(this, prefabInstance.removedComponents, targetMap);
-            applyMountedComponents(this, prefabInstance.mountedComponents, targetMap);
-            applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
+            this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
     }
 
