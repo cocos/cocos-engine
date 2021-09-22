@@ -340,15 +340,16 @@ let VideoPlayer = cc.Class({
     },
 
     _updateVideoSource () {
-        let url = '';
-        if (this.resourceType === ResourceType.REMOTE) {
-            url = this.remoteURL;
+        if (this._impl) {
+            let url = '';
+            if (this.resourceType === ResourceType.REMOTE) {
+                url = this.remoteURL;
+            } else if (this._clip) {
+                url = this._clip.nativeUrl;
+            }
+            this._impl.setURL(url, this._mute || this._volume === 0);
+            this._impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
         }
-        else if (this._clip) {
-            url = this._clip.nativeUrl;
-        }
-        this._impl.setURL(url, this._mute || this._volume === 0);
-        this._impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
     },
 
     onLoad () {
@@ -452,7 +453,7 @@ let VideoPlayer = cc.Class({
      * @param {Boolean} show
      */
     setShowRaw (show) {
-        this._impl.setShowRawFrame(show);
+        this._impl && this._impl.setShowRawFrame(show);
     },
 
     _ccVideoTex : null,
