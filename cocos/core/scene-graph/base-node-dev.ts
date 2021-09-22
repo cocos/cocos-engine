@@ -33,6 +33,7 @@ import { CCObject } from '../data/object';
 import * as js from '../utils/js';
 import { legacyCC } from '../global-exports';
 import { error, errorID, getError } from '../platform/debug';
+import { Component } from '../components';
 
 const Destroying = CCObject.Flags.Destroying;
 
@@ -71,7 +72,7 @@ export function baseNodePolyfill (BaseNode) {
             const ctor = comp.constructor;
             if (ctor._disallowMultiple) {
                 if (!this._checkMultipleComp(ctor)) {
-                    return;
+                    return undefined;
                 }
             }
 
@@ -100,6 +101,7 @@ export function baseNodePolyfill (BaseNode) {
             if (this._activeInHierarchy) {
                 legacyCC.director._nodeActivator.activateComp(comp);
             }
+            return undefined;
         };
 
         /**
@@ -108,7 +110,7 @@ export function baseNodePolyfill (BaseNode) {
          * @return {Component[]}
          */
         BaseNode.prototype._getDependComponent = function (depended) {
-            const dependant: any[] = [];
+            const dependant: Component[] = [];
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
                 if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
@@ -138,7 +140,7 @@ export function baseNodePolyfill (BaseNode) {
         };
 
         BaseNode.prototype._onPreDestroy = function () {
-            const destroyByParent = this._onPreDestroyBase();
+            const destroyByParent: boolean = this._onPreDestroyBase();
             if (!destroyByParent) {
                 // ensure this node can reattach to scene by undo system
                 // (simulate some destruct logic to make undo system work correctly)
