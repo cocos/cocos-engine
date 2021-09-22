@@ -61,6 +61,13 @@ interface InputEventMap {
     [Input.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
 }
 
+export const touchEvent2SystemEvent = {
+    [InputEventType.TOUCH_START]: `system-event-${InputEventType.TOUCH_START}`,
+    [InputEventType.TOUCH_MOVE]: `system-event-${InputEventType.TOUCH_MOVE}`,
+    [InputEventType.TOUCH_END]: `system-event-${InputEventType.TOUCH_END}`,
+    [InputEventType.TOUCH_CANCEL]: `system-event-${InputEventType.TOUCH_CANCEL}`,
+};
+
 /**
  * @en
  * This Input class manages all events of input. include: touch, mouse, accelerometer and keyboard.
@@ -82,8 +89,6 @@ export class Input {
      * @zh 输入事件类型
      */
     public static EventType = InputEventType;
-    private static _inputList: Input[] = [];
-    private _emitTouch = false;  // HACK: TouchEvent callback has a touch parameter to emit in systemEvent module.
 
     private _eventTarget: EventTarget = new EventTarget();
     private _touchInput = new TouchInputSource();
@@ -100,7 +105,6 @@ export class Input {
 
     constructor () {
         this._registerEvent();
-        Input._inputList.push(this);
     }
 
     private _simulateEventTouch (eventMouse: EventMouse) {
@@ -169,52 +173,43 @@ export class Input {
     }
 
     private _frameDispatchEvents () {
-        const length = Input._inputList.length;
-        const inputList = Input._inputList;
-        for (let i = 0; i < length; ++i) {
-            const input = inputList[i];
-
-            const eventMouseList = input._eventMouseList;
-            // TODO: culling event queue
-            for (let i = 0, length = eventMouseList.length; i < length; ++i) {
-                const eventMouse = eventMouseList[i];
-                input._eventTarget.emit(eventMouse.type, eventMouse);
-            }
-
-            const eventTouchList = input._eventTouchList;
-            // TODO: culling event queue
-            for (let i = 0, length = eventTouchList.length; i < length; ++i) {
-                const eventTouch = eventTouchList[i];
-                const touches = eventTouch.getTouches();
-                const touchesLength = touches.length;
-                for (let j = 0; j < touchesLength; ++j) {
-                    eventTouch.touch = touches[j];
-                    eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
-                    if (input._emitTouch) {
-                        // TODO: deprecate EventTouch.touch property
-                        input._eventTarget.emit(eventTouch.type, eventTouch.touch, eventTouch);
-                    } else {
-                        input._eventTarget.emit(eventTouch.type, eventTouch);
-                    }
-                }
-            }
-
-            const eventKeyboardList = input._eventKeyboardList;
-            // TODO: culling event queue
-            for (let i = 0, length = eventKeyboardList.length; i < length; ++i) {
-                const eventKeyboard = eventKeyboardList[i];
-                input._eventTarget.emit(eventKeyboard.type, eventKeyboard);
-            }
-
-            const eventAccelerationList = input._eventAccelerationList;
-            // TODO: culling event queue
-            for (let i = 0, length = eventAccelerationList.length; i < length; ++i) {
-                const eventAcceleration = eventAccelerationList[i];
-                input._eventTarget.emit(eventAcceleration.type, eventAcceleration);
-            }
-
-            input._clearEvents();
+        const eventMouseList = this._eventMouseList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventMouseList.length; i < length; ++i) {
+            const eventMouse = eventMouseList[i];
+            this._eventTarget.emit(eventMouse.type, eventMouse);
         }
+
+        const eventTouchList = this._eventTouchList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventTouchList.length; i < length; ++i) {
+            const eventTouch = eventTouchList[i];
+            const touches = eventTouch.getTouches();
+            const touchesLength = touches.length;
+            for (let j = 0; j < touchesLength; ++j) {
+                eventTouch.touch = touches[j];
+                eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
+                // TODO: deprecate EventTouch.touch property
+                this._eventTarget.emit(touchEvent2SystemEvent[eventTouch.type], eventTouch.touch, eventTouch);
+                this._eventTarget.emit(eventTouch.type, eventTouch);
+            }
+        }
+
+        const eventKeyboardList = this._eventKeyboardList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventKeyboardList.length; i < length; ++i) {
+            const eventKeyboard = eventKeyboardList[i];
+            this._eventTarget.emit(eventKeyboard.type, eventKeyboard);
+        }
+
+        const eventAccelerationList = this._eventAccelerationList;
+        // TODO: culling event queue
+        for (let i = 0, length = eventAccelerationList.length; i < length; ++i) {
+            const eventAcceleration = eventAccelerationList[i];
+            this._eventTarget.emit(eventAcceleration.type, eventAcceleration);
+        }
+
+        this._clearEvents();
     }
 
     /**

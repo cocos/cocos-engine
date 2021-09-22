@@ -31,7 +31,7 @@
 
 import { EventTarget } from '../core/event';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, SystemEventType, Touch } from './types';
-import { Input } from './input';
+import { input, Input, touchEvent2SystemEvent } from './input';
 import { legacyCC } from '../core/global-exports';
 import { InputEventType } from './types/event-enum';
 
@@ -77,14 +77,7 @@ interface SystemEventMap {
 
 export class SystemEvent extends EventTarget {
     public static EventType = SystemEventType;
-    private _input: Input;
 
-    constructor () {
-        super();
-        this._input = new Input();
-        // @ts-expect-error _emitTouch is a private method.
-        this._input._emitTouch = true;
-    }
     /**
      * @en
      * Sets whether to enable the accelerometer event listener or not.
@@ -93,7 +86,7 @@ export class SystemEvent extends EventTarget {
      * 是否启用加速度计事件。
      */
     public setAccelerometerEnabled (isEnabled: boolean) {
-        this._input.setAccelerometerEnabled(isEnabled);
+        input.setAccelerometerEnabled(isEnabled);
     }
 
     /**
@@ -104,7 +97,7 @@ export class SystemEvent extends EventTarget {
      * 设置加速度计间隔值。
      */
     public setAccelerometerInterval (interval: number) {
-        this._input.setAccelerometerInterval(interval);
+        input.setAccelerometerInterval(interval);
     }
 
     /**
@@ -120,15 +113,17 @@ export class SystemEvent extends EventTarget {
      */
     // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
     public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
-        const registerMethod = once ? this._input.once : this._input.on;
+        const registerMethod = once ? input.once : input.on;
         if (type === SystemEventType.KEY_DOWN) {
             // @ts-expect-error wrong mapped type
-            registerMethod.call(this._input, InputEventType.KEY_DOWN, callback, target);
+            registerMethod.call(input, InputEventType.KEY_DOWN, callback, target);
             // @ts-expect-error wrong mapped type
-            registerMethod.call(this._input, InputEventType.KEY_PRESSING, callback, target, once);
+            registerMethod.call(input, InputEventType.KEY_PRESSING, callback, target, once);
         } else {
+            // @ts-expect-error wrong type mapping
+            type = touchEvent2SystemEvent[type] || type;
             // @ts-expect-error wrong mapped type
-            registerMethod.call(this._input, type, callback, target, once);
+            registerMethod.call(input, type, callback, target, once);
         }
         return callback;
     }
@@ -147,12 +142,14 @@ export class SystemEvent extends EventTarget {
     public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
         if (type === SystemEventType.KEY_DOWN) {
             // @ts-expect-error wrong mapped type
-            this._input.off(InputEventType.KEY_DOWN, callback, target);
+            input.off(InputEventType.KEY_DOWN, callback, target);
             // @ts-expect-error wrong mapped type
-            this._input.off(InputEventType.KEY_PRESSING, callback, target);
+            input.off(InputEventType.KEY_PRESSING, callback, target);
         } else {
+            // @ts-expect-error wrong type mapping
+            type = touchEvent2SystemEvent[type] || type;
             // @ts-expect-error wrong mapped type
-            this._input.off(type, callback, target);
+            input.off(type, callback, target);
         }
     }
 }
