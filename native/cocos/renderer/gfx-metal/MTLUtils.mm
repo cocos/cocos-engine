@@ -791,6 +791,7 @@ MTLCompareFunction mu::toMTLCompareFunction(ComparisonFunc func) {
         case ComparisonFunc::NOT_EQUAL: return MTLCompareFunctionNotEqual;
         case ComparisonFunc::GREATER_EQUAL: return MTLCompareFunctionGreaterEqual;
         case ComparisonFunc::ALWAYS: return MTLCompareFunctionAlways;
+        default: return MTLCompareFunctionNever;
     }
 }
 

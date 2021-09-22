@@ -740,14 +740,6 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         descriptor.usage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead;
         descriptor.storageMode = MTLStorageModePrivate;
         
-        bool texTransient = false;
-        if(mu::isImageBlockSupported()) {
-            if (@available(macOS 11.0, *)) {
-                descriptor.storageMode = MTLStorageModeMemoryless;
-                texTransient = true;
-            }
-        }
-        
         // 1. format conversion
         id<MTLTexture> formatTex = [mtlDevice newTextureWithDescriptor:descriptor];
         MPSImageConversion *conversion = [[MPSImageConversion alloc] initWithDevice: mtlDevice srcAlpha:MPSAlphaTypeNonPremultiplied destAlpha:MPSAlphaTypeNonPremultiplied backgroundColor:nil conversionInfo:nil];
@@ -778,9 +770,8 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
             [imgScale setScaleTransform:&scale];
             [imgScale encodeToCommandBuffer:mtlCmdBuffer sourceTexture:formatTex destinationTexture:sizeTex];
             [imgScale release];
-            if(!texTransient) {
-                [formatTex release];
-            }
+            [formatTex release];
+            
         }
         
         //blit
@@ -805,9 +796,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         }
         [encoder endEncoding];
         
-        if(!texTransient) {
-            [sizeTex release];
-        }
+        [sizeTex release];
         
         [descriptor release];
 
