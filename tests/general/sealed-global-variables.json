@@ -241,7 +241,7 @@
         "cc.Scheduler",
         "cc.ScrollBarComponent",
         "cc.ScrollViewComponent",
-        "cc.Shadows",
+        "cc.ShadowInfo",
         "cc.ShadowsInfo",
         "cc.SimpleTexture",
         "cc.Size",
