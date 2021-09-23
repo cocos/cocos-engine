@@ -824,8 +824,6 @@ class DescriptorSetCache {
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);
-                const localBufferView = drawCall.bufferView;
-                descriptorSet.bindBuffer(ModelLocalBindings.UBO_LOCAL, localBufferView); // 这儿绑定的是 bufferView
                 descriptorSet.update();
 
                 this._descriptorSetCache.set(hash, descriptorSet);

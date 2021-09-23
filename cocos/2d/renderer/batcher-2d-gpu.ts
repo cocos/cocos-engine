@@ -1013,8 +1013,10 @@ class DescriptorSetCache {
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);
-                const localBufferView = drawCall.bufferView;
-                descriptorSet.bindBuffer(ModelLocalBindings.UBO_LOCAL, localBufferView);
+                if (!batch.bufferBatch) {
+                    const localBufferView = drawCall.bufferView!;
+                    descriptorSet.bindBuffer(ModelLocalBindings.UBO_UI_LOCAL, localBufferView);
+                }
                 descriptorSet.update();
 
                 this._descriptorSetCache.set(hash, descriptorSet);

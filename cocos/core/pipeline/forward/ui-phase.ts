@@ -65,8 +65,8 @@ export class UIPhase {
                 cmdBuff.bindInputAssembler(inputAssembler!);
                 for (let i = 0; i < batch.drawCalls.length; i++) {
                     const ds = batch.drawCalls[i].descriptorSet;
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds, batch.drawCalls[i].dynamicOffsets);
-                    cmdBuff.draw(batch.drawCalls[i].drawInfo);
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds!, batch.drawCalls[i].dynamicOffsets);
+                    cmdBuff.draw(batch.drawCalls[i].drawInfo!);
                 }
             }
         }

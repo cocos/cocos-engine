@@ -37,7 +37,7 @@ import { Label, Sprite } from '../components';
 import { Vec3, Vec2, Vec4, Color } from '../../core/math';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { SpriteType } from '../components/sprite';
-import { DrawBatch2D, DrawCall } from './draw-batch';
+import { DrawBatch2D } from './draw-batch';
 import { IBatcher } from './i-batcher';
 
 const EPSILON = 1 / 4096; // ulp(2049)
@@ -153,14 +153,15 @@ export class DrawBatch2DGPU extends DrawBatch2D {
             dc.bufferHash = localBuffer.hash;
             dc.bufferUboIndex = localBuffer.prevUBOIndex;
             dc.bufferView = localBuffer.getBufferView();
-            dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
-            dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6;
-            dc.drawInfo.indexCount = 0;
+            // hack
+            dc.setDynamicOffsets(localBuffer.prevUBOIndex * localBuffer.uniformBufferStride, 0);
+            dc.drawInfo!.firstIndex = localBuffer.prevInstanceID * 6;
+            dc.drawInfo!.indexCount = 0;
             this._dcIndex = this._drawCalls.length;
 
-            this._drawCalls.push(dc);
+            this._pushDrawCall(dc);
         }
-        dc.drawInfo.indexCount += 6;
+        dc.drawInfo!.indexCount += 6;
     }
 
     // for updateBuffer

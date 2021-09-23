@@ -40,7 +40,7 @@ import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
 import { RecyclePool } from '../../core/memop/recycle-pool';
-import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
+import { NativeDrawBatch2D, NativeDrawCall, NativePass } from '../../core/renderer/scene';
 import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
@@ -49,12 +49,68 @@ export class DrawCall {
     // UBO info
     public bufferHash = 0;
     public bufferUboIndex = 0;
-    public bufferView!: Buffer;
+    public _bufferView: Buffer | null = null;
 
     // actual draw call info
-    public descriptorSet: DescriptorSet = null!;
-    public dynamicOffsets = [0];// uboindex * _uniformBufferStride
-    public drawInfo = new DrawInfo();
+    private _descriptorSet: DescriptorSet | null = null;
+    private _dynamicOffsets = [0];// uboindex * _uniformBufferStride
+    private _drawInfo: DrawInfo| null = null;
+
+    private declare _nativeObj: NativeDrawCall | null;
+
+    public get native (): NativeDrawCall {
+        return this._nativeObj!;
+    }
+
+    public get bufferView () {
+        return this._bufferView;
+    }
+    public set bufferView (buffer: Buffer | null) {
+        this._bufferView = buffer;
+        if (JSB) {
+            this._nativeObj!.bufferView = buffer;
+        }
+    }
+
+    public get descriptorSet () {
+        return this._descriptorSet;
+    }
+    public set descriptorSet (ds: DescriptorSet | null) {
+        this._descriptorSet = ds;
+        if (JSB) {
+            this._nativeObj!.descriptorSet = ds;
+        }
+    }
+
+    public get drawInfo () {
+        return this._drawInfo;
+    }
+
+    public get dynamicOffsets () {
+        return this._dynamicOffsets;
+    }
+    public set dynamicOffsets (offsets: number[]) {
+        this._dynamicOffsets = offsets;
+        if (JSB) {
+            this._nativeObj!.dynamicOffsets = this._dynamicOffsets;
+        }
+    }
+
+    public setDynamicOffsets (value: number, index: number) {
+        const temp = this._dynamicOffsets;
+        temp[index] = value;
+        this.dynamicOffsets = temp;
+    }
+
+    constructor () {
+        if (JSB) {
+            this._drawInfo = new gfx.DrawInfo();
+            this._nativeObj = new NativeDrawCall();
+            this._nativeObj.drawInfo = this.drawInfo;
+        } else {
+            this._drawInfo = new DrawInfo();
+        }
+    }
 }
 
 export class DrawBatch2D {
@@ -149,6 +205,12 @@ export class DrawBatch2D {
         this.visFlags = UI_VIS_FLAG;
         this.renderScene = null;
         this._drawCalls.length = 0;
+        if (JSB) { this._nativeObj!.clearDrawCalls(); }
+    }
+
+    protected _pushDrawCall (dc: DrawCall) {
+        this._drawCalls.push(dc);
+        if (JSB) { this._nativeObj!.pushDrawCall(dc.native); }
     }
 
     // object version
@@ -205,12 +267,12 @@ export class DrawBatch2D {
         const ia = this.inputAssembler;
         if (!dc) {
             dc = DrawBatch2D.drawcallPool.add();
-            this._drawCalls.push(dc);
+            this._pushDrawCall(dc);
             dc = this._drawCalls[0];
         }
         if (ia) {
-            dc.drawInfo.firstIndex = ia.drawInfo.firstIndex;
-            dc.drawInfo.indexCount = ia.drawInfo.indexCount;
+            dc.drawInfo!.firstIndex = ia.drawInfo.firstIndex;
+            dc.drawInfo!.indexCount = ia.drawInfo.indexCount;
         }
     }
 }
