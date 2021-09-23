@@ -100,10 +100,6 @@ export class WebGL2Texture extends Texture {
     }
 
     public resize (width: number, height: number) {
-        if (!(this._flags & TextureFlagBit.RESIZABLE)) {
-            console.error('Cannot resize immutable textures');
-        }
-
         const oldSize = this._size;
         this._width = width;
         this._height = height;
