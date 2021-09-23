@@ -31,7 +31,7 @@
 import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { Event, EventListener, EventMouse, EventTouch, Touch } from '../../input/types';
 import { Vec2 } from '../math/vec2';
-import { eventManager } from '../../input';
+import { eventManager } from '../../input/event-manager';
 import { BaseNode } from './base-node';
 import { Node } from './node';
 import { errorID } from '../platform/debug';

@@ -60,6 +60,7 @@ import { EmptyRenderPass } from './empty-render-pass';
 import { EmptyShader } from './empty-shader';
 import { EmptySwapchain } from './empty-swapchain';
 import { EmptyTexture } from './empty-texture';
+import { legacyCC } from '../../global-exports';
 
 export class EmptyDevice extends Device {
     public initialize (info: DeviceInfo): boolean {
@@ -174,7 +175,7 @@ export class EmptyDevice extends Device {
     public getSampler (info: SamplerInfo): Sampler {
         const hash = Sampler.computeHash(info);
         if (!this._samplers.has(hash)) {
-            this._samplers.set(hash, new Sampler(info));
+            this._samplers.set(hash, new Sampler(info, hash));
         }
         return this._samplers.get(hash)!;
     }
@@ -182,7 +183,7 @@ export class EmptyDevice extends Device {
     public getGlobalBarrier (info: GlobalBarrierInfo) {
         const hash = GlobalBarrier.computeHash(info);
         if (!this._globalBarriers.has(hash)) {
-            this._globalBarriers.set(hash, new GlobalBarrier(info));
+            this._globalBarriers.set(hash, new GlobalBarrier(info, hash));
         }
         return this._globalBarriers.get(hash)!;
     }
@@ -190,7 +191,7 @@ export class EmptyDevice extends Device {
     public getTextureBarrier (info: TextureBarrierInfo) {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
-            this._textureBarriers.set(hash, new TextureBarrier(info));
+            this._textureBarriers.set(hash, new TextureBarrier(info, hash));
         }
         return this._textureBarriers.get(hash)!;
     }
@@ -199,3 +200,5 @@ export class EmptyDevice extends Device {
     public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {}
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]) {}
 }
+
+legacyCC.EmptyDevice = EmptyDevice;

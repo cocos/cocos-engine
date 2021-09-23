@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { Material } from '../../assets/material';
-import { Frustum, Sphere } from '../../geometry';
+import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
@@ -399,7 +399,8 @@ export class Shadows {
      */
     public maxReceived = 4;
 
-    // local
+    // local set
+    public firstSetCSM = false;
     public shadowCameraFar = 0;
     public matShadowView = new Mat4();
     public matShadowProj = new Mat4();

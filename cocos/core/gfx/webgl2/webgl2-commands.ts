@@ -30,6 +30,7 @@ import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
     Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
+    UniformSamplerTexture,
 } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -1552,7 +1553,15 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         }
     }
 
-    // create uniform samplers
+    // WebGL doesn't support Framebuffer Fetch
+    for (let i = 0; i < gpuShader.subpassInputs.length; ++i) {
+        const subpassInput = gpuShader.subpassInputs[i];
+        gpuShader.samplerTextures.push(new UniformSamplerTexture(
+            subpassInput.set, subpassInput.binding, subpassInput.name, Type.SAMPLER2D, subpassInput.count,
+        ));
+    }
+
+    // create uniform sampler textures
     if (gpuShader.samplerTextures.length > 0) {
         gpuShader.glSamplerTextures = new Array<IWebGL2GPUUniformSamplerTexture>(gpuShader.samplerTextures.length);
 
@@ -2347,36 +2356,6 @@ export function WebGL2CmdFuncBindStates (
         for (let k = 0; k < dsLen; k++) {
             const dynamicState = gpuPipelineState.dynamicStates[k];
             switch (dynamicState) {
-            case DynamicStateFlagBit.VIEWPORT: {
-                const viewport = dynamicStates.viewport;
-                if (cache.viewport.left !== viewport.left
-                    || cache.viewport.top !== viewport.top
-                    || cache.viewport.width !== viewport.width
-                    || cache.viewport.height !== viewport.height) {
-                    gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
-
-                    cache.viewport.left = viewport.left;
-                    cache.viewport.top = viewport.top;
-                    cache.viewport.width = viewport.width;
-                    cache.viewport.height = viewport.height;
-                }
-                break;
-            }
-            case DynamicStateFlagBit.SCISSOR: {
-                const scissor = dynamicStates.scissor;
-                if (cache.scissorRect.x !== scissor.x
-                    || cache.scissorRect.y !== scissor.y
-                    || cache.scissorRect.width !== scissor.width
-                    || cache.scissorRect.height !== scissor.height) {
-                    gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
-
-                    cache.scissorRect.x = scissor.x;
-                    cache.scissorRect.y = scissor.y;
-                    cache.scissorRect.width = scissor.width;
-                    cache.scissorRect.height = scissor.height;
-                }
-                break;
-            }
             case DynamicStateFlagBit.LINE_WIDTH: {
                 if (cache.rs.lineWidth !== dynamicStates.lineWidth) {
                     gl.lineWidth(dynamicStates.lineWidth);

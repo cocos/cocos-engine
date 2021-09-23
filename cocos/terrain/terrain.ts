@@ -366,7 +366,7 @@ export class TerrainBlock {
 
         const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
             TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
         ));
@@ -885,7 +885,6 @@ export class Terrain extends Component {
                 this._layerList = [];
                 this._layerBuffer = [];
                 this._blocks = [];
-                this._sharedIndexBuffer = null;
             }
 
             // rebuild
@@ -1242,7 +1241,7 @@ export class Terrain extends Component {
 
         this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
             Uint16Array.BYTES_PER_ELEMENT,
         ));

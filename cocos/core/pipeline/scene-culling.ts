@@ -46,7 +46,7 @@ const _shadowPos = new Vec3();
 const _mat4_trans = new Mat4();
 const _castLightViewBounds = new AABB();
 const _castWorldBounds = new AABB();
-const _castBoundsInited = false;
+let _castBoundsInited = false;
 const _validLights: Light[] = [];
 const _sphere = Sphere.create(0, 0, 0, 1);
 const _cameraBoundingSphere = new Sphere();
@@ -204,7 +204,7 @@ export function lightCollecting (camera: Camera, lightNumber: number) {
         const light = spotLights[i];
         Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
         if (intersect.sphereFrustum(_sphere, camera.frustum)
-         && lightNumber > _validLights.length) {
+          && lightNumber > _validLights.length) {
             _validLights.push(light);
         }
     }
@@ -312,6 +312,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
     let shadowObjects: IRenderObject[] | null = null;
+    _castBoundsInited = false;
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
@@ -349,11 +350,19 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         // filter model by view visibility
         if (model.enabled) {
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
-                || (visibility & model.visFlags)) {
+                 || (visibility & model.visFlags)) {
                 // shadow render Object
-                if (shadowObjects != null && model.castShadow) {
+                if (shadowObjects != null && model.castShadow && model.worldBounds) {
+                    if (shadows.firstSetCSM) {
+                        if (!_castBoundsInited) {
+                            _castWorldBounds.copy(model.worldBounds);
+                            _castBoundsInited = true;
+                        }
+                        AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+                    }
+
                     // frustum culling
-                    if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
+                    if (model.worldBounds && intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
                         shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
                 }
@@ -365,5 +374,11 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 renderObjects.push(getRenderObject(model, camera));
             }
         }
+    }
+
+    // FirstSetCSM flag Bit Control
+    if (shadows.firstSetCSM) {
+        shadows.shadowDistance = _castWorldBounds.halfExtents.length() * 2.0;
+        shadows.firstSetCSM = false;
     }
 }

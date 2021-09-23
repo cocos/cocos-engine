@@ -1,8 +1,7 @@
-import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { KeyboardEventData, minigame } from 'pal/minigame';
-import { SystemEventType, KeyCode } from '../../../cocos/input/types';
+import { KeyboardCallback } from 'pal/input';
+import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
-import { SystemEvent } from '../../../cocos/input';
+import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 const code2KeyCode: Record<string, KeyCode> = {
     Backspace: KeyCode.BACKSPACE,
@@ -115,58 +114,39 @@ export class KeyboardInputSource {
     public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
 
-    // KeyboardEvent.repeat is not supported on Wechat PC platform.
-    private _keyStateMap: Record<number, boolean> = {};
-
     constructor () {
-        this.support = typeof minigame.wx === 'object' && typeof minigame.wx.onKeyDown !== 'undefined';
-        if (this.support) {
-            this._registerEvent();
-        }
+        this.support = document.documentElement.onkeyup !== undefined;
+        this._registerEvent();
     }
 
     private _registerEvent () {
-        minigame.wx?.onKeyDown?.((res) => {
-            const keyCode = getKeyCode(res.code);
-            if (!this._keyStateMap[keyCode]) {
-                const keyDownInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
-                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
+        const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+        canvas?.addEventListener('keydown', (event: any) => {
+            event.stopPropagation();
+            event.preventDefault();
+            if (!event.repeat) {
+                const keyDownInputEvent = this._getInputEvent(event, InputEventType.KEY_DOWN);
+                this._eventTarget.emit(InputEventType.KEY_DOWN, keyDownInputEvent);
+            } else {
+                const keyPressingInputEvent = this._getInputEvent(event, InputEventType.KEY_PRESSING);
+                this._eventTarget.emit(InputEventType.KEY_PRESSING, keyPressingInputEvent);
             }
-            const keyPressingInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
-            this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
-            this._keyStateMap[keyCode] = true;
         });
-        minigame.wx?.onKeyUp?.((res) => {
-            const keyCode = getKeyCode(res.code);
-            const inputEvent: KeyboardInputEvent = {
-                code: keyCode,
-                type: SystemEventType.KEY_UP,
-                timestamp: performance.now(),
-            };
-            this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
+        canvas?.addEventListener('keyup', (event: any) => {
+            const inputEvent = this._getInputEvent(event, InputEventType.KEY_UP);
+            event.stopPropagation();
+            event.preventDefault();
+            this._eventTarget.emit(InputEventType.KEY_UP, inputEvent);
         });
     }
 
-    private _getInputEvent (event: KeyboardEventData, eventType: SystemEvent.EventType) {
+    private _getInputEvent (event: any, eventType: InputEventType) {
         const keyCode = getKeyCode(event.code);
-        const inputEvent: KeyboardInputEvent = {
-            type: eventType,
-            code: keyCode,
-            timestamp: performance.now(),
-        };
-        return inputEvent;
+        const eventKeyboard = new EventKeyboard(keyCode, eventType);
+        return eventKeyboard;
     }
 
-    public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on('keypress', cb);
-    }
-
-    public onPressing (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
-    }
-
-    public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_UP, cb);
+    public on (eventType: InputEventType, callback: KeyboardCallback, target?: any) {
+        this._eventTarget.on(eventType, callback,  target);
     }
 }

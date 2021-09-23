@@ -1,14 +1,15 @@
-import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
+import { AccelerometerCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, OS } from '../../system-info/enum-type';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { SystemEventType } from '../../../cocos/input/types';
+import { EventAcceleration, Acceleration } from '../../../cocos/input/types';
+import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class AccelerometerInputSource {
     public support: boolean;
 
-    private _intervalInMileseconds = 200;
+    private _intervalInMileSeconds = 200;
     private _accelTimer = 0;
     private _eventTarget: EventTarget = new  EventTarget();
     private _deviceEventName: 'devicemotion' |'deviceorientation';
@@ -40,7 +41,7 @@ export class AccelerometerInputSource {
 
     private _didAccelerate (event: DeviceMotionEvent | DeviceOrientationEvent) {
         const now = performance.now();
-        if (now - this._accelTimer < this._intervalInMileseconds) {
+        if (now - this._accelTimer < this._intervalInMileSeconds) {
             return;
         }
         this._accelTimer = now;
@@ -92,27 +93,31 @@ export class AccelerometerInputSource {
             x = -x;
             y = -y;
         }
-        const accelerometer: AccelerometerInputEvent = {
-            type: SystemEventType.DEVICEMOTION,
-            x,
-            y,
-            z,
-            timestamp: performance.now(),
-        };
-
-        this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
+        const timestamp = performance.now();
+        const acceleration = new Acceleration(x, y, z, timestamp);
+        const eventAcceleration = new EventAcceleration(acceleration);
+        this._eventTarget.emit(InputEventType.DEVICEMOTION, eventAcceleration);
     }
 
     public start () {
-        this._registerEvent();
+        // for iOS 13+, safari
+        if (window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission().then((response) => {
+                if (response === 'granted') {
+                    this._registerEvent();
+                }
+            }).catch((e) => {});
+        } else {
+            this._registerEvent();
+        }
     }
     public stop () {
         this._unregisterEvent();
     }
-    public setInterval (intervalInMileseconds: number) {
-        this._intervalInMileseconds = intervalInMileseconds;
+    public setInterval (intervalInMileSeconds: number) {
+        this._intervalInMileSeconds = intervalInMileSeconds;
     }
-    public onChange (cb: AccelerometerCallback) {
-        this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
+    public on (eventType: InputEventType, callback: AccelerometerCallback, target?: any) {
+        this._eventTarget.on(eventType, callback, target);
     }
 }

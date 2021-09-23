@@ -40,6 +40,7 @@ import { UIPhase } from '../forward/ui-phase';
 import { MainFlow } from './main-flow';
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
+import { renderProfiler } from '../pipeline-funcs';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -131,7 +132,7 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
         const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
-        let pso:PipelineState|null = null;
+        let pso: PipelineState | null = null;
         if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
@@ -144,6 +145,7 @@ export class PostprocessStage extends RenderStage {
         }
 
         this._uiPhase.render(camera, renderPass);
+        renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, swapchain);
 
         cmdBuff.endRenderPass();
     }
