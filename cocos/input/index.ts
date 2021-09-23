@@ -1,5 +1,5 @@
 import './deprecated';
 import './event-manager';
 
-export * from './input';
+export { input, Input } from './input';
 export * from './system-event';
