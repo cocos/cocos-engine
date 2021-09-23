@@ -33,13 +33,15 @@ import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
 import { RenderFlow } from './render-flow';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, Feature, Rect, Swapchain } from '../gfx';
-import { Camera } from '../renderer/scene/camera';
+import { Device, DescriptorSet, CommandBuffer, Feature, Rect, Swapchain, InputAssembler, Texture, Framebuffer, Sampler, ClearFlags, RenderPass, ColorAttachment, DepthStencilAttachment, StoreOp, ClearFlagBit, LoadOp, AccessType, RenderPassInfo, Buffer, SurfaceTransform, BufferInfo, BufferUsageBit, MemoryUsageBit, Attribute, Format, InputAssemblerInfo } from '../gfx';
+import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { PipelineUBO } from './pipeline-ubo';
-import { PipelineSceneData } from './pipeline-scene-data';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { Root } from '../root';
 import { Model } from '../renderer/scene/model';
+import { CommonPipelineSceneData } from './common/common-pipeline-scene-data';
+import { PipelineSceneData } from './pipeline-scene-data';
+import { RenderWindow } from '../renderer/core/render-window';
 
 /**
  * @en Render pipeline information descriptor
@@ -48,6 +50,19 @@ import { Model } from '../renderer/scene/model';
 export interface IRenderPipelineInfo {
     flows: RenderFlow[];
     tag?: number;
+}
+
+export class PipelineRenderData {
+    outputFrameBuffer: Framebuffer = null!;
+    outputRenderTargets: Texture[] = [];
+    outputDepth: Texture = null!;
+    sampler: Sampler = null!;
+}
+
+export class PipelineInputAssemblerData {
+    quadIB: Buffer|null = null;
+    quadVB: Buffer|null = null;
+    quadIA: InputAssembler|null = null;
 }
 
 /**
@@ -96,6 +111,29 @@ export abstract class RenderPipeline extends Asset {
     @type([RenderFlow])
     @serializable
     protected _flows: RenderFlow[] = [];
+
+
+    protected _quadIB: Buffer | null = null;
+    protected _quadVBOnscreen: Buffer | null = null;
+    protected _quadVBOffscreen: Buffer | null = null;
+    protected _quadIAOnscreen: InputAssembler | null = null;
+    protected _quadIAOffscreen: InputAssembler | null = null;
+
+    /**
+     * @zh
+     * 四边形输入汇集器。
+     */
+     public get quadIAOnscreen (): InputAssembler {
+        return this._quadIAOnscreen!;
+    }
+
+    public get quadIAOffscreen (): InputAssembler {
+        return this._quadIAOffscreen!;
+    }
+
+    public getPipelineRenderData (): PipelineRenderData {
+        return this._pipelineRenderData!;
+    }
 
     /**
      * @en
@@ -164,6 +202,11 @@ export abstract class RenderPipeline extends Asset {
     protected _constantMacros = '';
     protected _profiler: Model | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
+    protected _pipelineRenderData: PipelineRenderData | null = null;
+    protected _renderPasses = new Map<ClearFlags, RenderPass>();
+    protected _width = 0;
+    protected _height = 0;
+    protected _lastUsedRenderArea: Rect = new Rect();
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -174,6 +217,41 @@ export abstract class RenderPipeline extends Asset {
         this._flows = info.flows;
         if (info.tag) { this._tag = info.tag; }
         return true;
+    }
+
+
+    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
+        let renderPass = this._renderPasses.get(clearFlags);
+        if (renderPass) { return renderPass; }
+
+        const device = this._device;
+        const colorAttachment = new ColorAttachment();
+        const depthStencilAttachment = new DepthStencilAttachment();
+        colorAttachment.format = swapchain.colorTexture.format;
+        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+
+        if (!(clearFlags & ClearFlagBit.COLOR)) {
+            if (clearFlags & SKYBOX_FLAG) {
+                colorAttachment.loadOp = LoadOp.DISCARD;
+            } else {
+                colorAttachment.loadOp = LoadOp.LOAD;
+                colorAttachment.beginAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+            }
+        }
+
+        if ((clearFlags & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+            if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+        }
+        depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+
+        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
+        renderPass = device.createRenderPass(renderPassInfo);
+        this._renderPasses.set(clearFlags, renderPass);
+
+        return renderPass;
     }
 
     /**
@@ -236,6 +314,160 @@ export abstract class RenderPipeline extends Asset {
                 }
             }
         }
+    }
+
+    /**
+     * @zh
+     * 销毁四边形输入汇集器。
+     */
+     protected _destroyQuadInputAssembler () {
+        if (this._quadIB) {
+            this._quadIB.destroy();
+            this._quadIB = null;
+        }
+
+        if (this._quadVBOnscreen) {
+            this._quadVBOnscreen.destroy();
+            this._quadVBOnscreen = null;
+        }
+
+        if (this._quadVBOffscreen) {
+            this._quadVBOffscreen.destroy();
+            this._quadVBOffscreen = null;
+        }
+
+        if (this._quadIAOnscreen) {
+            this._quadIAOnscreen.destroy();
+            this._quadIAOnscreen = null;
+        }
+
+        if (this._quadIAOffscreen) {
+            this._quadIAOffscreen.destroy();
+            this._quadIAOffscreen = null;
+        }
+    }
+
+    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+        const vbData = new Float32Array(4 * 4);
+
+        const minX = renderArea.x / this._width;
+        const maxX = (renderArea.x + renderArea.width) / this._width;
+        let minY = renderArea.y / this._height;
+        let maxY = (renderArea.y + renderArea.height) / this._height;
+        if (this.device.capabilities.screenSpaceSignY > 0) {
+            const temp = maxY;
+            maxY       = minY;
+            minY       = temp;
+        }
+        let n = 0;
+        switch (surfaceTransform) {
+        case (SurfaceTransform.IDENTITY):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_90):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_180):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        case (SurfaceTransform.ROTATE_270):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        default:
+            break;
+        }
+
+        return vbData;
+    }
+
+    /**
+     * @zh
+     * 创建四边形输入汇集器。
+     */
+     protected _createQuadInputAssembler (): PipelineInputAssemblerData {
+        // create vertex buffer
+        const inputAssemblerData = new PipelineInputAssemblerData();
+
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
+        const vbSize = vbStride * 4;
+
+        const quadVB = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            vbSize,
+            vbStride,
+        ));
+
+        if (!quadVB) {
+            return inputAssemblerData;
+        }
+
+        // create index buffer
+        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 6;
+
+        const quadIB = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
+        ));
+
+        if (!quadIB) {
+            return inputAssemblerData;
+        }
+
+        const indices = new Uint8Array(6);
+        indices[0] = 0; indices[1] = 1; indices[2] = 2;
+        indices[3] = 1; indices[4] = 3; indices[5] = 2;
+
+        quadIB.update(indices);
+
+        // create input assembler
+
+        const attributes = new Array<Attribute>(2);
+        attributes[0] = new Attribute('a_position', Format.RG32F);
+        attributes[1] = new Attribute('a_texCoord', Format.RG32F);
+
+        const quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
+            attributes,
+            [quadVB],
+            quadIB,
+        ));
+
+        inputAssemblerData.quadIB = quadIB;
+        inputAssemblerData.quadVB = quadVB;
+        inputAssemblerData.quadIA = quadIA;
+        return inputAssemblerData;
+    }
+    
+    public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
+        if (this._lastUsedRenderArea === renderArea) {
+            return;
+        }
+
+        this._lastUsedRenderArea = renderArea;
+        const offData = this._genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
+        this._quadVBOffscreen!.update(offData);
+
+        const onData = this._genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea);
+        this._quadVBOnscreen!.update(onData);
     }
 
     /**

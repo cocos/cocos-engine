@@ -31,7 +31,7 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
-import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
+import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputAssemblerData } from '../render-pipeline';
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
@@ -58,19 +58,9 @@ const _samplerInfo = new SamplerInfo(
     Address.CLAMP,
 );
 
-class InputAssemblerData {
-    quadIB: Buffer|null = null;
-    quadVB: Buffer|null = null;
-    quadIA: InputAssembler|null = null;
-}
-
-export class DeferredRenderData {
+export class DeferredRenderData extends PipelineRenderData {
     gbufferFrameBuffer: Framebuffer = null!;
     gbufferRenderTargets: Texture[] = [];
-    lightingFrameBuffer: Framebuffer = null!;
-    lightingRenderTargets: Texture[] = [];
-    depthTex: Texture = null!;
-    sampler: Sampler = null!;
 }
 
 /**
@@ -79,35 +69,13 @@ export class DeferredRenderData {
  */
 @ccclass('DeferredPipeline')
 export class DeferredPipeline extends RenderPipeline {
-    protected _quadIB: Buffer | null = null;
-    protected _quadVBOnscreen: Buffer | null = null;
-    protected _quadVBOffscreen: Buffer | null = null;
-    protected _quadIAOnscreen: InputAssembler | null = null;
-    protected _quadIAOffscreen: InputAssembler | null = null;
-    protected _deferredRenderData: DeferredRenderData | null = null;
     private _gbufferRenderPass: RenderPass | null = null;
     private _lightingRenderPass: RenderPass | null = null;
-    private _width = 0;
-    private _height = 0;
-    private _lastUsedRenderArea: Rect = new Rect();
 
     @type([RenderTextureConfig])
     @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
-    protected _renderPasses = new Map<ClearFlags, RenderPass>();
-
-    /**
-     * @zh
-     * 四边形输入汇集器。
-     */
-    public get quadIAOnscreen (): InputAssembler {
-        return this._quadIAOnscreen!;
-    }
-
-    public get quadIAOffscreen (): InputAssembler {
-        return this._quadIAOffscreen!;
-    }
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -187,59 +155,12 @@ export class DeferredPipeline extends RenderPipeline {
         return super.destroy();
     }
 
-    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
-        let renderPass = this._renderPasses.get(clearFlags);
-        if (renderPass) { return renderPass; }
-
-        const device = this._device;
-        const colorAttachment = new ColorAttachment();
-        const depthStencilAttachment = new DepthStencilAttachment();
-        colorAttachment.format = swapchain.colorTexture.format;
-        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
-        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
-
-        if (!(clearFlags & ClearFlagBit.COLOR)) {
-            if (clearFlags & SKYBOX_FLAG) {
-                colorAttachment.loadOp = LoadOp.DISCARD;
-            } else {
-                colorAttachment.loadOp = LoadOp.LOAD;
-                colorAttachment.beginAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
-            }
-        }
-
-        if ((clearFlags & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
-            if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
-            if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
-        }
-        depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
-
-        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
-        renderPass = device.createRenderPass(renderPassInfo);
-        this._renderPasses.set(clearFlags, renderPass);
-
-        return renderPass;
-    }
-
-    public getDeferredRenderData (): DeferredRenderData {
-        if (!this._deferredRenderData) {
+    public getPipelineRenderData (): DeferredRenderData {
+        if (!this._pipelineRenderData) {
             this._generateDeferredRenderData();
         }
 
-        return this._deferredRenderData!;
-    }
-
-    public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
-        if (this._lastUsedRenderArea === renderArea) {
-            return;
-        }
-
-        this._lastUsedRenderArea = renderArea;
-        const offData = this._genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
-        this._quadVBOffscreen!.update(offData);
-
-        const onData = this._genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea);
-        this._quadVBOnscreen!.update(onData);
+        return this._pipelineRenderData as DeferredRenderData;
     }
 
     private _activeRenderer (swapchain: Swapchain) {
@@ -254,7 +175,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
 
-        let inputAssemblerDataOffscreen = new InputAssemblerData();
+        let inputAssemblerDataOffscreen = new PipelineInputAssemblerData();
         inputAssemblerDataOffscreen = this._createQuadInputAssembler();
         if (!inputAssemblerDataOffscreen.quadIB || !inputAssemblerDataOffscreen.quadVB || !inputAssemblerDataOffscreen.quadIA) {
             return false;
@@ -342,24 +263,24 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     private _destroyDeferredData () {
-        const deferredData = this._deferredRenderData;
+        const deferredData = this._pipelineRenderData as DeferredRenderData;
         if (deferredData) {
             if (deferredData.gbufferFrameBuffer) deferredData.gbufferFrameBuffer.destroy();
-            if (deferredData.lightingFrameBuffer) deferredData.lightingFrameBuffer.destroy();
-            if (deferredData.depthTex) deferredData.depthTex.destroy();
+            if (deferredData.outputFrameBuffer) deferredData.outputFrameBuffer.destroy();
+            if (deferredData.outputDepth) deferredData.outputDepth.destroy();
 
             for (let i = 0; i < deferredData.gbufferRenderTargets.length; i++) {
                 deferredData.gbufferRenderTargets[i].destroy();
             }
             deferredData.gbufferRenderTargets.length = 0;
 
-            for (let i = 0; i < deferredData.lightingRenderTargets.length; i++) {
-                deferredData.lightingRenderTargets[i].destroy();
+            for (let i = 0; i < deferredData.outputRenderTargets.length; i++) {
+                deferredData.outputRenderTargets[i].destroy();
             }
-            deferredData.lightingRenderTargets.length = 0;
+            deferredData.outputRenderTargets.length = 0;
         }
 
-        this._deferredRenderData = null;
+        this._pipelineRenderData = null;
     }
 
     private _ensureEnoughSize (cameras: Camera[]) {
@@ -378,151 +299,10 @@ export class DeferredPipeline extends RenderPipeline {
         }
     }
 
-    /**
-     * @zh
-     * 创建四边形输入汇集器。
-     */
-    private _createQuadInputAssembler (): InputAssemblerData {
-        // create vertex buffer
-        const inputAssemblerData = new InputAssemblerData();
-
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
-        const vbSize = vbStride * 4;
-
-        const quadVB = this._device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            vbSize,
-            vbStride,
-        ));
-
-        if (!quadVB) {
-            return inputAssemblerData;
-        }
-
-        // create index buffer
-        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
-        const ibSize = ibStride * 6;
-
-        const quadIB = this._device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            ibSize,
-            ibStride,
-        ));
-
-        if (!quadIB) {
-            return inputAssemblerData;
-        }
-
-        const indices = new Uint8Array(6);
-        indices[0] = 0; indices[1] = 1; indices[2] = 2;
-        indices[3] = 1; indices[4] = 3; indices[5] = 2;
-
-        quadIB.update(indices);
-
-        // create input assembler
-
-        const attributes = new Array<Attribute>(2);
-        attributes[0] = new Attribute('a_position', Format.RG32F);
-        attributes[1] = new Attribute('a_texCoord', Format.RG32F);
-
-        const quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
-            attributes,
-            [quadVB],
-            quadIB,
-        ));
-
-        inputAssemblerData.quadIB = quadIB;
-        inputAssemblerData.quadVB = quadVB;
-        inputAssemblerData.quadIA = quadIA;
-        return inputAssemblerData;
-    }
-
-    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
-        const vbData = new Float32Array(4 * 4);
-
-        const minX = renderArea.x / this._width;
-        const maxX = (renderArea.x + renderArea.width) / this._width;
-        let minY = renderArea.y / this._height;
-        let maxY = (renderArea.y + renderArea.height) / this._height;
-        if (this.device.capabilities.screenSpaceSignY > 0) {
-            const temp = maxY;
-            maxY       = minY;
-            minY       = temp;
-        }
-        let n = 0;
-        switch (surfaceTransform) {
-        case (SurfaceTransform.IDENTITY):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            break;
-        case (SurfaceTransform.ROTATE_90):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
-            break;
-        case (SurfaceTransform.ROTATE_180):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            break;
-        case (SurfaceTransform.ROTATE_270):
-            n = 0;
-            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
-            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
-            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
-            break;
-        default:
-            break;
-        }
-
-        return vbData;
-    }
-
-    /**
-     * @zh
-     * 销毁四边形输入汇集器。
-     */
-    private _destroyQuadInputAssembler () {
-        if (this._quadIB) {
-            this._quadIB.destroy();
-            this._quadIB = null;
-        }
-
-        if (this._quadVBOnscreen) {
-            this._quadVBOnscreen.destroy();
-            this._quadVBOnscreen = null;
-        }
-
-        if (this._quadVBOffscreen) {
-            this._quadVBOffscreen.destroy();
-            this._quadVBOffscreen = null;
-        }
-
-        if (this._quadIAOnscreen) {
-            this._quadIAOnscreen.destroy();
-            this._quadIAOnscreen = null;
-        }
-
-        if (this._quadIAOffscreen) {
-            this._quadIAOffscreen.destroy();
-            this._quadIAOffscreen = null;
-        }
-    }
-
     private _generateDeferredRenderData () {
         const device = this.device;
 
-        const data: DeferredRenderData = this._deferredRenderData = new DeferredRenderData();
+        const data: DeferredRenderData = this._pipelineRenderData = new DeferredRenderData();
 
         for (let i = 0; i < 4; ++i) {
             data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
@@ -533,7 +313,7 @@ export class DeferredPipeline extends RenderPipeline {
                 this._height,
             )));
         }
-        data.depthTex = device.createTexture(new TextureInfo(
+        data.outputDepth = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
             Format.DEPTH_STENCIL,
@@ -544,10 +324,10 @@ export class DeferredPipeline extends RenderPipeline {
         data.gbufferFrameBuffer = device.createFramebuffer(new FramebufferInfo(
             this._gbufferRenderPass!,
             data.gbufferRenderTargets,
-            data.depthTex,
+            data.outputDepth,
         ));
 
-        data.lightingRenderTargets.push(device.createTexture(new TextureInfo(
+        data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -555,10 +335,10 @@ export class DeferredPipeline extends RenderPipeline {
             this._height,
         )));
 
-        data.lightingFrameBuffer = device.createFramebuffer(new FramebufferInfo(
+        data.outputFrameBuffer = device.createFramebuffer(new FramebufferInfo(
             this._lightingRenderPass!,
-            data.lightingRenderTargets,
-            data.depthTex,
+            data.outputRenderTargets,
+            data.outputDepth,
         ));
 
         data.sampler = device.getSampler(_samplerInfo);

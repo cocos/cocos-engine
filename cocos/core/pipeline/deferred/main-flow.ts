@@ -31,10 +31,10 @@ import { ccclass } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { PIPELINE_FLOW_MAIN } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { DeferredFlowPriority } from './enum';
+import { DeferredFlowPriority } from '../common/enum';
 import { GbufferStage } from './gbuffer-stage';
 import { LightingStage } from './lighting-stage';
-import { PostprocessStage } from './postprocess-stage';
+import { PostprocessStage } from '../common/postprocess-stage';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 

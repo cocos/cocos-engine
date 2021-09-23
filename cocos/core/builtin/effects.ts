@@ -754,7 +754,7 @@ export const effects = [
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 1551345262,
+        "hash": 2152404385,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 145, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 37 },
           "globals": { "buffers": [], "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "images": [] },
@@ -774,7 +774,7 @@ export const effects = [
         "buffers": [],
         "blocks": [],
         "samplerTextures": [
-          { "name": "lighting_resultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
+          { "name": "outputResultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
         ],
         "images": [],
         "attributes": [

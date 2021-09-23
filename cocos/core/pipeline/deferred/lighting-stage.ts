@@ -34,9 +34,9 @@ import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from './enum';
+import { DeferredStagePriority } from '../common/enum';
 import { MainFlow } from './main-flow';
-import { DeferredPipeline } from './deferred-pipeline';
+import { DeferredPipeline, DeferredRenderData } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
@@ -251,8 +251,8 @@ export class LightingStage extends RenderStage {
         }
 
         colors[0].w = 0;
-        const deferredData = pipeline.getDeferredRenderData();
-        const framebuffer = deferredData.lightingFrameBuffer;
+        const deferredData = pipeline.getPipelineRenderData() as DeferredRenderData;
+        const framebuffer = deferredData.outputFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,

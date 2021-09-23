@@ -30,20 +30,19 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
+import { RenderPipeline, IRenderPipelineInfo, PipelineInputAssemblerData, PipelineRenderData } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, ClearFlagBit, ClearFlags, Filter, Address, StoreOp, AccessType, Swapchain, SamplerInfo } from '../../gfx';
-import { SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { ColorAttachment, DepthStencilAttachment, LoadOp,
+    RenderPassInfo, Filter, Address, StoreOp, AccessType, Swapchain, SamplerInfo, Format, RenderPass, TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
 import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
-import { PipelineSceneData } from '../pipeline-scene-data';
+import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
 
 const PIPELINE_TYPE = 0;
 
@@ -67,7 +66,11 @@ export class ForwardPipeline extends RenderPipeline {
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
 
-    protected _renderPasses = new Map<ClearFlags, RenderPass>();
+    protected _postRenderPass: RenderPass | null = null;
+
+    public get postRenderPass(): RenderPass | null {
+        return this._postRenderPass;
+    }
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);
@@ -89,13 +92,13 @@ export class ForwardPipeline extends RenderPipeline {
         if (EDITOR) { console.info('Forward render pipeline initialized.'); }
 
         this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
-        this._pipelineSceneData = new PipelineSceneData();
+        this._pipelineSceneData = new CommonPipelineSceneData();
 
         if (!super.activate(swapchain)) {
             return false;
         }
 
-        if (!this._activeRenderer()) {
+        if (!this._activeRenderer(swapchain)) {
             errorID(2402);
             return false;
         }
@@ -123,7 +126,8 @@ export class ForwardPipeline extends RenderPipeline {
 
     public destroy () {
         this._destroyUBOs();
-
+        this._destroyQuadInputAssembler();
+        this._destroyRenderData();
         const rpIter = this._renderPasses.values();
         let rpRes = rpIter.next();
         while (!rpRes.done) {
@@ -136,41 +140,21 @@ export class ForwardPipeline extends RenderPipeline {
         return super.destroy();
     }
 
-    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
-        let renderPass = this._renderPasses.get(clearFlags);
-        if (renderPass) { return renderPass; }
-
-        const device = this._device;
-        const colorAttachment = new ColorAttachment();
-        const depthStencilAttachment = new DepthStencilAttachment();
-        colorAttachment.format = swapchain.colorTexture.format;
-        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
-        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
-
-        if (!(clearFlags & ClearFlagBit.COLOR)) {
-            if (clearFlags & SKYBOX_FLAG) {
-                colorAttachment.loadOp = LoadOp.DISCARD;
-            } else {
-                colorAttachment.loadOp = LoadOp.LOAD;
-                colorAttachment.beginAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+    private _destroyRenderData () {
+        const renderData = this._pipelineRenderData;
+        if (renderData) {
+            if (renderData.outputFrameBuffer) renderData.outputFrameBuffer.destroy();
+            if (renderData.outputDepth) renderData.outputDepth.destroy();
+            for (let i = 0; i < renderData.outputRenderTargets.length; i++) {
+                renderData.outputRenderTargets[i].destroy();
             }
+            renderData.outputRenderTargets.length = 0;
         }
 
-        if ((clearFlags & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
-            if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
-            if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
-        }
-        depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
-
-        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
-        renderPass = device.createRenderPass(renderPassInfo);
-        this._renderPasses.set(clearFlags, renderPass);
-
-        return renderPass;
+        this._pipelineRenderData = null;
     }
 
-    private _activeRenderer () {
+    private _activeRenderer (swapchain: Swapchain) {
         const device = this.device;
 
         this._commandBuffers.push(device.commandBuffer);
@@ -182,7 +166,74 @@ export class ForwardPipeline extends RenderPipeline {
         this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
 
+        let inputAssemblerDataOffscreen = new PipelineInputAssemblerData();
+        inputAssemblerDataOffscreen = this._createQuadInputAssembler();
+        if (!inputAssemblerDataOffscreen.quadIB || !inputAssemblerDataOffscreen.quadVB || !inputAssemblerDataOffscreen.quadIA) {
+            return false;
+        }
+        this._quadIB = inputAssemblerDataOffscreen.quadIB;
+        this._quadVBOffscreen = inputAssemblerDataOffscreen.quadVB;
+        this._quadIAOffscreen = inputAssemblerDataOffscreen.quadIA;
+
+        const inputAssemblerDataOnscreen = this._createQuadInputAssembler();
+        if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
+            return false;
+        }
+        this._quadVBOnscreen = inputAssemblerDataOnscreen.quadVB;
+        this._quadIAOnscreen = inputAssemblerDataOnscreen.quadIA;
+
+        if (!this._postRenderPass) {
+            
+            const colorAttachment = new ColorAttachment();
+            colorAttachment.format = Format.RGBA16F;
+            colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
+            colorAttachment.storeOp = StoreOp.STORE;
+            colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+
+            const depthStencilAttachment = new DepthStencilAttachment();
+            depthStencilAttachment.format = Format.DEPTH_STENCIL;
+            depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
+            depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
+            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
+            const renderPassInfo = new RenderPassInfo(
+                [colorAttachment],
+                depthStencilAttachment,
+            );
+            this._postRenderPass = device.createRenderPass(renderPassInfo);
+        }
+
+        this._width = swapchain.width;
+        this._height = swapchain.height;
+        this._generateForwardRenderData();
+
         return true;
+    }
+
+    private _generateForwardRenderData () {
+        const device = this.device;
+        const data: PipelineRenderData = this._pipelineRenderData = new PipelineRenderData();
+        data.outputRenderTargets.push(device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        )));
+        data.outputDepth = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
+            Format.DEPTH_STENCIL,
+            this._width,
+            this._height,
+        ));
+
+        data.outputFrameBuffer = device.createFramebuffer(new FramebufferInfo(
+            this._postRenderPass!,
+            data.outputRenderTargets,
+            data.outputDepth,
+        ));
+        data.sampler = device.getSampler(_samplerInfo);
     }
 
     private _destroyUBOs () {
