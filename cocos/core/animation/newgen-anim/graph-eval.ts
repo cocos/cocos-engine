@@ -153,7 +153,7 @@ export class PoseGraphEval {
     }
 }
 
-interface TransitionStatus {
+export interface TransitionStatus {
     duration: number;
     time: number;
 }
@@ -1089,7 +1089,7 @@ export class PoseNodeEval extends NodeBaseEval {
         progress: 0.0,
     };
 
-    private _setSpeed(value: number) {
+    private _setSpeed (value: number) {
         this._speed = value;
     }
 }
