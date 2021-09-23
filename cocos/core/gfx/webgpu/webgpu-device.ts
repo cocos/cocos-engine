@@ -55,11 +55,9 @@ export class WebGPUDevice extends Device {
             const adapter = await navigator.gpu.requestAdapter();
             const device = await adapter.requestDevice();
             wgpuWasmModule.preinitializedWebGPUDevice = device;
-            device.lost.then(async (info) => {
+            device.lost.then((info) => {
                 console.error('Device was lost.', info);
-                const adapter = await navigator.gpu.requestAdapter();
-                const device = await adapter.requestDevice();
-                wgpuWasmModule.preinitializedWebGPUDevice = device;
+                throw new Error('Something bad happened');
             });
             console.log(adapter);
         }

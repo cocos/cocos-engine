@@ -8,6 +8,7 @@ import {
     TextureUsageBit,
     SampleCount,
     Format,
+    VsyncMode,
     SurfaceTransform,
 } from '../base/define';
 import { Texture } from '../base/texture';
@@ -25,10 +26,17 @@ export class WebGPUSwapchain extends Swapchain {
 
     public initialize (info: Readonly<SwapchainInfo>): void {
         const swapchainInfo = new wgpuWasmModule.SwapchainInfoInstance();
-        swapchainInfo.windowHandle = info.windowHandle;
-        swapchainInfo.vsyncMode = info.vsyncMode;
-        swapchainInfo.width = info.width;
-        swapchainInfo.height = info.height;
+        if (info.windowHandle instanceof HTMLCanvasElement) {
+            // native get surface itself
+            swapchainInfo.setWindowHandle(0);
+        } else {
+            swapchainInfo.setWindowHandle(info.windowHandle);
+        }
+
+        const vsyncStr = VsyncMode[info.vsyncMode];
+        swapchainInfo.setVsyncMode(wgpuWasmModule.VsyncMode[vsyncStr]);
+        swapchainInfo.setWidth(info.width);
+        swapchainInfo.setHeight(info.height);
 
         const nativeDevice = wgpuWasmModule.nativeDevice;
         this._nativeSwapchain = nativeDevice.createSwapchain(swapchainInfo);
