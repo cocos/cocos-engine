@@ -946,9 +946,21 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         // check requirement
 
-        const ReqComp = (constructor as typeof constructor & { _requireComponent?: typeof Component })._requireComponent;
-        if (ReqComp && !this.getComponent(ReqComp)) {
-            this.addComponent(ReqComp);
+        const reqComps = (constructor as typeof constructor & { _requireComponent?: typeof Component })._requireComponent;
+        if (reqComps) {
+            if (Array.isArray(reqComps)) {
+                for (let i = 0; i < reqComps.length; i++) {
+                    const reqComp = reqComps[i];
+                    if (!this.getComponent(reqComp)) {
+                        this.addComponent(reqComp);
+                    }
+                }
+            } else {
+                const reqComp = reqComps;
+                if (!this.getComponent(reqComp)) {
+                    this.addComponent(reqComp);
+                }
+            }
         }
 
         /// / check conflict
