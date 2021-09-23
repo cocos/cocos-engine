@@ -164,6 +164,24 @@ var audioEngine = {
     },
 
     /**
+     * !#en Play audio by audioID.
+     * !#zh 播放音频
+     * @method playById
+     * @param {Number} audioID - audio id.
+     * @return {Boolean} has played
+     * @example
+     *   var played = cc.audioEngine.playById(audioID);
+     */
+    playById: function (audioID) {
+        var audio = getAudioFromId(audioID);
+        if (audio) {
+            audio.play();
+            return true;
+        }
+        return false;
+    },
+
+    /**
      * !#en Set audio loop.
      * !#zh 设置音频是否循环。
      * @method setLoop
