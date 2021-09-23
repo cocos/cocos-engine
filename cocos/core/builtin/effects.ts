@@ -388,7 +388,7 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 3247695832,
+        "hash": 1509258058,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 220, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 63 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
@@ -412,6 +412,7 @@ export const effects = [
           { "name": "USE_VERTEX_COLOR", "type": "boolean" },
           { "name": "USE_NORMAL_MAP", "type": "boolean" },
           { "name": "HAS_SECOND_UV", "type": "boolean" },
+          { "name": "USE_TWOSIDE", "type": "boolean" },
           { "name": "SAMPLE_FROM_RT", "type": "boolean" },
           { "name": "CC_USE_IBL", "type": "number", "range": [0, 2] },
           { "name": "CC_USE_HDR", "type": "boolean" },
@@ -846,7 +847,7 @@ export const effects = [
     "shaders": [
       {
         "name": "skybox|sky-vs:vert|sky-fs:frag",
-        "hash": 3169038185,
+        "hash": 849701109,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 37 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_environment", "defines": [] }], "buffers": [], "images": [] },
