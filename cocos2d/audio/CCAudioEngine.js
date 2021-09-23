@@ -176,7 +176,7 @@ var audioEngine = {
         var audio = getAudioFromId(audioID);
         return !!audio;
     },
-    
+
     /**
      * !#en Set audio loop.
      * !#zh 设置音频是否循环。
