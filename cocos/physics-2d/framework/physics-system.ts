@@ -160,7 +160,7 @@ export class PhysicsSystem2D extends Eventify(System) {
      * @zh
      * 获取预定义的物理分组。
      */
-     public static get PhysicsGroup () {
+    public static get PhysicsGroup () {
         return PhysicsGroup;
     }
 
