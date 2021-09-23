@@ -349,8 +349,8 @@ export const effects = [
         "hash": 388146516,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
-          "globals": { "buffers": [], "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "images": [] },
-          "locals": { "buffers": [], "blocks": [{ "name": "CCUILocal", "defines": [] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "images": [] }
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCUILocal", "defines": [] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "SAMPLE_FROM_RT", "type": "boolean" },
@@ -360,19 +360,22 @@ export const effects = [
           { "name": "USE_TEXTURE", "type": "boolean" },
           { "name": "IS_GRAY", "type": "boolean" }
         ],
-        "buffers": [],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
+          { "name": "a_batch_id", "defines": [], "format": 11, "location": 2 }
+        ],
         "blocks": [
           {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
             { "name": "alphaThreshold", "type": 13, "count": 1 }
           ]}
         ],
         "samplerTextures": [],
+        "buffers": [],
         "images": [],
-        "attributes": [
-          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
-          { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
-          { "name": "a_batch_id", "defines": [], "format": 11, "location": 2 }
-        ]
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
       }
     ]
   },
