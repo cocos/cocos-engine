@@ -52,9 +52,11 @@ public:
     inline const std::unordered_map<const scene::Light *, gfx::Framebuffer *> &getShadowFramebufferMap() const { return _shadowFrameBufferMap; }
     inline scene::PipelineSharedSceneData *                                    getSharedData() const { return _sharedSceneData; }
     inline const RenderObjectList &                                            getRenderObjects() const { return _renderObjects; }
-    inline const RenderObjectList &                                            getShadowObjects() const { return _shadowObjects; }
+    inline const RenderObjectList &                                            getDirShadowObjects() const { return _dirShadowObjects; }
     inline void                                                                setRenderObjects(RenderObjectList &&ro) { _renderObjects = std::forward<RenderObjectList>(ro); }
-    inline void                                                                setShadowObjects(RenderObjectList &&ro) { _shadowObjects = std::forward<RenderObjectList>(ro); }
+    inline void                                                                setDirShadowObjects(RenderObjectList &&ro) { _dirShadowObjects = std::forward<RenderObjectList>(ro); }
+    inline const RenderObjectList &                                            getCastShadowObjects() const { return _castShadowObjects; }
+    inline void                                                                setCastShadowObjects(RenderObjectList &&ro) { _castShadowObjects = std::forward<RenderObjectList>(ro); }
     inline float                                                               getShadowCameraFar() const { return _shadowCameraFar; }
     inline void                                                                setShadowCameraFar(float shadowDistance) { _shadowCameraFar = shadowDistance; }
     inline Mat4                                                                getMatShadowView() const { return _matShadowView; }
@@ -66,7 +68,8 @@ public:
 
 private:
     RenderObjectList _renderObjects;
-    RenderObjectList _shadowObjects;
+    RenderObjectList _dirShadowObjects;
+    RenderObjectList _castShadowObjects;
 
     scene::PipelineSharedSceneData *_sharedSceneData      = nullptr;
     RenderPipeline *                _pipeline             = nullptr;

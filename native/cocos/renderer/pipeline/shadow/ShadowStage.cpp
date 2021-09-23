@@ -66,7 +66,7 @@ void ShadowStage::render(scene::Camera *camera) {
 
     auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
 
-    _additiveShadowQueue->gatherLightPasses(_light, cmdBuffer);
+    _additiveShadowQueue->gatherLightPasses(camera, _light, cmdBuffer);
 
     const auto  shadowMapSize = shadowInfo->size;
     const auto &viewport      = camera->viewPort;
