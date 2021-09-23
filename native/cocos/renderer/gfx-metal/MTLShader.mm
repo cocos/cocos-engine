@@ -62,11 +62,11 @@ void CCMTLShader::doInit(const ShaderInfo &info) {
 
 void CCMTLShader::doDestroy() {
     id<MTLLibrary> vertLib = _vertLibrary;
-    _vertFunction       = nil;
+    _vertLibrary       = nil;
     id<MTLLibrary> fragLib = _fragLibrary;
-    _fragFunction     = nil;
+    _fragLibrary     = nil;
     id<MTLLibrary> cmptLib = _cmptLibrary;
-    _cmptFunction      = nil;
+    _cmptLibrary      = nil;
     
     id<MTLFunction> vertFunc = _vertFunction;
     _vertFunction       = nil;

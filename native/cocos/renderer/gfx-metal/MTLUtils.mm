@@ -608,19 +608,11 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
         case Format::RGB9E5: return MTLPixelFormatRGB9E5Float;
         case Format::RGB10A2UI: return MTLPixelFormatRGB10A2Uint;
         case Format::R11G11B10F: return MTLPixelFormatRG11B10Float;
-//        case Format::D16: {
-//#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-//            return MTLPixelFormatDepth16Unorm;
-//#else
-//            if (@available(iOS 13.0, *))
-//                return MTLPixelFormatDepth16Unorm;
-//            else
-//                break;
-//#endif
-//        }
         case Format::DEPTH: return MTLPixelFormatDepth32Float;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-        case Format::DEPTH_STENCIL: return MTLPixelFormatDepth24Unorm_Stencil8;
+        // FIXME: works fine on imac, but invalid pixel format on intel macbook.
+        //case Format::DEPTH_STENCIL: return MTLPixelFormatDepth24Unorm_Stencil8;
+        case Format::DEPTH_STENCIL: return MTLPixelFormatDepth32Float_Stencil8;
         case Format::BC1:
         case Format::BC1_ALPHA: return MTLPixelFormatBC1_RGBA;
         case Format::BC1_SRGB_ALPHA: return MTLPixelFormatBC1_RGBA_sRGB;
