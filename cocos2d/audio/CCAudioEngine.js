@@ -164,6 +164,20 @@ var audioEngine = {
     },
 
     /**
+     * !#en Check that the audio whether valid (still be cached)
+     * !#zh audioID 对应的 Audio对象 是否有效(是否仍然被缓存着, 没有被销毁)。
+     * @method isValidAudio
+     * @param {Number} audioID - audio id.
+     * @return {Boolean} the audio whether valid (still be cached).
+     * @example
+     * const cached = cc.audioEngine.isValidAudio(id);
+     */
+    isValidAudio: function (audioID) {
+        var audio = getAudioFromId(audioID);
+        return !!audio;
+    },
+    
+    /**
      * !#en Set audio loop.
      * !#zh 设置音频是否循环。
      * @method setLoop
