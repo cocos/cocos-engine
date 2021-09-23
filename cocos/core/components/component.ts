@@ -699,7 +699,7 @@ value(Component, '_registerEditorProps', (cls, props) => {
     let reqComp = props.requireComponent;
     if (reqComp) {
         if (Array.isArray(reqComp)) {
-            reqComp = reqComp.filter((comp) => comp);
+            reqComp = reqComp.filter(Boolean);
         }
         cls._requireComponent = reqComp;
     }
