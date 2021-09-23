@@ -2,7 +2,7 @@
 
 const propUtils = require('../utils/prop');
 
-exports.template = `
+exports.template = /*html*/`
 <div class="particle-system-component">
     <div class="content">
         <ui-prop type="dump" key="duration"></ui-prop>
@@ -19,15 +19,15 @@ exports.template = `
         <ui-prop type="dump" key="startSize3D"></ui-prop>
         <!-- hack changeName if startSize3D change -->
         <ui-prop type="dump" key="startSizeX" displayName="StartSize" showflag="!startSize3D"></ui-prop>
-        <ui-prop type="dump" key="startSizeX" displayName="StartSizeX" showflag="startSize3D"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D" key="startSizeY"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D" key="startSizeZ"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startSizeX" displayName="StartSizeX" showflag="startSize3D"></ui-prop>
+        <ui-prop type="dump" class="indent" showflag="startSize3D" key="startSizeY"></ui-prop>
+        <ui-prop type="dump" class="indent" showflag="startSize3D" key="startSizeZ"></ui-prop>
         <ui-prop type="dump" key="startSpeed"></ui-prop>
         <ui-prop type="dump" key="startRotation3D"></ui-prop>
-        <ui-prop type="dump" key="startRotationX" showflag="startRotation3D"></ui-prop>
-        <ui-prop type="dump" key="startRotationY" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationX" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationY" showflag="startRotation3D"></ui-prop>
         <!-- hack changeName if startRotation3D change -->
-        <ui-prop type="dump" showflag="startRotation3D" key="startRotationZ"></ui-prop>
+        <ui-prop type="dump" class="indent" showflag="startRotation3D" key="startRotationZ"></ui-prop>
         <ui-prop type="dump" showflag="!startRotation3D" displayName="StartRotation" key="startRotationZ">
         </ui-prop>
         <ui-prop type="dump" key="gravityModifier"></ui-prop>
@@ -543,3 +543,8 @@ exports.update = function(dump) {
         }
     }
 };
+exports.style = /*css */`
+    .particle-system-component > .content >.indent {
+        margin-left: 10px;
+    }
+`
