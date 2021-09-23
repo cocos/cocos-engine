@@ -121,7 +121,7 @@ export class ParticleCuller {
     }
 
     private _createBoundingModel () {
-        this._boundingNode = new Node();
+        this._boundingNode = new Node(`${this._node.name}_aabb`);
         this._model = (legacyCC.director.root as Root).createModel(scene.Model);
         const particleModel = this._processor.getModel();
         if (particleModel) {
@@ -159,6 +159,26 @@ export class ParticleCuller {
                 this._model.updateWorldBound();
             }
         }
+    }
+
+    public synBoundingSize (halfExt: Vec3) {
+        this.maxPos.x = this._nodePose.x + halfExt.x;
+        this.maxPos.y = this._nodePose.y + halfExt.y;
+        this.maxPos.z = this._nodePose.z + halfExt.z;
+        this.minPos.x = this._nodePose.x - halfExt.x;
+        this.minPos.y = this._nodePose.y - halfExt.y;
+        this.minPos.z = this._nodePose.z - halfExt.z;
+        this._updateBoundingNode();
+    }
+
+    public synBoundingPose (px, py, pz) {
+        this.maxPos.x = px + this._nodeSize.x * 0.5;
+        this.maxPos.y = py + this._nodeSize.y * 0.5;
+        this.maxPos.z = pz + this._nodeSize.z * 0.5;
+        this.minPos.x = px - this._nodeSize.x * 0.5;
+        this.minPos.y = py - this._nodeSize.y * 0.5;
+        this.minPos.z = pz - this._nodeSize.z * 0.5;
+        this._updateBoundingNode();
     }
 
     private _attachToScene () {

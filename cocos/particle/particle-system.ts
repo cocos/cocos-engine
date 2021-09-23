@@ -305,6 +305,72 @@ export class ParticleSystem extends RenderableComponent {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
+    // serilized culling
+    @serializable
+    @displayOrder(27)
+    @tooltip('i18n:particle_system.enableCulling')
+    public enableCulling = false;
+
+    // eslint-disable-next-line func-names
+    @visible(function (this: ParticleSystem) { return this.enableCulling; })
+    @type(Number)
+    @displayOrder(17)
+    get aabbHalfX () {
+        const res = this.getBoundingX();
+        if (res) {
+            return res;
+        } else {
+            return 0;
+        }
+    }
+
+    set aabbHalfX (value: number) {
+        this.setBoundingX(value);
+    }
+
+    @serializable
+    _aabbHalfX = 0;
+
+    // eslint-disable-next-line func-names
+    @visible(function (this: ParticleSystem) { return this.enableCulling; })
+    @type(Number)
+    @displayOrder(17)
+    get aabbHalfY () {
+        const res = this.getBoundingY();
+        if (res) {
+            return res;
+        } else {
+            return 0;
+        }
+    }
+
+    set aabbHalfY (value: number) {
+        this.setBoundingY(value);
+    }
+
+    @serializable
+    _aabbHalfY = 0;
+
+    // eslint-disable-next-line func-names
+    @visible(function (this: ParticleSystem) { return this.enableCulling; })
+    @type(Number)
+    @displayOrder(17)
+    get aabbHalfZ () {
+        const res = this.getBoundingZ();
+        if (res) {
+            return res;
+        } else {
+            return 0;
+        }
+    }
+
+    set aabbHalfZ (value: number) {
+        this.setBoundingZ(value);
+    }
+
+    @serializable
+    _aabbHalfZ = 0;
+
     @override
     @visible(false)
     @type(Material)
@@ -546,12 +612,6 @@ export class ParticleSystem extends RenderableComponent {
     @tooltip('i18n:particle_system.renderer')
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
-    // serilized culling
-    @serializable
-    @displayOrder(27)
-    @tooltip('i18n:particle_system.enableCulling')
-    public enableCulling = false;
-
     /**
      * @ignore
      */
@@ -571,6 +631,8 @@ export class ParticleSystem extends RenderableComponent {
     private _boundPoints:Vec4[] = [];
     private _boundExtends:Vec4[] = [];
     private _culler: ParticleCuller | null;
+    private _oldPos: Vec3 | null;
+    private _curPos: Vec3 | null;
 
     private _customData1: Vec2;
     private _customData2: Vec2;
@@ -615,6 +677,8 @@ export class ParticleSystem extends RenderableComponent {
             this._boundExtends.push(new Vec4());
         }
         this._culler = null;
+        this._oldPos = null;
+        this._curPos = null;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -667,6 +731,14 @@ export class ParticleSystem extends RenderableComponent {
         this.processor.detachFromScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._detachFromScene();
+        }
+        if (this._boundingBox) {
+            this._boundingBox = null;
+        }
+        if (this._culler) {
+            this._culler.clear();
+            this._culler.destroy();
+            this._culler = null;
         }
     }
 
@@ -759,7 +831,7 @@ export class ParticleSystem extends RenderableComponent {
             this.processor.clear();
             if (this._trailModule) this._trailModule.clear();
         }
-        this._calculateBounding();
+        this._calculateBounding(true);
     }
 
     /**
@@ -788,6 +860,7 @@ export class ParticleSystem extends RenderableComponent {
         if (this._culler) {
             this._culler.clear();
             this._culler.destroy();
+            this._culler = null;
         }
     }
 
@@ -803,15 +876,46 @@ export class ParticleSystem extends RenderableComponent {
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
+        if (this._boundingBox) {
+            this._boundingBox = null;
+        }
+        if (this._culler) {
+            this._culler.clear();
+            this._culler.destroy();
+            this._culler = null;
+        }
     }
 
-    private _calculateBounding () {
+    private _calculateBounding (forceRefresh: boolean) {
         if (this._boundingBox) {
             if (!this._culler) {
                 this._culler = new ParticleCuller(this);
             }
             this._culler.calculatePositions();
             AABB.fromPoints(this._boundingBox, this._culler.minPos, this._culler.maxPos);
+            if (forceRefresh) {
+                this.aabbHalfX = this._boundingBox.halfExtents.x;
+                this.aabbHalfY = this._boundingBox.halfExtents.y;
+                this.aabbHalfZ = this._boundingBox.halfExtents.z;
+            } else {
+                if (this.aabbHalfX) {
+                    this.setBoundingX(this.aabbHalfX);
+                } else {
+                    this.aabbHalfX = this._boundingBox.halfExtents.x;
+                }
+
+                if (this.aabbHalfY) {
+                    this.setBoundingY(this.aabbHalfY);
+                } else {
+                    this.aabbHalfY = this._boundingBox.halfExtents.y;
+                }
+
+                if (this.aabbHalfZ) {
+                    this.setBoundingZ(this.aabbHalfZ);
+                } else {
+                    this.aabbHalfZ = this._boundingBox.halfExtents.z;
+                }
+            }
             this._culler.clear();
         }
     }
@@ -820,7 +924,27 @@ export class ParticleSystem extends RenderableComponent {
         if (this.enableCulling) {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
-                this._calculateBounding();
+                this._calculateBounding(false);
+            }
+
+            if (!this._curPos) {
+                this._curPos = new Vec3();
+            }
+            this.node.getWorldPosition(this._curPos);
+            if (!this._oldPos) {
+                this._oldPos = new Vec3();
+                this._oldPos.set(this._curPos);
+            }
+            if (!this._curPos.equals(this._oldPos) && this._boundingBox && this._culler) {
+                const dx = this._curPos.x - this._oldPos.x;
+                const dy = this._curPos.y - this._oldPos.y;
+                const dz = this._curPos.z - this._oldPos.z;
+                const center = this._boundingBox.center;
+                center.x += dx;
+                center.y += dy;
+                center.z += dz;
+                this._culler.synBoundingPose(center.x, center.y, center.z);
+                this._oldPos.set(this._curPos);
             }
 
             const cameraLst: Camera[]|undefined = this.node.scene.renderScene?.cameras;
@@ -1073,6 +1197,42 @@ export class ParticleSystem extends RenderableComponent {
 
     private removeBurst (idx) {
         this.bursts.splice(this.bursts.indexOf(idx), 1);
+    }
+
+    private getBoundingX () {
+        return this._aabbHalfX;
+    }
+
+    private getBoundingY () {
+        return this._aabbHalfY;
+    }
+
+    private getBoundingZ () {
+        return this._aabbHalfZ;
+    }
+
+    private setBoundingX (value: number) {
+        if (this._boundingBox && this._culler) {
+            this._boundingBox.halfExtents.x = value;
+            this._culler.synBoundingSize(this._boundingBox.halfExtents);
+            this._aabbHalfX = value;
+        }
+    }
+
+    private setBoundingY (value: number) {
+        if (this._boundingBox && this._culler) {
+            this._boundingBox.halfExtents.y = value;
+            this._culler.synBoundingSize(this._boundingBox.halfExtents);
+            this._aabbHalfY = value;
+        }
+    }
+
+    private setBoundingZ (value: number) {
+        if (this._boundingBox && this._culler) {
+            this._boundingBox.halfExtents.z = value;
+            this._culler.synBoundingSize(this._boundingBox.halfExtents);
+            this._aabbHalfZ = value;
+        }
     }
 
     /**
