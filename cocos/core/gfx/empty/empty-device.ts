@@ -60,6 +60,7 @@ import { EmptyRenderPass } from './empty-render-pass';
 import { EmptyShader } from './empty-shader';
 import { EmptySwapchain } from './empty-swapchain';
 import { EmptyTexture } from './empty-texture';
+import { legacyCC } from '../../global-exports';
 
 export class EmptyDevice extends Device {
     public initialize (info: DeviceInfo): boolean {
@@ -199,3 +200,5 @@ export class EmptyDevice extends Device {
     public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {}
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]) {}
 }
+
+legacyCC.EmptyDevice = EmptyDevice;

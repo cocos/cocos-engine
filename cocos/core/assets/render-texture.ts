@@ -28,15 +28,15 @@
  * @module asset
  */
 
-import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
-import { Texture, Sampler, ColorAttachment, DepthStencilAttachment,
-    AccessType, RenderPassInfo, SamplerInfo, Format } from '../gfx';
+import { ccclass } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
+import { clamp } from '../math/utils';
+import { Texture, ColorAttachment, DepthStencilAttachment,
+    AccessType, RenderPassInfo, Format } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
-
-const defaultSamplerInfo = new SamplerInfo();
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -66,33 +66,7 @@ const _windowInfo: IRenderWindowInfo = {
  */
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {
-    @serializable
-    @rangeMin(1)
-    @rangeMax(2048)
-    private _width = 1;
-
-    @serializable
-    @rangeMin(1)
-    @rangeMax(2048)
-    private _height = 1;
-
     private _window: RenderWindow | null = null;
-
-    /**
-     * @en The pixel width of the render texture
-     * @zh 渲染贴图的像素宽度
-     */
-    get width () {
-        return this._width;
-    }
-
-    /**
-     * @en The pixel height of the render texture
-     * @zh 渲染贴图的像素高度
-     */
-    get height () {
-        return this._height;
-    }
 
     /**
      * @en The render window for the render pipeline, it's created internally and cannot be modified.
@@ -108,6 +82,7 @@ export class RenderTexture extends TextureBase {
         this._height = info.height;
         this._initWindow(info);
     }
+
     public reset (info: IRenderTextureCreateInfo) { // to be consistent with other assets
         this.initialize(info);
     }
@@ -125,23 +100,32 @@ export class RenderTexture extends TextureBase {
     /**
      * @en Resize the render texture
      * @zh 修改渲染贴图的尺寸
-     * @param width The pixel width
-     * @param height The pixel height
+     * @param width The pixel width, the range is from 1 to 2048
+     * @param height The pixel height, the range is from 1 to 2048
      */
     public resize (width: number, height: number) {
-        this._width = width;
-        this._height = height;
+        this._width = Math.floor(clamp(width, 1, 2048));
+        this._height = Math.floor(clamp(height, 1, 2048));
         if (this._window) {
-            this._window.resize(width, height);
+            this._window.resize(this._width, this._height);
         }
         this.emit('resize', this._window);
     }
 
-    // TODO: migration with TextureBase data
-    // @ts-expect-error Hack
-    get _serialize () { return null; }
-    // @ts-expect-error Hack
-    get _deserialize () { return null; }
+    public _serialize (ctxForExporting: any): any {
+        if (EDITOR || TEST) {
+            return { base: super._serialize(ctxForExporting), w: this._width, h: this._height, n: this._name };
+        }
+        return {};
+    }
+
+    public _deserialize (serializedData: any, handle: any) {
+        const data = serializedData;
+        this._width = data.w;
+        this._height = data.h;
+        this._name = data.n;
+        super._deserialize(data.base, handle);
+    }
 
     // To be compatible with material property interface
     /**
@@ -150,22 +134,6 @@ export class RenderTexture extends TextureBase {
      */
     public getGFXTexture (): Texture | null {
         return this._window && this._window.framebuffer.colorTextures[0];
-    }
-    /**
-     * @en Gets the sampler resource for the render texture
-     * @zh 获取渲染贴图的采样器
-     */
-    public getGFXSampler (): Sampler {
-        const root = legacyCC.director.root as Root;
-        return root.device.getSampler(defaultSamplerInfo);
-    }
-
-    /**
-     * @en Gets the sampler hash for the render texture
-     * @zh 获取渲染贴图的采样器哈希值
-     */
-    public getSamplerInfo () {
-        return defaultSamplerInfo;
     }
 
     public onLoaded () {

@@ -82,21 +82,21 @@ export class Frustum {
     public static createOrtho = (() => (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) => {
         const halfWidth = width / 2;
         const halfHeight = height / 2;
-        Vec3.set(_temp_v3, halfWidth, halfHeight, near);
+        Vec3.set(_temp_v3, halfWidth, halfHeight, -near);
         Vec3.transformMat4(out.vertices[0], _temp_v3, transform);
-        Vec3.set(_temp_v3, -halfWidth, halfHeight, near);
+        Vec3.set(_temp_v3, -halfWidth, halfHeight, -near);
         Vec3.transformMat4(out.vertices[1], _temp_v3, transform);
-        Vec3.set(_temp_v3, -halfWidth, -halfHeight, near);
+        Vec3.set(_temp_v3, -halfWidth, -halfHeight, -near);
         Vec3.transformMat4(out.vertices[2], _temp_v3, transform);
-        Vec3.set(_temp_v3, halfWidth, -halfHeight, near);
+        Vec3.set(_temp_v3, halfWidth, -halfHeight, -near);
         Vec3.transformMat4(out.vertices[3], _temp_v3, transform);
-        Vec3.set(_temp_v3, halfWidth, halfHeight, far);
+        Vec3.set(_temp_v3, halfWidth, halfHeight, -far);
         Vec3.transformMat4(out.vertices[4], _temp_v3, transform);
-        Vec3.set(_temp_v3, -halfWidth, halfHeight, far);
+        Vec3.set(_temp_v3, -halfWidth, halfHeight, -far);
         Vec3.transformMat4(out.vertices[5], _temp_v3, transform);
-        Vec3.set(_temp_v3, -halfWidth, -halfHeight, far);
+        Vec3.set(_temp_v3, -halfWidth, -halfHeight, -far);
         Vec3.transformMat4(out.vertices[6], _temp_v3, transform);
-        Vec3.set(_temp_v3, halfWidth, -halfHeight, far);
+        Vec3.set(_temp_v3, halfWidth, -halfHeight, -far);
         Vec3.transformMat4(out.vertices[7], _temp_v3, transform);
 
         Plane.fromPoints(out.planes[0], out.vertices[1], out.vertices[6], out.vertices[5]);
@@ -306,26 +306,26 @@ export class Frustum {
         for (let i = 0; i < 8; i++) {
             Vec3.transformMat4(this.vertices[i], this.vertices[i], mat);
         }
-        Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[5], this.vertices[6]);
-        Plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[7], this.vertices[4]);
-        Plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[7], this.vertices[3]);
-        Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
-        Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
-        Plane.fromPoints(this.planes[5], this.vertices[7], this.vertices[6], this.vertices[5]);
+        Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[6], this.vertices[5]);
+        Plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[4], this.vertices[7]);
+        Plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[3], this.vertices[7]);
+        Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[5], this.vertices[4]);
+        Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[0], this.vertices[3]);
+        Plane.fromPoints(this.planes[5], this.vertices[7], this.vertices[5], this.vertices[6]);
     }
 
     public updatePlanes () {
         // left plane
-        Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[5], this.vertices[6]);
+        Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[6], this.vertices[5]);
         // right plane
-        Plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[7], this.vertices[4]);
+        Plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[4], this.vertices[7]);
         // bottom plane
-        Plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[7], this.vertices[3]);
+        Plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[3], this.vertices[7]);
         // top plane
-        Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
+        Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[5], this.vertices[4]);
         // near plane
-        Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
+        Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[0], this.vertices[3]);
         // far plane
-        Plane.fromPoints(this.planes[5], this.vertices[7], this.vertices[6], this.vertices[5]);
+        Plane.fromPoints(this.planes[5], this.vertices[7], this.vertices[5], this.vertices[6]);
     }
 }

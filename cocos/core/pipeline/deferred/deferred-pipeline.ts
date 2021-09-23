@@ -152,13 +152,13 @@ export class DeferredPipeline extends RenderPipeline {
         }
 
         this._commandBuffers[0].begin();
-        this._pipelineUBO.updateGlobalUBO(cameras[0].window!); // TODO: window size is also camera-specific
+        this._ensureEnoughSize(cameras);
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
-                const fbo = camera.window?.framebuffer.colorTextures[0];
-                if (fbo) this.resize(fbo.width, fbo.height);
                 sceneCulling(this, camera);
+                // TODO: merge these two UBO
+                this._pipelineUBO.updateGlobalUBO(camera.window!);
                 this._pipelineUBO.updateCameraUBO(camera);
 
                 for (let j = 0; j < this._flows.length; j++) {
@@ -168,6 +168,23 @@ export class DeferredPipeline extends RenderPipeline {
         }
         this._commandBuffers[0].end();
         this._device.queue.submit(this._commandBuffers);
+    }
+
+    public destroy () {
+        this._destroyUBOs();
+        this._destroyQuadInputAssembler();
+        this._destroyDeferredData();
+
+        const rpIter = this._renderPasses.values();
+        let rpRes = rpIter.next();
+        while (!rpRes.done) {
+            rpRes.value.destroy();
+            rpRes = rpIter.next();
+        }
+
+        this._commandBuffers.length = 0;
+
+        return super.destroy();
     }
 
     public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
@@ -212,6 +229,19 @@ export class DeferredPipeline extends RenderPipeline {
         return this._deferredRenderData!;
     }
 
+    public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
+        if (this._lastUsedRenderArea === renderArea) {
+            return;
+        }
+
+        this._lastUsedRenderArea = renderArea;
+        const offData = this._genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
+        this._quadVBOffscreen!.update(offData);
+
+        const onData = this._genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea);
+        this._quadVBOnscreen!.update(onData);
+    }
+
     private _activeRenderer (swapchain: Swapchain) {
         const device = this.device;
 
@@ -225,7 +255,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._descriptorSet.update();
 
         let inputAssemblerDataOffscreen = new InputAssemblerData();
-        inputAssemblerDataOffscreen = this.createQuadInputAssembler();
+        inputAssemblerDataOffscreen = this._createQuadInputAssembler();
         if (!inputAssemblerDataOffscreen.quadIB || !inputAssemblerDataOffscreen.quadVB || !inputAssemblerDataOffscreen.quadIA) {
             return false;
         }
@@ -233,7 +263,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._quadVBOffscreen = inputAssemblerDataOffscreen.quadVB;
         this._quadIAOffscreen = inputAssemblerDataOffscreen.quadIA;
 
-        const inputAssemblerDataOnscreen = this.createQuadInputAssembler();
+        const inputAssemblerDataOnscreen = this._createQuadInputAssembler();
         if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
             return false;
         }
@@ -301,7 +331,7 @@ export class DeferredPipeline extends RenderPipeline {
         return true;
     }
 
-    private destroyUBOs () {
+    private _destroyUBOs () {
         if (this._descriptorSet) {
             this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
@@ -311,7 +341,7 @@ export class DeferredPipeline extends RenderPipeline {
         }
     }
 
-    private destroyDeferredData () {
+    private _destroyDeferredData () {
         const deferredData = this._deferredRenderData;
         if (deferredData) {
             if (deferredData.gbufferFrameBuffer) deferredData.gbufferFrameBuffer.destroy();
@@ -332,38 +362,27 @@ export class DeferredPipeline extends RenderPipeline {
         this._deferredRenderData = null;
     }
 
-    public destroy () {
-        this.destroyUBOs();
-        this.destroyQuadInputAssembler();
-        this.destroyDeferredData();
-
-        const rpIter = this._renderPasses.values();
-        let rpRes = rpIter.next();
-        while (!rpRes.done) {
-            rpRes.value.destroy();
-            rpRes = rpIter.next();
+    private _ensureEnoughSize (cameras: Camera[]) {
+        let newWidth = this._width;
+        let newHeight = this._height;
+        for (let i = 0; i < cameras.length; ++i) {
+            const window = cameras[i].window!;
+            newWidth = Math.max(window.width, newWidth);
+            newHeight = Math.max(window.height, newHeight);
         }
-
-        this._commandBuffers.length = 0;
-
-        return super.destroy();
-    }
-
-    public resize (width: number, height: number) {
-        if (this._width === width && this._height === height) {
-            return;
+        if (newWidth !== this._width || newHeight !== this._height) {
+            this._width = newWidth;
+            this._height = newHeight;
+            this._destroyDeferredData();
+            this._generateDeferredRenderData();
         }
-        this._width = width;
-        this._height = height;
-        this.destroyDeferredData();
-        this._generateDeferredRenderData();
     }
 
     /**
      * @zh
      * 创建四边形输入汇集器。
      */
-    protected createQuadInputAssembler (): InputAssemblerData {
+    private _createQuadInputAssembler (): InputAssemblerData {
         // create vertex buffer
         const inputAssemblerData = new InputAssemblerData();
 
@@ -372,7 +391,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         const quadVB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             vbSize,
             vbStride,
         ));
@@ -387,7 +406,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         const quadIB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             ibSize,
             ibStride,
         ));
@@ -420,26 +439,13 @@ export class DeferredPipeline extends RenderPipeline {
         return inputAssemblerData;
     }
 
-    public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
-        if (this._lastUsedRenderArea === renderArea) {
-            return;
-        }
-
-        this._lastUsedRenderArea = renderArea;
-        const offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea, window);
-        this._quadVBOffscreen!.update(offData);
-
-        const onData = this.genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea, window);
-        this._quadVBOnscreen!.update(onData);
-    }
-
-    protected genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect, window: RenderWindow) : Float32Array {
+    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
         const vbData = new Float32Array(4 * 4);
 
-        const minX = renderArea.x / window.width;
-        const maxX = (renderArea.x + renderArea.width) / window.width;
-        let minY = renderArea.y / window.height;
-        let maxY = (renderArea.y + renderArea.height) / window.height;
+        const minX = renderArea.x / this._width;
+        const maxX = (renderArea.x + renderArea.width) / this._width;
+        let minY = renderArea.y / this._height;
+        let maxY = (renderArea.y + renderArea.height) / this._height;
         if (this.device.capabilities.screenSpaceSignY > 0) {
             const temp = maxY;
             maxY       = minY;
@@ -486,7 +492,7 @@ export class DeferredPipeline extends RenderPipeline {
      * @zh
      * 销毁四边形输入汇集器。
      */
-    protected destroyQuadInputAssembler () {
+    private _destroyQuadInputAssembler () {
         if (this._quadIB) {
             this._quadIB.destroy();
             this._quadIB = null;

@@ -121,6 +121,21 @@ export class ForwardPipeline extends RenderPipeline {
         this._device.queue.submit(this._commandBuffers);
     }
 
+    public destroy () {
+        this._destroyUBOs();
+
+        const rpIter = this._renderPasses.values();
+        let rpRes = rpIter.next();
+        while (!rpRes.done) {
+            rpRes.value.destroy();
+            rpRes = rpIter.next();
+        }
+
+        this._commandBuffers.length = 0;
+
+        return super.destroy();
+    }
+
     public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
@@ -170,7 +185,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    private destroyUBOs () {
+    private _destroyUBOs () {
         if (this._descriptorSet) {
             this._descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
             this._descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
@@ -178,20 +193,5 @@ export class ForwardPipeline extends RenderPipeline {
             this._descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
             this._descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
         }
-    }
-
-    public destroy () {
-        this.destroyUBOs();
-
-        const rpIter = this._renderPasses.values();
-        let rpRes = rpIter.next();
-        while (!rpRes.done) {
-            rpRes.value.destroy();
-            rpRes = rpIter.next();
-        }
-
-        this._commandBuffers.length = 0;
-
-        return super.destroy();
     }
 }

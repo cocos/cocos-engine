@@ -946,9 +946,21 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         // check requirement
 
-        const ReqComp = (constructor as typeof constructor & { _requireComponent?: typeof Component })._requireComponent;
-        if (ReqComp && !this.getComponent(ReqComp)) {
-            this.addComponent(ReqComp);
+        const reqComps = (constructor as typeof constructor & { _requireComponent?: typeof Component })._requireComponent;
+        if (reqComps) {
+            if (Array.isArray(reqComps)) {
+                for (let i = 0; i < reqComps.length; i++) {
+                    const reqComp = reqComps[i];
+                    if (!this.getComponent(reqComp)) {
+                        this.addComponent(reqComp);
+                    }
+                }
+            } else {
+                const reqComp = reqComps;
+                if (!this.getComponent(reqComp)) {
+                    this.addComponent(reqComp);
+                }
+            }
         }
 
         /// / check conflict
@@ -1389,15 +1401,5 @@ export class BaseNode extends CCObject implements ISchedulable {
 }
 
 baseNodePolyfill(BaseNode);
-
-/**
- * @en
- * Note: This event is only emitted from the top most node whose active value did changed,
- * not including its child nodes.
- * @zh
- * 注意：此节点激活时，此事件仅从最顶部的节点发出。
- * @event active-in-hierarchy-changed
- * @param {Event.EventCustom} event
- */
 
 legacyCC._BaseNode = BaseNode;

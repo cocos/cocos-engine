@@ -15,25 +15,9 @@ declare module 'pal/input' {
      */
     export class TouchInputSource extends BaseInputSource {
         /**
-         * Register the touch start event callback.
-         * @param cb
+         * Register the touch event callback.
          */
-        public onStart (cb: TouchCallback);
-        /**
-         * Register the touch move event callback.
-         * @param cb
-         */
-        public onMove (cb: TouchCallback);
-        /**
-         * Register the touch end event callback.
-         * @param cb
-         */
-        public onEnd (cb: TouchCallback);
-        /**
-         * Register the touch cancel event callback.
-         * @param cb
-         */
-        public onCancel (cb: TouchCallback);
+        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: TouchCallback, target?: any);
     }
 
     type MouseCallback = (res: import('cocos/input/types').EventMouse) => void;
@@ -42,25 +26,9 @@ declare module 'pal/input' {
      */
     export class MouseInputSource extends BaseInputSource {
         /**
-         * Register the mouse down event callback.
-         * @param cb
+         * Register the mouse event callback.
          */
-        public onDown (cb: MouseCallback);
-        /**
-         * Register the mouse move event callback.
-         * @param cb
-         */
-        public onMove (cb: MouseCallback);
-        /**
-         * Register the mouse up event callback.
-         * @param cb
-         */
-        public onUp (cb: MouseCallback);
-        /**
-         * Register the mouse wheel event callback.
-         * @param cb
-         */
-        public onWheel (cb: MouseCallback);
+        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: MouseCallback, target?: any);
     }
 
     type KeyboardCallback = (res: import('cocos/input/types').EventKeyboard) => void;
@@ -69,21 +37,9 @@ declare module 'pal/input' {
      */
     export class KeyboardInputSource extends BaseInputSource {
         /**
-         * Register the key down event callback.
-         * @param cb
+         * Register the keyboard event callback.
          */
-        public onDown (cb: KeyboardCallback);
-        /**
-         * Register the key pressing event callback.
-         * NOTE: Compatibility for the deprecated KEY_DOWN event type. It should be removed in the future.
-         * @param cb
-         */
-        public onPressing (cb: KeyboardCallback);
-        /**
-         * Register the key up event callback.
-         * @param cb
-         */
-        public onUp (cb: KeyboardCallback);
+        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: KeyboardCallback, target?: any);
     }
 
     /**
@@ -115,9 +71,8 @@ declare module 'pal/input' {
          */
         public setInterval (intervalInMileSeconds: number);
         /**
-         * Register the accelerometer change event callback.
-         * @param cb
+         * Register the acceleration event callback.
          */
-        public onChange (cb: AccelerometerCallback);
+        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: AccelerometerCallback, target?: any);
     }
 }

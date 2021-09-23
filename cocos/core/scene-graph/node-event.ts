@@ -213,4 +213,13 @@ export enum NodeEventType {
      * @zh 当节点在兄弟节点中的顺序发生变化时触发的事件。
      */
     SIBLING_ORDER_CHANGED = 'sibling-order-changed',
+
+    /**
+     * @en
+     * Note: This event is only emitted from the top most node whose active value did changed,
+     * not including its child nodes.
+     * @zh
+     * 注意：此节点激活时，此事件仅从最顶部的节点发出。
+     */
+    ACTIVE_IN_HIERARCHY_CHANGED = 'active-in-hierarchy-changed',
 }
