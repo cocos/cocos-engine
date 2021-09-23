@@ -81,8 +81,7 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
-    CCASSERT(info.buffer, "invalid source buffer");
-    CCASSERT(static_cast<BufferValidator *>(info.buffer)->isInited(), "already destroyed?");
+    CCASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited(), "already destroyed?");
     CCASSERT(info.offset + info.range <= info.buffer->getSize(), "invalid range");
 
     /////////// execute ///////////

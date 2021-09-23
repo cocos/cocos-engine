@@ -49,8 +49,8 @@ PipelineStateValidator::~PipelineStateValidator() {
 void PipelineStateValidator::doInit(const PipelineStateInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
-    CCASSERT(static_cast<ShaderValidator *>(info.shader)->isInited(), "already destroyed?");
-    CCASSERT(static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->isInited(), "already destroyed?");
+    CCASSERT(info.shader && static_cast<ShaderValidator *>(info.shader)->isInited(), "already destroyed?");
+    CCASSERT(info.pipelineLayout && static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->isInited(), "already destroyed?");
     CCASSERT(!info.renderPass || static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
 
     /////////// execute ///////////

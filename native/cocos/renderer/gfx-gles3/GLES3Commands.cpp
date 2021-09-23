@@ -891,24 +891,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                     }
                     uint32_t w = gpuTexture->width;
                     uint32_t h = gpuTexture->height;
-                    if (hasFlag(gpuTexture->flags, TextureFlagBit::RESIZABLE)) {
-                        if (!GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].isCompressed) {
-                            for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                                GL_CHECK(glTexImage2D(GL_TEXTURE_2D, i, gpuTexture->glInternalFmt, w, h, 0, gpuTexture->glFormat, gpuTexture->glType, nullptr));
-                                w = std::max(1U, w >> 1);
-                                h = std::max(1U, h >> 1);
-                            }
-                        } else {
-                            for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                                uint32_t imgSize = formatSize(gpuTexture->format, w, h, 1);
-                                GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, i, gpuTexture->glInternalFmt, w, h, 0, imgSize, nullptr));
-                                w = std::max(1U, w >> 1);
-                                h = std::max(1U, h >> 1);
-                            }
-                        }
-                    } else {
-                        GL_CHECK(glTexStorage2D(GL_TEXTURE_2D, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
-                    }
+                    GL_CHECK(glTexStorage2D(GL_TEXTURE_2D, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
                 }
                 break;
             }
@@ -923,28 +906,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                     }
                     uint32_t w = gpuTexture->width;
                     uint32_t h = gpuTexture->height;
-                    if (hasFlag(gpuTexture->flags, TextureFlagBit::RESIZABLE)) {
-                        if (!GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].isCompressed) {
-                            for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                                for (uint32_t f = 0; f < 6; ++f) {
-                                    GL_CHECK(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture->glInternalFmt, w, h, 0, gpuTexture->glFormat, gpuTexture->glType, nullptr));
-                                }
-                                w = std::max(1U, w >> 1);
-                                h = std::max(1U, h >> 1);
-                            }
-                        } else {
-                            for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                                uint32_t imgSize = formatSize(gpuTexture->format, w, h, 1);
-                                for (uint32_t f = 0; f < 6; ++f) {
-                                    GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture->glInternalFmt, w, h, 0, imgSize, nullptr));
-                                }
-                                w = std::max(1U, w >> 1);
-                                h = std::max(1U, h >> 1);
-                            }
-                        }
-                    } else {
-                        GL_CHECK(glTexStorage2D(GL_TEXTURE_CUBE_MAP, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
-                    }
+                    GL_CHECK(glTexStorage2D(GL_TEXTURE_CUBE_MAP, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
                 }
                 break;
             }
@@ -1002,69 +964,9 @@ void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
     if (gpuTexture->memoryless || gpuTexture->glTarget == GL_TEXTURE_EXTERNAL_OES) return;
 
     if (gpuTexture->glSamples <= 1) {
-        switch (gpuTexture->type) {
-            case TextureType::TEX2D: {
-                if (gpuTexture->size > 0) {
-                    GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
-                    if (gpuTexture->glTexture != glTexture) {
-                        GL_CHECK(glBindTexture(GL_TEXTURE_2D, gpuTexture->glTexture));
-                        glTexture = gpuTexture->glTexture;
-                    }
-                    uint32_t w = gpuTexture->width;
-                    uint32_t h = gpuTexture->height;
-                    if (!GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].isCompressed) {
-                        for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, i, gpuTexture->glInternalFmt, w, h, 0, gpuTexture->glFormat, gpuTexture->glType, nullptr));
-                            w = std::max(1U, w >> 1);
-                            h = std::max(1U, h >> 1);
-                        }
-                    } else {
-                        for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                            uint32_t imgSize = formatSize(gpuTexture->format, w, h, 1);
-                            GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, i, gpuTexture->glInternalFmt, w, h, 0, imgSize, nullptr));
-                            w = std::max(1U, w >> 1);
-                            h = std::max(1U, h >> 1);
-                        }
-                    }
-                }
-                break;
-            }
-            case TextureType::CUBE: {
-                if (gpuTexture->size > 0) {
-                    GLuint &glTexture = device->stateCache()->glTextures[device->stateCache()->texUint];
-                    if (gpuTexture->glTexture != glTexture) {
-                        GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, gpuTexture->glTexture));
-                        glTexture = gpuTexture->glTexture;
-                    }
-                    if (!GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].isCompressed) {
-                        for (uint32_t f = 0; f < 6; ++f) {
-                            uint32_t w = gpuTexture->width;
-                            uint32_t h = gpuTexture->height;
-                            for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                                GL_CHECK(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture->glInternalFmt, w, h, 0, gpuTexture->glFormat, gpuTexture->glType, nullptr));
-                                w = std::max(1U, w >> 1);
-                                h = std::max(1U, h >> 1);
-                            }
-                        }
-                    } else {
-                        for (uint32_t f = 0; f < 6; ++f) {
-                            uint32_t w = gpuTexture->width;
-                            uint32_t h = gpuTexture->height;
-                            for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                                uint32_t imgSize = formatSize(gpuTexture->format, w, h, 1);
-                                GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture->glInternalFmt, w, h, 0, imgSize, nullptr));
-                                w = std::max(1U, w >> 1);
-                                h = std::max(1U, h >> 1);
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            default:
-                CCASSERT(false, "Unsupported TextureType, resize texture failed.");
-                break;
-        }
+        // immutable by default
+        cmdFuncGLES3DestroyTexture(device, gpuTexture);
+        cmdFuncGLES3CreateTexture(device, gpuTexture);
     } else {
         switch (gpuTexture->type) {
             case TextureType::TEX2D: {
@@ -2213,7 +2115,7 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
             performStoreOp(attachmentIndex, glAttachmentIndex++);
         }
         bool skipStore = subpass.depthStencil == INVALID_BINDING ||
-                         gpuRenderPass->statistics[subpass.depthStencil].loadSubpass != gfxStateCache.subpassIdx;
+                         gpuRenderPass->statistics[subpass.depthStencil].storeSubpass != gfxStateCache.subpassIdx;
         performDepthStencilStoreOp(subpass.depthStencil, skipStore);
 
         cmdFuncGLES3MemoryBarrier(device, gpuRenderPass->barriers.back().glBarriers, gpuRenderPass->barriers.back().glBarriersByRegion);
@@ -2468,9 +2370,6 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
                 if (cache->glBindUBOs[glBuffer.glBinding] != gpuDescriptor.gpuBuffer->glBuffer ||
                     cache->glBindUBOOffsets[glBuffer.glBinding] != offset) {
                     if (offset) {
-                        GLint size{0};
-                        glGetIntegeri_v(GL_UNIFORM_BUFFER_SIZE, glBuffer.glBinding, &size);
-
                         GL_CHECK(glBindBufferRange(GL_UNIFORM_BUFFER, glBuffer.glBinding, gpuDescriptor.gpuBuffer->glBuffer,
                                                    offset, gpuDescriptor.gpuBuffer->size));
                     } else {

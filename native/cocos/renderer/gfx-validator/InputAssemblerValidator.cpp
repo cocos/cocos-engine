@@ -49,7 +49,7 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
     _inited = true;
 
     for (auto *vertexBuffer : info.vertexBuffers) {
-        CCASSERT(static_cast<BufferValidator *>(vertexBuffer)->isInited(), "already destroyed?");
+        CCASSERT(vertexBuffer && static_cast<BufferValidator *>(vertexBuffer)->isInited(), "already destroyed?");
     }
     if (info.indexBuffer) {
         CCASSERT(static_cast<BufferValidator *>(info.indexBuffer)->isInited(), "already destroyed?");

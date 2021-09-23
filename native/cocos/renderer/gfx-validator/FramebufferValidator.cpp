@@ -50,12 +50,12 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
     _inited = true;
 
     for (auto *colorTexture : info.colorTextures) {
-        CCASSERT(static_cast<TextureValidator *>(colorTexture)->isInited(), "already destroyed?");
+        CCASSERT(colorTexture && static_cast<TextureValidator *>(colorTexture)->isInited(), "already destroyed?");
     }
     if (info.depthStencilTexture) {
         CCASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited(), "already destroyed?");
     }
-    CCASSERT(static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
+    CCASSERT(info.renderPass && static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
 
     /////////// execute ///////////
 

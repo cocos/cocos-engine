@@ -1812,7 +1812,7 @@ void cmdFuncGLES2EndRenderPass(GLES2Device *device) {
             performStoreOp(attachmentIndex, glAttachmentIndex++);
         }
         bool skipStore = subpass.depthStencil == INVALID_BINDING ||
-                         gpuRenderPass->statistics[subpass.depthStencil].loadSubpass != gfxStateCache.subpassIdx;
+                         gpuRenderPass->statistics[subpass.depthStencil].storeSubpass != gfxStateCache.subpassIdx;
         performDepthStencilStoreOp(subpass.depthStencil, skipStore);
     }
 }

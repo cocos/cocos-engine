@@ -49,7 +49,7 @@ void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
     _inited = true;
 
     for (auto *layout : info.setLayouts) {
-        CCASSERT(static_cast<DescriptorSetLayoutValidator *>(layout)->isInited(), "already destroyed?");
+        CCASSERT(layout && static_cast<DescriptorSetLayoutValidator *>(layout)->isInited(), "already destroyed?");
     }
 
     /////////// execute ///////////
