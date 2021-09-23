@@ -1402,14 +1402,4 @@ export class BaseNode extends CCObject implements ISchedulable {
 
 baseNodePolyfill(BaseNode);
 
-/**
- * @en
- * Note: This event is only emitted from the top most node whose active value did changed,
- * not including its child nodes.
- * @zh
- * 注意：此节点激活时，此事件仅从最顶部的节点发出。
- * @event active-in-hierarchy-changed
- * @param {Event.EventCustom} event
- */
-
 legacyCC._BaseNode = BaseNode;
