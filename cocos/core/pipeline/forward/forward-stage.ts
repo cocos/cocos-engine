@@ -156,6 +156,7 @@ export class ForwardStage extends RenderStage {
         }
 
         this._renderQueues.forEach(renderQueueSortFunc);
+        pipeline.pipelineUBO.updateShadowUBO(camera);
 
         const cmdBuff = pipeline.commandBuffers[0];
 
@@ -190,11 +191,13 @@ export class ForwardStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);

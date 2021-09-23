@@ -213,7 +213,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light, camera: Camera) {
+    public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light) {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
@@ -389,9 +389,14 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
-    public updateShadowUBOLight (light: Light, camera: Camera) {
-        const ds = this._pipeline.descriptorSet;
-        PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, camera);
+    public updateShadowUBOLight (pipeline: RenderPipeline, idx: number, light: Light) {
+        let ds;
+        if (light.type === LightType.DIRECTIONAL) {
+            ds = pipeline.descriptorSet;
+        } else {
+            ds = pipeline.globalDSManager.getOrCreateDescriptorSet(idx)!;
+        }
+        PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light);
         ds.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }
 

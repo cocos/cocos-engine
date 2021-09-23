@@ -35,7 +35,7 @@ import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
-import { Light } from '../../renderer/scene/light';
+import { Light, LightType } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
 import { Camera } from '../../renderer/scene';
 
@@ -63,7 +63,8 @@ export class ShadowStage extends RenderStage {
      * @param light
      * @param shadowFrameBuffer
      */
-    public setUsage (light: Light, shadowFrameBuffer: Framebuffer) {
+    public setUsage (idxLight: number, light: Light, shadowFrameBuffer: Framebuffer) {
+        this._lightIndex = idxLight;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
@@ -72,6 +73,7 @@ export class ShadowStage extends RenderStage {
     private _shadowFrameBuffer: Framebuffer | null = null;
     private _renderArea = new Rect();
     private _light: Light | null = null;
+    private _lightIndex = 0;
 
     public destroy () {
         this._additiveShadowQueue?.clear();
@@ -98,7 +100,7 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
-        this._additiveShadowQueue.gatherLightPasses(this._light, camera, cmdBuff);
+        this._additiveShadowQueue.gatherLightPasses(this._lightIndex, this._light, cmdBuff);
 
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
@@ -113,7 +115,13 @@ export class ShadowStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
+        let descriptorSet;
+        if (this._light.type === LightType.DIRECTIONAL) {
+            descriptorSet = pipeline.descriptorSet;
+        } else {
+            descriptorSet = pipeline.globalDSManager.getOrCreateDescriptorSet(this._lightIndex)!;
+        }
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 

@@ -101,14 +101,10 @@ export class ShadowFlow extends RenderFlow {
             const shadowFrameBuffer = shadowFrameBufferMap.get(light);
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
-                shadowStage.setUsage(light, shadowFrameBuffer!);
+                shadowStage.setUsage(l - 1, light, shadowFrameBuffer!);
                 shadowStage.render(camera);
             }
         }
-
-        // After the shadowMap rendering of all lights is completed,
-        // restore the ShadowUBO data of the main light.
-        pipeline.pipelineUBO.updateShadowUBO(camera);
     }
 
     public destroy () {
@@ -202,7 +198,7 @@ export class ShadowFlow extends RenderFlow {
 
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
-                shadowStage.setUsage(light, shadowFrameBuffer!);
+                shadowStage.setUsage(l - 1, light, shadowFrameBuffer!);
                 shadowStage.clearFramebuffer(camera);
             }
         }
