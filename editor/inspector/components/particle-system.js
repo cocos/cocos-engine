@@ -35,6 +35,8 @@ exports.template = `
         <ui-prop type="dump" key="rateOverDistance"></ui-prop>
         <ui-prop type="dump" key="bursts"></ui-prop>
         <ui-prop type="dump" key="enableCulling"></ui-prop>
+        <!-- Render other data that has not taken over -->
+        <div id="customProps"></div>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
                 empty="true">
@@ -165,10 +167,6 @@ exports.template = `
 
         </ui-section>
         <ui-prop type="dump" key="renderer"></ui-prop>
-    </div>
-
-    <!-- Render other data that has not taken over -->
-    <div id="customProps">
     </div>
 </div>
 `;
