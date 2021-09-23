@@ -170,7 +170,7 @@ var audioEngine = {
      * @param {Number} audioID - audio id.
      * @return {Boolean} the audio whether valid (still be cached).
      * @example
-     * const cached = cc.audioEngine.isValidAudio(id);
+     * const valid = cc.audioEngine.isValidAudio(id);
      */
     isValidAudio: function (audioID) {
         var audio = getAudioFromId(audioID);
