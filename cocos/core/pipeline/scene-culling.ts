@@ -369,18 +369,18 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 castShadowObjects.push(getCastShadowRenderObject(model, camera));
             }
 
+            if (shadows.firstSetCSM && model.worldBounds) {
+                if (!_castBoundsInited) {
+                    _castWorldBounds.copy(model.worldBounds);
+                    _castBoundsInited = true;
+                }
+                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+            }
+
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
                  || (visibility & model.visFlags)) {
                 // shadow render Object
                 if (dirShadowObjects != null && model.castShadow) {
-                    if (shadows.firstSetCSM) {
-                        if (!_castBoundsInited) {
-                            _castWorldBounds.copy(model.worldBounds);
-                            _castBoundsInited = true;
-                        }
-                        AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
-                    }
-
                     // frustum culling
                     if (model.worldBounds && intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
                         dirShadowObjects.push(getDirShadowRenderObject(model, camera));
