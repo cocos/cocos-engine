@@ -18,8 +18,8 @@ exports.template = `
         <ui-prop type="dump" key="scaleSpace"></ui-prop>
         <ui-prop type="dump" key="startSize3D"></ui-prop>
         <!-- hack changeName if startSize3D change -->
-        <ui-prop type="dump" key="startSizeX" displayName="startSize" showflag="!startSize3D"></ui-prop>
-        <ui-prop type="dump" key="startSizeX" displayName="startSizeX" showflag="startSize3D"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="StartSize" showflag="!startSize3D"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="StartSizeX" showflag="startSize3D"></ui-prop>
         <ui-prop type="dump" showflag="startSize3D" key="startSizeY"></ui-prop>
         <ui-prop type="dump" showflag="startSize3D" key="startSizeZ"></ui-prop>
         <ui-prop type="dump" key="startSpeed"></ui-prop>
