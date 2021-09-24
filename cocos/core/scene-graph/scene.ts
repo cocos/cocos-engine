@@ -274,7 +274,7 @@ export class Scene extends BaseNode {
     protected _load () {
         if (!this._inited) {
             if (TEST) {
-                assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
+                assert(!this._activeInHierarchy, 'Should deactivate ActionManager by default');
             }
             this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;

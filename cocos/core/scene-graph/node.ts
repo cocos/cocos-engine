@@ -34,7 +34,6 @@ import {
 import { EDITOR, JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { eventManager } from '../../input/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
@@ -44,7 +43,6 @@ import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
-import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 
@@ -615,11 +613,11 @@ export class Node extends BaseNode implements CustomSerializable {
 
     public _onPostActivated (active: boolean) {
         if (active) { // activated
-            eventManager.resumeTarget(this);
+            this._eventProcessor.setEnabled(true);
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
         } else { // deactivated
-            eventManager.pauseTarget(this);
+            this._eventProcessor.setEnabled(false);
         }
     }
 
@@ -1302,7 +1300,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param recursive Whether pause system events recursively for the child node tree
      */
     public pauseSystemEvents (recursive: boolean): void {
-        eventManager.pauseTarget(this, recursive);
+        this._eventProcessor.setEnabled(false, recursive);
     }
 
     /**
@@ -1317,7 +1315,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param recursive Whether resume system events recursively for the child node tree
      */
     public resumeSystemEvents (recursive: boolean): void {
-        eventManager.resumeTarget(this, recursive);
+        this._eventProcessor.setEnabled(true, recursive);
     }
 
     /**

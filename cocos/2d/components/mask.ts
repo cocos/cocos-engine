@@ -616,6 +616,6 @@ export class Mask extends Renderable2D {
     }
 }
 
-NodeEventProcessor._comp = Mask;
+NodeEventProcessor._maskComp = Mask;
 
 legacyCC.Mask = Mask;
