@@ -70,22 +70,22 @@ export class WebGPURenderPass extends RenderPass {
         for (let i = 0; i < info.subpasses.length; i++) {
             const originSubpass = info.subpasses[i];
             const subpass = new wgpuWasmModule.SubpassInfoInstance();
-            const inputs = new wgpuWasmModule.vector_uint();
+            const inputs = new wgpuWasmModule.vector_uint32();
             for (let j = 0; j < originSubpass.inputs.length; j++) {
                 inputs.push_back(originSubpass.inputs[i]);
             }
             subpass.inputs = inputs;
-            const colors = new wgpuWasmModule.vector_uint();
+            const colors = new wgpuWasmModule.vector_uint32();
             for (let j = 0; j < originSubpass.colors.length; j++) {
                 colors.push_back(originSubpass.colors[i]);
             }
             subpass.colors = colors;
-            const resolves = new wgpuWasmModule.vector_uint();
+            const resolves = new wgpuWasmModule.vector_uint32();
             for (let j = 0; j < originSubpass.resolves.length; j++) {
                 resolves.push_back(originSubpass.resolves[i]);
             }
             subpass.resolves = resolves;
-            const preserves = new wgpuWasmModule.vector_uint();
+            const preserves = new wgpuWasmModule.vector_uint32();
             for (let j = 0; j < originSubpass.preserves.length; j++) {
                 preserves.push_back(originSubpass.preserves[i]);
             }

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
+import glslang, { Glslang } from '@webgpu/glslang/dist/web-devel/glslang';/* eslint-disable @typescript-eslint/no-floating-promises */
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 // import wasmDevice from '@cocos/webgpu/lib/webgpu_wasm';
 // import fs from 'fs';
@@ -16,7 +16,7 @@ import { Buffer } from '../base/buffer';
 import { Shader } from '../base/shader';
 import { InputAssembler, DescriptorSet, DescriptorSetLayout, PipelineLayout } from '..';
 
-import { wgpuWasmModule } from './webgpu-utils';
+import { wgpuWasmModule, glslalgWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
 import { WebGPUSwapchain } from './webgpu-swapchain';
@@ -54,6 +54,7 @@ export class WebGPUDevice extends Device {
             const chromeVersion = getChromeVersion();
             const adapter = await navigator.gpu.requestAdapter();
             const device = await adapter.requestDevice();
+            glslalgWasmModule.glslang = await glslang();
             wgpuWasmModule.preinitializedWebGPUDevice = device;
             device.lost.then((info) => {
                 console.error('Device was lost.', info);
@@ -118,12 +119,15 @@ export class WebGPUDevice extends Device {
     }
 
     public acquire (swapchains: Swapchain[]): void {
-        //TODO: @hana-alice
-        //assert(false, 'acquire not impl!');
+        const swapchainList = new wgpuWasmModule.SwapchainList();
+        for (let i = 0; i < swapchains.length; i++) {
+            swapchainList.push_back((swapchains[i] as WebGPUSwapchain).nativeSwapchain);
+        }
+        this._nativeDevice.acquire(swapchainList);
     }
 
     public present (): void {
-        //assert(false, 'present not impl!');
+        this._nativeDevice?.present();
     }
 
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {

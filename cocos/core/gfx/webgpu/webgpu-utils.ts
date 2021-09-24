@@ -1,3 +1,4 @@
+import { Glslang } from '@webgpu/glslang/dist/web-devel/glslang';
 import { wasmBase64 } from './lib/tempArray.js';
 // ({
 //     wasm: require('fs').readFileSync('CocosGameWASM.wasm'),
@@ -25,4 +26,7 @@ const wgpuWasmModule = {
     nativeDevice: undefined,
 };
 
-export { wgpuWasmModule };
+const glslalgWasmModule = {
+};
+
+export { wgpuWasmModule, glslalgWasmModule };

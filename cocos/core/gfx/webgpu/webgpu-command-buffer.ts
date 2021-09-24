@@ -134,7 +134,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]) {
         if (dynamicOffsets) {
-            const dynOffsets = new wgpuWasmModule.vector_uint();
+            const dynOffsets = new wgpuWasmModule.vector_uint32();
             for (let i = 0; i < dynamicOffsets.length; i++) {
                 dynOffsets.push_back(dynamicOffsets[i]);
             }
