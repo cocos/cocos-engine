@@ -267,7 +267,7 @@ export class View extends EventTarget {
      * 你能够传入 true 为参数去启动它，用 false 参数来关闭它。
      * @param enabled - Enable or disable auto full screen on mobile devices
      *
-     * @deprecated since v3.3
+     * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */
     public enableAutoFullScreen (enabled: boolean) {
         if (enabled === this._autoFullScreen) {

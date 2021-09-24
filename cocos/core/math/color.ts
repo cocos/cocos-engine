@@ -32,7 +32,7 @@
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
-import { clamp, enumerableProps, EPSILON } from './utils';
+import { clamp, EPSILON } from './utils';
 import { legacyCC } from '../global-exports';
 
 const toFloat = 1 / 255;
@@ -59,7 +59,7 @@ export class Color extends ValueType {
      * @en Copy content of a color into another and save the results to out color.
      * @zh 获得指定颜色的拷贝
      */
-    public static clone<Out extends IColorLike> (a: Readonly<IColorLike>) {
+    public static clone<Out extends IColorLike> (a: Out) {
         const out = new Color();
         if (a._val) {
             out._val = a._val;
@@ -73,7 +73,7 @@ export class Color extends ValueType {
      * @en Clone a color and save the results to out color.
      * @zh 复制目标颜色
      */
-    public static copy<Out extends IColorLike> (out: Out, a: Readonly<IColorLike>) {
+    public static copy<Out extends IColorLike> (out: Out, a: Out) {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -111,7 +111,7 @@ export class Color extends ValueType {
      * @en Add two colors by components. And save the results to out color.
      * @zh 逐通道颜色加法
      */
-    public static add<Out extends IColorLike> (out: Out, a: Readonly<IColorLike>, b: Readonly<IColorLike>) {
+    public static add<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -123,7 +123,7 @@ export class Color extends ValueType {
      * @en Subtract each components of color b from each components of color a. And save the results to out color.
      * @zh 逐通道颜色减法
      */
-    public static subtract<Out extends IColorLike> (out: Out, a: Readonly<IColorLike>, b: Readonly<IColorLike>) {
+    public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -135,7 +135,7 @@ export class Color extends ValueType {
      * @en Multiply each components of two colors. And save the results to out color.
      * @zh 逐通道颜色乘法
      */
-    public static multiply<Out extends IColorLike> (out: Out, a: Readonly<IColorLike>, b: Readonly<IColorLike>) {
+    public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -147,7 +147,7 @@ export class Color extends ValueType {
      * @en Divide each components of color a by each components of color b. And save the results to out color.
      * @zh 逐通道颜色除法
      */
-    public static divide<Out extends IColorLike> (out: Out, a: Readonly<IColorLike>, b: Readonly<IColorLike>) {
+    public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -159,7 +159,7 @@ export class Color extends ValueType {
      * @en Multiply all channels in a color with the given scale factor, and save the results to out color.
      * @zh 全通道统一缩放颜色
      */
-    public static scale<Out extends IColorLike> (out: Out, a: Readonly<IColorLike>, b: number) {
+    public static scale<Out extends IColorLike> (out: Out, a: Out, b: number) {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -215,7 +215,7 @@ export class Color extends ValueType {
      * @en Check whether the two given colors are identical
      * @zh 颜色等价判断
      */
-    public static strictEquals<Out extends IColorLike> (a: Readonly<IColorLike>, b: Readonly<IColorLike>) {
+    public static strictEquals<Out extends IColorLike> (a: Out, b: Out) {
         return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
     }
 
@@ -223,7 +223,7 @@ export class Color extends ValueType {
      * @en Check whether the two given colors are approximately equivalent. Difference of each channel is smaller that the epsilon.
      * @zh 排除浮点数误差的颜色近似等价判断
      */
-    public static equals<Out extends IColorLike> (a: Readonly<IColorLike>, b: Readonly<IColorLike>, epsilon = EPSILON) {
+    public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
         return (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r))
             && Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g))
             && Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b))
@@ -234,7 +234,7 @@ export class Color extends ValueType {
      * @en Convert the given color to a hex color value. And save the results to out color.
      * @zh 获取指定颜色的整型数据表示
      */
-    public static hex<Out extends IColorLike> (a: Readonly<IColorLike>) {
+    public static hex<Out extends IColorLike> (a: Out) {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
     }
 
@@ -306,7 +306,7 @@ export class Color extends ValueType {
      * @zh 构造与指定颜色相等的颜色。
      * @param other Specified color
      */
-    constructor (other: Readonly<Color>);
+    constructor (other: Color);
 
     /**
      * @en Construct a color form the hex color string
@@ -326,7 +326,7 @@ export class Color extends ValueType {
      */
     constructor (r?: number, g?: number, b?: number, a?: number);
 
-    constructor (r?: number | Readonly<Color> | string, g?: number, b?: number, a?: number) {
+    constructor (r?: number | Color | string, g?: number, b?: number, a?: number) {
         super();
         if (typeof r === 'string') {
             this.fromHEX(r);
@@ -353,7 +353,7 @@ export class Color extends ValueType {
      * @param other Specified color
      * @returns Returns `true` when all channels of both colours are equal; otherwise returns `false`.
      */
-    public equals (other: Readonly<Color>) {
+    public equals (other: Color) {
         return other && this._val === other._val;
     }
 
@@ -553,9 +553,6 @@ export class Color extends ValueType {
                 g = p;
                 b = q;
                 break;
-
-            default:
-                break;
             }
         }
         r *= 255;
@@ -612,7 +609,7 @@ export class Color extends ValueType {
      * @param [a=255] alpha component of the color
      * @returns Current color.
      */
-    public set(other: Readonly<Color>): Color;
+    public set(other: Color): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
     public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
@@ -640,7 +637,7 @@ export class Color extends ValueType {
      * @zh 将当前颜色乘以与指定颜色
      * @param other The specified color.
      */
-    public multiply (other: Readonly<Color>) {
+    public multiply (other: Color) {
         const r = ((this._val & 0x000000ff) * other.r) >> 8;
         const g = ((this._val & 0x0000ff00) * other.g) >> 8;
         const b = ((this._val & 0x00ff0000) * other.b) >> 8;
@@ -670,7 +667,6 @@ export class Color extends ValueType {
     }
 }
 
-enumerableProps(Color.prototype, ['r', 'g', 'b', 'a', 'x', 'y', 'z', 'w']);
 CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
 legacyCC.Color = Color;
 

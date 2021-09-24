@@ -24,7 +24,7 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip } from 'cc.decorator';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2, color } from '../math';
@@ -211,7 +211,7 @@ export class SkyboxInfo {
      * @en Whether to use diffuse reflection convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
      * @zh TODO
      */
-     @visible(function() {
+     @visible(function(this : SkyboxInfo) {
         if(this.useIBL) {
             return true;
         }
@@ -326,7 +326,7 @@ export class SkyboxInfo {
      * @en The optional diffusion convolution map used in tandem with IBL
      * @zh TODO
      */
-    @visible(function() {
+    @visible(function(this : SkyboxInfo) {
         if(this.useIBL) {
             return true;
         }
@@ -561,7 +561,7 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
-    protected _autoAdapt = true;
+    protected _fixedArea = false;
     @serializable
     protected _pcf = PCFType.HARD;
     @serializable
@@ -569,9 +569,13 @@ export class ShadowsInfo {
     @serializable
     protected _normalBias = 0.0;
     @serializable
-    protected _near = 1;
+    protected _near = 0.1;
     @serializable
-    protected _far = 30;
+    protected _far = 10.0;
+    @serializable
+    protected _shadowDistance = 100;
+    @serializable
+    protected _invisibleOcclusionRange = 200;
     @serializable
     protected _orthoSize = 5;
     @serializable
@@ -751,17 +755,17 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set shadow Map sampler auto adapt
-     * @zh 阴影纹理生成是否自适应
+     * @en get or set fixed area shadow
+     * @zh 是否是固定区域阴影
      */
     @type(CCBoolean)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set autoAdapt (val) {
-        this._autoAdapt = val;
-        if (this._resource) { this._resource.autoAdapt = val; }
+    set fixedArea (val) {
+        this._fixedArea = val;
+        if (this._resource) { this._resource.fixedArea = val; }
     }
-    get autoAdapt () {
-        return this._autoAdapt;
+    get fixedArea () {
+        return this._fixedArea;
     }
 
     /**
@@ -769,7 +773,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -783,13 +787,53 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set far (val: number) {
-        this._far = val;
-        if (this._resource) { this._resource.far = val; }
+        this._far = Math.min(val, 2000.0);
+        if (this._resource) { this._resource.far = Math.min(val, 2000.0); }
     }
     get far () {
         return this._far;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置潜在阴影产生的范围
+     */
+    @editable
+    @tooltip('if shadow has been culled, increase this value to fix it')
+    @range([0.0, 2000.0, 0.1])
+    @slide
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
+    set invisibleOcclusionRange (val: number) {
+        this._invisibleOcclusionRange = Math.min(val, 2000.0);
+        if (this._resource) {
+            this._resource.invisibleOcclusionRange = Math.min(val, 2000.0);
+        }
+    }
+    get invisibleOcclusionRange () {
+        return this._invisibleOcclusionRange;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置潜在阴影产生的范围
+     */
+    @editable
+    @tooltip('shadow visible distance: shadow quality is inversely proportional of the magnitude of this value')
+    @range([0.0, 2000.0, 0.1])
+    @slide
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
+    set shadowDistance (val: number) {
+        this._shadowDistance = Math.min(val, 2000.0);
+        if (this._resource) {
+            this._resource.shadowDistance = Math.min(val, 2000.0);
+        }
+    }
+    get shadowDistance () {
+        return this._shadowDistance;
     }
 
     /**
@@ -797,7 +841,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -820,6 +864,7 @@ export class ShadowsInfo {
 
     public activate (resource: Shadows) {
         this._resource = resource;
+        this.pcf = Math.min(this._pcf, PCFType.SOFT_2X);
         this._resource.initialize(this);
         this._resource.activate();
     }
