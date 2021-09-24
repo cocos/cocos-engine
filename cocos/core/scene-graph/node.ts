@@ -614,6 +614,7 @@ export class Node extends BaseNode implements CustomSerializable {
     public _onPostActivated (active: boolean) {
         if (active) { // activated
             this._eventProcessor.setEnabled(true);
+            this._eventProcessor._attachMask();
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
         } else { // deactivated

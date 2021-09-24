@@ -166,6 +166,10 @@ export class NodeEventProcessor {
         return null;
     }
 
+    private _attachMask () {
+        this.maskList = this._searchComponentsInParent(NodeEventProcessor._maskComp);
+    }
+
     public reattach (): void {
         let currentMaskList: IMask[] | null;
         this.node.walk((node) => {
