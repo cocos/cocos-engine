@@ -67,7 +67,7 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) { // NOLINT(readability-id
                             assert(false);
                         }
                     } else {
-                        ptr = reinterpret_cast<uint8_t *>(value.asPtr());
+                        ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
                     }
 
                     arg0[i] = ptr;
@@ -121,7 +121,7 @@ bool js_gfx_Device_copyTextureToBuffers(se::State &s) { // NOLINT(readability-id
                             assert(false);
                         }
                     } else {
-                        ptr = reinterpret_cast<uint8_t *>(value.asPtr());
+                        ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
                     }
 
                     arg1[i] = ptr;
@@ -167,7 +167,7 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-
                         value.toObject()->getTypedArrayData(&address, &dataLength);
                         arg0[i] = address;
                     } else {
-                        arg0[i] = reinterpret_cast<uint8_t *>(value.asPtr());
+                        arg0[i] = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
                     }
                 }
             }
@@ -229,8 +229,9 @@ static bool js_gfx_Device_createTexture(se::State &s) { // NOLINT(readability-id
         bool              createTextureView = false;
         seval_to_boolean(args[1], &createTextureView);
         if (createTextureView) {
-            auto *textureViewInfo = static_cast<cc::gfx::TextureViewInfo *>(args[0].toObject()->getPrivateData());
-            texture               = cobj->createTexture(*textureViewInfo);
+            cc::gfx::TextureViewInfo textureViewInfo;
+            sevalue_to_native(args[0], &textureViewInfo, s.thisObject());
+            texture = cobj->createTexture(textureViewInfo);
         } else {
             cc::gfx::TextureInfo textureInfo;
             sevalue_to_native(args[0], &textureInfo, s.thisObject());
@@ -260,11 +261,13 @@ static bool js_gfx_Buffer_initialize(se::State &s) { // NOLINT(readability-ident
         seval_to_boolean(args[1], &initWithBufferViewInfo);
 
         if (initWithBufferViewInfo) {
-            auto *bufferViewInfo = static_cast<cc::gfx::BufferViewInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*bufferViewInfo);
+            cc::gfx::BufferViewInfo bufferViewInfo;
+            sevalue_to_native(args[0], &bufferViewInfo, s.thisObject());
+            cobj->initialize(bufferViewInfo);
         } else {
-            auto *bufferInfo = static_cast<cc::gfx::BufferInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*bufferInfo);
+            cc::gfx::BufferInfo bufferInfo;
+            sevalue_to_native(args[0], &bufferInfo, s.thisObject());
+            cobj->initialize(bufferInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());
@@ -289,11 +292,13 @@ static bool js_gfx_Texture_initialize(se::State &s) { // NOLINT(readability-iden
         seval_to_boolean(args[1], &initWithTextureViewInfo);
 
         if (initWithTextureViewInfo) {
-            auto *textureViewInfo = static_cast<cc::gfx::TextureViewInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*textureViewInfo);
+            cc::gfx::TextureViewInfo textureViewInfo;
+            sevalue_to_native(args[0], &textureViewInfo, s.thisObject());
+            cobj->initialize(textureViewInfo);
         } else {
-            auto *textureInfo = static_cast<cc::gfx::TextureInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*textureInfo);
+            cc::gfx::TextureInfo textureInfo;
+            sevalue_to_native(args[0], &textureInfo, s.thisObject());
+            cobj->initialize(textureInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());

@@ -137,22 +137,6 @@ void ForwardStage::dispenseRenderObject2Queues() {
     }
 }
 
-void ForwardStage::recordCommands(scene::Camera *camera, gfx::RenderPass *renderPass) {
-    auto *                    cmdBuff       = _pipeline->getCommandBuffers()[0];
-    const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
-    cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), static_cast<uint>(globalOffsets.size()), globalOffsets.data());
-    if (!_pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
-        _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
-        _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-        _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-        _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-        _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-        _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
-    }
-    _uiPhase->render(camera, renderPass);
-    renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera->window->swapchain);
-}
-
 void ForwardStage::render(scene::Camera *camera) {
     struct RenderData {
         framegraph::TextureHandle backBuffer;
@@ -238,8 +222,21 @@ void ForwardStage::render(scene::Camera *camera) {
         builder.setViewport(viewport, _renderArea);
     };
 
-    auto forwardExec = [this, camera](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
-        recordCommands(camera, table.getRenderPass());
+    auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
+    auto forwardExec = [this, camera, offset](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
+        auto *                    renderPass    = table.getRenderPass();
+        auto *                    cmdBuff       = _pipeline->getCommandBuffers()[0];
+        cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
+        if (!_pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
+            _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
+        }
+        _uiPhase->render(camera, renderPass);
+        renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera->window->swapchain);
     };
 
     // add pass

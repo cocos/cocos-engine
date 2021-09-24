@@ -54,6 +54,14 @@ public:
     inline void setInstanceCount(uint32_t count) { _drawInfo.instanceCount = count; }
     inline void setFirstInstance(uint32_t first) { _drawInfo.firstInstance = first; }
 
+    inline uint32_t getVertexCount() const { return _drawInfo.vertexCount; }
+    inline uint32_t getFirstVertex() const { return _drawInfo.firstVertex; }
+    inline uint32_t getIndexCount() const { return _drawInfo.indexCount; }
+    inline uint32_t getFirstIndex() const { return _drawInfo.firstIndex; }
+    inline uint32_t getVertexOffset() const { return _drawInfo.vertexOffset; }
+    inline uint32_t getInstanceCount() const { return _drawInfo.instanceCount; }
+    inline uint32_t getFirstInstance() const { return _drawInfo.firstInstance; }
+
 protected:
     virtual void doInit(const InputAssemblerInfo &info) = 0;
     virtual void doDestroy()                            = 0;

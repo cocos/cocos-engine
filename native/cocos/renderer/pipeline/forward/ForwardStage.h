@@ -52,7 +52,6 @@ public:
 
 private:
     void                      dispenseRenderObject2Queues();
-    void                      recordCommands(scene::Camera *camera, gfx::RenderPass *renderPass);
     static RenderStageInfo    initInfo;
     ForwardPipeline *         _forwrdPipeline     = nullptr;
     PlanarShadowQueue *       _planarShadowQueue  = nullptr;
