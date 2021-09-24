@@ -36,6 +36,7 @@ import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
 import { PostprocessStage } from '../common/postprocess-stage';
+import { macro } from '../..';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -64,16 +65,26 @@ export class ForwardFlow extends RenderFlow {
         return true;
     }
 
-    public activate (pipeline: RenderPipeline) {
-        if(!(this._stages[this._stages.length - 1] instanceof PostprocessStage)) {
+    protected _addPostStage () {
+        if (!(this._stages[this._stages.length - 1] instanceof PostprocessStage)) {
             this.postprocessStage = new PostprocessStage();
             this.postprocessStage.initialize(PostprocessStage.initInfo);
+            this.postprocessStage.enabled = false;
             this._stages.push(this.postprocessStage);
         }
+    }
+
+    public activate (pipeline: RenderPipeline) {
+        this._addPostStage();
         super.activate(pipeline);
     }
 
     public render (camera: Camera) {
+        if (macro.ENABLE_ANTIALIAS_FXAA) {
+            this._stages[this._stages.length - 1].enabled = true;
+        } else {
+            this._stages[this._stages.length - 1].enabled = false;
+        }
         super.render(camera);
     }
 

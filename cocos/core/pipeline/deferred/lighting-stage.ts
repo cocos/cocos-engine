@@ -251,7 +251,7 @@ export class LightingStage extends RenderStage {
         }
 
         colors[0].w = 0;
-        const deferredData = pipeline.getPipelineRenderData() as DeferredRenderData;
+        const deferredData = pipeline.getPipelineRenderData();
         const framebuffer = deferredData.outputFrameBuffer;
         const renderPass = framebuffer.renderPass;
 

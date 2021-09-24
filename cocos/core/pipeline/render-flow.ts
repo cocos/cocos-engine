@@ -143,7 +143,7 @@ export abstract class RenderFlow {
      */
     public render (camera: Camera) {
         for (let i = 0, len = this._stages.length; i < len; i++) {
-            this._stages[i].render(camera);
+            if (this._stages[i].enabled) this._stages[i].render(camera);
         }
     }
 

@@ -31,7 +31,7 @@
 import { ccclass } from 'cc.decorator';
 import { Color, Rect, Framebuffer } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { ForwardStagePriority } from '../forward/enum';
+import { ForwardStagePriority } from '../common/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';

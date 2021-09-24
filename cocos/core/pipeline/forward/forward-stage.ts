@@ -48,7 +48,7 @@ import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization'
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from '../common/ui-phase';
 import { Camera } from '../../renderer/scene';
-import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
+import { macro } from '../..';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -114,7 +114,7 @@ export class ForwardStage extends RenderStage {
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
         this._planarQueue = new PlanarShadowQueue(this._pipeline);
-        if(!pipeline.postRenderPass) this._uiPhase.activate(pipeline);
+        if (!pipeline.postRenderPass) this._uiPhase.activate(pipeline);
     }
 
     public destroy () {
@@ -166,7 +166,7 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
         const sceneData = pipeline.pipelineSceneData;
         this._renderArea = pipeline.generateRenderArea(camera);
-        if(pipeline.postRenderPass) pipeline.updateQuadVertexData(this._renderArea, camera.window!);
+        if (macro.ENABLE_ANTIALIAS_FXAA) pipeline.updateQuadVertexData(this._renderArea, camera.window!);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (sceneData.isHDR) {
@@ -186,8 +186,8 @@ export class ForwardStage extends RenderStage {
 
         const swapchain = camera.window!.swapchain;
         let framebuffer = camera.window!.framebuffer;
-        let renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain) : framebuffer.renderPass;
-        if(pipeline.postRenderPass && swapchain) {
+        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain) : framebuffer.renderPass;
+        if (macro.ENABLE_ANTIALIAS_FXAA && swapchain) {
             const forwardData = pipeline.getPipelineRenderData();
             framebuffer = forwardData.outputFrameBuffer;
         }
@@ -203,7 +203,7 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
-        if(!pipeline.postRenderPass || !swapchain) {
+        if (!macro.ENABLE_ANTIALIAS_FXAA || !swapchain) {
             this._uiPhase.render(camera, renderPass);
             renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, swapchain);
         }

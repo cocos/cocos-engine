@@ -112,7 +112,6 @@ export abstract class RenderPipeline extends Asset {
     @serializable
     protected _flows: RenderFlow[] = [];
 
-
     protected _quadIB: Buffer | null = null;
     protected _quadVBOnscreen: Buffer | null = null;
     protected _quadVBOffscreen: Buffer | null = null;
@@ -123,7 +122,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh
      * 四边形输入汇集器。
      */
-     public get quadIAOnscreen (): InputAssembler {
+    public get quadIAOnscreen (): InputAssembler {
         return this._quadIAOnscreen!;
     }
 
@@ -218,7 +217,6 @@ export abstract class RenderPipeline extends Asset {
         if (info.tag) { this._tag = info.tag; }
         return true;
     }
-
 
     public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
@@ -320,7 +318,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh
      * 销毁四边形输入汇集器。
      */
-     protected _destroyQuadInputAssembler () {
+    protected _destroyQuadInputAssembler () {
         if (this._quadIB) {
             this._quadIB.destroy();
             this._quadIB = null;
@@ -400,7 +398,7 @@ export abstract class RenderPipeline extends Asset {
      * @zh
      * 创建四边形输入汇集器。
      */
-     protected _createQuadInputAssembler (): PipelineInputAssemblerData {
+    protected _createQuadInputAssembler (): PipelineInputAssemblerData {
         // create vertex buffer
         const inputAssemblerData = new PipelineInputAssemblerData();
 
@@ -456,7 +454,7 @@ export abstract class RenderPipeline extends Asset {
         inputAssemblerData.quadIA = quadIA;
         return inputAssemblerData;
     }
-    
+
     public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
         if (this._lastUsedRenderArea === renderArea) {
             return;

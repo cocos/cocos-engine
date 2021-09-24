@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
- import { JSB } from 'internal:constants';
+import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
@@ -44,10 +44,9 @@ export class DeferredPipelineSceneData extends CommonPipelineSceneData {
     protected declare _deferredLightingMaterial: Material;
     protected declare _deferredPostMaterial: Material;
 
-    protected updatePipelinePassInfo() {
+    protected updatePipelinePassInfo () {
         super.updatePipelinePassInfo();
         this.updateDeferredPassInfo();
-
     }
 
     public onGlobalPipelineStateChanged () {

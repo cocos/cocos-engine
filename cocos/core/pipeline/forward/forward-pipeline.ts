@@ -68,7 +68,7 @@ export class ForwardPipeline extends RenderPipeline {
 
     protected _postRenderPass: RenderPass | null = null;
 
-    public get postRenderPass(): RenderPass | null {
+    public get postRenderPass (): RenderPass | null {
         return this._postRenderPass;
     }
 
@@ -128,12 +128,11 @@ export class ForwardPipeline extends RenderPipeline {
         }
         this._commandBuffers[0].begin();
         this._ensureEnoughSize(cameras);
-        this._pipelineUBO.updateGlobalUBO(cameras[0].window!);
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
                 sceneCulling(this, camera);
-                
+                this._pipelineUBO.updateGlobalUBO(camera.window!);
                 this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
@@ -141,7 +140,6 @@ export class ForwardPipeline extends RenderPipeline {
             }
         }
         this._commandBuffers[0].end();
-        // this._device.flushCommands(this._commandBuffers);
         this._device.queue.submit(this._commandBuffers);
     }
 
@@ -204,7 +202,6 @@ export class ForwardPipeline extends RenderPipeline {
         this._quadIAOnscreen = inputAssemblerDataOnscreen.quadIA;
 
         if (!this._postRenderPass) {
-            
             const colorAttachment = new ColorAttachment();
             colorAttachment.format = Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
@@ -217,8 +214,6 @@ export class ForwardPipeline extends RenderPipeline {
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-            // depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
-            // depthStencilAttachment.endAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
             const renderPassInfo = new RenderPassInfo(
                 [colorAttachment],
                 depthStencilAttachment,
