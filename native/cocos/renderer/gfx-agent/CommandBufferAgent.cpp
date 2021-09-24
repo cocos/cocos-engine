@@ -83,6 +83,8 @@ CommandBufferAgent::~CommandBufferAgent() {
 void CommandBufferAgent::initMessageQueue() {
     DeviceAgent *device = DeviceAgent::getInstance();
     device->_cmdBuffRefs.insert(this);
+    // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
+    _messageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue));
 
     // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
     _messageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue));
@@ -414,7 +416,8 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             actor->copyBuffersToTexture(buffers, dst, regions, count);
             // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
             _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
-            allocator = nullptr; });
+            allocator = nullptr;
+        });
 }
 
 void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {

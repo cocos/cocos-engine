@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <cstddef>
 #include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 
@@ -109,6 +110,7 @@ void DeviceAgent::doDestroy() {
     }
 
     _mainMessageQueue->terminateConsumerThread();
+
     // NOTE: C++17 required when enable alignment
     // TODO(PatriceJiang): replace with: CC_SAFE_DELETE(_mainMessageQueue);
     _CC_DELETE_T_ALIGN(_mainMessageQueue, MessageQueue, alignof(MessageQueue)); // NOLINT
@@ -302,7 +304,8 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
             actor->copyBuffersToTexture(buffers, dst, regions, count);
             // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
             _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
-            allocator = nullptr; });
+            allocator = nullptr;
+        });
 }
 
 void DeviceAgent::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {

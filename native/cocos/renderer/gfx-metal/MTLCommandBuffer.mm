@@ -302,7 +302,9 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
             descriptor.stencilAttachment.storeAction = subpass.stencilResolveMode == ResolveMode::NONE ? MTLStoreActionMultisampleResolve : MTLStoreActionStoreAndMultisampleResolve;
 
             descriptor.depthAttachment.depthResolveFilter = mu::toMTLDepthResolveMode(subpass.depthResolveMode);
-            descriptor.stencilAttachment.stencilResolveFilter = mu::toMTLStencilResolveMode(subpass.stencilResolveMode);
+            if (@available(iOS 12.0, *)) {
+                descriptor.stencilAttachment.stencilResolveFilter = mu::toMTLStencilResolveMode(subpass.stencilResolveMode);
+            }
         }
     }
 }

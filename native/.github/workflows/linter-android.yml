@@ -50,7 +50,7 @@ jobs:
               - added|modified: '**/*.m'
               - added|modified: '**/*.mm'
               - added|modified: '**/*.c'
-              - exclude: 'cocos/editor-support/dragonbones/**'
+              - exclude: 'cocos/editor-support/**'
               - exclude: 'cocos/base/etc1.*'
               - exclude: 'cocos/base/etc2.*'
               - exclude: 'cocos/bindings/manual/jsb_global.cpp'
@@ -61,7 +61,7 @@ jobs:
               - added|modified|deleted: '**'
             skipedDebug:
               - added|modified|deleted: '**'
-              - exclude: 'cocos/editor-support/dragonbones/**'
+              - exclude: 'cocos/editor-support/**'
       - name: Install CMake & Clang Tidy
         run: |
           sudo apt install -y cmake llvm clang-tidy-11

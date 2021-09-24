@@ -39,6 +39,9 @@ namespace gfx {
 class CCMTLGPUShader;
 class CCMTLDevice;
 namespace mu {
+
+API_AVAILABLE(ios(12.0)) MTLMultisampleStencilResolveFilter toMTLStencilResolveMode(ResolveMode mode);
+
 MTLResourceOptions toMTLResourceOption(MemoryUsage usage);
 MTLLoadAction toMTLLoadAction(LoadOp op);
 MTLStoreAction toMTLStoreAction(StoreOp op);
@@ -47,7 +50,6 @@ MTLClearColor toMTLClearColor(const Color &clearColor);
 MTLVertexFormat toMTLVertexFormat(Format, bool);
 MTLPixelFormat toMTLPixelFormat(Format);
 MTLMultisampleDepthResolveFilter toMTLDepthResolveMode(ResolveMode mode);
-MTLMultisampleStencilResolveFilter toMTLStencilResolveMode(ResolveMode mode);
 // Because some pixel format is not supported on metal, so need to convert to supported pixel format.
 Format convertGFXPixelFormat(Format);
 MTLColorWriteMask toMTLColorWriteMask(ColorMask);
