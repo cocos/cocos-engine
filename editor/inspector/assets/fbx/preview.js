@@ -414,7 +414,7 @@ exports.ready = function() {
     panel.resizeObserver = new window.ResizeObserver(observer);
     panel.resizeObserver.observe(panel.$.container);
 
-    this.onSubAniChangeBind = this.onSubAniChange.bind(this);
+    this.onAssetChangeBind = this.onAssetChange.bind(this);
     this.addAssetChangeListener(true);
 
     this.events = events;
@@ -645,7 +645,7 @@ exports.methods = {
             // update animation events, clipInfo.clipUUID may be undefined
             if (clipInfo.clipUUID) {
                 const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
-                this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
+                this.curEditClipInfo.userData = this.meta.subMetas[subId] && this.meta.subMetas[subId].userData || {};
                 this.updateEventInfo();
             }
 
@@ -668,20 +668,17 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onSubAniChange(uuid) {
-        if (!this.animationNameToUUIDMap || !this.animationNameToUUIDMap.size) {
-            return;
-        }
-        if (Array.from((this.animationNameToUUIDMap.values())).includes((uuid))) {
-            // 主动更新动画 dump 信息
+    async onAssetChange(uuid) {
+        if (this.asset.uuid === uuid) {
+            // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);
             await this.onEditClipInfoChanged(clipInfo);
