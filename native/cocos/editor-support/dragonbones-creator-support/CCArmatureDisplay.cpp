@@ -368,8 +368,9 @@ void CCArmatureDisplay::traverseArmature(Armature *armature, float parentOpacity
         for (int v = 0, w = 0, vn = triangles.vertCount; v < vn; ++v, w += 2) {
             middleware::V2F_T2F_C4F *vertex = triangles.verts + v;
             middleware::V2F_T2F_C4F *worldVertex = worldTriangles + v;
-            worldVertex->vertex.x = vertex->vertex.x * worldMatrix->m[0] + vertex->vertex.y * worldMatrix->m[4] + worldMatrix->m[12];
-            worldVertex->vertex.y = vertex->vertex.x * worldMatrix->m[1] + vertex->vertex.y * worldMatrix->m[5] + worldMatrix->m[13];
+
+            vertex->vertex.z = 0;//reset for z value
+            worldVertex->vertex.transformMat4(vertex->vertex, *worldMatrix);
 
             worldVertex->color.r = r;
             worldVertex->color.g = g;

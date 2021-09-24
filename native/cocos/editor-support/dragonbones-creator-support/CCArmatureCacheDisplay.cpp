@@ -281,8 +281,7 @@ void CCArmatureCacheDisplay::render(float dt) {
                 point = (cc::Vec3 *)(dstVertexBuffer + posIndex);
                 // force z value to zero
                 point->z = 0;
-                point->x = point->x * nodeWorldMat.m[0] + point->y * nodeWorldMat.m[4] + nodeWorldMat.m[12]; // x
-                point->y = point->y * nodeWorldMat.m[1] + point->y * nodeWorldMat.m[5] + nodeWorldMat.m[13]; // y
+                point->transformMat4(*point, nodeWorldMat);
             }
         }
 
