@@ -1047,23 +1047,20 @@ export class BaseNode extends CCObject implements ISchedulable {
      * Register a callback of a specific event type on Node.
      * Use this method to register touch or mouse event permit propagation based on scene graph,
      * These kinds of event are triggered with dispatchEvent, the dispatch process has three steps:
-     * 1. Capturing phase: dispatch in capture targets (`_getCapturingTargets`), e.g. parents in node tree, from root to the real target
+     * 1. Capturing phase: dispatch in capture targets, e.g. parents in node tree, from root to the real target
      * 2. At target phase: dispatch to the listeners of the real target
-     * 3. Bubbling phase: dispatch in bubble targets (`_getBubblingTargets`), e.g. parents in node tree, from the real target to root
+     * 3. Bubbling phase: dispatch in bubble targets, e.g. parents in node tree, from the real target to root
      * In any moment of the dispatching process, it can be stopped via `event.stopPropagation()` or `event.stopPropagationImmediate()`.
-     * It's the recommended way to register touch/mouse event for Node,
-     * please do not use `eventManager` directly for Node.
      * You can also register custom event and use `emit` to trigger custom event on Node.
      * For such events, there won't be capturing and bubbling phase, your event will be dispatched directly to its listeners registered on the same node.
      * You can also pass event callback parameters with `emit` by passing parameters after `type`.
      * @zh
      * 在节点上注册指定类型的回调函数，也可以设置 target 用于绑定响应函数的 this 对象。
      * 鼠标或触摸事件会被系统调用 dispatchEvent 方法触发，触发的过程包含三个阶段：
-     * 1. 捕获阶段：派发事件给捕获目标（通过 `_getCapturingTargets` 获取），比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。
+     * 1. 捕获阶段：派发事件给捕获目标，比如，节点树中注册了捕获阶段的父节点，从根节点开始派发直到目标节点。
      * 2. 目标阶段：派发给目标节点的监听器。
-     * 3. 冒泡阶段：派发事件给冒泡目标（通过 `_getBubblingTargets` 获取），比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发直到根节点。
+     * 3. 冒泡阶段：派发事件给冒泡目标，比如，节点树中注册了冒泡阶段的父节点，从目标节点开始派发直到根节点。
      * 同时您可以将事件派发到父节点或者通过调用 stopPropagation 拦截它。
-     * 推荐使用这种方式来监听节点上的触摸或鼠标事件，请不要在节点上直接使用 `eventManager`。
      * 你也可以注册自定义事件到节点上，并通过 emit 方法触发此类事件，对于这类事件，不会发生捕获冒泡阶段，只会直接派发给注册在该节点上的监听器
      * 你可以通过在 emit 方法调用时在 type 之后传递额外的参数作为事件回调的参数列表
      * @param type - A string representing the event type to listen for.<br>See {{#crossLink "Node/EventType/POSITION_CHANGED"}}Node Events{{/crossLink}} for all builtin events.

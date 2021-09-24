@@ -38,7 +38,6 @@ import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event';
 import { input } from '../input';
-import { eventManager } from '../input/event-manager';
 import { game, Game } from './game';
 import { v2, Vec2 } from './math';
 import { Root } from './root';
@@ -330,11 +329,6 @@ export class Director extends EventTarget {
 
         this._nodeActivator.reset();
 
-        // Disable event dispatching
-        if (eventManager) {
-            eventManager.setEnabled(false);
-        }
-
         if (!EDITOR) {
             if (legacyCC.isValid(this._scene)) {
                 this._scene!.destroy();
@@ -356,10 +350,6 @@ export class Director extends EventTarget {
         this.purgeDirector();
 
         this.emit(Director.EVENT_RESET);
-
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
 
         this.startAnimation();
     }
@@ -766,7 +756,6 @@ export class Director extends EventTarget {
             this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
-            eventManager.frameUpdateListeners();
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
             this.emit(Director.EVENT_END_FRAME);
@@ -777,11 +766,6 @@ export class Director extends EventTarget {
     private _initOnRendererInitialized () {
         this._totalFrames = 0;
         this._paused = false;
-
-        // Event manager
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
 
         // Scheduler
         // TODO: have a solid organization of priority and expose to user

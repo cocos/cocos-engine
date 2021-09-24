@@ -34,6 +34,7 @@ import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
+import { visible } from './decorators/editable';
 
 // definitions for CCObject.Flags
 
@@ -243,6 +244,7 @@ class CCObject implements EditorExtendableObject {
         return this._objFlags & CCObject.Flags.AllHideMasks;
     }
 
+    @visible(false)
     public set replicated (value: boolean) {
         if (value) {
             this._objFlags |= IsReplicated;

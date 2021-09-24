@@ -507,7 +507,7 @@ export class Shadows {
         } else {
             const root = legacyCC.director.root;
             const pipeline = root.pipeline;
-            pipeline.macros.CC_RECEIVE_SHADOW = 0;
+            pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
             root.onGlobalPipelineStateChanged();
         }
     }
@@ -530,14 +530,14 @@ export class Shadows {
 
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
-        pipeline.macros.CC_RECEIVE_SHADOW = 0;
+        pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
         root.onGlobalPipelineStateChanged();
     }
 
     protected _updatePipeline () {
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
-        pipeline.macros.CC_RECEIVE_SHADOW = 1;
+        pipeline.macros.CC_ENABLE_DIR_SHADOW = 1;
         root.onGlobalPipelineStateChanged();
     }
 

@@ -409,8 +409,7 @@ export enum TextureUsageBit {
 export enum TextureFlagBit {
     NONE           = 0,
     GEN_MIPMAP     = 0x1, // Generate mipmaps using bilinear filter
-    RESIZABLE      = 0x2, // Make the texture resizable, should be avoided whenever possible
-    GENERAL_LAYOUT = 0x4, // For inout framebuffer attachments
+    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
 }
 
 export enum SampleCount {

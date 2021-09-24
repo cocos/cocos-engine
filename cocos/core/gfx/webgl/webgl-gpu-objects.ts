@@ -28,7 +28,7 @@ import {
     DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,
     Attribute, ColorAttachment, DepthStencilAttachment,
-    UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding, DrawInfo,
+    UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding, DrawInfo, UniformInputAttachment,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
 
@@ -229,6 +229,7 @@ export interface IWebGLGPUShader {
     name: string;
     blocks: UniformBlock[];
     samplerTextures: UniformSamplerTexture[];
+    subpassInputs: UniformInputAttachment[];
 
     gpuStages: IWebGLGPUShaderStage[];
     glProgram: WebGLProgram | null;

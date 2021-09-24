@@ -45,8 +45,9 @@ export class WebGL2Shader extends Shader {
 
         this._gpuShader = {
             name: info.name,
-            blocks: info.blocks,
-            samplerTextures: info.samplerTextures,
+            blocks: info.blocks.slice(),
+            samplerTextures: info.samplerTextures.slice(),
+            subpassInputs: info.subpassInputs.slice(),
 
             gpuStages: new Array<IWebGL2GPUShaderStage>(info.stages.length),
             glProgram: null,
