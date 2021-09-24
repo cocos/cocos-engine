@@ -55,6 +55,15 @@ export class PoseBlend2D extends EditorExtendable implements PoseBlend {
         this._thresholds = thresholds.slice().map((threshold) => threshold.clone());
     }
 
+    public clone () {
+        const that = new PoseBlend2D();
+        that.poses = this.poses.map((pose) => pose?.clone() ?? null);
+        that._thresholds = this._thresholds.slice();
+        that.paramX = this.paramX.clone();
+        that.paramY = this.paramY.clone();
+        return that;
+    }
+
     public [createEval] (context: PoseEvalContext) {
         const evaluation = new PoseBlend2DDEval(context, this.poses, this.thresholds, this.algorithm, [0.0, 0.0]);
         const initialValueX = bindOr(

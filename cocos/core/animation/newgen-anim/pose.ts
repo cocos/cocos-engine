@@ -23,4 +23,6 @@ export interface PoseEval {
 
 export interface Pose {
     [createEval] (context: PoseEvalContext): PoseEval | null;
+
+    clone(): Pose;
 }

@@ -354,6 +354,47 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
         this.eraseOutgoings(node);
     }
 
+    public clone () {
+        const that = new PoseSubgraph();
+        const nodeMap = new Map<GraphNode, GraphNode>();
+        for (const node of this._nodes) {
+            switch (node) {
+            case this._entryNode:
+                nodeMap.set(node, that._entryNode);
+                break;
+            case this._exitNode:
+                nodeMap.set(node, that._exitNode);
+                break;
+            case this._anyNode:
+                nodeMap.set(node, that._anyNode);
+                break;
+            default:
+                if (node instanceof PoseNode || node instanceof PoseSubgraph) {
+                    const thatNode = node.clone();
+                    that._addNode(thatNode);
+                    nodeMap.set(node, thatNode);
+                } else {
+                    assertIsTrue(false);
+                }
+                break;
+            }
+        }
+        for (const transition of this._transitions) {
+            const thatFrom = nodeMap.get(transition.from);
+            const thatTo = nodeMap.get(transition.to);
+            assertIsTrue(thatFrom && thatTo);
+            const thatTransition = that.connect(thatFrom, thatTo) as Transition;
+            thatTransition.conditions = transition.conditions.map((condition) => condition.clone());
+            if (thatTransition instanceof PoseTransition) {
+                assertIsTrue(transition instanceof PoseTransition);
+                thatTransition.duration = transition.duration;
+                thatTransition.exitConditionEnabled = transition.exitConditionEnabled;
+                thatTransition.exitCondition = transition.exitCondition;
+            }
+        }
+        return that;
+    }
+
     private _addNode<T extends GraphNode> (node: T) {
         own(node, this);
         this._nodes.push(node);

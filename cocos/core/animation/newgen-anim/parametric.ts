@@ -8,6 +8,8 @@ export interface Bindable<TValue> {
     value: TValue;
 
     variable: string;
+
+    clone(): Bindable<TValue>;
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableNumber`)
@@ -21,6 +23,13 @@ export class BindableNumber implements Bindable<number> {
     constructor (value = 0.0) {
         this.value = value;
     }
+
+    public clone (): Bindable<number> {
+        const that = new BindableNumber();
+        that.value = this.value;
+        that.variable = this.variable;
+        return that;
+    }
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}BindableBoolean`)
@@ -33,6 +42,13 @@ export class BindableBoolean implements Bindable<boolean> {
 
     constructor (value = false) {
         this.value = value;
+    }
+
+    public clone (): Bindable<boolean> {
+        const that = new BindableBoolean();
+        that.value = this.value;
+        that.variable = this.variable;
+        return that;
     }
 }
 

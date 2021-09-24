@@ -9,6 +9,7 @@ import type { Value } from './variable';
 export type ConditionEvalContext = BindContext;
 
 export interface Condition {
+    clone (): Condition;
     [createEval] (context: BindContext): ConditionEval;
 }
 
@@ -40,6 +41,14 @@ export class BinaryCondition implements Condition {
 
     @serializable
     public rhs: BindableNumber = new BindableNumber();
+
+    public clone () {
+        const that = new BinaryCondition();
+        that.operator = this.operator;
+        that.lhs = this.lhs.clone();
+        that.rhs = this.rhs.clone();
+        return that;
+    }
 
     public [createEval] (context: BindContext) {
         const { operator, lhs, rhs } = this;
@@ -142,6 +151,13 @@ export class UnaryCondition implements Condition {
     @serializable
     public operand = new BindableBoolean();
 
+    public clone () {
+        const that = new UnaryCondition();
+        that.operator = this.operator;
+        that.operand = this.operand.clone();
+        return that;
+    }
+
     public [createEval] (context: ConditionEvalContext) {
         const { operator, operand } = this;
         const evaluation = new UnaryConditionEval(operator, 0.0);
@@ -206,6 +222,12 @@ class UnaryConditionEval implements ConditionEval {
 export class TriggerCondition implements Condition {
     @serializable
     public trigger!: string;
+
+    public clone () {
+        const that = new TriggerCondition();
+        that.trigger = this.trigger;
+        return that;
+    }
 
     [createEval] (context: BindContext): ConditionEval {
         const evaluation = new TriggerConditionEval(false);

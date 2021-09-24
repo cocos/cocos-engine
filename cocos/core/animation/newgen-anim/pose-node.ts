@@ -17,4 +17,13 @@ export class PoseNode extends InteractiveGraphNode {
 
     @serializable
     public loop = true;
+
+    public clone () {
+        const that = new PoseNode();
+        that.pose = this.pose?.clone() ?? null;
+        that.startRatio = this.startRatio.clone();
+        that.speed = this.speed.clone();
+        that.loop = this.loop;
+        return that;
+    }
 }

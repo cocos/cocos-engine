@@ -18,6 +18,12 @@ export class PoseBlendDirect extends EditorExtendable implements PoseBlend {
         this._poseAndWeights = [...children];
     }
 
+    public clone () {
+        const that = new PoseBlendDirect();
+        that._poseAndWeights = this._poseAndWeights.map(([pose, weight]) => [pose?.clone() ?? null, weight]);
+        return that;
+    }
+
     public [createEval] (context: PoseEvalContext) {
         const myEval = new PoseBlendDirectEval(
             context,

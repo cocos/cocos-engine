@@ -15,6 +15,12 @@ export class AnimatedPose extends EditorExtendable implements Pose {
     public [createEval] (context: PoseEvalContext) {
         return !this.clip ? null : new AnimatedPoseEval(context, this.clip);
     }
+
+    public clone () {
+        const that = new AnimatedPose();
+        that.clip = this.clip;
+        return that;
+    }
 }
 
 class AnimatedPoseEval implements PoseEval {
