@@ -25,6 +25,7 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../core/scene-graph/node';
 import { TransformBit } from '../core/scene-graph/node-enum';
@@ -88,10 +89,13 @@ export class ParticleCuller {
         this._model = null;
 
         this._initModuleList();
-        this._createBoundingMaterial();
-        this._createBoundingMesh();
-        this._createBoundingModel();
-        this._attachToScene();
+
+        if (EDITOR) {
+            this._createBoundingMaterial();
+            this._createBoundingMesh();
+            this._createBoundingModel();
+            this._attachToScene();
+        }
     }
 
     private _createBoundingMaterial () {
