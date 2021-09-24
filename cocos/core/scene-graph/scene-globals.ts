@@ -197,7 +197,13 @@ export class SkyboxInfo {
     protected _envmap: TextureCube | null = null;
     @serializable
     @type(TextureCube)
+    protected _envmap_ldr: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
     protected _diffusemap: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _diffusemap_ldr: TextureCube | null = null;
     @serializable
     protected _enabled = false;
     @serializable
@@ -286,7 +292,7 @@ export class SkyboxInfo {
         // Switch UI to and from LDR/HDR textures depends on HDR state
         if(this._resource)
         {
-            this.envmap = this._resource.envmap;
+            this._envmap = this._resource.envmap;
         }
 
         if (this._resource) { this._resource.useHDR = this._useHDR; }
@@ -303,8 +309,14 @@ export class SkyboxInfo {
     @editable
     @type(TextureCube)
     set envmap (val) {
-        this._envmap = val;
-        if (this._resource) { this._resource.envmap = this._envmap; }
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR) {
+            this._envmap = val;
+            if (this._resource) { this._resource.envmap = this._envmap; }
+        } else {
+            this._envmap_ldr = val;
+            if (this._resource) { this._resource.envmap = this._envmap_ldr; }           
+        }
         
         if(!this._envmap)
         {
@@ -315,11 +327,21 @@ export class SkyboxInfo {
 
         if (this._resource) {
             this._resource.useDiffusemap = this.applyDiffuseMap;
-            this._resource.diffusemap = this._diffusemap
+
+            if(isHDR) {
+                this._resource.diffusemap = this._diffusemap
+            } else {
+                this._resource.diffusemap = this._diffusemap_ldr;
+            }
         }
     }
     get envmap () {
-        return this._envmap;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR) {
+            return this._envmap;
+        } else {
+            return this._envmap_ldr;
+        }
     }
 
     /**
@@ -336,7 +358,12 @@ export class SkyboxInfo {
     @readOnly
     @type(TextureCube)
     set diffusemap(val : TextureCube | null) { 
-        this._diffusemap = val;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR) {
+            this._diffusemap = val;
+        } else {
+            this._diffusemap_ldr = val;
+        }
 
         // The diffusion relfection convolution as been set by the editor at this time, so we can pass it to skybox.ts
         if(this._resource) {
@@ -344,7 +371,12 @@ export class SkyboxInfo {
         }
     }
     get diffusemap() {
-        return this._diffusemap;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if(isHDR) {
+            return this._diffusemap;
+        } else {
+            return this._diffusemap_ldr;
+        }
     }
 
     public activate (resource: Skybox) {
