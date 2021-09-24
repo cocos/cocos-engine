@@ -155,11 +155,9 @@ class PointerEventDispatcher {
     private _sortByPriority (p1: NodeEventProcessor, p2: NodeEventProcessor) {
         const node1: Node = p1.node;
         const node2: Node = p2.node;
-        // @ts-expect-error _activeInHierarchy is a protected property
-        if (!p2 || !node2 || !node2._activeInHierarchy || !node2._uiProps.uiTransformComp) {
+        if (!p2 || !node2 || !node2.activeInHierarchy || !node2._uiProps.uiTransformComp) {
             return -1;
-        // @ts-expect-error _activeInHierarchy is a protected property
-        } else if (!p1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
+        } else if (!p1 || !node1 || !node1.activeInHierarchy || !node1._uiProps.uiTransformComp) {
             return 1;
         }
 
