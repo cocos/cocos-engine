@@ -192,10 +192,10 @@ export class PrefabInfo {
     @type([TargetOverrideInfo])
     public targetOverrides?: TargetOverrideInfo[];
 
-    // restore outMost prefabInstance nodes in children
-    // calculated when saving sceneAsset or prefabAsset
+    // record outMost prefabInstance nodes in descendants
+    // collected when saving sceneAsset or prefabAsset
     @serializable
-    public instanceChildren?: Node[];
+    public nestedPrefabInstanceRoots?: Node[];
 }
 
 legacyCC._PrefabInfo = PrefabInfo;

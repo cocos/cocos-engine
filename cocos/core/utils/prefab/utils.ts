@@ -206,7 +206,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     // @ts-expect-error private member access
                     childNode._siblingIndex = target._children.length - 1;
-                    checkToExpandPrefabInstanceNode(childNode);
+                    expandPrefabInstanceNode(childNode);
                 }
             }
         }
@@ -394,25 +394,25 @@ export function applyTargetOverrides (node: BaseNode) {
     }
 }
 
-export function checkToExpandPrefabInstanceNode (node: BaseNode) {
+export function expandPrefabInstanceNode (node: BaseNode) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
 
-    if (prefabInfo && prefabInfo.instanceChildren) {
-        prefabInfo.instanceChildren.forEach((instanceChild: Node) => {
+    if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
+        prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
             // @ts-expect-error private member access
-            const childPrefabInstance = instanceChild._prefab?.instance;
+            const childPrefabInstance = instanceNode._prefab?.instance;
             if (childPrefabInstance) {
-                createNodeWithPrefab(instanceChild);
+                createNodeWithPrefab(instanceNode);
 
                 const targetMap: Record<string, any | Node | Component> = {};
                 childPrefabInstance.targetMap = targetMap;
-                generateTargetMap(instanceChild, targetMap, true);
+                generateTargetMap(instanceNode, targetMap, true);
 
-                applyMountedChildren(instanceChild, childPrefabInstance.mountedChildren, targetMap);
-                applyRemovedComponents(instanceChild, childPrefabInstance.removedComponents, targetMap);
-                applyMountedComponents(instanceChild, childPrefabInstance.mountedComponents, targetMap);
-                applyPropertyOverrides(instanceChild, childPrefabInstance.propertyOverrides, targetMap);
+                applyMountedChildren(instanceNode, childPrefabInstance.mountedChildren, targetMap);
+                applyRemovedComponents(instanceNode, childPrefabInstance.removedComponents, targetMap);
+                applyMountedComponents(instanceNode, childPrefabInstance.mountedComponents, targetMap);
+                applyPropertyOverrides(instanceNode, childPrefabInstance.propertyOverrides, targetMap);
             }
         });
     }

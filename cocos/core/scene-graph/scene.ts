@@ -38,7 +38,7 @@ import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides, checkToExpandPrefabInstanceNode } from '../utils/prefab/utils';
+import { applyTargetOverrides, expandPrefabInstanceNode } from '../utils/prefab/utils';
 import { NativeScene } from '../renderer/scene/native-scene';
 
 /**
@@ -275,7 +275,7 @@ export class Scene extends BaseNode {
                 assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
 
-            checkToExpandPrefabInstanceNode(this);
+            expandPrefabInstanceNode(this);
             applyTargetOverrides(this);
             this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;
