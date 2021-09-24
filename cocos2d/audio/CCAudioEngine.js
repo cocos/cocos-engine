@@ -29,7 +29,7 @@ const Audio = require('./CCAudio');
 const AudioClip = require('../core/assets/CCAudioClip');
 const js = cc.js;
 
-let _instanceId = 0;
+let _instanceId = 1;
 let _id2audio = js.createMap(true);
 let _url2id = {};
 let _audioPool = [];
