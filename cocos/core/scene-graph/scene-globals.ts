@@ -59,11 +59,11 @@ export class AmbientInfo {
 
     //LDR
     @serializable
-    protected _skyColor_ldr = new Color(51, 128, 204, 1.0);
+    protected _skyColor_ldr = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     @serializable
     protected _skyIllum_ldr = Ambient.SKY_ILLUM;
     @serializable
-    protected _groundAlbedo_ldr = new Color(51, 51, 51, 255);
+    protected _groundAlbedo_ldr = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
 
     protected _resource: Ambient | null = null;
 
@@ -95,26 +95,25 @@ export class AmbientInfo {
     @editable
     set skyColor (val: Color) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        let clampColor = (x: number) => Math.min(x * 255, 255);
         if(isHDR)
         {
-            let clampColor = (x: number) => Math.min(x * 255, 255);
-
             Vec3.toArray(this._skyColor, val);
             this.normalizeHdrColor(this._skyColor);
 
             if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor[0]), clampColor(this._skyColor[1]), clampColor(this._skyColor[2]), 255.0); }
         } else {
-            this._skyColor_ldr.set(val);
-            if (this._resource) { this._resource.skyColor = this._skyColor_ldr; }
+            Vec3.toArray(this._skyColor_ldr, val);
+            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor[0]), clampColor(this._skyColor[1]), clampColor(this._skyColor[2]), 255.0); }
         }
     }
     get skyColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;       
+        let clampColor = (x: number) => Math.min(x * 255, 255);
         if(isHDR) {
-            let clampColor = (x: number) => Math.min(x * 255, 255);
             return new Color(clampColor(this._skyColor[0]), clampColor(this._skyColor[1]), clampColor(this._skyColor[2]), 255);
         } else {
-            return this._skyColor_ldr;
+            return  new Color(clampColor(this._skyColor_ldr[0]), clampColor(this._skyColor_ldr[1]), clampColor(this._skyColor_ldr[2]), 255);;
         }
     }
 
@@ -152,27 +151,27 @@ export class AmbientInfo {
     @editable
     set groundAlbedo (val: Color) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        let clampColor = (x: number) => Math.min(x * 255, 255);
         if(isHDR)
         {
-            let clampColor = (x: number) => Math.min(x * 255, 255);
-
             Vec3.toArray(this._groundAlbedo, val);
             this.normalizeHdrColor(this._groundAlbedo);
 
             if (this._resource) { this._resource.groundAlbedo = new Color(clampColor(this._groundAlbedo[0]), clampColor(this._groundAlbedo[1]), clampColor(this._groundAlbedo[2]), 255.0); }
         } else {
-            this._groundAlbedo_ldr.set(val);
+            Vec3.toArray(this._groundAlbedo_ldr, val);
+            if (this._resource) { this._resource.groundAlbedo = new Color(clampColor(this._groundAlbedo_ldr[0]), clampColor(this._groundAlbedo_ldr[1]), clampColor(this._groundAlbedo_ldr[2]), 255.0); }
         }
 
         if (this._resource) { this._resource.groundAlbedo = val; }
     }
     get groundAlbedo () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;       
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        let clampColor = (x: number) => Math.min(x * 255, 255);
         if(isHDR) {
-            let clampColor = (x: number) => Math.min(x * 255, 255);
             return new Color(clampColor(this._groundAlbedo[0]), clampColor(this._groundAlbedo[1]), clampColor(this._groundAlbedo[2]), 255);
         } else {
-            return this._groundAlbedo_ldr;
+            return new Color(clampColor(this._groundAlbedo_ldr[0]), clampColor(this._groundAlbedo_ldr[1]), clampColor(this._groundAlbedo_ldr[2]), 255);;
         }
     }
 
@@ -329,7 +328,7 @@ export class SkyboxInfo {
             this._resource.useDiffusemap = this.applyDiffuseMap;
 
             if(isHDR) {
-                this._resource.diffusemap = this._diffusemap
+                this._resource.diffusemap = this._diffusemap;
             } else {
                 this._resource.diffusemap = this._diffusemap_ldr;
             }
