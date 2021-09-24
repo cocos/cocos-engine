@@ -200,31 +200,11 @@ export class RenderWindow {
         if (this._swapchain) {
             this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
         } else {
-            if (this._depthStencilTexture) {
-                const dsTexInfo = new TextureInfo(
-                    this._depthStencilTexture.type,
-                    this._depthStencilTexture.usage,
-                    this._depthStencilTexture.format,
-                    width,
-                    height,
-                );
-                this._depthStencilTexture.destroy();
-                this._depthStencilTexture.initialize(dsTexInfo);
-            }
-
             for (let i = 0; i < this._colorTextures.length; i++) {
-                const colorTex = this._colorTextures[i];
-                if (colorTex) {
-                    const colorTexInfo = new TextureInfo(
-                        colorTex.type,
-                        colorTex.usage,
-                        colorTex.format,
-                        width,
-                        height,
-                    );
-                    colorTex.destroy();
-                    colorTex.initialize(colorTexInfo);
-                }
+                this._colorTextures[i].resize(width, height);
+            }
+            if (this._depthStencilTexture) {
+                this._depthStencilTexture.resize(width, height);
             }
         }
 
