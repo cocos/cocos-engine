@@ -414,7 +414,8 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             actor->copyBuffersToTexture(buffers, dst, regions, count);
             // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
             _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
-            allocator = nullptr; });
+            allocator = nullptr;
+        });
 }
 
 void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {

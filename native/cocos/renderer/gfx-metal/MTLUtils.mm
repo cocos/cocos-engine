@@ -477,6 +477,7 @@ MTLMultisampleDepthResolveFilter mu::toMTLDepthResolveMode(ResolveMode mode) {
     }
 }
 
+API_AVAILABLE(ios(12.0))
 MTLMultisampleStencilResolveFilter mu::toMTLStencilResolveMode(ResolveMode mode) {
     switch (mode) {
         case ResolveMode::SAMPLE_ZERO:
@@ -1083,7 +1084,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
         for(int i = maxIndex; i >=0; --i) {
             String indexStr = std::to_string(i);
-            output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[ function_constant(" + indexStr + ") ]];\n");
+            output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[function_constant(" + indexStr + ")]];\n");
             output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
         }
     }

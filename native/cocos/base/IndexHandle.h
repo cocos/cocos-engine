@@ -49,7 +49,7 @@ public:
     inline bool operator<(IndexHandle const &rhs) const noexcept;
     inline bool operator==(IndexHandle const &rhs) const noexcept;
     inline bool operator!=(IndexHandle const &rhs) const noexcept;
-    inline      operator IndexType() const noexcept; // NOLINT(google-explicit-constructor) we need this implicity
+    inline      operator IndexType() const noexcept; // NOLINT(google-explicit-constructor) we need this implicitly
 
     static IndexType constexpr UNINITIALIZED{std::numeric_limits<IndexType>::max()};
 

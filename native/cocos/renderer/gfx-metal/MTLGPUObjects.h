@@ -102,6 +102,9 @@ public:
     
     vector<CCMTLGPUSubpassAttachment> inputs;
     vector<CCMTLGPUSubpassAttachment> outputs;
+    
+    NSString *shaderSrc = nil;
+    bool specializeColor = true;
 };
 
 struct CCMTLGPUPipelineState {

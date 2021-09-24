@@ -28,10 +28,11 @@
 #include <atomic>
 #include <cstdint>
 #include <cstdlib>
+#include "../memory/Memory.h"
 
 namespace cc {
 
-class alignas(16) ThreadSafeLinearAllocator final {
+class ALIGNAS(16) ThreadSafeLinearAllocator final {
 public:
     explicit ThreadSafeLinearAllocator(uint32_t size) noexcept;
     ~ThreadSafeLinearAllocator();

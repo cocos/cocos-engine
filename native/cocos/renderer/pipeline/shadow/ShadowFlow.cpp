@@ -70,7 +70,7 @@ void ShadowFlow::render(scene::Camera *camera) {
 
     lightCollecting(camera, &_validLights);
 
-    if (sceneData->getDirShadowObjects().empty()) {
+    if (sceneData->getDirShadowObjects().empty() && sceneData->getRenderObjects().empty()) {
         clearShadowMap(camera);
         return;
     }
@@ -256,5 +256,6 @@ void ShadowFlow::destroy() {
 
     RenderFlow::destroy();
 }
+
 } // namespace pipeline
 } // namespace cc

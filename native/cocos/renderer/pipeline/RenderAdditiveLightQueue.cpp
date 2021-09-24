@@ -232,6 +232,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     const auto  validLightCount = _validLights.size();
     auto *const sceneData       = _pipeline->getPipelineSceneData();
     auto *const sharedData      = sceneData->getSharedData();
+    size_t      offset          = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
@@ -241,7 +242,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
         _firstLightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
     }
 
-    for (unsigned l = 0, offset = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
+    for (unsigned l = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
         auto *      light       = _validLights[l];
         const bool  isSpotLight = scene::LightType::SPOT == light->getType();
         const auto *spotLight   = isSpotLight ? static_cast<scene::SpotLight *>(light) : nullptr;

@@ -25,13 +25,12 @@
 
 // clang-format off
 #include "base/Macros.h"
+// clang-format: off
+#include <string>
 #include "uv.h"
 // clang-format on
 
 #include "jsb_global_init.h"
-#include <chrono>
-#include <regex>
-#include <sstream>
 #include <type_traits>
 #include <utility>
 
@@ -43,14 +42,17 @@
 #include "jsb_conversions.h"
 #include "xxtea/xxtea.h"
 
+#include <chrono>
+#include <regex>
+#include <sstream>
+#include <vector>
+
 using namespace cc; //NOLINT
 
 se::Object *__jsbObj = nullptr; //NOLINT
 se::Object *__glObj  = nullptr; //NOLINT
 
-namespace {
-std::basic_string<unsigned char> xxteaKey;
-}
+static std::basic_string<unsigned char> xxteaKey;
 
 void jsb_set_xxtea_key(const std::string &key) { //NOLINT
     xxteaKey.assign(key.begin(), key.end());
