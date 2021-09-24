@@ -29,7 +29,7 @@ const Audio = require('./CCAudio');
 const AudioClip = require('../core/assets/CCAudioClip');
 const js = cc.js;
 
-let _instanceId = 1;
+let _instanceId = 0;
 let _id2audio = js.createMap(true);
 let _url2id = {};
 let _audioPool = [];
@@ -56,7 +56,7 @@ let recycleAudio = function (audio) {
 };
 
 let getAudioFromPath = function (path) {
-    var id = _instanceId++;
+    var id = ++_instanceId;
     var list = _url2id[path];
     if (!list) {
         list = _url2id[path] = [];
