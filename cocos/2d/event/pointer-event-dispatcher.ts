@@ -23,11 +23,11 @@
  THE SOFTWARE.
 */
 
-import { Node } from './node';
+import { Node } from '../../core/scene-graph/node';
 import { Input, input, pointerEvent2SystemEvent } from '../../input';
 import { EventMouse, EventTouch } from '../../input/types';
-import { DispatcherEventType, NodeEventProcessor } from './node-event-processor';
-import { js } from '../utils/js';
+import { DispatcherEventType, NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { js } from '../../core/utils/js';
 import { InputEventType } from '../../input/types/event-enum';
 
 class PointerEventDispatcher {
