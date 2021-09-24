@@ -104,7 +104,7 @@ export class AmbientInfo {
             if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor[0]), clampColor(this._skyColor[1]), clampColor(this._skyColor[2]), 255.0); }
         } else {
             Vec3.toArray(this._skyColor_ldr, val);
-            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor[0]), clampColor(this._skyColor[1]), clampColor(this._skyColor[2]), 255.0); }
+            if (this._resource) { this._resource.skyColor = new Color(clampColor(this._skyColor_ldr[0]), clampColor(this._skyColor_ldr[1]), clampColor(this._skyColor_ldr[2]), 255.0); }
         }
     }
     get skyColor () {
