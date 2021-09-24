@@ -25,7 +25,7 @@
 
 import { nextPow2 } from '../../math/bits';
 import {
-    Address, DescriptorType, BufferUsage, Filter, Format, MemoryUsage, SampleCount,
+    Address, DescriptorType, BufferUsage, Filter, Format, MemoryUsage, SampleCount, UniformInputAttachment,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type, DynamicStateFlagBit, DrawInfo, Attribute,
     ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
 } from '../base/define';
@@ -232,6 +232,7 @@ export interface IWebGL2GPUShader {
     name: string;
     blocks: UniformBlock[];
     samplerTextures: UniformSamplerTexture[];
+    subpassInputs: UniformInputAttachment[];
 
     gpuStages: IWebGL2GPUShaderStage[];
     glProgram: WebGLProgram | null;

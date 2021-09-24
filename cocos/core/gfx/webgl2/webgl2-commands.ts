@@ -30,6 +30,7 @@ import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
     Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
+    UniformSamplerTexture,
 } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -1552,7 +1553,15 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         }
     }
 
-    // create uniform samplers
+    // WebGL doesn't support Framebuffer Fetch
+    for (let i = 0; i < gpuShader.subpassInputs.length; ++i) {
+        const subpassInput = gpuShader.subpassInputs[i];
+        gpuShader.samplerTextures.push(new UniformSamplerTexture(
+            subpassInput.set, subpassInput.binding, subpassInput.name, Type.SAMPLER2D, subpassInput.count,
+        ));
+    }
+
+    // create uniform sampler textures
     if (gpuShader.samplerTextures.length > 0) {
         gpuShader.glSamplerTextures = new Array<IWebGL2GPUUniformSamplerTexture>(gpuShader.samplerTextures.length);
 
