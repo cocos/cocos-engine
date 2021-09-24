@@ -31,9 +31,19 @@
 
 import { EventTarget } from '../core/event';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, SystemEventType, Touch } from './types';
-import { input, Input, touchEvent2SystemEvent } from './input';
+import { input, Input } from './input';
 import { legacyCC } from '../core/global-exports';
 import { InputEventType } from './types/event-enum';
+
+export const pointerEvent2SystemEvent = {
+    [InputEventType.TOUCH_START]: `system-event-${InputEventType.TOUCH_START}`,
+    [InputEventType.TOUCH_MOVE]: `system-event-${InputEventType.TOUCH_MOVE}`,
+    [InputEventType.TOUCH_END]: `system-event-${InputEventType.TOUCH_END}`,
+    [InputEventType.TOUCH_CANCEL]: `system-event-${InputEventType.TOUCH_CANCEL}`,
+    [InputEventType.MOUSE_DOWN]: `system-event-${InputEventType.MOUSE_DOWN}`,
+    [InputEventType.MOUSE_MOVE]: `system-event-${InputEventType.MOUSE_MOVE}`,
+    [InputEventType.MOUSE_UP]: `system-event-${InputEventType.MOUSE_UP}`,
+};
 
 export declare namespace SystemEvent {
     /**
@@ -121,7 +131,7 @@ export class SystemEvent extends EventTarget {
             registerMethod.call(input, InputEventType.KEY_PRESSING, callback, target, once);
         } else {
             // @ts-expect-error wrong type mapping
-            type = touchEvent2SystemEvent[type] || type;
+            type = pointerEvent2SystemEvent[type] || type;
             // @ts-expect-error wrong mapped type
             registerMethod.call(input, type, callback, target, once);
         }
@@ -147,7 +157,7 @@ export class SystemEvent extends EventTarget {
             input.off(InputEventType.KEY_PRESSING, callback, target);
         } else {
             // @ts-expect-error wrong type mapping
-            type = touchEvent2SystemEvent[type] || type;
+            type = pointerEvent2SystemEvent[type] || type;
             // @ts-expect-error wrong mapped type
             input.off(type, callback, target);
         }
