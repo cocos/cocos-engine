@@ -90,7 +90,7 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (idx: number, light: Light, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (idx: number, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
         this.clear();
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
