@@ -832,7 +832,7 @@ export const effects = [
         ],
         "blocks": [],
         "samplerTextures": [
-          { "name": "lighting_resultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
+          { "name": "outputResultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
         ],
         "buffers": [],
         "images": [],
