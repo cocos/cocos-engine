@@ -29,7 +29,7 @@ const Audio = require('./CCAudio');
 const AudioClip = require('../core/assets/CCAudioClip');
 const js = cc.js;
 
-let _instanceId = 0;
+let _instanceId = 1;
 let _id2audio = js.createMap(true);
 let _url2id = {};
 let _audioPool = [];
@@ -45,7 +45,7 @@ let recycleAudio = function (audio) {
     audio.src = null;
     // In case repeatly recycle audio
     if (!_audioPool.includes(audio)) {
-        if (_audioPool.length < 32) {
+        if (_audioPool.length < audioEngine._maxPoolSize) {
             _audioPool.push(audio);
         }
         else {
@@ -83,7 +83,7 @@ let getAudioFromPath = function (path) {
         if (this._finishCallback) {
             this._finishCallback();
         }
-        if(!this.getLoop()){
+        if(this._autoRecycleOnEnded && !this.getLoop()){
             callback.call(this);
         }
     }, audio);
@@ -128,6 +128,7 @@ var audioEngine = {
     AudioState: Audio.State,
 
     _maxAudioInstance: 24,
+    _maxPoolSize: 32,
 
     _id2audio: _id2audio,
 
@@ -156,11 +157,40 @@ var audioEngine = {
         audio.src = clip;
         clip._ensureLoaded();
         audio._shouldRecycleOnEnded = true;
+        audio._autoRecycleOnEnded = true;
         audio.setLoop(loop || false);
         volume = handleVolume(volume);
         audio.setVolume(volume);
         audio.play();
         return audio.id;
+    },
+
+    /**
+     * !#en set that whether auto-recycle audio on ended.
+     * !#zh 设置 是否在audio结束后自动回收.
+     * @method setAutoRecycleOnEnded
+     * @param {Number} audioID - audio id.
+     * @param {Boolean} enabled - whether enable auto-recycle.
+     * @example
+     * cc.audioEngine.setAutoRecycleOnEnded(id, false);
+     */
+    setAutoRecycleOnEnded: function (audioID, enabled) {
+        var audio = getAudioFromId(audioID);
+        audio && (audio._autoRecycleOnEnded = enabled);
+    },
+
+    /**
+     * !#en Check that the audio whether valid (still be cached)
+     * !#zh audioID 对应的 Audio对象 是否有效(是否仍然被缓存着, 没有被销毁)。
+     * @method isValidAudio
+     * @param {Number} audioID - audio id.
+     * @return {Boolean} the audio whether valid (still be cached).
+     * @example
+     * const valid = cc.audioEngine.isValidAudio(id);
+     */
+    isValidAudio: function (audioID) {
+        var audio = getAudioFromId(audioID);
+        return !!audio;
     },
 
     /**
