@@ -33,7 +33,7 @@ import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-da
 import { legacyCC } from '../../core/global-exports';
 import { Asset } from '../assets/asset';
 import { Swapchain } from '../gfx';
-import { Model } from '../renderer/scene';
+import { Model, Camera } from '../renderer/scene';
 
 nr.getPhaseID = getPhaseID;
 
@@ -82,16 +82,16 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
     }
 
-    public render (cameras) {
+    public render (cameras: Camera[]) {
       let nativeObjs = [];
       for (let i = 0, len = cameras.length; i < len; ++i) {
-          nativeObjs.push(cameras[i].native)
+          nativeObjs.push(cameras[i].native);
       }
       super.render(nativeObjs);
     }
 
     set profiler (value: Model) {
-      this.setProfiler(value.native);
+      this.setProfiler(value && value.native);
     }
 
     public destroy () {
@@ -214,16 +214,16 @@ export class DeferredPipeline extends nr.DeferredPipeline {
     return super.activate(swapchain) && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
   }
 
-  public render (cameras) {
+  public render (cameras: Camera[]) {
     let nativeObjs = [];
     for (let i = 0, len = cameras.length; i < len; ++i) {
-        nativeObjs.push(cameras[i].native)
+      nativeObjs.push(cameras[i].native);
     }
     super.render(nativeObjs);
   }
 
   set profiler (value: Model) {
-    this.setProfiler(value.native);
+    this.setProfiler(value && value.native);
   }
 
   destroy () {
@@ -260,8 +260,7 @@ export class MainFlow extends nr.MainFlow {
     for (let i = 0; i < this._stages.length; i++) {
       this._stages[i].init(pipeline);
     }
-    let info = new nr.RenderFlowInfo(
-        this._name, this._priority, this._tag, this._stages);
+    let info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
     this.initialize(info);
   }
 }
