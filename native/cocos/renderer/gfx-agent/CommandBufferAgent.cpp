@@ -83,8 +83,6 @@ CommandBufferAgent::~CommandBufferAgent() {
 void CommandBufferAgent::initMessageQueue() {
     DeviceAgent *device = DeviceAgent::getInstance();
     device->_cmdBuffRefs.insert(this);
-    // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
-    _messageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue));
 
     // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
     _messageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue));

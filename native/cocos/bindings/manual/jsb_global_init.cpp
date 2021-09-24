@@ -27,10 +27,6 @@
 #include "base/Macros.h"
 // clang-format: off
 #include <string>
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    // Fix ssize_t defination
-    #include "cocos/bindings/jswrapper/config.h"
-#endif
 #include "uv.h"
 // clang-format on
 
@@ -57,7 +53,8 @@ se::Object *__jsbObj = nullptr; //NOLINT
 se::Object *__glObj  = nullptr; //NOLINT
 
 static std::basic_string<unsigned char> xxteaKey;
-void                                    jsb_set_xxtea_key(const std::string &key) { //NOLINT
+
+void jsb_set_xxtea_key(const std::string &key) { //NOLINT
     xxteaKey.assign(key.begin(), key.end());
 }
 
