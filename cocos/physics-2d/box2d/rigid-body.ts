@@ -83,13 +83,12 @@ export class b2RigidBody2D implements IRigidBody2D {
             for (let i = 0; i < colliders.length; i++) {
                 colliders[i].apply();
             }
-        } else {
-            if (type & Node.TransformBit.POSITION) {
-                this.syncPositionToPhysics(true);
-            }
-            if (type & Node.TransformBit.ROTATION) {
-                this.syncRotationToPhysics(true);
-            }
+        }
+        if (type & Node.TransformBit.POSITION) {
+            this.syncPositionToPhysics(true);
+        }
+        if (type & Node.TransformBit.ROTATION) {
+            this.syncRotationToPhysics(true);
         }
     }
 

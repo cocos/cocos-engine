@@ -1808,6 +1808,10 @@ Misconfigured legacy curve: the first keyframe value is number but others aren't
 
 We don't currently support conversion of \`CubicSplineQuatValue\`.
 
+### 3936
+
+Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
+
 ### 4000
 
 <!-- DEPRECATED -->
