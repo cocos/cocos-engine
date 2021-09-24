@@ -565,7 +565,9 @@ export class ArmatureDisplay extends Renderable2D {
                 const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                this.material = m.renderData.material;
+                if (m.renderData.material) {
+                    this.material = m.renderData.material;
+                }
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }
