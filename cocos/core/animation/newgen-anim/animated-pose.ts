@@ -1,4 +1,5 @@
 import { ccclass, type } from '../../data/class-decorator';
+import { EditorExtendable } from '../../data/editor-extendable';
 import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
 import { createEval } from './create-eval';
@@ -7,7 +8,7 @@ import { PoseStatus } from './graph-eval';
 import { PoseEvalContext, Pose, PoseEval } from './pose';
 
 @ccclass('cc.animation.AnimatedPose')
-export class AnimatedPose implements Pose {
+export class AnimatedPose extends EditorExtendable implements Pose {
     @type(AnimationClip)
     public clip: AnimationClip | null = null;
 
