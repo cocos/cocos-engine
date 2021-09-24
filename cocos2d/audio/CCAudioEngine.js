@@ -45,7 +45,7 @@ let recycleAudio = function (audio) {
     audio.src = null;
     // In case repeatly recycle audio
     if (!_audioPool.includes(audio)) {
-        if (_audioPool.length < 32) {
+        if (_audioPool.length < audioEngine._maxPoolSize) {
             _audioPool.push(audio);
         }
         else {
@@ -128,6 +128,8 @@ var audioEngine = {
     AudioState: Audio.State,
 
     _maxAudioInstance: 24,
+
+    _maxPoolSize: 32,
 
     _id2audio: _id2audio,
 
