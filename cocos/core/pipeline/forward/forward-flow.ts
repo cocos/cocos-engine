@@ -47,6 +47,7 @@ export class ForwardFlow extends RenderFlow {
      * @en The shared initialization information of forward render flow
      * @zh 共享的前向渲染流程初始化参数
      */
+    private postprocessStage: PostprocessStage | null = null;
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
@@ -58,15 +59,17 @@ export class ForwardFlow extends RenderFlow {
         if (this._stages.length === 0) {
             const forwardStage = new ForwardStage();
             forwardStage.initialize(ForwardStage.initInfo);
-            this._stages.push(forwardStage);   
+            this._stages.push(forwardStage);
         }
         return true;
     }
 
     public activate (pipeline: RenderPipeline) {
-        const postprocessStage = new PostprocessStage();
-        postprocessStage.initialize(PostprocessStage.initInfo);
-        this._stages.push(postprocessStage);
+        if(!(this._stages[this._stages.length - 1] instanceof PostprocessStage)) {
+            this.postprocessStage = new PostprocessStage();
+            this.postprocessStage.initialize(PostprocessStage.initInfo);
+            this._stages.push(this.postprocessStage);
+        }
         super.activate(pipeline);
     }
 

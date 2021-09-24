@@ -89,7 +89,10 @@ import { CommonPipelineSceneData } from './common-pipeline-scene-data';
      }
  
      public render (camera: Camera) {
-         const pipeline = this._pipeline;
+        const pipeline = this._pipeline;
+         if(!camera.window?.swapchain && pipeline instanceof ForwardPipeline) {
+            return;
+         }
          const device = pipeline.device;
          const sceneData = pipeline.pipelineSceneData;
          const cmdBuff = pipeline.commandBuffers[0];
@@ -101,7 +104,7 @@ import { CommonPipelineSceneData } from './common-pipeline-scene-data';
          this._renderArea.y = vp.y * camera.height;
          this._renderArea.width = vp.width * camera.width * sceneData.shadingScale;
          this._renderArea.height = vp.height * camera.height * sceneData.shadingScale;
- 
+         const renderData = pipeline.getPipelineRenderData();
          const framebuffer = camera.window!.framebuffer;
          const swapchain = camera.window!.swapchain;
          const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag, swapchain) : framebuffer.renderPass;
@@ -113,7 +116,7 @@ import { CommonPipelineSceneData } from './common-pipeline-scene-data';
          }
  
          colors[0].w = camera.clearColor.w;
-         const renderData = pipeline.getPipelineRenderData();
+         
  
          cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
              colors, camera.clearDepth, camera.clearStencil);
