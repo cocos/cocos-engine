@@ -84,6 +84,9 @@ export class NodeEventProcessor {
         this._isEnabled = value;
         const node = this.node;
         const children = node.children;
+        if (value) {
+            this._attachMask();
+        }
         if (recursive && children.length > 0) {
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
