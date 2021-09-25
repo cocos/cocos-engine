@@ -35,7 +35,6 @@ import { DeferredFlowPriority } from '../common/enum';
 import { GbufferStage } from './gbuffer-stage';
 import { LightingStage } from './lighting-stage';
 import { PostprocessStage } from '../common/postprocess-stage';
-import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 
 /**

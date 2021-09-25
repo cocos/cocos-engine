@@ -26,7 +26,6 @@
 import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets';
 import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
 

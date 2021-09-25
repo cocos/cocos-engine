@@ -31,7 +31,7 @@ import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
 import { Color, Rect, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority, PipelineStagePriority } from './enum';
+import { CommonStagePriority } from './enum';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { UIPhase } from './ui-phase';
@@ -39,20 +39,19 @@ import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
 import { RenderFlow, RenderPipeline } from '..';
 import { ForwardPipeline } from '../forward/forward-pipeline';
-import { DeferredPipeline } from '../deferred/deferred-pipeline';
 import { CommonPipelineSceneData } from './common-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
 /**
   * @en The postprocess render stage
-  * @zh 前向渲染阶段。
+  * @zh 后处理渲染阶段。
   */
 @ccclass('PostprocessStage')
 export class PostprocessStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'PostprocessStage',
-        priority: PipelineStagePriority.POSTPROCESS,
+        priority: CommonStagePriority.POST_PROCESS,
         tag: 0,
     };
 

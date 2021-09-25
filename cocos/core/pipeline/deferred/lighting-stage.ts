@@ -31,12 +31,12 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
-import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
+import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from '../common/enum';
 import { MainFlow } from './main-flow';
-import { DeferredPipeline, DeferredRenderData } from './deferred-pipeline';
+import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';

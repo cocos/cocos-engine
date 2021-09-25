@@ -28,17 +28,17 @@
  * @module pipeline
  */
 
-export enum PipelineStagePriority {
-    POSTPROCESS = 19
+export enum CommonStagePriority {
+    POST_PROCESS = 19,
+    UI = 20
 }
 
 /**
  * @zh 前向阶段优先级。
  * @en The priority of stage in forward rendering
  */
- export enum ForwardStagePriority {
+export enum ForwardStagePriority {
     FORWARD = 10,
-    UI = 20
 }
 
 /**
@@ -58,8 +58,7 @@ export enum ForwardFlowPriority {
 export enum DeferredStagePriority {
     GBUFFER = 10,
     LIGHTING = 15,
-    TRANSPARENT = 18,
-    UI = 20
+    TRANSPARENT = 18
 }
 
 /**

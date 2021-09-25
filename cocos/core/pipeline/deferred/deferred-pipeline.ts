@@ -35,17 +35,15 @@ import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputA
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
-    SurfaceTransform, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect, Swapchain, SamplerInfo, Sampler } from '../../gfx';
+import { Format, StoreOp, Filter, Address,
+    ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
+    RenderPassInfo, Texture, AccessType, Framebuffer,
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, SamplerInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
-import { RenderWindow } from '../../renderer/core/render-window';
 
 const PIPELINE_TYPE = 1;
 

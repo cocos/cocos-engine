@@ -23,63 +23,61 @@
  THE SOFTWARE.
  */
 
- import { JSB } from 'internal:constants';
- import { Device } from '../../gfx';
- import { RenderPipeline } from '../render-pipeline';
- import { builtinResMgr } from '../../builtin/builtin-res-mgr';
- import { Material } from '../../assets';
- import { PipelineSceneData } from '../pipeline-scene-data';
- 
- export class CommonPipelineSceneData extends PipelineSceneData {
-     public get postprocessMaterial () {
-         return this._postprocessMaterial;
-     }
- 
-     public set postprocessMaterial (mat: Material) {
-         if (this._postprocessMaterial === mat || !mat) return;
-         this._postprocessMaterial = mat;
-         this.updatePipelinePassInfo();
-     }
-     protected declare _postprocessMaterial: Material;
- 
-     public onGlobalPipelineStateChanged () {
-         this.updatePipelinePassInfo();
-     }
- 
-     public initPipelinePassInfo () {
-         const postMat = new Material();
-         postMat._uuid = 'builtin-post-process-material';
-         postMat.initialize({ effectName: 'post-process' });
-         for (let i = 0; i < postMat.passes.length; ++i) {
-             postMat.passes[i].tryCompile();
-         }
-         this._postprocessMaterial = postMat;
- 
-         this.updatePipelinePassInfo();
-     }
- 
-     public activate (device: Device, pipeline: RenderPipeline) {
-         super.activate(device, pipeline);
-         this.initPipelinePassInfo();
-         return true;
-     }
- 
-     protected updatePipelinePassInfo () {
-         this.updatePostProcessPass();
-     }
- 
-     private updatePostProcessPass () {
-         if (!this.postprocessMaterial) return;
- 
-         const passPost = this.postprocessMaterial.passes[0];
-         passPost.beginChangeStatesSilently();
-         passPost.tryCompile();
-         passPost.endChangeStatesSilently();
- 
-         if (JSB) {
-             this._nativeObj!.deferredPostPassShader = passPost.getShaderVariant();
-             this._nativeObj!.deferredPostPass = passPost.native;
-         }
-     }
- }
- 
+import { JSB } from 'internal:constants';
+import { Device } from '../../gfx';
+import { RenderPipeline } from '../render-pipeline';
+import { Material } from '../../assets';
+import { PipelineSceneData } from '../pipeline-scene-data';
+
+export class CommonPipelineSceneData extends PipelineSceneData {
+    public get postprocessMaterial () {
+        return this._postprocessMaterial;
+    }
+
+    public set postprocessMaterial (mat: Material) {
+        if (this._postprocessMaterial === mat || !mat) return;
+        this._postprocessMaterial = mat;
+        this.updatePipelinePassInfo();
+    }
+    protected declare _postprocessMaterial: Material;
+
+    public onGlobalPipelineStateChanged () {
+        this.updatePipelinePassInfo();
+    }
+
+    public initPipelinePassInfo () {
+        const postMat = new Material();
+        postMat._uuid = 'builtin-post-process-material';
+        postMat.initialize({ effectName: 'post-process' });
+        for (let i = 0; i < postMat.passes.length; ++i) {
+            postMat.passes[i].tryCompile();
+        }
+        this._postprocessMaterial = postMat;
+
+        this.updatePipelinePassInfo();
+    }
+
+    public activate (device: Device, pipeline: RenderPipeline) {
+        super.activate(device, pipeline);
+        this.initPipelinePassInfo();
+        return true;
+    }
+
+    protected updatePipelinePassInfo () {
+        this.updatePostProcessPass();
+    }
+
+    private updatePostProcessPass () {
+        if (!this.postprocessMaterial) return;
+
+        const passPost = this.postprocessMaterial.passes[0];
+        passPost.beginChangeStatesSilently();
+        passPost.tryCompile();
+        passPost.endChangeStatesSilently();
+
+        if (JSB) {
+            this._nativeObj!.deferredPostPassShader = passPost.getShaderVariant();
+            this._nativeObj!.deferredPostPass = passPost.native;
+        }
+    }
+}

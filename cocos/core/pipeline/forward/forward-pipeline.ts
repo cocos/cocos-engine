@@ -30,13 +30,14 @@
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { RenderPipeline, IRenderPipelineInfo, PipelineInputAssemblerData, PipelineRenderData } from '../render-pipeline';
+import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { ColorAttachment, DepthStencilAttachment, LoadOp,
-    RenderPassInfo, Filter, Address, StoreOp, AccessType, Swapchain, SamplerInfo, Format, RenderPass, TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
+    RenderPassInfo, Filter, Address, StoreOp, AccessType, Swapchain, SamplerInfo, Format,
+    RenderPass, TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
 import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
@@ -185,8 +186,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
 
-        let inputAssemblerDataOffscreen = new PipelineInputAssemblerData();
-        inputAssemblerDataOffscreen = this._createQuadInputAssembler();
+        const inputAssemblerDataOffscreen = this._createQuadInputAssembler();
         if (!inputAssemblerDataOffscreen.quadIB || !inputAssemblerDataOffscreen.quadVB || !inputAssemblerDataOffscreen.quadIA) {
             return false;
         }
@@ -205,15 +205,18 @@ export class ForwardPipeline extends RenderPipeline {
             const colorAttachment = new ColorAttachment();
             colorAttachment.format = Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
-            colorAttachment.storeOp = StoreOp.DISCARD;
+            colorAttachment.storeOp = StoreOp.STORE;
+            colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_READ];
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
 
             const depthStencilAttachment = new DepthStencilAttachment();
             depthStencilAttachment.format = Format.DEPTH_STENCIL;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+            depthStencilAttachment.depthStoreOp = StoreOp.STORE;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
-            depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+            depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
+            depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_READ];
+            depthStencilAttachment.endAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
             const renderPassInfo = new RenderPassInfo(
                 [colorAttachment],
                 depthStencilAttachment,
