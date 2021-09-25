@@ -23,11 +23,11 @@
  THE SOFTWARE.
 */
 
-import { Node } from './node';
-import { Input, input } from '../../input';
+import { Node } from '../../core/scene-graph/node';
+import { Input, input, pointerEvent2SystemEvent } from '../../input';
 import { EventMouse, EventTouch } from '../../input/types';
-import { DispatcherEventType, NodeEventProcessor } from './node-event-processor';
-import { js } from '../utils/js';
+import { DispatcherEventType, NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { js } from '../../core/utils/js';
 import { InputEventType } from '../../input/types/event-enum';
 
 class PointerEventDispatcher {
@@ -75,13 +75,20 @@ class PointerEventDispatcher {
         this._sortPointerEventProcessorList();
         const pointerEventProcessorList = this._pointerEventProcessorList;
         const length = pointerEventProcessorList.length;
+        let shouldDispatchToSystemEvent = true;
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventMouse
                 // @ts-expect-error access private method
                 && pointerEventProcessor._handleEventMouse(eventMouse)) {
+                shouldDispatchToSystemEvent = false;
                 break;
             }
+        }
+        if (shouldDispatchToSystemEvent) {
+            const type = pointerEvent2SystemEvent[eventMouse.type] || eventMouse.type;
+            // @ts-expect-error _eventTarget is a private property
+            input._eventTarget.emit(type, eventMouse);
         }
         if (--this._inDispatchCount <= 0) {
             this._updatePointerEventProcessorList();
@@ -94,6 +101,7 @@ class PointerEventDispatcher {
         const pointerEventProcessorList = this._pointerEventProcessorList;
         const length = pointerEventProcessorList.length;
         const touch = eventTouch.touch!;
+        let shouldDispatchToSystemEvent = true;
         for (let i = 0; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventTouch) {
@@ -101,6 +109,7 @@ class PointerEventDispatcher {
                     // @ts-expect-error access private method
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
+                        shouldDispatchToSystemEvent = false;
                         break;
                     }
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
@@ -111,9 +120,16 @@ class PointerEventDispatcher {
                         if (eventTouch.type === InputEventType.TOUCH_END || eventTouch.type === InputEventType.TOUCH_CANCEL) {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
                         }
+                        shouldDispatchToSystemEvent = false;
+                        break;
                     }
                 }
             }
+        }
+        if (shouldDispatchToSystemEvent) {
+            const type = pointerEvent2SystemEvent[eventTouch.type] || eventTouch.type;
+            // @ts-expect-error _eventTarget is a private property
+            input._eventTarget.emit(type, eventTouch.touch, eventTouch);
         }
         if (--this._inDispatchCount <= 0) {
             this._updatePointerEventProcessorList();
