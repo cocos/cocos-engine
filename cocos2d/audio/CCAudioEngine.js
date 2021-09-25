@@ -45,7 +45,7 @@ let recycleAudio = function (audio) {
     audio.src = null;
     // In case repeatly recycle audio
     if (!_audioPool.includes(audio)) {
-        if (_audioPool.length < audioEngine._maxPoolSize) {
+        if (_audioPool.length < 32) {
             _audioPool.push(audio);
         }
         else {
@@ -128,7 +128,6 @@ var audioEngine = {
     AudioState: Audio.State,
 
     _maxAudioInstance: 24,
-    _maxPoolSize: 32,
 
     _id2audio: _id2audio,
 
@@ -177,20 +176,6 @@ var audioEngine = {
     setAutoRecycleOnEnded: function (audioID, enabled) {
         var audio = getAudioFromId(audioID);
         audio && (audio._autoRecycleOnEnded = enabled);
-    },
-
-    /**
-     * !#en Check that the audio whether valid (still be cached)
-     * !#zh audioID 对应的 Audio对象 是否有效(是否仍然被缓存着, 没有被销毁)。
-     * @method isValidAudio
-     * @param {Number} audioID - audio id.
-     * @return {Boolean} the audio whether valid (still be cached).
-     * @example
-     * const valid = cc.audioEngine.isValidAudio(id);
-     */
-    isValidAudio: function (audioID) {
-        var audio = getAudioFromId(audioID);
-        return !!audio;
     },
 
     /**
