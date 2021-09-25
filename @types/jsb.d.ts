@@ -128,6 +128,17 @@ declare namespace jsb {
          * @param parameters
          */
         export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
+        /**
+         * trigger native callback
+         * @param {string} methodName: method name on java/oc layer
+         * @param {string} arg: argument as input for app's function, json format suggest.
+         */
+        export function sendToNative(arg0: string, arg1?: string | null): void;
+        /**
+         * save your own callback controller with a js function
+         * @param {Function} callback: method accepts 2 string args
+         */
+        export function setCallback(callback: Function): void;
     }
     /**
      * 下载任务对象
