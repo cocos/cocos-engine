@@ -85,8 +85,8 @@ class PointerEventDispatcher {
                 break;
             }
         }
-        if (shouldDispatchToSystemEvent) {
-            const type = pointerEvent2SystemEvent[eventMouse.type] || eventMouse.type;
+        const type = pointerEvent2SystemEvent[eventMouse.type];
+        if (shouldDispatchToSystemEvent && type) {
             // @ts-expect-error _eventTarget is a private property
             input._eventTarget.emit(type, eventMouse);
         }
@@ -126,8 +126,8 @@ class PointerEventDispatcher {
                 }
             }
         }
-        if (shouldDispatchToSystemEvent) {
-            const type = pointerEvent2SystemEvent[eventTouch.type] || eventTouch.type;
+        const type = pointerEvent2SystemEvent[eventTouch.type];
+        if (shouldDispatchToSystemEvent && type) {
             // @ts-expect-error _eventTarget is a private property
             input._eventTarget.emit(type, eventTouch.touch, eventTouch);
         }
