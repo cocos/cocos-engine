@@ -682,6 +682,23 @@ exports.methods = {
     },
 
     onSelect(rawClipIndex, splitClipIndex) {
+        const animInfo = this.animationInfos[this.rawClipIndex];
+
+        if (!animInfo) {
+            if (this.animationInfos.length > 0) {
+                rawClipIndex = this.animationInfos.length - 1;
+            } else {
+                rawClipIndex = 0;
+            }
+        }
+        const splitInfo = animInfo.splits[this.splitClipIndex];
+        if (!splitInfo) {
+            if (animInfo.splits.length > 0) {
+                splitClipIndex = animInfo.splits.length - 1;
+            } else {
+                splitClipIndex = 0;
+            }
+        }
         this.rawClipIndex = rawClipIndex;
         this.splitClipIndex = splitClipIndex;
         const isElementSelect = (element) => element.getAttribute('rawClipIndex') == rawClipIndex && element.getAttribute('splitClipIndex') == splitClipIndex;
@@ -704,7 +721,9 @@ exports.methods = {
         if (!animInfo) {
             return null;
         }
-
+        if (!splitInfo) {
+            return null;
+        }
         const rawClipUUID = this.animationNameToUUIDMap.get(animInfo.name);
         const clipUUID = this.animationNameToUUIDMap.get(splitInfo.name);
         let duration = animInfo.duration;
