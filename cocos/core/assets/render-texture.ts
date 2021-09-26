@@ -37,6 +37,7 @@ import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
+import { BufferTextureCopy } from '../gfx/base/define';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -164,6 +165,35 @@ export class RenderTexture extends TextureBase {
 
     public validate () {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
+    }
+
+    public readPixels (x:number, y:number, w:number, h:number) : ArrayBufferView | null {
+        x = x || 0;
+        y = y || 0;
+        const width = w || this.width;
+        const height = h || this.height;
+        const gfxTexture = this.getGFXTexture();
+        if (!gfxTexture) {
+            return null;
+        }
+        const gfxDevice = this._getGFXDevice();
+
+        const bufferViews: ArrayBufferView[] = [];
+        const regions: BufferTextureCopy[] = [];
+
+        const region0 = new BufferTextureCopy();
+        region0.texOffset.x = x;
+        region0.texOffset.y = y;
+        region0.texExtent.width = width;
+        region0.texExtent.height = height;
+        regions.push(region0);
+
+        const buffer = new Uint8Array(width * height * 4);
+        bufferViews.push(buffer);
+
+        gfxDevice?.copyTextureToBuffers(gfxTexture, bufferViews, regions);
+
+        return bufferViews[0];
     }
 }
 
