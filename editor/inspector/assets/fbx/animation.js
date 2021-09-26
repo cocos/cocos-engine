@@ -469,6 +469,9 @@ const Elements = {
                     }
                     panel.clipNames.delete(panel.currentClipInfo.name);
                     panel.animationInfos[panel.rawClipIndex].splits.splice(panel.splitClipIndex, 1);
+                    if (panel.animationInfos[panel.rawClipIndex].splits.length > 0 && panel.splitClipIndex > 0) {
+                        panel.splitClipIndex--;
+                    }
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
