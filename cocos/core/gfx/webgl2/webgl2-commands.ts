@@ -1253,9 +1253,11 @@ export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: I
 export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebuffer: IWebGL2GPUFramebuffer) {
     let isOnscreen = false;
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
-        if (!gpuFramebuffer.gpuColorTextures[i].glTexture) isOnscreen = true;
+        const tex = gpuFramebuffer.gpuColorTextures[i];
+        if (!tex.glTexture && tex.glRenderbuffer) isOnscreen = true;
     }
-    if (gpuFramebuffer.gpuDepthStencilTexture && !gpuFramebuffer.gpuDepthStencilTexture.glTexture) isOnscreen = true;
+    const depthTex = gpuFramebuffer.gpuDepthStencilTexture;
+    if (depthTex && !depthTex.glTexture && !depthTex.glRenderbuffer) isOnscreen = true;
     if (isOnscreen) return;
 
     const { gl } = device;

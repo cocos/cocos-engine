@@ -1023,9 +1023,11 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
     let isOnscreen = false;
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
-        if (!gpuFramebuffer.gpuColorTextures[i].glTexture) isOnscreen = true;
+        const tex = gpuFramebuffer.gpuColorTextures[i];
+        if (!tex.glTexture && tex.glRenderbuffer) isOnscreen = true;
     }
-    if (gpuFramebuffer.gpuDepthStencilTexture && !gpuFramebuffer.gpuDepthStencilTexture.glTexture) isOnscreen = true;
+    const depthTex = gpuFramebuffer.gpuDepthStencilTexture;
+    if (depthTex && !depthTex.glTexture && !depthTex.glRenderbuffer) isOnscreen = true;
     if (isOnscreen) return;
 
     const { gl } = device;
