@@ -221,7 +221,7 @@ class UnaryConditionEval implements ConditionEval {
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TriggerCondition`)
 export class TriggerCondition implements Condition {
     @serializable
-    public trigger!: string;
+    public trigger = '';
 
     public clone () {
         const that = new TriggerCondition();
