@@ -688,19 +688,11 @@ exports.methods = {
         const animInfo = this.animationInfos[this.rawClipIndex];
 
         if (!animInfo) {
-            if (this.animationInfos.length > 0) {
-                rawClipIndex = this.animationInfos.length - 1;
-            } else {
-                rawClipIndex = 0;
-            }
+            rawClipIndex = 0;
         }
         const splitInfo = animInfo.splits[this.splitClipIndex];
         if (!splitInfo) {
-            if (animInfo.splits.length > 0) {
-                splitClipIndex = animInfo.splits.length - 1;
-            } else {
-                splitClipIndex = 0;
-            }
+            splitClipIndex = 0;
         }
         this.rawClipIndex = rawClipIndex;
         this.splitClipIndex = splitClipIndex;
