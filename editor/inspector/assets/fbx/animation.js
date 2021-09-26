@@ -469,8 +469,9 @@ const Elements = {
                     }
                     panel.clipNames.delete(panel.currentClipInfo.name);
                     panel.animationInfos[panel.rawClipIndex].splits.splice(panel.splitClipIndex, 1);
-                    if (panel.animationInfos[panel.rawClipIndex].splits.length > 0 && panel.splitClipIndex > 0) {
-                        panel.splitClipIndex--;
+                    const length = panel.animationInfos[panel.rawClipIndex].splits.length;
+                    if (length > 0 && panel.splitClipIndex > 0 && panel.splitClipIndex >= length) {
+                        panel.splitClipIndex = length - 1;
                     }
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
@@ -685,15 +686,6 @@ exports.methods = {
     },
 
     onSelect(rawClipIndex, splitClipIndex) {
-        const animInfo = this.animationInfos[this.rawClipIndex];
-
-        if (!animInfo) {
-            rawClipIndex = 0;
-        }
-        const splitInfo = animInfo.splits[this.splitClipIndex];
-        if (!splitInfo) {
-            splitClipIndex = 0;
-        }
         this.rawClipIndex = rawClipIndex;
         this.splitClipIndex = splitClipIndex;
         const isElementSelect = (element) => element.getAttribute('rawClipIndex') == rawClipIndex && element.getAttribute('splitClipIndex') == splitClipIndex;
