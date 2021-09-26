@@ -128,8 +128,10 @@ declare namespace jsb {
          * @param parameters
          */
         export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
+    }
+    export namespace bridge{
         /**
-         * trigger native callback
+         * inform application to apply specific method/function
          * @param {string} methodName: method name on java/oc layer
          * @param {string} arg: argument as input for app's function, json format suggest.
          */
