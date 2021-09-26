@@ -129,6 +129,7 @@ module.exports = {
             browse: 'Change Target',
             model: 'Model',
             animation: 'Animation',
+            modelPreview: 'Model preview',
             material: 'Material',
             fbx: 'FBX',
             GlTFUserData: {
@@ -313,5 +314,6 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
             'illegal-inspector-url': "Inspector's URL is not valid",
         },
+        multipleWarning: 'Multi-select editing of this type of asset is not supported'
     },
 };
