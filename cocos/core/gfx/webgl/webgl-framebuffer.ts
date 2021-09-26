@@ -26,7 +26,7 @@
 import { FramebufferInfo } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
-import { WebGLDevice } from './webgl-device';
+import { WebGLDeviceManager } from './webgl-define';
 import { IWebGLGPUFramebuffer, IWebGLGPUTexture } from './webgl-gpu-objects';
 import { WebGLRenderPass } from './webgl-render-pass';
 
@@ -39,7 +39,7 @@ export class WebGLFramebuffer extends Framebuffer {
 
     private _gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
 
-    public initialize (info: FramebufferInfo): boolean {
+    public initialize (info: FramebufferInfo) {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
@@ -64,14 +64,12 @@ export class WebGLFramebuffer extends Framebuffer {
             glFramebuffer: null,
         };
 
-        WebGLCmdFuncCreateFramebuffer(this._device as WebGLDevice, this._gpuFramebuffer);
-
-        return true;
+        WebGLCmdFuncCreateFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
     }
 
     public destroy () {
         if (this._gpuFramebuffer) {
-            WebGLCmdFuncDestroyFramebuffer(this._device as WebGLDevice, this._gpuFramebuffer);
+            WebGLCmdFuncDestroyFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
             this._gpuFramebuffer = null;
         }
     }

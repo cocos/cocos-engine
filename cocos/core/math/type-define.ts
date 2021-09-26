@@ -98,3 +98,4 @@ export type IMat3 = IMat3Like | Readonly<IMat3Like>;
 export type IMat4 = IMat4Like | Readonly<IMat4Like>;
 export type IRect = IRectLike | Readonly<IRectLike>;
 export type IQuat = IQuatLike | Readonly<IQuatLike>;
+export type IColor = IColorLike | Readonly<IColorLike>;

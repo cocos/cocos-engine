@@ -115,6 +115,7 @@ export class ParticleSystem extends RenderableComponent {
      * @zh 粒子初始大小。
      */
     @formerlySerializedAs('startSize')
+    @range([0, 1])
     @type(CurveRange)
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeX')
@@ -125,6 +126,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeY')
     public startSizeY = new CurveRange();
@@ -134,6 +136,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:particle_system.startSizeZ')
     public startSizeZ = new CurveRange();
@@ -143,6 +146,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @displayOrder(11)
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
@@ -157,6 +161,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -167,6 +172,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -177,6 +183,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
+    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
@@ -187,6 +194,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(6)
     @tooltip('i18n:particle_system.startDelay')
     public startDelay = new CurveRange();
@@ -196,6 +204,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(7)
     @tooltip('i18n:particle_system.startLifetime')
     public startLifetime = new CurveRange();
@@ -274,6 +283,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([-1, 1])
     @displayOrder(13)
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();
@@ -284,6 +294,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(14)
     @tooltip('i18n:particle_system.rateOverTime')
     public rateOverTime = new CurveRange();
@@ -293,6 +304,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(15)
     @tooltip('i18n:particle_system.rateOverDistance')
     public rateOverDistance = new CurveRange();
@@ -1069,28 +1081,8 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
-    private _processRotation (particle) {
-        // Same as the particle-vs-legacy.chunk glsl statemants in remark
-        const renderMode = this.processor.getInfo().renderMode;
-        if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.StrecthedBillboard) {
-                particle.startEuler.set(0, 0, 0);
-            } else if (renderMode !== RenderMode.Billboard) {
-                particle.startEuler.set(0, 0, particle.startEuler.z);
-            }
-        }
-
-        // eslint-disable-next-line max-len
-        Quat.fromEuler(particle.startRotation, particle.startEuler.x * Particle.R2D, particle.startEuler.y * Particle.R2D, particle.startEuler.z * Particle.R2D);
-        particle.startRotation = Quat.normalize(particle.startRotation, particle.startRotation);
-
-        if (particle.startRotation.w < 0.0) { // Use vec3 to save quat so we need identify negative w
-            particle.startRotation.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w & revert the quat in shader
-        }
-    }
-
     private emit (count: number, dt: number) {
-        const delta = this._time / this.duration;
+        const loopDelta = (this._time % this.duration) / this.duration; // loop delta value
 
         // refresh particle node position to update emit position
         if (this._needRefresh) {
@@ -1126,11 +1118,7 @@ export class ParticleSystem extends RenderableComponent {
                 this._textureAnimationModule.init(particle);
             }
 
-            let curveStartSpeed = this.startSpeed.evaluate(delta, rand)!;
-            if (this.startSpeed.mode === Mode.Curve) {
-                const current = this._time % this.duration; // loop curve value
-                curveStartSpeed = this.startSpeed.evaluate(current / this.duration, rand)!;
-            }
+            const curveStartSpeed = this.startSpeed.evaluate(loopDelta, rand)!;
             Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
             if (this._simulationSpace === Space.World) {
@@ -1142,30 +1130,29 @@ export class ParticleSystem extends RenderableComponent {
             // apply startRotation.
             if (this.startRotation3D) {
                 // eslint-disable-next-line max-len
-                particle.startEuler.set(this.startRotationX.evaluate(delta, rand), this.startRotationY.evaluate(delta, rand), this.startRotationZ.evaluate(delta, rand));
+                particle.startEuler.set(this.startRotationX.evaluate(loopDelta, rand), this.startRotationY.evaluate(loopDelta, rand), this.startRotationZ.evaluate(loopDelta, rand));
             } else {
-                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(delta, rand));
+                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
             }
-            this._processRotation(particle);
-            Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
+            Vec3.set(particle.rotation, particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
 
             // apply startSize.
             if (this.startSize3D) {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(delta, rand)!,
-                    this.startSizeY.evaluate(delta, rand)!,
-                    this.startSizeZ.evaluate(delta, rand)!);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!,
+                    this.startSizeY.evaluate(loopDelta, rand)!,
+                    this.startSizeZ.evaluate(loopDelta, rand)!);
             } else {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(delta, rand)!, 1, 1);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;
             }
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
-            particle.startColor.set(this.startColor.evaluate(delta, rand));
+            particle.startColor.set(this.startColor.evaluate(loopDelta, rand));
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
-            particle.startLifetime = this.startLifetime.evaluate(delta, rand)! + dt;
+            particle.startLifetime = this.startLifetime.evaluate(loopDelta, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);

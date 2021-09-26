@@ -45,22 +45,25 @@ import { PhysXConeShape } from './shapes/physx-cone-shape';
 // import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXDistanceJoint } from './joints/physx-distance-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
+import { Game, game } from '../../core';
 
-selector.register('physx', {
-    PhysicsWorld: PhysXWorld,
-    RigidBody: PhysXRigidBody,
+game.once(Game.EVENT_ENGINE_INITED, () => {
+    selector.register('physx', {
+        PhysicsWorld: PhysXWorld,
+        RigidBody: PhysXRigidBody,
 
-    BoxShape: PhysXBoxShape,
-    SphereShape: PhysXSphereShape,
-    CapsuleShape: PhysXCapsuleShape,
-    TrimeshShape: PhysXTrimeshShape,
-    CylinderShape: PhysXCylinderShape,
-    ConeShape: PhysXConeShape,
-    TerrainShape: PhysXTerrainShape,
-    // SimplexShape: PhysXSimplexShape,
-    PlaneShape: PhysXPlaneShape,
+        BoxShape: PhysXBoxShape,
+        SphereShape: PhysXSphereShape,
+        CapsuleShape: PhysXCapsuleShape,
+        TrimeshShape: PhysXTrimeshShape,
+        CylinderShape: PhysXCylinderShape,
+        ConeShape: PhysXConeShape,
+        TerrainShape: PhysXTerrainShape,
+        // SimplexShape: PhysXSimplexShape,
+        PlaneShape: PhysXPlaneShape,
 
-    PointToPointConstraint: PhysXDistanceJoint,
-    // PointToPointConstraint: PhysXFixedJoint,
-    HingeConstraint: PhysXRevoluteJoint,
+        PointToPointConstraint: PhysXDistanceJoint,
+        // PointToPointConstraint: PhysXFixedJoint,
+        HingeConstraint: PhysXRevoluteJoint,
+    });
 });

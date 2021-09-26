@@ -444,7 +444,7 @@ export class TiledLayer extends Renderable2D {
     /**
      * @en Set the layer name.
      * @zh 设置层的名称
-     * @method SetLayerName
+     * @method setLayerName
      * @param {String} layerName
      * @example
      * tiledLayer.setLayerName("New Layer");

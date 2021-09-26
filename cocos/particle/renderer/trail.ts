@@ -28,7 +28,7 @@
  * @module particle
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
@@ -216,6 +216,7 @@ export default class TrailModule {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
@@ -277,6 +278,7 @@ export default class TrailModule {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:trailSegment.widthRatio')
     public widthRatio = new CurveRange();

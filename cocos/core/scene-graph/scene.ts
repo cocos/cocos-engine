@@ -100,6 +100,12 @@ export class Scene extends BaseNode {
 
     protected declare _nativeObj: NativeScene | null;
 
+    protected _lpos = Vec3.ZERO;
+
+    protected _lrot = Quat.IDENTITY;
+
+    protected _lscale = Vec3.ONE;
+
     protected _updateScene () {
         this._scene = this;
     }
@@ -268,7 +274,7 @@ export class Scene extends BaseNode {
     protected _load () {
         if (!this._inited) {
             if (TEST) {
-                assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
+                assert(!this._activeInHierarchy, 'Should deactivate ActionManager by default');
             }
             this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;

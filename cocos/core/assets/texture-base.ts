@@ -32,11 +32,10 @@
 // @ts-check
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
-import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { Sampler, Texture, Device, Format } from '../gfx';
+import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -92,25 +91,25 @@ export class TextureBase extends Asset {
     public static Filter = Filter;
 
     @serializable
-    protected _format: number = PixelFormat.RGBA8888;
+    protected _format = PixelFormat.RGBA8888;
 
     @serializable
-    protected _minFilter: number = Filter.LINEAR;
+    protected _minFilter = Filter.LINEAR;
 
     @serializable
-    protected _magFilter: number = Filter.LINEAR;
+    protected _magFilter = Filter.LINEAR;
 
     @serializable
-    protected _mipFilter: number = Filter.NONE;
+    protected _mipFilter = Filter.NONE;
 
     @serializable
-    protected _wrapS: number = WrapMode.REPEAT;
+    protected _wrapS = WrapMode.REPEAT;
 
     @serializable
-    protected _wrapT: number = WrapMode.REPEAT;
+    protected _wrapT = WrapMode.REPEAT;
 
     @serializable
-    protected _wrapR: number = WrapMode.REPEAT;
+    protected _wrapR = WrapMode.REPEAT;
 
     @serializable
     protected _anisotropy = 0;
@@ -119,8 +118,7 @@ export class TextureBase extends Asset {
     protected _height = 1;
 
     private _id: string;
-    private _samplerInfo: (number | undefined)[] = [];
-    private _samplerHash = 0;
+    private _samplerInfo = new SamplerInfo();
     private _gfxSampler: Sampler | null = null;
     private _gfxDevice: Device | null = null;
 
@@ -173,18 +171,17 @@ export class TextureBase extends Asset {
      */
     public setWrapMode (wrapS: WrapMode, wrapT: WrapMode, wrapR?: WrapMode) {
         this._wrapS = wrapS;
-        this._samplerInfo[SamplerInfoIndex.addressU] = wrapS;
+        this._samplerInfo.addressU = wrapS as unknown as Address;
         this._wrapT = wrapT;
-        this._samplerInfo[SamplerInfoIndex.addressV] = wrapT;
+        this._samplerInfo.addressV = wrapT as unknown as Address;
+
         if (wrapR !== undefined) {
             this._wrapR = wrapR;
-            this._samplerInfo[SamplerInfoIndex.addressW] = wrapR;
+            this._samplerInfo.addressW = wrapR as unknown as Address;
         }
 
-        this._samplerHash = genSamplerHash(this._samplerInfo);
-        // for editor assetDB
         if (this._gfxDevice) {
-            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+            this._gfxSampler = this._gfxDevice.getSampler(this._samplerInfo);
         }
     }
 
@@ -196,12 +193,12 @@ export class TextureBase extends Asset {
      */
     public setFilters (minFilter: Filter, magFilter: Filter) {
         this._minFilter = minFilter;
-        this._samplerInfo[SamplerInfoIndex.minFilter] = minFilter;
+        this._samplerInfo.minFilter = minFilter as unknown as GFXFilter;
         this._magFilter = magFilter;
-        this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
-        this._samplerHash = genSamplerHash(this._samplerInfo);
+        this._samplerInfo.magFilter = magFilter as unknown as GFXFilter;
+
         if (this._gfxDevice) {
-            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+            this._gfxSampler = this._gfxDevice.getSampler(this._samplerInfo);
         }
     }
 
@@ -212,10 +209,10 @@ export class TextureBase extends Asset {
      */
     public setMipFilter (mipFilter: Filter) {
         this._mipFilter = mipFilter;
-        this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
-        this._samplerHash = genSamplerHash(this._samplerInfo);
+        this._samplerInfo.mipFilter = mipFilter as unknown as GFXFilter;
+
         if (this._gfxDevice) {
-            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+            this._gfxSampler = this._gfxDevice.getSampler(this._samplerInfo);
         }
     }
 
@@ -226,10 +223,10 @@ export class TextureBase extends Asset {
      */
     public setAnisotropy (anisotropy: number) {
         this._anisotropy = anisotropy;
-        this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
-        this._samplerHash = genSamplerHash(this._samplerInfo);
+        this._samplerInfo.maxAnisotropy = anisotropy;
+
         if (this._gfxDevice) {
-            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+            this._gfxSampler = this._gfxDevice.getSampler(this._samplerInfo);
         }
     }
 
@@ -266,8 +263,8 @@ export class TextureBase extends Asset {
      * @zh 获取此贴图内部使用的 GFX 采样器信息。
      * @private
      */
-    public getSamplerHash () {
-        return this._samplerHash;
+    public getSamplerInfo (): Readonly<SamplerInfo> {
+        return this._samplerInfo;
     }
 
     /**
@@ -277,7 +274,7 @@ export class TextureBase extends Asset {
     public getGFXSampler () {
         if (!this._gfxSampler) {
             if (this._gfxDevice) {
-                this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+                this._gfxSampler = this._gfxDevice.getSampler(this._samplerInfo);
             } else {
                 errorID(9302);
             }
@@ -334,7 +331,7 @@ export class TextureBase extends Asset {
         this._format = format === undefined ? PixelFormat.RGBA8888 : format;
     }
 
-    protected _getGFXPixelFormat (format) {
+    protected _getGFXPixelFormat (format: PixelFormat) {
         if (format === PixelFormat.RGBA_ETC1) {
             format = PixelFormat.RGB_ETC1;
         } else if (format === PixelFormat.RGB_A_PVRTC_4BPPV1) {
@@ -342,7 +339,7 @@ export class TextureBase extends Asset {
         } else if (format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
             format = PixelFormat.RGB_PVRTC_2BPPV1;
         }
-        return format as Format;
+        return format as unknown as Format;
     }
 }
 

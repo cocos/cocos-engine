@@ -1,4 +1,3 @@
-const inputManager = cc.internal.inputManager;
 const renderer = cc.renderer;
 const game = cc.game;
 let _frameRate = 60;
