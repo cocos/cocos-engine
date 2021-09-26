@@ -10,9 +10,9 @@ import {
 } from './graph-description';
 import { PoseBlend1D } from '../pose-blend-1d';
 import { PoseBlend2D } from '../pose-blend-2d';
-import { GraphNode, PoseSubgraph, PoseTransition, VariableType } from '../pose-graph';
+import { GraphNode, PoseSubgraph, PoseTransition } from '../pose-graph';
 import { Pose } from '../pose';
-import { Bindable } from '../parametric';
+import { Bindable, VariableType } from '../parametric';
 import { Value } from '../variable';
 import { PoseNode } from '../pose-node';
 import { BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';

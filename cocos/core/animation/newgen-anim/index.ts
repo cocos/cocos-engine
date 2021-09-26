@@ -1,5 +1,5 @@
 export { InvalidTransitionError, VariableNotDefinedError } from './errors';
-export { PoseGraph, VariableType, LayerBlending, isPoseTransition, PoseSubgraph } from './pose-graph';
+export { PoseGraph, LayerBlending, isPoseTransition, PoseSubgraph } from './pose-graph';
 export type { Transition, PoseTransition, Layer, GraphNode, Variable } from './pose-graph';
 export { BinaryCondition, UnaryCondition, TriggerCondition } from './condition';
 export type { Condition } from './condition';
@@ -12,6 +12,7 @@ export { PoseBlend1D } from './pose-blend-1d';
 export { PoseBlend2D } from './pose-blend-2d';
 export { NewGenAnim } from './newgenanim-component';
 export type { PoseNodeStats, TransitionStatus, PoseStatus } from './newgenanim-component';
+export { VariableType } from './parametric';
 export type { BindableNumber, BindableBoolean } from './parametric';
 export { SkeletonMask } from '../skeleton-mask';
 export { StateMachineComponent } from './state-machine-component';

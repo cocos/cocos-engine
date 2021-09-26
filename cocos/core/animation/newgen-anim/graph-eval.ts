@@ -20,7 +20,6 @@ import { InteractiveGraphNode } from './graph-node';
 import { VariableType } from '.';
 
 export class PoseGraphEval {
-    private _varRefMap: Record<string, VarRefs> = {};
     private declare _layerEvaluations: LayerEval[];
     private _blendBuffer = new BlendStateBuffer();
     private _currentTransitionCache: TransitionStatus = {
@@ -30,18 +29,14 @@ export class PoseGraphEval {
 
     constructor (graph: PoseGraph, root: Node, newGenAnim: NewGenAnim) {
         for (const [name, { type, value }] of graph.variables) {
-            this._varRefMap[name] = {
-                type,
-                value,
-                refs: [],
-            };
+            this._varInstances[name] = new VarInstance(type, value);
         }
 
         const context: LayerContext = {
             newGenAnim,
             blendBuffer: this._blendBuffer,
             node: root,
-            bind: this._bind.bind(this),
+            getVar: (id: string): VarInstance | undefined => this._varInstances[id],
             triggerResetFn: (name: string) => {
                 this.setValue(name, false);
             },
@@ -110,47 +105,23 @@ export class PoseGraphEval {
     }
 
     public getValue (name: string) {
-        const varRefs = this._varRefMap[name];
-        if (!varRefs) {
+        const varInstance = this._varInstances[name];
+        if (!varInstance) {
             return undefined;
         } else {
-            return varRefs.value;
+            return varInstance.value;
         }
     }
 
     public setValue (name: string, value: Value) {
-        const varRefs = this._varRefMap[name];
-        if (!varRefs) {
+        const varInstance = this._varInstances[name];
+        if (!varInstance) {
             return;
         }
-
-        varRefs.value = value;
-        for (const { fn, thisArg, args } of varRefs.refs) {
-            fn.call(thisArg, value, ...args);
-        }
+        varInstance.value = value;
     }
 
-    private _bind<T, TThis, ExtraArgs extends any[]> (
-        varId: string,
-        type: VariableType,
-        fn: (this: TThis, value: T, ...args: ExtraArgs) => void,
-        thisArg: TThis,
-        ...args: ExtraArgs
-    ): T {
-        const varRefs = this._varRefMap[varId];
-        if (!varRefs) {
-            throw new VariableNotDefinedError(varId);
-        }
-        if (type !== varRefs.type) {
-            throw new VariableTypeMismatchedError(varId, VariableType[type], VariableType[varRefs.type]);
-        }
-        varRefs.refs.push({
-            fn: fn as (value: unknown, ...args: unknown[]) => T,
-            thisArg,
-            args,
-        });
-        return varRefs.value as unknown as T;
-    }
+    private _varInstances: Record<string, VarInstance> = {};
 }
 
 export interface TransitionStatus {
@@ -1095,6 +1066,10 @@ export class PoseNodeEval extends NodeBaseEval {
 }
 
 function calcProgressUpdate (currentProgress: number, duration: number, deltaTime: number) {
+    if (duration === 0.0) {
+        // TODO?
+        return 0.0;
+    }
     const progress = currentProgress + deltaTime / duration;
     return progress - Math.trunc(progress);
 }
@@ -1128,6 +1103,44 @@ interface TransitionEval {
     triggers: string[] | undefined;
 }
 
+class VarInstance {
+    public type: VariableType;
+
+    constructor (type: VariableType, value: Value) {
+        this.type = type;
+        this._value = value;
+    }
+
+    get value () {
+        return this._value;
+    }
+
+    set value (value) {
+        this._value = value;
+        for (const { fn, thisArg, args } of this._refs) {
+            fn.call(thisArg, value, ...args);
+        }
+    }
+
+    public bind <T, TThis, ExtraArgs extends any[]> (
+        fn: (this: TThis, value: T, ...args: ExtraArgs) => void,
+        thisArg: TThis,
+        ...args: ExtraArgs
+    ) {
+        this._refs.push({
+            fn: fn as (this: unknown, value: unknown, ...args: unknown[]) => void,
+            thisArg,
+            args,
+        });
+        return this._value;
+    }
+
+    private _value: Value;
+    private _refs: VarRef[] = [];
+}
+
+export type { VarInstance };
+
 interface VarRefs {
     type: VariableType;
 
@@ -1137,7 +1150,7 @@ interface VarRefs {
 }
 
 interface VarRef {
-    fn: (value: unknown, ...args: unknown[]) => void;
+    fn: (this: unknown, value: unknown, ...args: unknown[]) => void;
 
     thisArg: unknown;
 

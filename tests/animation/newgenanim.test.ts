@@ -1,7 +1,7 @@
 
 import { AnimationClip, Component, Node, Vec2, Vec3, warnID } from '../../cocos/core';
-import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, AnimatedPose, PoseBlendDirect, VectorTrack } from '../../cocos/core/animation/animation';
-import { LayerBlending, PoseGraph, PoseSubgraph, VariableType, Transition, isPoseTransition, PoseTransition } from '../../cocos/core/animation/newgen-anim/pose-graph';
+import { PoseBlend1D, PoseBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, AnimatedPose, PoseBlendDirect, VectorTrack, VariableType } from '../../cocos/core/animation/animation';
+import { LayerBlending, PoseGraph, PoseSubgraph, Transition, isPoseTransition, PoseTransition } from '../../cocos/core/animation/newgen-anim/pose-graph';
 import { createEval } from '../../cocos/core/animation/newgen-anim/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/newgen-anim/errors';
 import { PoseGraphEval, PoseNodeStats, PoseStatus } from '../../cocos/core/animation/newgen-anim/graph-eval';

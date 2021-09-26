@@ -1,8 +1,20 @@
-import { VariableType } from '.';
+import { VariableNotDefinedError } from '.';
 import { ccclass, serializable } from '../../data/decorators';
 import { assertIsTrue } from '../../data/utils/asserts';
 import { warn } from '../../platform/debug';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
+import { VariableTypeMismatchedError } from './errors';
+import type { VarInstance } from './graph-eval';
+
+export enum VariableType {
+    NUMBER,
+
+    BOOLEAN,
+
+    TRIGGER,
+
+    INTEGER,
+}
 
 export interface Bindable<TValue> {
     value: TValue;
@@ -55,17 +67,48 @@ export class BindableBoolean implements Bindable<boolean> {
 export type BindCallback<TValue, TThis, TArgs extends any[]> =
     (this: TThis, value: TValue, ...args: TArgs) => void;
 
+export type VariableTypeValidator = () => void;
+
 export interface BindContext {
-    bind<TValue, TThis, TArgs extends any[]>(
-        variable: string,
-        type: VariableType,
-        callback: BindCallback<TValue, TThis, TArgs>,
-        thisArg: TThis,
-        ...args: TArgs
-    ): TValue | undefined;
+    getVar(id: string): VarInstance | undefined;
 }
 
 export function bindOr<TValue, TThis, TArgs extends any[]> (
+    context: BindContext,
+    bindable: Bindable<TValue>,
+    type: VariableType,
+    callback: BindCallback<TValue, TThis, TArgs>,
+    thisArg: TThis,
+    ...args: TArgs
+): TValue {
+    const {
+        variable,
+        value,
+    } = bindable;
+
+    if (!variable) {
+        return value;
+    }
+
+    const varInstance = context.getVar(variable);
+    if (!validateVariableExistence(varInstance, variable)) {
+        return value;
+    }
+
+    if (varInstance.type !== type) {
+        throw new VariableTypeMismatchedError(variable, 'number');
+    }
+
+    const initialValue = varInstance.bind(
+        callback,
+        thisArg,
+        ...args,
+    );
+
+    return initialValue as unknown as TValue;
+}
+
+export function bindNumericOr<TValue, TThis, TArgs extends any[]> (
     context: BindContext,
     bindable: Bindable<TValue>,
     type: VariableType,
@@ -78,21 +121,45 @@ export function bindOr<TValue, TThis, TArgs extends any[]> (
         value,
     } = bindable;
 
-    if (!bindable.variable) {
-        return bindable.value;
+    if (!variable) {
+        return value;
     }
 
-    const initialValue = context.bind(
-        variable,
-        type,
+    const varInstance = context.getVar(variable);
+    if (!validateVariableExistence(varInstance, variable)) {
+        return value;
+    }
+
+    if (type !== VariableType.NUMBER && type !== VariableType.INTEGER) {
+        throw new VariableTypeMismatchedError(variable, 'number or integer');
+    }
+
+    const initialValue = varInstance.bind(
         callback,
         thisArg,
         ...args,
     );
 
-    if (typeof initialValue === 'undefined') {
-        return value;
+    return initialValue;
+}
+
+export function validateVariableExistence (varInstance: VarInstance | undefined, name: string): varInstance is VarInstance {
+    if (!varInstance) {
+        // TODO, warn only?
+        throw new VariableNotDefinedError(name);
     } else {
-        return initialValue;
+        return true;
+    }
+}
+
+export function validateVariableType (type: VariableType, expected: VariableType, name: string) {
+    if (type !== expected) {
+        throw new VariableTypeMismatchedError(name, 'number');
+    }
+}
+
+export function validateVariableTypeNumeric (type: VariableType, name: string) {
+    if (type !== VariableType.NUMBER && type !== VariableType.INTEGER) {
+        throw new VariableTypeMismatchedError(name, 'number or integer');
     }
 }

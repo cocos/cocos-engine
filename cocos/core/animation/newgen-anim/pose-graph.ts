@@ -18,6 +18,7 @@ import { move } from '../../algorithm/move';
 import { onAfterDeserializedTag } from '../../data/deserialize-symbols';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
+import { VariableType } from './parametric';
 
 export { GraphNode };
 
@@ -438,14 +439,6 @@ export enum LayerBlending {
     additive,
 }
 
-export enum VariableType {
-    NUMBER,
-
-    BOOLEAN,
-
-    TRIGGER,
-}
-
 @ccclass('cc.animation.Variable')
 export class Variable {
     // TODO: we should not specify type here but due to de-serialization limitation
@@ -467,6 +460,9 @@ export class Variable {
         default:
             break;
         case VariableType.NUMBER:
+            this._value = 0;
+            break;
+        case VariableType.INTEGER:
             this._value = 0.0;
             break;
         case VariableType.BOOLEAN:
@@ -491,6 +487,9 @@ export class Variable {
                 break;
             case VariableType.NUMBER:
                 assertIsTrue(typeof value === 'number');
+                break;
+            case VariableType.INTEGER:
+                assertIsTrue(Number.isInteger(value));
                 break;
             case VariableType.BOOLEAN:
                 assertIsTrue(typeof value === 'boolean');

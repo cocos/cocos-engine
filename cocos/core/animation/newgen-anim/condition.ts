@@ -1,9 +1,12 @@
-import { VariableNotDefinedError, VariableType } from '.';
+import {
+    VariableType,
+    BindableBoolean, BindableNumber, BindContext, bindOr, validateVariableExistence, validateVariableType,
+    bindNumericOr,
+} from './parametric';
 import { ccclass, serializable } from '../../data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
-import { BindableBoolean, BindableNumber, BindContext, bindOr } from './parametric';
 import type { Value } from './variable';
 
 export type ConditionEvalContext = BindContext;
@@ -53,7 +56,7 @@ export class BinaryCondition implements Condition {
     public [createEval] (context: BindContext) {
         const { operator, lhs, rhs } = this;
         const evaluation = new BinaryConditionEval(operator, 0.0, 0.0);
-        const lhsValue = bindOr(
+        const lhsValue = bindNumericOr(
             context,
             lhs,
             VariableType.NUMBER,
@@ -231,14 +234,13 @@ export class TriggerCondition implements Condition {
 
     [createEval] (context: BindContext): ConditionEval {
         const evaluation = new TriggerConditionEval(false);
-        const initialValue = context.bind(
-            this.trigger,
-            VariableType.TRIGGER,
-            evaluation.setTrigger,
-            evaluation,
-        );
-        if (typeof initialValue !== 'undefined') {
-            evaluation.setTrigger(initialValue);
+        const triggerInstance = context.getVar(this.trigger);
+        if (validateVariableExistence(triggerInstance, this.trigger)) {
+            validateVariableType(triggerInstance.type, VariableType.TRIGGER, this.trigger);
+            evaluation.setTrigger(triggerInstance.bind(
+                evaluation.setTrigger,
+                evaluation,
+            ) as boolean);
         }
         return evaluation;
     }
@@ -262,7 +264,13 @@ class TriggerConditionEval implements ConditionEval {
 
 export function validateConditionParamNumber (val: unknown, name: string): asserts val is number {
     if (typeof val !== 'number') {
-        throw new VariableTypeMismatchedError(name, 'number');
+        throw new VariableTypeMismatchedError(name, 'float');
+    }
+}
+
+export function validateConditionParamInteger (val: unknown, name: string): asserts val is number {
+    if (!Number.isInteger(val)) {
+        throw new VariableTypeMismatchedError(name, 'integer');
     }
 }
 
