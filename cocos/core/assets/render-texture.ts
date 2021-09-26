@@ -167,11 +167,21 @@ export class RenderTexture extends TextureBase {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
     }
 
-    public readPixels (x:number, y:number, w:number, h:number) : ArrayBufferView | null {
-        x = x || 0;
-        y = y || 0;
-        const width = w || this.width;
-        const height = h || this.height;
+    /**
+     * @en Read pixel buffer from render texture
+     * @param x The location on x axis
+     * @param y The location on y axis
+     * @param width The pixel width
+     * @param height The pixel height
+     * @zh 从render texture 读取像素数据
+     * @param x 起始位置X轴坐标
+     * @param y 起始位置Y轴坐标
+     * @param width 像素宽度
+     * @param height 像素高度
+     */
+    public readPixels (x: number = 0, y: number = 0, width?: number, height?: number) : Uint8Array | null {
+        width = width || this.width;
+        height = width || this.height;
         const gfxTexture = this.getGFXTexture();
         if (!gfxTexture) {
             return null;
@@ -193,7 +203,7 @@ export class RenderTexture extends TextureBase {
 
         gfxDevice?.copyTextureToBuffers(gfxTexture, bufferViews, regions);
 
-        return bufferViews[0];
+        return buffer;
     }
 }
 
