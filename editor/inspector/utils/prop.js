@@ -31,24 +31,56 @@ exports.sortProp = function(propMap) {
 /**
  *
  * This function can filter the contents of the dump and is mainly used to get the user's dump data
+ * @param {HTMLElement} container
  * @param {string[]} excludeList
  * @param {object} dump
- * @param {(element,prop)=>void} onElementCreated
+ * @param {(element,prop)=>void} update
  */
-exports.getCustomPropElements = function(excludeList, dump, onElementCreated) {
-    const customPropElements = [];
+exports.updateCustomPropElements = function(container, excludeList, dump, update) {
     const sortedProp = exports.sortProp(dump.value);
+    container.$ = container.$ || {};
+    /**
+     * @type {Array<HTMLElement>}
+     */
+    const children = [];
     sortedProp.forEach((prop) => {
         if (!excludeList.includes(prop.key)) {
-            const node = document.createElement('ui-prop');
-            node.setAttribute('type', 'dump');
-            if (typeof onElementCreated === 'function') {
-                onElementCreated(node, prop);
+            if (!prop.dump.visible) {
+                return;
             }
-            customPropElements.push(node);
+            let node = container.$[prop.key];
+            if (!node) {
+                node = document.createElement('ui-prop');
+                node.setAttribute('type', 'dump');
+                prop.dump.displayOrder = prop.dump.displayOrder === undefined ? 0 : Number(prop.dump.displayOrder);
+                node.dump = prop.dump;
+                node.key = prop.key;
+                container.$[prop.key] = node;
+            }
+
+            if (typeof update === 'function') {
+                update(node, prop);
+            }
+
+            children.push(node);
         }
     });
-    return customPropElements;
+    children.sort((a, b) => a.dump.displayOrder - b.dump.displayOrder);
+    const currentChildren = Array.from(container.children);
+    children.forEach((child, i) => {
+        if (child === currentChildren[i]) {
+            return;
+        }
+
+        container.appendChild(child);
+    });
+
+    // delete extra children
+    currentChildren.forEach(($child) => {
+        if (!children.includes($child)) {
+            $child.remove();
+        }
+    });
 };
 
 /**

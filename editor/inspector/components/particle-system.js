@@ -34,7 +34,20 @@ exports.template = `
         <ui-prop type="dump" key="rateOverTime"></ui-prop>
         <ui-prop type="dump" key="rateOverDistance"></ui-prop>
         <ui-prop type="dump" key="bursts"></ui-prop>
-        <ui-prop type="dump" key="enableCulling"></ui-prop>
+        <!-- Render other data that has not taken over -->
+        <div id="customProps">
+        </div>
+        <ui-section class="config" key="enableCulling" cache-expand="particle-system-cullingMode">
+            <ui-prop slot="header" class="header" type="dump" key="enableCulling" labelflag="enableCulling"
+            empty="true">
+                <ui-checkbox></ui-checkbox>
+                <ui-label></ui-label>
+            </ui-prop>
+            <ui-prop type="dump" key="cullingMode"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfX"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfY"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfZ"></ui-prop>
+        </ui-section>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
                 empty="true">
@@ -115,7 +128,6 @@ exports.template = `
         </ui-section>
 
         <ui-section empty="true" class="config" key="rotationOvertimeModule" cache-expand="particle-system-rotationOvertimeModule">
-
             <ui-prop slot="header" class="header" type="dump" key="rotationOvertimeModule.value.enable"
                 labelflag="rotationOvertimeModule" empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -167,9 +179,7 @@ exports.template = `
         <ui-prop type="dump" key="renderer"></ui-prop>
     </div>
 
-    <!-- Render other data that has not taken over -->
-    <div id="customProps">
-    </div>
+
 </div>
 `;
 const excludeList = [
@@ -182,7 +192,8 @@ const excludeList = [
     'rateOverDistance', 'bursts', 'shapeModule',
     'velocityOvertimeModule', 'forceOvertimeModule', 'sizeOvertimeModule',
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
-    'trailModule', 'renderer', 'enableCulling', 'limitVelocityOvertimeModule',
+    'trailModule', 'renderer', 'enableCulling', 'limitVelocityOvertimeModule', 'cullingMode',
+    'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
 ];
 
 exports.methods = {
@@ -514,13 +525,13 @@ const uiElements = {
     },
     customProps: {
         update() {
-            this.$.customProps.replaceChildren(...propUtils.getCustomPropElements(excludeList, this.dump, (element, prop) => {
+            propUtils.updateCustomPropElements(this.$.customProps, excludeList, this.dump, (element, prop) => {
                 element.className = 'customProp';
                 if (prop.dump.visible) {
                     element.render(prop.dump);
                 }
                 element.hidden = !prop.dump.visible;
-            }));
+            });
         },
     },
 };
