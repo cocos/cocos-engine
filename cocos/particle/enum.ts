@@ -36,6 +36,12 @@ export const Space = Enum({
     Custom: 2,
 });
 
+export const ParticleCullingMode = Enum({
+    Pause: 0,
+    PauseAndCatchup: 1,
+    AlwaysSimulate: 2,
+});
+
 /**
  * 粒子的生成模式。
  * @enum ParticleSystemRenderer.RenderMode

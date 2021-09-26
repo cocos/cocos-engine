@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -49,7 +50,7 @@ import TextureAnimationModule from './animator/texture-animation';
 import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
 import ShapeModule from './emitter/shape-module';
-import { RenderMode, Space } from './enum';
+import { ParticleCullingMode, RenderMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
@@ -310,6 +311,21 @@ export class ParticleSystem extends RenderableComponent {
     @displayOrder(27)
     @tooltip('i18n:particle_system.enableCulling')
     public enableCulling = false;
+
+    // eslint-disable-next-line func-names
+    @visible(function (this: ParticleSystem) { return this.enableCulling; })
+    @type(ParticleCullingMode)
+    @displayOrder(17)
+    get cullingMode () {
+        return this._cullingMode;
+    }
+
+    set cullingMode (value: number) {
+        this._cullingMode = value;
+    }
+
+    @serializable
+    _cullingMode = ParticleCullingMode.Pause;
 
     // eslint-disable-next-line func-names
     @visible(function (this: ParticleSystem) { return this.enableCulling; })
@@ -633,6 +649,7 @@ export class ParticleSystem extends RenderableComponent {
     private _culler: ParticleCuller | null;
     private _oldPos: Vec3 | null;
     private _curPos: Vec3 | null;
+    private _isCulled: boolean;
 
     private _customData1: Vec2;
     private _customData2: Vec2;
@@ -679,6 +696,7 @@ export class ParticleSystem extends RenderableComponent {
         this._culler = null;
         this._oldPos = null;
         this._curPos = null;
+        this._isCulled = false;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -921,6 +939,8 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     protected update (dt: number) {
+        const scaledDeltaTime = dt * this.simulationSpeed;
+
         if (this.enableCulling) {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
@@ -965,8 +985,27 @@ export class ParticleSystem extends RenderableComponent {
             }
             if (culled) {
                 this.pause();
-            } else if (!this._isPlaying) {
-                this.play();
+                if (!this._isCulled) {
+                    this.processor.detachFromScene();
+                    this._isCulled = true;
+                }
+                if (this._trailModule && this._trailModule.enable) {
+                    this._trailModule._detachFromScene();
+                }
+                if (this._cullingMode === ParticleCullingMode.PauseAndCatchup) {
+                    this._time += scaledDeltaTime;
+                }
+                if (this._cullingMode !== ParticleCullingMode.AlwaysSimulate) {
+                    return;
+                }
+            } else {
+                if (this._isCulled) {
+                    this._attachToScene();
+                    this._isCulled = false;
+                }
+                if (!this._isPlaying) {
+                    this.play();
+                }
             }
         } else {
             if (this._boundingBox) {
@@ -979,7 +1018,6 @@ export class ParticleSystem extends RenderableComponent {
             }
         }
 
-        const scaledDeltaTime = dt * this.simulationSpeed;
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
