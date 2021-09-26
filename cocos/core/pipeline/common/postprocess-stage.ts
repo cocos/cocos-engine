@@ -90,6 +90,7 @@ export class PostprocessStage extends RenderStage {
         const pipeline = this._pipeline;
         // TODO: The offscreen camera does not do fxaa processing
         // (For example, the editor camera small window will cause the picture to be distorted, etc.)
+        // Later the version will get the configuration from the camera
         if (!camera.window?.swapchain && !pipeline.macros.CC_PIPELINE_TYPE) {
             return;
         }

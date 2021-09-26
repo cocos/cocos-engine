@@ -28,7 +28,7 @@ import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { macro } from '../..';
+import { macro } from '../../platform/macro';
 
 export class CommonPipelineSceneData extends PipelineSceneData {
     public get postprocessMaterial () {

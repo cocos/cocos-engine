@@ -36,7 +36,6 @@ import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
 import { PostprocessStage } from '../common/postprocess-stage';
-import { macro } from '../..';
 
 /**
  * @en The forward flow in forward render pipeline
