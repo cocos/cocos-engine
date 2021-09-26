@@ -69,7 +69,6 @@ export class ForwardFlow extends RenderFlow {
         if (!(this._stages[this._stages.length - 1] instanceof PostprocessStage)) {
             this.postprocessStage = new PostprocessStage();
             this.postprocessStage.initialize(PostprocessStage.initInfo);
-            this.postprocessStage.enabled = false;
             this._stages.push(this.postprocessStage);
         }
     }
@@ -80,11 +79,6 @@ export class ForwardFlow extends RenderFlow {
     }
 
     public render (camera: Camera) {
-        if (macro.ENABLE_ANTIALIAS_FXAA) {
-            this._stages[this._stages.length - 1].enabled = true;
-        } else {
-            this._stages[this._stages.length - 1].enabled = false;
-        }
         super.render(camera);
     }
 

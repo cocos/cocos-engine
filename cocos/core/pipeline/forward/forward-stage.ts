@@ -166,7 +166,7 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
         const sceneData = pipeline.pipelineSceneData;
         this._renderArea = pipeline.generateRenderArea(camera);
-        if (macro.ENABLE_ANTIALIAS_FXAA) pipeline.updateQuadVertexData(this._renderArea, camera.window!);
+        pipeline.updateQuadVertexData(this._renderArea, camera.window!);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (sceneData.isHDR) {
@@ -186,12 +186,12 @@ export class ForwardStage extends RenderStage {
 
         const swapchain = camera.window!.swapchain;
         let framebuffer = camera.window!.framebuffer;
-        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain) : framebuffer.renderPass;
-        if (macro.ENABLE_ANTIALIAS_FXAA && swapchain) {
+        let renderPass = framebuffer.renderPass;
+        if (swapchain) {
+            renderPass = pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain);
             const forwardData = pipeline.getPipelineRenderData();
             framebuffer = forwardData.outputFrameBuffer;
         }
-
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
 
@@ -203,10 +203,7 @@ export class ForwardStage extends RenderStage {
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
-        if (!macro.ENABLE_ANTIALIAS_FXAA || !swapchain) {
-            this._uiPhase.render(camera, renderPass);
-            renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, swapchain);
-        }
+        if (!swapchain) this._uiPhase.render(camera, renderPass);
         cmdBuff.endRenderPass();
     }
 }
