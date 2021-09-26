@@ -73,7 +73,9 @@ void CCVKBuffer::createBufferView() {
     _gpuBufferView->gpuBuffer = _gpuBuffer;
     _gpuBufferView->offset    = _offset;
     _gpuBufferView->range     = _size;
-    CCVKDevice::getInstance()->gpuDescriptorHub()->update(_gpuBufferView);
+    if (_gpuBufferView->gpuBuffer->vkBuffer) {
+        CCVKDevice::getInstance()->gpuDescriptorHub()->update(_gpuBufferView);
+    }
 }
 
 void CCVKBuffer::doDestroy() {

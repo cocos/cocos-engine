@@ -30,6 +30,8 @@
 #include <set>
 #include "PassNodeBuilder.h"
 #include "Resource.h"
+#include "base/StringUtil.h"
+#include "frame-graph/ResourceEntry.h"
 
 namespace cc {
 namespace framegraph {
@@ -56,8 +58,21 @@ const char *FrameGraph::handleToString(const StringHandle &handle) noexcept {
 }
 
 void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
-    static const StringHandle PRESENT_PASS = FrameGraph::stringToHandle("Present");
-    const ResourceNode &      resourceNode = getResourceNode(input);
+    static const StringHandle PRESENT_PASS{FrameGraph::stringToHandle("Present")};
+    // using a global map here so that the user don't need to worry about importing the targets every frame
+    static std::unordered_map<uint32_t, std::pair<StringHandle, Texture>> presentTargets;
+    if (!presentTargets.count(target->getTypedID())) {
+        auto name = FrameGraph::stringToHandle(StringUtil::format("Present Target %d", target->getTypedID()).c_str());
+        presentTargets.emplace(std::piecewise_construct, std::forward_as_tuple(target->getTypedID()), std::forward_as_tuple(name, Texture{target}));
+    }
+    auto &        resourceInfo{presentTargets[target->getTypedID()]};
+    TextureHandle output{getBlackboard().get(resourceInfo.first)};
+    if (!output.isValid()) {
+        output = importExternal(resourceInfo.first, resourceInfo.second);
+        getBlackboard().put(resourceInfo.first, output);
+    }
+
+    const ResourceNode &resourceNode{getResourceNode(input)};
     CC_ASSERT(resourceNode.writer);
 
     struct PassDataPresent {
@@ -67,7 +82,14 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
     addPass<PassDataPresent>(
         resourceNode.writer->_insertPoint, PRESENT_PASS,
         [&](PassNodeBuilder &builder, PassDataPresent &data) {
-            data.input = builder.read(input);
+            const auto &descIn{static_cast<ResourceEntry<Texture> *>(resourceNode.virtualResource)->get().getDesc()};
+            const auto &descOut{target->getInfo()};
+            if (descIn.width == descOut.width && descIn.height == descOut.height) {
+                move(builder.read(input), output, 0, 0, 0);
+                data.input = output;
+            } else {
+                data.input = builder.read(input);
+            }
             builder.sideEffect();
         },
         [target](const PassDataPresent &data, const DevicePassResourceTable &table) {

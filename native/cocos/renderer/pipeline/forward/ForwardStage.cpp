@@ -175,7 +175,7 @@ void ForwardStage::render(scene::Camera *camera) {
         // color
         gfx::TextureInfo colorTexInfo{
             gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::TRANSFER_SRC,
+            gfx::TextureUsageBit::COLOR_ATTACHMENT,
             sharedData->isHDR ? gfx::Format::RGBA16F : gfx::Format::RGBA8,
             camera->window->getWidth(),
             camera->window->getHeight(),
@@ -193,8 +193,8 @@ void ForwardStage::render(scene::Camera *camera) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
             }
         }
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::TRANSFER_READ};
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::TRANSFER_READ};
+        colorAttachmentInfo.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
         data.backBuffer                   = builder.create<framegraph::Texture>(ForwardPipeline::fgStrHandleForwardColorTexture, colorTexInfo);
         data.backBuffer                   = builder.write(data.backBuffer, colorAttachmentInfo);
         builder.writeToBlackboard(ForwardPipeline::fgStrHandleForwardColorTexture, data.backBuffer);

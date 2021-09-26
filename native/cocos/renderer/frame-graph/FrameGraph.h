@@ -45,10 +45,10 @@ public:
 
     FrameGraph() = default;
     ~FrameGraph();
-    FrameGraph(const FrameGraph &) = delete;
-    FrameGraph(FrameGraph &&)      = delete;
+    FrameGraph(const FrameGraph &)     = delete;
+    FrameGraph(FrameGraph &&) noexcept = delete;
     FrameGraph &operator=(const FrameGraph &) = delete;
-    FrameGraph &operator=(FrameGraph &&) = delete;
+    FrameGraph &operator=(FrameGraph &&) noexcept = delete;
 
     static StringHandle stringToHandle(const char *name);
     static const char * handleToString(const StringHandle &handle) noexcept;

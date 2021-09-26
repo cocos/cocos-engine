@@ -63,7 +63,7 @@ public:
     using DescriptorHasher = DescriptorHasherType;
 
     Resource() = default;
-    explicit Resource(const Descriptor &desc) noexcept;
+    explicit Resource(const Descriptor &desc);
     ~Resource()                    = default;
     Resource(const Resource &)     = default;
     Resource(Resource &&) noexcept = default;
@@ -79,18 +79,26 @@ public:
     inline const Descriptor &  getDesc() const noexcept;
 
 private:
+    explicit Resource(DeviceResourceType *external);
     void computeHash() noexcept;
 
     Descriptor          _desc;
     DescriptorHash      _hash{0};
     DeviceResourceType *_deviceObject{nullptr};
+
+    friend class FrameGraph;
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::Resource(const Descriptor &desc) noexcept
+Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::Resource(const Descriptor &desc)
 : _desc(desc) {
+}
+
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
+Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::Resource(DeviceResourceType *external)
+: _desc(external->getInfo()), _deviceObject(external) {
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>

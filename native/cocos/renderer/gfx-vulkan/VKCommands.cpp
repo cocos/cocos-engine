@@ -197,8 +197,10 @@ void cmdFuncCCVKCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTex
         for (uint32_t i = 0; i < backBufferCount; ++i) {
             createFn(gpuTextureView->gpuTexture->swapchainVkImages[i], &gpuTextureView->swapchainVkImageViews[i]);
         }
-    } else {
+    } else if (gpuTextureView->gpuTexture->vkImage) {
         createFn(gpuTextureView->gpuTexture->vkImage, &gpuTextureView->vkImageView);
+    } else {
+        return;
     }
 
     device->gpuDescriptorHub()->update(gpuTextureView);

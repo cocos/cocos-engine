@@ -140,12 +140,12 @@ void PostprocessStage::render(scene::Camera *camera) {
             }
         }
 
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::TRANSFER_READ};
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::TRANSFER_READ};
+        colorAttachmentInfo.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
 
         gfx::TextureInfo textureInfo = {
             gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::TRANSFER_SRC,
+            gfx::TextureUsageBit::COLOR_ATTACHMENT,
             gfx::Format::RGBA8,
             camera->window->getWidth(),
             camera->window->getHeight(),
