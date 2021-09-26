@@ -173,7 +173,7 @@ export class RenderTexture extends TextureBase {
      * @param y The location on y axis
      * @param width The pixel width
      * @param height The pixel height
-     * @zh 从render texture 读取像素数据
+     * @zh 从 render texture 读取像素数据
      * @param x 起始位置X轴坐标
      * @param y 起始位置Y轴坐标
      * @param width 像素宽度
