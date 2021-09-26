@@ -803,7 +803,7 @@ export const effects = [
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 1088331799,
+        "hash": 2286065615,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 145, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 37 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -819,7 +819,7 @@ export const effects = [
           { "name": "CC_USE_SKINNING", "type": "boolean" },
           { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
           { "name": "USE_INSTANCING", "type": "boolean" },
-          { "name": "ANTIALIAS_TYPE", "type": "boolean" }
+          { "name": "ANTIALIAS_TYPE", "type": "number", "range": [0, 3] }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
