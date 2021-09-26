@@ -358,7 +358,6 @@ const Elements = {
     clips: {
         ready() {
             const panel = this;
-
             Object.assign(panel, {
                 splitClipIndex: 0,
                 rawClipIndex: 0,
@@ -627,7 +626,7 @@ exports.update = function(assetList, metaList) {
     this.initAnimationNameToUUIDMap();
     this.initAnimationInfos();
     if (this.animationInfos) {
-        this.onSelect(0, 0);
+        this.onSelect(this.rawClipIndex, this.splitClipIndex);
     }
 };
 
