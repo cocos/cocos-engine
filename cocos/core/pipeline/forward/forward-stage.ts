@@ -33,7 +33,7 @@ import { SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { ClearFlagBit, Color, Rect } from '../../gfx';
-import { renderProfiler, SRGBToLinear } from '../pipeline-funcs';
+import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
@@ -48,7 +48,6 @@ import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization'
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from '../common/ui-phase';
 import { Camera } from '../../renderer/scene';
-import { macro } from '../..';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 

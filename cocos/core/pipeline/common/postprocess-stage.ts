@@ -38,7 +38,6 @@ import { UIPhase } from './ui-phase';
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
 import { RenderFlow, RenderPipeline } from '..';
-import { ForwardPipeline } from '../forward/forward-pipeline';
 import { CommonPipelineSceneData } from './common-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
@@ -91,7 +90,7 @@ export class PostprocessStage extends RenderStage {
         const pipeline = this._pipeline;
         // TODO: The offscreen camera does not do fxaa processing
         // (For example, the editor camera small window will cause the picture to be distorted, etc.)
-        if (!camera.window?.swapchain && pipeline instanceof ForwardPipeline) {
+        if (!camera.window?.swapchain && !pipeline.macros.CC_PIPELINE_TYPE) {
             return;
         }
         const device = pipeline.device;

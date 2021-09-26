@@ -6,6 +6,7 @@ CCEffect %{
     - vert: post-process-vs
       frag: post-process-fs
       phase: post-process
+      embeddedMacros: { ANTIALIAS_TYPE: 0 }
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -65,9 +66,13 @@ void main () {
 	  mediump vec2 v_rgbSE;
   	mediump vec2 v_rgbM;
 
-    vec2 resolution = cc_screenSize.xy;
-    vec2 fragCoord = v_uv * resolution;
-    texcoords(fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
-    fragColor = fxaa(outputResultMap, fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
+    if(ANTIALIAS_TYPE == 1) {
+      vec2 resolution = cc_screenSize.xy;
+      vec2 fragCoord = v_uv * resolution;
+      texcoords(fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
+      fragColor = fxaa(outputResultMap, fragCoord, resolution, v_rgbNW, v_rgbNE, v_rgbSW, v_rgbSE, v_rgbM);
+    } else {
+      fragColor = texture(outputResultMap, v_uv);
+    }
   }
 }%

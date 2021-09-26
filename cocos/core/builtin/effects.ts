@@ -798,12 +798,12 @@ export const effects = [
   {
     "name": "post-process",
     "techniques": [
-      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendSrcAlpha": 2, "blendDstAlpha": 4 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+      { "passes": [{ "phase": "post-process", "embeddedMacros": { "ANTIALIAS_TYPE": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendSrcAlpha": 2, "blendDstAlpha": 4 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
     ],
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 2152404385,
+        "hash": 1088331799,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 145, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 37 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -818,7 +818,8 @@ export const effects = [
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
           { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "USE_INSTANCING", "type": "boolean" }
+          { "name": "USE_INSTANCING", "type": "boolean" },
+          { "name": "ANTIALIAS_TYPE", "type": "boolean" }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },

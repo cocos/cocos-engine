@@ -28,6 +28,7 @@ import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
+import { macro } from '../..';
 
 export class CommonPipelineSceneData extends PipelineSceneData {
     public get postprocessMaterial () {
@@ -48,7 +49,13 @@ export class CommonPipelineSceneData extends PipelineSceneData {
     public initPipelinePassInfo () {
         const postMat = new Material();
         postMat._uuid = 'builtin-post-process-material';
-        postMat.initialize({ effectName: 'post-process' });
+        postMat.initialize({
+            effectName: 'post-process',
+            defines: {
+                // Anti-aliasing type, currently only fxaa, so 1 means fxaa
+                ANTIALIAS_TYPE: macro.ENABLE_ANTIALIAS_FXAA ? 1 : 0,
+            },
+        });
         for (let i = 0; i < postMat.passes.length; ++i) {
             postMat.passes[i].tryCompile();
         }
