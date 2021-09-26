@@ -32,7 +32,7 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable, inspector } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable, inspector, boolean } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
@@ -307,10 +307,25 @@ export class ParticleSystem extends RenderableComponent {
     public bursts: Burst[] = [];
 
     // serilized culling
-    @serializable
+    @type(Boolean)
     @displayOrder(27)
     @tooltip('i18n:particle_system.enableCulling')
-    public enableCulling = false;
+    set enableCulling (value: boolean) {
+        this._enableCulling = value;
+        if (value) {
+            if (!this._boundingBox) {
+                this._boundingBox = new AABB();
+                this._calculateBounding(false);
+            }
+        }
+    }
+
+    get enableCulling () {
+        return this._enableCulling;
+    }
+
+    @serializable
+    public _enableCulling = false;
 
     // eslint-disable-next-line func-names
     @visible(function (this: ParticleSystem) { return this.enableCulling; })
