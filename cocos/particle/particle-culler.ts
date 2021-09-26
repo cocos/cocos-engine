@@ -90,12 +90,12 @@ export class ParticleCuller {
 
         this._initModuleList();
 
-        if (EDITOR) {
-            this._createBoundingMaterial();
-            this._createBoundingMesh();
-            this._createBoundingModel();
-            this._attachToScene();
-        }
+        // if (EDITOR) {
+        //     this._createBoundingMaterial();
+        //     this._createBoundingMesh();
+        //     this._createBoundingModel();
+        //     this._attachToScene();
+        // }
     }
 
     private _createBoundingMaterial () {
