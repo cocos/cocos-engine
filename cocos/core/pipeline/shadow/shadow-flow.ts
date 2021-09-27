@@ -40,7 +40,7 @@ import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { Light } from '../../renderer/scene/light';
+import { Light, LightType } from '../../renderer/scene/light';
 import { lightCollecting } from '../scene-culling';
 import { Camera } from '../../renderer/scene';
 
@@ -92,6 +92,7 @@ export class ShadowFlow extends RenderFlow {
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
+            const isMainLight = light.type === LightType.DIRECTIONAL;
 
             if (!shadowFrameBufferMap.has(light)) {
                 this._initShadowFrameBuffer(pipeline, light, camera.window!.swapchain);
@@ -100,7 +101,7 @@ export class ShadowFlow extends RenderFlow {
             const shadowFrameBuffer = shadowFrameBufferMap.get(light);
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
-                shadowStage.setUsage(l - 1, light, shadowFrameBuffer!);
+                shadowStage.setUsage(isMainLight, l, light, shadowFrameBuffer!);
                 shadowStage.render(camera);
             }
         }
@@ -191,6 +192,7 @@ export class ShadowFlow extends RenderFlow {
         const scene = this._pipeline.pipelineSceneData;
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
+            const isMainLight = light.type === LightType.DIRECTIONAL;
             const shadowFrameBuffer = scene.shadowFrameBufferMap.get(light);
 
             if (!scene.shadowFrameBufferMap.has(light)) { continue; }
@@ -200,7 +202,7 @@ export class ShadowFlow extends RenderFlow {
                 // Lighting Index
                 // l = 0 for main light source
                 // Starting from l = 1 for other light sources
-                shadowStage.setUsage(l - 1, light, shadowFrameBuffer!);
+                shadowStage.setUsage(isMainLight, l, light, shadowFrameBuffer!);
                 shadowStage.clearFramebuffer(camera);
             }
         }
