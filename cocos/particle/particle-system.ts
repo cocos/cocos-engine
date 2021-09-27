@@ -318,7 +318,10 @@ export class ParticleSystem extends RenderableComponent {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
-    // serilized culling
+    /**
+     * @en Enable particle culling switch.
+     * @zh 粒子剔除开关。
+     */
     @type(Boolean)
     @displayOrder(27)
     @tooltip('i18n:particle_system.enableCulling')
@@ -339,6 +342,10 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     public _enableCulling = false;
 
+    /**
+     * @en Particle culling mode option.
+     * @zh 粒子剔除模式选择。
+     */
     @type(ParticleCullingMode)
     @displayOrder(17)
     get cullingMode () {
@@ -352,6 +359,10 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     _cullingMode = ParticleCullingMode.Pause;
 
+    /**
+     * @en Particle bounding box half width.
+     * @zh 粒子包围盒半宽。
+     */
     @type(Number)
     @displayOrder(17)
     get aabbHalfX () {
@@ -370,6 +381,10 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     _aabbHalfX = 0;
 
+    /**
+     * @en Particle bounding box half height.
+     * @zh 粒子包围盒半高。
+     */
     @type(Number)
     @displayOrder(17)
     get aabbHalfY () {
@@ -388,6 +403,10 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     _aabbHalfY = 0;
 
+    /**
+     * @en Particle bounding box half depth.
+     * @zh 粒子包围盒半深。
+     */
     @type(Number)
     @displayOrder(17)
     get aabbHalfZ () {
