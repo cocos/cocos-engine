@@ -70,10 +70,10 @@ export class ParticleCuller {
     public minPos: Vec3 = new Vec3();
     public maxPos: Vec3 = new Vec3();
 
-    private _boundingMesh: Mesh | null;
-    private _boundingMaterial: Material | null;
-    private _boundingNode: Node | null;
-    private _model: scene.Model | null;
+    // private _boundingMesh: Mesh | null;
+    // private _boundingMaterial: Material | null;
+    // private _boundingNode: Node | null;
+    // private _model: scene.Model | null;
     private _nodePose: Vec3 = new Vec3();
     private _nodeSize: Vec3 = new Vec3();
 
@@ -82,13 +82,12 @@ export class ParticleCuller {
         this._processor = this._particleSystem.processor;
         this._node = ps.node;
         this._particlesAll = [];
-
-        this._boundingMesh = null;
-        this._boundingMaterial = null;
-        this._boundingNode = null;
-        this._model = null;
-
         this._initModuleList();
+
+        // this._boundingMesh = null;
+        // this._boundingMaterial = null;
+        // this._boundingNode = null;
+        // this._model = null;
 
         // if (EDITOR) {
         //     this._createBoundingMaterial();
@@ -98,6 +97,8 @@ export class ParticleCuller {
         // }
     }
 
+    // AABB node for debug
+    /*
     private _createBoundingMaterial () {
         this._boundingMaterial = new Material();
         this._boundingMaterial.initialize({
@@ -165,26 +166,6 @@ export class ParticleCuller {
         }
     }
 
-    public synBoundingSize (halfExt: Vec3) {
-        this.maxPos.x = this._nodePose.x + halfExt.x;
-        this.maxPos.y = this._nodePose.y + halfExt.y;
-        this.maxPos.z = this._nodePose.z + halfExt.z;
-        this.minPos.x = this._nodePose.x - halfExt.x;
-        this.minPos.y = this._nodePose.y - halfExt.y;
-        this.minPos.z = this._nodePose.z - halfExt.z;
-        this._updateBoundingNode();
-    }
-
-    public synBoundingPose (px, py, pz) {
-        this.maxPos.x = px + this._nodeSize.x * 0.5;
-        this.maxPos.y = py + this._nodeSize.y * 0.5;
-        this.maxPos.z = pz + this._nodeSize.z * 0.5;
-        this.minPos.x = px - this._nodeSize.x * 0.5;
-        this.minPos.y = py - this._nodeSize.y * 0.5;
-        this.minPos.z = pz - this._nodeSize.z * 0.5;
-        this._updateBoundingNode();
-    }
-
     private _attachToScene () {
         if (!this._node.scene || !this._model) {
             return;
@@ -202,6 +183,27 @@ export class ParticleCuller {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }
+    }
+    */
+
+    public setBoundingBoxSize (halfExt: Vec3) {
+        this.maxPos.x = this._nodePose.x + halfExt.x;
+        this.maxPos.y = this._nodePose.y + halfExt.y;
+        this.maxPos.z = this._nodePose.z + halfExt.z;
+        this.minPos.x = this._nodePose.x - halfExt.x;
+        this.minPos.y = this._nodePose.y - halfExt.y;
+        this.minPos.z = this._nodePose.z - halfExt.z;
+        // this._updateBoundingNode();
+    }
+
+    public setBoundingBoxCenter (px, py, pz) {
+        this.maxPos.x = px + this._nodeSize.x * 0.5;
+        this.maxPos.y = py + this._nodeSize.y * 0.5;
+        this.maxPos.z = pz + this._nodeSize.z * 0.5;
+        this.minPos.x = px - this._nodeSize.x * 0.5;
+        this.minPos.y = py - this._nodeSize.y * 0.5;
+        this.minPos.z = pz - this._nodeSize.z * 0.5;
+        // this._updateBoundingNode();
     }
 
     private _initModuleList () {
@@ -371,11 +373,11 @@ export class ParticleCuller {
                 Vec3.transformMat4(position, position, this._particleSystem.node._mat);
             }
             if (isInit && i === 0) {
-                this.minPos.set(position.x - size.x, position.y - size.y, position.z - size.z);
-                this.maxPos.set(position.x + size.x, position.y + size.y, position.z + size.z);
+                Vec3.subtract(this.minPos, position, size);
+                Vec3.add(this.maxPos, position, size);
             } else {
-                subPos.set(position.x - size.x, position.y - size.y, position.z - size.z);
-                addPos.set(position.x + size.x, position.y + size.y, position.z + size.z);
+                Vec3.subtract(subPos, position, size);
+                Vec3.add(addPos, position, size);
                 Vec3.min(this.minPos, this.minPos, subPos);
                 Vec3.max(this.maxPos, this.maxPos, addPos);
             }
@@ -389,8 +391,7 @@ export class ParticleCuller {
         this._calculateBounding(true);
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);
         this._calculateBounding(false);
-
-        this._updateBoundingNode();
+        // this._updateBoundingNode();
     }
 
     public clear () {
@@ -398,10 +399,10 @@ export class ParticleCuller {
     }
 
     public destroy () {
-        this._detachFromScene();
-        this._boundingMaterial?.destroy();
-        this._model?.destroy();
-        this._boundingNode?.destroy();
-        this._boundingMesh?.destroy();
+        // this._detachFromScene();
+        // this._boundingMaterial?.destroy();
+        // this._model?.destroy();
+        // this._boundingNode?.destroy();
+        // this._boundingMesh?.destroy();
     }
 }

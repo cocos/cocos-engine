@@ -32,7 +32,7 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable, inspector, boolean } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
@@ -339,8 +339,6 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     public _enableCulling = false;
 
-    // eslint-disable-next-line func-names
-    @visible(function (this: ParticleSystem) { return this.enableCulling; })
     @type(ParticleCullingMode)
     @displayOrder(17)
     get cullingMode () {
@@ -354,8 +352,6 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     _cullingMode = ParticleCullingMode.Pause;
 
-    // eslint-disable-next-line func-names
-    @visible(function (this: ParticleSystem) { return this.enableCulling; })
     @type(Number)
     @displayOrder(17)
     get aabbHalfX () {
@@ -374,8 +370,6 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     _aabbHalfX = 0;
 
-    // eslint-disable-next-line func-names
-    @visible(function (this: ParticleSystem) { return this.enableCulling; })
     @type(Number)
     @displayOrder(17)
     get aabbHalfY () {
@@ -394,8 +388,6 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     _aabbHalfY = 0;
 
-    // eslint-disable-next-line func-names
-    @visible(function (this: ParticleSystem) { return this.enableCulling; })
     @type(Number)
     @displayOrder(17)
     get aabbHalfZ () {
@@ -671,8 +663,6 @@ export class ParticleSystem extends RenderableComponent {
     private _curWPos: Vec3;
 
     private _boundingBox: AABB | null;
-    private _boundPoints:Vec4[] = [];
-    private _boundExtends:Vec4[] = [];
     private _culler: ParticleCuller | null;
     private _oldPos: Vec3 | null;
     private _curPos: Vec3 | null;
@@ -716,10 +706,6 @@ export class ParticleSystem extends RenderableComponent {
         this._curWPos = new Vec3();
 
         this._boundingBox = null;
-        for (let i = 0; i < 8; ++i) {
-            this._boundPoints.push(new Vec4());
-            this._boundExtends.push(new Vec4());
-        }
         this._culler = null;
         this._oldPos = null;
         this._curPos = null;
@@ -990,7 +976,7 @@ export class ParticleSystem extends RenderableComponent {
                 center.x += dx;
                 center.y += dy;
                 center.z += dz;
-                this._culler.synBoundingPose(center.x, center.y, center.z);
+                this._culler.setBoundingBoxCenter(center.x, center.y, center.z);
                 this._oldPos.set(this._curPos);
             }
 
@@ -999,19 +985,24 @@ export class ParticleSystem extends RenderableComponent {
             if (cameraLst !== undefined && this._boundingBox) {
                 for (let i = 0; i < cameraLst.length; ++i) {
                     const camera:Camera = cameraLst[i];
-                    if (EDITOR) {
-                        if (camera.name === 'Editor Camera' && intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                    const visibility = camera.visibility;
+                    if ((visibility & this.node.layer) === this.node.layer) {
+                        if (EDITOR) {
+                            if (camera.name === 'Editor Camera' && intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                                culled = false;
+                                break;
+                            }
+                        } else if (intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
                             culled = false;
                             break;
                         }
-                    } else if (intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
-                        culled = false;
-                        break;
                     }
                 }
             }
             if (culled) {
-                this.pause();
+                if (this._cullingMode !== ParticleCullingMode.AlwaysSimulate) {
+                    this.pause();
+                }
                 if (!this._isCulled) {
                     this.processor.detachFromScene();
                     this._isCulled = true;
@@ -1254,7 +1245,7 @@ export class ParticleSystem extends RenderableComponent {
     private setBoundingX (value: number) {
         if (this._boundingBox && this._culler) {
             this._boundingBox.halfExtents.x = value;
-            this._culler.synBoundingSize(this._boundingBox.halfExtents);
+            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
             this._aabbHalfX = value;
         }
     }
@@ -1262,7 +1253,7 @@ export class ParticleSystem extends RenderableComponent {
     private setBoundingY (value: number) {
         if (this._boundingBox && this._culler) {
             this._boundingBox.halfExtents.y = value;
-            this._culler.synBoundingSize(this._boundingBox.halfExtents);
+            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
             this._aabbHalfY = value;
         }
     }
@@ -1270,7 +1261,7 @@ export class ParticleSystem extends RenderableComponent {
     private setBoundingZ (value: number) {
         if (this._boundingBox && this._culler) {
             this._boundingBox.halfExtents.z = value;
-            this._culler.synBoundingSize(this._boundingBox.halfExtents);
+            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
             this._aabbHalfZ = value;
         }
     }
