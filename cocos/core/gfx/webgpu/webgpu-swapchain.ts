@@ -45,7 +45,7 @@ export class WebGPUSwapchain extends Swapchain {
         const colorTex = this._colorTexture as WebGPUTexture;
         colorTex.swapchain = this;
         const swapchainColorTexInfo = new TextureInfo(
-            TextureType.TEX1D,
+            TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT,
             Format.BGRA8,
             info.width,
@@ -63,7 +63,7 @@ export class WebGPUSwapchain extends Swapchain {
         const dsTex = this._depthStencilTexture as WebGPUTexture;
         dsTex.swapchain = this;
         const swapchainDSTextureInfo = new TextureInfo(
-            TextureType.TEX1D,
+            TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
             Format.DEPTH_STENCIL,
             info.width,

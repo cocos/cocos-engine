@@ -31,8 +31,7 @@ export class WebGPUShader extends Shader {
             const stageStr = info.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : info.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
             const sourceCode = `#version 450\n${source}`;
-            const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true);
-            //shaderStage.source = utf8decoder.decode(u8arr);
+            const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
             shaderStage.setSPVData(code);
             shaderStageList.push_back(shaderStage);
         }

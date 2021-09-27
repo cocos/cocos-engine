@@ -1720,10 +1720,6 @@ function unSign(value, bits) {
  return bits <= 32 ? 2 * Math.abs(1 << bits - 1) + value : Math.pow(2, bits) + value;
 }
 
-function ___assert_fail(condition, filename, line, func) {
- abort("Assertion failed: " + UTF8ToString(condition) + ", at: " + [ filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function" ]);
-}
-
 function _atexit(func, arg) {}
 
 function ___cxa_atexit(a0, a1) {
@@ -3791,12 +3787,20 @@ function _wgpuBindGroupLayoutRelease(id) {
  WebGPU.mgrBindGroupLayout.release(id);
 }
 
-function _wgpuBindGroupRelease(id) {
- WebGPU.mgrBindGroup.release(id);
-}
-
 function _wgpuBufferDestroy(bufferId) {
  WebGPU.mgrBuffer.get(bufferId)["destroy"]();
+}
+
+function _wgpuBufferUnmap(bufferId) {
+ var bufferWrapper = WebGPU.mgrBuffer.objects[bufferId];
+ if (!bufferWrapper.onUnmap) {
+  return;
+ }
+ for (var i = 0; i < bufferWrapper.onUnmap.length; ++i) {
+  bufferWrapper.onUnmap[i]();
+ }
+ bufferWrapper.onUnmap = undefined;
+ bufferWrapper.object["unmap"]();
 }
 
 function _wgpuCommandBufferRelease(id) {
@@ -4609,7 +4613,6 @@ function intArrayToString(array) {
 }
 
 var asmLibraryArg = {
- "__assert_fail": ___assert_fail,
  "__cxa_atexit": ___cxa_atexit,
  "__localtime_r": ___localtime_r,
  "_embind_finalize_value_object": __embind_finalize_value_object,
@@ -4651,8 +4654,8 @@ var asmLibraryArg = {
  "setTempRet0": _setTempRet0,
  "time": _time,
  "wgpuBindGroupLayoutRelease": _wgpuBindGroupLayoutRelease,
- "wgpuBindGroupRelease": _wgpuBindGroupRelease,
  "wgpuBufferDestroy": _wgpuBufferDestroy,
+ "wgpuBufferUnmap": _wgpuBufferUnmap,
  "wgpuCommandBufferRelease": _wgpuCommandBufferRelease,
  "wgpuCommandEncoderBeginComputePass": _wgpuCommandEncoderBeginComputePass,
  "wgpuCommandEncoderBeginRenderPass": _wgpuCommandEncoderBeginRenderPass,

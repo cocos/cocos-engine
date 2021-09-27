@@ -26,22 +26,24 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         this._descriptorIndices = Array(maxBinding + 1).fill(-1);
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const dsLayoutInfo = new wgpuWasmModule.DescriptorSetLayoutInfoInstance();
-        dsLayoutInfo.bindings = new wgpuWasmModule.DescriptorSetLayoutBindingList();
+        const bindings = new wgpuWasmModule.DescriptorSetLayoutBindingList();
         for (let i = 0; i < info.bindings.length; i++) {
             this._bindingIndices[info.bindings[i].binding] = i;
             this._descriptorIndices[info.bindings[i].binding] = flattenedIndices[i];
             const binding = new wgpuWasmModule.DescriptorSetLayoutBindingInstance();
-            binding.binding = info.bindings[i].binding;
-            binding.descriptorType = toWGPUNativeDescriptorType(info.bindings[i].descriptorType);
-            binding.count = info.bindings[i].count;
-            binding.stageFlags = toWGPUNativeStageFlags(info.bindings[i].stageFlags);
-            binding.immutableSamplers = new wgpuWasmModule.SamplerList();
+            binding.setBinding(info.bindings[i].binding);
+            binding.setDescriptorType(toWGPUNativeDescriptorType(info.bindings[i].descriptorType));
+            binding.setCount(info.bindings[i].count);
+            binding.setStageFlags(info.bindings[i].stageFlags);
+            const immutableSamplers = new wgpuWasmModule.SamplerList();
             for (let j = 0; j < info.bindings[i].immutableSamplers.length; j++) {
                 const sampler = info.bindings[i].immutableSamplers[j] as WebGPUSampler;
-                binding.immutableSamplers.push_back(sampler.nativeSampler);
+                immutableSamplers.push_back(sampler.nativeSampler);
             }
-            dsLayoutInfo.bindings.push_back(binding);
+            binding.setImmutableSamplers(immutableSamplers);
+            bindings.push_back(binding);
         }
+        dsLayoutInfo.setBindings(bindings);
 
         this._nativeDescriptorSetLayout = nativeDevice.createDescriptorSetLayout(dsLayoutInfo);
         return true;

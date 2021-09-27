@@ -51,7 +51,7 @@ export class WebGPUInputAssembler extends InputAssembler {
             this._drawInfo.firstVertex = 0;
             this._drawInfo.vertexOffset = 0;
         }
-        this._drawInfo.instanceCount = 0;
+        this._drawInfo.instanceCount = 1;
         this._drawInfo.firstInstance = 0;
 
         if (info.indirectBuffer) {

@@ -221,40 +221,44 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             this._nativeCommandBuffer.updateBuffer(drawInfos);
         } else {
             const buffSize = size || buff.size;
-            const rawData = data;
-            const utf8decoder = new TextDecoder('ascii'); // default 'utf-8' or 'utf8'
-            const str = utf8decoder.decode(rawData);
-            this._nativeCommandBuffer.updateBuffer(buff.nativeBuffer, str, buffSize);
+            let rawBuffer;
+            if ('buffer' in buff) {
+            // es-lint as any
+                rawBuffer = (buff as any).buffer;
+            } else {
+                rawBuffer = buff;
+            }
+            this._nativeCommandBuffer.updateBuffer(buff.nativeBuffer, new Uint8Array(rawBuffer), buffSize);
         }
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
-        const stringList = new wgpuWasmModule.StringList();
-        for (let i = 0; i < buffers.length; i++) {
-            //const rawData = buffers[i]
-            const utf8decoder = new TextDecoder('ascii'); // default 'utf-8' or 'utf8'
-            const str = utf8decoder.decode(buffers[i]);
-            stringList.push_back(str);
-        }
+        // const stringList = new wgpuWasmModule.StringList();
+        // for (let i = 0; i < buffers.length; i++) {
+        //     //const rawData = buffers[i]
+        //     const utf8decoder = new TextDecoder('ascii'); // default 'utf-8' or 'utf8'
+        //     const str = utf8decoder.decode(buffers[i]);
+        //     stringList.push_back(str);
+        // }
 
-        const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
-        for (let i = 0; i < regions.length; i++) {
-            const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
-            bufferTextureCopy.buffStride = regions[i].buffStride;
-            bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
-            bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
-            bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
-            bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
-            bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
-            bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
-            bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
-            bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
-            bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
-            bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
-            bufferTextureCopyList.push_back(bufferTextureCopy);
-        }
-        const nativeDevice = wgpuWasmModule.nativeDevice;
-        nativeDevice.copyBuffersToTexture(stringList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
+        // const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        // for (let i = 0; i < regions.length; i++) {
+        //     const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+        //     bufferTextureCopy.buffStride = regions[i].buffStride;
+        //     bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+        //     bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+        //     bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+        //     bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+        //     bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+        //     bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+        //     bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+        //     bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+        //     bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+        //     bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+        //     bufferTextureCopyList.push_back(bufferTextureCopy);
+        // }
+        // const nativeDevice = wgpuWasmModule.nativeDevice;
+        // nativeDevice.copyBuffersToTexture(stringList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
     public execute (cmdBuffs: CommandBuffer[], count: number) {

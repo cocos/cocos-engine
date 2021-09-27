@@ -101,6 +101,9 @@ export class WebGPUDevice extends Device {
             this._cmdBuff.initialize(cmdBufferInfo);
 
             this._caps.uboOffsetAlignment = 4;
+            this._caps.clipSpaceMinZ = 0;
+            this._caps.screenSpaceSignY = -1;
+            this._caps.clipSpaceSignY = 1;
             return true;
         };
 
