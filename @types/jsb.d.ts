@@ -137,10 +137,11 @@ declare namespace jsb {
          */
         export function sendToNative(arg0: string, arg1?: string | null): void;
         /**
-         * save your own callback controller with a js function
-         * @param {Function} callback: method accepts 2 string args
+         * save your own callback controller with a js function,
+         * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
+         * @param args : received from native
          */
-        export function setCallback(callback: Function): void;
+         export function onNative(arg0: string, arg1?: string|null): void;
     }
     /**
      * 下载任务对象
