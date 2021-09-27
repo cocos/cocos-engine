@@ -197,6 +197,9 @@ export class ShadowFlow extends RenderFlow {
 
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
+                // Lighting Index
+                // l = 0 for main light source
+                // Starting from l = 1 for other light sources
                 shadowStage.setUsage(l - 1, light, shadowFrameBuffer!);
                 shadowStage.clearFramebuffer(camera);
             }
