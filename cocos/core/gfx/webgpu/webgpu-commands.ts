@@ -207,15 +207,27 @@ export function toWGPUNativeDescriptorType (descType: DescriptorType): wgpuWasmM
 }
 
 export function toWGPUNativeStageFlags (flags: ShaderStageFlagBit) {
-    let result = wgpuWasmModule.ShaderStageFlags.NONE;
+    let result;
     if (flags === ShaderStageFlagBit.NONE) { return result; }
 
-    if (flags & ShaderStageFlagBit.VERTEX || flags & ShaderStageFlagBit.ALL) { result |= wgpuWasmModule.ShaderStageFlags.VERTEX; }
-    if (flags & ShaderStageFlagBit.CONTROL || flags & ShaderStageFlagBit.ALL) { result |= wgpuWasmModule.ShaderStageFlags.CONTROL; }
-    if (flags & ShaderStageFlagBit.EVALUATION || flags & ShaderStageFlagBit.ALL) { result |= wgpuWasmModule.ShaderStageFlags.EVALUATION; }
-    if (flags & ShaderStageFlagBit.GEOMETRY || flags & ShaderStageFlagBit.ALL) { result |= wgpuWasmModule.ShaderStageFlags.GEOMETRY; }
-    if (flags & ShaderStageFlagBit.FRAGMENT || flags & ShaderStageFlagBit.ALL) { result |= wgpuWasmModule.ShaderStageFlags.FRAGMENT; }
-    if (flags & ShaderStageFlagBit.COMPUTE || flags & ShaderStageFlagBit.ALL) { result |= wgpuWasmModule.ShaderStageFlags.COMPUTE; }
+    if (flags & ShaderStageFlagBit.VERTEX || flags & ShaderStageFlagBit.ALL) {
+        result |= wgpuWasmModule.ShaderStageFlags.VERTEX;
+    }
+    if (flags & ShaderStageFlagBit.CONTROL || flags & ShaderStageFlagBit.ALL) {
+        result |= wgpuWasmModule.ShaderStageFlags.CONTROL;
+    }
+    if (flags & ShaderStageFlagBit.EVALUATION || flags & ShaderStageFlagBit.ALL) {
+        result |= wgpuWasmModule.ShaderStageFlags.EVALUATION;
+    }
+    if (flags & ShaderStageFlagBit.GEOMETRY || flags & ShaderStageFlagBit.ALL) {
+        result |= wgpuWasmModule.ShaderStageFlags.GEOMETRY;
+    }
+    if (flags & ShaderStageFlagBit.FRAGMENT || flags & ShaderStageFlagBit.ALL) {
+         result |= wgpuWasmModule.ShaderStageFlags.FRAGMENT;
+    }
+    if (flags & ShaderStageFlagBit.COMPUTE || flags & ShaderStageFlagBit.ALL) {
+        result |= wgpuWasmModule.ShaderStageFlags.COMPUTE;
+    }
 
     return result;
 }

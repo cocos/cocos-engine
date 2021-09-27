@@ -43,7 +43,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                     this._nativeDescriptorSet.bindTexture(i, (this._textures[i] as WebGPUTexture).nativeTexture);
                 }
             }
+            this._nativeDescriptorSet.update();
         }
-        this._nativeDescriptorSet.update();
     }
 }
