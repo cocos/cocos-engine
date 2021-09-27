@@ -37,6 +37,7 @@ import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
+import { BufferTextureCopy } from '../gfx/base/define';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -164,6 +165,45 @@ export class RenderTexture extends TextureBase {
 
     public validate () {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
+    }
+
+    /**
+     * @en Read pixel buffer from render texture
+     * @param x The location on x axis
+     * @param y The location on y axis
+     * @param width The pixel width
+     * @param height The pixel height
+     * @zh 从 render texture 读取像素数据
+     * @param x 起始位置X轴坐标
+     * @param y 起始位置Y轴坐标
+     * @param width 像素宽度
+     * @param height 像素高度
+     */
+    public readPixels (x = 0, y = 0, width?: number, height?: number) : Uint8Array | null {
+        width = width || this.width;
+        height = width || this.height;
+        const gfxTexture = this.getGFXTexture();
+        if (!gfxTexture) {
+            return null;
+        }
+        const gfxDevice = this._getGFXDevice();
+
+        const bufferViews: ArrayBufferView[] = [];
+        const regions: BufferTextureCopy[] = [];
+
+        const region0 = new BufferTextureCopy();
+        region0.texOffset.x = x;
+        region0.texOffset.y = y;
+        region0.texExtent.width = width;
+        region0.texExtent.height = height;
+        regions.push(region0);
+
+        const buffer = new Uint8Array(width * height * 4);
+        bufferViews.push(buffer);
+
+        gfxDevice?.copyTextureToBuffers(gfxTexture, bufferViews, regions);
+
+        return buffer;
     }
 }
 
