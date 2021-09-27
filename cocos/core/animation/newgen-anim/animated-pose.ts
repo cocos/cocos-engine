@@ -65,6 +65,9 @@ class AnimatedPoseEval implements PoseEval {
     }
 
     public sample (progress: number, weight: number) {
+        if (weight === 0.0) {
+            return;
+        }
         pushWeight(this._state.name, weight);
         const time = this._state.duration * progress;
         this._state.time = time;
