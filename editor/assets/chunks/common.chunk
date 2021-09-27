@@ -17,6 +17,7 @@
 
 // runtime constants
 #pragma define CC_DEVICE_SUPPORT_FLOAT_TEXTURE default(1)
+#pragma define CC_DEVICE_SUPPORT_COMPUTE_SHADER default(0)
 #pragma define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS default(1024)
 #pragma define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS default(1024)
 #pragma define CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS default(128)

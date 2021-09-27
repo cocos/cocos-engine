@@ -160,6 +160,8 @@ export type NativeRenderWindow = InstanceType<typeof NativeRenderWindow>;
 export const NativeCamera: Constructor<{
     width: number;
     height: number;
+    nearClip: number;
+    farClip: number;
     scene: NativeRenderScene | null;
     frustum: Frustum;
     matView: Mat4;
