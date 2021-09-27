@@ -7,7 +7,8 @@ jobs:
     # windows 2019, Visual Studio Enterprise 2019
     # windows 2016, Visual Studio Enterprise 2017
     #runs-on: windows-latest
-    runs-on: windows-2019
+    # runs-on: windows-2019
+    runs-on: windows-2016
     name: "Windows"
 
     steps:
@@ -42,11 +43,12 @@ jobs:
           echo "set(CC_USE_VULKAN ON)" >> build-win32/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-win32/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-win32/proj/cfg.cmake
           mkdir build-win32/assets
           cd build-win32
           RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win32
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}
-          cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
+          cmake ../ -G"Visual Studio 15 2017" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
           cmake --build . --config Release
           echo "Compile Win32 Release Done!"
 
@@ -85,6 +87,7 @@ jobs:
           echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
           echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-android/proj/cfg.cmake
 
           mkdir -p build-android/assets
 
@@ -138,6 +141,7 @@ jobs:
           echo "set(CC_USE_GLES2 OFF)" >> build-mac/proj/cfg.cmake
           echo "set(CC_USE_METAL ON)" >> build-mac/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-mac/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-mac/proj/cfg.cmake
           mkdir build-mac/assets
 
           RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
@@ -193,6 +197,7 @@ jobs:
           echo "set(TARGET_IOS_VERSION 12.0)" >> build-ios/proj/cfg.cmake
           echo "set(USE_WEBSOCKET_SERVER OFF)" >> build-ios/proj/cfg.cmake
           echo "set(USE_DRAGONBONES OFF)" >> build-ios/proj/cfg.cmake
+          echo "set(CMAKE_CXX_STANDARD_REQUIRED OFF)" >> build-ios/proj/cfg.cmake
           echo "set(MACOSX_BUNDLE_GUI_IDENTIFIER com.cocos.demo.ios)" >> build-ios/proj/cfg.cmake
           mkdir build-ios/assets
           cd build-ios
