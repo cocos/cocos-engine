@@ -32,7 +32,7 @@ exports.sortProp = function(propMap) {
 
 /**
  *
-* This method is used to update the custom node
+ * This method is used to update the custom node
  * @param {HTMLElement} container
  * @param {string[]} excludeList
  * @param {object} dump
