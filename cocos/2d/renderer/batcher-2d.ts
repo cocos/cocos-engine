@@ -159,7 +159,6 @@ export class Batcher2D implements IBatcher {
     private _currIsStatic = false;
     private _currOpacity = 1;
 
-    // macro.UI_GPU_DRIVEN
     private _currBatch!: DrawBatch2D;
 
     // DescriptorSet Cache Map
@@ -281,7 +280,6 @@ export class Batcher2D implements IBatcher {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
-                    // macro.UI_GPU_DRIVEN
                     for (let i = 0; i < batch.drawCalls.length; i++) {
                         batch.drawCalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawCalls[i]);
                     }
@@ -328,7 +326,6 @@ export class Batcher2D implements IBatcher {
             batch.clear();
             this._drawBatchPool.free(batch);
         }
-        // macro.UI_GPU_DRIVEN
         DrawBatch2D.drawcallPool.reset();
 
         this._currLayer = 0;
@@ -341,7 +338,6 @@ export class Batcher2D implements IBatcher {
         this._currMeshBuffer = null;
         this._currOpacity = 1;
         this._meshBufferUseCount.clear();
-        // macro.UI_GPU_DRIVEN
         this._batches.clear();
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();

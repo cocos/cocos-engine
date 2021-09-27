@@ -269,7 +269,6 @@ export class DrawBatch2D {
         if (!dc) {
             dc = DrawBatch2D.drawcallPool.add();
             this._pushDrawCall(dc);
-            dc = this._drawCalls[0];
         }
         if (ia) {
             dc.drawInfo!.firstIndex = ia.drawInfo.firstIndex;

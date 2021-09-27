@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @hidden
 */
-import { JSB, UI_GPU_DRIVEN } from 'internal:constants';
+import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
@@ -168,13 +168,13 @@ export class Batcher2D implements IBatcher {
     private _descriptorSetCache = new DescriptorSetCache();
 
     // macro.UI_GPU_DRIVEN
-    declare private _dummyIA: GenesisBlock;
-    declare private _localUBOManager: UILocalUBOManger;
+    private _dummyIA: GenesisBlock;
+    private _localUBOManager: UILocalUBOManger;
 
     private _currTypeIsGPU = false;
 
     // macro.UI_GPU_DRIVEN
-    declare private _reloadBatchDirty: boolean;
+    private _reloadBatchDirty: boolean;
 
     // -------------------------------------
 
@@ -183,21 +183,17 @@ export class Batcher2D implements IBatcher {
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2DGPU(), 128);
         // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            this._dummyIA = new GenesisBlock(this.device);
-            this._localUBOManager = new UILocalUBOManger(this.device);
-            this._reloadBatchDirty = true;
-        }
+        this._dummyIA = new GenesisBlock(this.device);
+        this._localUBOManager = new UILocalUBOManger(this.device);
+        this._reloadBatchDirty = true;
         this._currBatch = this._drawBatchPool.alloc();
     }
 
     public initialize () {
         // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, () => {
-                this._reloadBatchDirty = true;
-            });
-        }
+        legacyCC.director.on(legacyCC.Director.EVENT_AFTER_SCENE_LAUNCH, () => {
+            this._reloadBatchDirty = true;
+        });
         return true;
     }
 
@@ -285,12 +281,10 @@ export class Batcher2D implements IBatcher {
 
     public update () {
         // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            this._localUBOManager.reset();
-            if (this._reloadBatchDirty) {
-                // release localDS
-                this._descriptorSetCache.releaseAllByBuffer();
-            }
+        this._localUBOManager.reset();
+        if (this._reloadBatchDirty) {
+            // release localDS
+            this._descriptorSetCache.releaseAllByBuffer();
         }
 
         const screens = this._screens;
@@ -302,9 +296,7 @@ export class Batcher2D implements IBatcher {
             this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
             // macro.UI_GPU_DRIVEN
-            if (UI_GPU_DRIVEN) {
-                this._currTypeIsGPU = false;
-            }
+            this._currTypeIsGPU = false;
         }
 
         let batchPriority = 0;
@@ -354,10 +346,8 @@ export class Batcher2D implements IBatcher {
 
             this._descriptorSetCache.update();
             // macro.UI_GPU_DRIVEN
-            if (UI_GPU_DRIVEN) {
-                this._localUBOManager.updateBuffer();
-                this._reloadBatchDirty = false;
-            }
+            this._localUBOManager.updateBuffer();
+            this._reloadBatchDirty = false;
         }
     }
 
@@ -421,7 +411,7 @@ export class Batcher2D implements IBatcher {
                 // G -> G
                 this.autoMergeBatchesByGPU(this._currComponent!);
                 this._currBatch = this._drawBatchPool.alloc();
-                this._currBatch.UICapacityDirty = true;
+                this._currBatch.capacityDirty = true;
             } else {
                 // A -> G
                 this.autoMergeBatches(this._currComponent!);
@@ -477,18 +467,13 @@ export class Batcher2D implements IBatcher {
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform || this._currTypeIsGPU !== false) {
             // macro.UI_GPU_DRIVEN
-            if (UI_GPU_DRIVEN) {
-                if (this._currTypeIsGPU) {
-                    // G -> A
-                    this.autoMergeBatchesByGPU(this._currComponent!);
-                    this._currBatch = this._drawBatchPool.alloc();
-                    this._currBatch.UICapacityDirty = true;
-                } else {
-                    // A -> A
-                    this.autoMergeBatches(this._currComponent!);
-                    this._currBatch = this._drawBatchPool.alloc();
-                }
+            if (this._currTypeIsGPU) {
+                // G -> A
+                this.autoMergeBatchesByGPU(this._currComponent!);
+                this._currBatch = this._drawBatchPool.alloc();
+                this._currBatch.capacityDirty = true;
             } else {
+                // A -> A
                 this.autoMergeBatches(this._currComponent!);
                 this._currBatch = this._drawBatchPool.alloc();
             }
@@ -504,7 +489,7 @@ export class Batcher2D implements IBatcher {
             this._currBlendTargetHash = blendTargetHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
-            this._currBatch.UICapacityDirty = true;
+            this._currBatch.capacityDirty = true;
         }
 
         this._currTypeIsGPU = false;
@@ -554,12 +539,8 @@ export class Batcher2D implements IBatcher {
         // if the last comp is spriteComp, previous comps should be batched.
         // macro.UI_GPU_DRIVEN
         if (this._currMaterial !== this._emptyMaterial) {
-            if (UI_GPU_DRIVEN) {
-                if (this._currTypeIsGPU) {
-                    this.autoMergeBatchesByGPU(this._currComponent!);
-                } else {
-                    this.autoMergeBatches(this._currComponent!);
-                }
+            if (this._currTypeIsGPU) {
+                this.autoMergeBatchesByGPU(this._currComponent!);
             } else {
                 this.autoMergeBatches(this._currComponent!);
             }
@@ -612,9 +593,7 @@ export class Batcher2D implements IBatcher {
         this._currSamplerHash = 0;
         this._currLayer = 0;
         // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            this._currTypeIsGPU = false;
-        }
+        this._currTypeIsGPU = false;
     }
 
     /**
@@ -816,12 +795,8 @@ export class Batcher2D implements IBatcher {
     private _recursiveScreenNode (screen: Node) {
         this.walk(screen);
         // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            if (this._currTypeIsGPU) {
-                this.autoMergeBatchesByGPU(this._currComponent!);
-            } else {
-                this.autoMergeBatches(this._currComponent!);
-            }
+        if (this._currTypeIsGPU) {
+            this.autoMergeBatchesByGPU(this._currComponent!);
         } else {
             this.autoMergeBatches(this._currComponent!);
         }

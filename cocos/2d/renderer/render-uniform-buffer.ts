@@ -13,7 +13,7 @@ export class UILocalBuffer {
 
     private _uniformBufferElementCount: number;
     private _uniformBuffer: Buffer;
-    private _firstUniformBufferView: Buffer;
+    private _uniformBufferView: Buffer;
     private _uniformBufferData: Float32Array;
 
     // 现在已经存了多少 UI 信息 // index = instanceID + uboIndex * _UIPerUBO
@@ -59,7 +59,7 @@ export class UILocalBuffer {
         ));
 
         // 数据 view
-        this._firstUniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, unalignedStride));
+        this._uniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, unalignedStride));
 
         // 实际保存数据的地方// 一个,长度为 10 个 ubo 的长度
         this._uniformBufferData = new Float32Array(this._uniformBufferElementCount * UILocalBuffer.UBO_COUNT);
@@ -124,7 +124,7 @@ export class UILocalBuffer {
     }
 
     getBufferView () {
-        return this._firstUniformBufferView;
+        return this._uniformBufferView;
     }
 
     updateBuffer () {
@@ -192,6 +192,7 @@ interface ILocalBuffers {
 export class UILocalUBOManger {
     public _localBuffers: ILocalBuffers[] = []; // UIPerUBO -> buffer[]
     private _device: Device;
+    private _element: ILocalBuffers | null = null;
 
     constructor (device: Device) {
         this._device = device;
@@ -202,10 +203,12 @@ export class UILocalUBOManger {
         // 根据 UIPerUBO 查找/创建 UILocalBuffer
         // UIPerUBO 结构标识，决定 UI 的排布结构
         // 如果修改的话，修改这个值，修改 shader 即可
-        const element = this._localBuffers.find(
-            (element)  => element.key === UIPerUBO,
-        );
-        if (element === undefined) {
+        for (let i = 0; i < this._localBuffers.length; i++) {
+            if (this._localBuffers[i].key === UIPerUBO) {
+                this._element = this._localBuffers[i];
+            }
+        }
+        if (this._element === null) {
             this._localBuffers.push({
                 key: UIPerUBO,
                 value: {
@@ -213,8 +216,9 @@ export class UILocalUBOManger {
                     currentIdx: 0,
                 },
             });
+            this._element = this._localBuffers[this._localBuffers.length - 1];
         }
-        const localBufferPool = this._localBuffers.find((element)  => element.key === UIPerUBO)!.value;
+        const localBufferPool = this._element.value;
         while (localBufferPool.pool[localBufferPool.currentIdx].checkFull()) {
             if (++localBufferPool.currentIdx >= localBufferPool.pool.length) {
                 // 如需创建，hash 根据 capacity 和数组下标
@@ -238,6 +242,7 @@ export class UILocalUBOManger {
     }
 
     public reset () {
+        this._element = null;
         const length = this._localBuffers.length;
         let res;
         for (let i = 0; i < length; ++i) {
