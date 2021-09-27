@@ -22,6 +22,15 @@ export class WebGPUBuffer extends Buffer {
     public initialize (info: BufferInfo | BufferViewInfo): boolean {
         const nativeDevice = wgpuWasmModule.nativeDevice;
         if ('buffer' in info) { // buffer view
+            this._isBufferView = true;
+
+            const buffer = info.buffer as WebGPUBuffer;
+            this._usage = buffer.usage;
+            this._memUsage = buffer.memUsage;
+            this._size = this._stride = Math.ceil(info.range / 4) * 4;
+            this._count = 1;
+            this._flags = buffer.flags;
+
             const bufferViewInfo = new wgpuWasmModule.BufferViewInfoInstance();
             bufferViewInfo.setBuffer((info.buffer as WebGPUBuffer).nativeBuffer);
             bufferViewInfo.setOffset(info.offset);
@@ -32,6 +41,7 @@ export class WebGPUBuffer extends Buffer {
             this._memUsage = info.memUsage;
             this._size = info.size;
             this._stride = info.stride;
+            this._count = this._size / this._stride;
             this._flags = info.flags;
             const bufferInfo = new wgpuWasmModule.BufferInfoInstance();
             bufferInfo.setUsage(info.usage);

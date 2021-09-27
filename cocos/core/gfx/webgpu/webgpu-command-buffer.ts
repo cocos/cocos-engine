@@ -222,13 +222,14 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         } else {
             const buffSize = size || buff.size;
             let rawBuffer;
-            if ('buffer' in buff) {
+            if ('buffer' in data) {
             // es-lint as any
-                rawBuffer = (buff as any).buffer;
+                rawBuffer = (data as any).buffer;
             } else {
-                rawBuffer = buff;
+                rawBuffer = data;
             }
-            this._nativeCommandBuffer.updateBuffer(buff.nativeBuffer, new Uint8Array(rawBuffer), buffSize);
+            const u8buff = new Uint8Array(rawBuffer);
+            this._nativeCommandBuffer.updateBuffer(buff.nativeBuffer, u8buff, buffSize);
         }
     }
 
