@@ -100,6 +100,7 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
+        const isMainLight = this._light.type === LightType.DIRECTIONAL;
         this._additiveShadowQueue.gatherLightPasses(this._lightIndex, camera, this._light, cmdBuff);
 
         const vp = camera.viewport;
@@ -116,7 +117,7 @@ export class ShadowStage extends RenderStage {
             colors, camera.clearDepth, camera.clearStencil);
 
         let descriptorSet;
-        if (this._light.type === LightType.DIRECTIONAL) {
+        if (isMainLight) {
             descriptorSet = pipeline.descriptorSet;
         } else {
             descriptorSet = pipeline.globalDSManager.getOrCreateDescriptorSet(this._lightIndex)!;
