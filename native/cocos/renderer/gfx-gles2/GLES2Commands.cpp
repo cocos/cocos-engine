@@ -1053,8 +1053,8 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
                         glUniform.count = glSize;
                         glUniform.size  = glUniform.stride * glUniform.count;
 
-                        glBlock.glActiveUniforms.emplace_back(GLES2GPUUniform());
-                        auto &activeUniform = *glBlock.glActiveUniforms.rbegin();
+                        glBlock.glActiveUniforms.emplace_back(glUniform);
+                        auto &activeUniform = glBlock.glActiveUniforms.back();
                         activeUniform.buff.resize(activeUniform.size);
                         glBlock.activeUniformIndices.push_back(j);
                         break;
