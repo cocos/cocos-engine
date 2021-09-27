@@ -703,7 +703,7 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 1575428683,
+        "hash": 2264109477,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 56 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
@@ -728,17 +728,17 @@ export const effects = [
           { "name": "a_tangent", "defines": [], "format": 44, "location": 3 }
         ],
         "blocks": [],
-        "samplerTextures": [
-          { "name": "gbuffer_albedoMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 },
-          { "name": "gbuffer_positionMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 1 },
-          { "name": "gbuffer_normalMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 2 },
-          { "name": "gbuffer_emissiveMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 3 }
-        ],
+        "samplerTextures": [],
         "buffers": [],
         "images": [],
         "textures": [],
         "samplers": [],
-        "subpassInputs": []
+        "subpassInputs": [
+          { "name": "gbuffer_albedoMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 0 },
+          { "name": "gbuffer_positionMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 1 },
+          { "name": "gbuffer_normalMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 },
+          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 3 }
+        ]
       }
     ]
   },

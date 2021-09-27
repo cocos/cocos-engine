@@ -206,6 +206,7 @@ export abstract class RenderPipeline extends Asset {
     public activate (swapchain: Swapchain): boolean {
         const root = legacyCC.director.root as Root;
         this._device = root.device;
+        this._generateConstantMacros();
         this._globalDSManager = new GlobalDSManager(this);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
@@ -217,7 +218,6 @@ export abstract class RenderPipeline extends Asset {
 
         // update global defines when all states initialized.
         this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
-        this._generateConstantMacros();
 
         return true;
     }
@@ -269,6 +269,7 @@ export abstract class RenderPipeline extends Asset {
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
+        str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         this._constantMacros = str;
     }
 }
