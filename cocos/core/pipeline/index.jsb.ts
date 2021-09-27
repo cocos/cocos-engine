@@ -28,12 +28,12 @@ declare const nr: any;
 
 import { getPhaseID } from './pass-phase'
 import { setClassName, mixin } from '../../core/utils/js';
-import { PipelineSceneData } from './pipeline-scene-data';
 import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
 import { Asset } from '../assets/asset';
 import { Swapchain } from '../gfx';
 import { Model, Camera } from '../renderer/scene';
+import { CommonPipelineSceneData } from './common/common-pipeline-scene-data';
 
 nr.getPhaseID = getPhaseID;
 
@@ -59,7 +59,7 @@ export function createDefaultPipeline () {
 
 // ForwardPipeline
 export class ForwardPipeline extends nr.ForwardPipeline {
-    public pipelineSceneData = new PipelineSceneData();
+    public pipelineSceneData = new CommonPipelineSceneData();
 
     constructor() {
       super();
@@ -306,7 +306,7 @@ export class LightingStage extends nr.LightingStage {
   }
 }
 
-export class PostprocessStage extends nr.PostprocessStage {
+export class PostProcessStage extends nr.PostProcessStage {
   constructor() {
     super();
     this._name = 0;
@@ -320,7 +320,7 @@ export class PostprocessStage extends nr.PostprocessStage {
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
-    pipeline.pipelineSceneData.deferredPostMaterial = this._postProcessMaterial;
+    pipeline.pipelineSceneData.postprocessMaterial = this._postProcessMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
@@ -331,7 +331,7 @@ setClassName('DeferredPipeline', DeferredPipeline);
 setClassName('MainFlow', MainFlow);
 setClassName('GbufferStage', GbufferStage);
 setClassName('LightingStage', LightingStage);
-setClassName('PostprocessStage',PostprocessStage);
+setClassName('PostProcessStage',PostProcessStage);
 setClassName('ForwardPipeline', ForwardPipeline);
 setClassName('ForwardFlow', ForwardFlow);
 setClassName('ShadowFlow', ShadowFlow);

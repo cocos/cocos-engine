@@ -46,10 +46,10 @@ const colors: Color[] = [new Color(0, 0, 0, 1)];
   * @en The postprocess render stage
   * @zh 后处理渲染阶段。
   */
-@ccclass('PostprocessStage')
-export class PostprocessStage extends RenderStage {
+@ccclass('PostProcessStage')
+export class PostProcessStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
-        name: 'PostprocessStage',
+        name: 'PostProcessStage',
         priority: CommonStagePriority.POST_PROCESS,
         tag: 0,
     };

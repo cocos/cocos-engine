@@ -83,8 +83,8 @@ export class CommonPipelineSceneData extends PipelineSceneData {
         passPost.endChangeStatesSilently();
 
         if (JSB) {
-            this._nativeObj!.deferredPostPassShader = passPost.getShaderVariant();
-            this._nativeObj!.deferredPostPass = passPost.native;
+            this._nativeObj!.pipelinePostPassShader = passPost.getShaderVariant();
+            this._nativeObj!.pipelinePostPass = passPost.native;
         }
     }
 }

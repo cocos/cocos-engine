@@ -35,7 +35,7 @@ import { ForwardFlowPriority } from '../common/enum';
 import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
-import { PostprocessStage } from '../common/postprocess-stage';
+import { PostProcessStage } from '../common/postprocess-stage';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -47,7 +47,7 @@ export class ForwardFlow extends RenderFlow {
      * @en The shared initialization information of forward render flow
      * @zh 共享的前向渲染流程初始化参数
      */
-    private postprocessStage: PostprocessStage | null = null;
+    private postProcessStage: PostProcessStage | null = null;
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
@@ -65,10 +65,10 @@ export class ForwardFlow extends RenderFlow {
     }
 
     protected _addPostStage () {
-        if (!(this._stages[this._stages.length - 1] instanceof PostprocessStage)) {
-            this.postprocessStage = new PostprocessStage();
-            this.postprocessStage.initialize(PostprocessStage.initInfo);
-            this._stages.push(this.postprocessStage);
+        if (!(this._stages[this._stages.length - 1] instanceof PostProcessStage)) {
+            this.postProcessStage = new PostProcessStage();
+            this.postProcessStage.initialize(PostProcessStage.initInfo);
+            this._stages.push(this.postProcessStage);
         }
     }
 
