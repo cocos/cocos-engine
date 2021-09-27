@@ -84,6 +84,9 @@ export abstract class InputAssembler extends GFXObject {
     set vertexCount (count: number) {
         this._drawInfo.vertexCount = count;
     }
+    get vertexCount () {
+        return this._drawInfo.vertexCount;
+    }
 
     /**
      * @en Get starting vertex.
@@ -91,6 +94,9 @@ export abstract class InputAssembler extends GFXObject {
      */
     set firstVertex (first: number) {
         this._drawInfo.firstVertex = first;
+    }
+    get firstVertex () {
+        return this._drawInfo.firstVertex;
     }
 
     /**
@@ -100,6 +106,9 @@ export abstract class InputAssembler extends GFXObject {
     set indexCount (count: number) {
         this._drawInfo.indexCount = count;
     }
+    get indexCount () {
+        return this._drawInfo.indexCount;
+    }
 
     /**
      * @en Get starting index.
@@ -107,6 +116,9 @@ export abstract class InputAssembler extends GFXObject {
      */
     set firstIndex (first: number) {
         this._drawInfo.firstIndex = first;
+    }
+    get firstIndex () {
+        return this._drawInfo.firstIndex;
     }
 
     /**
@@ -116,6 +128,9 @@ export abstract class InputAssembler extends GFXObject {
     set vertexOffset (offset: number) {
         this._drawInfo.vertexOffset = offset;
     }
+    get vertexOffset () {
+        return this._drawInfo.vertexOffset;
+    }
 
     /**
      * @en Get current instance count.
@@ -124,6 +139,9 @@ export abstract class InputAssembler extends GFXObject {
     set instanceCount (count: number) {
         this._drawInfo.instanceCount = count;
     }
+    get instanceCount () {
+        return this._drawInfo.instanceCount;
+    }
 
     /**
      * @en Get starting instance.
@@ -131,6 +149,9 @@ export abstract class InputAssembler extends GFXObject {
      */
     set firstInstance (first: number) {
         this._drawInfo.firstInstance = first;
+    }
+    get firstInstance () {
+        return this._drawInfo.firstInstance;
     }
 
     get drawInfo (): Readonly<DrawInfo> {

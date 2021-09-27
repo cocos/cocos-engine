@@ -61,13 +61,6 @@ interface InputEventMap {
     [Input.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
 }
 
-export const touchEvent2SystemEvent = {
-    [InputEventType.TOUCH_START]: `system-event-${InputEventType.TOUCH_START}`,
-    [InputEventType.TOUCH_MOVE]: `system-event-${InputEventType.TOUCH_MOVE}`,
-    [InputEventType.TOUCH_END]: `system-event-${InputEventType.TOUCH_END}`,
-    [InputEventType.TOUCH_CANCEL]: `system-event-${InputEventType.TOUCH_CANCEL}`,
-};
-
 /**
  * @en
  * This Input class manages all events of input. include: touch, mouse, accelerometer and keyboard.
@@ -189,8 +182,6 @@ export class Input {
             for (let j = 0; j < touchesLength; ++j) {
                 eventTouch.touch = touches[j];
                 eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
-                // TODO: deprecate EventTouch.touch property
-                this._eventTarget.emit(touchEvent2SystemEvent[eventTouch.type], eventTouch.touch, eventTouch);
                 this._eventTarget.emit(eventTouch.type, eventTouch);
             }
         }
