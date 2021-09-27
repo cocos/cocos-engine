@@ -154,7 +154,7 @@ export class DrawBatch2DGPU extends DrawBatch2D {
             dc.bufferUboIndex = localBuffer.prevUBOIndex;
             dc.bufferView = localBuffer.getBufferView();
             // hack
-            dc.setDynamicOffsets(localBuffer.prevUBOIndex * localBuffer.uniformBufferStride, 0);
+            dc.setDynamicOffsets(localBuffer.prevUBOIndex * localBuffer.uniformBufferStride);
             dc.drawInfo!.firstIndex = localBuffer.prevInstanceID * 6;
             dc.drawInfo!.indexCount = 0;
             this._dcIndex = this._drawCalls.length;

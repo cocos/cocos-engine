@@ -58,7 +58,7 @@ CCProgram sprite-vs-gpu %{
   // #define CC_UI_VECTOR_PER_DRAW 16 * 5 // 调试用 16
 
   #pragma builtin(local)
-  layout(set = 2, binding = 0) uniform CCUILocal {
+  layout(set = 2, binding = 5) uniform CCUILocal {
     // xyz: translation w: color R.G
     // xyzw: quat rotation
     // xy: scale z: color B.A w: uvMode.filltype

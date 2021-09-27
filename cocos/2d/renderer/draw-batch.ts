@@ -53,7 +53,7 @@ export class DrawCall {
 
     // actual draw call info
     private _descriptorSet: DescriptorSet | null = null;
-    private _dynamicOffsets = [0];// uboindex * _uniformBufferStride
+    private _dynamicOffsets = [0, 0];// uboindex * _uniformBufferStride
     private _drawInfo: DrawInfo| null = null;
 
     private declare _nativeObj: NativeDrawCall | null;
@@ -96,10 +96,11 @@ export class DrawCall {
         }
     }
 
-    public setDynamicOffsets (value: number, index: number) {
-        const temp = this._dynamicOffsets;
-        temp[index] = value;
-        this.dynamicOffsets = temp;
+    public setDynamicOffsets (value: number) {
+        this._dynamicOffsets[1] = value;
+        if (JSB) {
+            this._nativeObj!.setDynamicOffsets(value);
+        }
     }
 
     constructor () {

@@ -237,6 +237,7 @@ export const NativeDrawCall: Constructor<{
     descriptorSet: DescriptorSet | null;
     dynamicOffsets: number[];
     drawInfo: DrawInfo | null;
+    setDynamicOffsets(value: number);
 }> = null!;
 export type NativeDrawCall = InstanceType<typeof NativeDrawCall>;
 
