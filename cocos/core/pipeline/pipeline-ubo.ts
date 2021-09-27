@@ -390,8 +390,10 @@ export class PipelineUBO {
     }
 
     public updateShadowUBOLight (pipeline: RenderPipeline, idx: number, light: Light) {
+        const isMainLight = light.type === LightType.DIRECTIONAL;
+
         let ds;
-        if (light.type === LightType.DIRECTIONAL) {
+        if (isMainLight) {
             ds = pipeline.descriptorSet;
         } else {
             ds = pipeline.globalDSManager.getOrCreateDescriptorSet(idx)!;
