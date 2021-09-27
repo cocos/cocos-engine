@@ -34,7 +34,7 @@ import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute } from '../../core/gfx';
+import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
 import { Mat4, Vec3 } from '../../core/math';
 import { UBOSkinning } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph/node';
@@ -42,9 +42,8 @@ import { ModelType } from '../../core/renderer/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
-import { BatchingSchemes, IMacroPatch, Pass } from '../../core/renderer';
+import { IMacroPatch } from '../../core/renderer';
 import { NativeJointInfo, NativeJointTransform, NativeSkinningModel } from '../../core/renderer/scene';
-import { warnID } from '../../core/platform/debug';
 
 const myPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -225,14 +224,6 @@ export class SkinningModel extends MorphModel {
         }
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
-    }
-
-    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
-        if (pass.batchingScheme !== BatchingSchemes.NONE) {
-            // TODO(holycanvas): #9203 better to print the complete path instead of only the current node
-            warnID(3936, this.node.name);
-        }
-        super._updateInstancedAttributes(attributes, pass);
     }
 
     private _ensureEnoughBuffers (count: number) {
