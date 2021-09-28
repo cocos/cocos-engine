@@ -39,6 +39,7 @@ export const Space = Enum({
 /**
  * @en Particle emitter culling mode
  * @zh 粒子的剔除模式。
+ * @enum ParticleSystem.CullingMode
  */
 export const CullingMode = Enum({
     Pause: 0,

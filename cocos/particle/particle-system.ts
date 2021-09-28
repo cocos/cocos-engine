@@ -359,6 +359,8 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     _cullingMode = CullingMode.Pause;
 
+    public static CullingMode = CullingMode;
+
     /**
      * @en Particle bounding box half width.
      * @zh 粒子包围盒半宽。
