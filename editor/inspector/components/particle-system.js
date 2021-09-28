@@ -47,7 +47,7 @@ exports.template = /* html*/`
             <ui-prop type="dump" key="aabbHalfX"></ui-prop>
             <ui-prop type="dump" key="aabbHalfY"></ui-prop>
             <ui-prop type="dump" key="aabbHalfZ"></ui-prop>
-            <ui-prop>
+            <ui-prop empty="true">
                 <ui-label slot="label">Show Bounds</ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>  
@@ -312,8 +312,11 @@ const uiElements = {
                     name: '_calculateBounding',
                     args: [true],
                 });
-                this.dispatch('change-dump');
+                this.$this.dispatch('change-dump');
             });
+        },
+        update() {
+            this.$.resetBounds.setAttribute('disabled', !this.dump.value.enableCulling.value);
         },
     },
     uiSections: {
