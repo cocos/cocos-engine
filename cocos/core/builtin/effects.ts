@@ -341,14 +341,14 @@ export const effects = [
   {
     "name": "sprite-gpu",
     "techniques": [
-      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag", "depthStencilState": { "depthTest": false, "depthWrite": false }, "properties": { "alphaThreshold": { "value": [0.5], "type": 13 } } }] }
+      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
     ],
     "shaders": [
       {
         "name": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag",
-        "hash": 1441878327,
+        "hash": 937867368,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
           "locals": { "blocks": [{ "name": "CCUILocal", "defines": [] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "buffers": [], "images": [] }
         },
@@ -356,7 +356,6 @@ export const effects = [
           { "name": "SAMPLE_FROM_RT", "type": "boolean" },
           { "name": "USE_PIXEL_ALIGNMENT", "type": "boolean" },
           { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
-          { "name": "USE_ALPHA_TEST", "type": "boolean" },
           { "name": "USE_TEXTURE", "type": "boolean" },
           { "name": "IS_GRAY", "type": "boolean" }
         ],
@@ -365,11 +364,7 @@ export const effects = [
           { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
           { "name": "a_batch_id", "defines": [], "format": 11, "location": 2 }
         ],
-        "blocks": [
-          {"name": "ALPHA_TEST_DATA", "defines": ["USE_ALPHA_TEST"], "binding": 0, "stageFlags": 16, "members": [
-            { "name": "alphaThreshold", "type": 13, "count": 1 }
-          ]}
-        ],
+        "blocks": [],
         "samplerTextures": [],
         "buffers": [],
         "images": [],

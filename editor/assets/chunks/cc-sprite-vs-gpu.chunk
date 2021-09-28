@@ -1,0 +1,124 @@
+
+#include <cc-sprite-common>
+#include <cc-global>
+#include <common>
+
+in vec3 a_position;
+in vec2 a_texCoord;
+in float a_batch_id;
+
+out vec4 v_color;
+out float v_uvMode;
+
+out vec2 v_uv0;
+out vec4 v_uvSizeOffset;
+out vec4 v_uvParams0;
+out vec4 v_uvParams1;
+
+struct SpriteVertexInternalData {
+  vec4 rotation;
+  vec3 translation;
+  vec3 scale;
+
+  vec4 uvSizeOffset;
+
+  float uvMode;
+  vec4 uvParams;
+  float filltype;
+};
+
+// 这儿的数量不包装的话，就会被打散//那就对 5 取整
+#define CC_UI_VECTOR_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 5 * 5 //(需要对5取整因为边界条件)
+// #define CC_UI_VECTOR_PER_DRAW 16 * 5 // 调试用 16
+#pragma builtin(local)
+layout(set = 2, binding = 5) uniform CCUILocal {
+  vec4 cc_local_data[CC_UI_VECTOR_PER_DRAW];
+};
+
+vec3 VectorTransformQuat (vec3 v, vec4 q) {
+  return v + 2.0 * cross(q.xyz, cross(q.xyz, v) + q.w * v);
+}
+
+// xyz: translation w: color R.G
+// xyzw: quat rotation
+// xy: scale z: color B.A w: uvMode.filltype
+// xy: uv size zw: uv offset // x 正负值决定旋转
+// (xyzw: sliced - left, top, right, bottom) | (xy: tiling) | (xyzw: start, end, mode, center)
+void CCSpriteInput(out SpriteVertexData i0, out SpriteVertexInternalData i1) {
+  vec4 data0 = cc_local_data[int(a_batch_id) * 5];
+  vec4 data1 = cc_local_data[int(a_batch_id) * 5 + 1];
+  vec4 data2 = cc_local_data[int(a_batch_id) * 5 + 2];
+  vec4 data3 = cc_local_data[int(a_batch_id) * 5 + 3];
+  vec4 data4 = cc_local_data[int(a_batch_id) * 5 + 4];
+
+  float rg = data0.w;
+  float r = floor(rg);
+  float ba = data2.z;
+  float b = floor(ba);
+
+  i1.rotation = data1;
+  i1.translation = data0.xyz;
+  i1.scale = vec3(data2.xy, 1.0);
+
+  i1.uvSizeOffset = data3;
+  i1.filltype = fract(data2.w) * 10.0;
+
+  i1.uvMode = data2.w;
+  i1.uvParams = data4;
+
+  i0.position = vec4(VectorTransformQuat(a_position * i1.scale, i1.rotation) + i1.translation, 1.0);
+  i0.color = vec4(r * (1.0 / 255.0), rg - r, b * (1.0 / 255.0), ba - b);
+}
+
+// a_positon 需要作为参数传入吗？
+// 那 out 是不是也能直接在这个函数里赋值？
+vec4 CCSpriteOutput(SpriteVertexData i0, SpriteVertexInternalData i1) {
+  vec2 uvWithRotation;
+  if (i1.uvSizeOffset.x < 0.0) {
+    i1.uvSizeOffset.x = abs(i1.uvSizeOffset.x);
+    uvWithRotation = vec2(1.0 - a_texCoord.y, a_texCoord.x); // For Rotation 90 in Atlas
+  } else {
+    uvWithRotation = a_texCoord;
+  }
+
+  if (i1.uvMode >= 3.0) {
+    v_uv0 = uvWithRotation;
+    v_uvSizeOffset = i1.uvSizeOffset;
+    v_uvParams0 = vec4(i1.uvParams.xy, i1.filltype, 0); // HORIZONTAL OK
+    if (i1.filltype >= 2.0) { // 针对 RADIAL 处理
+      v_uvParams1 = i1.uvParams;
+    } else if (i1.filltype >= 1.0) {
+      // 由于 y 坐标翻转所需要的翻转
+      v_uvParams0 = vec4(1.0 - v_uvParams0.y, 1.0 - v_uvParams0.x, v_uvParams0.zw);
+    }
+  } else if (i1.uvMode >= 2.0) {
+    v_uv0 = uvWithRotation * i1.uvParams.xy;
+    v_uv0.y -= fract(i1.uvParams.y); // 平移 一点 // 为了解决绘制起点的问题
+    v_uvSizeOffset = i1.uvSizeOffset;
+  } else if (i1.uvMode >= 1.0) {
+    v_uv0 = uvWithRotation;
+    v_uvSizeOffset = i1.uvSizeOffset;
+    vec4 params0 = fract(i1.uvParams); // sprite 的 中间四个点的数据 // 和 Rect 相关 // LTRB
+    vec4 params1 = floor(i1.uvParams) / 2048.0; // uvSilced 0-1 // 和图直接相关 // LTRB // 整数位
+    v_uvParams0 = vec4(params0.xy, params1.xy); // 重新整合了 // SL ST TL TT
+    v_uvParams1 = vec4(params0.zw, params1.zw); // 重新整合了 // SR SB TR TB
+  } else {
+    v_uv0 = uvWithRotation * i1.uvSizeOffset.xy + i1.uvSizeOffset.zw;
+  }
+  #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(v_uv0);
+  #endif
+
+  v_color = i0.color;
+  v_uvMode = i1.uvMode;
+
+  vec4 pos = i0.position;
+  #if USE_PIXEL_ALIGNMENT
+    pos = cc_matView * pos;
+    pos.xyz = floor(pos.xyz);
+    pos = cc_matProj * pos;
+  #else
+    pos = cc_matViewProj * pos;
+  #endif
+  return pos;
+}

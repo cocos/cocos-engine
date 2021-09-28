@@ -13,7 +13,7 @@ export class UILocalBuffer {
 
     private _uniformBufferElementCount: number;
     private _uniformBuffer: Buffer;
-    private _uniformBufferView: Buffer;
+    private _firstUniformBufferView: Buffer;
     private _uniformBufferData: Float32Array;
 
     // 现在已经存了多少 UI 信息 // index = instanceID + uboIndex * _UIPerUBO
@@ -59,7 +59,7 @@ export class UILocalBuffer {
         ));
 
         // 数据 view
-        this._uniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, unalignedStride));
+        this._firstUniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, unalignedStride));
 
         // 实际保存数据的地方// 一个,长度为 10 个 ubo 的长度
         this._uniformBufferData = new Float32Array(this._uniformBufferElementCount * UILocalBuffer.UBO_COUNT);
@@ -124,7 +124,7 @@ export class UILocalBuffer {
     }
 
     getBufferView () {
-        return this._uniformBufferView;
+        return this._firstUniformBufferView;
     }
 
     updateBuffer () {
