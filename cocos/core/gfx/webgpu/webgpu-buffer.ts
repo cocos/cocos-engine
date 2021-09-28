@@ -69,14 +69,16 @@ export class WebGPUBuffer extends Buffer {
     public update (buffer: BufferSource, size?: number) {
         // TODO_Zeqiang: idirect buffer.
         const buff = buffer as ArrayBuffer;
+        let data;
         let rawBuffer;
         if ('buffer' in buff) {
             // es-lint as any
             rawBuffer = (buff as any).buffer;
+            data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
         } else {
             rawBuffer = buff;
+            data = new Uint8Array(rawBuffer);
         }
-        const data = new Uint8Array(rawBuffer);
         const bufferSize = size === undefined ? buff.byteLength : size;
         this._nativeBuffer.update(data, bufferSize);
     }
