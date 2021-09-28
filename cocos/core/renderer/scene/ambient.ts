@@ -155,10 +155,10 @@ export class Ambient {
             this._albedoArray_hdr.z = this._groundAlbedo.z;
             this._albedoArray_hdr.w = this._groundAlbedo.w;
         } else {
-            this._albedoArray_ldr.x, this._groundAlbedo.x;
-            this._albedoArray_ldr.y, this._groundAlbedo.y;
-            this._albedoArray_ldr.z, this._groundAlbedo.z;
-            this._albedoArray_ldr.w, this._groundAlbedo.w;
+            this._albedoArray_ldr.x = this._groundAlbedo.x;
+            this._albedoArray_ldr.y = this._groundAlbedo.y;
+            this._albedoArray_ldr.z = this._groundAlbedo.z;
+            this._albedoArray_ldr.w = this._groundAlbedo.w;
         }
         if (JSB) {
             this._nativeObj!.groundAlbedo = this._groundAlbedo;
@@ -194,7 +194,7 @@ export class Ambient {
     protected _skyIllum_hdr = 0;
 
     protected _albedoArray_ldr = new Vec4(0.2, 0.2, 0.2, 1.0);
-    protected _colorArray_ldr = new Vec4(0.2, 0.5, 0.8, 1.0];
+    protected _colorArray_ldr = new Vec4(0.2, 0.5, 0.8, 1.0);
     protected _skyIllum_ldr = 0;
 
     protected _enabled = false;
