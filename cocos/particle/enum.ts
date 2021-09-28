@@ -36,12 +36,20 @@ export const Space = Enum({
     Custom: 2,
 });
 
-export const ParticleCullingMode = Enum({
+/**
+ * @en Particle emitter culling mode
+ * @zh 粒子的剔除模式。
+ */
+export const CullingMode = Enum({
     Pause: 0,
     PauseAndCatchup: 1,
     AlwaysSimulate: 2,
 });
 
+/**
+ * @en Particle emitter alignment space
+ * @zh 粒子的对齐模式。
+ */
 export const AlignmentSpace = Enum({
     World: 0,
     Local: 1,

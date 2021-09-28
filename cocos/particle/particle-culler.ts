@@ -70,10 +70,6 @@ export class ParticleCuller {
     public minPos: Vec3 = new Vec3();
     public maxPos: Vec3 = new Vec3();
 
-    // private _boundingMesh: Mesh | null;
-    // private _boundingMaterial: Material | null;
-    // private _boundingNode: Node | null;
-    // private _model: scene.Model | null;
     private _nodePose: Vec3 = new Vec3();
     private _nodeSize: Vec3 = new Vec3();
 
@@ -83,108 +79,7 @@ export class ParticleCuller {
         this._node = ps.node;
         this._particlesAll = [];
         this._initModuleList();
-
-        // this._boundingMesh = null;
-        // this._boundingMaterial = null;
-        // this._boundingNode = null;
-        // this._model = null;
-
-        // if (EDITOR) {
-        //     this._createBoundingMaterial();
-        //     this._createBoundingMesh();
-        //     this._createBoundingModel();
-        //     this._attachToScene();
-        // }
     }
-
-    // AABB node for debug
-    /*
-    private _createBoundingMaterial () {
-        this._boundingMaterial = new Material();
-        this._boundingMaterial.initialize({
-            effectName: 'builtin-standard',
-            technique: 1,
-            states: {
-                blendState: { targets: [{
-                    blend: true,
-                    blendSrc: BlendFactor.SRC_ALPHA,
-                    blendDst: BlendFactor.ONE_MINUS_SRC_ALPHA,
-                    blendDstAlpha: BlendFactor.ONE_MINUS_SRC_ALPHA,
-                }] },
-                depthStencilState: { depthTest: false },
-            },
-        });
-        const color = new Color(255, 255, 255, 50);
-        this._boundingMaterial.setProperty('albedo', color);
-        this._boundingMaterial.onLoaded();
-    }
-
-    private _createBoundingMesh () {
-        this._boundingMesh = new Primitive();
-        this._boundingMesh.initialize();
-        this._boundingMesh.onLoaded();
-    }
-
-    private _createBoundingModel () {
-        this._boundingNode = new Node(`${this._node.name}_aabb`);
-        this._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        const particleModel = this._processor.getModel();
-        if (particleModel) {
-            this._model.visFlags = particleModel.visFlags;
-        }
-        this._model.node = this._model.transform = this._boundingNode;
-
-        this._boundingNode.hasChangedFlags |= TransformBit.POSITION;
-        this._model.transform.hasChangedFlags |= TransformBit.POSITION;
-        if (this._boundingMesh) {
-            const meshCount = this._boundingMesh ? this._boundingMesh.renderingSubMeshes.length : 0;
-            const renderingMesh = this._boundingMesh.renderingSubMeshes;
-            if (renderingMesh) {
-                for (let i = 0; i < meshCount; ++i) {
-                    const subMeshData = renderingMesh[i];
-                    if (subMeshData && this._boundingMaterial) {
-                        this._model.initSubModel(i, subMeshData, this._boundingMaterial);
-                    }
-                }
-            }
-            this._model.enabled = true;
-        }
-
-        this._model.createBoundingShape(new Vec3(-0.5, -0.5, -0.5), new Vec3(0.5, 0.5, 0.5));
-    }
-
-    private _updateBoundingNode () {
-        this._nodeSize.set(this.maxPos.x - this.minPos.x, this.maxPos.y - this.minPos.y, this.maxPos.z - this.minPos.z);
-        this._nodePose.set(this.minPos.x + this._nodeSize.x * 0.5, this.minPos.y + this._nodeSize.y * 0.5, this.minPos.z + this._nodeSize.z * 0.5);
-        if (this._boundingNode) {
-            this._boundingNode.hasChangedFlags |= TransformBit.POSITION;
-            this._boundingNode.setWorldScale(this._nodeSize);
-            this._boundingNode.setWorldPosition(this._nodePose);
-            if (this._model) {
-                this._model.updateWorldBound();
-            }
-        }
-    }
-
-    private _attachToScene () {
-        if (!this._node.scene || !this._model) {
-            return;
-        }
-        const renderScene = this._node.scene._renderScene;
-        if (renderScene) {
-            if (this._model.scene !== null) {
-                this._detachFromScene();
-            }
-            renderScene.addModel(this._model);
-        }
-    }
-
-    private _detachFromScene () {
-        if (this._model && this._model.scene) {
-            this._model.scene.removeModel(this._model);
-        }
-    }
-    */
 
     public setBoundingBoxSize (halfExt: Vec3) {
         this.maxPos.x = this._nodePose.x + halfExt.x;
@@ -193,7 +88,6 @@ export class ParticleCuller {
         this.minPos.x = this._nodePose.x - halfExt.x;
         this.minPos.y = this._nodePose.y - halfExt.y;
         this.minPos.z = this._nodePose.z - halfExt.z;
-        // this._updateBoundingNode();
     }
 
     public setBoundingBoxCenter (px, py, pz) {
@@ -203,7 +97,6 @@ export class ParticleCuller {
         this.minPos.x = px - this._nodeSize.x * 0.5;
         this.minPos.y = py - this._nodeSize.y * 0.5;
         this.minPos.z = pz - this._nodeSize.z * 0.5;
-        // this._updateBoundingNode();
     }
 
     private _initModuleList () {
@@ -391,7 +284,6 @@ export class ParticleCuller {
         this._calculateBounding(true);
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);
         this._calculateBounding(false);
-        // this._updateBoundingNode();
     }
 
     public clear () {
@@ -399,10 +291,6 @@ export class ParticleCuller {
     }
 
     public destroy () {
-        // this._detachFromScene();
-        // this._boundingMaterial?.destroy();
-        // this._model?.destroy();
-        // this._boundingNode?.destroy();
-        // this._boundingMesh?.destroy();
+
     }
 }
