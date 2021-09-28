@@ -93,7 +93,7 @@ export class ShadowFlow extends RenderFlow {
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
             const isMainLight = light.type === LightType.DIRECTIONAL;
-            const ds = isMainLight ? pipeline.descriptorSet : pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
+            const globalDS = isMainLight ? pipeline.descriptorSet : pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
 
             if (!shadowFrameBufferMap.has(light)) {
                 this._initShadowFrameBuffer(pipeline, light, camera.window!.swapchain);
@@ -102,7 +102,7 @@ export class ShadowFlow extends RenderFlow {
             const shadowFrameBuffer = shadowFrameBufferMap.get(light);
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
-                shadowStage.setUsage(ds, light, shadowFrameBuffer!);
+                shadowStage.setUsage(globalDS, light, shadowFrameBuffer!);
                 shadowStage.render(camera);
             }
         }
@@ -195,13 +195,13 @@ export class ShadowFlow extends RenderFlow {
             const light = validLights[l];
             const isMainLight = light.type === LightType.DIRECTIONAL;
             const shadowFrameBuffer = scene.shadowFrameBufferMap.get(light);
-            const ds = isMainLight ? this._pipeline.descriptorSet : this._pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
+            const globalDS = isMainLight ? this._pipeline.descriptorSet : this._pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
 
             if (!scene.shadowFrameBufferMap.has(light)) { continue; }
 
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
-                shadowStage.setUsage(ds, light, shadowFrameBuffer!);
+                shadowStage.setUsage(globalDS, light, shadowFrameBuffer!);
                 shadowStage.clearFramebuffer(camera);
             }
         }

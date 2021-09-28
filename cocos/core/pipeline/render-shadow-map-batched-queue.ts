@@ -89,7 +89,7 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (ds: DescriptorSet, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (globalDS: DescriptorSet, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
         this.clear();
 
         const pipelineSceneData = this._pipeline.pipelineSceneData;
@@ -97,7 +97,7 @@ export class RenderShadowMapBatchedQueue {
         const dirShadowObjects = pipelineSceneData.dirShadowObjects;
         const castShadowObjects = pipelineSceneData.castShadowObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            this._pipeline.pipelineUBO.updateShadowUBOLight(ds, light);
+            this._pipeline.pipelineUBO.updateShadowUBOLight(globalDS, light);
 
             switch (light.type) {
             case LightType.DIRECTIONAL:

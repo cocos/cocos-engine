@@ -389,9 +389,9 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
-    public updateShadowUBOLight (ds: DescriptorSet, light: Light) {
+    public updateShadowUBOLight (globalDS: DescriptorSet, light: Light) {
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light);
-        ds.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
+        globalDS.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }
 
     public updateShadowUBORange (offset: number, data: Mat4 | Color) {

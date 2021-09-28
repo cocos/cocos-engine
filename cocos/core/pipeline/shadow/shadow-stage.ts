@@ -63,8 +63,8 @@ export class ShadowStage extends RenderStage {
      * @param light
      * @param shadowFrameBuffer
      */
-    public setUsage (ds: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer) {
-        this._descriptorSet = ds;
+    public setUsage (globalDS: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer) {
+        this._globalDS = globalDS;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
@@ -73,7 +73,7 @@ export class ShadowStage extends RenderStage {
     private _shadowFrameBuffer: Framebuffer | null = null;
     private _renderArea = new Rect();
     private _light: Light | null = null;
-    private _descriptorSet: DescriptorSet | null = null;
+    private _globalDS: DescriptorSet | null = null;
 
     public destroy () {
         this._additiveShadowQueue?.clear();
@@ -96,7 +96,7 @@ export class ShadowStage extends RenderStage {
         const pipelineSceneData = pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
         const shadingScale = pipelineSceneData.shadingScale;
-        const descriptorSet = this._descriptorSet!;
+        const descriptorSet = this._globalDS!;
         const cmdBuff = pipeline.commandBuffers[0];
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
