@@ -11,11 +11,6 @@ in vec4 v_uvSizeOffset;
 in vec4 v_uvParams0;
 in vec4 v_uvParams1;
 
-#if USE_TEXTURE
-  #pragma builtin(local)
-  layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
-#endif
-
 vec2 evalSlicedUV(vec2 uv) {
   vec4 p0 = mix(vec4(0.0), v_uvParams0, step(v_uvParams0.xyxy, uv.xyxy));
         p0 = mix(       p0, v_uvParams1, step(v_uvParams1.xyxy, uv.xyxy));
@@ -78,12 +73,9 @@ void CCSpriteInput(out SpriteFragmentData i) {
 }
 
 vec4 CCSpriteSample(sampler2D tex, vec2 uv) {
-   vec4 o = vec4(1, 1, 1, 1);
-   #if USE_TEXTURE
-     o = CCSampleWithAlphaSeparated(tex, uv);
-   #endif
-   if (v_uvMode >= 3.0) {
-       o.a *= evalFilledUV(v_uv0, v_uvParams0.z);
-   }
-   return o;
- }
+  vec4 o = CCSampleWithAlphaSeparated(tex, uv);
+  if (v_uvMode >= 3.0) {
+    o.a *= evalFilledUV(v_uv0, v_uvParams0.z);
+  }
+  return o;
+}

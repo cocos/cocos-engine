@@ -48,10 +48,20 @@ CCProgram sprite-fs-gpu %{
 
   in vec4 v_color;
 
+  #if USE_TEXTURE
+    #pragma builtin(local)
+    layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
+  #endif
+
   vec4 frag () {
     SpriteFragmentData i;
     CCSpriteInput(i);
-    vec4 color = v_color * CCSpriteSample(cc_spriteTexture, i.uv);
+
+    #if USE_TEXTURE
+      vec4 color = v_color * CCSpriteSample(cc_spriteTexture, i.uv);
+    #else
+      vec4 color = v_color;
+    #endif
 
     // Customization goes here
 
