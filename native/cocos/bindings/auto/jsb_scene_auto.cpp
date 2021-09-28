@@ -3971,59 +3971,59 @@ static bool js_scene_PipelineSharedSceneData_set_deferredLightPassShader(se::Sta
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_deferredLightPassShader)
 
-static bool js_scene_PipelineSharedSceneData_get_deferredPostPass(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_PipelineSharedSceneData_get_pipelinePostPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_deferredPostPass : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_pipelinePostPass : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->deferredPostPass, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->pipelinePostPass, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->deferredPostPass, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->pipelinePostPass, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_deferredPostPass)
+SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_pipelinePostPass)
 
-static bool js_scene_PipelineSharedSceneData_set_deferredPostPass(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_PipelineSharedSceneData_set_pipelinePostPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_set_deferredPostPass : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_set_pipelinePostPass : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->deferredPostPass, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_PipelineSharedSceneData_set_deferredPostPass : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->pipelinePostPass, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_PipelineSharedSceneData_set_pipelinePostPass : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_deferredPostPass)
+SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_pipelinePostPass)
 
-static bool js_scene_PipelineSharedSceneData_get_deferredPostPassShader(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_PipelineSharedSceneData_get_pipelinePostPassShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_deferredPostPassShader : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_pipelinePostPassShader : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->deferredPostPassShader, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->pipelinePostPassShader, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->deferredPostPassShader, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->pipelinePostPassShader, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_deferredPostPassShader)
+SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_pipelinePostPassShader)
 
-static bool js_scene_PipelineSharedSceneData_set_deferredPostPassShader(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_PipelineSharedSceneData_set_pipelinePostPassShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_set_deferredPostPassShader : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_set_pipelinePostPassShader : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->deferredPostPassShader, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_PipelineSharedSceneData_set_deferredPostPassShader : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->pipelinePostPassShader, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_PipelineSharedSceneData_set_pipelinePostPassShader : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_deferredPostPassShader)
+SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_pipelinePostPassShader)
 
 
 template<>
@@ -4074,13 +4074,13 @@ bool sevalue_to_native(const se::Value &from, cc::scene::PipelineSharedSceneData
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->deferredLightPassShader), ctx);
     }
-    json->getProperty("deferredPostPass", &field);
+    json->getProperty("pipelinePostPass", &field);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->deferredPostPass), ctx);
+        ok &= sevalue_to_native(field, &(to->pipelinePostPass), ctx);
     }
-    json->getProperty("deferredPostPassShader", &field);
+    json->getProperty("pipelinePostPassShader", &field);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->deferredPostPassShader), ctx);
+        ok &= sevalue_to_native(field, &(to->pipelinePostPassShader), ctx);
     }
     return ok;
 }
@@ -4148,10 +4148,10 @@ static bool js_scene_PipelineSharedSceneData_constructor(se::State& s) // NOLINT
         ok &= sevalue_to_native(args[8], &(cobj->deferredLightPassShader), nullptr);
     }
     if (argc > 9 && !args[9].isUndefined()) {
-        ok &= sevalue_to_native(args[9], &(cobj->deferredPostPass), nullptr);
+        ok &= sevalue_to_native(args[9], &(cobj->pipelinePostPass), nullptr);
     }
     if (argc > 10 && !args[10].isUndefined()) {
-        ok &= sevalue_to_native(args[10], &(cobj->deferredPostPassShader), nullptr);
+        ok &= sevalue_to_native(args[10], &(cobj->pipelinePostPassShader), nullptr);
     }
 
     if(!ok) {
@@ -4194,8 +4194,8 @@ bool js_register_scene_PipelineSharedSceneData(se::Object* obj) // NOLINT(readab
     cls->defineProperty("fog", _SE(js_scene_PipelineSharedSceneData_get_fog), _SE(js_scene_PipelineSharedSceneData_set_fog));
     cls->defineProperty("deferredLightPass", _SE(js_scene_PipelineSharedSceneData_get_deferredLightPass), _SE(js_scene_PipelineSharedSceneData_set_deferredLightPass));
     cls->defineProperty("deferredLightPassShader", _SE(js_scene_PipelineSharedSceneData_get_deferredLightPassShader), _SE(js_scene_PipelineSharedSceneData_set_deferredLightPassShader));
-    cls->defineProperty("deferredPostPass", _SE(js_scene_PipelineSharedSceneData_get_deferredPostPass), _SE(js_scene_PipelineSharedSceneData_set_deferredPostPass));
-    cls->defineProperty("deferredPostPassShader", _SE(js_scene_PipelineSharedSceneData_get_deferredPostPassShader), _SE(js_scene_PipelineSharedSceneData_set_deferredPostPassShader));
+    cls->defineProperty("pipelinePostPass", _SE(js_scene_PipelineSharedSceneData_get_pipelinePostPass), _SE(js_scene_PipelineSharedSceneData_set_pipelinePostPass));
+    cls->defineProperty("pipelinePostPassShader", _SE(js_scene_PipelineSharedSceneData_get_pipelinePostPassShader), _SE(js_scene_PipelineSharedSceneData_set_pipelinePostPassShader));
     cls->defineFinalizeFunction(_SE(js_cc_scene_PipelineSharedSceneData_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::PipelineSharedSceneData>(cls);

@@ -20,7 +20,7 @@
 #include "cocos/renderer/pipeline/deferred/MainFlow.h"
 #include "cocos/renderer/pipeline/deferred/GbufferStage.h"
 #include "cocos/renderer/pipeline/deferred/LightingStage.h"
-#include "cocos/renderer/pipeline/deferred/PostprocessStage.h"
+#include "cocos/renderer/pipeline/common/PostProcessStage.h"
 
 extern se::Object* __jsb_cc_pipeline_RenderQueueDesc_proto;
 extern se::Class* __jsb_cc_pipeline_RenderQueueDesc_class;
@@ -69,15 +69,25 @@ bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipeline);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_activate);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_createQuadInputAssembler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_ensureEnoughSize);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_genQuadVertexData);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getClearcolor);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getDevice);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getFrameGraph);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getHeight);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getIAByRenderArea);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getProfiler);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderstageByName);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setProfiler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_updateQuadVertexData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
 
 extern se::Object* __jsb_cc_pipeline_ForwardPipeline_proto;
@@ -87,9 +97,7 @@ bool js_register_cc_pipeline_ForwardPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
-SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getFrameGraph);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getHeight);
-SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getRenderArea);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
 
@@ -199,11 +207,6 @@ bool js_register_cc_pipeline_DeferredPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_ensureEnoughSize);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getClearcolor);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getFrameGraph);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getHeight);
-SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_DeferredPipeline);
 
 extern se::Object* __jsb_cc_pipeline_MainFlow_proto;
@@ -236,13 +239,13 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::LightingStage);
 SE_DECLARE_FUNC(js_pipeline_LightingStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_LightingStage_LightingStage);
 
-extern se::Object* __jsb_cc_pipeline_PostprocessStage_proto;
-extern se::Class* __jsb_cc_pipeline_PostprocessStage_class;
+extern se::Object* __jsb_cc_pipeline_PostProcessStage_proto;
+extern se::Class* __jsb_cc_pipeline_PostProcessStage_class;
 
-bool js_register_cc_pipeline_PostprocessStage(se::Object* obj);
+bool js_register_cc_pipeline_PostProcessStage(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PostprocessStage);
-SE_DECLARE_FUNC(js_pipeline_PostprocessStage_getInitializeInfo);
-SE_DECLARE_FUNC(js_pipeline_PostprocessStage_PostprocessStage);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PostProcessStage);
+SE_DECLARE_FUNC(js_pipeline_PostProcessStage_getInitializeInfo);
+SE_DECLARE_FUNC(js_pipeline_PostProcessStage_PostProcessStage);
 
