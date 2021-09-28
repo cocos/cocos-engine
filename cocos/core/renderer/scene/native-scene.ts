@@ -315,6 +315,14 @@ export const NativePipelineSharedSceneData: Constructor<{
     shadow: NativeShadow;
     deferredLightPassShader: Shader | null;
     deferredLightPass: NativePass;
+    bloomPrefilterPassShader: Shader | null;
+    bloomPrefilterPass: NativePass;
+    bloomDownsamplePassShader: Shader | null;
+    bloomDownsamplePass: NativePass;
+    bloomUpsamplePassShader: Shader | null;
+    bloomUpsamplePass: NativePass;
+    bloomCombinePassShader: Shader | null;
+    bloomCombinePass: NativePass;
     pipelinePostPassShader: Shader | null;
     pipelinePostPass: NativePass;
 }> = null!;

@@ -29,6 +29,7 @@
  */
 
 export enum CommonStagePriority {
+    BLOOM = 18,
     POST_PROCESS = 19,
     UI = 20
 }

@@ -1,0 +1,178 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: bloom-vs
+      frag: prefilter-fs
+      phase: bloom-prefilter
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: downsample-fs
+      phase: bloom-downsample
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: upsample-fs
+      phase: bloom-upsample
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: bloom-vs
+      frag: combine-fs
+      phase: bloom-combine
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram bloom-vs %{
+  precision highp float;
+  #include <input-standard>
+  #include <cc-global>
+  #include <common>
+
+  out vec2 v_uv;
+
+  void main () {
+    StandardVertInput In;
+    CCVertInput(In);
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
+    gl_Position = In.position;
+    gl_Position.y = gl_Position.y;
+    v_uv = a_texCoord;
+  }
+}%
+
+CCProgram prefilter-fs %{
+  precision highp float;
+  #include <cc-global>
+  #include <gamma>
+
+  in vec2 v_uv;
+
+  layout (binding = 0) uniform sampler2D outputResultMap;
+
+  layout(location = 0) out vec4 fragColor;
+
+  float luminance(vec3 color) {
+    return dot(color, vec3(0.2126, 0.7152, 0.0722));
+  }
+
+  void main() {
+    vec3 color = texture(outputResultMap, v_uv).xyz;
+
+    if (luminance(SRGBToLinear(color)) > 0.5) {
+      fragColor = vec4(color, 1.0);
+    } else {
+      fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+  }
+}%
+
+CCProgram downsample-fs %{
+  precision highp float;
+  #include <cc-global>
+
+  in vec2 v_uv;
+
+  uniform BloomUBO {
+    mediump vec4 textureSize;
+  };
+  uniform sampler2D bloomTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+#define SAM(uv) texture(bloomTexture, uv).xyz
+
+  vec3 downsample(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv) * 4.0;
+    sum += SAM(uv - halfpixel.xy);
+    sum += SAM(uv + halfpixel.xy);
+
+    halfpixel.y = -halfpixel.y;
+    sum += SAM(uv - halfpixel.xy);
+    sum += SAM(uv + halfpixel.xy);
+    return sum / 8.0;
+  }
+
+  vec3 downsample4taps(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv + vec2(-halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, -halfpixel.y));
+        sum += SAM(uv + vec2(-halfpixel.x, -halfpixel.y));
+    return sum / 4.0;
+  }
+
+  void main()
+  {
+    vec3 result = downsample4taps(v_uv, 1.0 / textureSize.xy).rgb;
+
+    fragColor = vec4(result, 1.0);
+  }
+}%
+
+CCProgram upsample-fs %{
+  precision highp float;
+  #include <cc-global>
+
+  in vec2 v_uv;
+
+  uniform BloomUBO {
+    mediump vec4 textureSize;
+  };
+  uniform sampler2D bloomTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+#define SAM(uv) texture(bloomTexture, uv).xyz
+
+  vec3 upsample(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv + vec2(-halfpixel.x * 2.0, 0.0));
+        sum += SAM(uv + vec2(-halfpixel.x, halfpixel.y)) * 2.0;
+        sum += SAM(uv + vec2(0.0, halfpixel.y * 2.0));
+        sum += SAM(uv + vec2(halfpixel.x, halfpixel.y)) * 2.0;
+        sum += SAM(uv + vec2(halfpixel.x * 2.0, 0.0));
+        sum += SAM(uv + vec2(halfpixel.x, -halfpixel.y)) * 2.0;
+        sum += SAM(uv + vec2(0.0, -halfpixel.y * 2.0));
+        sum += SAM(uv + vec2(-halfpixel.x, -halfpixel.y)) * 2.0;
+        return sum / 12.0;
+  }
+
+  vec3 upsample4taps(vec2 uv, vec2 halfpixel) {
+    vec3 sum = SAM(uv + vec2(-halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, halfpixel.y));
+        sum += SAM(uv + vec2(halfpixel.x, -halfpixel.y));
+        sum += SAM(uv + vec2(-halfpixel.x, -halfpixel.y));
+    return sum / 4.0;
+  }
+
+  void main() {
+    vec3 result = upsample4taps(v_uv, 0.5 / textureSize.xy).rgb;
+
+    fragColor = vec4(result, 1.0);
+  }
+}%
+
+CCProgram combine-fs %{
+  precision highp float;
+  #include <cc-global>
+
+  in vec2 v_uv;
+
+  layout(binding = 0) uniform sampler2D outputResultMap;
+  layout(binding = 1) uniform sampler2D bloomTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    vec4 hdrColor = texture(outputResultMap, v_uv);
+    vec3 bloomColor = texture(bloomTexture, v_uv).rgb;
+    vec3 result = hdrColor.rgb + bloomColor * 0.8 * hdrColor.a;
+
+    fragColor = vec4(result, hdrColor.a);
+  }
+}%
