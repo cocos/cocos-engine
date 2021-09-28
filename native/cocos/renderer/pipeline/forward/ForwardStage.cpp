@@ -35,9 +35,7 @@
 #include "ForwardPipeline.h"
 #include "pipeline/common/UIPhase.h"
 #include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
-#include "gfx-base/GFXQueue.h"
 
 namespace cc {
 namespace pipeline {
@@ -69,9 +67,9 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint                  phase    = convertPhase(descriptor.stages);
-        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
+        const uint                phase    = convertPhase(descriptor.stages);
+        const RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo     info     = {descriptor.isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
     }
 
@@ -92,27 +90,23 @@ void ForwardStage::destroy() {
 void ForwardStage::dispenseRenderObject2Queues() {
     _instancedQueue->clear();
     _batchedQueue->clear();
-    auto *      pipeline      = static_cast<ForwardPipeline *>(_pipeline);
-    auto *const sceneData     = _pipeline->getPipelineSceneData();
-    auto *const sharedData    = sceneData->getSharedData();
+
+    const auto *sceneData     = _pipeline->getPipelineSceneData();
     const auto &renderObjects = sceneData->getRenderObjects();
 
     for (auto *queue : _renderQueues) {
         queue->clear();
     }
 
-    uint   subModelIdx = 0;
-    uint   passIdx     = 0;
-    size_t k           = 0;
     for (auto ro : renderObjects) {
         const auto *const model         = ro.model;
         const auto &      subModels     = model->getSubModels();
-        auto              subModelCount = subModels.size();
-        for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+        const auto        subModelCount = subModels.size();
+        for (uint subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
             const auto &subModel  = subModels[subModelIdx];
             const auto &passes    = subModel->getPasses();
-            auto        passCount = passes.size();
-            for (passIdx = 0; passIdx < passCount; ++passIdx) {
+            const auto  passCount = passes.size();
+            for (uint passIdx = 0; passIdx < passCount; ++passIdx) {
                 const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
@@ -124,8 +118,8 @@ void ForwardStage::dispenseRenderObject2Queues() {
                     batchedBuffer->merge(subModel, passIdx, model);
                     _batchedQueue->add(batchedBuffer);
                 } else {
-                    for (k = 0; k < _renderQueues.size(); k++) {
-                        _renderQueues[k]->insertRenderPass(ro, subModelIdx, passIdx);
+                    for (auto *renderQueue : _renderQueues) {
+                        renderQueue->insertRenderPass(ro, subModelIdx, passIdx);
                     }
                 }
             }
@@ -150,6 +144,7 @@ void ForwardStage::render(scene::Camera *camera) {
     _renderArea = pipeline->getRenderArea(camera, false);
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda
     dispenseRenderObject2Queues();
+    pipeline->getPipelineUBO()->updateShadowUBO(camera);
     auto *cmdBuff{pipeline->getCommandBuffers()[0]};
 
     _instancedQueue->uploadBuffers(cmdBuff);
@@ -229,7 +224,10 @@ void ForwardStage::render(scene::Camera *camera) {
             _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
             _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+
             _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+
+            cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
         }

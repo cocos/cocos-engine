@@ -80,7 +80,12 @@ void ShadowFlow::render(scene::Camera *camera) {
     }
 
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
-    for (const auto *light : _validLights) {
+    for (uint l = 0; l < _validLights.size(); ++l) {
+        const scene::Light *light       = _validLights[l];
+        const bool          isMainLight = light->getType() == scene::LightType::DIRECTIONAL;
+        gfx::DescriptorSet *globalDS   = isMainLight ? _pipeline->getDescriptorSet()
+                                                      : _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l - 1);
+
         if (!shadowFramebufferMap.count(light)) {
             initShadowFrameBuffer(_pipeline, light);
         }
@@ -89,20 +94,21 @@ void ShadowFlow::render(scene::Camera *camera) {
 
         for (auto *stage : _stages) {
             auto *shadowStage = dynamic_cast<ShadowStage *>(stage);
-            shadowStage->setUseData(light, shadowFrameBuffer);
+            shadowStage->setUsage(globalDS, light, shadowFrameBuffer);
             shadowStage->render(camera);
         }
     }
-
-    // After the shadowMap rendering of all lights is completed,
-    // restore the ShadowUBO data of the main light.
-    _pipeline->getPipelineUBO()->updateShadowUBO(camera);
 }
 
 void ShadowFlow::clearShadowMap(scene::Camera *camera) {
-    auto *      sceneData            = _pipeline->getPipelineSceneData();
+    const auto *sceneData            = _pipeline->getPipelineSceneData();
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
-    for (const auto *light : _validLights) {
+    for (uint l = 0; l < _validLights.size(); ++l) {
+        const scene::Light *light       = _validLights[l];
+        const bool          isMainLight = light->getType() == scene::LightType::DIRECTIONAL;
+        gfx::DescriptorSet *globalDS   = isMainLight ? _pipeline->getDescriptorSet()
+                                                      : _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(l - 1);
+
         if (!shadowFramebufferMap.count(light)) {
             continue;
         }
@@ -110,18 +116,18 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
         for (auto *stage : _stages) {
             auto *shadowStage = dynamic_cast<ShadowStage *>(stage);
-            shadowStage->setUseData(light, shadowFrameBuffer);
+            shadowStage->setUsage(globalDS, light, shadowFrameBuffer);
             shadowStage->clearFramebuffer(camera);
         }
     }
 }
 
 void ShadowFlow::resizeShadowMap(scene::Shadow **shadowInfo) {
-    auto *     sceneData = _pipeline->getPipelineSceneData();
-    auto *     device    = gfx::Device::getInstance();
-    const auto width     = static_cast<uint>((*shadowInfo)->size.x);
-    const auto height    = static_cast<uint>((*shadowInfo)->size.y);
-    const auto format    = supportsHalfFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
+    const auto *sceneData = _pipeline->getPipelineSceneData();
+    auto *      device    = gfx::Device::getInstance();
+    const auto  width     = static_cast<uint>((*shadowInfo)->size.x);
+    const auto  height    = static_cast<uint>((*shadowInfo)->size.y);
+    const auto  format    = supportsHalfFloatTexture(device) ? gfx::Format::R32F : gfx::Format::RGBA8;
 
     for (const auto &pair : sceneData->getShadowFramebufferMap()) {
         gfx::Framebuffer *framebuffer = pair.second;
@@ -131,7 +137,7 @@ void ShadowFlow::resizeShadowMap(scene::Shadow **shadowInfo) {
         }
 
         auto renderTargets = framebuffer->getColorTextures();
-        for (auto *renderTarget : renderTargets) {
+        for (const auto *renderTarget : renderTargets) {
             CC_DELETE(renderTarget);
         }
         renderTargets.clear();
@@ -241,7 +247,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
 }
 
 void ShadowFlow::destroy() {
-    for (auto rpPair : renderPassHashMap) {
+    for (const auto &rpPair : renderPassHashMap) {
         rpPair.second->destroy();
     }
     renderPassHashMap.clear();

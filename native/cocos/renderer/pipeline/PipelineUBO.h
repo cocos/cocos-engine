@@ -54,7 +54,7 @@ public:
     void updateCameraUBO(const scene::Camera *camera);
     void updateMultiCameraUBO(const vector<scene::Camera *> &cameras);
     void updateShadowUBO(const scene::Camera *camera);
-    void updateShadowUBOLight(const scene::Light *light);
+    void updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light);
     void updateShadowUBORange(uint offset, const Mat4 *data);
 
     uint getCurrentCameraUBOOffset() const;
