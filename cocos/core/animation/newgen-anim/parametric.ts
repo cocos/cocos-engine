@@ -1,9 +1,8 @@
-import { VariableNotDefinedError } from '.';
 import { ccclass, serializable } from '../../data/decorators';
 import { assertIsTrue } from '../../data/utils/asserts';
 import { warn } from '../../platform/debug';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { VariableTypeMismatchedError } from './errors';
+import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import type { VarInstance } from './graph-eval';
 
 export enum VariableType {

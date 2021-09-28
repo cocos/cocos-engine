@@ -223,9 +223,14 @@ class LayerEval {
     public getCurrentTransition (transitionStatus: TransitionStatus): boolean {
         const { _currentTransitionPath: currentTransitionPath } = this;
         if (currentTransitionPath.length !== 0) {
-            const currentTransition = currentTransitionPath[0];
-            transitionStatus.duration = currentTransition.duration;
-            transitionStatus.time = this._transitionProgress;
+            const {
+                duration,
+                normalizedDuration,
+            } = currentTransitionPath[0];
+            const durationInSeconds = transitionStatus.duration = normalizedDuration
+                ? duration * (this._currentNode.kind === NodeKind.pose ? this._currentNode.duration : 0.0)
+                : duration;
+            transitionStatus.time = this._transitionProgress * durationInSeconds;
             return true;
         } else {
             return false;
@@ -361,6 +366,7 @@ class LayerEval {
                     to: toNode,
                     conditions: outgoing.conditions.map((condition) => condition[createEval](context)),
                     duration: isPoseTransition(outgoing) ? outgoing.duration : 0.0,
+                    normalizedDuration: isPoseTransition(outgoing) ? outgoing.relativeDuration : false,
                     targetStretch: 1.0,
                     exitConditionEnabled: isPoseTransition(outgoing) ? outgoing.exitConditionEnabled : false,
                     exitCondition: isPoseTransition(outgoing) ? outgoing.exitCondition : 0.0,
@@ -703,24 +709,28 @@ class LayerEval {
 
         const {
             duration: transitionDuration,
+            normalizedDuration,
         } = currentTransition;
 
-        assertIsTrue(transitionDuration >= this._transitionProgress);
+        const fromNode = this._currentNode;
+        const toNode = currentTransitionToNode;
+
         let contrib = 0.0;
         let ratio = 0.0;
         if (transitionDuration <= 0) {
             contrib = 0.0;
             ratio = 1.0;
         } else {
-            const remain = transitionDuration - this._transitionProgress;
+            assertIsTrue(fromNode.kind === NodeKind.pose);
+            const { _transitionProgress: transitionProgress } = this;
+            const durationSeconds = normalizedDuration ? transitionDuration * fromNode.duration : transitionDuration;
+            const progressSeconds = transitionProgress * durationSeconds;
+            const remain = durationSeconds - progressSeconds;
+            assertIsTrue(remain >= 0.0);
             contrib = Math.min(remain, deltaTime);
-            this._transitionProgress += contrib;
-            const progress = this._transitionProgress;
-            ratio = Math.min(progress / transitionDuration, 1.0);
+            ratio = this._transitionProgress = (progressSeconds + contrib) / durationSeconds;
+            assertIsTrue(ratio >= 0.0 && ratio <= 1.0);
         }
-
-        const fromNode = this._currentNode;
-        const toNode = currentTransitionToNode;
 
         const toNodeName = toNode?.name ?? '<Empty>';
 
@@ -1093,6 +1103,7 @@ interface TransitionEval {
     pose: boolean;
     to: NodeEval;
     duration: number;
+    normalizedDuration: boolean;
     conditions: ConditionEval[];
     targetStretch: number;
     exitConditionEnabled: boolean;

@@ -70,8 +70,19 @@ export type TransitionInternal = Transition;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseTransition`)
 class PoseTransition extends Transition {
+    /**
+     * The transition duration.
+     * The unit of the duration is the real duration of transition source
+     * if `relativeDuration` is `true` or seconds otherwise.
+     */
     @serializable
     public duration = 0.3;
+
+    /**
+     * Determines the unit of transition duration. See `duration`.
+     */
+    @serializable
+    public relativeDuration = false;
 
     @serializable
     public exitConditionEnabled = true;

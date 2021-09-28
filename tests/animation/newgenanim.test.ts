@@ -810,6 +810,79 @@ describe('NewGen Anim', () => {
                 // #endregion
             });
         });
+
+        test(`Transition duration: in seconds`, () => {
+            const poseGraph = new PoseGraph();
+            const layer = poseGraph.addLayer();
+            const graph = layer.graph;
+            const poseNode1 = graph.addPoseNode();
+            poseNode1.name = 'Node1';
+            const { clip: poseNode1Clip } = poseNode1.pose = createEmptyClipPose(4.0);
+            const poseNode2 = graph.addPoseNode();
+            poseNode2.name = 'Node2';
+            const { clip: poseNode2Clip } = poseNode2.pose = createEmptyClipPose(1.0);
+            graph.connect(graph.entryNode, poseNode1);
+            const transition = graph.connect(poseNode1, poseNode2);
+            transition.exitConditionEnabled = true;
+            transition.exitCondition = 0.1;
+            transition.duration = 0.3;
+            transition.relativeDuration = false;
+
+            const graphEval = createPoseGraphEval(poseGraph, new Node());
+
+            graphEval.update(0.1 * poseNode1Clip.duration + 0.1);
+            expectPoseGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: poseNode1Clip!,
+                    weight: 0.666667,
+                },
+                transition: {
+                    duration: 0.3,
+                    time: 0.1,
+                    next: {
+                        clip: poseNode2Clip!,
+                        weight: 0.33333,
+                    },
+                },
+            });
+        });
+
+        test(`Transition duration: normalized`, () => {
+            const poseGraph = new PoseGraph();
+            const layer = poseGraph.addLayer();
+            const graph = layer.graph;
+            const poseNode1 = graph.addPoseNode();
+            poseNode1.name = 'Node1';
+            const { clip: poseNode1Clip } = poseNode1.pose = createEmptyClipPose(4.0);
+            const poseNode2 = graph.addPoseNode();
+            poseNode2.name = 'Node2';
+            const { clip: poseNode2Clip } = poseNode2.pose = createEmptyClipPose(1.0);
+            graph.connect(graph.entryNode, poseNode1);
+            const transition = graph.connect(poseNode1, poseNode2);
+            transition.exitConditionEnabled = true;
+            transition.exitCondition = 0.1;
+            transition.duration = 0.3;
+            transition.relativeDuration = true;
+
+            const graphEval = createPoseGraphEval(poseGraph, new Node());
+
+            const poseNode1Duration = poseNode1Clip.duration;
+            graphEval.update(0.1 * poseNode1Duration + 0.1 * poseNode1Duration);
+            expectPoseGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: poseNode1Clip!,
+                    weight: 0.666667,
+                },
+                transition: {
+                    duration: 0.3 * poseNode1Duration,
+                    time: 0.1 * poseNode1Duration,
+                    next: {
+                        clip: poseNode2Clip!,
+                        weight: 0.33333,
+                    },
+                },
+            });
+        });
     });
 
     describe(`Any state`, () => {
@@ -1256,6 +1329,7 @@ function expectPoseGraphEvalStatusLayer0 (graphEval: PoseGraphEval, status: {
     current?: Parameters<typeof expectPoseStatuses>[1];
     transition?: {
         time?: number;
+        duration?: number;
         nextNode?: Parameters<typeof expectPoseNodeStatus>[1];
         next?: Parameters<typeof expectPoseStatuses>[1];
     };
@@ -1275,6 +1349,9 @@ function expectPoseGraphEvalStatusLayer0 (graphEval: PoseGraphEval, status: {
         expect(currentTransition).not.toBeNull();
         if (typeof status.transition.time === 'number') {
             expect(currentTransition.time).toBeCloseTo(status.transition.time, 5);
+        }
+        if (typeof status.transition.duration === 'number') {
+            expect(currentTransition.duration).toBeCloseTo(status.transition.duration, 5);
         }
         if (status.transition.nextNode) {
             expectPoseNodeStatus(graphEval.getNextPoseNodeStats(0), status.transition.nextNode);
