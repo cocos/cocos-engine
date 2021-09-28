@@ -29,8 +29,8 @@
  */
 
 import { SubModel } from '../renderer/scene/submodel';
-import { SetIndex, UBOShadow } from './define';
-import { Device, RenderPass, Buffer, Shader, CommandBuffer } from '../gfx';
+import { SetIndex } from './define';
+import { Device, RenderPass, Shader, CommandBuffer, DescriptorSet } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';
@@ -40,7 +40,6 @@ import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
 import { ShadowType } from '../renderer/scene/shadows';
 import { Light, LightType } from '../renderer/scene/light';
-import { SpotLight } from '../renderer/scene/spot-light';
 import { AABB, intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { RenderPipeline } from './render-pipeline';
@@ -90,14 +89,15 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (isMainLight: boolean, idx: number, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (ds: DescriptorSet, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
         this.clear();
+
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
         const dirShadowObjects = pipelineSceneData.dirShadowObjects;
         const castShadowObjects = pipelineSceneData.castShadowObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            this._pipeline.pipelineUBO.updateShadowUBOLight(this._pipeline, isMainLight, idx, light);
+            this._pipeline.pipelineUBO.updateShadowUBOLight(ds, light);
 
             switch (light.type) {
             case LightType.DIRECTIONAL:

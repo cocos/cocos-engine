@@ -24,7 +24,7 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsHalfFloatTexture } from './define';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec2, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
@@ -389,9 +389,7 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
-    public updateShadowUBOLight (pipeline: RenderPipeline, isMainLight: boolean, idx: number, light: Light) {
-        const  ds = isMainLight ? pipeline.descriptorSet
-            : pipeline.globalDSManager.getOrCreateDescriptorSet(idx - 1)!;
+    public updateShadowUBOLight (ds: DescriptorSet, light: Light) {
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light);
         ds.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }

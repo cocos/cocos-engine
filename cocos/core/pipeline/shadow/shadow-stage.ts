@@ -29,13 +29,13 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { Color, Rect, Framebuffer } from '../../gfx';
+import { Color, Rect, Framebuffer, DescriptorSet } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { ForwardStagePriority } from '../forward/enum';
 import { RenderShadowMapBatchedQueue } from '../render-shadow-map-batched-queue';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { SetIndex } from '../define';
-import { Light, LightType } from '../../renderer/scene/light';
+import { Light } from '../../renderer/scene/light';
 import { ShadowFlow } from './shadow-flow';
 import { Camera } from '../../renderer/scene';
 
@@ -63,9 +63,8 @@ export class ShadowStage extends RenderStage {
      * @param light
      * @param shadowFrameBuffer
      */
-    public setUsage (isMainLight: boolean, idxLight: number, light: Light, shadowFrameBuffer: Framebuffer) {
-        this._isMainLight = isMainLight;
-        this._lightIndex = idxLight;
+    public setUsage (ds: DescriptorSet, light: Light, shadowFrameBuffer: Framebuffer) {
+        this._descriptorSet = ds;
         this._light = light;
         this._shadowFrameBuffer = shadowFrameBuffer;
     }
@@ -74,8 +73,7 @@ export class ShadowStage extends RenderStage {
     private _shadowFrameBuffer: Framebuffer | null = null;
     private _renderArea = new Rect();
     private _light: Light | null = null;
-    private _isMainLight;
-    private _lightIndex = 0;
+    private _descriptorSet: DescriptorSet | null = null;
 
     public destroy () {
         this._additiveShadowQueue?.clear();
@@ -98,11 +96,11 @@ export class ShadowStage extends RenderStage {
         const pipelineSceneData = pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
         const shadingScale = pipelineSceneData.shadingScale;
-
+        const descriptorSet = this._descriptorSet!;
         const cmdBuff = pipeline.commandBuffers[0];
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
-        this._additiveShadowQueue.gatherLightPasses(this._isMainLight, this._lightIndex, camera, this._light, cmdBuff);
+        this._additiveShadowQueue.gatherLightPasses(descriptorSet, camera, this._light, cmdBuff);
 
         const vp = camera.viewport;
         const shadowMapSize = shadowInfo.size;
@@ -116,9 +114,6 @@ export class ShadowStage extends RenderStage {
 
         cmdBuff.beginRenderPass(renderPass, this._shadowFrameBuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
-        const  descriptorSet = this._isMainLight ? pipeline.descriptorSet
-            : pipeline.globalDSManager.getOrCreateDescriptorSet(this._lightIndex - 1)!;
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet);
 
         this._additiveShadowQueue.recordCommandBuffer(device, renderPass, cmdBuff);
