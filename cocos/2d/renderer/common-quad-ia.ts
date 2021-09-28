@@ -30,7 +30,7 @@
 import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit,
     Device, Format, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 
-export class GenesisBlock {
+export class CommonQuadIA {
     private _vertexBuffer: Buffer;
     private _indexBuffer: Buffer;
     private _ia: InputAssembler;

@@ -46,8 +46,8 @@ import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4 } from '../../core/math';
-import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
-import { GenesisBlock } from './genesis-block';
+import { UILocalUBOManger } from './render-uniform-buffer';
+import { CommonQuadIA } from './common-quad-ia';
 import { sys } from '../../core/platform/sys';
 import { IBatcher } from './i-batcher';
 import { DrawBatch2D, DrawCall } from './draw-batch';
@@ -168,7 +168,7 @@ export class Batcher2D implements IBatcher {
     private _descriptorSetCache = new DescriptorSetCache();
 
     // macro.UI_GPU_DRIVEN
-    private _dummyIA: GenesisBlock;
+    private _dummyIA: CommonQuadIA;
     private _localUBOManager: UILocalUBOManger;
 
     private _currTypeIsGPU = false;
@@ -183,7 +183,7 @@ export class Batcher2D implements IBatcher {
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2DGPU(), 128);
         // macro.UI_GPU_DRIVEN
-        this._dummyIA = new GenesisBlock(this.device);
+        this._dummyIA = new CommonQuadIA(this.device);
         this._localUBOManager = new UILocalUBOManger(this.device);
         this._reloadBatchDirty = true;
         this._currBatch = this._drawBatchPool.alloc();

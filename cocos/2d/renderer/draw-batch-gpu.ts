@@ -72,13 +72,10 @@ export class DrawBatch2DGPU extends DrawBatch2D {
     }
 
     public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material, batcher: IBatcher) {
-        // 将一个 drawBatch 分割为多个 drawCall
-        // 分割条件， uboHash 要一致，buffer View 要一致
         renderComp.node.updateWorldTransform();
         // @ts-expect-error using private members
         const { _pos: t, _rot: r, _scale: s } = renderComp.node;
         DrawBatch2DGPU._tempRect = renderComp.node._uiProps.uiTransformComp!;
-        // 更新 size 和 anchor 利用 dirty
         DrawBatch2DGPU._tempRect.checkAndUpdateRect(s);
 
         DrawBatch2DGPU._tempAnchor.set(DrawBatch2DGPU._tempRect._anchorCache);
@@ -129,7 +126,6 @@ export class DrawBatch2DGPU extends DrawBatch2D {
         const c = renderComp.color;
         DrawBatch2DGPU._tempcolor.set(c.r, c.g, c.b, renderComp.node._uiProps.opacity * 255);
 
-        // 每个 UBO 能够容纳的 UI 数量
         if (this.capacityDirty) {
             this._numPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors
                  - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / this._vec4PerUI);
@@ -141,9 +137,8 @@ export class DrawBatch2DGPU extends DrawBatch2D {
     }
 
     public fillDrawCall (localBuffer: UILocalBuffer) {
-        // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         let dc = this._drawCalls[this._dcIndex];
-        if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
+        if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // merge check
             this._dcIndex++;
             dc = this._drawCalls[this._dcIndex];
         }

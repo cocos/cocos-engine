@@ -690,8 +690,6 @@ export class UITransform extends Component {
             this._rectWithScale.x = scale.x * this.width;
             this._rectWithScale.y = scale.y * this.height;
             this._rectWithScale.z = scale.z;
-            // 把 anchor 对于pos的影响缓存下来
-            // 这里缺少全部的旋转信息
             const eulerZ = this.node.angle / 180 * Math.PI;
             const lenX = (0.5 - this.anchorPoint.x) * this.width * scale.x;
             const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;

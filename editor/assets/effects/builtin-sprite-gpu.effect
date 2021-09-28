@@ -22,13 +22,24 @@ CCProgram sprite-vs-gpu %{
   #include <cc-sprite-vs-gpu>
 
   vec4 vert () {
-    SpriteVertexData i0;
-    SpriteVertexInternalData i1;
-    CCSpriteInput(i0, i1);
+    SpriteVertexData i;
+    CCSpriteInput(i);
 
+    v_uv0 = i.uv;
+    v_color = i.color;
+    vec4 pos = i.position;
     // Vertex customization goes here
-
-    return CCSpriteOutput(i0, i1);
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(v_uv0);
+    #endif
+    #if USE_PIXEL_ALIGNMENT
+      pos = cc_matView * pos;
+      pos.xyz = floor(pos.xyz);
+      pos = cc_matProj * pos;
+    #else
+      pos = cc_matViewProj * pos;
+    #endif
+    return pos;
   }
 }%
 
@@ -43,7 +54,7 @@ CCProgram sprite-fs-gpu %{
 
     // UV customization goes here
 
-    vec4 color = CCSpriteOutput(i);
+    vec4 color = v_color * CCSpriteSample(cc_spriteTexture, i.uv);
 
     // Color customization goes here
 

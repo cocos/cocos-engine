@@ -18,18 +18,12 @@ in vec4 v_uvParams1;
 #endif
 
 vec2 evalSlicedUV(vec2 uv) {
-  // 一定要清楚这个两点实际上是决定要取用哪个点，其信息是由点本身决定的，其数据决定是由采样点和变更的边界条件决定的
-  // 所以实际上比较的坐标为 xyxy 比较
-  // p0 的前两位为 Sprite 中的变更点，后两位为 uv 中的变更点
-  vec4 p0 = mix(vec4(0.0), v_uvParams0, step(v_uvParams0.xyxy, uv.xyxy)); // 使用了mix 其实为三目运算，非前即后
-        p0 = mix(       p0, v_uvParams1, step(v_uvParams1.xyxy, uv.xyxy)); // 逐渐逼近
+  vec4 p0 = mix(vec4(0.0), v_uvParams0, step(v_uvParams0.xyxy, uv.xyxy));
+        p0 = mix(       p0, v_uvParams1, step(v_uvParams1.xyxy, uv.xyxy));
   vec4 p1 = mix(vec4(1.0), v_uvParams1, step(uv.xyxy, v_uvParams1.xyxy));
         p1 = mix(       p1, v_uvParams0, step(uv.xyxy, v_uvParams0.xyxy));
 
-  // 决定了线段的两点 P0 为起点，P1 为终点
-  // 两点式转一般式
-  // 找到 sprite 上的点对应的 sliced UV 的坐标
-  // sprite  的点是 X ，UV 上的点是 Y
+  // strat point P0,end point P1
   vec2 k = (p1.zw - p0.zw) / (p1.xy - p0.xy);
   vec2 b = (p1.xy * p0.zw - p0.xy * p1.zw) / (p1.xy - p0.xy);
 
@@ -84,14 +78,13 @@ void CCSpriteInput(out SpriteFragmentData i) {
   #endif
 }
 
-vec4 CCSpriteOutput(SpriteFragmentData i) {
-  #if USE_TEXTURE
-    vec4 o = v_color * CCSampleWithAlphaSeparated(cc_spriteTexture, i.uv);
-    if (v_uvMode >= 3.0) {
-      o.a *= evalFilledUV(v_uv0, v_uvParams0.z);
-    }
-    return o;
-  #else
-    return v_color;
-  #endif
-}
+vec4 CCSpriteSample(sampler2D tex, vec2 uv) {
+   vec4 o = vec4(1, 1, 1, 1);
+   #if USE_TEXTURE
+     o = CCSampleWithAlphaSeparated(tex, uv);
+   #endif
+   if (v_uvMode >= 3.0) {
+       o.a *= evalFilledUV(v_uv0, v_uvParams0.z);
+   }
+   return o;
+ }
