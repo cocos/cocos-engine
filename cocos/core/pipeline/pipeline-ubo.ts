@@ -119,12 +119,12 @@ export class PipelineUBO {
         const skyColor = ambient.colorArray;
         if (isHDR) {
             if (root.useDeferredPipeline) {
-                skyColor[3] = ambient.skyIllum * fpScale;
+                skyColor.w = ambient.skyIllum * fpScale;
             } else {
-                skyColor[3] = ambient.skyIllum * exposure;
+                skyColor.w = ambient.skyIllum * exposure;
             }
         } else {
-            skyColor[3] = ambient.skyIllum;
+            skyColor.w = ambient.skyIllum;
         }
         cv[UBOCamera.AMBIENT_SKY_OFFSET + 0] = skyColor.x;
         cv[UBOCamera.AMBIENT_SKY_OFFSET + 1] = skyColor.y;
