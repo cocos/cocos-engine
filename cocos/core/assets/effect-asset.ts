@@ -73,7 +73,6 @@ export declare namespace EffectAsset {
         binding: number;
         name: string;
         members: Uniform[];
-        count: number;
         stageFlags: ShaderStageFlags;
     }
     export interface ISamplerTextureInfo {
@@ -101,7 +100,6 @@ export declare namespace EffectAsset {
     export interface IBufferInfo {
         binding: number;
         name: string;
-        count: number;
         memoryAccess: MemoryAccess;
         stageFlags: ShaderStageFlags;
     }

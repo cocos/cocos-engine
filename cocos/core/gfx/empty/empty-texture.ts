@@ -56,6 +56,9 @@ export class EmptyTexture extends Texture {
         }
     }
     public destroy () {}
-    public resize (width: number, height: number) {}
+    public resize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
+    }
     protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {}
 }

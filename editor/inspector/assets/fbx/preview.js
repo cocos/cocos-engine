@@ -3,7 +3,7 @@ const events = require('./events');
 const eventEditor = require('./event-editor');
 
 exports.template = `
-<div class="preview">
+<ui-drag-area class="preview" droppable="cc.Asset">
     <div class="animation-info">
         <div class="flex">
             <div class="toolbar" id="timeCtrl">
@@ -37,7 +37,7 @@ exports.template = `
     <div class="image">
         <canvas class="canvas"></canvas>
     </div>
-</div>
+</ui-drag-area>
 `;
 
 exports.style = `
@@ -52,6 +52,10 @@ exports.style = `
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
+.preview[hoving] {
+    outline: 2px solid var(--color-focus-fill-weaker);
+    outline-offset: -2px;
+}
 .preview > .model-info {
     padding-top: 5px;
     display: none;
@@ -64,7 +68,7 @@ exports.style = `
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 10px;
+    margin: 2px;
 }
 .preview >.image > .canvas {
     flex: 1;
@@ -259,6 +263,54 @@ exports.$ = {
 };
 
 const Elements = {
+    container: {
+        ready() {
+            const panel = this;
+
+            function observer() {
+                panel.isPreviewDataDirty = true;
+            }
+
+            panel.resizeObserver = new window.ResizeObserver(observer);
+            panel.resizeObserver.observe(panel.$.container);
+
+            // 识别拖入 fbx 资源
+            panel.$.container.addEventListener('drop', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // 不支持多选拖入，多个时只取第一个值
+                const values = [];
+
+                const { additional, value } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
+
+                if (additional) {
+                    additional.forEach((info) => {
+                        if (info.type === 'cc.Prefab') {
+                            values.push(info.value);
+                        }
+                    });
+                }
+
+                if (value && !values.includes(value)) {
+                    values.push(value);
+                }
+
+                if (!values.length) {
+                    return;
+                }
+
+                const info = await Editor.Message.request('scene', 'set-model-preview-model', values[0]);
+                panel.infoUpdate(info);
+            });
+
+        },
+        close() {
+            const panel = this;
+
+            panel.resizeObserver.unobserve(panel.$.container);
+        },
+    },
     preview: {
         ready() {
             const panel = this;
@@ -407,14 +459,7 @@ exports.ready = function() {
         }
     }
 
-    function observer() {
-        panel.isPreviewDataDirty = true;
-    }
-
-    panel.resizeObserver = new window.ResizeObserver(observer);
-    panel.resizeObserver.observe(panel.$.container);
-
-    this.onSubAniChangeBind = this.onSubAniChange.bind(this);
+    this.onAssetChangeBind = this.onAssetChange.bind(this);
     this.addAssetChangeListener(true);
 
     this.events = events;
@@ -438,7 +483,6 @@ exports.close = function() {
     Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
 
-    this.resizeObserver.unobserve(this.$.container);
     this.addAssetChangeListener(false);
 };
 
@@ -645,7 +689,7 @@ exports.methods = {
             // update animation events, clipInfo.clipUUID may be undefined
             if (clipInfo.clipUUID) {
                 const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
-                this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
+                this.curEditClipInfo.userData = this.meta.subMetas[subId] && this.meta.subMetas[subId].userData || {};
                 this.updateEventInfo();
             }
 
@@ -668,20 +712,17 @@ exports.methods = {
 
     addAssetChangeListener(add = true) {
         if (!add && this.hasListenAssetsChange) {
-            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
             this.hasListenAssetsChange = false;
             return;
         }
-        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onAssetChangeBind);
         this.hasListenAssetsChange = true;
     },
 
-    async onSubAniChange(uuid) {
-        if (!this.animationNameToUUIDMap || !this.animationNameToUUIDMap.size) {
-            return;
-        }
-        if (Array.from((this.animationNameToUUIDMap.values())).includes((uuid))) {
-            // 主动更新动画 dump 信息
+    async onAssetChange(uuid) {
+        if (this.asset.uuid === uuid) {
+            // Update the animation dump when the parent assets changes
             this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
             const clipInfo = animation.methods.getCurClipInfo.call(this);
             await this.onEditClipInfoChanged(clipInfo);

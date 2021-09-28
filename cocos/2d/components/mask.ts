@@ -587,7 +587,8 @@ export class Mask extends Renderable2D {
 
     protected _enableGraphics () {
         if (this._graphics) {
-            this._graphics.onEnable();
+            // @ts-expect-error hack for mask _graphics renderFlag
+            this._graphics._renderFlag = this._graphics._canRender();
         }
     }
 
@@ -615,6 +616,6 @@ export class Mask extends Renderable2D {
     }
 }
 
-NodeEventProcessor._comp = Mask;
+NodeEventProcessor._maskComp = Mask;
 
 legacyCC.Mask = Mask;

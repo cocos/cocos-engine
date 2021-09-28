@@ -166,7 +166,7 @@ export class WebGL2Swapchain extends Swapchain {
         initStates(gl);
 
         const colorFmt = Format.RGBA8;
-        let depthStencilFmt = Format.UNKNOWN;
+        let depthStencilFmt = Format.DEPTH_STENCIL;
 
         const depthBits = gl.getParameter(gl.DEPTH_BITS);
         const stencilBits = gl.getParameter(gl.STENCIL_BITS);

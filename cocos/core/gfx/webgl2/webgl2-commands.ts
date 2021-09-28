@@ -771,9 +771,10 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 if (device.extensions.useVAO) {
                     if (cache.glVAO) {
                         gl.bindVertexArray(null);
-                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                        cache.glVAO = null;
                     }
                 }
+                gfxStateCache.gpuInputAssembler = null;
 
                 if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
                     gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -795,9 +796,10 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 if (device.extensions.useVAO) {
                     if (cache.glVAO) {
                         gl.bindVertexArray(null);
-                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                        cache.glVAO = null;
                     }
                 }
+                gfxStateCache.gpuInputAssembler = null;
 
                 if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
                     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -839,23 +841,33 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
 
 export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer) {
     const { gl } = device;
+    const cache = device.stateCache;
+
     if (gpuBuffer.glBuffer) {
         // Firefox 75+ implicitly unbind whatever buffer there was on the slot sometimes
         // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
         switch (gpuBuffer.glTarget) {
         case gl.ARRAY_BUFFER:
-            if (device.extensions.useVAO && device.stateCache.glVAO) {
-                gl.bindVertexArray(null);
-                device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
+            if (device.extensions.useVAO) {
+                if (cache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = null;
+                }
             }
+            gfxStateCache.gpuInputAssembler = null;
+
             gl.bindBuffer(gl.ARRAY_BUFFER, null);
             device.stateCache.glArrayBuffer = null;
             break;
         case gl.ELEMENT_ARRAY_BUFFER:
-            if (device.extensions.useVAO && device.stateCache.glVAO) {
-                gl.bindVertexArray(null);
-                device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
+            if (device.extensions.useVAO) {
+                if (cache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = null;
+                }
             }
+            gfxStateCache.gpuInputAssembler = null;
+
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
             device.stateCache.glElementArrayBuffer = null;
             break;
@@ -880,9 +892,10 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
         if (device.extensions.useVAO) {
             if (cache.glVAO) {
                 gl.bindVertexArray(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                cache.glVAO = null;
             }
         }
+        gfxStateCache.gpuInputAssembler = null;
 
         if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
             gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -899,9 +912,10 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
         if (device.extensions.useVAO) {
             if (cache.glVAO) {
                 gl.bindVertexArray(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                cache.glVAO = null;
             }
         }
+        gfxStateCache.gpuInputAssembler = null;
 
         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -946,10 +960,13 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
 
         switch (gpuBuffer.glTarget) {
         case gl.ARRAY_BUFFER: {
-            if (cache.glVAO) {
-                gl.bindVertexArray(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+            if (device.extensions.useVAO) {
+                if (cache.glVAO) {
+                    gl.bindVertexArray(null);
+                    cache.glVAO = null;
+                }
             }
+            gfxStateCache.gpuInputAssembler = null;
 
             if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -964,10 +981,13 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
             break;
         }
         case gl.ELEMENT_ARRAY_BUFFER: {
-            if (cache.glVAO) {
-                gl.bindVertexArray(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+            if (device.extensions.useVAO) {
+                if (cache.glVAO) {
+                    gl.bindVertexArray(null);
+                    cache.glVAO = null;
+                }
             }
+            gfxStateCache.gpuInputAssembler = null;
 
             if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -1251,12 +1271,10 @@ export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: I
 }
 
 export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebuffer: IWebGL2GPUFramebuffer) {
-    let isOnscreen = false;
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
-        if (!gpuFramebuffer.gpuColorTextures[i].glTexture) isOnscreen = true;
+        const tex = gpuFramebuffer.gpuColorTextures[i];
+        if (tex.isSwapchainTexture) return;
     }
-    if (gpuFramebuffer.gpuDepthStencilTexture && !gpuFramebuffer.gpuDepthStencilTexture.glTexture) isOnscreen = true;
-    if (isOnscreen) return;
 
     const { gl } = device;
     const attachments: GLenum[] = [];

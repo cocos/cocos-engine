@@ -85,6 +85,7 @@ export class SubModel {
         }
         this._passes = passes;
         this._flushPassInfo();
+        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
 
         // DS layout might change too
         if (this._descriptorSet) {

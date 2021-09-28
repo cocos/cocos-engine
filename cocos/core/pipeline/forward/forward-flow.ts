@@ -31,10 +31,11 @@
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { ForwardFlowPriority } from './enum';
+import { ForwardFlowPriority } from '../common/enum';
 import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
+import { PostProcessStage } from '../common/postprocess-stage';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -46,6 +47,7 @@ export class ForwardFlow extends RenderFlow {
      * @en The shared initialization information of forward render flow
      * @zh 共享的前向渲染流程初始化参数
      */
+    private postProcessStage: PostProcessStage | null = null;
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
@@ -62,7 +64,16 @@ export class ForwardFlow extends RenderFlow {
         return true;
     }
 
+    protected _addPostStage () {
+        if (!(this._stages[this._stages.length - 1] instanceof PostProcessStage)) {
+            this.postProcessStage = new PostProcessStage();
+            this.postProcessStage.initialize(PostProcessStage.initInfo);
+            this._stages.push(this.postProcessStage);
+        }
+    }
+
     public activate (pipeline: RenderPipeline) {
+        this._addPostStage();
         super.activate(pipeline);
     }
 

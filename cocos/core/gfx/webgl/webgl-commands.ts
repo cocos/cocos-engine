@@ -587,9 +587,10 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
                 if (device.extensions.useVAO) {
                     if (cache.glVAO) {
                         device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
-                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                        cache.glVAO = null;
                     }
                 }
+                gfxStateCache.gpuInputAssembler = null;
 
                 if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
                     gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -611,9 +612,10 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
                 if (device.extensions.useVAO) {
                     if (cache.glVAO) {
                         device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
-                        cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                        cache.glVAO = null;
                     }
                 }
+                gfxStateCache.gpuInputAssembler = null;
 
                 if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
                     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -644,8 +646,41 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
 }
 
 export function WebGLCmdFuncDestroyBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer) {
+    const { gl } = device;
+    const cache = device.stateCache;
+
     if (gpuBuffer.glBuffer) {
-        device.gl.deleteBuffer(gpuBuffer.glBuffer);
+        // Firefox 75+ implicitly unbind whatever buffer there was on the slot sometimes
+        // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
+        switch (gpuBuffer.glTarget) {
+        case gl.ARRAY_BUFFER:
+            if (device.extensions.useVAO) {
+                if (cache.glVAO) {
+                    device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
+                    device.stateCache.glVAO = null;
+                }
+            }
+            gfxStateCache.gpuInputAssembler = null;
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            device.stateCache.glArrayBuffer = null;
+            break;
+        case gl.ELEMENT_ARRAY_BUFFER:
+            if (device.extensions.useVAO) {
+                if (cache.glVAO) {
+                    device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
+                    device.stateCache.glVAO = null;
+                }
+            }
+            gfxStateCache.gpuInputAssembler = null;
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+            device.stateCache.glElementArrayBuffer = null;
+            break;
+        default:
+        }
+
+        gl.deleteBuffer(gpuBuffer.glBuffer);
         gpuBuffer.glBuffer = null;
     }
 }
@@ -659,9 +694,10 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         if (device.extensions.useVAO) {
             if (cache.glVAO) {
                 device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                cache.glVAO = null;
             }
         }
+        gfxStateCache.gpuInputAssembler = null;
 
         if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
             gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -678,9 +714,10 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         if (device.extensions.useVAO) {
             if (cache.glVAO) {
                 device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                cache.glVAO = null;
             }
         }
+        gfxStateCache.gpuInputAssembler = null;
 
         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -730,9 +767,10 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
             if (device.extensions.useVAO) {
                 if (cache.glVAO) {
                     device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
-                    cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                    cache.glVAO = null;
                 }
             }
+            gfxStateCache.gpuInputAssembler = null;
 
             if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -744,9 +782,10 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
             if (device.extensions.useVAO) {
                 if (cache.glVAO) {
                     device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
-                    cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                    cache.glVAO = null;
                 }
             }
+            gfxStateCache.gpuInputAssembler = null;
 
             if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
@@ -1021,12 +1060,10 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
 }
 
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
-    let isOnscreen = false;
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
-        if (!gpuFramebuffer.gpuColorTextures[i].glTexture) isOnscreen = true;
+        const tex = gpuFramebuffer.gpuColorTextures[i];
+        if (tex.isSwapchainTexture) return;
     }
-    if (gpuFramebuffer.gpuDepthStencilTexture && !gpuFramebuffer.gpuDepthStencilTexture.glTexture) isOnscreen = true;
-    if (isOnscreen) return;
 
     const { gl } = device;
     const attachments: GLenum[] = [];
