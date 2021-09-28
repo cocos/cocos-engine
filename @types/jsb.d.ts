@@ -135,7 +135,7 @@ declare namespace jsb {
          * @param {string} methodName: method name on java/oc layer
          * @param {string} arg: argument as input for app's function, json format suggest.
          */
-        export function sendToNative(arg0: string, arg1?: string | null): void;
+        export function sendToNative(arg0: string, arg1?: string): void;
         /**
          * save your own callback controller with a js function,
          * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
