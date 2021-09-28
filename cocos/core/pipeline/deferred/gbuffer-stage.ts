@@ -37,7 +37,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from './enum';
+import { DeferredStagePriority } from '../common/enum';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
@@ -170,7 +170,7 @@ export class GbufferStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        const deferredData = pipeline.getDeferredRenderData();
+        const deferredData = pipeline.getPipelineRenderData();
         const framebuffer = deferredData.gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
 

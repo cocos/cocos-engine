@@ -89,8 +89,8 @@
     ]
   },
   {
-    "__type__": "PostprocessStage",
-    "_name": "PostprocessStage",
+    "__type__": "PostProcessStage",
+    "_name": "PostProcessStage",
     "_priority": 0,
     "_tag": 0,
     "_postProcessMaterial": null,
