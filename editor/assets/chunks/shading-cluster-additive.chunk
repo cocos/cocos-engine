@@ -4,10 +4,13 @@
 #define CLUSTERS_Z 24
 #define MAX_LIGHTS_PER_CLUSTER 100u
 
+#pragma glBinding(4)
 readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
 
+#pragma glBinding(5)
 readonly buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
 
+#pragma glBinding(6)
 readonly buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
 
 struct CCLight

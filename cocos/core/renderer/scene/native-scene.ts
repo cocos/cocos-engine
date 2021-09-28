@@ -317,8 +317,8 @@ export const NativePipelineSharedSceneData: Constructor<{
     shadow: NativeShadow;
     deferredLightPassShader: Shader | null;
     deferredLightPass: NativePass;
-    deferredPostPassShader: Shader | null;
-    deferredPostPass: NativePass;
+    pipelinePostPassShader: Shader | null;
+    pipelinePostPass: NativePass;
 }> = null!;
 
 export type NativePipelineSharedSceneData = InstanceType<typeof NativePipelineSharedSceneData>;

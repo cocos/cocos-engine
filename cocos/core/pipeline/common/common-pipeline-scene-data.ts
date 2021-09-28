@@ -27,42 +27,41 @@ import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
 import { Material } from '../../assets';
-import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
+import { PipelineSceneData } from '../pipeline-scene-data';
+import { macro } from '../../platform/macro';
 
-export class DeferredPipelineSceneData extends CommonPipelineSceneData {
-    public get deferredLightingMaterial () {
-        return this._deferredLightingMaterial;
+export class CommonPipelineSceneData extends PipelineSceneData {
+    public get postprocessMaterial () {
+        return this._postprocessMaterial;
     }
 
-    public set deferredLightingMaterial (mat: Material) {
-        if (this._deferredLightingMaterial === mat || !mat) return;
-        this._deferredLightingMaterial = mat;
+    public set postprocessMaterial (mat: Material) {
+        if (this._postprocessMaterial === mat || !mat) return;
+        this._postprocessMaterial = mat;
         this.updatePipelinePassInfo();
     }
-
-    protected declare _deferredLightingMaterial: Material;
-    protected declare _deferredPostMaterial: Material;
-
-    protected updatePipelinePassInfo () {
-        super.updatePipelinePassInfo();
-        this.updateDeferredPassInfo();
-    }
+    protected declare _postprocessMaterial: Material;
 
     public onGlobalPipelineStateChanged () {
         this.updatePipelinePassInfo();
     }
 
     public initPipelinePassInfo () {
-        // builtin deferred material
-        const deferredMat = new Material();
-        deferredMat._uuid = 'builtin-deferred-material';
-        deferredMat.initialize({ effectName: 'deferred-lighting' });
-        for (let i = 0; i < deferredMat.passes.length; ++i) {
-            deferredMat.passes[i].tryCompile();
+        const postMat = new Material();
+        postMat._uuid = 'builtin-post-process-material';
+        postMat.initialize({
+            effectName: 'post-process',
+            defines: {
+                // Anti-aliasing type, currently only fxaa, so 1 means fxaa
+                ANTIALIAS_TYPE: macro.ENABLE_ANTIALIAS_FXAA ? 1 : 0,
+            },
+        });
+        for (let i = 0; i < postMat.passes.length; ++i) {
+            postMat.passes[i].tryCompile();
         }
-        this._deferredLightingMaterial = deferredMat;
-        super.initPipelinePassInfo();
-        this.updateDeferredPassInfo();
+        this._postprocessMaterial = postMat;
+
+        this.updatePipelinePassInfo();
     }
 
     public activate (device: Device, pipeline: RenderPipeline) {
@@ -71,21 +70,21 @@ export class DeferredPipelineSceneData extends CommonPipelineSceneData {
         return true;
     }
 
-    private updateDeferredPassInfo () {
-        this.updateDeferredLightPass();
+    protected updatePipelinePassInfo () {
+        this.updatePostProcessPass();
     }
 
-    private updateDeferredLightPass () {
-        if (!this._deferredLightingMaterial) return;
+    private updatePostProcessPass () {
+        if (!this.postprocessMaterial) return;
 
-        const passLit = this._deferredLightingMaterial.passes[0];
-        passLit.beginChangeStatesSilently();
-        passLit.tryCompile();
-        passLit.endChangeStatesSilently();
+        const passPost = this.postprocessMaterial.passes[0];
+        passPost.beginChangeStatesSilently();
+        passPost.tryCompile();
+        passPost.endChangeStatesSilently();
 
         if (JSB) {
-            this._nativeObj!.deferredLightPassShader = passLit.getShaderVariant();
-            this._nativeObj!.deferredLightPass = passLit.native;
+            this._nativeObj!.pipelinePostPassShader = passPost.getShaderVariant();
+            this._nativeObj!.pipelinePostPass = passPost.native;
         }
     }
 }

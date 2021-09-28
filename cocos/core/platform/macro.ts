@@ -1002,6 +1002,15 @@ const macro = {
 
     /**
      * @en
+     * Used to set fxaa post-processing anti-aliasing, the default value is false.
+     * @zh
+     * 用于开启fxaa后处理抗锯齿, 默认值为false。
+     * @default false
+     */
+    ENABLE_ANTIALIAS_FXAA: false,
+
+    /**
+     * @en
      * Whether to clear the original image cache after uploaded a texture to GPU.
      * If cleared, [Dynamic Atlas](https://docs.cocos.com/creator/manual/en/advanced-topics/dynamic-atlas.html) will not be supported.
      * Normally you don't need to enable this option on the web platform, because Image object doesn't consume too much memory.

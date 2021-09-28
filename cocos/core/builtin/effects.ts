@@ -810,12 +810,12 @@ export const effects = [
   {
     "name": "post-process",
     "techniques": [
-      { "passes": [{ "phase": "post-process", "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendSrcAlpha": 2, "blendDstAlpha": 4 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+      { "passes": [{ "phase": "post-process", "embeddedMacros": { "ANTIALIAS_TYPE": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendSrcAlpha": 2, "blendDstAlpha": 4 }] }, "program": "post-process|post-process-vs|post-process-fs", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
     ],
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 1936731965,
+        "hash": 2286065615,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
@@ -830,7 +830,8 @@ export const effects = [
           { "name": "CC_MORPH_TARGET_HAS_TANGENT", "type": "boolean" },
           { "name": "CC_USE_SKINNING", "type": "boolean" },
           { "name": "CC_USE_BAKED_ANIMATION", "type": "boolean" },
-          { "name": "USE_INSTANCING", "type": "boolean" }
+          { "name": "USE_INSTANCING", "type": "boolean" },
+          { "name": "ANTIALIAS_TYPE", "type": "number", "range": [0, 3] }
         ],
         "attributes": [
           { "name": "a_position", "defines": [], "format": 32, "location": 0 },
@@ -844,7 +845,7 @@ export const effects = [
         ],
         "blocks": [],
         "samplerTextures": [
-          { "name": "lighting_resultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
+          { "name": "outputResultMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 }
         ],
         "buffers": [],
         "images": [],

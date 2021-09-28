@@ -275,10 +275,10 @@ class ProgramLib {
             for (let i = 0; i < tmpl.buffers.length; i++) {
                 const buffer = tmpl.buffers[i];
                 tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
-                    DescriptorType.STORAGE_BUFFER, buffer.count, buffer.stageFlags));
+                    DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
                 tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(
-                    SetIndex.MATERIAL, buffer.binding, buffer.name, buffer.count, buffer.memoryAccess,
-                ));
+                    SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess,
+                )); // effect compiler guarantees buffer count = 1
             }
             for (let i = 0; i < tmpl.images.length; i++) {
                 const image = tmpl.images[i];
