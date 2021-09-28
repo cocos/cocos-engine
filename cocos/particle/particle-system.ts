@@ -50,7 +50,7 @@ import TextureAnimationModule from './animator/texture-animation';
 import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
 import ShapeModule from './emitter/shape-module';
-import { ParticleCullingMode, RenderMode, Space } from './enum';
+import { CullingMode, RenderMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
@@ -319,8 +319,8 @@ export class ParticleSystem extends RenderableComponent {
     public bursts: Burst[] = [];
 
     /**
-     * @en Enable particle culling switch.
-     * @zh 粒子剔除开关。
+     * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
+     * @zh 粒子剔除开关，如果打开将会生成一个发射器包围盒，包围盒在相机外发射器将被剔除。
      */
     @type(Boolean)
     @displayOrder(27)
@@ -343,10 +343,10 @@ export class ParticleSystem extends RenderableComponent {
     public _enableCulling = false;
 
     /**
-     * @en Particle culling mode option.
-     * @zh 粒子剔除模式选择。
+     * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
+     * @zh 粒子剔除模式选择。包括暂停模拟，暂停以后快进继续以及不间断模拟。
      */
-    @type(ParticleCullingMode)
+    @type(CullingMode)
     @displayOrder(17)
     get cullingMode () {
         return this._cullingMode;
@@ -357,7 +357,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     @serializable
-    _cullingMode = ParticleCullingMode.Pause;
+    _cullingMode = CullingMode.Pause;
 
     /**
      * @en Particle bounding box half width.
@@ -1019,7 +1019,7 @@ export class ParticleSystem extends RenderableComponent {
                 }
             }
             if (culled) {
-                if (this._cullingMode !== ParticleCullingMode.AlwaysSimulate) {
+                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
                     this.pause();
                 }
                 if (!this._isCulled) {
@@ -1029,10 +1029,10 @@ export class ParticleSystem extends RenderableComponent {
                 if (this._trailModule && this._trailModule.enable) {
                     this._trailModule._detachFromScene();
                 }
-                if (this._cullingMode === ParticleCullingMode.PauseAndCatchup) {
+                if (this._cullingMode === CullingMode.PauseAndCatchup) {
                     this._time += scaledDeltaTime;
                 }
-                if (this._cullingMode !== ParticleCullingMode.AlwaysSimulate) {
+                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
                     return;
                 }
             } else {
