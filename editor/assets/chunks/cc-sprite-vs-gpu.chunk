@@ -7,9 +7,6 @@ in vec3 a_position;
 in vec2 a_texCoord;
 in float a_batch_id;
 
-out vec2 v_uv0;
-out vec4 v_color;
-
 out float v_uvMode;
 out vec4 v_uvSizeOffset;
 out vec4 v_uvParams0;

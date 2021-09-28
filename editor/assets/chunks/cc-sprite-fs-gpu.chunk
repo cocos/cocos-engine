@@ -76,6 +76,7 @@ void CCSpriteInput(out SpriteFragmentData i) {
       i.uv = v_uv0;
     }
   #endif
+  i.color = v_color;
 }
 
 vec4 CCSpriteSample(sampler2D tex, vec2 uv) {

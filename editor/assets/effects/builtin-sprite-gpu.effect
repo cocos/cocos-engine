@@ -21,6 +21,9 @@ CCProgram sprite-vs-gpu %{
   precision highp float;
   #include <cc-sprite-vs-gpu>
 
+  out vec2 v_uv0;
+  out vec4 v_color;
+
   vec4 vert () {
     SpriteVertexData i;
     CCSpriteInput(i);
@@ -51,12 +54,10 @@ CCProgram sprite-fs-gpu %{
   vec4 frag () {
     SpriteFragmentData i;
     CCSpriteInput(i);
+    vec4 color = i.color * CCSpriteSample(cc_spriteTexture, i.uv);
 
-    // UV customization goes here
-
-    vec4 color = v_color * CCSpriteSample(cc_spriteTexture, i.uv);
-
-    // Color customization goes here
+    // Customization goes here
+    // Get In value from SpriteFragmentData
 
     #if IS_GRAY
       // https://en.wikipedia.org/wiki/Grayscale
