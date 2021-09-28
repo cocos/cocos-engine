@@ -196,6 +196,12 @@ export class Prefab extends Asset {
     public validate () {
         return !!this.data;
     }
+
+    public onLoaded () {
+        const rootNode = this.data as Node;
+        utils.expandPrefabInstanceNode(rootNode);
+        utils.applyTargetOverrides(rootNode);
+    }
 }
 
 export declare namespace Prefab {

@@ -206,7 +206,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     // @ts-expect-error private member access
                     childNode._siblingIndex = target._children.length - 1;
-                    childNode._onBatchCreated(false);
+                    expandPrefabInstanceNode(childNode);
                 }
             }
         }
@@ -391,5 +391,29 @@ export function applyTargetOverrides (node: BaseNode) {
                 targetPropOwner[targetPropName] = target;
             }
         }
+    }
+}
+
+export function expandPrefabInstanceNode (node: BaseNode) {
+    // @ts-expect-error private member access
+    const prefabInfo = node._prefab;
+
+    if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
+        prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
+            // @ts-expect-error private member access
+            const childPrefabInstance = instanceNode._prefab?.instance;
+            if (childPrefabInstance) {
+                createNodeWithPrefab(instanceNode);
+
+                const targetMap: Record<string, any | Node | Component> = {};
+                childPrefabInstance.targetMap = targetMap;
+                generateTargetMap(instanceNode, targetMap, true);
+
+                applyMountedChildren(instanceNode, childPrefabInstance.mountedChildren, targetMap);
+                applyRemovedComponents(instanceNode, childPrefabInstance.removedComponents, targetMap);
+                applyMountedComponents(instanceNode, childPrefabInstance.mountedComponents, targetMap);
+                applyPropertyOverrides(instanceNode, childPrefabInstance.propertyOverrides, targetMap);
+            }
+        });
     }
 }
