@@ -133,7 +133,7 @@ echo "  finish push ..."
 # 7.
 ENCODED_MESSAGE=$(python -c "from cgi import escape; print escape('''$TRAVIS_COMMIT_MESSAGE''')")
 echo "Sending Pull Request to base repo ..."
-curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"> $ENCODED_MESSAGE\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
+curl -u $GH_USER:$GH_PASSWORD --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"> $ENCODED_MESSAGE\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
 
 echo "  finish sending PR ..."
 
