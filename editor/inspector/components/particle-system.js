@@ -2,7 +2,7 @@
 
 const propUtils = require('../utils/prop');
 
-exports.template = /*html*/`
+exports.template = /* html*/`
 <div class="particle-system-component">
     <div class="content">
         <ui-prop type="dump" key="duration"></ui-prop>
@@ -47,6 +47,10 @@ exports.template = /*html*/`
             <ui-prop type="dump" key="aabbHalfX"></ui-prop>
             <ui-prop type="dump" key="aabbHalfY"></ui-prop>
             <ui-prop type="dump" key="aabbHalfZ"></ui-prop>
+            <ui-prop>
+                <ui-label slot="label">Show Bounds</ui-label>
+                <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
+            </ui-prop>  
         </ui-section>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
@@ -387,6 +391,28 @@ const uiElements = {
             });
         },
     },
+    showBounds:{
+        ready() {
+            this.$.showBounds.addEventListener('change', (event) => {
+                Editor.Message.send('scene', 'execute-component-method', {
+                    uuid: this.dump.value.uuid.value,
+                    name: 'gizmo.showBoundingBox',
+                    args: [event.target.value],
+                });
+            });
+        },
+        update() {
+            Editor.Message.request('scene', 'execute-component-method', {
+                uuid: this.dump.value.uuid.value,
+                name: 'gizmo.isShowBoundingBox',
+                args: [],
+            }).then(
+                (value) => {
+                    this.$.showBounds.value = value;
+                }
+            );
+        },
+    },
     emitFromSelect: {
         ready() {
             this.$.emitFromSelect.addEventListener('change', (event) => {
@@ -447,7 +473,7 @@ const uiElements = {
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
                 const isEmpty = element.getAttribute('empty');
-                let isShow = this.getObjectByKey(this.dump.value, key).visible;
+                let isShow = !key || this.getObjectByKey(this.dump.value, key).visible;
                 const isHeader = element.getAttribute('slot') === 'header';
                 const isInput = element.getAttribute('inputflag');
                 const displayName = element.getAttribute('displayName');
@@ -536,6 +562,7 @@ const uiElements = {
 exports.$ = {
     customProps: '#customProps',
     emitFromSelect: '#emitFromSelect',
+    showBounds: '#showBounds',
 };
 exports.ready = function() {
     for (const key in uiElements) {
@@ -554,8 +581,9 @@ exports.update = function(dump) {
         }
     }
 };
-exports.style = /*css */`
+exports.style = /* css */`
     .particle-system-component > .content >.indent {
         margin-left: 10px;
     }
 `
+;
