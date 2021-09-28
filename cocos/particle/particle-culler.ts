@@ -70,7 +70,7 @@ export class ParticleCuller {
     public minPos: Vec3 = new Vec3();
     public maxPos: Vec3 = new Vec3();
 
-    private _nodePose: Vec3 = new Vec3();
+    private _nodePos: Vec3 = new Vec3();
     private _nodeSize: Vec3 = new Vec3();
 
     constructor (ps) {
@@ -81,13 +81,19 @@ export class ParticleCuller {
         this._initModuleList();
     }
 
+    private _updateBoundingNode () {
+        this._nodeSize.set(this.maxPos.x - this.minPos.x, this.maxPos.y - this.minPos.y, this.maxPos.z - this.minPos.z);
+        this._nodePos.set(this.minPos.x + this._nodeSize.x * 0.5, this.minPos.y + this._nodeSize.y * 0.5, this.minPos.z + this._nodeSize.z * 0.5);
+    }
+
     public setBoundingBoxSize (halfExt: Vec3) {
-        this.maxPos.x = this._nodePose.x + halfExt.x;
-        this.maxPos.y = this._nodePose.y + halfExt.y;
-        this.maxPos.z = this._nodePose.z + halfExt.z;
-        this.minPos.x = this._nodePose.x - halfExt.x;
-        this.minPos.y = this._nodePose.y - halfExt.y;
-        this.minPos.z = this._nodePose.z - halfExt.z;
+        this.maxPos.x = this._nodePos.x + halfExt.x;
+        this.maxPos.y = this._nodePos.y + halfExt.y;
+        this.maxPos.z = this._nodePos.z + halfExt.z;
+        this.minPos.x = this._nodePos.x - halfExt.x;
+        this.minPos.y = this._nodePos.y - halfExt.y;
+        this.minPos.z = this._nodePos.z - halfExt.z;
+        this._updateBoundingNode();
     }
 
     public setBoundingBoxCenter (px, py, pz) {
@@ -97,6 +103,7 @@ export class ParticleCuller {
         this.minPos.x = px - this._nodeSize.x * 0.5;
         this.minPos.y = py - this._nodeSize.y * 0.5;
         this.minPos.z = pz - this._nodeSize.z * 0.5;
+        this._updateBoundingNode();
     }
 
     private _initModuleList () {
@@ -284,6 +291,7 @@ export class ParticleCuller {
         this._calculateBounding(true);
         this._updateParticles(this._particleSystem.startLifetime.evaluate(0, rand), this._particlesAll);
         this._calculateBounding(false);
+        this._updateBoundingNode();
     }
 
     public clear () {

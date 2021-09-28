@@ -49,6 +49,7 @@ export const CullingMode = Enum({
 /**
  * @en Particle emitter alignment space
  * @zh 粒子的对齐模式。
+ * @enum ParticleSystemRenderer.AlignmentSpace
  */
 export const AlignmentSpace = Enum({
     World: 0,

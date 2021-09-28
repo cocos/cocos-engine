@@ -340,7 +340,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     @serializable
-    public _enableCulling = false;
+    private _enableCulling = false;
 
     /**
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
@@ -379,7 +379,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     @serializable
-    _aabbHalfX = 0;
+    private _aabbHalfX = 0;
 
     /**
      * @en Particle bounding box half height.
@@ -401,7 +401,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     @serializable
-    _aabbHalfY = 0;
+    private _aabbHalfY = 0;
 
     /**
      * @en Particle bounding box half depth.
@@ -423,7 +423,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     @serializable
-    _aabbHalfZ = 0;
+    private _aabbHalfZ = 0;
 
     @override
     @visible(false)
