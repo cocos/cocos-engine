@@ -31,6 +31,7 @@ import { RenderPass } from '../base/render-pass';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { wgpuWasmModule } from './webgpu-utils';
 import { WebGPUQueue } from './webgpu-queue';
+import { checkCircleReference } from '../../asset-manager/utilities';
 
 export class WebGPUCommandBuffer extends CommandBuffer {
     private _nativeCommandBuffer;
@@ -200,7 +201,9 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public draw (inputAssembler: InputAssembler) {
-        this._nativeCommandBuffer.drawIA((inputAssembler as WebGPUInputAssembler).nativeInputAssembler);
+        const ia = inputAssembler as WebGPUInputAssembler;
+        ia.check();
+        this._nativeCommandBuffer.drawIA(ia.nativeInputAssembler);
     }
 
     public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {

@@ -62,6 +62,20 @@ export class WebGPUInputAssembler extends InputAssembler {
         return true;
     }
 
+    // native object created when ia initialized, update in case it's changed.
+    public check () {
+        const nativeDrawInfo = new wgpuWasmModule.DrawInfoInstance();
+        nativeDrawInfo.vertexCount = this._drawInfo.vertexCount;
+        nativeDrawInfo.firstVertex = this._drawInfo.firstVertex;
+        nativeDrawInfo.indexCount = this._drawInfo.indexCount;
+        nativeDrawInfo.firstIndex = this._drawInfo.firstIndex;
+        nativeDrawInfo.vertexOffset = this._drawInfo.vertexOffset;
+        nativeDrawInfo.instanceCount = this._drawInfo.instanceCount;
+        nativeDrawInfo.firstInstance = this._drawInfo.firstInstance;
+
+        this._nativeInputAssembler.update(nativeDrawInfo);
+    }
+
     public destroy () {
         this._nativeInputAssembler.destroy();
         this._nativeInputAssembler.delete();
