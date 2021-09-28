@@ -60,8 +60,14 @@ import { widgetManager } from './widget-manager';
 @executionOrder(110)
 @executeInEditMode
 @menu('UI/SafeArea')
-@requireComponent(Widget)
 export class SafeArea extends Component {
+    // NOTE: SafeArea component require Widget in the legacy mode
+    private _legacyAlignMode = false;
+
+    public onLoad () {
+        this._legacyAlignMode = !!this.node.getComponent(Widget);
+    }
+
     public onEnable () {
         this.updateArea();
         // IDEA: need to delay the callback on Native platform ?
@@ -83,6 +89,24 @@ export class SafeArea extends Component {
      * safeArea.updateArea();
      */
     public updateArea () {
+        if (this._legacyAlignMode) {
+            this._legacyUpdateArea();
+            return;
+        }
+        const uiTransformComp = this.node._uiProps.uiTransformComp;
+        if (!uiTransformComp) {
+            return;
+        }
+        const safeAreaRect = sys.getSafeAreaRect();
+        const x = safeAreaRect.x;
+        const y = safeAreaRect.y;
+        const width = safeAreaRect.width;
+        const height = safeAreaRect.height;
+        this.node.setPosition(x + width * uiTransformComp.anchorX, y + height * uiTransformComp.anchorY);
+        uiTransformComp.setContentSize(width, height);
+    }
+
+    private _legacyUpdateArea () {
         // TODO Remove Widget dependencies in the future
         const widget = this.node.getComponent(Widget) as Widget;
         const uiTransComp = this.node.getComponent(UITransform) as UITransform;
@@ -104,11 +128,11 @@ export class SafeArea extends Component {
         const visibleSize = view.getVisibleSize();
         const screenWidth = visibleSize.width;
         const screenHeight = visibleSize.height;
-        const safeArea = sys.getSafeAreaRect();
-        widget.top = screenHeight - safeArea.y - safeArea.height;
-        widget.bottom = safeArea.y;
-        widget.left = safeArea.x;
-        widget.right = screenWidth - safeArea.x - safeArea.width;
+        const safeAreaRect = sys.getSafeAreaRect();
+        widget.top = screenHeight - safeAreaRect.y - safeAreaRect.height;
+        widget.bottom = safeAreaRect.y;
+        widget.left = safeAreaRect.x;
+        widget.right = screenWidth - safeAreaRect.x - safeAreaRect.width;
         widget.updateAlignment();
         // set anchor, keep the original position unchanged
         const curPos = this.node.position.clone();
