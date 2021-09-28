@@ -131,9 +131,7 @@ declare namespace jsb {
     }
     export namespace bridge{
         /**
-         * inform application to apply specific method/function
-         * @param {string} methodName: method name on java/oc layer
-         * @param {string} arg: argument as input for app's function, json format suggest.
+         * send to native with at least one argument.
          */
         export function sendToNative(arg0: string, arg1?: string): void;
         /**
