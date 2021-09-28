@@ -102,4 +102,8 @@ void CCSpriteInput(out SpriteVertexData i0) {
   }
 
   v_uvMode = i1.uvMode;
+
+  #if SAMPLE_FROM_RT
+    CC_HANDLE_RT_SAMPLE_FLIP(v_uv0);
+  #endif
 }

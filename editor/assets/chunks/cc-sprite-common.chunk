@@ -6,5 +6,4 @@ struct SpriteVertexData {
 
 struct SpriteFragmentData {
   vec2 uv; // sampling UV
-  vec4 color; // vertex color
 };

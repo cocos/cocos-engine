@@ -5,7 +5,6 @@
 #define ONE_OVER_PI 0.3183098861838
 
 in vec2 v_uv0;
-in vec4 v_color;
 
 in float v_uvMode;
 in vec4 v_uvSizeOffset;
@@ -76,7 +75,6 @@ void CCSpriteInput(out SpriteFragmentData i) {
       i.uv = v_uv0;
     }
   #endif
-  i.color = v_color;
 }
 
 vec4 CCSpriteSample(sampler2D tex, vec2 uv) {
