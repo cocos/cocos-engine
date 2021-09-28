@@ -51,6 +51,7 @@ exports.template = /* html*/`
                 <ui-label slot="label">Show Bounds</ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>  
+            <ui-button id="resetBounds">Reset Bounds</ui-button>
         </ui-section>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
@@ -303,6 +304,18 @@ exports.methods = {
 };
 
 const uiElements = {
+    resetBounds:{
+        ready() {
+            this.$.resetBounds.addEventListener('confirm', async () => {
+                await Editor.Message.request('scene', 'execute-component-method', {
+                    uuid: this.dump.value.uuid.value,
+                    name: '_calculateBounding',
+                    args: [true],
+                });
+                this.dispatch('change-dump');
+            });
+        },
+    },
     uiSections: {
         ready() {
             this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section');
@@ -563,6 +576,7 @@ exports.$ = {
     customProps: '#customProps',
     emitFromSelect: '#emitFromSelect',
     showBounds: '#showBounds',
+    resetBounds: '#resetBounds',
 };
 exports.ready = function() {
     for (const key in uiElements) {
