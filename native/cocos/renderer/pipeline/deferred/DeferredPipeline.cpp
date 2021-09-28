@@ -26,7 +26,6 @@
 #include "DeferredPipeline.h"
 #include "../SceneCulling.h"
 #include "../shadow/ShadowFlow.h"
-#include "../helper/Utils.h"
 #include "MainFlow.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -54,14 +53,12 @@ framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferTexture[GBUFFER_COU
     framegraph::FrameGraph::stringToHandle("gbufferPositionTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferNormalTexture"),
     framegraph::FrameGraph::stringToHandle("gbufferEmissiveTexture")};
-framegraph::StringHandle DeferredPipeline::fgStrHandleDepthTexture       = framegraph::FrameGraph::stringToHandle("depthTexture");
-framegraph::StringHandle DeferredPipeline::fgStrHandleLightingOutTexture = framegraph::FrameGraph::stringToHandle("lightingOutputTexture");
 
 framegraph::StringHandle DeferredPipeline::fgStrHandleGbufferPass     = framegraph::FrameGraph::stringToHandle("deferredGbufferPass");
 framegraph::StringHandle DeferredPipeline::fgStrHandleLightingPass    = framegraph::FrameGraph::stringToHandle("deferredLightingPass");
 framegraph::StringHandle DeferredPipeline::fgStrHandleTransparentPass = framegraph::FrameGraph::stringToHandle("deferredTransparentPass");
 framegraph::StringHandle DeferredPipeline::fgStrHandleSsprPass        = framegraph::FrameGraph::stringToHandle("deferredSSPRPass");
-framegraph::StringHandle DeferredPipeline::fgStrHandlePostprocessPass = framegraph::FrameGraph::stringToHandle("deferredPostPass");
+
 
 bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
@@ -120,117 +117,6 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
     _device->getQueue()->submit(_commandBuffers);
 }
 
-void DeferredPipeline::updateQuadVertexData(const gfx::Rect &renderArea, gfx::Buffer *buffer) {
-    _lastUsedRenderArea = renderArea;
-    float vbData[16]    = {0};
-    genQuadVertexData(renderArea, vbData);
-    buffer->update(vbData, sizeof(vbData));
-}
-
-gfx::InputAssembler *DeferredPipeline::getIAByRenderArea(const gfx::Rect &rect) {
-    uint value = rect.x + rect.y + rect.height + rect.width + rect.width * rect.height;
-    if (_quadIA.find(value) != _quadIA.end()) {
-        return _quadIA[value];
-    }
-
-    gfx::Buffer *        vb = nullptr;
-    gfx::InputAssembler *ia = nullptr;
-    createQuadInputAssembler(_quadIB, &vb, &ia);
-    _quadVB.push_back(vb);
-    _quadIA[value] = ia;
-
-    updateQuadVertexData(rect, vb);
-
-    return ia;
-}
-
-void DeferredPipeline::genQuadVertexData(const gfx::Rect &renderArea, float *vbData) {
-    float minX = static_cast<float>(renderArea.x) / static_cast<float>(_width);
-    float maxX = static_cast<float>(renderArea.x + renderArea.width) / static_cast<float>(_width);
-    float minY = static_cast<float>(renderArea.y) / static_cast<float>(_height);
-    float maxY = static_cast<float>(renderArea.y + renderArea.height) / static_cast<float>(_height);
-    if (_device->getCapabilities().screenSpaceSignY > 0) {
-        std::swap(minY, maxY);
-    }
-    int n       = 0;
-    vbData[n++] = -1.0;
-    vbData[n++] = -1.0;
-    vbData[n++] = minX; // uv
-    vbData[n++] = maxY;
-    vbData[n++] = 1.0;
-    vbData[n++] = -1.0;
-    vbData[n++] = maxX;
-    vbData[n++] = maxY;
-    vbData[n++] = -1.0;
-    vbData[n++] = 1.0;
-    vbData[n++] = minX;
-    vbData[n++] = minY;
-    vbData[n++] = 1.0;
-    vbData[n++] = 1.0;
-    vbData[n++] = maxX;
-    vbData[n++] = minY;
-}
-
-bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA) {
-    // step 1 create vertex buffer
-    uint vbStride = sizeof(float) * 4;
-    uint vbSize   = vbStride * 4;
-
-    if (*quadVB == nullptr) {
-        *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                         gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
-    }
-
-    if (*quadVB == nullptr) {
-        return false;
-    }
-
-    // step 2 create input assembler
-    gfx::InputAssemblerInfo info;
-    info.attributes.push_back({"a_position", gfx::Format::RG32F});
-    info.attributes.push_back({"a_texCoord", gfx::Format::RG32F});
-    info.vertexBuffers.push_back(*quadVB);
-    info.indexBuffer = quadIB;
-    *quadIA          = _device->createInputAssembler(info);
-    return (*quadIA) != nullptr;
-}
-
-gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera, bool onScreen) {
-    gfx::Rect renderArea;
-
-    float w;
-    float h;
-    if (onScreen) {
-        gfx::Swapchain *swapchain = camera->window->swapchain;
-        w                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->height : camera->width);
-        h                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->width : camera->height);
-    } else {
-        w = static_cast<float>(camera->width);
-        h = static_cast<float>(camera->height);
-    }
-
-    const auto &viewport = camera->viewPort;
-    renderArea.x         = static_cast<int>(viewport.x * w);
-    renderArea.y         = static_cast<int>(viewport.y * h);
-    renderArea.width     = static_cast<uint>(viewport.z * w * _pipelineSceneData->getSharedData()->shadingScale);
-    renderArea.height    = static_cast<uint>(viewport.w * h * _pipelineSceneData->getSharedData()->shadingScale);
-    return renderArea;
-}
-
-void DeferredPipeline::destroyQuadInputAssembler() {
-    CC_SAFE_DESTROY(_quadIB);
-
-    for (auto *node : _quadVB) {
-        CC_SAFE_DESTROY(node);
-    }
-
-    for (auto node : _quadIA) {
-        CC_SAFE_DESTROY(node.second);
-    }
-    _quadVB.clear();
-    _quadIA.clear();
-}
-
 bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
     auto *const sharedData = _pipelineSceneData->getSharedData();
@@ -279,13 +165,6 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     return true;
 }
 
-void DeferredPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
-    for (auto *camera : cameras) {
-        _width  = std::max(camera->window->getWidth(), _width);
-        _height = std::max(camera->window->getHeight(), _height);
-    }
-}
-
 void DeferredPipeline::destroy() {
     destroyQuadInputAssembler();
 
@@ -297,26 +176,6 @@ void DeferredPipeline::destroy() {
     _commandBuffers.clear();
 
     RenderPipeline::destroy();
-}
-
-gfx::Color DeferredPipeline::getClearcolor(scene::Camera *camera) {
-    auto *const sceneData  = getPipelineSceneData();
-    auto *const sharedData = sceneData->getSharedData();
-    gfx::Color  clearColor{0.0, 0.0, 0.0, 1.0F};
-    if (camera->clearFlag & static_cast<uint>(gfx::ClearFlagBit::COLOR)) {
-        if (sharedData->isHDR) {
-            srgbToLinear(&clearColor, camera->clearColor);
-            const auto scale = sharedData->fpScale / camera->exposure;
-            clearColor.x *= scale;
-            clearColor.y *= scale;
-            clearColor.z *= scale;
-        } else {
-            clearColor = camera->clearColor;
-        }
-    }
-
-    clearColor.w = 0;
-    return clearColor;
 }
 
 } // namespace pipeline

@@ -29,14 +29,10 @@
 #include "../RenderPipeline.h"
 #include "frame-graph/FrameGraph.h"
 #include "frame-graph/Handle.h"
+#include "pipeline/common/Enum.h"
 
 namespace cc {
 namespace pipeline {
-
-enum class ForwardInsertPoint {
-    IP_FORWARD = 100,
-    IP_INVALID
-};
 
 struct UBOGlobal;
 struct UBOCamera;
@@ -52,9 +48,6 @@ public:
     bool activate(gfx::Swapchain *swapchain) override;
     void render(const vector<scene::Camera *> &cameras) override;
 
-    framegraph::FrameGraph &getFrameGraph() { return _fg; }
-    gfx::RenderPass *       getOrCreateRenderPass(gfx::ClearFlags clearFlags, gfx::Swapchain *swapchain);
-
     inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
     inline const LightList &      getValidLights() const { return _validLights; }
     inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
@@ -62,7 +55,6 @@ public:
     inline const UintList &       getLightIndices() const { return _lightIndices; }
     inline uint                   getWidth() const { return _width; }
     inline uint                   getHeight() const { return _height; }
-    gfx::Rect                     getRenderArea(scene::Camera *camera, bool onScreen);
 
     static framegraph::StringHandle fgStrHandleForwardColorTexture;
     static framegraph::StringHandle fgStrHandleForwardDepthTexture;
@@ -70,7 +62,7 @@ public:
     static framegraph::StringHandle fgStrHandleForwardPass;
 
 private:
-    bool activeRenderer();
+    bool activeRenderer(gfx::Swapchain *swapchain);
     void updateUBO(scene::Camera *);
 
     gfx::Buffer *                                     _lightsUBO = nullptr;
@@ -78,11 +70,9 @@ private:
     gfx::BufferList                                   _lightBuffers;
     UintList                                          _lightIndexOffsets;
     UintList                                          _lightIndices;
-    unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
 
     uint                   _width  = 0;
     uint                   _height = 0;
-    framegraph::FrameGraph _fg;
 };
 
 } // namespace pipeline

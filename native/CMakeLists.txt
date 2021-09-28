@@ -820,8 +820,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/forward/ForwardStage.h
                  cocos/renderer/pipeline/SceneCulling.cpp
                  cocos/renderer/pipeline/SceneCulling.h
-                 cocos/renderer/pipeline/forward/UIPhase.cpp
-                 cocos/renderer/pipeline/forward/UIPhase.h
                  cocos/renderer/pipeline/deferred/DeferredPipeline.cpp
                  cocos/renderer/pipeline/deferred/DeferredPipeline.h
                  cocos/renderer/pipeline/deferred/MainFlow.cpp
@@ -830,14 +828,18 @@ cocos_source_files(
                  cocos/renderer/pipeline/deferred/GbufferStage.h
                  cocos/renderer/pipeline/deferred/LightingStage.cpp
                  cocos/renderer/pipeline/deferred/LightingStage.h
-                 cocos/renderer/pipeline/deferred/PostprocessStage.cpp
-                 cocos/renderer/pipeline/deferred/PostprocessStage.h
                  cocos/renderer/pipeline/deferred/ReflectionComp.cpp
                  cocos/renderer/pipeline/deferred/ReflectionComp.h
                  cocos/renderer/pipeline/shadow/ShadowFlow.cpp
                  cocos/renderer/pipeline/shadow/ShadowFlow.h
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp
                  cocos/renderer/pipeline/shadow/ShadowStage.h
+                 cocos/renderer/pipeline/common/Enum.h
+                 cocos/renderer/pipeline/common/PostProcessStage.cpp
+                 cocos/renderer/pipeline/common/PostProcessStage.h
+                 cocos/renderer/pipeline/common/UIPhase.cpp
+                 cocos/renderer/pipeline/common/UIPhase.h
+
                  cocos/renderer/pipeline/helper/DefineMap.h
                  cocos/renderer/pipeline/helper/DefineMap.cpp
                  cocos/renderer/pipeline/helper/Utils.h

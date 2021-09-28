@@ -23,52 +23,40 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "ForwardFlow.h"
-#include "../SceneCulling.h"
-#include "ForwardPipeline.h"
-#include "ForwardStage.h"
-#include "../common/PostProcessStage.h"
+#include "UIPhase.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "pipeline/PipelineStateManager.h"
+#include "scene/RenderScene.h"
+#include "scene/SubModel.h"
 
 namespace cc {
 namespace pipeline {
-RenderFlowInfo ForwardFlow::initInfo = {
-    "ForwardFlow",
-    static_cast<uint>(ForwardFlowPriority::FORWARD),
-    static_cast<uint>(RenderFlowTag::SCENE),
-    {},
+
+void UIPhase::activate(RenderPipeline *pipeline) {
+    _pipeline = pipeline;
+    _phaseID  = getPhaseID("default");
 };
-const RenderFlowInfo &ForwardFlow::getInitializeInfo() { return ForwardFlow::initInfo; }
 
-ForwardFlow::~ForwardFlow() = default;
+void UIPhase::render(scene::Camera *camera, gfx::RenderPass *renderPass) {
+    auto *cmdBuff = _pipeline->getCommandBuffers()[0];
 
-bool ForwardFlow::initialize(const RenderFlowInfo &info) {
-    RenderFlow::initialize(info);
-
-    if (_stages.empty()) {
-        auto *forwardStage = CC_NEW(ForwardStage);
-        forwardStage->initialize(ForwardStage::getInitializeInfo());
-        _stages.emplace_back(forwardStage);
-        auto *postProcessStage = CC_NEW(PostProcessStage);
-        postProcessStage->initialize(PostProcessStage::getInitializeInfo());
-        _stages.emplace_back(postProcessStage);
+    const auto &batches = camera->scene->getDrawBatch2Ds();
+    for (auto *batch : batches) {
+        if (!(camera->visibility & batch->visFlags)) continue;
+        for (size_t i = 0; i < batch->shaders.size(); ++i) {
+            const auto *pass = batch->passes[i];
+            if (pass->getPhase() != _phaseID) continue;
+            auto *shader         = batch->shaders[i];
+            auto *inputAssembler = batch->inputAssembler;
+            auto *ds             = batch->descriptorSet;
+            auto *pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+            cmdBuff->bindPipelineState(pso);
+            cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+            cmdBuff->bindDescriptorSet(localSet, ds);
+            cmdBuff->bindInputAssembler(inputAssembler);
+            cmdBuff->draw(inputAssembler);
+        }
     }
-
-    return true;
-}
-
-void ForwardFlow::addPostStage() {
-}
-
-void ForwardFlow::activate(RenderPipeline *pipeline) {
-    RenderFlow::activate(pipeline);
-}
-
-void ForwardFlow::render(scene::Camera *camera) {
-    RenderFlow::render(camera);
-}
-
-void ForwardFlow::destroy() {
-    RenderFlow::destroy();
 }
 
 } // namespace pipeline

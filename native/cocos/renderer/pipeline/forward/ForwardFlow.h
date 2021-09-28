@@ -48,6 +48,8 @@ private:
     static RenderFlowInfo initInfo;
 
     ForwardStage *_forwardStage = nullptr;
+    void          addPostStage();
+
 };
 
 } // namespace pipeline

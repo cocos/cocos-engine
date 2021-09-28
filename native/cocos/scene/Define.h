@@ -114,8 +114,8 @@ struct PipelineSharedSceneData {
     Fog *        fog{nullptr};
     Pass *       deferredLightPass{nullptr};
     gfx::Shader *deferredLightPassShader{nullptr};
-    Pass *       deferredPostPass{nullptr};
-    gfx::Shader *deferredPostPassShader{nullptr};
+    Pass *       pipelinePostPass{nullptr};
+    gfx::Shader *pipelinePostPassShader{nullptr};
 };
 
 struct FlatBuffer {

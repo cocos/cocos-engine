@@ -198,7 +198,7 @@ void GbufferStage::render(scene::Camera *camera) {
             pipeline->getWidth(),
             pipeline->getHeight(),
         };
-        data.depth = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleDepthTexture, depthTexInfo);
+        data.depth = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor depthInfo;
         depthInfo.usage        = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
@@ -207,7 +207,7 @@ void GbufferStage::render(scene::Camera *camera) {
         depthInfo.clearStencil = camera->clearStencil;
         depthInfo.endAccesses  = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
         data.depth             = builder.write(data.depth, depthInfo);
-        builder.writeToBlackboard(DeferredPipeline::fgStrHandleDepthTexture, data.depth);
+        builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         // viewport setup
         gfx::Viewport viewport{_renderArea.x, _renderArea.y, _renderArea.width, _renderArea.height, 0.F, 1.F};

@@ -27,16 +27,17 @@
 
 #include "../RenderStage.h"
 #include "frame-graph/Handle.h"
+#include "Enum.h"
 
 namespace cc {
 namespace pipeline {
 
 class UIPhase;
 
-class CC_DLL PostprocessStage : public RenderStage {
+class CC_DLL PostProcessStage : public RenderStage {
 public:
-    PostprocessStage();
-    ~PostprocessStage() override = default;
+    PostProcessStage();
+    ~PostProcessStage() override = default;
 
     static const RenderStageInfo &getInitializeInfo();
     bool initialize(const RenderStageInfo &info) override;

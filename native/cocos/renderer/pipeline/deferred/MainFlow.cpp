@@ -27,7 +27,7 @@
 #include "DeferredPipeline.h"
 #include "GbufferStage.h"
 #include "LightingStage.h"
-#include "PostprocessStage.h"
+#include "../common/PostProcessStage.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "pipeline/SceneCulling.h"
@@ -54,9 +54,9 @@ bool MainFlow::initialize(const RenderFlowInfo &info) {
         auto *lightingStage = CC_NEW(LightingStage);
         lightingStage->initialize(LightingStage::getInitializeInfo());
         _stages.emplace_back(lightingStage);
-        auto *postprocessStage = CC_NEW(PostprocessStage);
-        postprocessStage->initialize(PostprocessStage::getInitializeInfo());
-        _stages.emplace_back(postprocessStage);
+        auto *postProcessStage = CC_NEW(PostProcessStage);
+        postProcessStage->initialize(PostProcessStage::getInitializeInfo());
+        _stages.emplace_back(postProcessStage);
     }
 
     return true;
