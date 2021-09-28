@@ -37,6 +37,7 @@ export class WebGPUPipelineState extends PipelineState {
         pipelineStateInfo.setRenderPass((info.renderPass as WebGPURenderPass).nativeRenderPass);
 
         const inputState = new wgpuWasmModule.InputStateInstance();
+        const attrs = new wgpuWasmModule.AttributeList();
         for (let i = 0; i < info.inputState.attributes.length; i++) {
             const attribute = info.inputState.attributes[i];
             const nativeAttr = new wgpuWasmModule.AttributeInstance();
@@ -47,8 +48,9 @@ export class WebGPUPipelineState extends PipelineState {
             nativeAttr.stream = attribute.stream;
             nativeAttr.isInstanced = attribute.isInstanced;
             nativeAttr.location = attribute.location;
-            inputState.attributes.push_back(nativeAttr);
+            attrs.push_back(nativeAttr);
         }
+        inputState.attributes = attrs;
         pipelineStateInfo.setInputState(inputState);
 
         const rasterizerState = new wgpuWasmModule.RasterizerStateInstance();
@@ -104,6 +106,7 @@ export class WebGPUPipelineState extends PipelineState {
         blendState.isA2C = info.blendState.isA2C;
         blendState.isIndepend = info.blendState.isIndepend;
         blendState.color = info.blendState.blendColor;
+        const targets = new wgpuWasmModule.BlendTargetList();
         for (let i = 0; i < info.blendState.targets.length; i++) {
             const target = info.blendState.targets[i];
             const nativeTarget = new wgpuWasmModule.BlendTargetInstance();
@@ -122,8 +125,9 @@ export class WebGPUPipelineState extends PipelineState {
             nativeTarget.blendAlphaEq = wgpuWasmModule.BlendOp[blendAlphaEqStr];
             const colorMaskStr = ColorMask[target.blendColorMask];
             nativeTarget.blendColorMask = wgpuWasmModule.ColorMask[colorMaskStr];
-            blendState.targets.push_back(nativeTarget);
+            targets.push_back(nativeTarget);
         }
+        blendState.targets = targets;
         pipelineStateInfo.setBlendState(blendState);
 
         const primitiveModeStr = PrimitiveMode[info.primitive];

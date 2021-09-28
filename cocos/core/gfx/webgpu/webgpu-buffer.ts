@@ -61,6 +61,8 @@ export class WebGPUBuffer extends Buffer {
     }
 
     public resize (size: number) {
+        this._size = size;
+        this._count = this._size / this._stride;
         this._nativeBuffer.resize(size);
     }
 

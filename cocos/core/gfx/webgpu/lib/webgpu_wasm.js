@@ -3791,6 +3791,10 @@ function _wgpuBufferDestroy(bufferId) {
  WebGPU.mgrBuffer.get(bufferId)["destroy"]();
 }
 
+function _wgpuBufferRelease(id) {
+ WebGPU.mgrBuffer.release(id);
+}
+
 function _wgpuBufferUnmap(bufferId) {
  var bufferWrapper = WebGPU.mgrBuffer.objects[bufferId];
  if (!bufferWrapper.onUnmap) {
@@ -3877,6 +3881,12 @@ function _wgpuCommandEncoderBeginRenderPass(encoderId, descriptor) {
  var desc = makeRenderPassDescriptor(descriptor);
  var commandEncoder = WebGPU.mgrCommandEncoder.get(encoderId);
  return WebGPU.mgrRenderPassEncoder.create(commandEncoder["beginRenderPass"](desc));
+}
+
+function _wgpuCommandEncoderCopyBufferToTexture(encoderId, srcPtr, dstPtr, copySizePtr) {
+ var commandEncoder = WebGPU.mgrCommandEncoder.get(encoderId);
+ var copySize = WebGPU.makeExtent3D(copySizePtr);
+ commandEncoder["copyBufferToTexture"](WebGPU.makeImageCopyBuffer(srcPtr), WebGPU.makeImageCopyTexture(dstPtr), copySize);
 }
 
 function _wgpuCommandEncoderCopyTextureToTexture(encoderId, srcPtr, dstPtr, copySizePtr) {
@@ -4655,10 +4665,12 @@ var asmLibraryArg = {
  "time": _time,
  "wgpuBindGroupLayoutRelease": _wgpuBindGroupLayoutRelease,
  "wgpuBufferDestroy": _wgpuBufferDestroy,
+ "wgpuBufferRelease": _wgpuBufferRelease,
  "wgpuBufferUnmap": _wgpuBufferUnmap,
  "wgpuCommandBufferRelease": _wgpuCommandBufferRelease,
  "wgpuCommandEncoderBeginComputePass": _wgpuCommandEncoderBeginComputePass,
  "wgpuCommandEncoderBeginRenderPass": _wgpuCommandEncoderBeginRenderPass,
+ "wgpuCommandEncoderCopyBufferToTexture": _wgpuCommandEncoderCopyBufferToTexture,
  "wgpuCommandEncoderCopyTextureToTexture": _wgpuCommandEncoderCopyTextureToTexture,
  "wgpuCommandEncoderFinish": _wgpuCommandEncoderFinish,
  "wgpuCommandEncoderRelease": _wgpuCommandEncoderRelease,

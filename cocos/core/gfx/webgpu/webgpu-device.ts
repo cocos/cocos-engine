@@ -13,6 +13,7 @@ import { RenderPass } from '../base/render-pass';
 import { Sampler } from '../base/states/sampler';
 import { Swapchain } from '../base/swapchain';
 import { Buffer } from '../base/buffer';
+import { Texture } from '../base/texture';
 import { Shader } from '../base/shader';
 import { InputAssembler, DescriptorSet, DescriptorSetLayout, PipelineLayout } from '..';
 
@@ -100,7 +101,7 @@ export class WebGPUDevice extends Device {
             (this._cmdBuff as WebGPUCommandBuffer).device = this;
             this._cmdBuff.initialize(cmdBufferInfo);
 
-            this._caps.uboOffsetAlignment = 4;
+            this._caps.uboOffsetAlignment = 256;
             this._caps.clipSpaceMinZ = 0;
             this._caps.screenSpaceSignY = -1;
             this._caps.clipSpaceSignY = 1;
@@ -299,7 +300,42 @@ export class WebGPUDevice extends Device {
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {
         //assert('copyTexImagesToTexture not impled!');
-        console.log('copyTexImagesToTexture not impled!');
+        const buffers : Uint8Array[] = [];
+        for (let i = 0; i < regions.length; i++) {
+            if ('getContext' in texImages[i]) {
+                const canvasElem = texImages[i] as HTMLCanvasElement;
+                const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, texImages[i].width, texImages[i].height);
+                buffers[i] = new Uint8Array(imageData?.data.buffer as ArrayBuffer);
+            } else if (texImages[i] instanceof HTMLImageElement) {
+                const img = texImages[i] as HTMLImageElement;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx?.drawImage(img, 0, 0);
+                const imageData = ctx?.getImageData(0, 0, img.width, img.height);
+                buffers[i] = new Uint8Array(imageData?.data.buffer as ArrayBuffer);
+            } else {
+                console.log('imageBmp copy not impled!');
+            }
+        }
+
+        const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        for (let i = 0; i < regions.length; i++) {
+            const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+            bufferTextureCopy.buffStride = regions[i].buffStride;
+            bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+            bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+            bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+            bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+            bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+            bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+            bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+            bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+            bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+            bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+            bufferTextureCopyList.push_back(bufferTextureCopy);
+        }
+
+        this._nativeDevice.copyBuffersToTexture(buffers, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
     // deprecated
