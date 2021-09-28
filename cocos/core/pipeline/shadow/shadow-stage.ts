@@ -76,6 +76,10 @@ export class ShadowStage extends RenderStage {
     private _globalDS: DescriptorSet | null = null;
 
     public destroy () {
+        this._shadowFrameBuffer = null;
+        this._globalDS = null;
+        this._light = null;
+
         this._additiveShadowQueue?.clear();
     }
 
