@@ -702,6 +702,9 @@ exports.methods = {
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
     },
     getCurClipInfo() {
+        if (!this.animationInfos) {
+            return null;
+        }
         const animInfo = this.animationInfos[this.rawClipIndex];
         const splitInfo = animInfo.splits[this.splitClipIndex];
 
