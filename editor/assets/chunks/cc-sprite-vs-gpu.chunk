@@ -7,6 +7,7 @@ in vec3 a_position;
 in vec2 a_texCoord;
 in float a_batch_id;
 
+out vec2 v_uv0;
 out float v_uvMode;
 out vec4 v_uvSizeOffset;
 out vec4 v_uvParams0;
@@ -76,7 +77,7 @@ void CCSpriteInput(out SpriteVertexData i0) {
   }
 
   if (i1.uvMode >= 3.0) {
-    i0.uv = uvWithRotation;
+    v_uv0 = uvWithRotation;
     v_uvSizeOffset = i1.uvSizeOffset;
     v_uvParams0 = vec4(i1.uvParams.xy, i1.filltype, 0); // HORIZONTAL OK
     if (i1.filltype >= 2.0) { // RADIAL
@@ -86,18 +87,18 @@ void CCSpriteInput(out SpriteVertexData i0) {
       v_uvParams0 = vec4(1.0 - v_uvParams0.y, 1.0 - v_uvParams0.x, v_uvParams0.zw);
     }
   } else if (i1.uvMode >= 2.0) {
-    i0.uv = uvWithRotation * i1.uvParams.xy;
-    i0.uv.y -= fract(i1.uvParams.y); // for start point
+    v_uv0 = uvWithRotation * i1.uvParams.xy;
+    v_uv0.y -= fract(i1.uvParams.y); // for start point
     v_uvSizeOffset = i1.uvSizeOffset;
   } else if (i1.uvMode >= 1.0) {
-    i0.uv = uvWithRotation;
+    v_uv0 = uvWithRotation;
     v_uvSizeOffset = i1.uvSizeOffset;
     vec4 params0 = fract(i1.uvParams); // sprite sliced info // with Rect // LTRB
     vec4 params1 = floor(i1.uvParams) / 2048.0; // uvSilced 0-1 // with Texture // LTRB
     v_uvParams0 = vec4(params0.xy, params1.xy); // SL ST TL TT
     v_uvParams1 = vec4(params0.zw, params1.zw); // SR SB TR TB
   } else {
-    i0.uv = uvWithRotation * i1.uvSizeOffset.xy + i1.uvSizeOffset.zw;
+    v_uv0 = uvWithRotation * i1.uvSizeOffset.xy + i1.uvSizeOffset.zw;
   }
 
   v_uvMode = i1.uvMode;

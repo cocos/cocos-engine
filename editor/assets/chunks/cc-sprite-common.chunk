@@ -2,7 +2,6 @@
 struct SpriteVertexData {
   vec4 position; // world position
   vec4 color; // vertex color
-  vec2 uv; // uv
 };
 
 struct SpriteFragmentData {
