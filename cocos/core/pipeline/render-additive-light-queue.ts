@@ -49,7 +49,7 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
     UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
     supportsHalfFloatTexture } from './define';
 import { updatePlanarPROJ } from './scene-culling';
-import { Camera } from '../renderer/scene';
+import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { legacyCC } from '../global-exports';
 
@@ -163,8 +163,6 @@ export class RenderAdditiveLightQueue {
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
                 descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
-                descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
-                descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.destroy();
@@ -430,6 +428,7 @@ export class RenderAdditiveLightQueue {
         const isHDR = sceneData.isHDR;
         const fpScale = sceneData.fpScale;
         const root = legacyCC.director.root;
+        const shadowInfo = sceneData.shadows;
 
         if (this._validLights.length > this._lightBufferCount) {
             this._firstLightBufferView.destroy();
@@ -454,6 +453,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SphereLight).size;
                 _vec4Array[1] = (light as SphereLight).range;
                 _vec4Array[2] = 0.0;
+                _vec4Array[3] = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, light.color);
@@ -483,6 +483,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SpotLight).size;
                 _vec4Array[1] = (light as SpotLight).range;
                 _vec4Array[2] = (light as SpotLight).spotAngle;
+                _vec4Array[3] = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);
