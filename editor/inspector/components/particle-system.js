@@ -2,7 +2,7 @@
 
 const propUtils = require('../utils/prop');
 
-exports.template = `
+exports.template = /* html*/`
 <div class="particle-system-component">
     <div class="content">
         <ui-prop type="dump" key="duration"></ui-prop>
@@ -18,23 +18,40 @@ exports.template = `
         <ui-prop type="dump" key="scaleSpace"></ui-prop>
         <ui-prop type="dump" key="startSize3D"></ui-prop>
         <!-- hack changeName if startSize3D change -->
-        <ui-prop type="dump" key="startSizeX" displayName="startSize" showflag="!startSize3D"></ui-prop>
-        <ui-prop type="dump" key="startSizeX" displayName="startSizeX" showflag="startSize3D"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D" key="startSizeY"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D" key="startSizeZ"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="StartSize" showflag="!startSize3D"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startSizeX" displayName="StartSizeX" showflag="startSize3D"></ui-prop>
+        <ui-prop type="dump" class="indent" showflag="startSize3D" key="startSizeY"></ui-prop>
+        <ui-prop type="dump" class="indent" showflag="startSize3D" key="startSizeZ"></ui-prop>
         <ui-prop type="dump" key="startSpeed"></ui-prop>
         <ui-prop type="dump" key="startRotation3D"></ui-prop>
-        <ui-prop type="dump" key="startRotationX" showflag="startRotation3D"></ui-prop>
-        <ui-prop type="dump" key="startRotationY" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationX" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" class="indent" key="startRotationY" showflag="startRotation3D"></ui-prop>
         <!-- hack changeName if startRotation3D change -->
-        <ui-prop type="dump" showflag="startRotation3D" key="startRotationZ"></ui-prop>
+        <ui-prop type="dump" class="indent" showflag="startRotation3D" key="startRotationZ"></ui-prop>
         <ui-prop type="dump" showflag="!startRotation3D" displayName="StartRotation" key="startRotationZ">
         </ui-prop>
         <ui-prop type="dump" key="gravityModifier"></ui-prop>
         <ui-prop type="dump" key="rateOverTime"></ui-prop>
         <ui-prop type="dump" key="rateOverDistance"></ui-prop>
         <ui-prop type="dump" key="bursts"></ui-prop>
-        <ui-prop type="dump" key="enableCulling"></ui-prop>
+        <!-- Render other data that has not taken over -->
+        <div id="customProps">
+        </div>
+        <ui-section key="enableCulling" cache-expand="particle-system-cullingMode">
+            <ui-prop slot="header" class="header" empty="true" labelflag="enableCulling" key="enableCulling">
+                <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox>
+            </ui-prop>
+            <ui-prop type="dump" key="cullingMode" disableflag="!enableCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfX" disableflag="!enableCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfY" disableflag="!enableCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfZ" disableflag="!enableCulling"></ui-prop>
+            <ui-prop empty="true" disableflag="!enableCulling">
+                <ui-label slot="label">Show Bounds</ui-label>
+                <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
+            </ui-prop>  
+            <ui-button id="resetBounds">Regenerate bounding box</ui-button>
+        </ui-section>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
                 empty="true">
@@ -115,7 +132,6 @@ exports.template = `
         </ui-section>
 
         <ui-section empty="true" class="config" key="rotationOvertimeModule" cache-expand="particle-system-rotationOvertimeModule">
-
             <ui-prop slot="header" class="header" type="dump" key="rotationOvertimeModule.value.enable"
                 labelflag="rotationOvertimeModule" empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -166,10 +182,6 @@ exports.template = `
         </ui-section>
         <ui-prop type="dump" key="renderer"></ui-prop>
     </div>
-
-    <!-- Render other data that has not taken over -->
-    <div id="customProps">
-    </div>
 </div>
 `;
 const excludeList = [
@@ -182,7 +194,8 @@ const excludeList = [
     'rateOverDistance', 'bursts', 'shapeModule',
     'velocityOvertimeModule', 'forceOvertimeModule', 'sizeOvertimeModule',
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
-    'trailModule', 'renderer', 'enableCulling', 'limitVelocityOvertimeModule',
+    'trailModule', 'renderer', 'enableCulling', 'limitVelocityOvertimeModule', 'cullingMode',
+    'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
 ];
 
 exports.methods = {
@@ -290,6 +303,28 @@ exports.methods = {
 };
 
 const uiElements = {
+    resetBounds:{
+        async ready() {
+            this.$.resetBounds.addEventListener('confirm', async () => {
+                const nodeDumps = this.dump.value.node.values || [this.dump.value.node.value];
+                const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+                await Promise.all(componentUUIDs.map(uuid =>
+                    Editor.Message.request('scene', 'execute-component-method', {
+                        uuid,
+                        name: '_calculateBounding',
+                        args: [true],
+                    }))
+                );
+                nodeDumps.forEach(dump => {
+                    Editor.Message.broadcast('scene:change-node', dump.uuid);
+                });
+            });
+        },
+        update() {
+            const isInvalid = propUtils.isMultipleInvalid(this.dump.value.enableCulling);
+            this.$.resetBounds.setAttribute('disabled', isInvalid || !this.dump.value.enableCulling.value);
+        },
+    },
     uiSections: {
         ready() {
             this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section');
@@ -378,6 +413,34 @@ const uiElements = {
             });
         },
     },
+    showBounds:{
+        ready() {
+            this.$.showBounds.addEventListener('change', (event) => {
+                const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+                componentUUIDs.forEach(uuid => {
+                    Editor.Message.send('scene', 'execute-component-method', {
+                        uuid,
+                        name: 'gizmo.showBoundingBox',
+                        args: [event.target.value],
+                    });
+                });
+            });
+        },
+        async update() {
+            this.$.showBounds.disabled = !this.dump.value.enableCulling.value;
+            const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+            const values = await Promise.all(
+                componentUUIDs.map(
+                    uuid => Editor.Message.request('scene', 'execute-component-method', {
+                        uuid,
+                        name: 'gizmo.isShowBoundingBox',
+                        args: [],
+                    })));
+            const invalid = values.some(v => v !== values[0]);
+            this.$.showBounds.invalid = invalid;
+            this.$.showBounds.value = values[0];
+        },
+    },
     emitFromSelect: {
         ready() {
             this.$.emitFromSelect.addEventListener('change', (event) => {
@@ -403,7 +466,6 @@ const uiElements = {
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
                 const isEmpty = element.getAttribute('empty');
-                const isInput = element.getAttribute('inputflag');
                 const isHeader = element.getAttribute('slot') === 'header';
                 element.addEventListener('change-dump', () => {
                     uiElements.baseProps.update.call(this, key);
@@ -413,16 +475,12 @@ const uiElements = {
                         const checkbox = element.querySelector('ui-checkbox');
                         if (checkbox) {
                             checkbox.addEventListener('change', (event) => {
-                                this.getObjectByKey(this.dump.value, key).value = event.target.value;
-                                element.dispatch('change-dump');
-                            });
-                        }
-                    }
-                    if (isInput) {
-                        const input = element.querySelector('ui-input');
-                        if (input) {
-                            input.addEventListener('change', (event) => {
-                                this.getObjectByKey(this.dump.value, key).value = event.target.value;
+                                const dump = this.getObjectByKey(this.dump.value, key);
+                                const value = event.target.value;
+                                if (dump.values) {
+                                    dump.values = dump.values.map(v => value);
+                                }
+                                dump.value = value;
                                 element.dispatch('change-dump');
                             });
                         }
@@ -438,12 +496,12 @@ const uiElements = {
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
                 const isEmpty = element.getAttribute('empty');
-                let isShow = this.getObjectByKey(this.dump.value, key).visible;
+                let isShow = !key || this.getObjectByKey(this.dump.value, key).visible;
                 const isHeader = element.getAttribute('slot') === 'header';
-                const isInput = element.getAttribute('inputflag');
                 const displayName = element.getAttribute('displayName');
                 const dump = this.getObjectByKey(this.dump.value, key);
                 const showflag = element.getAttribute('showflag');
+                const disableflag = element.getAttribute('disableflag');
                 if (typeof showflag === 'string') {
                     if (showflag.startsWith('checkEnumInSubset')) {
                         const params = showflag.split(',');
@@ -476,7 +534,37 @@ const uiElements = {
                             }
                         }
                     }
-                } else if (eventInstigatorKey) {
+                } else if (typeof disableflag === 'string') {
+                    // only update the elements relate to eventInstigator
+                    if (eventInstigatorKey) {
+                        const contentSlot = element.querySelector('[slot=content]');
+                        if (!contentSlot) {
+                            return;
+                        }
+                        if (disableflag.startsWith(`!${eventInstigatorKey}`)) {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            contentSlot.disabled = isInvalid || !dump.value;
+                        } else if (disableflag.startsWith(eventInstigatorKey)) {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            contentSlot.disabled = isInvalid || !!dump.value;
+                        } else {
+                            return;
+                        }
+                    } else {
+                        if (disableflag.startsWith('!')) {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isDisable = isInvalid || !dump.value;
+                        } else {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isDisable = isInvalid || !!dump.value;
+                        }
+                    }
+                }
+                else if (eventInstigatorKey) {
                     // skip all element without showflag
                     return;
                 }
@@ -486,23 +574,27 @@ const uiElements = {
                     if (isShow) {
                         element.render(dump);
                     }
+                    if (typeof disableflag === 'string') {
+                        const contentSlot = element.querySelector('[slot=content]');
+                        if (contentSlot) {
+                            contentSlot.disabled = isDisable;
+                        }
+                    }
                 } else {
                     const label = element.querySelector('ui-label');
                     if (label) {
                         const labelflag = element.getAttribute('labelflag');
                         if (labelflag) {
-                            label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, labelflag)));
-                            label.setAttribute('tooltip', this.getTitle(this.getObjectByKey(this.dump.value, labelflag)));
+                            const dump = this.getObjectByKey(this.dump.value, labelflag);
+                            label.setAttribute('value', this.getName(dump));
+                            label.setAttribute('tooltip', this.getTitle(dump));
                         }
-                    }
-                    if (isInput) {
-                        const input = element.querySelector('ui-input');
-                        input.setAttribute('value', dump.value);
                     }
                     if (isHeader) {
                         const checkbox = element.querySelector('ui-checkbox');
                         if (checkbox) {
                             checkbox.setAttribute('value', dump.value);
+                            checkbox.invalid = propUtils.isMultipleInvalid(dump);
                         }
                     }
 
@@ -527,6 +619,8 @@ const uiElements = {
 exports.$ = {
     customProps: '#customProps',
     emitFromSelect: '#emitFromSelect',
+    showBounds: '#showBounds',
+    resetBounds: '#resetBounds',
 };
 exports.ready = function() {
     for (const key in uiElements) {
@@ -545,3 +639,8 @@ exports.update = function(dump) {
         }
     }
 };
+exports.style = /* css */`
+    .particle-system-component > .content >.indent {
+        margin-left: 10px;
+    }
+`;
