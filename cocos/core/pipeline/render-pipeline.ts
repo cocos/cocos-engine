@@ -192,6 +192,14 @@ export abstract class RenderPipeline extends Asset {
         return this._profiler;
     }
 
+    set clusterEnabled (value) {
+        this._clusterEnabled = value;
+    }
+
+    get clusterEnabled () {
+        return this._clusterEnabled;
+    }
+
     protected _device!: Device;
     protected _globalDSManager!: GlobalDSManager;
     protected _descriptorSet!: DescriptorSet;
@@ -206,6 +214,7 @@ export abstract class RenderPipeline extends Asset {
     protected _width = 0;
     protected _height = 0;
     protected _lastUsedRenderArea: Rect = new Rect();
+    protected _clusterEnabled = false;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -496,7 +505,7 @@ export abstract class RenderPipeline extends Asset {
     protected _generateConstantMacros () {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;
-        str += `#define CC_DEVICE_SUPPORT_COMPUTE_SHADER ${this.device.hasFeature(Feature.COMPUTE_SHADER) ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${this._clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
         this._constantMacros = str;

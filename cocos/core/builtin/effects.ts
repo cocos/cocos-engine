@@ -388,11 +388,11 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 2631564675,
+        "hash": 2411495382,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 222, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 65 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCMorph", "defines": ["CC_USE_MORPH"] }, { "name": "CCSkinningTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinningAnimation", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "CCSkinning", "defines": ["CC_USE_SKINNING", "!CC_USE_BAKED_ANIMATION"] }, { "name": "CCLocalBatched", "defines": ["!USE_INSTANCING", "USE_BATCHING"] }, { "name": "CCLocal", "defines": ["!USE_INSTANCING", "!USE_BATCHING"] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_PositionDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_POSITION"] }, { "name": "cc_NormalDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_NORMAL"] }, { "name": "cc_TangentDisplacements", "defines": ["CC_USE_MORPH", "CC_MORPH_TARGET_HAS_TANGENT"] }, { "name": "cc_jointTexture", "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION"] }, { "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "CC_USE_MORPH", "type": "boolean" },
@@ -468,9 +468,9 @@ export const effects = [
           { "name": "emissiveMap", "type": 28, "count": 1, "defines": ["USE_EMISSIVE_MAP"], "stageFlags": 16, "binding": 6 }
         ],
         "buffers": [
-          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 7, "count": 1 },
-          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 8, "count": 1 },
-          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 9, "count": 1 }
+          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 7 },
+          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 8 },
+          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 9 }
         ],
         "images": [],
         "textures": [],
@@ -550,11 +550,11 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 1252451026,
+        "hash": 3685947952,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 69, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 60 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD"] }], "samplerTextures": [{ "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCLocal", "defines": [] }, { "name": "CCForwardLight", "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [{ "name": "cc_lightingMap", "defines": ["USE_LIGHTMAP", "!USE_BATCHING", "!CC_FORWARD_ADD"] }], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "CC_USE_FOG", "type": "number", "range": [0, 4] },
@@ -599,9 +599,9 @@ export const effects = [
           { "name": "lightMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 11 }
         ],
         "buffers": [
-          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 12, "count": 1 },
-          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 13, "count": 1 },
-          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 14, "count": 1 }
+          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 12 },
+          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 13 },
+          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_FORWARD_ADD", "CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 14 }
         ],
         "images": [],
         "textures": [],
@@ -711,11 +711,11 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 60670811,
+        "hash": 3909268059,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 58 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCForwardLight", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCForwardLight", "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [
           { "name": "CC_RECEIVE_SHADOW", "type": "boolean" },
@@ -743,9 +743,9 @@ export const effects = [
           { "name": "gbuffer_emissiveMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 3 }
         ],
         "buffers": [
-          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 4, "count": 1 },
-          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 5, "count": 1 },
-          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_DEVICE_SUPPORT_COMPUTE_SHADER", "CC_PIPELINE_TYPE"], "stageFlags": 16, "binding": 6, "count": 1 }
+          { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 4 },
+          { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 5 },
+          { "name": "b_clusterLightGridBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 6 }
         ],
         "images": [],
         "textures": [],
@@ -815,7 +815,7 @@ export const effects = [
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 2286065615,
+        "hash": 1541179109,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 147, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },

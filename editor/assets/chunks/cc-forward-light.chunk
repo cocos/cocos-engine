@@ -11,7 +11,7 @@
 # define LIGHTS_PER_PASS 10 // indent to avoid effect-compile-time substitution
 #endif
 
-#if CC_DEVICE_SUPPORT_COMPUTE_SHADER == 0 || CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
 #pragma builtin(local)
 layout(set = 2, binding = 1) uniform CCForwardLight {
   highp vec4 cc_lightPos[LIGHTS_PER_PASS]; // xyz: pos, w: isSpotLight

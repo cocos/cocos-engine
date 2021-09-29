@@ -2,7 +2,7 @@
 
 #include <lighting>
 
-#if CC_DEVICE_SUPPORT_COMPUTE_SHADER == 0 || CC_PIPELINE_TYPE == 0
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
 vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);

@@ -9,7 +9,7 @@
 #define CC_STANDARD_SURFACE_ENTRY()                                \
 #if CC_FORWARD_ADD                                                 \
   #include <shading-standard-additive>                             \
-  #if CC_DEVICE_SUPPORT_COMPUTE_SHADER == 1 && CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED \
+  #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                            \
   #include <shading-cluster-additive>                              \
   #endif                                                           \
                                                                    \
@@ -17,8 +17,8 @@
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
-    #if CC_DEVICE_SUPPORT_COMPUTE_SHADER == 1 && CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_DEFERRED \
-    vec4 color = CCClusterShadingAdditive(s, CC_SHADOW_POSITION);                        \
+    #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                          \
+    vec4 color = CCClusterShadingAdditive(s, CC_SHADOW_POSITION);  \
     #else                                                          \
     vec4 color = CCStandardShadingAdditive(s, CC_SHADOW_POSITION); \
     #endif                                                         \
