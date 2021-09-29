@@ -306,6 +306,27 @@ export class LightingStage extends nr.LightingStage {
   }
 }
 
+export class BloomStage extends nr.BloomStage {
+  constructor() {
+    super();
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+    this._bloomMaterial = null;
+  }
+  init(pipeline) {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+      queues.push(this.renderQueues[i].init());
+    }
+    pipeline.pipelineSceneData.bloomMaterial = this._bloomMaterial;
+    let info =
+        new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
+    this.initialize(info);
+  }
+}
+
 export class PostProcessStage extends nr.PostProcessStage {
   constructor() {
     super();
@@ -331,6 +352,7 @@ setClassName('DeferredPipeline', DeferredPipeline);
 setClassName('MainFlow', MainFlow);
 setClassName('GbufferStage', GbufferStage);
 setClassName('LightingStage', LightingStage);
+setClassName('BloomStage', BloomStage);
 setClassName('PostProcessStage',PostProcessStage);
 setClassName('ForwardPipeline', ForwardPipeline);
 setClassName('ForwardFlow', ForwardFlow);

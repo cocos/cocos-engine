@@ -202,9 +202,10 @@ export default class ParticleSystemRenderer {
         this._switchProcessor();
     }
 
-    @serializable
-    private _alignSpace = AlignmentSpace.View;
-
+    /**
+     * @en Particle alignment space option. Includes world, local and view.
+     * @zh 粒子对齐空间选择。包括世界空间，局部空间和视角空间。
+     */
     @type(AlignmentSpace)
     @displayOrder(10)
     public get alignSpace () {
@@ -215,6 +216,11 @@ export default class ParticleSystemRenderer {
         this._alignSpace = val;
         this._particleSystem.processor.updateAlignSpace(this._alignSpace);
     }
+
+    @serializable
+    private _alignSpace = AlignmentSpace.View;
+
+    public static AlignmentSpace = AlignmentSpace;
 
     private _particleSystem: any = null!; // ParticleSystem
 

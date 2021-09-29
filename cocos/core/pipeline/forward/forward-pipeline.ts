@@ -169,6 +169,8 @@ export class ForwardPipeline extends RenderPipeline {
                 renderData.outputRenderTargets[i].destroy();
             }
             renderData.outputRenderTargets.length = 0;
+
+            this._destroyBloomData();
         }
 
         this._pipelineRenderData = null;
@@ -255,6 +257,8 @@ export class ForwardPipeline extends RenderPipeline {
             data.outputDepth,
         ));
         data.sampler = device.getSampler(_samplerInfo);
+
+        this._generateBloomRenderData();
     }
 
     private _destroyUBOs () {

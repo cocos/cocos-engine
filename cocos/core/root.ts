@@ -346,6 +346,7 @@ export class Root {
             // here to enable or disable cluster
             this._pipeline.clusterEnabled = false;
         }
+        this._pipeline.bloomEnable = false;
 
         if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
             if (isCreateDefaultPipeline) {

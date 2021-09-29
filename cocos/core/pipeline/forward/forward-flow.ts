@@ -36,6 +36,7 @@ import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
 import { PostProcessStage } from '../common/postprocess-stage';
+import { BloomStage } from '../common/bloom-stage';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -48,6 +49,7 @@ export class ForwardFlow extends RenderFlow {
      * @zh 共享的前向渲染流程初始化参数
      */
     private postProcessStage: PostProcessStage | null = null;
+    private bloomStage: BloomStage | null = null;
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
@@ -72,7 +74,15 @@ export class ForwardFlow extends RenderFlow {
         }
     }
 
+    protected _addBloomStage () {
+        this.bloomStage = new BloomStage();
+        this.bloomStage.initialize(BloomStage.initInfo);
+        this.bloomStage.enabled = false;
+        this._stages.push(this.bloomStage);
+    }
+
     public activate (pipeline: RenderPipeline) {
+        this._addBloomStage();
         this._addPostStage();
         super.activate(pipeline);
     }
