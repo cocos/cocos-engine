@@ -36,6 +36,7 @@ import { scene } from '../../core/renderer';
 import { Light, PhotometricTerm } from './light-component';
 import { legacyCC } from '../../core/global-exports';
 import { Root } from '../../core/root';
+import { Camera } from '../../core/renderer/scene';
 
 @ccclass('cc.SpotLight')
 @help('i18n:cc.SpotLight')
@@ -64,63 +65,61 @@ export class SpotLight extends Light {
 
     protected _light: scene.SpotLight | null = null;
 
-     /**
+    /**
      * @en Luminous flux of the light.
      * @zh 光通量。
      */
-      @tooltip('i18n:lights.luminous_flux')
-      get luminousFlux () {
-          const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-          if(isHDR)
-          {
-              return this._luminance * scene.nt2lm(this._size);
-          } else {
-              return this._luminance_ldr;          
-          }
-      }
-  
-      set luminousFlux (val) {
-          const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-          let result = 0;
-          if(isHDR)
-          {
-              this._luminance = val / scene.nt2lm(this._size);
-              result = this._luminance;
-          } else {
-              this._luminance_ldr = val;
-              result = this._luminance_ldr;
-          }
-  
-          if (this._light) { this._light.luminance = result; }
-      }
- 
-     /**
+    @tooltip('i18n:lights.luminous_flux')
+    get luminousFlux () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._luminance * scene.nt2lm(this._size);
+        } else {
+            return this._luminance_ldr;
+        }
+    }
+
+    set luminousFlux (val) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        let result = 0;
+        if (isHDR) {
+            this._luminance = val / scene.nt2lm(this._size);
+            result = this._luminance;
+        } else {
+            this._luminance_ldr = val;
+            result = this._luminance_ldr;
+        }
+
+        if (this._light) { this._light.luminance = result; }
+    }
+
+    /**
       * @en Luminance of the light.
       * @zh 光亮度。
       */
-     @tooltip('i18n:lights.luminance')
-     get luminance () {
-         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-         if(isHDR) {
-             return this._luminance;
-         } else {
-             return this._luminance_ldr;
-         }
-     }
- 
-     set luminance (val) {
-         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-         if(isHDR) {
-             this._luminance = val;
-         } else {
-             this._luminance_ldr = val;
-         }
- 
-         if (this._light) { 
-            this._light.luminance = this._luminance; 
-            this._light.luminance_ldr = this._luminance_ldr; 
+    @tooltip('i18n:lights.luminance')
+    get luminance () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._luminance;
+        } else {
+            return this._luminance_ldr;
         }
-     }
+    }
+
+    set luminance (val) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._luminance = val;
+        } else {
+            this._luminance_ldr = val;
+        }
+
+        if (this._light) {
+            this._light.luminance_hdr = this._luminance;
+            this._light.luminance_ldr = this._luminance_ldr;
+        }
+    }
 
     /**
      * @en The photometric term currently being used.
@@ -194,14 +193,15 @@ export class SpotLight extends Light {
     protected _createLight () {
         super._createLight();
         if (!this._light) { return; }
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
 
-        if (this._light) { 
-            this._light.luminance = this._luminance; 
-            this._light.luminance_ldr = this._luminance_ldr; 
+        this._luminance_ldr = this._luminance * Camera.standardExposureValue * Camera.standardLightMeterScale;
+
+        if (this._light) {
+            this._light.luminance_hdr = this._luminance;
+            this._light.luminance_ldr = this._luminance_ldr;
         }
     }
 }

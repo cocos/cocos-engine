@@ -32,6 +32,7 @@ import { ccclass, help, executeInEditMode, menu, tooltip, serializable } from 'c
 import { scene } from '../../core/renderer';
 import { Light } from './light-component';
 import { legacyCC } from '../../core/global-exports';
+import { Camera } from '../../core/renderer/scene';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
@@ -56,8 +57,7 @@ export class DirectionalLight extends Light {
     @tooltip('i18n:lights.illuminance')
     get illuminance () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        if(isHDR)
-        {
+        if (isHDR) {
             return this._illuminance;
         } else {
             return this._illuminance_ldr;
@@ -65,15 +65,14 @@ export class DirectionalLight extends Light {
     }
     set illuminance (val) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        if(isHDR)
-        {
+        if (isHDR) {
             this._illuminance = val;
         } else {
             this._illuminance_ldr = val;
         }
 
-        if (this._light) { 
-            this._light.illuminance = this._illuminance; 
+        if (this._light) {
+            this._light.illuminance_hdr = this._illuminance;
             this._light.illuminance_ldr = this._illuminance_ldr;
         }
     }
@@ -86,11 +85,11 @@ export class DirectionalLight extends Light {
     protected _createLight () {
         super._createLight();
         if (!this._light) { return; }
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        //this.illuminance = this._illuminance;
 
-        if (this._light) { 
-            this._light.illuminance = this._illuminance; 
+        this._illuminance_ldr = this._illuminance * Camera.standardExposureValue;
+
+        if (this._light) {
+            this._light.illuminance_hdr = this._illuminance;
             this._light.illuminance_ldr = this._illuminance_ldr;
         }
     }

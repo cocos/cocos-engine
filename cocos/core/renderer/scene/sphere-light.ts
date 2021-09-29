@@ -25,6 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { AABB } from '../../geometry';
+import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { NativeSphereLight } from './native-scene';
@@ -71,14 +72,35 @@ export class SphereLight extends Light {
     }
 
     set luminance (lum: number) {
-        this._luminance = lum;
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._luminance = lum;
+        } else {
+            this._luminance_ldr = lum;
+        }
+
         if (JSB) {
             (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
         }
     }
 
     get luminance (): number {
-        return this._luminance;
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._luminance;
+        } else {
+            return this._luminance_ldr;
+        }
+    }
+
+    set luminance_hdr (lum: number) {
+        this._luminance = lum;
+
+        /*
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setIlluminance_hdr(lum);
+        }
+        */
     }
 
     set luminance_ldr (lum: number) {
@@ -86,13 +108,9 @@ export class SphereLight extends Light {
 
         /*
         if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
+            (this._nativeObj! as NativeSphereLight).setIlluminance_ldr(lum);
         }
         */
-    }
-
-    get luminance_ldr (): number {
-        return this._luminance_ldr;
     }
 
     get aabb () {
