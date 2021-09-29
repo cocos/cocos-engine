@@ -30,7 +30,23 @@ import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../platform/macro';
 
+export const BLOOM_PREFILTERPASS_INDEX = 0;
+export const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
+export const BLOOM_UPSAMPLEPASS_INDEX = 2;
+export const BLOOM_COMBINEPASS_INDEX = 3;
+
 export class CommonPipelineSceneData extends PipelineSceneData {
+    public get bloomMaterial () {
+        return this._bloomMaterial;
+    }
+
+    public set bloomMaterial (mat: Material) {
+        if (this._bloomMaterial === mat || !mat) return;
+        this._bloomMaterial = mat;
+        this.updatePipelinePassInfo();
+    }
+    protected declare _bloomMaterial: Material;
+
     public get postprocessMaterial () {
         return this._postprocessMaterial;
     }
@@ -47,6 +63,14 @@ export class CommonPipelineSceneData extends PipelineSceneData {
     }
 
     public initPipelinePassInfo () {
+        const bloomMat = new Material();
+        bloomMat._uuid = 'builtin-bloom-material';
+        bloomMat.initialize({ effectName: 'bloom' });
+        for (let i = 0; i < bloomMat.passes.length; ++i) {
+            bloomMat.passes[i].tryCompile();
+        }
+        this._bloomMaterial = bloomMat;
+
         const postMat = new Material();
         postMat._uuid = 'builtin-post-process-material';
         postMat.initialize({
@@ -71,7 +95,43 @@ export class CommonPipelineSceneData extends PipelineSceneData {
     }
 
     protected updatePipelinePassInfo () {
+        this.updateBloomPass();
         this.updatePostProcessPass();
+    }
+
+    private updateBloomPass () {
+        if (!this._bloomMaterial) return;
+
+        const passPrefilter = this._bloomMaterial.passes[BLOOM_PREFILTERPASS_INDEX];
+        passPrefilter.beginChangeStatesSilently();
+        passPrefilter.tryCompile();
+        passPrefilter.endChangeStatesSilently();
+
+        const passDownsample = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX];
+        passDownsample.beginChangeStatesSilently();
+        passDownsample.tryCompile();
+        passDownsample.endChangeStatesSilently();
+
+        const passUpsample = this._bloomMaterial.passes[BLOOM_UPSAMPLEPASS_INDEX];
+        passUpsample.beginChangeStatesSilently();
+        passUpsample.tryCompile();
+        passUpsample.endChangeStatesSilently();
+
+        const passCombine = this._bloomMaterial.passes[BLOOM_COMBINEPASS_INDEX];
+        passCombine.beginChangeStatesSilently();
+        passCombine.tryCompile();
+        passCombine.endChangeStatesSilently();
+
+        if (JSB) {
+            this._nativeObj!.bloomPrefilterPassShader = passPrefilter.getShaderVariant();
+            this._nativeObj!.bloomPrefilterPass = passPrefilter.native;
+            this._nativeObj!.bloomDownsamplePassShader = passDownsample.getShaderVariant();
+            this._nativeObj!.bloomDownsamplePass = passDownsample.native;
+            this._nativeObj!.bloomUpsamplePassShader = passUpsample.getShaderVariant();
+            this._nativeObj!.bloomUpsamplePass = passUpsample.native;
+            this._nativeObj!.bloomCombinePassShader = passCombine.getShaderVariant();
+            this._nativeObj!.bloomCombinePass = passCombine.native;
+        }
     }
 
     private updatePostProcessPass () {

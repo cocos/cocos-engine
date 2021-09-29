@@ -276,6 +276,8 @@ export class DeferredPipeline extends RenderPipeline {
                 deferredData.outputRenderTargets[i].destroy();
             }
             deferredData.outputRenderTargets.length = 0;
+
+            this._destroyBloomData();
         }
 
         this._pipelineRenderData = null;
@@ -328,7 +330,7 @@ export class DeferredPipeline extends RenderPipeline {
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA8,
+            Format.RGBA16F,
             this._width,
             this._height,
         )));
@@ -340,5 +342,7 @@ export class DeferredPipeline extends RenderPipeline {
         ));
 
         data.sampler = device.getSampler(_samplerInfo);
+
+        this._generateBloomRenderData();
     }
 }

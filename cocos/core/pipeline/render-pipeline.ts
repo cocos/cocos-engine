@@ -28,20 +28,22 @@
  * @module pipeline
  */
 
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { legacyCC } from '../global-exports';
+import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { Asset } from '../assets/asset';
-import { RenderFlow } from './render-flow';
+import { AccessType, Address, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
+    DepthStencilAttachment, DescriptorSet, Device, Feature, Filter, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
+    LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, SamplerInfo, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
+    TextureType, TextureUsageBit } from '../gfx';
+import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, Feature, Rect, Swapchain, InputAssembler, Texture, Framebuffer, Sampler, ClearFlags, RenderPass, ColorAttachment, DepthStencilAttachment, StoreOp, ClearFlagBit, LoadOp, AccessType, RenderPassInfo, Buffer, SurfaceTransform, BufferInfo, BufferUsageBit, MemoryUsageBit, Attribute, Format, InputAssemblerInfo } from '../gfx';
-import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
-import { PipelineUBO } from './pipeline-ubo';
-import { GlobalDSManager } from './global-descriptor-set-manager';
-import { Root } from '../root';
-import { Model } from '../renderer/scene/model';
-import { CommonPipelineSceneData } from './common/common-pipeline-scene-data';
-import { PipelineSceneData } from './pipeline-scene-data';
 import { RenderWindow } from '../renderer/core/render-window';
+import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
+import { Model } from '../renderer/scene/model';
+import { Root } from '../root';
+import { GlobalDSManager } from './global-descriptor-set-manager';
+import { PipelineSceneData } from './pipeline-scene-data';
+import { PipelineUBO } from './pipeline-ubo';
+import { RenderFlow } from './render-flow';
 
 /**
  * @en Render pipeline information descriptor
@@ -52,11 +54,34 @@ export interface IRenderPipelineInfo {
     tag?: number;
 }
 
+export class BloomRenderData {
+    renderPass: RenderPass = null!;
+    /*
+     * The down/upsample pass number should be calculated using the data passed by user
+     * through the camera, but for now we always use 2.
+     */
+    filterPassNum = 2;
+
+    sampler: Sampler = null!;
+
+    prefiterTex: Texture = null!;
+    downsampleTexs: Texture[] = [];
+    upsampleTexs: Texture[] = [];
+    combineTex: Texture = null!;
+
+    prefilterFramebuffer: Framebuffer = null!;
+    downsampleFramebuffers: Framebuffer[] = [];
+    upsampleFramebuffers: Framebuffer[] = [];
+    combineFramebuffer: Framebuffer = null!;
+}
+
 export class PipelineRenderData {
     outputFrameBuffer: Framebuffer = null!;
     outputRenderTargets: Texture[] = [];
     outputDepth: Texture = null!;
     sampler: Sampler = null!;
+
+    bloom: BloomRenderData | null = null;
 }
 
 export class PipelineInputAssemblerData {
@@ -192,6 +217,14 @@ export abstract class RenderPipeline extends Asset {
         return this._profiler;
     }
 
+    set bloomEnable (value) {
+        this._bloomEnable = value;
+    }
+
+    get bloomEnable () {
+        return this._bloomEnable;
+    }
+
     protected _device!: Device;
     protected _globalDSManager!: GlobalDSManager;
     protected _descriptorSet!: DescriptorSet;
@@ -206,6 +239,7 @@ export abstract class RenderPipeline extends Asset {
     protected _width = 0;
     protected _height = 0;
     protected _lastUsedRenderArea: Rect = new Rect();
+    protected _bloomEnable = false;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -343,6 +377,35 @@ export abstract class RenderPipeline extends Asset {
             this._quadIAOffscreen.destroy();
             this._quadIAOffscreen = null;
         }
+    }
+
+    protected _destroyBloomData () {
+        const bloom = this._pipelineRenderData!.bloom;
+        if (bloom === null) return;
+
+        if (bloom.prefiterTex) bloom.prefiterTex.destroy();
+        if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
+
+        for (let i = 0; i < bloom.downsampleTexs.length; ++i) {
+            bloom.downsampleTexs[i].destroy();
+            bloom.downsampleFramebuffers[i].destroy();
+        }
+        bloom.downsampleTexs.length = 0;
+        bloom.downsampleFramebuffers.length = 0;
+
+        for (let i = 0; i < bloom.upsampleTexs.length; ++i) {
+            bloom.upsampleTexs[i].destroy();
+            bloom.upsampleFramebuffers[i].destroy();
+        }
+        bloom.upsampleTexs.length = 0;
+        bloom.upsampleFramebuffers.length = 0;
+
+        if (bloom.combineTex) bloom.combineTex.destroy();
+        if (bloom.combineFramebuffer) bloom.combineFramebuffer.destroy();
+
+        bloom.renderPass?.destroy();
+
+        this._pipelineRenderData!.bloom = null;
     }
 
     private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
@@ -500,6 +563,95 @@ export abstract class RenderPipeline extends Asset {
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
         this._constantMacros = str;
+    }
+
+    protected _generateBloomRenderData () {
+        const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
+        const device = this.device;
+
+        // create renderPass
+        const colorAttachment = new ColorAttachment();
+        colorAttachment.format = Format.RGBA16F;
+        colorAttachment.loadOp = LoadOp.CLEAR;
+        colorAttachment.storeOp = StoreOp.STORE;
+        colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+        bloom.renderPass = device.createRenderPass(new RenderPassInfo([colorAttachment]));
+
+        let curWidth = this._width;
+        let curHeight = this._height;
+
+        // prefilter
+        bloom.prefiterTex = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            curWidth >> 1,
+            curHeight >> 1,
+        ));
+        bloom.prefilterFramebuffer = device.createFramebuffer(new FramebufferInfo(
+            bloom.renderPass,
+            [bloom.prefiterTex],
+        ));
+
+        // downsample
+        curWidth >>= 1;
+        curHeight >>= 1;
+        for (let i = 0; i < bloom.filterPassNum; ++i) {
+            bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA16F,
+                curWidth >> 1,
+                curHeight >> 1,
+            )));
+            bloom.downsampleFramebuffers[i] = device.createFramebuffer(new FramebufferInfo(
+                bloom.renderPass,
+                [bloom.downsampleTexs[i]],
+            ));
+            curWidth >>= 1;
+            curHeight >>= 1;
+        }
+
+        // upsample
+        for (let i = 0; i < bloom.filterPassNum; ++i) {
+            bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA16F,
+                curWidth << 1,
+                curHeight << 1,
+            )));
+            bloom.upsampleFramebuffers[i] = device.createFramebuffer(new FramebufferInfo(
+                bloom.renderPass,
+                [bloom.upsampleTexs[i]],
+            ));
+            curWidth <<= 1;
+            curHeight <<= 1;
+        }
+
+        // combine
+        bloom.combineTex = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA16F,
+            this._width,
+            this._height,
+        ));
+        bloom.combineFramebuffer = device.createFramebuffer(new FramebufferInfo(
+            bloom.renderPass,
+            [bloom.combineTex],
+        ));
+
+        // sampler
+        const samplerInfo = new SamplerInfo(
+            Filter.LINEAR,
+            Filter.LINEAR,
+            Filter.NONE,
+            Address.CLAMP,
+            Address.CLAMP,
+            Address.CLAMP,
+        );
+        bloom.sampler = device.getSampler(samplerInfo);
     }
 }
 

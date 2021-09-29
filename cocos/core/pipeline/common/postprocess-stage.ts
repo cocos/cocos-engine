@@ -39,6 +39,7 @@ import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
 import { RenderFlow, RenderPipeline } from '..';
 import { CommonPipelineSceneData } from './common-pipeline-scene-data';
+import { macro } from '../..';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -128,7 +129,11 @@ export class PostProcessStage extends RenderStage {
         const pass = builtinPostProcess.passes[0];
         const shader = pass.getShaderVariant();
 
-        pass.descriptorSet.bindTexture(0, renderData.outputRenderTargets[0]);
+        if (pipeline.bloomEnable) {
+            pass.descriptorSet.bindTexture(0, renderData.bloom!.combineTex);
+        } else {
+            pass.descriptorSet.bindTexture(0, renderData.outputRenderTargets[0]);
+        }
         pass.descriptorSet.bindSampler(0, renderData.sampler);
         pass.descriptorSet.update();
 
