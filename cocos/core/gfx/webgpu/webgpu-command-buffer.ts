@@ -263,6 +263,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         // }
         // const nativeDevice = wgpuWasmModule.nativeDevice;
         // nativeDevice.copyBuffersToTexture(stringList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
+        console.log('copy buffers to tex in cmdbuff not impled.');
     }
 
     public execute (cmdBuffs: CommandBuffer[], count: number) {

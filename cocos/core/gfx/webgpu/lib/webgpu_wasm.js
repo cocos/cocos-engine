@@ -3803,10 +3803,6 @@ function _wgpuBufferUnmap(bufferId) {
  bufferWrapper.object["unmap"]();
 }
 
-function _wgpuCommandBufferRelease(id) {
- WebGPU.mgrCommandBuffer.release(id);
-}
-
 function _wgpuCommandEncoderBeginComputePass(encoderId, descriptor) {
  var desc;
  if (descriptor) {
@@ -4656,7 +4652,6 @@ var asmLibraryArg = {
  "wgpuBindGroupLayoutRelease": _wgpuBindGroupLayoutRelease,
  "wgpuBufferDestroy": _wgpuBufferDestroy,
  "wgpuBufferUnmap": _wgpuBufferUnmap,
- "wgpuCommandBufferRelease": _wgpuCommandBufferRelease,
  "wgpuCommandEncoderBeginComputePass": _wgpuCommandEncoderBeginComputePass,
  "wgpuCommandEncoderBeginRenderPass": _wgpuCommandEncoderBeginRenderPass,
  "wgpuCommandEncoderCopyTextureToTexture": _wgpuCommandEncoderCopyTextureToTexture,
