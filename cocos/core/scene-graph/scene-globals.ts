@@ -226,8 +226,8 @@ export class SkyboxInfo {
     protected _resource: Skybox | null = null;
 
     /**
-     * @en Whether to use diffuse reflection convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
-     * @zh TODO
+     * @en Whether to use diffuse convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
+     * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
      */
     @visible(function (this : SkyboxInfo) {
         if (this.useIBL) {
@@ -292,7 +292,7 @@ export class SkyboxInfo {
 
     /**
      * @en Toggle HDR (TODO: This SHOULD be moved into it's own subgroup away from skybox)
-     * @zh TODO
+     * @zh 是否启用HDR？
      */
     @editable
     set useHDR (val) {
@@ -349,7 +349,7 @@ export class SkyboxInfo {
 
     /**
      * @en The optional diffusion convolution map used in tandem with IBL
-     * @zh TODO
+     * @zh 使用的漫反射卷积图
      */
     @visible(function (this : SkyboxInfo) {
         if (this.useIBL) {
@@ -368,7 +368,6 @@ export class SkyboxInfo {
             this._diffusemap_ldr = val;
         }
 
-        // The diffusion relfection convolution as been set by the editor at this time, so we can pass it to skybox.ts
         if (this._resource) {
             this._resource.initializeDiffuseMaps(this._diffusemap, this._diffusemap_ldr);
         }

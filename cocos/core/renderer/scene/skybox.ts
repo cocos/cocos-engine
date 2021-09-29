@@ -75,7 +75,7 @@ export class Skybox {
 
     /**
      * @en Whether use HDR
-     * @zh TODO
+     * @zh 是否启用HDR？
      */
     get useIBL (): boolean {
         return this._useIBL;
@@ -88,7 +88,7 @@ export class Skybox {
 
     /**
      * @en Whether use diffuse convolution map lighting
-     * @zh TODO
+     * @zh 是否为IBL启用漫反射卷积图？
      */
     get useDiffusemap (): boolean {
         return this._useDiffusemap;
@@ -126,8 +126,8 @@ export class Skybox {
     }
 
     /**
-     * @en The texture cube used diffuse reflection convolution map
-     * @zh TODO
+     * @en The texture cube used diffuse convolution map
+     * @zh 使用的漫反射卷积图
      */
     get diffusemap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -198,6 +198,12 @@ export class Skybox {
 
     get native (): NaitveSkybox {
         return this._nativeObj!;
+    }
+
+    constructor () {
+        if (JSB) {
+            this._nativeObj = new NaitveSkybox();
+        }
     }
 
     private _setEnabled (val) {
