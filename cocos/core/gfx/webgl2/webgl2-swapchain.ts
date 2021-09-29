@@ -253,6 +253,8 @@ export class WebGL2Swapchain extends Swapchain {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
+            this._colorTexture.resize(width, height);
+            this._depthStencilTexture.resize(width, height);
         }
     }
 
