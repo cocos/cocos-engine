@@ -470,7 +470,7 @@ export class RenderAdditiveLightQueue {
                         _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
                     }
                 } else {
-                    _vec4Array[3] = (light as SphereLight).luminance_ldr;
+                    _vec4Array[3] = (light as SphereLight).luminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
@@ -502,7 +502,7 @@ export class RenderAdditiveLightQueue {
                         _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
                     }
                 } else {
-                    _vec4Array[3] = (light as SpotLight).luminance_ldr;
+                    _vec4Array[3] = (light as SpotLight).luminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
