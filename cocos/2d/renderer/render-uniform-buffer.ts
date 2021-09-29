@@ -4,7 +4,7 @@ import { BufferInfo, BufferUsageBit, BufferViewInfo, MemoryUsageBit } from '../.
 import { Device } from '../../core/gfx/base/device';
 
 export class UILocalBuffer {
-    private static UBO_COUNT = 2;
+    private static UBO_COUNT = 10;
 
     private _device: Device;
     private _vec4PerUI: number;
