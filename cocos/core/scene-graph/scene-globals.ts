@@ -103,33 +103,33 @@ export class AmbientInfo {
      * @en Sky color
      * @zh 天空颜色
      */
-     @editable
-     set skyColor (val: Color) {
-         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-         const clampColor = (x: number) => Math.min(x * 255, 255);
- 
-         let result;
-         if(isHDR) {
-             this._skyColor = new Vec4(val.x, val.y, val.z, val.w);
-             this.normalizeHdrColor(this._skyColor);
-             (result as Vec4) = this._skyColor;
-         } else {
-             this._skyColor_ldr = new Vec4(val.x, val.y, val.z, val.w);
-             this.normalizeHdrColor(this._skyColor_ldr);
-             (result as Vec4) = this._skyColor_ldr;
-         }
- 
-         const col = new Color(clampColor(result.x), clampColor(result.y), clampColor(result.z), 255.0);
- 
-         if (this._resource) { this._resource.skyColor = col; }
-     }
-     get skyColor () {
-         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-         const colorRef = isHDR ? this._skyColor : this._skyColor_ldr;
- 
-         const clampColor = (x: number) => Math.min(x * 255, 255);
-         return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
-     }
+    @editable
+    set skyColor (val: Color) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const clampColor = (x: number) => Math.min(x * 255, 255);
+
+        let result;
+        if (isHDR) {
+            this._skyColor = new Vec4(val.x, val.y, val.z, val.w);
+            this.normalizeHdrColor(this._skyColor);
+            (result as Vec4) = this._skyColor;
+        } else {
+            this._skyColor_ldr = new Vec4(val.x, val.y, val.z, val.w);
+            this.normalizeHdrColor(this._skyColor_ldr);
+            (result as Vec4) = this._skyColor_ldr;
+        }
+
+        const col = new Color(clampColor(result.x), clampColor(result.y), clampColor(result.z), 255.0);
+
+        if (this._resource) { this._resource.skyColor = col; }
+    }
+    get skyColor () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const colorRef = isHDR ? this._skyColor : this._skyColor_ldr;
+
+        const clampColor = (x: number) => Math.min(x * 255, 255);
+        return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
+    }
 
     /**
      * @en Sky illuminance
@@ -166,7 +166,7 @@ export class AmbientInfo {
         const clampColor = (x: number) => Math.min(x * 255, 255);
 
         let result;
-        if(isHDR) {
+        if (isHDR) {
             this._groundAlbedo = new Vec4(val.x, val.y, val.z, val.w);
             this.normalizeHdrColor(this._groundAlbedo);
             (result as Vec4) = this._groundAlbedo;
@@ -321,10 +321,8 @@ export class SkyboxInfo {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._envmap = val;
-            if (this._resource) { this._resource.envmap = this._envmap; }
         } else {
             this._envmap_ldr = val;
-            if (this._resource) { this._resource.envmap = this._envmap_ldr; }
         }
 
         if (!this._envmap) {
@@ -334,13 +332,10 @@ export class SkyboxInfo {
         }
 
         if (this._resource) {
-            this._resource.useDiffusemap = this.applyDiffuseMap;
+            this._resource.initializeEnvMaps(this._envmap, this._envmap_ldr);
 
-            if (isHDR) {
-                this._resource.diffusemap = this._diffusemap;
-            } else {
-                this._resource.diffusemap = this._diffusemap_ldr;
-            }
+            this._resource.useDiffusemap = this.applyDiffuseMap;
+            this._resource.initializeDiffuseMaps(this._diffusemap, this._diffusemap_ldr);
         }
     }
     get envmap () {
@@ -375,7 +370,7 @@ export class SkyboxInfo {
 
         // The diffusion relfection convolution as been set by the editor at this time, so we can pass it to skybox.ts
         if (this._resource) {
-            this._resource.diffusemap = val;
+            this._resource.initializeDiffuseMaps(this._diffusemap, this._diffusemap_ldr);
         }
     }
     get diffusemap () {
@@ -390,6 +385,8 @@ export class SkyboxInfo {
     public activate (resource: Skybox) {
         this._resource = resource;
         this._resource.initialize(this);
+        this._resource.initializeEnvMaps(this._envmap, this._envmap_ldr);
+        this._resource.initializeDiffuseMaps(this._diffusemap, this._diffusemap_ldr);
         this._resource.activate(); // update global DS first
     }
 }

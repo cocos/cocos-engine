@@ -232,8 +232,16 @@ export class Skybox {
         this._setUseIBL(skyboxInfo.useIBL);
         this._setUseDiffusemap(skyboxInfo.applyDiffuseMap);
         this._setUseHDR(skyboxInfo.useHDR);
-        this.envmap = skyboxInfo.envmap;
-        this.diffusemap = skyboxInfo.diffusemap;
+    }
+
+    public initializeEnvMaps (envmap_hdr: TextureCube | null, envmap_ldr: TextureCube | null) {
+        this._envmap_hdr = envmap_hdr;
+        this._envmap_ldr = envmap_ldr;
+    }
+
+    public initializeDiffuseMaps (diffusemap_hdr: TextureCube | null, diffusemap_ldr: TextureCube | null) {
+        this._diffusemap_hdr = diffusemap_hdr;
+        this._diffusemap_ldr = diffusemap_ldr;
     }
 
     public activate () {
