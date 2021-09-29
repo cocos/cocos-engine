@@ -32,7 +32,6 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
-    public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
     // TODO: need to wrap the function __isObjectValid()
 
@@ -74,8 +73,6 @@ class SystemInfo extends EventTarget {
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
 
-        this.pixelRatio = jsb.device.getDevicePixelRatio() || 1;
-
         // init capability
         this.supportCapability = {
             webp: true,
@@ -85,6 +82,10 @@ class SystemInfo extends EventTarget {
         };
 
         this._registerEvent();
+    }
+
+    get pixelRatio () {
+        return jsb.device.getDevicePixelRatio() || 1;
     }
 
     private _registerEvent () {
