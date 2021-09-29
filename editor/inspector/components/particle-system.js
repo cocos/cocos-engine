@@ -520,7 +520,7 @@ const uiElements = {
                     element.render(prop.dump);
                 }
                 element.hidden = !prop.dump.visible;
-            }));
+            });
         },
     },
 };
