@@ -330,7 +330,6 @@ class BuiltinResMgr {
                 for (let j = 0; j < mat.passes.length; ++j) {
                     mat.passes[j].tryCompile();
                 }
-                mat.updateHash();
             }
         });
     }

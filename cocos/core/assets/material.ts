@@ -475,10 +475,6 @@ export class Material extends Asset {
     public validate () {
         return !!this._effectAsset && !this._effectAsset.isDefault && this.passes.length > 0;
     }
-
-    public updateHash() {
-        this._hash = Material.getHash(this);
-    }
 }
 
 legacyCC.Material = Material;
