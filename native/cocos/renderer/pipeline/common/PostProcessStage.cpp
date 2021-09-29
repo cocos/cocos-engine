@@ -112,7 +112,12 @@ void PostProcessStage::render(scene::Camera *camera) {
 
     auto *pipeline  = _pipeline;
     auto  postSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
-        data.outColorTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture));
+        if (pipeline->getBloomEnable()) {
+            data.outColorTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleBloomOutTexture));
+        } else {
+            data.outColorTex = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture));
+        }
+
         if (!data.outColorTex.isValid()) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = gfx::Format::RGBA16F;

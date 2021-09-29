@@ -1,6 +1,7 @@
 #pragma once
 
 enum class CommonInsertPoint {
+    DIP_BLOOM = 350,
     DIP_POSTPROCESS = 400,
 };
 

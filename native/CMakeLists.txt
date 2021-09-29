@@ -835,6 +835,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp
                  cocos/renderer/pipeline/shadow/ShadowStage.h
                  cocos/renderer/pipeline/common/Enum.h
+                 cocos/renderer/pipeline/common/BloomStage.cpp
+                 cocos/renderer/pipeline/common/BloomStage.h
                  cocos/renderer/pipeline/common/PostProcessStage.cpp
                  cocos/renderer/pipeline/common/PostProcessStage.h
                  cocos/renderer/pipeline/common/UIPhase.cpp

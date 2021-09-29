@@ -58,6 +58,7 @@ public:
     static framegraph::StringHandle fgStrHandleOutDepthTexture;
     static framegraph::StringHandle fgStrHandleOutColorTexture;
     static framegraph::StringHandle fgStrHandlePostprocessPass;
+    static framegraph::StringHandle fgStrHandleBloomOutTexture;
 
     RenderPipeline();
     ~RenderPipeline() override;
@@ -83,6 +84,7 @@ public:
     inline PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
     inline const String &                          getConstantMacros() const { return _constantMacros; }
     inline gfx::Device *                           getDevice() const { return _device; }
+    inline bool                                    getBloomEnable() const { return _bloomEnable; }
     RenderStage *                                  getRenderstageByName(const String &name) const;
 
     gfx::Rect                                      getRenderArea(scene::Camera *camera, bool onScreen);
@@ -130,6 +132,7 @@ protected:
     framegraph::FrameGraph _fg;
     map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
     gfx::Rect                               _lastUsedRenderArea;
+    bool                                    _bloomEnable = false;
 };
 
 } // namespace pipeline
