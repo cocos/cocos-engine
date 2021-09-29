@@ -2153,26 +2153,28 @@ static bool js_pipeline_ShadowStage_setFramebuffer(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC(js_pipeline_ShadowStage_setFramebuffer)
 
-static bool js_pipeline_ShadowStage_setUseData(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_pipeline_ShadowStage_setUsage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::ShadowStage>(s);
-    SE_PRECONDITION2(cobj, false, "js_pipeline_ShadowStage_setUseData : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_pipeline_ShadowStage_setUsage : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<const cc::scene::Light*, false> arg0 = {};
-        HolderType<cc::gfx::Framebuffer*, false> arg1 = {};
+    if (argc == 3) {
+        HolderType<cc::gfx::DescriptorSet*, false> arg0 = {};
+        HolderType<const cc::scene::Light*, false> arg1 = {};
+        HolderType<cc::gfx::Framebuffer*, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_pipeline_ShadowStage_setUseData : Error processing arguments");
-        cobj->setUseData(arg0.value(), arg1.value());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_ShadowStage_setUsage : Error processing arguments");
+        cobj->setUsage(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
-SE_BIND_FUNC(js_pipeline_ShadowStage_setUseData)
+SE_BIND_FUNC(js_pipeline_ShadowStage_setUsage)
 
 static bool js_pipeline_ShadowStage_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2222,7 +2224,7 @@ bool js_register_pipeline_ShadowStage(se::Object* obj) // NOLINT(readability-ide
     auto* cls = se::Class::create("ShadowStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_ShadowStage_constructor));
 
     cls->defineFunction("setFramebuffer", _SE(js_pipeline_ShadowStage_setFramebuffer));
-    cls->defineFunction("setUseData", _SE(js_pipeline_ShadowStage_setUseData));
+    cls->defineFunction("setUsage", _SE(js_pipeline_ShadowStage_setUsage));
     cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_ShadowStage_getInitializeInfo));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_ShadowStage_finalize));
     cls->install();
