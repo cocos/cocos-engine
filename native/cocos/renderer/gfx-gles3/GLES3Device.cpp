@@ -150,7 +150,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
             fbfLevelStr                = "COHERENT";
         }
-        _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
+        _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
     }
 #endif
 

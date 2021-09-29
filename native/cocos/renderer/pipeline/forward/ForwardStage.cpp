@@ -140,8 +140,7 @@ void ForwardStage::render(scene::Camera *camera) {
     auto *const sceneData  = _pipeline->getPipelineSceneData();
     auto *const sharedData = sceneData->getSharedData();
 
-    // render area is not oriented
-    _renderArea = pipeline->getRenderArea(camera, false);
+    _renderArea = pipeline->getRenderArea(camera);
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda
     dispenseRenderObject2Queues();
     pipeline->getPipelineUBO()->updateShadowUBO(camera);
@@ -210,9 +209,8 @@ void ForwardStage::render(scene::Camera *camera) {
         data.depth = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
-        // viewport setup
-        gfx::Viewport viewport{_renderArea.x, _renderArea.y, _renderArea.width, _renderArea.height, 0.F, 1.F};
-        builder.setViewport(viewport, _renderArea);
+
+        builder.setViewport(_renderArea);
     };
 
     auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();

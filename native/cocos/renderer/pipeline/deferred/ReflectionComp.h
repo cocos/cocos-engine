@@ -28,9 +28,9 @@ public:
     void initDenoiseRes();
     void applyTexSize(uint width, uint height, const Mat4& matViewProj);
 
-    inline gfx::DescriptorSet*      getDescriptorSet() { return _compDescriptorSet; }
+    inline gfx::DescriptorSet*            getDescriptorSet() { return _compDescriptorSet; }
     inline const gfx::PipelineState*      getPipelineState() { return _compPipelineState; }
-    inline gfx::DescriptorSet*      getDenoiseDescriptorSet() { return _compDenoiseDescriptorSet; }
+    inline gfx::DescriptorSet*            getDenoiseDescriptorSet() { return _compDenoiseDescriptorSet; }
     inline const gfx::PipelineState*      getDenoisePipelineState() { return _compDenoisePipelineState; }
     inline const gfx::GlobalBarrier*      getBarrierPre() { return _barrierPre; }
     inline const gfx::TextureBarrierList& getBarrierBeforeDenoise() { return _barrierBeforeDenoise; }
@@ -40,8 +40,8 @@ public:
     inline int                            getGroupSizeX() const { return _groupSizeX; }
     inline int                            getGroupSizeY() const { return _groupSizeY; }
 
-    inline gfx::Buffer *getConstantsBuffer() {return _compConstantsBuffer;}
-    inline gfx::Sampler *getSampler() {return _sampler;}
+    inline gfx::Buffer*  getConstantsBuffer() { return _compConstantsBuffer; }
+    inline gfx::Sampler* getSampler() { return _sampler; }
 
 private:
     template <typename T>
@@ -51,6 +51,7 @@ private:
 
     gfx::Shader*              _compShader{nullptr};
     gfx::DescriptorSetLayout* _compDescriptorSetLayout{nullptr};
+    gfx::PipelineLayout*      _compPipelineLayout{nullptr};
     gfx::PipelineState*       _compPipelineState{nullptr};
     gfx::DescriptorSet*       _compDescriptorSet{nullptr};
 

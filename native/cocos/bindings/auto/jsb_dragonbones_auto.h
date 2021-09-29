@@ -14,8 +14,8 @@ bool register_all_dragonbones(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(dragonBones::BaseObject);
 SE_DECLARE_FUNC(js_dragonbones_BaseObject_returnToPool);
-SE_DECLARE_FUNC(js_dragonbones_BaseObject_clearPool);
 SE_DECLARE_FUNC(js_dragonbones_BaseObject_setMaxCount);
+SE_DECLARE_FUNC(js_dragonbones_BaseObject_clearPool);
 
 extern se::Object* __jsb_dragonBones_Rectangle_proto;
 extern se::Class* __jsb_dragonBones_Rectangle_class;
@@ -389,8 +389,8 @@ bool register_all_dragonbones(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(dragonBones::ArmatureCacheMgr);
 SE_DECLARE_FUNC(js_dragonbones_ArmatureCacheMgr_buildArmatureCache);
 SE_DECLARE_FUNC(js_dragonbones_ArmatureCacheMgr_removeArmatureCache);
-SE_DECLARE_FUNC(js_dragonbones_ArmatureCacheMgr_destroyInstance);
 SE_DECLARE_FUNC(js_dragonbones_ArmatureCacheMgr_getInstance);
+SE_DECLARE_FUNC(js_dragonbones_ArmatureCacheMgr_destroyInstance);
 
 extern se::Object* __jsb_dragonBones_CCArmatureCacheDisplay_proto;
 extern se::Class* __jsb_dragonBones_CCArmatureCacheDisplay_class;
@@ -447,8 +447,8 @@ SE_DECLARE_FUNC(js_dragonbones_CCFactory_setTimeScale);
 SE_DECLARE_FUNC(js_dragonbones_CCFactory_stopSchedule);
 SE_DECLARE_FUNC(js_dragonbones_CCFactory_update);
 SE_DECLARE_FUNC(js_dragonbones_CCFactory_isInit);
-SE_DECLARE_FUNC(js_dragonbones_CCFactory_destroyFactory);
 SE_DECLARE_FUNC(js_dragonbones_CCFactory_getFactory);
+SE_DECLARE_FUNC(js_dragonbones_CCFactory_destroyFactory);
 SE_DECLARE_FUNC(js_dragonbones_CCFactory_getClock);
 SE_DECLARE_FUNC(js_dragonbones_CCFactory_CCFactory);
 

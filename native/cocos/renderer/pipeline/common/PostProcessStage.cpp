@@ -172,18 +172,12 @@ void PostProcessStage::render(scene::Camera *camera) {
             builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
         }
 
-        auto renderArea = pipeline->getRenderArea(camera, camera->window->swapchain);
-        (void)pipeline->getIAByRenderArea(renderArea);
-        gfx::Viewport viewport{renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.F, 1.F};
-        builder.setViewport(viewport, renderArea);
+        builder.setViewport(pipeline->getRenderArea(camera));
     };
 
     auto postExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
         auto *           pipeline   = _pipeline;
         gfx::RenderPass *renderPass = table.getRenderPass();
-
-        // bind descriptor
-        auto *outColor = static_cast<gfx::Texture *>(table.getRead(data.outColorTex));
 
         auto *                    cmdBuff       = pipeline->getCommandBuffers()[0];
         const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
@@ -196,8 +190,7 @@ void PostProcessStage::render(scene::Camera *camera) {
             gfx::Shader *sd        = sceneData->getSharedData()->pipelinePostPassShader;
 
             // get pso and draw quad
-            auto                 rendeArea = pipeline->getRenderArea(camera, camera->window->swapchain);
-            gfx::InputAssembler *ia        = pipeline->getIAByRenderArea(rendeArea);
+            gfx::InputAssembler *ia        = pipeline->getIAByRenderArea(pipeline->getRenderArea(camera));
             gfx::PipelineState * pso       = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
 
             pv->getDescriptorSet()->bindTexture(0, table.getRead(data.outColorTex));

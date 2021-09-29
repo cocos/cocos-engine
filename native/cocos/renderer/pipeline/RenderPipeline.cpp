@@ -27,12 +27,12 @@
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "RenderFlow.h"
-#include "helper/Utils.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXTexture.h"
+#include "helper/Utils.h"
 
 namespace cc {
 namespace pipeline {
@@ -160,17 +160,29 @@ gfx::Color RenderPipeline::getClearcolor(scene::Camera *camera) const {
     return clearColor;
 }
 
-void RenderPipeline::updateQuadVertexData(const gfx::Rect &renderArea, gfx::Buffer *buffer) {
-    _lastUsedRenderArea = renderArea;
+void RenderPipeline::updateQuadVertexData(const Vec4 &viewport, gfx::Buffer *buffer) {
     float vbData[16]    = {0};
-    genQuadVertexData(renderArea, vbData);
+    genQuadVertexData(viewport, vbData);
     buffer->update(vbData, sizeof(vbData));
 }
 
-gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &rect) {
-    uint value = rect.x + rect.y + rect.height + rect.width + rect.width * rect.height;
+gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderArea) {
+    auto bufferWidth{static_cast<float>(_width)};
+    auto bufferHeight{static_cast<float>(_height)};
+    Vec4 viewport{
+            static_cast<float>(renderArea.x) / bufferWidth,
+            static_cast<float>(renderArea.y) / bufferHeight,
+            static_cast<float>(renderArea.width) / bufferWidth,
+            static_cast<float>(renderArea.height) / bufferHeight,
+    };
 
-    const auto iter = _quadIA.find(value);
+    uint32_t hash = 4;
+    hash ^= *reinterpret_cast<uint32_t*>(&viewport.x) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    hash ^= *reinterpret_cast<uint32_t*>(&viewport.y) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    hash ^= *reinterpret_cast<uint32_t*>(&viewport.z) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    hash ^= *reinterpret_cast<uint32_t*>(&viewport.w) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+
+    const auto iter = _quadIA.find(hash);
     if (iter != _quadIA.end()) {
         return iter->second;
     }
@@ -179,9 +191,9 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &rect) {
     gfx::InputAssembler *ia = nullptr;
     createQuadInputAssembler(_quadIB, &vb, &ia);
     _quadVB.push_back(vb);
-    _quadIA[value] = ia;
+    _quadIA[hash] = ia;
 
-    updateQuadVertexData(rect, vb);
+    updateQuadVertexData(viewport, vb);
 
     return ia;
 }
@@ -217,33 +229,24 @@ void RenderPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
     }
 }
 
-gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera, bool onScreen) {
-    gfx::Rect renderArea;
+gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
+    auto scale{_pipelineSceneData->getSharedData()->shadingScale};
+    auto w{static_cast<float>(camera->window->getWidth()) * scale};
+    auto h{static_cast<float>(camera->window->getHeight()) * scale};
 
-    float w;
-    float h;
-    if (onScreen) {
-        gfx::Swapchain *swapchain = camera->window->swapchain;
-        w                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->height : camera->width);
-        h                         = static_cast<float>(swapchain && toNumber(swapchain->getSurfaceTransform()) % 2 ? camera->width : camera->height);
-    } else {
-        w = static_cast<float>(camera->width);
-        h = static_cast<float>(camera->height);
-    }
-
-    const auto &viewport = camera->viewPort;
-    return gfx::Rect{
-        static_cast<int>(viewport.x * w),
-        static_cast<int>(viewport.y * h),
-        static_cast<uint>(viewport.z * w * _pipelineSceneData->getSharedData()->shadingScale),
-        static_cast<uint>(viewport.w * h * _pipelineSceneData->getSharedData()->shadingScale)};
+    return {
+        static_cast<int>(camera->viewPort.x * w),
+        static_cast<int>(camera->viewPort.y * h),
+        static_cast<uint>(camera->viewPort.z * w),
+        static_cast<uint>(camera->viewPort.w * h),
+    };
 }
 
-void RenderPipeline::genQuadVertexData(const gfx::Rect &renderArea, float *vbData) {
-    float minX = static_cast<float>(renderArea.x) / static_cast<float>(_width);
-    float maxX = static_cast<float>(renderArea.x + renderArea.width) / static_cast<float>(_width);
-    float minY = static_cast<float>(renderArea.y) / static_cast<float>(_height);
-    float maxY = static_cast<float>(renderArea.y + renderArea.height) / static_cast<float>(_height);
+void RenderPipeline::genQuadVertexData(const Vec4 &viewport, float *vbData) {
+    auto minX = static_cast<float>(viewport.x);
+    auto maxX = static_cast<float>(viewport.x + viewport.z);
+    auto minY = static_cast<float>(viewport.y);
+    auto maxY = static_cast<float>(viewport.y + viewport.w);
     if (_device->getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }
@@ -282,7 +285,7 @@ void RenderPipeline::generateConstantMacros() {
         _device->getCapabilities().maxFragmentUniformVectors);
 }
 
-RenderStage * RenderPipeline::getRenderstageByName(const String &name) const {
+RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {
     for (auto *flow : _flows) {
         auto *val = flow->getRenderstageByName(name);
         if (val) {

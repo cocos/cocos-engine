@@ -36,6 +36,8 @@
 namespace cc {
 namespace framegraph {
 
+#define PRESENT_USING_MOVE_SEMANTIC 1
+
 namespace {
 // use function scoped static member
 // to ensure correct initialization order
@@ -82,14 +84,12 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
     addPass<PassDataPresent>(
         resourceNode.writer->_insertPoint, PRESENT_PASS,
         [&](PassNodeBuilder &builder, PassDataPresent &data) {
-            const auto &descIn{static_cast<ResourceEntry<Texture> *>(resourceNode.virtualResource)->get().getDesc()};
-            const auto &descOut{target->getInfo()};
-            if (descIn.width == descOut.width && descIn.height == descOut.height) {
-                move(builder.read(input), output, 0, 0, 0);
-                data.input = output;
-            } else {
-                data.input = builder.read(input);
-            }
+#if PRESENT_USING_MOVE_SEMANTIC
+            move(builder.read(input), output, 0, 0, 0);
+            data.input = output;
+#else
+            data.input = builder.read(input);
+#endif
             builder.sideEffect();
         },
         [target](const PassDataPresent &data, const DevicePassResourceTable &table) {
