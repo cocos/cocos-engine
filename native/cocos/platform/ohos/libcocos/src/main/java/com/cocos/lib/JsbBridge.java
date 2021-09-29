@@ -21,18 +21,41 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
+package com.cocos.lib;
 
-#pragma once
-#include <string>
-#include <vector>
-#include "platform/java/jni/JniHelper.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-namespace se {
-class Object;
+public class JsbBridge {
+    public interface ICallback{
+        /**
+         * Applies this callback to the given argument.
+         *
+         * @param arg0 as input
+         * @param arg1 as input
+         */
+        void onScript(String arg0, String arg1);
+    }
+    private static ICallback callback;
+
+    private static void callByScript(String arg0, String arg1){
+        if(JsbBridge.callback != null)
+            callback.onScript(arg0, arg1);
+    }
+
+    /**Add a callback which you would like to apply
+     * @param f ICallback, the method which will be actually applied. multiple calls will override
+     * */
+    public static void setCallback(ICallback f){
+        JsbBridge.callback = f;
+    }
+    /**
+     * Java dispatch Js event, use native c++ code
+     * @param arg0 input values
+     */
+    private static native void nativeSendToScript(String arg0, String arg1);
+    public static void sendToScript(String arg0, String arg1){
+        nativeSendToScript(arg0, arg1);
+    }
+    public static void sendToScript(String arg0){
+        nativeSendToScript(arg0, null);
+    }
 }
-
-
-bool register_javascript_java_bridge(se::Object *obj); // NOLINT(readability-identifier-naming)
-bool register_script_native_bridge(se::Object *obj); // NOLINT(readability-identifier-naming)
-void callPlatformStringMethod(const std::string &arg0, const std::string &arg1); // NOLINT(readability-identifier-naming)

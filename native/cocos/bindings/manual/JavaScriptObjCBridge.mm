@@ -1,6 +1,5 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -27,13 +26,41 @@
 #include "JavaScriptObjCBridge.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
+
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #import <Foundation/Foundation.h>
 
+se::Value static objc_to_seval(id objcVal) {
+    se::Value ret;
+    if (objcVal == nil)
+        return ret;
+
+    if ([objcVal isKindOfClass:[NSNumber class]]) {
+        NSNumber *number = (NSNumber *)objcVal;
+        std::string numberType = [number objCType];
+        if (numberType == @encode(BOOL) || numberType == @encode(bool)) {
+            ret.setBoolean([number boolValue]);
+        } else if (numberType == @encode(int) || numberType == @encode(long) || numberType == @encode(short) || numberType == @encode(unsigned int) || numberType == @encode(unsigned long) || numberType == @encode(unsigned short) || numberType == @encode(float) || numberType == @encode(double) || numberType == @encode(char) || numberType == @encode(unsigned char)) {
+            ret.setDouble([number doubleValue]);
+        } else {
+            CC_LOG_ERROR("Unknown number type: %s", numberType.c_str());
+        }
+    } else if ([objcVal isKindOfClass:[NSString class]]) {
+        const char *content = [objcVal cStringUsingEncoding:NSUTF8StringEncoding];
+        ret.setString(content);
+    } else if ([objcVal isKindOfClass:[NSDictionary class]]) {
+        CC_LOG_ERROR("JavaScriptObjCBridge doesn't support to bind NSDictionary!");
+    } else {
+        const char *content = [[NSString stringWithFormat:@"%@", objcVal] cStringUsingEncoding:NSUTF8StringEncoding];
+        ret.setString(content);
+    }
+
+    return ret;
+}
 #define JSO_ERR_OK                 (0)
 #define JSO_ERR_TYPE_NOT_SUPPORT   (-1)
 #define JSO_ERR_INVALID_ARGUMENTS  (-2)
@@ -47,8 +74,8 @@ public:
     class CallInfo {
     public:
         CallInfo(const char *className, const char *methodName)
-        : _className(className),
-          _methodName(methodName) {}
+                : _className(className),
+                  _methodName(methodName) {}
 
         ~CallInfo() {}
 
@@ -57,16 +84,27 @@ public:
         }
 
         bool execute(const se::ValueArray &argv, se::Value &rval);
-
     private:
-        se::Value objc_to_seval(id objcVal);
-
-        int _error = JSO_ERR_OK;
+        int _error{JSO_ERR_OK};
         std::string _className;
         std::string _methodName;
     };
 };
 
+using JsCallback = std::function<void(const std::string&, const std::string&)>;
+
+class ScriptNativeBridge{
+public:
+    void callByNative(const std::string& arg0, const std::string& arg1);
+    inline void setCallback(const JsCallback& cb){
+        _callback = cb;
+    }
+    static ScriptNativeBridge* bridgeCxxInstance;
+    se::Value jsCb;
+private:
+    JsCallback _callback{nullptr}; // NOLINT(readability-identifier-naming)
+};
+ScriptNativeBridge* ScriptNativeBridge::bridgeCxxInstance{nullptr};
 bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Value &rval) {
     NSString *className = [NSString stringWithCString:_className.c_str() encoding:NSUTF8StringEncoding];
     NSString *methodName = [NSString stringWithCString:_methodName.c_str() encoding:NSUTF8StringEncoding];
@@ -249,32 +287,9 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
     return true;
 }
 
-se::Value JavaScriptObjCBridge::CallInfo::objc_to_seval(id objcVal) {
-    se::Value ret;
-    if (objcVal == nil)
-        return ret;
 
-    if ([objcVal isKindOfClass:[NSNumber class]]) {
-        NSNumber *number = (NSNumber *)objcVal;
-        std::string numberType = [number objCType];
-        if (numberType == @encode(BOOL) || numberType == @encode(bool)) {
-            ret.setBoolean([number boolValue]);
-        } else if (numberType == @encode(int) || numberType == @encode(long) || numberType == @encode(short) || numberType == @encode(unsigned int) || numberType == @encode(unsigned long) || numberType == @encode(unsigned short) || numberType == @encode(float) || numberType == @encode(double) || numberType == @encode(char) || numberType == @encode(unsigned char)) {
-            ret.setDouble([number doubleValue]);
-        } else {
-            CC_LOG_ERROR("Unknown number type: %s", numberType.c_str());
-        }
-    } else if ([objcVal isKindOfClass:[NSString class]]) {
-        const char *content = [objcVal cStringUsingEncoding:NSUTF8StringEncoding];
-        ret.setString(content);
-    } else if ([objcVal isKindOfClass:[NSDictionary class]]) {
-        CC_LOG_ERROR("JavaScriptObjCBridge doesn't support to bind NSDictionary!");
-    } else {
-        const char *content = [[NSString stringWithFormat:@"%@", objcVal] cStringUsingEncoding:NSUTF8StringEncoding];
-        ret.setString(content);
-    }
-
-    return ret;
+void ScriptNativeBridge::callByNative(const std::string& arg0, const std::string& arg1){
+    _callback(arg0, arg1);
 }
 
 se::Class *__jsb_JavaScriptObjCBridge_class = nullptr;
@@ -321,16 +336,110 @@ static bool JavaScriptObjCBridge_callStaticMethod(se::State &s) {
 }
 SE_BIND_FUNC(JavaScriptObjCBridge_callStaticMethod)
 
+static bool ScriptNativeBridge_getCallback(se::State &s){
+    ScriptNativeBridge *cobj = (ScriptNativeBridge *)s.nativeThisObject();
+    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    s.rval() = cobj->jsCb;
+    SE_HOLD_RETURN_VALUE(cobj->jsCb, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(ScriptNativeBridge_getCallback)
+
+static bool ScriptNativeBridge_setCallback(se::State &s){ //NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
+    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    const auto &args = s.args();
+    se::Value jsFunc = args[0];
+    cobj->jsCb = jsFunc;
+    if(jsFunc.isNullOrUndefined())
+    {
+        cobj->setCallback(nullptr);
+    }
+    else{
+        assert(jsFunc.isObject() && jsFunc.toObject()->isFunction());
+        s.thisObject()->attachObject(jsFunc.toObject());
+        cobj->setCallback([jsFunc](const std::string& arg0, const std::string& arg1){
+            se::AutoHandleScope hs;
+            se::ValueArray args;
+            args.push_back(se::Value(arg0));
+            if(!arg1.empty()) {
+                args.push_back(se::Value(arg1));
+            }
+            jsFunc.toObject()->call(args, nullptr);
+        });
+    }
+    return true;
+}SE_BIND_PROP_SET(ScriptNativeBridge_setCallback)
+
+static bool ScriptNativeBridge_sendToNative(se::State &s) { //NOLINT
+    const auto &args = s.args();
+    int argc = (int)args.size();
+    if (argc >= 1 && argc < 3) {
+        bool        ok = false;
+        std::string arg0;
+        ok = seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "Converting first argument failed!");
+        std::string arg1;
+        if (argc == 2) {
+            ok = seval_to_std_string(args[1], &arg1);
+            SE_PRECONDITION2(ok, false, "Converting second argument failed!");
+        }
+        ok = callPlatformStringMethod(arg0, arg1);
+        SE_PRECONDITION2(ok, false, "call platform event failed!");
+        return ok;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting at least %d and less than %d", argc, 1, 3);
+    return false;
+}
+SE_BIND_FUNC(ScriptNativeBridge_sendToNative)
+
+
 bool register_javascript_objc_bridge(se::Object *obj) {
     se::Class *cls = se::Class::create("JavaScriptObjCBridge", obj, nullptr, _SE(JavaScriptObjCBridge_constructor));
     cls->defineFinalizeFunction(_SE(JavaScriptObjCBridge_finalize));
 
     cls->defineFunction("callStaticMethod", _SE(JavaScriptObjCBridge_callStaticMethod));
-
     cls->install();
     __jsb_JavaScriptObjCBridge_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
 
     return true;
+}
+
+
+
+se::Class *__jsb_ScriptNativeBridge_class = nullptr; // NOLINT
+
+static bool ScriptNativeBridge_finalize(se::State &s) { //NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<ScriptNativeBridge *>(s.nativeThisObject());
+    assert(cobj == ScriptNativeBridge::bridgeCxxInstance);
+    delete cobj;
+    ScriptNativeBridge::bridgeCxxInstance = nullptr;
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(ScriptNativeBridge_finalize)
+
+static bool ScriptNativeBridge_constructor(se::State &s) { //NOLINT(readability-identifier-naming)
+    auto *cobj = new (std::nothrow) ScriptNativeBridge();
+    s.thisObject()->setPrivateData(cobj);
+    ScriptNativeBridge::bridgeCxxInstance = cobj;
+    return true;
+}
+SE_BIND_CTOR(ScriptNativeBridge_constructor, __jsb_ScriptNativeBridge_class, ScriptNativeBridge_finalize)
+bool register_script_native_bridge(se::Object *obj) { //NOLINT(readability-identifier-naming)
+    se::Class *cls = se::Class::create("ScriptNativeBridge", obj, nullptr, _SE(ScriptNativeBridge_constructor));
+    cls->defineFinalizeFunction(_SE(ScriptNativeBridge_finalize));
+    cls->defineFunction("sendToNative", _SE(ScriptNativeBridge_sendToNative));
+    cls->defineProperty("onNative", _SE(ScriptNativeBridge_getCallback), _SE(ScriptNativeBridge_setCallback));
+
+    cls->install();
+    __jsb_ScriptNativeBridge_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+
+    return true;
+}
+void callScript(const std::string& arg0, const std::string& arg1){
+    ScriptNativeBridge::bridgeCxxInstance->callByNative(arg0, arg1);
 }
