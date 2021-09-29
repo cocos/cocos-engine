@@ -47,9 +47,9 @@ SE_DECLARE_FUNC(js_engine_FileUtils_writeStringToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeValueMapToFile);
 SE_DECLARE_FUNC(js_engine_FileUtils_writeValueVectorToFile);
-SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
-SE_DECLARE_FUNC(js_engine_FileUtils_setDelegate);
 SE_DECLARE_FUNC(js_engine_FileUtils_normalizePath);
+SE_DECLARE_FUNC(js_engine_FileUtils_setDelegate);
+SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
 SE_DECLARE_FUNC(js_engine_FileUtils_getFileDir);
 
 extern se::Object* __jsb_cc_CanvasGradient_proto;
@@ -95,17 +95,17 @@ bool js_register_cc_Device(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::Device);
-SE_DECLARE_FUNC(js_engine_Device_getDPI);
 SE_DECLARE_FUNC(js_engine_Device_getDevicePixelRatio);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerInterval);
-SE_DECLARE_FUNC(js_engine_Device_getDeviceOrientation);
-SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);
-SE_DECLARE_FUNC(js_engine_Device_setKeepScreenOn);
 SE_DECLARE_FUNC(js_engine_Device_vibrate);
-SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
+SE_DECLARE_FUNC(js_engine_Device_setKeepScreenOn);
 SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
+SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
+SE_DECLARE_FUNC(js_engine_Device_getDeviceOrientation);
+SE_DECLARE_FUNC(js_engine_Device_getDPI);
 SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
+SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);
 
 extern se::Object* __jsb_cc_SAXParser_proto;
 extern se::Class* __jsb_cc_SAXParser_class;
