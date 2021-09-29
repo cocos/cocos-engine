@@ -514,7 +514,7 @@ const uiElements = {
     },
     customProps: {
         update() {
-            this.$.customProps.replaceChildren(...propUtils.getCustomPropElements(excludeList, this.dump, (element, prop) => {
+            propUtils.updateCustomPropElements(this.$.customProps, excludeList, this.dump, (element, prop) => {
                 element.className = 'customProp';
                 if (prop.dump.visible) {
                     element.render(prop.dump);
