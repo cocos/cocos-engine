@@ -50,7 +50,7 @@ CCProgram sprite-fs-gpu %{
 
   #if USE_TEXTURE
     #pragma builtin(local)
-    layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
+    layout(set = 2, binding = 11) uniform sampler2D cc_spriteTexture;
   #endif
 
   vec4 frag () {
