@@ -1,8 +1,8 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/system-info';
 import { minigame } from 'pal/minigame';
+import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -45,7 +45,7 @@ class SystemInfo extends EventTarget {
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
     public readonly pixelRatio: number;
-    public readonly supportCapability: SupportCapability;
+    private _featureMap: IFeatureMap;
 
     constructor () {
         super();
@@ -104,11 +104,12 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
-        this.supportCapability = {
-            webp: supportWebp,  // TODO
-            gl: true,
-            canvas: true,
-            imageBitmap: false,
+        this._featureMap = {
+            [Feature.CANVAS]: true,
+            [Feature.WEBGL]: true,
+            [Feature.WEBGL2]: false,  // TODO
+            [Feature.WEBP]: supportWebp,
+            [Feature.IMAGE_BIT_MAP]: false,
         };
 
         this._registerEvent();
@@ -121,6 +122,10 @@ class SystemInfo extends EventTarget {
         minigame.onShow(() => {
             this.emit('show');
         });
+    }
+
+    public hasFeature (feature: Feature): boolean {
+        return this._featureMap[feature];
     }
 
     public getBatteryLevel (): number {
