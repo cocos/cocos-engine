@@ -270,8 +270,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
 
     const VkPhysicalDeviceLimits &limits = _gpuContext->physicalDeviceProperties.limits;
     _caps.maxVertexAttributes            = limits.maxVertexInputAttributes;
-    _caps.maxVertexUniformVectors        = limits.maxPerStageDescriptorUniformBuffers;
-    _caps.maxFragmentUniformVectors      = limits.maxPerStageDescriptorUniformBuffers;
+    _caps.maxVertexUniformVectors        = limits.maxUniformBufferRange / 16;
+    _caps.maxFragmentUniformVectors      = limits.maxUniformBufferRange / 16;
     _caps.maxUniformBufferBindings       = limits.maxDescriptorSetUniformBuffers;
     _caps.maxUniformBlockSize            = limits.maxUniformBufferRange;
     _caps.maxShaderStorageBlockSize      = limits.maxStorageBufferRange;

@@ -5942,8 +5942,325 @@ bool js_register_scene_BakedSkinningModel(se::Object* obj) // NOLINT(readability
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_scene_DrawCall_proto = nullptr;
+se::Class* __jsb_cc_scene_DrawCall_class = nullptr;
+
+static bool js_scene_DrawCall_setDynamicOffsets(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_setDynamicOffsets : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned int, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_DrawCall_setDynamicOffsets : Error processing arguments");
+        cobj->setDynamicOffsets(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_DrawCall_setDynamicOffsets)
+
+static bool js_scene_DrawCall_get_bufferView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_get_bufferView : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->bufferView, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->bufferView, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DrawCall_get_bufferView)
+
+static bool js_scene_DrawCall_set_bufferView(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_set_bufferView : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->bufferView, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DrawCall_set_bufferView : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DrawCall_set_bufferView)
+
+static bool js_scene_DrawCall_get_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_get_descriptorSet : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->descriptorSet, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->descriptorSet, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DrawCall_get_descriptorSet)
+
+static bool js_scene_DrawCall_set_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_set_descriptorSet : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->descriptorSet, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DrawCall_set_descriptorSet : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DrawCall_set_descriptorSet)
+
+static bool js_scene_DrawCall_get_dynamicOffsets(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_get_dynamicOffsets : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->dynamicOffsets, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->dynamicOffsets, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DrawCall_get_dynamicOffsets)
+
+static bool js_scene_DrawCall_set_dynamicOffsets(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_set_dynamicOffsets : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->dynamicOffsets, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DrawCall_set_dynamicOffsets : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DrawCall_set_dynamicOffsets)
+
+static bool js_scene_DrawCall_get_drawInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_get_drawInfo : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->drawInfo, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->drawInfo, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DrawCall_get_drawInfo)
+
+static bool js_scene_DrawCall_set_drawInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawCall_set_drawInfo : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->drawInfo, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DrawCall_set_drawInfo : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DrawCall_set_drawInfo)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::scene::DrawCall * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::scene::DrawCall*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("bufferView", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->bufferView), ctx);
+    }
+    json->getProperty("descriptorSet", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->descriptorSet), ctx);
+    }
+    json->getProperty("dynamicOffsets", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->dynamicOffsets), ctx);
+    }
+    json->getProperty("drawInfo", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->drawInfo), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_DrawCall_finalize)
+
+static bool js_scene_DrawCall_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        cc::scene::DrawCall* cobj = JSB_ALLOC(cc::scene::DrawCall);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::scene::DrawCall* cobj = JSB_ALLOC(cc::scene::DrawCall);
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    cc::scene::DrawCall* cobj = JSB_ALLOC(cc::scene::DrawCall);
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->bufferView), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->descriptorSet), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->dynamicOffsets), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->drawInfo), nullptr);
+    }
+
+    if(!ok) {
+        JSB_FREE(cobj);
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_scene_DrawCall_constructor, __jsb_cc_scene_DrawCall_class, js_cc_scene_DrawCall_finalize)
+
+
+
+static bool js_cc_scene_DrawCall_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::DrawCall>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::scene::DrawCall>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_DrawCall_finalize)
+
+bool js_register_scene_DrawCall(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("DrawCall", obj, nullptr, _SE(js_scene_DrawCall_constructor));
+
+    cls->defineProperty("bufferView", _SE(js_scene_DrawCall_get_bufferView), _SE(js_scene_DrawCall_set_bufferView));
+    cls->defineProperty("descriptorSet", _SE(js_scene_DrawCall_get_descriptorSet), _SE(js_scene_DrawCall_set_descriptorSet));
+    cls->defineProperty("dynamicOffsets", _SE(js_scene_DrawCall_get_dynamicOffsets), _SE(js_scene_DrawCall_set_dynamicOffsets));
+    cls->defineProperty("drawInfo", _SE(js_scene_DrawCall_get_drawInfo), _SE(js_scene_DrawCall_set_drawInfo));
+    cls->defineFunction("setDynamicOffsets", _SE(js_scene_DrawCall_setDynamicOffsets));
+    cls->defineFinalizeFunction(_SE(js_cc_scene_DrawCall_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::DrawCall>(cls);
+
+    __jsb_cc_scene_DrawCall_proto = cls->getProto();
+    __jsb_cc_scene_DrawCall_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_scene_DrawBatch2D_proto = nullptr;
 se::Class* __jsb_cc_scene_DrawBatch2D_class = nullptr;
+
+static bool js_scene_DrawBatch2D_clearDrawCalls(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_clearDrawCalls : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->clearDrawCalls();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_DrawBatch2D_clearDrawCalls)
+
+static bool js_scene_DrawBatch2D_pushDrawCall(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_pushDrawCall : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::scene::DrawCall*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_DrawBatch2D_pushDrawCall : Error processing arguments");
+        cobj->pushDrawCall(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_DrawBatch2D_pushDrawCall)
+
+static bool js_scene_DrawBatch2D_get_drawCalls(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_drawCalls : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->drawCalls, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->drawCalls, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_drawCalls)
+
+static bool js_scene_DrawBatch2D_set_drawCalls(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_set_drawCalls : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->drawCalls, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_DrawBatch2D_set_drawCalls : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_drawCalls)
 
 
 template<>
@@ -5977,6 +6294,10 @@ bool sevalue_to_native(const se::Value &from, cc::scene::DrawBatch2D * to, se::O
     json->getProperty("shaders", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->shaders), ctx);
+    }
+    json->getProperty("drawCalls", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->drawCalls), ctx);
     }
     return ok;
 }
@@ -6031,6 +6352,9 @@ static bool js_scene_DrawBatch2D_constructor(se::State& s) // NOLINT(readability
     if (argc > 4 && !args[4].isUndefined()) {
         ok &= sevalue_to_native(args[4], &(cobj->shaders), nullptr);
     }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->drawCalls), nullptr);
+    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -6063,6 +6387,9 @@ bool js_register_scene_DrawBatch2D(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("DrawBatch2D", obj, nullptr, _SE(js_scene_DrawBatch2D_constructor));
 
+    cls->defineProperty("drawCalls", _SE(js_scene_DrawBatch2D_get_drawCalls), _SE(js_scene_DrawBatch2D_set_drawCalls));
+    cls->defineFunction("clearDrawCalls", _SE(js_scene_DrawBatch2D_clearDrawCalls));
+    cls->defineFunction("pushDrawCall", _SE(js_scene_DrawBatch2D_pushDrawCall));
     cls->defineFinalizeFunction(_SE(js_cc_scene_DrawBatch2D_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::DrawBatch2D>(cls);
@@ -8155,35 +8482,36 @@ bool register_all_scene(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_scene_RenderScene(ns);
-    js_register_scene_Camera(ns);
-    js_register_scene_Fog(ns);
     js_register_scene_BaseNode(ns);
+    js_register_scene_Scene(ns);
     js_register_scene_Node(ns);
-    js_register_scene_Frustum(ns);
-    js_register_scene_DrawBatch2D(ns);
     js_register_scene_Light(ns);
+    js_register_scene_DirectionalLight(ns);
+    js_register_scene_Plane(ns);
+    js_register_scene_Frustum(ns);
+    js_register_scene_AABB(ns);
+    js_register_scene_SpotLight(ns);
     js_register_scene_SphereLight(ns);
     js_register_scene_Model(ns);
-    js_register_scene_BakedSkinningModel(ns);
-    js_register_scene_Plane(ns);
-    js_register_scene_JointTransform(ns);
-    js_register_scene_RenderWindow(ns);
+    js_register_scene_Fog(ns);
     js_register_scene_Shadow(ns);
-    js_register_scene_SubModel(ns);
-    js_register_scene_BakedJointInfo(ns);
-    js_register_scene_AABB(ns);
-    js_register_scene_Ambient(ns);
-    js_register_scene_SkinningModel(ns);
-    js_register_scene_DirectionalLight(ns);
-    js_register_scene_JointInfo(ns);
-    js_register_scene_Root(ns);
-    js_register_scene_Scene(ns);
-    js_register_scene_BakedAnimInfo(ns);
-    js_register_scene_Pass(ns);
     js_register_scene_Skybox(ns);
+    js_register_scene_Ambient(ns);
     js_register_scene_PipelineSharedSceneData(ns);
-    js_register_scene_SpotLight(ns);
+    js_register_scene_Root(ns);
+    js_register_scene_SubModel(ns);
+    js_register_scene_Pass(ns);
+    js_register_scene_BakedAnimInfo(ns);
+    js_register_scene_BakedJointInfo(ns);
+    js_register_scene_BakedSkinningModel(ns);
+    js_register_scene_DrawCall(ns);
+    js_register_scene_DrawBatch2D(ns);
+    js_register_scene_JointTransform(ns);
+    js_register_scene_JointInfo(ns);
+    js_register_scene_SkinningModel(ns);
+    js_register_scene_RenderScene(ns);
+    js_register_scene_RenderWindow(ns);
+    js_register_scene_Camera(ns);
     return true;
 }
 
