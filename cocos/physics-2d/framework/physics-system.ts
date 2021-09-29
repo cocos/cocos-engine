@@ -4,7 +4,8 @@
  */
 
 import { EDITOR, DEBUG } from 'internal:constants';
-import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify } from '../../core';
+import { System, Vec2, director, Director, game, error, IVec2Like, Rect } from '../../core';
+import { Eventify } from '../../core/event';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { createPhysicsWorld } from './instance';
 import { physicsEngineId } from './physics-selector';

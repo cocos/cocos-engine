@@ -172,21 +172,8 @@ export class AABB {
       * @param a 输入的 AABB。
       */
     public static toBoundingSphere (out: Sphere, a: AABB | Readonly<AABB>) {
-        a.getBoundary(_v3_tmp, _v3_tmp2);
-
-        // Initialize sphere
-        out.center.set(_v3_tmp);
-        out.radius = 0.0;
-
-        // Calculate sphere
-        Vec3.subtract(_v3_tmp3, _v3_tmp2, out.center);
-        const dist = _v3_tmp3.length();
-
-        const half = dist * 0.5;
-        out.radius += half;
-        Vec3.multiplyScalar(_v3_tmp3, _v3_tmp3, half / dist);
-        Vec3.add(out.center, out.center, _v3_tmp3);
-
+        out.center.set(a.center);
+        out.radius = a.halfExtents.length();
         return out;
     }
 

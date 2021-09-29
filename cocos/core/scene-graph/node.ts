@@ -34,17 +34,12 @@ import {
 import { EDITOR, JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
-    applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
-import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
-import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 
@@ -579,33 +574,15 @@ export class Node extends BaseNode implements CustomSerializable {
             this._nativeLayer[0] = this._layer;
             this._nativeObj!.setParent(this.parent?.native);
         }
-        const prefabInstance = this._prefab?.instance;
-        if (!dontSyncChildPrefab && prefabInstance) {
-            createNodeWithPrefab(this);
-        }
-
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags |= TransformBit.TRS;
         this._uiProps.uiTransformDirty = true;
+
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
-
-        // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
-        if (!dontSyncChildPrefab && prefabInstance) {
-            const targetMap: Record<string, any | Node | Component> = {};
-            prefabInstance.targetMap = targetMap;
-            generateTargetMap(this, targetMap, true);
-
-            applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
-            applyRemovedComponents(this, prefabInstance.removedComponents, targetMap);
-            applyMountedComponents(this, prefabInstance.mountedComponents, targetMap);
-            applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
-        }
-
-        applyTargetOverrides(this);
     }
 
     public _onBeforeSerialize () {
@@ -615,11 +592,11 @@ export class Node extends BaseNode implements CustomSerializable {
 
     public _onPostActivated (active: boolean) {
         if (active) { // activated
-            eventManager.resumeTarget(this);
+            this._eventProcessor.setEnabled(true);
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
         } else { // deactivated
-            eventManager.pauseTarget(this);
+            this._eventProcessor.setEnabled(false);
         }
     }
 
@@ -1302,7 +1279,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param recursive Whether pause system events recursively for the child node tree
      */
     public pauseSystemEvents (recursive: boolean): void {
-        eventManager.pauseTarget(this, recursive);
+        this._eventProcessor.setEnabled(false, recursive);
     }
 
     /**
@@ -1317,7 +1294,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param recursive Whether resume system events recursively for the child node tree
      */
     public resumeSystemEvents (recursive: boolean): void {
-        eventManager.resumeTarget(this, recursive);
+        this._eventProcessor.setEnabled(true, recursive);
     }
 
     /**

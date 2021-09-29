@@ -31,15 +31,14 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
-import { EventListener } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
-import { legacyCC } from '../../core/global-exports';
 import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
+import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -402,13 +401,13 @@ export class UITransform extends Component {
      * 当前节点的点击计算。
      *
      * @param point - 屏幕点。
-     * @param listener - 事件监听器。
      */
-    public isHit (point: Vec2, listener?: EventListener) {
+    public isHit (point: Vec2) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const cameraPt = _vec2a;
         const testPt = _vec2b;
+        const nodeEventProcessor = this.node?.eventProcessor;
 
         const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
@@ -436,17 +435,17 @@ export class UITransform extends Component {
             let hit = false;
             if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
                 hit = true;
-                if (listener && listener.mask) {
-                    const mask = listener.mask;
+                if (nodeEventProcessor && nodeEventProcessor.maskList) {
+                    const maskList = nodeEventProcessor.maskList;
                     let parent: any = this.node;
-                    const length = mask ? mask.length : 0;
+                    const length = maskList ? maskList.length : 0;
                     // find mask parent, should hit test it
                     for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
-                        const temp = mask[j];
+                        const temp = maskList[j];
                         if (i === temp.index) {
                             if (parent === temp.comp.node) {
                                 const comp = temp.comp;
-                                if (comp && comp._enabled && !(comp as any).isHit(cameraPt)) {
+                                if (comp && comp._enabled && !comp.isHit(cameraPt)) {
                                     hit = false;
                                     break;
                                 }
@@ -454,12 +453,12 @@ export class UITransform extends Component {
                                 j++;
                             } else {
                                 // mask parent no longer exists
-                                mask.length = j;
+                                maskList.length = j;
                                 break;
                             }
                         } else if (i > temp.index) {
                             // mask parent no longer exists
-                            mask.length = j;
+                            maskList.length = j;
                             break;
                         }
                     }

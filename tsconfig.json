@@ -1,47 +1,47 @@
 {
-    "compilerOptions": {
-      "target": "es6",
-      "lib": ["es2015", "es2017", "dom"],
-      "module": "commonjs",
-      "sourceMap": true,
-      "outDir": "./bin/.ts",
-      "rootDir": "./",
-      "noEmit": true,
-      "strict": true,
-      "noImplicitAny": false,
-      "downlevelIteration": true,
-      "esModuleInterop": true,
-      "experimentalDecorators": true,
-      "isolatedModules": true,
-      "baseUrl": "./",
-      "paths": {
-          "cc.decorator": [
-              "cocos/core/data/decorators/index.ts"
-          ]
-      },
-      "types": [
-        "./@types/globals",
-        "./@types/consts",
-        "./@types/jsb",
-        "./@types/editor-extends",
-        "./@types/webGL.extras",
-        "./@types/webGL2.extras",
-        "./node_modules/@cocos/cannon/CANNON",
-        "./node_modules/@cocos/ammo/Ammo",
-        "./node_modules/@cocos/physx/PhysX",
-        "./node_modules/@types/jest/index",
-
-        // pal
-        "./@types/pal/system-info",
-        "./@types/pal/screen-adapter",
-        "./@types/pal/minigame",
-        "./@types/pal/audio",
-        "./@types/pal/input"
-      ]
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es2015", "es2017", "dom"],
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "./bin/.ts",
+    "rootDir": "./",
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "isolatedModules": true,
+    "baseUrl": "./",
+    "paths": {
+        "cc.decorator": [
+            "cocos/core/data/decorators/index.ts"
+        ]
     },
-    "include": [
-        "exports/**/*.ts",
-        "index.ts",
-        "pal/**/*.ts"
+    "types": [
+      "./@types/globals",
+      "./@types/consts",
+      "./@types/jsb",
+      "./@types/editor-extends",
+      "./@types/webGL.extras",
+      "./@types/webGL2.extras",
+      "./node_modules/@cocos/cannon/CANNON",
+      "./node_modules/@cocos/bullet/bullet",
+      "./node_modules/@cocos/physx/PhysX",
+      "./node_modules/@types/jest/index",
+
+      // pal
+      "./@types/pal/system-info",
+      "./@types/pal/screen-adapter",
+      "./@types/pal/minigame",
+      "./@types/pal/audio",
+      "./@types/pal/input"
     ]
-  }
+  },
+  "include": [
+      "exports/**/*.ts",
+      "index.ts",
+      "pal/**/*.ts"
+  ]
+}

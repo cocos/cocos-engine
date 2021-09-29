@@ -23,8 +23,8 @@
  * @packageDocumentation
  * @module scene-graph
  */
-
 import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip } from 'cc.decorator';
+
 import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';

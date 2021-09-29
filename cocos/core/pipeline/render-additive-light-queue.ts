@@ -428,6 +428,7 @@ export class RenderAdditiveLightQueue {
         const isHDR = sceneData.isHDR;
         const fpScale = sceneData.fpScale;
         const root = legacyCC.director.root;
+
         const shadowInfo = sceneData.shadows;
 
         if (this._validLights.length > this._lightBufferCount) {

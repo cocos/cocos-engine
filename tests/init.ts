@@ -61,12 +61,14 @@ jest.mock('serialization-test-helper/run-test', () => {
 import '../exports/base';
 import { DebugMode } from "../cocos/core/platform/debug";
 import { game, IGameConfig } from '../exports/base';
+import './asset-manager/init';
+import '../cocos/core/gfx/empty/empty-device';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');
 const config: IGameConfig = {
     debugMode: DebugMode.INFO,
-    renderMode: 0,
+    renderMode: 3, // Headless Mode
     adapter: {
         canvas: canvas,
         frame: div,

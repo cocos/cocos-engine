@@ -7,7 +7,8 @@ import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, EventTarget, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
@@ -564,7 +565,9 @@ export class ArmatureDisplay extends Renderable2D {
                 const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                this.material = m.renderData.material;
+                if (m.renderData.material) {
+                    this.material = m.renderData.material;
+                }
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }

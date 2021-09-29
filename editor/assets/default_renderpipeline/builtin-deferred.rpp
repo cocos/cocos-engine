@@ -11,9 +11,6 @@
       },
       {
         "__id__": 3
-      },
-      {
-        "__id__": 6
       }
     ],
     "renderTextures": []
@@ -36,13 +33,22 @@
     "_tag": 0
   },
   {
-    "__type__": "GbufferFlow",
-    "_name": "GbufferFlow",
+    "__type__": "MainFlow",
+    "_name": "MainFlow",
     "_priority": 1,
     "_tag": 0,
     "_stages": [
       {
         "__id__": 4
+      },
+      {
+        "__id__": 6
+      },
+      {
+        "__id__": 8
+      },
+      {
+        "__id__": 9
       }
     ]
   },
@@ -62,21 +68,7 @@
     "isTransparent": false,
     "sortMode": 0,
     "stages": [
-      "deferred"
-    ]
-  },
-  {
-    "__type__": "LightingFlow",
-    "_name": "LightingFlow",
-    "_priority": 1,
-    "_tag": 0,
-    "_stages": [
-      {
-        "__id__": 7
-      },
-      {
-        "__id__": 9
-      }
+      "default"
     ]
   },
   {
@@ -84,27 +76,35 @@
     "_name": "LightingStage",
     "_priority": 0,
     "_tag": 0,
+    "_deferredMaterial": null,
     "renderQueues": [
       {
-        "__id__": 8
+        "__id__": 7
       }
-    ],
-    "_deferredMaterial": null
+    ]
   },
   {
     "__type__": "RenderQueueDesc",
     "isTransparent": true,
     "sortMode": 1,
     "stages": [
-      "default",
-      "deferred"
+      "default"
     ]
   },
   {
-    "__type__": "PostprocessStage",
-    "_name": "PostprocessStage",
+    "__type__": "BloomStage",
+    "_name": "BloomStage",
     "_priority": 0,
     "_tag": 0,
-    "_postProcessMaterial": null
+    "_bloomMaterial": null,
+    "renderQueues": []
+  },
+  {
+    "__type__": "PostProcessStage",
+    "_name": "PostProcessStage",
+    "_priority": 0,
+    "_tag": 0,
+    "_postProcessMaterial": null,
+    "renderQueues": []
   }
 ]

@@ -298,6 +298,7 @@ export class Skybox {
     }
 
     protected _updateGlobalBinding () {
+
         const textureEnvmap = this.envmap!.getGFXTexture()!;
         const device = legacyCC.director.root.device as Device;
         const sampler = device.getSampler(this.envmap!.getSamplerInfo());
