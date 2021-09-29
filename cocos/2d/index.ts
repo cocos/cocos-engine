@@ -49,6 +49,8 @@ import { MeshBuffer } from './renderer/mesh-buffer';
 import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../core/global-exports';
 import './event';
+import { Batcher2D } from './renderer/batcher-2d-splitter';
+
 import './renderer/batcher-2d';
 
 export * from './assets';
@@ -57,6 +59,7 @@ export * from './components';
 export * from './renderer/base';
 export * from './renderer/deprecated';
 export * from './utils';
+export { Batcher2D };
 
 export {
     MeshBuffer,

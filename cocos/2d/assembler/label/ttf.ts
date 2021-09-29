@@ -30,7 +30,7 @@
 
 import * as js from '../../../core/utils/js';
 import { Color, Vec3 } from '../../../core/math';
-import { Batcher2D } from '../../renderer/batcher-2d';
+import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
 import { ttfUtils } from './ttfUtils';
@@ -62,7 +62,7 @@ export const ttf: IAssembler = {
         return renderData;
     },
 
-    fillBuffers (comp: Label, renderer: Batcher2D) {
+    fillBuffers (comp: Label, renderer: IBatcher) {
         const renderData = comp.renderData!;
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;

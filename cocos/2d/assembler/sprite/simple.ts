@@ -31,7 +31,7 @@
 import { Vec3 } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { Batcher2D } from '../../renderer/batcher-2d';
+import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
@@ -70,6 +70,8 @@ export const simple: IAssembler = {
         //     }
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        // @ts-expect-error hack
+        if (sprite._canDrawByFourVertex) { return; }
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
@@ -142,16 +144,15 @@ export const simple: IAssembler = {
             vData[27] = ar + cttx;
             vData[28] = br + dtty;
         }
-        node._uiProps.uiTransformDirty = false;
     },
 
-    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
+    fillBuffers (sprite: Sprite, renderer: IBatcher) {
         if (sprite === null) {
             return;
         }
 
         const vData = sprite.renderData!.vData!;
-        if (sprite.node._uiProps.uiTransformDirty) {
+        if (sprite.node.hasChangedFlags) {
             this.updateWorldVerts(sprite, vData);
         }
 

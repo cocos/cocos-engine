@@ -339,6 +339,42 @@ export const effects = [
     ]
   },
   {
+    "name": "sprite-gpu",
+    "techniques": [
+      { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag", "depthStencilState": { "depthTest": false, "depthWrite": false } }] }
+    ],
+    "shaders": [
+      {
+        "name": "sprite-gpu|sprite-vs-gpu:vert|sprite-fs-gpu:frag",
+        "hash": 1091715580,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCUILocal", "defines": [] }], "samplerTextures": [{ "name": "cc_spriteTexture", "defines": ["USE_TEXTURE"] }], "buffers": [], "images": [] }
+        },
+        "defines": [
+          { "name": "SAMPLE_FROM_RT", "type": "boolean" },
+          { "name": "USE_PIXEL_ALIGNMENT", "type": "boolean" },
+          { "name": "CC_USE_EMBEDDED_ALPHA", "type": "boolean" },
+          { "name": "USE_TEXTURE", "type": "boolean" },
+          { "name": "IS_GRAY", "type": "boolean" }
+        ],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 },
+          { "name": "a_texCoord", "defines": [], "format": 21, "location": 1 },
+          { "name": "a_batch_id", "defines": [], "format": 11, "location": 2 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      }
+    ]
+  },
+  {
     "name": "sprite",
     "techniques": [
       { "passes": [{ "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 4, "blendDstAlpha": 4 }] }, "rasterizerState": { "cullMode": 0 }, "program": "sprite|sprite-vs:vert|sprite-fs:frag", "depthStencilState": { "depthTest": false, "depthWrite": false }, "properties": { "alphaThreshold": { "value": [0.5], "type": 13 } } }] }

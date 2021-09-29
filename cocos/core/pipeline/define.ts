@@ -133,6 +133,7 @@ export enum ModelLocalBindings {
     UBO_SKINNING_ANIMATION,
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
+    UBO_UI_LOCAL,
 
     SAMPLER_JOINTS,
     SAMPLER_MORPH_POSITION,
@@ -445,6 +446,18 @@ export class UBOMorph {
 }
 localDescriptorSetLayout.layouts[UBOMorph.NAME] = UBOMorph.LAYOUT;
 localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
+
+// UI local uniform UBO
+export class UBOUILocal { // pre one vec4
+    public static readonly NAME = 'CCUILocal';
+    public static readonly BINDING = ModelLocalBindings.UBO_UI_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOUILocal.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOUILocal.BINDING, UBOUILocal.NAME, [
+        new Uniform('cc_local_data', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOUILocal.NAME] = UBOUILocal.LAYOUT;
+localDescriptorSetLayout.bindings[UBOUILocal.BINDING] = UBOUILocal.DESCRIPTOR;
 
 /**
  * @en The sampler for joint texture
