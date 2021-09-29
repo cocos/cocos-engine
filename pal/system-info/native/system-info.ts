@@ -75,8 +75,8 @@ class SystemInfo extends EventTarget {
 
         this._featureMap = {
             [Feature.CANVAS]: true,
-            [Feature.WEBGL]: true,
-            [Feature.WEBGL2]: false,  // TODO
+            [Feature.GL]: true,
+            [Feature.WEBGL2]: false,
             [Feature.WEBP]: true,
             [Feature.IMAGE_BIT_MAP]: false,
         };

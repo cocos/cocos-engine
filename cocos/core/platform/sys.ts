@@ -203,7 +203,7 @@ export const sys = {
      */
     capabilities: {
         canvas: systemInfo.hasFeature(Feature.CANVAS),
-        opengl: systemInfo.hasFeature(Feature.WEBGL),
+        opengl: systemInfo.hasFeature(Feature.GL),
         webp: systemInfo.hasFeature(Feature.WEBP),
         imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BIT_MAP),
         // TODO: move into pal/input

@@ -164,10 +164,18 @@ class SystemInfo extends EventTarget {
                 imageBitmap?.close();
             }).catch((err) => {});
         }
+
+        let supportWebGL2 = (!!window.WebGL2RenderingContext);
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+            || this.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
+        ) {
+            supportWebGL2 = false;
+        }
         this._featureMap = {
             [Feature.CANVAS]: supportCanvas,
-            [Feature.WEBGL]: supportWebGL,
-            [Feature.WEBGL2]: false,  // TODO
+            [Feature.GL]: supportWebGL,
+            [Feature.WEBGL2]: supportWebGL2,
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BIT_MAP]: supportImageBitmap,
         };
