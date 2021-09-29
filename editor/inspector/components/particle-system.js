@@ -643,5 +643,5 @@ exports.style = /* css */`
     .particle-system-component > .content >.indent {
         margin-left: 10px;
     }
-`
+`;
 ;
