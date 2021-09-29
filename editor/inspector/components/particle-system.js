@@ -37,21 +37,20 @@ exports.template = /* html*/`
         <!-- Render other data that has not taken over -->
         <div id="customProps">
         </div>
-        <ui-section class="config" key="enableCulling" cache-expand="particle-system-cullingMode">
-            <ui-prop slot="header" class="header" type="dump" key="enableCulling" labelflag="enableCulling"
-            empty="true">
-                <ui-checkbox></ui-checkbox>
+        <ui-section key="enableCulling" cache-expand="particle-system-cullingMode">
+            <ui-prop slot="header" class="header" empty="true" labelflag="enableCulling" key="enableCulling">
                 <ui-label></ui-label>
+                <ui-checkbox></ui-checkbox>
             </ui-prop>
-            <ui-prop type="dump" key="cullingMode"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfX"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfY"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfZ"></ui-prop>
-            <ui-prop empty="true">
+            <ui-prop type="dump" key="cullingMode" disableflag="!enableCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfX" disableflag="!enableCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfY" disableflag="!enableCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfZ" disableflag="!enableCulling"></ui-prop>
+            <ui-prop empty="true" disableflag="!enableCulling">
                 <ui-label slot="label">Show Bounds</ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>  
-            <ui-button id="resetBounds">Reset Bounds</ui-button>
+            <ui-button id="resetBounds">Regenerate bounding box</ui-button>
         </ui-section>
         <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
@@ -305,18 +304,25 @@ exports.methods = {
 
 const uiElements = {
     resetBounds:{
-        ready() {
+        async ready() {
             this.$.resetBounds.addEventListener('confirm', async () => {
-                await Editor.Message.request('scene', 'execute-component-method', {
-                    uuid: this.dump.value.uuid.value,
-                    name: '_calculateBounding',
-                    args: [true],
+                const nodeDumps = this.dump.value.node.values || [this.dump.value.node.value];
+                const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+                await Promise.all(componentUUIDs.map(uuid =>
+                    Editor.Message.request('scene', 'execute-component-method', {
+                        uuid,
+                        name: '_calculateBounding',
+                        args: [true],
+                    }))
+                );
+                nodeDumps.forEach(dump => {
+                    Editor.Message.broadcast('scene:change-node', dump.uuid);
                 });
-                this.$this.dispatch('change-dump');
             });
         },
         update() {
-            this.$.resetBounds.setAttribute('disabled', !this.dump.value.enableCulling.value);
+            const isInvalid = propUtils.isMultipleInvalid(this.dump.value.enableCulling);
+            this.$.resetBounds.setAttribute('disabled', isInvalid || !this.dump.value.enableCulling.value);
         },
     },
     uiSections: {
@@ -410,23 +416,29 @@ const uiElements = {
     showBounds:{
         ready() {
             this.$.showBounds.addEventListener('change', (event) => {
-                Editor.Message.send('scene', 'execute-component-method', {
-                    uuid: this.dump.value.uuid.value,
-                    name: 'gizmo.showBoundingBox',
-                    args: [event.target.value],
+                const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+                componentUUIDs.forEach(uuid => {
+                    Editor.Message.send('scene', 'execute-component-method', {
+                        uuid,
+                        name: 'gizmo.showBoundingBox',
+                        args: [event.target.value],
+                    });
                 });
             });
         },
-        update() {
-            Editor.Message.request('scene', 'execute-component-method', {
-                uuid: this.dump.value.uuid.value,
-                name: 'gizmo.isShowBoundingBox',
-                args: [],
-            }).then(
-                (value) => {
-                    this.$.showBounds.value = value;
-                }
-            );
+        async update() {
+            this.$.showBounds.disabled = !this.dump.value.enableCulling.value;
+            const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+            const values = await Promise.all(
+                componentUUIDs.map(
+                    uuid => Editor.Message.request('scene', 'execute-component-method', {
+                        uuid,
+                        name: 'gizmo.isShowBoundingBox',
+                        args: [],
+                    })));
+            const invalid = values.some(v => v !== values[0]);
+            this.$.showBounds.invalid = invalid;
+            this.$.showBounds.value = values[0];
         },
     },
     emitFromSelect: {
@@ -454,7 +466,6 @@ const uiElements = {
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
                 const isEmpty = element.getAttribute('empty');
-                const isInput = element.getAttribute('inputflag');
                 const isHeader = element.getAttribute('slot') === 'header';
                 element.addEventListener('change-dump', () => {
                     uiElements.baseProps.update.call(this, key);
@@ -464,16 +475,12 @@ const uiElements = {
                         const checkbox = element.querySelector('ui-checkbox');
                         if (checkbox) {
                             checkbox.addEventListener('change', (event) => {
-                                this.getObjectByKey(this.dump.value, key).value = event.target.value;
-                                element.dispatch('change-dump');
-                            });
-                        }
-                    }
-                    if (isInput) {
-                        const input = element.querySelector('ui-input');
-                        if (input) {
-                            input.addEventListener('change', (event) => {
-                                this.getObjectByKey(this.dump.value, key).value = event.target.value;
+                                const dump = this.getObjectByKey(this.dump.value, key);
+                                const value = event.target.value;
+                                if (dump.values) {
+                                    dump.values = dump.values.map(v => value);
+                                }
+                                dump.value = value;
                                 element.dispatch('change-dump');
                             });
                         }
@@ -491,10 +498,10 @@ const uiElements = {
                 const isEmpty = element.getAttribute('empty');
                 let isShow = !key || this.getObjectByKey(this.dump.value, key).visible;
                 const isHeader = element.getAttribute('slot') === 'header';
-                const isInput = element.getAttribute('inputflag');
                 const displayName = element.getAttribute('displayName');
                 const dump = this.getObjectByKey(this.dump.value, key);
                 const showflag = element.getAttribute('showflag');
+                const disableflag = element.getAttribute('disableflag');
                 if (typeof showflag === 'string') {
                     if (showflag.startsWith('checkEnumInSubset')) {
                         const params = showflag.split(',');
@@ -527,7 +534,37 @@ const uiElements = {
                             }
                         }
                     }
-                } else if (eventInstigatorKey) {
+                } else if (typeof disableflag === 'string') {
+                    // only update the elements relate to eventInstigator
+                    if (eventInstigatorKey) {
+                        const contentSlot = element.querySelector('[slot=content]');
+                        if (!contentSlot) {
+                            return;
+                        }
+                        if (disableflag.startsWith(`!${eventInstigatorKey}`)) {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            contentSlot.disabled = isInvalid || !dump.value;
+                        } else if (disableflag.startsWith(eventInstigatorKey)) {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            contentSlot.disabled = isInvalid || !!dump.value;
+                        } else {
+                            return;
+                        }
+                    } else {
+                        if (disableflag.startsWith('!')) {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isDisable = isInvalid || !dump.value;
+                        } else {
+                            const dump = this.getObjectByKey(this.dump.value, disableflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isDisable = isInvalid || !!dump.value;
+                        }
+                    }
+                }
+                else if (eventInstigatorKey) {
                     // skip all element without showflag
                     return;
                 }
@@ -537,23 +574,27 @@ const uiElements = {
                     if (isShow) {
                         element.render(dump);
                     }
+                    if (typeof disableflag === 'string') {
+                        const contentSlot = element.querySelector('[slot=content]');
+                        if (contentSlot) {
+                            contentSlot.disabled = isDisable;
+                        }
+                    }
                 } else {
                     const label = element.querySelector('ui-label');
                     if (label) {
                         const labelflag = element.getAttribute('labelflag');
                         if (labelflag) {
-                            label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, labelflag)));
-                            label.setAttribute('tooltip', this.getTitle(this.getObjectByKey(this.dump.value, labelflag)));
+                            const dump = this.getObjectByKey(this.dump.value, labelflag);
+                            label.setAttribute('value', this.getName(dump));
+                            label.setAttribute('tooltip', this.getTitle(dump));
                         }
-                    }
-                    if (isInput) {
-                        const input = element.querySelector('ui-input');
-                        input.setAttribute('value', dump.value);
                     }
                     if (isHeader) {
                         const checkbox = element.querySelector('ui-checkbox');
                         if (checkbox) {
                             checkbox.setAttribute('value', dump.value);
+                            checkbox.invalid = propUtils.isMultipleInvalid(dump);
                         }
                     }
 
