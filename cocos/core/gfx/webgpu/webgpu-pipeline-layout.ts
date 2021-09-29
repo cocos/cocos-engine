@@ -17,10 +17,12 @@ export class WebGPUPipelineLayout extends PipelineLayout {
 
         const nativeDevice = wgpuWasmModule.nativeDevice;
         const pipelineLayoutInfo = new wgpuWasmModule.PipelineLayoutInfoInstance();
+        const setLayouts = new wgpuWasmModule.DescriptorSetLayoutList();
         for (let i = 0; i < info.setLayouts.length; i++) {
             const descriptorSetLayout = info.setLayouts[i] as WebGPUDescriptorSetLayout;
-            pipelineLayoutInfo.setLayouts.push_back(descriptorSetLayout.nativeDescriptorSetLayout);
+            setLayouts.push_back(descriptorSetLayout.nativeDescriptorSetLayout);
         }
+        pipelineLayoutInfo.setLayouts = setLayouts;
         this._nativePipelineLayout = nativeDevice.createPipelineLayout(pipelineLayoutInfo);
         return true;
     }

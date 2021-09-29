@@ -13,6 +13,7 @@ export class WebGPURenderPass extends RenderPass {
         this._subpasses = info.subpasses;
 
         const renderPassInfo = new wgpuWasmModule.RenderPassInfoInstance();
+        const colorAttachmentList = new wgpuWasmModule.ColorAttachmentList();
         for (let i = 0; i < info.colorAttachments.length; i++) {
             const origin = info.colorAttachments[i];
             const color = new wgpuWasmModule.ColorAttachmentInstance();
@@ -37,8 +38,9 @@ export class WebGPURenderPass extends RenderPass {
             color.endAccesses = endAccesses;
             color.isGeneralLayout = origin.isGeneralLayout;
 
-            renderPassInfo.colorAttachments.push_back(color);
+            colorAttachmentList.push_back(color);
         }
+        renderPassInfo.colorAttachments = colorAttachmentList;
 
         const depthStencil = renderPassInfo.depthStencilAttachment;
         const formatStr = Format[info.depthStencilAttachment.format];
@@ -66,7 +68,7 @@ export class WebGPURenderPass extends RenderPass {
         depthStencil.endAccesses = endAccesses;
         depthStencil.isGeneralLayout = info.depthStencilAttachment.isGeneralLayout;
 
-        const subpasses = renderPassInfo.subpasses;
+        const subpasses = new wgpuWasmModule.SubpassInfoList();
         for (let i = 0; i < info.subpasses.length; i++) {
             const originSubpass = info.subpasses[i];
             const subpass = new wgpuWasmModule.SubpassInfoInstance();
@@ -99,8 +101,9 @@ export class WebGPURenderPass extends RenderPass {
 
             subpasses.push_back(subpass);
         }
+        renderPassInfo.subpasses = subpasses;
 
-        const dependencies = renderPassInfo.dependencies;
+        const dependencies = new wgpuWasmModule.SubpassDependencyList();
         for (let i = 0; i < info.dependencies.length; i++) {
             const originDeps = info.dependencies[i];
             const dependency = new wgpuWasmModule.SubpassDependencyInstance();
@@ -118,6 +121,7 @@ export class WebGPURenderPass extends RenderPass {
             dependency.dstAccesses = dstAccesses;
             dependencies.push_back(dependency);
         }
+        renderPassInfo.dependencies = dependencies;
 
         const nativeDevice = wgpuWasmModule.nativeDevice;
         this._nativeRenderPass = nativeDevice?.createRenderPass(renderPassInfo);

@@ -256,7 +256,16 @@ export class WebGPUDevice extends Device {
         const bufferDataList = new wgpuWasmModule.BufferDataList();
         const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
         for (let i = 0; i < buffers.length; i++) {
-            bufferDataList.push_back(buffers[i].buffer);
+            let data;
+            let rawBuffer;
+            if ('buffer' in buffers[i]) {
+                // es-lint as any
+                data = new Uint8Array((buffers[i] as any).buffer, (buffers[i] as any).byteOffset, (buffers[i] as any).byteLength);
+            } else {
+                rawBuffer = buffers[i];
+                data = new Uint8Array(rawBuffer);
+            }
+            bufferDataList.push_back(data);
 
             const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
             bufferTextureCopy.buffStride = regions[i].buffStride;
@@ -279,7 +288,16 @@ export class WebGPUDevice extends Device {
         const bufferDataList = new wgpuWasmModule.BufferDataList();
         const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
         for (let i = 0; i < buffers.length; i++) {
-            bufferDataList.push_back(buffers[i].buffer);
+            let data;
+            let rawBuffer;
+            if ('buffer' in buffers[i]) {
+                // es-lint as any
+                data = new Uint8Array((buffers[i] as any).buffer, (buffers[i] as any).byteOffset, (buffers[i] as any).byteLength);
+            } else {
+                rawBuffer = buffers[i];
+                data = new Uint8Array(rawBuffer);
+            }
+            bufferDataList.push_back(data);
 
             const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
             bufferTextureCopy.buffStride = regions[i].buffStride;
@@ -305,14 +323,34 @@ export class WebGPUDevice extends Device {
             if ('getContext' in texImages[i]) {
                 const canvasElem = texImages[i] as HTMLCanvasElement;
                 const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, texImages[i].width, texImages[i].height);
-                buffers[i] = new Uint8Array(imageData?.data.buffer as ArrayBuffer);
+                const buff = imageData!.data.buffer;
+                let data;
+                let rawBuffer;
+                if ('buffer' in buff) {
+                    // es-lint as any
+                    data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+                } else {
+                    rawBuffer = buff;
+                    data = new Uint8Array(rawBuffer);
+                }
+                buffers[i] = data;
             } else if (texImages[i] instanceof HTMLImageElement) {
                 const img = texImages[i] as HTMLImageElement;
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 ctx?.drawImage(img, 0, 0);
                 const imageData = ctx?.getImageData(0, 0, img.width, img.height);
-                buffers[i] = new Uint8Array(imageData?.data.buffer as ArrayBuffer);
+                const buff = imageData!.data.buffer;
+                let data;
+                let rawBuffer;
+                if ('buffer' in buff) {
+                    // es-lint as any
+                    data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+                } else {
+                    rawBuffer = buff;
+                    data = new Uint8Array(rawBuffer);
+                }
+                buffers[i] = data;
             } else {
                 console.log('imageBmp copy not impled!');
             }
