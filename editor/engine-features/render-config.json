@@ -42,7 +42,7 @@
             "wechatPlugin": true,
             "flags": {
                 "UI_GPU_DRIVEN": {
-                    "default": false,
+                    "default": true,
                     "label": "UI_GPU_DRIVEN"
                 }
             }
