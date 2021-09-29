@@ -20,6 +20,7 @@
 #include "cocos/renderer/pipeline/deferred/MainFlow.h"
 #include "cocos/renderer/pipeline/deferred/GbufferStage.h"
 #include "cocos/renderer/pipeline/deferred/LightingStage.h"
+#include "cocos/renderer/pipeline/common/BloomStage.h"
 #include "cocos/renderer/pipeline/common/PostProcessStage.h"
 
 extern se::Object* __jsb_cc_pipeline_RenderQueueDesc_proto;
@@ -73,6 +74,7 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_createQuadInputAssembler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_ensureEnoughSize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_genQuadVertexData);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getBloomEnable);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getClearcolor);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getDevice);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getFrameGraph);
@@ -238,6 +240,19 @@ bool register_all_pipeline(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::LightingStage);
 SE_DECLARE_FUNC(js_pipeline_LightingStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_LightingStage_LightingStage);
+
+extern se::Object* __jsb_cc_pipeline_BloomStage_proto;
+extern se::Class* __jsb_cc_pipeline_BloomStage_class;
+
+bool js_register_cc_pipeline_BloomStage(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BloomStage);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getDownsampelUBO);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getSampler);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getUpsampleUBO);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getInitializeInfo);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_BloomStage);
 
 extern se::Object* __jsb_cc_pipeline_PostProcessStage_proto;
 extern se::Class* __jsb_cc_pipeline_PostProcessStage_class;

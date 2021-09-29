@@ -16,6 +16,7 @@
 #include "renderer/pipeline/deferred/MainFlow.h"
 #include "renderer/pipeline/deferred/GbufferStage.h"
 #include "renderer/pipeline/deferred/LightingStage.h"
+#include "renderer/pipeline/common/BloomStage.h"
 #include "renderer/pipeline/common/PostProcessStage.h"
 #include "cocos/renderer/gfx-base/GFXBase.h"
 
@@ -747,6 +748,25 @@ static bool js_pipeline_RenderPipeline_genQuadVertexData(se::State& s) // NOLINT
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_genQuadVertexData)
 
+static bool js_pipeline_RenderPipeline_getBloomEnable(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getBloomEnable : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getBloomEnable();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getBloomEnable : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_getBloomEnable)
+
 static bool js_pipeline_RenderPipeline_getClearcolor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1161,6 +1181,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("destroy", _SE(js_pipeline_RenderPipeline_destroy));
     cls->defineFunction("ensureEnoughSize", _SE(js_pipeline_RenderPipeline_ensureEnoughSize));
     cls->defineFunction("genQuadVertexData", _SE(js_pipeline_RenderPipeline_genQuadVertexData));
+    cls->defineFunction("getBloomEnable", _SE(js_pipeline_RenderPipeline_getBloomEnable));
     cls->defineFunction("getClearcolor", _SE(js_pipeline_RenderPipeline_getClearcolor));
     cls->defineFunction("getDevice", _SE(js_pipeline_RenderPipeline_getDevice));
     cls->defineFunction("getFrameGraph", _SE(js_pipeline_RenderPipeline_getFrameGraph));
@@ -2600,6 +2621,127 @@ bool js_register_pipeline_LightingStage(se::Object* obj) // NOLINT(readability-i
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_pipeline_BloomStage_proto = nullptr;
+se::Class* __jsb_cc_pipeline_BloomStage_class = nullptr;
+
+static bool js_pipeline_BloomStage_getDownsampelUBO(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::BloomStage>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_BloomStage_getDownsampelUBO : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::array<cc::gfx::Buffer *, 6>& result = cobj->getDownsampelUBO();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_BloomStage_getDownsampelUBO : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_BloomStage_getDownsampelUBO)
+
+static bool js_pipeline_BloomStage_getSampler(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::BloomStage>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_BloomStage_getSampler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::gfx::Sampler* result = cobj->getSampler();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_BloomStage_getSampler : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_BloomStage_getSampler)
+
+static bool js_pipeline_BloomStage_getUpsampleUBO(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::BloomStage>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_BloomStage_getUpsampleUBO : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        std::array<cc::gfx::Buffer *, 6>& result = cobj->getUpsampleUBO();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_BloomStage_getUpsampleUBO : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_BloomStage_getUpsampleUBO)
+
+static bool js_pipeline_BloomStage_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::pipeline::RenderStageInfo& result = cc::pipeline::BloomStage::getInitializeInfo();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_BloomStage_getInitializeInfo : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_BloomStage_getInitializeInfo)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_BloomStage_finalize)
+
+static bool js_pipeline_BloomStage_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    cc::pipeline::BloomStage* cobj = JSB_ALLOC(cc::pipeline::BloomStage);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_pipeline_BloomStage_constructor, __jsb_cc_pipeline_BloomStage_class, js_cc_pipeline_BloomStage_finalize)
+
+
+
+static bool js_cc_pipeline_BloomStage_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::BloomStage>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::pipeline::BloomStage>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_pipeline_BloomStage_finalize)
+
+bool js_register_pipeline_BloomStage(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("BloomStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_BloomStage_constructor));
+
+    cls->defineFunction("getDownsampelUBO", _SE(js_pipeline_BloomStage_getDownsampelUBO));
+    cls->defineFunction("getSampler", _SE(js_pipeline_BloomStage_getSampler));
+    cls->defineFunction("getUpsampleUBO", _SE(js_pipeline_BloomStage_getUpsampleUBO));
+    cls->defineStaticFunction("getInitializeInfo", _SE(js_pipeline_BloomStage_getInitializeInfo));
+    cls->defineFinalizeFunction(_SE(js_cc_pipeline_BloomStage_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::BloomStage>(cls);
+
+    __jsb_cc_pipeline_BloomStage_proto = cls->getProto();
+    __jsb_cc_pipeline_BloomStage_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_pipeline_PostProcessStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_PostProcessStage_class = nullptr;
 
@@ -2673,9 +2815,10 @@ bool register_all_pipeline(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_pipeline_RenderStage(ns);
+    js_register_pipeline_BloomStage(ns);
     js_register_pipeline_RenderQueueDesc(ns);
     js_register_pipeline_RenderFlow(ns);
-    js_register_pipeline_RenderStage(ns);
     js_register_pipeline_LightingStage(ns);
     js_register_pipeline_RenderPipeline(ns);
     js_register_pipeline_RenderStageInfo(ns);
