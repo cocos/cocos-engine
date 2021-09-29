@@ -381,7 +381,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
                  || (visibility & model.visFlags)) {
                 // shadow render Object
-                if (dirShadowObjects != null && model.castShadow) {
+                if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
                     // frustum culling
                     if (shadows.fixedArea) {
                         AABB.transform(_ab, model.worldBounds, shadows.matLight);
@@ -390,7 +390,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                         }
                     } else {
                         // eslint-disable-next-line no-lonely-if
-                        if (model.worldBounds && intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
+                        if (intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
                             dirShadowObjects.push(getDirShadowRenderObject(model, camera));
                         }
                     }
