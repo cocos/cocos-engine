@@ -33,6 +33,7 @@ import { scene } from '../../core/renderer';
 import { Light } from './light-component';
 import { legacyCC } from '../../core/global-exports';
 import { Camera } from '../../core/renderer/scene';
+import { Root } from '../../core/root';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
