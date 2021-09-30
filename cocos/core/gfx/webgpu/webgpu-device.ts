@@ -53,7 +53,7 @@ export class WebGPUDevice extends Device {
     public initialize (info: DeviceInfo): Promise<boolean> {
         async function getDevice () {
             const chromeVersion = getChromeVersion();
-            const adapter = await navigator.gpu.requestAdapter();
+            const adapter = await (navigator as any).gpu.requestAdapter();
             const device = await adapter.requestDevice();
             glslalgWasmModule['glslang'] = await glslang();
             nativeLib['preinitializedWebGPUDevice'] = device;
@@ -83,7 +83,7 @@ export class WebGPUDevice extends Device {
                 flexibleSet: info.bindingMappingInfo.flexibleSet,
             };
 
-            this._nativeDevice.initialize(deviceInfo);
+            (this._nativeDevice as any).initialize(deviceInfo);
 
             const queueInfo = new QueueInfo(QueueType.GRAPHICS);
             this._queue = new WebGPUQueue();
@@ -121,11 +121,11 @@ export class WebGPUDevice extends Device {
         for (let i = 0; i < swapchains.length; i++) {
             swapchainList.push_back((swapchains[i] as WebGPUSwapchain).nativeSwapchain);
         }
-        this._nativeDevice?.acquire(swapchainList);
+        (this._nativeDevice as any).acquire(swapchainList);
     }
 
     public present (): void {
-        this._nativeDevice?.present();
+        (this._nativeDevice as any).present();
     }
 
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
@@ -165,7 +165,7 @@ export class WebGPUDevice extends Device {
     public getSampler (info: SamplerInfo): Sampler {
         const hash = Sampler.computeHash(info);
         if (!this._samplers.has(hash)) {
-            this._samplers.set(hash, new WebGPUSampler(info));
+            this._samplers.set(hash, new WebGPUSampler(info, hash));
         }
         return this._samplers.get(hash)!;
     }
@@ -201,7 +201,7 @@ export class WebGPUDevice extends Device {
     }
 
     public createFramebuffer (info: FramebufferInfo): Framebuffer {
-        const framebuffer = new WebGPUFramebuffer(this);
+        const framebuffer = new WebGPUFramebuffer();
         if (framebuffer.initialize(info)) {
             return framebuffer;
         }
@@ -238,20 +238,20 @@ export class WebGPUDevice extends Device {
         return null!;
     }
 
-    public createGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier {
-        //assert(false, 'createGlobalBarrier not impl!');
+    public  getGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier {
+        const hash = GlobalBarrier.computeHash(info);
+        if (!this._globalBarriers.has(hash)) {
+            this._globalBarriers.set(hash, new GlobalBarrier(info, hash));
+        }
+        return this._globalBarriers.get(hash)!;
     }
 
-    public createTextureBarrier (info: TextureBarrierInfo): TextureBarrier {
-        //assert(false, 'createTextureBarrier not impl!');
-    }
-
-    public  getGlobalBarrier (info: Readonly<GlobalBarrierInfo>): GlobalBarrier {
-
-    }
-
-    public  getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier {
-
+    public  getTextureBarrier (info: TextureBarrierInfo): TextureBarrier {
+        const hash = TextureBarrier.computeHash(info);
+        if (!this._textureBarriers.has(hash)) {
+            this._textureBarriers.set(hash, new TextureBarrier(info, hash));
+        }
+        return this._textureBarriers.get(hash)!;
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
@@ -283,7 +283,7 @@ export class WebGPUDevice extends Device {
             bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
             bufferTextureCopyList.push_back(bufferTextureCopy);
         }
-        this._nativeDevice?.copyBuffersToTexture(bufferDataList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
+        (this._nativeDevice as any).copyBuffersToTexture(bufferDataList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
     public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void {
@@ -315,7 +315,7 @@ export class WebGPUDevice extends Device {
             bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
             bufferTextureCopyList.push_back(bufferTextureCopy);
         }
-        this._nativeDevice?.copyTextureToBuffers((texture as WebGPUTexture).nativeTexture, bufferDataList, bufferTextureCopyList);
+        (this._nativeDevice as any).copyTextureToBuffers((texture as WebGPUTexture).nativeTexture, bufferDataList, bufferTextureCopyList);
     }
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {
@@ -375,7 +375,7 @@ export class WebGPUDevice extends Device {
             bufferTextureCopyList.push_back(bufferTextureCopy);
         }
 
-        this._nativeDevice.copyBuffersToTexture(buffers, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
+        (this._nativeDevice as any).copyBuffersToTexture(buffers, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
     // deprecated

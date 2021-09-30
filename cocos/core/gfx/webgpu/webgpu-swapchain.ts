@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
     FormatSurfaceSize,
     TextureInfo,
@@ -12,7 +13,7 @@ import {
     SurfaceTransform,
 } from '../base/define';
 import { Texture } from '../base/texture';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { WebGPUDevice } from './webgpu-device';
 import { Swapchain } from '../base/swapchain';
 import { WebGPUTexture } from './webgpu-texture';
@@ -25,7 +26,7 @@ export class WebGPUSwapchain extends Swapchain {
     }
 
     public initialize (info: Readonly<SwapchainInfo>): void {
-        const swapchainInfo = new wgpuWasmModule.SwapchainInfoInstance();
+        const swapchainInfo = new nativeLib.SwapchainInfoInstance();
         if (info.windowHandle instanceof HTMLCanvasElement) {
             // native get surface itself
             swapchainInfo.setWindowHandle(0);
@@ -34,11 +35,11 @@ export class WebGPUSwapchain extends Swapchain {
         }
 
         const vsyncStr = VsyncMode[info.vsyncMode];
-        swapchainInfo.setVsyncMode(wgpuWasmModule.VsyncMode[vsyncStr]);
+        swapchainInfo.setVsyncMode(nativeLib.VsyncMode[vsyncStr]);
         swapchainInfo.setWidth(info.width);
         swapchainInfo.setHeight(info.height);
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const nativeDevice = nativeLib.nativeDevice;
         this._nativeSwapchain = nativeDevice.createSwapchain(swapchainInfo);
 
         this._colorTexture = new WebGPUTexture();
@@ -79,7 +80,7 @@ export class WebGPUSwapchain extends Swapchain {
     }
 
     public resize (width: number, height: number): void {
-        this._nativeSwapchain.resize(width, height, wgpuWasmModule.SurfaceTransform.IDENTITY);
+        this._nativeSwapchain.resize(width, height, nativeLib.SurfaceTransform.IDENTITY);
     }
 
     public destroy (): void {
