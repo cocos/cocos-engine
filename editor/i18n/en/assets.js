@@ -131,6 +131,8 @@ module.exports = {
             animation: 'Animation',
             modelPreview: 'Model preview',
             material: 'Material',
+            no_model_tips:'No model is available for preview.',
+            drag_model_tips:'Please drag a model into this Preview Area.',
             fbx: 'FBX',
             GlTFUserData: {
                 normals: {
