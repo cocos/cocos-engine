@@ -510,7 +510,8 @@ var Sprite = cc.Class({
         }
 
         let spriteFrame = this._spriteFrame;
-        let newTexture = spriteFrame && spriteFrame.isValid && spriteFrame.getTexture();
+        const frameValid = spriteFrame && spriteFrame.isValid;
+        let newTexture = frameValid && spriteFrame.getTexture();
 
         if (oldTexture !== newTexture) {
             this._updateMaterial();
@@ -521,7 +522,7 @@ var Sprite = cc.Class({
         }
         else {
             this.disableRender();
-            if (spriteFrame && spriteFrame.isValid) {
+            if (frameValid) {
                 spriteFrame.once('load', this._applySpriteSize, this);
             }
         }
