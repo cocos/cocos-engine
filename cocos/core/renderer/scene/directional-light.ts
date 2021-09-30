@@ -23,84 +23,87 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
-import { legacyCC } from '../../global-exports';
-import { Vec3 } from '../../math';
-import { Ambient } from './ambient';
-import { Light, LightType } from './light';
-import { NativeDirectionalLight } from './native-scene';
+ import { JSB } from 'internal:constants';
+ import { legacyCC } from '../../global-exports';
+ import { Vec3 } from '../../math';
+ import { Ambient } from './ambient';
+ import { Light, LightType } from './light';
+ import { NativeDirectionalLight } from './native-scene';
+ 
+ const _forward = new Vec3(0, 0, -1);
+ const _v3 = new Vec3();
+ 
+ export class DirectionalLight extends Light {
+     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
+     protected _illuminance: number = Ambient.SUN_ILLUM;
+     protected _illuminance_ldr: number = 1.0;
+ 
+     set direction (dir: Vec3) {
+         Vec3.normalize(this._dir, dir);
+         if (JSB) {
+             (this._nativeObj as NativeDirectionalLight).setDirection(dir);
+         }
+     }
+ 
+     get direction (): Vec3 {
+         return this._dir;
+     }
+ 
+     // in Lux(lx)
+     set illuminance (illum: number) {
+         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+         if (isHDR) {
+             this._illuminance = illum;
 
-const _forward = new Vec3(0, 0, -1);
-const _v3 = new Vec3();
+             if (JSB) {
+                (this._nativeObj as NativeDirectionalLight).setIlluminance(illum);
+            }
+         } else {
+             this._illuminance_ldr = illum;
 
-export class DirectionalLight extends Light {
-    protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
-    protected _illuminance: number = Ambient.SUN_ILLUM;
-    protected _illuminance_ldr: number = 1.0;
-
-    set direction (dir: Vec3) {
-        Vec3.normalize(this._dir, dir);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setDirection(dir);
-        }
-    }
-
-    get direction (): Vec3 {
-        return this._dir;
-    }
-
-    // in Lux(lx)
-    set illuminance (illum: number) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
-            this._illuminance = illum;
-        } else {
-            this._illuminance_ldr = illum;
-        }
-
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setIlluminance(illum);
-        }
-    }
-
-    get illuminance (): number {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
-            return this._illuminance;
-        } else {
-            return this._illuminance_ldr;
-        }
-    }
-
-    set illuminance_hdr (illum: number) {
-        this._illuminance = illum;
-        if (JSB) {
-            // (this._nativeObj as NativeDirectionalLight).setIlluminance_hdr(illum);
-        }
-    }
-
-    set illuminance_ldr (illum: number) {
-        this._illuminance_ldr = illum;
-        if (JSB) {
-            // (this._nativeObj as NativeDirectionalLight).setIlluminance_ldr(illum);
-        }
-    }
-
-    constructor () {
-        super();
-        this._type = LightType.DIRECTIONAL;
-    }
-
-    public initialize () {
-        super.initialize();
-
-        this.illuminance = Ambient.SUN_ILLUM;
-        this.direction = new Vec3(1.0, -1.0, -1.0);
-    }
-
-    public update () {
-        if (this._node && this._node.hasChangedFlags) {
-            this.direction = Vec3.transformQuat(_v3, _forward, this._node.worldRotation);
-        }
-    }
-}
+             if (JSB) {
+                (this._nativeObj as NativeDirectionalLight).setIlluminance_ldr(illum);
+            }
+         }
+     }
+ 
+     get illuminance (): number {
+         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+         if (isHDR) {
+             return this._illuminance;
+         } else {
+             return this._illuminance_ldr;
+         }
+     }
+ 
+     set illuminance_hdr (illum: number) {
+         this._illuminance = illum;
+     }
+ 
+     set illuminance_ldr (illum: number) {
+         this._illuminance_ldr = illum;
+         if (JSB) {
+             (this._nativeObj as NativeDirectionalLight).setIlluminance_ldr(illum);
+         }
+     }
+ 
+     constructor () {
+         super();
+         this._type = LightType.DIRECTIONAL;
+     }
+ 
+     public initialize () {
+         super.initialize();
+ 
+         this.illuminance = Ambient.SUN_ILLUM;
+         this.illuminance_ldr = 1.0;
+         this.direction = new Vec3(1.0, -1.0, -1.0);
+     }
+ 
+     public update () {
+         if (this._node && this._node.hasChangedFlags) {
+             this.direction = Vec3.transformQuat(_v3, _forward, this._node.worldRotation);
+         }
+     }
+ }
+ 

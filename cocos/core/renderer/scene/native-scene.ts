@@ -1,7 +1,7 @@
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
-import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
-    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
+import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader,
+    BlendState, DepthStencilState, RasterizerState, Swapchain } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -105,6 +105,7 @@ export type NativeLight = InstanceType<typeof NativeLight>;
 export const NativeDirectionalLight: Constructor<{
     setDirection (dir: Vec3): void;
     setIlluminance (lum: number): void;
+    setIlluminance_ldr(lum: number): void;
 } & NativeLight> = null!;
 export type NativeDirectionalLight = InstanceType<typeof NativeDirectionalLight>;
 
@@ -114,6 +115,7 @@ export const NativeSphereLight: Constructor<{
     setSize (size: number): void;
     setRange (range: number): void;
     setIlluminance (lum: number): void;
+    setIlluminance_ldr(lum: number): void;
 }  & NativeLight> = null!;
 export type NativeSphereLight = InstanceType<typeof NativeSphereLight>;
 
@@ -127,6 +129,7 @@ export const NativeSpotLight: Constructor<{
     setAspect (aspect: number): void;
     setAngle (angle: number): void;
     setIlluminance (lum: number): void;
+    setIlluminance_ldr(lum: number): void;
 } & NativeLight> = null!;
 export type NativeSpotLight = InstanceType<typeof NativeSpotLight>;
 
@@ -134,6 +137,8 @@ export const NaitveSkybox: Constructor<{
     enabled: boolean;
     useIBL: boolean;
     isRGBE: boolean;
+    useHDR: boolean;
+    useDiffusemap: boolean;
     model: NativeModel | null;
 }> = null!;
 export type NaitveSkybox = InstanceType<typeof NaitveSkybox>;
