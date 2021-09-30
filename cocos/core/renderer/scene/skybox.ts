@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -60,7 +61,7 @@ export class Skybox {
     }
     /**
      * @en HDR
-     * @zh 是否启用环境光照？
+     * @zh 是否启用HDR？
      */
     get useHDR (): boolean {
         return this._useHDR;
@@ -73,8 +74,8 @@ export class Skybox {
     }
 
     /**
-     * @en Whether use HDR
-     * @zh 是否启用HDR？
+     * @en Whether use IBL
+     * @zh 是否启用IBL？
      */
     get useIBL (): boolean {
         return this._useIBL;
@@ -160,20 +161,20 @@ export class Skybox {
      * @en The texture cube used diffuse convolution map
      * @zh 使用的漫反射卷积图
      */
-    get diffusemap (): TextureCube | null {
+    get diffuseMap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._diffusemapHDR;
+            return this._diffuseMapHDR;
         } else {
-            return this._diffusemapLDR;
+            return this._diffuseMapLDR;
         }
     }
-    set diffusemap (val: TextureCube | null) {
+    set diffuseMap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._diffusemapHDR = val;
+            this._diffuseMapHDR = val;
         } else {
-            this._diffusemapLDR = val;
+            this._diffuseMapLDR = val;
         }
         if (val) {
             this._updateGlobalBinding();
@@ -183,8 +184,8 @@ export class Skybox {
 
     protected _envmapLDR: TextureCube | null = null;
     protected _envmapHDR: TextureCube | null = null;
-    protected _diffusemapLDR: TextureCube | null = null;
-    protected _diffusemapHDR: TextureCube | null = null;
+    protected _diffuseMapLDR: TextureCube | null = null;
+    protected _diffuseMapHDR: TextureCube | null = null;
     protected _globalDSManager: GlobalDSManager | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
@@ -244,9 +245,9 @@ export class Skybox {
         this._envmapLDR = envmapLDR;
     }
 
-    public initializeDiffuseMaps (diffusemapHDR: TextureCube | null, diffusemapLDR: TextureCube | null) {
-        this._diffusemapHDR = diffusemapHDR;
-        this._diffusemapLDR = diffusemapLDR;
+    public initializeDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null) {
+        this._diffuseMapHDR = diffuseMapHDR;
+        this._diffuseMapLDR = diffuseMapLDR;
     }
 
     public activate () {
@@ -283,8 +284,8 @@ export class Skybox {
             this.envmap = this._default;
         }
 
-        if (!this.diffusemap) {
-            this.diffusemap = this._default;
+        if (!this.diffuseMap) {
+            this.diffuseMap = this._default;
         }
 
         this._updateGlobalBinding();
@@ -292,14 +293,19 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
-        const value = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
         const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
-        const current = pipeline.macros.CC_USE_IBL;
-        // if (current === value) { return; }
-        pipeline.macros.CC_USE_IBL = value;
-        pipeline.macros.CC_USE_DIFFUSEMAP = (this.useDiffusemap && this.diffusemap) ? (this.isRGBE ? 2 : 1) : 0;
-        pipeline.macros.CC_USE_HDR = this.useHDR;
+
+        const useIBLValue = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
+        const useDiffuseMapValue = (this.useIBL && this.useDiffusemap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
+        const useHDRValue = this.useHDR;
+
+        if (pipeline.macros.CC_USE_IBL === useIBLValue && pipeline.macros.CC_USE_DIFFUSEMAP === useDiffuseMapValue && pipeline.macros.CC_USE_HDR === useHDRValue) {
+            return;
+        }
+        pipeline.macros.CC_USE_IBL = useIBLValue;
+        pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
+        pipeline.macros.CC_USE_HDR = useHDRValue;
         root.onGlobalPipelineStateChanged();
     }
 
@@ -310,9 +316,9 @@ export class Skybox {
         this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
         this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
 
-        if (this.diffusemap) {
-            const textureDiffusemap = this.diffusemap.getGFXTexture()!;
-            const samplerDiffusemap = device.getSampler(this.diffusemap.getSamplerInfo());
+        if (this.diffuseMap) {
+            const textureDiffusemap = this.diffuseMap.getGFXTexture()!;
+            const samplerDiffusemap = device.getSampler(this.diffuseMap.getSamplerInfo());
             this._globalDSManager!.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffusemap);
             this._globalDSManager!.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffusemap);
         }

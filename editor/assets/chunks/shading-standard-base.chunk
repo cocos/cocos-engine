@@ -12,7 +12,7 @@
   #include <unpack>
 
   #if CC_USE_DIFFUSEMAP
-    #include <cc-diffusemap>
+    #include <cc-diffuseMap>
   #endif
 #endif
 
@@ -104,11 +104,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   #if CC_USE_IBL
     #if CC_USE_DIFFUSEMAP
       // Diffuse reflection irradiance
-      vec4 diffusemap = texture(cc_diffusemap, N);
+      vec4 diffuseMap = texture(cc_diffuseMap, N);
       #if CC_USE_DIFFUSEMAP == IBL_RGBE
-        ambDiff = unpackRGBE(diffusemap);
+        ambDiff = unpackRGBE(diffuseMap);
       #else
-        ambDiff = SRGBToLinear(diffusemap.rgb);
+        ambDiff = SRGBToLinear(diffuseMap.rgb);
       #endif
     #endif
 

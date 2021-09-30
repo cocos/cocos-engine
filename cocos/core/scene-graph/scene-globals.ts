@@ -241,10 +241,10 @@ export class SkyboxInfo {
     protected _envmapLDR: TextureCube | null = null;
     @serializable
     @type(TextureCube)
-    protected _diffusemap: TextureCube | null = null;
+    protected _diffuseMap: TextureCube | null = null;
     @serializable
     @type(TextureCube)
-    protected _diffusemapLDR: TextureCube | null = null;
+    protected _diffuseMapLDR: TextureCube | null = null;
     @serializable
     protected _enabled = false;
     @serializable
@@ -269,7 +269,7 @@ export class SkyboxInfo {
         this._applyDiffuseMap = val;
 
         if (val === false) {
-            this._diffusemap = null;
+            this._diffuseMap = null;
         }
 
         if (this._resource) {
@@ -305,14 +305,14 @@ export class SkyboxInfo {
         this._useIBL = val;
 
         if (!this._useIBL) {
-            this._diffusemap = null;
+            this._diffuseMap = null;
             this._applyDiffuseMap = false;
         }
 
         if (this._resource) {
             this._resource.useIBL = this._useIBL;
-            this._resource.useDiffusemap = this.applyDiffuseMap;
-            this._resource.diffusemap = this._diffusemap;
+            this._resource.useDiffusemap = this._applyDiffuseMap;
+            this._resource.diffuseMap = this._diffuseMap;
         }
     }
     get useIBL () {
@@ -355,7 +355,7 @@ export class SkyboxInfo {
         }
 
         if (!this._envmap) {
-            this._diffusemap = null;
+            this._diffuseMap = null;
             this._applyDiffuseMap = false;
             this.useIBL = false;
         }
@@ -363,8 +363,8 @@ export class SkyboxInfo {
         if (this._resource) {
             this._resource.initializeEnvMaps(this._envmap, this._envmapLDR);
 
-            this._resource.useDiffusemap = this.applyDiffuseMap;
-            this._resource.initializeDiffuseMaps(this._diffusemap, this._diffusemapLDR);
+            this._resource.useDiffusemap = this._applyDiffuseMap;
+            this._resource.initializeDiffuseMaps(this._diffuseMap, this._diffuseMapLDR);
         }
     }
     get envmap () {
@@ -389,24 +389,24 @@ export class SkyboxInfo {
     @editable
     @readOnly
     @type(TextureCube)
-    set diffusemap (val : TextureCube | null) {
+    set diffuseMap (val : TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._diffusemap = val;
+            this._diffuseMap = val;
         } else {
-            this._diffusemapLDR = val;
+            this._diffuseMapLDR = val;
         }
 
         if (this._resource) {
-            this._resource.initializeDiffuseMaps(this._diffusemap, this._diffusemapLDR);
+            this._resource.initializeDiffuseMaps(this._diffuseMap, this._diffuseMapLDR);
         }
     }
-    get diffusemap () {
+    get diffuseMap () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._diffusemap;
+            return this._diffuseMap;
         } else {
-            return this._diffusemapLDR;
+            return this._diffuseMapLDR;
         }
     }
 
@@ -414,7 +414,7 @@ export class SkyboxInfo {
         this._resource = resource;
         this._resource.initialize(this);
         this._resource.initializeEnvMaps(this._envmap, this._envmapLDR);
-        this._resource.initializeDiffuseMaps(this._diffusemap, this._diffusemapLDR);
+        this._resource.initializeDiffuseMaps(this._diffuseMap, this._diffuseMapLDR);
         this._resource.activate(); // update global DS first
     }
 }
