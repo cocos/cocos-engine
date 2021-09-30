@@ -95,7 +95,7 @@ export class AmbientInfo {
 
         if (intensity < 1.0) {
             for (let i = 0; i < 3; ++i) {
-                color[i] = color[i] * intensity;
+                color[i] *= intensity;
             }
         }
     }
@@ -143,7 +143,7 @@ export class AmbientInfo {
             this.normalizeHdrColor(colorRef);
         }
 
-        if (this._resource) { this._resource.skyColorValue = val; }
+        if (this._resource) { this._resource.skyColorValue = _v3.set(val.x, val.y, val.z); }
     }
 
     /**
@@ -202,7 +202,7 @@ export class AmbientInfo {
         const clampColor = (x: number) => Math.min(x * 255, 255);
         return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
     }
-    
+
     set groundAlbedoValue (val: Vec4) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         const clampColor = (x: number) => Math.min(x * 255, 255);
@@ -212,11 +212,10 @@ export class AmbientInfo {
 
         if (isHDR) {
             this.normalizeHdrColor(colorRef);
-        } 
+        }
 
-        if (this._resource) { this._resource.groundAlbedoValue = val; }
+        if (this._resource) { this._resource.groundAlbedoValue = _v3.set(val.x, val.y, val.z); }
     }
-
 
     public activate (resource: Ambient) {
         const aa :Ambient = resource;
