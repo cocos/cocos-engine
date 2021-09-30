@@ -2149,5 +2149,5 @@ if(MSVC)
             ${CWD}/external/win64/libs/glslang/*.dll
         )
     endif()
-    target_compile_options(cocos2d PUBLIC /MP)
+    target_compile_options(cocos2d PUBLIC /MP /wd4309)
 endif()
