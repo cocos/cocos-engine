@@ -612,7 +612,7 @@ exports.ready = async function() {
         effectOption += `<option>${effect.name}</option>`;
     }
     this.$.effect.innerHTML = effectOption;
-    this.$.customPanel.addEventListener('change', async () => {
+    this.$.customPanel.addEventListener('change', () => {
         this.storeCache();
         this.setDirtyData();
         this.dispatch('change');
