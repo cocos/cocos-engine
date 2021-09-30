@@ -135,8 +135,17 @@ export class ForwardPipeline extends RenderPipeline {
                 sceneCulling(this, camera);
                 this._pipelineUBO.updateGlobalUBO(camera.window!);
                 this._pipelineUBO.updateCameraUBO(camera);
+
+                for (let k = 0; k < RenderPipeline._renderCallbacks.length; ++k) {
+                    RenderPipeline._renderCallbacks[k].onPreRender(camera);
+                }
+
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
+                }
+
+                for (let k = 0; k < RenderPipeline._renderCallbacks.length; ++k) {
+                    RenderPipeline._renderCallbacks[k].onPostRender(camera);
                 }
             }
         }
