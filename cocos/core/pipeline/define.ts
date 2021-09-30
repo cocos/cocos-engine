@@ -33,7 +33,7 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
     DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature, API } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
@@ -103,7 +103,7 @@ export interface IRenderQueueDesc {
 
 export interface IDescriptorSetLayoutInfo {
     bindings: DescriptorSetLayoutBinding[];
-    layouts: Record<string, UniformBlock | UniformSamplerTexture | UniformStorageImage>;
+    layouts: Record<string, UniformBlock | UniformSamplerTexture | UniformStorageImage | UniformStorageBuffer>;
 }
 
 export const globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], layouts: {} };
@@ -204,7 +204,9 @@ export class UBOCamera {
     public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
     public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
     public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly NEAR_FAR_OFFSET = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly VIEW_PORT_OFFSET = UBOCamera.NEAR_FAR_OFFSET + 4;
+    public static readonly COUNT = UBOCamera.VIEW_PORT_OFFSET + 4;
     public static readonly SIZE = UBOCamera.COUNT * 4;
 
     public static readonly NAME = 'CCCamera';
@@ -227,6 +229,8 @@ export class UBOCamera {
         new Uniform('cc_fogColor', Type.FLOAT4, 1),
         new Uniform('cc_fogBase', Type.FLOAT4, 1),
         new Uniform('cc_fogAdd', Type.FLOAT4, 1),
+        new Uniform('cc_nearFar', Type.FLOAT4, 1),
+        new Uniform('cc_viewPort', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;

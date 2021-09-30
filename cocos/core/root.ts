@@ -41,7 +41,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
 
 /**
@@ -341,6 +341,11 @@ export class Root {
             isCreateDefaultPipeline = true;
         }
         this._pipeline = rppl;
+        // now cluster just enabled in deferred pipeline
+        if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
+            // disable cluster
+            this._pipeline.clusterEnabled = false;
+        }
         this._pipeline.bloomEnable = false;
 
         if (!this._pipeline.activate(this._mainWindow!.swapchain)) {

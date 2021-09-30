@@ -217,6 +217,14 @@ export abstract class RenderPipeline extends Asset {
         return this._profiler;
     }
 
+    set clusterEnabled (value) {
+        this._clusterEnabled = value;
+    }
+
+    get clusterEnabled () {
+        return this._clusterEnabled;
+    }
+
     set bloomEnable (value) {
         this._bloomEnable = value;
     }
@@ -239,6 +247,7 @@ export abstract class RenderPipeline extends Asset {
     protected _width = 0;
     protected _height = 0;
     protected _lastUsedRenderArea: Rect = new Rect();
+    protected _clusterEnabled = false;
     protected _bloomEnable = false;
 
     /**
@@ -319,15 +328,14 @@ export abstract class RenderPipeline extends Asset {
         this._globalDSManager = new GlobalDSManager(this);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
+        // update global defines in advance here for deferred pipeline may tryCompile shaders.
+        this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device, this);
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
         }
-
-        // update global defines when all states initialized.
-        this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
-        this._generateConstantMacros();
 
         return true;
     }
@@ -560,6 +568,7 @@ export abstract class RenderPipeline extends Asset {
     protected _generateConstantMacros () {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${this._clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
         this._constantMacros = str;
