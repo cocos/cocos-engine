@@ -1,8 +1,6 @@
 import { SafeAreaEdge } from 'pal/screen-adapter';
-import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { Size } from '../../../cocos/core/math';
-import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
 interface IScreenFunctionName {
@@ -99,7 +97,7 @@ class ScreenAdapter extends EventTarget {
         window.addEventListener('resize', () => {
             this.emit('window-resize');
         });
-        if (systemInfo.os === OS.OSX && typeof window.matchMedia === 'function') {
+        if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
                 const dpr = window.devicePixelRatio;
                 window.matchMedia(`(resolution: ${dpr}dppx)`).addEventListener('change', () => {
