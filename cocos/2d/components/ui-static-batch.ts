@@ -30,7 +30,7 @@
 
 import { ccclass, help, menu, executionOrder, visible, override } from 'cc.decorator';
 import { Renderable2D } from '../framework/renderable-2d';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { MeshBuffer } from '../renderer/mesh-buffer';
 import { DrawBatch2D } from '../renderer/draw-batch';
 import { director, Color, warnID } from '../../core';
@@ -103,7 +103,7 @@ export class UIStaticBatch extends Renderable2D {
         }
     }
 
-    public updateAssembler (render: Batcher2D) {
+    public updateAssembler (render: IBatcher) {
         render.currIsStatic = true;
         if (this._dirty) {
             render.finishMergeBatches();
@@ -118,7 +118,7 @@ export class UIStaticBatch extends Renderable2D {
         }
     }
 
-    public postUpdateAssembler (render: Batcher2D) {
+    public postUpdateAssembler (render: IBatcher) {
         if (this._dirty) {
             render.finishMergeBatches();
             render.currBufferBatch = this._lastMeshBuffer;

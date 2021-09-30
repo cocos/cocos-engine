@@ -33,7 +33,7 @@ import { ccclass, help, executionOrder, menu } from 'cc.decorator';
 import { RenderableComponent } from '../../core/components/renderable-component';
 import { UIComponent } from '../framework/ui-component';
 import { RenderPriority } from '../../core/pipeline/define';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { scene } from '../../core/renderer';
 
 /**
@@ -92,7 +92,7 @@ export class UIMeshRenderer extends UIComponent {
         this._models = null;
     }
 
-    public updateAssembler (render: Batcher2D) {
+    public updateAssembler (render: IBatcher) {
         if (this._models) {
             // @ts-expect-error: UIMeshRenderer do not attachToScene
             this._modelComponent._detachFromScene();

@@ -31,11 +31,11 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
-import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
+import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from './enum';
-import { LightingFlow } from './lighting-flow';
+import { DeferredStagePriority } from '../common/enum';
+import { MainFlow } from './main-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
@@ -44,7 +44,6 @@ import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
-import { Pass } from '../../renderer/core/pass';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { legacyCC } from '../../global-exports';
@@ -76,7 +75,6 @@ export class LightingStage extends RenderStage {
     @displayOrder(2)
     private renderQueues: RenderQueueDesc[] = [];
     private _phaseID = getPhaseID('default');
-    private _defPhaseID = getPhaseID('deferred');
     private _renderQueues: RenderQueue[] = [];
 
     public static initInfo: IRenderStageInfo = {
@@ -188,7 +186,7 @@ export class LightingStage extends RenderStage {
         cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
     }
 
-    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
 
         const device = pipeline.device;
@@ -263,8 +261,8 @@ export class LightingStage extends RenderStage {
         }
 
         colors[0].w = 0;
-        const deferredData = pipeline.getDeferredRenderData(camera);
-        const framebuffer = deferredData.lightingFrameBuffer!;
+        const deferredData = pipeline.getPipelineRenderData();
+        const framebuffer = deferredData.outputFrameBuffer;
         const renderPass = framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
@@ -276,6 +274,13 @@ export class LightingStage extends RenderStage {
         const lightingMat = (sceneData as DeferredPipelineSceneData).deferredLightingMaterial;
         const pass = lightingMat.passes[0];
         const shader = pass.getShaderVariant();
+
+        for (let i = 0; i < 4; ++i) {
+            pass.descriptorSet.bindTexture(i, deferredData.gbufferRenderTargets[i]);
+            pass.descriptorSet.bindSampler(i, deferredData.sampler);
+        }
+        pass.descriptorSet.update();
+
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
         const inputAssembler = pipeline.quadIAOffscreen;
@@ -302,8 +307,7 @@ export class LightingStage extends RenderStage {
                 const passes = subModel.passes;
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
-                    // TODO: need fallback of ulit and gizmo material.
-                    if (pass.phase !== this._phaseID && pass.phase !== this._defPhaseID) continue;
+                    if (pass.phase !== this._phaseID) continue;
                     for (k = 0; k < this._renderQueues.length; k++) {
                         this._renderQueues[k].insertRenderPass(ro, m, p);
                     }

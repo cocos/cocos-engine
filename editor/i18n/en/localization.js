@@ -747,8 +747,8 @@ module.exports = {
             description: "Physics system that based on cannon.js.",
         },
         physics_ammo: {
-            label: "bullet(ammo.js) Based Physics System",
-            description: "Physics system that based on bullet(ammo.js).",
+            label: "Bullet Based Physics System",
+            description: "Physics system that based on Bullet.",
         },
         physics_physx: {
             label: "PhysX Based Physics System",

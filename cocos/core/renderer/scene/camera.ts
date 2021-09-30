@@ -309,14 +309,12 @@ export class Camera {
         }
 
         // projection matrix
-        let orientation = this._device.surfaceTransform;
+        const swapchain = this.window?.swapchain;
+        const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
             // Only for rendertexture processing
-            if (this.window?.hasOffScreenAttachments) {
-                orientation = SurfaceTransform.IDENTITY;
-            }
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
@@ -411,6 +409,9 @@ export class Camera {
 
     set nearClip (nearClip) {
         this._nearClip = nearClip;
+        if (JSB) {
+            this._nativeObj!.nearClip = this._nearClip;
+        }
         this._isProjDirty = true;
     }
 
@@ -420,6 +421,9 @@ export class Camera {
 
     set farClip (farClip) {
         this._farClip = farClip;
+        if (JSB) {
+            this._nativeObj!.farClip = this._farClip;
+        }
         this._isProjDirty = true;
     }
 
@@ -449,7 +453,10 @@ export class Camera {
         const { x, width, height } = val;
         const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
-        switch (this._device.surfaceTransform) {
+        const swapchain = this.window?.swapchain;
+        const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
+
+        switch (orientation) {
         case SurfaceTransform.ROTATE_90:
             this._viewport.x = 1 - y - height;
             this._viewport.y = x;

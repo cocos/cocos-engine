@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-07-05T09:43:28.305Z"
+        "stamp": "2021-08-24T10:14:20.085Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -54,9 +54,9 @@
         "cc.ENGINE_VERSION",
         "cc.EditBoxComponent",
         "cc.EffectAsset",
+        "cc.EmptyDevice",
         "cc.Enum",
         "cc.Event",
-        "cc.EventListener",
         "cc.EventTarget",
         "cc.Float",
         "cc.Fog",
@@ -113,6 +113,7 @@
         "cc.GFXFormatType",
         "cc.GFXFramebuffer",
         "cc.GFXFramebufferInfo",
+        "cc.GFXGFXObject",
         "cc.GFXGetTypeSize",
         "cc.GFXGlobalBarrier",
         "cc.GFXGlobalBarrierInfo",
@@ -125,7 +126,6 @@
         "cc.GFXMemoryAccessBit",
         "cc.GFXMemoryStatus",
         "cc.GFXMemoryUsageBit",
-        "cc.GFXObject",
         "cc.GFXObjectType",
         "cc.GFXOffset",
         "cc.GFXPipelineBindPoint",
@@ -159,6 +159,8 @@
         "cc.GFXSubpassDependency",
         "cc.GFXSubpassInfo",
         "cc.GFXSurfaceTransform",
+        "cc.GFXSwapchain",
+        "cc.GFXSwapchainInfo",
         "cc.GFXTexture",
         "cc.GFXTextureBarrier",
         "cc.GFXTextureBarrierInfo",
@@ -181,6 +183,7 @@
         "cc.GFXUniformStorageImage",
         "cc.GFXUniformTexture",
         "cc.GFXViewport",
+        "cc.GFXVsyncMode",
         "cc.GFX_DRAW_INFO_SIZE",
         "cc.Game",
         "cc.GraphicsComponent",
@@ -342,7 +345,6 @@
         "cc.renderer",
         "cc.resources",
         "cc.sampleAnimationCurve",
-        "cc.samplerLib",
         "cc.screen",
         "cc.size",
         "cc.sys",

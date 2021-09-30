@@ -39,6 +39,7 @@ export interface IParticleSystemRenderer {
     onDisable (): void;
     onDestroy (): void;
     clear (): void;
+    getModel (): ParticleBatchModel | null;
     attachToScene (): void;
     detachFromScene (): void;
     updateMaterialParams (): void;
@@ -121,6 +122,10 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
 
     public clear () {
         if (this._model) this._model.enabled = false;
+    }
+
+    public getModel () {
+        return this._model;
     }
 
     protected _initModel () {

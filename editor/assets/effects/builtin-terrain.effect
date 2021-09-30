@@ -22,17 +22,6 @@ CCEffect %{
         lightMap:     { value: grey }
     - vert: terrain-vs
       frag: terrain-fs
-      phase: deferred
-      propertyIndex: 0
-      blendState:
-        targets:
-        - blend: false
-        - blend: false
-        - blend: false
-        - blend: false
-      properties: *props
-    - vert: terrain-vs
-      frag: terrain-fs
       phase: forward-add
       propertyIndex: 0
       embeddedMacros: { CC_FORWARD_ADD: true }

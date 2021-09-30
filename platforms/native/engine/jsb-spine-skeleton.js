@@ -26,6 +26,7 @@ const cacheManager = require('./jsb-cache-manager');
 
 (function(){
     if (window.spine === undefined || window.middleware === undefined) return;
+    if (cc.internal.SpineSkeletonData === undefined) return;
     
 
     middleware.generateGetSet(spine);

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -31,11 +32,11 @@
  */
 
 // eslint-disable-next-line max-len
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, inspector, boolean, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, Vec4 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { scene } from '../core/renderer';
 import ColorOverLifetimeModule from './animator/color-overtime';
@@ -49,7 +50,7 @@ import TextureAnimationModule from './animator/texture-animation';
 import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
 import ShapeModule from './emitter/shape-module';
-import { RenderMode, Space } from './enum';
+import { CullingMode, RenderMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
@@ -57,6 +58,9 @@ import { IParticleSystemRenderer } from './renderer/particle-system-renderer-bas
 import { Particle, PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
+import { AABB, intersect } from '../core/geometry';
+import { Camera } from '../core/renderer/scene';
+import { ParticleCuller } from './particle-culler';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -314,6 +318,115 @@ export class ParticleSystem extends RenderableComponent {
     @tooltip('i18n:particle_system.bursts')
     public bursts: Burst[] = [];
 
+    /**
+     * @en Enable particle culling switch. Open it to enable particle culling. If enabled will generate emitter bounding box and emitters outside the frustum will be culled.
+     * @zh 粒子剔除开关，如果打开将会生成一个发射器包围盒，包围盒在相机外发射器将被剔除。
+     */
+    @type(Boolean)
+    @displayOrder(27)
+    @tooltip('i18n:particle_system.enableCulling')
+    set enableCulling (value: boolean) {
+        this._enableCulling = value;
+        if (value) {
+            if (!this._boundingBox) {
+                this._boundingBox = new AABB();
+                this._calculateBounding(false);
+            }
+        }
+    }
+
+    get enableCulling () {
+        return this._enableCulling;
+    }
+
+    @serializable
+    private _enableCulling = false;
+
+    /**
+     * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
+     * @zh 粒子剔除模式选择。包括暂停模拟，暂停以后快进继续以及不间断模拟。
+     */
+    @type(CullingMode)
+    @displayOrder(17)
+    get cullingMode () {
+        return this._cullingMode;
+    }
+
+    set cullingMode (value: number) {
+        this._cullingMode = value;
+    }
+
+    @serializable
+    _cullingMode = CullingMode.Pause;
+
+    public static CullingMode = CullingMode;
+
+    /**
+     * @en Particle bounding box half width.
+     * @zh 粒子包围盒半宽。
+     */
+    @type(Number)
+    @displayOrder(17)
+    get aabbHalfX () {
+        const res = this.getBoundingX();
+        if (res) {
+            return res;
+        } else {
+            return 0;
+        }
+    }
+
+    set aabbHalfX (value: number) {
+        this.setBoundingX(value);
+    }
+
+    @serializable
+    private _aabbHalfX = 0;
+
+    /**
+     * @en Particle bounding box half height.
+     * @zh 粒子包围盒半高。
+     */
+    @type(Number)
+    @displayOrder(17)
+    get aabbHalfY () {
+        const res = this.getBoundingY();
+        if (res) {
+            return res;
+        } else {
+            return 0;
+        }
+    }
+
+    set aabbHalfY (value: number) {
+        this.setBoundingY(value);
+    }
+
+    @serializable
+    private _aabbHalfY = 0;
+
+    /**
+     * @en Particle bounding box half depth.
+     * @zh 粒子包围盒半深。
+     */
+    @type(Number)
+    @displayOrder(17)
+    get aabbHalfZ () {
+        const res = this.getBoundingZ();
+        if (res) {
+            return res;
+        } else {
+            return 0;
+        }
+    }
+
+    set aabbHalfZ (value: number) {
+        this.setBoundingZ(value);
+    }
+
+    @serializable
+    private _aabbHalfZ = 0;
+
     @override
     @visible(false)
     @type(Material)
@@ -555,12 +668,6 @@ export class ParticleSystem extends RenderableComponent {
     @tooltip('i18n:particle_system.renderer')
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
-    // serilized culling
-    @serializable
-    @displayOrder(27)
-    @tooltip('i18n:particle_system.enableCulling')
-    public enableCulling = false;
-
     /**
      * @ignore
      */
@@ -575,6 +682,12 @@ export class ParticleSystem extends RenderableComponent {
     private _emitRateDistanceCounter: number;
     private _oldWPos: Vec3;
     private _curWPos: Vec3;
+
+    private _boundingBox: AABB | null;
+    private _culler: ParticleCuller | null;
+    private _oldPos: Vec3 | null;
+    private _curPos: Vec3 | null;
+    private _isCulled: boolean;
 
     private _customData1: Vec2;
     private _customData2: Vec2;
@@ -612,6 +725,12 @@ export class ParticleSystem extends RenderableComponent {
         this._emitRateDistanceCounter = 0.0;
         this._oldWPos = new Vec3();
         this._curWPos = new Vec3();
+
+        this._boundingBox = null;
+        this._culler = null;
+        this._oldPos = null;
+        this._curPos = null;
+        this._isCulled = false;
 
         this._customData1 = new Vec2();
         this._customData2 = new Vec2();
@@ -664,6 +783,14 @@ export class ParticleSystem extends RenderableComponent {
         this.processor.detachFromScene();
         if (this._trailModule && this._trailModule.enable) {
             this._trailModule._detachFromScene();
+        }
+        if (this._boundingBox) {
+            this._boundingBox = null;
+        }
+        if (this._culler) {
+            this._culler.clear();
+            this._culler.destroy();
+            this._culler = null;
         }
     }
 
@@ -756,6 +883,7 @@ export class ParticleSystem extends RenderableComponent {
             this.processor.clear();
             if (this._trailModule) this._trailModule.clear();
         }
+        this._calculateBounding(true);
     }
 
     /**
@@ -781,6 +909,11 @@ export class ParticleSystem extends RenderableComponent {
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
+        if (this._culler) {
+            this._culler.clear();
+            this._culler.destroy();
+            this._culler = null;
+        }
     }
 
     protected onEnable () {
@@ -795,9 +928,135 @@ export class ParticleSystem extends RenderableComponent {
         legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
+        if (this._boundingBox) {
+            this._boundingBox = null;
+        }
+        if (this._culler) {
+            this._culler.clear();
+            this._culler.destroy();
+            this._culler = null;
+        }
     }
+
+    private _calculateBounding (forceRefresh: boolean) {
+        if (this._boundingBox) {
+            if (!this._culler) {
+                this._culler = new ParticleCuller(this);
+            }
+            this._culler.calculatePositions();
+            AABB.fromPoints(this._boundingBox, this._culler.minPos, this._culler.maxPos);
+            if (forceRefresh) {
+                this.aabbHalfX = this._boundingBox.halfExtents.x;
+                this.aabbHalfY = this._boundingBox.halfExtents.y;
+                this.aabbHalfZ = this._boundingBox.halfExtents.z;
+            } else {
+                if (this.aabbHalfX) {
+                    this.setBoundingX(this.aabbHalfX);
+                } else {
+                    this.aabbHalfX = this._boundingBox.halfExtents.x;
+                }
+
+                if (this.aabbHalfY) {
+                    this.setBoundingY(this.aabbHalfY);
+                } else {
+                    this.aabbHalfY = this._boundingBox.halfExtents.y;
+                }
+
+                if (this.aabbHalfZ) {
+                    this.setBoundingZ(this.aabbHalfZ);
+                } else {
+                    this.aabbHalfZ = this._boundingBox.halfExtents.z;
+                }
+            }
+            this._culler.clear();
+        }
+    }
+
     protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
+
+        if (this.enableCulling) {
+            if (!this._boundingBox) {
+                this._boundingBox = new AABB();
+                this._calculateBounding(false);
+            }
+
+            if (!this._curPos) {
+                this._curPos = new Vec3();
+            }
+            this.node.getWorldPosition(this._curPos);
+            if (!this._oldPos) {
+                this._oldPos = new Vec3();
+                this._oldPos.set(this._curPos);
+            }
+            if (!this._curPos.equals(this._oldPos) && this._boundingBox && this._culler) {
+                const dx = this._curPos.x - this._oldPos.x;
+                const dy = this._curPos.y - this._oldPos.y;
+                const dz = this._curPos.z - this._oldPos.z;
+                const center = this._boundingBox.center;
+                center.x += dx;
+                center.y += dy;
+                center.z += dz;
+                this._culler.setBoundingBoxCenter(center.x, center.y, center.z);
+                this._oldPos.set(this._curPos);
+            }
+
+            const cameraLst: Camera[]|undefined = this.node.scene.renderScene?.cameras;
+            let culled = true;
+            if (cameraLst !== undefined && this._boundingBox) {
+                for (let i = 0; i < cameraLst.length; ++i) {
+                    const camera:Camera = cameraLst[i];
+                    const visibility = camera.visibility;
+                    if ((visibility & this.node.layer) === this.node.layer) {
+                        if (EDITOR) {
+                            if (camera.name === 'Editor Camera' && intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                                culled = false;
+                                break;
+                            }
+                        } else if (intersect.aabbFrustum(this._boundingBox, camera.frustum)) {
+                            culled = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (culled) {
+                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
+                    this.pause();
+                }
+                if (!this._isCulled) {
+                    this.processor.detachFromScene();
+                    this._isCulled = true;
+                }
+                if (this._trailModule && this._trailModule.enable) {
+                    this._trailModule._detachFromScene();
+                }
+                if (this._cullingMode === CullingMode.PauseAndCatchup) {
+                    this._time += scaledDeltaTime;
+                }
+                if (this._cullingMode !== CullingMode.AlwaysSimulate) {
+                    return;
+                }
+            } else {
+                if (this._isCulled) {
+                    this._attachToScene();
+                    this._isCulled = false;
+                }
+                if (!this._isPlaying) {
+                    this.play();
+                }
+            }
+        } else {
+            if (this._boundingBox) {
+                this._boundingBox = null;
+            }
+            if (this._culler) {
+                this._culler.clear();
+                this._culler.destroy();
+                this._culler = null;
+            }
+        }
+
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
@@ -831,26 +1090,6 @@ export class ParticleSystem extends RenderableComponent {
         if (this.processor._model) {
             // @ts-expect-error private property access
             this.processor._model.visFlags = val;
-        }
-    }
-
-    private _processRotation (particle) {
-        // Same as the particle-vs-legacy.chunk glsl statemants in remark
-        const renderMode = this.processor.getInfo().renderMode;
-        if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.StrecthedBillboard) {
-                particle.startEuler.set(0, 0, 0);
-            } else if (renderMode !== RenderMode.Billboard) {
-                particle.startEuler.set(0, 0, particle.startEuler.z);
-            }
-        }
-
-        // eslint-disable-next-line max-len
-        Quat.fromEuler(particle.startRotation, particle.startEuler.x * Particle.R2D, particle.startEuler.y * Particle.R2D, particle.startEuler.z * Particle.R2D);
-        particle.startRotation = Quat.normalize(particle.startRotation, particle.startRotation);
-
-        if (particle.startRotation.w < 0.0) { // Use vec3 to save quat so we need identify negative w
-            particle.startRotation.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w & revert the quat in shader
         }
     }
 
@@ -907,8 +1146,7 @@ export class ParticleSystem extends RenderableComponent {
             } else {
                 particle.startEuler.set(0, 0, this.startRotationZ.evaluate(loopDelta, rand));
             }
-            this._processRotation(particle);
-            Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
+            Vec3.set(particle.rotation, particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
 
             // apply startSize.
             if (this.startSize3D) {
@@ -1011,6 +1249,42 @@ export class ParticleSystem extends RenderableComponent {
 
     private removeBurst (idx) {
         this.bursts.splice(this.bursts.indexOf(idx), 1);
+    }
+
+    private getBoundingX () {
+        return this._aabbHalfX;
+    }
+
+    private getBoundingY () {
+        return this._aabbHalfY;
+    }
+
+    private getBoundingZ () {
+        return this._aabbHalfZ;
+    }
+
+    private setBoundingX (value: number) {
+        if (this._boundingBox && this._culler) {
+            this._boundingBox.halfExtents.x = value;
+            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
+            this._aabbHalfX = value;
+        }
+    }
+
+    private setBoundingY (value: number) {
+        if (this._boundingBox && this._culler) {
+            this._boundingBox.halfExtents.y = value;
+            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
+            this._aabbHalfY = value;
+        }
+    }
+
+    private setBoundingZ (value: number) {
+        if (this._boundingBox && this._culler) {
+            this._boundingBox.halfExtents.z = value;
+            this._culler.setBoundingBoxSize(this._boundingBox.halfExtents);
+            this._aabbHalfZ = value;
+        }
     }
 
     /**

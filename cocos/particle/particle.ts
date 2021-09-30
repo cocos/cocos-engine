@@ -46,6 +46,7 @@ export class Particle {
     public rotation: Vec3;
     public startEuler: Vec3;
     public startRotation: Quat;
+    public startRotated: boolean;
     public deltaQuat: Quat;
     public deltaMat: Mat4;
     public localMat: Mat4;
@@ -75,6 +76,7 @@ export class Particle {
         this.rotation = new Vec3(0, 0, 0);
         this.startEuler = new Vec3(0, 0, 0);
         this.startRotation = new Quat();
+        this.startRotated = false;
         this.deltaQuat = new Quat();
         this.deltaMat = new Mat4();
         this.localMat = new Mat4();
@@ -98,6 +100,7 @@ export class Particle {
         this.rotation.set(0, 0, 0);
         this.startEuler.set(0, 0, 0);
         this.startRotation.set(0, 0, 0, 1);
+        this.startRotated = false;
         this.deltaQuat.set(0, 0, 0, 1);
         this.deltaMat.identity();
         this.localMat.identity();

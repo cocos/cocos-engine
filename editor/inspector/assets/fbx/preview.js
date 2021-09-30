@@ -3,7 +3,11 @@ const events = require('./events');
 const eventEditor = require('./event-editor');
 
 exports.template = `
-<div class="preview">
+<div class="multiple">
+    <ui-label class="big" value="i18n:ENGINE.assets.fbx.modelPreview"></ui-label>
+    <ui-label value="i18n:ENGINE.assets.multipleWarning"></ui-label>
+</div>
+<ui-drag-area class="preview" droppable="cc.Asset">
     <div class="animation-info">
         <div class="flex">
             <div class="toolbar" id="timeCtrl">
@@ -37,10 +41,22 @@ exports.template = `
     <div class="image">
         <canvas class="canvas"></canvas>
     </div>
-</div>
+</ui-drag-area>
 `;
 
-exports.style = `
+exports.style = /*css*/`
+.multiple {
+    text-align: center;
+    min-height: 200px;
+    margin-top: 16px;
+    border-top: 1px solid var(--color-normal-border);
+}
+.multiple > ui-label {
+    display: block;
+}
+.multiple > ui-label.big {
+    font-size: 14px;
+}
 .flex {
     display: flex;
 }
@@ -49,8 +65,13 @@ exports.style = `
     flex: 1;
 }
 .preview {
+    min-height: 200px;
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
+}
+.preview[hoving] {
+    outline: 2px solid var(--color-focus-fill-weaker);
+    outline-offset: -2px;
 }
 .preview > .model-info {
     padding-top: 5px;
@@ -64,7 +85,7 @@ exports.style = `
     overflow: hidden;
     display: flex;
     flex: 1;
-    margin-right: 10px;
+    margin: 2px;
 }
 .preview >.image > .canvas {
     flex: 1;
@@ -242,6 +263,7 @@ const PLAY_STATE = {
 };
 
 exports.$ = {
+    multiple: '.multiple',
     container: '.preview',
     vertices: '.vertices',
     triangles: '.triangles',
@@ -259,10 +281,57 @@ exports.$ = {
 };
 
 const Elements = {
-    preview: {
+    container: {
         ready() {
             const panel = this;
 
+            function observer() {
+                panel.isPreviewDataDirty = true;
+            }
+
+            panel.resizeObserver = new window.ResizeObserver(observer);
+            panel.resizeObserver.observe(panel.$.container);
+
+            // 识别拖入 fbx 资源
+            panel.$.container.addEventListener('drop', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                // 不支持多选拖入，多个时只取第一个值
+                const values = [];
+
+                const { additional, value } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
+
+                if (additional) {
+                    additional.forEach((info) => {
+                        if (info.type === 'cc.Prefab') {
+                            values.push(info.value);
+                        }
+                    });
+                }
+
+                if (value && !values.includes(value)) {
+                    values.push(value);
+                }
+
+                if (!values.length) {
+                    return;
+                }
+
+                const info = await Editor.Message.request('scene', 'set-model-preview-model', values[0]);
+                panel.infoUpdate(info);
+            });
+
+        },
+        close() {
+            const panel = this;
+
+            panel.resizeObserver.unobserve(panel.$.container);
+        },
+    },
+    preview: {
+        ready() {
+            const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await Editor.Message.request('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
 
@@ -299,7 +368,6 @@ const Elements = {
         },
         async update() {
             const panel = this;
-
             if (!panel.$.canvas) {
                 return;
             }
@@ -352,9 +420,14 @@ const Elements = {
 exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
+    this.isMultiple = this.assetList.length > 1;
+    this.$.container.hidden = this.isMultiple;
+    this.$.multiple.hidden = !this.isMultiple;
+    if(this.isMultiple) {
+        return;
+    }
     this.asset = assetList[0];
     this.meta = metaList[0];
-
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {
@@ -407,13 +480,6 @@ exports.ready = function() {
         }
     }
 
-    function observer() {
-        panel.isPreviewDataDirty = true;
-    }
-
-    panel.resizeObserver = new window.ResizeObserver(observer);
-    panel.resizeObserver.observe(panel.$.container);
-
     this.onAssetChangeBind = this.onAssetChange.bind(this);
     this.addAssetChangeListener(true);
 
@@ -438,7 +504,6 @@ exports.close = function() {
     Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
 
-    this.resizeObserver.unobserve(this.$.container);
     this.addAssetChangeListener(false);
 };
 

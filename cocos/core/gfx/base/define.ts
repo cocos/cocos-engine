@@ -28,11 +28,13 @@
  * @module gfx
  */
 
+import { ccenum } from '../../value-types/enum';
 import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';
 import { RenderPass } from './render-pass';
-import { Sampler } from './sampler';
+import { Sampler } from './states/sampler';
+import { Swapchain } from './swapchain';
 import { Texture } from './texture';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
@@ -55,6 +57,7 @@ const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Construct
 
 export enum ObjectType {
     UNKNOWN,
+    SWAPCHAIN,
     BUFFER,
     TEXTURE,
     RENDER_PASS,
@@ -71,6 +74,7 @@ export enum ObjectType {
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
+    COUNT,
 }
 
 export enum Status {
@@ -117,6 +121,21 @@ export enum Feature {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
+    // This flag indicates whether the device can benefit from subpass-style usages.
+    // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
+    // extension is used to simulate input attachments, so the flag is not set when
+    // the extension is not supported, and you should switch to the fallback branch
+    // (without the extension requirement) in GLSL shader sources accordingly.
+    // Everything else can remain the same.
+    //
+    // Another caveat when using the Framebuffer Fetch extensions in shaders is that
+    // for subpasses with exactly 4 inout attachments the output is automatically set
+    // to the last attachment (taking advantage of 'inout' property), and a separate
+    // blit operation (if needed) will be added for you afterwards to transfer the
+    // rendering result to the corrent subpass output texture. This is to ameliorate
+    // the max number of attachment limit(4) situation for many devices, and shader
+    // sources inside this kind of subpass must match this behavior.
+    INPUT_ATTACHMENT_BENEFIT,
     COUNT,
 }
 
@@ -185,12 +204,8 @@ export enum Format {
     RGB9E5,
 
     // Depth-Stencil Format
-    D16,
-    D16S8,
-    D24,
-    D24S8,
-    D32F,
-    D32F_S8,
+    DEPTH,
+    DEPTH_STENCIL,
 
     // Compressed Format
 
@@ -367,8 +382,8 @@ export enum MemoryAccessBit {
 
 export enum MemoryUsageBit {
     NONE   = 0,
-    DEVICE = 0x1,
-    HOST   = 0x2,
+    DEVICE = 0x1, // for rarely-updated resources, use MemoryUsageBit::DEVICE
+    HOST   = 0x2, // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
 export enum TextureType {
@@ -393,19 +408,39 @@ export enum TextureUsageBit {
 
 export enum TextureFlagBit {
     NONE           = 0,
-    GEN_MIPMAP     = 0x1,
-    IMMUTABLE      = 0x2,
-    GENERAL_LAYOUT = 0x4,
+    GEN_MIPMAP     = 0x1, // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
 }
 
 export enum SampleCount {
-    X1  = 0x1,
-    X2  = 0x2,
-    X4  = 0x4,
-    X8  = 0x8,
-    X16 = 0x10,
-    X32 = 0x20,
-    X64 = 0x40,
+    ONE,                  // Single sample
+    MULTIPLE_PERFORMANCE, // Multiple samples prioritizing performance over quality
+    MULTIPLE_BALANCE,     // Multiple samples leveraging both quality and performance
+    MULTIPLE_QUALITY,     // Multiple samples prioritizing quality over performance
+}
+
+export enum VsyncMode {
+    // The application does not synchronizes with the vertical sync.
+    // If application renders faster than the display refreshes, frames are wasted and tearing may be observed.
+    // FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
+    OFF,
+    // The application is always synchronized with the vertical sync. Tearing does not happen.
+    // FPS is capped to the display's refresh rate. For fast applications, battery life is improved. Always supported.
+    ON,
+    // The application synchronizes with the vertical sync, but only if the application rendering speed is greater than refresh rate.
+    // Compared to OFF, there is no tearing. Compared to ON, the FPS will be improved for "slower" applications.
+    // If unsupported, "ON" value will be used instead. Recommended for most applications. Default if supported.
+    RELAXED,
+    // The presentation engine will always use the latest fully rendered image.
+    // Compared to OFF, no tearing will be observed.
+    // Compared to ON, battery power will be worse, especially for faster applications.
+    // If unsupported,  "OFF" will be attempted next.
+    MAILBOX,
+    // The application is capped to using half the vertical sync time.
+    // FPS artificially capped to Half the display speed (usually 30fps) to maintain battery.
+    // Best possible battery savings. Worst possible performance.
+    // Recommended for specific applications where battery saving is critical.
+    HALF,
 }
 
 export enum Filter {
@@ -587,14 +622,12 @@ export enum CullMode {
 
 export enum DynamicStateFlagBit {
     NONE                 = 0x0,
-    VIEWPORT             = 0x1,
-    SCISSOR              = 0x2,
-    LINE_WIDTH           = 0x4,
-    DEPTH_BIAS           = 0x8,
-    BLEND_CONSTANTS      = 0x10,
-    DEPTH_BOUNDS         = 0x20,
-    STENCIL_WRITE_MASK   = 0x40,
-    STENCIL_COMPARE_MASK = 0x80,
+    LINE_WIDTH           = 0x1,
+    DEPTH_BIAS           = 0x2,
+    BLEND_CONSTANTS      = 0x4,
+    DEPTH_BOUNDS         = 0x8,
+    STENCIL_WRITE_MASK   = 0x10,
+    STENCIL_COMPARE_MASK = 0x20,
 }
 
 export enum StencilFace {
@@ -655,7 +688,7 @@ export class Size {
         public z: number = 0,
     ) {}
 
-    public copy (info: Size) {
+    public copy (info: Readonly<Size>) {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -680,8 +713,6 @@ export class DeviceCaps {
         public maxUniformBlockSize: number = 0,
         public maxTextureSize: number = 0,
         public maxCubeMapTextureSize: number = 0,
-        public depthBits: number = 0,
-        public stencilBits: number = 0,
         public uboOffsetAlignment: number = 1,
         public maxComputeSharedMemorySize: number = 0,
         public maxComputeWorkGroupInvocations: number = 0,
@@ -692,7 +723,7 @@ export class DeviceCaps {
         public clipSpaceSignY: number = 1,
     ) {}
 
-    public copy (info: DeviceCaps) {
+    public copy (info: Readonly<DeviceCaps>) {
         this.maxVertexAttributes = info.maxVertexAttributes;
         this.maxVertexUniformVectors = info.maxVertexUniformVectors;
         this.maxFragmentUniformVectors = info.maxFragmentUniformVectors;
@@ -706,8 +737,6 @@ export class DeviceCaps {
         this.maxUniformBlockSize = info.maxUniformBlockSize;
         this.maxTextureSize = info.maxTextureSize;
         this.maxCubeMapTextureSize = info.maxCubeMapTextureSize;
-        this.depthBits = info.depthBits;
-        this.stencilBits = info.stencilBits;
         this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.maxComputeSharedMemorySize = info.maxComputeSharedMemorySize;
         this.maxComputeWorkGroupInvocations = info.maxComputeWorkGroupInvocations;
@@ -729,7 +758,7 @@ export class Offset {
         public z: number = 0,
     ) {}
 
-    public copy (info: Offset) {
+    public copy (info: Readonly<Offset>) {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -747,7 +776,7 @@ export class Rect {
         public height: number = 0,
     ) {}
 
-    public copy (info: Rect) {
+    public copy (info: Readonly<Rect>) {
         this.x = info.x;
         this.y = info.y;
         this.width = info.width;
@@ -765,7 +794,7 @@ export class Extent {
         public depth: number = 1,
     ) {}
 
-    public copy (info: Extent) {
+    public copy (info: Readonly<Extent>) {
         this.width = info.width;
         this.height = info.height;
         this.depth = info.depth;
@@ -782,7 +811,7 @@ export class TextureSubresLayers {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: TextureSubresLayers) {
+    public copy (info: Readonly<TextureSubresLayers>) {
         this.mipLevel = info.mipLevel;
         this.baseArrayLayer = info.baseArrayLayer;
         this.layerCount = info.layerCount;
@@ -800,7 +829,7 @@ export class TextureSubresRange {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: TextureSubresRange) {
+    public copy (info: Readonly<TextureSubresRange>) {
         this.baseMipLevel = info.baseMipLevel;
         this.levelCount = info.levelCount;
         this.baseArrayLayer = info.baseArrayLayer;
@@ -820,7 +849,7 @@ export class TextureCopy {
         public extent: Extent = new Extent(),
     ) {}
 
-    public copy (info: TextureCopy) {
+    public copy (info: Readonly<TextureCopy>) {
         this.srcSubres.copy(info.srcSubres);
         this.srcOffset.copy(info.srcOffset);
         this.dstSubres.copy(info.dstSubres);
@@ -842,7 +871,7 @@ export class TextureBlit {
         public dstExtent: Extent = new Extent(),
     ) {}
 
-    public copy (info: TextureBlit) {
+    public copy (info: Readonly<TextureBlit>) {
         this.srcSubres.copy(info.srcSubres);
         this.srcOffset.copy(info.srcOffset);
         this.srcExtent.copy(info.srcExtent);
@@ -864,7 +893,7 @@ export class BufferTextureCopy {
         public texSubres: TextureSubresLayers = new TextureSubresLayers(),
     ) {}
 
-    public copy (info: BufferTextureCopy) {
+    public copy (info: Readonly<BufferTextureCopy>) {
         this.buffStride = info.buffStride;
         this.buffTexHeight = info.buffTexHeight;
         this.texOffset.copy(info.texOffset);
@@ -886,7 +915,7 @@ export class Viewport {
         public maxDepth: number = 1,
     ) {}
 
-    public copy (info: Viewport) {
+    public copy (info: Readonly<Viewport>) {
         this.left = info.left;
         this.top = info.top;
         this.width = info.width;
@@ -907,7 +936,7 @@ export class Color {
         public w: number = 0,
     ) {}
 
-    public copy (info: Color) {
+    public copy (info: Readonly<Color>) {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
@@ -925,10 +954,42 @@ export class BindingMappingInfo {
         public flexibleSet: number = 0,
     ) {}
 
-    public copy (info: BindingMappingInfo) {
+    public copy (info: Readonly<BindingMappingInfo>) {
         this.bufferOffsets = info.bufferOffsets.slice();
         this.samplerOffsets = info.samplerOffsets.slice();
         this.flexibleSet = info.flexibleSet;
+        return this;
+    }
+}
+
+export class SwapchainInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public windowHandle: HTMLCanvasElement = null!,
+        public vsyncMode: VsyncMode = VsyncMode.ON,
+        public width: number = 0,
+        public height: number = 0,
+    ) {}
+
+    public copy (info: Readonly<SwapchainInfo>) {
+        this.windowHandle = info.windowHandle;
+        this.vsyncMode = info.vsyncMode;
+        this.width = info.width;
+        this.height = info.height;
+        return this;
+    }
+}
+
+export class DeviceInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo(),
+    ) {}
+
+    public copy (info: Readonly<DeviceInfo>) {
+        this.bindingMappingInfo.copy(info.bindingMappingInfo);
         return this;
     }
 }
@@ -944,7 +1005,7 @@ export class BufferInfo {
         public flags: BufferFlags = BufferFlagBit.NONE,
     ) {}
 
-    public copy (info: BufferInfo) {
+    public copy (info: Readonly<BufferInfo>) {
         this.usage = info.usage;
         this.memUsage = info.memUsage;
         this.size = info.size;
@@ -963,7 +1024,7 @@ export class BufferViewInfo {
         public range: number = 0,
     ) {}
 
-    public copy (info: BufferViewInfo) {
+    public copy (info: Readonly<BufferViewInfo>) {
         this.buffer = info.buffer;
         this.offset = info.offset;
         this.range = info.range;
@@ -984,7 +1045,7 @@ export class DrawInfo {
         public firstInstance: number = 0,
     ) {}
 
-    public copy (info: DrawInfo) {
+    public copy (info: Readonly<DrawInfo>) {
         this.vertexCount = info.vertexCount;
         this.firstVertex = info.firstVertex;
         this.indexCount = info.indexCount;
@@ -1007,7 +1068,7 @@ export class DispatchInfo {
         public indirectOffset: number = 0,
     ) {}
 
-    public copy (info: DispatchInfo) {
+    public copy (info: Readonly<DispatchInfo>) {
         this.groupCountX = info.groupCountX;
         this.groupCountY = info.groupCountY;
         this.groupCountZ = info.groupCountZ;
@@ -1024,7 +1085,7 @@ export class IndirectBuffer {
         public drawInfos: DrawInfo[] = [],
     ) {}
 
-    public copy (info: IndirectBuffer) {
+    public copy (info: Readonly<IndirectBuffer>) {
         deepCopy(this.drawInfos, info.drawInfos, DrawInfo);
         return this;
     }
@@ -1042,11 +1103,12 @@ export class TextureInfo {
         public flags: TextureFlags = TextureFlagBit.NONE,
         public layerCount: number = 1,
         public levelCount: number = 1,
-        public samples: SampleCount = SampleCount.X1,
+        public samples: SampleCount = SampleCount.ONE,
         public depth: number = 1,
+        public externalRes: number = 0,
     ) {}
 
-    public copy (info: TextureInfo) {
+    public copy (info: Readonly<TextureInfo>) {
         this.type = info.type;
         this.usage = info.usage;
         this.format = info.format;
@@ -1057,6 +1119,7 @@ export class TextureInfo {
         this.levelCount = info.levelCount;
         this.samples = info.samples;
         this.depth = info.depth;
+        this.externalRes = info.externalRes;
         return this;
     }
 }
@@ -1074,7 +1137,7 @@ export class TextureViewInfo {
         public layerCount: number = 1,
     ) {}
 
-    public copy (info: TextureViewInfo) {
+    public copy (info: Readonly<TextureViewInfo>) {
         this.texture = info.texture;
         this.type = info.type;
         this.format = info.format;
@@ -1098,11 +1161,9 @@ export class SamplerInfo {
         public addressW: Address = Address.WRAP,
         public maxAnisotropy: number = 0,
         public cmpFunc: ComparisonFunc = ComparisonFunc.ALWAYS,
-        public borderColor: Color = new Color(),
-        public mipLODBias: number = 0,
     ) {}
 
-    public copy (info: SamplerInfo) {
+    public copy (info: Readonly<SamplerInfo>) {
         this.minFilter = info.minFilter;
         this.magFilter = info.magFilter;
         this.mipFilter = info.mipFilter;
@@ -1111,8 +1172,6 @@ export class SamplerInfo {
         this.addressW = info.addressW;
         this.maxAnisotropy = info.maxAnisotropy;
         this.cmpFunc = info.cmpFunc;
-        this.borderColor.copy(info.borderColor);
-        this.mipLODBias = info.mipLODBias;
         return this;
     }
 }
@@ -1126,7 +1185,7 @@ export class Uniform {
         public count: number = 0,
     ) {}
 
-    public copy (info: Uniform) {
+    public copy (info: Readonly<Uniform>) {
         this.name = info.name;
         this.type = info.type;
         this.count = info.count;
@@ -1145,7 +1204,7 @@ export class UniformBlock {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformBlock) {
+    public copy (info: Readonly<UniformBlock>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1166,7 +1225,7 @@ export class UniformSamplerTexture {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformSamplerTexture) {
+    public copy (info: Readonly<UniformSamplerTexture>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1186,7 +1245,7 @@ export class UniformSampler {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformSampler) {
+    public copy (info: Readonly<UniformSampler>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1206,7 +1265,7 @@ export class UniformTexture {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformTexture) {
+    public copy (info: Readonly<UniformTexture>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1228,7 +1287,7 @@ export class UniformStorageImage {
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
     ) {}
 
-    public copy (info: UniformStorageImage) {
+    public copy (info: Readonly<UniformStorageImage>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1250,7 +1309,7 @@ export class UniformStorageBuffer {
         public memoryAccess: MemoryAccess = MemoryAccessBit.READ_WRITE,
     ) {}
 
-    public copy (info: UniformStorageBuffer) {
+    public copy (info: Readonly<UniformStorageBuffer>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1270,7 +1329,7 @@ export class UniformInputAttachment {
         public count: number = 0,
     ) {}
 
-    public copy (info: UniformInputAttachment) {
+    public copy (info: Readonly<UniformInputAttachment>) {
         this.set = info.set;
         this.binding = info.binding;
         this.name = info.name;
@@ -1287,7 +1346,7 @@ export class ShaderStage {
         public source: string = '',
     ) {}
 
-    public copy (info: ShaderStage) {
+    public copy (info: Readonly<ShaderStage>) {
         this.stage = info.stage;
         this.source = info.source;
         return this;
@@ -1306,7 +1365,7 @@ export class Attribute {
         public location: number = 0,
     ) {}
 
-    public copy (info: Attribute) {
+    public copy (info: Readonly<Attribute>) {
         this.name = info.name;
         this.format = info.format;
         this.isNormalized = info.isNormalized;
@@ -1333,7 +1392,7 @@ export class ShaderInfo {
         public subpassInputs: UniformInputAttachment[] = [],
     ) {}
 
-    public copy (info: ShaderInfo) {
+    public copy (info: Readonly<ShaderInfo>) {
         this.name = info.name;
         deepCopy(this.stages, info.stages, ShaderStage);
         deepCopy(this.attributes, info.attributes, Attribute);
@@ -1358,7 +1417,7 @@ export class InputAssemblerInfo {
         public indirectBuffer: Buffer | null = null,
     ) {}
 
-    public copy (info: InputAssemblerInfo) {
+    public copy (info: Readonly<InputAssemblerInfo>) {
         deepCopy(this.attributes, info.attributes, Attribute);
         this.vertexBuffers = info.vertexBuffers.slice();
         this.indexBuffer = info.indexBuffer;
@@ -1372,15 +1431,15 @@ export class ColorAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.X1,
+        public sampleCount: SampleCount = SampleCount.ONE,
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
         public beginAccesses: AccessType[] = [],
-        public endAccesses: AccessType[] = [AccessType.PRESENT],
+        public endAccesses: AccessType[] = [AccessType.COLOR_ATTACHMENT_WRITE],
         public isGeneralLayout: boolean = false,
     ) {}
 
-    public copy (info: ColorAttachment) {
+    public copy (info: Readonly<ColorAttachment>) {
         this.format = info.format;
         this.sampleCount = info.sampleCount;
         this.loadOp = info.loadOp;
@@ -1397,7 +1456,7 @@ export class DepthStencilAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.X1,
+        public sampleCount: SampleCount = SampleCount.ONE,
         public depthLoadOp: LoadOp = LoadOp.CLEAR,
         public depthStoreOp: StoreOp = StoreOp.STORE,
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
@@ -1407,7 +1466,7 @@ export class DepthStencilAttachment {
         public isGeneralLayout: boolean = false,
     ) {}
 
-    public copy (info: DepthStencilAttachment) {
+    public copy (info: Readonly<DepthStencilAttachment>) {
         this.format = info.format;
         this.sampleCount = info.sampleCount;
         this.depthLoadOp = info.depthLoadOp;
@@ -1435,7 +1494,7 @@ export class SubpassInfo {
         public stencilResolveMode: ResolveMode = ResolveMode.NONE,
     ) {}
 
-    public copy (info: SubpassInfo) {
+    public copy (info: Readonly<SubpassInfo>) {
         this.inputs = info.inputs.slice();
         this.colors = info.colors.slice();
         this.resolves = info.resolves.slice();
@@ -1458,7 +1517,7 @@ export class SubpassDependency {
         public dstAccesses: AccessType[] = [],
     ) {}
 
-    public copy (info: SubpassDependency) {
+    public copy (info: Readonly<SubpassDependency>) {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.srcAccesses = info.srcAccesses.slice();
@@ -1477,7 +1536,7 @@ export class RenderPassInfo {
         public dependencies: SubpassDependency[] = [],
     ) {}
 
-    public copy (info: RenderPassInfo) {
+    public copy (info: Readonly<RenderPassInfo>) {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
         this.depthStencilAttachment.copy(info.depthStencilAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
@@ -1494,7 +1553,7 @@ export class GlobalBarrierInfo {
         public nextAccesses: AccessType[] = [],
     ) {}
 
-    public copy (info: GlobalBarrierInfo) {
+    public copy (info: Readonly<GlobalBarrierInfo>) {
         this.prevAccesses = info.prevAccesses.slice();
         this.nextAccesses = info.nextAccesses.slice();
         return this;
@@ -1512,7 +1571,7 @@ export class TextureBarrierInfo {
         public dstQueue: Queue | null = null,
     ) {}
 
-    public copy (info: TextureBarrierInfo) {
+    public copy (info: Readonly<TextureBarrierInfo>) {
         this.prevAccesses = info.prevAccesses.slice();
         this.nextAccesses = info.nextAccesses.slice();
         this.discardContents = info.discardContents;
@@ -1527,11 +1586,11 @@ export class FramebufferInfo {
 
     constructor (
         public renderPass: RenderPass = null!,
-        public colorTextures: (Texture | null)[] = [],
+        public colorTextures: Texture[] = [],
         public depthStencilTexture: Texture | null = null,
     ) {}
 
-    public copy (info: FramebufferInfo) {
+    public copy (info: Readonly<FramebufferInfo>) {
         this.renderPass = info.renderPass;
         this.colorTextures = info.colorTextures.slice();
         this.depthStencilTexture = info.depthStencilTexture;
@@ -1550,7 +1609,7 @@ export class DescriptorSetLayoutBinding {
         public immutableSamplers: Sampler[] = [],
     ) {}
 
-    public copy (info: DescriptorSetLayoutBinding) {
+    public copy (info: Readonly<DescriptorSetLayoutBinding>) {
         this.binding = info.binding;
         this.descriptorType = info.descriptorType;
         this.count = info.count;
@@ -1567,7 +1626,7 @@ export class DescriptorSetLayoutInfo {
         public bindings: DescriptorSetLayoutBinding[] = [],
     ) {}
 
-    public copy (info: DescriptorSetLayoutInfo) {
+    public copy (info: Readonly<DescriptorSetLayoutInfo>) {
         deepCopy(this.bindings, info.bindings, DescriptorSetLayoutBinding);
         return this;
     }
@@ -1580,7 +1639,7 @@ export class DescriptorSetInfo {
         public layout: DescriptorSetLayout = null!,
     ) {}
 
-    public copy (info: DescriptorSetInfo) {
+    public copy (info: Readonly<DescriptorSetInfo>) {
         this.layout = info.layout;
         return this;
     }
@@ -1593,7 +1652,7 @@ export class PipelineLayoutInfo {
         public setLayouts: DescriptorSetLayout[] = [],
     ) {}
 
-    public copy (info: PipelineLayoutInfo) {
+    public copy (info: Readonly<PipelineLayoutInfo>) {
         this.setLayouts = info.setLayouts.slice();
         return this;
     }
@@ -1606,7 +1665,7 @@ export class InputState {
         public attributes: Attribute[] = [],
     ) {}
 
-    public copy (info: InputState) {
+    public copy (info: Readonly<InputState>) {
         deepCopy(this.attributes, info.attributes, Attribute);
         return this;
     }
@@ -1620,7 +1679,7 @@ export class CommandBufferInfo {
         public type: CommandBufferType = CommandBufferType.PRIMARY,
     ) {}
 
-    public copy (info: CommandBufferInfo) {
+    public copy (info: Readonly<CommandBufferInfo>) {
         this.queue = info.queue;
         this.type = info.type;
         return this;
@@ -1634,7 +1693,7 @@ export class QueueInfo {
         public type: QueueType = QueueType.GRAPHICS,
     ) {}
 
-    public copy (info: QueueInfo) {
+    public copy (info: Readonly<QueueInfo>) {
         this.type = info.type;
         return this;
     }
@@ -1663,7 +1722,7 @@ export class MemoryStatus {
         public textureSize: number = 0,
     ) {}
 
-    public copy (info: MemoryStatus) {
+    public copy (info: Readonly<MemoryStatus>) {
         this.bufferSize = info.bufferSize;
         this.textureSize = info.textureSize;
         return this;
@@ -1679,7 +1738,7 @@ export class DynamicStencilStates {
         public reference: number = 0,
     ) {}
 
-    public copy (info: DynamicStencilStates) {
+    public copy (info: Readonly<DynamicStencilStates>) {
         this.writeMask = info.writeMask;
         this.compareMask = info.compareMask;
         this.reference = info.reference;
@@ -1704,7 +1763,7 @@ export class DynamicStates {
         public stencilStatesBack: DynamicStencilStates = new DynamicStencilStates(),
     ) {}
 
-    public copy (info: DynamicStates) {
+    public copy (info: Readonly<DynamicStates>) {
         this.viewport.copy(info.viewport);
         this.scissor.copy(info.scissor);
         this.blendConstant.copy(info.blendConstant);
@@ -1728,65 +1787,43 @@ export class DynamicStates {
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
  */
 
+ccenum(Format);
+
 /**
  * @en GFX base object.
  * @zh GFX 基类对象。
  */
-export class Obj {
-    public get gfxType (): ObjectType {
-        return this._gfxType;
+export class GFXObject {
+    public get objectType (): ObjectType {
+        return this._objectType;
     }
 
-    protected _gfxType = ObjectType.UNKNOWN;
+    public get objectID (): number {
+        return this._objectID;
+    }
 
-    constructor (gfxType: ObjectType) {
-        this._gfxType = gfxType;
+    public get typedID (): number {
+        return this._typedID;
+    }
+
+    protected _objectType = ObjectType.UNKNOWN;
+    protected _objectID = 0;
+    protected _typedID = 0;
+
+    private static _idTable = Array(ObjectType.COUNT).fill(1 << 16);
+
+    constructor (objectType: ObjectType) {
+        this._objectType = objectType;
+        this._objectID = GFXObject._idTable[ObjectType.UNKNOWN]++;
+        this._typedID = GFXObject._idTable[objectType]++;
     }
 }
 
-export class DeviceInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public canvasElm: HTMLElement,
-        public isAntialias: boolean = true,
-        public isPremultipliedAlpha: boolean = true,
-        public devicePixelRatio: number = 1,
-        public width: number = 1,
-        public height: number = 1,
-        /**
-         * For non-vulkan backends, to maintain compatibility and maximize
-         * descriptor cache-locality, descriptor-set-based binding numbers need
-         * to be mapped to backend-specific bindings based on the maximum limit
-         * of available descriptor slots in each set.
-         *
-         * The GFX layer assumes the binding numbers for each descriptor type inside each set
-         * are guaranteed to be consecutive, so the mapping procedure is reduced
-         * to a simple shifting operation. This data structure specifies the
-         * offsets for each descriptor type in each set.
-         */
-        public bindingMappingInfo = new BindingMappingInfo(),
-    ) {}
-}
-
-export interface IUniform {
-    name: string;
-    type: Type;
-    count: number;
-}
-
-export interface IShaderStage {
-    stage: ShaderStageFlagBit;
-    source: string;
-}
-
-export interface IAttribute {
-    name: string;
+export interface ISwapchainTextureInfo {
+    swapchain: Swapchain;
     format: Format;
-    isNormalized: boolean;
-    stream: number;
-    isInstanced: boolean;
-    location: number;
+    width: number;
+    height: number;
 }
 
 export enum AttributeName {
@@ -1875,12 +1912,8 @@ export const FormatInfos = Object.freeze([
     new FormatInfo('RGB10A2UI', 2, 4, FormatType.UINT, true, false, false, false),
     new FormatInfo('RGB9E5', 2, 4, FormatType.FLOAT, true, false, false, false),
 
-    new FormatInfo('D16', 2, 1, FormatType.UINT, false, true, false, false),
-    new FormatInfo('D16S8', 3, 2, FormatType.UINT, false, true, true, false),
-    new FormatInfo('D24', 3, 1, FormatType.UINT, false, true, false, false),
-    new FormatInfo('D24S8', 4, 2, FormatType.UINT, false, true, true, false),
-    new FormatInfo('D32F', 4, 1, FormatType.FLOAT, false, true, false, false),
-    new FormatInfo('D32FS8', 5, 2, FormatType.FLOAT, false, true, true, false),
+    new FormatInfo('DEPTH', 4, 1, FormatType.FLOAT, false, true, false, false),
+    new FormatInfo('DEPTH_STENCIL', 5, 2, FormatType.FLOAT, false, true, true, false),
 
     new FormatInfo('BC1', 1, 3, FormatType.UNORM, false, false, false, true),
     new FormatInfo('BC1_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),

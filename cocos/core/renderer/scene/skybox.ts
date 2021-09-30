@@ -30,14 +30,13 @@ import { Mesh } from '../../../3d/assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
 import { UNIFORM_ENVIRONMENT_BINDING, UNIFORM_DIFFUSEMAP_BINDING } from '../../pipeline/define';
 import { MaterialInstance } from '../core/material-instance';
-import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
-import { DescriptorSet } from '../../gfx';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
 import { NaitveSkybox } from './native-scene';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
+import { Device } from '../../gfx';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -306,16 +305,15 @@ export class Skybox {
     }
 
     protected _updateGlobalBinding () {
-        const textureEnvmap = this.envmap!.getGFXTexture()!;
-        const samplerEnvmap = samplerLib.getSampler(legacyCC.director._device, this.envmap!.getSamplerHash());
-
-        this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, samplerEnvmap);
-        this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, textureEnvmap);
+        const texture = this.envmap!.getGFXTexture()!;
+        const device = legacyCC.director.root.device as Device;
+        const sampler = device.getSampler(this.envmap!.getSamplerInfo());
+        this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
+        this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
 
         if (this.diffusemap) {
             const textureDiffusemap = this.diffusemap.getGFXTexture()!;
-            const samplerDiffusemap = samplerLib.getSampler(legacyCC.director._device, this.diffusemap.getSamplerHash());
-
+            const samplerDiffusemap = device.getSampler(this.diffusemap.getSamplerInfo());
             this._globalDSManager!.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffusemap);
             this._globalDSManager!.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffusemap);
         }

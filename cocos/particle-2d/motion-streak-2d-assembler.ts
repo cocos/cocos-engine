@@ -32,7 +32,7 @@
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 
 const _tangent = new Vec2();
 // const _miter = new Vec2();
@@ -186,7 +186,7 @@ export const MotionStreakAssembler: IAssembler = {
     updateRenderData (comp: MotionStreak) {
     },
 
-    fillBuffers (comp: MotionStreak, renderer: Batcher2D) {
+    fillBuffers (comp: MotionStreak, renderer: IBatcher) {
         const renderData = comp.renderData!;
         const dataList = renderData.data;
         const node = comp.node;
