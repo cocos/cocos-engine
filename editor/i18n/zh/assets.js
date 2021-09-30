@@ -309,6 +309,6 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: 自定义 effect {effect} 的 inspector 加载失败',
             'illegal-inspector-url': "Inspector的路径不合法",
         },
-        multipleWarning: '不支持此类型资源的多选编辑'
+        multipleWarning: '不支持此类型资源的多选编辑',
     },
 };
