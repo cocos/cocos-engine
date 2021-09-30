@@ -43,8 +43,8 @@ String getStacktraceJS() {
 namespace gfx {
 
 void CommandRecorder::recordBeginRenderPass(const RenderPassSnapshot &renderPass) {
-    _renderPassCommands.emplace_back(RenderPassCommand());
-    RenderPassCommand &command = *_renderPassCommands.rbegin();
+    _renderPassCommands.emplace_back();
+    RenderPassCommand &command = _renderPassCommands.back();
     command.renderArea         = renderPass.renderArea;
     command.clearColors        = renderPass.clearColors;
     command.clearDepth         = renderPass.clearDepth;
@@ -57,8 +57,8 @@ void CommandRecorder::recordBeginRenderPass(const RenderPassSnapshot &renderPass
 }
 
 void CommandRecorder::recordDrawcall(const DrawcallSnapshot &drawcall) {
-    _drawcallCommands.emplace_back(DrawcallCommand());
-    DrawcallCommand &command  = *_drawcallCommands.rbegin();
+    _drawcallCommands.emplace_back();
+    DrawcallCommand &command  = _drawcallCommands.back();
     command.inputState        = drawcall.pipelineState->getInputState();
     command.rasterizerState   = drawcall.pipelineState->getRasterizerState();
     command.depthStencilState = drawcall.pipelineState->getDepthStencilState();

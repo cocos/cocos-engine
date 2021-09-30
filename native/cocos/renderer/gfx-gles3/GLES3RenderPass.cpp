@@ -49,8 +49,8 @@ void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
 
     // assign a dummy subpass if not specified
     if (_gpuRenderPass->subpasses.empty()) {
-        _gpuRenderPass->subpasses.emplace_back(SubpassInfo());
-        auto &subpass = *_gpuRenderPass->subpasses.rbegin();
+        _gpuRenderPass->subpasses.emplace_back();
+        auto &subpass = _gpuRenderPass->subpasses.back();
         subpass.colors.resize(_colorAttachments.size());
         for (uint32_t i = 0U; i < _colorAttachments.size(); ++i) {
             subpass.colors[i] = i;

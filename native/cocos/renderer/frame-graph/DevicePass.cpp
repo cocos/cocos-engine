@@ -97,8 +97,8 @@ void DevicePass::execute() {
 }
 
 void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> *attachments) {
-    _subpasses.emplace_back(Subpass());
-    Subpass &subpass = *_subpasses.rbegin();
+    _subpasses.emplace_back();
+    Subpass &subpass = _subpasses.back();
 
     do {
         subpass.logicPasses.emplace_back();
@@ -138,7 +138,7 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
 
     if (it == attachments->end()) {
         attachments->emplace_back(attachment);
-        output = &(*attachments->rbegin());
+        output = &(attachments->back());
         _usedRenderTargetSlotMask |= 1 << attachment.desc.slot;
     } else {
         const ResourceNode &resourceNodeA = graph.getResourceNode(it->textureHandle);
@@ -156,7 +156,7 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
         } else {
             CC_ASSERT(attachment.desc.usage == RenderTargetAttachment::Usage::COLOR);
             attachments->emplace_back(attachment);
-            output = &(*attachments->rbegin());
+            output = &(attachments->back());
 
             for (uint8_t i = 0; i < RenderTargetAttachment::DEPTH_STENCIL_SLOT_START; ++i) {
                 if ((_usedRenderTargetSlotMask & (1 << i)) == 0) {
@@ -191,9 +191,9 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;
         if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
-            rpInfo.colorAttachments.emplace_back(gfx::ColorAttachment());
-            auto &attachmentInfo           = *rpInfo.colorAttachments.rbegin();
-            attachmentInfo.format          = attachment->getFormat();
+            rpInfo.colorAttachments.emplace_back();
+            auto &attachmentInfo  = rpInfo.colorAttachments.back();
+            attachmentInfo.format = attachment->getFormat();
             attachmentInfo.loadOp          = attachElem.attachment.desc.loadOp;
             attachmentInfo.storeOp         = attachElem.attachment.storeOp;
             attachmentInfo.beginAccesses   = attachElem.attachment.desc.beginAccesses;
