@@ -79,8 +79,6 @@ export class NodeUIProperties {
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 
-    public uiTransformDirty = true;
-
     constructor (node: any) {
         this._node = node;
     }

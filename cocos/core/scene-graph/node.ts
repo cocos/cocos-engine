@@ -576,8 +576,6 @@ export class Node extends BaseNode implements CustomSerializable {
         }
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags |= TransformBit.TRS;
-        this._uiProps.uiTransformDirty = true;
-
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -725,7 +723,6 @@ export class Node extends BaseNode implements CustomSerializable {
                     cur._nativeDirtyFlag[0] = flag;
                 }
 
-                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 // NOTE: inflate attribute accessor
                 // ```
                 // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
