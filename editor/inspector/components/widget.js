@@ -964,14 +964,13 @@ const uiElements = {
             if (!this.$customProps) {
                 this.$customProps = this.$el.querySelector('#customProps');
             }
-            this.$customProps.replaceChildren(...propUtils.getCustomPropElements(excludeList, this.dump, (element, prop) => {
+            propUtils.updateCustomPropElements(this.$customProps, excludeList, this.dump, (element, prop) => {
                 element.className = 'customProp';
-                const isShow = prop.dump.visible;
-                if (isShow) {
+                if (prop.dump.visible) {
                     element.render(prop.dump);
                 }
-                element.style = isShow ? '' : 'display: none;';
-            }));
+                element.hidden = !prop.dump.visible;
+            });
         },
     },
 };

@@ -226,7 +226,7 @@ export class WebGLSwapchain extends Swapchain {
         initStates(gl);
 
         const colorFmt = Format.RGBA8;
-        let depthStencilFmt = Format.UNKNOWN;
+        let depthStencilFmt = Format.DEPTH_STENCIL;
 
         let depthBits = gl.getParameter(gl.DEPTH_BITS);
         const stencilBits = gl.getParameter(gl.STENCIL_BITS);
@@ -313,10 +313,12 @@ export class WebGLSwapchain extends Swapchain {
     }
 
     public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {
-        if (this._canvas!.width !== width || this._canvas!.height !== height) {
+        if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
+            this._colorTexture.resize(width, height);
+            this._depthStencilTexture.resize(width, height);
         }
     }
 

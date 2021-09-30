@@ -37,7 +37,7 @@ import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event';
-import { eventManager, inputManager } from '../input';
+import { input } from '../input';
 import { game, Game } from './game';
 import { v2, Vec2 } from './math';
 import { Root } from './root';
@@ -329,11 +329,6 @@ export class Director extends EventTarget {
 
         this._nodeActivator.reset();
 
-        // Disable event dispatching
-        if (eventManager) {
-            eventManager.setEnabled(false);
-        }
-
         if (!EDITOR) {
             if (legacyCC.isValid(this._scene)) {
                 this._scene!.destroy();
@@ -355,10 +350,6 @@ export class Director extends EventTarget {
         this.purgeDirector();
 
         this.emit(Director.EVENT_RESET);
-
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
 
         this.startAnimation();
     }
@@ -734,7 +725,8 @@ export class Director extends EventTarget {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
             if (!EDITOR) {
-                inputManager.frameDispatchEvents();
+                // @ts-expect-error _frameDispatchEvents is a private method.
+                input._frameDispatchEvents();
             }
             // Update
             if (!this._paused) {
@@ -761,11 +753,9 @@ export class Director extends EventTarget {
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
-            // The test environment does not currently support the renderer
-            if (!TEST) this._root!.frameMove(dt);
+            this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
-            eventManager.frameUpdateListeners();
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
             this.emit(Director.EVENT_END_FRAME);
@@ -777,11 +767,6 @@ export class Director extends EventTarget {
         this._totalFrames = 0;
         this._paused = false;
 
-        // Event manager
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
-
         // Scheduler
         // TODO: have a solid organization of priority and expose to user
         this.registerSystem(Scheduler.ID, this._scheduler, 200);
@@ -790,8 +775,6 @@ export class Director extends EventTarget {
     }
 
     private _init () {
-        // The test environment does not currently support the renderer
-        if (TEST) return Promise.resolve();
         this._root = new Root(game._gfxDevice!);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {

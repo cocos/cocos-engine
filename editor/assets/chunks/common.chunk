@@ -21,6 +21,8 @@
 #pragma define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS default(1024)
 #pragma define CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS default(128)
 #pragma define CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS default(128)
+// use cluster shading or not
+#pragma define CC_ENABLE_CLUSTERED_LIGHT_CULLING default(0)
 // When sampling RTs, Y-flip is needed if the screen space sign Y is positive (pointing upwards)
 #define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = cc_cameraPos.w > 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 #define CC_HANDLE_GET_CLIP_FLIP(uv) uv = cc_cameraPos.w == 0.0 ? vec2(uv.x, -uv.y) : uv

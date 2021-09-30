@@ -30,13 +30,13 @@
 
 import { Color, Mat4, Vec3 } from '../../core/math';
 import { RenderData } from '../renderer/render-data';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph/node';
 
 const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();
 
-export function fillVertices3D (node: Node, renderer: Batcher2D, renderData: RenderData, color: Color) {
+export function fillVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
     let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -77,7 +77,7 @@ export function fillVertices3D (node: Node, renderer: Batcher2D, renderData: Ren
     }
 }
 
-export function fillMeshVertices3D (node: Node, renderer: Batcher2D, renderData: RenderData, color: Color) {
+export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
     let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -125,7 +125,7 @@ export function fillMeshVertices3D (node: Node, renderer: Batcher2D, renderData:
     }
 }
 
-export function fillVerticesWithoutCalc3D (node: Node, renderer: Batcher2D, renderData: RenderData, color: Color) {
+export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
     let buffer = renderer.acquireBufferBatch()!;
     let vertexOffset = buffer.byteOffset >> 2;

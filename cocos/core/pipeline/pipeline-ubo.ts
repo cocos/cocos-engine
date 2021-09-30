@@ -24,7 +24,7 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsHalfFloatTexture } from './define';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec2, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
@@ -139,6 +139,14 @@ export class PipelineUBO {
         cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
         cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
         cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
+
+        cv[UBOCamera.NEAR_FAR_OFFSET] = camera.nearClip;
+        cv[UBOCamera.NEAR_FAR_OFFSET + 1] = camera.farClip;
+
+        cv[UBOCamera.VIEW_PORT_OFFSET] = camera.viewport.x;
+        cv[UBOCamera.VIEW_PORT_OFFSET + 1] = camera.viewport.y;
+        cv[UBOCamera.VIEW_PORT_OFFSET + 1] = camera.viewport.z;
+        cv[UBOCamera.VIEW_PORT_OFFSET + 1] = camera.viewport.w;
     }
 
     public static updateShadowUBOView (pipeline: RenderPipeline, bufferView: Float32Array, camera: Camera) {
@@ -213,7 +221,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light, camera: Camera) {
+    public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light) {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
@@ -389,10 +397,9 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
-    public updateShadowUBOLight (light: Light, camera: Camera) {
-        const ds = this._pipeline.descriptorSet;
-        PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, camera);
-        ds.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
+    public updateShadowUBOLight (globalDS: DescriptorSet, light: Light) {
+        PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light);
+        globalDS.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }
 
     public updateShadowUBORange (offset: number, data: Mat4 | Color) {

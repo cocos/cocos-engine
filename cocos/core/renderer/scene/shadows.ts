@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { Material } from '../../assets/material';
-import { Frustum, Sphere } from '../../geometry';
+import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
@@ -399,7 +399,8 @@ export class Shadows {
      */
     public maxReceived = 4;
 
-    // local
+    // local set
+    public firstSetCSM = false;
     public shadowCameraFar = 0;
     public matShadowView = new Mat4();
     public matShadowProj = new Mat4();
@@ -506,7 +507,7 @@ export class Shadows {
         } else {
             const root = legacyCC.director.root;
             const pipeline = root.pipeline;
-            pipeline.macros.CC_RECEIVE_SHADOW = 0;
+            pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
             root.onGlobalPipelineStateChanged();
         }
     }
@@ -529,14 +530,14 @@ export class Shadows {
 
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
-        pipeline.macros.CC_RECEIVE_SHADOW = 0;
+        pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
         root.onGlobalPipelineStateChanged();
     }
 
     protected _updatePipeline () {
         const root = legacyCC.director.root;
         const pipeline = root.pipeline;
-        pipeline.macros.CC_RECEIVE_SHADOW = 1;
+        pipeline.macros.CC_ENABLE_DIR_SHADOW = 1;
         root.onGlobalPipelineStateChanged();
     }
 

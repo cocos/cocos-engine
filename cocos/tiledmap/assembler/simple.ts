@@ -31,7 +31,7 @@
 import { Mat4, Size, Vec3 } from '../../core/math';
 import { IAssembler } from '../../2d/renderer/base';
 import { MeshRenderData } from '../../2d/renderer/render-data';
-import { Batcher2D } from '../../2d/renderer/batcher-2d';
+import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledMeshData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { Texture2D, Node } from '../../core';
@@ -73,7 +73,7 @@ export const simple: IAssembler = {
         return renderData;
     },
 
-    updateRenderData (comp: TiledLayer, ui: Batcher2D) {
+    updateRenderData (comp: TiledLayer, ui: IBatcher) {
         comp.updateCulling();
         const renderData = comp.requestMeshRenderData();
         _moveX = comp.leftDownToCenterX;
@@ -142,7 +142,7 @@ export const simple: IAssembler = {
         }
     },
 
-    fillBuffers (layer: TiledLayer, renderer: Batcher2D) {
+    fillBuffers (layer: TiledLayer, renderer: IBatcher) {
         if (!layer || !layer.meshRenderDataArray) return;
 
         const dataArray = layer.meshRenderDataArray;

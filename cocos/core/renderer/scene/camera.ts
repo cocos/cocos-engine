@@ -395,6 +395,9 @@ export class Camera {
 
     set nearClip (nearClip) {
         this._nearClip = nearClip;
+        if (JSB) {
+            this._nativeObj!.nearClip = this._nearClip;
+        }
         this._isProjDirty = true;
     }
 
@@ -404,6 +407,9 @@ export class Camera {
 
     set farClip (farClip) {
         this._farClip = farClip;
+        if (JSB) {
+            this._nativeObj!.farClip = this._farClip;
+        }
         this._isProjDirty = true;
     }
 

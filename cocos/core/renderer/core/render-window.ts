@@ -194,22 +194,19 @@ export class RenderWindow {
      * @param height The new height.
      */
     public resize (width: number, height: number) {
-        this._width = width;
-        this._height = height;
-
         if (this._swapchain) {
             this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
+            this._width = this._swapchain.width;
+            this._height = this._swapchain.height;
         } else {
+            for (let i = 0; i < this._colorTextures.length; i++) {
+                this._colorTextures[i].resize(width, height);
+            }
             if (this._depthStencilTexture) {
                 this._depthStencilTexture.resize(width, height);
             }
-
-            for (let i = 0; i < this._colorTextures.length; i++) {
-                const colorTex = this._colorTextures[i];
-                if (colorTex) {
-                    colorTex.resize(width, height);
-                }
-            }
+            this._width = width;
+            this._height = height;
         }
 
         if (this.framebuffer) {

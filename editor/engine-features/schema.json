@@ -18,6 +18,9 @@
                     "description": "Description.",
                     "type": "string"
                 },
+                "flags": {
+                    "$ref": "#/definitions/Record<string,FlagBaseItem>"
+                },
                 "label": {
                     "description": "Display text.",
                     "type": "string"
@@ -61,6 +64,9 @@
                 "description": {
                     "description": "Description.",
                     "type": "string"
+                },
+                "flags": {
+                    "$ref": "#/definitions/Record<string,FlagBaseItem>"
                 },
                 "label": {
                     "description": "Display text.",
@@ -264,6 +270,11 @@
                     "$ref": "#/definitions/Item"
                 }
             },
+            "type": "object"
+        },
+        "Record<string,FlagBaseItem>": {
+            "additionalProperties": false,
+            "description": "Construct a type with a set of properties K of type T",
             "type": "object"
         }
     },

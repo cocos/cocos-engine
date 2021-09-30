@@ -37,12 +37,15 @@ import { GFXObject, ObjectType, GlobalBarrierInfo } from '../define';
  */
 export class GlobalBarrier extends GFXObject {
     get info (): Readonly<GlobalBarrierInfo> { return this._info; }
+    get hash (): number { return this._hash; }
 
     protected _info: GlobalBarrierInfo = new GlobalBarrierInfo();
+    protected _hash = 0;
 
-    constructor (info: GlobalBarrierInfo) {
+    constructor (info: GlobalBarrierInfo, hash: number) {
         super(ObjectType.GLOBAL_BARRIER);
         this._info.copy(info);
+        this._hash = hash;
     }
 
     static computeHash (info: GlobalBarrierInfo) {

@@ -46,6 +46,9 @@
       },
       {
         "__id__": 8
+      },
+      {
+        "__id__": 9
       }
     ]
   },
@@ -89,8 +92,16 @@
     ]
   },
   {
-    "__type__": "PostprocessStage",
-    "_name": "PostprocessStage",
+    "__type__": "BloomStage",
+    "_name": "BloomStage",
+    "_priority": 0,
+    "_tag": 0,
+    "_bloomMaterial": null,
+    "renderQueues": []
+  },
+  {
+    "__type__": "PostProcessStage",
+    "_name": "PostProcessStage",
     "_priority": 0,
     "_tag": 0,
     "_postProcessMaterial": null,
