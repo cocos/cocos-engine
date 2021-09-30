@@ -145,21 +145,17 @@ export class SpotLight extends Light {
     set luminance_hdr (lum: number) {
         this._luminance = lum;
 
-        /*
         if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setIlluminance_hdr(lum);
+            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
         }
-        */
     }
 
     set luminance_ldr (lum: number) {
         this._luminance_ldr = lum;
 
-        /*
         if (JSB) {
             (this._nativeObj! as NativeSpotLight).setIlluminance_ldr(lum);
         }
-        */
     }
 
     get direction (): Vec3 {

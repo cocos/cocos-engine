@@ -86,8 +86,6 @@ export class Ambient {
             this._colorArray_ldr.z = this._skyColor.z;
             this._colorArray_ldr.w = this._skyColor.w;
         }
-
-        // TODO: Native?
         if (JSB) {
             this._nativeObj!.skyColor = this._skyColor;
         }
@@ -133,7 +131,6 @@ export class Ambient {
         } else {
             this._skyIllum_ldr = illum;
         }
-
         if (JSB) {
             this._nativeObj!.skyIllum = illum;
         }

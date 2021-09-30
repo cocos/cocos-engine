@@ -96,21 +96,17 @@ export class SphereLight extends Light {
     set luminance_hdr (lum: number) {
         this._luminance = lum;
 
-        /*
         if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance_hdr(lum);
+            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
         }
-        */
     }
 
     set luminance_ldr (lum: number) {
         this._luminance_ldr = lum;
 
-        /*
         if (JSB) {
             (this._nativeObj! as NativeSphereLight).setIlluminance_ldr(lum);
         }
-        */
     }
 
     get aabb () {

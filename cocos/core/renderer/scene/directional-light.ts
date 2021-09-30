@@ -75,14 +75,14 @@ export class DirectionalLight extends Light {
     set illuminance_hdr (illum: number) {
         this._illuminance = illum;
         if (JSB) {
-            // (this._nativeObj as NativeDirectionalLight).setIlluminance_hdr(illum);
+            (this._nativeObj as NativeDirectionalLight).setIlluminance_hdr(illum);
         }
     }
 
     set illuminance_ldr (illum: number) {
         this._illuminance_ldr = illum;
         if (JSB) {
-            // (this._nativeObj as NativeDirectionalLight).setIlluminance_ldr(illum);
+            (this._nativeObj as NativeDirectionalLight).setIlluminance_ldr(illum);
         }
     }
 

@@ -222,15 +222,16 @@ export class Skybox {
 
     private _setUseHDR (val) {
         this._useHDR = val;
-        /*
         if (JSB) {
-            this._nativeObj!.useIBL = val;
+            this._nativeObj!.useHDR = val;
         }
-        */
     }
 
     private _setUseDiffusemap (val) {
         this._useDiffusemap = val;
+        if (JSB) {
+            this._nativeObj!.useDiffusemap = val;
+        }
     }
 
     public initialize (skyboxInfo: SkyboxInfo) {
