@@ -307,6 +307,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         }
     }
 
+    scene::AABB      ab;
     RenderObjectList renderObjects;
     RenderObjectList castShadowObject;
 
@@ -329,7 +330,11 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
     if (isShadowMap) {
         std::vector<scene::Model *> casters;
         casters.reserve(scene->getModels().size() / 4);
-        octree->queryVisibility(camera, dirLightFrustum, true, casters);
+        if (shadowInfo->fixedArea) {
+            octree->queryVisibility(camera, camera->frustum, true, casters);
+        } else {
+            octree->queryVisibility(camera, dirLightFrustum, true, casters);
+        }
         for (const auto *model : casters) {
             dirShadowObjects.emplace_back(genRenderObject(model, camera));
         }
@@ -363,8 +368,15 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
 
                 // dir shadow render Object
                 if (isShadowMap && model->getCastShadow()) {
-                    if (modelWorldBounds->aabbFrustum(dirLightFrustum)) {
-                        dirShadowObjects.emplace_back(genRenderObject(model, camera));
+                    if (shadowInfo->fixedArea) {
+                        model->getWorldBounds()->transform(shadowInfo->matLight, &ab);
+                        if (ab.aabbFrustum(camera->frustum)) {
+                            dirShadowObjects.emplace_back(genRenderObject(model, camera));
+                        }
+                    } else {
+                        if (modelWorldBounds->aabbFrustum(dirLightFrustum)) {
+                            dirShadowObjects.emplace_back(genRenderObject(model, camera));
+                        }
                     }
                 }
 
