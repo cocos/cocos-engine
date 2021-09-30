@@ -79,7 +79,6 @@ export class PipelineUBO {
         const isHDR = sceneData.isHDR;
         const shadingScale = sceneData.shadingScale;
         const fpScale = sceneData.fpScale;
-        const root = legacyCC.director.root;
 
         // update camera ubo
         cv[UBOCamera.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * shadingScale;

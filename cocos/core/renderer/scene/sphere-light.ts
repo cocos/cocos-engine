@@ -80,7 +80,8 @@ export class SphereLight extends Light {
         }
 
         if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
+            (this._nativeObj! as NativeSphereLight).setIlluminance(this._luminance);
+            (this._nativeObj! as NativeSphereLight).setIlluminance_ldr(this._luminance_ldr);
         }
     }
 

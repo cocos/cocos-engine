@@ -129,7 +129,8 @@ export class SpotLight extends Light {
         }
 
         if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
+            (this._nativeObj! as NativeSpotLight).setIlluminance(this._luminance);
+            (this._nativeObj! as NativeSpotLight).setIlluminance_ldr(this._luminance_ldr);
         }
     }
 
