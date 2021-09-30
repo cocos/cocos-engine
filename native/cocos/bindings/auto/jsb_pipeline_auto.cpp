@@ -789,6 +789,25 @@ static bool js_pipeline_RenderPipeline_getClearcolor(se::State& s) // NOLINT(rea
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getClearcolor)
 
+static bool js_pipeline_RenderPipeline_getClusterEnabled(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getClusterEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getClusterEnabled();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getClusterEnabled : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getClusterEnabled)
+
 static bool js_pipeline_RenderPipeline_getConstantMacros(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1067,6 +1086,25 @@ static bool js_pipeline_RenderPipeline_render(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_render)
 
+static bool js_pipeline_RenderPipeline_setClusterEnabled(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setClusterEnabled : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_setClusterEnabled : Error processing arguments");
+        cobj->setClusterEnabled(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_PROP_SET(js_pipeline_RenderPipeline_setClusterEnabled)
+
 static bool js_pipeline_RenderPipeline_setPipelineSharedSceneData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1172,6 +1210,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
 
     cls->defineProperty("globalDSManager", _SE(js_pipeline_RenderPipeline_getGlobalDSManager), nullptr);
     cls->defineProperty("descriptorSet", _SE(js_pipeline_RenderPipeline_getDescriptorSet), nullptr);
+    cls->defineProperty("clusterEnabled", _SE(js_pipeline_RenderPipeline_getClusterEnabled), _SE(js_pipeline_RenderPipeline_setClusterEnabled));
     cls->defineProperty("descriptorSetLayout", _SE(js_pipeline_RenderPipeline_getDescriptorSetLayout), nullptr);
     cls->defineProperty("constantMacros", _SE(js_pipeline_RenderPipeline_getConstantMacros), nullptr);
     cls->defineFunction("activate", _SE(js_pipeline_RenderPipeline_activate));

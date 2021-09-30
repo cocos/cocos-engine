@@ -7521,6 +7521,60 @@ static bool js_scene_Camera_set_height(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_height)
 
+static bool js_scene_Camera_get_nearClip(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_nearClip : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->nearClip, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->nearClip, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_Camera_get_nearClip)
+
+static bool js_scene_Camera_set_nearClip(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Camera_set_nearClip : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->nearClip, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_Camera_set_nearClip : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_Camera_set_nearClip)
+
+static bool js_scene_Camera_get_farClip(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_farClip : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->farClip, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->farClip, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_Camera_get_farClip)
+
+static bool js_scene_Camera_set_farClip(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Camera_set_farClip : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->farClip, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_Camera_set_farClip : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_Camera_set_farClip)
+
 static bool js_scene_Camera_get_clearFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -8190,6 +8244,14 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Camera * to, se::Object
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->height), ctx);
     }
+    json->getProperty("nearClip", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->nearClip), ctx);
+    }
+    json->getProperty("farClip", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->farClip), ctx);
+    }
     json->getProperty("clearFlag", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->clearFlag), ctx);
@@ -8331,76 +8393,82 @@ static bool js_scene_Camera_constructor(se::State& s) // NOLINT(readability-iden
         ok &= sevalue_to_native(args[1], &(cobj->height), nullptr);
     }
     if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->clearFlag), nullptr);
+        ok &= sevalue_to_native(args[2], &(cobj->nearClip), nullptr);
     }
     if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->exposure), nullptr);
+        ok &= sevalue_to_native(args[3], &(cobj->farClip), nullptr);
     }
     if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->clearDepth), nullptr);
+        ok &= sevalue_to_native(args[4], &(cobj->clearFlag), nullptr);
     }
     if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->fov), nullptr);
+        ok &= sevalue_to_native(args[5], &(cobj->exposure), nullptr);
     }
     if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->aspect), nullptr);
+        ok &= sevalue_to_native(args[6], &(cobj->clearDepth), nullptr);
     }
     if (argc > 7 && !args[7].isUndefined()) {
-        ok &= sevalue_to_native(args[7], &(cobj->viewPort), nullptr);
+        ok &= sevalue_to_native(args[7], &(cobj->fov), nullptr);
     }
     if (argc > 8 && !args[8].isUndefined()) {
-        ok &= sevalue_to_native(args[8], &(cobj->clearStencil), nullptr);
+        ok &= sevalue_to_native(args[8], &(cobj->aspect), nullptr);
     }
     if (argc > 9 && !args[9].isUndefined()) {
-        ok &= sevalue_to_native(args[9], &(cobj->visibility), nullptr);
+        ok &= sevalue_to_native(args[9], &(cobj->viewPort), nullptr);
     }
     if (argc > 10 && !args[10].isUndefined()) {
-        ok &= sevalue_to_native(args[10], &(cobj->node), nullptr);
+        ok &= sevalue_to_native(args[10], &(cobj->clearStencil), nullptr);
     }
     if (argc > 11 && !args[11].isUndefined()) {
-        ok &= sevalue_to_native(args[11], &(cobj->scene), nullptr);
+        ok &= sevalue_to_native(args[11], &(cobj->visibility), nullptr);
     }
     if (argc > 12 && !args[12].isUndefined()) {
-        ok &= sevalue_to_native(args[12], &(cobj->window), nullptr);
+        ok &= sevalue_to_native(args[12], &(cobj->node), nullptr);
     }
     if (argc > 13 && !args[13].isUndefined()) {
-        ok &= sevalue_to_native(args[13], &(cobj->frustum), nullptr);
+        ok &= sevalue_to_native(args[13], &(cobj->scene), nullptr);
     }
     if (argc > 14 && !args[14].isUndefined()) {
-        ok &= sevalue_to_native(args[14], &(cobj->forward), nullptr);
+        ok &= sevalue_to_native(args[14], &(cobj->window), nullptr);
     }
     if (argc > 15 && !args[15].isUndefined()) {
-        ok &= sevalue_to_native(args[15], &(cobj->position), nullptr);
+        ok &= sevalue_to_native(args[15], &(cobj->frustum), nullptr);
     }
     if (argc > 16 && !args[16].isUndefined()) {
-        ok &= sevalue_to_native(args[16], &(cobj->clearColor), nullptr);
+        ok &= sevalue_to_native(args[16], &(cobj->forward), nullptr);
     }
     if (argc > 17 && !args[17].isUndefined()) {
-        ok &= sevalue_to_native(args[17], &(cobj->matView), nullptr);
+        ok &= sevalue_to_native(args[17], &(cobj->position), nullptr);
     }
     if (argc > 18 && !args[18].isUndefined()) {
-        ok &= sevalue_to_native(args[18], &(cobj->matViewProj), nullptr);
+        ok &= sevalue_to_native(args[18], &(cobj->clearColor), nullptr);
     }
     if (argc > 19 && !args[19].isUndefined()) {
-        ok &= sevalue_to_native(args[19], &(cobj->matViewProjInv), nullptr);
+        ok &= sevalue_to_native(args[19], &(cobj->matView), nullptr);
     }
     if (argc > 20 && !args[20].isUndefined()) {
-        ok &= sevalue_to_native(args[20], &(cobj->matProj), nullptr);
+        ok &= sevalue_to_native(args[20], &(cobj->matViewProj), nullptr);
     }
     if (argc > 21 && !args[21].isUndefined()) {
-        ok &= sevalue_to_native(args[21], &(cobj->matProjInv), nullptr);
+        ok &= sevalue_to_native(args[21], &(cobj->matViewProjInv), nullptr);
     }
     if (argc > 22 && !args[22].isUndefined()) {
-        ok &= sevalue_to_native(args[22], &(cobj->matViewProjOffscreen), nullptr);
+        ok &= sevalue_to_native(args[22], &(cobj->matProj), nullptr);
     }
     if (argc > 23 && !args[23].isUndefined()) {
-        ok &= sevalue_to_native(args[23], &(cobj->matViewProjInvOffscreen), nullptr);
+        ok &= sevalue_to_native(args[23], &(cobj->matProjInv), nullptr);
     }
     if (argc > 24 && !args[24].isUndefined()) {
-        ok &= sevalue_to_native(args[24], &(cobj->matProjOffscreen), nullptr);
+        ok &= sevalue_to_native(args[24], &(cobj->matViewProjOffscreen), nullptr);
     }
     if (argc > 25 && !args[25].isUndefined()) {
-        ok &= sevalue_to_native(args[25], &(cobj->matProjInvOffscreen), nullptr);
+        ok &= sevalue_to_native(args[25], &(cobj->matViewProjInvOffscreen), nullptr);
+    }
+    if (argc > 26 && !args[26].isUndefined()) {
+        ok &= sevalue_to_native(args[26], &(cobj->matProjOffscreen), nullptr);
+    }
+    if (argc > 27 && !args[27].isUndefined()) {
+        ok &= sevalue_to_native(args[27], &(cobj->matProjInvOffscreen), nullptr);
     }
 
     if(!ok) {
@@ -8436,6 +8504,8 @@ bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-
 
     cls->defineProperty("width", _SE(js_scene_Camera_get_width), _SE(js_scene_Camera_set_width));
     cls->defineProperty("height", _SE(js_scene_Camera_get_height), _SE(js_scene_Camera_set_height));
+    cls->defineProperty("nearClip", _SE(js_scene_Camera_get_nearClip), _SE(js_scene_Camera_set_nearClip));
+    cls->defineProperty("farClip", _SE(js_scene_Camera_get_farClip), _SE(js_scene_Camera_set_farClip));
     cls->defineProperty("clearFlag", _SE(js_scene_Camera_get_clearFlag), _SE(js_scene_Camera_set_clearFlag));
     cls->defineProperty("exposure", _SE(js_scene_Camera_get_exposure), _SE(js_scene_Camera_set_exposure));
     cls->defineProperty("clearDepth", _SE(js_scene_Camera_get_clearDepth), _SE(js_scene_Camera_set_clearDepth));
