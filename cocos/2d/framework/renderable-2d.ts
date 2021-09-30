@@ -473,7 +473,7 @@ export class Renderable2D extends RenderableComponent {
                 const opacityZero = this._cacheAlpha <= 0;
                 this._updateWorldAlpha();
                 if (this._colorDirty) {
-                    if (opacityZero) {
+                    if (opacityZero || this._cacheAlpha <= 0) {
                         this._renderFlag = this._canRender();
                     }
                     this._colorDirty = false;
@@ -486,7 +486,8 @@ export class Renderable2D extends RenderableComponent {
         this._updateWorldAlpha();
         if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
-            if (opacityZero) {
+            // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
+            if (opacityZero || this._cacheAlpha <= 0) {
                 this._renderFlag = this._canRender();
             }
             this._colorDirty = false;
