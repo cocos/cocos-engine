@@ -164,7 +164,7 @@ export class SkinningModel extends MorphModel {
         // @ts-expect-error TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
-            this._transformUpdated = true;
+            this._localDataUpdated = true;
         }
         // update bounds
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
