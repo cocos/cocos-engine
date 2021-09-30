@@ -1,6 +1,6 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { OwnedBy, ownerSymbol } from './ownership';
-import type { Layer, PoseSubgraph, TransitionInternal } from './pose-graph';
+import type { Layer, StateMachine, TransitionInternal } from './animation-graph';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
@@ -11,9 +11,9 @@ export const outgoingsSymbol = Symbol('[[Outgoing transitions]]');
 
 export const incomingsSymbol = Symbol('[[Incoming transitions]]');
 
-@ccclass('cc.animation.GraphNode')
-export class GraphNode extends EditorExtendable implements OwnedBy<Layer | PoseSubgraph> {
-    declare [ownerSymbol]: Layer | PoseSubgraph | undefined;
+@ccclass('cc.animation.State')
+export class State extends EditorExtendable implements OwnedBy<Layer | StateMachine> {
+    declare [ownerSymbol]: StateMachine | undefined;
 
     @serializable
     public name = '';
@@ -32,8 +32,8 @@ export class GraphNode extends EditorExtendable implements OwnedBy<Layer | PoseS
 
 type StateMachineComponentConstructor<T extends StateMachineComponent> = Constructor<T>;
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}InteractiveGraphNode`)
-export class InteractiveGraphNode extends GraphNode {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}InteractiveState`)
+export class InteractiveState extends State {
     get components (): Iterable<StateMachineComponent> {
         return this._components;
     }

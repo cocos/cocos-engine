@@ -4,39 +4,39 @@ import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';
 import { createEval } from './create-eval';
 import { graphDebug, GRAPH_DEBUG_ENABLED, pushWeight } from './graph-debug';
-import { PoseStatus } from './graph-eval';
-import { PoseEvalContext, Pose, PoseEval } from './pose';
+import { ClipStatus } from './graph-eval';
+import { MotionEvalContext, Motion, MotionEval } from './motion';
 
-@ccclass('cc.animation.AnimatedPose')
-export class AnimatedPose extends EditorExtendable implements Pose {
+@ccclass('cc.animation.ClipMotion')
+export class ClipMotion extends EditorExtendable implements Motion {
     @type(AnimationClip)
     public clip: AnimationClip | null = null;
 
-    public [createEval] (context: PoseEvalContext) {
-        return !this.clip ? null : new AnimatedPoseEval(context, this.clip);
+    public [createEval] (context: MotionEvalContext) {
+        return !this.clip ? null : new ClipMotionEval(context, this.clip);
     }
 
     public clone () {
-        const that = new AnimatedPose();
+        const that = new ClipMotion();
         that.clip = this.clip;
         return that;
     }
 }
 
-class AnimatedPoseEval implements PoseEval {
+class ClipMotionEval implements MotionEval {
     public declare __DEBUG__ID__?: string;
 
     private declare _state: AnimationState;
 
     public declare readonly duration: number;
 
-    constructor (context: PoseEvalContext, clip: AnimationClip) {
+    constructor (context: MotionEvalContext, clip: AnimationClip) {
         this.duration = clip.duration;
         this._state = new AnimationState(clip);
         this._state.initialize(context.node, context.blendBuffer);
     }
 
-    public poses (baseWeight: number): Iterator<PoseStatus, any, undefined> {
+    public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {
         let got = false;
         return {
             next: () => {

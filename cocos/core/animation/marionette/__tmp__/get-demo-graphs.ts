@@ -1,22 +1,22 @@
 import { GraphDescription } from './graph-description';
-import { PoseGraph } from '../pose-graph';
+import { AnimationGraph } from '../animation-graph';
 import { createGraphFromDescription } from './graph-from-description';
 
 export function __getDemoGraphs () {
     return Object.entries(graphDescMap).reduce((result, [name, graphDesc]) => {
         result[name] = createGraphFromDescription(graphDesc);
         return result;
-    }, {} as Record<string, PoseGraph>);
+    }, {} as Record<string, AnimationGraph>);
 }
 
 const graphDescMap: Record<string, GraphDescription> = {
     'any-transition': {
         layers: [{
             graph: {
-                type: 'subgraph',
+                type: 'state-machine',
                 nodes: [{
                     name: 'Node1',
-                    type: 'pose',
+                    type: 'animation',
                 }],
                 anyTransitions: [{
                     to: 0,
@@ -32,13 +32,13 @@ const graphDescMap: Record<string, GraphDescription> = {
         ],
         layers: [{
             graph: {
-                type: 'subgraph',
+                type: 'state-machine',
                 nodes: [{
                     name: 'Node1',
-                    type: 'pose',
+                    type: 'animation',
                 }, {
                     name: 'Node2',
-                    type: 'pose',
+                    type: 'animation',
                 }],
                 anyTransitions: [{
                     to: 0,
@@ -64,13 +64,13 @@ const graphDescMap: Record<string, GraphDescription> = {
         }],
         layers: [{
             graph: {
-                type: 'subgraph',
+                type: 'state-machine',
                 nodes: [{
                     name: 'Node1',
-                    type: 'pose',
+                    type: 'animation',
                     motion: {
-                        type: 'pose-blend',
-                        children: [{ type: 'pose' }, { type: 'pose' }],
+                        type: 'blend',
+                        children: [{ type: 'clip' }, { type: 'clip' }],
                         blender: {
                             type: '1d',
                             thresholds: [0.0, 1.0],
@@ -88,13 +88,13 @@ const graphDescMap: Record<string, GraphDescription> = {
     'successive-satisfaction': {
         layers: [{
             graph: {
-                type: 'subgraph',
+                type: 'state-machine',
                 nodes: [{
                     name: 'Node1',
-                    type: 'pose',
+                    type: 'animation',
                 }, {
                     name: 'Node2',
-                    type: 'pose',
+                    type: 'animation',
                 }],
                 entryTransitions: [{
                     to: 0,
@@ -110,10 +110,10 @@ const graphDescMap: Record<string, GraphDescription> = {
     'unspecified-condition': {
         layers: [{
             graph: {
-                type: 'subgraph',
+                type: 'state-machine',
                 nodes: [{
                     name: 'asd',
-                    type: 'pose',
+                    type: 'animation',
                 }],
                 entryTransitions: [{
                     to: 0,
@@ -125,9 +125,9 @@ const graphDescMap: Record<string, GraphDescription> = {
     'variable-not-found-in-condition': {
         layers: [{
             graph: {
-                type: 'subgraph',
+                type: 'state-machine',
                 nodes: [{
-                    type: 'pose',
+                    type: 'animation',
                     name: 'Node1',
                 }],
                 entryTransitions: [{
@@ -145,13 +145,13 @@ const graphDescMap: Record<string, GraphDescription> = {
     'variable-not-found-in-pose-blend': {
         layers: [{
             graph: {
-                type: 'subgraph',
+                type: 'state-machine',
                 nodes: [{
                     name: 'Node1',
-                    type: 'pose',
+                    type: 'animation',
                     motion: {
-                        type: 'pose-blend',
-                        children: [{ type: 'pose' }, { type: 'pose' }],
+                        type: 'blend',
+                        children: [{ type: 'clip' }, { type: 'clip' }],
                         blender: {
                             type: '1d',
                             thresholds: [0.0, 1.0],

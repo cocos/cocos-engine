@@ -2,13 +2,14 @@ import { Vec2 } from '../../math';
 import { property, ccclass } from '../../data/class-decorator';
 import { ccenum } from '../../value-types/enum';
 import { createEval } from './create-eval';
-import { PoseBlend, PoseBlendEval, validateBlendParam } from './pose-blend';
-import { Pose, PoseEvalContext } from './pose';
+import { AnimationBlend, AnimationBlendEval, AnimationBlendItem, validateBlendParam } from './animation-blend';
+import { Motion, MotionEvalContext } from './motion';
 import { serializable, type } from '../../data/decorators';
 import { BindableNumber, bindOr } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
 import { VariableType } from '.';
 import { EditorExtendable } from '../../data/editor-extendable';
+import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 enum Algorithm {
     SIMPLE_DIRECTIONAL,
@@ -18,18 +19,33 @@ enum Algorithm {
 
 ccenum(Algorithm);
 
-@ccclass('cc.animation.Blender2D')
-export class PoseBlend2D extends EditorExtendable implements PoseBlend {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend2DItem`)
+export class AnimationBlend2DItem extends AnimationBlendItem {
+    @serializable
+    public threshold = new Vec2();
+
+    public clone () {
+        const that = new AnimationBlend2DItem();
+        this._assign(that);
+        return that;
+    }
+
+    protected _assign (that: AnimationBlend2DItem) {
+        super._assign(that);
+        Vec2.copy(that.threshold, this.threshold);
+        return that;
+    }
+}
+
+@ccclass('cc.animation.AnimationBlend2D')
+export class AnimationBlend2D extends EditorExtendable implements AnimationBlend {
     public static Algorithm = Algorithm;
 
     @serializable
     public algorithm = Algorithm.SIMPLE_DIRECTIONAL;
 
     @serializable
-    protected poses: (Pose | null)[] = [];
-
-    @type([Vec2])
-    private _thresholds: Vec2[] = [];
+    private _items: AnimationBlend2DItem[] = [];
 
     @serializable
     public paramX = new BindableNumber();
@@ -37,35 +53,24 @@ export class PoseBlend2D extends EditorExtendable implements PoseBlend {
     @serializable
     public paramY = new BindableNumber();
 
-    get children () {
-        return this._listChildren();
+    get items (): Iterable<AnimationBlend2DItem> {
+        return this._items;
     }
 
-    set children (children: Iterable<[Pose | null, Vec2]>) {
-        const childArray = [...children];
-        this.poses = childArray.map(([pose]) => pose);
-        this._thresholds = childArray.map(([, threshold]) => threshold);
-    }
-
-    get thresholds () {
-        return this._thresholds;
-    }
-
-    set thresholds (thresholds: readonly Vec2[]) {
-        this._thresholds = thresholds.slice().map((threshold) => threshold.clone());
+    set items (items) {
+        this._items = Array.from(items);
     }
 
     public clone () {
-        const that = new PoseBlend2D();
-        that.poses = this.poses.map((pose) => pose?.clone() ?? null);
-        that._thresholds = this._thresholds.slice();
+        const that = new AnimationBlend2D();
+        that._items = this._items.map((item) => item?.clone() ?? null);
         that.paramX = this.paramX.clone();
         that.paramY = this.paramY.clone();
         return that;
     }
 
-    public [createEval] (context: PoseEvalContext) {
-        const evaluation = new PoseBlend2DDEval(context, this.poses, this.thresholds, this.algorithm, [0.0, 0.0]);
+    public [createEval] (context: MotionEvalContext) {
+        const evaluation = new AnimationBlend2DDEval(context, this._items, this._items.map(({ threshold }) => threshold), this.algorithm, [0.0, 0.0]);
         const initialValueX = bindOr(
             context,
             this.paramX,
@@ -86,28 +91,25 @@ export class PoseBlend2D extends EditorExtendable implements PoseBlend {
         evaluation.setInput(initialValueY, 1);
         return evaluation;
     }
-
-    private* _listChildren (): Iterable<[Pose | null, Vec2]> {
-        for (let iChild = 0; iChild < this._thresholds.length; ++iChild) {
-            yield [
-                this.poses[iChild],
-                this._thresholds[iChild],
-            ];
-        }
-    }
 }
 
-export declare namespace PoseBlend2D {
+export declare namespace AnimationBlend2D {
     export type Algorithm = typeof Algorithm;
 }
 
-class PoseBlend2DDEval extends PoseBlendEval {
+class AnimationBlend2DDEval extends AnimationBlendEval {
     private _thresholds: readonly Vec2[];
     private _algorithm: Algorithm;
     private _value = new Vec2();
 
-    constructor (context: PoseEvalContext, poses: Array<Pose | null>, thresholds: readonly Vec2[], algorithm: Algorithm, inputs: [number, number]) {
-        super(context, poses, inputs);
+    constructor (
+        context: MotionEvalContext,
+        items: AnimationBlendItem[],
+        thresholds: readonly Vec2[],
+        algorithm: Algorithm,
+        inputs: [number, number],
+    ) {
+        super(context, items, inputs);
         this._thresholds = thresholds;
         this._algorithm = algorithm;
         this.doEval();

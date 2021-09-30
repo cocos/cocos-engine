@@ -1,27 +1,27 @@
 import { Component } from '../../components';
-import { PoseGraph } from './pose-graph';
+import { AnimationGraph } from './animation-graph';
 import { property, ccclass, menu } from '../../data/class-decorator';
-import { PoseGraphEval, PoseNodeStats, TransitionStatus, PoseStatus } from './graph-eval';
+import { AnimationGraphEval, StateStatus, TransitionStatus, ClipStatus } from './graph-eval';
 import { Value } from './variable';
 import { assertIsNonNullable } from '../../data/utils/asserts';
 
 export type {
-    PoseNodeStats,
-    PoseStatus,
+    StateStatus,
+    ClipStatus,
     TransitionStatus,
 };
 
-@ccclass('cc.animation.AutomataAnimation')
-@menu('Components/Animation/Automata Animation')
-export class AutomataAnimation extends Component {
-    @property(PoseGraph)
-    public graph: PoseGraph | null = null;
+@ccclass('cc.animation.AnimationController')
+@menu('Components/Animation/Animation Controller')
+export class AnimationController extends Component {
+    @property(AnimationGraph)
+    public graph: AnimationGraph | null = null;
 
-    private _graphEval: PoseGraphEval | null = null;
+    private _graphEval: AnimationGraphEval | null = null;
 
     public start () {
         if (this.graph) {
-            this._graphEval = new PoseGraphEval(this.graph, this.node, this);
+            this._graphEval = new AnimationGraphEval(this.graph, this.node, this);
         }
     }
 
@@ -35,16 +35,16 @@ export class AutomataAnimation extends Component {
         graphEval.setValue(name, value);
     }
 
-    public getCurrentPoseNodeStats (layer: number) {
+    public getCurrentStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
-        return graphEval.getCurrentPoseNodeStats(layer);
+        return graphEval.getCurrentStateStatus(layer);
     }
 
-    public getCurrentPoses (layer: number) {
+    public getCurrentClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
-        return graphEval.getCurrentPoses(layer);
+        return graphEval.getCurrentClipStatuses(layer);
     }
 
     public getCurrentTransition (layer: number) {
@@ -53,19 +53,15 @@ export class AutomataAnimation extends Component {
         return graphEval.getCurrentTransition(layer);
     }
 
-    public getNextPoseNodeStats (layer: number) {
+    public getNextStateStatus (layer: number) {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
-        return graphEval.getNextPoseNodeStats(layer);
+        return graphEval.getNextStateStatus(layer);
     }
 
-    public getNextPoses (layer: number) {
+    public getNextClipStatuses (layer: number) {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
-        return graphEval.getNextPoses(layer);
+        return graphEval.getNextClipStatuses(layer);
     }
 }
-
-export {
-    AutomataAnimation as NewGenAnim,
-};

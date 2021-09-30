@@ -1,5 +1,5 @@
 import { Vec2 } from "../../../../cocos/core";
-import { sampleFreeformDirectional, blendSimpleDirectional } from "../../../../cocos/core/animation/newgen-anim/blend-2d";
+import { sampleFreeformDirectional, blendSimpleDirectional } from "../../../../cocos/core/animation/marionette/blend-2d";
 import '../../../utils/matcher-deep-close-to';
 
 const EXPECT_NUM_DIGITS = 5;

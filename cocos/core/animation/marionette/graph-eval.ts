@@ -1,25 +1,25 @@
 import { DEBUG } from 'internal:constants';
-import { PoseGraph, Layer, PoseSubgraph, GraphNode, Transition, isPoseTransition } from './pose-graph';
+import { AnimationGraph, Layer, StateMachine, State, Transition, isAnimationTransition, SubStateMachine } from './animation-graph';
 import { assertIsTrue, assertIsNonNullable } from '../../data/utils/asserts';
-import { PoseEval, PoseEvalContext } from './pose';
+import { MotionEval, MotionEvalContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value } from './variable';
 import { BindContext, bindOr } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
-import { PoseNode } from './pose-node';
+import { MotionState } from './motion-state';
 import { SkeletonMask } from '../skeleton-mask';
 import { debug, warnID } from '../../platform/debug';
 import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { AnimationClip } from '../animation-clip';
-import type { NewGenAnim } from './newgenanim-component';
+import type { AnimationController } from './animation-controller';
 import { StateMachineComponent } from './state-machine-component';
-import { InteractiveGraphNode } from './graph-node';
+import { InteractiveState } from './state';
 import { VariableType } from '.';
 
-export class PoseGraphEval {
+export class AnimationGraphEval {
     private declare _layerEvaluations: LayerEval[];
     private _blendBuffer = new BlendStateBuffer();
     private _currentTransitionCache: TransitionStatus = {
@@ -27,7 +27,7 @@ export class PoseGraphEval {
         time: 0.0,
     };
 
-    constructor (graph: PoseGraph, root: Node, newGenAnim: NewGenAnim) {
+    constructor (graph: AnimationGraph, root: Node, newGenAnim: AnimationController) {
         for (const [name, { type, value }] of graph.variables) {
             this._varInstances[name] = new VarInstance(type, value);
         }
@@ -66,18 +66,18 @@ export class PoseGraphEval {
         graphDebugGroupEnd();
     }
 
-    public getCurrentPoseNodeStats (layer: number): Readonly<PoseNodeStats> | null {
+    public getCurrentStateStatus (layer: number): Readonly<StateStatus> | null {
         // TODO optimize object
-        const stats: PoseNodeStats = { __DEBUG_ID__: '' };
-        if (this._layerEvaluations[layer].getCurrentPoseNodeStats(stats)) {
+        const stats: StateStatus = { __DEBUG_ID__: '' };
+        if (this._layerEvaluations[layer].getCurrentStateStatus(stats)) {
             return stats;
         } else {
             return null;
         }
     }
 
-    public getCurrentPoses (layer: number): Iterable<Readonly<PoseStatus>> {
-        return this._layerEvaluations[layer].getCurrentPoses();
+    public getCurrentClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
+        return this._layerEvaluations[layer].getCurrentClipStatuses();
     }
 
     public getCurrentTransition (layer: number): Readonly<TransitionStatus> | null {
@@ -89,19 +89,19 @@ export class PoseGraphEval {
         return isInTransition ? currentTransition : null;
     }
 
-    public getNextPoseNodeStats (layer: number): Readonly<PoseNodeStats> | null {
+    public getNextStateStatus (layer: number): Readonly<StateStatus> | null {
         // TODO optimize object
-        const stats: PoseNodeStats = { __DEBUG_ID__: '' };
-        if (this._layerEvaluations[layer].getNextPoseNodeStats(stats)) {
+        const stats: StateStatus = { __DEBUG_ID__: '' };
+        if (this._layerEvaluations[layer].getNextStateStatus(stats)) {
             return stats;
         } else {
             return null;
         }
     }
 
-    public getNextPoses (layer: number): Iterable<Readonly<PoseStatus>> {
+    public getNextClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
         assertIsNonNullable(this.getCurrentTransition(layer), '!!this.getCurrentTransition(layer)');
-        return this._layerEvaluations[layer].getNextPoses();
+        return this._layerEvaluations[layer].getNextClipStatuses();
     }
 
     public getValue (name: string) {
@@ -129,12 +129,12 @@ export interface TransitionStatus {
     time: number;
 }
 
-export interface PoseStatus {
+export interface ClipStatus {
     clip: AnimationClip;
     weight: number;
 }
 
-export interface PoseNodeStats {
+export interface StateStatus {
     /**
      * For testing.
      * TODO: remove it.
@@ -145,7 +145,7 @@ export interface PoseNodeStats {
 type TriggerResetFn = (name: string) => void;
 
 interface LayerContext extends BindContext {
-    newGenAnim: NewGenAnim;
+    newGenAnim: AnimationController;
 
     /**
      * The root node bind to the graph.
@@ -176,9 +176,9 @@ class LayerEval {
         this.name = layer.name;
         this._newGenAnim = context.newGenAnim;
         this._weight = layer.weight;
-        const { entry, exit } = this._addSubgraph(layer.graph, null, {
+        const { entry, exit } = this._addStateMachine(layer.stateMachine, null, {
             ...context,
-        });
+        }, layer.name);
         this._topLevelEntry = entry;
         this._topLevelExit = exit;
         this._currentNode = entry;
@@ -201,22 +201,22 @@ class LayerEval {
         }
     }
 
-    public getCurrentPoseNodeStats (stats: PoseNodeStats): boolean {
+    public getCurrentStateStatus (status: StateStatus): boolean {
         const { _currentNode: currentNode } = this;
-        if (currentNode.kind === NodeKind.pose) {
-            stats.__DEBUG_ID__ = currentNode.name;
+        if (currentNode.kind === NodeKind.animation) {
+            status.__DEBUG_ID__ = currentNode.name;
             return true;
         } else {
             return false;
         }
     }
 
-    public getCurrentPoses (): Iterable<PoseStatus> {
+    public getCurrentClipStatuses (): Iterable<ClipStatus> {
         const { _currentNode: currentNode } = this;
-        if (currentNode.kind === NodeKind.pose) {
-            return currentNode.getPoses(this._fromWeight);
+        if (currentNode.kind === NodeKind.animation) {
+            return currentNode.getClipStatuses(this._fromWeight);
         } else {
-            return emptyPoseIterable;
+            return emptyClipStatusesIterable;
         }
     }
 
@@ -228,7 +228,7 @@ class LayerEval {
                 normalizedDuration,
             } = currentTransitionPath[0];
             const durationInSeconds = transitionStatus.duration = normalizedDuration
-                ? duration * (this._currentNode.kind === NodeKind.pose ? this._currentNode.duration : 0.0)
+                ? duration * (this._currentNode.kind === NodeKind.animation ? this._currentNode.duration : 0.0)
                 : duration;
             transitionStatus.time = this._transitionProgress * durationInSeconds;
             return true;
@@ -237,55 +237,54 @@ class LayerEval {
         }
     }
 
-    public getNextPoseNodeStats (stats: PoseNodeStats): boolean {
+    public getNextStateStatus (status: StateStatus): boolean {
         assertIsTrue(this._currentTransitionToNode, 'There is no transition currently in layer.');
-        stats.__DEBUG_ID__ = this._currentTransitionToNode.name;
+        status.__DEBUG_ID__ = this._currentTransitionToNode.name;
         return true;
     }
 
-    public getNextPoses (): Iterable<PoseStatus> {
+    public getNextClipStatuses (): Iterable<ClipStatus> {
         const { _currentTransitionPath: currentTransitionPath } = this;
         const nCurrentTransitionPath = currentTransitionPath.length;
         assertIsTrue(nCurrentTransitionPath > 0, 'There is no transition currently in layer.');
         const to = currentTransitionPath[nCurrentTransitionPath - 1].to;
-        assertIsTrue(to.kind === NodeKind.pose);
-        return to.getPoses(this._toWeight) ?? emptyPoseIterable;
+        assertIsTrue(to.kind === NodeKind.animation);
+        return to.getClipStatuses(this._toWeight) ?? emptyClipStatusesIterable;
     }
 
-    private declare _newGenAnim: NewGenAnim;
+    private declare _newGenAnim: AnimationController;
     private _weight: number;
     private _nodes: NodeEval[] = [];
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;
     private _currentNode: NodeEval;
-    private _currentTransitionToNode: PoseNodeEval | null = null;
+    private _currentTransitionToNode: MotionStateEval | null = null;
     private _currentTransitionPath: TransitionEval[] = [];
     private _transitionProgress = 0;
     private declare _triggerReset: TriggerResetFn;
     private _fromWeight = 0.0;
     private _toWeight = 0.0;
 
-    private _addSubgraph (graph: PoseSubgraph, parentSubgraphInfo: SubgraphInfo | null, context: LayerContext): {
-        entry: NodeEval;
-        exit: NodeEval;
-    } {
-        const nodes = Array.from(graph.nodes());
+    private _addStateMachine (
+        graph: StateMachine, parentStateMachineInfo: StateMachineInfo | null, context: LayerContext, __DEBUG_ID__: string,
+    ): StateMachineInfo {
+        const nodes = Array.from(graph.states());
 
-        let entryEval: SpecialNodeEval | undefined;
-        let anyNode: SpecialNodeEval | undefined;
-        let exitEval: SpecialNodeEval | undefined;
+        let entryEval: SpecialStateEval | undefined;
+        let anyNode: SpecialStateEval | undefined;
+        let exitEval: SpecialStateEval | undefined;
 
         const nodeEvaluations = nodes.map((node): NodeEval | null => {
-            if (node instanceof PoseNode) {
-                return new PoseNodeEval(node, context);
-            } else if (node === graph.entryNode) {
-                return entryEval = new SpecialNodeEval(node, NodeKind.entry, node.name);
-            } else if (node === graph.exitNode) {
-                return exitEval = new SpecialNodeEval(node, NodeKind.exit, node.name);
-            }  else if (node === graph.anyNode) {
-                return anyNode = new SpecialNodeEval(node, NodeKind.any, node.name);
+            if (node instanceof MotionState) {
+                return new MotionStateEval(node, context);
+            } else if (node === graph.entryState) {
+                return entryEval = new SpecialStateEval(node, NodeKind.entry, node.name);
+            } else if (node === graph.exitState) {
+                return exitEval = new SpecialStateEval(node, NodeKind.exit, node.name);
+            }  else if (node === graph.anyState) {
+                return anyNode = new SpecialStateEval(node, NodeKind.any, node.name);
             } else {
-                assertIsTrue(node instanceof PoseSubgraph);
+                assertIsTrue(node instanceof SubStateMachine);
                 return null;
             }
         });
@@ -294,11 +293,9 @@ class LayerEval {
         assertIsNonNullable(exitEval, 'Exit node is missing');
         assertIsNonNullable(anyNode, 'Any node is missing');
 
-        const components = new InstantiatedComponents(graph);
-
-        const subgraphInfo: SubgraphInfo = {
-            components,
-            parent: parentSubgraphInfo,
+        const stateMachineInfo: StateMachineInfo = {
+            components: null,
+            parent: parentStateMachineInfo,
             entry: entryEval,
             exit: exitEval,
             any: anyNode,
@@ -307,13 +304,15 @@ class LayerEval {
         for (let iNode = 0; iNode < nodes.length; ++iNode) {
             const nodeEval = nodeEvaluations[iNode];
             if (nodeEval) {
-                nodeEval.subgraph = subgraphInfo;
+                nodeEval.stateMachine = stateMachineInfo;
             }
         }
 
-        const subgraphInfos = nodes.map((node) => {
-            if (node instanceof PoseSubgraph) {
-                return this._addSubgraph(node, subgraphInfo, context);
+        const subStateMachineInfos = nodes.map((node) => {
+            if (node instanceof SubStateMachine) {
+                const subStateMachineInfo = this._addStateMachine(node.stateMachine, stateMachineInfo, context, `${__DEBUG_ID__}/${node.name}`);
+                subStateMachineInfo.components = new InstantiatedComponents(node);
+                return subStateMachineInfo;
             } else {
                 return null;
             }
@@ -322,7 +321,7 @@ class LayerEval {
         if (DEBUG) {
             for (const nodeEval of nodeEvaluations) {
                 if (nodeEval) {
-                    nodeEval.__DEBUG_ID__ = `${nodeEval.name}(from ${graph.name})`;
+                    nodeEval.__DEBUG_ID__ = `${nodeEval.name}(from ${__DEBUG_ID__})`;
                 }
             }
         }
@@ -333,10 +332,10 @@ class LayerEval {
             const outgoingTransitions: TransitionEval[] = [];
 
             let fromNode: NodeEval;
-            if (node instanceof PoseSubgraph) {
-                const subgraphInfo = subgraphInfos[iNode];
-                assertIsNonNullable(subgraphInfo);
-                fromNode = subgraphInfo.exit;
+            if (node instanceof SubStateMachine) {
+                const subStateMachineInfo = subStateMachineInfos[iNode];
+                assertIsNonNullable(subStateMachineInfo);
+                fromNode = subStateMachineInfo.exit;
             } else {
                 const nodeEval = nodeEvaluations[iNode];
                 assertIsNonNullable(nodeEval);
@@ -351,10 +350,10 @@ class LayerEval {
                 }
 
                 let toNode: NodeEval;
-                if (outgoingNode instanceof PoseSubgraph) {
-                    const subgraphInfo = subgraphInfos[iOutgoingNode];
-                    assertIsNonNullable(subgraphInfo);
-                    toNode = subgraphInfo.entry;
+                if (outgoingNode instanceof SubStateMachine) {
+                    const subStateMachineInfo = subStateMachineInfos[iOutgoingNode];
+                    assertIsNonNullable(subStateMachineInfo);
+                    toNode = subStateMachineInfo.entry;
                 } else {
                     const nodeEval = nodeEvaluations[iOutgoingNode];
                     assertIsNonNullable(nodeEval);
@@ -362,23 +361,14 @@ class LayerEval {
                 }
 
                 const transitionEval: TransitionEval = {
-                    pose: isPoseTransition(outgoing),
                     to: toNode,
                     conditions: outgoing.conditions.map((condition) => condition[createEval](context)),
-                    duration: isPoseTransition(outgoing) ? outgoing.duration : 0.0,
-                    normalizedDuration: isPoseTransition(outgoing) ? outgoing.relativeDuration : false,
-                    targetStretch: 1.0,
-                    exitConditionEnabled: isPoseTransition(outgoing) ? outgoing.exitConditionEnabled : false,
-                    exitCondition: isPoseTransition(outgoing) ? outgoing.exitCondition : 0.0,
+                    duration: isAnimationTransition(outgoing) ? outgoing.duration : 0.0,
+                    normalizedDuration: isAnimationTransition(outgoing) ? outgoing.relativeDuration : false,
+                    exitConditionEnabled: isAnimationTransition(outgoing) ? outgoing.exitConditionEnabled : false,
+                    exitCondition: isAnimationTransition(outgoing) ? outgoing.exitCondition : 0.0,
                     triggers: undefined,
                 };
-                if (toNode.kind === NodeKind.pose) {
-                    const toScaling = 1.0;
-                    // if (transitionEval.duration !== 0.0 && nodeEval.kind === NodeKind.pose && nodeEval.pose && toEval.pose) {
-                    //     // toScaling = toEval.pose.duration / transitionEval.duration;
-                    // }
-                    transitionEval.targetStretch = toScaling;
-                }
                 transitionEval.conditions.forEach((conditionEval, iCondition) => {
                     const condition = outgoing.conditions[iCondition];
                     if (condition instanceof TriggerCondition && condition.trigger) {
@@ -392,10 +382,7 @@ class LayerEval {
             fromNode.outgoingTransitions = outgoingTransitions;
         }
 
-        return {
-            entry: entryEval,
-            exit: exitEval,
-        };
+        return stateMachineInfo;
     }
 
     /**
@@ -463,8 +450,8 @@ class LayerEval {
                     requires: updateRequires,
                 } = transitionMatch;
 
-                graphDebug(`[Subgraph ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
-                if (currentNode.kind === NodeKind.pose) {
+                graphDebug(`[SubStateMachine ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
+                if (currentNode.kind === NodeKind.animation) {
                     currentNode.updateFromPort(updateRequires);
                 }
                 if (GRAPH_DEBUG_ENABLED) {
@@ -476,10 +463,10 @@ class LayerEval {
 
                 continueNextIterationForce = true;
             } else { // If no transition matched, we update current node.
-                graphDebug(`[Subgraph ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
-                if (currentNode.kind === NodeKind.pose) {
+                graphDebug(`[SubStateMachine ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
+                if (currentNode.kind === NodeKind.animation) {
                     currentNode.updateFromPort(remainTimePiece);
-                    // Poses eat all times.
+                    // Animation play eat all times.
                     remainTimePiece = 0.0;
                 }
                 if (GRAPH_DEBUG_ENABLED) {
@@ -489,7 +476,7 @@ class LayerEval {
             }
         }
 
-        graphDebug(`[Subgraph ${this.name}]: UpdateEnd`);
+        graphDebug(`[SubStateMachine ${this.name}]: UpdateEnd`);
         graphDebugGroupEnd();
 
         return remainTimePiece;
@@ -501,11 +488,11 @@ class LayerEval {
             _currentTransitionToNode: currentTransitionToNode,
             _fromWeight: fromWeight,
         } = this;
-        if (currentNode.kind === NodeKind.pose) {
+        if (currentNode.kind === NodeKind.animation) {
             currentNode.sampleFromPort(fromWeight);
         }
         if (currentTransitionToNode) {
-            if (currentTransitionToNode.kind === NodeKind.pose) {
+            if (currentTransitionToNode.kind === NodeKind.animation) {
                 currentTransitionToNode.sampleToPort(this._toWeight);
             }
         }
@@ -536,8 +523,8 @@ class LayerEval {
             } = match0);
         }
 
-        if (currentNode.kind === NodeKind.pose) {
-            for (let ancestor: SubgraphInfo | null = currentNode.subgraph;
+        if (currentNode.kind === NodeKind.animation) {
+            for (let ancestor: StateMachineInfo | null = currentNode.stateMachine;
                 ancestor !== null;
                 ancestor = ancestor.parent) {
                 const anyMatch = this._matchTransition(
@@ -599,7 +586,7 @@ class LayerEval {
 
             let deltaTimeRequired = 0.0;
 
-            if (realNode.kind === NodeKind.pose && transition.exitConditionEnabled) {
+            if (realNode.kind === NodeKind.animation && transition.exitConditionEnabled) {
                 const exitTime = realNode.duration * transition.exitCondition;
                 deltaTimeRequired = Math.max(exitTime - realNode.fromPortTime, 0.0);
                 if (deltaTimeRequired > deltaTime) {
@@ -638,9 +625,9 @@ class LayerEval {
     private _switchTo (transition: TransitionEval) {
         const { _currentNode: currentNode } = this;
 
-        graphDebugGroup(`[Subgraph ${this.name}]: STARTED ${currentNode.name} -> ${transition.to.name}.`);
+        graphDebugGroup(`[SubStateMachine ${this.name}]: STARTED ${currentNode.name} -> ${transition.to.name}.`);
 
-        // TODO: what if the first is entry(ie. not pose)?
+        // TODO: what if the first is entry(ie. not animation play)?
         // TODO: what if two of the path use same trigger?
         let currentTransition = transition;
         const { _currentTransitionPath: currentTransitionPath } = this;
@@ -650,7 +637,7 @@ class LayerEval {
 
             currentTransitionPath.push(currentTransition);
             const { to } = currentTransition;
-            if (to.kind === NodeKind.pose) {
+            if (to.kind === NodeKind.animation) {
                 break;
             }
 
@@ -672,7 +659,7 @@ class LayerEval {
         }
 
         const realTargetNode = currentTransition.to;
-        if (realTargetNode.kind !== NodeKind.pose) {
+        if (realTargetNode.kind !== NodeKind.animation) {
             // We ran into a exit/entry node.
             // Current: ignore the transition, but triggers are consumed
             // TODO: what should we done here?
@@ -721,7 +708,7 @@ class LayerEval {
             contrib = 0.0;
             ratio = 1.0;
         } else {
-            assertIsTrue(fromNode.kind === NodeKind.pose);
+            assertIsTrue(fromNode.kind === NodeKind.animation);
             const { _transitionProgress: transitionProgress } = this;
             const durationSeconds = normalizedDuration ? transitionDuration * fromNode.duration : transitionDuration;
             const progressSeconds = transitionProgress * durationSeconds;
@@ -736,14 +723,14 @@ class LayerEval {
 
         const weight = this._weight;
         graphDebugGroup(
-            `[Subgraph ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNodeName}`
+            `[SubStateMachine ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNodeName}`
             + `with ratio ${ratio} in base weight ${this._weight}.`,
         );
 
         this._fromWeight = weight * (1.0 - ratio);
         this._toWeight = weight * ratio;
 
-        if (fromNode.kind === NodeKind.pose) {
+        if (fromNode.kind === NodeKind.animation) {
             graphDebugGroup(`Update ${fromNode.name}`);
             fromNode.updateFromPort(contrib);
             graphDebugGroupEnd();
@@ -751,8 +738,7 @@ class LayerEval {
 
         if (toNode) {
             graphDebugGroup(`Update ${toNode.name}`);
-            const stretchedTime = contrib * currentTransition.targetStretch;
-            toNode.updateToPort(stretchedTime);
+            toNode.updateToPort(contrib);
             graphDebugGroupEnd();
         }
 
@@ -760,7 +746,7 @@ class LayerEval {
 
         if (ratio === 1.0) {
             // Transition done.
-            graphDebug(`[Subgraph ${this.name}]: Transition finished:  ${fromNode.name} -> ${toNodeName}.`);
+            graphDebug(`[SubStateMachine ${this.name}]: Transition finished:  ${fromNode.name} -> ${toNodeName}.`);
 
             this._callExitMethods(fromNode);
             const { _currentTransitionPath: transitions } = this;
@@ -803,11 +789,11 @@ class LayerEval {
         switch (node.kind) {
         default:
             break;
-        case NodeKind.pose:
+        case NodeKind.animation:
             node.components.callEnterMethods(newGenAnim);
             break;
         case NodeKind.entry:
-            node.subgraph.components.callEnterMethods(newGenAnim);
+            node.stateMachine.components?.callEnterMethods(newGenAnim);
             break;
         }
     }
@@ -817,65 +803,17 @@ class LayerEval {
         switch (node.kind) {
         default:
             break;
-        case NodeKind.pose:
+        case NodeKind.animation:
             node.components.callExitMethods(newGenAnim);
             break;
         case NodeKind.exit:
-            node.subgraph.components.callExitMethods(newGenAnim);
+            node.stateMachine.components?.callExitMethods(newGenAnim);
             break;
         }
     }
-
-    /**
-     * A subgraph may have a current node, or haven't due to:
-     * - the subgraph is empty;
-     * - the subgraph isn't empty, but no transitions emitted from entry;
-     * - there are transitions emitted from entry, but non of them are satisfied.
-     */
-    // public enter () {
-    //     assertIsTrue(this._currentNode.kind === NodeKind.entry);
-    //     const transitionMatch = this._matchCurrentNodeTransition(0.0);
-    //     if (!transitionMatch) {
-    //         return;
-    //     }
-    //     const { transition } = transitionMatch;
-    //     assertIsTrue(transitionMatch.requires === 0.0);
-    //     assertIsTrue(transition.to !== this._currentNode);
-    //     this._switchTo(transition);
-    //     this._updateCurrentTransition(0.0);
-    // }
-
-    // /**
-    //  * Resets this sub graph to its initial state.
-    //  */
-    // public reset () {
-    //     this._currentNode = this._enterNode;
-    //     this._currentTransition = null;
-    // }
-
-    // /**
-    //  * Sets weight of this sub graph.
-    //  * @param weight The weight.
-    //  */
-    // public setWeight (weight: number) {
-    //     this._weight = weight;
-    //     if (isPoseOrSubgraphNodeEval(this._currentNode)) {
-    //         this._currentNode.setWeight(weight);
-    //     }
-    // }
-
-    // public transitionUpdate (deltaTime: Readonly<number>) {
-    //     assertIsTrue(!this.exited);
-    //     const { _currentNode: currentNode } = this;
-    //     if (currentNode.kind === NodeKind.pose) {
-    //         currentNode.update(deltaTime);
-    //     } else if (currentNode.kind === NodeKind.subgraph) {
-    //         currentNode.transitionUpdate(deltaTime);
-    //     }
-    // }
 }
 
-const emptyPoseIterator: Iterator<PoseStatus> = Object.freeze({
+const emptyClipStatusesIterator: Iterator<ClipStatus> = Object.freeze({
     next () {
         return {
             done: true,
@@ -884,9 +822,9 @@ const emptyPoseIterator: Iterator<PoseStatus> = Object.freeze({
     },
 });
 
-const emptyPoseIterable: Iterable<PoseStatus> = Object.freeze({
+const emptyClipStatusesIterable: Iterable<ClipStatus> = Object.freeze({
     [Symbol.iterator] () {
-        return emptyPoseIterator;
+        return emptyClipStatusesIterator;
     },
 });
 
@@ -921,15 +859,15 @@ const transitionMatchCacheRegular = new TransitionMatchCache();
 const transitionMatchCacheAny = new TransitionMatchCache();
 
 enum NodeKind {
-    entry, exit, any, pose,
+    entry, exit, any, animation,
 }
 
-export class NodeBaseEval {
+export class StateEval {
     public declare __DEBUG_ID__?: string;
 
-    public declare subgraph: SubgraphInfo;
+    public declare stateMachine: StateMachineInfo;
 
-    constructor (node: GraphNode) {
+    constructor (node: State) {
         this.name = node.name;
     }
 
@@ -943,11 +881,11 @@ const DEFAULT_ENTER_METHOD = StateMachineComponent.prototype.onEnter;
 const DEFAULT_EXIT_METHOD = StateMachineComponent.prototype.onExit;
 
 class InstantiatedComponents {
-    constructor (node: InteractiveGraphNode) {
+    constructor (node: InteractiveState) {
         this._components = node.instantiateComponents();
     }
 
-    public callEnterMethods (newGenAnim: NewGenAnim) {
+    public callEnterMethods (newGenAnim: AnimationController) {
         const { _components: components } = this;
         const nComponents = components.length;
         for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
@@ -958,7 +896,7 @@ class InstantiatedComponents {
         }
     }
 
-    public callExitMethods (newGenAnim: NewGenAnim) {
+    public callExitMethods (newGenAnim: AnimationController) {
         const { _components: components } = this;
         const nComponents = components.length;
         for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
@@ -972,16 +910,16 @@ class InstantiatedComponents {
     private declare _components: StateMachineComponent[];
 }
 
-interface SubgraphInfo {
-    parent: SubgraphInfo | null;
+interface StateMachineInfo {
+    parent: StateMachineInfo | null;
     entry: NodeEval;
     exit: NodeEval;
     any: NodeEval;
-    components: InstantiatedComponents;
+    components: InstantiatedComponents | null;
 }
 
-export class PoseNodeEval extends NodeBaseEval {
-    constructor (node: PoseNode, context: LayerContext) {
+export class MotionStateEval extends StateEval {
+    constructor (node: MotionState, context: LayerContext) {
         super(node);
         const speed = bindOr(
             context,
@@ -992,26 +930,26 @@ export class PoseNodeEval extends NodeBaseEval {
         );
         this._speed = speed;
         this.startRatio = node.startRatio.value;
-        const poseEvalContext: PoseEvalContext = {
+        const sourceEvalContext: MotionEvalContext = {
             ...context,
             startRatio: node.startRatio.value,
         };
-        const poseEval = node.pose?.[createEval](poseEvalContext) ?? null;
-        if (poseEval) {
-            Object.defineProperty(poseEval, '__DEBUG_ID__', { value: this.name });
+        const sourceEval = node.motion?.[createEval](sourceEvalContext) ?? null;
+        if (sourceEval) {
+            Object.defineProperty(sourceEval, '__DEBUG_ID__', { value: this.name });
         }
-        this._pose = poseEval;
+        this._source = sourceEval;
         this.components = new InstantiatedComponents(node);
     }
 
-    public readonly kind = NodeKind.pose;
+    public readonly kind = NodeKind.animation;
 
     public startRatio: number;
 
     public declare components: InstantiatedComponents;
 
     get duration () {
-        return this._pose?.duration ?? 0.0;
+        return this._source?.duration ?? 0.0;
     }
 
     get fromPortTime () {
@@ -1043,30 +981,30 @@ export class PoseNodeEval extends NodeBaseEval {
     }
 
     public sampleFromPort (weight: number) {
-        this._pose?.sample(this._fromPort.progress, weight);
+        this._source?.sample(this._fromPort.progress, weight);
     }
 
     public sampleToPort (weight: number) {
-        this._pose?.sample(this._toPort.progress, weight);
+        this._source?.sample(this._toPort.progress, weight);
     }
 
-    public getPoses (baseWeight: number): Iterable<PoseStatus> {
-        const { _pose: pose } = this;
-        if (!pose) {
-            return emptyPoseIterable;
+    public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
+        const { _source: source } = this;
+        if (!source) {
+            return emptyClipStatusesIterable;
         } else {
             return {
-                [Symbol.iterator]: () => pose.poses(baseWeight),
+                [Symbol.iterator]: () => source.getClipStatuses(baseWeight),
             };
         }
     }
 
-    private _pose: PoseEval | null = null;
+    private _source: MotionEval | null = null;
     private _speed = 1.0;
-    private _fromPort: PoseEvalPort = {
+    private _fromPort: MotionEvalPort = {
         progress: 0.0,
     };
-    private _toPort: PoseEvalPort = {
+    private _toPort: MotionEvalPort = {
         progress: 0.0,
     };
 
@@ -1084,12 +1022,12 @@ function calcProgressUpdate (currentProgress: number, duration: number, deltaTim
     return progress - Math.trunc(progress);
 }
 
-interface PoseEvalPort {
+interface MotionEvalPort {
     progress: number;
 }
 
-export class SpecialNodeEval extends NodeBaseEval {
-    constructor (node: GraphNode, kind: SpecialNodeEval['kind'], name: string) {
+export class SpecialStateEval extends StateEval {
+    constructor (node: State, kind: SpecialStateEval['kind'], name: string) {
         super(node);
         this.kind = kind;
     }
@@ -1097,15 +1035,13 @@ export class SpecialNodeEval extends NodeBaseEval {
     public readonly kind: NodeKind.entry | NodeKind.exit | NodeKind.any;
 }
 
-export type NodeEval = PoseNodeEval | SpecialNodeEval;
+export type NodeEval = MotionStateEval | SpecialStateEval;
 
 interface TransitionEval {
-    pose: boolean;
     to: NodeEval;
     duration: number;
     normalizedDuration: boolean;
     conditions: ConditionEval[];
-    targetStretch: number;
     exitConditionEnabled: boolean;
     exitCondition: number;
     /**

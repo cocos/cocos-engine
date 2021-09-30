@@ -3,10 +3,10 @@ export default {
         graph: {
             nodes: [{
                 name: 'Node1',
-                type: 'pose',
+                type: 'animation',
             }, {
                 name: 'Node2',
-                type: 'pose',
+                type: 'animation',
             }],
             entryTransitions: [{
                 to: 0,
@@ -22,4 +22,4 @@ export default {
             }],
         },
     }],
-} as import('../../../cocos/core/animation/newgen-anim/__tmp__/graph-description').GraphDescription;
+} as import('../../../cocos/core/animation/marionette/__tmp__/graph-description').GraphDescription;

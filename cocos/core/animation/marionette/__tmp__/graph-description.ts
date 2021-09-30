@@ -8,22 +8,22 @@ export interface GraphDescription {
 }
 
 export interface LayerDescription {
-    graph: PoseSubGraphDescription;
+    graph: StateMachineDescription;
 }
 
-export interface SubgraphNodeBaseDesc {
+export interface StateDesc {
     name?: string;
 }
 
-export interface PoseNodeDesc extends SubgraphNodeBaseDesc {
-    type: 'pose';
+export interface MotionStateDesc extends StateDesc {
+    type: 'animation';
     motion?: MotionDescription;
 }
 
-export interface PoseSubGraphDescription extends SubgraphNodeBaseDesc {
-    type: 'subgraph';
+export interface StateMachineDescription extends StateDesc {
+    type: 'state-machine';
 
-    nodes?: Array<PoseNodeDesc | PoseSubGraphDescription>;
+    nodes?: Array<MotionStateDesc | StateMachineDescription>;
 
     entryTransitions?: Array<{
         to: number;
@@ -31,16 +31,16 @@ export interface PoseSubGraphDescription extends SubgraphNodeBaseDesc {
 
     exitTransitions?: Array<{
         from: number;
-    } & PoseTransitionDescription>;
+    } & AnimationTransitionDescription>;
 
     anyTransitions?: Array<{
         to: number;
     } & TransitionDescriptionBase>;
 
-    transitions?: Array<PoseTransitionDescription>;
+    transitions?: Array<AnimationTransitionDescription>;
 }
 
-export interface PoseTransitionDescription extends TransitionDescriptionBase {
+export interface AnimationTransitionDescription extends TransitionDescriptionBase {
     from: number;
     to: number;
     duration?: number;
@@ -66,14 +66,14 @@ export type ConditionDescription  = {
 
 export type ValueDescription = string | number | boolean;
 
-export type MotionDescription = PoseDescription | PoseBlendDescription;
+export type MotionDescription = ClipMotionDescription | AnimationBlendDescription;
 
-export interface PoseDescription {
-    type: 'pose';
+export interface ClipMotionDescription {
+    type: 'clip';
 }
 
-export interface PoseBlendDescription {
-    type: 'pose-blend';
+export interface AnimationBlendDescription {
+    type: 'blend';
     children: MotionDescription[];
     blender: {
         type: '1d';

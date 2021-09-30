@@ -1,24 +1,25 @@
 import { Vec2 } from '../../../math/vec2';
-import { PoseGraph, Condition, AnimatedPose } from '../../animation';
+import { AnimationGraph, Condition, ClipMotion } from '../../animation';
 import {
     GraphDescription,
     MotionDescription,
     TransitionDescriptionBase,
-    PoseSubGraphDescription,
+    StateMachineDescription,
     ParametricDescription,
-    PoseTransitionDescription,
+    AnimationTransitionDescription,
 } from './graph-description';
-import { PoseBlend1D } from '../pose-blend-1d';
-import { PoseBlend2D } from '../pose-blend-2d';
-import { GraphNode, PoseSubgraph, PoseTransition } from '../pose-graph';
-import { Pose } from '../pose';
+import { AnimationBlend1D } from '../animation-blend-1d';
+import { AnimationBlend2D } from '../animation-blend-2d';
+import { State, StateMachine, AnimationTransition } from '../animation-graph';
+import { Motion } from '../motion';
 import { Bindable, VariableType } from '../parametric';
 import { Value } from '../variable';
-import { PoseNode } from '../pose-node';
+import { MotionState } from '../motion-state';
 import { BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';
+import { AnimationBlend1DItem, AnimationBlend2DItem } from '..';
 
 export function createGraphFromDescription (graphDescription: GraphDescription) {
-    const graph = new PoseGraph();
+    const graph = new AnimationGraph();
 
     if (graphDescription.vars) {
         for (const varDesc of graphDescription.vars) {
@@ -28,22 +29,22 @@ export function createGraphFromDescription (graphDescription: GraphDescription) 
 
     for (const layerDesc of graphDescription.layers) {
         const layer = graph.addLayer();
-        createSubgraph(layer.graph, layerDesc.graph);
+        createSubgraph(layer.stateMachine, layerDesc.graph);
     }
     return graph;
 }
 
-function createSubgraph (subgraph: PoseSubgraph, subgraphDesc: PoseSubGraphDescription) {
+function createSubgraph (subgraph: StateMachine, subgraphDesc: StateMachineDescription) {
     const nodes = subgraphDesc.nodes?.map((nodeDesc) => {
-        let node: GraphNode;
-        if (nodeDesc.type === 'pose') {
-            const poseNode = subgraph.addPoseNode();
+        let node: State;
+        if (nodeDesc.type === 'animation') {
+            const animationState = subgraph.addMotion();
             if (nodeDesc.motion) {
-                poseNode.pose = createMotion(nodeDesc.motion);
+                animationState.motion = createMotion(nodeDesc.motion);
             }
-            node = poseNode;
+            node = animationState;
         } else {
-            const subSubgraph = subgraph.addSubgraph();
+            const subSubgraph = subgraph.addSubStateMachine();
             createSubgraph(subgraph, nodeDesc);
             node = subSubgraph;
         }
@@ -55,27 +56,27 @@ function createSubgraph (subgraph: PoseSubgraph, subgraphDesc: PoseSubGraphDescr
 
     if (subgraphDesc.entryTransitions) {
         for (const transitionDesc of subgraphDesc.entryTransitions) {
-            createTransition(subgraph, subgraph.entryNode, nodes[transitionDesc.to], transitionDesc);
+            createTransition(subgraph, subgraph.entryState, nodes[transitionDesc.to], transitionDesc);
         }
     }
     if (subgraphDesc.exitTransitions) {
         for (const transitionDesc of subgraphDesc.exitTransitions) {
-            createPoseTransition(subgraph, nodes[transitionDesc.from] as PoseNode, subgraph.exitNode, transitionDesc);
+            createAnimationTransition(subgraph, nodes[transitionDesc.from] as MotionState, subgraph.exitState, transitionDesc);
         }
     }
     if (subgraphDesc.anyTransitions) {
         for (const transitionDesc of subgraphDesc.anyTransitions) {
-            createTransition(subgraph, subgraph.entryNode, nodes[transitionDesc.to], transitionDesc);
+            createTransition(subgraph, subgraph.entryState, nodes[transitionDesc.to], transitionDesc);
         }
     }
     if (subgraphDesc.transitions) {
         for (const transitionDesc of subgraphDesc.transitions) {
-            createPoseTransition(subgraph, nodes[transitionDesc.from] as PoseNode, nodes[transitionDesc.to], transitionDesc);
+            createAnimationTransition(subgraph, nodes[transitionDesc.from] as MotionState, nodes[transitionDesc.to], transitionDesc);
         }
     }
 }
 
-function createTransition (graph: PoseSubgraph, from: GraphNode, to: GraphNode, transitionDesc: TransitionDescriptionBase) {
+function createTransition (graph: StateMachine, from: State, to: State, transitionDesc: TransitionDescriptionBase) {
     let condition: Condition | undefined;
     const conditions = transitionDesc.conditions?.map((conditionDesc) => {
         switch (conditionDesc.type) {
@@ -104,8 +105,8 @@ function createTransition (graph: PoseSubgraph, from: GraphNode, to: GraphNode, 
     return transition;
 }
 
-function createPoseTransition (graph: PoseSubgraph, from: PoseNode, to: GraphNode, descriptor: PoseTransitionDescription) {
-    const transition = createTransition(graph, from, to, descriptor) as PoseTransition;
+function createAnimationTransition (graph: StateMachine, from: MotionState, to: State, descriptor: AnimationTransitionDescription) {
+    const transition = createTransition(graph, from, to, descriptor) as unknown as AnimationTransition;
 
     const {
         duration,
@@ -122,28 +123,32 @@ function createPoseTransition (graph: PoseSubgraph, from: PoseNode, to: GraphNod
     return transition;
 }
 
-function createMotion (motionDesc: MotionDescription): Pose {
-    if (motionDesc.type === 'pose') {
-        const motion = new AnimatedPose();
+function createMotion (motionDesc: MotionDescription): Motion {
+    if (motionDesc.type === 'clip') {
+        const motion = new ClipMotion();
         return motion;
     } else if (motionDesc.blender.type === '1d') {
-        const motion = new PoseBlend1D();
+        const motion = new AnimationBlend1D();
         const thresholds = motionDesc.blender.thresholds;
-        motion.children = motionDesc.children.map((childMotionDesc, iMotion) => [
-            createMotion(childMotionDesc),
-            thresholds[iMotion],
-        ] as [Pose, number]);
+        motion.items = motionDesc.children.map((childMotionDesc, iMotion) => {
+            const item = new AnimationBlend1DItem();
+            item.motion = createMotion(childMotionDesc);
+            item.threshold = thresholds[iMotion];
+            return item;
+        });
         createParametric(motionDesc.blender.value, motion.param);
         return motion;
     } else {
-        const algorithm = PoseBlend2D.Algorithm[motionDesc.blender.algorithm];
-        const motion = new PoseBlend2D();
+        const algorithm = AnimationBlend2D.Algorithm[motionDesc.blender.algorithm];
+        const motion = new AnimationBlend2D();
         motion.algorithm = algorithm;
         const thresholds = motionDesc.blender.thresholds;
-        motion.children = motionDesc.children.map((childMotionDesc, iMotion) => [
-            createMotion(childMotionDesc),
-            new Vec2(thresholds[iMotion].x, thresholds[iMotion].y),
-        ] as [Pose, Vec2]);
+        motion.items = motionDesc.children.map((childMotionDesc, iMotion) => {
+            const item = new AnimationBlend2DItem();
+            item.motion = createMotion(childMotionDesc);
+            item.threshold = new Vec2(thresholds[iMotion].x, thresholds[iMotion].y);
+            return item;
+        });
         createParametric(motionDesc.blender.values[0], motion.paramX);
         createParametric(motionDesc.blender.values[1], motion.paramY);
         return motion;

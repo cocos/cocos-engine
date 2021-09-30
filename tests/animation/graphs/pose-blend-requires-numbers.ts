@@ -7,10 +7,10 @@ export default {
         graph: {
             nodes: [{
                 name: 'Node1',
-                type: 'pose',
+                type: 'animation',
                 motion: {
-                    type: 'pose-blend',
-                    children: [{ type: 'pose' }, { type: 'pose' }],
+                    type: 'blend',
+                    children: [{ type: 'clip' }, { type: 'clip' }],
                     blender: {
                         type: '1d',
                         thresholds: [0.0, 1.0],
@@ -23,4 +23,4 @@ export default {
             }],
         }
     }],
-} as import('../../../cocos/core/animation/newgen-anim/__tmp__/graph-description').GraphDescription;
+} as import('../../../cocos/core/animation/marionette/__tmp__/graph-description').GraphDescription;

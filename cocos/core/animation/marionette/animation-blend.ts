@@ -1,45 +1,65 @@
 import { ccclass } from '../../data/class-decorator';
-import { PoseEvalContext, Pose, PoseEval } from './pose';
+import { MotionEvalContext, Motion, MotionEval } from './motion';
 import { Value } from './variable';
 import { createEval } from './create-eval';
 import { VariableTypeMismatchedError } from './errors';
 import { serializable } from '../../data/decorators';
-import { PoseStatus } from './graph-eval';
+import { ClipStatus } from './graph-eval';
 import { EditorExtendable } from '../../data/editor-extendable';
+import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
-export interface PoseBlend extends Pose, EditorExtendable {
-    [createEval] (_context: PoseEvalContext): PoseEval | null;
+export interface AnimationBlend extends Motion, EditorExtendable {
+    [createEval] (_context: MotionEvalContext): MotionEval | null;
 }
 
-export class PoseBlendEval implements PoseEval {
-    private declare _poseEvaluators: (PoseEval | null)[];
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
+export class AnimationBlendItem {
+    public motion: Motion | null = null;
+
+    public clone () {
+        const that = new AnimationBlendItem();
+        this._assign(that);
+        return that;
+    }
+
+    protected _assign (that: AnimationBlendItem) {
+        that.motion = this.motion?.clone() ?? null;
+        return that;
+    }
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend`)
+export class AnimationBlend extends EditorExtendable implements Motion {
+}
+
+export class AnimationBlendEval implements MotionEval {
+    private declare _childEvaluators: (MotionEval | null)[];
     private declare _weights: number[];
     private declare _inputs: number[];
 
     constructor (
-        context: PoseEvalContext,
-        poses: (Pose | null)[],
+        context: MotionEvalContext,
+        children: AnimationBlendItem[],
         inputs: number[],
     ) {
-        this._poseEvaluators = poses.map((pose) => pose?.[createEval](context) ?? null);
-        // this.duration = this._poseEvaluators.reduce(() => {}, 0.0);
-        this._weights = new Array(this._poseEvaluators.length).fill(0);
+        this._childEvaluators = children.map((child) => child.motion?.[createEval](context) ?? null);
+        this._weights = new Array(this._childEvaluators.length).fill(0);
         this._inputs = [...inputs];
     }
 
     get duration () {
         let uniformDuration = 0.0;
-        for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            uniformDuration += (this._poseEvaluators[iPose]?.duration ?? 0.0) * this._weights[iPose];
+        for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
+            uniformDuration += (this._childEvaluators[iChild]?.duration ?? 0.0) * this._weights[iChild];
         }
         return uniformDuration;
     }
 
-    public poses (baseWeight: number): Iterator<PoseStatus, any, undefined> {
-        const { _poseEvaluators: children, _weights: weights } = this;
+    public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {
+        const { _childEvaluators: children, _weights: weights } = this;
         const nChildren = children.length;
         let iChild = 0;
-        let currentChildIterator: Iterator<PoseStatus> | undefined;
+        let currentChildIterator: Iterator<ClipStatus> | undefined;
         return {
             next () {
                 // eslint-disable-next-line no-constant-condition
@@ -54,7 +74,7 @@ export class PoseBlendEval implements PoseEval {
                         return { done: true, value: undefined };
                     } else {
                         const child = children[iChild];
-                        currentChildIterator = child?.poses(baseWeight * weights[iChild]);
+                        currentChildIterator = child?.getClipStatuses(baseWeight * weights[iChild]);
                         ++iChild;
                     }
                 }
@@ -63,8 +83,8 @@ export class PoseBlendEval implements PoseEval {
     }
 
     public sample (progress: number, weight: number) {
-        for (let iPose = 0; iPose < this._poseEvaluators.length; ++iPose) {
-            this._poseEvaluators[iPose]?.sample(progress, weight * this._weights[iPose]);
+        for (let iChild = 0; iChild < this._childEvaluators.length; ++iChild) {
+            this._childEvaluators[iChild]?.sample(progress, weight * this._weights[iChild]);
         }
     }
 

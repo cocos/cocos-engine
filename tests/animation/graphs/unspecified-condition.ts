@@ -3,11 +3,11 @@ export default {
         graph: {
             nodes: [{
                 name: 'asd',
-                type: 'pose',
+                type: 'animation',
             }],
             entryTransitions: [{
                 to: 0,
             }],
         }
     }],
-} as import('../../../cocos/core/animation/newgen-anim/__tmp__/graph-description').GraphDescription;
+} as import('../../../cocos/core/animation/marionette/__tmp__/graph-description').GraphDescription;

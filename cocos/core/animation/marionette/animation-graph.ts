@@ -2,15 +2,15 @@ import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
 import { remove, removeAt, removeIf } from '../../utils/array';
 import { assertIsNonNullable, assertIsTrue } from '../../data/utils/asserts';
-import { Pose, PoseEval, PoseEvalContext } from './pose';
+import { Motion, MotionEval, MotionEvalContext } from './motion';
 import type { Condition } from './condition';
 import { Asset } from '../../assets';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
 import { Value } from './variable';
 import { InvalidTransitionError } from './errors';
 import { createEval } from './create-eval';
-import { PoseNode } from './pose-node';
-import { GraphNode, outgoingsSymbol, incomingsSymbol, InteractiveGraphNode } from './graph-node';
+import { MotionState } from './motion-state';
+import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
 import { SkeletonMask } from '../skeleton-mask';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { array } from '../../utils/js';
@@ -20,23 +20,23 @@ import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { StateMachineComponent } from './state-machine-component';
 import { VariableType } from './parametric';
 
-export { GraphNode };
+export { State };
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}Transition`)
-class Transition extends EditorExtendable implements OwnedBy<PoseSubgraph>, Transition {
-    declare [ownerSymbol]: PoseSubgraph | undefined;
+class Transition extends EditorExtendable implements OwnedBy<StateMachine>, Transition {
+    declare [ownerSymbol]: StateMachine | undefined;
 
     /**
      * The transition source.
      */
     @serializable
-    public from: GraphNode;
+    public from: State;
 
     /**
      * The transition target.
      */
     @serializable
-    public to: GraphNode;
+    public to: State;
 
     /**
      * The transition condition.
@@ -47,7 +47,7 @@ class Transition extends EditorExtendable implements OwnedBy<PoseSubgraph>, Tran
     /**
      * @internal
      */
-    constructor (from: GraphNode, to: GraphNode, conditions?: Condition[]) {
+    constructor (from: State, to: State, conditions?: Condition[]) {
         super();
         this.from = from;
         this.to = to;
@@ -56,7 +56,7 @@ class Transition extends EditorExtendable implements OwnedBy<PoseSubgraph>, Tran
         }
     }
 
-    [ownerSymbol]: PoseSubgraph | undefined;
+    [ownerSymbol]: StateMachine | undefined;
 }
 
 type TransitionView = Omit<Transition, 'from' | 'to'> & {
@@ -68,8 +68,8 @@ export type { TransitionView as Transition };
 
 export type TransitionInternal = Transition;
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}PoseTransition`)
-class PoseTransition extends Transition {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationTransition`)
+class AnimationTransition extends Transition {
     /**
      * The transition duration.
      * The unit of the duration is the real duration of transition source
@@ -100,88 +100,85 @@ class PoseTransition extends Transition {
     private _exitCondition = 1.0;
 }
 
-type PoseTransitionView = Omit<PoseTransition, 'from' | 'to'> & {
-    readonly from: PoseTransition['from'];
-    readonly to: PoseTransition['to'];
+type AnimationTransitionView = Omit<AnimationTransition, 'from' | 'to'> & {
+    readonly from: AnimationTransition['from'];
+    readonly to: AnimationTransition['to'];
 };
 
-export type { PoseTransition };
+export type { AnimationTransitionView as AnimationTransition };
 
-export function isPoseTransition (transition: TransitionView): transition is PoseTransitionView {
-    return transition instanceof PoseTransition;
+export function isAnimationTransition (transition: TransitionView): transition is AnimationTransitionView {
+    return transition instanceof AnimationTransition;
 }
 
-@ccclass('cc.animation.PoseSubgraph')
-export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer | PoseSubgraph> {
-    [ownerSymbol]: Layer | PoseSubgraph | undefined;
-
+@ccclass('cc.animation.StateMachine')
+export class StateMachine {
     @serializable
-    private _nodes: GraphNode[] = [];
+    private _states: State[] = [];
 
     @serializable
     private _transitions: Transition[] = [];
 
     @serializable
-    private _entryNode: GraphNode;
+    private _entryState: State;
 
     @serializable
-    private _exitNode: GraphNode;
+    private _exitState: State;
 
     @serializable
-    private _anyNode: GraphNode;
+    private _anyState: State;
 
     /**
      * @internal
      */
     constructor () {
-        super();
-        this._entryNode = this._addNode(new GraphNode());
-        this._entryNode.name = 'Entry';
-        this._exitNode = this._addNode(new GraphNode());
-        this._exitNode.name = 'Exit';
-        this._anyNode = this._addNode(new GraphNode());
-        this._anyNode.name = 'Any';
+        this._entryState = this._addState(new State());
+        this._entryState.name = 'Entry';
+        this._exitState = this._addState(new State());
+        this._exitState.name = 'Exit';
+        this._anyState = this._addState(new State());
+        this._anyState.name = 'Any';
     }
 
     public [onAfterDeserializedTag] () {
-        this._nodes.forEach((node) => own(node, this));
+        this._states.forEach((state) => own(state, this));
         this._transitions.forEach((transition) => {
             transition.from[outgoingsSymbol].push(transition);
             transition.to[incomingsSymbol].push(transition);
         });
     }
 
-    [createEval] (context: PoseEvalContext): PoseEval | null {
+    [createEval] (context: MotionEvalContext): MotionEval | null {
         throw new Error('Method not implemented.');
     }
 
     /**
-     * The entry node.
+     * The entry state.
      */
-    get entryNode () {
-        return this._entryNode;
+    get entryState () {
+        return this._entryState;
     }
 
     /**
-     * The exit node.
+     * The exit state.
      */
-    get exitNode () {
-        return this._exitNode;
+    get exitState () {
+        return this._exitState;
     }
 
     /**
-     * The any node.
+     * The any state.
      */
-    get anyNode () {
-        return this._anyNode;
+    get anyState () {
+        return this._anyState;
     }
 
     /**
-     * Gets an iterator to all nodes within this graph.
+     * Gets an iterator to all states within this graph.
      * @returns The iterator.
      */
-    public nodes (): Iterable<GraphNode> {
-        return this._nodes;
+    public states (): Iterable<State> {
+        return this._states;
     }
 
     /**
@@ -193,107 +190,107 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
     }
 
     /**
-     * Gets the transition between specified nodes.
+     * Gets the transition between specified states.
      * @param from Transition source.
      * @param to Transition target.
      * @returns The transition, if one existed.
      */
-    public getTransition (from: GraphNode, to: GraphNode): Iterable<Transition> {
+    public getTransition (from: State, to: State): Iterable<Transition> {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
         return from[outgoingsSymbol].filter((transition) => transition.to === to);
     }
 
     /**
-     * Gets all outgoing transitions of specified node.
-     * @param to The node.
+     * Gets all outgoing transitions of specified state.
+     * @param to The state.
      * @returns Result transitions.
      */
-    public getOutgoings (from: GraphNode): Iterable<Transition> {
+    public getOutgoings (from: State): Iterable<Transition> {
         assertsOwnedBy(from, this);
         return from[outgoingsSymbol];
     }
 
     /**
-     * Gets all incoming transitions of specified node.
-     * @param to The node.
+     * Gets all incoming transitions of specified state.
+     * @param to The state.
      * @returns Result transitions.
      */
-    public getIncomings (to: GraphNode): Iterable<Transition> {
+    public getIncomings (to: State): Iterable<Transition> {
         assertsOwnedBy(to, this);
         return to[incomingsSymbol];
     }
 
     /**
-     * Adds a pose node into this subgraph.
-     * @returns The newly created pose node.
+     * Adds a motion state into this state machine.
+     * @returns The newly created motion.
      */
-    public addPoseNode (): PoseNode {
-        return this._addNode(new PoseNode());
+    public addMotion (): MotionState {
+        return this._addState(new MotionState());
     }
 
     /**
-     * Adds a subgraph into this subgraph.
-     * @returns The newly created subgraph.
+     * Adds a sub state machine into this state machine.
+     * @returns The newly created state machine.
      */
-    public addSubgraph (): PoseSubgraph {
-        return this._addNode(new PoseSubgraph());
+    public addSubStateMachine (): SubStateMachine {
+        return this._addState(new SubStateMachine());
     }
 
     /**
-     * Removes specified node from this subgraph.
-     * @param node The node to remove.
+     * Removes specified state from this state machine.
+     * @param state The state to remove.
      */
-    public remove (node: GraphNode) {
-        assertsOwnedBy(node, this);
+    public remove (state: State) {
+        assertsOwnedBy(state, this);
 
-        if (node === this.entryNode
-            || node === this.exitNode
-            || node === this.anyNode) {
+        if (state === this.entryState
+            || state === this.exitState
+            || state === this.anyState) {
             return;
         }
 
-        this.eraseTransitionsIncludes(node);
-        remove(this._nodes, node);
+        this.eraseTransitionsIncludes(state);
+        remove(this._states, state);
 
-        markAsDangling(node);
+        markAsDangling(state);
     }
 
     /**
-     * Connect two nodes.
-     * @param from Source node.
-     * @param to Target node.
+     * Connect two states.
+     * @param from Source state.
+     * @param to Target state.
      * @param condition The transition condition.
      */
-    public connect (from: PoseNode, to: GraphNode, conditions?: Condition[]): PoseTransitionView;
+    public connect (from: MotionState, to: State, conditions?: Condition[]): AnimationTransitionView;
 
     /**
-     * Connect two nodes.
-     * @param from Source node.
-     * @param to Target node.
+     * Connect two states.
+     * @param from Source state.
+     * @param to Target state.
      * @param condition The transition condition.
      * @throws `InvalidTransitionError` if:
-     * - the target node is entry or any, or
-     * - the source node is exit.
+     * - the target state is entry or any, or
+     * - the source state is exit.
      */
-    public connect (from: GraphNode, to: GraphNode, conditions?: Condition[]): TransitionView;
+    public connect (from: State, to: State, conditions?: Condition[]): TransitionView;
 
-    public connect (from: GraphNode, to: GraphNode, conditions?: Condition[]): TransitionView {
+    public connect (from: State, to: State, conditions?: Condition[]): TransitionView {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
 
-        if (to === this.entryNode) {
+        if (to === this.entryState) {
             throw new InvalidTransitionError('to-entry');
         }
-        if (to === this.anyNode) {
+        if (to === this.anyState) {
             throw new InvalidTransitionError('to-any');
         }
-        if (from === this.exitNode) {
+        if (from === this.exitState) {
             throw new InvalidTransitionError('from-exit');
         }
 
-        const transition = from instanceof PoseNode || from === this._anyNode
-            ? new PoseTransition(from, to, conditions)
+        const transition = from instanceof MotionState || from === this._anyState
+            ? new AnimationTransition(from, to, conditions)
             : new Transition(from, to, conditions);
 
         own(transition, this);
@@ -304,7 +301,7 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
         return transition;
     }
 
-    public disconnect (from: GraphNode, to: GraphNode) {
+    public disconnect (from: State, to: State) {
         assertsOwnedBy(from, this);
         assertsOwnedBy(to, this);
 
@@ -325,7 +322,7 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
         }
     }
 
-    public eraseOutgoings (from: GraphNode) {
+    public eraseOutgoings (from: State) {
         assertsOwnedBy(from, this);
 
         const oTransitions = from[outgoingsSymbol];
@@ -343,7 +340,7 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
         oTransitions.length = 0;
     }
 
-    public eraseIncomings (to: GraphNode) {
+    public eraseIncomings (to: State) {
         assertsOwnedBy(to, this);
 
         const iTransitions = to[incomingsSymbol];
@@ -361,30 +358,30 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
         iTransitions.length = 0;
     }
 
-    public eraseTransitionsIncludes (node: GraphNode) {
-        this.eraseIncomings(node);
-        this.eraseOutgoings(node);
+    public eraseTransitionsIncludes (state: State) {
+        this.eraseIncomings(state);
+        this.eraseOutgoings(state);
     }
 
     public clone () {
-        const that = new PoseSubgraph();
-        const nodeMap = new Map<GraphNode, GraphNode>();
-        for (const node of this._nodes) {
-            switch (node) {
-            case this._entryNode:
-                nodeMap.set(node, that._entryNode);
+        const that = new StateMachine();
+        const stateMap = new Map<State, State>();
+        for (const state of this._states) {
+            switch (state) {
+            case this._entryState:
+                stateMap.set(state, that._entryState);
                 break;
-            case this._exitNode:
-                nodeMap.set(node, that._exitNode);
+            case this._exitState:
+                stateMap.set(state, that._exitState);
                 break;
-            case this._anyNode:
-                nodeMap.set(node, that._anyNode);
+            case this._anyState:
+                stateMap.set(state, that._anyState);
                 break;
             default:
-                if (node instanceof PoseNode || node instanceof PoseSubgraph) {
-                    const thatNode = node.clone();
-                    that._addNode(thatNode);
-                    nodeMap.set(node, thatNode);
+                if (state instanceof MotionState || state instanceof SubStateMachine) {
+                    const thatState = state.clone();
+                    that._addState(thatState);
+                    stateMap.set(state, thatState);
                 } else {
                     assertIsTrue(false);
                 }
@@ -392,13 +389,13 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
             }
         }
         for (const transition of this._transitions) {
-            const thatFrom = nodeMap.get(transition.from);
-            const thatTo = nodeMap.get(transition.to);
+            const thatFrom = stateMap.get(transition.from);
+            const thatTo = stateMap.get(transition.to);
             assertIsTrue(thatFrom && thatTo);
             const thatTransition = that.connect(thatFrom, thatTo) as Transition;
             thatTransition.conditions = transition.conditions.map((condition) => condition.clone());
-            if (thatTransition instanceof PoseTransition) {
-                assertIsTrue(transition instanceof PoseTransition);
+            if (thatTransition instanceof AnimationTransition) {
+                assertIsTrue(transition instanceof AnimationTransition);
                 thatTransition.duration = transition.duration;
                 thatTransition.exitConditionEnabled = transition.exitConditionEnabled;
                 thatTransition.exitCondition = transition.exitCondition;
@@ -407,19 +404,34 @@ export class PoseSubgraph extends InteractiveGraphNode implements OwnedBy<Layer 
         return that;
     }
 
-    private _addNode<T extends GraphNode> (node: T) {
-        own(node, this);
-        this._nodes.push(node);
-        return node;
+    private _addState<T extends State> (state: T) {
+        own(state, this);
+        this._states.push(state);
+        return state;
     }
 }
 
+@ccclass('cc.animation.SubStateMachine')
+export class SubStateMachine extends InteractiveState {
+    get stateMachine () {
+        return this._stateMachine;
+    }
+
+    public clone () {
+        const that = new SubStateMachine();
+        that._stateMachine = this._stateMachine.clone();
+        return that;
+    }
+
+    private _stateMachine: StateMachine = new StateMachine();
+}
+
 @ccclass('cc.animation.Layer')
-export class Layer implements OwnedBy<PoseGraph> {
-    [ownerSymbol]: PoseGraph | undefined;
+export class Layer implements OwnedBy<AnimationGraph> {
+    [ownerSymbol]: AnimationGraph | undefined;
 
     @serializable
-    private _graph!: PoseSubgraph;
+    private _stateMachine: StateMachine;
 
     @serializable
     public name = '';
@@ -437,11 +449,11 @@ export class Layer implements OwnedBy<PoseGraph> {
      * @internal
      */
     constructor () {
-        this._graph = new PoseSubgraph();
+        this._stateMachine = new StateMachine();
     }
 
-    get graph () {
-        return this._graph;
+    get stateMachine () {
+        return this._stateMachine;
     }
 }
 
@@ -511,8 +523,8 @@ export class Variable {
     }
 }
 
-@ccclass('cc.animation.PoseGraph')
-export class PoseGraph extends Asset {
+@ccclass('cc.animation.AnimationGraph')
+export class AnimationGraph extends Asset {
     @serializable
     private _layers: Layer[] = [];
 

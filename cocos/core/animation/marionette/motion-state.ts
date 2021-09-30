@@ -1,13 +1,13 @@
 import { ccclass, serializable } from 'cc.decorator';
-import { Pose } from './pose';
-import { GraphNode, InteractiveGraphNode } from './graph-node';
+import { Motion } from './motion';
+import { State, InteractiveState } from './state';
 import { BindableNumber } from './parametric';
-import { PoseNodeEval } from './graph-eval';
+import { MotionStateEval } from './graph-eval';
 
-@ccclass('cc.animation.PoseNode')
-export class PoseNode extends InteractiveGraphNode {
+@ccclass('cc.animation.Motion')
+export class MotionState extends InteractiveState {
     @serializable
-    public pose: Pose | null = null;
+    public motion: Motion | null = null;
 
     @serializable
     public startRatio = new BindableNumber();
@@ -19,8 +19,8 @@ export class PoseNode extends InteractiveGraphNode {
     public loop = true;
 
     public clone () {
-        const that = new PoseNode();
-        that.pose = this.pose?.clone() ?? null;
+        const that = new MotionState();
+        that.motion = this.motion?.clone() ?? null;
         that.startRatio = this.startRatio.clone();
         that.speed = this.speed.clone();
         that.loop = this.loop;
