@@ -2,59 +2,65 @@ const animation = require('./animation');
 const events = require('./events');
 const eventEditor = require('./event-editor');
 
-exports.template = `
-<div class="multiple">
+exports.template = /* html */`
+<div class="multiple tips">
     <ui-label class="big" value="i18n:ENGINE.assets.fbx.modelPreview"></ui-label>
     <ui-label value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </div>
 <ui-drag-area class="preview" droppable="cc.Asset">
-    <div class="animation-info">
-        <div class="flex">
-            <div class="toolbar" id="timeCtrl">
-                <ui-icon value="rewind" name="jump_first_frame"></ui-icon>
-                <ui-icon value="prev-play" name="jump_prev_frame"></ui-icon>
-                <ui-icon id="playButtonIcon" value="play" name="play"></ui-icon>
-                <ui-icon value="next-play" name="jump_next_frame"></ui-icon>
-                <ui-icon value="forward" name="jump_last_frame"></ui-icon>
-                <ui-icon value="stop" name="stop"></ui-icon>
-                <ui-icon value="event" name="add_event"></ui-icon>
+    <div class= "noModel tips">
+        <ui-label class="big" value="i18n:ENGINE.assets.fbx.no_model_tips"></ui-label>
+        <ui-label value="i18n:ENGINE.assets.fbx.drag_model_tips"></ui-label>
+    </div>    
+    <div class="preview-container">
+        <div class="animation-info">
+            <div class="flex">
+                <div class="toolbar" id="timeCtrl">
+                    <ui-icon value="rewind" name="jump_first_frame"></ui-icon>
+                    <ui-icon value="prev-play" name="jump_prev_frame"></ui-icon>
+                    <ui-icon id="playButtonIcon" value="play" name="play"></ui-icon>
+                    <ui-icon value="next-play" name="jump_next_frame"></ui-icon>
+                    <ui-icon value="forward" name="jump_last_frame"></ui-icon>
+                    <ui-icon value="stop" name="stop"></ui-icon>
+                    <ui-icon value="event" name="add_event"></ui-icon>
+                </div>
+                <div class="time flex toolbar f1">
+                    <ui-label value="Time"></ui-label>
+                    <ui-num-input id="currentTime"></ui-num-input>
+                    <div class="duration"></div>
+                </div>
             </div>
-            <div class="time flex toolbar f1">
-                <ui-label value="Time"></ui-label>
-                <ui-num-input id="currentTime"></ui-num-input>
-                <div class="duration"></div>
+            <div class="time-line">
+                <ui-scale-plate tooltip="Frame" id="animationTime"></ui-scale-plate>
+                <div class="events"></div>
             </div>
         </div>
-        <div class="time-line">
-            <ui-scale-plate tooltip="Frame" id="animationTime"></ui-scale-plate>
-            <div class="events"></div>
+        <div class="model-info">
+            <ui-label value="Vertices:0" class="vertices"></ui-label>
+            <ui-label value="Triangles:0" class="triangles"></ui-label>
         </div>
-    </div>
-    <div class="model-info">
-        <ui-label value="Vertices:0" class="vertices"></ui-label>
-        <ui-label value="Triangles:0" class="triangles"></ui-label>
-    </div>
 
-    <div class="event-editor">
-    </div>
+        <div class="event-editor">
+        </div>
 
-    <div class="image">
-        <canvas class="canvas"></canvas>
+        <div class="image">
+            <canvas class="canvas"></canvas>
+        </div>
     </div>
 </ui-drag-area>
 `;
 
-exports.style = /*css*/`
-.multiple {
+exports.style = /* css*/`
+.tips {
     text-align: center;
     min-height: 200px;
-    margin-top: 16px;
+    padding-top: 16px;
     border-top: 1px solid var(--color-normal-border);
 }
-.multiple > ui-label {
+.tips > ui-label {
     display: block;
 }
-.multiple > ui-label.big {
+.tips > ui-label.big {
     font-size: 14px;
 }
 .flex {
@@ -64,43 +70,47 @@ exports.style = /*css*/`
 .f1 {
     flex: 1;
 }
-.preview {
+.preview-container {
     min-height: 200px;
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
-.preview[hoving] {
+.preview[hoving] > .preview-container {
+    outline: 2px solid var(--color-focus-fill-weaker);
+    outline-offset: -1px;
+}
+.preview[hoving] > .tips {
     outline: 2px solid var(--color-focus-fill-weaker);
     outline-offset: -2px;
 }
-.preview > .model-info {
+.preview-container > .model-info {
     padding-top: 5px;
     display: none;
 }
-.preview > .model-info > ui-label {
+.preview-container > .model-info > ui-label {
     margin-right: 6px;
 }
-.preview > .image {
+.preview-container > .image {
     height: 200px;
     overflow: hidden;
     display: flex;
     flex: 1;
     margin: 2px;
 }
-.preview >.image > .canvas {
+.preview-container >.image > .canvas {
     flex: 1;
 }
-.preview .toolbar {
+.preview-container .toolbar {
     display: flex;
     margin-top: 10px;
     justify-content: space-between;
 }
 
-.preview .toolbar ui-num-input {
+.preview-container .toolbar ui-num-input {
     display: flex;
     flex: 1;
 }
-.preview .toolbar > * {
+.preview-container .toolbar > * {
     line-height: 25px;
     margin-right: 5px;
 }
@@ -263,8 +273,10 @@ const PLAY_STATE = {
 };
 
 exports.$ = {
+    noModel: '.noModel',
     multiple: '.multiple',
     container: '.preview',
+    previewContainer: '.preview-container',
     vertices: '.vertices',
     triangles: '.triangles',
     image: '.image',
@@ -292,16 +304,13 @@ const Elements = {
             panel.resizeObserver = new window.ResizeObserver(observer);
             panel.resizeObserver.observe(panel.$.container);
 
-            // 识别拖入 fbx 资源
+            // Identify dragged FBX resources
             panel.$.container.addEventListener('drop', async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-
-                // 不支持多选拖入，多个时只取第一个值
+                // Multiple drag-and-drop options are not supported, and only the first value is taken
                 const values = [];
-
                 const { additional, value } = JSON.parse(JSON.stringify(Editor.UI.DragArea.currentDragInfo)) || {};
-
                 if (additional) {
                     additional.forEach((info) => {
                         if (info.type === 'cc.Prefab') {
@@ -317,7 +326,6 @@ const Elements = {
                 if (!values.length) {
                     return;
                 }
-
                 const info = await Editor.Message.request('scene', 'set-model-preview-model', values[0]);
                 panel.infoUpdate(info);
             });
@@ -325,7 +333,6 @@ const Elements = {
         },
         close() {
             const panel = this;
-
             panel.resizeObserver.unobserve(panel.$.container);
         },
     },
@@ -376,6 +383,8 @@ const Elements = {
             if (panel.asset.redirect) {
                 const info = await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
                 panel.infoUpdate(info);
+            } else {
+                this.updatePanelHidden(false);
             }
 
             panel.refreshPreview();
@@ -392,6 +401,7 @@ const Elements = {
             this.$.vertices.value = `Vertices:${info.vertices}`;
             this.$.triangles.value = `Triangles:${info.polygons}`;
             this.isPreviewDataDirty = true;
+            this.updatePanelHidden(true);
         },
         close() {
             Editor.Message.send('scene', 'hide-model-preview');
@@ -421,9 +431,10 @@ exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
-    this.$.container.hidden = this.isMultiple;
+    this.$.previewContainer.hidden = this.isMultiple;
     this.$.multiple.hidden = !this.isMultiple;
-    if(this.isMultiple) {
+    this.$.noModel.hidden = true;
+    if (this.isMultiple) {
         return;
     }
     this.asset = assetList[0];
@@ -448,8 +459,6 @@ exports.update = async function(assetList, metaList) {
 };
 
 exports.ready = function() {
-    const panel = this;
-
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -464,7 +473,7 @@ exports.ready = function() {
     this.onEditClipInfoChanged = async (clipInfo) => {
         if (clipInfo) {
             await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
-            this.setCurEditClipInfo(clipInfo);
+            await this.setCurEditClipInfo(clipInfo);
         }
     };
 
@@ -508,6 +517,15 @@ exports.close = function() {
 };
 
 exports.methods = {
+    /**
+     * 
+     * @param {boolean} hasModel 
+     */
+    updatePanelHidden(hasModel) {
+        this.$.noModel.hidden = hasModel;
+        this.$.previewContainer.hidden = this.isMultiple || !hasModel;
+        this.$.multiple.hidden = !this.isMultiple;
+    },
     async apply() {
         // save animation event info
         await this.events.apply.call(this);
