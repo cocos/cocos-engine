@@ -91,7 +91,7 @@
          }
      }
  
-     set skyColorValue (color: Vec3) {
+     set skyColorValue (color: Vec4) {
          const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
          const clampColor = (x: number) => Math.min(x * 255, 255);
          this._skyColor.set(clampColor(color.x), clampColor(color.y), clampColor(color.z), 255);
@@ -162,7 +162,7 @@
          }
      }
  
-     set groundAlbedoValue (color: Vec3) {
+     set groundAlbedoValue (color: Vec4) {
          const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
          const clampColor = (x: number) => Math.min(x * 255, 255);
          this._groundAlbedo.set(clampColor(color.x), clampColor(color.y), clampColor(color.z), 255);
