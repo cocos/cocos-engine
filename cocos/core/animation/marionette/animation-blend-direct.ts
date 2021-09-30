@@ -56,7 +56,7 @@ export class AnimationBlendDirect extends EditorExtendable implements AnimationB
 }
 
 export declare namespace AnimationBlendDirect {
-    export type Item = typeof AnimationBlendDirectItem;
+    export type Item = AnimationBlendDirectItem;
 }
 
 class AnimationBlendDirectEval extends AnimationBlendEval {

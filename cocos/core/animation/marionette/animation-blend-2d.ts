@@ -98,7 +98,7 @@ export class AnimationBlend2D extends EditorExtendable implements AnimationBlend
 export declare namespace AnimationBlend2D {
     export type Algorithm = typeof Algorithm;
 
-    export type Item = typeof AnimationBlend2DItem;
+    export type Item = AnimationBlend2DItem;
 }
 
 class AnimationBlend2DDEval extends AnimationBlendEval {

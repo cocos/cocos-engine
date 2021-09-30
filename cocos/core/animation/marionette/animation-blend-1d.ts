@@ -69,7 +69,7 @@ export class AnimationBlend1D extends AnimationBlend {
 }
 
 export declare namespace AnimationBlend1D {
-    export type Item = typeof AnimationBlend1DItem;
+    export type Item = AnimationBlend1DItem;
 }
 
 class AnimationBlend1DEval extends AnimationBlendEval {
