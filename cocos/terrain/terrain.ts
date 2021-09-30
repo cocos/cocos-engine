@@ -1477,9 +1477,13 @@ export class Terrain extends Component {
         if (this._blocks.length === 0) {
             this._buildImp();
         }
+
+        RenderPipeline.addRenderCallback(this);
     }
 
     public onDisable () {
+        RenderPipeline.removeRenderCallback(this);
+
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].destroy();
         }
@@ -1515,6 +1519,9 @@ export class Terrain extends Component {
 
     public onPreRender (cam: Camera): void {
         if (!this.LodEnable) {
+            return;
+        }
+        if (cam.scene !== this._getRenderScene()) {
             return;
         }
 

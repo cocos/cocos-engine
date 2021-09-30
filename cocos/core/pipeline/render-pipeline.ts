@@ -52,6 +52,15 @@ export interface IRenderPipelineInfo {
     tag?: number;
 }
 
+/**
+ * @en Render pipeline callback
+ * @zh 渲染事件回掉。
+ */
+export interface IRenderPipelineCallback {
+    onPreRender(cam: Camera): void;
+    onPostRender(cam: Camera): void;
+}
+
 export class PipelineRenderData {
     outputFrameBuffer: Framebuffer = null!;
     outputRenderTargets: Texture[] = [];
@@ -207,6 +216,29 @@ export abstract class RenderPipeline extends Asset {
     protected _height = 0;
     protected _lastUsedRenderArea: Rect = new Rect();
 
+    protected static _renderCallbacks: IRenderPipelineCallback[] = [];
+
+    /**
+     * @en Add render callback
+     * @zh 添加渲染回掉。
+     */
+    public static addRenderCallback (callback: IRenderPipelineCallback) {
+        RenderPipeline._renderCallbacks.push(callback);
+    }
+
+    /**
+     * @en Remove render callback
+     * @zh 移除渲染回掉。
+     */
+    public static removeRenderCallback (callback: IRenderPipelineCallback) {
+        for (let i = 0; i < RenderPipeline._renderCallbacks.length; ++i) {
+            if (RenderPipeline._renderCallbacks[i] === callback) {
+                RenderPipeline._renderCallbacks.slice(i);
+                break;
+            }
+        }
+    }
+
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
@@ -307,8 +339,16 @@ export abstract class RenderPipeline extends Asset {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
+                for (let k = 0; k < RenderPipeline._renderCallbacks.length; ++k) {
+                    RenderPipeline._renderCallbacks[k].onPreRender(camera);
+                }
+
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
+                }
+
+                for (let k = 0; k < RenderPipeline._renderCallbacks.length; ++k) {
+                    RenderPipeline._renderCallbacks[k].onPostRender(camera);
                 }
             }
         }

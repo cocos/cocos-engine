@@ -86,7 +86,7 @@ export class TerrainLod {
             this._genBodyIndex(i);
         }
 
-        for (let i = 0; i < 1; ++i) {
+        for (let i = 0; i < TERRAIN_LOD_LEVELS; ++i) {
             for (let j = 0; j < TERRAIN_LOD_LEVELS; ++j) {
                 this._genConnecterIndexNorth(i, j);
                 this._genConnecterIndexSouth(i, j);
@@ -366,11 +366,11 @@ export class TerrainLod {
         this.mConnecterIndex[connecterIndex].indices = indices;
     }
 
-    private _getConnenterIndex(i: number, j: number, k: number) {
+    private _getConnenterIndex (i: number, j: number, k: number) {
         return this.mConnecterIndex[TerrainLod.ConnecterIndex(i, j, k)];
     }
 
-    private _genIndexData(k: TerrainLodKey) {
+    private _genIndexData (k: TerrainLodKey) {
         let data = this.getIndexData(k);
         if (data != null) {
             return data;
