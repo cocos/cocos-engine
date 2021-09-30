@@ -13,6 +13,11 @@ set(PROJ_COMMON_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.h
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.cpp
 )
+if (USE_PORTRAIT)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackgroundPortrait.png ${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackground.png COPYONLY)
+else()
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackgroundLandscape.png ${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackground.png COPYONLY)
+endif()
 
 set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackground.png
