@@ -17,7 +17,6 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
-    public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
     private _battery?: any;
 
@@ -142,8 +141,6 @@ class SystemInfo extends EventTarget {
         }
         this.browserVersion = tmp ? tmp[4] : '';
 
-        this.pixelRatio = window.devicePixelRatio || 1;
-
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');
         const supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
@@ -175,6 +172,10 @@ class SystemInfo extends EventTarget {
         };
 
         this._registerEvent();
+    }
+
+    get pixelRatio () {
+        return window.devicePixelRatio || 1;
     }
 
     private _registerEvent () {

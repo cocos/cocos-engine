@@ -94,7 +94,7 @@ export class Ambient {
 
     set groundAlbedo (color: Color) {
         this._groundAlbedo.set(color);
-        Vec3.toArray(this._albedoArray, this._groundAlbedo);
+        Color.toArray(this._albedoArray, this._groundAlbedo);
         if (JSB) {
             this._nativeObj!.groundAlbedo = this._groundAlbedo;
         }

@@ -32,7 +32,7 @@ import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Root } from '../root';
 import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, SamplerInfo, Uniform, Attribute, MemoryAccess } from '../gfx';
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, SamplerInfo, Uniform, Attribute, MemoryAccess, Format } from '../gfx';
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
@@ -69,21 +69,11 @@ export declare namespace EffectAsset {
         name?: string;
     }
 
-    export interface IBufferInfo {
-        binding: number;
-        name: string;
-        count: number;
-        stageFlags: ShaderStageFlags;
-        memoryAccess: MemoryAccess;
-        descriptorType?: DescriptorType;
-    }
     export interface IBlockInfo {
         binding: number;
         name: string;
         members: Uniform[];
-        count: number;
         stageFlags: ShaderStageFlags;
-        descriptorType?: DescriptorType;
     }
     export interface ISamplerTextureInfo {
         binding: number;
@@ -91,18 +81,51 @@ export declare namespace EffectAsset {
         type: Type;
         count: number;
         stageFlags: ShaderStageFlags;
-        descriptorType?: DescriptorType;
+    }
+    export interface ISamplerInfo {
+        set: number;
+        binding: number;
+        name: string;
+        count: number;
+        stageFlags: ShaderStageFlags;
+    }
+    export interface ITextureInfo {
+        set: number;
+        binding: number;
+        name: string;
+        type: Type;
+        count: number;
+        stageFlags: ShaderStageFlags;
+    }
+    export interface IBufferInfo {
+        binding: number;
+        name: string;
+        memoryAccess: MemoryAccess;
+        stageFlags: ShaderStageFlags;
     }
     export interface IImageInfo {
         binding: number;
         name: string;
         type: Type;
         count: number;
-        stageFlags: ShaderStageFlags;
         memoryAccess: MemoryAccess;
-        descriptorType?: DescriptorType;
+        stageFlags: ShaderStageFlags;
     }
-    export interface IAttributeInfo extends Attribute {
+
+    export interface IInputAttachmentInfo {
+        set: number;
+        binding: number;
+        name: string;
+        count: number;
+        stageFlags: ShaderStageFlags;
+    }
+    export interface IAttributeInfo {
+        name: string;
+        format: Format;
+        isNormalized: boolean;
+        stream: number;
+        isInstanced: boolean;
+        location: number;
         defines: string[];
     }
     export interface IDefineInfo {
@@ -130,11 +153,14 @@ export declare namespace EffectAsset {
         glsl1: { vert: string, frag: string };
         builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
         defines: IDefineInfo[];
-        buffers: IBufferInfo[];
+        attributes: IAttributeInfo[];
         blocks: IBlockInfo[];
         samplerTextures: ISamplerTextureInfo[];
+        samplers: ISamplerInfo[];
+        textures: ITextureInfo[];
+        buffers: IBufferInfo[];
         images: IImageInfo[];
-        attributes: IAttributeInfo[];
+        subpassInputs: IInputAttachmentInfo[];
     }
     export interface IPreCompileInfo {
         [name: string]: boolean[] | number[] | string[];

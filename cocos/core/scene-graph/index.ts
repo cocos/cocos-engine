@@ -29,7 +29,6 @@
  */
 
 import './node-event-processor';
-
 import './deprecated';
 
 export { BaseNode } from './base-node';

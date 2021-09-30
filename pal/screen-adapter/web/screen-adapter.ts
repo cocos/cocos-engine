@@ -97,6 +97,16 @@ class ScreenAdapter extends EventTarget {
         window.addEventListener('resize', () => {
             this.emit('window-resize');
         });
+        if (typeof window.matchMedia === 'function') {
+            const updateDPRChangeListener = () => {
+                const dpr = window.devicePixelRatio;
+                window.matchMedia(`(resolution: ${dpr}dppx)`).addEventListener('change', () => {
+                    this.emit('window-resize');
+                    updateDPRChangeListener();
+                }, { once: true });
+            };
+            updateDPRChangeListener();
+        }
         window.addEventListener('orientationchange', () => {
             this.emit('orientation-change');
         });

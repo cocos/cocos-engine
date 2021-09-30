@@ -29,11 +29,13 @@
  * @hidden
  */
 
-import { Event, EventTouch, EventListener, TouchOneByOneEventListener, SystemEventType, SystemEventTypeUnion, Touch } from './types';
+import { Event, EventTouch, EventListener, TouchOneByOneEventListener, SystemEventType, Touch } from './types';
+import { SystemEventTypeUnion } from './types/event-enum';
 import { Node } from '../core/scene-graph';
 import { macro } from '../core/platform/macro';
 import { legacyCC } from '../core/global-exports';
 import { errorID, warnID, logID, assertID } from '../core/platform/debug';
+import { Input, input } from './input';
 
 const ListenerID = EventListener.ListenerID;
 
@@ -141,6 +143,18 @@ class EventManager {
     private _internalCustomListenerIDs: string[] = [];
     private _currentTouch: Touch | null = null;
     private _currentTouchListener: any = null;
+
+    constructor () {
+        input.on(Input.EventType.MOUSE_DOWN, this.dispatchEvent, this);
+        input.on(Input.EventType.MOUSE_MOVE, this.dispatchEvent, this);
+        input.on(Input.EventType.MOUSE_UP, this.dispatchEvent, this);
+        input.on(Input.EventType.MOUSE_WHEEL, this.dispatchEvent, this);
+
+        input.on(Input.EventType.TOUCH_START, this.dispatchEvent, this);
+        input.on(Input.EventType.TOUCH_MOVE, this.dispatchEvent, this);
+        input.on(Input.EventType.TOUCH_END, this.dispatchEvent, this);
+        input.on(Input.EventType.TOUCH_CANCEL, this.dispatchEvent, this);
+    }
 
     /**
      * @en Pauses all listeners which are associated the specified target.
@@ -769,8 +783,9 @@ class EventManager {
         const eventListeners = listeners.getSceneGraphPriorityListeners();
         eventListeners.forEach((listener) => {
             const node: any = listener._getSceneGraphPriority();
-            const trans = node._uiProps.uiTransformComp;
-            listener._cameraPriority = trans.cameraPriority;
+            // NOTE: listener maybe in dispatching but its sceneGraphPriority has been reset to null.
+            const trans = node?._uiProps.uiTransformComp;
+            listener._cameraPriority = trans ? trans.cameraPriority : 0;
         });
         eventListeners.sort(this._sortEventListenersOfSceneGraphPriorityDes);
     }
@@ -1223,23 +1238,4 @@ class EventManager {
     }
 }
 
-/**
- * @en
- * This class has been deprecated, please use `systemEvent` or `EventTarget` instead.
- * See [Listen to and launch events](../../../manual/en/scripting/events.html) for details.<br>
- * <br>
- * `eventManager` is a singleton object which manages event listener subscriptions and event dispatching.
- * The EventListener list is managed in such way so that event listeners can be added and removed
- * while events are being dispatched.
- *
- * @zh
- * 该类已废弃，请使用 `systemEvent` 或 `EventTarget` 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.html)。<br>
- * <br>
- * 事件管理器，它主要管理事件监听器注册和派发系统事件。
- *
- * @class eventManager
- * @static
- * @example {@link cocos/core/event-manager/CCEventManager/addListener.js}
- * @deprecated
- */
 export const eventManager = new EventManager();

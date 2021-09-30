@@ -129,6 +129,7 @@ module.exports = {
             browse: '更换贴图',
             model: '模型',
             animation: '动画',
+            modelPreview: '模型预览',
             material: '材质',
             fbx: 'FBX',
             GlTFUserData: {
@@ -306,5 +307,6 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: 自定义 effect {effect} 的 inspector 加载失败',
             'illegal-inspector-url': "Inspector的路径不合法",
         },
+        multipleWarning: '不支持此类型资源的多选编辑'
     },
 };

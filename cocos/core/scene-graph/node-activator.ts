@@ -35,6 +35,7 @@ import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
 import { assert, errorID } from '../platform/debug';
+import { NodeEventType } from './node-event';
 
 const MAX_POOL_SIZE = 4;
 
@@ -204,7 +205,7 @@ export default class NodeActivator {
                 lastTask.onEnable.cancelInactive();
             }
         }
-        node.emit('active-in-hierarchy-changed', node);
+        node.emit(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, node);
     }
 
     /**

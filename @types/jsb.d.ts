@@ -129,6 +129,18 @@ declare namespace jsb {
          */
         export function callStaticMethod (className: string, methodName: string, methodSignature: string, ...parameters:any): any;
     }
+    export namespace bridge{
+        /**
+         * send to native with at least one argument.
+         */
+        export function sendToNative(arg0: string, arg1?: string): void;
+        /**
+         * save your own callback controller with a js function,
+         * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
+         * @param args : received from native
+         */
+         export function onNative(arg0: string, arg1?: string|null): void;
+    }
     /**
      * 下载任务对象
      */
