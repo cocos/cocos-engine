@@ -201,7 +201,7 @@ export class Model {
     protected _inited = false;
     protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
-    protected _transformUpdated = true;
+    protected _localDataUpdated = true;
 
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: Buffer | null = null;
@@ -275,7 +275,7 @@ export class Model {
         this._modelBounds = null;
         this._subModels.length = 0;
         this._inited = false;
-        this._transformUpdated = true;
+        this._localDataUpdated = true;
         this._transform = null!;
         this._node = null!;
         this.isDynamicBatching = false;
@@ -296,7 +296,7 @@ export class Model {
         // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
-            this._transformUpdated = true;
+            this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
@@ -309,7 +309,7 @@ export class Model {
         const node = this.transform;
         if (node !== null) {
             node.updateWorldTransform();
-            this._transformUpdated = true;
+            this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
@@ -337,8 +337,8 @@ export class Model {
         }
         this._updateStamp = stamp;
 
-        if (!this._transformUpdated) { return; }
-        this._transformUpdated = false;
+        if (!this._localDataUpdated) { return; }
+        this._localDataUpdated = false;
 
         // @ts-expect-error using private members here for efficiency
         const worldMatrix = this.transform._mat;
@@ -435,7 +435,7 @@ export class Model {
 
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
-        this._applyLocalData();
+        this._localDataUpdated = true;
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
 
@@ -524,7 +524,7 @@ export class Model {
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
         this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
-        this._transformUpdated = true;
+        this._localDataUpdated = true;
 
         if (JSB) {
             this._nativeObj!.setInstancedAttrBlock(attrs.buffer.buffer, attrs.views, attrs.attributes);
