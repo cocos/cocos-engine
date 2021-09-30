@@ -3,6 +3,10 @@ const events = require('./events');
 const eventEditor = require('./event-editor');
 
 exports.template = `
+<div class="multiple">
+    <ui-label class="big" value="i18n:ENGINE.assets.fbx.modelPreview"></ui-label>
+    <ui-label value="i18n:ENGINE.assets.multipleWarning"></ui-label>
+</div>
 <ui-drag-area class="preview" droppable="cc.Asset">
     <div class="animation-info">
         <div class="flex">
@@ -40,7 +44,19 @@ exports.template = `
 </ui-drag-area>
 `;
 
-exports.style = `
+exports.style = /*css*/`
+.multiple {
+    text-align: center;
+    min-height: 200px;
+    margin-top: 16px;
+    border-top: 1px solid var(--color-normal-border);
+}
+.multiple > ui-label {
+    display: block;
+}
+.multiple > ui-label.big {
+    font-size: 14px;
+}
 .flex {
     display: flex;
 }
@@ -49,6 +65,7 @@ exports.style = `
     flex: 1;
 }
 .preview {
+    min-height: 200px;
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
 }
@@ -246,6 +263,7 @@ const PLAY_STATE = {
 };
 
 exports.$ = {
+    multiple: '.multiple',
     container: '.preview',
     vertices: '.vertices',
     triangles: '.triangles',
@@ -314,7 +332,6 @@ const Elements = {
     preview: {
         ready() {
             const panel = this;
-
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await Editor.Message.request('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
 
@@ -351,7 +368,6 @@ const Elements = {
         },
         async update() {
             const panel = this;
-
             if (!panel.$.canvas) {
                 return;
             }
@@ -404,9 +420,14 @@ const Elements = {
 exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
+    this.isMultiple = this.assetList.length > 1;
+    this.$.container.hidden = this.isMultiple;
+    this.$.multiple.hidden = !this.isMultiple;
+    if(this.isMultiple) {
+        return;
+    }
     this.asset = assetList[0];
     this.meta = metaList[0];
-
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {

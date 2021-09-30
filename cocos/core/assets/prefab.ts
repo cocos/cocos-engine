@@ -199,7 +199,7 @@ export class Prefab extends Asset {
 
     public onLoaded () {
         const rootNode = this.data as Node;
-        utils.expandPrefabInstanceNode(rootNode);
+        utils.expandNestedPrefabInstanceNode(rootNode);
         utils.applyTargetOverrides(rootNode);
     }
 }

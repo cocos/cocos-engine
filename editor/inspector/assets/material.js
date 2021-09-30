@@ -614,8 +614,6 @@ exports.ready = async function() {
     this.$.effect.innerHTML = effectOption;
     this.$.customPanel.addEventListener('change', async () => {
         this.storeCache();
-        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
-        Editor.Message.broadcast('material-inspector:change-dump');
         this.setDirtyData();
         this.dispatch('change');
         this.updatePreview();
