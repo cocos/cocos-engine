@@ -1,4 +1,3 @@
-
 const scene = new cc.Scene();
 const root = new cc.Node();
 root.parent = scene;
@@ -10,16 +9,16 @@ cameraNode.parent = root;
 cameraNode.setPosition(-16, 2, 16);
 cameraNode.setRotationFromEuler(-12, -63, 0);
 cameraNode.addComponent(cc.Camera);
-cameraNode.addComponent(FirstPersonCamera);
+cameraNode.addComponent(window.FirstPersonCamera);
 
 const lightNode = new cc.Node('Light');
 lightNode.parent = root;
 lightNode.setPosition(-10, 10, -10);
 lightNode.setRotationFromEuler(-50, 0, 0);
-const lightComp = lightNode.addComponent(cc.DirectionalLight);
+lightNode.addComponent('cc.DirectionalLight');
 
 const material = new cc.Material();
-material.initialize({ effectName: 'builtin-standard' });
+material.initialize({ effectName: 'standard' });
 
 const manifest = [
   { name: 'box', pos: cc.v3(0, 1, 10) },
@@ -36,7 +35,7 @@ for (const info of manifest) {
   const modelComp = modelNode.addComponent('cc.MeshRenderer');
   modelComp.material = info.mat || material;
   modelComp.mesh = cc.utils.createMesh(cc.primitives[info.name](info.param));
-  if (info.name !== 'plane') modelComp.shadowCastingMode = cc.MeshRenderer.ShadowCastingMode.ON;
+  if (info.name !== 'plane') modelComp.shadowCastingMode = cc.ModelComponent.ShadowCastingMode.ON;
   modelNode.setPosition(info.pos);
   models[info.name] = modelComp;
 }

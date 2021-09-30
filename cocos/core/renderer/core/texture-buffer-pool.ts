@@ -175,7 +175,6 @@ export class TextureBufferPool {
             this._format,
             length,
             length,
-            TextureFlagBit.IMMUTABLE,
         ));
 
         const chunk: ITextureBuffer = {

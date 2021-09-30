@@ -28,7 +28,7 @@
  * @module particle
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
@@ -42,6 +42,7 @@ import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
 import { legacyCC } from '../../core/global-exports';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -215,6 +216,7 @@ export default class TrailModule {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
@@ -276,6 +278,7 @@ export default class TrailModule {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:trailSegment.widthRatio')
     public widthRatio = new CurveRange();
@@ -441,6 +444,17 @@ export default class TrailModule {
         if (!this._trailSegments) {
             return;
         }
+
+        if (p.loopCount > p.lastLoop) {
+            if (p.trailDelay > 1) {
+                p.lastLoop = p.loopCount;
+                p.trailDelay = 0;
+            } else {
+                p.trailDelay++;
+            }
+            return;
+        }
+
         let trail = this._particleTrail.get(p);
         if (!trail) {
             trail = this._trailSegments.alloc();
@@ -464,6 +478,7 @@ export default class TrailModule {
         if (!lastSeg) {
             return;
         }
+
         Vec3.copy(lastSeg.position, _temp_vec3);
         lastSeg.lifetime = 0;
         if (this.widthFromParticle) {
@@ -471,6 +486,7 @@ export default class TrailModule {
         } else {
             lastSeg.width = this.widthRatio.evaluate(0, 1)!;
         }
+
         const trailNum = trail.count();
         if (trailNum === 2) {
             const lastSecondTrail = trail.getElement(trail.end - 2)!;
@@ -529,6 +545,13 @@ export default class TrailModule {
             } else {
                 Vec3.copy(_temp_trailEle.position, p.position);
             }
+
+            // refresh particle node position to update emit position
+            const trailModel = this._trailModel;
+            if (trailModel) {
+                trailModel.node.invalidateChildren(TransformBit.POSITION);
+            }
+
             if (trailNum === 1 || trailNum === 2) {
                 const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1)!;
                 Vec3.subtract(lastSecondTrail.velocity, _temp_trailEle.position, lastSecondTrail.position);

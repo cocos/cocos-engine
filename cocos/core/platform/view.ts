@@ -33,7 +33,8 @@
 import '../data/class';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
-import { EventTarget } from '../event/event-target';
+import { systemInfo } from 'pal/system-info';
+import { EventTarget } from '../event';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
@@ -66,6 +67,7 @@ export class View extends EventTarget {
     public static instance: View;
     public _resizeWithBrowserSize: boolean;
     public _designResolutionSize: Size;
+    private _prevDPR = -1;
 
     private _frameSize: Size;
     private _scaleX: number;
@@ -267,7 +269,7 @@ export class View extends EventTarget {
      * 你能够传入 true 为参数去启动它，用 false 参数来关闭它。
      * @param enabled - Enable or disable auto full screen on mobile devices
      *
-     * @deprecated since v3.3
+     * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */
     public enableAutoFullScreen (enabled: boolean) {
         if (enabled === this._autoFullScreen) {
@@ -630,9 +632,10 @@ export class View extends EventTarget {
             this._initFrameSize();
         }
 
-        if (!JSB && !RUNTIME_BASED && !this._orientationChanging && this._isRotated === prevRotated && this._frameSize.width === prevFrameW && this._frameSize.height === prevFrameH) {
+        if (!JSB && !RUNTIME_BASED && !this._orientationChanging && this._isRotated === prevRotated && this._frameSize.width === prevFrameW && this._frameSize.height === prevFrameH && this._prevDPR === systemInfo.pixelRatio) {
             return;
         }
+        this._prevDPR = systemInfo.pixelRatio;
 
         // Frame size changed, do resize works
         const width = this._designResolutionSize.width;

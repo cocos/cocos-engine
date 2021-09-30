@@ -5,20 +5,28 @@
 #include <cc-fog-fs>
 #include <cc-shadow-map-fs>
 
+
 #define CC_STANDARD_SURFACE_ENTRY()                                \
 #if CC_FORWARD_ADD                                                 \
   #include <shading-standard-additive>                             \
+  #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                            \
+  #include <shading-cluster-additive>                              \
+  #endif                                                           \
                                                                    \
   layout(location = 0) out vec4 fragColorX;                        \
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
+    #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                          \
+    vec4 color = CCClusterShadingAdditive(s, CC_SHADOW_POSITION);  \
+    #else                                                          \
     vec4 color = CCStandardShadingAdditive(s, CC_SHADOW_POSITION); \
+    #endif                                                         \
     CC_APPLY_FOG(color);                                           \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \
-#elif CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD                 \
+#elif (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING) \
                                                                    \
   layout(location = 0) out vec4 fragColorX;                        \
                                                                    \

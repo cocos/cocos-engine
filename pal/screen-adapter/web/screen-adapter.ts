@@ -1,5 +1,5 @@
 import { SafeAreaEdge } from 'pal/screen-adapter';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 
@@ -97,6 +97,16 @@ class ScreenAdapter extends EventTarget {
         window.addEventListener('resize', () => {
             this.emit('window-resize');
         });
+        if (typeof window.matchMedia === 'function') {
+            const updateDPRChangeListener = () => {
+                const dpr = window.devicePixelRatio;
+                window.matchMedia(`(resolution: ${dpr}dppx)`).addEventListener('change', () => {
+                    this.emit('window-resize');
+                    updateDPRChangeListener();
+                }, { once: true });
+            };
+            updateDPRChangeListener();
+        }
         window.addEventListener('orientationchange', () => {
             this.emit('orientation-change');
         });
@@ -126,8 +136,7 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get orientation (): Orientation {
-        // TODO
-        throw new Error('Method not implemented.');
+        return Orientation.PORTRAIT; // TO BE IMPLEMENTED
     }
     public get safeAreaEdge (): SafeAreaEdge {
         return {

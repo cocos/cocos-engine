@@ -87,7 +87,8 @@ struct ToonSurface {
     vec3 dirlightContrib = diffuse + specular;
 
     float shadow = 1.0;
-    #if CC_RECEIVE_SHADOW
+    #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
+      NL = max(dot(N, L), 0.0);
       if (NL > 0.0) {
         CC_SHADOW_FACTOR(shadow, N, NL);
       }

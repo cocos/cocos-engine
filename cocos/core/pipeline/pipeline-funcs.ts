@@ -28,7 +28,14 @@
  * @module pipeline
  */
 
+import { CommandBuffer, Device, Rect, RenderPass, Swapchain, Viewport } from '../gfx';
 import { IVec4Like } from '../math';
+import { Model } from '../renderer/scene';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { SetIndex } from './define';
+
+const profilerViewport = new Viewport();
+const profilerScissor = new Rect();
 
 /**
  * @en Convert color in SRGB space to linear space
@@ -58,4 +65,21 @@ export function LinearToSRGB (out: IVec4Like, linear: IVec4Like) {
     out.x = Math.sqrt(linear.x);
     out.y = Math.sqrt(linear.y);
     out.z = Math.sqrt(linear.z);
+}
+
+export function renderProfiler (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer, profiler: Model | null, swapchain: Swapchain | null) {
+    if (profiler && profiler.enabled && swapchain) {
+        const { inputAssembler, passes, shaders, descriptorSet } = profiler.subModels[0];
+        profilerViewport.width = profilerScissor.width = swapchain.width;
+        profilerViewport.height = profilerScissor.height = swapchain.height;
+        const pso = PipelineStateManager.getOrCreatePipelineState(device, passes[0], shaders[0], renderPass, inputAssembler);
+
+        cmdBuff.setViewport(profilerViewport);
+        cmdBuff.setScissor(profilerScissor);
+        cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passes[0].descriptorSet);
+        cmdBuff.bindDescriptorSet(SetIndex.LOCAL, descriptorSet);
+        cmdBuff.bindInputAssembler(inputAssembler);
+        cmdBuff.draw(inputAssembler);
+    }
 }

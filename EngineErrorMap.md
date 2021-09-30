@@ -1756,10 +1756,6 @@ Current context does not allow root motion.
 
 You provided a ill-formed track path. The last component of track path should be property key, or the setter should not be empty.
 
-### 3922
-
-Seems like we have animation for %s but are missing its parent joint %s in animation?
-
 ### 3923
 
 Root motion is ignored since root bone could not be located in animation.
@@ -1811,6 +1807,10 @@ Misconfigured legacy curve: the first keyframe value is number but others aren't
 ### 3935
 
 We don't currently support conversion of \`CubicSplineQuatValue\`.
+
+### 3936
+
+Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
 
 ### 4000
 

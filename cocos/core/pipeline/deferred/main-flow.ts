@@ -31,12 +31,12 @@ import { ccclass } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { PIPELINE_FLOW_MAIN } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { DeferredFlowPriority } from './enum';
+import { DeferredFlowPriority } from '../common/enum';
 import { GbufferStage } from './gbuffer-stage';
 import { LightingStage } from './lighting-stage';
-import { PostprocessStage } from './postprocess-stage';
-import { DeferredPipeline } from './deferred-pipeline';
+import { PostProcessStage } from '../common/postprocess-stage';
 import { RenderPipeline } from '../render-pipeline';
+import { BloomStage } from '../common/bloom-stage';
 
 /**
  * @en The main flow in deferred render pipeline
@@ -63,9 +63,12 @@ export class MainFlow extends RenderFlow {
             const lightingStage = new LightingStage();
             lightingStage.initialize(LightingStage.initInfo);
             this._stages.push(lightingStage);
-            const postprocessStage = new PostprocessStage();
-            postprocessStage.initialize(PostprocessStage.initInfo);
-            this._stages.push(postprocessStage);
+            const bloomStage = new BloomStage();
+            bloomStage.initialize(BloomStage.initInfo);
+            this._stages.push(bloomStage);
+            const postProcessStage = new PostProcessStage();
+            postProcessStage.initialize(PostProcessStage.initInfo);
+            this._stages.push(postProcessStage);
         }
         return true;
     }

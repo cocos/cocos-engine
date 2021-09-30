@@ -5,7 +5,7 @@
         "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
         "3d": { "modules": [ "3d" ] },
         "2d": { "modules": [ "2d" ] },
-        "ui": { "modules": [ "ui", "2d" ] },
+        "ui": { "modules": [ "ui", "2d" ], "flags": [ "UI_GPU_DRIVEN" ]},
         "particle": { "modules": [ "particle" ] },
         "particle-2d": { "modules": [ "particle-2d" ] },
         "physics-framework": { "modules": [ "physics-framework" ] },
@@ -46,7 +46,11 @@
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/core/renderer/scene/native-scene.ts": "cocos/core/renderer/scene/native-scene.jsb.ts",
-                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts"
+                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
+                "cocos/core/math/vec3.ts": "cocos/core/math/vec3.jsb.ts",
+                "cocos/core/math/quat.ts": "cocos/core/math/quat.jsb.ts",
+                "cocos/core/math/mat3.ts": "cocos/core/math/mat3.jsb.ts",
+                "cocos/core/math/mat4.ts": "cocos/core/math/mat4.jsb.ts"
             }
         },
         {
