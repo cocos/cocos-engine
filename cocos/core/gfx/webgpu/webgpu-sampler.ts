@@ -11,8 +11,8 @@ export class WebGPUSampler extends Sampler {
         return this._nativeSampler;
     }
 
-    constructor (info: SamplerInfo) {
-        super(info);
+    constructor (info: SamplerInfo,  hash: number) {
+        super(info, hash);
 
         const samplerInfo = new nativeLib.SamplerInfoInstance();
         samplerInfo.minFilter = toWGPUNativeFilter(info.minFilter);
@@ -25,6 +25,6 @@ export class WebGPUSampler extends Sampler {
         samplerInfo.cmpFunc = toWGPUNativeCompareFunc(info.cmpFunc);
 
         const nativeDevice = nativeLib.nativeDevice;
-        this._nativeSampler = nativeDevice.getSampler(samplerInfo);
+        this._nativeSampler = nativeDevice.getSampler(samplerInfo, hash);
     }
 }

@@ -879,14 +879,15 @@ export class Game extends EventTarget {
             }
         } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {
             this._gfxDevice = new legacyCC.EmptyDevice();
-            this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
+            // eslint-disable-next-line no-void
+            void this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
         }
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game
             debug.error('can not support canvas rendering in 3D');
             this.renderType = Game.RENDER_TYPE_CANVAS;
-            return;
+            return false;
         }
 
         const swapchainInfo = new SwapchainInfo(this.canvas!);
@@ -895,6 +896,7 @@ export class Game extends EventTarget {
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         this.canvas!.oncontextmenu = () => false;
+        return true;
     }
 
     private _initEvents () {

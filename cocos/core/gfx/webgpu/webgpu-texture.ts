@@ -2,13 +2,14 @@
 import {
     FormatSurfaceSize,
     TextureInfo,
-    IsPowerOf2,
     TextureViewInfo,
     Format,
+    ISwapchainTextureInfo,
 } from '../base/define';
 import { Texture } from '../base/texture';
-import { wgpuWasmModule } from './webgpu-utils';
-import { toWGPUNativeFormat, toWGPUNativeTextureType, toWGPUNativeTextureUsage, toWGPUTextureFlag, toWGPUTextureSampleCount } from './webgpu-commands';
+import { nativeLib } from './webgpu-utils';
+import { toWGPUNativeFormat, toWGPUNativeTextureType, toWGPUNativeTextureUsage,
+    toWGPUTextureFlag, toWGPUTextureSampleCount } from './webgpu-commands';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 
 export class WebGPUTexture extends Texture {
@@ -24,14 +25,14 @@ export class WebGPUTexture extends Texture {
     }
 
     public initialize (info: TextureInfo | TextureViewInfo): boolean {
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const nativeDevice = nativeLib.nativeDevice;
         if ('texture' in info) {
             this._type = info.type;
             this._format = info.format;
             this._layerCount = info.layerCount;
             this._levelCount = info.layerCount;
 
-            const texViewInfo = new wgpuWasmModule.TextureViewInfoInstance();
+            const texViewInfo = new nativeLib.TextureViewInfoInstance();
             texViewInfo.setTexture((info.texture as WebGPUTexture).nativeTexture());
             texViewInfo.setType(toWGPUNativeTextureType(info.type));
             texViewInfo.setFormat(toWGPUNativeFormat(info.format));
@@ -56,7 +57,7 @@ export class WebGPUTexture extends Texture {
                 this._nativeTexture = info.format === Format.DEPTH || info.format === Format.DEPTH_STENCIL
                     ? this._swapchain.nativeSwapchain.getDepthStencilTexture() : this._swapchain.nativeSwapchain.getColorTexture();
             } else {
-                const texInfo = new wgpuWasmModule.TextureInfoInstance();
+                const texInfo = new nativeLib.TextureInfoInstance();
                 texInfo.setType(toWGPUNativeTextureType(info.type));
                 texInfo.setUsage(toWGPUNativeTextureUsage(info.usage));
                 texInfo.setFormat(toWGPUNativeFormat(info.format));
@@ -73,6 +74,10 @@ export class WebGPUTexture extends Texture {
         }
 
         return true;
+    }
+
+    protected  initAsSwapchainTexture (info: ISwapchainTextureInfo) {
+        console.log('init swapchain tex impling later');
     }
 
     public destroy () {

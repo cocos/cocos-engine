@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { DescriptorSet } from '../base/descriptor-set';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
 import { DescriptorSetInfo } from '../base/define';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUTexture } from './webgpu-texture';
@@ -15,8 +16,8 @@ export class WebGPUDescriptorSet extends DescriptorSet {
 
     public initialize (info: DescriptorSetInfo) {
         this._layout = info.layout;
-        const nativeDevice = wgpuWasmModule.nativeDevice;
-        const descriptorSetInfo = new wgpuWasmModule.DescriptorSetInfoInstance();
+        const nativeDevice = nativeLib.nativeDevice;
+        const descriptorSetInfo = new nativeLib.DescriptorSetInfoInstance();
         const layout = info.layout as WebGPUDescriptorSetLayout;
         descriptorSetInfo.setDescriptorSetLayout(layout.nativeDescriptorSetLayout);
 
