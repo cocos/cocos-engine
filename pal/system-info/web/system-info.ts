@@ -178,6 +178,11 @@ class SystemInfo extends EventTarget {
             [Feature.WEBGL2]: supportWebGL2,
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BIT_MAP]: supportImageBitmap,
+
+            [Feature.INPUT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.INPUT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,
+            [Feature.INPUT_TOUCH]: !!(document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || navigator.msPointerEnabled),
+            [Feature.INPUT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
         };
 
         this._registerEvent();

@@ -206,11 +206,10 @@ export const sys = {
         opengl: systemInfo.hasFeature(Feature.GL),
         webp: systemInfo.hasFeature(Feature.WEBP),
         imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BIT_MAP),
-        // TODO: move into pal/input
-        touches: false,
-        mouse: false,
-        keyboard: false,
-        accelerometer: false,
+        touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),
+        mouse: systemInfo.hasFeature(Feature.INPUT_MOUSE),
+        keyboard: systemInfo.hasFeature(Feature.INPUT_KEYBOARD),
+        accelerometer: systemInfo.hasFeature(Feature.INPUT_ACCELEROMETER),
     },
 
     /**
@@ -355,22 +354,6 @@ export const sys = {
             clear: warn,
             removeItem: warn,
         };
-    }
-
-    // TODO: move into pal/input
-    const win = window; const nav = win.navigator; const doc = document; const docEle = doc.documentElement;
-    const capabilities = sys.capabilities;
-    if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
-        capabilities.touches = true;
-    }
-    if (docEle.onmouseup !== undefined) {
-        capabilities.mouse = true;
-    }
-    if (docEle.onkeyup !== undefined) {
-        capabilities.keyboard = true;
-    }
-    if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
-        capabilities.accelerometer = true;
     }
 
     // @ts-expect-error HACK: this private property only needed on web

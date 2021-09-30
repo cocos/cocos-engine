@@ -1,8 +1,10 @@
 import { KeyboardCallback } from 'pal/input';
 import { KeyboardEventData, minigame } from 'pal/minigame';
+import { systemInfo } from 'pal/system-info';
 import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { Feature } from '../../system-info/enum-type';
 
 const code2KeyCode: Record<string, KeyCode> = {
     Backspace: KeyCode.BACKSPACE,
@@ -112,15 +114,13 @@ function getKeyCode (code: string): KeyCode {
 }
 
 export class KeyboardInputSource {
-    public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
 
     // KeyboardEvent.repeat is not supported on Wechat PC platform.
     private _keyStateMap: Record<number, boolean> = {};
 
     constructor () {
-        this.support = typeof minigame.wx === 'object' && typeof minigame.wx.onKeyDown !== 'undefined';
-        if (this.support) {
+        if (systemInfo.hasFeature(Feature.INPUT_KEYBOARD)) {
             this._registerEvent();
         }
     }

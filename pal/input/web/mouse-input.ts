@@ -1,13 +1,14 @@
-import { EDITOR, TEST } from 'internal:constants';
+import { TEST } from 'internal:constants';
 import { MouseCallback } from 'pal/input';
+import { systemInfo } from 'pal/system-info';
 import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import legacyCC from '../../../predefine';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { Feature } from '../../system-info/enum-type';
 
 export class MouseInputSource {
-    public support: boolean;
     private _canvas?: HTMLCanvasElement;
     private _eventTarget: EventTarget = new EventTarget();
     private _pointLocked = false;
@@ -15,8 +16,7 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
-        this.support = !EDITOR && document.documentElement.onmouseup !== undefined;
-        if (this.support) {
+        if (systemInfo.hasFeature(Feature.INPUT_MOUSE)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST) {
                 console.warn('failed to access canvas');
