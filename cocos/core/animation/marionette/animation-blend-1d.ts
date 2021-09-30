@@ -10,7 +10,7 @@ import { EditorExtendable } from '../../data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend1DItem`)
-export class AnimationBlend1DItem extends AnimationBlendItem {
+class AnimationBlend1DItem extends AnimationBlendItem {
     @serializable
     public threshold = 0.0;
 
@@ -29,6 +29,8 @@ export class AnimationBlend1DItem extends AnimationBlendItem {
 
 @ccclass('cc.animation.AnimationBlend1D')
 export class AnimationBlend1D extends AnimationBlend {
+    public static Item = AnimationBlend1DItem;
+
     @serializable
     private _items: AnimationBlend1DItem[] = [];
 
@@ -64,6 +66,10 @@ export class AnimationBlend1D extends AnimationBlend {
         evaluation.setInput(initialValue, 0);
         return evaluation;
     }
+}
+
+export declare namespace AnimationBlend1D {
+    export type Item = typeof AnimationBlend1DItem;
 }
 
 class AnimationBlend1DEval extends AnimationBlendEval {

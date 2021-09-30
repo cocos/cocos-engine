@@ -20,7 +20,7 @@ enum Algorithm {
 ccenum(Algorithm);
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend2DItem`)
-export class AnimationBlend2DItem extends AnimationBlendItem {
+class AnimationBlend2DItem extends AnimationBlendItem {
     @serializable
     public threshold = new Vec2();
 
@@ -40,6 +40,8 @@ export class AnimationBlend2DItem extends AnimationBlendItem {
 @ccclass('cc.animation.AnimationBlend2D')
 export class AnimationBlend2D extends EditorExtendable implements AnimationBlend {
     public static Algorithm = Algorithm;
+
+    public static Item = AnimationBlend2DItem;
 
     @serializable
     public algorithm = Algorithm.SIMPLE_DIRECTIONAL;
@@ -95,6 +97,8 @@ export class AnimationBlend2D extends EditorExtendable implements AnimationBlend
 
 export declare namespace AnimationBlend2D {
     export type Algorithm = typeof Algorithm;
+
+    export type Item = typeof AnimationBlend2DItem;
 }
 
 class AnimationBlend2DDEval extends AnimationBlendEval {

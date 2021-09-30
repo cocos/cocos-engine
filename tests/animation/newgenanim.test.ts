@@ -1,6 +1,6 @@
 
 import { AnimationClip, Component, Node, Vec2, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend1DItem, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, ClipMotion, AnimationBlendDirect, VectorTrack, VariableType } from '../../cocos/core/animation/animation';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, ClipMotion, AnimationBlendDirect, VectorTrack, VariableType } from '../../cocos/core/animation/animation';
 import { LayerBlending, AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
@@ -1234,7 +1234,7 @@ describe('NewGen Anim', () => {
     describe('Blender 1D', () => {
         test('Thresholds should have been sorted', () => {
             const createBlend1DItemWithWeight = (threshold: number) => {
-                const item = new AnimationBlend1DItem();
+                const item = new AnimationBlend1D.Item();
                 item.threshold = threshold;
                 return item;
             };

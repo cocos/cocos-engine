@@ -7,7 +7,7 @@ import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animat
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendDirectItem`)
-export class AnimationBlendDirectItem extends AnimationBlendItem {
+class AnimationBlendDirectItem extends AnimationBlendItem {
     @serializable
     public weight = 0.0;
 
@@ -26,6 +26,8 @@ export class AnimationBlendDirectItem extends AnimationBlendItem {
 
 @ccclass('cc.animation.AnimationBlendDirect')
 export class AnimationBlendDirect extends EditorExtendable implements AnimationBlend {
+    public static Item = AnimationBlendDirectItem;
+
     @serializable
     private _items: AnimationBlendDirectItem[] = [];
 
@@ -51,6 +53,10 @@ export class AnimationBlendDirect extends EditorExtendable implements AnimationB
         );
         return myEval;
     }
+}
+
+export declare namespace AnimationBlendDirect {
+    export type Item = typeof AnimationBlendDirectItem;
 }
 
 class AnimationBlendDirectEval extends AnimationBlendEval {

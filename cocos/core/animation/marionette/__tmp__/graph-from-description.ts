@@ -16,7 +16,6 @@ import { Bindable, VariableType } from '../parametric';
 import { Value } from '../variable';
 import { MotionState } from '../motion-state';
 import { BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';
-import { AnimationBlend1DItem, AnimationBlend2DItem } from '..';
 
 export function createGraphFromDescription (graphDescription: GraphDescription) {
     const graph = new AnimationGraph();
@@ -131,7 +130,7 @@ function createMotion (motionDesc: MotionDescription): Motion {
         const motion = new AnimationBlend1D();
         const thresholds = motionDesc.blender.thresholds;
         motion.items = motionDesc.children.map((childMotionDesc, iMotion) => {
-            const item = new AnimationBlend1DItem();
+            const item = new AnimationBlend1D.Item();
             item.motion = createMotion(childMotionDesc);
             item.threshold = thresholds[iMotion];
             return item;
@@ -144,7 +143,7 @@ function createMotion (motionDesc: MotionDescription): Motion {
         motion.algorithm = algorithm;
         const thresholds = motionDesc.blender.thresholds;
         motion.items = motionDesc.children.map((childMotionDesc, iMotion) => {
-            const item = new AnimationBlend2DItem();
+            const item = new AnimationBlend2D.Item();
             item.motion = createMotion(childMotionDesc);
             item.threshold = new Vec2(thresholds[iMotion].x, thresholds[iMotion].y);
             return item;
