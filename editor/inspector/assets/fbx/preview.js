@@ -54,7 +54,7 @@ exports.style = /* css*/`
 .tips {
     text-align: center;
     min-height: 200px;
-    margin-top: 16px;
+    padding-top: 16px;
     border-top: 1px solid var(--color-normal-border);
 }
 .tips > ui-label {
@@ -275,8 +275,8 @@ const PLAY_STATE = {
 exports.$ = {
     noModel: '.noModel',
     multiple: '.multiple',
-    dragAread: '.preview',
-    container: '.preview-container',
+    container: '.preview',
+    previewContainer: '.preview-container',
     vertices: '.vertices',
     triangles: '.triangles',
     image: '.image',
@@ -293,7 +293,7 @@ exports.$ = {
 };
 
 const Elements = {
-    dragAread: {
+    container: {
         ready() {
             const panel = this;
 
@@ -302,10 +302,10 @@ const Elements = {
             }
 
             panel.resizeObserver = new window.ResizeObserver(observer);
-            panel.resizeObserver.observe(panel.$.dragAread);
+            panel.resizeObserver.observe(panel.$.container);
 
             // Identify dragged FBX resources
-            panel.$.dragAread.addEventListener('drop', async (event) => {
+            panel.$.container.addEventListener('drop', async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 // Multiple drag-and-drop options are not supported, and only the first value is taken
@@ -333,7 +333,7 @@ const Elements = {
         },
         close() {
             const panel = this;
-            panel.resizeObserver.unobserve(panel.$.dragAread);
+            panel.resizeObserver.unobserve(panel.$.container);
         },
     },
     preview: {
@@ -383,6 +383,8 @@ const Elements = {
             if (panel.asset.redirect) {
                 const info = await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
                 panel.infoUpdate(info);
+            } else {
+                this.updatePanelHidden(false);
             }
 
             panel.refreshPreview();
@@ -399,7 +401,7 @@ const Elements = {
             this.$.vertices.value = `Vertices:${info.vertices}`;
             this.$.triangles.value = `Triangles:${info.polygons}`;
             this.isPreviewDataDirty = true;
-            this.updatePanelHidden();
+            this.updatePanelHidden(true);
         },
         close() {
             Editor.Message.send('scene', 'hide-model-preview');
@@ -429,8 +431,9 @@ exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.isMultiple = this.assetList.length > 1;
-    this.$.container.hidden = this.isMultiple;
+    this.$.previewContainer.hidden = this.isMultiple;
     this.$.multiple.hidden = !this.isMultiple;
+    this.$.noModel.hidden = true;
     if (this.isMultiple) {
         return;
     }
@@ -449,10 +452,6 @@ exports.update = async function(assetList, metaList) {
         this.splitClipIndex = 0;
         const clipInfo = animation.methods.getCurClipInfo.call(this);
         await this.onEditClipInfoChanged(clipInfo);
-    } else {
-        // no animation
-        this.$.noModel.hidden = false;
-        this.$.container.hidden = true;
     }
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
@@ -518,10 +517,13 @@ exports.close = function() {
 };
 
 exports.methods = {
-    updatePanelHidden() {
-        const previewDirty = !!this.isPreviewDataDirty;
-        this.$.noModel.hidden = previewDirty;
-        this.$.container.hidden = this.isMultiple || !previewDirty;
+    /**
+     * 
+     * @param {boolean} hasModel 
+     */
+    updatePanelHidden(hasModel) {
+        this.$.noModel.hidden = hasModel;
+        this.$.previewContainer.hidden = this.isMultiple || !hasModel;
         this.$.multiple.hidden = !this.isMultiple;
     },
     async apply() {
@@ -717,7 +719,6 @@ exports.methods = {
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;
-        this.updatePanelHidden();
         if (clipInfo) {
             this.curTotalFrames = Math.round(clipInfo.duration * clipInfo.fps);
             this.$.animationTime.setConfig({
