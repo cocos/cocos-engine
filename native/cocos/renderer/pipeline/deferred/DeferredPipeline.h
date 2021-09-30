@@ -30,9 +30,10 @@
 #include <unordered_map>
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXInputAssembler.h"
+#include "pipeline/ClusterLightCulling.h"
 #include "pipeline/RenderPipeline.h"
-#include "scene/RenderWindow.h"
 #include "pipeline/common/Enum.h"
+#include "scene/RenderWindow.h"
 
 namespace cc {
 namespace pipeline {
@@ -59,11 +60,13 @@ public:
 private:
     bool activeRenderer(gfx::Swapchain *swapchain);
 
-    gfx::Buffer *                           _lightsUBO = nullptr;
-    LightList                               _validLights;
-    gfx::BufferList                         _lightBuffers;
-    UintList                                _lightIndexOffsets;
-    UintList                                _lightIndices;
+    gfx::Buffer *   _lightsUBO = nullptr;
+    LightList       _validLights;
+    gfx::BufferList _lightBuffers;
+    UintList        _lightIndexOffsets;
+    UintList        _lightIndices;
+
+    ClusterLightCulling *_clusterComp{nullptr};
 
 public:
     static constexpr uint GBUFFER_COUNT = 4;

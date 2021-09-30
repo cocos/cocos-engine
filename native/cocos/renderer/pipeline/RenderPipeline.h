@@ -101,6 +101,9 @@ public:
     inline scene::Model *getProfiler() const { return _profiler; }
     inline void          setProfiler(scene::Model *value) { _profiler = value; }
 
+    inline bool getClusterEnabled() const { return _clusterEnabled; }
+    inline void setClusterEnabled(bool enable) { _clusterEnabled = enable; }
+
 protected:
     static RenderPipeline *instance;
 
@@ -131,7 +134,10 @@ protected:
 
     framegraph::FrameGraph                  _fg;
     map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
-    bool                                    _bloomEnable{false};
+
+    // use cluster culling or not
+    bool _clusterEnabled{false};
+    bool _bloomEnable{false};
 };
 
 } // namespace pipeline

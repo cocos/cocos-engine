@@ -52,8 +52,6 @@ RenderPipeline::RenderPipeline()
 : _device(gfx::Device::getInstance()) {
     RenderPipeline::instance = this;
 
-    generateConstantMacros();
-
     _globalDSManager   = new GlobalDSManager();
     _pipelineUBO       = new PipelineUBO();
     _pipelineSceneData = new PipelineSceneData();
@@ -74,6 +72,11 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device, this);
+
+    // generate macros here rather than construct func because _clusterEnabled
+    // switch may be changed in root.ts setRenderPipeline() function which is after
+    // pipeline construct.
+    generateConstantMacros();
 
     for (auto *const flow : _flows) {
         flow->activate(this);
@@ -277,10 +280,12 @@ void RenderPipeline::generateConstantMacros() {
     _constantMacros = StringUtil::format(
         R"(
 #define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
+#define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
 #define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
 #define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
         )",
         _device->hasFeature(gfx::Feature::TEXTURE_FLOAT) ? 1 : 0,
+        _clusterEnabled ? 1 : 0,
         _device->getCapabilities().maxVertexUniformVectors,
         _device->getCapabilities().maxFragmentUniformVectors);
 }

@@ -411,7 +411,9 @@ struct CC_DLL UBOCamera : public Object {
     static constexpr uint                        GLOBAL_FOG_COLOR_OFFSET  = UBOCamera::AMBIENT_GROUND_OFFSET + 4;
     static constexpr uint                        GLOBAL_FOG_BASE_OFFSET   = UBOCamera::GLOBAL_FOG_COLOR_OFFSET + 4;
     static constexpr uint                        GLOBAL_FOG_ADD_OFFSET    = UBOCamera::GLOBAL_FOG_BASE_OFFSET + 4;
-    static constexpr uint                        COUNT                    = UBOCamera::GLOBAL_FOG_ADD_OFFSET + 4;
+    static constexpr uint                        GLOBAL_NEAR_FAR_OFFSET   = UBOCamera::GLOBAL_FOG_ADD_OFFSET + 4;
+    static constexpr uint                        GLOBAL_VIEW_PORT_OFFSET  = UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 4;
+    static constexpr uint                        COUNT                    = UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 4;
     static constexpr uint                        SIZE                     = UBOCamera::COUNT * 4;
     static constexpr uint                        BINDING                  = static_cast<uint>(PipelineGlobalBindings::UBO_CAMERA);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -548,6 +550,10 @@ struct CC_DLL REFLECTIONSTORAGE : public Object {
     static const gfx::UniformStorageImage        LAYOUT;
     static const String                          NAME;
 };
+
+static constexpr uint CLUSTER_LIGHT_BINDING       = 4;
+static constexpr uint CLUSTER_LIGHT_INDEX_BINDING = 5;
+static constexpr uint CLUSTER_LIGHT_GRID_BINDING  = 6;
 
 } // namespace pipeline
 } // namespace cc

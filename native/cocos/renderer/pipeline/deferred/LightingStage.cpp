@@ -59,6 +59,10 @@ framegraph::StringHandle ssprCompReflectPass[MAX_REFLECTOR_SIZE];
 framegraph::StringHandle ssprCompDenoisePass[MAX_REFLECTOR_SIZE];
 framegraph::StringHandle ssprRenderPass[MAX_REFLECTOR_SIZE];
 
+framegraph::StringHandle fgStrHandleClusterLightBuffer      = framegraph::FrameGraph::stringToHandle("clusterLightBuffer");
+framegraph::StringHandle fgStrHandleClusterLightIndexBuffer = framegraph::FrameGraph::stringToHandle("lightIndexBuffer");
+framegraph::StringHandle fgStrHandleClusterLightGridBuffer  = framegraph::FrameGraph::stringToHandle("lightGridBuffer");
+
 void initStrHandle() {
     std::string tmp;
     for (int i = 0; i < MAX_REFLECTOR_SIZE; ++i) {
@@ -274,15 +278,18 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
     }
 
-    // create descriptor set/layout
-    gfx::DescriptorSetLayoutInfo layoutInfo = {localDescriptorSetLayout.bindings};
-    _descLayout                             = device->createDescriptorSetLayout(layoutInfo);
+    // not use cluster shading, go normal deferred render path
+    if (!pipeline->getClusterEnabled()) {
+        // create descriptor set/layout
+        gfx::DescriptorSetLayoutInfo layoutInfo = {localDescriptorSetLayout.bindings};
+        _descLayout                             = device->createDescriptorSetLayout(layoutInfo);
 
-    gfx::DescriptorSetInfo setInfo = {_descLayout};
-    _descriptorSet                 = device->createDescriptorSet(setInfo);
+        gfx::DescriptorSetInfo setInfo = {_descLayout};
+        _descriptorSet                 = device->createDescriptorSet(setInfo);
 
-    // create lighting buffer and view
-    initLightingBuffer();
+        // create lighting buffer and view
+        initLightingBuffer();
+    }
 
     _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
 
@@ -313,14 +320,21 @@ void LightingStage::destroy() {
 }
 
 void LightingStage::fgLightingPass(scene::Camera *camera) {
-    // lighting info, ubo
-    gatherLights(camera);
-    _descriptorSet->update();
+    // lights info and ubo are updated in ClusterLightCulling::update()
+    // if using cluster lighting.
+    if (!_pipeline->getClusterEnabled()) {
+        // lighting info, ubo
+        gatherLights(camera);
+        _descriptorSet->update();
+    }
 
     struct RenderData {
-        framegraph::TextureHandle gbuffer[4];  // read from gbuffer stage
-        framegraph::TextureHandle outputTex; // output texture
+        framegraph::TextureHandle gbuffer[4]; // read from gbuffer stage
+        framegraph::TextureHandle outputTex;  // output texture
         framegraph::TextureHandle depth;
+        framegraph::BufferHandle  lightBuffer;      // light storage buffer
+        framegraph::BufferHandle  lightIndexBuffer; // light index storage buffer
+        framegraph::BufferHandle  lightGridBuffer;  // light grid storage buffer
     };
 
     auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
@@ -344,6 +358,16 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
 
+        if (_pipeline->getClusterEnabled()) {
+            // read cluster and light info
+            data.lightBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightBuffer));
+            builder.read(data.lightBuffer);
+            data.lightIndexBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightIndexBuffer));
+            builder.read(data.lightIndexBuffer);
+            data.lightGridBuffer = framegraph::BufferHandle(builder.readFromBlackboard(fgStrHandleClusterLightGridBuffer));
+            builder.read(data.lightGridBuffer);
+        }
+
         // write to lighting output
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA16F;
@@ -358,7 +382,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         colorAttachmentInfo.clearColor    = clearColor;
         colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
-        data.outputTex                  = builder.write(data.outputTex, colorAttachmentInfo);
+        data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
 
         // set render area
@@ -369,9 +393,13 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         auto *      pipeline  = static_cast<DeferredPipeline *>(_pipeline);
         auto *const sceneData = pipeline->getPipelineSceneData();
 
-        auto *       cmdBuff        = pipeline->getCommandBuffers()[0];
-        vector<uint> dynamicOffsets = {0};
-        cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
+        auto *cmdBuff = pipeline->getCommandBuffers()[0];
+
+        // no need to bind localSet in cluster
+        if (!_pipeline->getClusterEnabled()) {
+            vector<uint> dynamicOffsets = {0};
+            cmdBuff->bindDescriptorSet(localSet, _descriptorSet, dynamicOffsets);
+        }
 
         const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
@@ -388,6 +416,14 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
             pass->getDescriptorSet()->bindTexture(i, table.getRead(data.gbuffer[i]));
             pass->getDescriptorSet()->bindSampler(i, _defaultSampler);
         }
+
+        if (_pipeline->getClusterEnabled()) {
+            // cluster buffer bind
+            pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_BINDING, table.getRead(data.lightBuffer));
+            pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_INDEX_BINDING, table.getRead(data.lightIndexBuffer));
+            pass->getDescriptorSet()->bindBuffer(CLUSTER_LIGHT_GRID_BINDING, table.getRead(data.lightGridBuffer));
+        }
+
         pass->getDescriptorSet()->update();
 
         cmdBuff->bindPipelineState(pState);
@@ -416,7 +452,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
 
-        data.outputTex       = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutColorTexture));
+        data.outputTex         = framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutColorTexture));
         bool lightingPassValid = data.outputTex.isValid();
         if (!lightingPassValid) {
             framegraph::Texture::Descriptor colorTexInfo;

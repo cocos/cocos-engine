@@ -782,6 +782,8 @@ cocos_source_files(
 
                  cocos/renderer/pipeline/BatchedBuffer.cpp
                  cocos/renderer/pipeline/BatchedBuffer.h
+                 cocos/renderer/pipeline/ClusterLightCulling.cpp
+                 cocos/renderer/pipeline/ClusterLightCulling.h
                  cocos/renderer/pipeline/Define.h
                  cocos/renderer/pipeline/Define.cpp
                  cocos/renderer/pipeline/GlobalDescriptorSetManager.h

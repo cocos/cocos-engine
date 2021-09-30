@@ -115,6 +115,8 @@ const gfx::UniformBlock UBOCamera::LAYOUT = {
         {"cc_fogColor", gfx::Type::FLOAT4, 1},
         {"cc_fogBase", gfx::Type::FLOAT4, 1},
         {"cc_fogAdd", gfx::Type::FLOAT4, 1},
+        {"cc_nearFar", gfx::Type::FLOAT4, 1},
+        {"cc_viewPort", gfx::Type::FLOAT4, 1},
     },
     1,
 };

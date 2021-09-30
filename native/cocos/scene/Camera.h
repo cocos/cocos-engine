@@ -43,6 +43,8 @@ class RenderScene;
 struct Camera final {
     uint32_t      width{0};
     uint32_t      height{0};
+    uint32_t      nearClip{0};
+    uint32_t      farClip{0};
     uint32_t      clearFlag{0};
     float         exposure{0.0F};
     float         clearDepth{0.0F};

@@ -155,6 +155,13 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
         output[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 1] = fog->range;
         output[UBOCamera::GLOBAL_FOG_ADD_OFFSET + 2] = fog->atten;
     }
+    output[UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 0] = static_cast<float>(camera->nearClip);
+    output[UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 1] = static_cast<float>(camera->farClip);
+
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 0] = camera->viewPort.x;
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 1] = camera->viewPort.y;
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 2] = camera->viewPort.z;
+    output[UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 3] = camera->viewPort.w;
 }
 
 void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> *bufferView, const scene::Camera *camera) {

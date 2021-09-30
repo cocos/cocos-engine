@@ -59,7 +59,6 @@ framegraph::StringHandle DeferredPipeline::fgStrHandleLightingPass    = framegra
 framegraph::StringHandle DeferredPipeline::fgStrHandleTransparentPass = framegraph::FrameGraph::stringToHandle("deferredTransparentPass");
 framegraph::StringHandle DeferredPipeline::fgStrHandleSsprPass        = framegraph::FrameGraph::stringToHandle("deferredSSPRPass");
 
-
 bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
@@ -72,7 +71,6 @@ bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
         mainFlow->initialize(MainFlow::getInitializeInfo());
         _flows.emplace_back(mainFlow);
     }
-
     return true;
 }
 
@@ -102,6 +100,11 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
         sceneCulling(this, camera);
 
         _fg.reset();
+
+        if (_clusterEnabled) {
+            _clusterComp->clusterLightCulling(camera);
+        }
+
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
@@ -162,6 +165,12 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _width  = swapchain->getWidth();
     _height = swapchain->getHeight();
 
+    if (_clusterEnabled) {
+        // cluster component resource
+        _clusterComp = new ClusterLightCulling(this);
+        _clusterComp->initialize(this->getDevice());
+    }
+
     return true;
 }
 
@@ -174,6 +183,8 @@ void DeferredPipeline::destroy() {
     _renderPasses.clear();
 
     _commandBuffers.clear();
+
+    CC_SAFE_DELETE(_clusterComp);
 
     RenderPipeline::destroy();
 }
