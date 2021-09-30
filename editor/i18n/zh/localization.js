@@ -707,6 +707,10 @@ module.exports = {
             label: "用户界面",
             description: "用户界面支持。",
         },
+        gpu_driven: {
+            label: "GPU驱动",
+            description: "是否启用GPU驱动方案（暂时只对打包后的工程起效）",
+        },
         base_3d: {
             label: "基础 3D 功能",
             description: "常用于一般 3D 应用的工具与组件。",
