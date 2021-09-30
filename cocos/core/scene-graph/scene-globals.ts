@@ -132,6 +132,20 @@ export class AmbientInfo {
         return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
     }
 
+    set skyColorValue (val: Vec4) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const clampColor = (x: number) => Math.min(x * 255, 255);
+        let colorRef = isHDR ? this._skyColor : this._skyColor_ldr;
+
+        colorRef = val;
+
+        if (isHDR) {
+            this.normalizeHdrColor(colorRef);
+        }
+
+        if (this._resource) { this._resource.skyColorValue = val; }
+    }
+
     /**
      * @en Sky illuminance
      * @zh 天空亮度
@@ -188,6 +202,21 @@ export class AmbientInfo {
         const clampColor = (x: number) => Math.min(x * 255, 255);
         return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
     }
+    
+    set groundAlbedoValue (val: Vec4) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const clampColor = (x: number) => Math.min(x * 255, 255);
+        let colorRef = isHDR ? this._groundAlbedo : this._groundAlbedo_ldr;
+
+        colorRef = val;
+
+        if (isHDR) {
+            this.normalizeHdrColor(colorRef);
+        } 
+
+        if (this._resource) { this._resource.groundAlbedoValue = val; }
+    }
+
 
     public activate (resource: Ambient) {
         const aa :Ambient = resource;

@@ -123,32 +123,6 @@ export class Skybox {
             return this._envmap_ldr;
         }
     }
-
-    /**
-     * @en The texture cube used diffuse convolution map
-     * @zh 使用的漫反射卷积图
-     */
-    get diffusemap (): TextureCube | null {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
-            return this._diffusemap_hdr;
-        } else {
-            return this._diffusemap_ldr;
-        }
-    }
-    set diffusemap (val: TextureCube | null) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
-            this._diffusemap_hdr = val;
-        } else {
-            this._diffusemap_ldr = val;
-        }
-        if (val) {
-            this._updateGlobalBinding();
-            this._updatePipeline();
-        }
-    }
-
     set envmap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -180,6 +154,31 @@ export class Skybox {
         }
 
         this._updatePipeline();
+    }
+
+    /**
+     * @en The texture cube used diffuse convolution map
+     * @zh 使用的漫反射卷积图
+     */
+    get diffusemap (): TextureCube | null {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._diffusemap_hdr;
+        } else {
+            return this._diffusemap_ldr;
+        }
+    }
+    set diffusemap (val: TextureCube | null) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._diffusemap_hdr = val;
+        } else {
+            this._diffusemap_ldr = val;
+        }
+        if (val) {
+            this._updateGlobalBinding();
+            this._updatePipeline();
+        }
     }
 
     protected _envmap_ldr: TextureCube | null = null;
