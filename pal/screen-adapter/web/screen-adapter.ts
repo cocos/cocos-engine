@@ -1,8 +1,6 @@
 import { SafeAreaEdge } from 'pal/screen-adapter';
-import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { Size } from '../../../cocos/core/math';
-import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
 interface IScreenFunctionName {
@@ -99,11 +97,15 @@ class ScreenAdapter extends EventTarget {
         window.addEventListener('resize', () => {
             this.emit('window-resize');
         });
-        if (systemInfo.os === OS.OSX && typeof window.matchMedia === 'function') {
-            // NOTE: use retina media query to check dpr changed event
-            window.matchMedia('screen and (min-resolution: 2dppx)').addEventListener('change', () => {
-                this.emit('window-resize');
-            });
+        if (typeof window.matchMedia === 'function') {
+            const updateDPRChangeListener = () => {
+                const dpr = window.devicePixelRatio;
+                window.matchMedia(`(resolution: ${dpr}dppx)`).addEventListener('change', () => {
+                    this.emit('window-resize');
+                    updateDPRChangeListener();
+                }, { once: true });
+            };
+            updateDPRChangeListener();
         }
         window.addEventListener('orientationchange', () => {
             this.emit('orientation-change');
