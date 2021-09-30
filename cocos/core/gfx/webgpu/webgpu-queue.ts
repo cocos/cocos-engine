@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { CommandBuffer } from '../base/command-buffer';
 import { Queue } from '../base/queue';
 import { WebGPUCommandBuffer } from './webgpu-command-buffer';
 import { QueueInfo, QueueType } from '../base/define';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 
 export class WebGPUQueue extends Queue {
     private _nativeQueue;
@@ -19,14 +20,14 @@ export class WebGPUQueue extends Queue {
     public initialize (info: QueueInfo): boolean {
         this._type = info.type;
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const nativeDevice = nativeLib.nativeDevice;
 
         if (this._device) {
             this._nativeQueue = nativeDevice.getQueue();
         } else {
-            const queueInfo = new wgpuWasmModule.QueueInfoInstance();
+            const queueInfo = new nativeLib.QueueInfoInstance();
             const qTypeStr = QueueType[info.type];
-            queueInfo.type = wgpuWasmModule.QueueType[qTypeStr];
+            queueInfo.type = nativeLib.QueueType[qTypeStr];
             this._nativeQueue = nativeDevice.createQueue(queueInfo);
         }
 
@@ -39,7 +40,7 @@ export class WebGPUQueue extends Queue {
     }
 
     public submit (cmdBuffs: CommandBuffer[]) {
-        const commandBufferList = new wgpuWasmModule.CommandBufferList();
+        const commandBufferList = new nativeLib.CommandBufferList();
         for (let i = 0; i < cmdBuffs.length; i++) {
             commandBufferList.push_back((cmdBuffs[i] as WebGPUCommandBuffer).nativeCommandBuffer);
         }

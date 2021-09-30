@@ -1,3 +1,5 @@
+/* eslint-disable new-cap */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { DescriptorSet } from '../base/descriptor-set';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
@@ -16,6 +18,7 @@ import {
     Viewport,
     IndirectBuffer,
 } from '../base/define';
+import { GlobalBarrier, TextureBarrier } from '..';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { PipelineState } from '../base/pipeline-state';
@@ -29,7 +32,7 @@ import { WebGPUPipelineState } from './webgpu-pipeline-state';
 import { WebGPUTexture } from './webgpu-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGPURenderPass } from './webgpu-render-pass';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { WebGPUQueue } from './webgpu-queue';
 import { checkCircleReference } from '../../asset-manager/utilities';
 
@@ -50,14 +53,14 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         this._queue = info.queue;
         this._type = info.type;
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const nativeDevice = nativeLib.nativeDevice;
         if (this._device) {
             this._nativeCommandBuffer = nativeDevice.getCommandBuffer();
         } else {
-            const commandBufferInfo = new wgpuWasmModule.CommandBufferInfoInstance();
+            const commandBufferInfo = new nativeLib.CommandBufferInfoInstance();
             commandBufferInfo.setQueue((info.queue as WebGPUQueue).nativeQueue);
             const cmdBuffStr = CommandBufferType[info.type];
-            commandBufferInfo.setType(wgpuWasmModule.CommandBufferType[cmdBuffStr]);
+            commandBufferInfo.setType(nativeLib.CommandBufferType[cmdBuffStr]);
             this._nativeCommandBuffer = nativeDevice.createCommandBuffer(commandBufferInfo);
         }
 
@@ -77,7 +80,9 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         if (renderPass) {
             if (subpass) {
                 if (frameBuffer) {
-                    this._nativeCommandBuffer.begin((renderPass as WebGPURenderPass).nativeRenderPass, subpass, (frameBuffer as WebGPUFramebuffer).nativeFrameBuffer);
+                    this._nativeCommandBuffer.begin((renderPass as WebGPURenderPass).nativeRenderPass,
+                        subpass,
+                        (frameBuffer as WebGPUFramebuffer).nativeFrameBuffer);
                 } else {
                     this._nativeCommandBuffer.begin2((renderPass as WebGPURenderPass).nativeRenderPass, subpass);
                 }
@@ -101,15 +106,15 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         clearDepth: number,
         clearStencil: number,
     ) {
-        const rect = wgpuWasmModule.Rect();
+        const rect = nativeLib.Rect();
         rect.x = renderArea.x;
         rect.y = renderArea.y;
         rect.width = renderArea.width;
         rect.height = renderArea.height;
 
-        const colors = new wgpuWasmModule.ColorList();
+        const colors = new nativeLib.ColorList();
         for (let i = 0; i < clearColors.length; i++) {
-            const color = new wgpuWasmModule.Color();
+            const color = new nativeLib.Color();
             color.x = clearColors[i].x;
             color.y = clearColors[i].y;
             color.z = clearColors[i].z;
@@ -135,7 +140,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]) {
         if (dynamicOffsets) {
-            const dynOffsets = new wgpuWasmModule.vector_uint32();
+            const dynOffsets = new nativeLib.vector_uint32();
             for (let i = 0; i < dynamicOffsets.length; i++) {
                 dynOffsets.push_back(dynamicOffsets[i]);
             }
@@ -150,7 +155,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public setViewport (viewport: Viewport) {
-        const viewPort = new wgpuWasmModule.ViewportInstance();
+        const viewPort = new nativeLib.ViewportInstance();
         viewPort.left = viewport.left;
         viewPort.top = viewport.top;
         viewPort.width = viewport.width;
@@ -161,7 +166,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public setScissor (scissor: Rect) {
-        const rect = new wgpuWasmModule.RectInstance();
+        const rect = new nativeLib.RectInstance();
         rect.x = scissor.x;
         rect.y = scissor.y;
         rect.width = scissor.width;
@@ -178,7 +183,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public setBlendConstants (blendConstants: Color) {
-        const color = new wgpuWasmModule.ColorInstance();
+        const color = new nativeLib.ColorInstance();
         color.x = blendConstants.x;
         color.y = blendConstants.y;
         color.z = blendConstants.z;
@@ -192,12 +197,12 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public setStencilWriteMask (face: StencilFace, writeMask: number) {
         const stencilFaceStr = StencilFace[face];
-        this._nativeCommandBuffer.setStencilWriteMask(wgpuWasmModule.StencilFace[stencilFaceStr], writeMask);
+        this._nativeCommandBuffer.setStencilWriteMask(nativeLib.StencilFace[stencilFaceStr], writeMask);
     }
 
     public setStencilCompareMask (face: StencilFace, reference: number, compareMask: number) {
         const stencilFaceStr = StencilFace[face];
-        this._nativeCommandBuffer.setStencilCompareMask(wgpuWasmModule.StencilFace[stencilFaceStr], reference, compareMask);
+        this._nativeCommandBuffer.setStencilCompareMask(nativeLib.StencilFace[stencilFaceStr], reference, compareMask);
     }
 
     public draw (inputAssembler: InputAssembler) {
@@ -209,9 +214,9 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {
         const buff = buffer as WebGPUBuffer;
         if (data instanceof IndirectBuffer) {
-            const drawInfos = new wgpuWasmModule.DrawInfoList();
+            const drawInfos = new nativeLib.DrawInfoList();
             for (let i = 0; i < data.drawInfos.length; i++) {
-                const drawInfo = new wgpuWasmModule.DrawInfo();
+                const drawInfo = new nativeLib.DrawInfo();
                 drawInfo.vertexCount = data.drawInfos[i].vertexCount;
                 drawInfo.firstVertex = data.drawInfos[i].firstVertex;
                 drawInfo.indexCount = data.drawInfos[i].indexCount;
@@ -237,7 +242,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
-        // const stringList = new wgpuWasmModule.StringList();
+        // const stringList = new nativeLib.StringList();
         // for (let i = 0; i < buffers.length; i++) {
         //     //const rawData = buffers[i]
         //     const utf8decoder = new TextDecoder('ascii'); // default 'utf-8' or 'utf8'
@@ -245,9 +250,9 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         //     stringList.push_back(str);
         // }
 
-        // const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        // const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
         // for (let i = 0; i < regions.length; i++) {
-        //     const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+        //     const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
         //     bufferTextureCopy.buffStride = regions[i].buffStride;
         //     bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
         //     bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
@@ -261,7 +266,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         //     bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
         //     bufferTextureCopyList.push_back(bufferTextureCopy);
         // }
-        // const nativeDevice = wgpuWasmModule.nativeDevice;
+        // const nativeDevice = nativeLib.nativeDevice;
         // nativeDevice.copyBuffersToTexture(stringList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
         console.log('copy buffers to tex in cmdbuff not impled.');
     }
