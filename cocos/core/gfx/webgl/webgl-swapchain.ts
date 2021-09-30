@@ -313,10 +313,12 @@ export class WebGLSwapchain extends Swapchain {
     }
 
     public resize (width: number, height: number, surfaceTransform: SurfaceTransform) {
-        if (this._canvas!.width !== width || this._canvas!.height !== height) {
+        if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
+            this._colorTexture.resize(width, height);
+            this._depthStencilTexture.resize(width, height);
         }
     }
 

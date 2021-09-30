@@ -30,18 +30,18 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2 } from '../../core/math';
+import { Vec2, Vec4 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
-import { Material, Node, RenderTexture } from '../../core';
+import { director, Material, RenderTexture } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 /**
@@ -51,7 +51,7 @@ import { NodeEventType } from '../../core/scene-graph/node-event';
  * @zh
  * Sprite 类型。
  */
-enum SpriteType {
+export enum SpriteType {
     /**
      * @en
      * The simple type.
@@ -334,7 +334,7 @@ export class Sprite extends Renderable2D {
     }
 
     set fillStart (value) {
-        this._fillStart = clamp(value, -1, 1);
+        this._fillStart = clamp(value, 0, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
             this._renderData.uvDirty = true;
@@ -472,6 +472,13 @@ export class Sprite extends Renderable2D {
     protected _atlas: SpriteAtlas | null = null;
     // static State = State;
 
+    constructor () {
+        super();
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = true;
+        }
+    }
+
     public __preload () {
         this.changeMaterialForDefine();
 
@@ -563,6 +570,10 @@ export class Sprite extends Renderable2D {
     }
 
     protected _updateBuiltinMaterial () {
+        // macro.UI_GPU_DRIVEN
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = true;
+        }
         let mat = super._updateBuiltinMaterial();
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
@@ -576,7 +587,7 @@ export class Sprite extends Renderable2D {
         return mat;
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         render.commitComp(this, this._spriteFrame, this._assembler!, null);
     }
 
@@ -594,6 +605,7 @@ export class Sprite extends Renderable2D {
     }
 
     protected _flushAssembler () {
+        // macro.UI_GPU_DRIVEN
         const assembler = Sprite.Assembler!.getAssembler(this);
 
         if (this._assembler !== assembler) {
@@ -708,5 +720,35 @@ export class Sprite extends Renderable2D {
             this._renderData.uvDirty = true;
             this._renderDataFlag = true;
         }
+    }
+
+    // macro.UI_GPU_DRIVEN
+    public _calculateSlicedData (out: number[]) {
+        const content = this.node._uiProps.uiTransformComp!.contentSize;
+
+        const spriteWidth = content.width;
+        const spriteHeight = content.height;
+        const leftWidth = this.spriteFrame!.insetLeft;
+        const rightWidth = this.spriteFrame!.insetRight;
+        const centerWidth = spriteWidth - leftWidth - rightWidth;
+        const topHeight = this.spriteFrame!.insetTop;
+        const bottomHeight = this.spriteFrame!.insetBottom;
+        const centerHeight = spriteHeight - topHeight - bottomHeight;
+
+        out.length = 0;
+        out[0] = (leftWidth) / spriteWidth;
+        out[1] = (topHeight) / spriteHeight;
+        out[2] = (leftWidth + centerWidth) / spriteWidth;
+        out[3] = (topHeight + centerHeight) / spriteHeight;
+        return out;
+    }
+
+    // macro.UI_GPU_DRIVEN
+    public calculateTiledData (out: Vec4) {
+        const content = this.node._uiProps.uiTransformComp!.contentSize;
+        const rect = this.spriteFrame!.rect;
+
+        out.x = content.width / rect.width;
+        out.y = content.height / rect.height;
     }
 }

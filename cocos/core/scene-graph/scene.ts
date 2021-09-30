@@ -38,7 +38,7 @@ import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides } from '../utils/prefab/utils';
+import { applyTargetOverrides, expandPrefabInstanceNode } from '../utils/prefab/utils';
 import { NativeScene } from '../renderer/scene/native-scene';
 
 /**
@@ -171,8 +171,6 @@ export class Scene extends BaseNode {
             this.children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
-
-        applyTargetOverrides(this);
     }
 
     // transform helpers
@@ -276,10 +274,13 @@ export class Scene extends BaseNode {
             if (TEST) {
                 assert(!this._activeInHierarchy, 'Should deactivate ActionManager by default');
             }
+
+            expandPrefabInstanceNode(this);
+            applyTargetOverrides(this);
             this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;
         }
-        // static methode can't use this as parameter type
+        // static method can't use this as parameter type
         this.walk(BaseNode._setScene);
     }
 

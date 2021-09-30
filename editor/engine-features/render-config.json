@@ -39,7 +39,13 @@
             "label": "i18n:ENGINE.features.base_2d.label",
             "description": "i18n:ENGINE.features.base_2d.description",
             "category": "2d",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "flags": {
+                "UI_GPU_DRIVEN": {
+                    "default": true,
+                    "label": "UI_GPU_DRIVEN"
+                }
+            }
         },
         "ui": {
             "default": ["ui"],

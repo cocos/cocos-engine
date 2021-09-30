@@ -783,8 +783,9 @@ class EventManager {
         const eventListeners = listeners.getSceneGraphPriorityListeners();
         eventListeners.forEach((listener) => {
             const node: any = listener._getSceneGraphPriority();
-            const trans = node._uiProps.uiTransformComp;
-            listener._cameraPriority = trans.cameraPriority;
+            // NOTE: listener maybe in dispatching but its sceneGraphPriority has been reset to null.
+            const trans = node?._uiProps.uiTransformComp;
+            listener._cameraPriority = trans ? trans.cameraPriority : 0;
         });
         eventListeners.sort(this._sortEventListenersOfSceneGraphPriorityDes);
     }

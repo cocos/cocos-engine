@@ -1,8 +1,8 @@
-/****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+/****************************************************************************
+ Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,48 +24,21 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-/**
- * Class for tiled map asset handling.
- * @class TiledMapAsset
- * @extends Asset
- *
- */
-let TiledMapAsset = cc.Class({
-    name: 'cc.TiledMapAsset',
-    extends: cc.Asset,
-
-    properties: {
-        tmxXmlStr: '',
-
-        /**
-         * @property {Texture2D[]} textures
-         */
-        textures: {
-            default: [],
-            type: [cc.Texture2D]
-        },
-
-        /**
-         * @property {String[]} textureNames
-         */
-        textureNames: [cc.String],
-
-        tsxFiles: [cc.TextAsset],
-        tsxFileNames: [cc.String],
+// JS to Native bridges
+// set to lazy
+Object.defineProperty(jsb, "bridge", {
+    get: function () {
+        if (jsb.__ccbridge !== undefined) return jsb.__ccbridge;
+        if (window.ScriptNativeBridge && cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX) {
+            jsb.__ccbridge = new ScriptNativeBridge();
+        }else   {
+            jsb.__ccbridge = null;
+        }
+        return jsb.__ccbridge;
     },
-
-    statics: {
-        preventDeferredLoadDependents: true
-    },
-
-    createNode: CC_EDITOR && function (callback) {
-        let node = new cc.Node(this.name);
-        let tiledMap = node.addComponent(cc.TiledMap);
-        tiledMap.tmxAsset = this;
-
-        return callback(null, node);
+    enumerable: true,
+    configurable: true,
+    set: function (value) {
+        jsb.__ccbridge = value;
     }
-});
-
-cc.TiledMapAsset = TiledMapAsset;
-module.exports = TiledMapAsset;
+})

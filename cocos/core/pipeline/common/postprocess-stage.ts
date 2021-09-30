@@ -26,33 +26,32 @@
 /**
  * @category pipeline
  */
-
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
-import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
+import { Color, Rect, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from './enum';
-import { DeferredPipeline } from './deferred-pipeline';
+import { CommonStagePriority } from './enum';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { UIPhase } from '../forward/ui-phase';
-import { MainFlow } from './main-flow';
+import { UIPhase } from './ui-phase';
 import { RenderQueueDesc } from '../pipeline-serialization';
-import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { renderProfiler } from '../pipeline-funcs';
+import { RenderFlow, RenderPipeline } from '..';
+import { CommonPipelineSceneData } from './common-pipeline-scene-data';
+import { macro } from '../..';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
 /**
- * @en The postprocess render stage
- * @zh 前向渲染阶段。
- */
-@ccclass('PostprocessStage')
-export class PostprocessStage extends RenderStage {
+  * @en The postprocess render stage
+  * @zh 后处理渲染阶段。
+  */
+@ccclass('PostProcessStage')
+export class PostProcessStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
-        name: 'PostprocessStage',
-        priority: DeferredStagePriority.POSTPROCESS,
+        name: 'PostProcessStage',
+        priority: CommonStagePriority.POST_PROCESS,
         tag: 0,
     };
 
@@ -79,17 +78,23 @@ export class PostprocessStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
+    public activate (pipeline: RenderPipeline, flow: RenderFlow) {
         super.activate(pipeline, flow);
         this._uiPhase.activate(pipeline);
-        if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredPostMaterial = this._postProcessMaterial; }
+        if (this._postProcessMaterial) { (pipeline.pipelineSceneData as CommonPipelineSceneData).postprocessMaterial = this._postProcessMaterial; }
     }
 
     public destroy () {
     }
 
     public render (camera: Camera) {
-        const pipeline = this._pipeline as DeferredPipeline;
+        const pipeline = this._pipeline;
+        // TODO: The offscreen camera does not do fxaa processing
+        // (For example, the editor camera small window will cause the picture to be distorted, etc.)
+        // Later the version will get the configuration from the camera
+        if (!camera.window?.swapchain && !pipeline.macros.CC_PIPELINE_TYPE) {
+            return;
+        }
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const cmdBuff = pipeline.commandBuffers[0];
@@ -101,7 +106,7 @@ export class PostprocessStage extends RenderStage {
         this._renderArea.y = vp.y * camera.height;
         this._renderArea.width = vp.width * camera.width * sceneData.shadingScale;
         this._renderArea.height = vp.height * camera.height * sceneData.shadingScale;
-
+        const renderData = pipeline.getPipelineRenderData();
         const framebuffer = camera.window!.framebuffer;
         const swapchain = camera.window!.swapchain;
         const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag, swapchain) : framebuffer.renderPass;
@@ -113,7 +118,6 @@ export class PostprocessStage extends RenderStage {
         }
 
         colors[0].w = camera.clearColor.w;
-        const deferredData = pipeline.getDeferredRenderData();
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
@@ -121,12 +125,16 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Postprocess
-        const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMaterial;
+        const builtinPostProcess = (sceneData as CommonPipelineSceneData).postprocessMaterial;
         const pass = builtinPostProcess.passes[0];
         const shader = pass.getShaderVariant();
 
-        pass.descriptorSet.bindTexture(0, deferredData.lightingRenderTargets[0]);
-        pass.descriptorSet.bindSampler(0, deferredData.sampler);
+        if (pipeline.bloomEnable) {
+            pass.descriptorSet.bindTexture(0, renderData.bloom!.combineTex);
+        } else {
+            pass.descriptorSet.bindTexture(0, renderData.outputRenderTargets[0]);
+        }
+        pass.descriptorSet.bindSampler(0, renderData.sampler);
         pass.descriptorSet.update();
 
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);

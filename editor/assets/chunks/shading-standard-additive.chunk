@@ -2,6 +2,7 @@
 
 #include <lighting>
 
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
 vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
@@ -45,7 +46,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
-      if (cc_lightPos[i].w > 0.0) {
+      if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
         CC_SPOT_SHADOW_FACTOR_BASE(shadow, shadowPos, s.position, cc_lightPos[i], N);
       }
     #endif
@@ -56,3 +57,4 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
   return vec4(finalColor, 0.0);
 }
+#endif
