@@ -342,8 +342,8 @@ export class Root {
         }
         this._pipeline = rppl;
         // now cluster just enabled in deferred pipeline
-        if (this._useDeferredPipeline && this.device.hasFeature(Feature.COMPUTE_SHADER)) {
-            // here to enable or disable cluster
+        if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
+            // disable cluster
             this._pipeline.clusterEnabled = false;
         }
         this._pipeline.bloomEnable = false;
