@@ -1,7 +1,6 @@
-import glslang, { Glslang } from '@webgpu/glslang/dist/web-devel/glslang';/* eslint-disable @typescript-eslint/no-floating-promises */
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
-// import wasmDevice from '@cocos/webgpu/lib/webgpu_wasm';
-// import fs from 'fs';
+/* eslint-disable new-cap */
+/* eslint-disable dot-notation */
+import glslang from '@webgpu/glslang/dist/web-devel/glslang';/* eslint-disable @typescript-eslint/no-floating-promises */
 import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
@@ -15,9 +14,10 @@ import { Swapchain } from '../base/swapchain';
 import { Buffer } from '../base/buffer';
 import { Texture } from '../base/texture';
 import { Shader } from '../base/shader';
-import { InputAssembler, DescriptorSet, DescriptorSetLayout, PipelineLayout } from '..';
+import { CommandBuffer, InputAssembler, DescriptorSet, DescriptorSetLayout, PipelineLayout, BufferInfo, BufferViewInfo,
+    TextureInfo, TextureViewInfo, Framebuffer, GlobalBarrier, GlobalBarrierInfo, TextureBarrier, TextureBarrierInfo } from '..';
 
-import { wgpuWasmModule, glslalgWasmModule } from './webgpu-utils';
+import { nativeLib, glslalgWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
 import { WebGPUSwapchain } from './webgpu-swapchain';
@@ -55,8 +55,8 @@ export class WebGPUDevice extends Device {
             const chromeVersion = getChromeVersion();
             const adapter = await navigator.gpu.requestAdapter();
             const device = await adapter.requestDevice();
-            glslalgWasmModule.glslang = await glslang();
-            wgpuWasmModule.preinitializedWebGPUDevice = device;
+            glslalgWasmModule['glslang'] = await glslang();
+            nativeLib['preinitializedWebGPUDevice'] = device;
             device.lost.then((info) => {
                 console.error('Device was lost.', info);
                 throw new Error('Something bad happened');
@@ -64,32 +64,26 @@ export class WebGPUDevice extends Device {
             console.log(adapter);
         }
         const launch = (): boolean => {
-            this._nativeDevice = wgpuWasmModule.CCWGPUDevice.getInstance();
-            wgpuWasmModule.nativeDevice = this._nativeDevice;
+            this._nativeDevice = nativeLib.CCWGPUDevice.getInstance();
+            nativeLib.nativeDevice = this._nativeDevice;
             const deviceInfo = {};
-            deviceInfo.isAntiAlias = info.isAntialias;
-            deviceInfo.windowHandle = 0;
-            deviceInfo.width = info.width;
-            deviceInfo.height = info.height;
-            deviceInfo.pixelRatio = info.devicePixelRatio;
-
-            const bufferOffsets = new wgpuWasmModule.vector_int();
+            const bufferOffsets = new nativeLib['vector_int']();
             for (let i = 0; i < info.bindingMappingInfo.bufferOffsets.length; i++) {
                 bufferOffsets.push_back(info.bindingMappingInfo.bufferOffsets[i]);
             }
 
-            const samplerOffsets = new wgpuWasmModule.vector_int();
+            const samplerOffsets = new nativeLib['vector_int']();
             for (let i = 0; i < info.bindingMappingInfo.samplerOffsets.length; i++) {
                 samplerOffsets.push_back(info.bindingMappingInfo.samplerOffsets[i]);
             }
 
-            deviceInfo.bindingMappingInfo = {
+            deviceInfo['bindingMappingInfo'] = {
                 bufferOffsets,
                 samplerOffsets,
                 flexibleSet: info.bindingMappingInfo.flexibleSet,
             };
 
-            this._nativeDevice?.initialize(deviceInfo);
+            this._nativeDevice.initialize(deviceInfo);
 
             const queueInfo = new QueueInfo(QueueType.GRAPHICS);
             this._queue = new WebGPUQueue();
@@ -108,9 +102,9 @@ export class WebGPUDevice extends Device {
             return true;
         };
 
-        const mainEntry:Promise<boolean> = wasmDevice(wgpuWasmModule).then(() => {
-            wgpuWasmModule.wasmLoaded = true;
-            console.log(wgpuWasmModule);
+        const mainEntry:Promise<boolean> = wasmDevice(nativeLib).then(() => {
+            nativeLib.wasmLoaded = true;
+            console.log(nativeLib);
             return Promise.resolve(getDevice().then(() => launch()));
         });
 
@@ -118,16 +112,16 @@ export class WebGPUDevice extends Device {
     }
 
     public destroy (): void {
-        this._nativeDevice?.destroy();
-        this._nativeDevice?.delete();
+        (this._nativeDevice as any).destroy();
+        (this._nativeDevice as any).delete();
     }
 
     public acquire (swapchains: Swapchain[]): void {
-        const swapchainList = new wgpuWasmModule.SwapchainList();
+        const swapchainList = new nativeLib.SwapchainList();
         for (let i = 0; i < swapchains.length; i++) {
             swapchainList.push_back((swapchains[i] as WebGPUSwapchain).nativeSwapchain);
         }
-        this._nativeDevice.acquire(swapchainList);
+        this._nativeDevice?.acquire(swapchainList);
     }
 
     public present (): void {
@@ -252,9 +246,17 @@ export class WebGPUDevice extends Device {
         //assert(false, 'createTextureBarrier not impl!');
     }
 
+    public  getGlobalBarrier (info: Readonly<GlobalBarrierInfo>): GlobalBarrier {
+
+    }
+
+    public  getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier {
+
+    }
+
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
-        const bufferDataList = new wgpuWasmModule.BufferDataList();
-        const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        const bufferDataList = new nativeLib.BufferDataList();
+        const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
         for (let i = 0; i < buffers.length; i++) {
             let data;
             let rawBuffer;
@@ -267,7 +269,7 @@ export class WebGPUDevice extends Device {
             }
             bufferDataList.push_back(data);
 
-            const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+            const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
             bufferTextureCopy.buffStride = regions[i].buffStride;
             bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
             bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
@@ -285,8 +287,8 @@ export class WebGPUDevice extends Device {
     }
 
     public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void {
-        const bufferDataList = new wgpuWasmModule.BufferDataList();
-        const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        const bufferDataList = new nativeLib.BufferDataList();
+        const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
         for (let i = 0; i < buffers.length; i++) {
             let data;
             let rawBuffer;
@@ -299,7 +301,7 @@ export class WebGPUDevice extends Device {
             }
             bufferDataList.push_back(data);
 
-            const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+            const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
             bufferTextureCopy.buffStride = regions[i].buffStride;
             bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
             bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
@@ -356,9 +358,9 @@ export class WebGPUDevice extends Device {
             }
         }
 
-        const bufferTextureCopyList = new wgpuWasmModule.BufferTextureCopyList();
+        const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
         for (let i = 0; i < regions.length; i++) {
-            const bufferTextureCopy = new wgpuWasmModule.BufferTextureCopyInstance();
+            const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
             bufferTextureCopy.buffStride = regions[i].buffStride;
             bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
             bufferTextureCopy.texOffset.x = regions[i].texOffset.x;

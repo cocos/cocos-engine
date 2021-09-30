@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Sampler } from '../base/states/sampler';
 import { SamplerInfo } from '../base/define';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { toWGPUNativeAddressMode, toWGPUNativeCompareFunc, toWGPUNativeFilter } from './webgpu-commands';
 
 export class WebGPUSampler extends Sampler {
@@ -13,7 +14,7 @@ export class WebGPUSampler extends Sampler {
     constructor (info: SamplerInfo) {
         super(info);
 
-        const samplerInfo = new wgpuWasmModule.SamplerInfoInstance();
+        const samplerInfo = new nativeLib.SamplerInfoInstance();
         samplerInfo.minFilter = toWGPUNativeFilter(info.minFilter);
         samplerInfo.magFilter = toWGPUNativeFilter(info.magFilter);
         samplerInfo.mipFilter = toWGPUNativeFilter(info.mipFilter);
@@ -23,7 +24,7 @@ export class WebGPUSampler extends Sampler {
         samplerInfo.maxAnisotropy = info.maxAnisotropy;
         samplerInfo.cmpFunc = toWGPUNativeCompareFunc(info.cmpFunc);
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const nativeDevice = nativeLib.nativeDevice;
         this._nativeSampler = nativeDevice.getSampler(samplerInfo);
     }
 }

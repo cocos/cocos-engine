@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { toWGPUNativeDescriptorType, toWGPUNativeStageFlags } from './webgpu-commands';
 import { DescriptorSetLayoutInfo } from '../base/define';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { WebGPUSampler } from './webgpu-sampler';
 
 export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
@@ -24,18 +25,18 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
 
         this._bindingIndices = Array(maxBinding + 1).fill(-1);
         this._descriptorIndices = Array(maxBinding + 1).fill(-1);
-        const nativeDevice = wgpuWasmModule.nativeDevice;
-        const dsLayoutInfo = new wgpuWasmModule.DescriptorSetLayoutInfoInstance();
-        const bindings = new wgpuWasmModule.DescriptorSetLayoutBindingList();
+        const nativeDevice = nativeLib.nativeDevice;
+        const dsLayoutInfo = new nativeLib.DescriptorSetLayoutInfoInstance();
+        const bindings = new nativeLib.DescriptorSetLayoutBindingList();
         for (let i = 0; i < info.bindings.length; i++) {
             this._bindingIndices[info.bindings[i].binding] = i;
             this._descriptorIndices[info.bindings[i].binding] = flattenedIndices[i];
-            const binding = new wgpuWasmModule.DescriptorSetLayoutBindingInstance();
+            const binding = new nativeLib.DescriptorSetLayoutBindingInstance();
             binding.setBinding(info.bindings[i].binding);
             binding.setDescriptorType(toWGPUNativeDescriptorType(info.bindings[i].descriptorType));
             binding.setCount(info.bindings[i].count);
             binding.setStageFlags(info.bindings[i].stageFlags);
-            const immutableSamplers = new wgpuWasmModule.SamplerList();
+            const immutableSamplers = new nativeLib.SamplerList();
             for (let j = 0; j < info.bindings[i].immutableSamplers.length; j++) {
                 const sampler = info.bindings[i].immutableSamplers[j] as WebGPUSampler;
                 immutableSamplers.push_back(sampler.nativeSampler);

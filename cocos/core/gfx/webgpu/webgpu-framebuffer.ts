@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Framebuffer } from '../base/framebuffer';
 import { WebGPUDevice } from './webgpu-device';
 import { WebGPUTexture } from './webgpu-texture';
 import { FramebufferInfo } from '../base/define';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
 
 export class WebGPUFramebuffer extends Framebuffer {
@@ -16,10 +17,10 @@ export class WebGPUFramebuffer extends Framebuffer {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures.slice();
         this._depthStencilTexture = info.depthStencilTexture;
-        const framebufferInfo = new wgpuWasmModule.FramebufferInfoInstance();
+        const framebufferInfo = new nativeLib.FramebufferInfoInstance();
         framebufferInfo.setRenderPass((info.renderPass as WebGPURenderPass).nativeRenderPass);
-        const colors = new wgpuWasmModule.TextureList();
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const colors = new nativeLib.TextureList();
+        const nativeDevice = nativeLib.nativeDevice;
         for (let i = 0; i < info.colorTextures.length; i++) {
             if (info.colorTextures[i]) {
                 colors.push_back((info.colorTextures[i] as WebGPUTexture).nativeTexture);
@@ -35,7 +36,7 @@ export class WebGPUFramebuffer extends Framebuffer {
             framebufferInfo.setDepthStencilTexture(nativeDevice.swapchainDepthStencil);
         }
 
-        this._nativeFramebuffer = wgpuWasmModule.nativeDevice.createFramebuffer(framebufferInfo);
+        this._nativeFramebuffer = nativeLib.nativeDevice.createFramebuffer(framebufferInfo);
         return true;
     }
 

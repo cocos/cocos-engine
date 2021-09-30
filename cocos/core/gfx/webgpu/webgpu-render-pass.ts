@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable new-cap */
 import { RenderPass } from '../base/render-pass';
 import { RenderPassInfo } from '../base/define';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { SampleCount, Format, LoadOp, StoreOp, ResolveMode } from '..';
 import { WebGPUDevice } from './webgpu-device';
 
@@ -12,26 +14,26 @@ export class WebGPURenderPass extends RenderPass {
         this._depthStencilInfo = info.depthStencilAttachment;
         this._subpasses = info.subpasses;
 
-        const renderPassInfo = new wgpuWasmModule.RenderPassInfoInstance();
-        const colorAttachmentList = new wgpuWasmModule.ColorAttachmentList();
+        const renderPassInfo = new nativeLib.RenderPassInfoInstance();
+        const colorAttachmentList = new nativeLib.ColorAttachmentList();
         for (let i = 0; i < info.colorAttachments.length; i++) {
             const origin = info.colorAttachments[i];
-            const color = new wgpuWasmModule.ColorAttachmentInstance();
+            const color = new nativeLib.ColorAttachmentInstance();
             const formatStr = Format[origin.format];
-            color.format = wgpuWasmModule.Format[formatStr];
+            color.format = nativeLib.Format[formatStr];
             const samplerStr = SampleCount[origin.sampleCount];
-            color.sampleCount = wgpuWasmModule.SampleCount[samplerStr];
+            color.sampleCount = nativeLib.SampleCount[samplerStr];
             const loadOpStr = LoadOp[origin.loadOp];
-            color.loadOp = wgpuWasmModule.LoadOp[loadOpStr];
+            color.loadOp = nativeLib.LoadOp[loadOpStr];
             const storeOpStr = StoreOp[origin.storeOp];
-            color.storeOp = wgpuWasmModule.StoreOp[storeOpStr];
-            const beginAccesses = new wgpuWasmModule.AccessTypeList();
+            color.storeOp = nativeLib.StoreOp[storeOpStr];
+            const beginAccesses = new nativeLib.AccessTypeList();
             for (let left = 0; left < origin.beginAccesses.length; left++) {
                 beginAccesses.push_back(origin.beginAccesses[left]);
             }
             color.beginAccesses = beginAccesses;
 
-            const endAccesses = new wgpuWasmModule.AccessTypeList();
+            const endAccesses = new nativeLib.AccessTypeList();
             for (let right = 0; right < origin.endAccesses.length; right++) {
                 endAccesses.push_back(origin.endAccesses[right]);
             }
@@ -44,77 +46,77 @@ export class WebGPURenderPass extends RenderPass {
 
         const depthStencil = renderPassInfo.depthStencilAttachment;
         const formatStr = Format[info.depthStencilAttachment.format];
-        depthStencil.format = wgpuWasmModule.Format[formatStr];
+        depthStencil.format = nativeLib.Format[formatStr];
         const sampleStr = SampleCount[info.depthStencilAttachment.sampleCount];
-        depthStencil.sampleCount = wgpuWasmModule.SampleCount[sampleStr];
+        depthStencil.sampleCount = nativeLib.SampleCount[sampleStr];
         const depthLoadOpStr = LoadOp[info.depthStencilAttachment.depthLoadOp];
-        depthStencil.depthLoadOp = wgpuWasmModule.LoadOp[depthLoadOpStr];
+        depthStencil.depthLoadOp = nativeLib.LoadOp[depthLoadOpStr];
         const depthStoreOpStr = StoreOp[info.depthStencilAttachment.depthStoreOp];
-        depthStencil.depthStoreOp = wgpuWasmModule.StoreOp[depthStoreOpStr];
+        depthStencil.depthStoreOp = nativeLib.StoreOp[depthStoreOpStr];
         const stencilLoadOpStr = LoadOp[info.depthStencilAttachment.stencilLoadOp];
-        depthStencil.stencilLoadOp = wgpuWasmModule.LoadOp[stencilLoadOpStr];
+        depthStencil.stencilLoadOp = nativeLib.LoadOp[stencilLoadOpStr];
         const stencilStoreOpStr = StoreOp[info.depthStencilAttachment.stencilStoreOp];
-        depthStencil.stencilStoreOp = wgpuWasmModule.StoreOp[stencilStoreOpStr];
+        depthStencil.stencilStoreOp = nativeLib.StoreOp[stencilStoreOpStr];
 
-        const beginAccesses = new wgpuWasmModule.AccessTypeList();
+        const beginAccesses = new nativeLib.AccessTypeList();
         for (let i = 0; i < info.depthStencilAttachment.beginAccesses.length; i++) {
             beginAccesses.push_back(info.depthStencilAttachment.beginAccesses[i]);
         }
         depthStencil.beginAccesses = beginAccesses;
-        const endAccesses = new wgpuWasmModule.AccessTypeList();
+        const endAccesses = new nativeLib.AccessTypeList();
         for (let i = 0; i < info.depthStencilAttachment.endAccesses.length; i++) {
             endAccesses.push_back(info.depthStencilAttachment.endAccesses[i]);
         }
         depthStencil.endAccesses = endAccesses;
         depthStencil.isGeneralLayout = info.depthStencilAttachment.isGeneralLayout;
 
-        const subpasses = new wgpuWasmModule.SubpassInfoList();
+        const subpasses = new nativeLib.SubpassInfoList();
         for (let i = 0; i < info.subpasses.length; i++) {
             const originSubpass = info.subpasses[i];
-            const subpass = new wgpuWasmModule.SubpassInfoInstance();
-            const inputs = new wgpuWasmModule.vector_uint32();
+            const subpass = new nativeLib.SubpassInfoInstance();
+            const inputs = new nativeLib.vector_uint32();
             for (let j = 0; j < originSubpass.inputs.length; j++) {
                 inputs.push_back(originSubpass.inputs[i]);
             }
             subpass.inputs = inputs;
-            const colors = new wgpuWasmModule.vector_uint32();
+            const colors = new nativeLib.vector_uint32();
             for (let j = 0; j < originSubpass.colors.length; j++) {
                 colors.push_back(originSubpass.colors[i]);
             }
             subpass.colors = colors;
-            const resolves = new wgpuWasmModule.vector_uint32();
+            const resolves = new nativeLib.vector_uint32();
             for (let j = 0; j < originSubpass.resolves.length; j++) {
                 resolves.push_back(originSubpass.resolves[i]);
             }
             subpass.resolves = resolves;
-            const preserves = new wgpuWasmModule.vector_uint32();
+            const preserves = new nativeLib.vector_uint32();
             for (let j = 0; j < originSubpass.preserves.length; j++) {
                 preserves.push_back(originSubpass.preserves[i]);
             }
             subpass.preserves = preserves;
             subpass.depthStencil = originSubpass.depthStencil;
             subpass.depthStencilResolve = originSubpass.depthStencilResolve;
-            const depthResolveModeStr = ResolveMode[info.depthStencilAttachment.depthResolveMode];
-            depthStencil.depthResolveMode = wgpuWasmModule.ResolveMode[depthResolveModeStr];
-            const stencilResolveModeStr = ResolveMode[info.depthStencilAttachment.stencilResolveMode];
-            depthStencil.stencilResolveMode = wgpuWasmModule.ResolveMode[stencilResolveModeStr];
+            const depthResolveModeStr = ResolveMode[originSubpass.depthResolveMode];
+            subpass.depthResolveMode = nativeLib.ResolveMode[depthResolveModeStr];
+            const stencilResolveModeStr = ResolveMode[originSubpass.stencilResolveMode];
+            subpass.stencilResolveMode = nativeLib.ResolveMode[stencilResolveModeStr];
 
             subpasses.push_back(subpass);
         }
         renderPassInfo.subpasses = subpasses;
 
-        const dependencies = new wgpuWasmModule.SubpassDependencyList();
+        const dependencies = new nativeLib.SubpassDependencyList();
         for (let i = 0; i < info.dependencies.length; i++) {
             const originDeps = info.dependencies[i];
-            const dependency = new wgpuWasmModule.SubpassDependencyInstance();
+            const dependency = new nativeLib.SubpassDependencyInstance();
             dependency.srcSubpass = originDeps.srcSubpass;
             dependency.dstSubpass = originDeps.dstSubpass;
-            const srcAccesses = new wgpuWasmModule.AccessTypeList();
+            const srcAccesses = new nativeLib.AccessTypeList();
             for (let j = 0; j < originDeps.srcAccesses.length; j++) {
                 srcAccesses.push_back(originDeps.srcAccesses[i]);
             }
             dependency.srcAccesses = srcAccesses;
-            const dstAccesses = new wgpuWasmModule.AccessTypeList();
+            const dstAccesses = new nativeLib.AccessTypeList();
             for (let j = 0; j < originDeps.dstAccesses.length; j++) {
                 dstAccesses.push_back(originDeps.dstAccesses[i]);
             }
@@ -123,7 +125,7 @@ export class WebGPURenderPass extends RenderPass {
         }
         renderPassInfo.dependencies = dependencies;
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const nativeDevice = nativeLib.nativeDevice;
         this._nativeRenderPass = nativeDevice?.createRenderPass(renderPassInfo);
         return true;
     }

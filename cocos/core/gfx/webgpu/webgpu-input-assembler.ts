@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { InputAssembler } from '../base/input-assembler';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUDevice } from './webgpu-device';
 import { InputAssemblerInfo, Format } from '../base/define';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 
 export class WebGPUInputAssembler extends InputAssembler {
     private _nativeInputAssembler;
@@ -16,16 +17,16 @@ export class WebGPUInputAssembler extends InputAssembler {
         this._vertexBuffers = info.vertexBuffers;
         this._indirectBuffer = info.indirectBuffer;
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
-        const inputAssemblerInfo = new wgpuWasmModule.InputAssemblerInfoInstance();
+        const nativeDevice = nativeLib.nativeDevice;
+        const inputAssemblerInfo = new nativeLib.InputAssemblerInfoInstance();
 
-        const attrs = new wgpuWasmModule.AttributeList();
+        const attrs = new nativeLib.AttributeList();
         for (let i = 0; i < info.attributes.length; i++) {
             const attribute = info.attributes[i];
-            const nativeAttr = new wgpuWasmModule.AttributeInstance();
+            const nativeAttr = new nativeLib.AttributeInstance();
             nativeAttr.name = attribute.name;
             const formatStr = Format[attribute.format];
-            nativeAttr.format = wgpuWasmModule.Format[formatStr];
+            nativeAttr.format = nativeLib.Format[formatStr];
             nativeAttr.isNormalized = attribute.isNormalized;
             nativeAttr.stream = attribute.stream;
             nativeAttr.isInstanced = attribute.isInstanced;
@@ -34,7 +35,7 @@ export class WebGPUInputAssembler extends InputAssembler {
         }
         inputAssemblerInfo.setAttributes(attrs);
 
-        const buffers = new wgpuWasmModule.BufferList();
+        const buffers = new nativeLib.BufferList();
         for (let i = 0; i < info.vertexBuffers.length; i++) {
             buffers.push_back((info.vertexBuffers[i] as WebGPUBuffer).nativeBuffer);
         }
@@ -64,7 +65,7 @@ export class WebGPUInputAssembler extends InputAssembler {
 
     // native object created when ia initialized, update in case it's changed.
     public check () {
-        const nativeDrawInfo = new wgpuWasmModule.DrawInfo();
+        const nativeDrawInfo = new nativeLib.DrawInfo();
         nativeDrawInfo.vertexCount = this._drawInfo.vertexCount;
         nativeDrawInfo.firstVertex = this._drawInfo.firstVertex;
         nativeDrawInfo.indexCount = this._drawInfo.indexCount;

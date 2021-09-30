@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { BlendTarget, PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUShader } from './webgpu-shader';
@@ -9,7 +10,7 @@ import { WebGPUDevice } from './webgpu-device';
 import {
 
 } from './webgpu-commands';
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 
 export class WebGPUPipelineState extends PipelineState {
@@ -30,20 +31,20 @@ export class WebGPUPipelineState extends PipelineState {
         this._renderPass = info.renderPass;
         this._dynamicStates = info.dynamicStates;
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
-        const pipelineStateInfo = new wgpuWasmModule.PipelineStateInfoInstance();
+        const nativeDevice = nativeLib.nativeDevice;
+        const pipelineStateInfo = new nativeLib.PipelineStateInfoInstance();
         pipelineStateInfo.setShader((info.shader as WebGPUShader).nativeShader);
         pipelineStateInfo.setPipelineLayout((info.pipelineLayout as WebGPUPipelineLayout).nativePipelineLayout);
         pipelineStateInfo.setRenderPass((info.renderPass as WebGPURenderPass).nativeRenderPass);
 
-        const inputState = new wgpuWasmModule.InputStateInstance();
-        const attrs = new wgpuWasmModule.AttributeList();
+        const inputState = new nativeLib.InputStateInstance();
+        const attrs = new nativeLib.AttributeList();
         for (let i = 0; i < info.inputState.attributes.length; i++) {
             const attribute = info.inputState.attributes[i];
-            const nativeAttr = new wgpuWasmModule.AttributeInstance();
+            const nativeAttr = new nativeLib.AttributeInstance();
             nativeAttr.name = attribute.name;
             const formatStr = Format[attribute.format];
-            nativeAttr.format = wgpuWasmModule.Format[formatStr];
+            nativeAttr.format = nativeLib.Format[formatStr];
             nativeAttr.isNormalized = attribute.isNormalized;
             nativeAttr.stream = attribute.stream;
             nativeAttr.isInstanced = attribute.isInstanced;
@@ -53,14 +54,14 @@ export class WebGPUPipelineState extends PipelineState {
         inputState.attributes = attrs;
         pipelineStateInfo.setInputState(inputState);
 
-        const rasterizerState = new wgpuWasmModule.RasterizerStateInstance();
+        const rasterizerState = new nativeLib.RasterizerStateInstance();
         rasterizerState.isDiscard = info.rasterizerState.isDiscard;
         const polygonModeStr = PolygonMode[info.rasterizerState.polygonMode];
-        rasterizerState.polygonMode = wgpuWasmModule.PolygonMode[polygonModeStr];
+        rasterizerState.polygonMode = nativeLib.PolygonMode[polygonModeStr];
         const shadeModelStr = ShadeModel[info.rasterizerState.shadeModel];
-        rasterizerState.polygonMode = wgpuWasmModule.ShadeModel[shadeModelStr];
+        rasterizerState.polygonMode = nativeLib.ShadeModel[shadeModelStr];
         const cullModeStr = CullMode[info.rasterizerState.cullMode];
-        rasterizerState.polygonMode = wgpuWasmModule.CullMode[cullModeStr];
+        rasterizerState.polygonMode = nativeLib.CullMode[cullModeStr];
         rasterizerState.isFrontFaceCCW = info.rasterizerState.isFrontFaceCCW;
         rasterizerState.depthBiasEnabled = info.rasterizerState.depthBiasEnabled;
         rasterizerState.depthBias = info.rasterizerState.depthBias;
@@ -71,73 +72,73 @@ export class WebGPUPipelineState extends PipelineState {
         rasterizerState.lineWidth = info.rasterizerState.lineWidth;
         pipelineStateInfo.setRasterizerState(rasterizerState);
 
-        const depthStencilState = new wgpuWasmModule.DepthStencilStateInstance();
+        const depthStencilState = new nativeLib.DepthStencilStateInstance();
         depthStencilState.depthTest = info.depthStencilState.depthTest;
         depthStencilState.depthWrite = info.depthStencilState.depthWrite;
         const depthFuncStr = ComparisonFunc[info.depthStencilState.depthFunc];
-        depthStencilState.depthFunc = wgpuWasmModule.ComparisonFunc[depthFuncStr];
+        depthStencilState.depthFunc = nativeLib.ComparisonFunc[depthFuncStr];
         depthStencilState.stencilTestFront = info.depthStencilState.stencilTestFront;
         const stencilFuncFrontStr = ComparisonFunc[info.depthStencilState.stencilFuncFront];
-        depthStencilState.stencilFuncFront = wgpuWasmModule.ComparisonFunc[stencilFuncFrontStr];
+        depthStencilState.stencilFuncFront = nativeLib.ComparisonFunc[stencilFuncFrontStr];
         depthStencilState.stencilReadMaskFront = info.depthStencilState.stencilReadMaskFront;
         depthStencilState.stencilWriteMaskFront = info.depthStencilState.stencilWriteMaskFront;
         const stencilFailOpFrontStr = StencilOp[info.depthStencilState.stencilFailOpFront];
-        depthStencilState.stencilFailOpFront = wgpuWasmModule.StencilOp[stencilFailOpFrontStr];
+        depthStencilState.stencilFailOpFront = nativeLib.StencilOp[stencilFailOpFrontStr];
         const stencilZFailOpFrontStr = StencilOp[info.depthStencilState.stencilZFailOpFront];
-        depthStencilState.stencilZFailOpFront = wgpuWasmModule.StencilOp[stencilZFailOpFrontStr];
+        depthStencilState.stencilZFailOpFront = nativeLib.StencilOp[stencilZFailOpFrontStr];
         const stencilPassOpFrontStr = StencilOp[info.depthStencilState.stencilPassOpFront];
-        depthStencilState.stencilPassOpFront = wgpuWasmModule.StencilOp[stencilPassOpFrontStr];
+        depthStencilState.stencilPassOpFront = nativeLib.StencilOp[stencilPassOpFrontStr];
         depthStencilState.stencilRefFront = info.depthStencilState.stencilRefFront;
         depthStencilState.stencilTestBack = info.depthStencilState.stencilTestBack;
         const stencilFuncBackStr = ComparisonFunc[info.depthStencilState.stencilFuncBack];
-        depthStencilState.stencilFuncBack = wgpuWasmModule.ComparisonFunc[stencilFuncBackStr];
+        depthStencilState.stencilFuncBack = nativeLib.ComparisonFunc[stencilFuncBackStr];
         depthStencilState.stencilReadMaskBack = info.depthStencilState.stencilReadMaskBack;
         depthStencilState.stencilWriteMaskBack = info.depthStencilState.stencilWriteMaskBack;
         const stencilFailOpBackStr = StencilOp[info.depthStencilState.stencilFailOpBack];
-        depthStencilState.stencilFailOpBack = wgpuWasmModule.StencilOp[stencilFailOpBackStr];
+        depthStencilState.stencilFailOpBack = nativeLib.StencilOp[stencilFailOpBackStr];
         const stencilZFailOpBackStr = StencilOp[info.depthStencilState.stencilZFailOpBack];
-        depthStencilState.stencilZFailOpBack = wgpuWasmModule.StencilOp[stencilZFailOpBackStr];
+        depthStencilState.stencilZFailOpBack = nativeLib.StencilOp[stencilZFailOpBackStr];
         const stencilPassOpBackStr = StencilOp[info.depthStencilState.stencilPassOpBack];
-        depthStencilState.stencilPassOpBack = wgpuWasmModule.StencilOp[stencilPassOpBackStr];
+        depthStencilState.stencilPassOpBack = nativeLib.StencilOp[stencilPassOpBackStr];
         depthStencilState.stencilRefBack = info.depthStencilState.stencilRefBack;
         pipelineStateInfo.setDepthStencilState(depthStencilState);
 
-        const blendState = new wgpuWasmModule.BlendStateInstance();
+        const blendState = new nativeLib.BlendStateInstance();
         blendState.isA2C = info.blendState.isA2C;
         blendState.isIndepend = info.blendState.isIndepend;
         blendState.color = info.blendState.blendColor;
-        const targets = new wgpuWasmModule.BlendTargetList();
+        const targets = new nativeLib.BlendTargetList();
         for (let i = 0; i < info.blendState.targets.length; i++) {
             const target = info.blendState.targets[i];
-            const nativeTarget = new wgpuWasmModule.BlendTargetInstance();
+            const nativeTarget = new nativeLib.BlendTargetInstance();
             nativeTarget.blend = target.blend;
             const srcBFStr = BlendFactor[target.blendSrc];
-            nativeTarget.blendSrc = wgpuWasmModule.BlendFactor[srcBFStr];
+            nativeTarget.blendSrc = nativeLib.BlendFactor[srcBFStr];
             const dstBFStr = BlendFactor[target.blendDst];
-            nativeTarget.blendDst = wgpuWasmModule.BlendFactor[dstBFStr];
+            nativeTarget.blendDst = nativeLib.BlendFactor[dstBFStr];
             const blendStr = BlendOp[target.blendEq];
-            nativeTarget.blendEq = wgpuWasmModule.BlendOp[blendStr];
+            nativeTarget.blendEq = nativeLib.BlendOp[blendStr];
             const srcAlphaBFStr = BlendFactor[target.blendSrcAlpha];
-            nativeTarget.blendSrcAlpha = wgpuWasmModule.BlendFactor[srcAlphaBFStr];
+            nativeTarget.blendSrcAlpha = nativeLib.BlendFactor[srcAlphaBFStr];
             const dstAlphaBFStr = BlendFactor[target.blendDstAlpha];
-            nativeTarget.blendDstAlpha = wgpuWasmModule.BlendFactor[dstAlphaBFStr];
+            nativeTarget.blendDstAlpha = nativeLib.BlendFactor[dstAlphaBFStr];
             const blendAlphaEqStr = BlendOp[target.blendAlphaEq];
-            nativeTarget.blendAlphaEq = wgpuWasmModule.BlendOp[blendAlphaEqStr];
+            nativeTarget.blendAlphaEq = nativeLib.BlendOp[blendAlphaEqStr];
             const colorMaskStr = ColorMask[target.blendColorMask];
-            nativeTarget.blendColorMask = wgpuWasmModule.ColorMask[colorMaskStr];
+            nativeTarget.blendColorMask = nativeLib.ColorMask[colorMaskStr];
             targets.push_back(nativeTarget);
         }
         blendState.targets = targets;
         pipelineStateInfo.setBlendState(blendState);
 
         const primitiveModeStr = PrimitiveMode[info.primitive];
-        pipelineStateInfo.setPrimitiveMode(wgpuWasmModule.PrimitiveMode[primitiveModeStr]);
+        pipelineStateInfo.setPrimitiveMode(nativeLib.PrimitiveMode[primitiveModeStr]);
 
         const dsynamicFlagStr = DynamicStateFlagBit[info.dynamicStates];
-        pipelineStateInfo.setDynamicStateFlags(wgpuWasmModule.DynamicStateFlagBit[dsynamicFlagStr]);
+        pipelineStateInfo.setDynamicStateFlags(nativeLib.DynamicStateFlagBit[dsynamicFlagStr]);
 
         const bindPointStr = PipelineBindPoint[info.bindPoint];
-        pipelineStateInfo.setPipelineBindPoint(wgpuWasmModule.PipelineBindPoint[bindPointStr]);
+        pipelineStateInfo.setPipelineBindPoint(nativeLib.PipelineBindPoint[bindPointStr]);
 
         //TODO_Zeqaing: wgpu subpass config
         pipelineStateInfo.setSubpass(0);

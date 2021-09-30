@@ -29,4 +29,6 @@ const wgpuWasmModule = {
 const glslalgWasmModule = {
 };
 
-export { wgpuWasmModule, glslalgWasmModule };
+const nativeLib = wgpuWasmModule as any;
+
+export { nativeLib, wgpuWasmModule, glslalgWasmModule };

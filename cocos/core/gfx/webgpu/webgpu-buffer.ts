@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Buffer } from '../base/buffer';
 import {
     BufferFlagBit,
@@ -10,7 +11,7 @@ import {
 
 import { toWGPUNativeBufferFlag, toWGPUNativeBufferMemUsage, toWGPUNativeBufferUsage } from './webgpu-commands';
 
-import { wgpuWasmModule } from './webgpu-utils';
+import { nativeLib } from './webgpu-utils';
 
 export class WebGPUBuffer extends Buffer {
     private _nativeBuffer;
@@ -20,7 +21,7 @@ export class WebGPUBuffer extends Buffer {
     }
 
     public initialize (info: BufferInfo | BufferViewInfo): boolean {
-        const nativeDevice = wgpuWasmModule.nativeDevice;
+        const nativeDevice = nativeLib.nativeDevice;
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;
 
@@ -31,7 +32,7 @@ export class WebGPUBuffer extends Buffer {
             this._count = 1;
             this._flags = buffer.flags;
 
-            const bufferViewInfo = new wgpuWasmModule.BufferViewInfoInstance();
+            const bufferViewInfo = new nativeLib.BufferViewInfoInstance();
             bufferViewInfo.setBuffer((info.buffer as WebGPUBuffer).nativeBuffer);
             bufferViewInfo.setOffset(info.offset);
             bufferViewInfo.setRange(info.range);
@@ -43,7 +44,7 @@ export class WebGPUBuffer extends Buffer {
             this._stride = info.stride;
             this._count = this._size / this._stride;
             this._flags = info.flags;
-            const bufferInfo = new wgpuWasmModule.BufferInfoInstance();
+            const bufferInfo = new nativeLib.BufferInfoInstance();
             bufferInfo.setUsage(info.usage);
             bufferInfo.setMemUsage(info.memUsage);
             bufferInfo.setSize(info.size);

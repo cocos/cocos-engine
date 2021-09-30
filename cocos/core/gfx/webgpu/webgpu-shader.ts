@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Shader } from '../base/shader';
-import { WebGPUDevice } from './webgpu-device';
 import { Format, MemoryAccessBit, ShaderInfo, ShaderStageFlagBit, Type } from '../base/define';
-import { glslalgWasmModule, wgpuWasmModule } from './webgpu-utils';
+import { glslalgWasmModule, nativeLib } from './webgpu-utils';
 import { removeCombinedSamplerTexture } from './webgpu-commands';
 
 export class WebGPUShader extends Shader {
@@ -18,32 +18,32 @@ export class WebGPUShader extends Shader {
         this._blocks = info.blocks;
         this._samplers = info.samplers;
 
-        const nativeDevice = wgpuWasmModule.nativeDevice;
-        const shaderInfo = new wgpuWasmModule.SPVShaderInfoInstance();
+        const nativeDevice = nativeLib.nativeDevice;
+        const shaderInfo = new nativeLib.SPVShaderInfoInstance();
         shaderInfo.setName(info.name);
 
-        const shaderStageList = new wgpuWasmModule.SPVShaderStageList();
+        const shaderStageList = new nativeLib.SPVShaderStageList();
         for (let i = 0; i < info.stages.length; i++) {
-            const shaderStage = new wgpuWasmModule.SPVShaderStageInstance();
+            const shaderStage = new nativeLib.SPVShaderStageInstance();
             const stageName = ShaderStageFlagBit[info.stages[i].stage];
-            shaderStage.setStage(wgpuWasmModule.ShaderStageFlags[stageName]);
+            shaderStage.setStage(nativeLib.ShaderStageFlags[stageName]);
             const source = removeCombinedSamplerTexture(info.stages[i].source);
             const stageStr = info.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : info.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
             const sourceCode = `#version 450\n${source}`;
-            const code = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
+            const code = (glslalgWasmModule as any).glslang.compileGLSL(sourceCode, stageStr, true, '1.1');
             shaderStage.setSPVData(code);
             shaderStageList.push_back(shaderStage);
         }
         shaderInfo.setStages(shaderStageList);
 
-        const attributeList = new wgpuWasmModule.AttributeList();
+        const attributeList = new nativeLib.AttributeList();
         for (let i = 0; i < info.attributes.length; i++) {
-            const attribute = new wgpuWasmModule.AttributeInstance();
+            const attribute = new nativeLib.AttributeInstance();
             attribute.name = info.attributes[i].name;
 
             const formatStr = Format[info.attributes[i].format];
-            attribute.format = wgpuWasmModule.Format[formatStr];
+            attribute.format = nativeLib.Format[formatStr];
 
             attribute.isNormalized = info.attributes[i].isNormalized;
             attribute.stream = info.attributes[i].stream;
@@ -54,19 +54,19 @@ export class WebGPUShader extends Shader {
         }
         shaderInfo.setAttributes(attributeList);
 
-        const uniformBlockList = new wgpuWasmModule.UniformBlockList();
+        const uniformBlockList = new nativeLib.UniformBlockList();
         for (let i = 0; i < info.blocks.length; i++) {
-            const block = new wgpuWasmModule.UniformBlockInstance();
+            const block = new nativeLib.UniformBlockInstance();
             block.set = info.blocks[i].set;
             block.binding = info.blocks[i].binding;
             block.name = info.blocks[i].name;
             for (let j = 0; j < info.blocks[i].members.length; j++) {
                 const uniformInfo = info.blocks[i].members[j];
-                const uniform = new wgpuWasmModule.UniformInstance();
+                const uniform = new nativeLib.UniformInstance();
                 uniform.name = uniformInfo.name;
 
                 const typeStr = Type[uniformInfo.type];
-                uniform.type = wgpuWasmModule.Type[typeStr];
+                uniform.type = nativeLib.Type[typeStr];
                 block.members.push_back(uniform);
             }
             block.count = info.blocks[i].count;
@@ -74,37 +74,37 @@ export class WebGPUShader extends Shader {
         }
         shaderInfo.setBlocks(uniformBlockList);
 
-        const uniformStorageBufferList = new wgpuWasmModule.UniformStorageBufferList();
+        const uniformStorageBufferList = new nativeLib.UniformStorageBufferList();
         for (let i = 0; i < info.buffers.length; i++) {
-            const buffer = new wgpuWasmModule.UniformStorageBufferInstance();
+            const buffer = new nativeLib.UniformStorageBufferInstance();
             buffer.set = info.buffers[i].set;
             buffer.binding = info.buffers[i].binding;
             buffer.name = info.buffers[i].name;
             buffer.count = info.buffers[i].count;
 
             const memAccName = MemoryAccessBit[info.buffers[i].memoryAccess];
-            buffer.memoryAccess = wgpuWasmModule.MemoryAccess[memAccName];
+            buffer.memoryAccess = nativeLib.MemoryAccess[memAccName];
             uniformStorageBufferList.push_back(buffer);
         }
         shaderInfo.setBuffers(uniformStorageBufferList);
 
-        const uniformSamplerTextureList = new wgpuWasmModule.UniformSamplerTextureList();
+        const uniformSamplerTextureList = new nativeLib.UniformSamplerTextureList();
         for (let i = 0; i < info.samplerTextures.length; i++) {
-            const uniformSamplerTexture = new wgpuWasmModule.UniformSamplerTextureInstance();
+            const uniformSamplerTexture = new nativeLib.UniformSamplerTextureInstance();
             uniformSamplerTexture.set = info.samplerTextures[i].set;
             uniformSamplerTexture.binding = info.samplerTextures[i].binding;
             uniformSamplerTexture.name = info.samplerTextures[i].name;
             uniformSamplerTexture.count = info.samplerTextures[i].count;
 
             const typeStr = Type[info.samplerTextures[i].type];
-            uniformSamplerTexture.type = wgpuWasmModule.Type[typeStr];
+            uniformSamplerTexture.type = nativeLib.Type[typeStr];
             uniformSamplerTextureList.push_back(uniformSamplerTexture);
         }
         shaderInfo.setSamplerTextures(uniformSamplerTextureList);
 
-        const uniformSamplerList = new wgpuWasmModule.UniformSamplerList();
+        const uniformSamplerList = new nativeLib.UniformSamplerList();
         for (let i = 0; i < info.samplers.length; i++) {
-            const uniformSampler = new wgpuWasmModule.UniformSamplerInstance();
+            const uniformSampler = new nativeLib.UniformSamplerInstance();
             uniformSampler.set = info.samplers[i].set;
             uniformSampler.binding = info.samplers[i].binding;
             uniformSampler.name = info.samplers[i].name;
@@ -114,40 +114,40 @@ export class WebGPUShader extends Shader {
         }
         shaderInfo.setSamplers(uniformSamplerList);
 
-        const uniformTextureList = new wgpuWasmModule.UniformTextureList();
+        const uniformTextureList = new nativeLib.UniformTextureList();
         for (let i = 0; i < info.textures.length; i++) {
-            const uniformTexture = new wgpuWasmModule.UniformTextureInstance();
+            const uniformTexture = new nativeLib.UniformTextureInstance();
             uniformTexture.set = info.textures[i].set;
             uniformTexture.binding = info.textures[i].binding;
             uniformTexture.name = info.textures[i].name;
             uniformTexture.count = info.textures[i].count;
 
             const typeStr = Type[info.textures[i].type];
-            uniformTexture.type = wgpuWasmModule.Type[typeStr];
+            uniformTexture.type = nativeLib.Type[typeStr];
             uniformTextureList.push_back(uniformTexture);
         }
         shaderInfo.setTextures(uniformTextureList);
 
-        const uniformStorageImageList = new wgpuWasmModule.UniformStorageImageList();
+        const uniformStorageImageList = new nativeLib.UniformStorageImageList();
         for (let i = 0; i < info.images.length; i++) {
-            const uniformStorageImage = new wgpuWasmModule.UniformStorageImageInstance();
+            const uniformStorageImage = new nativeLib.UniformStorageImageInstance();
             uniformStorageImage.set = info.images[i].set;
             uniformStorageImage.binding = info.images[i].binding;
             uniformStorageImage.name = info.images[i].name;
             uniformStorageImage.count = info.images[i].count;
 
             const typeStr = Type[info.images[i].type];
-            uniformStorageImage.type = wgpuWasmModule.Type[typeStr];
+            uniformStorageImage.type = nativeLib.Type[typeStr];
             const memAccStr = MemoryAccessBit[info.images[i].memoryAccess];
-            uniformStorageImage.memoryAccess = wgpuWasmModule.MemoryAccess[memAccStr];
+            uniformStorageImage.memoryAccess = nativeLib.MemoryAccess[memAccStr];
 
             uniformStorageImageList.push_back(uniformStorageImage);
         }
         shaderInfo.setImages(uniformStorageImageList);
 
-        const uniformInputAttachmentList = new wgpuWasmModule.UniformInputAttachmentList();
+        const uniformInputAttachmentList = new nativeLib.UniformInputAttachmentList();
         for (let i = 0; i < info.subpassInputs.length; i++) {
-            const uniformInputAttachment = new wgpuWasmModule.UniformInputAttachmentInstance();
+            const uniformInputAttachment = new nativeLib.UniformInputAttachmentInstance();
             uniformInputAttachment.set = info.subpassInputs[i].set;
             uniformInputAttachment.binding = info.subpassInputs[i].binding;
             uniformInputAttachment.name = info.subpassInputs[i].name;
