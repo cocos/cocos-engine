@@ -155,7 +155,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public setViewport (viewport: Viewport) {
-        const viewPort = new nativeLib.ViewportInstance();
+        const viewPort = new nativeLib.Viewport();
         viewPort.left = viewport.left;
         viewPort.top = viewport.top;
         viewPort.width = viewport.width;
@@ -166,7 +166,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public setScissor (scissor: Rect) {
-        const rect = new nativeLib.RectInstance();
+        const rect = new nativeLib.Rect();
         rect.x = scissor.x;
         rect.y = scissor.y;
         rect.width = scissor.width;
