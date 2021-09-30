@@ -43,7 +43,8 @@
             "flags": {
                 "UI_GPU_DRIVEN": {
                     "default": true,
-                    "label": "UI_GPU_DRIVEN"
+                    "label": "i18n:ENGINE.features.gpu_driven.label",
+                    "description": "i18n:ENGINE.features.gpu_driven.description"
                 }
             }
         },
