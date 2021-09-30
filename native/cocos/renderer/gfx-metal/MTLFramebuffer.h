@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "gfx-base/GFXFramebuffer.h"
+#import "gfx-base/GFXFramebuffer.h"
 
 namespace cc {
 namespace gfx {
-
+class CCMTLSwapchain;
 class CCMTLFramebuffer final : public Framebuffer {
 public:
     explicit CCMTLFramebuffer();
@@ -40,12 +40,14 @@ public:
     CCMTLFramebuffer &operator=(CCMTLFramebuffer &&)=delete;
 
     inline bool isOffscreen() const { return _isOffscreen; }
+    inline CCMTLSwapchain* swapChain() const { return _swapChain; }
 
 protected:
     void doInit(const FramebufferInfo &info) override;
     void doDestroy() override;
 
     bool _isOffscreen = false;
+    CCMTLSwapchain* _swapChain = nullptr;
 };
 
 } // namespace gfx

@@ -39,6 +39,9 @@ namespace gfx {
 class CCMTLGPUShader;
 class CCMTLDevice;
 namespace mu {
+
+API_AVAILABLE(ios(12.0)) MTLMultisampleStencilResolveFilter toMTLStencilResolveMode(ResolveMode mode);
+
 MTLResourceOptions toMTLResourceOption(MemoryUsage usage);
 MTLLoadAction toMTLLoadAction(LoadOp op);
 MTLStoreAction toMTLStoreAction(StoreOp op);
@@ -47,7 +50,6 @@ MTLClearColor toMTLClearColor(const Color &clearColor);
 MTLVertexFormat toMTLVertexFormat(Format, bool);
 MTLPixelFormat toMTLPixelFormat(Format);
 MTLMultisampleDepthResolveFilter toMTLDepthResolveMode(ResolveMode mode);
-MTLMultisampleStencilResolveFilter toMTLStencilResolveMode(ResolveMode mode);
 // Because some pixel format is not supported on metal, so need to convert to supported pixel format.
 Format convertGFXPixelFormat(Format);
 MTLColorWriteMask toMTLColorWriteMask(ColorMask);
@@ -69,7 +71,7 @@ MTLSamplerAddressMode toMTLSamplerAddressMode(Address);
 int toMTLSamplerBorderColor(const Color &);
 MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(Filter);
 MTLSamplerMipFilter toMTLSamplerMipFilter(Filter);
-String compileGLSLShader2Msl(const String &src, ShaderStageFlagBit shaderType, Device *device, CCMTLGPUShader *gpuShader);
+String spirv2MSL(const uint32_t *ir, size_t word_count, ShaderStageFlagBit shaderType, CCMTLGPUShader *gpuShader);
 const uint8_t *convertRGB8ToRGBA8(const uint8_t *source, uint length);
 const uint8_t *convertRGB32FToRGBA32F(const uint8_t *source, uint length);
 NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);

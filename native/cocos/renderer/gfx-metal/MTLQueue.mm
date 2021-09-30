@@ -23,12 +23,14 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
+#import "MTLStd.h"
 
-#include "MTLQueue.h"
-#include "MTLDevice.h"
-#include "MTLCommandBuffer.h"
-
+#import "MTLQueue.h"
+#import "MTLDevice.h"
+#import "MTLCommandBuffer.h"
+#import "MTLGPUObjects.h"
+#import "MTLFramebuffer.h"
+#import "MTLSwapchain.h"
 namespace cc {
 namespace gfx {
 
@@ -42,36 +44,36 @@ CCMTLQueue::~CCMTLQueue() {
 }
 
 void CCMTLQueue::doInit(const QueueInfo &info) {
+    _gpuQueueObj = CC_NEW(CCMTLGPUQueueObject);
+    auto device = static_cast<id<MTLDevice>>(CCMTLDevice::getInstance()->getMTLDevice());
+    _gpuQueueObj->mtlCommandQueue = [device newCommandQueue];
 }
 
 void CCMTLQueue::doDestroy() {
+    if(_gpuQueueObj) {
+        id<MTLCommandQueue> mtlCmdQueue = _gpuQueueObj->mtlCommandQueue;
+        _gpuQueueObj->mtlCommandQueue = nil;
+        
+        auto destroyFunc = [mtlCmdQueue]() {
+            if(mtlCmdQueue) {
+                [mtlCmdQueue release];
+            }
+        };
+        CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
+        
+        CC_SAFE_DELETE(_gpuQueueObj);
+    }
 }
 
 void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     for (uint i = 0u; i < count; ++i) {
-        CCMTLCommandBuffer *cmdBuffer = (CCMTLCommandBuffer *)cmdBuffs[i];
-        _numDrawCalls += cmdBuffer->getNumDrawCalls();
-        _numInstances += cmdBuffer->getNumInstances();
-        _numTriangles += cmdBuffer->getNumTris();
-        id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->getMTLCommandBuffer();
-
-        if (i < count-1) {
-            [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-                [commandBuffer release];
-            }];
-        }
-        else {
-            // Must do present before commit last command buffer.
-            CCMTLDevice* device = (CCMTLDevice*)CCMTLDevice::getInstance();
-            id<CAMetalDrawable> currDrawable = (id<CAMetalDrawable>)device->getCurrentDrawable();
-            [mtlCmdBuffer presentDrawable:currDrawable];
-            [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-                [commandBuffer release];
-                device->onPresentCompleted();
-            }];
-            device->disposeCurrentDrawable();
-        }
+        CCMTLCommandBuffer *cmdBuffer = static_cast<CCMTLCommandBuffer*>(cmdBuffs[i]);
+        _gpuQueueObj->numDrawCalls += cmdBuffer->getNumDrawCalls();
+        _gpuQueueObj->numInstances += cmdBuffer->getNumInstances();
+        _gpuQueueObj->numTriangles += cmdBuffer->getNumTris();
+        id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer;
         [mtlCmdBuffer commit];
+        cmdBuffer->reset();
     }
 }
 

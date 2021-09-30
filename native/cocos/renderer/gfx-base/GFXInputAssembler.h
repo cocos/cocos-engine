@@ -38,47 +38,44 @@ public:
     void initialize(const InputAssemblerInfo &info);
     void destroy();
 
-    void extractDrawInfo(DrawInfo &drawInfo) const;
-
     inline const AttributeList &getAttributes() const { return _attributes; }
     inline const BufferList &   getVertexBuffers() const { return _vertexBuffers; }
     inline Buffer *             getIndexBuffer() const { return _indexBuffer; }
     inline Buffer *             getIndirectBuffer() const { return _indirectBuffer; }
-    inline uint                 getVertexCount() const { return _vertexCount; }
-    inline uint                 getFirstVertex() const { return _firstVertex; }
-    inline uint                 getIndexCount() const { return _indexCount; }
-    inline uint                 getFirstIndex() const { return _firstIndex; }
-    inline uint                 getVertexOffset() const { return _vertexOffset; }
-    inline uint                 getInstanceCount() const { return _instanceCount; }
-    inline uint                 getFirstInstance() const { return _firstInstance; }
-    inline uint                 getAttributesHash() const { return _attributesHash; }
+    inline uint32_t             getAttributesHash() const { return _attributesHash; }
 
-    virtual void setVertexCount(uint count) { _vertexCount = count; }
-    virtual void setFirstVertex(uint first) { _firstVertex = first; }
-    virtual void setIndexCount(uint count) { _indexCount = count; }
-    virtual void setFirstIndex(uint first) { _firstIndex = first; }
-    virtual void setVertexOffset(uint offset) { _vertexOffset = offset; }
-    virtual void setInstanceCount(uint count) { _instanceCount = count; }
-    virtual void setFirstInstance(uint first) { _firstInstance = first; }
+    inline const DrawInfo &getDrawInfo() const { return _drawInfo; }
+
+    inline void setVertexCount(uint32_t count) { _drawInfo.vertexCount = count; }
+    inline void setFirstVertex(uint32_t first) { _drawInfo.firstVertex = first; }
+    inline void setIndexCount(uint32_t count) { _drawInfo.indexCount = count; }
+    inline void setFirstIndex(uint32_t first) { _drawInfo.firstIndex = first; }
+    inline void setVertexOffset(int32_t offset) { _drawInfo.vertexOffset = offset; }
+    inline void setInstanceCount(uint32_t count) { _drawInfo.instanceCount = count; }
+    inline void setFirstInstance(uint32_t first) { _drawInfo.firstInstance = first; }
+
+    inline uint32_t getVertexCount() const { return _drawInfo.vertexCount; }
+    inline uint32_t getFirstVertex() const { return _drawInfo.firstVertex; }
+    inline uint32_t getIndexCount() const { return _drawInfo.indexCount; }
+    inline uint32_t getFirstIndex() const { return _drawInfo.firstIndex; }
+    inline uint32_t getVertexOffset() const { return _drawInfo.vertexOffset; }
+    inline uint32_t getInstanceCount() const { return _drawInfo.instanceCount; }
+    inline uint32_t getFirstInstance() const { return _drawInfo.firstInstance; }
 
 protected:
     virtual void doInit(const InputAssemblerInfo &info) = 0;
     virtual void doDestroy()                            = 0;
 
-    uint computeAttributesHash() const;
+    uint32_t computeAttributesHash() const;
 
     AttributeList _attributes;
-    BufferList    _vertexBuffers;
-    Buffer *      _indexBuffer    = nullptr;
-    Buffer *      _indirectBuffer = nullptr;
-    uint          _vertexCount    = 0;
-    uint          _firstVertex    = 0;
-    uint          _indexCount     = 0;
-    uint          _firstIndex     = 0;
-    uint          _vertexOffset   = 0;
-    uint          _instanceCount  = 0;
-    uint          _firstInstance  = 0;
-    uint          _attributesHash = 0;
+    uint32_t      _attributesHash = 0;
+
+    BufferList _vertexBuffers;
+    Buffer *   _indexBuffer{nullptr};
+    Buffer *   _indirectBuffer{nullptr};
+
+    DrawInfo _drawInfo;
 };
 
 } // namespace gfx

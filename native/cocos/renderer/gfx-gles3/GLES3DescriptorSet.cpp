@@ -29,8 +29,8 @@
 #include "GLES3Commands.h"
 #include "GLES3DescriptorSet.h"
 #include "GLES3DescriptorSetLayout.h"
-#include "GLES3Sampler.h"
 #include "GLES3Texture.h"
+#include "states/GLES3Sampler.h"
 
 namespace cc {
 namespace gfx {
@@ -52,7 +52,7 @@ void GLES3DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
     for (size_t i = 0U, k = 0U; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
-        for (uint j = 0; j < binding.count; j++, k++) {
+        for (uint32_t j = 0; j < binding.count; j++, k++) {
             _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
         }
     }

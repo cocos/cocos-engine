@@ -37,12 +37,14 @@
 namespace cc {
 namespace scene {
 
+class Octree;
+
 class RenderScene final {
 public:
-    RenderScene()                    = default;
+    RenderScene();
     RenderScene(const RenderScene &) = delete;
     RenderScene(RenderScene &&)      = delete;
-    ~RenderScene()                   = default;
+    ~RenderScene();
     RenderScene &operator=(const RenderScene &) = delete;
     RenderScene &operator=(RenderScene &&) = delete;
 
@@ -75,6 +77,8 @@ public:
     inline const std::vector<Model *> &      getModels() const { return _models; }
     inline const std::vector<SphereLight *> &getSphereLights() const { return _sphereLights; }
     inline const std::vector<SpotLight *> &  getSpotLights() const { return _spotLights; }
+    inline Octree *                          getOctree() const { return _octree; }
+    void                                     updateOctree(Model *model);
 
 private:
     DirectionalLight *         _directionalLight{nullptr};
@@ -82,6 +86,7 @@ private:
     std::vector<SphereLight *> _sphereLights;
     std::vector<SpotLight *>   _spotLights;
     std::vector<DrawBatch2D *> _drawBatch2Ds;
+    Octree *                   _octree{nullptr};
 };
 
 } // namespace scene

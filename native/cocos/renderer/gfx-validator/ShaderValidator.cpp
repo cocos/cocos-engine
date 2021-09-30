@@ -35,7 +35,7 @@ namespace gfx {
 
 ShaderValidator::ShaderValidator(Shader *actor)
 : Agent<Shader>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 ShaderValidator::~ShaderValidator() {
@@ -44,10 +44,20 @@ ShaderValidator::~ShaderValidator() {
 }
 
 void ShaderValidator::doInit(const ShaderInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    /////////// execute ///////////
+
     _actor->initialize(info);
 }
 
 void ShaderValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 

@@ -40,27 +40,27 @@ public:
 
     virtual void update() = 0;
 
-    virtual void bindBuffer(uint binding, Buffer *buffer, uint index);
-    virtual void bindTexture(uint binding, Texture *texture, uint index);
-    virtual void bindSampler(uint binding, Sampler *sampler, uint index);
+    virtual void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index);
+    virtual void bindTexture(uint32_t binding, Texture *texture, uint32_t index);
+    virtual void bindSampler(uint32_t binding, Sampler *sampler, uint32_t index);
 
     // Functions invoked by JSB adapter
-    bool bindBufferJSB(uint binding, Buffer *buffer, uint index);
-    bool bindTextureJSB(uint binding, Texture *texture, uint index);
-    bool bindSamplerJSB(uint binding, Sampler *sampler, uint index);
+    bool bindBufferJSB(uint32_t binding, Buffer *buffer, uint32_t index);
+    bool bindTextureJSB(uint32_t binding, Texture *texture, uint32_t index);
+    bool bindSamplerJSB(uint32_t binding, Sampler *sampler, uint32_t index);
 
-    Buffer * getBuffer(uint binding, uint index) const;
-    Texture *getTexture(uint binding, uint index) const;
-    Sampler *getSampler(uint binding, uint index) const;
+    Buffer * getBuffer(uint32_t binding, uint32_t index) const;
+    Texture *getTexture(uint32_t binding, uint32_t index) const;
+    Sampler *getSampler(uint32_t binding, uint32_t index) const;
 
     inline DescriptorSetLayout *getLayout() { return _layout; }
 
-    inline void     bindBuffer(uint binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
-    inline void     bindTexture(uint binding, Texture *texture) { bindTexture(binding, texture, 0U); }
-    inline void     bindSampler(uint binding, Sampler *sampler) { bindSampler(binding, sampler, 0U); }
-    inline Buffer * getBuffer(uint binding) const { return getBuffer(binding, 0U); }
-    inline Texture *getTexture(uint binding) const { return getTexture(binding, 0U); }
-    inline Sampler *getSampler(uint binding) const { return getSampler(binding, 0U); }
+    inline void     bindBuffer(uint32_t binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
+    inline void     bindTexture(uint32_t binding, Texture *texture) { bindTexture(binding, texture, 0U); }
+    inline void     bindSampler(uint32_t binding, Sampler *sampler) { bindSampler(binding, sampler, 0U); }
+    inline Buffer * getBuffer(uint32_t binding) const { return getBuffer(binding, 0U); }
+    inline Texture *getTexture(uint32_t binding) const { return getTexture(binding, 0U); }
+    inline Sampler *getSampler(uint32_t binding) const { return getSampler(binding, 0U); }
 
 protected:
     virtual void doInit(const DescriptorSetInfo &info) = 0;

@@ -34,7 +34,7 @@ namespace gfx {
 
 ShaderAgent::ShaderAgent(Shader *actor)
 : Agent<Shader>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 ShaderAgent::~ShaderAgent() {

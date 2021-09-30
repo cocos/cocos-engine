@@ -25,11 +25,11 @@
 
 #pragma once
 
-#include "gfx-base/GFXQueue.h"
+#import "gfx-base/GFXQueue.h"
 
 namespace cc {
 namespace gfx {
-
+struct CCMTLGPUQueueObject;
 class CCMTLQueue final : public Queue {
     friend class CCMTLDevice;
 
@@ -42,14 +42,14 @@ public:
     CCMTLQueue &operator=(CCMTLQueue &&)=delete;
 
     void submit(CommandBuffer *const *cmdBuffs, uint count) override;
+    
+    inline CCMTLGPUQueueObject* gpuQueueObj() { return _gpuQueueObj; }
 
 protected:
     void doInit(const QueueInfo &info) override;
     void doDestroy() override;
-
-    uint _numDrawCalls = 0;
-    uint _numInstances = 0;
-    uint _numTriangles = 0;
+    
+    CCMTLGPUQueueObject* _gpuQueueObj = nullptr;
 };
 
 } // namespace gfx

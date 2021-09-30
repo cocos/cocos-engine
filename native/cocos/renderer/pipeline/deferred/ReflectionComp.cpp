@@ -7,6 +7,7 @@ ReflectionComp::~ReflectionComp() {
 
     CC_SAFE_DESTROY(_compShader);
     CC_SAFE_DESTROY(_compDescriptorSetLayout);
+    CC_SAFE_DESTROY(_compPipelineLayout);
     CC_SAFE_DESTROY(_compPipelineState);
     CC_SAFE_DESTROY(_compDescriptorSet);
 
@@ -19,17 +20,6 @@ ReflectionComp::~ReflectionComp() {
     CC_SAFE_DESTROY(_localDescriptorSetLayout);
 
     CC_SAFE_DESTROY(_compConstantsBuffer);
-    CC_SAFE_DESTROY(_sampler);
-
-    delete _barrierPre;
-
-    for (auto *barrier : _barrierBeforeDenoise) {
-        delete barrier;
-    }
-
-    for (auto *barrier : _barrierAfterDenoise) {
-        delete barrier;
-    }
 }
 
 namespace {
@@ -59,6 +49,8 @@ void ReflectionComp::applyTexSize(uint width, uint height, const Mat4& matViewPr
 }
 
 void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
+    if (!dev->hasFeature(gfx::Feature::COMPUTE_SHADER)) return;
+
     _device           = dev;
     _groupSizeX       = groupSizeX;
     _groupSizeY       = groupSizeY;
@@ -66,7 +58,7 @@ void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
     gfx::SamplerInfo samplerInfo;
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.magFilter = gfx::Filter::POINT;
-    _sampler              = _device->createSampler(samplerInfo);
+    _sampler              = _device->getSampler(samplerInfo);
 
     uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
     CCASSERT(_groupSizeX * _groupSizeY <= maxInvocations, "maxInvocations is too small");
@@ -107,10 +99,10 @@ void ReflectionComp::init(gfx::Device *dev, uint groupSizeX, uint groupSizeY) {
             gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE,
         }};
 
-    _barrierPre = _device->createGlobalBarrier(infoPre);
-    _barrierBeforeDenoise.push_back(_device->createTextureBarrier(infoBeforeDenoise));
-    _barrierBeforeDenoise.push_back(_device->createTextureBarrier(infoBeforeDenoise2));
-    _barrierAfterDenoise.push_back(_device->createTextureBarrier(infoAfterDenoise));
+    _barrierPre = _device->getGlobalBarrier(infoPre);
+    _barrierBeforeDenoise.push_back(_device->getTextureBarrier(infoBeforeDenoise));
+    _barrierBeforeDenoise.push_back(_device->getTextureBarrier(infoBeforeDenoise2));
+    _barrierAfterDenoise.push_back(_device->getTextureBarrier(infoAfterDenoise));
 
     initReflectionRes();
     initDenoiseRes();
@@ -224,14 +216,14 @@ void ReflectionComp::initReflectionRes() {
     dslInfo.bindings.push_back({3, gfx::DescriptorType::STORAGE_IMAGE, 1, gfx::ShaderStageFlagBit::COMPUTE});
     dslInfo.bindings.push_back({4, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::COMPUTE});
 
-    gfx::DescriptorSetLayout *compDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
-    _compDescriptorSet                                = _device->createDescriptorSet({compDescriptorSetLayout});
+    _compDescriptorSetLayout = _device->createDescriptorSetLayout(dslInfo);
+    _compDescriptorSet       = _device->createDescriptorSet({_compDescriptorSetLayout});
 
-    gfx::PipelineLayout *compPipelineLayout = _device->createPipelineLayout({{compDescriptorSetLayout, _localDescriptorSetLayout}});
+    _compPipelineLayout = _device->createPipelineLayout({{_compDescriptorSetLayout, _localDescriptorSetLayout}});
 
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.shader         = _compShader;
-    pipelineInfo.pipelineLayout = compPipelineLayout;
+    pipelineInfo.pipelineLayout = _compPipelineLayout;
     pipelineInfo.bindPoint      = gfx::PipelineBindPoint::COMPUTE;
 
     _compPipelineState = _device->createPipelineState(pipelineInfo);

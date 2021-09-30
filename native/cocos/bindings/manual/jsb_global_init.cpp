@@ -23,26 +23,39 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+// clang-format off
+#include "base/Macros.h"
+// clang-format: off
+#include <string>
+#include "uv.h"
+// clang-format on
+
+#include "jsb_global_init.h"
+#include <type_traits>
+#include <utility>
+
 #include "base/CoreStd.h"
 #include "base/Scheduler.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
+#include "base/memory/Memory.h"
 #include "jsb_conversions.h"
-#include "jsb_global_init.h"
 #include "xxtea/xxtea.h"
 
 #include <chrono>
 #include <regex>
 #include <sstream>
+#include <vector>
 
 using namespace cc; //NOLINT
 
 se::Object *__jsbObj = nullptr; //NOLINT
 se::Object *__glObj  = nullptr; //NOLINT
 
-static std::string xxteaKey;
-void               jsb_set_xxtea_key(const std::string &key) { //NOLINT
-    xxteaKey = key;
+static std::basic_string<unsigned char> xxteaKey;
+
+void jsb_set_xxtea_key(const std::string &key) { //NOLINT
+    xxteaKey.assign(key.begin(), key.end());
 }
 
 static const char *BYTE_CODE_FILE_EXT = ".jsc"; //NOLINT
@@ -53,6 +66,31 @@ static std::string removeFileExt(const std::string &filePath) {
         return filePath.substr(0, pos);
     }
     return filePath;
+}
+
+static int selectPort(int port) {
+    uv_tcp_t           server;
+    struct sockaddr_in addr;
+    uv_loop_t *        loop      = uv_default_loop();
+    int                tryTimes  = 200;
+    int                startPort = port;
+    uv_tcp_init(loop, &server);
+    while (true) {
+        if (tryTimes-- < 0) {
+            return port; // allow failure
+        }
+        uv_ip4_addr("0.0.0.0", startPort, &addr);
+        uv_tcp_bind(&server, reinterpret_cast<const struct sockaddr *>(&addr), 0);
+        int r = uv_listen(reinterpret_cast<uv_stream_t *>(&server), 5, nullptr);
+        if (r) {
+            SE_LOGD("Failed to listen port %d, error: %s. Try next port\n", startPort, uv_strerror(r));
+            startPort += 1;
+            uv_close(reinterpret_cast<uv_handle_t *>(&server), nullptr);
+        } else {
+            uv_close(reinterpret_cast<uv_handle_t *>(&server), nullptr);
+            return startPort;
+        }
+    }
 }
 
 void jsb_init_file_operation_delegate() { //NOLINT
@@ -70,7 +108,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 size_t   dataLen = 0;
                 uint8_t *data    = xxtea_decrypt(fileData.getBytes(), static_cast<uint32_t>(fileData.getSize()),
-                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
+                                              const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), reinterpret_cast<uint32_t *>(&dataLen));
 
                 if (data == nullptr) {
@@ -111,7 +149,7 @@ void jsb_init_file_operation_delegate() { //NOLINT
 
                 uint32_t dataLen;
                 uint8_t *data = xxtea_decrypt(static_cast<uint8_t *>(fileData.getBytes()), static_cast<uint32_t>(fileData.getSize()),
-                                              reinterpret_cast<unsigned char *>(xxteaKey.data()),
+                                              const_cast<unsigned char *>(xxteaKey.data()),
                                               static_cast<uint32_t>(xxteaKey.size()), &dataLen);
 
                 if (data == nullptr) {
@@ -170,7 +208,9 @@ bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, b
         return false;
     }
 
-    auto se = se::ScriptEngine::getInstance();
+    port = static_cast<uint32_t>(selectPort(static_cast<int>(port)));
+
+    auto *se = se::ScriptEngine::getInstance();
     se->enableDebugger(debuggerServerAddr, port, isWaitForConnect);
 
     // For debugger main loop

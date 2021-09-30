@@ -51,6 +51,7 @@ public:
     void render(scene::Camera *camera) override;
 
 private:
+    void                      dispenseRenderObject2Queues();
     static RenderStageInfo    initInfo;
     ForwardPipeline *         _forwrdPipeline     = nullptr;
     PlanarShadowQueue *       _planarShadowQueue  = nullptr;

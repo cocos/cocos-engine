@@ -36,9 +36,13 @@ public:
     explicit RenderPassValidator(RenderPass *actor);
     ~RenderPassValidator() override;
 
+    inline bool isInited() const { return _inited; }
+
 protected:
     void doInit(const RenderPassInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

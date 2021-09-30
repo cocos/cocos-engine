@@ -29,11 +29,15 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKTexture.h"
+#include "gfx-base/GFXDef.h"
+#include "gfx-vulkan/VKSwapchain.h"
 
 namespace cc {
 namespace gfx {
 
-CCVKTexture::CCVKTexture() = default;
+CCVKTexture::CCVKTexture() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKTexture::~CCVKTexture() {
     destroy();
@@ -41,17 +45,17 @@ CCVKTexture::~CCVKTexture() {
 
 void CCVKTexture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture              = CC_NEW(CCVKGPUTexture);
-    _gpuTexture->type        = _type;
-    _gpuTexture->format      = _format;
-    _gpuTexture->usage       = _usage;
-    _gpuTexture->width       = _width;
-    _gpuTexture->height      = _height;
-    _gpuTexture->depth       = _depth;
+    _gpuTexture->type        = _info.type;
+    _gpuTexture->format      = _info.format;
+    _gpuTexture->usage       = _info.usage;
+    _gpuTexture->width       = _info.width;
+    _gpuTexture->height      = _info.height;
+    _gpuTexture->depth       = _info.depth;
+    _gpuTexture->arrayLayers = _info.layerCount;
+    _gpuTexture->mipLevels   = _info.levelCount;
+    _gpuTexture->samples     = _info.samples;
+    _gpuTexture->flags       = _info.flags;
     _gpuTexture->size        = _size;
-    _gpuTexture->arrayLayers = _layerCount;
-    _gpuTexture->mipLevels   = _levelCount;
-    _gpuTexture->samples     = _samples;
-    _gpuTexture->flags       = _flags;
 
     cmdFuncCCVKCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
 
@@ -72,12 +76,12 @@ void CCVKTexture::doInit(const TextureViewInfo &info) {
 
 void CCVKTexture::createTextureView() {
     _gpuTextureView->gpuTexture = _gpuTexture;
-    _gpuTextureView->type       = _type;
-    _gpuTextureView->format     = _format;
-    _gpuTextureView->baseLevel  = _baseLevel;
-    _gpuTextureView->levelCount = _levelCount;
-    _gpuTextureView->baseLayer  = _baseLayer;
-    _gpuTextureView->layerCount = _layerCount;
+    _gpuTextureView->type       = _viewInfo.type;
+    _gpuTextureView->format     = _viewInfo.format;
+    _gpuTextureView->baseLevel  = _viewInfo.baseLevel;
+    _gpuTextureView->levelCount = _viewInfo.levelCount;
+    _gpuTextureView->baseLayer  = _viewInfo.baseLayer;
+    _gpuTextureView->layerCount = _viewInfo.layerCount;
     cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
 }
 
@@ -102,7 +106,9 @@ void CCVKTexture::doDestroy() {
     }
 }
 
-void CCVKTexture::doResize(uint width, uint height, uint size) {
+void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
+    if (!width || !height) return;
+
     if (!_gpuTexture->memoryless) {
         CCVKDevice::getInstance()->getMemoryStatus().textureSize -= _size;
     }
@@ -120,6 +126,35 @@ void CCVKTexture::doResize(uint width, uint height, uint size) {
     }
 
     cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
+}
+
+///////////////////////////// Swapchain Specific /////////////////////////////
+
+void CCVKTexture::doInit(const SwapchainTextureInfo & /*info*/) {
+    _gpuTexture              = CC_NEW(CCVKGPUTexture);
+    _gpuTexture->type        = _info.type;
+    _gpuTexture->format      = _info.format;
+    _gpuTexture->usage       = _info.usage;
+    _gpuTexture->width       = _info.width;
+    _gpuTexture->height      = _info.height;
+    _gpuTexture->depth       = _info.depth;
+    _gpuTexture->arrayLayers = _info.layerCount;
+    _gpuTexture->mipLevels   = _info.levelCount;
+    _gpuTexture->flags       = _info.flags;
+    _gpuTexture->samples     = _info.samples;
+    _gpuTexture->size        = _size;
+
+    _gpuTexture->swapchain  = static_cast<CCVKSwapchain *>(_swapchain)->gpuSwapchain();
+    _gpuTexture->memoryless = true;
+
+    _gpuTextureView             = CC_NEW(CCVKGPUTextureView);
+    _gpuTextureView->gpuTexture = _gpuTexture;
+    _gpuTextureView->type       = _viewInfo.type;
+    _gpuTextureView->format     = _viewInfo.format;
+    _gpuTextureView->baseLevel  = _viewInfo.baseLevel;
+    _gpuTextureView->levelCount = _viewInfo.levelCount;
+    _gpuTextureView->baseLayer  = _viewInfo.baseLayer;
+    _gpuTextureView->layerCount = _viewInfo.layerCount;
 }
 
 } // namespace gfx

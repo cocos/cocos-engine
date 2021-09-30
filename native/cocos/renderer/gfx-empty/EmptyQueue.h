@@ -34,7 +34,7 @@ class CC_DLL EmptyQueue final : public Queue {
 public:
     using Queue::submit;
 
-    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 protected:
     void doInit(const QueueInfo &info) override;

@@ -38,7 +38,7 @@ public:
     GLES3Buffer();
     ~GLES3Buffer() override;
 
-    void update(const void *buffer, uint size) override;
+    void update(const void *buffer, uint32_t size) override;
 
     inline GLES3GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
 
@@ -46,7 +46,7 @@ protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doDestroy() override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
 
     GLES3GPUBuffer *_gpuBuffer = nullptr;
 };

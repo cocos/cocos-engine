@@ -35,7 +35,7 @@ namespace gfx {
 
 QueueValidator::QueueValidator(Queue *actor)
 : Agent<Queue>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 QueueValidator::~QueueValidator() {
@@ -44,23 +44,40 @@ QueueValidator::~QueueValidator() {
 }
 
 void QueueValidator::doInit(const QueueInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    /////////// execute ///////////
+
     _actor->initialize(info);
 }
 
 void QueueValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 
-void QueueValidator::submit(CommandBuffer *const *cmdBuffs, uint count) {
+void QueueValidator::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
+    CCASSERT(isInited(), "alread destroyed?");
+
     if (!count) return;
+    for (uint32_t i = 0U; i < count; ++i) {
+        auto *cmdBuff = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
+        CCASSERT(cmdBuff && cmdBuff->isInited(), "alread destroyed?");
+        CCASSERT(cmdBuff->isCommandsFlushed(), "command buffers must be flushed before submit");
+    }
+
+    /////////// execute ///////////
 
     static vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
-    for (uint i = 0U; i < count; ++i) {
-        auto *cmdBuff = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
-        CCASSERT(cmdBuff->_commandsFlushed, "command buffers must be flushed before submit");
-        cmdBuffActors[i] = cmdBuff->getActor();
+    for (uint32_t i = 0U; i < count; ++i) {
+        cmdBuffActors[i] = static_cast<CommandBufferValidator *>(cmdBuffs[i])->getActor();
     }
 
     _actor->submit(cmdBuffActors.data(), count);

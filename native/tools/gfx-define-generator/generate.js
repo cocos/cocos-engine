@@ -27,11 +27,11 @@ for (let i = 2; i < argc; i++) {
 const defaultEngineRoot = ps.join(__dirname, '../../../engine');
 const cacheFile = ps.join(__dirname, 'engine_root_cache.txt');
 if (options.engineRoot) {
-    if (options.engineRoot === 'default') options.engineRoot = defaultEngineRoot;
-    if (fs.existsSync(options.engineRoot)) fs.writeFileSync(cacheFile, options.engineRoot);
+    if (options.engineRoot === 'default') { options.engineRoot = defaultEngineRoot; }
+    if (fs.existsSync(options.engineRoot)) { fs.writeFileSync(cacheFile, options.engineRoot); }
 } else {
-    if (fs.existsSync(cacheFile)) options.engineRoot = fs.readFileSync(cacheFile);
-    if (!options.engineRoot) options.engineRoot = defaultEngineRoot;
+    if (fs.existsSync(cacheFile)) { options.engineRoot = fs.readFileSync(cacheFile); }
+    if (!options.engineRoot) { options.engineRoot = defaultEngineRoot; }
 }
 
 // TODO: remove this after state info refactor
@@ -55,8 +55,8 @@ while (enumCap) {
         while (valueCap) {
             if (valueCap[2]) {
                 val = Number.parseInt(valueCap[2]);
-                if (Number.isNaN(val)) val = valueCap[2];
-                else val = `0x${val.toString(16)}`;
+                if (Number.isNaN(val)) { val = valueCap[2]; }
+                else { val = `0x${val.toString(16)}`; }
                 e.customKey = true;
             } else {
                 val++;
@@ -77,7 +77,7 @@ header = header.replace(/\/\*.*?\*\//gs, '');
 header = header.replace(/\s*[*&](.)/g, (_, c) => (c === '>' ? '' : ' ') + c);
 header = header.replace(/(?:\w*::)?vector<(.+?)>/g, '$1[]');
 
-const typedefRE = /using\s+(.+?)\s*=\s*(.+?);/gs;
+const typedefRE = /^\s*using\s+(.+?)\s*=\s*(.+?);/gsm;
 const typedefMap = { lists: {}, others: [] };
 let typedefCap = typedefRE.exec(header);
 while (typedefCap) {
@@ -93,13 +93,13 @@ while (typedefCap) {
 
 const getMemberList = (() => {
     const getMatchingPair = (string, startIdx, begSymbol, endSymbol) => {
-        if (string[startIdx] !== begSymbol) return startIdx;
+        if (string[startIdx] !== begSymbol) { return startIdx; }
         let depth = 1;
         let i = startIdx + 1;
         for (; i < string.length; i++) {
-            if (string[i] === begSymbol) depth++;
-            if (string[i] === endSymbol) depth--;
-            if (depth === 0) break;
+            if (string[i] === begSymbol) { depth++; }
+            if (string[i] === endSymbol) { depth--; }
+            if (depth === 0) { break; }
         }
         return i;
     };
@@ -108,7 +108,7 @@ const getMemberList = (() => {
         let endIdx = string.length;
         let scopeReady = false;
         for (let i = startIdx; i < endIdx; ++i) {
-            if (string[i] === '/' && string[i+1] === '/') { // skip comments
+            if (string[i] === '/' && string[i + 1] === '/') { // skip comments
                 i = string.indexOf('\n', i);
             } else if (!scopeReady && string[i] === '{') {
                 begIdx = i + 1;
@@ -123,19 +123,31 @@ const getMemberList = (() => {
 })();
 
 const structRE = /struct\s+(\w+).*?{\s*(.+?)\s*};/gs;
-const structMemberRE = /^\s*(const\w*\s*)?([\w\[\]]+)\s+?(\w+)(?:\s*=?\s*(.*?))?;(?:\s*\/\/\s*@ts-(.*?)$)?/gm;
+const structMemberRE = /^\s*(const\w*\s*)?([\w[\]]+)\s+?(\w+)(?:\s*[={]?\s*(.*?)\s*}*\s*)?;(?:\s*\/\/\s*@ts-(.*?)$)?/gm;
 const structMap = {};
 const replaceConstants = (() => {
     const strMap = {
-        MAX_ATTACHMENTS: 4,
-        INVALID_BINDING: -1,
-        SUBPASS_EXTERNAL: -1,
         nullptr: 'null!',
         '::': '.',
     };
+    const constexprRE = /constexpr\s+\w+\s+(\w+)\s*=\s*(.*);/g;
+    let constexprCap = constexprRE.exec(header);
+    while (constexprCap) {
+        let val = constexprCap[2];
+        if (val.endsWith('U')) { val = val.slice(0, -1); }
+        val = val.replace('~0', '-1');
+        strMap[constexprCap[1]] = val;
+        constexprCap = constexprRE.exec(header);
+    }
     const constantsRE = new RegExp(Object.keys(strMap).reduce((acc, cur) => `${acc}|${cur}`, '').slice(1), 'g');
     return (str) => str.replace(constantsRE, (match) => strMap[match]);
 })();
+const getArrayValue = (decayedType, value) => {
+    const count = Number.parseInt(value);
+    if (Number.isNaN(count)) { return `[${value}]`; }
+    const ctorStr = `new ${decayedType}(), `;
+    return `[${ctorStr.repeat(count).slice(0, -2)}]`;
+};
 let structCap = structRE.exec(header);
 while (structCap) {
     const struct = structMap[structCap[1]] = {};
@@ -151,35 +163,31 @@ while (structCap) {
         if (typedefMap.lists[type]) {
             type = typedefMap.lists[type];
         } else {
-            type = type.replace(/(\b)(?:uintptr_t|uint|int|float)(\b)/, '$1number$1');
+            type = type.replace(/(\b)(void)(\b)/, '$1number$1');
+            type = type.replace(/(\b)(?:uint\w+?_t|int\w+?_t|float)(\b)/, '$1number$1');
             type = type.replace(/(\b)(?:bool)(\b)/, '$1boolean$2');
             type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
         }
-        if (memberCap[1]) readonly = true;
+        if (memberCap[1]) { readonly = true; }
         const isArray = type.endsWith('[]');
         const decayedType = isArray ? type.slice(0, -2) : type;
 
         let value = memberCap[4];
         let n = Number.parseInt(value);
         if (!Number.isNaN(n)) {
-            if (!value.startsWith('0x')) value = n; // keep hexadecimal numbers
+            if (!value.startsWith('0x')) { value = n; } // keep hexadecimal numbers
         } else if (value) {
             value = replaceConstants(value);
-            value = value.replace(/{(.*?)}/, (_, value) => {
-                const count = Number.parseInt(value);
-                if (Number.isNaN(count)) return `[${value}]`;
-                const ctorStr = `new ${type.slice(0, -2)}(), `;
-                return `[${ctorStr.repeat(count).slice(0, -2)}]`;
-            });
+            if (isArray) { value = getArrayValue(decayedType, value); }
         } else {
-            if (isArray) value = '[]';
-            else if (type === 'string') value = '\'\'';
-            else value = `new ${type}()`;
+            if (isArray) { value = '[]'; }
+            else if (type === 'string') { value = '\'\''; }
+            else { value = `new ${type}()`; }
         }
 
         const info = struct.member[memberCap[3]] = {
             // all the overridable values
-            readonly, type, value, isArray, decayedType
+            readonly, type, value, isArray, decayedType,
         };
 
         const directives = memberCap[5];
@@ -195,12 +203,12 @@ while (structCap) {
             }
         }
 
+        if (info.type === 'number' && info.value === 'null!') { info.value = 0; }
         memberCap = structMemberRE.exec(memberList);
     }
 
     structCap = structRE.exec(header);
 }
-
 
 let output = '';
 
@@ -229,7 +237,7 @@ for (const typedef of typedefMap.others) {
 output += `\n`;
 
 for (const name of Object.keys(structMap)) {
-    if (name in ignoreList) continue;
+    if (name in ignoreList) { continue; }
 
     output += `export class ${name} {\n    declare private _token: never; `;
     output += `// to make sure all usages must be an instance of this exact class, not assembled from plain object`;
@@ -249,12 +257,12 @@ for (const name of Object.keys(structMap)) {
     output += `    ) {}\n`;
 
     if (!Object.keys(struct.member).some((k) => struct.member[k].readonly)) {
-        output += `\n    public copy (info: ${name}) {\n`;
+        output += `\n    public copy (info: Readonly<${name}>) {\n`;
         for (const key in struct.member) {
             const { decayedType, isArray } = struct.member[key];
             if (isArray) {
                 if (structMap[decayedType]) { // nested object
-                    output += `        deepCopy(this.${key}, info.${key}, ${decayedType});\n`
+                    output += `        deepCopy(this.${key}, info.${key}, ${decayedType});\n`;
                 } else {
                     output += `        this.${key} = info.${key}.slice();\n`;
                 }
@@ -271,7 +279,7 @@ for (const name of Object.keys(structMap)) {
     output += `}\n\n`;
 }
 
-if (options.clear) output = '';
+if (options.clear) { output = ''; }
 
 const outputFile = options.debug ? `${__dirname}/define.ts` : ps.join(options.engineRoot, 'cocos/core/gfx/base/define.ts');
 let source = fs.readFileSync(outputFile).toString();
@@ -282,7 +290,7 @@ const begIdx = begGuardCap ? begGuardCap.index + begGuardCap[0].length : undefin
 
 const endGuardRE = /\/\*\*\s*\*\s*=+\s*![A-Z ]+!/g;
 let endGuardCap = endGuardRE.exec(source);
-if (endGuardCap) endGuardCap = endGuardRE.exec(source);
+if (endGuardCap) { endGuardCap = endGuardRE.exec(source); }
 const endIdx = endGuardCap ? endGuardCap.index : undefined;
 
 fs.writeFileSync(outputFile, `${source.slice(0, begIdx)}\n\n${output}${source.slice(endIdx)}`);

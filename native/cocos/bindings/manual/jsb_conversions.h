@@ -778,6 +778,15 @@ struct HolderType {
 };
 
 template <>
+struct HolderType<char *, false> {
+    using type       = const char *;
+    using local_type = std::string;
+    local_type                 data;
+    std::remove_const_t<type> *ptr = nullptr;
+    inline type                value() const { return data.c_str(); }
+};
+
+template <>
 struct HolderType<const char *, false> {
     using type       = const char *;
     using local_type = std::string;
@@ -806,7 +815,7 @@ template <typename T>
 inline typename std::enable_if_t<!std::is_enum<T>::value && !std::is_pointer<T>::value, bool>
 sevalue_to_native(const se::Value & /*from*/, T * /*to*/, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
     SE_LOGE("Can not convert type ???\n - [[ %s ]]\n", typeid(T).name());
-    CC_STATIC_ASSERT(std::is_same<T, void>::value, "sevalue_to_native not implemented for T");
+    CC_STATIC_ASSERT((std::is_same<T, void>::value), "sevalue_to_native not implemented for T");
     return false;
 }
 
@@ -932,7 +941,9 @@ inline bool sevalue_to_native(const se::Value &from, int64_t *to, se::Object * /
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 template <>
 inline bool sevalue_to_native(const se::Value &from, unsigned long *to, se::Object * /*ctx*/) {
-    *to = static_cast<unsigned long>(from.toDouble());
+    // on mac: unsiged long  === uintptr_t
+    CC_STATIC_ASSERT(sizeof(*to) == 8);
+    *to = static_cast<unsigned long>(from.toUint64());
     return true;
 }
 #endif
@@ -942,7 +953,7 @@ inline bool sevalue_to_native(const se::Value &from, float *to, se::Object * /*c
     *to = from.toFloat();
     return true;
 }
-inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*unused*/) {
+inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
     *to = from.toDouble();
     return true;
 }
@@ -1115,9 +1126,18 @@ bool sevalue_to_native(const se::Value &from, std::vector<T, allocator> *to, se:
 
 template <>
 inline bool sevalue_to_native(const se::Value &from, void **to, se::Object * /*ctx*/) {
-    SE_LOGE("[warn] don't know how to convert to void *\n");
-    *to = from.toObject()->getPrivateData();
-    return true;
+    assert(to != nullptr);
+    if (from.isNumber() || from.isBigInt()) {
+        // NOLINTNEXTLINE(performance-no-int-to-ptr)
+        *to = reinterpret_cast<void *>(from.toUint64());
+        return true;
+    }
+    if (from.isObject()) {
+        *to = from.toObject()->getPrivateData();
+        return true;
+    }
+    SE_LOGE("[warn] failed to convert to void *\n");
+    return false;
 }
 
 template <>

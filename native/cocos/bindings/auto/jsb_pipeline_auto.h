@@ -17,11 +17,11 @@
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/deferred/DeferredPipeline.h"
-#include "cocos/renderer/pipeline/deferred/GbufferFlow.h"
+#include "cocos/renderer/pipeline/deferred/MainFlow.h"
 #include "cocos/renderer/pipeline/deferred/GbufferStage.h"
-#include "cocos/renderer/pipeline/deferred/LightingFlow.h"
 #include "cocos/renderer/pipeline/deferred/LightingStage.h"
-#include "cocos/renderer/pipeline/deferred/PostprocessStage.h"
+#include "cocos/renderer/pipeline/common/BloomStage.h"
+#include "cocos/renderer/pipeline/common/PostProcessStage.h"
 
 extern se::Object* __jsb_cc_pipeline_RenderQueueDesc_proto;
 extern se::Class* __jsb_cc_pipeline_RenderQueueDesc_class;
@@ -70,13 +70,26 @@ bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderPipeline);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_activate);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_createQuadInputAssembler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_ensureEnoughSize);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_genQuadVertexData);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getBloomEnable);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getClearcolor);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getDevice);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getFrameGraph);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getHeight);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getIAByRenderArea);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getProfiler);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderstageByName);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_resize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setProfiler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_updateQuadVertexData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
 
 extern se::Object* __jsb_cc_pipeline_ForwardPipeline_proto;
@@ -86,6 +99,8 @@ bool js_register_cc_pipeline_ForwardPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getHeight);
+SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
 
 extern se::Object* __jsb_cc_pipeline_RenderFlowInfo_proto;
@@ -106,6 +121,7 @@ bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderFlow);
 SE_DECLARE_FUNC(js_pipeline_RenderFlow_activate);
+SE_DECLARE_FUNC(js_pipeline_RenderFlow_getRenderstageByName);
 SE_DECLARE_FUNC(js_pipeline_RenderFlow_getTag);
 SE_DECLARE_FUNC(js_pipeline_RenderFlow_initialize);
 
@@ -169,7 +185,7 @@ bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ShadowStage);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_setFramebuffer);
-SE_DECLARE_FUNC(js_pipeline_ShadowStage_setUseData);
+SE_DECLARE_FUNC(js_pipeline_ShadowStage_setUsage);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_ShadowStage_ShadowStage);
 
@@ -195,15 +211,15 @@ bool register_all_pipeline(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::DeferredPipeline);
 SE_DECLARE_FUNC(js_pipeline_DeferredPipeline_DeferredPipeline);
 
-extern se::Object* __jsb_cc_pipeline_GbufferFlow_proto;
-extern se::Class* __jsb_cc_pipeline_GbufferFlow_class;
+extern se::Object* __jsb_cc_pipeline_MainFlow_proto;
+extern se::Class* __jsb_cc_pipeline_MainFlow_class;
 
-bool js_register_cc_pipeline_GbufferFlow(se::Object* obj);
+bool js_register_cc_pipeline_MainFlow(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GbufferFlow);
-SE_DECLARE_FUNC(js_pipeline_GbufferFlow_getInitializeInfo);
-SE_DECLARE_FUNC(js_pipeline_GbufferFlow_GbufferFlow);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::MainFlow);
+SE_DECLARE_FUNC(js_pipeline_MainFlow_getInitializeInfo);
+SE_DECLARE_FUNC(js_pipeline_MainFlow_MainFlow);
 
 extern se::Object* __jsb_cc_pipeline_GbufferStage_proto;
 extern se::Class* __jsb_cc_pipeline_GbufferStage_class;
@@ -215,16 +231,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GbufferStage);
 SE_DECLARE_FUNC(js_pipeline_GbufferStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_GbufferStage_GbufferStage);
 
-extern se::Object* __jsb_cc_pipeline_LightingFlow_proto;
-extern se::Class* __jsb_cc_pipeline_LightingFlow_class;
-
-bool js_register_cc_pipeline_LightingFlow(se::Object* obj);
-bool register_all_pipeline(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::LightingFlow);
-SE_DECLARE_FUNC(js_pipeline_LightingFlow_getInitializeInfo);
-SE_DECLARE_FUNC(js_pipeline_LightingFlow_LightingFlow);
-
 extern se::Object* __jsb_cc_pipeline_LightingStage_proto;
 extern se::Class* __jsb_cc_pipeline_LightingStage_class;
 
@@ -235,12 +241,26 @@ JSB_REGISTER_OBJECT_TYPE(cc::pipeline::LightingStage);
 SE_DECLARE_FUNC(js_pipeline_LightingStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_LightingStage_LightingStage);
 
-extern se::Object* __jsb_cc_pipeline_PostprocessStage_proto;
-extern se::Class* __jsb_cc_pipeline_PostprocessStage_class;
+extern se::Object* __jsb_cc_pipeline_BloomStage_proto;
+extern se::Class* __jsb_cc_pipeline_BloomStage_class;
 
-bool js_register_cc_pipeline_PostprocessStage(se::Object* obj);
+bool js_register_cc_pipeline_BloomStage(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PostprocessStage);
-SE_DECLARE_FUNC(js_pipeline_PostprocessStage_PostprocessStage);
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BloomStage);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getDownsampelUBO);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getSampler);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getUpsampleUBO);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getInitializeInfo);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_BloomStage);
+
+extern se::Object* __jsb_cc_pipeline_PostProcessStage_proto;
+extern se::Class* __jsb_cc_pipeline_PostProcessStage_class;
+
+bool js_register_cc_pipeline_PostProcessStage(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PostProcessStage);
+SE_DECLARE_FUNC(js_pipeline_PostProcessStage_getInitializeInfo);
+SE_DECLARE_FUNC(js_pipeline_PostProcessStage_PostProcessStage);
 

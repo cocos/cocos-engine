@@ -113,7 +113,7 @@ DummyGraphNodeTaskImpl<Fn>::DummyGraphNodeTaskImpl(Fn &&t) noexcept : _task(t) {
 template <class Fn>
 size_t DummyGraph::addNode(Fn &&fn) {
     DummyGraphNode *n = DummyGraphNode::alloc();
-    n->_callback      = new DummyGraphNodeTaskImpl(std::forward<Fn>(fn));
+    n->_callback      = new DummyGraphNodeTaskImpl<Fn>(std::forward<Fn>(fn));
     n->_generation    = _generation;
     _nodes.emplace_back(n);
     return _nodes.size() - 1;

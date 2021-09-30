@@ -31,20 +31,15 @@
 #include "RenderAdditiveLightQueue.h"
 
 #include "Define.h"
+#include "GlobalDescriptorSetManager.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
 #include "SceneCulling.h"
+#include "base/Utils.h"
 #include "forward/ForwardPipeline.h"
-#include "gfx-base/GFXBuffer.h"
-#include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXFramebuffer.h"
-#include "gfx-base/GFXSampler.h"
-#include "gfx-base/GFXTexture.h"
 #include "scene/RenderScene.h"
 #include "scene/Sphere.h"
-#include "GlobalDescriptorSetManager.h"
 
 namespace cc {
 namespace pipeline {
@@ -63,7 +58,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
         _lightBufferStride,
     });
     _firstLightBufferView    = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
-    _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
+    _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
     _dynamicOffsets.resize(1, 0);
     _phaseID = getPhaseID("forward-add");
     _shadowUBO.fill(0.F);
@@ -237,16 +232,18 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
     const auto  validLightCount = _validLights.size();
     auto *const sceneData       = _pipeline->getPipelineSceneData();
     auto *const sharedData      = sceneData->getSharedData();
+    const auto *shadowInfo      = sharedData->shadow;
+    size_t      offset          = 0;
     if (validLightCount > _lightBufferCount) {
         _firstLightBufferView->destroy();
 
         _lightBufferCount = nextPow2(static_cast<uint>(validLightCount));
-        _lightBuffer->resize(_lightBufferStride * _lightBufferCount);
-        _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
+        _lightBuffer->resize(utils::toUint(_lightBufferStride * _lightBufferCount));
+        _lightBufferData.resize(static_cast<size_t>(_lightBufferElementCount) * _lightBufferCount);
         _firstLightBufferView->initialize({_lightBuffer, 0, UBOForwardLight::SIZE});
     }
 
-    for (unsigned l = 0, offset = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
+    for (unsigned l = 0; l < validLightCount; l++, offset += _lightBufferElementCount) {
         auto *      light       = _validLights[l];
         const bool  isSpotLight = scene::LightType::SPOT == light->getType();
         const auto *spotLight   = isSpotLight ? static_cast<scene::SpotLight *>(light) : nullptr;
@@ -286,10 +283,12 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
             case scene::LightType::SPHERE:
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 0;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
                 break;
             case scene::LightType::SPOT: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 1.0F;
                 _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = (shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) ? 1.0F : 0.0F;
 
                 index                     = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction     = spotLight->getDirection();
@@ -306,14 +305,14 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
 }
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    auto *const         sceneData          = _pipeline->getPipelineSceneData();
-    auto *              shadowInfo         = sceneData->getSharedData()->shadow;
-    const auto *const   scene              = camera->scene;
-    auto *              device             = gfx::Device::getInstance();
-    const bool          hFTexture          = supportsHalfFloatTexture(device);
-    const float         linear             = hFTexture ? 1.0F : 0.0F;
-    const float         packing            = hFTexture ? 0.0F : 1.0F;
-    const scene::Light *mainLight          = scene->getMainLight();
+    auto *const         sceneData  = _pipeline->getPipelineSceneData();
+    auto *              shadowInfo = sceneData->getSharedData()->shadow;
+    const auto *const   scene      = camera->scene;
+    auto *              device     = gfx::Device::getInstance();
+    const bool          hFTexture  = supportsHalfFloatTexture(device);
+    const float         linear     = 0.0F;
+    const float         packing    = hFTexture ? 0.0F : 1.0F;
+    const scene::Light *mainLight  = scene->getMainLight();
 
     for (uint i = 0; i < _validLights.size(); ++i) {
         const auto *light         = _validLights[i];
@@ -346,15 +345,17 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 }
 
                 const auto &matShadowCamera = light->getNode()->getWorldMatrix();
-                memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowCamera.m, sizeof(matShadowCamera));
+                const auto  matShadowView   = matShadowCamera.getInversed();
 
-                const auto matShadowView = matShadowCamera.getInversed();
-
-                cc::Mat4 matShadowViewProj;
-                cc::Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowViewProj);
+                cc::Mat4 matShadowProj;
+                cc::Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowProj);
+                cc::Mat4 matShadowViewProj = matShadowProj;
+                cc::Mat4 matShadowInvProj  = matShadowProj;
+                matShadowInvProj.inverse();
 
                 matShadowViewProj.multiply(matShadowView);
 
+                memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowView.m, sizeof(matShadowView));
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                 // shadow info
@@ -366,6 +367,15 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
 
                 float shadowLPNNInfos[4] = {1.0F, packing, shadowInfo->normalBias, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
+
+                float shadowInvProjDepthInfos[4] = {matShadowInvProj.m[10], matShadowInvProj.m[14], matShadowInvProj.m[11], matShadowInvProj.m[15]};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_INV_PROJ_DEPTH_INFO_OFFSET, &shadowInvProjDepthInfos, sizeof(shadowInvProjDepthInfos));
+
+                float shadowProjDepthInfos[4] = {matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET, &shadowProjDepthInfos, sizeof(shadowProjDepthInfos));
+
+                float shadowProjInfos[4] = {matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_PROJ_INFO_OFFSET, &shadowProjInfos, sizeof(shadowProjInfos));
 
                 // Spot light sampler binding
                 const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
@@ -424,7 +434,7 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
                 break;
         }
         if (!isCulled) {
-            _lightIndices.emplace_back(i);
+            _lightIndices.emplace_back(utils::toUint(i));
         }
     }
 }

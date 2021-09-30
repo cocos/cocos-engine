@@ -23,11 +23,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "MTLStd.h"
+#import "MTLStd.h"
 
-#include "MTLFramebuffer.h"
-#include "MTLRenderPass.h"
-#include "MTLTexture.h"
+#import "MTLFramebuffer.h"
+#import "MTLRenderPass.h"
+#import "MTLTexture.h"
 
 namespace cc {
 namespace gfx {
@@ -40,11 +40,28 @@ CCMTLFramebuffer::~CCMTLFramebuffer() {
     destroy();
 }
 
-void CCMTLFramebuffer::doInit(const FramebufferInfo &info) {
-    _isOffscreen = (_colorTextures.size() != 0);
+void CCMTLFramebuffer::doInit(const FramebufferInfo &) {
+    _isOffscreen = true;
+    for (Texture* tex : _colorTextures) {
+        auto* ccTex = static_cast<CCMTLTexture*>(tex);
+        if(ccTex->swapChain()) {
+            _swapChain = ccTex->swapChain();
+            _isOffscreen = false;
+            break;
+        }
+    }
+    
+    if(_depthStencilTexture) {
+        auto* ccTex = static_cast<CCMTLTexture*>(_depthStencilTexture);
+        if(ccTex->swapChain()) {
+            _swapChain = ccTex->swapChain();
+            _isOffscreen = false;
+        }
+    }
 }
 
 void CCMTLFramebuffer::doDestroy() {
+    _swapChain = nullptr;
 }
 
 } // namespace gfx

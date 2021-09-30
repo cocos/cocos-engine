@@ -40,17 +40,17 @@ public:
     explicit BufferAgent(Buffer *actor);
     ~BufferAgent() override;
 
-    void update(const void *buffer, uint size) override;
+    void update(const void *buffer, uint32_t size) override;
 
-    static void getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint size, uint8_t **pActorBuffer, bool *pNeedFreeing);
+    static void getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint32_t size, uint8_t **pActorBuffer, bool *pNeedFreeing);
 
 private:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
     void doDestroy() override;
 
-    static constexpr uint STAGING_BUFFER_THRESHOLD = MessageQueue::MEMORY_CHUNK_SIZE / 2;
+    static constexpr uint32_t STAGING_BUFFER_THRESHOLD = MessageQueue::MEMORY_CHUNK_SIZE / 2;
 
     vector<uint8_t *> _stagingBuffers;
 };

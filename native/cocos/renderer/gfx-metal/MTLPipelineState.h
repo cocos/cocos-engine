@@ -35,6 +35,8 @@
 namespace cc {
 namespace gfx {
 
+class CCMTLRenderPass;
+
 class CCMTLPipelineState final : public PipelineState {
 public:
     explicit CCMTLPipelineState();
@@ -46,7 +48,7 @@ public:
 
     inline CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
     
-    void check();
+    void check(CCMTLRenderPass* renderPass = nullptr);
 
 protected:
     void doInit(const PipelineStateInfo &info) override;

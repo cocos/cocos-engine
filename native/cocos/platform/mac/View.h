@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #import <AppKit/NSView.h>
-#ifdef CC_USE_METAL
-    #import <MetalKit/MetalKit.h>
-#endif
+#import <MetalKit/MetalKit.h>
 
 @interface View : NSView <CALayerDelegate>
 

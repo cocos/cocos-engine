@@ -36,19 +36,27 @@ public:
     explicit BufferValidator(Buffer *actor);
     ~BufferValidator() override;
 
-    void update(const void *buffer, uint size) override;
+    void update(const void *buffer, uint32_t size) override;
 
-    void sanityCheck(const void *buffer, uint size);
+    void sanityCheck(const void *buffer, uint32_t size);
+
+    inline bool isInited() const { return _inited; }
 
 protected:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
-    void doResize(uint size, uint count) override;
+    void doResize(uint32_t size, uint32_t count) override;
     void doDestroy() override;
 
     vector<uint8_t> _buffer;
 
-    uint _lastUpdateFrame = 0U;
+    uint32_t _lastUpdateFrame{0U};
+    uint32_t _totalUpdateTimes{0U};
+    uint32_t _creationFrame{0U};
+
+    bool _inited{false};
+
+    String _initStack;
 };
 
 } // namespace gfx

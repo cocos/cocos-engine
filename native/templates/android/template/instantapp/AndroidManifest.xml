@@ -11,7 +11,7 @@
 
     <application
             android:allowBackup="true"
-            android:label="@string/cc_app_name"
+            android:label="@string/app_name"
             android:supportsRtl="true"
             android:icon="@mipmap/ic_launcher">
         <meta-data
@@ -24,7 +24,7 @@
                 android:name="com.cocos.game.InstantActivity"
                 android:screenOrientation="landscape"
                 android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
-                android:label="@string/cc_app_name"
+                android:label="@string/app_name"
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                 android:launchMode="singleTask"
                 android:taskAffinity="" >

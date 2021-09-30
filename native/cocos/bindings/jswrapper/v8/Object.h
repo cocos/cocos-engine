@@ -37,6 +37,12 @@
 
     #include <memory>
 
+    // DEBUG ONLY:
+    // Set `__object_id__` && `__native_class_name__` for js object
+    #ifndef CC_DEBUG_JS_OBJECT_ID
+        #define CC_DEBUG_JS_OBJECT_ID 0
+    #endif
+
 namespace se {
 
 class Class;
@@ -378,16 +384,16 @@ public:
     std::string toString() const;
 
     // Private API used in wrapper
-    static Object *       _createJSObject(Class *cls, v8::Local<v8::Object> obj);
-    v8::Local<v8::Object> _getJSObject() const;
-    ObjectWrap &          _getWrap();
-    Class *               _getClass() const;
+    static Object *       _createJSObject(Class *cls, v8::Local<v8::Object> obj); // NOLINT(readability-identifier-naming)
+    v8::Local<v8::Object> _getJSObject() const;                                   // NOLINT(readability-identifier-naming)
+    ObjectWrap &          _getWrap();                                             // NOLINT(readability-identifier-naming)
+    Class *               _getClass() const;                                      // NOLINT(readability-identifier-naming)
 
-    void _setFinalizeCallback(V8FinalizeFunc finalizeCb);
-    bool _isNativeFunction() const;
+    void _setFinalizeCallback(V8FinalizeFunc finalizeCb); // NOLINT(readability-identifier-naming)
+    bool _isNativeFunction() const;                       // NOLINT(readability-identifier-naming)
     //
 
-    #if CC_DEBUG
+    #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
     uint32_t getObjectId() const { return _objectId; }
     #endif
 
@@ -410,12 +416,12 @@ private:
     V8FinalizeFunc         _finalizeCb;
     internal::PrivateData *_internalData;
 
-    #if CC_DEBUG
+    #if CC_DEBUG && CC_DEBUG_JS_OBJECT_ID
     uint32_t _objectId = 0;
     #endif
     friend class ScriptEngine;
 };
-
+// NOLINTNEXTLINE
 extern std::unique_ptr<std::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se

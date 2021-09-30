@@ -128,10 +128,12 @@ bool jsb_register_all_modules() {
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     se->addRegisterCallback(register_javascript_objc_bridge);
+    se->addRegisterCallback(register_script_native_bridge);
 #endif
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     se->addRegisterCallback(register_javascript_java_bridge);
+    se->addRegisterCallback(register_script_native_bridge);
 #endif
 
 #if USE_AUDIO

@@ -31,16 +31,21 @@
 namespace cc {
 namespace gfx {
 
-class CC_DLL TextureAgent final : public Agent<Texture> {
+class CC_DLL TextureAgent : public Agent<Texture> {
 public:
     explicit TextureAgent(Texture *actor);
     ~TextureAgent() override;
 
+    inline void renounceOwnership() { _ownTheActor = false; }
+
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
+    void doInit(const SwapchainTextureInfo &info) override;
     void doDestroy() override;
-    void doResize(uint width, uint height, uint size) override;
+    void doResize(uint32_t width, uint32_t height, uint32_t size) override;
+
+    bool _ownTheActor = true;
 };
 
 } // namespace gfx

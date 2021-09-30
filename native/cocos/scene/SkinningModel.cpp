@@ -24,8 +24,9 @@
  ****************************************************************************/
 
 #include "scene/SkinningModel.h"
-
 #include <utility>
+#include "scene/RenderScene.h"
+
 
 namespace cc {
 namespace scene {
@@ -119,6 +120,10 @@ void SkinningModel::updateTransform(uint32_t stamp) {
     if (_modelBounds.getValid() && _worldBounds) {
         AABB::fromPoints(v3Min, v3Max, &_modelBounds);
         _modelBounds.transform(root->getNodeLayout()->worldMatrix, _worldBounds);
+    }
+
+    if (_scene) {
+        _scene->updateOctree(this);
     }
 }
 } // namespace scene

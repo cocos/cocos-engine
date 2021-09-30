@@ -28,6 +28,7 @@
 #include <functional>
 
 #include "base/Object.h"
+#include "base/TypeDef.h"
 #include "base/Value.h"
 #include "renderer/gfx-base/GFXDef.h"
 #include "scene/Light.h"
@@ -104,6 +105,7 @@ enum class RenderFlowType : uint8_t {
     POSTPROCESS,
     UI,
 };
+CC_ENUM_CONVERSION_OPERATOR(RenderFlowType)
 
 using RenderStageList = vector<RenderStage *>;
 using RenderFlowList  = vector<RenderFlow *>;
@@ -114,6 +116,7 @@ enum class CC_DLL RenderPassStage {
     DEFAULT = 100,
     UI      = 200,
 };
+CC_ENUM_CONVERSION_OPERATOR(RenderPassStage)
 
 struct CC_DLL InternalBindingDesc {
     gfx::DescriptorType        type;
@@ -139,11 +142,13 @@ enum class CC_DLL RenderPriority {
     MAX     = 0xff,
     DEFAULT = 0x80,
 };
+CC_ENUM_CONVERSION_OPERATOR(RenderPriority)
 
 enum class CC_DLL RenderQueueSortMode {
     FRONT_TO_BACK,
     BACK_TO_FRONT,
 };
+CC_ENUM_CONVERSION_OPERATOR(RenderQueueSortMode)
 
 struct CC_DLL RenderQueueDesc {
     bool                isTransparent = false;
@@ -209,16 +214,12 @@ enum class CC_DLL PipelineGlobalBindings {
     UBO_SHADOW,
 
     SAMPLER_SHADOWMAP,
-    SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
+    SAMPLER_ENVIRONMENT,
     SAMPLER_SPOT_LIGHTING_MAP,
-    SAMPLER_GBUFFER_ALBEDOMAP,
-    SAMPLER_GBUFFER_POSITIONMAP,
-    SAMPLER_GBUFFER_NORMALMAP,
-    SAMPLER_GBUFFER_EMISSIVEMAP,
-    SAMPLER_LIGHTING_RESULTMAP,
 
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(PipelineGlobalBindings)
 
 extern CC_DLL int globalUBOCount;
 extern CC_DLL int globalSamplerCount;
@@ -241,6 +242,7 @@ enum class CC_DLL ModelLocalBindings {
 
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(ModelLocalBindings)
 
 extern CC_DLL int localUBOCount;
 extern CC_DLL int localSamplerCount;
@@ -250,6 +252,7 @@ enum class CC_DLL SetIndex {
     MATERIAL,
     LOCAL,
 };
+CC_ENUM_CONVERSION_OPERATOR(SetIndex)
 
 extern CC_DLL uint globalSet;
 extern CC_DLL uint materialSet;
@@ -346,32 +349,38 @@ enum class CC_DLL ForwardStagePriority {
     FORWARD = 10,
     UI      = 20
 };
+CC_ENUM_CONVERSION_OPERATOR(ForwardStagePriority)
 
 enum class CC_DLL ForwardFlowPriority {
     SHADOW  = 0,
     FORWARD = 1,
     UI      = 10,
 };
+CC_ENUM_CONVERSION_OPERATOR(ForwardFlowPriority)
 
 enum class CC_DLL RenderFlowTag {
     SCENE,
     POSTPROCESS,
     UI,
 };
+CC_ENUM_CONVERSION_OPERATOR(RenderFlowTag)
 
 enum class CC_DLL DeferredStagePriority {
     GBUFFER     = 10,
     LIGHTING    = 15,
     TRANSPARANT = 18,
-    POSTPROCESS = 19,
-    UI          = 20
+    BLOOM       = 19,
+    POSTPROCESS = 20,
+    UI          = 30
 };
+CC_ENUM_CONVERSION_OPERATOR(DeferredStagePriority)
 
 enum class CC_DLL DeferredFlowPriority {
-    SHADOW   = 0,
-    MAIN     = 1,
-    UI       = 10
+    SHADOW = 0,
+    MAIN   = 1,
+    UI     = 10
 };
+CC_ENUM_CONVERSION_OPERATOR(DeferredFlowPriority)
 
 struct CC_DLL UBOGlobal : public Object {
     static constexpr uint                        TIME_OFFSET        = 0;
@@ -402,7 +411,9 @@ struct CC_DLL UBOCamera : public Object {
     static constexpr uint                        GLOBAL_FOG_COLOR_OFFSET  = UBOCamera::AMBIENT_GROUND_OFFSET + 4;
     static constexpr uint                        GLOBAL_FOG_BASE_OFFSET   = UBOCamera::GLOBAL_FOG_COLOR_OFFSET + 4;
     static constexpr uint                        GLOBAL_FOG_ADD_OFFSET    = UBOCamera::GLOBAL_FOG_BASE_OFFSET + 4;
-    static constexpr uint                        COUNT                    = UBOCamera::GLOBAL_FOG_ADD_OFFSET + 4;
+    static constexpr uint                        GLOBAL_NEAR_FAR_OFFSET   = UBOCamera::GLOBAL_FOG_ADD_OFFSET + 4;
+    static constexpr uint                        GLOBAL_VIEW_PORT_OFFSET  = UBOCamera::GLOBAL_NEAR_FAR_OFFSET + 4;
+    static constexpr uint                        COUNT                    = UBOCamera::GLOBAL_VIEW_PORT_OFFSET + 4;
     static constexpr uint                        SIZE                     = UBOCamera::COUNT * 4;
     static constexpr uint                        BINDING                  = static_cast<uint>(PipelineGlobalBindings::UBO_CAMERA);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
@@ -414,7 +425,10 @@ struct CC_DLL UBOShadow : public Object {
     static constexpr uint                        MAT_LIGHT_PLANE_PROJ_OFFSET                   = 0;
     static constexpr uint                        MAT_LIGHT_VIEW_OFFSET                         = MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     static constexpr uint                        MAT_LIGHT_VIEW_PROJ_OFFSET                    = UBOShadow::MAT_LIGHT_VIEW_OFFSET + 16;
-    static constexpr uint                        SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint                        SHADOW_INV_PROJ_DEPTH_INFO_OFFSET             = UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    static constexpr uint                        SHADOW_PROJ_DEPTH_INFO_OFFSET                 = UBOShadow::SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
+    static constexpr uint                        SHADOW_PROJ_INFO_OFFSET                       = UBOShadow::SHADOW_PROJ_DEPTH_INFO_OFFSET + 4;
+    static constexpr uint                        SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow::SHADOW_PROJ_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET      = UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET   = UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     static constexpr uint                        SHADOW_COLOR_OFFSET                           = UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
@@ -424,19 +438,6 @@ struct CC_DLL UBOShadow : public Object {
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformBlock               LAYOUT;
     static const String                          NAME;
-};
-
-class CC_DLL SamplerLib : public Object {
-public:
-    static gfx::Sampler *getSampler(uint hash);
-    static uint          genSamplerHash(const gfx::SamplerInfo &info);
-
-    static void destroyAll();
-
-protected:
-    static uint defaultSamplerHash;
-
-    static unordered_map<uint, gfx::Sampler *> samplerCache;
 };
 
 struct CC_DLL DescriptorSetLayoutInfos {
@@ -461,6 +462,7 @@ enum class LayerList : uint {
     DEFAULT  = (1 << 30),
     ALL      = 0xffffffff,
 };
+CC_ENUM_CONVERSION_OPERATOR(LayerList)
 
 const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_cast<uint>(LayerList::PROFILER);
 //constexpr CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
@@ -474,41 +476,6 @@ extern CC_DLL uint skyboxFlag;
 
 struct CC_DLL SHADOWMAP : public Object {
     static constexpr uint                        BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
-    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSamplerTexture      LAYOUT;
-    static const String                          NAME;
-};
-
-struct CC_DLL SAMPLERGBUFFERALBEDOMAP : public Object {
-    static constexpr uint                        BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_ALBEDOMAP);
-    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSamplerTexture      LAYOUT;
-    static const String                          NAME;
-};
-
-struct CC_DLL SAMPLERGBUFFERPOSITIONMAP : public Object {
-    static constexpr uint                        BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_POSITIONMAP);
-    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSamplerTexture      LAYOUT;
-    static const String                          NAME;
-};
-
-struct CC_DLL SAMPLERGBUFFERNORMALMAP : public Object {
-    static constexpr uint                        BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_NORMALMAP);
-    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSamplerTexture      LAYOUT;
-    static const String                          NAME;
-};
-
-struct CC_DLL SAMPLERGBUFFEREMISSIVEMAP : public Object {
-    static constexpr uint                        BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP);
-    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
-    static const gfx::UniformSamplerTexture      LAYOUT;
-    static const String                          NAME;
-};
-
-struct CC_DLL SAMPLERLIGHTINGRESULTMAP : public Object {
-    static constexpr uint                        BINDING = static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture      LAYOUT;
     static const String                          NAME;
@@ -583,6 +550,10 @@ struct CC_DLL REFLECTIONSTORAGE : public Object {
     static const gfx::UniformStorageImage        LAYOUT;
     static const String                          NAME;
 };
+
+static constexpr uint CLUSTER_LIGHT_BINDING       = 4;
+static constexpr uint CLUSTER_LIGHT_INDEX_BINDING = 5;
+static constexpr uint CLUSTER_LIGHT_GRID_BINDING  = 6;
 
 } // namespace pipeline
 } // namespace cc

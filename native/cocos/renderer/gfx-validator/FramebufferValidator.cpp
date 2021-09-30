@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
+#include "base/Macros.h"
 #include "base/threading/MessageQueue.h"
 
 #include "DeviceValidator.h"
@@ -37,7 +38,7 @@ namespace gfx {
 
 FramebufferValidator::FramebufferValidator(Framebuffer *actor)
 : Agent<Framebuffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 FramebufferValidator::~FramebufferValidator() {
@@ -46,8 +47,23 @@ FramebufferValidator::~FramebufferValidator() {
 }
 
 void FramebufferValidator::doInit(const FramebufferInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    CCASSERT(!info.colorTextures.empty() || info.depthStencilTexture, "no attachments?");
+
+    for (auto *colorTexture : info.colorTextures) {
+        CCASSERT(colorTexture && static_cast<TextureValidator *>(colorTexture)->isInited(), "already destroyed?");
+    }
+    if (info.depthStencilTexture) {
+        CCASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited(), "already destroyed?");
+    }
+    CCASSERT(info.renderPass && static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
+
+    /////////// execute ///////////
+
     FramebufferInfo actorInfo = info;
-    for (uint i = 0U; i < info.colorTextures.size(); ++i) {
+    for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
         if (info.colorTextures[i]) {
             actorInfo.colorTextures[i] = static_cast<TextureValidator *>(info.colorTextures[i])->getActor();
         }
@@ -61,6 +77,11 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
 }
 
 void FramebufferValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 

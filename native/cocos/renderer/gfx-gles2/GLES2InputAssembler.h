@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES2Std.h"
 #include "gfx-base/GFXInputAssembler.h"
 
 namespace cc {
@@ -36,9 +37,7 @@ class GLES2CmdDraw;
 class CC_GLES2_API GLES2InputAssembler final : public InputAssembler {
 public:
     GLES2InputAssembler();
-    ~GLES2InputAssembler();
-
-    void ExtractCmdDraw(GLES2CmdDraw *cmd);
+    ~GLES2InputAssembler() override;
 
     inline GLES2GPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
 

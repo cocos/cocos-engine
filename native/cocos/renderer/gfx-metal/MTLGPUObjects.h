@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <vector>
+#import <vector>
 
 #import "MTLConfig.h"
 #import "MTLUtils.h"
@@ -33,6 +33,8 @@
 #import <Metal/MTLRenderCommandEncoder.h>
 #import <Metal/MTLSampler.h>
 #import "../../base/Utils.h"
+#import <QuartzCore/CAMetalLayer.h>
+#import <Metal/MTLCommandQueue.h>
 
 namespace cc {
 namespace gfx {
@@ -40,6 +42,11 @@ class CCMTLBuffer;
 class CCMTLTexture;
 class CCMTLSampler;
 class CCMTLShader;
+class CCMTLQueue;
+class CCMTLRenderPass;
+class CCMTLFramebuffer;
+class CCMTLInputAssembler;
+class CCMTLPipelineState;
 
 namespace {
     constexpr size_t MegaBytesToBytes = 1024 * 1024;
@@ -95,6 +102,9 @@ public:
     
     vector<CCMTLGPUSubpassAttachment> inputs;
     vector<CCMTLGPUSubpassAttachment> outputs;
+    
+    NSString *shaderSrc = nil;
+    bool specializeColor = true;
 };
 
 struct CCMTLGPUPipelineState {
@@ -120,6 +130,16 @@ struct CCMTLGPUBuffer {
     uint startOffset = 0;
     uint8_t *mappedData = nullptr;
     id<MTLBuffer> mtlBuffer = nil;
+};
+
+struct CCMTLGPUTextureObject {
+    TextureInfo info;
+    id<MTLTexture> mtlTexture;
+};
+
+struct CCMTLGPUTextureViewObject {
+    TextureViewInfo viewInfo;
+    id<MTLTexture> mtlTextureView;
 };
 
 class CCMTLGPUInputAssembler : public Object {
@@ -306,6 +326,31 @@ protected:
     //avoid cross-reference with CCMTLDevice
     std::function<uint8_t(void)> _getFrameIndex;
     std::queue<GCFunc> _releaseQueue[MAX_FRAMES_IN_FLIGHT];
+};
+
+struct CCMTLGPUSwapChainObject {
+    id<CAMetalDrawable> currentDrawable = nil;
+    CAMetalLayer* mtlLayer = nullptr;
+};
+
+struct CCMTLGPUQueueObject {
+    id<MTLCommandQueue> mtlCommandQueue = nil;
+    uint numDrawCalls = 0;
+    uint numInstances = 0;
+    uint numTriangles = 0;
+};
+
+struct CCMTLGPUCommandBufferObject {
+    CCMTLRenderPass *renderPass = nullptr;
+    CCMTLFramebuffer *fbo = nullptr;
+    CCMTLInputAssembler *inputAssembler = nullptr;
+    CCMTLPipelineState *pipelineState = nullptr;
+    id<MTLCommandBuffer> mtlCommandBuffer = nil;
+    bool isSecondary = false;
+};
+
+struct CCMTLGPUDeviceObject {
+
 };
 
 } // namespace gfx

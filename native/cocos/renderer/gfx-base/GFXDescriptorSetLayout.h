@@ -39,20 +39,20 @@ public:
     void destroy();
 
     inline const DescriptorSetLayoutBindingList &getBindings() const { return _bindings; }
-    inline const vector<uint> &                  getDynamicBindings() const { return _dynamicBindings; }
-    inline const vector<uint> &                  getBindingIndices() const { return _bindingIndices; }
-    inline const vector<uint> &                  getDescriptorIndices() const { return _descriptorIndices; }
-    inline uint                                  getDescriptorCount() const { return _descriptorCount; }
+    inline const vector<uint32_t> &              getDynamicBindings() const { return _dynamicBindings; }
+    inline const vector<uint32_t> &              getBindingIndices() const { return _bindingIndices; }
+    inline const vector<uint32_t> &              getDescriptorIndices() const { return _descriptorIndices; }
+    inline uint32_t                              getDescriptorCount() const { return _descriptorCount; }
 
 protected:
     virtual void doInit(const DescriptorSetLayoutInfo &info) = 0;
     virtual void doDestroy()                                 = 0;
 
     DescriptorSetLayoutBindingList _bindings;
-    uint                           _descriptorCount = 0U;
-    vector<uint>                   _bindingIndices;
-    vector<uint>                   _descriptorIndices;
-    vector<uint>                   _dynamicBindings;
+    uint32_t                       _descriptorCount = 0U;
+    vector<uint32_t>               _bindingIndices;
+    vector<uint32_t>               _descriptorIndices;
+    vector<uint32_t>               _dynamicBindings;
 };
 
 } // namespace gfx

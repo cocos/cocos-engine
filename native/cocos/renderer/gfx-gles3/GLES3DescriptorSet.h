@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXGLES3_DESCRIPTOR_SET_H_
-#define CC_GFXGLES3_DESCRIPTOR_SET_H_
+#pragma once
 
+#include "GLES3Std.h"
 #include "gfx-base/GFXDescriptorSet.h"
 
 namespace cc {
@@ -36,7 +36,7 @@ class GLES3GPUDescriptorSet;
 class CC_GLES3_API GLES3DescriptorSet final : public DescriptorSet {
 public:
     GLES3DescriptorSet();
-    ~GLES3DescriptorSet();
+    ~GLES3DescriptorSet() override;
 
     void update() override;
 
@@ -51,5 +51,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXGLES3_DESCRIPTOR_SET_H_

@@ -32,7 +32,9 @@
 namespace cc {
 namespace gfx {
 
-CCVKRenderPass::CCVKRenderPass() = default;
+CCVKRenderPass::CCVKRenderPass() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKRenderPass::~CCVKRenderPass() {
     destroy();
@@ -46,20 +48,25 @@ void CCVKRenderPass::doInit(const RenderPassInfo & /*info*/) {
     _gpuRenderPass->dependencies           = _dependencies;
 
     // assign a dummy subpass if not specified
-    // the depth stencil attachment is the default fallback
-    // when none are specified in subpass
-    const bool hasDepth = _depthStencilAttachment.format != Format::UNKNOWN;
     if (_gpuRenderPass->subpasses.empty()) {
-        auto &subpass = _gpuRenderPass->subpasses.emplace_back();
+        _gpuRenderPass->subpasses.emplace_back();
+        auto &subpass = _gpuRenderPass->subpasses.back();
         subpass.colors.resize(_colorAttachments.size());
-        for (uint i = 0U; i < _colorAttachments.size(); ++i) {
+        for (uint32_t i = 0U; i < _colorAttachments.size(); ++i) {
             subpass.colors[i] = i;
         }
-        subpass.depthStencil = hasDepth ? _colorAttachments.size() : INVALID_BINDING;
+        if (_depthStencilAttachment.format != Format::UNKNOWN) {
+            subpass.depthStencil = utils::toUint(_colorAttachments.size());
+        }
     } else {
+        // unify depth stencil index
+        uint32_t colorCount = _gpuRenderPass->colorAttachments.size();
         for (auto &subpass : _gpuRenderPass->subpasses) {
-            if (hasDepth && subpass.depthStencil == INVALID_BINDING) {
-                subpass.depthStencil = static_cast<uint>(_colorAttachments.size());
+            if (subpass.depthStencil != INVALID_BINDING && subpass.depthStencil > colorCount) {
+                subpass.depthStencil = colorCount;
+            }
+            if (subpass.depthStencilResolve != INVALID_BINDING && subpass.depthStencilResolve > colorCount) {
+                subpass.depthStencilResolve = colorCount;
             }
         }
     }

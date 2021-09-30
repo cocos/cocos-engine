@@ -30,7 +30,6 @@
 #include "DescriptorSetAgent.h"
 #include "DescriptorSetLayoutAgent.h"
 #include "DeviceAgent.h"
-#include "SamplerAgent.h"
 #include "TextureAgent.h"
 
 namespace cc {
@@ -38,7 +37,7 @@ namespace gfx {
 
 DescriptorSetAgent::DescriptorSetAgent(DescriptorSet *actor)
 : Agent<DescriptorSet>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 DescriptorSetAgent::~DescriptorSetAgent() {
@@ -90,7 +89,7 @@ void DescriptorSetAgent::update() {
         });
 }
 
-void DescriptorSetAgent::bindBuffer(uint binding, Buffer *buffer, uint index) {
+void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
     DescriptorSet::bindBuffer(binding, buffer, index);
 
     ENQUEUE_MESSAGE_4(
@@ -105,7 +104,7 @@ void DescriptorSetAgent::bindBuffer(uint binding, Buffer *buffer, uint index) {
         });
 }
 
-void DescriptorSetAgent::bindTexture(uint binding, Texture *texture, uint index) {
+void DescriptorSetAgent::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {
     DescriptorSet::bindTexture(binding, texture, index);
 
     ENQUEUE_MESSAGE_4(
@@ -120,7 +119,7 @@ void DescriptorSetAgent::bindTexture(uint binding, Texture *texture, uint index)
         });
 }
 
-void DescriptorSetAgent::bindSampler(uint binding, Sampler *sampler, uint index) {
+void DescriptorSetAgent::bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) {
     DescriptorSet::bindSampler(binding, sampler, index);
 
     ENQUEUE_MESSAGE_4(
@@ -128,7 +127,7 @@ void DescriptorSetAgent::bindSampler(uint binding, Sampler *sampler, uint index)
         DescriptorSetBindSampler,
         actor, getActor(),
         binding, binding,
-        sampler, static_cast<SamplerAgent *>(sampler)->getActor(),
+        sampler, sampler,
         index, index,
         {
             actor->bindSampler(binding, sampler, index);

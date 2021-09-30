@@ -67,7 +67,7 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) { // NOLINT(readability-id
                             assert(false);
                         }
                     } else {
-                        ptr = reinterpret_cast<uint8_t *>(value.asPtr());
+                        ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
                     }
 
                     arg0[i] = ptr;
@@ -121,7 +121,7 @@ bool js_gfx_Device_copyTextureToBuffers(se::State &s) { // NOLINT(readability-id
                             assert(false);
                         }
                     } else {
-                        ptr = reinterpret_cast<uint8_t *>(value.asPtr());
+                        ptr = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
                     }
 
                     arg1[i] = ptr;
@@ -167,7 +167,7 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-
                         value.toObject()->getTypedArrayData(&address, &dataLength);
                         arg0[i] = address;
                     } else {
-                        arg0[i] = reinterpret_cast<uint8_t *>(value.asPtr());
+                        arg0[i] = reinterpret_cast<uint8_t *>(value.asPtr()); // NOLINT(performance-no-int-to-ptr) script engine bad API design
                     }
                 }
             }
@@ -229,8 +229,9 @@ static bool js_gfx_Device_createTexture(se::State &s) { // NOLINT(readability-id
         bool              createTextureView = false;
         seval_to_boolean(args[1], &createTextureView);
         if (createTextureView) {
-            auto *textureViewInfo = static_cast<cc::gfx::TextureViewInfo *>(args[0].toObject()->getPrivateData());
-            texture               = cobj->createTexture(*textureViewInfo);
+            cc::gfx::TextureViewInfo textureViewInfo;
+            sevalue_to_native(args[0], &textureViewInfo, s.thisObject());
+            texture = cobj->createTexture(textureViewInfo);
         } else {
             cc::gfx::TextureInfo textureInfo;
             sevalue_to_native(args[0], &textureInfo, s.thisObject());
@@ -260,11 +261,13 @@ static bool js_gfx_Buffer_initialize(se::State &s) { // NOLINT(readability-ident
         seval_to_boolean(args[1], &initWithBufferViewInfo);
 
         if (initWithBufferViewInfo) {
-            auto *bufferViewInfo = static_cast<cc::gfx::BufferViewInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*bufferViewInfo);
+            cc::gfx::BufferViewInfo bufferViewInfo;
+            sevalue_to_native(args[0], &bufferViewInfo, s.thisObject());
+            cobj->initialize(bufferViewInfo);
         } else {
-            auto *bufferInfo = static_cast<cc::gfx::BufferInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*bufferInfo);
+            cc::gfx::BufferInfo bufferInfo;
+            sevalue_to_native(args[0], &bufferInfo, s.thisObject());
+            cobj->initialize(bufferInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());
@@ -289,11 +292,13 @@ static bool js_gfx_Texture_initialize(se::State &s) { // NOLINT(readability-iden
         seval_to_boolean(args[1], &initWithTextureViewInfo);
 
         if (initWithTextureViewInfo) {
-            auto *textureViewInfo = static_cast<cc::gfx::TextureViewInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*textureViewInfo);
+            cc::gfx::TextureViewInfo textureViewInfo;
+            sevalue_to_native(args[0], &textureViewInfo, s.thisObject());
+            cobj->initialize(textureViewInfo);
         } else {
-            auto *textureInfo = static_cast<cc::gfx::TextureInfo *>(args[0].toObject()->getPrivateData());
-            cobj->initialize(*textureInfo);
+            cc::gfx::TextureInfo textureInfo;
+            sevalue_to_native(args[0], &textureInfo, s.thisObject());
+            cobj->initialize(textureInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());
@@ -470,44 +475,6 @@ static bool js_gfx_CommandBuffer_copyBuffersToTexture(se::State &s) { // NOLINT(
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_copyBuffersToTexture)
 
-static bool js_gfx_InputAssembler_extractDrawInfo(se::State &s) { // NOLINT(readability-identifier-naming)
-    auto *cobj = static_cast<cc::gfx::InputAssembler *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_gfx_InputAssembler_extractDrawInfo : Invalid Native Object");
-    const auto &args = s.args();
-    size_t      argc = args.size();
-    if (argc == 1) {
-        cc::gfx::DrawInfo nativeDrawInfo;
-        cobj->extractDrawInfo(nativeDrawInfo);
-
-        se::Object *drawInfo = args[0].toObject();
-        se::Value   attrValue(nativeDrawInfo.vertexCount);
-        drawInfo->setProperty("vertexCount", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.firstVertex);
-        drawInfo->setProperty("firstVertex", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.indexCount);
-        drawInfo->setProperty("indexCount", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.firstIndex);
-        drawInfo->setProperty("firstIndex", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.vertexOffset);
-        drawInfo->setProperty("vertexOffset", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.instanceCount);
-        drawInfo->setProperty("instanceCount", attrValue);
-
-        attrValue.setUint32(nativeDrawInfo.firstInstance);
-        drawInfo->setProperty("firstInstance", attrValue);
-
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_InputAssembler_extractDrawInfo)
-
 bool js_gfx_get_deviceInstance(se::State &s) { // NOLINT(readability-identifier-naming)
     nativevalue_to_se(cc::gfx::Device::getInstance(), s.rval(), nullptr);
     return true;
@@ -527,8 +494,6 @@ bool register_all_gfx_manual(se::Object *obj) {
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("execute", _SE(js_gfx_CommandBuffer_execute));
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("updateBuffer", _SE(js_gfx_CommandBuffer_updateBuffer));
     __jsb_cc_gfx_CommandBuffer_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_CommandBuffer_copyBuffersToTexture));
-
-    __jsb_cc_gfx_InputAssembler_proto->defineFunction("extractDrawInfo", _SE(js_gfx_InputAssembler_extractDrawInfo));
 
     __jsb_cc_gfx_Buffer_proto->defineFunction("initialize", _SE(js_gfx_Buffer_initialize));
     __jsb_cc_gfx_Texture_proto->defineFunction("initialize", _SE(js_gfx_Texture_initialize));

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXDescriptorSet.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class CCVKGPUDescriptorSet;
 class CC_VULKAN_API CCVKDescriptorSet final : public DescriptorSet {
 public:
     CCVKDescriptorSet();
-    ~CCVKDescriptorSet();
+    ~CCVKDescriptorSet() override;
 
     void update() override;
 

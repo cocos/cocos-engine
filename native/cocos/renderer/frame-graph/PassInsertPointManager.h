@@ -36,21 +36,21 @@ using PassInsertPoint = uint16_t;
 
 class PassInsertPointManager final {
 public:
-    PassInsertPointManager(const PassInsertPointManager &) = delete;
-    PassInsertPointManager(PassInsertPointManager &&)      = delete;
+    PassInsertPointManager(const PassInsertPointManager &)     = delete;
+    PassInsertPointManager(PassInsertPointManager &&) noexcept = delete;
     PassInsertPointManager &operator=(const PassInsertPointManager &) = delete;
-    PassInsertPointManager &operator=(PassInsertPointManager &&) = delete;
+    PassInsertPointManager &operator=(PassInsertPointManager &&) noexcept = delete;
 
-    static PassInsertPointManager &getInstance() noexcept;
+    static PassInsertPointManager &getInstance();
 
-    PassInsertPoint record(const char *name, PassInsertPoint point) noexcept;
-    PassInsertPoint get(const char *name) const noexcept;
+    PassInsertPoint record(const char *name, PassInsertPoint point);
+    PassInsertPoint get(const char *name) const;
 
 private:
     PassInsertPointManager()  = default;
     ~PassInsertPointManager() = default;
 
-    inline PassInsertPoint get(StringHandle name) const noexcept;
+    inline PassInsertPoint get(StringHandle name) const;
 
     StringPool                   _stringPool;
     std::vector<PassInsertPoint> _insertPoints{};
@@ -58,7 +58,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-PassInsertPoint PassInsertPointManager::get(const StringHandle name) const noexcept {
+PassInsertPoint PassInsertPointManager::get(const StringHandle name) const {
     return _insertPoints[name];
 }
 

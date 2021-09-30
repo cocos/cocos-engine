@@ -47,8 +47,8 @@ void GLES2Queue::doInit(const QueueInfo &info) {
 void GLES2Queue::doDestroy() {
 }
 
-void GLES2Queue::submit(CommandBuffer *const *cmdBuffs, uint count) {
-    for (uint i = 0; i < count; ++i) {
+void GLES2Queue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
+    for (uint32_t i = 0; i < count; ++i) {
         auto *cmdBuff = static_cast<GLES2CommandBuffer *>(cmdBuffs[i]);
 
         if (!cmdBuff->_pendingPackages.empty()) {

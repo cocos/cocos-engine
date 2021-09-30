@@ -27,20 +27,22 @@
 
 #include "GLES2Buffer.h"
 #include "GLES2CommandBuffer.h"
-#include "GLES2Context.h"
+#include "GLES2Commands.h"
 #include "GLES2DescriptorSet.h"
 #include "GLES2DescriptorSetLayout.h"
 #include "GLES2Device.h"
 #include "GLES2Framebuffer.h"
+#include "GLES2GPUObjects.h"
 #include "GLES2InputAssembler.h"
 #include "GLES2PipelineLayout.h"
 #include "GLES2PipelineState.h"
 #include "GLES2PrimaryCommandBuffer.h"
 #include "GLES2Queue.h"
 #include "GLES2RenderPass.h"
-#include "GLES2Sampler.h"
 #include "GLES2Shader.h"
+#include "GLES2Swapchain.h"
 #include "GLES2Texture.h"
+#include "states/GLES2Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
 // renderdoc doesn't support this extension during replay
@@ -66,17 +68,17 @@ GLES2Device::~GLES2Device() {
     GLES2Device::instance = nullptr;
 }
 
-bool GLES2Device::doInit(const DeviceInfo &info) {
-    ContextInfo ctxInfo;
-    ctxInfo.windowHandle = _windowHandle;
-    ctxInfo.msaaEnabled  = info.isAntiAlias;
-    ctxInfo.performance  = Performance::HIGH_QUALITY;
+bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
+    _gpuContext             = CC_NEW(GLES2GPUContext);
+    _gpuStateCache          = CC_NEW(GLES2GPUStateCache);
+    _gpuBlitManager         = CC_NEW(GLES2GPUBlitManager);
+    _gpuConstantRegistry    = CC_NEW(GLES2GPUConstantRegistry);
+    _gpuFramebufferCacheMap = CC_NEW(GLES2GPUFramebufferCacheMap(_gpuStateCache));
 
-    _renderContext = CC_NEW(GLES2Context);
-    if (!_renderContext->initialize(ctxInfo)) {
+    if (!_gpuContext->initialize(_gpuStateCache, _gpuConstantRegistry)) {
         destroy();
         return false;
-    }
+    };
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
@@ -86,14 +88,6 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     cmdBuffInfo.type  = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
-
-    _gpuStateCache          = CC_NEW(GLES2GPUStateCache);
-    _gpuBlitManager         = CC_NEW(GLES2GPUBlitManager);
-    _gpuStagingBufferPool   = CC_NEW(GLES2GPUStagingBufferPool);
-    _gpuConstantRegistry    = CC_NEW(GLES2GPUConstantRegistry);
-    _gpuFramebufferCacheMap = CC_NEW(GLES2GPUFramebufferCacheMap(_gpuStateCache));
-
-    bindRenderContext(true);
 
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
@@ -150,17 +144,9 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
 
     _features[toNumber(Feature::INSTANCED_ARRAYS)] = _gpuConstantRegistry->useInstancedArrays;
 
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
-    if (checkExtension("multisampled_render_to_texture")) {
-        if (checkExtension("multisampled_render_to_texture2")) {
-            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
-        } else {
-            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
-        }
-    }
-#endif
-
     String fbfLevelStr = "NONE";
+    // PVRVFrame has issues on their support
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS
     if (checkExtension("framebuffer_fetch")) {
         String nonCoherent = "framebuffer_fetch_non";
 
@@ -182,7 +168,19 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
             _gpuConstantRegistry->mFBF = FBFSupportLevel::COHERENT;
             fbfLevelStr                = "COHERENT";
         }
+        _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = _gpuConstantRegistry->mFBF != FBFSupportLevel::NONE;
     }
+#endif
+
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
+    if (checkExtension("multisampled_render_to_texture")) {
+        if (checkExtension("multisampled_render_to_texture2")) {
+            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL2;
+        } else {
+            _gpuConstantRegistry->mMSRT = MSRTSupportLevel::LEVEL1;
+        }
+    }
+#endif
 
     String compressedFmts;
 
@@ -211,16 +209,6 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     _vendor   = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
     _version  = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
-    CC_LOG_INFO("GLES2 device initialized.");
-    CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
-    CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
-    CC_LOG_INFO("VERSION: %s", _version.c_str());
-    CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
-    CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
-    CC_LOG_INFO("USE_VAO: %s", _gpuConstantRegistry->useVAO ? "true" : "false");
-    CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
-    CC_LOG_DEBUG("EXTENSIONS: %s", extStr.c_str());
-
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxFragmentUniformVectors));
@@ -228,11 +216,17 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxVertexTextureUnits));
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
-    glGetIntegerv(GL_DEPTH_BITS, reinterpret_cast<GLint *>(&_caps.depthBits));
-    glGetIntegerv(GL_STENCIL_BITS, reinterpret_cast<GLint *>(&_caps.stencilBits));
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
     _gpuBlitManager->initialize();
+
+    CC_LOG_INFO("GLES2 device initialized.");
+    CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
+    CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
+    CC_LOG_INFO("VERSION: %s", _version.c_str());
+    CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
+    CC_LOG_INFO("USE_VAO: %s", _gpuConstantRegistry->useVAO ? "true" : "false");
+    CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
 
     return true;
 }
@@ -242,7 +236,6 @@ void GLES2Device::doDestroy() {
 
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
     CC_SAFE_DELETE(_gpuConstantRegistry)
-    CC_SAFE_DELETE(_gpuStagingBufferPool)
     CC_SAFE_DELETE(_gpuBlitManager)
     CC_SAFE_DELETE(_gpuStateCache)
 
@@ -251,25 +244,14 @@ void GLES2Device::doDestroy() {
 
     CC_SAFE_DESTROY(_cmdBuff)
     CC_SAFE_DESTROY(_queue)
-    CC_SAFE_DESTROY(_deviceContext)
-    CC_SAFE_DESTROY(_renderContext)
+    CC_SAFE_DESTROY(_gpuContext)
 }
 
-void GLES2Device::releaseSurface(uintptr_t windowHandle) {
-    static_cast<GLES2Context *>(_context)->releaseSurface(windowHandle);
-}
-
-void GLES2Device::acquireSurface(uintptr_t windowHandle) {
-    static_cast<GLES2Context *>(_context)->acquireSurface(windowHandle);
-}
-
-void GLES2Device::resize(uint width, uint height) {
-    _width  = width;
-    _height = height;
-}
-
-void GLES2Device::acquire() {
-    _gpuStagingBufferPool->reset();
+void GLES2Device::acquire(Swapchain *const *swapchains, uint32_t count) {
+    _swapchains.clear();
+    for (uint32_t i = 0; i < count; ++i) {
+        _swapchains.push_back(static_cast<GLES2Swapchain *>(swapchains[i])->gpuSwapchain());
+    }
 }
 
 void GLES2Device::present() {
@@ -278,7 +260,9 @@ void GLES2Device::present() {
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
 
-    _context->present();
+    for (auto *swapchain : _swapchains) {
+        _gpuContext->present(swapchain);
+    }
 
     // Clear queue stats
     queue->_numDrawCalls = 0;
@@ -286,32 +270,8 @@ void GLES2Device::present() {
     queue->_numTriangles = 0;
 }
 
-void GLES2Device::bindRenderContext(bool bound) {
-    _renderContext->makeCurrent(bound);
-    _context = bound ? _renderContext : nullptr;
-
-    if (bound) {
-        _gpuConstantRegistry->currentBoundThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        _gpuStateCache->reset();
-    }
-}
-
-void GLES2Device::bindDeviceContext(bool bound) {
-    if (!_deviceContext) {
-        ContextInfo ctxInfo;
-        ctxInfo.windowHandle = _windowHandle;
-        ctxInfo.sharedCtx    = _renderContext;
-
-        _deviceContext = CC_NEW(GLES2Context);
-        _deviceContext->initialize(ctxInfo);
-    }
-    _deviceContext->makeCurrent(bound);
-    _context = bound ? _deviceContext : nullptr;
-
-    if (bound) {
-        _gpuConstantRegistry->currentBoundThreadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        _gpuStateCache->reset();
-    }
+void GLES2Device::bindContext(bool bound) {
+    _gpuContext->bindContext(bound);
 }
 
 CommandBuffer *GLES2Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
@@ -323,16 +283,16 @@ Queue *GLES2Device::createQueue() {
     return CC_NEW(GLES2Queue);
 }
 
+Swapchain *GLES2Device::createSwapchain() {
+    return CC_NEW(GLES2Swapchain);
+}
+
 Buffer *GLES2Device::createBuffer() {
     return CC_NEW(GLES2Buffer);
 }
 
 Texture *GLES2Device::createTexture() {
     return CC_NEW(GLES2Texture);
-}
-
-Sampler *GLES2Device::createSampler() {
-    return CC_NEW(GLES2Sampler);
 }
 
 Shader *GLES2Device::createShader() {
@@ -367,27 +327,31 @@ PipelineState *GLES2Device::createPipelineState() {
     return CC_NEW(GLES2PipelineState);
 }
 
-GlobalBarrier *GLES2Device::createGlobalBarrier() {
-    return CC_NEW(GlobalBarrier);
+Sampler *GLES2Device::createSampler(const SamplerInfo &info, uint32_t hash) {
+    return CC_NEW(GLES2Sampler(info, hash));
 }
 
-TextureBarrier *GLES2Device::createTextureBarrier() {
-    return CC_NEW(TextureBarrier);
+GlobalBarrier *GLES2Device::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(GlobalBarrier(info, hash));
 }
 
-void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+TextureBarrier *GLES2Device::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+    return CC_NEW(TextureBarrier(info, hash));
+}
+
+void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     cmdFuncGLES2CopyBuffersToTexture(this, buffers, static_cast<GLES2Texture *>(dst)->gpuTexture(), regions, count);
 }
 
-void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+void GLES2Device::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {
     cmdFuncGLES2CopyTextureToBuffers(this, static_cast<GLES2Texture *>(src)->gpuTexture(), buffers, region, count);
 }
 
 bool GLES2Device::checkForETC2() {
     GLint numFormats = 0;
     glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    auto *formats = new GLint[numFormats];
-    glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
+    vector<GLint> formats(numFormats);
+    glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats.data());
 
     int supportNum = 0;
     for (GLint i = 0; i < numFormats; ++i) {
@@ -395,8 +359,6 @@ bool GLES2Device::checkForETC2() {
             supportNum++;
         }
     }
-    delete[] formats;
-
     return supportNum >= 2;
 }
 

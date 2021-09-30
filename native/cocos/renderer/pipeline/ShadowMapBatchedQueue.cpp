@@ -48,33 +48,54 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
     _batchedQueue   = CC_NEW(RenderBatchedQueue);
 }
 
-void ShadowMapBatchedQueue::gatherLightPasses(const scene::Light *light, gfx::CommandBuffer *cmdBuffer) {
+void ShadowMapBatchedQueue::gatherLightPasses(gfx::DescriptorSet *globalDS, const scene::Camera *camera, const scene::Light *light, gfx::CommandBuffer *cmdBuffer) {
     clear();
 
-    const auto *sceneData     = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo    = sceneData->getSharedData()->shadow;
-    const auto &shadowObjects = sceneData->getShadowObjects();
+    const PipelineSceneData *sceneData         = _pipeline->getPipelineSceneData();
+    const scene::Shadow *    shadowInfo        = sceneData->getSharedData()->shadow;
+    const RenderObjectList & dirShadowObjects  = sceneData->getDirShadowObjects();
+    const RenderObjectList & castShadowObjects = sceneData->getCastShadowObjects();
     if (light && shadowInfo->enabled && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
-        _pipeline->getPipelineUBO()->updateShadowUBOLight(light);
+        _pipeline->getPipelineUBO()->updateShadowUBOLight(globalDS, light);
 
-        for (const auto ro : shadowObjects) {
-            const auto *model = ro.model;
-
-            switch (light->getType()) {
-                case scene::LightType::DIRECTIONAL: {
+        switch (light->getType()) {
+            case scene::LightType::DIRECTIONAL: {
+                for (const auto ro : dirShadowObjects) {
+                    const auto *model = ro.model;
                     add(model, cmdBuffer);
-                } break;
-                case scene::LightType::SPOT: {
-                    const auto *spotLight = static_cast<const scene::SpotLight *>(light);
-                    if (model->getWorldBounds() &&
-                        (model->getWorldBounds()->aabbAabb(spotLight->getAABB()) ||
-                         model->getWorldBounds()->aabbFrustum(spotLight->getFrustum()))) {
-                        add(model, cmdBuffer);
+                }
+            } break;
+
+            case scene::LightType::SPOT: {
+                const auto *spotLight     = dynamic_cast<const scene::SpotLight *>(light);
+                const Mat4  matShadowView = light->getNode()->getWorldMatrix().getInversed();
+                Mat4        matShadowProj;
+                Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowProj);
+                const Mat4  matShadowViewProj = matShadowProj * matShadowView;
+                scene::AABB ab;
+                for (const auto ro : castShadowObjects) {
+                    const auto *model = ro.model;
+                    if (!model->getEnabled() || !model->getCastShadow() || !model->getNode()) {
+                        continue;
                     }
-                } break;
-                default:
-                    break;
-            }
+
+                    if (model->getWorldBounds()) {
+                        model->getWorldBounds()->transform(matShadowViewProj, &ab);
+                        if (ab.aabbFrustum(camera->frustum)) {
+                            add(model, cmdBuffer);
+                        }
+                    }
+                }
+            } break;
+
+            case scene::LightType::SPHERE: {
+            } break;
+
+            case scene::LightType::UNKNOWN: {
+            } break;
+
+            default: {
+            } break;
         }
     }
 }
@@ -137,17 +158,17 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
 }
 
 void ShadowMapBatchedQueue::destroy() {
-    CC_SAFE_DELETE(_batchedQueue);
+    CC_SAFE_DELETE(_batchedQueue)
 
-    CC_SAFE_DELETE(_instancedQueue);
+    CC_SAFE_DELETE(_instancedQueue)
 
     _buffer = nullptr;
 }
 
 int ShadowMapBatchedQueue::getShadowPassIndex(const scene::Model *model) const {
-    for (auto *subModel : model->getSubModels()) {
+    for (const scene::SubModel *subModel : model->getSubModels()) {
         int i = 0;
-        for (auto *pass : subModel->getPasses()) {
+        for (const scene::Pass *pass : subModel->getPasses()) {
             if (pass->getPhase() == _phaseID) {
                 return i;
             }

@@ -35,7 +35,7 @@ namespace gfx {
 
 InputAssemblerAgent::InputAssemblerAgent(InputAssembler *actor)
 : Agent<InputAssembler>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 InputAssemblerAgent::~InputAssemblerAgent() {
@@ -77,83 +77,6 @@ void InputAssemblerAgent::doDestroy() {
         actor, getActor(),
         {
             actor->destroy();
-        });
-}
-
-void InputAssemblerAgent::setVertexCount(uint count) {
-    _vertexCount = count;
-    ENQUEUE_MESSAGE_2(
-        DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
-        actor, getActor(),
-        count, count,
-        {
-            actor->setVertexCount(count);
-        });
-}
-
-void InputAssemblerAgent::setFirstVertex(uint first) {
-    _firstVertex = first;
-    ENQUEUE_MESSAGE_2(
-        DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
-        actor, getActor(),
-        first, first,
-        {
-            actor->setFirstVertex(first);
-        });
-}
-
-void InputAssemblerAgent::setIndexCount(uint count) {
-    _indexCount = count;
-    ENQUEUE_MESSAGE_2(
-        DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
-        actor, getActor(),
-        count, count,
-        {
-            actor->setIndexCount(count);
-        });
-}
-
-void InputAssemblerAgent::setFirstIndex(uint first) {
-    _firstIndex = first;
-    ENQUEUE_MESSAGE_2(
-        DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
-        actor, getActor(),
-        first, first,
-        {
-            actor->setFirstIndex(first);
-        });
-}
-
-void InputAssemblerAgent::setVertexOffset(uint offset) {
-    _vertexOffset = offset;
-    ENQUEUE_MESSAGE_2(
-        DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
-        actor, getActor(),
-        offset, offset,
-        {
-            actor->setVertexOffset(offset);
-        });
-}
-
-void InputAssemblerAgent::setInstanceCount(uint count) {
-    _instanceCount = count;
-    ENQUEUE_MESSAGE_2(
-        DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
-        actor, getActor(),
-        count, count,
-        {
-            actor->setInstanceCount(count);
-        });
-}
-
-void InputAssemblerAgent::setFirstInstance(uint first) {
-    _firstInstance = first;
-    ENQUEUE_MESSAGE_2(
-        DeviceAgent::getInstance()->getMessageQueue(), InputAssemblerDestroy,
-        actor, getActor(),
-        first, first,
-        {
-            actor->setFirstInstance(first);
         });
 }
 

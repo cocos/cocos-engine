@@ -34,6 +34,7 @@
 #include "RenderPassAgent.h"
 #include "TextureAgent.h"
 #include "base/CoreStd.h"
+#include "base/Utils.h"
 #include "base/job-system/JobSystem.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
@@ -43,26 +44,26 @@ namespace gfx {
 
 CommandBufferAgent::CommandBufferAgent(CommandBuffer *actor)
 : Agent<CommandBuffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
-void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded) {
-    uint jobThreadCount    = JobSystem::getInstance()->threadCount();
-    uint workForThisThread = (count - 1) / jobThreadCount + 1; // ceil(count / jobThreadCount)
+void CommandBufferAgent::flushCommands(uint32_t count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded) {
+    uint32_t jobThreadCount    = JobSystem::getInstance()->threadCount();
+    uint32_t workForThisThread = (count - 1) / jobThreadCount + 1; // ceil(count / jobThreadCount)
 
     if (count > workForThisThread + 1 && multiThreaded) { // more than one job to dispatch
         JobGraph g(JobSystem::getInstance());
-        g.createForEachIndexJob(workForThisThread, count, 1U, [cmdBuffs](uint i) {
+        g.createForEachIndexJob(workForThisThread, count, 1U, [cmdBuffs](uint32_t i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();
         });
         g.run();
 
-        for (uint i = 0U; i < workForThisThread; ++i) {
+        for (uint32_t i = 0U; i < workForThisThread; ++i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();
         }
         g.waitForAll();
     } else {
-        for (uint i = 0U; i < count; ++i) {
+        for (uint32_t i = 0U; i < count; ++i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();
         }
     }
@@ -83,13 +84,16 @@ void CommandBufferAgent::initMessageQueue() {
     DeviceAgent *device = DeviceAgent::getInstance();
     device->_cmdBuffRefs.insert(this);
 
-    _messageQueue = CC_NEW(MessageQueue);
+    // TODO(PatriceJiang): replace with: _messageQueue = CC_NEW(MessageQueue);
+    _messageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue));
     if (device->_multithreaded) _messageQueue->setImmediateMode(false);
 }
 
 void CommandBufferAgent::destroyMessageQueue() {
     DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
-    CC_SAFE_DELETE(_messageQueue);
+    // TODO(PatriceJiang): replace with:  CC_SAFE_DELETE(_messageQueue);
+    _CC_DELETE_T_ALIGN(_messageQueue, MessageQueue, alignof(MessageQueue));
+    _messageQueue = nullptr;
 
     DeviceAgent::getInstance()->_cmdBuffRefs.erase(this);
 }
@@ -120,7 +124,7 @@ void CommandBufferAgent::doDestroy() {
         });
 }
 
-void CommandBufferAgent::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+void CommandBufferAgent::begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) {
     ENQUEUE_MESSAGE_4(
         _messageQueue,
         CommandBufferBegin,
@@ -142,8 +146,8 @@ void CommandBufferAgent::end() {
         });
 }
 
-void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
-    uint   attachmentCount = static_cast<uint>(renderPass->getColorAttachments().size());
+void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) {
+    auto   attachmentCount = utils::toUint(renderPass->getColorAttachments().size());
     Color *actorColors     = nullptr;
     if (attachmentCount) {
         actorColors = _messageQueue->allocate<Color>(attachmentCount);
@@ -153,7 +157,7 @@ void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     CommandBuffer **actorSecondaryCBs = nullptr;
     if (secondaryCBCount) {
         actorSecondaryCBs = _messageQueue->allocate<CommandBuffer *>(secondaryCBCount);
-        for (uint i = 0; i < secondaryCBCount; ++i) {
+        for (uint32_t i = 0; i < secondaryCBCount; ++i) {
             actorSecondaryCBs[i] = static_cast<CommandBufferAgent *>(secondaryCBs[i])->getActor();
         }
     }
@@ -187,7 +191,7 @@ void CommandBufferAgent::execute(CommandBuffer *const *cmdBuffs, uint32_t count)
     if (!count) return;
 
     auto **actorCmdBuffs = _messageQueue->allocate<CommandBuffer *>(count);
-    for (uint i = 0; i < count; ++i) {
+    for (uint32_t i = 0; i < count; ++i) {
         actorCmdBuffs[i] = static_cast<CommandBufferAgent *>(cmdBuffs[i])->getActor();
     }
 
@@ -211,11 +215,11 @@ void CommandBufferAgent::bindPipelineState(PipelineState *pso) {
         });
 }
 
-void CommandBufferAgent::bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) {
-    uint *actorDynamicOffsets = nullptr;
+void CommandBufferAgent::bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) {
+    uint32_t *actorDynamicOffsets = nullptr;
     if (dynamicOffsetCount) {
-        actorDynamicOffsets = _messageQueue->allocate<uint>(dynamicOffsetCount);
-        memcpy(actorDynamicOffsets, dynamicOffsets, dynamicOffsetCount * sizeof(uint));
+        actorDynamicOffsets = _messageQueue->allocate<uint32_t>(dynamicOffsetCount);
+        memcpy(actorDynamicOffsets, dynamicOffsets, dynamicOffsetCount * sizeof(uint32_t));
     }
 
     ENQUEUE_MESSAGE_5(
@@ -303,7 +307,7 @@ void CommandBufferAgent::setDepthBound(float minBounds, float maxBounds) {
         });
 }
 
-void CommandBufferAgent::setStencilWriteMask(StencilFace face, uint mask) {
+void CommandBufferAgent::setStencilWriteMask(StencilFace face, uint32_t mask) {
     ENQUEUE_MESSAGE_3(
         _messageQueue, CommandBufferSetStencilWriteMask,
         actor, getActor(),
@@ -314,7 +318,7 @@ void CommandBufferAgent::setStencilWriteMask(StencilFace face, uint mask) {
         });
 }
 
-void CommandBufferAgent::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
+void CommandBufferAgent::setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) {
     ENQUEUE_MESSAGE_4(
         _messageQueue, CommandBufferSetStencilCompareMask,
         actor, getActor(),
@@ -345,7 +349,7 @@ void CommandBufferAgent::draw(const DrawInfo &info) {
         });
 }
 
-void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size) {
+void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint32_t size) {
     auto *bufferAgent = static_cast<BufferAgent *>(buff);
 
     uint8_t *actorBuffer{nullptr};
@@ -367,30 +371,31 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size)
         });
 }
 
-void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
-    uint bufferCount = 0U;
-    for (uint i = 0U; i < count; i++) {
+void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
+    uint32_t bufferCount = 0U;
+    for (uint32_t i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    uint totalSize = sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount;
-    for (uint i = 0U; i < count; i++) {
+    uint32_t totalSize = sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount;
+    for (uint32_t i = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
 
-        uint size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         totalSize += size * region.texSubres.layerCount;
     }
 
-    auto *allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
+    // TODO(PatriceJiang): in C++17 replace with:  auto *allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
+    auto *allocator = _CC_NEW_T_ALIGN_ARGS(ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator), totalSize);
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
     const auto **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
-    for (uint i = 0U, n = 0U; i < count; i++) {
+    for (uint32_t i = 0U, n = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
 
-        uint size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
-        for (uint l = 0; l < region.texSubres.layerCount; l++) {
+        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        for (uint32_t l = 0; l < region.texSubres.layerCount; l++) {
             auto *buffer = allocator->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
             actorBuffers[n++] = buffer;
@@ -407,11 +412,13 @@ void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
-            CC_DELETE(allocator);
+            // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
+            _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
+            allocator = nullptr;
         });
 }
 
-void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) {
     Texture *actorSrcTexture = nullptr;
     Texture *actorDstTexture = nullptr;
     if (srcTexture) actorSrcTexture = static_cast<TextureAgent *>(srcTexture)->getActor();
@@ -446,7 +453,7 @@ void CommandBufferAgent::dispatch(const DispatchInfo &info) {
         });
 }
 
-void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
     TextureBarrier **actorTextureBarriers = nullptr;
     Texture **       actorTextures        = nullptr;
 
@@ -455,7 +462,7 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
         memcpy(actorTextureBarriers, textureBarriers, textureBarrierCount * sizeof(uintptr_t));
 
         actorTextures = _messageQueue->allocate<Texture *>(textureBarrierCount);
-        for (uint i = 0U; i < textureBarrierCount; ++i) {
+        for (uint32_t i = 0U; i < textureBarrierCount; ++i) {
             actorTextures[i] = textures[i] ? static_cast<const TextureAgent *>(textures[i])->getActor() : nullptr;
         }
     }

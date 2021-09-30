@@ -35,7 +35,6 @@ class CCVKTexture;
 
 class CCVKGPUDevice;
 class CCVKGPUContext;
-class CCVKGPUSwapchain;
 
 class CCVKGPUBufferHub;
 class CCVKGPUTransportHub;
@@ -72,8 +71,7 @@ public:
     using Device::createTexture;
     using Device::createTextureBarrier;
 
-    void resize(uint width, uint height) override;
-    void acquire() override;
+    void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
     inline bool checkExtension(const String &extension) const {
@@ -82,9 +80,8 @@ public:
         });
     }
 
-    CCVKGPUContext *         gpuContext() const;
-    inline CCVKGPUDevice *   gpuDevice() const { return _gpuDevice; }
-    inline CCVKGPUSwapchain *gpuSwapchain() { return _gpuSwapchain; }
+    inline CCVKGPUDevice * gpuDevice() const { return _gpuDevice; }
+    inline CCVKGPUContext *gpuContext() { return _gpuContext; }
 
     inline CCVKGPUBufferHub *       gpuBufferHub() { return _gpuBufferHub; }
     inline CCVKGPUTransportHub *    gpuTransportHub() { return _gpuTransportHub; }
@@ -109,9 +106,9 @@ protected:
     void                 doDestroy() override;
     CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Queue *              createQueue() override;
+    Swapchain *          createSwapchain() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
-    Sampler *            createSampler() override;
     Shader *             createShader() override;
     InputAssembler *     createInputAssembler() override;
     RenderPass *         createRenderPass() override;
@@ -120,19 +117,19 @@ protected:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
-    GlobalBarrier *      createGlobalBarrier() override;
-    TextureBarrier *     createTextureBarrier() override;
-    void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
+
+    Sampler *       createSampler(const SamplerInfo &info, uint32_t hash) override;
+    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) override;
+
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
+    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
 
     void destroySwapchain();
     bool checkSwapchainStatus();
 
-    void releaseSurface(uintptr_t windowHandle) override;
-    void acquireSurface(uintptr_t windowHandle) override;
-
-    CCVKGPUDevice *       _gpuDevice    = nullptr;
-    CCVKGPUSwapchain *    _gpuSwapchain = nullptr;
+    CCVKGPUDevice *       _gpuDevice  = nullptr;
+    CCVKGPUContext *      _gpuContext = nullptr;
     vector<CCVKTexture *> _depthStencilTextures;
 
     vector<CCVKGPUFencePool *>         _gpuFencePools;
@@ -148,8 +145,6 @@ protected:
 
     vector<const char *> _layers;
     vector<const char *> _extensions;
-
-    bool _swapchainReady = false;
 };
 
 } // namespace gfx

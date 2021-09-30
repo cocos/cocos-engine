@@ -24,11 +24,12 @@
 ****************************************************************************/
 
 #include "VKUtils.h"
+#include "VKGPUObjects.h"
 
 namespace cc {
 namespace gfx {
 
-VkFormat mapVkFormat(Format format) {
+VkFormat mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice) {
     switch (format) {
         case Format::R8: return VK_FORMAT_R8_UNORM;
         case Format::R8SN: return VK_FORMAT_R8_SNORM;
@@ -81,12 +82,8 @@ VkFormat mapVkFormat(Format format) {
         case Format::RGB10A2: return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
         case Format::RGB10A2UI: return VK_FORMAT_A2B10G10R10_UINT_PACK32;
         case Format::RGB9E5: return VK_FORMAT_E5B9G9R9_UFLOAT_PACK32;
-        case Format::D16: return VK_FORMAT_D16_UNORM;
-        case Format::D16S8: return VK_FORMAT_D16_UNORM_S8_UINT;
-        case Format::D24: return VK_FORMAT_X8_D24_UNORM_PACK32;
-        case Format::D24S8: return VK_FORMAT_D24_UNORM_S8_UINT;
-        case Format::D32F: return VK_FORMAT_D32_SFLOAT;
-        case Format::D32F_S8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
+        case Format::DEPTH: return gpuDevice->depthFormat;
+        case Format::DEPTH_STENCIL: return gpuDevice->depthStencilFormat;
 
         case Format::BC1: return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
         case Format::BC1_ALPHA: return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
@@ -184,7 +181,7 @@ VkAttachmentStoreOp mapVkStoreOp(StoreOp storeOp) {
 }
 
 VkBufferUsageFlagBits mapVkBufferUsageFlagBits(BufferUsage usage) {
-    uint flags = 0U;
+    uint32_t flags = 0U;
     if (hasFlag(usage, BufferUsage::TRANSFER_SRC)) flags |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     if (hasFlag(usage, BufferUsage::TRANSFER_DST)) flags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     if (hasFlag(usage, BufferUsage::INDEX)) flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
@@ -211,7 +208,7 @@ VkImageType mapVkImageType(TextureType type) {
 }
 
 VkFormatFeatureFlags mapVkFormatFeatureFlags(TextureUsage usage) {
-    uint flags = 0U;
+    uint32_t flags = 0U;
     if (hasFlag(usage, TextureUsage::TRANSFER_SRC)) flags |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
     if (hasFlag(usage, TextureUsage::TRANSFER_DST)) flags |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
     if (hasFlag(usage, TextureUsage::SAMPLED)) flags |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT;
@@ -222,7 +219,7 @@ VkFormatFeatureFlags mapVkFormatFeatureFlags(TextureUsage usage) {
 }
 
 VkImageUsageFlagBits mapVkImageUsageFlagBits(TextureUsage usage) {
-    uint flags = 0U;
+    uint32_t flags = 0U;
     if (hasFlag(usage, TextureUsage::TRANSFER_SRC)) flags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     if (hasFlag(usage, TextureUsage::TRANSFER_DST)) flags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     if (hasFlag(usage, TextureUsage::SAMPLED)) flags |= VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -242,7 +239,7 @@ VkImageAspectFlags mapVkImageAspectFlags(Format format) {
 }
 
 VkImageCreateFlags mapVkImageCreateFlags(TextureType type) {
-    uint res = 0U;
+    uint32_t res = 0U;
     switch (type) {
         case TextureType::CUBE: res |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT; break;
         case TextureType::TEX2D_ARRAY: res |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT; break;
@@ -296,7 +293,7 @@ VkDescriptorType mapVkDescriptorType(DescriptorType type) {
 }
 
 VkColorComponentFlags mapVkColorComponentFlags(ColorMask colorMask) {
-    uint flags = 0U;
+    uint32_t flags = 0U;
     if (hasFlag(colorMask, ColorMask::R)) flags |= VK_COLOR_COMPONENT_R_BIT;
     if (hasFlag(colorMask, ColorMask::G)) flags |= VK_COLOR_COMPONENT_G_BIT;
     if (hasFlag(colorMask, ColorMask::B)) flags |= VK_COLOR_COMPONENT_B_BIT;
@@ -320,7 +317,7 @@ VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage) {
 }
 
 VkShaderStageFlags mapVkShaderStageFlags(ShaderStageFlagBit stages) {
-    uint flags = 0U;
+    uint32_t flags = 0U;
     if (hasFlag(stages, ShaderStageFlagBit::VERTEX)) flags |= VK_SHADER_STAGE_VERTEX_BIT;
     if (hasFlag(stages, ShaderStageFlagBit::CONTROL)) flags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
     if (hasFlag(stages, ShaderStageFlagBit::EVALUATION)) flags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
@@ -348,36 +345,6 @@ String mapVendorName(uint32_t vendorID) {
         case 0x8086: return "Intel Corporation";
     }
     return StringUtil::format("Unknown VendorID %d", vendorID);
-}
-
-void mapDepthStencilBits(Format format, uint *pDepthBits, uint *pStencilBits) {
-    switch (format) {
-        case Format::D16:
-            *pDepthBits   = 16;
-            *pStencilBits = 0;
-            break;
-        case Format::D16S8:
-            *pDepthBits   = 16;
-            *pStencilBits = 8;
-            break;
-        case Format::D24:
-            *pDepthBits   = 24;
-            *pStencilBits = 0;
-            break;
-        case Format::D24S8:
-            *pDepthBits   = 24;
-            *pStencilBits = 8;
-            break;
-        case Format::D32F:
-            *pDepthBits   = 32;
-            *pStencilBits = 0;
-            break;
-        case Format::D32F_S8:
-            *pDepthBits   = 32;
-            *pStencilBits = 8;
-            break;
-        default: break;
-    }
 }
 
 const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING =
@@ -546,6 +513,17 @@ const VkStencilFaceFlags VK_STENCIL_FACE_FLAGS[] = {
     VK_STENCIL_FACE_FRONT_AND_BACK,
 };
 
+const VkSampleCountFlags VK_SAMPLE_COUNT_FLAGS[] = {
+    VK_SAMPLE_COUNT_1_BIT,
+    VK_SAMPLE_COUNT_2_BIT,
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
+#else // desktop platforms
+    VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
+#endif
+    VK_SAMPLE_COUNT_16_BIT | VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_4_BIT | VK_SAMPLE_COUNT_2_BIT,
+};
+
 const VkAccessFlags FULL_ACCESS_FLAGS =
     VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
     VK_ACCESS_INDEX_READ_BIT |
@@ -573,7 +551,7 @@ void fullPipelineBarrier(VkCommandBuffer cmdBuff) {
 #endif
 }
 
-VkDeviceSize roundUp(VkDeviceSize numToRound, uint multiple) {
+VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple) {
     return ((numToRound + multiple - 1) / multiple) * multiple;
 }
 

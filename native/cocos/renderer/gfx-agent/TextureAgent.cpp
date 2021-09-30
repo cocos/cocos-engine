@@ -28,23 +28,27 @@
 
 #include "DeviceAgent.h"
 #include "TextureAgent.h"
+#include "gfx-agent/SwapchainAgent.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace gfx {
 
 TextureAgent::TextureAgent(Texture *actor)
 : Agent<Texture>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 TextureAgent::~TextureAgent() {
-    ENQUEUE_MESSAGE_1(
-        DeviceAgent::getInstance()->getMessageQueue(),
-        TextureDestruct,
-        actor, _actor,
-        {
-            CC_SAFE_DELETE(actor);
-        });
+    if (_ownTheActor) {
+        ENQUEUE_MESSAGE_1(
+            DeviceAgent::getInstance()->getMessageQueue(),
+            TextureDestruct,
+            actor, _actor,
+            {
+                CC_SAFE_DELETE(actor);
+            });
+    }
 }
 
 void TextureAgent::doInit(const TextureInfo &info) {
@@ -72,6 +76,10 @@ void TextureAgent::doInit(const TextureViewInfo &info) {
         });
 }
 
+void TextureAgent::doInit(const SwapchainTextureInfo &info) {
+    // the actor is already initialized
+}
+
 void TextureAgent::doDestroy() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -82,7 +90,7 @@ void TextureAgent::doDestroy() {
         });
 }
 
-void TextureAgent::doResize(uint width, uint height, uint /*size*/) {
+void TextureAgent::doResize(uint32_t width, uint32_t height, uint32_t /*size*/) {
     ENQUEUE_MESSAGE_3(
         DeviceAgent::getInstance()->getMessageQueue(),
         TextureResize,

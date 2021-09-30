@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "base/CoreStd.h"
 #include "jsb_global_init.h"
 
 template <typename T, class... Args>

@@ -27,6 +27,7 @@
 
 #include <android_native_app_glue.h>
 #include <cstring>
+#include <sstream>
 #include "audio/include/AudioEngine.h"
 #include "base/Scheduler.h"
 #include "cocos/bindings/event/EventDispatcher.h"
@@ -58,13 +59,21 @@ namespace {
 bool setCanvasCallback(se::Object * /*global*/) {
     auto                viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
     se::AutoHandleScope scope;
-    se::ScriptEngine *  se              = se::ScriptEngine::getInstance();
-    char                commandBuf[200] = {0};
-    sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-            static_cast<int>(viewLogicalSize.x),
-            static_cast<int>(viewLogicalSize.y),
-            reinterpret_cast<uintptr_t>(cc::cocosApp.window));
-    se->evalString(commandBuf);
+    se::ScriptEngine *  se = se::ScriptEngine::getInstance();
+    std::stringstream   ss;
+    {
+        auto windowPtr = reinterpret_cast<uintptr_t>(cc::cocosApp.window);
+        ss << "window.innerWidth = " << static_cast<int>(viewLogicalSize.x) << ";";
+        ss << "window.innerHeight = " << static_cast<int>(viewLogicalSize.y) << ";";
+        ss << "window.windowHandler = ";
+        if (sizeof(windowPtr) == 8) { // use bigint
+            ss << static_cast<uint64_t>(windowPtr) << "n;";
+        }
+        if (sizeof(windowPtr) == 4) {
+            ss << static_cast<uint32_t>(windowPtr) << ";";
+        }
+    }
+    se->evalString(ss.str().c_str());
 
     return true;
 }

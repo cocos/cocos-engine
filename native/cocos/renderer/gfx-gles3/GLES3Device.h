@@ -31,9 +31,9 @@
 namespace cc {
 namespace gfx {
 
-class GLES3Context;
+class GLES3GPUContext;
+class GLES3GPUSwapchain;
 class GLES3GPUStateCache;
-class GLES3GPUStagingBufferPool;
 class GLES3GPUFramebufferCacheMap;
 class GLES3GPUConstantRegistry;
 
@@ -57,15 +57,15 @@ public:
     using Device::createRenderPass;
     using Device::createSampler;
     using Device::createShader;
+    using Device::createSwapchain;
     using Device::createTexture;
     using Device::createTextureBarrier;
 
-    void resize(uint width, uint height) override;
-    void acquire() override;
+    void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
+    inline GLES3GPUContext *            context() const { return _gpuContext; }
     inline GLES3GPUStateCache *         stateCache() const { return _gpuStateCache; }
-    inline GLES3GPUStagingBufferPool *  stagingBufferPool() const { return _gpuStagingBufferPool; }
     inline GLES3GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
@@ -79,7 +79,6 @@ protected:
     static GLES3Device *instance;
 
     friend class DeviceManager;
-    friend class GLES3Context;
 
     GLES3Device();
 
@@ -87,9 +86,9 @@ protected:
     void                 doDestroy() override;
     CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Queue *              createQueue() override;
+    Swapchain *          createSwapchain() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
-    Sampler *            createSampler() override;
     Shader *             createShader() override;
     InputAssembler *     createInputAssembler() override;
     RenderPass *         createRenderPass() override;
@@ -98,23 +97,22 @@ protected:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
-    GlobalBarrier *      createGlobalBarrier() override;
-    TextureBarrier *     createTextureBarrier() override;
-    void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
-    void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
 
-    void releaseSurface(uintptr_t windowHandle) override;
-    void acquireSurface(uintptr_t windowHandle) override;
+    Sampler *       createSampler(const SamplerInfo &info, uint32_t hash) override;
+    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) override;
 
-    void bindRenderContext(bool bound) override;
-    void bindDeviceContext(bool bound) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
+    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
 
-    GLES3Context *               _renderContext          = nullptr;
-    GLES3Context *               _deviceContext          = nullptr;
-    GLES3GPUStateCache *         _gpuStateCache          = nullptr;
-    GLES3GPUStagingBufferPool *  _gpuStagingBufferPool   = nullptr;
-    GLES3GPUConstantRegistry *   _gpuConstantRegistry    = nullptr;
-    GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
+    void bindContext(bool bound) override;
+
+    GLES3GPUStateCache *         _gpuStateCache{nullptr};
+    GLES3GPUContext *            _gpuContext{nullptr};
+    GLES3GPUConstantRegistry *   _gpuConstantRegistry{nullptr};
+    GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
+
+    vector<GLES3GPUSwapchain *> _swapchains;
 
     StringArray _extensions;
 };

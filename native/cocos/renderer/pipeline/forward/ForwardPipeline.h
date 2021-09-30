@@ -27,9 +27,13 @@
 
 #include <array>
 #include "../RenderPipeline.h"
+#include "frame-graph/FrameGraph.h"
+#include "frame-graph/Handle.h"
+#include "pipeline/common/Enum.h"
 
 namespace cc {
 namespace pipeline {
+
 struct UBOGlobal;
 struct UBOCamera;
 struct UBOShadow;
@@ -41,19 +45,24 @@ public:
 
     bool initialize(const RenderPipelineInfo &info) override;
     void destroy() override;
-    bool activate() override;
+    bool activate(gfx::Swapchain *swapchain) override;
     void render(const vector<scene::Camera *> &cameras) override;
-
-    gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
     inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
     inline const LightList &      getValidLights() const { return _validLights; }
     inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
     inline const UintList &       getLightIndexOffsets() const { return _lightIndexOffsets; }
     inline const UintList &       getLightIndices() const { return _lightIndices; }
+    inline uint                   getWidth() const { return _width; }
+    inline uint                   getHeight() const { return _height; }
+
+    static framegraph::StringHandle fgStrHandleForwardColorTexture;
+    static framegraph::StringHandle fgStrHandleForwardDepthTexture;
+
+    static framegraph::StringHandle fgStrHandleForwardPass;
 
 private:
-    bool activeRenderer();
+    bool activeRenderer(gfx::Swapchain *swapchain);
     void updateUBO(scene::Camera *);
 
     gfx::Buffer *                                     _lightsUBO = nullptr;
@@ -61,7 +70,9 @@ private:
     gfx::BufferList                                   _lightBuffers;
     UintList                                          _lightIndexOffsets;
     UintList                                          _lightIndices;
-    unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
+
+    uint                   _width  = 0;
+    uint                   _height = 0;
 };
 
 } // namespace pipeline

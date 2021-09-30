@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "gfx-base/GFXDef.h"
 #include "gfx-base/GFXTexture.h"
 
 namespace cc {
@@ -35,8 +36,9 @@ public:
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
+    void doInit(const SwapchainTextureInfo &info) override;
     void doDestroy() override;
-    void doResize(uint width, uint height, uint size) override;
+    void doResize(uint32_t width, uint32_t height, uint32_t size) override;
 };
 
 } // namespace gfx

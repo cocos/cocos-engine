@@ -24,14 +24,23 @@
  ****************************************************************************/
 
 #include "scene/RenderScene.h"
-
 #include <utility>
 #include "base/Log.h"
+#include "scene/Octree.h"
+
 
 extern void jsbFlushFastMQ();
 
 namespace cc {
 namespace scene {
+
+RenderScene::RenderScene() {
+    _octree = new Octree();
+}
+
+RenderScene::~RenderScene() {
+    delete _octree;
+}
 
 void RenderScene::update(uint32_t stamp) {
     jsbFlushFastMQ();
@@ -89,14 +98,20 @@ void RenderScene::removeSpotLights() {
 
 void RenderScene::addModel(Model *model) {
     _models.push_back(model);
+    model->setScene(this);
+    _octree->insert(model);
 }
 
 void RenderScene::addBakedSkinningModel(BakedSkinningModel *bakedSkinModel) {
     _models.push_back(bakedSkinModel);
+    bakedSkinModel->setScene(this);
+    _octree->insert(bakedSkinModel);
 }
 
 void RenderScene::addSkinningModel(SkinningModel *skinModel) {
     _models.push_back(skinModel);
+    skinModel->setScene(this);
+    _octree->insert(skinModel);
 }
 
 void RenderScene::removeModel(uint32_t idx) {
@@ -104,10 +119,19 @@ void RenderScene::removeModel(uint32_t idx) {
         CC_LOG_WARNING("Try to remove invalid model.");
         return;
     }
-    _models.erase(_models.begin() + idx);
+    auto iter = _models.begin() + idx;
+    _octree->remove(*iter);
+    (*iter)->setScene(nullptr);
+
+    _models.erase(iter);
 }
 
 void RenderScene::removeModels() {
+    for (auto *model : _models) {
+        _octree->remove(model);
+        model->setScene(nullptr);
+    }
+
     _models.clear();
 }
 
@@ -138,6 +162,12 @@ void RenderScene::removeBatch(uint32_t index) {
 
 void RenderScene::removeBatches() {
     _drawBatch2Ds.clear();
+}
+
+void RenderScene::updateOctree(Model *model) {
+    if (_octree) {
+        _octree->update(model);
+    }
 }
 
 } // namespace scene

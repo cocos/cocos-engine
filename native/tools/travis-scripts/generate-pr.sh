@@ -38,9 +38,9 @@ if [ "$TRAVIS_OS_NAME" != "linux" ]; then
   exit 0
 fi
 
-if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-  exit 0
-fi
+# if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+#   exit 0
+# fi
 
 
 if [ -z "${GH_EMAIL}" ]; then
@@ -131,9 +131,28 @@ echo "  finish push ..."
 # set +x
 
 # 7.
-ENCODED_MESSAGE=$(python -c "from cgi import escape; print escape('''$TRAVIS_COMMIT_MESSAGE''')")
+
+PY_SCRIPT=$(cat << EOF
+import json
+title='''${COMMITTAG}'''
+body='''${TRAVIS_COMMIT_MESSAGE}'''
+head='''${GH_USER}:${COCOS_BRANCH}'''
+base='${TRAVIS_BRANCH}'
+
+dict = {
+  "title": title,
+  "head": head,
+  "body": body,
+  "base": base
+}
+print(json.dumps(dict))
+EOF
+)
+
+POST_DATA=$(python -c "$PY_SCRIPT")
+
 echo "Sending Pull Request to base repo ..."
-curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"> $ENCODED_MESSAGE\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
+curl -u $GH_USER:$GH_PASSWORD --request POST --data "$POST_DATA" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
 
 echo "  finish sending PR ..."
 

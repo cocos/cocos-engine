@@ -38,12 +38,12 @@ Buffer::Buffer()
 
 Buffer::~Buffer() = default;
 
-uint Buffer::computeHash(const BufferInfo &info) {
-    uint seed = 4;
-    seed ^= static_cast<uint>(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.memUsage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.size) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint>(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+uint32_t Buffer::computeHash(const BufferInfo &info) {
+    uint32_t seed = 4;
+    seed ^= static_cast<uint32_t>(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint32_t>(info.memUsage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint32_t>(info.size) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint32_t>(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
 }
 
@@ -76,9 +76,9 @@ void Buffer::destroy() {
     _offset = _size = _stride = _count = 0U;
 }
 
-void Buffer::resize(uint size) {
+void Buffer::resize(uint32_t size) {
     if (size != _size) {
-        uint count = size / _stride;
+        uint32_t count = size / _stride;
         doResize(size, count);
 
         _size  = size;

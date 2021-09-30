@@ -82,7 +82,7 @@ void GLES3Buffer::doDestroy() {
     }
 }
 
-void GLES3Buffer::doResize(uint size, uint count) {
+void GLES3Buffer::doResize(uint32_t size, uint32_t count) {
     GLES3Device::getInstance()->getMemoryStatus().bufferSize -= _size;
 
     _gpuBuffer->size  = size;
@@ -92,7 +92,7 @@ void GLES3Buffer::doResize(uint size, uint count) {
     GLES3Device::getInstance()->getMemoryStatus().bufferSize += size;
 }
 
-void GLES3Buffer::update(const void *buffer, uint size) {
+void GLES3Buffer::update(const void *buffer, uint32_t size) {
     cmdFuncGLES3UpdateBuffer(GLES3Device::getInstance(), _gpuBuffer, buffer, 0U, size);
 }
 

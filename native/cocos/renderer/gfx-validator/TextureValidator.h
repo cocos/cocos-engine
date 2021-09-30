@@ -38,13 +38,19 @@ public:
 
     void sanityCheck();
 
+    inline void renounceOwnership() { _ownTheActor = false; }
+    inline bool isInited() const { return _inited; }
+
 protected:
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
+    void doInit(const SwapchainTextureInfo &info) override;
     void doDestroy() override;
-    void doResize(uint width, uint height, uint size) override;
+    void doResize(uint32_t width, uint32_t height, uint32_t size) override;
 
-    uint _lastUpdateFrame = 0U;
+    uint32_t _lastUpdateFrame{0U};
+    bool     _ownTheActor{true};
+    bool     _inited{false};
 };
 
 } // namespace gfx

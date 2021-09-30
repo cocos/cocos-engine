@@ -115,6 +115,8 @@ const gfx::UniformBlock UBOCamera::LAYOUT = {
         {"cc_fogColor", gfx::Type::FLOAT4, 1},
         {"cc_fogBase", gfx::Type::FLOAT4, 1},
         {"cc_fogAdd", gfx::Type::FLOAT4, 1},
+        {"cc_nearFar", gfx::Type::FLOAT4, 1},
+        {"cc_viewPort", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -135,6 +137,9 @@ const gfx::UniformBlock UBOShadow::LAYOUT = {
         {"cc_matLightPlaneProj", gfx::Type::MAT4, 1},
         {"cc_matLightView", gfx::Type::MAT4, 1},
         {"cc_matLightViewProj", gfx::Type::MAT4, 1},
+        {"cc_shadowInvProjDepthInfo", gfx::Type::FLOAT4, 1},
+        {"cc_shadowProjDepthInfo", gfx::Type::FLOAT4, 1},
+        {"cc_shadowProjInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowNFLSInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowWHPBInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowLPNNInfo", gfx::Type::FLOAT4, 1},
@@ -271,86 +276,6 @@ const gfx::UniformSamplerTexture SHADOWMAP::LAYOUT = {
     globalSet,
     SHADOWMAP::BINDING,
     SHADOWMAP::NAME,
-    gfx::Type::SAMPLER2D,
-    1,
-};
-
-const String                          SAMPLERGBUFFERALBEDOMAP::NAME       = "cc_gbuffer_albedoMap";
-const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERALBEDOMAP::DESCRIPTOR = {
-    SAMPLERGBUFFERALBEDOMAP::BINDING,
-    gfx::DescriptorType::SAMPLER_TEXTURE,
-    1,
-    gfx::ShaderStageFlagBit::FRAGMENT,
-    {},
-};
-const gfx::UniformSamplerTexture SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
-    globalSet,
-    SAMPLERGBUFFERALBEDOMAP::BINDING,
-    SAMPLERGBUFFERALBEDOMAP::NAME,
-    gfx::Type::SAMPLER2D,
-    1,
-};
-
-const String                          SAMPLERGBUFFERPOSITIONMAP::NAME       = "cc_gbuffer_positionMap";
-const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERPOSITIONMAP::DESCRIPTOR = {
-    SAMPLERGBUFFERPOSITIONMAP::BINDING,
-    gfx::DescriptorType::SAMPLER_TEXTURE,
-    1,
-    gfx::ShaderStageFlagBit::FRAGMENT,
-    {},
-};
-const gfx::UniformSamplerTexture SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
-    globalSet,
-    SAMPLERGBUFFERPOSITIONMAP::BINDING,
-    SAMPLERGBUFFERPOSITIONMAP::NAME,
-    gfx::Type::SAMPLER2D,
-    1,
-};
-
-const String                          SAMPLERGBUFFERNORMALMAP::NAME       = "cc_gbuffer_normalMap";
-const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERNORMALMAP::DESCRIPTOR = {
-    SAMPLERGBUFFERNORMALMAP::BINDING,
-    gfx::DescriptorType::SAMPLER_TEXTURE,
-    1,
-    gfx::ShaderStageFlagBit::FRAGMENT,
-    {},
-};
-const gfx::UniformSamplerTexture SAMPLERGBUFFERNORMALMAP::LAYOUT = {
-    globalSet,
-    SAMPLERGBUFFERNORMALMAP::BINDING,
-    SAMPLERGBUFFERNORMALMAP::NAME,
-    gfx::Type::SAMPLER2D,
-    1,
-};
-
-const String                          SAMPLERGBUFFEREMISSIVEMAP::NAME       = "cc_gbuffer_emissiveMap";
-const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFEREMISSIVEMAP::DESCRIPTOR = {
-    SAMPLERGBUFFEREMISSIVEMAP::BINDING,
-    gfx::DescriptorType::SAMPLER_TEXTURE,
-    1,
-    gfx::ShaderStageFlagBit::FRAGMENT,
-    {},
-};
-const gfx::UniformSamplerTexture SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
-    globalSet,
-    SAMPLERGBUFFEREMISSIVEMAP::BINDING,
-    SAMPLERGBUFFEREMISSIVEMAP::NAME,
-    gfx::Type::SAMPLER2D,
-    1,
-};
-
-const String                          SAMPLERLIGHTINGRESULTMAP::NAME       = "cc_lighting_resultMap";
-const gfx::DescriptorSetLayoutBinding SAMPLERLIGHTINGRESULTMAP::DESCRIPTOR = {
-    SAMPLERLIGHTINGRESULTMAP::BINDING,
-    gfx::DescriptorType::SAMPLER_TEXTURE,
-    1,
-    gfx::ShaderStageFlagBit::FRAGMENT,
-    {},
-};
-const gfx::UniformSamplerTexture SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
-    globalSet,
-    SAMPLERLIGHTINGRESULTMAP::BINDING,
-    SAMPLERLIGHTINGRESULTMAP::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
@@ -515,54 +440,6 @@ const gfx::UniformStorageImage REFLECTIONSTORAGE::LAYOUT = {
     1,
 };
 
-uint SamplerLib::defaultSamplerHash{genSamplerHash(gfx::SamplerInfo())};
-
-unordered_map<uint, gfx::Sampler *> SamplerLib::samplerCache{};
-
-uint SamplerLib::genSamplerHash(const gfx::SamplerInfo &info) {
-    uint hash = 0;
-    hash |= static_cast<uint>(info.minFilter);
-    hash |= static_cast<uint>(info.magFilter) << 2;
-    hash |= static_cast<uint>(info.mipFilter) << 4;
-    hash |= static_cast<uint>(info.addressU) << 6;
-    hash |= static_cast<uint>(info.addressV) << 8;
-    hash |= static_cast<uint>(info.addressW) << 10;
-    hash |= static_cast<uint>(info.maxAnisotropy) << 12;
-    hash |= static_cast<uint>(info.cmpFunc) << 16;
-    hash |= static_cast<uint>(info.mipLODBias) << 28;
-    return hash;
-}
-
-gfx::Sampler *SamplerLib::getSampler(uint hash) {
-    if (hash == 0) {
-        hash = defaultSamplerHash;
-    }
-
-    if (samplerCache.count(hash)) {
-        return samplerCache[hash];
-    }
-
-    gfx::SamplerInfo info;
-    info.minFilter     = static_cast<gfx::Filter>(hash & 3);
-    info.magFilter     = static_cast<gfx::Filter>((hash >> 2) & 3);
-    info.mipFilter     = static_cast<gfx::Filter>((hash >> 4) & 3);
-    info.addressU      = static_cast<gfx::Address>((hash >> 6) & 3);
-    info.addressV      = static_cast<gfx::Address>((hash >> 8) & 3);
-    info.addressW      = static_cast<gfx::Address>((hash >> 10) & 3);
-    info.maxAnisotropy = ((hash >> 12) & 15);
-    info.cmpFunc       = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
-    info.mipLODBias    = static_cast<float>((hash >> 28) & 15);
-
-    return samplerCache[hash] = gfx::Device::getInstance()->createSampler(info);
-}
-
-void SamplerLib::destroyAll() {
-    for (auto &pair : samplerCache) {
-        CC_SAFE_DESTROY(pair.second);
-    }
-    samplerCache.clear();
-}
-
 uint skyboxFlag = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
 
 uint nextPow2(uint val) {
@@ -578,7 +455,8 @@ uint nextPow2(uint val) {
 
 bool supportsHalfFloatTexture(gfx::Device *device) {
     return device->hasFeature(gfx::Feature::COLOR_HALF_FLOAT) &&
-           device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT);
+           device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT) &&
+           device->getGfxAPI() != gfx::API::GLES2;
 }
 
 uint getPhaseID(const String &phase) {

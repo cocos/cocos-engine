@@ -25,14 +25,17 @@
 
 #pragma once
 
-#include "gfx-base/GFXDevice.h"
-#include "MTLConfig.h"
+#import "gfx-base/GFXDevice.h"
+#import "MTLConfig.h"
 
 namespace cc {
 namespace gfx {
 
+struct CCMTLGPUDeviceObject;
+
 class CCMTLGPUStagingBufferPool;
 class CCMTLSemaphore;
+class CCMTLSwapchain;
 
 class CCMTLDevice final : public Device {
 public:
@@ -57,23 +60,15 @@ public:
     using Device::createPipelineState;
     using Device::createQueue;
     using Device::createRenderPass;
-    using Device::createSampler;
     using Device::createShader;
     using Device::createTexture;
-    using Device::createGlobalBarrier;
-    using Device::createTextureBarrier;
 
-    void resize(uint width, uint height) override;
-    void acquire() override;
+    void acquire(Swapchain *const *swapchains, uint32_t count) override;
     void present() override;
 
     void onPresentCompleted();
-    void* getCurrentDrawable();
-    void disposeCurrentDrawable();
-    uint preferredPixelFormat();
 
     inline void *getMTLCommandQueue() const { return _mtlCommandQueue; }
-    inline void *getMTLLayer() const { return _mtlLayer; }
     inline void *getMTLDevice() const { return _mtlDevice; }
     inline uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
     inline uint getMaximumColorRenderTargets() const { return _caps.maxColorRenderTargets; }
@@ -83,7 +78,14 @@ public:
     inline CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
     inline bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
     inline uint currentFrameIndex() const { return _currentFrameIndex; }
-    inline void *getDSTexture() const { return _dsTex; }
+
+    inline void registerSwapchain(CCMTLSwapchain* swapchain) { _swapchains.push_back(swapchain); }
+    inline void unRegisterSwapchain(CCMTLSwapchain* swapchain) {
+        auto iter = std::find(_swapchains.begin(), _swapchains.end(), swapchain);
+        if(iter != _swapchains.end()) {
+            _swapchains.erase(iter);
+        }
+    }
 
 protected:
     static CCMTLDevice * _instance;
@@ -96,7 +98,6 @@ protected:
     Queue *createQueue() override;
     Buffer *createBuffer() override;
     Texture *createTexture() override;
-    Sampler *createSampler() override;
     Shader *createShader() override;
     InputAssembler *createInputAssembler() override;
     RenderPass *createRenderPass() override;
@@ -105,8 +106,10 @@ protected:
     DescriptorSetLayout *createDescriptorSetLayout() override;
     PipelineLayout *createPipelineLayout() override;
     PipelineState *createPipelineState() override;
-    GlobalBarrier *createGlobalBarrier() override;
-    TextureBarrier *createTextureBarrier() override;
+    GlobalBarrier *createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo& info, uint32_t hash) override;
+    Sampler *createSampler(const SamplerInfo& info, uint32_t hash) override;
+    Swapchain *createSwapchain() override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
 
@@ -115,8 +118,6 @@ protected:
     void *_autoreleasePool = nullptr;
     void *_mtlCommandQueue = nullptr;
     void *_mtlDevice = nullptr;
-    void *_mtlLayer = nullptr;
-    void *_dsTex = nullptr;
     void *_activeDrawable = nullptr;
     unsigned long _mtlFeatureSet = 0;
     uint _maxSamplerUnits = 0;
@@ -129,6 +130,10 @@ protected:
     uint _currentFrameIndex = 0;
     CCMTLSemaphore *_inFlightSemaphore = nullptr;
     CC_UNUSED uint32_t _memoryAlarmListenerId = 0;
+
+    std::vector<CCMTLSwapchain*> _swapchains;
+
+    CCMTLGPUDeviceObject* _gpuDeviceObj = nullptr;
 };
 
 } // namespace gfx

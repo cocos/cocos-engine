@@ -36,7 +36,7 @@ namespace gfx {
 
 FramebufferAgent::FramebufferAgent(Framebuffer *actor)
 : Agent<Framebuffer>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 FramebufferAgent::~FramebufferAgent() {
@@ -51,7 +51,7 @@ FramebufferAgent::~FramebufferAgent() {
 
 void FramebufferAgent::doInit(const FramebufferInfo &info) {
     FramebufferInfo actorInfo = info;
-    for (uint i = 0U; i < info.colorTextures.size(); ++i) {
+    for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
         if (info.colorTextures[i]) {
             actorInfo.colorTextures[i] = static_cast<TextureAgent *>(info.colorTextures[i])->getActor();
         }

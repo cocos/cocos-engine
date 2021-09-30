@@ -38,7 +38,7 @@ namespace gfx {
 
 PipelineStateValidator::PipelineStateValidator(PipelineState *actor)
 : Agent<PipelineState>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 PipelineStateValidator::~PipelineStateValidator() {
@@ -47,23 +47,28 @@ PipelineStateValidator::~PipelineStateValidator() {
 }
 
 void PipelineStateValidator::doInit(const PipelineStateInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+    CCASSERT(info.shader && static_cast<ShaderValidator *>(info.shader)->isInited(), "already destroyed?");
+    CCASSERT(info.pipelineLayout && static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->isInited(), "already destroyed?");
+    CCASSERT(!info.renderPass || static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
+
+    /////////// execute ///////////
+
     PipelineStateInfo actorInfo = info;
     actorInfo.shader            = static_cast<ShaderValidator *>(info.shader)->getActor();
     actorInfo.pipelineLayout    = static_cast<PipelineLayoutValidator *>(info.pipelineLayout)->getActor();
-    if (info.renderPass) {
-        actorInfo.renderPass = static_cast<RenderPassValidator *>(info.renderPass)->getActor();
-
-        // const auto &subpasses            = info.renderPass->getSubpasses();
-        // size_t      colorAttachmentCount = info.subpass >= subpasses.size()
-        //                                        ? info.renderPass->getColorAttachments().size()
-        //                                        : subpasses[info.subpass].colors.size();
-        //CCASSERT(colorAttachmentCount == info.blendState.targets.size(), "Wrong number of blend targets"); // be more lenient on this
-    }
+    if (info.renderPass) actorInfo.renderPass = static_cast<RenderPassValidator *>(info.renderPass)->getActor();
 
     _actor->initialize(actorInfo);
 }
 
 void PipelineStateValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 

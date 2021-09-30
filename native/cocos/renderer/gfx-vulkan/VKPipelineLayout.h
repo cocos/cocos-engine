@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_PIPELINE_LAYOUT_H_
-#define CC_GFXVULKAN_PIPELINE_LAYOUT_H_
+#pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXPipelineLayout.h"
 
 namespace cc {
@@ -36,7 +36,7 @@ class CCVKGPUPipelineLayout;
 class CC_VULKAN_API CCVKPipelineLayout final : public PipelineLayout {
 public:
     CCVKPipelineLayout();
-    ~CCVKPipelineLayout();
+    ~CCVKPipelineLayout() override;
 
     inline CCVKGPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
 
@@ -49,5 +49,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXVULKAN_PIPELINE_LAYOUT_H_

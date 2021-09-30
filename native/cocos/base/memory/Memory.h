@@ -29,6 +29,9 @@
 #include "MemDef.h"
 #include "MemTracker.h"
 #include "StlAlloc.h"
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+#include <Availability.h>
+#endif
 
 // Global Interface Definitions
 
@@ -144,4 +147,10 @@ CC_CORE_API void *BareNewErroneouslyCalled(size_t sz);
 inline void *operator new(size_t sz) { return BareNewErroneouslyCalled(sz); }
 inline void operator delete(void *ptr) throw() { free(ptr); }
     #endif
+#endif
+
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) && (__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_11_0)
+#define ALIGNAS(x)
+#else
+#define ALIGNAS(x) alignas(x)
 #endif

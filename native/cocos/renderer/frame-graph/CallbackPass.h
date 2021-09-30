@@ -32,20 +32,24 @@ namespace framegraph {
 
 class Executable {
 public:
-    Executable() noexcept          = default;
-    virtual ~Executable()          = default;
-    Executable(const Executable &) = delete;
-    Executable(Executable &&)      = delete;
+    Executable() noexcept              = default;
+    virtual ~Executable()              = default;
+    Executable(const Executable &)     = delete;
+    Executable(Executable &&) noexcept = delete;
     Executable &operator=(const Executable &) = delete;
-    Executable &operator=(Executable &&) = delete;
+    Executable &operator=(Executable &&) noexcept = delete;
 
     virtual void execute(const DevicePassResourceTable &resourceTable) noexcept = 0;
 };
 
-template <typename Data, typename ExecuteMethod>
+template <typename Data, typename ExecuteMethodType>
 class CallbackPass final : public Executable {
 public:
+    using ExecuteMethod = std::remove_reference_t<ExecuteMethodType>;
+
+    explicit CallbackPass(ExecuteMethod &execute) noexcept;
     explicit CallbackPass(ExecuteMethod &&execute) noexcept;
+
     void               execute(const DevicePassResourceTable &resourceTable) noexcept override;
     inline const Data &getData() const noexcept { return _data; }
     inline Data &      getData() noexcept { return _data; }
@@ -56,6 +60,12 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+template <typename Data, typename ExecuteMethod>
+CallbackPass<Data, ExecuteMethod>::CallbackPass(ExecuteMethod &execute) noexcept
+: Executable(),
+  _execute(execute) {
+}
 
 template <typename Data, typename ExecuteMethod>
 CallbackPass<Data, ExecuteMethod>::CallbackPass(ExecuteMethod &&execute) noexcept

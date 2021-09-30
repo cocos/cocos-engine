@@ -36,7 +36,7 @@ namespace gfx {
 
 QueueAgent::QueueAgent(Queue *actor)
 : Agent<Queue>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 QueueAgent::~QueueAgent() {
@@ -70,12 +70,12 @@ void QueueAgent::doDestroy() {
         });
 }
 
-void QueueAgent::submit(CommandBuffer *const *cmdBuffs, uint count) {
+void QueueAgent::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
-    MessageQueue *msgQ = DeviceAgent::getInstance()->getMessageQueue();
-    auto **actorCmdBuffs = msgQ->allocate<CommandBuffer *>(count);
-    for (uint i = 0U; i < count; ++i) {
+    MessageQueue *msgQ          = DeviceAgent::getInstance()->getMessageQueue();
+    auto **       actorCmdBuffs = msgQ->allocate<CommandBuffer *>(count);
+    for (uint32_t i = 0U; i < count; ++i) {
         actorCmdBuffs[i] = static_cast<CommandBufferAgent *>(cmdBuffs[i])->getActor();
     }
 

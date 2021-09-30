@@ -34,13 +34,13 @@ void EmptyBuffer::doInit(const BufferInfo &info) {
 void EmptyBuffer::doInit(const BufferViewInfo &info) {
 }
 
-void EmptyBuffer::doResize(uint size, uint count) {
+void EmptyBuffer::doResize(uint32_t size, uint32_t count) {
 }
 
 void EmptyBuffer::doDestroy() {
 }
 
-void EmptyBuffer::update(const void *buffer, uint size) {
+void EmptyBuffer::update(const void *buffer, uint32_t size) {
 }
 
 } // namespace gfx

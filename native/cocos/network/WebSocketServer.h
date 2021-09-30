@@ -27,7 +27,10 @@
 
 #if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
 
+    // clang-format off
+    #include "base/Macros.h"
     #include "uv.h"
+// clang-format on
 
     #include <algorithm>
     #include <atomic>

@@ -23,6 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "scene/BakedSkinningModel.h"
+#include "scene/RenderScene.h"
 
 namespace cc {
 namespace scene {
@@ -36,6 +37,11 @@ void BakedSkinningModel::updateTransform(uint32_t stamp) {
     if (_worldBounds && skelBound) {
         Node* node = getTransform();
         skelBound->transform(node->getWorldMatrix(), _worldBounds);
+    }
+
+    // Fix me: update twice
+    if (_scene) {
+        _scene->updateOctree(this);
     }
 }
 

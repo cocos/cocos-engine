@@ -28,6 +28,8 @@
 #include "DeviceValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "base/Macros.h"
+#include "gfx-validator/SwapchainValidator.h"
 
 namespace cc {
 namespace gfx {
@@ -41,43 +43,74 @@ unordered_map<Format, Feature> featureCheckMap{
 
 TextureValidator::TextureValidator(Texture *actor)
 : Agent<Texture>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 TextureValidator::~TextureValidator() {
     DeviceResourceTracker<Texture>::erase(this);
-    CC_SAFE_DELETE(_actor);
+    if (_ownTheActor) CC_SAFE_DELETE(_actor);
 }
 
 void TextureValidator::doInit(const TextureInfo &info) {
-    CCASSERT(!featureCheckMap.count(_format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_format]), "unsupported format");
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    CCASSERT(!featureCheckMap.count(_info.format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_info.format]), "unsupported format");
 
     // Potentially inefficient
     static const TextureUsageBit INEFFICIENT_MASK{TextureUsageBit::INPUT_ATTACHMENT | TextureUsageBit::SAMPLED};
     CCASSERT((info.usage & INEFFICIENT_MASK) != INEFFICIENT_MASK, "Both SAMPLED and INPUT_ATTACHMENT are specified?");
 
+    /////////// execute ///////////
+
     _actor->initialize(info);
 }
 
 void TextureValidator::doInit(const TextureViewInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+    CCASSERT(info.texture && static_cast<TextureValidator*>(info.texture)->isInited(), "alread destroyed?");
+
+    /////////// execute ///////////
+
     TextureViewInfo actorInfo = info;
     actorInfo.texture         = static_cast<TextureValidator *>(info.texture)->getActor();
 
     _actor->initialize(actorInfo);
 }
 
+void TextureValidator::doInit(const SwapchainTextureInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+    CC_UNUSED_PARAM(info); // workaround tidy issue
+    CCASSERT(info.swapchain && static_cast<SwapchainValidator*>(info.swapchain)->isInited(), "alread destroyed?");
+
+    // the actor is already initialized
+}
+
 void TextureValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 
-void TextureValidator::doResize(uint width, uint height, uint /*size*/) {
+void TextureValidator::doResize(uint32_t width, uint32_t height, uint32_t /*size*/) {
+    CCASSERT(isInited(), "alread destroyed?");
+
     CCASSERT(!_isTextureView, "Cannot resize texture views");
+
+    /////////// execute ///////////
 
     _actor->resize(width, height);
 }
 
 void TextureValidator::sanityCheck() {
-    uint cur = DeviceValidator::getInstance()->currentFrame();
+    CCASSERT(isInited(), "alread destroyed?");
+
+    uint32_t cur = DeviceValidator::getInstance()->currentFrame();
 
     // FIXME: minggo: as current implementation need to update some textures more than once, so disable it.
     // Should enable it when it is fixed.

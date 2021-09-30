@@ -153,13 +153,13 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
                 if (_age - bucket.ages[j] < unusedFrameCount) {
                     std::swap(bucket.ages[i], bucket.ages[j]);
                     std::swap(bucket.pool[i], bucket.pool[j]);
-                    destroyBegin = j - 1;
+                    destroyBegin = j;
                     break;
                 }
             }
 
             if (i >= j) {
-                destroyBegin = i - 1;
+                destroyBegin = i;
             }
 
             if (i >= destroyBegin) {
@@ -167,7 +167,7 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
             }
         }
 
-        while (++destroyBegin < count) {
+        while (++destroyBegin <= count) {
             CC_SAFE_DESTROY(bucket.pool.back());
             bucket.pool.pop_back();
             bucket.ages.pop_back();

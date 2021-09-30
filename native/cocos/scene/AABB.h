@@ -49,12 +49,20 @@ public:
     AABB &operator=(const AABB &) = delete;
     AABB &operator=(AABB &&) = delete;
 
-    void               initWithData(uint8_t *data);
-    bool               aabbAabb(AABB *aabb) const;
-    bool               aabbFrustum(const Frustum &) const;
+    void initWithData(uint8_t *data);
+    bool aabbAabb(AABB *aabb) const;
+    /**
+     * @return true if (partially) inside, false if outside. 
+     */
+    bool aabbFrustum(const Frustum &) const;
+    /**
+     * @return -1 if outside, 0 if inside, 1 if intersects.
+     */
     int                aabbPlane(const Plane &) const;
     void               getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const;
     void               merge(const AABB &aabb);
+    void               merge(const cc::Vec3 &point);
+    void               merge(const Frustum &frustum);
     void               set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal);
     void               transform(const Mat4 &m, AABB *out) const;
     inline void        setCenter(float x, float y, float z) { _aabbLayout->center.set(x, y, z); }

@@ -36,7 +36,7 @@ namespace gfx {
 
 InputAssemblerValidator::InputAssemblerValidator(InputAssembler *actor)
 : Agent<InputAssembler>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 InputAssemblerValidator::~InputAssemblerValidator() {
@@ -45,6 +45,21 @@ InputAssemblerValidator::~InputAssemblerValidator() {
 }
 
 void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    for (auto *vertexBuffer : info.vertexBuffers) {
+        CCASSERT(vertexBuffer && static_cast<BufferValidator *>(vertexBuffer)->isInited(), "already destroyed?");
+    }
+    if (info.indexBuffer) {
+        CCASSERT(static_cast<BufferValidator *>(info.indexBuffer)->isInited(), "already destroyed?");
+    }
+    if (info.indirectBuffer) {
+        CCASSERT(static_cast<BufferValidator *>(info.indirectBuffer)->isInited(), "already destroyed?");
+    }
+
+    /////////// execute ///////////
+
     InputAssemblerInfo actorInfo = info;
     for (auto &vertexBuffer : actorInfo.vertexBuffers) {
         vertexBuffer = static_cast<BufferValidator *>(vertexBuffer)->getActor();
@@ -60,49 +75,12 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
 }
 
 void InputAssemblerValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
-}
-
-void InputAssemblerValidator::setVertexCount(uint count) {
-    _vertexCount = count;
-
-    _actor->setVertexCount(count);
-}
-
-void InputAssemblerValidator::setFirstVertex(uint first) {
-    _firstVertex = first;
-
-    _actor->setFirstVertex(first);
-}
-
-void InputAssemblerValidator::setIndexCount(uint count) {
-    _indexCount = count;
-
-    _actor->setIndexCount(count);
-}
-
-void InputAssemblerValidator::setFirstIndex(uint first) {
-    _firstIndex = first;
-
-    _actor->setFirstIndex(first);
-}
-
-void InputAssemblerValidator::setVertexOffset(uint offset) {
-    _vertexOffset = offset;
-
-    _actor->setVertexOffset(offset);
-}
-
-void InputAssemblerValidator::setInstanceCount(uint count) {
-    _instanceCount = count;
-
-    _actor->setInstanceCount(count);
-}
-
-void InputAssemblerValidator::setFirstInstance(uint first) {
-    _firstInstance = first;
-
-    _actor->setFirstInstance(first);
 }
 
 } // namespace gfx

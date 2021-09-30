@@ -26,6 +26,7 @@
 #include "cocos/platform/Application.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "pipeline/RenderPipeline.h"
+#include "cocos/renderer/GFXDeviceManager.h"
 
 #if USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -64,6 +65,7 @@ void Application::restartVM() {
 
     cc::EventDispatcher::init();
     init();
+    cc::gfx::DeviceManager::addSurfaceEventListener();
 }
 
 void Application::close() { // NOLINT
@@ -107,7 +109,7 @@ void Application::tick() {
     ++_totalFrames;
 
     // iOS/macOS use its own fps limitation algorithm.
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_OHOS)
     if (dtNS < static_cast<double>(_prefererredNanosecondsPerFrame)) {
         std::this_thread::sleep_for(
             std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - static_cast<int64_t>(dtNS)));

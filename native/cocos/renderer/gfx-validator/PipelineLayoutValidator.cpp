@@ -36,7 +36,7 @@ namespace gfx {
 
 PipelineLayoutValidator::PipelineLayoutValidator(PipelineLayout *actor)
 : Agent<PipelineLayout>(actor) {
-    _typedID = generateObjectID<decltype(this)>();
+    _typedID = actor->getTypedID();
 }
 
 PipelineLayoutValidator::~PipelineLayoutValidator() {
@@ -45,10 +45,18 @@ PipelineLayoutValidator::~PipelineLayoutValidator() {
 }
 
 void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
+
+    for (auto *layout : info.setLayouts) {
+        CCASSERT(layout && static_cast<DescriptorSetLayoutValidator *>(layout)->isInited(), "already destroyed?");
+    }
+
+    /////////// execute ///////////
+
     PipelineLayoutInfo actorInfo;
     actorInfo.setLayouts.resize(info.setLayouts.size());
-    for (uint i = 0U; i < info.setLayouts.size(); i++) {
-        CCASSERT(info.setLayouts[i], "invalid descriptor set layout");
+    for (uint32_t i = 0U; i < info.setLayouts.size(); i++) {
         actorInfo.setLayouts[i] = static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])->getActor();
     }
 
@@ -56,6 +64,11 @@ void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
 }
 
 void PipelineLayoutValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
     _actor->destroy();
 }
 

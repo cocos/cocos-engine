@@ -13458,7 +13458,7 @@ static bool js_spine_SkeletonRenderer_setAttachment(se::State& s) // NOLINT(read
     do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
-            HolderType<const char*, false> arg1 = {};
+            HolderType<char*, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -13638,7 +13638,7 @@ static bool js_spine_SkeletonRenderer_setSkin(se::State& s) // NOLINT(readabilit
     size_t argc = args.size();
     do {
         if (argc == 1) {
-            HolderType<const char*, false> arg0 = {};
+            HolderType<char*, false> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -15420,7 +15420,7 @@ static bool js_spine_SkeletonCacheAnimation_setAttachment(se::State& s) // NOLIN
     do {
         if (argc == 2) {
             HolderType<std::string, true> arg0 = {};
-            HolderType<const char*, false> arg1 = {};
+            HolderType<char*, false> arg1 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
@@ -15639,7 +15639,7 @@ static bool js_spine_SkeletonCacheAnimation_setSkin(se::State& s) // NOLINT(read
     size_t argc = args.size();
     do {
         if (argc == 1) {
-            HolderType<const char*, false> arg0 = {};
+            HolderType<char*, false> arg0 = {};
 
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }

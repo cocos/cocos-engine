@@ -28,6 +28,7 @@
 #include <cstdint>
 #include "Event.h"
 #include "concurrentqueue/concurrentqueue.h"
+#include "../memory/Memory.h"
 
 namespace cc {
 
@@ -65,7 +66,7 @@ private:
     friend class MessageQueue;
 };
 
-struct alignas(64) WriterContext final {
+struct ALIGNAS(64) WriterContext final {
     uint8_t *             currentMemoryChunk{nullptr};
     Message *             lastMessage{nullptr};
     uint32_t              offset{0};
@@ -73,7 +74,7 @@ struct alignas(64) WriterContext final {
     std::atomic<uint32_t> writtenMessageCount{0};
 };
 
-struct alignas(64) ReaderContext final {
+struct ALIGNAS(64) ReaderContext final {
     uint8_t *currentMemoryChunk{nullptr};
     Message *lastMessage{nullptr};
     uint32_t offset{0};
@@ -85,7 +86,7 @@ struct alignas(64) ReaderContext final {
 
 // A single-producer single-consumer circular buffer queue.
 // Both the messages and their submitting data should be allocated from here.
-class alignas(64) MessageQueue final {
+class ALIGNAS(64) MessageQueue final {
 public:
     static constexpr uint32_t MEMORY_CHUNK_SIZE = 4096 * 16;
 
@@ -132,7 +133,7 @@ public:
     inline uint32_t getNewMessageCount() const noexcept { return _reader.newMessageCount; }
 
 private:
-    class alignas(64) MemoryAllocator final {
+    class ALIGNAS(64) MemoryAllocator final {
     public:
         MemoryAllocator()                        = default;
         ~MemoryAllocator()                       = default;

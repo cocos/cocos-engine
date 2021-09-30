@@ -90,30 +90,37 @@
 namespace cc {
 
 namespace {
-    bool setCanvasCallback(se::Object *global) {
-        auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
+bool setCanvasCallback(se::Object *global) {
+    auto              viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
+    se::ScriptEngine *se              = se::ScriptEngine::getInstance();
 
-        int  nativeWidth  = static_cast<int>(viewLogicalSize.x * Device::getDevicePixelRatio());
-        int  nativeHeight = static_cast<int>(viewLogicalSize.y * Device::getDevicePixelRatio());
+    int nativeWidth  = static_cast<int>(viewLogicalSize.x * Device::getDevicePixelRatio());
+    int nativeHeight = static_cast<int>(viewLogicalSize.y * Device::getDevicePixelRatio());
 
-        // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
-        // format intptr_t
-        //set window.innerWidth/innerHeight in css pixel units
-        uintptr_t         windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
-        std::stringstream commandBuf;
-        commandBuf << "window.innerWidth = " << viewLogicalSize.x
-                << "; window.innerHeight = " << viewLogicalSize.y
-                << "; window.nativeWidth= " << nativeWidth
-                << "; window.nativeHeight = " << nativeHeight
-                << "; window.windowHandler = " << windowHandle << ";";
-
-        se::ScriptEngine *se = se::ScriptEngine::getInstance();
-        se->evalString(commandBuf.str().c_str());
-
-        return true;
+    // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
+    // format intptr_t
+    //set window.innerWidth/innerHeight in css pixel units
+    uintptr_t         windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
+    std::stringstream ss;
+    {
+        ss << "window.innerWidth = " << viewLogicalSize.x
+           << "; window.innerHeight = " << viewLogicalSize.y
+           << "; window.nativeWidth= " << nativeWidth
+           << "; window.nativeHeight = " << nativeHeight
+           << "; window.windowHandler = ";
+        if (sizeof(windowHandle) == 8) { // use bigint
+            ss << static_cast<uint64_t>(windowHandle) << "n;";
+        }
+        if (sizeof(windowHandle) == 4) {
+            ss << static_cast<uint32_t>(windowHandle) << ";";
+        }
     }
+    se->evalString(ss.str().c_str());
 
-    MyTimer *_timer;
+    return true;
+}
+
+MyTimer *_timer;
 }
 
 Application *              Application::instance  = nullptr;

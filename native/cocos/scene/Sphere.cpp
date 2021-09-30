@@ -25,6 +25,7 @@
 
 #include "scene/Sphere.h"
 #include <algorithm>
+#include "base/TypeDef.h"
 
 namespace cc {
 namespace scene {
@@ -52,18 +53,17 @@ bool Sphere::interset(const Frustum &frustum) const {
                        [self](const Plane &plane) { return self->interset(plane) != -1; });
 }
 
-void Sphere::mergePoint(const Vec3 &point) {
+void Sphere::merge(const Vec3 &point) {
     if (_radius < 0.0F) {
         _center = point;
         _radius = 0.0F;
         return;
     }
 
-    auto offset   = point - _center;
-    auto distance = offset.length();
-
+    Vec3        offset   = point - _center;
+    const float distance = offset.length();
     if (distance > _radius) {
-        auto half = (distance - _radius) * 0.5F;
+        const float half = (distance - _radius) * 0.5F;
         _radius += half;
         offset.scale(half / distance);
         _center += offset;
@@ -88,12 +88,12 @@ void Sphere::define(const AABB &aabb) {
     _center += (half / dist) * offset;
 }
 
-void Sphere::mergeAABB(const AABB *aabb) {
+void Sphere::merge(const AABB *aabb) {
     cc::Vec3 minPos;
     cc::Vec3 maxPos;
     aabb->getBoundary(&minPos, &maxPos);
-    mergePoint(minPos);
-    mergePoint(maxPos);
+    merge(minPos);
+    merge(maxPos);
 }
 
 int Sphere::spherePlane(const Plane &plane) {
@@ -108,13 +108,20 @@ int Sphere::spherePlane(const Plane &plane) {
     return 1;
 }
 
-bool Sphere::sphereFrustum(const Frustum &frustum) {
+bool Sphere::sphereFrustum(const Frustum &frustum) const {
     const auto &planes = frustum.planes;
     const auto *self   = this;
     return std::all_of(planes.begin(),
                        planes.end(),
                        // frustum plane normal points to the inside
                        [self](const Plane &plane) { return self->interset(plane) != -1; });
+}
+
+void Sphere::merge(const Frustum &frustum) {
+    const std::array<Vec3, 8> &vertices = frustum.vertices;
+    for (uint i = 0; i < vertices.max_size(); ++i) {
+        merge(vertices[i]);
+    }
 }
 
 } // namespace scene

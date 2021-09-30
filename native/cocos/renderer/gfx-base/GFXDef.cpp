@@ -91,12 +91,8 @@ const FormatInfo GFX_FORMAT_INFOS[] = {
     {"RGB10A2UI", 2, 4, FormatType::UINT, true, false, false, false},
     {"RGB9E5", 2, 4, FormatType::FLOAT, true, false, false, false},
 
-    {"D16", 2, 1, FormatType::UINT, false, true, false, false},
-    {"D16S8", 3, 1, FormatType::UINT, false, true, true, false},
-    {"D24", 3, 1, FormatType::UINT, false, true, false, false},
-    {"D24S8", 2, 1, FormatType::UINT, false, true, true, false},
-    {"D32F", 4, 1, FormatType::FLOAT, false, true, false, false},
-    {"D32FS8", 5, 2, FormatType::FLOAT, false, true, true, false},
+    {"DEPTH", 4, 1, FormatType::FLOAT, false, true, false, false},
+    {"DEPTH_STENCIL", 5, 2, FormatType::FLOAT, false, true, true, false},
 
     {"BC1", 1, 3, FormatType::UNORM, false, false, false, true},
     {"BC1_ALPHA", 1, 4, FormatType::UNORM, true, false, false, true},
@@ -167,11 +163,11 @@ bool isCombinedImageSampler(Type type) { return type >= Type::SAMPLER1D && type 
 bool isSampledImage(Type type) { return type >= Type::TEXTURE1D && type <= Type::TEXTURE_CUBE; }
 bool isStorageImage(Type type) { return type >= Type::IMAGE1D && type <= Type::IMAGE_CUBE; }
 
-uint ceilDiv(uint x, uint y) { return (x - 1) / y + 1; }
+uint32_t ceilDiv(uint32_t x, uint32_t y) { return (x - 1) / y + 1; }
 
-uint formatSize(Format format, uint width, uint height, uint depth) {
-    if (!GFX_FORMAT_INFOS[static_cast<uint>(format)].isCompressed) {
-        return (width * height * depth * GFX_FORMAT_INFOS[static_cast<uint>(format)].size);
+uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t depth) {
+    if (!GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].isCompressed) {
+        return (width * height * depth * GFX_FORMAT_INFOS[static_cast<uint32_t>(format)].size);
     }
     switch (format) {
         case Format::BC1:
@@ -263,7 +259,7 @@ uint formatSize(Format format, uint width, uint height, uint depth) {
     }
 }
 
-const uint GFX_TYPE_SIZES[] = {
+const uint32_t GFX_TYPE_SIZES[] = {
     0,  // UNKNOWN
     4,  // BOOL
     8,  // BOOL2
@@ -298,10 +294,10 @@ const uint GFX_TYPE_SIZES[] = {
     4,  // SAMPLER_CUBE
 };
 
-uint formatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips) {
-    uint size = 0;
+uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips) {
+    uint32_t size = 0;
 
-    for (uint i = 0; i < mips; ++i) {
+    for (uint32_t i = 0; i < mips; ++i) {
         size += formatSize(format, width, height, depth);
         width  = std::max(width >> 1, 1U);
         height = std::max(height >> 1, 1U);

@@ -118,7 +118,6 @@ SkeletonAnimation::~SkeletonAnimation() {
     _eventListener     = nullptr;
 
     if (_state) {
-        clearTracks();
         if (_ownsAnimationStateData) delete _state->getData();
         delete _state;
     }

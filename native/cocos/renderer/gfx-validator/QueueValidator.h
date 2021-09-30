@@ -38,13 +38,17 @@ public:
     explicit QueueValidator(Queue *actor);
     ~QueueValidator() override;
 
-    void submit(CommandBuffer *const *cmdBuffs, uint count) override;
+    void submit(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+
+    inline bool isInited() const { return _inited; }
 
 protected:
     friend class DeviceValidator;
 
     void doInit(const QueueInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES3Std.h"
 #include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class GLES3GPURenderPass;
 class CC_GLES3_API GLES3RenderPass final : public RenderPass {
 public:
     GLES3RenderPass();
-    ~GLES3RenderPass();
+    ~GLES3RenderPass() override;
 
     inline GLES3GPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
 

@@ -26,7 +26,6 @@
 #pragma once
 
 #include "GLES2CommandBuffer.h"
-#include "GLES2Std.h"
 
 namespace cc {
 namespace gfx {
@@ -36,15 +35,17 @@ public:
     GLES2PrimaryCommandBuffer() = default;
     ~GLES2PrimaryCommandBuffer() override;
 
-    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
-    void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+    void setViewport(const Viewport &vp) override;
+    void setScissor(const Rect &rect) override;
+    void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
+    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 protected:

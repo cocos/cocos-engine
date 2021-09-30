@@ -113,11 +113,11 @@ void seLogE(const char *format, ...);
 #if defined(_WIN32) && defined(_WINDOWS)
     #include <BaseTsd.h>
 
-    #ifndef __SSIZE_T
-        #define __SSIZE_T
+    #if !defined(__SSIZE_T)
 typedef SSIZE_T ssize_t;
+        #define __SSIZE_T
         #define _SSIZE_T_DEFINED // libuv also defines ssize_t, use the one defined here.
-    #endif // __SSIZE_T
+    #endif                       // __SSIZE_T
 
 #endif // #if defined(_WIN32) && defined(_WINDOWS)
 

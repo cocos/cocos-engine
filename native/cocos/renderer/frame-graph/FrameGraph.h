@@ -45,24 +45,24 @@ public:
 
     FrameGraph() = default;
     ~FrameGraph();
-    FrameGraph(const FrameGraph &) = delete;
-    FrameGraph(FrameGraph &&)      = delete;
+    FrameGraph(const FrameGraph &)     = delete;
+    FrameGraph(FrameGraph &&) noexcept = delete;
     FrameGraph &operator=(const FrameGraph &) = delete;
-    FrameGraph &operator=(FrameGraph &&) = delete;
+    FrameGraph &operator=(FrameGraph &&) noexcept = delete;
 
     static StringHandle stringToHandle(const char *name);
     static const char * handleToString(const StringHandle &handle) noexcept;
 
-    void        present(const TextureHandle &input);
-    void        presentLastVersion(const VirtualResource *virtualResource);
-    void        presentFromBlackboard(const StringHandle &inputName);
+    void        present(const TextureHandle &input, gfx::Texture *target);
+    void        presentLastVersion(const VirtualResource *virtualResource, gfx::Texture *target);
+    void        presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target);
     void        compile();
     void        execute() noexcept;
     void        reset() noexcept;
     static void gc(uint32_t unusedFrameCount = 30) noexcept;
 
     template <typename Data, typename SetupMethod, typename ExecuteMethod>
-    CallbackPass<Data, ExecuteMethod> const &addPass(PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept;
+    const CallbackPass<Data, ExecuteMethod> &addPass(PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept;
 
     template <typename ResourceType>
     TypedHandle<ResourceType> create(const StringHandle &name, const typename ResourceType::Descriptor &desc) noexcept;
@@ -76,7 +76,7 @@ public:
 
     void        exportGraphViz(const std::string &path);
     inline void enableMerge(bool enable) noexcept;
-    bool        isPassExist(StringHandle handle);
+    bool        hasPass(StringHandle handle);
 
 private:
     Handle        create(VirtualResource *virtualResource);
@@ -121,7 +121,7 @@ TypedHandle<ResourceType> FrameGraph::create(const StringHandle &name, const typ
 
 template <typename ResourceType>
 TypedHandle<ResourceType> FrameGraph::importExternal(const StringHandle &name, ResourceType &resource) noexcept {
-    //CC_ASSERT(resource.Get()); // back buffer doesn't have a device resource instance, for now
+    CC_ASSERT(resource.get());
     auto *const virtualResource = new ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), resource);
     return TypedHandle<ResourceType>(create(virtualResource));
 }

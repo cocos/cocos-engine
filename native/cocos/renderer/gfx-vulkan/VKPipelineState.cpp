@@ -35,7 +35,9 @@
 namespace cc {
 namespace gfx {
 
-CCVKPipelineState::CCVKPipelineState() = default;
+CCVKPipelineState::CCVKPipelineState() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 CCVKPipelineState::~CCVKPipelineState() {
     destroy();
@@ -54,8 +56,8 @@ void CCVKPipelineState::doInit(const PipelineStateInfo & /*info*/) {
     _gpuPipelineState->gpuPipelineLayout = static_cast<CCVKPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 
-    for (uint i = 0; i < 31; i++) {
-        if (static_cast<uint>(_dynamicStates) & (1 << i)) {
+    for (uint32_t i = 0; i < 31; i++) {
+        if (static_cast<uint32_t>(_dynamicStates) & (1 << i)) {
             _gpuPipelineState->dynamicStates.push_back(static_cast<DynamicStateFlagBit>(1 << i));
         }
     }

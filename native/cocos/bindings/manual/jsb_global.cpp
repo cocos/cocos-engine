@@ -40,7 +40,6 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "platform/java/jni/JniImp.h"
 #endif
-
 #include <chrono>
 #include <regex>
 #include <sstream>

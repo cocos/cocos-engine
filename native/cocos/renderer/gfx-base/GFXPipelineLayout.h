@@ -33,7 +33,7 @@ namespace gfx {
 class CC_DLL PipelineLayout : public GFXObject {
 public:
     PipelineLayout();
-    virtual ~PipelineLayout();
+    ~PipelineLayout() override;
 
     void initialize(const PipelineLayoutInfo &info);
     void destroy();

@@ -34,7 +34,7 @@ void EmptyQueue::doInit(const QueueInfo &info) {
 void EmptyQueue::doDestroy() {
 }
 
-void EmptyQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
+void EmptyQueue::submit(CommandBuffer *const *cmdBuffs, uint32_t count) {
 }
 
 } // namespace gfx

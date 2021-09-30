@@ -29,6 +29,7 @@
 #include "MTLRenderPass.h"
 #include "MTLUtils.h"
 #include "MTLTexture.h"
+#include "MTLSwapchain.h"
 
 namespace cc {
 namespace gfx {
@@ -78,8 +79,9 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, CCMTLTexture* cctex, int l
     }
 
     id<MTLTexture> texture = nil;
-    if(!cctex) {
-        texture = [static_cast<id<CAMetalDrawable>>(CCMTLDevice::getInstance()->getCurrentDrawable()) texture];
+    if(cctex->swapChain()) {
+        auto* swapchain = static_cast<CCMTLSwapchain*>(cctex->swapChain());
+        texture = swapchain->colorTexture()->getMTLTexture();
     } else {
         texture = cctex->getMTLTexture();
     }
@@ -96,16 +98,19 @@ void CCMTLRenderPass::setDepthStencilAttachment(CCMTLTexture* cctex, int level) 
     }
     
     id<MTLTexture> texture = nil;
-    if(!cctex) {
-        texture = static_cast<id<MTLTexture>>(CCMTLDevice::getInstance()->getDSTexture());
+    if(cctex->swapChain()) {
+        auto* swapchain = static_cast<CCMTLSwapchain*>(cctex->swapChain());
+        texture = swapchain->depthStencilTexture()->getMTLTexture();
     } else {
         texture = cctex->getMTLTexture();
     }
 
     _mtlRenderPassDescriptor.depthAttachment.texture = texture;
     _mtlRenderPassDescriptor.depthAttachment.level = level;
-    _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
-    _mtlRenderPassDescriptor.stencilAttachment.level = level;
+    if(cctex->getFormat() == Format::DEPTH_STENCIL) {
+        _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
+        _mtlRenderPassDescriptor.stencilAttachment.level = level;
+    }
 }
 
 } // namespace gfx

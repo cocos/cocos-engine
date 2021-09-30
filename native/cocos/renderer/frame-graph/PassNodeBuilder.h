@@ -52,7 +52,8 @@ public:
     TextureHandle             write(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
 
     inline void sideEffect() const noexcept;
-    inline void subpass(bool clearActionIgnoreable, bool end) const noexcept;
+    inline void subpass(bool end = false, bool clearActionIgnorable = true) const noexcept;
+    inline void setViewport(const gfx::Rect &scissor) noexcept;
     inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
 
     void   writeToBlackboard(const StringHandle &name, const Handle &handle) const noexcept;
@@ -81,8 +82,13 @@ void PassNodeBuilder::sideEffect() const noexcept {
     _passNode.sideEffect();
 }
 
-void PassNodeBuilder::subpass(bool clearActionIgnoreable, bool end) const noexcept {
-    _passNode.subpass(clearActionIgnoreable, end);
+void PassNodeBuilder::subpass(bool end, bool clearActionIgnorable) const noexcept {
+    _passNode.subpass(end, clearActionIgnorable);
+}
+
+void PassNodeBuilder::setViewport(const gfx::Rect &scissor) noexcept {
+    gfx::Viewport viewport{scissor.x, scissor.y, scissor.width, scissor.height, 0.F, 1.F};
+    _passNode.setViewport(viewport, scissor);
 }
 
 void PassNodeBuilder::setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept {

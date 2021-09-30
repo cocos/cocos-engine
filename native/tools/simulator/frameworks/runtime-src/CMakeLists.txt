@@ -96,8 +96,8 @@ if(WINDOWS)
     )
 elseif(MACOSX)
     set(UI_RESOURCES
+        SimulatorApp-Mac/Images.xcassets
         proj.ios_mac/mac/Simulator.entitlements
-        proj.ios_mac/mac/Icon.icns
         proj.ios_mac/mac/Base.lproj/ConsoleWindow.xib
         proj.ios_mac/mac/Base.lproj/MainMenu.xib
         proj.ios_mac/mac/en.lproj/MainMenu.xib
@@ -167,6 +167,8 @@ if(APPLE)
         set_target_properties(${LIB_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_LIST_DIR}/proj.ios_mac/mac/Info.plist")
         set_target_properties(${LIB_NAME} PROPERTIES
             MACOSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION}
+            XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon"
+            RESOURCE "${UI_RESOURCES}"
         )
         get_property(gles2_loc TARGET GLESv2 PROPERTY IMPORTED_LOCATION)
         get_property(egl_loc TARGET EGL PROPERTY IMPORTED_LOCATION)

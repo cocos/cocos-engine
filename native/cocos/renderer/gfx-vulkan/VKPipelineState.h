@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXPipelineState.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class CCVKGPUPipelineState;
 class CC_VULKAN_API CCVKPipelineState final : public PipelineState {
 public:
     CCVKPipelineState();
-    ~CCVKPipelineState();
+    ~CCVKPipelineState() override;
 
     inline CCVKGPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
 

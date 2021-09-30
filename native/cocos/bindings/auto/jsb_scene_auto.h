@@ -85,6 +85,9 @@ bool register_all_scene(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::scene::Plane *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Plane);
+SE_DECLARE_FUNC(js_scene_Plane_clone);
+SE_DECLARE_FUNC(js_scene_Plane_define);
+SE_DECLARE_FUNC(js_scene_Plane_distance);
 
 extern se::Object* __jsb_cc_scene_Frustum_proto;
 extern se::Class* __jsb_cc_scene_Frustum_class;
@@ -95,6 +98,10 @@ bool register_all_scene(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::scene::Frustum *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Frustum);
+SE_DECLARE_FUNC(js_scene_Frustum_clone);
+SE_DECLARE_FUNC(js_scene_Frustum_createOrtho);
+SE_DECLARE_FUNC(js_scene_Frustum_split);
+SE_DECLARE_FUNC(js_scene_Frustum_transform);
 
 extern se::Object* __jsb_cc_scene_AABB_proto;
 extern se::Class* __jsb_cc_scene_AABB_class;
@@ -249,6 +256,7 @@ SE_DECLARE_FUNC(js_scene_SubModel_getPlanarInstanceShader);
 SE_DECLARE_FUNC(js_scene_SubModel_getPlanarShader);
 SE_DECLARE_FUNC(js_scene_SubModel_getPriority);
 SE_DECLARE_FUNC(js_scene_SubModel_getShader);
+SE_DECLARE_FUNC(js_scene_SubModel_getShaders);
 SE_DECLARE_FUNC(js_scene_SubModel_setDescriptorSet);
 SE_DECLARE_FUNC(js_scene_SubModel_setInputAssembler);
 SE_DECLARE_FUNC(js_scene_SubModel_setPasses);
@@ -328,6 +336,17 @@ SE_DECLARE_FUNC(js_scene_BakedSkinningModel_setJointMedium);
 SE_DECLARE_FUNC(js_scene_BakedSkinningModel_updateModelBounds);
 SE_DECLARE_FUNC(js_scene_BakedSkinningModel_BakedSkinningModel);
 
+extern se::Object* __jsb_cc_scene_DrawCall_proto;
+extern se::Class* __jsb_cc_scene_DrawCall_class;
+
+bool js_register_cc_scene_DrawCall(se::Object* obj);
+bool register_all_scene(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::DrawCall *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::DrawCall);
+SE_DECLARE_FUNC(js_scene_DrawCall_setDynamicOffsets);
+
 extern se::Object* __jsb_cc_scene_DrawBatch2D_proto;
 extern se::Class* __jsb_cc_scene_DrawBatch2D_class;
 
@@ -337,6 +356,8 @@ bool register_all_scene(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::scene::DrawBatch2D *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::DrawBatch2D);
+SE_DECLARE_FUNC(js_scene_DrawBatch2D_clearDrawCalls);
+SE_DECLARE_FUNC(js_scene_DrawBatch2D_pushDrawCall);
 
 extern se::Object* __jsb_cc_scene_JointTransform_proto;
 extern se::Class* __jsb_cc_scene_JointTransform_class;
@@ -410,6 +431,8 @@ bool register_all_scene(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::scene::RenderWindow *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderWindow);
+SE_DECLARE_FUNC(js_scene_RenderWindow_getHeight);
+SE_DECLARE_FUNC(js_scene_RenderWindow_getWidth);
 
 extern se::Object* __jsb_cc_scene_Camera_proto;
 extern se::Class* __jsb_cc_scene_Camera_class;

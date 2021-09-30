@@ -24,7 +24,9 @@
  ****************************************************************************/
 #include "scene/Model.h"
 #include "renderer/pipeline/Define.h"
+#include "scene/RenderScene.h"
 #include "scene/SubModel.h"
+
 
 namespace cc {
 namespace scene {
@@ -45,6 +47,10 @@ void Model::updateTransform(uint32_t /*stamp*/) {
         _transformUpdated = true;
         if (_modelBounds.getValid() && _worldBounds) {
             _modelBounds.transform(node->getWorldMatrix(), _worldBounds);
+        }
+
+        if (_scene) {
+            _scene->updateOctree(this);
         }
     }
 }

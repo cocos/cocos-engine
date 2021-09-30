@@ -36,17 +36,13 @@ public:
     explicit InputAssemblerValidator(InputAssembler *actor);
     ~InputAssemblerValidator() override;
 
-    void setVertexCount(uint count) override;
-    void setFirstVertex(uint first) override;
-    void setIndexCount(uint count) override;
-    void setFirstIndex(uint first) override;
-    void setVertexOffset(uint offset) override;
-    void setInstanceCount(uint count) override;
-    void setFirstInstance(uint first) override;
+    inline bool isInited() const { return _inited; }
 
 protected:
     void doInit(const InputAssemblerInfo &info) override;
     void doDestroy() override;
+
+    bool _inited{false};
 };
 
 } // namespace gfx

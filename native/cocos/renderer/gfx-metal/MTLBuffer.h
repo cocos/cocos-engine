@@ -34,8 +34,8 @@
 namespace cc {
 namespace gfx {
 
-class CCMTLBuffer;
 class CCMTLCommandEncoder;
+struct CCMTLGPUBuffer;
 
 class CCMTLBuffer final : public Buffer {
 public:
@@ -50,7 +50,9 @@ public:
 
     void encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
 
-    inline id<MTLBuffer>       getMTLBuffer() const { return _mtlBuffer; }
+    id<MTLBuffer>       getMTLBuffer() const;
+    
+    inline CCMTLGPUBuffer* gpuBuffer() { return _gpuBuffer; }
     inline MTLIndexType        getIndexType() const { return _indexType; }
     inline bool                isDrawIndirectByIndex() const { return _isDrawIndirectByIndex; }
     inline const DrawInfoList &getDrawInfos() const { return _drawInfos; }
@@ -64,7 +66,6 @@ protected:
     bool createMTLBuffer(uint size, MemoryUsage usage);
     void updateMTLBuffer(const void *buffer, uint offset, uint size);
 
-    id<MTLBuffer>      _mtlBuffer               = nullptr;
     MTLIndexType       _indexType               = MTLIndexTypeUInt16;
     MTLResourceOptions _mtlResourceOptions      = MTLResourceStorageModePrivate;
     bool               _isIndirectDrawSupported = false;
@@ -74,6 +75,8 @@ protected:
     vector<MTLDrawIndexedPrimitivesIndirectArguments> _indexedPrimitivesIndirectArguments;
     vector<MTLDrawPrimitivesIndirectArguments>        _primitiveIndirectArguments;
     DrawInfoList                                      _drawInfos;
+    
+    CCMTLGPUBuffer*                                   _gpuBuffer = nullptr;
 };
 
 } // namespace gfx

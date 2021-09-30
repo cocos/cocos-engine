@@ -102,7 +102,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
         }
 
         if (instance.stride != stride) {
-            return;
+            continue;
         }
         if (instance.count >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
@@ -125,7 +125,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
     auto  newSize = stride * INITIAL_CAPACITY;
     auto *vb      = _device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-        gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        gfx::MemoryUsageBit::DEVICE,
         static_cast<uint>(newSize),
         static_cast<uint>(stride),
     });

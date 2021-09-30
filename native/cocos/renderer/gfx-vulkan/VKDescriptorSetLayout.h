@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_DESCRIPTOR_SET_LAYOUT_H_
-#define CC_GFXVULKAN_DESCRIPTOR_SET_LAYOUT_H_
+#pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
 
 namespace cc {
@@ -36,14 +36,14 @@ class CCVKGPUDescriptorSetLayout;
 class CC_VULKAN_API CCVKDescriptorSetLayout final : public DescriptorSetLayout {
 public:
     CCVKDescriptorSetLayout();
-    ~CCVKDescriptorSetLayout();
+    ~CCVKDescriptorSetLayout() override;
 
     inline CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 
 protected:
-    static uint generateID() noexcept {
-        static uint _idGen = 10000;
-        return _idGen++;
+    static uint32_t generateID() noexcept {
+        static uint32_t idGen = 10000;
+        return idGen++;
     }
 
     void doInit(const DescriptorSetLayoutInfo &info) override;
@@ -54,5 +54,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXVULKAN_DESCRIPTOR_SET_LAYOUT_H_

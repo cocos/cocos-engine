@@ -35,46 +35,45 @@ public:
     Texture();
     ~Texture() override;
 
-    static uint computeHash(const TextureInfo &info);
+    static uint32_t computeHash(const TextureInfo &info);
+    static uint32_t computeHash(const TextureViewInfo &info);
 
     void initialize(const TextureInfo &info);
     void initialize(const TextureViewInfo &info);
+    void resize(uint32_t width, uint32_t height);
     void destroy();
-    void resize(uint width, uint height);
 
-    inline TextureType  getType() const { return _type; }
-    inline TextureUsage getUsage() const { return _usage; }
-    inline Format       getFormat() const { return _format; }
-    inline uint         getWidth() const { return _width; }
-    inline uint         getHeight() const { return _height; }
-    inline uint         getDepth() const { return _depth; }
-    inline uint         getLayerCount() const { return _layerCount; }
-    inline uint         getLevelCount() const { return _levelCount; }
-    inline uint         getSize() const { return _size; }
-    inline SampleCount  getSamples() const { return _samples; }
-    inline TextureFlags getFlags() const { return _flags; }
-    inline bool         isTextureView() const { return _isTextureView; }
+    inline const TextureInfo &    getInfo() const { return _info; }
+    inline const TextureViewInfo &getViewInfo() const { return _viewInfo; }
+
+    inline bool     isTextureView() const { return _isTextureView; }
+    inline uint32_t getSize() const { return _size; }
+    inline uint32_t getHash() const { return _hash; }
+
+    // convenient getter for common usages
+    inline Format   getFormat() const { return _info.format; }
+    inline uint32_t getWidth() const { return _info.width; }
+    inline uint32_t getHeight() const { return _info.height; }
 
 protected:
-    virtual void doInit(const TextureInfo &info)              = 0;
-    virtual void doInit(const TextureViewInfo &info)          = 0;
-    virtual void doDestroy()                                  = 0;
-    virtual void doResize(uint width, uint height, uint size) = 0;
+    friend class Swapchain;
 
-    TextureType  _type          = TextureType::TEX2D;
-    TextureUsage _usage         = TextureUsageBit::NONE;
-    Format       _format        = Format::UNKNOWN;
-    uint         _width         = 0U;
-    uint         _height        = 0U;
-    uint         _depth         = 1U;
-    uint         _baseLevel     = 0U;
-    uint         _levelCount    = 1U;
-    uint         _baseLayer     = 0U;
-    uint         _layerCount    = 1U;
-    uint         _size          = 0U;
-    SampleCount  _samples       = SampleCount::X1;
-    TextureFlags _flags         = TextureFlagBit::NONE;
-    bool         _isTextureView = false;
+    virtual void doInit(const TextureInfo &info)                          = 0;
+    virtual void doInit(const TextureViewInfo &info)                      = 0;
+    virtual void doDestroy()                                              = 0;
+    virtual void doResize(uint32_t width, uint32_t height, uint32_t size) = 0;
+
+    static uint32_t computeHash(const Texture *texture);
+    static void     initialize(const SwapchainTextureInfo &info, Texture *out);
+    virtual void    doInit(const SwapchainTextureInfo &info) = 0;
+
+    TextureInfo     _info;
+    TextureViewInfo _viewInfo;
+
+    Swapchain *_swapchain{nullptr};
+    bool       _isTextureView{false};
+    uint32_t   _size{0U};
+    uint32_t   _hash{0U};
 };
 
 } // namespace gfx

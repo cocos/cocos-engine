@@ -25,12 +25,16 @@
 
 #pragma once
 
-#include "GLES2Commands.h"
+#include "GLES2Std.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
 
+class GLES2CmdPackage;
+class GLES2GPUPipelineState;
+class GLES2GPUDescriptorSet;
+class GLES2GPUInputAssembler;
 class GLES2GPUCommandAllocator;
 
 class CC_GLES2_API GLES2CommandBuffer : public CommandBuffer {
@@ -40,12 +44,12 @@ public:
 
     friend class GLES2Queue;
 
-    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void begin(RenderPass *renderPass, uint32_t subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint32_t stencil, CommandBuffer *const *secondaryCBs, uint32_t secondaryCBCount) override;
     void endRenderPass() override;
     void bindPipelineState(PipelineState *pso) override;
-    void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
+    void bindDescriptorSet(uint32_t set, DescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t *dynamicOffsets) override;
     void bindInputAssembler(InputAssembler *ia) override;
     void setViewport(const Viewport &vp) override;
     void setScissor(const Rect &rect) override;
@@ -53,16 +57,16 @@ public:
     void setDepthBias(float constant, float clamp, float slope) override;
     void setBlendConstants(const Color &constants) override;
     void setDepthBound(float minBounds, float maxBounds) override;
-    void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
+    void setStencilWriteMask(StencilFace face, uint32_t mask) override;
+    void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
-    void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+    void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
+    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
+    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override {}
-    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override {}
+    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override {}
 
 protected:
     void doInit(const CommandBufferInfo &info) override;
@@ -74,10 +78,10 @@ protected:
     GLES2CmdPackage *         _curCmdPackage = nullptr;
     queue<GLES2CmdPackage *>  _pendingPackages, _freePackages;
 
-    uint                            _curSubpassIdx       = 0U;
+    uint32_t                        _curSubpassIdx       = 0U;
     GLES2GPUPipelineState *         _curGPUPipelineState = nullptr;
     vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint>>            _curDynamicOffsets;
+    vector<vector<uint32_t>>        _curDynamicOffsets;
     GLES2GPUInputAssembler *        _curGPUInputAssember = nullptr;
     DynamicStates                   _curDynamicStates;
 

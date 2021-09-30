@@ -25,7 +25,6 @@
 
 
 #pragma comment(lib, "comctl32.lib")
-#pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 #include "cocos/base/UTF8.h"
 #include "stdafx.h"
@@ -514,13 +513,13 @@ int SimulatorWin::run()
     // prepare
     _project.dump();
 
-    g_oldWindowProc = (WNDPROC)SetWindowLong(_hwnd, GWL_WNDPROC, (LONG)SimulatorWin::windowProc);
+    g_oldWindowProc = (WNDPROC)SetWindowLong(_hwnd, GWLP_WNDPROC, (LONG)SimulatorWin::windowProc);
 
     // update window title
     updateWindowTitle();
 
     bool resume, pause, close;
-    se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
+    se::ScriptEngine::getInstance()->addPermanentRegisterCallback(setCanvasCallback);
 
     if (!_app->init()) return 1;
     _quit = false;

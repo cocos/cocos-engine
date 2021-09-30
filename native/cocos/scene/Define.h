@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -69,8 +69,10 @@ struct Shadow {
     bool       enabled{false};
     bool       dirty{false};
     bool       shadowMapDirty{false};
-    bool       autoAdapt{false};
+    bool       fixedArea{false};
     ShadowType shadowType{ShadowType::PLANAR};
+    float      invisibleOcclusionRange{0.0F};
+    float      shadowDistance{0.0F};
     float      distance{0.0F};
     Pass *     instancePass{nullptr};
     Pass *     planarPass{nullptr};
@@ -112,8 +114,16 @@ struct PipelineSharedSceneData {
     Fog *        fog{nullptr};
     Pass *       deferredLightPass{nullptr};
     gfx::Shader *deferredLightPassShader{nullptr};
-    Pass *       deferredPostPass{nullptr};
-    gfx::Shader *deferredPostPassShader{nullptr};
+    Pass *       bloomPrefilterPass{nullptr};
+    gfx::Shader *bloomPrefilterPassShader{nullptr};
+    Pass *       bloomDownsamplePass{nullptr};
+    gfx::Shader *bloomDownsamplePassShader{nullptr};
+    Pass *       bloomUpsamplePass{nullptr};
+    gfx::Shader *bloomUpsamplePassShader{nullptr};
+    Pass *       bloomCombinePass{nullptr};
+    gfx::Shader *bloomCombinePassShader{nullptr};
+    Pass *       pipelinePostPass{nullptr};
+    gfx::Shader *pipelinePostPassShader{nullptr};
 };
 
 struct FlatBuffer {

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXInputAssembler.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class CCVKGPUInputAssembler;
 class CC_VULKAN_API CCVKInputAssembler final : public InputAssembler {
 public:
     CCVKInputAssembler();
-    ~CCVKInputAssembler();
+    ~CCVKInputAssembler() override;
 
     inline CCVKGPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
 

@@ -36,10 +36,11 @@
 #include "PipelineStateValidator.h"
 #include "QueueValidator.h"
 #include "RenderPassValidator.h"
-#include "SamplerValidator.h"
 #include "ShaderValidator.h"
+#include "SwapchainValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
 namespace gfx {
@@ -64,19 +65,18 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
         return false;
     }
 
-    _context                 = _actor->getContext();
-    _api                     = _actor->getGfxAPI();
-    _deviceName              = _actor->getDeviceName();
-    _queue                   = CC_NEW(QueueValidator(_actor->getQueue()));
-    auto *cmdBuffValidator   = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
-    _cmdBuff                 = cmdBuffValidator;
-    cmdBuffValidator->_queue = _queue;
-    _renderer                = _actor->getRenderer();
-    _vendor                  = _actor->getVendor();
-    _caps                    = _actor->_caps;
+    _api        = _actor->getGfxAPI();
+    _deviceName = _actor->getDeviceName();
+    _queue      = CC_NEW(QueueValidator(_actor->getQueue()));
+    _cmdBuff    = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
+    _renderer   = _actor->getRenderer();
+    _vendor     = _actor->getVendor();
+    _caps       = _actor->_caps;
+    memcpy(_features.data(), _actor->_features.data(), static_cast<uint32_t>(Feature::COUNT) * sizeof(bool));
 
-    memcpy(_features.data(), _actor->_features.data(), static_cast<uint>(Feature::COUNT) * sizeof(bool));
-    cmdBuffValidator->initValidator();
+    static_cast<QueueValidator *>(_queue)->_inited          = true;
+    static_cast<CommandBufferValidator *>(_cmdBuff)->_queue = _queue;
+    static_cast<CommandBufferValidator *>(_cmdBuff)->initValidator();
 
     DeviceResourceTracker<CommandBuffer>::push(_cmdBuff);
     DeviceResourceTracker<Queue>::push(_queue);
@@ -100,6 +100,7 @@ void DeviceValidator::doDestroy() {
 
     DeviceResourceTracker<CommandBuffer>::checkEmpty();
     DeviceResourceTracker<Queue>::checkEmpty();
+    DeviceResourceTracker<Swapchain>::checkEmpty();
     DeviceResourceTracker<Buffer>::checkEmpty();
     DeviceResourceTracker<Texture>::checkEmpty();
     DeviceResourceTracker<Sampler>::checkEmpty();
@@ -115,16 +116,21 @@ void DeviceValidator::doDestroy() {
     _actor->destroy();
 }
 
-void DeviceValidator::resize(uint width, uint height) {
-    _actor->resize(width, height);
-}
+void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {
+    static vector<Swapchain *> swapchainActors;
+    swapchainActors.resize(count);
 
-void DeviceValidator::acquire() {
-    _actor->acquire();
+    for (uint32_t i = 0U; i < count; ++i) {
+        auto *swapchain    = static_cast<SwapchainValidator *>(swapchains[i]);
+        swapchainActors[i] = swapchain->getActor();
+    }
+
+    _actor->acquire(swapchainActors.data(), count);
 }
 
 void DeviceValidator::present() {
     _actor->present();
+
     ++_currentFrame;
 }
 
@@ -142,6 +148,13 @@ Queue *DeviceValidator::createQueue() {
     return result;
 }
 
+Swapchain *DeviceValidator::createSwapchain() {
+    Swapchain *actor  = _actor->createSwapchain();
+    Swapchain *result = CC_NEW(SwapchainValidator(actor));
+    DeviceResourceTracker<Swapchain>::push(result);
+    return result;
+}
+
 Buffer *DeviceValidator::createBuffer() {
     Buffer *actor  = _actor->createBuffer();
     Buffer *result = CC_NEW(BufferValidator(actor));
@@ -153,13 +166,6 @@ Texture *DeviceValidator::createTexture() {
     Texture *actor  = _actor->createTexture();
     Texture *result = CC_NEW(TextureValidator(actor));
     DeviceResourceTracker<Texture>::push(result);
-    return result;
-}
-
-Sampler *DeviceValidator::createSampler() {
-    Sampler *actor  = _actor->createSampler();
-    Sampler *result = CC_NEW(SamplerValidator(actor));
-    DeviceResourceTracker<Sampler>::push(result);
     return result;
 }
 
@@ -219,29 +225,36 @@ PipelineState *DeviceValidator::createPipelineState() {
     return result;
 }
 
-GlobalBarrier *DeviceValidator::createGlobalBarrier() {
-    GlobalBarrier *actor = _actor->createGlobalBarrier();
-    return actor;
+Sampler *DeviceValidator::createSampler(const SamplerInfo &info, uint32_t hash) {
+    return _actor->createSampler(info, hash);
 }
 
-TextureBarrier *DeviceValidator::createTextureBarrier() {
-    TextureBarrier *actor = _actor->createTextureBarrier();
-    return actor;
+GlobalBarrier *DeviceValidator::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+    return _actor->createGlobalBarrier(info, hash);
 }
 
-void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
+TextureBarrier *DeviceValidator::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+    return _actor->createTextureBarrier(info, hash);
+}
+
+void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
     auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->sanityCheck();
+
+    /////////// execute ///////////
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
 }
 
-void DeviceValidator::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+void DeviceValidator::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     auto *textureValidator = static_cast<TextureValidator *>(src);
+
+    /////////// execute ///////////
+
     _actor->copyTextureToBuffers(textureValidator->getActor(), buffers, regions, count);
 }
 
-void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
+void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
     /////////// execute ///////////
@@ -249,7 +262,7 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint count) 
     static vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
-    for (uint i = 0U; i < count; ++i) {
+    for (uint32_t i = 0U; i < count; ++i) {
         auto *cmdBuff             = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
         cmdBuff->_commandsFlushed = true;
         cmdBuffActors[i]          = cmdBuff->getActor();

@@ -151,7 +151,7 @@ void BatchedBuffer::merge(const scene::SubModel *subModel, uint passIdx, const s
 
                 ++batch.mergeCount;
                 batch.vbCount += vbCount;
-                auto prevCount = batch.ia->getVertexCount();
+                auto prevCount = batch.ia->getDrawInfo().vertexCount;
                 batch.ia->setVertexCount(prevCount + vbCount);
                 return;
             }
