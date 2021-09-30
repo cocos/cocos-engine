@@ -5,6 +5,8 @@ import {
     TextureViewInfo,
     Format,
     ISwapchainTextureInfo,
+    TextureType,
+    SampleCount,
 } from '../base/define';
 import { Texture } from '../base/texture';
 import { nativeLib } from './webgpu-utils';
@@ -34,8 +36,10 @@ export class WebGPUTexture extends Texture {
 
             const texViewInfo = new nativeLib.TextureViewInfoInstance();
             texViewInfo.setTexture((info.texture as WebGPUTexture).nativeTexture());
-            texViewInfo.setType(toWGPUNativeTextureType(info.type));
-            texViewInfo.setFormat(toWGPUNativeFormat(info.format));
+            const typeStr = TextureType[info.type];
+            texViewInfo.setType(nativeLib.TextureType[typeStr]);
+            const formatStr = Format[info.format];
+            texViewInfo.setFormat(nativeLib.Format[formatStr]);
             texViewInfo.setBaseLevel(info.baseLevel);
             texViewInfo.setLevelCount(info.levelCount);
             texViewInfo.setBaseLayer(info.baseLayer);
@@ -58,15 +62,18 @@ export class WebGPUTexture extends Texture {
                     ? this._swapchain.nativeSwapchain.getDepthStencilTexture() : this._swapchain.nativeSwapchain.getColorTexture();
             } else {
                 const texInfo = new nativeLib.TextureInfoInstance();
-                texInfo.setType(toWGPUNativeTextureType(info.type));
-                texInfo.setUsage(toWGPUNativeTextureUsage(info.usage));
-                texInfo.setFormat(toWGPUNativeFormat(info.format));
+                const typeStr = TextureType[info.type];
+                texInfo.setType(nativeLib.TextureType[typeStr]);
+                texInfo.setUsage(info.usage);
+                const formatStr = Format[info.format];
+                texInfo.setFormat(nativeLib.Format[formatStr]);
                 texInfo.setWidth(info.width);
                 texInfo.setHeight(info.height);
                 texInfo.setFlags(toWGPUTextureFlag(info.flags));
                 texInfo.setLayerCount(info.layerCount);
                 texInfo.setLevelCount(info.levelCount);
-                texInfo.setSamples(toWGPUTextureSampleCount(info.samples));
+                const sampleStr = SampleCount[info.samples];
+                texInfo.setSamples(nativeLib.SampleCount[sampleStr]);
                 texInfo.setDepth(info.depth);
                 texInfo.setImageBuffer(info.externalRes);
                 this._nativeTexture = nativeDevice.createTexture(texInfo);

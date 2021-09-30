@@ -32,8 +32,6 @@ export class WebGPUFramebuffer extends Framebuffer {
 
         if (info.depthStencilTexture) {
             framebufferInfo.setDepthStencilTexture((info.depthStencilTexture as WebGPUTexture).nativeTexture);
-        } else {
-            framebufferInfo.setDepthStencilTexture(nativeDevice.swapchainDepthStencil);
         }
 
         this._nativeFramebuffer = nativeLib.nativeDevice.createFramebuffer(framebufferInfo);

@@ -489,7 +489,7 @@ export abstract class RenderPipeline extends Asset {
         }
 
         // create index buffer
-        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
         const quadIB = this._device.createBuffer(new BufferInfo(
@@ -503,7 +503,7 @@ export abstract class RenderPipeline extends Asset {
             return inputAssemblerData;
         }
 
-        const indices = new Uint8Array(6);
+        const indices = new Uint16Array(6);
         indices[0] = 0; indices[1] = 1; indices[2] = 2;
         indices[3] = 1; indices[4] = 3; indices[5] = 2;
 

@@ -25,6 +25,6 @@ export class WebGPUSampler extends Sampler {
         samplerInfo.cmpFunc = toWGPUNativeCompareFunc(info.cmpFunc);
 
         const nativeDevice = nativeLib.nativeDevice;
-        this._nativeSampler = nativeDevice.getSampler(samplerInfo, hash);
+        this._nativeSampler = nativeDevice.getSampler(samplerInfo);
     }
 }
