@@ -67,6 +67,7 @@ const _texelSize = new Vec2();
 const _projSnap = new Vec3();
 const _snap = new Vec3();
 const _focus = new Vec3(0, 0, 0);
+const _ab = new AABB();
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const dirShadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -380,10 +381,18 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             if (model.node && ((visibility & model.node.layer) === model.node.layer)
                  || (visibility & model.visFlags)) {
                 // shadow render Object
-                if (dirShadowObjects != null && model.castShadow) {
+                if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
                     // frustum culling
-                    if (model.worldBounds && intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
-                        dirShadowObjects.push(getDirShadowRenderObject(model, camera));
+                    if (shadows.fixedArea) {
+                        AABB.transform(_ab, model.worldBounds, shadows.matLight);
+                        if (intersect.aabbFrustum(_ab, camera.frustum)) {
+                            dirShadowObjects.push(getDirShadowRenderObject(model, camera));
+                        }
+                    } else {
+                        // eslint-disable-next-line no-lonely-if
+                        if (intersect.aabbFrustum(model.worldBounds, _dirLightFrustum)) {
+                            dirShadowObjects.push(getDirShadowRenderObject(model, camera));
+                        }
                     }
                 }
                 // frustum culling

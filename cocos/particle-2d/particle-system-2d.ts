@@ -43,7 +43,7 @@ import { path } from '../core/utils';
 import { PNGReader } from './png-reader';
 import { TiffReader } from './tiff-reader';
 import codec from '../../external/compression/ZipUtils';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
 
@@ -1158,7 +1158,7 @@ export class ParticleSystem2D extends Renderable2D {
         return super._canRender() && !this._stopped && this._renderSpriteFrame !== null;
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         if (this._positionType === PositionType.RELATIVE) {
             render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node.parent);
         } else if (this.positionType === PositionType.GROUPED) {

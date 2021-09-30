@@ -29,13 +29,14 @@
  */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { Component } from '../../core/components';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
 import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
@@ -251,6 +252,20 @@ export class UITransform extends Component {
     protected _contentSize = new Size(100, 100);
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
+
+    // macro.UI_GPU_DRIVEN
+    declare public _rectDirty: boolean;
+    declare public _rectWithScale: Vec3;
+    declare public _anchorCache: Vec2;
+
+    constructor () {
+        super();
+        if (UI_GPU_DRIVEN) {
+            this._rectDirty = true;
+            this._rectWithScale = new Vec3();
+            this._anchorCache = new Vec2();
+        }
+    }
 
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
@@ -659,9 +674,32 @@ export class UITransform extends Component {
     }
 
     private _markRenderDataDirty () {
+        if (UI_GPU_DRIVEN) {
+            this._rectDirty = true;
+            return;
+        }
         const uiComp = this.node._uiProps.uiComp;
         if (uiComp) {
             uiComp.markForUpdateRenderData();
+        }
+    }
+
+    public checkAndUpdateRect (scale: Vec3) {
+        if (this._rectDirty) {
+            this._rectWithScale.x = scale.x * this.width;
+            this._rectWithScale.y = scale.y * this.height;
+            this._rectWithScale.z = scale.z;
+            const eulerZ = this.node.angle / 180 * Math.PI;
+            const lenX = (0.5 - this.anchorPoint.x) * this.width * scale.x;
+            const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;
+            this._anchorCache.x = (lenX) * Math.cos(eulerZ) - (lenY) * Math.sin(eulerZ);
+            this._anchorCache.y = (lenX) * Math.sin(eulerZ) + (lenY) * Math.cos(eulerZ);
+        }
+    }
+
+    public setRectDirty (transformBit: TransformBit) {
+        if (transformBit & TransformBit.RS) {
+            this._rectDirty = true;
         }
     }
 

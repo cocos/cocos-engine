@@ -1,7 +1,8 @@
+import { DrawCall } from '../../../2d/renderer/draw-batch';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
-    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
+    DescriptorSet, DrawInfo, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -160,6 +161,8 @@ export type NativeRenderWindow = InstanceType<typeof NativeRenderWindow>;
 export const NativeCamera: Constructor<{
     width: number;
     height: number;
+    nearClip: number;
+    farClip: number;
     scene: NativeRenderScene | null;
     frustum: Frustum;
     matView: Mat4;
@@ -225,8 +228,20 @@ export const NativeDrawBatch2D: Constructor<{
     descriptorSet: DescriptorSet | null;
     passes: NativePass[];
     shaders: Shader[];
+    drawCalls: NativeDrawCall[];
+    pushDrawCall(dc: NativeDrawCall);
+    clearDrawCalls();
 }> = null!;
 export type NativeDrawBatch2D = InstanceType<typeof NativeDrawBatch2D>;
+
+export const NativeDrawCall: Constructor<{
+    bufferView: Buffer | null;
+    descriptorSet: DescriptorSet | null;
+    dynamicOffsets: number[];
+    drawInfo: DrawInfo | null;
+    setDynamicOffsets(value: number);
+}> = null!;
+export type NativeDrawCall = InstanceType<typeof NativeDrawCall>;
 
 export const NativeRenderScene: Constructor<{
     update(stamp: number): void;
@@ -315,8 +330,16 @@ export const NativePipelineSharedSceneData: Constructor<{
     shadow: NativeShadow;
     deferredLightPassShader: Shader | null;
     deferredLightPass: NativePass;
-    deferredPostPassShader: Shader | null;
-    deferredPostPass: NativePass;
+    bloomPrefilterPassShader: Shader | null;
+    bloomPrefilterPass: NativePass;
+    bloomDownsamplePassShader: Shader | null;
+    bloomDownsamplePass: NativePass;
+    bloomUpsamplePassShader: Shader | null;
+    bloomUpsamplePass: NativePass;
+    bloomCombinePassShader: Shader | null;
+    bloomCombinePass: NativePass;
+    pipelinePostPassShader: Shader | null;
+    pipelinePostPass: NativePass;
 }> = null!;
 
 export type NativePipelineSharedSceneData = InstanceType<typeof NativePipelineSharedSceneData>;

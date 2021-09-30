@@ -36,7 +36,7 @@ import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { scene } from '../../core/renderer';
 import { IAssembler } from '../renderer/base';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
@@ -606,7 +606,7 @@ export class Graphics extends Renderable2D {
         }
     }
 
-    protected _uploadData (render: Batcher2D) {
+    protected _uploadData (render: IBatcher) {
         const impl = this.impl;
         if (!impl) {
             return;
@@ -639,7 +639,7 @@ export class Graphics extends Renderable2D {
         this._isNeedUploadData = false;
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         if (this._isNeedUploadData) {
             if (this.impl) {
                 const renderDataList = this.impl.getRenderDataList();

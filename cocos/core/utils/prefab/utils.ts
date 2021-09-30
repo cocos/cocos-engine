@@ -114,6 +114,11 @@ export function generateTargetMap (node: Node, targetMap: any, isRoot: boolean) 
     if (!targetMap) {
         return;
     }
+
+    if (!node) {
+        return;
+    }
+
     let curTargetMap = targetMap;
 
     // @ts-expect-error: private member access
@@ -206,7 +211,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     // @ts-expect-error private member access
                     childNode._siblingIndex = target._children.length - 1;
-                    childNode._onBatchCreated(false);
+                    expandPrefabInstanceNode(childNode);
                 }
             }
         }
@@ -391,5 +396,34 @@ export function applyTargetOverrides (node: BaseNode) {
                 targetPropOwner[targetPropName] = target;
             }
         }
+    }
+}
+
+export function expandPrefabInstanceNode (node: Node) {
+    // @ts-expect-error private member access
+    const prefabInfo = node._prefab;
+    const prefabInstance = prefabInfo?.instance;
+    if (prefabInstance) {
+        createNodeWithPrefab(node);
+
+        const targetMap: Record<string, any | Node | Component> = {};
+        prefabInstance.targetMap = targetMap;
+        generateTargetMap(node, targetMap, true);
+
+        applyMountedChildren(node, prefabInstance.mountedChildren, targetMap);
+        applyRemovedComponents(node, prefabInstance.removedComponents, targetMap);
+        applyMountedComponents(node, prefabInstance.mountedComponents, targetMap);
+        applyPropertyOverrides(node, prefabInstance.propertyOverrides, targetMap);
+    }
+}
+
+export function expandNestedPrefabInstanceNode (node: BaseNode) {
+    // @ts-expect-error private member access
+    const prefabInfo = node._prefab;
+
+    if (prefabInfo && prefabInfo.nestedPrefabInstanceRoots) {
+        prefabInfo.nestedPrefabInstanceRoots.forEach((instanceNode: Node) => {
+            expandPrefabInstanceNode(instanceNode);
+        });
     }
 }

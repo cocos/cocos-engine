@@ -33,7 +33,7 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
     DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature, API } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
@@ -103,7 +103,7 @@ export interface IRenderQueueDesc {
 
 export interface IDescriptorSetLayoutInfo {
     bindings: DescriptorSetLayoutBinding[];
-    layouts: Record<string, UniformBlock | UniformSamplerTexture | UniformStorageImage>;
+    layouts: Record<string, UniformBlock | UniformSamplerTexture | UniformStorageImage | UniformStorageBuffer>;
 }
 
 export const globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], layouts: {} };
@@ -133,6 +133,7 @@ export enum ModelLocalBindings {
     UBO_SKINNING_ANIMATION,
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
+    UBO_UI_LOCAL,
 
     SAMPLER_JOINTS,
     SAMPLER_MORPH_POSITION,
@@ -203,7 +204,9 @@ export class UBOCamera {
     public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
     public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
     public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly NEAR_FAR_OFFSET = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly VIEW_PORT_OFFSET = UBOCamera.NEAR_FAR_OFFSET + 4;
+    public static readonly COUNT = UBOCamera.VIEW_PORT_OFFSET + 4;
     public static readonly SIZE = UBOCamera.COUNT * 4;
 
     public static readonly NAME = 'CCCamera';
@@ -226,6 +229,8 @@ export class UBOCamera {
         new Uniform('cc_fogColor', Type.FLOAT4, 1),
         new Uniform('cc_fogBase', Type.FLOAT4, 1),
         new Uniform('cc_fogAdd', Type.FLOAT4, 1),
+        new Uniform('cc_nearFar', Type.FLOAT4, 1),
+        new Uniform('cc_viewPort', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
@@ -445,6 +450,18 @@ export class UBOMorph {
 }
 localDescriptorSetLayout.layouts[UBOMorph.NAME] = UBOMorph.LAYOUT;
 localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
+
+// UI local uniform UBO
+export class UBOUILocal { // pre one vec4
+    public static readonly NAME = 'CCUILocal';
+    public static readonly BINDING = ModelLocalBindings.UBO_UI_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOUILocal.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOUILocal.BINDING, UBOUILocal.NAME, [
+        new Uniform('cc_local_data', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOUILocal.NAME] = UBOUILocal.LAYOUT;
+localDescriptorSetLayout.bindings[UBOUILocal.BINDING] = UBOUILocal.DESCRIPTOR;
 
 /**
  * @en The sampler for joint texture
