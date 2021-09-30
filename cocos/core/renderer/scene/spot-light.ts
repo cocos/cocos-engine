@@ -66,7 +66,7 @@ export class SpotLight extends Light {
 
     protected _luminance = 0;
 
-    protected _luminance_ldr = 0;
+    protected _luminanceLDR = 0;
 
     protected _aspect = 0;
 
@@ -125,12 +125,12 @@ export class SpotLight extends Light {
         if (isHDR) {
             this._luminance = lum;
         } else {
-            this._luminance_ldr = lum;
+            this._luminanceLDR = lum;
         }
 
         if (JSB) {
             (this._nativeObj! as NativeSpotLight).setIlluminance(this._luminance);
-            (this._nativeObj! as NativeSpotLight).setIlluminance_ldr(this._luminance_ldr);
+            (this._nativeObj! as NativeSpotLight).setIlluminanceLDR(this._luminanceLDR);
         }
     }
 
@@ -139,11 +139,11 @@ export class SpotLight extends Light {
         if (isHDR) {
             return this._luminance;
         } else {
-            return this._luminance_ldr;
+            return this._luminanceLDR;
         }
     }
 
-    set luminance_hdr (lum: number) {
+    set luminanceHDR (lum: number) {
         this._luminance = lum;
 
         if (JSB) {
@@ -151,11 +151,11 @@ export class SpotLight extends Light {
         }
     }
 
-    set luminance_ldr (lum: number) {
-        this._luminance_ldr = lum;
+    set luminanceLDR (lum: number) {
+        this._luminanceLDR = lum;
 
         if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setIlluminance_ldr(lum);
+            (this._nativeObj! as NativeSpotLight).setIlluminanceLDR(lum);
         }
     }
 
@@ -219,7 +219,7 @@ export class SpotLight extends Light {
         this.size = size;
         this.aspect = 1.0;
         this.luminance = 1700 / nt2lm(size);
-        this.luminance_ldr = 1.0;
+        this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
         this._setDirection(new Vec3(1.0, -1.0, -1.0));
     }

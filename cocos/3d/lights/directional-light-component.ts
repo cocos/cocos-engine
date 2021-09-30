@@ -44,7 +44,7 @@ export class DirectionalLight extends Light {
     protected _illuminance = 65000;
 
     @serializable
-    protected _illuminance_ldr = 1.0;
+    protected _illuminanceLDR = 1.0;
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
@@ -61,7 +61,7 @@ export class DirectionalLight extends Light {
         if (isHDR) {
             return this._illuminance;
         } else {
-            return this._illuminance_ldr;
+            return this._illuminanceLDR;
         }
     }
     set illuminance (val) {
@@ -69,12 +69,12 @@ export class DirectionalLight extends Light {
         if (isHDR) {
             this._illuminance = val;
         } else {
-            this._illuminance_ldr = val;
+            this._illuminanceLDR = val;
         }
 
         if (this._light) {
-            this._light.illuminance_hdr = this._illuminance;
-            this._light.illuminance_ldr = this._illuminance_ldr;
+            this._light.illuminanceHDR = this._illuminance;
+            this._light.illuminanceLDR = this._illuminanceLDR;
         }
     }
 
@@ -87,11 +87,11 @@ export class DirectionalLight extends Light {
         super._createLight();
         if (!this._light) { return; }
 
-        this._illuminance_ldr = this._illuminance * Camera.standardExposureValue;
+        this._illuminanceLDR = this._illuminance * Camera.standardExposureValue;
 
         if (this._light) {
-            this._light.illuminance_hdr = this._illuminance;
-            this._light.illuminance_ldr = this._illuminance_ldr;
+            this._light.illuminanceHDR = this._illuminance;
+            this._light.illuminanceLDR = this._illuminanceLDR;
         }
     }
 }

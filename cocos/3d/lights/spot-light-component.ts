@@ -50,7 +50,7 @@ export class SpotLight extends Light {
     protected _luminance = 1700 / scene.nt2lm(0.15);
 
     @serializable
-    protected _luminance_ldr = 1.0;
+    protected _luminanceLDR = 1.0;
 
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_FLUX;
@@ -75,7 +75,7 @@ export class SpotLight extends Light {
         if (isHDR) {
             return this._luminance * scene.nt2lm(this._size);
         } else {
-            return this._luminance_ldr;
+            return this._luminanceLDR;
         }
     }
 
@@ -86,8 +86,8 @@ export class SpotLight extends Light {
             this._luminance = val / scene.nt2lm(this._size);
             result = this._luminance;
         } else {
-            this._luminance_ldr = val;
-            result = this._luminance_ldr;
+            this._luminanceLDR = val;
+            result = this._luminanceLDR;
         }
 
         if (this._light) { this._light.luminance = result; }
@@ -103,7 +103,7 @@ export class SpotLight extends Light {
         if (isHDR) {
             return this._luminance;
         } else {
-            return this._luminance_ldr;
+            return this._luminanceLDR;
         }
     }
 
@@ -112,12 +112,12 @@ export class SpotLight extends Light {
         if (isHDR) {
             this._luminance = val;
         } else {
-            this._luminance_ldr = val;
+            this._luminanceLDR = val;
         }
 
         if (this._light) {
-            this._light.luminance_hdr = this._luminance;
-            this._light.luminance_ldr = this._luminance_ldr;
+            this._light.luminanceHDR = this._luminance;
+            this._light.luminanceLDR = this._luminanceLDR;
         }
     }
 
@@ -197,11 +197,11 @@ export class SpotLight extends Light {
         this.range = this._range;
         this.spotAngle = this._spotAngle;
 
-        this._luminance_ldr = this._luminance * Camera.standardExposureValue * Camera.standardLightMeterScale;
+        this._luminanceLDR = this._luminance * Camera.standardExposureValue * Camera.standardLightMeterScale;
 
         if (this._light) {
-            this._light.luminance_hdr = this._luminance;
-            this._light.luminance_ldr = this._luminance_ldr;
+            this._light.luminanceHDR = this._luminance;
+            this._light.luminanceLDR = this._luminanceLDR;
         }
     }
 }

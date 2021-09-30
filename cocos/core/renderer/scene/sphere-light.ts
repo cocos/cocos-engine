@@ -76,12 +76,12 @@ export class SphereLight extends Light {
         if (isHDR) {
             this._luminance = lum;
         } else {
-            this._luminance_ldr = lum;
+            this._luminanceLDR = lum;
         }
 
         if (JSB) {
             (this._nativeObj! as NativeSphereLight).setIlluminance(this._luminance);
-            (this._nativeObj! as NativeSphereLight).setIlluminance_ldr(this._luminance_ldr);
+            (this._nativeObj! as NativeSphereLight).setIlluminanceLDR(this._luminanceLDR);
         }
     }
 
@@ -90,11 +90,11 @@ export class SphereLight extends Light {
         if (isHDR) {
             return this._luminance;
         } else {
-            return this._luminance_ldr;
+            return this._luminanceLDR;
         }
     }
 
-    set luminance_hdr (lum: number) {
+    set luminanceHDR (lum: number) {
         this._luminance = lum;
 
         if (JSB) {
@@ -102,11 +102,11 @@ export class SphereLight extends Light {
         }
     }
 
-    set luminance_ldr (lum: number) {
-        this._luminance_ldr = lum;
+    set luminanceLDR (lum: number) {
+        this._luminanceLDR = lum;
 
         if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance_ldr(lum);
+            (this._nativeObj! as NativeSphereLight).setIlluminanceLDR(lum);
         }
     }
 
@@ -118,7 +118,7 @@ export class SphereLight extends Light {
     protected _size = 0.15;
     protected _range = 1.0;
     protected _luminance = 0;
-    protected _luminance_ldr = 0;
+    protected _luminanceLDR = 0;
     protected _pos: Vec3;
     protected _aabb: AABB;
 
@@ -136,7 +136,7 @@ export class SphereLight extends Light {
         this.size = size;
         this.range = 1.0;
         this.luminance = 1700 / nt2lm(size);
-        this.luminance_ldr = 1.0;
+        this.luminanceLDR = 1.0;
     }
 
     public update () {

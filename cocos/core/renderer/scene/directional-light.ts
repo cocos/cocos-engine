@@ -36,7 +36,7 @@ const _v3 = new Vec3();
 export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminance: number = Ambient.SUN_ILLUM;
-    protected _illuminance_ldr = 1.0;
+    protected _illuminanceLDR = 1.0;
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
@@ -55,12 +55,12 @@ export class DirectionalLight extends Light {
         if (isHDR) {
             this._illuminance = illum;
         } else {
-            this._illuminance_ldr = illum;
+            this._illuminanceLDR = illum;
         }
 
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setIlluminance(this._illuminance);
-            (this._nativeObj as NativeDirectionalLight).setIlluminance_ldr(this._illuminance_ldr);
+            (this._nativeObj as NativeDirectionalLight).setIlluminanceLDR(this._illuminanceLDR);
         }
     }
 
@@ -69,21 +69,21 @@ export class DirectionalLight extends Light {
         if (isHDR) {
             return this._illuminance;
         } else {
-            return this._illuminance_ldr;
+            return this._illuminanceLDR;
         }
     }
 
-    set illuminance_hdr (illum: number) {
+    set illuminanceHDR (illum: number) {
         this._illuminance = illum;
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setIlluminance(illum);
         }
     }
 
-    set illuminance_ldr (illum: number) {
-        this._illuminance_ldr = illum;
+    set illuminanceLDR (illum: number) {
+        this._illuminanceLDR = illum;
         if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setIlluminance_ldr(illum);
+            (this._nativeObj as NativeDirectionalLight).setIlluminanceLDR(illum);
         }
     }
 

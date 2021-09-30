@@ -36,18 +36,18 @@ export class Ambient {
     get colorArray (): Vec4 {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._colorArray_hdr;
+            return this._colorArrayHDR;
         } else {
-            return this._colorArray_ldr;
+            return this._colorArrayLDR;
         }
     }
 
     get albedoArray (): Vec4 {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._albedoArray_hdr;
+            return this._albedoArrayHDR;
         } else {
-            return this._albedoArray_ldr;
+            return this._albedoArrayLDR;
         }
     }
 
@@ -76,15 +76,15 @@ export class Ambient {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         this._skyColor.set(color);
         if (isHDR) {
-            this._colorArray_hdr.x = this._skyColor.x;
-            this._colorArray_hdr.y = this._skyColor.y;
-            this._colorArray_hdr.z = this._skyColor.z;
-            this._colorArray_hdr.w = this._skyColor.w;
+            this._colorArrayHDR.x = this._skyColor.x;
+            this._colorArrayHDR.y = this._skyColor.y;
+            this._colorArrayHDR.z = this._skyColor.z;
+            this._colorArrayHDR.w = this._skyColor.w;
         } else {
-            this._colorArray_ldr.x = this._skyColor.x;
-            this._colorArray_ldr.y = this._skyColor.y;
-            this._colorArray_ldr.z = this._skyColor.z;
-            this._colorArray_ldr.w = this._skyColor.w;
+            this._colorArrayLDR.x = this._skyColor.x;
+            this._colorArrayLDR.y = this._skyColor.y;
+            this._colorArrayLDR.z = this._skyColor.z;
+            this._colorArrayLDR.w = this._skyColor.w;
         }
         if (JSB) {
             this._nativeObj!.skyColor = this._skyColor;
@@ -96,15 +96,15 @@ export class Ambient {
         const clampColor = (x: number) => Math.min(x * 255, 255);
         this._skyColor.set(clampColor(color.x), clampColor(color.y), clampColor(color.z), 255);
         if (isHDR) {
-            this._colorArray_hdr.x = this._skyColor.x;
-            this._colorArray_hdr.y = this._skyColor.y;
-            this._colorArray_hdr.z = this._skyColor.z;
-            this._colorArray_hdr.w = this._skyColor.w;
+            this._colorArrayHDR.x = this._skyColor.x;
+            this._colorArrayHDR.y = this._skyColor.y;
+            this._colorArrayHDR.z = this._skyColor.z;
+            this._colorArrayHDR.w = this._skyColor.w;
         } else {
-            this._colorArray_ldr.x = this._skyColor.x;
-            this._colorArray_ldr.y = this._skyColor.y;
-            this._colorArray_ldr.z = this._skyColor.z;
-            this._colorArray_ldr.w = this._skyColor.w;
+            this._colorArrayLDR.x = this._skyColor.x;
+            this._colorArrayLDR.y = this._skyColor.y;
+            this._colorArrayLDR.z = this._skyColor.z;
+            this._colorArrayLDR.w = this._skyColor.w;
         }
         if (JSB) {
             this._nativeObj!.skyColor = this._skyColor;
@@ -118,18 +118,18 @@ export class Ambient {
     get skyIllum (): number {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._skyIllum_hdr;
+            return this._skyIllumHDR;
         } else {
-            return this._skyIllum_ldr;
+            return this._skyIllumLDR;
         }
     }
 
     set skyIllum (illum: number) {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._skyIllum_hdr = illum;
+            this._skyIllumHDR = illum;
         } else {
-            this._skyIllum_ldr = illum;
+            this._skyIllumLDR = illum;
         }
         if (JSB) {
             this._nativeObj!.skyIllum = illum;
@@ -147,15 +147,15 @@ export class Ambient {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         this._groundAlbedo.set(color);
         if (isHDR) {
-            this._albedoArray_hdr.x = this._groundAlbedo.x;
-            this._albedoArray_hdr.y = this._groundAlbedo.y;
-            this._albedoArray_hdr.z = this._groundAlbedo.z;
-            this._albedoArray_hdr.w = this._groundAlbedo.w;
+            this._albedoArrayHDR.x = this._groundAlbedo.x;
+            this._albedoArrayHDR.y = this._groundAlbedo.y;
+            this._albedoArrayHDR.z = this._groundAlbedo.z;
+            this._albedoArrayHDR.w = this._groundAlbedo.w;
         } else {
-            this._albedoArray_ldr.x = this._groundAlbedo.x;
-            this._albedoArray_ldr.y = this._groundAlbedo.y;
-            this._albedoArray_ldr.z = this._groundAlbedo.z;
-            this._albedoArray_ldr.w = this._groundAlbedo.w;
+            this._albedoArrayLDR.x = this._groundAlbedo.x;
+            this._albedoArrayLDR.y = this._groundAlbedo.y;
+            this._albedoArrayLDR.z = this._groundAlbedo.z;
+            this._albedoArrayLDR.w = this._groundAlbedo.w;
         }
         if (JSB) {
             this._nativeObj!.groundAlbedo = this._groundAlbedo;
@@ -167,15 +167,15 @@ export class Ambient {
         const clampColor = (x: number) => Math.min(x * 255, 255);
         this._groundAlbedo.set(clampColor(color.x), clampColor(color.y), clampColor(color.z), 255);
         if (isHDR) {
-            this._albedoArray_hdr.x = this._groundAlbedo.x;
-            this._albedoArray_hdr.y = this._groundAlbedo.y;
-            this._albedoArray_hdr.z = this._groundAlbedo.z;
-            this._albedoArray_hdr.w = this._groundAlbedo.w;
+            this._albedoArrayHDR.x = this._groundAlbedo.x;
+            this._albedoArrayHDR.y = this._groundAlbedo.y;
+            this._albedoArrayHDR.z = this._groundAlbedo.z;
+            this._albedoArrayHDR.w = this._groundAlbedo.w;
         } else {
-            this._albedoArray_ldr.x = this._groundAlbedo.x;
-            this._albedoArray_ldr.y = this._groundAlbedo.y;
-            this._albedoArray_ldr.z = this._groundAlbedo.z;
-            this._albedoArray_ldr.w = this._groundAlbedo.w;
+            this._albedoArrayLDR.x = this._groundAlbedo.x;
+            this._albedoArrayLDR.y = this._groundAlbedo.y;
+            this._albedoArrayLDR.z = this._groundAlbedo.z;
+            this._albedoArrayLDR.w = this._groundAlbedo.w;
         }
 
         if (JSB) {
@@ -186,13 +186,13 @@ export class Ambient {
     protected _skyColor = new Color(51, 128, 204, 1.0);
     protected _groundAlbedo = new Color(51, 51, 51, 255);
 
-    protected _albedoArray_hdr = new Vec4(0.2, 0.2, 0.2, 1.0);
-    protected _colorArray_hdr = new Vec4(0.2, 0.5, 0.8, 1.0);
-    protected _skyIllum_hdr = 0;
+    protected _albedoArrayHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+    protected _colorArrayHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    protected _skyIllumHDR = 0;
 
-    protected _albedoArray_ldr = new Vec4(0.2, 0.2, 0.2, 1.0);
-    protected _colorArray_ldr = new Vec4(0.2, 0.5, 0.8, 1.0);
-    protected _skyIllum_ldr = 0;
+    protected _albedoArrayLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+    protected _colorArrayLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    protected _skyIllumLDR = 0;
 
     protected _enabled = false;
     protected declare _nativeObj: NativeAmbient | null;
@@ -213,13 +213,13 @@ export class Ambient {
         this.skyIllum = ambientInfo.skyIllum;
 
         // Init HDR/LDR from serialized data on load
-        this._colorArray_hdr = ambientInfo.skyColor_hdr;
-        this._albedoArray_hdr = ambientInfo.groundAlbedo_hdr;
-        this._skyIllum_hdr = ambientInfo.skyIllum_hdr;
+        this._colorArrayHDR = ambientInfo.skyColorHDR;
+        this._albedoArrayHDR = ambientInfo.groundAlbedoHDR;
+        this._skyIllumHDR = ambientInfo.skyIllumHDR;
 
-        this._colorArray_ldr = ambientInfo.skyColor_ldr;
-        this._albedoArray_ldr = ambientInfo.groundAlbedo_ldr;
-        this._skyIllum_ldr = ambientInfo.skyIllum_ldr;
+        this._colorArrayLDR = ambientInfo.skyColorLDR;
+        this._albedoArrayLDR = ambientInfo.groundAlbedoLDR;
+        this._skyIllumLDR = ambientInfo.skyIllumLDR;
     }
 
     protected _destroy () {

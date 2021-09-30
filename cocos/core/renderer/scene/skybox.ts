@@ -118,23 +118,23 @@ export class Skybox {
     get envmap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._envmap_hdr;
+            return this._envmapHDR;
         } else {
-            return this._envmap_ldr;
+            return this._envmapLDR;
         }
     }
     set envmap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._envmap_hdr = val || this._default;
-            if (this._envmap_hdr) {
-                (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap_hdr.mipmapLevel;
+            this._envmapHDR = val || this._default;
+            if (this._envmapHDR) {
+                (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapHDR.mipmapLevel;
                 this._updateGlobalBinding();
             }
         } else {
-            this._envmap_ldr = val || this._default;
-            if (this._envmap_ldr) {
-                (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap_ldr.mipmapLevel;
+            this._envmapLDR = val || this._default;
+            if (this._envmapLDR) {
+                (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapLDR.mipmapLevel;
                 this._updateGlobalBinding();
             }
         }
@@ -163,17 +163,17 @@ export class Skybox {
     get diffusemap (): TextureCube | null {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._diffusemap_hdr;
+            return this._diffusemapHDR;
         } else {
-            return this._diffusemap_ldr;
+            return this._diffusemapLDR;
         }
     }
     set diffusemap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._diffusemap_hdr = val;
+            this._diffusemapHDR = val;
         } else {
-            this._diffusemap_ldr = val;
+            this._diffusemapLDR = val;
         }
         if (val) {
             this._updateGlobalBinding();
@@ -181,10 +181,10 @@ export class Skybox {
         }
     }
 
-    protected _envmap_ldr: TextureCube | null = null;
-    protected _envmap_hdr: TextureCube | null = null;
-    protected _diffusemap_ldr: TextureCube | null = null;
-    protected _diffusemap_hdr: TextureCube | null = null;
+    protected _envmapLDR: TextureCube | null = null;
+    protected _envmapHDR: TextureCube | null = null;
+    protected _diffusemapLDR: TextureCube | null = null;
+    protected _diffusemapHDR: TextureCube | null = null;
     protected _globalDSManager: GlobalDSManager | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
@@ -239,14 +239,14 @@ export class Skybox {
         this._setUseHDR(skyboxInfo.useHDR);
     }
 
-    public initializeEnvMaps (envmap_hdr: TextureCube | null, envmap_ldr: TextureCube | null) {
-        this._envmap_hdr = envmap_hdr;
-        this._envmap_ldr = envmap_ldr;
+    public initializeEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
+        this._envmapHDR = envmapHDR;
+        this._envmapLDR = envmapLDR;
     }
 
-    public initializeDiffuseMaps (diffusemap_hdr: TextureCube | null, diffusemap_ldr: TextureCube | null) {
-        this._diffusemap_hdr = diffusemap_hdr;
-        this._diffusemap_ldr = diffusemap_ldr;
+    public initializeDiffuseMaps (diffusemapHDR: TextureCube | null, diffusemapLDR: TextureCube | null) {
+        this._diffusemapHDR = diffusemapHDR;
+        this._diffusemapLDR = diffusemapLDR;
     }
 
     public activate () {
