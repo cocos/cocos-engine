@@ -28,20 +28,29 @@ import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep
 import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
-import { Color, Quat, Vec3, Vec2, color, Vec4 } from '../math';
+import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
-import { Asset } from '..';
 import { Root } from '../root';
-import { normalize } from '../asset-manager/helper';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
 const _qt = new Quat();
+
+// Normalize HDR color
+const normalizeHDRColor = (color : Vec4) => {
+    const intensity = 1.0 / Math.max(Math.max(color[0], color[1]), color[2]);
+    if (intensity < 1.0) {
+        for (let i = 0; i < 3; ++i) {
+            color[i] *= intensity;
+        }
+    }
+}
+const clampColor = (x: number) => Math.min(x * 255, 255);
 
 /**
  * @en Environment lighting information in the Scene
@@ -89,60 +98,35 @@ export class AmbientInfo {
         return this._skyIllumLDR;
     }
 
-    // Normalize HDR color
-    private normalizeHdrColor (color : Vec4) {
-        const intensity = 1.0 / Math.max(Math.max(color[0], color[1]), color[2]);
-
-        if (intensity < 1.0) {
-            for (let i = 0; i < 3; ++i) {
-                color[i] *= intensity;
-            }
-        }
-    }
-
     /**
      * @en Sky color
      * @zh 天空颜色
      */
     @editable
     set skyColor (val: Color) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const clampColor = (x: number) => Math.min(x * 255, 255);
-
         let result;
-        if (isHDR) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._skyColor = new Vec4(val.x, val.y, val.z, val.w);
-            this.normalizeHdrColor(this._skyColor);
+            normalizeHDRColor(this._skyColor);
             (result as Vec4) = this._skyColor;
         } else {
             this._skyColorLDR = new Vec4(val.x, val.y, val.z, val.w);
-            this.normalizeHdrColor(this._skyColorLDR);
+            normalizeHDRColor(this._skyColorLDR);
             (result as Vec4) = this._skyColorLDR;
         }
-
         const col = new Color(clampColor(result.x), clampColor(result.y), clampColor(result.z), 255.0);
-
         if (this._resource) { this._resource.skyColor = col; }
     }
     get skyColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         const colorRef = isHDR ? this._skyColor : this._skyColorLDR;
-
-        const clampColor = (x: number) => Math.min(x * 255, 255);
         return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
     }
 
     set skyColorValue (val: Vec4) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const clampColor = (x: number) => Math.min(x * 255, 255);
-        let colorRef = isHDR ? this._skyColor : this._skyColorLDR;
-
-        colorRef = val;
-
-        if (isHDR) {
-            this.normalizeHdrColor(colorRef);
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            normalizeHDRColor(val);
         }
-
         if (this._resource) { this._resource.skyColorValue = _v3.set(val.x, val.y, val.z); }
     }
 
@@ -153,8 +137,7 @@ export class AmbientInfo {
     @editable
     @type(CCFloat)
     set skyIllum (val: number) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._skyIllum = val;
         } else {
             this._skyIllumLDR = val;
@@ -163,8 +146,7 @@ export class AmbientInfo {
         if (this._resource) { this._resource.skyIllum = val; }
     }
     get skyIllum () {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             return this._skyIllum;
         } else {
             return this._skyIllumLDR;
@@ -177,48 +159,33 @@ export class AmbientInfo {
      */
     @editable
     set groundAlbedo (val: Color) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const clampColor = (x: number) => Math.min(x * 255, 255);
-
         let result;
-        if (isHDR) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._groundAlbedo = new Vec4(val.x, val.y, val.z, val.w);
-            this.normalizeHdrColor(this._groundAlbedo);
+            normalizeHDRColor(this._groundAlbedo);
             (result as Vec4) = this._groundAlbedo;
         } else {
             this._groundAlbedoLDR = new Vec4(val.x, val.y, val.z, val.w);
-            this.normalizeHdrColor(this._groundAlbedoLDR);
+            normalizeHDRColor(this._groundAlbedoLDR);
             (result as Vec4) = this._groundAlbedoLDR;
         }
-
         const col = new Color(clampColor(result.x), clampColor(result.y), clampColor(result.z), 255.0);
-
         if (this._resource) { this._resource.groundAlbedo = col; }
     }
     get groundAlbedo () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         const colorRef = isHDR ? this._groundAlbedo : this._groundAlbedoLDR;
-
-        const clampColor = (x: number) => Math.min(x * 255, 255);
         return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
     }
 
     set groundAlbedoValue (val: Vec4) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const clampColor = (x: number) => Math.min(x * 255, 255);
-        let colorRef = isHDR ? this._groundAlbedo : this._groundAlbedoLDR;
-
-        colorRef = val;
-
-        if (isHDR) {
-            this.normalizeHdrColor(colorRef);
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            normalizeHDRColor(val);
         }
-
         if (this._resource) { this._resource.groundAlbedoValue = _v3.set(val.x, val.y, val.z); }
     }
 
     public activate (resource: Ambient) {
-        const aa :Ambient = resource;
         this._resource = resource;
         this._resource.initialize(this);
     }

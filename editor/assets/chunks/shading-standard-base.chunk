@@ -86,7 +86,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
   vec3 dirlightContrib = (diffuseContrib + specularContrib);
- 
+
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
     if (NL > 0.0) {
