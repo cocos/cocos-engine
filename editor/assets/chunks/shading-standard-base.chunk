@@ -8,8 +8,12 @@
 
 #if CC_USE_IBL
   #include <cc-environment>
-  #include <unpack>
   #include <texture-lod>
+  #include <unpack>
+
+  #if CC_USE_DIFFUSEMAP
+    #include <cc-diffuseMap>
+  #endif
 #endif
 
 float GGXMobile (float roughness, float NoH, vec3 H, vec3 N) {
@@ -82,7 +86,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
   vec3 dirlightContrib = (diffuseContrib + specularContrib);
-
+ 
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
     if (NL > 0.0) {
@@ -94,23 +98,35 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   finalColor *= dirlightContrib;
 
   float fAmb = 0.5 - N.y * 0.5;
-  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
-  finalColor += (ambDiff.rgb * diffuse) * s.occlusion;
+  vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb);
+
 
   #if CC_USE_IBL
+    #if CC_USE_DIFFUSEMAP
+      // Diffuse reflection irradiance
+      vec4 diffuseMap = texture(cc_diffuseMap, N);
+      #if CC_USE_DIFFUSEMAP == IBL_RGBE
+        ambDiff = unpackRGBE(diffuseMap);
+      #else
+        ambDiff = SRGBToLinear(diffuseMap.rgb);
+      #endif
+    #endif
+
     vec3 R = normalize(reflect(-V, N));
     vec4 envmap = fragTextureLod(cc_environment, R, s.roughness * cc_ambientGround.w);
+
     #if CC_USE_IBL == IBL_RGBE
       vec3 env = unpackRGBE(envmap);
     #else
       vec3 env = SRGBToLinear(envmap.rgb);
     #endif
+
     finalColor += env * cc_ambientSky.w * specular * s.occlusion;
   #endif
 
-  #if CC_USE_HDR
-    s.emissive *= cc_exposure.w;
-  #endif
+  finalColor += ambDiff.rgb * cc_ambientSky.w * diffuse * s.occlusion;
+  
+
   finalColor += s.emissive;
 
   return vec4(finalColor, s.albedo.a);

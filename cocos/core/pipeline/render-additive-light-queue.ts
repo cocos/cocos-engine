@@ -51,6 +51,7 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { legacyCC } from '../global-exports';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -426,6 +427,7 @@ export class RenderAdditiveLightQueue {
         const sceneData = this._pipeline.pipelineSceneData;
         const isHDR = sceneData.isHDR;
         const fpScale = sceneData.fpScale;
+        const root = legacyCC.director.root;
         const shadowInfo = sceneData.shadows;
 
         if (this._validLights.length > this._lightBufferCount) {
@@ -462,9 +464,13 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (isHDR) {
-                    _vec4Array[3] = (light as SphereLight).luminance * fpScale * this._lightMeterScale;
+                    if (root.useDeferredPipeline) {
+                        _vec4Array[3] = (light as SphereLight).luminance * fpScale * this._lightMeterScale;
+                    } else {
+                        _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
+                    }
                 } else {
-                    _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
+                    _vec4Array[3] = (light as SphereLight).luminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
@@ -491,9 +497,13 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (isHDR) {
-                    _vec4Array[3] = (light as SpotLight).luminance * fpScale * this._lightMeterScale;
+                    if (root.useDeferredPipeline) {
+                        _vec4Array[3] = (light as SpotLight).luminance * fpScale * this._lightMeterScale;
+                    } else {
+                        _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
+                    }
                 } else {
-                    _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
+                    _vec4Array[3] = (light as SpotLight).luminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;

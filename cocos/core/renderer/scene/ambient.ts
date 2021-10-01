@@ -24,7 +24,7 @@
  */
 
 import { JSB } from 'internal:constants';
-import { Color, Vec3 } from '../../math';
+import { Color, Vec3, Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { AmbientInfo } from '../../scene-graph/scene-globals';
 import { NativeAmbient } from './native-scene';
@@ -33,12 +33,22 @@ export class Ambient {
     public static SUN_ILLUM = 65000.0;
     public static SKY_ILLUM = 20000.0;
 
-    get colorArray (): Float32Array {
-        return this._colorArray;
+    get colorArray (): Vec4 {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._colorArrayHDR;
+        } else {
+            return this._colorArrayLDR;
+        }
     }
 
-    get albedoArray (): Float32Array {
-        return this._albedoArray;
+    get albedoArray (): Vec4 {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._albedoArrayHDR;
+        } else {
+            return this._albedoArrayLDR;
+        }
     }
 
     /**
@@ -63,8 +73,39 @@ export class Ambient {
     }
 
     set skyColor (color: Color) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         this._skyColor.set(color);
-        Color.toArray(this._colorArray, this._skyColor);
+        if (isHDR) {
+            this._colorArrayHDR.x = this._skyColor.x;
+            this._colorArrayHDR.y = this._skyColor.y;
+            this._colorArrayHDR.z = this._skyColor.z;
+            this._colorArrayHDR.w = this._skyColor.w;
+        } else {
+            this._colorArrayLDR.x = this._skyColor.x;
+            this._colorArrayLDR.y = this._skyColor.y;
+            this._colorArrayLDR.z = this._skyColor.z;
+            this._colorArrayLDR.w = this._skyColor.w;
+        }
+        if (JSB) {
+            this._nativeObj!.skyColor = this._skyColor;
+        }
+    }
+
+    set skyColorValue (color: Vec3) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const clampColor = (x: number) => Math.min(x * 255, 255);
+        this._skyColor.set(clampColor(color.x), clampColor(color.y), clampColor(color.z), 255);
+        if (isHDR) {
+            this._colorArrayHDR.x = this._skyColor.x;
+            this._colorArrayHDR.y = this._skyColor.y;
+            this._colorArrayHDR.z = this._skyColor.z;
+            this._colorArrayHDR.w = this._skyColor.w;
+        } else {
+            this._colorArrayLDR.x = this._skyColor.x;
+            this._colorArrayLDR.y = this._skyColor.y;
+            this._colorArrayLDR.z = this._skyColor.z;
+            this._colorArrayLDR.w = this._skyColor.w;
+        }
         if (JSB) {
             this._nativeObj!.skyColor = this._skyColor;
         }
@@ -75,11 +116,21 @@ export class Ambient {
      * @zh 天空亮度
      */
     get skyIllum (): number {
-        return this._skyIllum;
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._skyIllumHDR;
+        } else {
+            return this._skyIllumLDR;
+        }
     }
 
     set skyIllum (illum: number) {
-        this._skyIllum = illum;
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._skyIllumHDR = illum;
+        } else {
+            this._skyIllumLDR = illum;
+        }
         if (JSB) {
             this._nativeObj!.skyIllum = illum;
         }
@@ -93,18 +144,57 @@ export class Ambient {
     }
 
     set groundAlbedo (color: Color) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         this._groundAlbedo.set(color);
-        Color.toArray(this._albedoArray, this._groundAlbedo);
+        if (isHDR) {
+            this._albedoArrayHDR.x = this._groundAlbedo.x;
+            this._albedoArrayHDR.y = this._groundAlbedo.y;
+            this._albedoArrayHDR.z = this._groundAlbedo.z;
+            this._albedoArrayHDR.w = this._groundAlbedo.w;
+        } else {
+            this._albedoArrayLDR.x = this._groundAlbedo.x;
+            this._albedoArrayLDR.y = this._groundAlbedo.y;
+            this._albedoArrayLDR.z = this._groundAlbedo.z;
+            this._albedoArrayLDR.w = this._groundAlbedo.w;
+        }
         if (JSB) {
             this._nativeObj!.groundAlbedo = this._groundAlbedo;
         }
     }
+
+    set groundAlbedoValue (color: Vec3) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        const clampColor = (x: number) => Math.min(x * 255, 255);
+        this._groundAlbedo.set(clampColor(color.x), clampColor(color.y), clampColor(color.z), 255);
+        if (isHDR) {
+            this._albedoArrayHDR.x = this._groundAlbedo.x;
+            this._albedoArrayHDR.y = this._groundAlbedo.y;
+            this._albedoArrayHDR.z = this._groundAlbedo.z;
+            this._albedoArrayHDR.w = this._groundAlbedo.w;
+        } else {
+            this._albedoArrayLDR.x = this._groundAlbedo.x;
+            this._albedoArrayLDR.y = this._groundAlbedo.y;
+            this._albedoArrayLDR.z = this._groundAlbedo.z;
+            this._albedoArrayLDR.w = this._groundAlbedo.w;
+        }
+
+        if (JSB) {
+            this._nativeObj!.groundAlbedo = this._groundAlbedo;
+        }
+    }
+
     protected _skyColor = new Color(51, 128, 204, 1.0);
     protected _groundAlbedo = new Color(51, 51, 51, 255);
-    protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
-    protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
+
+    protected _albedoArrayHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+    protected _colorArrayHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    protected _skyIllumHDR = 0;
+
+    protected _albedoArrayLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+    protected _colorArrayLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    protected _skyIllumLDR = 0;
+
     protected _enabled = false;
-    protected _skyIllum = 0;
     protected declare _nativeObj: NativeAmbient | null;
 
     get native (): NativeAmbient {
@@ -121,6 +211,15 @@ export class Ambient {
         this.skyColor = ambientInfo.skyColor;
         this.groundAlbedo = ambientInfo.groundAlbedo;
         this.skyIllum = ambientInfo.skyIllum;
+
+        // Init HDR/LDR from serialized data on load
+        this._colorArrayHDR = ambientInfo.skyColorHDR;
+        this._albedoArrayHDR = ambientInfo.groundAlbedoHDR;
+        this._skyIllumHDR = ambientInfo.skyIllumHDR;
+
+        this._colorArrayLDR = ambientInfo.skyColorLDR;
+        this._albedoArrayLDR = ambientInfo.groundAlbedoLDR;
+        this._skyIllumLDR = ambientInfo.skyIllumLDR;
     }
 
     protected _destroy () {

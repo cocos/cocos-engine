@@ -28,9 +28,12 @@
  * @module component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, serializable } from 'cc.decorator';
 import { scene } from '../../core/renderer';
 import { Light } from './light-component';
+import { legacyCC } from '../../core/global-exports';
+import { Camera } from '../../core/renderer/scene';
+import { Root } from '../../core/root';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
@@ -39,6 +42,9 @@ import { Light } from './light-component';
 export class DirectionalLight extends Light {
     @serializable
     protected _illuminance = 65000;
+
+    @serializable
+    protected _illuminanceLDR = 1.0;
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
@@ -49,14 +55,27 @@ export class DirectionalLight extends Light {
      * @zh
      * 光源强度。
      */
-    @unit('lx')
     @tooltip('i18n:lights.illuminance')
     get illuminance () {
-        return this._illuminance;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._illuminance;
+        } else {
+            return this._illuminanceLDR;
+        }
     }
     set illuminance (val) {
-        this._illuminance = val;
-        if (this._light) { this._light.illuminance = this._illuminance; }
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._illuminance = val;
+        } else {
+            this._illuminanceLDR = val;
+        }
+
+        if (this._light) {
+            this._light.illuminanceHDR = this._illuminance;
+            this._light.illuminanceLDR = this._illuminanceLDR;
+        }
     }
 
     constructor () {
@@ -67,6 +86,12 @@ export class DirectionalLight extends Light {
     protected _createLight () {
         super._createLight();
         if (!this._light) { return; }
-        this.illuminance = this._illuminance;
+
+        this._illuminanceLDR = this._illuminance * Camera.standardExposureValue;
+
+        if (this._light) {
+            this._light.illuminanceHDR = this._illuminance;
+            this._light.illuminanceLDR = this._illuminanceLDR;
+        }
     }
 }

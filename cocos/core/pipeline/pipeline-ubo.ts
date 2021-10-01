@@ -102,9 +102,13 @@ export class PipelineUBO {
             }
 
             if (isHDR) {
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * fpScale;
+                if (root.useDeferredPipeline) {
+                    cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * fpScale;
+                } else {
+                    cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+                }
             } else {
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance;
             }
         } else {
             Vec3.toArray(cv, Vec3.UNIT_Z, UBOCamera.MAIN_LIT_DIR_OFFSET);
@@ -113,12 +117,22 @@ export class PipelineUBO {
 
         const skyColor = ambient.colorArray;
         if (isHDR) {
-            skyColor[3] = ambient.skyIllum * fpScale;
+            if (root.useDeferredPipeline) {
+                skyColor.w = ambient.skyIllum * fpScale;
+            } else {
+                skyColor.w = ambient.skyIllum * exposure;
+            }
         } else {
-            skyColor[3] = ambient.skyIllum * exposure;
+            skyColor.w = ambient.skyIllum;
         }
-        cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
-        cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 0] = skyColor.x;
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 1] = skyColor.y;
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 2] = skyColor.z;
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 3] = skyColor.w;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 0] = ambient.albedoArray.x;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 1] = ambient.albedoArray.y;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 2] = ambient.albedoArray.z;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 3] = ambient.albedoArray.w;
 
         Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
         Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);

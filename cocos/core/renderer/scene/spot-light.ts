@@ -25,6 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { AABB, Frustum } from '../../geometry';
+import { legacyCC } from '../../global-exports';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { NativeSpotLight } from './native-scene';
@@ -64,6 +65,8 @@ export class SpotLight extends Light {
     protected _size = 0.15;
 
     protected _luminance = 0;
+
+    protected _luminanceLDR = 0;
 
     protected _aspect = 0;
 
@@ -118,14 +121,42 @@ export class SpotLight extends Light {
     }
 
     set luminance (lum: number) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._luminance = lum;
+        } else {
+            this._luminanceLDR = lum;
+        }
+
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setIlluminance(this._luminance);
+            (this._nativeObj! as NativeSpotLight).setIlluminanceLDR(this._luminanceLDR);
+        }
+    }
+
+    get luminance (): number {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._luminance;
+        } else {
+            return this._luminanceLDR;
+        }
+    }
+
+    set luminanceHDR (lum: number) {
         this._luminance = lum;
+
         if (JSB) {
             (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
         }
     }
 
-    get luminance (): number {
-        return this._luminance;
+    set luminanceLDR (lum: number) {
+        this._luminanceLDR = lum;
+
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setIlluminanceLDR(lum);
+        }
     }
 
     get direction (): Vec3 {
@@ -188,6 +219,7 @@ export class SpotLight extends Light {
         this.size = size;
         this.aspect = 1.0;
         this.luminance = 1700 / nt2lm(size);
+        this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
         this._setDirection(new Vec3(1.0, -1.0, -1.0));
     }
