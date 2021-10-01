@@ -71,42 +71,39 @@ export class SphereLight extends Light {
         return this._range;
     }
 
-    set luminance (lum: number) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
-            this._luminance = lum;
-        } else {
-            this._luminanceLDR = lum;
-        }
-
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance(this._luminance);
-            (this._nativeObj! as NativeSphereLight).setIlluminanceLDR(this._luminanceLDR);
-        }
-    }
-
     get luminance (): number {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._luminance;
+            return this._luminanceHDR;
         } else {
             return this._luminanceLDR;
         }
     }
-
-    set luminanceHDR (lum: number) {
-        this._luminance = lum;
-
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
+    set luminance (value: number) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this.luminanceHDR = value;
+        } else {
+            this.luminanceLDR = value;
         }
     }
 
-    set luminanceLDR (lum: number) {
-        this._luminanceLDR = lum;
+    get luminanceHDR () {
+        return this._luminanceHDR;
+    }
+    set luminanceHDR (value: number) {
+        this._luminanceHDR = value;
 
         if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminanceLDR(lum);
+            (this._nativeObj! as NativeSphereLight).setLuminanceHDR(value);
+        }
+    }
+
+    set luminanceLDR (value: number) {
+        this._luminanceLDR = value;
+
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setLuminanceLDR(value);
         }
     }
 
@@ -117,7 +114,7 @@ export class SphereLight extends Light {
     protected _needUpdate = false;
     protected _size = 0.15;
     protected _range = 1.0;
-    protected _luminance = 0;
+    protected _luminanceHDR = 0;
     protected _luminanceLDR = 0;
     protected _pos: Vec3;
     protected _aabb: AABB;

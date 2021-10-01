@@ -29,7 +29,7 @@
  */
 
 import {
-    ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, unit, serializable,
+    ccclass, help, executeInEditMode, menu, tooltip, type, slide, range, serializable, formerlySerializedAs,
 } from 'cc.decorator';
 import { toRadian } from '../../core/math';
 import { scene } from '../../core/renderer';
@@ -47,7 +47,8 @@ export class SpotLight extends Light {
     protected _size = 0.15;
 
     @serializable
-    protected _luminance = 1700 / scene.nt2lm(0.15);
+    @formerlySerializedAs('_luminance')
+    protected _luminanceHDR = 1700 / scene.nt2lm(0.15);
 
     @serializable
     protected _luminanceLDR = 1.0;
@@ -73,7 +74,7 @@ export class SpotLight extends Light {
     get luminousFlux () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._luminance * scene.nt2lm(this._size);
+            return this._luminanceHDR * scene.nt2lm(this._size);
         } else {
             return this._luminanceLDR;
         }
@@ -83,14 +84,13 @@ export class SpotLight extends Light {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         let result = 0;
         if (isHDR) {
-            this._luminance = val / scene.nt2lm(this._size);
-            result = this._luminance;
+            this._luminanceHDR = val / scene.nt2lm(this._size);
+            result = this._luminanceHDR;
         } else {
             this._luminanceLDR = val;
             result = this._luminanceLDR;
         }
-
-        if (this._light) { this._light.luminance = result; }
+        this._light && (this._light.luminance = result);
     }
 
     /**
@@ -101,7 +101,7 @@ export class SpotLight extends Light {
     get luminance () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._luminance;
+            return this._luminanceHDR;
         } else {
             return this._luminanceLDR;
         }
@@ -110,14 +110,11 @@ export class SpotLight extends Light {
     set luminance (val) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._luminance = val;
+            this._luminanceHDR = val;
+            this._light && (this._light.luminanceHDR = this._luminanceHDR);
         } else {
             this._luminanceLDR = val;
-        }
-
-        if (this._light) {
-            this._light.luminanceHDR = this._luminance;
-            this._light.luminanceLDR = this._luminanceLDR;
+            this._light && (this._light.luminanceLDR = this._luminanceLDR);
         }
     }
 
@@ -192,15 +189,18 @@ export class SpotLight extends Light {
 
     protected _createLight () {
         super._createLight();
-        if (!this._light) { return; }
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
-
-        this._luminanceLDR = this._luminance * Camera.standardExposureValue * Camera.standardLightMeterScale;
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._luminanceLDR = this._luminanceHDR * Camera.standardExposureValue * Camera.standardLightMeterScale;
+        }
+        else {
+            this._luminanceHDR = this._luminanceLDR / Camera.standardExposureValue / Camera.standardLightMeterScale;
+        }
 
         if (this._light) {
-            this._light.luminanceHDR = this._luminance;
+            this._light.luminanceHDR = this._luminanceHDR;
             this._light.luminanceLDR = this._luminanceLDR;
         }
     }

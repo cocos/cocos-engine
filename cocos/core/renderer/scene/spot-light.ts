@@ -64,7 +64,7 @@ export class SpotLight extends Light {
 
     protected _size = 0.15;
 
-    protected _luminance = 0;
+    protected _luminanceHDR = 0;
 
     protected _luminanceLDR = 0;
 
@@ -120,42 +120,43 @@ export class SpotLight extends Light {
         return this._range;
     }
 
-    set luminance (lum: number) {
+    set luminance (value: number) {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._luminance = lum;
+            this.luminanceHDR = value;
         } else {
-            this._luminanceLDR = lum;
-        }
-
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setIlluminance(this._luminance);
-            (this._nativeObj! as NativeSpotLight).setIlluminanceLDR(this._luminanceLDR);
+            this.luminanceLDR = value;
         }
     }
-
+  
     get luminance (): number {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._luminance;
+            return this._luminanceHDR;
         } else {
             return this._luminanceLDR;
         }
     }
 
-    set luminanceHDR (lum: number) {
-        this._luminance = lum;
+    get luminanceHDR () {
+        return this._luminanceHDR;
+    }
+    set luminanceHDR (value: number) {
+        this._luminanceHDR = value;
 
         if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
+            (this._nativeObj! as NativeSpotLight).setLuminanceHDR(value);
         }
     }
 
-    set luminanceLDR (lum: number) {
-        this._luminanceLDR = lum;
+    get luminanceLDR () {
+        return this._luminanceLDR;
+    }
+    set luminanceLDR (value: number) {
+        this._luminanceLDR = value;
 
         if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setIlluminanceLDR(lum);
+            (this._nativeObj! as NativeSpotLight).setLuminanceLDR(value);
         }
     }
 

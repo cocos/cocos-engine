@@ -28,20 +28,22 @@
  * @module component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, serializable, formerlySerializedAs } from 'cc.decorator';
 import { scene } from '../../core/renderer';
 import { Light } from './light-component';
 import { legacyCC } from '../../core/global-exports';
 import { Camera } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
+import { property } from 'cocos/core/data/class-decorator';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
 @menu('Light/DirectionalLight')
 @executeInEditMode
 export class DirectionalLight extends Light {
-    @serializable
-    protected _illuminance = 65000;
+    @property
+    @formerlySerializedAs('_illuminance')
+    protected _illuminanceHDR = 65000;
 
     @serializable
     protected _illuminanceLDR = 1.0;
@@ -59,7 +61,7 @@ export class DirectionalLight extends Light {
     get illuminance () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._illuminance;
+            return this._illuminanceHDR;
         } else {
             return this._illuminanceLDR;
         }
@@ -67,14 +69,11 @@ export class DirectionalLight extends Light {
     set illuminance (val) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._illuminance = val;
+            this._illuminanceHDR = val;
+            this._light && (this._light.illuminanceHDR = this._illuminanceHDR);
         } else {
             this._illuminanceLDR = val;
-        }
-
-        if (this._light) {
-            this._light.illuminanceHDR = this._illuminance;
-            this._light.illuminanceLDR = this._illuminanceLDR;
+            this._light && (this._light.illuminanceLDR = this._illuminanceLDR);
         }
     }
 
@@ -85,12 +84,9 @@ export class DirectionalLight extends Light {
 
     protected _createLight () {
         super._createLight();
-        if (!this._light) { return; }
-
-        this._illuminanceLDR = this._illuminance * Camera.standardExposureValue;
-
+        this._illuminanceLDR = this._illuminanceHDR * Camera.standardExposureValue;
         if (this._light) {
-            this._light.illuminanceHDR = this._illuminance;
+            this._light.illuminanceHDR = this._illuminanceHDR;
             this._light.illuminanceLDR = this._illuminanceLDR;
         }
     }
