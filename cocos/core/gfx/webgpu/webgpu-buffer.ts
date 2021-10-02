@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Buffer } from '../base/buffer';
 import {
-    BufferFlagBit,
-    BufferUsageBit,
-    IndirectBuffer,
     BufferSource,
     BufferInfo,
     BufferViewInfo,

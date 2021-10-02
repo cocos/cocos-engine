@@ -210,7 +210,7 @@ export function toWGPUNativeStageFlags (flags: ShaderStageFlagBit) {
         result |= nativeLib.ShaderStageFlags.GEOMETRY;
     }
     if (flags & ShaderStageFlagBit.FRAGMENT || flags & ShaderStageFlagBit.ALL) {
-         result |= nativeLib.ShaderStageFlags.FRAGMENT;
+        result |= nativeLib.ShaderStageFlags.FRAGMENT;
     }
     if (flags & ShaderStageFlagBit.COMPUTE || flags & ShaderStageFlagBit.ALL) {
         result |= nativeLib.ShaderStageFlags.COMPUTE;

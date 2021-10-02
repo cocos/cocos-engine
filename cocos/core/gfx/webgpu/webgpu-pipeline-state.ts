@@ -17,7 +17,7 @@ export class WebGPUPipelineState extends PipelineState {
     private _nativePipelineState;
 
     get nativePipelineState () {
-        return  this._nativePipelineState;
+        return this._nativePipelineState;
     }
 
     public initialize (info: PipelineStateInfo): boolean {

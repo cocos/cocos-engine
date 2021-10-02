@@ -14,8 +14,10 @@ import { Swapchain } from '../base/swapchain';
 import { Buffer } from '../base/buffer';
 import { Texture } from '../base/texture';
 import { Shader } from '../base/shader';
-import { CommandBuffer, InputAssembler, DescriptorSet, DescriptorSetLayout, PipelineLayout, BufferInfo, BufferViewInfo,
-    TextureInfo, TextureViewInfo, Framebuffer, GlobalBarrier, GlobalBarrierInfo, TextureBarrier, TextureBarrierInfo } from '..';
+import {
+    CommandBuffer, InputAssembler, DescriptorSet, DescriptorSetLayout, PipelineLayout, BufferInfo, BufferViewInfo,
+    TextureInfo, TextureViewInfo, Framebuffer, GlobalBarrier, GlobalBarrierInfo, TextureBarrier, TextureBarrierInfo,
+} from '..';
 
 import { nativeLib, glslalgWasmModule } from './webgpu-utils';
 import { WebGPURenderPass } from './webgpu-render-pass';
@@ -102,7 +104,7 @@ export class WebGPUDevice extends Device {
             return true;
         };
 
-        const mainEntry:Promise<boolean> = wasmDevice(nativeLib).then(() => {
+        const mainEntry: Promise<boolean> = wasmDevice(nativeLib).then(() => {
             nativeLib.wasmLoaded = true;
             console.log(nativeLib);
             return Promise.resolve(getDevice().then(() => launch()));
@@ -238,7 +240,7 @@ export class WebGPUDevice extends Device {
         return null!;
     }
 
-    public  getGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier {
+    public getGlobalBarrier (info: GlobalBarrierInfo): GlobalBarrier {
         const hash = GlobalBarrier.computeHash(info);
         if (!this._globalBarriers.has(hash)) {
             this._globalBarriers.set(hash, new GlobalBarrier(info, hash));
@@ -246,7 +248,7 @@ export class WebGPUDevice extends Device {
         return this._globalBarriers.get(hash)!;
     }
 
-    public  getTextureBarrier (info: TextureBarrierInfo): TextureBarrier {
+    public getTextureBarrier (info: TextureBarrierInfo): TextureBarrier {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
@@ -320,7 +322,7 @@ export class WebGPUDevice extends Device {
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {
         //assert('copyTexImagesToTexture not impled!');
-        const buffers : Uint8Array[] = [];
+        const buffers: Uint8Array[] = [];
         for (let i = 0; i < regions.length; i++) {
             if ('getContext' in texImages[i]) {
                 const canvasElem = texImages[i] as HTMLCanvasElement;

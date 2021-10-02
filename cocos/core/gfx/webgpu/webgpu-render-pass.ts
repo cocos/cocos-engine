@@ -4,7 +4,6 @@ import { RenderPass } from '../base/render-pass';
 import { RenderPassInfo } from '../base/define';
 import { nativeLib } from './webgpu-utils';
 import { SampleCount, Format, LoadOp, StoreOp, ResolveMode } from '..';
-import { WebGPUDevice } from './webgpu-device';
 
 export class WebGPURenderPass extends RenderPass {
     private _nativeRenderPass;

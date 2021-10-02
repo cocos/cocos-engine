@@ -10,8 +10,10 @@ import {
 } from '../base/define';
 import { Texture } from '../base/texture';
 import { nativeLib } from './webgpu-utils';
-import { toWGPUNativeFormat, toWGPUNativeTextureType, toWGPUNativeTextureUsage,
-    toWGPUTextureFlag, toWGPUTextureSampleCount } from './webgpu-commands';
+import {
+    toWGPUNativeFormat, toWGPUNativeTextureType, toWGPUNativeTextureUsage,
+    toWGPUTextureFlag, toWGPUTextureSampleCount,
+} from './webgpu-commands';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 
 export class WebGPUTexture extends Texture {
@@ -83,7 +85,7 @@ export class WebGPUTexture extends Texture {
         return true;
     }
 
-    protected  initAsSwapchainTexture (info: ISwapchainTextureInfo) {
+    protected initAsSwapchainTexture (info: ISwapchainTextureInfo) {
         console.log('init swapchain tex impling later');
     }
 

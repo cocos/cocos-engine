@@ -231,7 +231,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             const buffSize = size || buff.size;
             let u8buff;
             if ('buffer' in data) {
-            // es-lint as any
+                // es-lint as any
                 u8buff = new Uint8Array((data as any).buffer, (data as any).byteOffset, (data as any).byteLength);
             } else {
                 u8buff = new Uint8Array(data);
