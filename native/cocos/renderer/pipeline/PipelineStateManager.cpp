@@ -25,6 +25,7 @@
 
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace pipeline {
@@ -34,12 +35,16 @@ unordered_map<uint, gfx::PipelineState *> PipelineStateManager::psoHashMap;
 gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *  pass,
                                                                    gfx::Shader *        shader,
                                                                    gfx::InputAssembler *inputAssembler,
-                                                                   gfx::RenderPass *    renderPass) {
+                                                                   gfx::RenderPass *    renderPass,
+                                                                   uint                 subpass) {
     const auto passHash       = pass->getHash();
     const auto renderPassHash = renderPass->getHash();
     const auto iaHash         = inputAssembler->getAttributesHash();
     const auto shaderID       = shader->getTypedID();
-    const auto hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
+    auto hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
+    if (subpass != 0) {
+        hash = hash << subpass;
+    }
 
     auto *pso = psoHashMap[hash];
     if (!pso) {
@@ -55,6 +60,8 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
             *(pass->getBlendState()),
             pass->getPrimitive(),
             pass->getDynamicState(),
+            gfx::PipelineBindPoint::GRAPHICS,
+            subpass
         });
 
         psoHashMap[hash] = pso;

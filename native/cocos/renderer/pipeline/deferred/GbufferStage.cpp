@@ -154,27 +154,37 @@ void GbufferStage::render(scene::Camera *camera) {
     pipeline->getIAByRenderArea(_renderArea);
 
     auto gbufferSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
+        builder.subpass();
+
         // gbuffer setup
         gfx::TextureInfo gbufferInfo = {
             gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA8,
             pipeline->getWidth(),
             pipeline->getHeight(),
         };
         gfx::TextureInfo gbufferInfoFloat = {
             gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::INPUT_ATTACHMENT,
             gfx::Format::RGBA16F,
             pipeline->getWidth(),
             pipeline->getHeight(),
         };
-        for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
-            if (i % 3) { // positions & normals need more precision
+        for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT - 1; ++i) {
+            if (i != 0) { // positions & normals need more precision
                 data.gbuffer[i] = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleGbufferTexture[i], gbufferInfoFloat);
             } else {
                 data.gbuffer[i] = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleGbufferTexture[i], gbufferInfo);
             }
+        }
+
+        auto subpassEnabled = _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT);
+        if (subpassEnabled) {
+            // when subpass enabled, the color result (gles2/gles3) will write to gbuffer[3] and the blit to color texture, so the format should be RGBA16F
+            data.gbuffer[3] = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleGbufferTexture[3], gbufferInfoFloat);
+        } else {
+            data.gbuffer[3] = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleGbufferTexture[3], gbufferInfo);
         }
 
         gfx::Color clearColor{0.0, 0.0, 0.0, 0.0};
@@ -183,8 +193,8 @@ void GbufferStage::render(scene::Camera *camera) {
         colorInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorInfo.loadOp        = gfx::LoadOp::CLEAR;
         colorInfo.clearColor    = clearColor;
-        colorInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
-        colorInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT};
+        colorInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT};
         for (int i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             data.gbuffer[i] = builder.write(data.gbuffer[i], colorInfo);
             builder.writeToBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i], data.gbuffer[i]);

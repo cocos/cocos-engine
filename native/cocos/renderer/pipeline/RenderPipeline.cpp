@@ -283,11 +283,13 @@ void RenderPipeline::generateConstantMacros() {
 #define CC_ENABLE_CLUSTERED_LIGHT_CULLING %d
 #define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
 #define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
+#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
         )",
         _device->hasFeature(gfx::Feature::TEXTURE_FLOAT) ? 1 : 0,
         _clusterEnabled ? 1 : 0,
         _device->getCapabilities().maxVertexUniformVectors,
-        _device->getCapabilities().maxFragmentUniformVectors);
+        _device->getCapabilities().maxFragmentUniformVectors,
+        _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT));
 }
 
 RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {

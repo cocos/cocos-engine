@@ -36,7 +36,8 @@ public:
     static gfx::PipelineState *getOrCreatePipelineState(const scene::Pass *  pass,
                                                         gfx::Shader *        shader,
                                                         gfx::InputAssembler *inputAssembler,
-                                                        gfx::RenderPass *    renderPass);
+                                                        gfx::RenderPass *    renderPass,
+                                                        uint                 subpass = 0);
     static void                destroyAll();
 
 private:

@@ -341,6 +341,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
     gfx::Color clearColor = pipeline->getClearcolor(camera);
 
     auto lightingSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
+        builder.subpass(true);
+
         // read gbuffer
         for (int i = 0; i < 4; i++) {
             data.gbuffer[i] = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleGbufferTexture[i])));
@@ -409,8 +411,14 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         scene::Pass *        pass           = sceneData->getSharedData()->deferredLightPass;
         gfx::Shader *        shader         = sceneData->getSharedData()->deferredLightPassShader;
         gfx::InputAssembler *inputAssembler = pipeline->getIAByRenderArea(rendeArea);
-        gfx::PipelineState * pState         = PipelineStateManager::getOrCreatePipelineState(
-            pass, shader, inputAssembler, table.getRenderPass());
+        gfx::PipelineState *pState = nullptr;
+
+        auto subpassEnabled = _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT);
+        if (subpassEnabled) {
+            pState = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, table.getRenderPass(), 1);
+        } else {
+            pState = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, table.getRenderPass());
+        }
 
         for (uint i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             pass->getDescriptorSet()->bindTexture(i, table.getRead(data.gbuffer[i]));
@@ -590,7 +598,8 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
     auto clearSetup = [&](framegraph::PassNodeBuilder &builder, DataClear &data) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA8;
-        colorTexInfo.usage  = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
+        colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::STORAGE |
+                              gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
         colorTexInfo.width  = _ssprTexWidth;
         colorTexInfo.height = _ssprTexHeight;
         data.reflection     = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
