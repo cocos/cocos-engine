@@ -84,7 +84,10 @@ let inputManager = {
                 let touch = this._touches[i];
                 if (now - touch._lastModified > TOUCH_TIMEOUT) {
                     this._removeUsedIndexBit(i);
-                    delete this._touchesIntegerDict[touch.getID()];
+                    let touchId = touch.getID();
+                    delete this._touchesIntegerDict[touchId];
+                    delete this._touchesCache[touchId];
+                    this._touchCount--;
                     return i;
                 }
             }
@@ -139,24 +142,13 @@ let inputManager = {
      * @param {Array} touches
      */
     handleTouchesBegin (touches) {
-        let selTouch, index, curTouch, touchID,
-            handleTouches = [], locTouchIntDict = this._touchesIntegerDict,
+        let selTouch, index, touchID,
+            handleTouches = [],
             now = sys.now();
-        let _touchesCache = this._touchesCache;
 
         for (let i = 0, len = touches.length; i < len; i ++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
-
-            let ccTouch = _touchesCache[touchID];
-            if (!ccTouch) {
-                ccTouch = new cc.Touch(selTouch._point.x, selTouch._point.y, touchID);
-                ccTouch._setPrevPoint(selTouch._prevPoint);
-                ccTouch._lastModified = now;
-
-                _touchesCache[touchID] = ccTouch;
-                this._touchCount++;
-            }
 
             index = locTouchIntDict[touchID];
             if (index == null) {
@@ -165,10 +157,15 @@ let inputManager = {
                     cc.logID(2300, unusedIndex);
                     continue;
                 }
-                //curTouch = this._touches[unusedIndex] = selTouch;
-                curTouch = this._touches[unusedIndex] = ccTouch;
-                locTouchIntDict[touchID] = unusedIndex;
-                handleTouches.push(curTouch);
+                else {
+                    let ccTouch = new cc.Touch(selTouch._point.x, selTouch._point.y, touchID);
+                    ccTouch._setPrevPoint(selTouch._prevPoint);
+                    ccTouch._lastModified = now;
+                    this._touches[unusedIndex] = this._touchesCache[touchID] = ccTouch;
+                    this._touchesIntegerDict[touchID] = unusedIndex;
+                    this._touchCount++;
+                    handleTouches.push(ccTouch);
+                }
             }
         }
         if (handleTouches.length > 0) {
@@ -253,19 +250,11 @@ let inputManager = {
      * @returns {Array}
      */
     getSetOfTouchesEndOrCancel (touches) {
-        let _touchesCache = this._touchesCache;
-
         let selTouch, index, touchID, handleTouches = [], locTouches = this._touches, locTouchesIntDict = this._touchesIntegerDict;
         for (let i = 0, len = touches.length; i< len; i ++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
             index = locTouchesIntDict[touchID];
-
-            let ccTouch = _touchesCache[touchID];
-            if (ccTouch) {
-                delete _touchesCache[touchID];
-                this._touchCount--;
-            }
 
             if (index == null) {
                 continue;  //cc.log("if the index doesn't exist, it is an error");
