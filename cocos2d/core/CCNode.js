@@ -3769,7 +3769,7 @@ let NodeDefines = {
 
         this._fromEuler();
 
-        this._renderFlag |= RenderFlow.FLAG_TRANSFORM;
+        this._renderFlag |= RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         if (this._renderComponent) {
             this._renderComponent.markForRender(true);
         }
@@ -3781,6 +3781,14 @@ let NodeDefines = {
 
     onRestore: CC_EDITOR && function () {
         this._onRestoreBase();
+
+        this.emit(EventType.GROUP_CHANGED, this);
+        this.emit(EventType.POSITION_CHANGED, this.position.clone());
+        this.emit(EventType.SIZE_CHANGED, this._contentSize.clone());
+        this.emit(EventType.ROTATION_CHANGED);
+        this.emit(EventType.SCALE_CHANGED)
+        this.emit(EventType.COLOR_CHANGED, this._color.clone());
+        this.emit(EventType.ANCHOR_CHANGED);
 
         this._restoreProperties();
 
