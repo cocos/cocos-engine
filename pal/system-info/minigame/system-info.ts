@@ -111,7 +111,7 @@ class SystemInfo extends EventTarget {
             [Feature.GL]: true,
             [Feature.WEBGL2]: false,
             [Feature.WEBP]: supportWebp,
-            [Feature.IMAGE_BIT_MAP]: false,
+            [Feature.IMAGE_BITMAP]: false,
 
             [Feature.INPUT_KEYBOARD]: isPCWechat,
             [Feature.INPUT_MOUSE]: isPCWechat,

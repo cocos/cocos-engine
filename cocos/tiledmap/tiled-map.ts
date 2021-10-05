@@ -605,7 +605,7 @@ export class TiledMap extends Component {
         if (texture._image instanceof HTMLImageElement) {
             texture._image.src = '';
             if (JSB) texture._image.destroy();
-        } else if (sys.hasFeature(sys.Feature.IMAGE_BIT_MAP) && texture._image instanceof ImageBitmap) {
+        } else if (sys.hasFeature(sys.Feature.IMAGE_BITMAP) && texture._image instanceof ImageBitmap) {
             if (texture._image.close) texture._image.close();
         }
         texture._image = null;

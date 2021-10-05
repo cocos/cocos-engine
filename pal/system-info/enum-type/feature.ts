@@ -3,7 +3,7 @@ export enum Feature {
     GL = 'GL',
     WEBGL2 = 'WEBGL2',
     WEBP = 'WEBP',
-    IMAGE_BIT_MAP = 'IMAGE_BIT_MAP',
+    IMAGE_BITMAP = 'IMAGE_BITMAP',
 
     INPUT_KEYBOARD = 'INPUT_KEYBOARD',
     INPUT_MOUSE = 'INPUT_MOUSE',

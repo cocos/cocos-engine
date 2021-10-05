@@ -56,7 +56,7 @@ export interface IMemoryImageSource {
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
 function isImageBitmap (imageSource: any): boolean {
-    return !!(legacyCC.sys.hasFeature(legacyCC.sys.Feature.IMAGE_BIT_MAP) && imageSource instanceof ImageBitmap);
+    return !!(legacyCC.sys.hasFeature(legacyCC.sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
 function fetchImageSource (imageSource: ImageSource) {

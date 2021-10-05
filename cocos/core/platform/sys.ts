@@ -205,7 +205,7 @@ export const sys = {
         canvas: systemInfo.hasFeature(Feature.CANVAS),
         opengl: systemInfo.hasFeature(Feature.GL),
         webp: systemInfo.hasFeature(Feature.WEBP),
-        imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BIT_MAP),
+        imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
         touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),
         mouse: systemInfo.hasFeature(Feature.INPUT_MOUSE),
         keyboard: systemInfo.hasFeature(Feature.INPUT_KEYBOARD),

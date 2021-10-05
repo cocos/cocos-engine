@@ -177,7 +177,7 @@ class SystemInfo extends EventTarget {
             [Feature.GL]: supportWebGL,
             [Feature.WEBGL2]: supportWebGL2,
             [Feature.WEBP]: supportWebp,
-            [Feature.IMAGE_BIT_MAP]: supportImageBitmap,
+            [Feature.IMAGE_BITMAP]: supportImageBitmap,
 
             [Feature.INPUT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
             [Feature.INPUT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,
