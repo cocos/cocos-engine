@@ -178,6 +178,9 @@ class SystemInfo extends EventTarget {
             [Feature.WEBGL2]: supportWebGL2,
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: supportImageBitmap,
+            [Feature.WEB_VIEW]: true,
+            [Feature.VIDEO_PLAYER]: true,
+            [Feature.SAFE_AREA]: false,
 
             [Feature.INPUT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
             [Feature.INPUT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,

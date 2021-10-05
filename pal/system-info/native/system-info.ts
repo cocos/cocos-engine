@@ -79,6 +79,9 @@ class SystemInfo extends EventTarget {
             [Feature.WEBGL2]: false,
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
+            [Feature.WEB_VIEW]: this.isMobile,
+            [Feature.VIDEO_PLAYER]: this.isMobile,
+            [Feature.SAFE_AREA]: this.isMobile,
 
             [Feature.INPUT_KEYBOARD]: !this.isMobile,
             [Feature.INPUT_MOUSE]: !this.isMobile,
