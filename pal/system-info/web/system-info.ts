@@ -181,7 +181,7 @@ class SystemInfo extends EventTarget {
 
             [Feature.INPUT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
             [Feature.INPUT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,
-            [Feature.INPUT_TOUCH]: !!(document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || navigator.msPointerEnabled),
+            [Feature.INPUT_TOUCH]: true,
             [Feature.INPUT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
         };
 

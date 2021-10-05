@@ -82,7 +82,7 @@ class SystemInfo extends EventTarget {
 
             [Feature.INPUT_KEYBOARD]: !this.isMobile,
             [Feature.INPUT_MOUSE]: !this.isMobile,
-            [Feature.INPUT_TOUCH]: this.isMobile,
+            [Feature.INPUT_TOUCH]: true,
             [Feature.INPUT_ACCELEROMETER]: this.isMobile,
         };
 

@@ -115,7 +115,7 @@ class SystemInfo extends EventTarget {
 
             [Feature.INPUT_KEYBOARD]: isPCWechat,
             [Feature.INPUT_MOUSE]: isPCWechat,
-            [Feature.INPUT_TOUCH]: !isPCWechat,
+            [Feature.INPUT_TOUCH]: true,
             [Feature.INPUT_ACCELEROMETER]: !isPCWechat,
         };
 
