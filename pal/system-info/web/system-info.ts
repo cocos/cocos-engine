@@ -174,7 +174,7 @@ class SystemInfo extends EventTarget {
         }
         this._featureMap = {
             [Feature.CANVAS]: supportCanvas,
-            [Feature.GL]: supportWebGL,
+            [Feature.WEBGL]: supportWebGL,
             [Feature.WEBGL2]: supportWebGL2,
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: supportImageBitmap,

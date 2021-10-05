@@ -203,7 +203,7 @@ export const sys = {
      */
     capabilities: {
         canvas: systemInfo.hasFeature(Feature.CANVAS),
-        opengl: systemInfo.hasFeature(Feature.GL),
+        opengl: systemInfo.hasFeature(Feature.WEBGL),
         webp: systemInfo.hasFeature(Feature.WEBP),
         imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
         touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),

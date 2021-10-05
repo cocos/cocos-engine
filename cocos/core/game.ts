@@ -794,7 +794,7 @@ export class Game extends EventTarget {
         let supportRender = false;
 
         if (userRenderMode === 0) {
-            if (sys.hasFeature(sys.Feature.GL)) {
+            if (sys.hasFeature(sys.Feature.WEBGL)) {
                 this.renderType = Game.RENDER_TYPE_WEBGL;
                 supportRender = true;
             } else if (sys.hasFeature(sys.Feature.CANVAS)) {
@@ -804,7 +804,7 @@ export class Game extends EventTarget {
         } else if (userRenderMode === 1 && sys.hasFeature(sys.Feature.CANVAS)) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
-        } else if (userRenderMode === 2 && sys.hasFeature(sys.Feature.GL)) {
+        } else if (userRenderMode === 2 && sys.hasFeature(sys.Feature.WEBGL)) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
         } else if (userRenderMode === 3) {
