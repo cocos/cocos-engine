@@ -120,21 +120,20 @@ export class SpotLight extends Light {
         return this._range;
     }
 
-    set luminance (value: number) {
-        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
-        if (isHDR) {
-            this.luminanceHDR = value;
-        } else {
-            this.luminanceLDR = value;
-        }
-    }
-  
     get luminance (): number {
         const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             return this._luminanceHDR;
         } else {
             return this._luminanceLDR;
+        }
+    }
+    set luminance (value: number) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this.luminanceHDR = value;
+        } else {
+            this.luminanceLDR = value;
         }
     }
 
