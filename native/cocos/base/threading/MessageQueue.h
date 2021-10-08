@@ -26,9 +26,9 @@
 #pragma once
 
 #include <cstdint>
+#include "../memory/Memory.h"
 #include "Event.h"
 #include "concurrentqueue/concurrentqueue.h"
-#include "../memory/Memory.h"
 
 namespace cc {
 
