@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { enums, Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
@@ -270,6 +270,18 @@ export class Camera {
             this._nativeObj!.aspect = this._aspect;
         }
         this.isWindowSize = false;
+    }
+
+    // Editor specific gizmo camera logic
+    public syncCameraEditor (camera) {
+        if (EDITOR) {
+            this.position = camera.position;
+            this.forward = camera.forward;
+            this._matView = camera.matView;
+            this._matProj = camera.matProj;
+            this._matProjInv = camera.matProjInv;
+            this._matViewProj = camera.matViewProj;
+        }
     }
 
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
