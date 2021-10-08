@@ -112,7 +112,7 @@ export function isAnimationTransition (transition: TransitionView): transition i
 }
 
 @ccclass('cc.animation.StateMachine')
-export class StateMachine {
+export class StateMachine extends EditorExtendable {
     @serializable
     private _states: State[] = [];
 
@@ -132,6 +132,7 @@ export class StateMachine {
      * @internal
      */
     constructor () {
+        super();
         this._entryState = this._addState(new State());
         this._entryState.name = 'Entry';
         this._exitState = this._addState(new State());
