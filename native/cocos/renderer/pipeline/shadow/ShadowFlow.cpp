@@ -247,11 +247,11 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
 }
 
 void ShadowFlow::destroy() {
+    _renderPass = nullptr;
     for (const auto &rpPair : renderPassHashMap) {
         rpPair.second->destroy();
     }
     renderPassHashMap.clear();
-    CC_SAFE_DESTROY(_renderPass)
 
     for (auto *texture : _usedTextures) {
         CC_SAFE_DESTROY(texture);
