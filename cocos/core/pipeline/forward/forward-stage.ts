@@ -205,7 +205,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
-        if (!swapchain) this._uiPhase.render(camera, renderPass);
+        this._uiPhase.render(camera, renderPass);
         cmdBuff.endRenderPass();
     }
 }
