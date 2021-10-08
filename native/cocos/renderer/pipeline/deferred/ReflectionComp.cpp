@@ -233,9 +233,9 @@ void ReflectionComp::initDenoiseRes() {
     ShaderSources<ComputeShaderSource> sources;
     sources.glsl4 = StringUtil::format(
         R"(
-        layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+        layout(local_size_x = %d, local_size_y = %d, local_size_z = 1) in;
         layout(set = 0, binding = 0) uniform sampler2D reflectionTex;
-        layout(set = 1, binding = 12, rgba8) writeonly uniform lowp image2D denoiseTex;
+        layout(set = 1, binding = %d, rgba8) writeonly uniform lowp image2D denoiseTex;
 
         void main() {
             ivec2 id = ivec2(gl_GlobalInvocationID.xy) * 2;
@@ -256,10 +256,10 @@ void ReflectionComp::initDenoiseRes() {
             imageStore(denoiseTex, id + ivec2(1, 1), best.a > bottomRight.a + 0.1 ? best : bottomRight);
 
         })",
-        _groupSizeX, _groupSizeY);
+        _groupSizeX, _groupSizeY, pipeline::REFLECTIONSTORAGE::BINDING);
     sources.glsl3 = StringUtil::format(
         R"(
-        layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+        layout(local_size_x = %d, local_size_y = %d, local_size_z = 1) in;
         uniform sampler2D reflectionTex;
         layout(rgba8) writeonly uniform lowp image2D denoiseTex;
 

@@ -109,7 +109,7 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
             flow->render(camera);
         }
         _fg.compile();
-        // _fg.exportGraphViz("fg_vis.dot");
+        //_fg.exportGraphViz("fg_vis.dot");
         _fg.execute();
 
         _pipelineUBO->incCameraUBOOffset();

@@ -264,6 +264,23 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
     1,
 };
 
+const String                          UBOUILocal::NAME       = "CCMorph";
+const gfx::DescriptorSetLayoutBinding UBOUILocal::DESCRIPTOR = {
+    UBOUILocal::BINDING,
+    gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::VERTEX,
+};
+const gfx::UniformBlock UBOUILocal::LAYOUT = {
+    localSet,
+    UBOUILocal::BINDING,
+    UBOUILocal::NAME,
+    {
+        {"cc_local_data", gfx::Type::FLOAT4, 1},
+    },
+    1,
+};
+
 const String                          SHADOWMAP::NAME       = "cc_shadowMap";
 const gfx::DescriptorSetLayoutBinding SHADOWMAP::DESCRIPTOR = {
     SHADOWMAP::BINDING,

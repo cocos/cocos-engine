@@ -61,8 +61,8 @@ private:
     static RenderStageInfo initInfo;
 
     gfx::Sampler *                                         _sampler = nullptr;
-    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _downsampleUBO;
-    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _upsampleUBO;
+    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _downsampleUBO{};
+    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _upsampleUBO{};
     framegraph::StringHandle                               _fgStrHandleBloomOut;
 };
 } // namespace pipeline

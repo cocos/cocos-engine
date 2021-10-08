@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "PipelineStateManager.h"
-#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXDef-common.h"
+#include "gfx-base/GFXDevice.h"
 
 namespace cc {
 namespace pipeline {
@@ -41,7 +41,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
     const auto renderPassHash = renderPass->getHash();
     const auto iaHash         = inputAssembler->getAttributesHash();
     const auto shaderID       = shader->getTypedID();
-    auto hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
+    auto       hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
     if (subpass != 0) {
         hash = hash << subpass;
     }
@@ -50,19 +50,17 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::
     if (!pso) {
         auto *pipelineLayout = pass->getPipelineLayout();
 
-        pso = gfx::Device::getInstance()->createPipelineState({
-            shader,
-            pipelineLayout,
-            renderPass,
-            {inputAssembler->getAttributes()},
-            *(pass->getRasterizerState()),
-            *(pass->getDepthStencilState()),
-            *(pass->getBlendState()),
-            pass->getPrimitive(),
-            pass->getDynamicState(),
-            gfx::PipelineBindPoint::GRAPHICS,
-            subpass
-        });
+        pso = gfx::Device::getInstance()->createPipelineState({shader,
+                                                               pipelineLayout,
+                                                               renderPass,
+                                                               {inputAssembler->getAttributes()},
+                                                               *(pass->getRasterizerState()),
+                                                               *(pass->getDepthStencilState()),
+                                                               *(pass->getBlendState()),
+                                                               pass->getPrimitive(),
+                                                               pass->getDynamicState(),
+                                                               gfx::PipelineBindPoint::GRAPHICS,
+                                                               subpass});
 
         psoHashMap[hash] = pso;
     }

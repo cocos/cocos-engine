@@ -130,8 +130,14 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::
 
 void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment,
                         std::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const std::vector<Handle> &reads) {
-    auto it = std::find_if(attachments->begin(), attachments->end(), [&attachment](const RenderTargetAttachment &x) {
-        return attachment.desc.usage == x.desc.usage && attachment.desc.slot == x.desc.slot;
+    RenderTargetAttachment::Usage usage{attachment.desc.usage};
+    uint32_t                      slot{attachment.desc.slot};
+    if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
+        // should fetch actual color slot from current subpass
+        slot = subpass->colors.size() > attachment.desc.slot ? subpass->colors[attachment.desc.slot] : gfx::INVALID_BINDING;
+    }
+    auto it = std::find_if(attachments->begin(), attachments->end(), [usage, slot](const RenderTargetAttachment &x) {
+        return usage == x.desc.usage && slot == x.desc.slot;
     });
 
     RenderTargetAttachment *output{nullptr};
@@ -139,7 +145,18 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
     if (it == attachments->end()) {
         attachments->emplace_back(attachment);
         output = &(attachments->back());
-        _usedRenderTargetSlotMask |= 1 << attachment.desc.slot;
+        if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
+            for (uint8_t i = 0; i < RenderTargetAttachment::DEPTH_STENCIL_SLOT_START; ++i) {
+                if ((_usedRenderTargetSlotMask & (1 << i)) == 0) {
+                    attachments->back().desc.slot = i;
+                    _usedRenderTargetSlotMask |= 1 << i;
+                    break;
+                }
+            }
+        } else {
+            CC_ASSERT((_usedRenderTargetSlotMask & (1 << attachment.desc.slot)) == 0);
+            _usedRenderTargetSlotMask |= 1 << attachment.desc.slot;
+        }
     } else {
         const ResourceNode &resourceNodeA = graph.getResourceNode(it->textureHandle);
         const ResourceNode &resourceNodeB = graph.getResourceNode(attachment.textureHandle);
@@ -161,6 +178,7 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
             for (uint8_t i = 0; i < RenderTargetAttachment::DEPTH_STENCIL_SLOT_START; ++i) {
                 if ((_usedRenderTargetSlotMask & (1 << i)) == 0) {
                     attachments->back().desc.slot = i;
+                    _usedRenderTargetSlotMask |= 1 << i;
                     break;
                 }
             }
@@ -192,8 +210,8 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
         gfx::Texture *attachment = attachElem.renderTarget;
         if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
             rpInfo.colorAttachments.emplace_back();
-            auto &attachmentInfo  = rpInfo.colorAttachments.back();
-            attachmentInfo.format = attachment->getFormat();
+            auto &attachmentInfo           = rpInfo.colorAttachments.back();
+            attachmentInfo.format          = attachment->getFormat();
             attachmentInfo.loadOp          = attachElem.attachment.desc.loadOp;
             attachmentInfo.storeOp         = attachElem.attachment.storeOp;
             attachmentInfo.beginAccesses   = attachElem.attachment.desc.beginAccesses;

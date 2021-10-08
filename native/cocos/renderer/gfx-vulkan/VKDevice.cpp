@@ -399,7 +399,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         },
         true);
 
-    _gpuDevice->defaultBuffer.usage    = BufferUsage::UNIFORM;
+    _gpuDevice->defaultBuffer.usage    = BufferUsage::UNIFORM | BufferUsage::STORAGE;
     _gpuDevice->defaultBuffer.memUsage = MemoryUsage::HOST | MemoryUsage::DEVICE;
     _gpuDevice->defaultBuffer.size = _gpuDevice->defaultBuffer.stride = 16U;
     _gpuDevice->defaultBuffer.count                                   = 1U;

@@ -64,7 +64,7 @@ void RenderQueue::sort() {
     std::sort(_queue.begin(), _queue.end(), _passDesc.sortFunc);
 }
 
-void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, uint32_t subpassIndex) {
     for (auto &i : _queue) {
         const auto *const subModel       = i.subModel;
         const auto        passIdx        = i.passIndex;
@@ -73,7 +73,7 @@ void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass 
         const auto *pass   = subModel->getPass(passIdx);
         auto *      shader = subModel->getShader(passIdx);
 
-        auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+        auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->bindDescriptorSet(localSet, subModel->getDescriptorSet());

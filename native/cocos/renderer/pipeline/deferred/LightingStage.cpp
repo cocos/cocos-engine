@@ -351,7 +351,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         // read depth, as an attachment
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
+        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
         depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
         depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
@@ -411,14 +411,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         scene::Pass *        pass           = sceneData->getSharedData()->deferredLightPass;
         gfx::Shader *        shader         = sceneData->getSharedData()->deferredLightPassShader;
         gfx::InputAssembler *inputAssembler = pipeline->getIAByRenderArea(rendeArea);
-        gfx::PipelineState *pState = nullptr;
-
-        auto subpassEnabled = _device->hasFeature(gfx::Feature::INPUT_ATTACHMENT_BENEFIT);
-        if (subpassEnabled) {
-            pState = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, table.getRenderPass(), 1);
-        } else {
-            pState = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, table.getRenderPass());
-        }
+        gfx::PipelineState * pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, table.getRenderPass(), table.getSubpassIndex());
 
         for (uint i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             pass->getDescriptorSet()->bindTexture(i, table.getRead(data.gbuffer[i]));
@@ -434,7 +427,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         pass->getDescriptorSet()->update();
 
-        cmdBuff->bindPipelineState(pState);
+        cmdBuff->bindPipelineState(pso);
         cmdBuff->bindInputAssembler(inputAssembler);
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->draw(inputAssembler);
@@ -479,7 +472,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutColorTexture, data.outputTex);
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
+        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
         depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
         depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
@@ -515,7 +508,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         // transparent
         for (auto *queue : _renderQueues) {
             queue->sort();
-            queue->recordCommandBuffer(pipeline->getDevice(), table.getRenderPass(), cmdBuff);
+            queue->recordCommandBuffer(pipeline->getDevice(), table.getRenderPass(), cmdBuff, table.getSubpassIndex());
         }
 
         //_planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
@@ -599,7 +592,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA8;
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::STORAGE |
-                              gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
+                             gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
         colorTexInfo.width  = _ssprTexWidth;
         colorTexInfo.height = _ssprTexHeight;
         data.reflection     = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
@@ -773,7 +766,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 
         // read depth, as an attachment
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
-        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH;
+        depthAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
         depthAttachmentInfo.clearColor    = gfx::Color();
         depthAttachmentInfo.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_READ};

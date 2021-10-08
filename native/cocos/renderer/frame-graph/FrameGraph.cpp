@@ -84,11 +84,10 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
     addPass<PassDataPresent>(
         resourceNode.writer->_insertPoint, PRESENT_PASS,
         [&](PassNodeBuilder &builder, PassDataPresent &data) {
-#if PRESENT_USING_MOVE_SEMANTIC
-            move(builder.read(input), output, 0, 0, 0);
-            data.input = output;
-#else
             data.input = builder.read(input);
+#if PRESENT_USING_MOVE_SEMANTIC
+            move(data.input, output, 0, 0, 0);
+            data.input = output;
 #endif
             builder.sideEffect();
         },
