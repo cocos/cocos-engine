@@ -70,7 +70,7 @@ CCProgram sprite-fs %{
   #if USE_TEXTURE
     in vec2 uv0;
     #pragma builtin(local)
-    layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
+    layout(set = 2, binding = 11) uniform sampler2D cc_spriteTexture;
   #endif
 
   vec4 frag () {
