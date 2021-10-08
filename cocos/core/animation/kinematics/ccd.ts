@@ -43,9 +43,9 @@ export function ccdIK(
 
     const iEndFactor = links.length - 1;
     const endFactor = links[iEndFactor];
-    for (let iteration = 0; iteration < maxIterations; ++iteration) {
-        // Won't run in infinite loop since we have `nLinks >= 2`
-        if (forward) {
+    if (forward) {
+        for (let iteration = 0; iteration < maxIterations; ++iteration) {
+            // Won't run in infinite loop since we have `nLinks >= 2`
             for (let iLink = 0; iLink < iEndFactor; ++iLink) {
                 const result = correct(iLink);
                 if (result === IterationResult.INTERRUPTED) {
@@ -54,7 +54,10 @@ export function ccdIK(
                     return;
                 }
             }
-        } else {
+        }
+    } else {
+        for (let iteration = 0; iteration < maxIterations; ++iteration) {
+            // Won't run in infinite loop since we have `nLinks >= 2`
             for (let iLink = iEndFactor - 1; iLink >= 0; --iLink) {
                 const result = correct(iLink);
                 if (result === IterationResult.INTERRUPTED) {

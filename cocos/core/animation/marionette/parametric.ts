@@ -139,7 +139,7 @@ export function bindNumericOr<TValue, TThis, TArgs extends any[]> (
         ...args,
     );
 
-    return initialValue;
+    return initialValue as unknown as number;
 }
 
 export function validateVariableExistence (varInstance: VarInstance | undefined, name: string): varInstance is VarInstance {

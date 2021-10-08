@@ -63,7 +63,7 @@ export class BinaryCondition implements Condition {
             evaluation.setLhs,
             evaluation,
         );
-        const rhsValue = bindOr(
+        const rhsValue = bindNumericOr(
             context,
             rhs,
             VariableType.NUMBER,
@@ -81,27 +81,30 @@ export declare namespace BinaryCondition {
 
 class BinaryConditionEval implements ConditionEval {
     private declare _operator: BinaryOperator;
-    private declare _operands: [Value, Value | undefined];
+    private declare _lhs: number;
+    private declare _rhs: number;
     private declare _result: boolean;
 
-    constructor (operator: BinaryOperator, lhs: Value, rhs?: Value) {
+    constructor (operator: BinaryOperator, lhs: number, rhs: number) {
         this._operator = operator;
-        this._operands = [lhs, rhs];
+        this._lhs = lhs;
+        this._rhs = rhs;
         this._eval();
     }
 
-    public reset (lhs: Value, rhs?: Value) {
-        this._operands = [lhs, rhs];
+    public reset (lhs: number, rhs: number) {
+        this._lhs = lhs;
+        this._rhs = rhs;
         this._eval();
     }
 
-    public setLhs (value: Value) {
-        this._operands[0] = value;
+    public setLhs (value: number) {
+        this._lhs = value;
         this._eval();
     }
 
-    public setRhs (value: Value) {
-        this._operands[1] = value;
+    public setRhs (value: number) {
+        this._rhs = value;
         this._eval();
     }
 
@@ -113,8 +116,10 @@ class BinaryConditionEval implements ConditionEval {
     }
 
     private _eval () {
-        // TODO: rhs assertion?
-        const [lhs, rhs] = this._operands;
+        const {
+            _lhs: lhs,
+            _rhs: rhs,
+        } = this;
         switch (this._operator) {
         default:
         case BinaryOperator.EQUAL_TO:
@@ -124,16 +129,16 @@ class BinaryConditionEval implements ConditionEval {
             this._result = lhs !== rhs;
             break;
         case BinaryOperator.LESS_THAN:
-            this._result = lhs < rhs!;
+            this._result = lhs < rhs;
             break;
         case BinaryOperator.LESS_THAN_OR_EQUAL_TO:
-            this._result = lhs <= rhs!;
+            this._result = lhs <= rhs;
             break;
         case BinaryOperator.GREATER_THAN:
-            this._result = lhs > rhs!;
+            this._result = lhs > rhs;
             break;
         case BinaryOperator.GREATER_THAN_OR_EQUAL_TO:
-            this._result = lhs >= rhs!;
+            this._result = lhs >= rhs;
             break;
         }
     }
@@ -163,7 +168,7 @@ export class UnaryCondition implements Condition {
 
     public [createEval] (context: ConditionEvalContext) {
         const { operator, operand } = this;
-        const evaluation = new UnaryConditionEval(operator, 0.0);
+        const evaluation = new UnaryConditionEval(operator, false);
         const value = bindOr(
             context,
             operand,
@@ -182,20 +187,20 @@ export declare namespace UnaryCondition {
 
 class UnaryConditionEval implements ConditionEval {
     private declare _operator: UnaryOperator;
-    private declare _operand: Value;
+    private declare _operand: boolean;
     private declare _result: boolean;
 
-    constructor (operator: UnaryOperator, operand: Value) {
+    constructor (operator: UnaryOperator, operand: boolean) {
         this._operator = operator;
         this._operand = operand;
         this._eval();
     }
 
-    public reset (value: Value) {
+    public reset (value: boolean) {
         this.setOperand(value);
     }
 
-    public setOperand (value: Value) {
+    public setOperand (value: boolean) {
         this._operand = value;
         this._eval();
     }
