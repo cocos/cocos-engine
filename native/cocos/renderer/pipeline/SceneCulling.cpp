@@ -323,6 +323,17 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
             if (model->getCastShadow()) {
                 castShadowObject.emplace_back(genRenderObject(model, camera));
             }
+
+            const auto        visibility       = camera->visibility;
+            const auto *const node             = model->getNode();
+
+            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
+                (visibility & model->getVisFlags())) {
+                const auto *modelWorldBounds = model->getWorldBounds();
+                if (!modelWorldBounds && skyBox->model != model) {
+                    renderObjects.emplace_back(genRenderObject(model, camera));
+                }
+            }
         }
     }
 
@@ -363,6 +374,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                 
                 const auto *modelWorldBounds = model->getWorldBounds();
                 if (!modelWorldBounds) {
+                    renderObjects.emplace_back(genRenderObject(model, camera));
                     continue;
                 }
 
