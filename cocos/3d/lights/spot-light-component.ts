@@ -194,8 +194,7 @@ export class SpotLight extends Light {
         this.spotAngle = this._spotAngle;
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._luminanceLDR = this._luminanceHDR * Camera.standardExposureValue * Camera.standardLightMeterScale;
-        }
-        else {
+        } else {
             this._luminanceHDR = this._luminanceLDR / Camera.standardExposureValue / Camera.standardLightMeterScale;
         }
 

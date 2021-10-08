@@ -49,7 +49,7 @@ const normalizeHDRColor = (color : Vec4) => {
             color[i] *= intensity;
         }
     }
-}
+};
 const clampColor = (x: number) => Math.min(x * 255, 255);
 
 /**

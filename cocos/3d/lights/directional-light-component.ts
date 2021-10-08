@@ -29,12 +29,12 @@
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, serializable, formerlySerializedAs } from 'cc.decorator';
-import { scene } from '../../core/renderer';
 import { Light } from './light-component';
+import { scene } from '../../core/renderer';
 import { legacyCC } from '../../core/global-exports';
 import { Camera } from '../../core/renderer/scene';
 import { Root } from '../../core/root';
-import { property } from 'cocos/core/data/class-decorator';
+import { property } from '../../core/data/class-decorator';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')

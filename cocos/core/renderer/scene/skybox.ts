@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -125,17 +124,18 @@ export class Skybox {
         }
     }
     set envmap (val: TextureCube | null) {
-        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const root = legacyCC.director.root as Root;
+        const isHDR = root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             this._envmapHDR = val || this._default;
             if (this._envmapHDR) {
-                (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapHDR.mipmapLevel;
+                root.pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapHDR.mipmapLevel;
                 this._updateGlobalBinding();
             }
         } else {
             this._envmapLDR = val || this._default;
             if (this._envmapLDR) {
-                (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapLDR.mipmapLevel;
+                root.pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapLDR.mipmapLevel;
                 this._updateGlobalBinding();
             }
         }
@@ -252,7 +252,6 @@ export class Skybox {
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
-        const ambient = pipeline.pipelineSceneData.ambient;
         this._globalDSManager = pipeline.globalDSManager;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
@@ -276,7 +275,9 @@ export class Skybox {
         }
 
         if (this.enabled) {
-            if (!skybox_mesh) { skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh; }
+            if (!skybox_mesh) {
+                skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh;
+            }
             this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
         }
 
@@ -300,7 +301,9 @@ export class Skybox {
         const useDiffuseMapValue = (this.useIBL && this.useDiffusemap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
 
-        if (pipeline.macros.CC_USE_IBL === useIBLValue && pipeline.macros.CC_USE_DIFFUSEMAP === useDiffuseMapValue && pipeline.macros.CC_USE_HDR === useHDRValue) {
+        if (pipeline.macros.CC_USE_IBL === useIBLValue && 
+            pipeline.macros.CC_USE_DIFFUSEMAP === useDiffuseMapValue && 
+            pipeline.macros.CC_USE_HDR === useHDRValue) {
             return;
         }
         pipeline.macros.CC_USE_IBL = useIBLValue;
