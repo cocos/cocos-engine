@@ -224,11 +224,11 @@ CCProgram standard-fs %{
   }
 
   #pragma builtin(local)
-  layout(set = 2, binding = 11) uniform sampler2D cc_reflectionTexture;
+  layout(set = 2, binding = 12) uniform sampler2D cc_reflectionTexture;
 
-  layout(location = 0) out vec4 fragColorX;                        
+  layout(location = 0) out vec4 fragColorX;
 
-  void main () {                                                   
+  void main () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);
     CC_APPLY_FOG(color);
