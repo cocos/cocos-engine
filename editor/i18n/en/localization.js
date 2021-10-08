@@ -726,6 +726,10 @@ module.exports = {
             label: "User Interface",
             description: "User interface support.",
         },
+        gpu_driven: {
+            label: "GPU Driven",
+            description: "Whether to enable GPU-driven solutions (only works for packaged projects for now)",
+        },
         base_3d: {
             label: "Basic 3D Features",
             description: "Components and tools that are widely used in general 3D applications.",

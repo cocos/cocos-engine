@@ -84,7 +84,7 @@ exports.methods = {
                 const name = relatePath.split(sep)[0];
                 const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
                 const path = join(packagePath, relatePath.split(name)[1]);
-                if (this.$.customPanel.getAttribute('src') !== join(path)) {
+                if (this.$.customPanel.getAttribute('src') !== path) {
                     this.$.customPanel.setAttribute('src', path);
                 }
                 this.$.customPanel.update(this.material, this.assetList, this.metaList);

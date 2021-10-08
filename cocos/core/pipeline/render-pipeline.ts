@@ -325,6 +325,7 @@ export abstract class RenderPipeline extends Asset {
     public activate (swapchain: Swapchain): boolean {
         const root = legacyCC.director.root as Root;
         this._device = root.device;
+        this._generateConstantMacros();
         this._globalDSManager = new GlobalDSManager(this);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
@@ -571,6 +572,7 @@ export abstract class RenderPipeline extends Asset {
         str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${this._clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
+        str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         this._constantMacros = str;
     }
 

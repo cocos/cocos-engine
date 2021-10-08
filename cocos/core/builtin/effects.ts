@@ -424,7 +424,7 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 537762175,
+        "hash": 704249820,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 222, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 65 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
@@ -586,7 +586,7 @@ export const effects = [
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 854125145,
+        "hash": 1061913938,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 69, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 60 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
@@ -920,7 +920,7 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 4081853987,
+        "hash": 2838720567,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 39, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 58 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }], "buffers": [], "images": [] },
@@ -945,12 +945,7 @@ export const effects = [
           { "name": "a_tangent", "defines": [], "format": 44, "location": 3 }
         ],
         "blocks": [],
-        "samplerTextures": [
-          { "name": "gbuffer_albedoMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 0 },
-          { "name": "gbuffer_positionMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 1 },
-          { "name": "gbuffer_normalMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 2 },
-          { "name": "gbuffer_emissiveMap", "type": 28, "count": 1, "defines": [], "stageFlags": 16, "binding": 3 }
-        ],
+        "samplerTextures": [],
         "buffers": [
           { "name": "b_ccLightsBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 4 },
           { "name": "b_clusterLightIndicesBuffer", "memoryAccess": 1, "defines": ["CC_ENABLE_CLUSTERED_LIGHT_CULLING"], "stageFlags": 16, "binding": 5 },
@@ -959,7 +954,12 @@ export const effects = [
         "images": [],
         "textures": [],
         "samplers": [],
-        "subpassInputs": []
+        "subpassInputs": [
+          { "name": "gbuffer_albedoMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 0 },
+          { "name": "gbuffer_positionMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 1 },
+          { "name": "gbuffer_normalMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 2 },
+          { "name": "gbuffer_emissiveMap", "count": 1, "defines": ["CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT"], "stageFlags": 16, "binding": 3 }
+        ]
       }
     ]
   },
