@@ -201,8 +201,8 @@ export class BloomStage extends RenderStage {
     private _upsamplePass (camera: Camera, pipeline: RenderPipeline, pass: Pass) {
         const bloomData = pipeline.getPipelineRenderData().bloom!;
         this._renderArea = pipeline.generateRenderArea(camera);
-        this._renderArea.width >>= (bloomData.filterPassNum as number) + 1;
-        this._renderArea.height >>= (bloomData.filterPassNum as number) + 1;
+        this._renderArea.width >>= bloomData.filterPassNum + 1;
+        this._renderArea.height >>= bloomData.filterPassNum + 1;
         const cmdBuff = pipeline.commandBuffers[0];
 
         const textureSize = new Float32Array(UBOBloom.COUNT);
