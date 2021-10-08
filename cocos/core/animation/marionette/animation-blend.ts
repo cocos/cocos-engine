@@ -14,6 +14,7 @@ export interface AnimationBlend extends Motion, EditorExtendable {
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlendItem`)
 export class AnimationBlendItem {
+    @serializable
     public motion: Motion | null = null;
 
     public clone () {

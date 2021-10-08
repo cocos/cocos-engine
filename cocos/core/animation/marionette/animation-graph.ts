@@ -424,6 +424,7 @@ export class SubStateMachine extends InteractiveState {
         return that;
     }
 
+    @serializable
     private _stateMachine: StateMachine = new StateMachine();
 }
 
