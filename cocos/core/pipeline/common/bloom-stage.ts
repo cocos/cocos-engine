@@ -34,7 +34,6 @@ import { RenderFlow, RenderPipeline } from '..';
 import { Material } from '../../assets/material';
 import { BufferInfo, BufferUsageBit, ClearFlagBit, Color, MemoryUsageBit, PipelineState, Rect } from '../../gfx';
 import { Pass } from '../../renderer';
-import { UIPhase } from './ui-phase';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from './enum';
@@ -71,11 +70,9 @@ export class BloomStage extends RenderStage {
     private _bloomMaterial: Material | null = null;
 
     private _renderArea = new Rect();
-    private _uiPhase: UIPhase;
 
     constructor () {
         super();
-        this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -85,7 +82,6 @@ export class BloomStage extends RenderStage {
 
     public activate (pipeline: RenderPipeline, flow: RenderFlow) {
         super.activate(pipeline, flow);
-        this._uiPhase.activate(pipeline);
         if (this._bloomMaterial) { (pipeline.pipelineSceneData as CommonPipelineSceneData).bloomMaterial = this._bloomMaterial; }
     }
 
