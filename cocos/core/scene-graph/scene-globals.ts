@@ -100,8 +100,8 @@ export class AmbientInfo {
     }
 
     /**
-     * @en Sky color for UI
-     * @zh UI和内部天空颜色数据的交换
+     * @en Sky lighting color configurable in editor with color picker
+     * @zh 编辑器中可配置的天空光照颜色（通过颜色拾取器）
      */
     @editable
     set skyLightingColor (val: Color) {
@@ -156,8 +156,8 @@ export class AmbientInfo {
     }
 
     /**
-     * @en Ground color for UI
-     * @zh UI和内部地面颜色数据的交换
+     * @en Ground lighting color configurable in editor with color picker
+     * @zh 编辑器中可配置的地面光照颜色（通过颜色拾取器）
      */
     @editable
     set groundLightingColor (val: Color) {
