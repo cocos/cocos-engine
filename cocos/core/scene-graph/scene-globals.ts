@@ -49,7 +49,7 @@ const normalizeHDRColor = (color : Vec4) => {
             color[i] *= intensity;
         }
     }
-}
+};
 /**
  * @en Environment lighting information in the Scene
  * @zh 场景的环境光照相关信息

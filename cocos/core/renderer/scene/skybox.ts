@@ -303,9 +303,9 @@ export class Skybox {
         const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
 
-        if (pipeline.macros.CC_USE_IBL === useIBLValue && 
-            pipeline.macros.CC_USE_DIFFUSEMAP === useDiffuseMapValue && 
-            pipeline.macros.CC_USE_HDR === useHDRValue) {
+        if (pipeline.macros.CC_USE_IBL === useIBLValue
+            && pipeline.macros.CC_USE_DIFFUSEMAP === useDiffuseMapValue
+            && pipeline.macros.CC_USE_HDR === useHDRValue) {
             return;
         }
         pipeline.macros.CC_USE_IBL = useIBLValue;
