@@ -29,9 +29,12 @@ import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
 import { Shadows } from '../renderer/scene/shadows';
 import { IRenderObject } from './define';
-import { Device, Framebuffer } from '../gfx';
+import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
+import { Material } from '../assets';
+import { builtinResMgr } from '../builtin';
+import { Pass, IMacroPatch } from '../renderer/core/pass';
 import { NativePipelineSharedSceneData } from '../renderer/scene';
 
 export class PipelineSceneData {
@@ -99,6 +102,11 @@ export class PipelineSceneData {
     protected declare _device: Device;
     protected declare _pipeline: RenderPipeline;
     protected declare _nativeObj: NativePipelineSharedSceneData | null;
+    protected _occlusionQueryVertexBuffer: Buffer | null = null;
+    protected _occlusionQueryIndicesBuffer: Buffer | null = null;
+    protected _occlusionQueryInputAssembler: InputAssembler | null = null;
+    protected _occlusionQueryMaterial: Material | null = null;
+    protected _occlusionQueryShader: Shader | null = null;
     protected _isHDR = false;
     protected _shadingScale = 1.0;
     protected _fpScale = 1.0 / 1024.0;
@@ -112,7 +120,37 @@ export class PipelineSceneData {
     public activate (device: Device, pipeline: RenderPipeline) {
         this._device = device;
         this._pipeline = pipeline;
+
+        this.initOcclusionQuery();
+
         return true;
+    }
+
+    public initOcclusionQuery () {
+        if (!this._occlusionQueryInputAssembler) {
+            this._occlusionQueryInputAssembler = this.createInputAssembler();
+
+            if (JSB) {
+                this._nativeObj!.occlusionQueryInputAssembler = this._occlusionQueryInputAssembler;
+            }
+        }
+
+        if (!this._occlusionQueryMaterial) {
+            const mat = new Material();
+            mat._uuid = 'default-occlusion-query-material';
+            mat.initialize({ effectName: 'occlusion-query' });
+            this._occlusionQueryMaterial = mat;
+            this._occlusionQueryShader = mat.passes[0].getShaderVariant();
+
+            if (JSB) {
+                this._nativeObj!.occlusionQueryPass = this._occlusionQueryMaterial.passes[0].native;
+                this._nativeObj!.occlusionQueryShader = this._occlusionQueryShader;
+            }
+        }
+    }
+
+    public getOcclusionQueryPass (): Pass | null {
+        return this._occlusionQueryMaterial!.passes[0];
     }
 
     public onGlobalPipelineStateChanged () {
@@ -123,8 +161,47 @@ export class PipelineSceneData {
         this.skybox.destroy();
         this.fog.destroy();
         this.shadows.destroy();
+        this._occlusionQueryInputAssembler?.destroy();
+        this._occlusionQueryInputAssembler = null;
+        this._occlusionQueryVertexBuffer?.destroy();
+        this._occlusionQueryVertexBuffer = null;
+        this._occlusionQueryIndicesBuffer?.destroy();
+        this._occlusionQueryIndicesBuffer = null;
         if (JSB) {
             this._nativeObj = null;
         }
+    }
+
+    private createInputAssembler () {
+        // create vertex buffer
+        const device = this._device;
+        const vertices = new Float32Array([-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1]);
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 3;
+        const vbSize = vbStride * 8;
+        this._occlusionQueryVertexBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE, vbSize, vbStride,
+        ));
+        this._occlusionQueryVertexBuffer.update(vertices);
+
+        // create index buffer
+        const indices = new Uint16Array([0, 2, 1, 1, 2, 3, 4, 5, 6, 5, 7, 6, 1, 3, 7, 1, 7, 5, 0, 4, 6, 0, 6, 2, 0, 1, 5, 0, 5, 4, 2, 6, 7, 2, 7, 3]);
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 36;
+        this._occlusionQueryIndicesBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE, ibSize, ibStride,
+        ));
+        this._occlusionQueryIndicesBuffer.update(indices);
+
+        const attributes: Attribute[] = [
+            new Attribute('a_position', Format.RGB32F),
+        ];
+
+        // create cube input assembler
+        const info = new InputAssemblerInfo(attributes, [this._occlusionQueryVertexBuffer], this._occlusionQueryIndicesBuffer);
+        const inputAssembler = device.createInputAssembler(info);
+
+        return inputAssembler;
     }
 }

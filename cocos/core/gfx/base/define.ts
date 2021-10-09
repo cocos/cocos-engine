@@ -136,6 +136,7 @@ export enum Feature {
     // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
+    OCCLUSION_QUERY,
     COUNT,
 }
 
