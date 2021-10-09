@@ -873,7 +873,7 @@ export class TerrainBlock {
             }
         }
 
-        if (this._lodKey.compare(key)) {
+        if (this._lodKey.equals(key)) {
             return;
         }
 
@@ -1467,10 +1467,10 @@ export class Terrain extends Component {
         this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * this._lod.mIndexBuffer.length,
+            Uint16Array.BYTES_PER_ELEMENT * this._lod.indexBuffer.length,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
-        this._sharedIndexBuffer.update(this._lod.mIndexBuffer);
+        this._sharedIndexBuffer.update(this._lod.indexBuffer);
     }
 
     public onEnable () {
