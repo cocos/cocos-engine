@@ -283,6 +283,7 @@ module.exports = {
             animationBakeRate: {
                 name: '动画烘焙速率',
                 title: '指定动画烘焙速率，单位为帧每秒（FPS）',
+                auto: '自动',
             },
             promoteSingleRootNode: {
                 name: '提升单一根结点',

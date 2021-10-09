@@ -12,6 +12,7 @@ exports.template = `
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationBakeRate.name" tooltip="i18n:ENGINE.assets.fbx.animationBakeRate.title"></ui-label>
         <ui-select slot="content" class="animationBakeRate-select">
+            <option value="0">i18n:ENGINE.assets.fbx.animationBakeRate.auto</option>
             <option value="24">24</option>
             <option value="25">25</option>
             <option value="30">30</option>
@@ -53,7 +54,7 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.legacyFbxImporterCheckbox.addEventListener('change', panel.setProp.bind(panel, 'legacyFbxImporter'));
+            panel.$.legacyFbxImporterCheckbox.addEventListener('change', panel.setProp.bind(panel, 'legacyFbxImporter', 'boolean'));
         },
         update() {
             const panel = this;
@@ -68,14 +69,19 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.animationBakeRateSelect.addEventListener('change', panel.setProp.bind(panel, 'animationBakeRate'));
+            panel.$.animationBakeRateSelect.addEventListener('change', panel.setProp.bind(panel, 'fbx.animationBakeRate', 'number'));
         },
         update() {
             const panel = this;
 
-            panel.$.animationBakeRateSelect.value = panel.getDefault(panel.meta.userData.animationBakeRate, 60);
+            let defaultValue = 0;
+            if (panel.meta.userData.fbx) {
+                defaultValue = panel.getDefault(panel.meta.userData.fbx.animationBakeRate, defaultValue);
+            }
 
-            panel.updateInvalid(panel.$.animationBakeRateSelect, 'animationBakeRate');
+            panel.$.animationBakeRateSelect.value = defaultValue;
+
+            panel.updateInvalid(panel.$.animationBakeRateSelect, 'fbx.animationBakeRate');
             panel.updateReadonly(panel.$.animationBakeRateSelect);
         },
     },
@@ -83,14 +89,19 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'promoteSingleRootNode'));
+            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'fbx.promoteSingleRootNode', 'boolean'));
         },
         update() {
             const panel = this;
 
-            panel.$.promoteSingleRootNodeCheckbox.value = panel.getDefault(panel.meta.userData.promoteSingleRootNode, false);
+            let defaultValue = false;
+            if (panel.meta.userData.fbx) {
+                defaultValue = panel.getDefault(panel.meta.userData.fbx.promoteSingleRootNode, defaultValue);
+            }
 
-            panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'promoteSingleRootNode');
+            panel.$.promoteSingleRootNodeCheckbox.value = defaultValue;
+
+            panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'fbx.promoteSingleRootNode');
             panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
         },
     },
@@ -129,9 +140,32 @@ exports.close = function() {
 };
 
 exports.methods = {
-    setProp(prop, event) {
+    setProp(prop, type, event) {
+        const propNames = prop.split('.');
+
         this.metaList.forEach((meta) => {
-            meta.userData[prop] = event.target.value;
+            let target = meta.userData;
+            const lastIndex = propNames.length - 1;
+            const lastPropName = propNames[lastIndex];
+
+            if (propNames.length > 1) {
+                for (let i = 0; i < lastIndex; i++) {
+                    const propName = propNames[i];
+                    if (!target[propName]) {
+                        target[propName] = {};
+                    }
+                    target = target[propName];
+                }
+            }
+
+            let value = event.target.value;
+            if (type === 'number') {
+                value = Number(value);
+            } else if (type === 'boolean') {
+                value = Boolean(value);
+            }
+
+            target[lastPropName] = value;
         });
 
         this.dispatch('change');
@@ -140,8 +174,28 @@ exports.methods = {
      * Update whether a data is editable in multi-select state
      */
     updateInvalid(element, prop) {
+        const propNames = prop.split('.');
+        let thisPropValue = this.meta.userData;
+
         const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
+            let target = meta.userData;
+            const lastIndex = propNames.length - 1;
+            const lastPropName = propNames[lastIndex];
+
+            if (propNames.length > 1) {
+                for (let i = 0; i < lastIndex; i++) {
+                    const propName = propNames[i];
+                    if (target[propName] !== undefined) {
+                        target = target[propName];
+                    }
+
+                    if (thisPropValue[propName] !== undefined) {
+                        thisPropValue = thisPropValue[propName];
+                    }
+                }
+            }
+
+            return target[lastPropName] !== thisPropValue[lastPropName];
         });
         element.invalid = invalid;
     },
