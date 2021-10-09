@@ -64,6 +64,7 @@ import { legacyCC } from '../../global-exports';
 
 export class EmptyDevice extends Device {
     public initialize (info: DeviceInfo): boolean {
+        this._deviceName = 'Empty';
         this._gfxAPI = API.UNKNOWN;
 
         this._bindingMappingInfo = info.bindingMappingInfo;

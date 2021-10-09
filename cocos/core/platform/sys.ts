@@ -202,8 +202,8 @@ export const sys = {
      * @deprecated since v3.4.0, please use sys.hasFeature() instead.
      */
     capabilities: {
-        canvas: systemInfo.hasFeature(Feature.CANVAS),
-        opengl: systemInfo.hasFeature(Feature.WEBGL),
+        canvas: true,
+        opengl: true,
         webp: systemInfo.hasFeature(Feature.WEBP),
         imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
         touches: systemInfo.hasFeature(Feature.EVENT_TOUCH),

@@ -1,7 +1,4 @@
 export enum Feature {
-    CANVAS = 'CANVAS',
-    WEBGL = 'WEBGL',
-    WEBGL2 = 'WEBGL2',
     WEBP = 'WEBP',
     IMAGE_BITMAP = 'IMAGE_BITMAP',
     WEB_VIEW = 'WEB_VIEW',

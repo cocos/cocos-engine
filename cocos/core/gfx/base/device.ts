@@ -57,6 +57,14 @@ import { Swapchain } from './swapchain';
  */
 export abstract class Device {
     /**
+     * @en 当前使用的渲染后端名
+     * @zh The current name of rendering backend.
+     */
+    get deviceName (): string {
+        return this._deviceName;
+    }
+
+    /**
      * @en Current rendering API.
      * @zh 当前 GFX 使用的渲染 API。
      */
@@ -144,6 +152,7 @@ export abstract class Device {
         return this._bindingMappingInfo;
     }
 
+    protected _deviceName = '';
     protected _gfxAPI = API.UNKNOWN;
     protected _renderer = '';
     protected _vendor = '';

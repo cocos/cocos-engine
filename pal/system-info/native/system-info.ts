@@ -74,9 +74,6 @@ class SystemInfo extends EventTarget {
         this.browserVersion = '';
 
         this._featureMap = {
-            [Feature.CANVAS]: true,
-            [Feature.WEBGL]: true,
-            [Feature.WEBGL2]: false,
             [Feature.WEBP]: true,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: this.isMobile,
@@ -95,6 +92,10 @@ class SystemInfo extends EventTarget {
 
     get pixelRatio () {
         return jsb.device.getDevicePixelRatio() || 1;
+    }
+
+    get supportWebGL2 (): boolean {
+        return false;
     }
 
     private _registerEvent () {
