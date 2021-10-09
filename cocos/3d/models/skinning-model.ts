@@ -227,6 +227,10 @@ export class SkinningModel extends MorphModel {
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
     }
 
+    public _updateLocalWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
+        super._updateLocalWorldBoundDescriptors(subModelIndex, descriptorSet);
+    }
+
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
         if (pass.batchingScheme !== BatchingSchemes.NONE) {
             // TODO(holycanvas): #9203 better to print the complete path instead of only the current node

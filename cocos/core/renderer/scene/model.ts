@@ -40,7 +40,7 @@ import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
+import { INST_MAT_WORLD, UBOLocal, UBOLocalWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
 import { Pool } from '../../memop/pool';
 
@@ -112,6 +112,10 @@ export class Model {
 
     get localBuffer () {
         return this._localBuffer;
+    }
+
+    get localWorldBoundBuffer () {
+        return this._localWorldBoundBuffer;
     }
 
     get updateStamp () {
@@ -209,6 +213,9 @@ export class Model {
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
+    protected _localWorldBoundData = new Float32Array(UBOLocalWorldBound.COUNT);
+    protected _localWorldBoundBuffer: Buffer | null = null;
+
     protected _receiveShadow = false;
     protected _castShadow = false;
     protected _enabled = true;
@@ -271,6 +278,10 @@ export class Model {
             this._localBuffer.destroy();
             this._localBuffer = null;
         }
+        if (this._localWorldBoundBuffer) {
+            this._localWorldBoundBuffer.destroy();
+            this._localWorldBoundBuffer = null;
+        }
         this._worldBounds = null;
         this._modelBounds = null;
         this._subModels.length = 0;
@@ -324,9 +335,21 @@ export class Model {
         }
     }
 
+    private _applyLocalWorldBoundData () {
+        if (JSB) {
+            // this._nativeObj!.setLocalWorldBoundData(this._localWorldBoundData);
+        }
+    }
+
     private _applyLocalBuffer () {
         if (JSB) {
             this._nativeObj!.setLocalBuffer(this._localBuffer);
+        }
+    }
+
+    private _applyLocalWorldBoundBuffer () {
+        if (JSB) {
+            this._nativeObj!.setLocalWorldBoundBuffer(this._localWorldBoundBuffer);
         }
     }
 
@@ -360,6 +383,25 @@ export class Model {
             this._localBuffer.update(this._localData);
             this._applyLocalData();
             this._applyLocalBuffer();
+
+            this.updateWorldBoundUBOs();
+        }
+    }
+
+    public updateWorldBoundUBOs () {
+        if (this._localWorldBoundBuffer) {
+            const worldBoundCenter = new Vec4(0.0, 0.0, 0.0, 0.0);
+            const worldBoundHalfExtents = new Vec4(1.0, 1.0, 1.0, 1.0);
+            const worldBounds = this._worldBounds;
+            if (worldBounds) {
+                worldBoundCenter.set(worldBounds.center.x, worldBounds.center.y, worldBounds.center.z, 0.0);
+                worldBoundHalfExtents.set(worldBounds.halfExtents.x, worldBounds.halfExtents.y, worldBounds.halfExtents.z, 1.0);
+            }
+            Vec4.toArray(this._localWorldBoundData, worldBoundCenter, UBOLocalWorldBound.WORLD_BOUND_CENTER);
+            Vec4.toArray(this._localWorldBoundData, worldBoundHalfExtents, UBOLocalWorldBound.WORLD_BOUND_HALF_EXTENTS);
+            this._localWorldBoundBuffer.update(this._localWorldBoundData);
+            this._applyLocalWorldBoundData();
+            this._applyLocalWorldBoundBuffer();
         }
     }
 
@@ -469,6 +511,9 @@ export class Model {
         this._initLocalDescriptors(subModelIndex);
         this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
 
+        this._initLocalWorldBoundDescriptors(subModelIndex);
+        this._updateLocalWorldBoundDescriptors(subModelIndex, subModel.worldBoundDescriptorSet);
+
         const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
@@ -543,7 +588,23 @@ export class Model {
         }
     }
 
+    protected _initLocalWorldBoundDescriptors (subModelIndex: number) {
+        if (!this._localWorldBoundBuffer) {
+            this._localWorldBoundBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                UBOLocalWorldBound.SIZE,
+                UBOLocalWorldBound.SIZE,
+            ));
+            this._applyLocalWorldBoundBuffer();
+        }
+    }
+
     protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
         if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
+    }
+
+    protected _updateLocalWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
+        if (this._localWorldBoundBuffer) descriptorSet.bindBuffer(UBOLocalWorldBound.BINDING, this._localWorldBoundBuffer);
     }
 }

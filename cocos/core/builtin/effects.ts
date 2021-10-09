@@ -105,6 +105,34 @@ export const effects = [
     ]
   },
   {
+    "name": "occlusion-query",
+    "techniques": [
+      { "passes": [{ "rasterizerState": { "cullMode": 2 }, "blendState": { "targets": [{ "blendColorMask": 0 }] }, "program": "occlusion-query|occlusion-query-vs:vert|occlusion-query-fs:frag", "depthStencilState": { "depthTest": true, "depthWrite": false } }] }
+    ],
+    "shaders": [
+      {
+        "name": "occlusion-query|occlusion-query-vs:vert|occlusion-query-fs:frag",
+        "hash": 1875771392,
+        "builtins": {
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 41, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
+          "locals": { "blocks": [{ "name": "CCLocalWorldBound", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
+        },
+        "defines": [],
+        "attributes": [
+          { "name": "a_position", "defines": [], "format": 32, "location": 0 }
+        ],
+        "blocks": [],
+        "samplerTextures": [],
+        "buffers": [],
+        "images": [],
+        "textures": [],
+        "samplers": [],
+        "subpassInputs": []
+      }
+    ]
+  },
+  {
     "name": "particle-gpu",
     "techniques": [
       { "name": "add", "passes": [{ "rasterizerState": { "cullMode": 0 }, "blendState": { "targets": [{ "blend": true, "blendSrc": 2, "blendDst": 1, "blendSrcAlpha": 2, "blendDstAlpha": 1 }] }, "program": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add", "depthStencilState": { "depthTest": true, "depthWrite": false }, "properties": { "mainTexture": { "value": "grey", "type": 28 }, "mainTiling_Offset": { "value": [1, 1, 0, 0], "type": 16 }, "tintColor": { "value": [0.5, 0.5, 0.5, 0.5], "type": 16 } } }] }

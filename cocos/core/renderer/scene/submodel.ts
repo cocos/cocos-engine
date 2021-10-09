@@ -48,6 +48,7 @@ export class SubModel {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
+    protected _worldBoundDescriptorSet: DescriptorSet | null = null;
     protected _planarInstanceShader: Shader | null = null;
     protected _planarShader: Shader | null = null;
     protected _reflectionTex: Texture | null = null;
@@ -62,6 +63,14 @@ export class SubModel {
         this._descriptorSet = null;
     }
 
+    private _destroyWorldBoundDescriptorSet () {
+        this._worldBoundDescriptorSet!.destroy();
+        if (JSB) {
+            this._nativeObj!.setWorldBoundDescriptorSet(null);
+        }
+        this._worldBoundDescriptorSet = null;
+    }
+
     private _destroyInputAssembler () {
         this._inputAssembler!.destroy();
         if (JSB) {
@@ -74,6 +83,13 @@ export class SubModel {
         this._descriptorSet = this._device!.createDescriptorSet(descInfo);
         if (JSB) {
             this._nativeObj!.setDescriptorSet(this._descriptorSet);
+        }
+    }
+
+    private _createWorldBoundDescriptorSet (descInfo: DescriptorSetInfo) {
+        this._worldBoundDescriptorSet = this._device!.createDescriptorSet(descInfo);
+        if (JSB) {
+            this._nativeObj!.setWorldBoundDescriptorSet(this._worldBoundDescriptorSet);
         }
     }
 
@@ -133,6 +149,10 @@ export class SubModel {
         return this._descriptorSet!;
     }
 
+    get worldBoundDescriptorSet (): DescriptorSet {
+        return this._worldBoundDescriptorSet!;
+    }
+
     get patches (): IMacroPatch[] | null {
         return this._patches;
     }
@@ -176,6 +196,12 @@ export class SubModel {
         this._init();
         this._setInputAssembler(subMesh.iaInfo);
         this._createDescriptorSet(_dsInfo);
+
+        const pipeline = legacyCC.director.root.pipeline;
+        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
+        const occlusionDSInfo = new DescriptorSetInfo(null!);
+        occlusionDSInfo.layout = occlusionPass.localSetLayout;
+        this._createWorldBoundDescriptorSet(occlusionDSInfo);
         this._setSubMesh(subMesh);
         this._patches = patches;
         this._passes = passes;
@@ -260,6 +286,7 @@ export class SubModel {
 
     public destroy (): void {
         this._destroyDescriptorSet();
+        this._destroyWorldBoundDescriptorSet();
         this._destroyInputAssembler();
         this.priority = RenderPriority.DEFAULT;
 
@@ -282,6 +309,7 @@ export class SubModel {
             pass.update();
         }
         this._descriptorSet!.update();
+        this._worldBoundDescriptorSet!.update();
     }
 
     public onPipelineStateChanged (): void {
