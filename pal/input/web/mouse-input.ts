@@ -16,7 +16,7 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
-        if (systemInfo.hasFeature(Feature.INPUT_MOUSE)) {
+        if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST) {
                 console.warn('failed to access canvas');

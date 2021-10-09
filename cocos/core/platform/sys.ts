@@ -206,10 +206,10 @@ export const sys = {
         opengl: systemInfo.hasFeature(Feature.WEBGL),
         webp: systemInfo.hasFeature(Feature.WEBP),
         imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
-        touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),
-        mouse: systemInfo.hasFeature(Feature.INPUT_MOUSE),
-        keyboard: systemInfo.hasFeature(Feature.INPUT_KEYBOARD),
-        accelerometer: systemInfo.hasFeature(Feature.INPUT_ACCELEROMETER),
+        touches: systemInfo.hasFeature(Feature.EVENT_TOUCH),
+        mouse: systemInfo.hasFeature(Feature.EVENT_MOUSE),
+        keyboard: systemInfo.hasFeature(Feature.EVENT_KEYBOARD),
+        accelerometer: systemInfo.hasFeature(Feature.EVENT_ACCELEROMETER),
     },
 
     /**

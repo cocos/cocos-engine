@@ -83,10 +83,11 @@ class SystemInfo extends EventTarget {
             [Feature.VIDEO_PLAYER]: this.isMobile,
             [Feature.SAFE_AREA]: this.isMobile,
 
-            [Feature.INPUT_KEYBOARD]: !this.isMobile,
-            [Feature.INPUT_MOUSE]: !this.isMobile,
-            [Feature.INPUT_TOUCH]: true,
-            [Feature.INPUT_ACCELEROMETER]: this.isMobile,
+            [Feature.INPUT_TOUCH]: this.isMobile,
+            [Feature.EVENT_KEYBOARD]: !this.isMobile,
+            [Feature.EVENT_MOUSE]: !this.isMobile,
+            [Feature.EVENT_TOUCH]: true,
+            [Feature.EVENT_ACCELEROMETER]: this.isMobile,
         };
 
         this._registerEvent();

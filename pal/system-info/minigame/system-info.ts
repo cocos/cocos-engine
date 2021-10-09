@@ -116,10 +116,11 @@ class SystemInfo extends EventTarget {
             [Feature.VIDEO_PLAYER]: WECHAT || OPPO,
             [Feature.SAFE_AREA]: WECHAT || BYTEDANCE,
 
-            [Feature.INPUT_KEYBOARD]: isPCWechat,
-            [Feature.INPUT_MOUSE]: isPCWechat,
-            [Feature.INPUT_TOUCH]: true,
-            [Feature.INPUT_ACCELEROMETER]: !isPCWechat,
+            [Feature.INPUT_TOUCH]: !isPCWechat,
+            [Feature.EVENT_KEYBOARD]: isPCWechat,
+            [Feature.EVENT_MOUSE]: isPCWechat,
+            [Feature.EVENT_TOUCH]: true,
+            [Feature.EVENT_ACCELEROMETER]: !isPCWechat,
         };
 
         this._registerEvent();

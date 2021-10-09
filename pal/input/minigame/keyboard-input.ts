@@ -120,7 +120,7 @@ export class KeyboardInputSource {
     private _keyStateMap: Record<number, boolean> = {};
 
     constructor () {
-        if (systemInfo.hasFeature(Feature.INPUT_KEYBOARD)) {
+        if (systemInfo.hasFeature(Feature.EVENT_KEYBOARD)) {
             this._registerEvent();
         }
     }

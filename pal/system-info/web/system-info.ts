@@ -182,10 +182,11 @@ class SystemInfo extends EventTarget {
             [Feature.VIDEO_PLAYER]: true,
             [Feature.SAFE_AREA]: false,
 
-            [Feature.INPUT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
-            [Feature.INPUT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,
-            [Feature.INPUT_TOUCH]: true,
-            [Feature.INPUT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
+            [Feature.INPUT_TOUCH]: (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined),
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.EVENT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,
+            [Feature.EVENT_TOUCH]: true,
+            [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
         };
 
         this._registerEvent();
