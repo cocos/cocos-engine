@@ -24,7 +24,7 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
@@ -49,9 +49,7 @@ const normalizeHDRColor = (color : Vec4) => {
             color[i] *= intensity;
         }
     }
-};
-const clampColor = (x: number) => Math.min(x * 255, 255);
-
+}
 /**
  * @en Environment lighting information in the Scene
  * @zh 场景的环境光照相关信息
@@ -59,11 +57,14 @@ const clampColor = (x: number) => Math.min(x * 255, 255);
 @ccclass('cc.AmbientInfo')
 export class AmbientInfo {
     @serializable
-    protected _skyColor = new Vec4(0.2, 0.2, 0.2, 1.0);
+    @formerlySerializedAs('_skyColor')
+    protected _skyColorHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
     @serializable
-    protected _skyIllum = Ambient.SKY_ILLUM;
+    @formerlySerializedAs('_skyIllum')
+    protected _skyIllumHDR = Ambient.SKY_ILLUM;
     @serializable
-    protected _groundAlbedo = new Vec4(0.2, 0.5, 0.8, 1.0);
+    @formerlySerializedAs('_groundAlbedo')
+    protected _groundAlbedoHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
 
     @serializable
     protected _skyColorLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
@@ -75,15 +76,15 @@ export class AmbientInfo {
     protected _resource: Ambient | null = null;
 
     get skyColorHDR () {
-        return this._skyColor;
+        return this._skyColorHDR;
     }
 
     get groundAlbedoHDR () {
-        return this._groundAlbedo;
+        return this._groundAlbedoHDR;
     }
 
     get skyIllumHDR () {
-        return this._skyIllum;
+        return this._skyIllumHDR;
     }
 
     get skyColorLDR () {
@@ -99,35 +100,36 @@ export class AmbientInfo {
     }
 
     /**
-     * @en Sky color
-     * @zh 天空颜色
+     * @en Sky color for UI
+     * @zh UI和内部天空颜色数据的交换
      */
     @editable
-    set skyColor (val: Color) {
+    set skyLightingColor (val: Color) {
         let result;
+        const color = new Vec4(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._skyColor = new Vec4(val.x, val.y, val.z, val.w);
-            normalizeHDRColor(this._skyColor);
-            (result as Vec4) = this._skyColor;
+            this._skyColorHDR = color;
+            (result as Vec4) = this._skyColorHDR;
         } else {
-            this._skyColorLDR = new Vec4(val.x, val.y, val.z, val.w);
-            normalizeHDRColor(this._skyColorLDR);
+            this._skyColorLDR = color;
             (result as Vec4) = this._skyColorLDR;
         }
-        const col = new Color(clampColor(result.x), clampColor(result.y), clampColor(result.z), 255.0);
-        if (this._resource) { this._resource.skyColor = col; }
+        if (this._resource) { this._resource.skyColor = _v3.set(color.x, color.y, color.z); }
     }
-    get skyColor () {
+    get skyLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const colorRef = isHDR ? this._skyColor : this._skyColorLDR;
-        return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
+        const color = isHDR ? this._skyColorHDR.clone() : this._skyColorLDR.clone();
+        normalizeHDRColor(color);
+        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
     }
 
-    set skyColorValue (val: Vec4) {
+    set skyColor (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            normalizeHDRColor(val);
+            this._skyColorHDR = val;
+        } else {
+            this._skyColorLDR = val;
         }
-        if (this._resource) { this._resource.skyColorValue = _v3.set(val.x, val.y, val.z); }
+        if (this._resource) { this._resource.skyColor = val; }
     }
 
     /**
@@ -138,7 +140,7 @@ export class AmbientInfo {
     @type(CCFloat)
     set skyIllum (val: number) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._skyIllum = val;
+            this._skyIllumHDR = val;
         } else {
             this._skyIllumLDR = val;
         }
@@ -147,42 +149,43 @@ export class AmbientInfo {
     }
     get skyIllum () {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            return this._skyIllum;
+            return this._skyIllumHDR;
         } else {
             return this._skyIllumLDR;
         }
     }
 
     /**
-     * @en Ground color
-     * @zh 地面颜色
+     * @en Ground color for UI
+     * @zh UI和内部地面颜色数据的交换
      */
     @editable
-    set groundAlbedo (val: Color) {
+    set groundLightingColor (val: Color) {
         let result;
+        const color = new Vec4(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._groundAlbedo = new Vec4(val.x, val.y, val.z, val.w);
-            normalizeHDRColor(this._groundAlbedo);
-            (result as Vec4) = this._groundAlbedo;
+            this._groundAlbedoHDR = color;
+            (result as Vec4) = this._groundAlbedoHDR;
         } else {
-            this._groundAlbedoLDR = new Vec4(val.x, val.y, val.z, val.w);
-            normalizeHDRColor(this._groundAlbedoLDR);
+            this._groundAlbedoLDR = color;
             (result as Vec4) = this._groundAlbedoLDR;
         }
-        const col = new Color(clampColor(result.x), clampColor(result.y), clampColor(result.z), 255.0);
-        if (this._resource) { this._resource.groundAlbedo = col; }
+        if (this._resource) { this._resource.groundAlbedo = _v3.set(color.x, color.y, color.z); }
     }
-    get groundAlbedo () {
+    get groundLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const colorRef = isHDR ? this._groundAlbedo : this._groundAlbedoLDR;
-        return new Color(clampColor(colorRef.x), clampColor(colorRef.y), clampColor(colorRef.z), 255);
+        const color = isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR;
+        normalizeHDRColor(color);
+        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
     }
 
-    set groundAlbedoValue (val: Vec4) {
+    set groundAlbedo (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            normalizeHDRColor(val);
+            this._groundAlbedoHDR = val;
+        } else {
+            this._groundAlbedoLDR = val;
         }
-        if (this._resource) { this._resource.groundAlbedoValue = _v3.set(val.x, val.y, val.z); }
+        if (this._resource) { this._resource.groundAlbedo = val; }
     }
 
     public activate (resource: Ambient) {
@@ -202,13 +205,14 @@ export class SkyboxInfo {
     protected _applyDiffuseMap = false;
     @serializable
     @type(TextureCube)
-    protected _envmap: TextureCube | null = null;
+    @formerlySerializedAs('_envmap')
+    protected _envmapHDR: TextureCube | null = null;
     @serializable
     @type(TextureCube)
     protected _envmapLDR: TextureCube | null = null;
     @serializable
     @type(TextureCube)
-    protected _diffuseMap: TextureCube | null = null;
+    protected _diffuseMapHDR: TextureCube | null = null;
     @serializable
     @type(TextureCube)
     protected _diffuseMapLDR: TextureCube | null = null;
@@ -235,12 +239,8 @@ export class SkyboxInfo {
     set applyDiffuseMap (val) {
         this._applyDiffuseMap = val;
 
-        if (val === false) {
-            this._diffuseMap = null;
-        }
-
         if (this._resource) {
-            this._resource.useDiffusemap = val;
+            this._resource.useDiffuseMap = val;
         }
     }
     get applyDiffuseMap () {
@@ -255,6 +255,7 @@ export class SkyboxInfo {
     set enabled (val) {
         if (this._enabled === val) return;
         this._enabled = val;
+
         if (this._resource) {
             this._resource.enabled = this._enabled;
         }
@@ -271,15 +272,8 @@ export class SkyboxInfo {
     set useIBL (val) {
         this._useIBL = val;
 
-        if (!this._useIBL) {
-            this._diffuseMap = null;
-            this._applyDiffuseMap = false;
-        }
-
         if (this._resource) {
             this._resource.useIBL = this._useIBL;
-            this._resource.useDiffusemap = this._applyDiffuseMap;
-            this._resource.diffuseMap = this._diffuseMap;
         }
     }
     get useIBL () {
@@ -297,7 +291,12 @@ export class SkyboxInfo {
 
         // Switch UI to and from LDR/HDR textures depends on HDR state
         if (this._resource) {
-            this._envmap = this._resource.envmap;
+            this.envmap = this._resource.envmap;
+            this.diffuseMap = this._resource.diffuseMap;
+
+            if (this.diffuseMap == null) {
+                this.applyDiffuseMap = false;
+            }
         }
 
         if (this._resource) { this._resource.useHDR = this._useHDR; }
@@ -316,28 +315,28 @@ export class SkyboxInfo {
     set envmap (val) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._envmap = val;
+            this._envmapHDR = val;
         } else {
             this._envmapLDR = val;
         }
 
-        if (!this._envmap) {
-            this._diffuseMap = null;
+        if (!this._envmapHDR) {
+            this._diffuseMapHDR = null;
             this._applyDiffuseMap = false;
             this.useIBL = false;
         }
 
         if (this._resource) {
-            this._resource.initializeEnvMaps(this._envmap, this._envmapLDR);
-
-            this._resource.useDiffusemap = this._applyDiffuseMap;
-            this._resource.initializeDiffuseMaps(this._diffuseMap, this._diffuseMapLDR);
+            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            this._resource.useDiffuseMap = this._applyDiffuseMap;
+            this._resource.envmap = val;
         }
     }
     get envmap () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._envmap;
+            return this._envmapHDR;
         } else {
             return this._envmapLDR;
         }
@@ -359,19 +358,19 @@ export class SkyboxInfo {
     set diffuseMap (val : TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._diffuseMap = val;
+            this._diffuseMapHDR = val;
         } else {
             this._diffuseMapLDR = val;
         }
 
         if (this._resource) {
-            this._resource.initializeDiffuseMaps(this._diffuseMap, this._diffuseMapLDR);
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
         }
     }
     get diffuseMap () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            return this._diffuseMap;
+            return this._diffuseMapHDR;
         } else {
             return this._diffuseMapLDR;
         }
@@ -380,8 +379,8 @@ export class SkyboxInfo {
     public activate (resource: Skybox) {
         this._resource = resource;
         this._resource.initialize(this);
-        this._resource.initializeEnvMaps(this._envmap, this._envmapLDR);
-        this._resource.initializeDiffuseMaps(this._diffuseMap, this._diffuseMapLDR);
+        this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+        this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
         this._resource.activate(); // update global DS first
     }
 }

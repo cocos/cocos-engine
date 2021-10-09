@@ -89,12 +89,12 @@ export class Skybox {
      * @en Whether use diffuse convolution map lighting
      * @zh 是否为IBL启用漫反射卷积图？
      */
-    get useDiffusemap (): boolean {
-        return this._useDiffusemap;
+    get useDiffuseMap (): boolean {
+        return this._useDiffuseMap;
     }
 
-    set useDiffusemap (val: boolean) {
-        this._useDiffusemap = val;
+    set useDiffuseMap (val: boolean) {
+        this._useDiffuseMap = val;
         this._updateGlobalBinding();
         this._updatePipeline();
     }
@@ -129,13 +129,13 @@ export class Skybox {
         if (isHDR) {
             this._envmapHDR = val || this._default;
             if (this._envmapHDR) {
-                root.pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapHDR.mipmapLevel;
+                root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = this._envmapHDR.mipmapLevel;
                 this._updateGlobalBinding();
             }
         } else {
             this._envmapLDR = val || this._default;
             if (this._envmapLDR) {
-                root.pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmapLDR.mipmapLevel;
+                root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = this._envmapLDR.mipmapLevel;
                 this._updateGlobalBinding();
             }
         }
@@ -176,10 +176,8 @@ export class Skybox {
         } else {
             this._diffuseMapLDR = val;
         }
-        if (val) {
-            this._updateGlobalBinding();
-            this._updatePipeline();
-        }
+        this._updateGlobalBinding();
+        this._updatePipeline();
     }
 
     protected _envmapLDR: TextureCube | null = null;
@@ -192,7 +190,7 @@ export class Skybox {
     protected _enabled = false;
     protected _useIBL = false;
     protected _useHDR = false;
-    protected _useDiffusemap = false;
+    protected _useDiffuseMap = false;
     protected declare _nativeObj: NaitveSkybox | null;
 
     get native (): NaitveSkybox {
@@ -226,28 +224,32 @@ export class Skybox {
         }
     }
 
-    private _setUseDiffusemap (val) {
-        this._useDiffusemap = val;
+    private _setUseDiffuseMap (val) {
+        this._useDiffuseMap = val;
         if (JSB) {
-            this._nativeObj!.useDiffusemap = val;
+            this._nativeObj!.useDiffuseMap = val;
         }
     }
 
     public initialize (skyboxInfo: SkyboxInfo) {
         this._setEnabled(skyboxInfo.enabled);
         this._setUseIBL(skyboxInfo.useIBL);
-        this._setUseDiffusemap(skyboxInfo.applyDiffuseMap);
+        this._setUseDiffuseMap(skyboxInfo.applyDiffuseMap);
         this._setUseHDR(skyboxInfo.useHDR);
     }
 
-    public initializeEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
+    public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
         this._envmapHDR = envmapHDR;
         this._envmapLDR = envmapLDR;
+        this._updateGlobalBinding();
+        this._updatePipeline();
     }
 
-    public initializeDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null) {
+    public setDiffuseMaps (diffuseMapHDR: TextureCube | null, diffuseMapLDR: TextureCube | null) {
         this._diffuseMapHDR = diffuseMapHDR;
         this._diffuseMapLDR = diffuseMapLDR;
+        this._updateGlobalBinding();
+        this._updatePipeline();
     }
 
     public activate () {
@@ -298,7 +300,7 @@ export class Skybox {
         const pipeline = root.pipeline;
 
         const useIBLValue = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
-        const useDiffuseMapValue = (this.useIBL && this.useDiffusemap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
+        const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
 
         if (pipeline.macros.CC_USE_IBL === useIBLValue && 
@@ -313,20 +315,25 @@ export class Skybox {
     }
 
     protected _updateGlobalBinding () {
-        const texture = this.envmap!.getGFXTexture()!;
-        const device = legacyCC.director.root.device as Device;
-        const sampler = device.getSampler(this.envmap!.getSamplerInfo());
-        this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
-        this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+        if (this._globalDSManager) {
+            const device = legacyCC.director.root.device as Device;
 
-        if (this.diffuseMap) {
-            const textureDiffusemap = this.diffuseMap.getGFXTexture()!;
-            const samplerDiffusemap = device.getSampler(this.diffuseMap.getSamplerInfo());
-            this._globalDSManager!.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffusemap);
-            this._globalDSManager!.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffusemap);
+            if (this.envmap) {
+                const texture = this.envmap.getGFXTexture()!;
+                const sampler = device.getSampler(this.envmap.getSamplerInfo());
+                this._globalDSManager.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
+                this._globalDSManager.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+            }
+
+            if (this.diffuseMap) {
+                const textureDiffuseMap = this.diffuseMap.getGFXTexture()!;
+                const samplerDiffuseMap = device.getSampler(this.diffuseMap.getSamplerInfo());
+                this._globalDSManager.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffuseMap);
+                this._globalDSManager.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffuseMap);
+            }
+
+            this._globalDSManager.update();
         }
-
-        this._globalDSManager!.update();
     }
 
     protected _destroy () {

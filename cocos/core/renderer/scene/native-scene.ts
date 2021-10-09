@@ -3,7 +3,7 @@ import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
     DescriptorSet, DrawInfo, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
-import { Color, Mat4, Rect, Vec2 } from '../../math';
+import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
 
@@ -139,7 +139,7 @@ export const NaitveSkybox: Constructor<{
     useIBL: boolean;
     isRGBE: boolean;
     useHDR: boolean;
-    useDiffusemap: boolean;
+    useDiffuseMap: boolean;
     model: NativeModel | null;
 }> = null!;
 export type NaitveSkybox = InstanceType<typeof NaitveSkybox>;
@@ -271,9 +271,9 @@ export type NativeRenderScene = InstanceType<typeof NativeRenderScene>;
 
 export const NativeAmbient: Constructor<{
     enabled: boolean;
-    skyColor: Color;
+    skyColor: Vec4;
     skyIllum: number;
-    groundAlbedo: Color;
+    groundAlbedo: Vec4;
 }> = null!;
 export type NativeAmbient = InstanceType<typeof NativeAmbient>;
 

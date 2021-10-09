@@ -115,7 +115,7 @@ export class PipelineUBO {
             Vec4.toArray(cv, Vec4.ZERO, UBOCamera.MAIN_LIT_COLOR_OFFSET);
         }
 
-        const skyColor = ambient.colorArray;
+        const skyColor = ambient.skyColor;
         if (isHDR) {
             if (root.useDeferredPipeline) {
                 skyColor.w = ambient.skyIllum * fpScale;
@@ -129,10 +129,10 @@ export class PipelineUBO {
         cv[UBOCamera.AMBIENT_SKY_OFFSET + 1] = skyColor.y;
         cv[UBOCamera.AMBIENT_SKY_OFFSET + 2] = skyColor.z;
         cv[UBOCamera.AMBIENT_SKY_OFFSET + 3] = skyColor.w;
-        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 0] = ambient.albedoArray.x;
-        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 1] = ambient.albedoArray.y;
-        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 2] = ambient.albedoArray.z;
-        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 3] = ambient.albedoArray.w;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 0] = ambient.groundAlbedo.x;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 1] = ambient.groundAlbedo.y;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 2] = ambient.groundAlbedo.z;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 3] = ambient.groundAlbedo.w;
 
         Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
         Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
