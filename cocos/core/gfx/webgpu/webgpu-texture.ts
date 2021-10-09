@@ -71,7 +71,7 @@ export class WebGPUTexture extends Texture {
                 texInfo.setFormat(nativeLib.Format[formatStr]);
                 texInfo.setWidth(info.width);
                 texInfo.setHeight(info.height);
-                texInfo.setFlags(toWGPUTextureFlag(info.flags));
+                texInfo.setFlags(info.flags);
                 texInfo.setLayerCount(info.layerCount);
                 texInfo.setLevelCount(info.levelCount);
                 const sampleStr = SampleCount[info.samples];

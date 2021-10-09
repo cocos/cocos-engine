@@ -1613,9 +1613,8 @@ function createWasm() {
  }
  function instantiateArrayBuffer(receiver) {
   return getBinaryPromise().then(function(binary) {
-   return WebAssembly.instantiate(binary, info);
-  }).then(function(instance) {
-   return instance;
+   var result = WebAssembly.instantiate(binary, info);
+   return result;
   }).then(receiver, function(reason) {
    err("failed to asynchronously prepare wasm: " + reason);
    if (isFileURI(wasmBinaryFile)) {
@@ -1726,7 +1725,9 @@ function ___cxa_atexit(a0, a1) {
  return _atexit(a0, a1);
 }
 
-function _tzset_impl() {
+function _tzset() {
+ if (_tzset.called) return;
+ _tzset.called = true;
  var currentYear = new Date().getFullYear();
  var winter = new Date(currentYear, 0, 1);
  var summer = new Date(currentYear, 6, 1);
@@ -1750,12 +1751,6 @@ function _tzset_impl() {
   SAFE_HEAP_STORE(__get_tzname() | 0, summerNamePtr | 0, 4);
   SAFE_HEAP_STORE(__get_tzname() + 4 | 0, winterNamePtr | 0, 4);
  }
-}
-
-function _tzset() {
- if (_tzset.called) return;
- _tzset.called = true;
- _tzset_impl();
 }
 
 function _localtime_r(time, tmPtr) {
@@ -3791,6 +3786,33 @@ function _wgpuBufferDestroy(bufferId) {
  WebGPU.mgrBuffer.get(bufferId)["destroy"]();
 }
 
+function _wgpuBufferGetMappedRange(bufferId, offset, size) {
+ var bufferWrapper = WebGPU.mgrBuffer.objects[bufferId];
+ if (size === 0) size = undefined;
+ if (bufferWrapper.mapMode !== 2) {
+  abort("GetMappedRange called, but buffer not mapped for writing");
+  return 0;
+ }
+ var mapped;
+ try {
+  mapped = bufferWrapper.object["getMappedRange"](offset, size);
+ } catch (ex) {
+  err("wgpuBufferGetMappedRange(" + offset + ", " + size + ") failed: " + ex);
+  return 0;
+ }
+ var data = _malloc(mapped.byteLength);
+ HEAPU8.fill(0, data, mapped.byteLength);
+ bufferWrapper.onUnmap.push(function() {
+  new Uint8Array(mapped).set(HEAPU8.subarray(data, data + mapped.byteLength));
+  _free(data);
+ });
+ return data;
+}
+
+function _wgpuBufferRelease(id) {
+ WebGPU.mgrBuffer.release(id);
+}
+
 function _wgpuBufferUnmap(bufferId) {
  var bufferWrapper = WebGPU.mgrBuffer.objects[bufferId];
  if (!bufferWrapper.onUnmap) {
@@ -3801,6 +3823,10 @@ function _wgpuBufferUnmap(bufferId) {
  }
  bufferWrapper.onUnmap = undefined;
  bufferWrapper.object["unmap"]();
+}
+
+function _wgpuCommandBufferRelease(id) {
+ WebGPU.mgrCommandBuffer.release(id);
 }
 
 function _wgpuCommandEncoderBeginComputePass(encoderId, descriptor) {
@@ -3873,6 +3899,14 @@ function _wgpuCommandEncoderBeginRenderPass(encoderId, descriptor) {
  var desc = makeRenderPassDescriptor(descriptor);
  var commandEncoder = WebGPU.mgrCommandEncoder.get(encoderId);
  return WebGPU.mgrRenderPassEncoder.create(commandEncoder["beginRenderPass"](desc));
+}
+
+function _wgpuCommandEncoderCopyBufferToBuffer(encoderId, srcId, srcOffset_low, srcOffset_high, dstId, dstOffset_low, dstOffset_high, size_low, size_high) {
+ var commandEncoder = WebGPU.mgrCommandEncoder.get(encoderId);
+ var src = WebGPU.mgrBuffer.get(srcId);
+ var dst = WebGPU.mgrBuffer.get(dstId);
+ commandEncoder["copyBufferToBuffer"](src, (assert(srcOffset_high < 2097152), srcOffset_high * 4294967296 + srcOffset_low), dst, (assert(dstOffset_high < 2097152), 
+ dstOffset_high * 4294967296 + dstOffset_low), (assert(size_high < 2097152), size_high * 4294967296 + size_low));
 }
 
 function _wgpuCommandEncoderCopyTextureToTexture(encoderId, srcPtr, dstPtr, copySizePtr) {
@@ -4651,9 +4685,13 @@ var asmLibraryArg = {
  "time": _time,
  "wgpuBindGroupLayoutRelease": _wgpuBindGroupLayoutRelease,
  "wgpuBufferDestroy": _wgpuBufferDestroy,
+ "wgpuBufferGetMappedRange": _wgpuBufferGetMappedRange,
+ "wgpuBufferRelease": _wgpuBufferRelease,
  "wgpuBufferUnmap": _wgpuBufferUnmap,
+ "wgpuCommandBufferRelease": _wgpuCommandBufferRelease,
  "wgpuCommandEncoderBeginComputePass": _wgpuCommandEncoderBeginComputePass,
  "wgpuCommandEncoderBeginRenderPass": _wgpuCommandEncoderBeginRenderPass,
+ "wgpuCommandEncoderCopyBufferToBuffer": _wgpuCommandEncoderCopyBufferToBuffer,
  "wgpuCommandEncoderCopyTextureToTexture": _wgpuCommandEncoderCopyTextureToTexture,
  "wgpuCommandEncoderFinish": _wgpuCommandEncoderFinish,
  "wgpuCommandEncoderRelease": _wgpuCommandEncoderRelease,
@@ -5077,10 +5115,6 @@ if (!Object.getOwnPropertyDescriptor(Module, "dynCall")) Module["dynCall"] = fun
 
 if (!Object.getOwnPropertyDescriptor(Module, "callRuntimeCallbacks")) Module["callRuntimeCallbacks"] = function() {
  abort("'callRuntimeCallbacks' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
-};
-
-if (!Object.getOwnPropertyDescriptor(Module, "handleException")) Module["handleException"] = function() {
- abort("'handleException' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
 };
 
 if (!Object.getOwnPropertyDescriptor(Module, "runtimeKeepalivePush")) Module["runtimeKeepalivePush"] = function() {
