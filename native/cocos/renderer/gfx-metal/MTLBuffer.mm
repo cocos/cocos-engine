@@ -96,6 +96,10 @@ void CCMTLBuffer::doInit(const BufferViewInfo &info) {
 }
 
 bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
+    if(!size) {
+        return;
+    }
+    
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_gpuBuffer->mtlBuffer) {
