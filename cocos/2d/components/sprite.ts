@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, override, displayName } from 'cc.decorator';
 import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
@@ -179,6 +179,25 @@ enum EventType {
 @executionOrder(110)
 @menu('2D/Sprite')
 export class Sprite extends Renderable2D {
+    /**
+     * @en The customMaterial
+     * @zh 用户自定材质
+     */
+    @type(Material)
+    @displayOrder(0)
+    @displayName('CustomMaterial')
+    @override
+    get customMaterial () {
+        return this._customMaterial;
+    }
+
+    set customMaterial (val) {
+        this._customMaterial = val;
+        this.updateMaterial();
+        if (UI_GPU_DRIVEN && !val) {
+            this._canDrawByFourVertex = true;
+        }
+    }
     /**
      * @en
      * The sprite atlas where the sprite is.
@@ -570,10 +589,6 @@ export class Sprite extends Renderable2D {
     }
 
     protected _updateBuiltinMaterial () {
-        // macro.UI_GPU_DRIVEN
-        if (UI_GPU_DRIVEN) {
-            this._canDrawByFourVertex = true;
-        }
         let mat = super._updateBuiltinMaterial();
         if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
             const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
