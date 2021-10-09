@@ -210,9 +210,6 @@ async function doBuild ({
         });
     });
 
-    // default options value
-    options.buildTimeConstants.UI_GPU_DRIVEN ??= false;
-
     const doUglify = !!options.compress;
     const engineRoot = ps.resolve(options.engine);
 
