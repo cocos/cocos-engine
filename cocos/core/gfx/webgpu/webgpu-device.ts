@@ -257,7 +257,7 @@ export class WebGPUDevice extends Device {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
-        const bufferDataList = new nativeLib.BufferDataList();
+        const bufferDataList: Uint8Array[] = [];
         const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
         for (let i = 0; i < buffers.length; i++) {
             let data;
@@ -269,7 +269,7 @@ export class WebGPUDevice extends Device {
                 rawBuffer = buffers[i];
                 data = new Uint8Array(rawBuffer);
             }
-            bufferDataList.push_back(data);
+            bufferDataList[i] = data;
 
             const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
             bufferTextureCopy.buffStride = regions[i].buffStride;
@@ -289,35 +289,36 @@ export class WebGPUDevice extends Device {
     }
 
     public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void {
-        const bufferDataList = new nativeLib.BufferDataList();
-        const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
-        for (let i = 0; i < buffers.length; i++) {
-            let data;
-            let rawBuffer;
-            if ('buffer' in buffers[i]) {
-                // es-lint as any
-                data = new Uint8Array((buffers[i] as any).buffer, (buffers[i] as any).byteOffset, (buffers[i] as any).byteLength);
-            } else {
-                rawBuffer = buffers[i];
-                data = new Uint8Array(rawBuffer);
-            }
-            bufferDataList.push_back(data);
+        // const bufferDataList: Uint8Array[] = [];
+        // const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
+        // for (let i = 0; i < buffers.length; i++) {
+        //     let data;
+        //     let rawBuffer;
+        //     if ('buffer' in buffers[i]) {
+        //         // es-lint as any
+        //         data = new Uint8Array((buffers[i] as any).buffer, (buffers[i] as any).byteOffset, (buffers[i] as any).byteLength);
+        //     } else {
+        //         rawBuffer = buffers[i];
+        //         data = new Uint8Array(rawBuffer);
+        //     }
+        //     bufferDataList[i] = data;
 
-            const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
-            bufferTextureCopy.buffStride = regions[i].buffStride;
-            bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
-            bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
-            bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
-            bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
-            bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
-            bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
-            bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
-            bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
-            bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
-            bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
-            bufferTextureCopyList.push_back(bufferTextureCopy);
-        }
-        (this._nativeDevice as any).copyTextureToBuffers((texture as WebGPUTexture).nativeTexture, bufferDataList, bufferTextureCopyList);
+        //     const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
+        //     bufferTextureCopy.buffStride = regions[i].buffStride;
+        //     bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+        //     bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+        //     bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+        //     bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+        //     bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+        //     bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+        //     bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+        //     bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+        //     bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+        //     bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+        //     bufferTextureCopyList.push_back(bufferTextureCopy);
+        // }
+        // (this._nativeDevice as any).copyTextureToBuffers((texture as WebGPUTexture).nativeTexture, bufferDataList, bufferTextureCopyList);
+        console.log('copy tex to buff not impled!');
     }
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {

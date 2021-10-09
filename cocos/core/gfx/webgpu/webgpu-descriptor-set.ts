@@ -32,7 +32,9 @@ export class WebGPUDescriptorSet extends DescriptorSet {
     public update () {
         if (this._isDirty) {
             for (let i = 0; i < this._buffers.length; i++) {
-                this._nativeDescriptorSet.bindBuffer(i, (this._buffers[i] as WebGPUBuffer).nativeBuffer);
+                if (this._buffers[i]) {
+                    this._nativeDescriptorSet.bindBuffer(i, (this._buffers[i] as WebGPUBuffer).nativeBuffer);
+                }
             }
             for (let i = 0; i < this._samplers.length; i++) {
                 if (this._samplers[i]) {
