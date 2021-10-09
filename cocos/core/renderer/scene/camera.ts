@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { enums, Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
@@ -140,7 +140,6 @@ export class Camera {
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
-    private _matViewInv: Mat4 | null = null;
     private _matProj: Mat4 = new Mat4();
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
@@ -285,6 +284,18 @@ export class Camera {
             this._nativeObj!.aspect = this._aspect;
         }
         this.isWindowSize = false;
+    }
+
+    // Editor specific gizmo camera logic
+    public syncCameraEditor (camera) {
+        if (EDITOR) {
+            this.position = camera.position;
+            this.forward = camera.forward;
+            this._matView = camera.matView;
+            this._matProj = camera.matProj;
+            this._matProjInv = camera.matProjInv;
+            this._matViewProj = camera.matViewProj;
+        }
     }
 
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
@@ -509,63 +520,20 @@ export class Camera {
         return this._aspect;
     }
 
-    set matView (val) {
-        this._matView = val;
-        if (JSB) {
-            this._nativeObj!.matView = this._matView;
-        }
-    }
-
     get matView () {
         return this._matView;
-    }
-
-    set matViewInv (val: Mat4 | null) {
-        this._matViewInv = val;
-    }
-
-    get matViewInv () {
-        return this._matViewInv || this._node!.worldMatrix as Mat4;
-    }
-
-    set matProj (val) {
-        this._matProj = val;
-        if (JSB) {
-            this._nativeObj!.matProj = this._matProj;
-        }
     }
 
     get matProj () {
         return this._matProj;
     }
 
-    set matProjInv (val) {
-        this._matProjInv = val;
-        if (JSB) {
-            this._nativeObj!.matProjInv = this._matProjInv;
-        }
-    }
-
     get matProjInv () {
         return this._matProjInv;
     }
 
-    set matViewProj (val) {
-        this._matViewProj = val;
-        if (JSB) {
-            this._nativeObj!.matViewProj = this._matViewProj;
-        }
-    }
-
     get matViewProj () {
         return this._matViewProj;
-    }
-
-    set matViewProjInv (val) {
-        this._matViewProjInv = val;
-        if (JSB) {
-            this._nativeObj!.matViewProjInv = this._matViewProjInv;
-        }
     }
 
     get matViewProjInv () {

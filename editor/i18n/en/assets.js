@@ -131,6 +131,8 @@ module.exports = {
             animation: 'Animation',
             modelPreview: 'Model preview',
             material: 'Material',
+            no_model_tips:'No model is available for preview',
+            drag_model_tips:'Drag a model here for preview',
             fbx: 'FBX',
             GlTFUserData: {
                 normals: {
@@ -314,6 +316,6 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
             'illegal-inspector-url': "Inspector's URL is not valid",
         },
-        multipleWarning: 'Multi-select editing of this type of asset is not supported'
+        multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },
 };

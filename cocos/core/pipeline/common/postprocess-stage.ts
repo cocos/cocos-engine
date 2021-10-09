@@ -34,7 +34,6 @@ import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from './enum';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { UIPhase } from './ui-phase';
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
 import { RenderFlow, RenderPipeline } from '..';
@@ -66,11 +65,9 @@ export class PostProcessStage extends RenderStage {
     private renderQueues: RenderQueueDesc[] = [];
 
     private _renderArea = new Rect();
-    private _uiPhase: UIPhase;
 
     constructor () {
         super();
-        this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
@@ -80,7 +77,6 @@ export class PostProcessStage extends RenderStage {
 
     public activate (pipeline: RenderPipeline, flow: RenderFlow) {
         super.activate(pipeline, flow);
-        this._uiPhase.activate(pipeline);
         if (this._postProcessMaterial) { (pipeline.pipelineSceneData as CommonPipelineSceneData).postprocessMaterial = this._postProcessMaterial; }
     }
 
@@ -146,13 +142,12 @@ export class PostProcessStage extends RenderStage {
         }
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
-        if (pso != null && renderObjects.length > 0) {
+        if (pso != null && (renderObjects.length > 0 || camera.scene!.batches.length > 0)) {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }
 
-        this._uiPhase.render(camera, renderPass);
         renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, swapchain);
 
         cmdBuff.endRenderPass();

@@ -1326,10 +1326,6 @@ export class SpriteFrame extends Asset {
     // macro.UI_GPU_DRIVEN
     private _calculateSlicedData () {
         const rect = this._rect;
-        if (this._original) {
-            rect.x = this._original._x;
-            rect.y = this._original._y;
-        }
 
         const leftWidth = this._capInsets[INSET_LEFT];
         const rightWidth = this._capInsets[INSET_RIGHT];

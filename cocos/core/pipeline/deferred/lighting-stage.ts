@@ -46,7 +46,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';
-import { legacyCC } from '../../global-exports';
+import { UIPhase } from '../common/ui-phase';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -64,6 +64,7 @@ export class LightingStage extends RenderStage {
     private _descriptorSetLayout!: DescriptorSetLayout;
     private _renderArea = new Rect();
     private declare _planarQueue: PlanarShadowQueue;
+    private _uiPhase: UIPhase;
 
     @type(Material)
     @serializable
@@ -82,6 +83,12 @@ export class LightingStage extends RenderStage {
         priority: DeferredStagePriority.LIGHTING,
         tag: 0,
     };
+
+    constructor () {
+        super();
+        this._uiPhase = new UIPhase();
+    }
+
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         return true;
@@ -188,7 +195,7 @@ export class LightingStage extends RenderStage {
 
     public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
-
+        this._uiPhase.activate(pipeline);
         const device = pipeline.device;
 
         // activate queue
@@ -232,9 +239,6 @@ export class LightingStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         const sceneData = pipeline.pipelineSceneData;
         const renderObjects = sceneData.renderObjects;
-        if (renderObjects.length === 0) {
-            return;
-        }
 
         // light信息
         this.gatherLights(camera);
@@ -314,15 +318,16 @@ export class LightingStage extends RenderStage {
                 }
             }
         }
+        if (renderObjects.length > 0) {
+            this._renderQueues.forEach(renderQueueSortFunc);
+            for (let i = 0; i < this._renderQueues.length; i++) {
+                this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+            }
 
-        this._renderQueues.forEach(renderQueueSortFunc);
-        for (let i = 0; i < this._renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+            // planarQueue
+            this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         }
-
-        // planarQueue
-        this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-
+        this._uiPhase.render(camera, renderPass);
         cmdBuff.endRenderPass();
     }
 }

@@ -80,7 +80,7 @@ CCProgram downsample-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
-    mediump vec4 textureSize;
+    mediump vec4 texSize;
   };
   uniform sampler2D bloomTexture;
 
@@ -109,7 +109,7 @@ CCProgram downsample-fs %{
 
   void main()
   {
-    vec3 result = downsample4taps(v_uv, 1.0 / textureSize.xy).rgb;
+    vec3 result = downsample4taps(v_uv, 1.0 / texSize.xy).rgb;
 
     fragColor = vec4(result, 1.0);
   }
@@ -122,7 +122,7 @@ CCProgram upsample-fs %{
   in vec2 v_uv;
 
   uniform BloomUBO {
-    mediump vec4 textureSize;
+    mediump vec4 texSize;
   };
   uniform sampler2D bloomTexture;
 
@@ -151,7 +151,7 @@ CCProgram upsample-fs %{
   }
 
   void main() {
-    vec3 result = upsample4taps(v_uv, 0.5 / textureSize.xy).rgb;
+    vec3 result = upsample4taps(v_uv, 0.5 / texSize.xy).rgb;
 
     fragColor = vec4(result, 1.0);
   }
