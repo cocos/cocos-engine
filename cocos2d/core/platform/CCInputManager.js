@@ -150,7 +150,7 @@ let inputManager = {
             selTouch = touches[i];
             touchID = selTouch.getID();
 
-            index = locTouchIntDict[touchID];
+            index = this._touchesIntegerDict[touchID];
             if (index == null) {
                 let unusedIndex = this._getUnUsedIndex();
                 if (unusedIndex === -1) {
