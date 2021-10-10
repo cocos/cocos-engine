@@ -51,7 +51,7 @@ let inputManager = {
     _touchCount: 0,
 
     _indexBitsUsed: 0,
-    _maxTouches: 8,
+    _maxTouches: 10,
 
     _accelEnabled: false,
     _accelInterval: 1/5,
