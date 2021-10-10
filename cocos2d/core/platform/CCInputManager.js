@@ -309,7 +309,7 @@ let inputManager = {
      */
     getGlobalTouches () {
         return this._touchesCache;
-    }
+    },
 
     /**
      * @method getPreTouch
