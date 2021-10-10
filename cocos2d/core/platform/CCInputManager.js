@@ -81,25 +81,29 @@ let inputManager = {
         let locTouchesCache = this._touchesCache;
 
         for (let i = 0; i < this._maxTouches; i++) {
-            const ccTouch = locTouches[i];
-            if (ccTouch && (now - ccTouch._lastModified > timeout)) {
-                this._removeUsedIndexBit(i);
-                const touchID = ccTouch.getID();
-                delete locTouchesIntDict[touchID];
-                delete locTouchesCache[touchID];
-                this._touchCount--;
-
-                if (unused === -1) {
+            if (!(temp & 0x00000001)) {
+                if (unused === -1){
                     unused = i;
                     this._indexBitsUsed |= (1 << i);
                 }
+            } else {
+                const ccTouch = locTouches[i];
+                if (ccTouch && (now - ccTouch._lastModified > timeout)) {
+                    const touchID = ccTouch.getID();
+                    delete locTouchesIntDict[touchID];
+                    delete locTouchesCache[touchID];
+                    this._touchCount--;
+
+                    if (unused === -1) {
+                        unused = i;
+                        this._indexBitsUsed |= (1 << i);
+                    } else {
+                        this._indexBitsUsed &= ~(1 << i);
+                    }
+                }
             }
 
-            if (unused === -1 && !(temp & 0x00000001)) {
-                unused = i;
-                this._indexBitsUsed |= (1 << i);
-                temp >>= 1;
-            }
+            temp >>= 1;
         }
 
         // all bits are used
@@ -282,10 +286,11 @@ let inputManager = {
                 ccTouch._setPoint(selTouch._point);
                 ccTouch._setPrevPoint(selTouch._prevPoint);
                 handleTouches.push(ccTouch);
-                this._removeUsedIndexBit(index);
                 delete locTouchesIntDict[touchID];
                 delete locTouchesCache[touchID];
                 this._touchCount--;
+
+                this._indexBitsUsed &= ~(1 << index);
             }
         }
         return handleTouches;
@@ -613,6 +618,4 @@ let inputManager = {
 
 };
 
-
 module.exports = cc.internal.inputManager = inputManager;
-
