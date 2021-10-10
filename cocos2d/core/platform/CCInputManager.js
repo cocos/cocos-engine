@@ -81,10 +81,10 @@ let inputManager = {
         let locTouchesCache = this._touchesCache;
 
         for (let i = 0; i < this._maxTouches; i++) {
-            let touch = locTouches[i];
-            if (now - touch._lastModified > timeout) {
+            const ccTouch = locTouches[i];
+            if (ccTouch && (now - ccTouch._lastModified > timeout)) {
                 this._removeUsedIndexBit(i);
-                const touchID = touch.getID();
+                const touchID = ccTouch.getID();
                 delete locTouchesIntDict[touchID];
                 delete locTouchesCache[touchID];
                 this._touchCount--;
@@ -276,10 +276,12 @@ let inputManager = {
             if (index == null) {
                 continue;  //cc.log("if the index doesn't exist, it is an error");
             }
-            if (locTouches[index]) {
-                locTouches[index]._setPoint(selTouch._point);
-                locTouches[index]._setPrevPoint(selTouch._prevPoint);
-                handleTouches.push(locTouches[index]);
+
+            const ccTouch = locTouches[index];
+            if (ccTouch) {
+                ccTouch._setPoint(selTouch._point);
+                ccTouch._setPrevPoint(selTouch._prevPoint);
+                handleTouches.push(ccTouch);
                 this._removeUsedIndexBit(index);
                 delete locTouchesIntDict[touchID];
                 delete locTouchesCache[touchID];
@@ -613,3 +615,4 @@ let inputManager = {
 
 
 module.exports = cc.internal.inputManager = inputManager;
+
