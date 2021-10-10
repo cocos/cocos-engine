@@ -205,7 +205,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (!this._postRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA16F;
+            colorAttachment.format = Format.RGBA8;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_READ];
@@ -239,7 +239,7 @@ export class ForwardPipeline extends RenderPipeline {
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
+            Format.RGBA8,
             this._width,
             this._height,
         )));
