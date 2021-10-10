@@ -250,11 +250,11 @@ let inputManager = {
      * @returns {Array}
      */
     getSetOfTouchesEndOrCancel (touches) {
-        let selTouch, index, touchID, handleTouches = [], locTouches = this._touches, locTouchesIntDict = this._touchesIntegerDict;
+        let selTouch, index, touchID, handleTouches = [], locTouches = this._touches;
         for (let i = 0, len = touches.length; i< len; i ++) {
             selTouch = touches[i];
             touchID = selTouch.getID();
-            index = locTouchesIntDict[touchID];
+            index = this._touchesIntegerDict[touchID];
 
             if (index == null) {
                 continue;  //cc.log("if the index doesn't exist, it is an error");
@@ -264,7 +264,8 @@ let inputManager = {
                 locTouches[index]._setPrevPoint(selTouch._prevPoint);
                 handleTouches.push(locTouches[index]);
                 this._removeUsedIndexBit(index);
-                delete locTouchesIntDict[touchID];
+                delete this._touchesCache[touchID];
+                delete this._touchesIntegerDict[touchID];
             }
         }
         return handleTouches;
