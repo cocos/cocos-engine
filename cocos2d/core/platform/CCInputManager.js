@@ -44,14 +44,19 @@ let inputManager = {
     _preTouchPool: [],
     _preTouchPoolPointer: 0,
 
+    // All touches pool
     _touches: [],
-    _touchesIntegerDict:{},
-
-    _touchesCache: {},
-    _touchCount: 0,
-
-    _indexBitsUsed: 0,
+    // Maximum available touches, it's also the length of _touches array
     _maxTouches: 10,
+    // Global touches map with touch id as key and index in _touches as value 
+    _touchesIntegerDict:{},
+    // A bit mask for index of _touches, every bit indicates whether the correspond touch is currently valid
+    _indexBitsUsed: 0,
+
+    // A global touches map with touch id as key and touch object as value, only contains currently valid touches
+    _touchesCache: {},
+    // Current global touches count (only valid touches)
+    _touchCount: 0,
 
     _accelEnabled: false,
     _accelInterval: 1/5,
@@ -106,15 +111,7 @@ let inputManager = {
             temp >>= 1;
         }
 
-        // all bits are used
         return unused;
-    },
-
-    _removeUsedIndexBit (index) {
-        if (index < 0 || index >= this._maxTouches)
-            return;
-
-        this._indexBitsUsed &= ~(1 << index);
     },
 
     _glView: null,
@@ -295,6 +292,24 @@ let inputManager = {
         }
         return handleTouches;
     },
+
+    /**
+     * Gets the count of all currently valid touches.
+     * @method getGlobalTouchCount
+     * @return Current global touches count (only valid touches)
+     */
+    getGlobalTouchCount () {
+        return this._touchCount;
+    },
+
+    /**
+     * Gets global touches map, please do not modify the touches, otherwise all event listener will be affected
+     * @method getGlobalTouches
+     * @return A global touches map with touch id as key and touch object as value, only contains currently valid touches
+     */
+    getGlobalTouches () {
+        return this._touchesCache;
+    }
 
     /**
      * @method getPreTouch
@@ -607,14 +622,6 @@ let inputManager = {
         }
         this._accelCurTime += dt;
     },
-
-    getGlobalTouchCount () {
-        return this._touchCount;
-    },
-
-    getGlobalTouches () {
-        return this._touchesCache;
-    }
 
 };
 
