@@ -1,5 +1,7 @@
 import { Vec2 } from '../../../math/vec2';
-import { AnimationGraph, Condition, ClipMotion } from '../../animation';
+import { AnimationGraph, State, StateMachine, AnimationTransition } from '../animation-graph';
+import { Condition, BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';
+import { ClipMotion } from '../clip-motion';
 import {
     GraphDescription,
     MotionDescription,
@@ -10,12 +12,11 @@ import {
 } from './graph-description';
 import { AnimationBlend1D } from '../animation-blend-1d';
 import { AnimationBlend2D } from '../animation-blend-2d';
-import { State, StateMachine, AnimationTransition } from '../animation-graph';
+
 import { Motion } from '../motion';
 import { Bindable, VariableType } from '../parametric';
 import { Value } from '../variable';
 import { MotionState } from '../motion-state';
-import { BinaryCondition, TriggerCondition, UnaryCondition } from '../condition';
 
 export function createGraphFromDescription (graphDescription: GraphDescription) {
     const graph = new AnimationGraph();
