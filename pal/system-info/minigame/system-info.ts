@@ -105,7 +105,7 @@ class SystemInfo extends EventTarget {
             supportWebp  = false;
         }
 
-        const isPCWechat = typeof minigame.wx === 'object' && typeof minigame.wx.onKeyDown !== 'undefined';
+        const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: false,
