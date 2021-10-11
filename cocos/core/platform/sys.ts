@@ -206,7 +206,7 @@ export const sys = {
         opengl: true,
         webp: systemInfo.hasFeature(Feature.WEBP),
         imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
-        touches: systemInfo.hasFeature(Feature.EVENT_TOUCH),
+        touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),
         mouse: systemInfo.hasFeature(Feature.EVENT_MOUSE),
         keyboard: systemInfo.hasFeature(Feature.EVENT_KEYBOARD),
         accelerometer: systemInfo.hasFeature(Feature.EVENT_ACCELEROMETER),
