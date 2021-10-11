@@ -106,7 +106,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         clearDepth: number,
         clearStencil: number,
     ) {
-        const rect = nativeLib.Rect();
+        const rect = new nativeLib.Rect();
         rect.x = renderArea.x;
         rect.y = renderArea.y;
         rect.width = renderArea.width;
@@ -122,7 +122,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             colors.push_back(color);
         }
 
-        this._nativeCommandBuffer.beginRenderPass((renderPass as WebGPURenderPass).nativeRenderPass,
+        this._nativeCommandBuffer.beginRenderPass((framebuffer.renderPass as WebGPURenderPass).nativeRenderPass,
             (framebuffer as WebGPUFramebuffer).nativeFrameBuffer,
             rect,
             colors,
@@ -205,10 +205,22 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         this._nativeCommandBuffer.setStencilCompareMask(nativeLib.StencilFace[stencilFaceStr], reference, compareMask);
     }
 
-    public draw (inputAssembler: InputAssembler) {
-        const ia = inputAssembler as WebGPUInputAssembler;
-        ia.check();
-        this._nativeCommandBuffer.drawIA(ia.nativeInputAssembler);
+    public draw (infoOrAssembler: DrawInfo | InputAssembler) {
+        if (infoOrAssembler instanceof InputAssembler) {
+            const ia = infoOrAssembler as WebGPUInputAssembler;
+            ia.check();
+            this._nativeCommandBuffer.drawIA(ia.nativeInputAssembler);
+        } else {
+            const nativeDrawInfo = new nativeLib.DrawInfo();
+            nativeDrawInfo.vertexCount = infoOrAssembler.vertexCount;
+            nativeDrawInfo.firstVertex = infoOrAssembler.firstVertex;
+            nativeDrawInfo.indexCount = infoOrAssembler.indexCount;
+            nativeDrawInfo.firstIndex = infoOrAssembler.firstIndex;
+            nativeDrawInfo.vertexOffset = infoOrAssembler.vertexOffset;
+            nativeDrawInfo.instanceCount = infoOrAssembler.instanceCount;
+            nativeDrawInfo.firstInstance = infoOrAssembler.firstInstance;
+            this._nativeCommandBuffer.draw(nativeDrawInfo);
+        }
     }
 
     public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number) {
