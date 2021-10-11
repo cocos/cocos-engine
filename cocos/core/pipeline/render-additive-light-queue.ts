@@ -426,7 +426,6 @@ export class RenderAdditiveLightQueue {
         const { exposure } = camera;
         const sceneData = this._pipeline.pipelineSceneData;
         const isHDR = sceneData.isHDR;
-        const fpScale = sceneData.fpScale;
         const root = legacyCC.director.root;
         const shadowInfo = sceneData.shadows;
 
@@ -464,11 +463,7 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (isHDR) {
-                    if (root.useDeferredPipeline) {
-                        _vec4Array[3] = (light as SphereLight).luminance * fpScale * this._lightMeterScale;
-                    } else {
-                        _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
-                    }
+                    _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
                 } else {
                     _vec4Array[3] = (light as SphereLight).luminance;
                 }
@@ -497,11 +492,7 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (isHDR) {
-                    if (root.useDeferredPipeline) {
-                        _vec4Array[3] = (light as SpotLight).luminance * fpScale * this._lightMeterScale;
-                    } else {
-                        _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
-                    }
+                    _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
                 } else {
                     _vec4Array[3] = (light as SpotLight).luminance;
                 }

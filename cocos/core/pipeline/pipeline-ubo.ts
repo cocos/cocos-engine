@@ -78,7 +78,6 @@ export class PipelineUBO {
         const exposure = camera.exposure;
         const isHDR = sceneData.isHDR;
         const shadingScale = sceneData.shadingScale;
-        const fpScale = sceneData.fpScale;
 
         // update camera ubo
         cv[UBOCamera.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * shadingScale;
@@ -89,7 +88,7 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET] = exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 2] = isHDR ? 1.0 : 0.0;
-        cv[UBOCamera.EXPOSURE_OFFSET + 3] = fpScale / exposure;
+        cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
 
         if (mainLight) {
             Vec3.toArray(cv, mainLight.direction, UBOCamera.MAIN_LIT_DIR_OFFSET);
@@ -102,11 +101,7 @@ export class PipelineUBO {
             }
 
             if (isHDR) {
-                if (root.useDeferredPipeline) {
-                    cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * fpScale;
-                } else {
-                    cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
-                }
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             } else {
                 cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance;
             }
@@ -117,11 +112,7 @@ export class PipelineUBO {
 
         const skyColor = ambient.skyColor;
         if (isHDR) {
-            if (root.useDeferredPipeline) {
-                skyColor.w = ambient.skyIllum * fpScale;
-            } else {
-                skyColor.w = ambient.skyIllum * exposure;
-            }
+            skyColor.w = ambient.skyIllum * exposure;
         } else {
             skyColor.w = ambient.skyIllum;
         }

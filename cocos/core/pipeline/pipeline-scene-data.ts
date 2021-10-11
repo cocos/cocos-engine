@@ -74,15 +74,6 @@ export class PipelineSceneData {
             this._nativeObj!.shadingScale = val;
         }
     }
-    public get fpScale () {
-        return this._fpScale;
-    }
-    public set fpScale (val: number) {
-        this._fpScale = val;
-        if (JSB) {
-            this._fpScale = val;
-        }
-    }
 
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
@@ -101,12 +92,10 @@ export class PipelineSceneData {
     protected declare _nativeObj: NativePipelineSharedSceneData | null;
     protected _isHDR = false;
     protected _shadingScale = 1.0;
-    protected _fpScale = 1.0 / 1024.0;
 
     constructor () {
         this._init();
         this.shadingScale = 1.0;
-        this.fpScale = 1.0 / 1024.0;
     }
 
     public activate (device: Device, pipeline: RenderPipeline) {

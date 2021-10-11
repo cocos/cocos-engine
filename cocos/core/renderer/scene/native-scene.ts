@@ -328,7 +328,6 @@ export type NativeJointInfo = InstanceType<typeof NativeJointInfo>;
 export const NativePipelineSharedSceneData: Constructor<{
     isHDR: boolean;
     shadingScale: number;
-    fpScale: number;
     fog: NativeFog;
     ambient: NativeAmbient;
     skybox: NaitveSkybox;
