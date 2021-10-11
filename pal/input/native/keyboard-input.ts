@@ -27,14 +27,12 @@ function getKeyCode (keyCode: number): KeyCode {
 }
 
 export class KeyboardInputSource {
-    public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
 
     // On native platform, KeyboardEvent.repeat is always false, so we need a map to manage the key state.
     private _keyStateMap: Record<number, boolean> = {};
 
     constructor () {
-        this.support = !systemInfo.isMobile;
         this._registerEvent();
     }
 

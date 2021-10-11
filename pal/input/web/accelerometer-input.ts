@@ -7,8 +7,6 @@ import { EventAcceleration, Acceleration } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class AccelerometerInputSource {
-    public support: boolean;
-
     private _intervalInMileSeconds = 200;
     private _accelTimer = 0;
     private _eventTarget: EventTarget = new  EventTarget();
@@ -17,8 +15,6 @@ export class AccelerometerInputSource {
     private _didAccelerateFunc: (event: DeviceMotionEvent | DeviceOrientationEvent) => void;
 
     constructor () {
-        this.support = (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined);
-
         // init event name
         this._globalEventClass = window.DeviceMotionEvent || window.DeviceOrientationEvent;
         // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.

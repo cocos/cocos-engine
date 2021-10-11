@@ -5,15 +5,12 @@ import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class AccelerometerInputSource {
-    public support: boolean;
-
     private _isStarted = false;
     private _accelMode: AccelerometerIntervalMode = 'normal';
     private _eventTarget: EventTarget = new  EventTarget();
     private _didAccelerateFunc: (event: AccelerometerData) => void;
 
     constructor () {
-        this.support = true;
         this._didAccelerateFunc  = this._didAccelerate.bind(this);
     }
 

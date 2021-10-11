@@ -10,11 +10,9 @@ import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class TouchInputSource {
-    public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        this.support = true;
         this._registerEvent();
     }
 

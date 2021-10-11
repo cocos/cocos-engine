@@ -32,6 +32,7 @@
 import { EDITOR } from 'internal:constants';
 import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
+import { sys } from '../core/platform/sys';
 import { EventTarget } from '../core/event/event-target';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
@@ -116,7 +117,7 @@ export class Input {
     }
 
     private _registerEvent () {
-        if (this._touchInput.support) {
+        if (sys.hasFeature(sys.Feature.INPUT_TOUCH)) {
             const eventTouchList = this._eventTouchList;
             this._touchInput.on(InputEventType.TOUCH_START, (event) => { eventTouchList.push(event); });
             this._touchInput.on(InputEventType.TOUCH_MOVE, (event) => { eventTouchList.push(event); });
@@ -124,7 +125,7 @@ export class Input {
             this._touchInput.on(InputEventType.TOUCH_CANCEL, (event) => { eventTouchList.push(event); });
         }
 
-        if (this._mouseInput.support) {
+        if (sys.hasFeature(sys.Feature.EVENT_MOUSE)) {
             const eventMouseList = this._eventMouseList;
             this._mouseInput.on(InputEventType.MOUSE_DOWN, (event) => {
                 this._needSimulateTouchMoveEvent = true;
@@ -145,14 +146,14 @@ export class Input {
             this._mouseInput.on(InputEventType.MOUSE_WHEEL, (event) => { eventMouseList.push(event); });
         }
 
-        if (this._keyboardInput.support) {
+        if (sys.hasFeature(sys.Feature.EVENT_KEYBOARD)) {
             const eventKeyboardList = this._eventKeyboardList;
             this._keyboardInput.on(InputEventType.KEY_DOWN, (event) => { eventKeyboardList.push(event); });
             this._keyboardInput.on(InputEventType.KEY_PRESSING, (event) => { eventKeyboardList.push(event); });
             this._keyboardInput.on(InputEventType.KEY_UP, (event) => { eventKeyboardList.push(event); });
         }
 
-        if (this._accelerometerInput.support) {
+        if (sys.hasFeature(sys.Feature.EVENT_ACCELEROMETER)) {
             const eventAccelerationList = this._eventAccelerationList;
             this._accelerometerInput.on(InputEventType.DEVICEMOTION, (event) => { eventAccelerationList.push(event); });
         }
