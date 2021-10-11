@@ -51,7 +51,6 @@ export * from './base/texture';
 export * from './base/states/sampler';
 export * from './base/states/global-barrier';
 export * from './base/states/texture-barrier';
-export * from './device-manager/device-manager.jsb';
 
 const polyfillCC: Record<string, unknown> = Object.assign({}, defines);
 polyfillCC.Device = gfx.Device;

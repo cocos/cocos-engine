@@ -34,7 +34,7 @@ import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo, DeviceManager } from './gfx';
+import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
@@ -48,6 +48,7 @@ import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
+import { DeviceManager } from './device-manager';
 
 interface ISceneInfo {
     url: string;

@@ -49,4 +49,3 @@ export * from './base/shader';
 export * from './base/texture';
 export * from './base/states/global-barrier';
 export * from './base/states/texture-barrier';
-export * from './device-manager/device-manager';

@@ -1,17 +1,19 @@
-import { TEST } from 'internal:constants';
+import { JSB, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { bindingMappingInfo } from '../../pipeline/define';
-import { DeviceInfo } from '../base/define';
-import { Device } from '../base/device';
-import { EmptyDevice } from '../empty/empty-device';
-import { legacyCC } from '../../global-exports';
+import { bindingMappingInfo } from './pipeline/define';
+import { DeviceInfo } from './gfx/base/define';
+import { Device } from './gfx/base/device';
+import { EmptyDevice } from './gfx/empty/empty-device';
+import { legacyCC } from './global-exports';
 
 export class DeviceManager {
     static create (): Device {
         let device: Device | undefined;
         const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
-        if (TEST) {
+        if (JSB && window.gfx) {
+            device = gfx.DeviceManager.create(deviceInfo);
+        } else if (TEST) {
             device = new EmptyDevice();
             device.initialize(deviceInfo);
         } else {
