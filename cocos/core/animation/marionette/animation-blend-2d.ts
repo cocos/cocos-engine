@@ -72,7 +72,7 @@ export class AnimationBlend2D extends EditorExtendable implements AnimationBlend
     }
 
     public [createEval] (context: MotionEvalContext) {
-        const evaluation = new AnimationBlend2DDEval(context, this._items, this._items.map(({ threshold }) => threshold), this.algorithm, [0.0, 0.0]);
+        const evaluation = new AnimationBlend2DEval(context, this._items, this._items.map(({ threshold }) => threshold), this.algorithm, [0.0, 0.0]);
         const initialValueX = bindOr(
             context,
             this.paramX,
@@ -101,7 +101,7 @@ export declare namespace AnimationBlend2D {
     export type Item = AnimationBlend2DItem;
 }
 
-class AnimationBlend2DDEval extends AnimationBlendEval {
+class AnimationBlend2DEval extends AnimationBlendEval {
     private _thresholds: readonly Vec2[];
     private _algorithm: Algorithm;
     private _value = new Vec2();

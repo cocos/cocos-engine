@@ -215,13 +215,13 @@ function solveBarycentric (
     // Let P = p - 0, A = a - 0, B = b - 0,
     // wA = (P x B) / (A x B)
     // wB = (P x A) / (B x A)
-    const det = Vec2.crossProduct(a, b);
+    const det = Vec2.cross(a, b);
     if (!det) {
         resolutions.wA = 0.0;
         resolutions.wB = 0.0;
     } else {
-        resolutions.wA = Vec2.crossProduct(p, b) / det;
-        resolutions.wB = Vec2.crossProduct(p, a) / -det;
+        resolutions.wA = Vec2.cross(p, b) / det;
+        resolutions.wB = Vec2.cross(p, a) / -det;
     }
     return resolutions;
 }
