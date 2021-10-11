@@ -43,6 +43,7 @@ import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor'
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
+const _vec3a = new Vec3();
 const _mat4_temp = new Mat4();
 const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
@@ -70,7 +71,7 @@ export class UITransform extends Component {
      * 内容尺寸。
      */
     @displayOrder(0)
-    @tooltip('i18n:ui_transform.conten_size')
+    @tooltip('i18n:ui_transform.content_size')
     // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
@@ -256,14 +257,14 @@ export class UITransform extends Component {
     // macro.UI_GPU_DRIVEN
     declare public _rectDirty: boolean;
     declare public _rectWithScale: Vec3;
-    declare public _anchorCache: Vec2;
+    declare public _anchorCache: Vec3;
 
     constructor () {
         super();
         if (UI_GPU_DRIVEN) {
             this._rectDirty = true;
             this._rectWithScale = new Vec3();
-            this._anchorCache = new Vec2();
+            this._anchorCache = new Vec3();
         }
     }
 
@@ -684,16 +685,15 @@ export class UITransform extends Component {
         }
     }
 
-    public checkAndUpdateRect (scale: Vec3) {
+    public checkAndUpdateRect (rot: Quat, scale: Vec3) {
         if (this._rectDirty) {
             this._rectWithScale.x = scale.x * this.width;
             this._rectWithScale.y = scale.y * this.height;
             this._rectWithScale.z = scale.z;
-            const eulerZ = this.node.angle / 180 * Math.PI;
+
             const lenX = (0.5 - this.anchorPoint.x) * this.width * scale.x;
             const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;
-            this._anchorCache.x = (lenX) * Math.cos(eulerZ) - (lenY) * Math.sin(eulerZ);
-            this._anchorCache.y = (lenX) * Math.sin(eulerZ) + (lenY) * Math.cos(eulerZ);
+            Vec3.transformQuat(this._anchorCache, _vec3a.set(lenX, lenY, 0), rot);
         }
     }
 

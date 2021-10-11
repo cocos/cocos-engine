@@ -76,12 +76,8 @@ export class DrawBatch2DGPU extends DrawBatch2D {
         // @ts-expect-error using private members
         const { _pos: t, _rot: r, _scale: s } = renderComp.node;
         DrawBatch2DGPU._tempRect = renderComp.node._uiProps.uiTransformComp!;
-        DrawBatch2DGPU._tempRect.checkAndUpdateRect(s);
-
-        DrawBatch2DGPU._tempAnchor.set(DrawBatch2DGPU._tempRect._anchorCache);
-        DrawBatch2DGPU._tempPosition.x = t.x + DrawBatch2DGPU._tempAnchor.x;
-        DrawBatch2DGPU._tempPosition.y = t.y + DrawBatch2DGPU._tempAnchor.y;
-        DrawBatch2DGPU._tempPosition.z = t.z;
+        DrawBatch2DGPU._tempRect.checkAndUpdateRect(r, s);
+        Vec3.add(DrawBatch2DGPU._tempPosition, t, DrawBatch2DGPU._tempRect._anchorCache);
 
         let mode = 0;
         let fillType = 0;
@@ -167,11 +163,8 @@ export class DrawBatch2DGPU extends DrawBatch2D {
             DrawBatch2DGPU._tempRect = node._uiProps.uiTransformComp!;
             // @ts-expect-error using private members
             const { _pos: t, _rot: r, _scale: s } = renderComp.node;
-            DrawBatch2DGPU._tempRect.checkAndUpdateRect(s);
-            DrawBatch2DGPU._tempAnchor.set(DrawBatch2DGPU._tempRect._anchorCache);
-            DrawBatch2DGPU._tempPosition.x = t.x + DrawBatch2DGPU._tempAnchor.x;
-            DrawBatch2DGPU._tempPosition.y = t.y + DrawBatch2DGPU._tempAnchor.y;
-            DrawBatch2DGPU._tempPosition.z = t.z;
+            DrawBatch2DGPU._tempRect.checkAndUpdateRect(r, s);
+            Vec3.add(DrawBatch2DGPU._tempPosition, t, DrawBatch2DGPU._tempRect._anchorCache);
 
             if (node.hasChangedFlags & TransformBit.RS || DrawBatch2DGPU._tempRect._rectDirty) {
                 localBuffer.updateDataTRSByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex,
