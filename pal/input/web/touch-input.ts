@@ -15,8 +15,7 @@ export class TouchInputSource {
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined);
-        if (supportTouch) {
+        if (systemInfo.hasFeature(Feature.INPUT_TOUCH)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST) {
                 console.warn('failed to access canvas');
