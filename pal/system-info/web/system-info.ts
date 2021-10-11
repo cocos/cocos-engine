@@ -165,6 +165,8 @@ class SystemInfo extends EventTarget {
             }).catch((err) => {});
         }
 
+        const supportTouch = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined);
+        const supportMouse = !EDITOR && document.documentElement.onmouseup !== undefined;
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: supportImageBitmap,
@@ -172,10 +174,10 @@ class SystemInfo extends EventTarget {
             [Feature.VIDEO_PLAYER]: true,
             [Feature.SAFE_AREA]: false,
 
-            [Feature.INPUT_TOUCH]: (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined),
+            [Feature.INPUT_TOUCH]: supportTouch,
             [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
-            [Feature.EVENT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,
-            [Feature.EVENT_TOUCH]: true,
+            [Feature.EVENT_MOUSE]: supportMouse,
+            [Feature.EVENT_TOUCH]: supportTouch || supportMouse,
             [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
         };
 
