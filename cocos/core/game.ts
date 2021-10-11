@@ -793,18 +793,10 @@ export class Game extends EventTarget {
         this.renderType = Game.RENDER_TYPE_CANVAS;
         let supportRender = false;
 
-        if (userRenderMode === 0) {
-            if (sys.hasFeature(sys.Feature.WEBGL)) {
-                this.renderType = Game.RENDER_TYPE_WEBGL;
-                supportRender = true;
-            } else if (sys.hasFeature(sys.Feature.CANVAS)) {
-                this.renderType = Game.RENDER_TYPE_CANVAS;
-                supportRender = true;
-            }
-        } else if (userRenderMode === 1 && sys.hasFeature(sys.Feature.CANVAS)) {
+        if (userRenderMode === 1) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
-        } else if (userRenderMode === 2 && sys.hasFeature(sys.Feature.WEBGL)) {
+        } else if (userRenderMode === 0 || userRenderMode === 2) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
         } else if (userRenderMode === 3) {
@@ -840,7 +832,14 @@ export class Game extends EventTarget {
             if (JSB && window.gfx) {
                 this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
-                if (sys.hasFeature(sys.Feature.WEBGL2) && legacyCC.WebGL2Device) {
+                let useWebGL2 = (!!window.WebGL2RenderingContext);
+                const userAgent = window.navigator.userAgent.toLowerCase();
+                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                    || sys.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
+                ) {
+                    useWebGL2 = false;
+                }
+                if (useWebGL2 && legacyCC.WebGL2Device) {
                     ctors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
