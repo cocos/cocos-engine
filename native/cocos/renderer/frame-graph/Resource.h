@@ -37,13 +37,6 @@
 namespace cc {
 namespace framegraph {
 
-template <typename DescriptorType>
-struct ResourceDescriptorHasher final {
-    inline uint32_t operator()(const DescriptorType & /*desc*/) const {
-        return 1;
-    }
-};
-
 template <typename DeviceResourceType, typename DescriptorType>
 struct DeviceResourceCreator final {
     inline DeviceResourceType *operator()(const DescriptorType & /*desc*/) const {
@@ -52,15 +45,12 @@ struct DeviceResourceCreator final {
 };
 
 template <typename DeviceResourceType, typename DescriptorType,
-          typename DeviceResourceCreatorType = DeviceResourceCreator<DeviceResourceType, DescriptorType>,
-          typename DescriptorHasherType      = ResourceDescriptorHasher<DescriptorType>>
+          typename DeviceResourceCreatorType = DeviceResourceCreator<DeviceResourceType, DescriptorType>>
 class Resource final {
 public:
     using Allocator        = ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>;
-    using DescriptorHash   = typename Allocator::DescriptorHash;
     using DeviceResource   = DeviceResourceType;
     using Descriptor       = DescriptorType;
-    using DescriptorHasher = DescriptorHasherType;
 
     Resource() = default;
     explicit Resource(const Descriptor &desc);
@@ -80,10 +70,8 @@ public:
 
 private:
     explicit Resource(DeviceResourceType *external);
-    void computeHash() noexcept;
 
     Descriptor          _desc;
-    DescriptorHash      _hash{0};
     DeviceResourceType *_deviceObject{nullptr};
 
     friend class FrameGraph;
@@ -91,75 +79,56 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::Resource(const Descriptor &desc)
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::Resource(const Descriptor &desc)
 : _desc(desc) {
 }
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::Resource(DeviceResourceType *external)
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::Resource(DeviceResourceType *external)
 : _desc(external->getInfo()), _deviceObject(external) {
 }
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::createTransient() noexcept {
-    computeHash();
-    _deviceObject = Allocator::getInstance().alloc(_desc, _hash);
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::createTransient() noexcept {
+    _deviceObject = Allocator::getInstance().alloc(_desc);
 }
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::createPersistent() noexcept {
-    computeHash();
-
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::createPersistent() noexcept {
     if (!_deviceObject) {
         DeviceResourceCreatorType creator;
         _deviceObject = creator(_desc);
     }
 }
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::destroyTransient() noexcept {
-    CC_ASSERT(_hash);
-    Allocator::getInstance().free(_desc, _hash, _deviceObject);
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::destroyTransient() noexcept {
+    Allocator::getInstance().free(_desc, _deviceObject);
     _deviceObject = nullptr;
 }
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::destroyPersistent() noexcept {
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::destroyPersistent() noexcept {
     if (_deviceObject) {
         delete _deviceObject;
         _deviceObject = nullptr;
     }
 }
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-DeviceResourceType *Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::get() const noexcept {
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+DeviceResourceType *Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::get() const noexcept {
     return _deviceObject;
 }
 
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-const DescriptorType &Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::getDesc() const noexcept {
+template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
+const DescriptorType &Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::getDesc() const noexcept {
     return _desc;
-}
-
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType, typename DescriptorHasherType>
-void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, DescriptorHasherType>::computeHash() noexcept {
-    if (!_hash) {
-        DescriptorHasher hasher;
-        _hash = hasher(_desc);
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 #define DEFINE_GFX_RESOURCE(Type)                                         \
-    template <>                                                           \
-    struct ResourceDescriptorHasher<gfx::Type##Info> final {              \
-        inline uint32_t operator()(const gfx::Type##Info &desc) const {   \
-            return gfx::Type::computeHash(desc);                          \
-        }                                                                 \
-    };                                                                    \
-                                                                          \
     template <>                                                           \
     struct DeviceResourceCreator<gfx::Type, gfx::Type##Info> final {      \
         inline gfx::Type *operator()(const gfx::Type##Info &desc) const { \
@@ -169,6 +138,7 @@ void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, Des
     using Type         = Resource<gfx::Type, gfx::Type##Info>;            \
     using Type##Handle = TypedHandle<Type>;
 
+// Descriptors must have std::hash specialization and == operators
 DEFINE_GFX_RESOURCE(Buffer)
 DEFINE_GFX_RESOURCE(Framebuffer)
 DEFINE_GFX_RESOURCE(RenderPass)

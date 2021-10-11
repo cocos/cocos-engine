@@ -58,6 +58,7 @@ RenderPipeline::RenderPipeline()
 }
 
 RenderPipeline::~RenderPipeline() {
+    framegraph::FrameGraph::gc(0);
     RenderPipeline::instance = nullptr;
 }
 

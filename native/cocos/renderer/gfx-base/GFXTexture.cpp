@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
+#include "base/Utils.h"
 
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
@@ -38,30 +39,13 @@ Texture::Texture()
 Texture::~Texture() = default;
 
 uint32_t Texture::computeHash(const TextureInfo &info) {
-    uint32_t seed = 10;
-    seed ^= toNumber(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= toNumber(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= toNumber(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= toNumber(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= toNumber(info.samples) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.width) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.height) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.depth) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.layerCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.levelCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    return seed;
+    std::hash<TextureInfo> hasher;
+    return utils::toUint(hasher(info));
 }
 
 uint32_t Texture::computeHash(const TextureViewInfo &info) {
-    uint32_t seed = 7;
-    seed ^= info.texture->getHash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= toNumber(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= toNumber(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.baseLevel) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.levelCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.baseLayer) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.layerCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    return seed;
+    std::hash<TextureViewInfo> hasher;
+    return utils::toUint(hasher(info));
 }
 
 uint32_t Texture::computeHash(const Texture *texture) {

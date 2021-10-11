@@ -44,7 +44,7 @@ public:
     using ResourceHandleBlackboard = Blackboard<StringHandle, Handle::IndexType, Handle::UNINITIALIZED>;
 
     FrameGraph() = default;
-    ~FrameGraph();
+    ~FrameGraph() = default;
     FrameGraph(const FrameGraph &)     = delete;
     FrameGraph(FrameGraph &&) noexcept = delete;
     FrameGraph &operator=(const FrameGraph &) = delete;
@@ -53,9 +53,9 @@ public:
     static StringHandle stringToHandle(const char *name);
     static const char * handleToString(const StringHandle &handle) noexcept;
 
-    void        present(const TextureHandle &input, gfx::Texture *target);
-    void        presentLastVersion(const VirtualResource *virtualResource, gfx::Texture *target);
-    void        presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target);
+    void        present(const TextureHandle &input, gfx::Texture *target, bool useMoveSemantic = true);
+    void        presentLastVersion(const VirtualResource *virtualResource, gfx::Texture *target, bool useMoveSemantic = true);
+    void        presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target, bool useMoveSemantic = true);
     void        compile();
     void        execute() noexcept;
     void        reset() noexcept;

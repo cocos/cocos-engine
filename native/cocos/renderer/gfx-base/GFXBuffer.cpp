@@ -39,12 +39,8 @@ Buffer::Buffer()
 Buffer::~Buffer() = default;
 
 uint32_t Buffer::computeHash(const BufferInfo &info) {
-    uint32_t seed = 4;
-    seed ^= static_cast<uint32_t>(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint32_t>(info.memUsage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint32_t>(info.size) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= static_cast<uint32_t>(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    return seed;
+    std::hash<BufferInfo> hasher;
+    return utils::toUint(hasher(info));
 }
 
 void Buffer::initialize(const BufferInfo &info) {

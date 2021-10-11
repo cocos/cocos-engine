@@ -73,7 +73,7 @@ void ShadowStage::render(scene::Camera *camera) {
     _renderArea.x             = static_cast<int>(viewport.x * shadowMapSize.x);
     _renderArea.y             = static_cast<int>(viewport.y * shadowMapSize.y);
     _renderArea.width         = static_cast<uint>(viewport.z * shadowMapSize.x * sharedData->shadingScale);
-    _renderArea.height        = static_cast<int>(viewport.w * shadowMapSize.y * sharedData->shadingScale);
+    _renderArea.height        = static_cast<uint>(viewport.w * shadowMapSize.y * sharedData->shadingScale);
 
     _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
     auto *renderPass = _framebuffer->getRenderPass();

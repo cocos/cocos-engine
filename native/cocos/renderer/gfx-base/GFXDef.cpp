@@ -24,11 +24,230 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
+#include "base/Utils.h"
 
 #include "GFXDef.h"
+#include "GFXTexture.h"
+#include "gfx-base/GFXDef-common.h"
+
+namespace std {
+std::size_t hash<cc::gfx::RenderPassInfo>::operator()(const cc::gfx::RenderPassInfo& info) const {
+    static auto computeAttachmentHash = [](const cc::gfx::ColorAttachment& attachment, uint32_t& seed) {
+        seed ^= toNumber(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.loadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.storeOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        for (cc::gfx::AccessType type : attachment.beginAccesses) {
+            seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        for (cc::gfx::AccessType type : attachment.endAccesses) {
+            seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+    };
+    static auto computeDSAttachmentHash = [](const cc::gfx::DepthStencilAttachment& attachment, uint32_t& seed) {
+        seed ^= toNumber(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.depthLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.depthStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.stencilLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= toNumber(attachment.stencilStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        for (auto type : attachment.beginAccesses) {
+            seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        for (auto type : attachment.endAccesses) {
+            seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+    };
+    uint32_t seed = 0;
+    if (!info.subpasses.empty()) {
+        for (const auto& subpass : info.subpasses) {
+            for (const uint32_t iaIndex : subpass.inputs) {
+                if (iaIndex >= info.colorAttachments.size()) break;
+                const auto& ia = info.colorAttachments[iaIndex];
+                seed += cc::utils::toUint(4 + ia.beginAccesses.size() + ia.endAccesses.size());
+            }
+            for (const uint32_t caIndex : subpass.colors) {
+                if (caIndex >= info.colorAttachments.size()) break;
+                const auto& ca = info.colorAttachments[caIndex];
+                seed += cc::utils::toUint(4 + ca.beginAccesses.size() + ca.endAccesses.size());
+            }
+            for (const uint32_t raIndex : subpass.resolves) {
+                if (raIndex >= info.colorAttachments.size()) break;
+                const auto& ra = info.colorAttachments[raIndex];
+                seed += cc::utils::toUint(4 + ra.beginAccesses.size() + ra.endAccesses.size());
+            }
+            for (const uint32_t paIndex : subpass.preserves) {
+                if (paIndex >= info.colorAttachments.size()) break;
+                const auto& pa = info.colorAttachments[paIndex];
+                seed += cc::utils::toUint(4 + pa.beginAccesses.size() + pa.endAccesses.size());
+            }
+            if (subpass.depthStencil != cc::gfx::INVALID_BINDING) {
+                if (subpass.depthStencil < info.colorAttachments.size()) {
+                    const auto& ds = info.colorAttachments[subpass.depthStencil];
+                    seed += cc::utils::toUint(4 + ds.beginAccesses.size() + ds.endAccesses.size());
+                } else {
+                    const auto& ds = info.depthStencilAttachment;
+                    seed += cc::utils::toUint(6 + ds.beginAccesses.size() + ds.endAccesses.size());
+                }
+            }
+        }
+        for (const auto& subpass : info.subpasses) {
+            for (const uint32_t iaIndex : subpass.inputs) {
+                if (iaIndex >= info.colorAttachments.size()) break;
+                computeAttachmentHash(info.colorAttachments[iaIndex], seed);
+            }
+            for (const uint32_t caIndex : subpass.colors) {
+                if (caIndex >= info.colorAttachments.size()) break;
+                computeAttachmentHash(info.colorAttachments[caIndex], seed);
+            }
+            for (const uint32_t raIndex : subpass.resolves) {
+                if (raIndex >= info.colorAttachments.size()) break;
+                computeAttachmentHash(info.colorAttachments[raIndex], seed);
+            }
+            for (const uint32_t paIndex : subpass.preserves) {
+                if (paIndex >= info.colorAttachments.size()) break;
+                computeAttachmentHash(info.colorAttachments[paIndex], seed);
+            }
+            if (subpass.depthStencil != cc::gfx::INVALID_BINDING) {
+                if (subpass.depthStencil < info.colorAttachments.size()) {
+                    computeAttachmentHash(info.colorAttachments[subpass.depthStencil], seed);
+                } else {
+                    computeDSAttachmentHash(info.depthStencilAttachment, seed);
+                }
+            }
+        }
+    } else {
+        for (const auto& ca : info.colorAttachments) {
+            seed += cc::utils::toUint(4 + ca.beginAccesses.size() + ca.endAccesses.size());
+        }
+        seed += cc::utils::toUint(6 + info.depthStencilAttachment.beginAccesses.size() + info.depthStencilAttachment.endAccesses.size());
+
+        for (const auto& ca : info.colorAttachments) {
+            computeAttachmentHash(ca, seed);
+        }
+        computeDSAttachmentHash(info.depthStencilAttachment, seed);
+    }
+
+    return seed;
+}
+
+std::size_t hash<cc::gfx::FramebufferInfo>::operator()(const cc::gfx::FramebufferInfo& info) const {
+    auto seed = cc::utils::toUint(info.colorTextures.size() * 2 + (info.depthStencilTexture ? 2 : 0));
+    for (const auto* attachment : info.colorTextures) {
+        seed ^= attachment->getHash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= attachment->getTypedID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    if (info.depthStencilTexture) {
+        seed ^= info.depthStencilTexture->getHash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= info.depthStencilTexture->getTypedID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+}
+
+std::size_t hash<cc::gfx::TextureInfo>::operator()(const cc::gfx::TextureInfo& info) const {
+    uint32_t seed = 10;
+    seed ^= toNumber(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.samples) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.width + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.height + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.depth + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.layerCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.levelCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
+}
+
+std::size_t hash<cc::gfx::TextureViewInfo>::operator()(const cc::gfx::TextureViewInfo& info) const {
+    uint32_t seed = 7;
+    seed ^= info.texture->getHash() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.baseLevel + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.levelCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.baseLayer + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.layerCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
+}
+
+std::size_t hash<cc::gfx::BufferInfo>::operator()(const cc::gfx::BufferInfo& info) const {
+    uint32_t seed = 4;
+    seed ^= toNumber(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.memUsage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= toNumber(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.size + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    return seed;
+}
+} // namespace std
 
 namespace cc {
 namespace gfx {
+
+bool operator==(const ColorAttachment& lhs, const ColorAttachment& rhs) {
+    return lhs.format == rhs.format &&
+           lhs.sampleCount == rhs.sampleCount &&
+           lhs.loadOp == rhs.loadOp &&
+           lhs.storeOp == rhs.storeOp &&
+           lhs.isGeneralLayout == rhs.isGeneralLayout &&
+           lhs.beginAccesses == rhs.beginAccesses &&
+           lhs.endAccesses == rhs.endAccesses;
+}
+
+bool operator==(const DepthStencilAttachment& lhs, const DepthStencilAttachment& rhs) {
+    return lhs.format == rhs.format &&
+           lhs.sampleCount == rhs.sampleCount &&
+           lhs.depthLoadOp == rhs.depthLoadOp &&
+           lhs.depthStoreOp == rhs.depthStoreOp &&
+           lhs.stencilLoadOp == rhs.stencilLoadOp &&
+           lhs.stencilStoreOp == rhs.stencilStoreOp &&
+           lhs.isGeneralLayout == rhs.isGeneralLayout &&
+           lhs.beginAccesses == rhs.beginAccesses &&
+           lhs.endAccesses == rhs.endAccesses;
+}
+
+bool operator==(const SubpassInfo& lhs, const SubpassInfo& rhs) {
+    return lhs.colors == rhs.colors &&
+           lhs.resolves == rhs.resolves &&
+           lhs.inputs == rhs.inputs &&
+           lhs.preserves == rhs.preserves &&
+           lhs.depthStencil == rhs.depthStencil &&
+           lhs.depthStencilResolve == rhs.depthStencilResolve &&
+           lhs.depthResolveMode == rhs.depthResolveMode &&
+           lhs.stencilResolveMode == rhs.stencilResolveMode;
+}
+
+bool operator==(const SubpassDependency& lhs, const SubpassDependency& rhs) {
+    return lhs.srcAccesses == rhs.srcAccesses &&
+           lhs.dstAccesses == rhs.dstAccesses &&
+           lhs.srcSubpass == rhs.srcSubpass &&
+           lhs.dstSubpass == rhs.dstSubpass;
+}
+
+bool operator==(const RenderPassInfo& lhs, const RenderPassInfo& rhs) {
+    return lhs.colorAttachments == rhs.colorAttachments &&
+           lhs.depthStencilAttachment == rhs.depthStencilAttachment &&
+           lhs.subpasses == rhs.subpasses &&
+           lhs.dependencies == rhs.dependencies;
+}
+
+bool operator==(const FramebufferInfo& lhs, const FramebufferInfo& rhs) {
+    return lhs.renderPass == rhs.renderPass &&
+           lhs.colorTextures == rhs.colorTextures &&
+           lhs.depthStencilTexture == rhs.depthStencilTexture;
+}
+
+bool operator==(const TextureInfo& lhs, const TextureInfo& rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(TextureInfo));
+}
+
+bool operator==(const TextureViewInfo& lhs, const TextureViewInfo& rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(TextureViewInfo));
+}
+
+bool operator==(const BufferInfo& lhs, const BufferInfo& rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(BufferInfo));
+}
 
 const FormatInfo GFX_FORMAT_INFOS[] = {
     {"UNKNOWN", 0, 0, FormatType::NONE, false, false, false, false},

@@ -36,8 +36,6 @@
 namespace cc {
 namespace framegraph {
 
-#define PRESENT_USING_MOVE_SEMANTIC 1
-
 namespace {
 // use function scoped static member
 // to ensure correct initialization order
@@ -47,10 +45,6 @@ StringPool &getStringPool() {
 }
 } // namespace
 
-FrameGraph::~FrameGraph() {
-    gc(0);
-}
-
 StringHandle FrameGraph::stringToHandle(const char *const name) {
     return getStringPool().stringToHandle(name);
 }
@@ -59,20 +53,8 @@ const char *FrameGraph::handleToString(const StringHandle &handle) noexcept {
     return getStringPool().handleToString(handle);
 }
 
-void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
+void FrameGraph::present(const TextureHandle &input, gfx::Texture *target, bool useMoveSemantic) {
     static const StringHandle PRESENT_PASS{FrameGraph::stringToHandle("Present")};
-    // using a global map here so that the user don't need to worry about importing the targets every frame
-    static std::unordered_map<uint32_t, std::pair<StringHandle, Texture>> presentTargets;
-    if (!presentTargets.count(target->getTypedID())) {
-        auto name = FrameGraph::stringToHandle(StringUtil::format("Present Target %d", target->getTypedID()).c_str());
-        presentTargets.emplace(std::piecewise_construct, std::forward_as_tuple(target->getTypedID()), std::forward_as_tuple(name, Texture{target}));
-    }
-    auto &        resourceInfo{presentTargets[target->getTypedID()]};
-    TextureHandle output{getBlackboard().get(resourceInfo.first)};
-    if (!output.isValid()) {
-        output = importExternal(resourceInfo.first, resourceInfo.second);
-        getBlackboard().put(resourceInfo.first, output);
-    }
 
     const ResourceNode &resourceNode{getResourceNode(input)};
     CC_ASSERT(resourceNode.writer);
@@ -85,11 +67,24 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
         resourceNode.writer->_insertPoint, PRESENT_PASS,
         [&](PassNodeBuilder &builder, PassDataPresent &data) {
             data.input = builder.read(input);
-#if PRESENT_USING_MOVE_SEMANTIC
-            move(data.input, output, 0, 0, 0);
-            data.input = output;
-#endif
             builder.sideEffect();
+
+            if (useMoveSemantic) {
+                // using a global map here so that the user don't need to worry about importing the targets every frame
+                static std::unordered_map<uint32_t, std::pair<StringHandle, Texture>> presentTargets;
+                if (!presentTargets.count(target->getTypedID())) {
+                    auto name = FrameGraph::stringToHandle(StringUtil::format("Present Target %d", target->getTypedID()).c_str());
+                    presentTargets.emplace(std::piecewise_construct, std::forward_as_tuple(target->getTypedID()), std::forward_as_tuple(name, Texture{target}));
+                }
+                auto &        resourceInfo{presentTargets[target->getTypedID()]};
+                TextureHandle output{getBlackboard().get(resourceInfo.first)};
+                if (!output.isValid()) {
+                    output = importExternal(resourceInfo.first, resourceInfo.second);
+                    getBlackboard().put(resourceInfo.first, output);
+                }
+                move(data.input, output, 0, 0, 0);
+                data.input = output;
+            }
         },
         [target](const PassDataPresent &data, const DevicePassResourceTable &table) {
             auto *cmdBuff = gfx::Device::getInstance()->getCommandBuffer();
@@ -106,17 +101,17 @@ void FrameGraph::present(const TextureHandle &input, gfx::Texture *target) {
         });
 }
 
-void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource, gfx::Texture *target) {
+void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource, gfx::Texture *target, bool useMoveSemantic) {
     const auto it = std::find_if(_resourceNodes.rbegin(), _resourceNodes.rend(), [&virtualResource](const ResourceNode &node) {
         return node.virtualResource == virtualResource;
     });
 
     CC_ASSERT(it != _resourceNodes.rend());
-    present(TextureHandle(static_cast<Handle::IndexType>(it.base() - _resourceNodes.begin() - 1)), target);
+    present(TextureHandle(static_cast<Handle::IndexType>(it.base() - _resourceNodes.begin() - 1)), target, useMoveSemantic);
 }
 
-void FrameGraph::presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target) {
-    present(TextureHandle(_blackboard.get(inputName)), target);
+void FrameGraph::presentFromBlackboard(const StringHandle &inputName, gfx::Texture *target, bool useMoveSemantic) {
+    present(TextureHandle(_blackboard.get(inputName)), target, useMoveSemantic);
 }
 
 void FrameGraph::compile() {

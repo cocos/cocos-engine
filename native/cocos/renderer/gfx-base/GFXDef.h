@@ -25,10 +25,34 @@
 
 #pragma once
 
+#include <functional>
 #include "GFXDef-common.h"
+
+namespace std {
+template <>
+struct hash<cc::gfx::RenderPassInfo> { std::size_t operator()(const cc::gfx::RenderPassInfo& info) const; };
+template <>
+struct hash<cc::gfx::FramebufferInfo> { std::size_t operator()(const cc::gfx::FramebufferInfo& info) const; };
+template <>
+struct hash<cc::gfx::TextureInfo> { std::size_t operator()(const cc::gfx::TextureInfo& info) const; };
+template <>
+struct hash<cc::gfx::TextureViewInfo> { std::size_t operator()(const cc::gfx::TextureViewInfo& info) const; };
+template <>
+struct hash<cc::gfx::BufferInfo> { std::size_t operator()(const cc::gfx::BufferInfo& info) const; };
+} // namespace std
 
 namespace cc {
 namespace gfx {
+
+extern bool operator==(const ColorAttachment& lhs, const ColorAttachment& rhs);
+extern bool operator==(const DepthStencilAttachment& lhs, const DepthStencilAttachment& rhs);
+extern bool operator==(const SubpassInfo& lhs, const SubpassInfo& rhs);
+extern bool operator==(const SubpassDependency& lhs, const SubpassDependency& rhs);
+extern bool operator==(const RenderPassInfo& lhs, const RenderPassInfo& rhs);
+extern bool operator==(const FramebufferInfo& lhs, const FramebufferInfo& rhs);
+extern bool operator==(const TextureInfo& lhs, const TextureInfo& rhs);
+extern bool operator==(const TextureViewInfo& lhs, const TextureViewInfo& rhs);
+extern bool operator==(const BufferInfo& lhs, const BufferInfo& rhs);
 
 struct SwapchainTextureInfo {
     Swapchain* swapchain{nullptr};

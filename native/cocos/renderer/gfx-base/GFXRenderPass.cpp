@@ -27,6 +27,8 @@
 
 #include "GFXObject.h"
 #include "GFXRenderPass.h"
+#include "base/Utils.h"
+#include "gfx-base/GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
@@ -114,103 +116,8 @@ uint32_t RenderPass::computeHash() {
 }
 
 uint32_t RenderPass::computeHash(const RenderPassInfo &info) {
-    static auto computeAttachmentHash = [](const ColorAttachment &attachment, uint32_t &seed) {
-        seed ^= static_cast<uint32_t>(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.loadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.storeOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        for (AccessType type : attachment.beginAccesses) {
-            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        }
-        for (AccessType type : attachment.endAccesses) {
-            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        }
-    };
-    static auto computeDSAttachmentHash = [](const DepthStencilAttachment &attachment, uint32_t &seed) {
-        seed ^= static_cast<uint32_t>(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.depthLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.depthStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.stencilLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attachment.stencilStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        for (AccessType type : attachment.beginAccesses) {
-            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        }
-        for (AccessType type : attachment.endAccesses) {
-            seed ^= static_cast<uint32_t>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        }
-    };
-    uint32_t seed = 0;
-    if (!info.subpasses.empty()) {
-        for (const SubpassInfo &subpass : info.subpasses) {
-            for (const uint32_t iaIndex : subpass.inputs) {
-                if (iaIndex >= info.colorAttachments.size()) break;
-                const ColorAttachment &ia = info.colorAttachments[iaIndex];
-                seed += static_cast<uint32_t>(4 + ia.beginAccesses.size() + ia.endAccesses.size());
-            }
-            for (const uint32_t caIndex : subpass.colors) {
-                if (caIndex >= info.colorAttachments.size()) break;
-                const ColorAttachment &ca = info.colorAttachments[caIndex];
-                seed += static_cast<uint32_t>(4 + ca.beginAccesses.size() + ca.endAccesses.size());
-            }
-            for (const uint32_t raIndex : subpass.resolves) {
-                if (raIndex >= info.colorAttachments.size()) break;
-                const ColorAttachment &ra = info.colorAttachments[raIndex];
-                seed += static_cast<uint32_t>(4 + ra.beginAccesses.size() + ra.endAccesses.size());
-            }
-            for (const uint32_t paIndex : subpass.preserves) {
-                if (paIndex >= info.colorAttachments.size()) break;
-                const ColorAttachment &pa = info.colorAttachments[paIndex];
-                seed += static_cast<uint32_t>(4 + pa.beginAccesses.size() + pa.endAccesses.size());
-            }
-            if (subpass.depthStencil != INVALID_BINDING) {
-                if (subpass.depthStencil < info.colorAttachments.size()) {
-                    const auto &ds = info.colorAttachments[subpass.depthStencil];
-                    seed += static_cast<uint32_t>(4 + ds.beginAccesses.size() + ds.endAccesses.size());
-                } else {
-                    const auto &ds = info.depthStencilAttachment;
-                    seed += static_cast<uint32_t>(6 + ds.beginAccesses.size() + ds.endAccesses.size());
-                }
-            }
-        }
-        for (const SubpassInfo &subpass : info.subpasses) {
-            for (const uint32_t iaIndex : subpass.inputs) {
-                if (iaIndex >= info.colorAttachments.size()) break;
-                computeAttachmentHash(info.colorAttachments[iaIndex], seed);
-            }
-            for (const uint32_t caIndex : subpass.colors) {
-                if (caIndex >= info.colorAttachments.size()) break;
-                computeAttachmentHash(info.colorAttachments[caIndex], seed);
-            }
-            for (const uint32_t raIndex : subpass.resolves) {
-                if (raIndex >= info.colorAttachments.size()) break;
-                computeAttachmentHash(info.colorAttachments[raIndex], seed);
-            }
-            for (const uint32_t paIndex : subpass.preserves) {
-                if (paIndex >= info.colorAttachments.size()) break;
-                computeAttachmentHash(info.colorAttachments[paIndex], seed);
-            }
-            if (subpass.depthStencil != INVALID_BINDING) {
-                if (subpass.depthStencil < info.colorAttachments.size()) {
-                    computeAttachmentHash(info.colorAttachments[subpass.depthStencil], seed);
-                } else {
-                    computeDSAttachmentHash(info.depthStencilAttachment, seed);
-                }
-            }
-        }
-    } else {
-        for (const ColorAttachment &ca : info.colorAttachments) {
-            seed += static_cast<uint32_t>(4 + ca.beginAccesses.size() + ca.endAccesses.size());
-        }
-        seed += static_cast<uint32_t>(6 + info.depthStencilAttachment.beginAccesses.size() + info.depthStencilAttachment.endAccesses.size());
-
-        for (const ColorAttachment &ca : info.colorAttachments) {
-            computeAttachmentHash(ca, seed);
-        }
-        computeDSAttachmentHash(info.depthStencilAttachment, seed);
-    }
-
-    return seed;
+    std::hash<RenderPassInfo> hasher;
+    return utils::toUint(hasher(info));
 }
 
 void RenderPass::initialize(const RenderPassInfo &info) {

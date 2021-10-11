@@ -650,7 +650,6 @@ SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTextureJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getBuffer);
-SE_DECLARE_FUNC(js_gfx_DescriptorSet_getLayout);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getSampler);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_initialize);
@@ -851,7 +850,7 @@ bool js_register_cc_gfx_DeviceManager(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
+SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_addSurfaceEventListener);
 
