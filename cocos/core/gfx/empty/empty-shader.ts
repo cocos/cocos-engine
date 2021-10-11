@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { debug } from '../../platform/debug';
+import { debug } from '../../platform';
 import { ShaderInfo } from '../base/define';
 import { Shader } from '../base/shader';
 

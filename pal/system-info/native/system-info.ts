@@ -94,10 +94,6 @@ class SystemInfo extends EventTarget {
         return jsb.device.getDevicePixelRatio() || 1;
     }
 
-    get supportWebGL2 (): boolean {
-        return false;
-    }
-
     private _registerEvent () {
         jsb.onPause = () => {
             this.emit('hide');

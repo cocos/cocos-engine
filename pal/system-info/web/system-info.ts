@@ -143,6 +143,13 @@ class SystemInfo extends EventTarget {
 
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');
+        const supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
+        let supportWebGL = false;
+        if (TEST) {
+            supportWebGL = false;
+        } else if (window.WebGLRenderingContext) {
+            supportWebGL = true;
+        }
         let supportWebp;
         try {
             supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
@@ -158,6 +165,13 @@ class SystemInfo extends EventTarget {
             }).catch((err) => {});
         }
 
+        let supportWebGL2 = (!!window.WebGL2RenderingContext);
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+            || this.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
+        ) {
+            supportWebGL2 = false;
+        }
         this._featureMap = {
             [Feature.WEBP]: supportWebp,
             [Feature.IMAGE_BITMAP]: supportImageBitmap,
@@ -177,17 +191,6 @@ class SystemInfo extends EventTarget {
 
     get pixelRatio () {
         return window.devicePixelRatio || 1;
-    }
-
-    get supportWebGL2 (): boolean {
-        let result = (!!window.WebGL2RenderingContext);
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-            || this.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
-        ) {
-            result = false;
-        }
-        return result;
     }
 
     private _registerEvent () {

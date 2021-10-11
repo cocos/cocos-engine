@@ -90,7 +90,6 @@ export class WebGL2Device extends Device {
 
     public initialize (info: DeviceInfo): boolean {
         WebGL2DeviceManager.setInstance(this);
-        this._deviceName = 'WebGL2';
         this._gfxAPI = API.WEBGL2;
 
         this._bindingMappingInfo = info.bindingMappingInfo;

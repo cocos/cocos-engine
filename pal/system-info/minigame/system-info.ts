@@ -1,4 +1,4 @@
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST, RUNTIME_BASED } from 'internal:constants';
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
@@ -121,10 +121,6 @@ class SystemInfo extends EventTarget {
         };
 
         this._registerEvent();
-    }
-
-    get supportWebGL2 (): boolean {
-        return WECHAT || (RUNTIME_BASED && !!window.WebGL2RenderingContext);
     }
 
     private _registerEvent () {

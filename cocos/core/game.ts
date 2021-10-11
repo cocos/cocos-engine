@@ -48,7 +48,6 @@ import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
-import { DeviceManager } from './device-manager';
 
 interface ISceneInfo {
     url: string;
@@ -257,21 +256,12 @@ export class Game extends EventTarget {
      * @zh 使用 OpenGL API 作为渲染器后端。
      */
     public static readonly RENDER_TYPE_OPENGL = 2;
+
     /**
      * @en Headless Renderer, usually used in test or server env
      * @zh 空渲染器，通常用于测试环境或服务器端模式
      */
     public static readonly RENDER_TYPE_HEADLESS = 3;
-    /**
-     * @en METAL API as renderer backend.
-     * @zh 使用 METAL API 作为渲染器后端。
-     */
-    public static readonly RENDER_TYPE_METAL = 4;
-    /**
-     * @en VULKAN API as renderer backend.
-     * @zh 使用 VULKAN API 作为渲染器后端。
-     */
-    public static readonly RENDER_TYPE_VULKAN = 5;
 
     /**
      * @en If delta time since last frame is more than this threshold in seconds,
@@ -296,14 +286,11 @@ export class Game extends EventTarget {
      */
     public canvas: HTMLCanvasElement | null = null;
 
-    private _renderType = -1;
     /**
      * @en The renderer backend of the game.
      * @zh 游戏的渲染器类型。
      */
-    get renderType () {
-        return this._renderType;
-    }
+    public renderType = -1;
 
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
@@ -784,6 +771,10 @@ export class Game extends EventTarget {
         if (typeof config.frameRate !== 'number') {
             config.frameRate = 60;
         }
+        const renderMode = config.renderMode;
+        if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
+            config.renderMode = 0;
+        }
         config.showFPS = !!config.showFPS;
 
         debug._resetDebugSetting(config.debugMode);
@@ -795,29 +786,34 @@ export class Game extends EventTarget {
     }
 
     private _determineRenderType () {
-        if (!this._gfxDevice) {
-            this._renderType = Game.RENDER_TYPE_HEADLESS;
-            return;
+        const config = this.config;
+        const userRenderMode = parseInt(config.renderMode as any, 10);
+
+        // Determine RenderType
+        this.renderType = Game.RENDER_TYPE_CANVAS;
+        let supportRender = false;
+
+        if (userRenderMode === 0) {
+            if (sys.hasFeature(sys.Feature.WEBGL)) {
+                this.renderType = Game.RENDER_TYPE_WEBGL;
+                supportRender = true;
+            } else if (sys.hasFeature(sys.Feature.CANVAS)) {
+                this.renderType = Game.RENDER_TYPE_CANVAS;
+                supportRender = true;
+            }
+        } else if (userRenderMode === 1 && sys.hasFeature(sys.Feature.CANVAS)) {
+            this.renderType = Game.RENDER_TYPE_CANVAS;
+            supportRender = true;
+        } else if (userRenderMode === 2 && sys.hasFeature(sys.Feature.WEBGL)) {
+            this.renderType = Game.RENDER_TYPE_WEBGL;
+            supportRender = true;
+        } else if (userRenderMode === 3) {
+            this.renderType = Game.RENDER_TYPE_HEADLESS;
+            supportRender = true;
         }
-        switch (this._gfxDevice.deviceName) {
-        case 'WebGL':
-        case 'WebGL2':
-            this._renderType = Game.RENDER_TYPE_WEBGL;
-            break;
-        case 'GLES2':
-        case 'GLES3':
-            this._renderType = Game.RENDER_TYPE_OPENGL;
-            break;
-        case 'Metal':
-            this._renderType = Game.RENDER_TYPE_METAL;
-            break;
-        case 'Vulkan':
-            this._renderType = Game.RENDER_TYPE_VULKAN;
-            break;
-        case 'Empty':
-        default:
-            this._renderType = Game.RENDER_TYPE_HEADLESS;
-            break;
+
+        if (!supportRender) {
+            throw new Error(debug.getError(3820, userRenderMode));
         }
     }
 
@@ -833,8 +829,43 @@ export class Game extends EventTarget {
             this.container = adapter.container;
         }
 
-        this._gfxDevice = DeviceManager.create();
         this._determineRenderType();
+
+        // WebGL context created successfully
+        if (this.renderType === Game.RENDER_TYPE_WEBGL) {
+            const ctors: Constructor<Device>[] = [];
+
+            const deviceInfo = new DeviceInfo(bindingMappingInfo);
+
+            if (JSB && window.gfx) {
+                this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
+            } else {
+                if (sys.hasFeature(sys.Feature.WEBGL2) && legacyCC.WebGL2Device) {
+                    ctors.push(legacyCC.WebGL2Device);
+                }
+                if (legacyCC.WebGLDevice) {
+                    ctors.push(legacyCC.WebGLDevice);
+                }
+                if (legacyCC.EmptyDevice) {
+                    ctors.push(legacyCC.EmptyDevice);
+                }
+
+                for (let i = 0; i < ctors.length; i++) {
+                    this._gfxDevice = new ctors[i]();
+                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
+                }
+            }
+        } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {
+            this._gfxDevice = new legacyCC.EmptyDevice();
+            this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
+        }
+
+        if (!this._gfxDevice) {
+            // todo fix here for wechat game
+            debug.error('can not support canvas rendering in 3D');
+            this.renderType = Game.RENDER_TYPE_CANVAS;
+            return;
+        }
 
         const swapchainInfo = new SwapchainInfo(this.canvas!);
         swapchainInfo.width = sys.windowPixelResolution.width;
