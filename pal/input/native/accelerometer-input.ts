@@ -8,8 +8,6 @@ import { Acceleration, EventAcceleration } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class AccelerometerInputSource {
-    public support: boolean;
-
     private _intervalInSeconds = 0.2;
     private _intervalId? :number;
     private _isEnabled = false;
@@ -17,8 +15,6 @@ export class AccelerometerInputSource {
     private _didAccelerateFunc: () => void;
 
     constructor () {
-        const support = systemInfo.isMobile;
-        this.support = support;
         this._didAccelerateFunc = this._didAccelerate.bind(this);
     }
 

@@ -1,7 +1,7 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/system-info';
+import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
@@ -17,8 +17,8 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
-    public readonly supportCapability: SupportCapability;
     private _battery?: any;
+    private _featureMap: IFeatureMap;
 
     constructor () {
         super();
@@ -164,11 +164,19 @@ class SystemInfo extends EventTarget {
                 imageBitmap?.close();
             }).catch((err) => {});
         }
-        this.supportCapability = {
-            webp: supportWebp,
-            gl: supportWebGL,
-            canvas: supportCanvas,
-            imageBitmap: supportImageBitmap,
+
+        this._featureMap = {
+            [Feature.WEBP]: supportWebp,
+            [Feature.IMAGE_BITMAP]: supportImageBitmap,
+            [Feature.WEB_VIEW]: true,
+            [Feature.VIDEO_PLAYER]: true,
+            [Feature.SAFE_AREA]: false,
+
+            [Feature.INPUT_TOUCH]: (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined),
+            [Feature.EVENT_KEYBOARD]: document.documentElement.onkeyup !== undefined,
+            [Feature.EVENT_MOUSE]: !EDITOR && document.documentElement.onmouseup !== undefined,
+            [Feature.EVENT_TOUCH]: true,
+            [Feature.EVENT_ACCELEROMETER]: (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined),
         };
 
         this._registerEvent();
@@ -244,6 +252,10 @@ class SystemInfo extends EventTarget {
             document.addEventListener('pagehide', onHidden);
             document.addEventListener('pageshow', onShown);
         }
+    }
+
+    public hasFeature (feature: Feature): boolean {
+        return this._featureMap[feature];
     }
 
     public getBatteryLevel (): number {
