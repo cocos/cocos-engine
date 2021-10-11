@@ -11,8 +11,6 @@ export interface MotionEvalContext extends BindContext {
     blendBuffer: BlendStateBuffer;
 
     mask?: SkeletonMask;
-
-    startRatio: number;
 }
 
 export interface MotionEval {

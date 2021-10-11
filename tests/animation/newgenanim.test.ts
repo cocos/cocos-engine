@@ -38,10 +38,7 @@ describe('NewGen Anim', () => {
         expect(animState.name).toBe('');
         expect(animState.speed.variable).toBe('');
         expect(animState.speed.value).toBe(1.0);
-        expect(animState.loop).toBe(true);
         expect(animState.motion).toBeNull();
-        expect(animState.startRatio.variable).toBe('');
-        expect(animState.startRatio.value).toBe(0.0);
 
         testGraphDefaults(layerGraph.addSubStateMachine().stateMachine);
 

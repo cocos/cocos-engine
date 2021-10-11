@@ -929,10 +929,8 @@ export class MotionStateEval extends StateEval {
             this,
         );
         this._speed = speed;
-        this.startRatio = node.startRatio.value;
         const sourceEvalContext: MotionEvalContext = {
             ...context,
-            startRatio: node.startRatio.value,
         };
         const sourceEval = node.motion?.[createEval](sourceEvalContext) ?? null;
         if (sourceEval) {
@@ -943,8 +941,6 @@ export class MotionStateEval extends StateEval {
     }
 
     public readonly kind = NodeKind.animation;
-
-    public startRatio: number;
 
     public declare components: InstantiatedComponents;
 
