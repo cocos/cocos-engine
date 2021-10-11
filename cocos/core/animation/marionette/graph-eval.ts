@@ -976,11 +976,13 @@ export class MotionStateEval extends StateEval {
     }
 
     public sampleFromPort (weight: number) {
-        this._source?.sample(this._fromPort.progress, weight);
+        const normalized = normalizeProgress(this._fromPort.progress);
+        this._source?.sample(normalized, weight);
     }
 
     public sampleToPort (weight: number) {
-        this._source?.sample(this._toPort.progress, weight);
+        const normalized = normalizeProgress(this._toPort.progress);
+        this._source?.sample(normalized, weight);
     }
 
     public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
@@ -1014,6 +1016,10 @@ function calcProgressUpdate (currentProgress: number, duration: number, deltaTim
         return 0.0;
     }
     const progress = currentProgress + deltaTime / duration;
+    return progress;
+}
+
+function normalizeProgress (progress: number) {
     return progress - Math.trunc(progress);
 }
 

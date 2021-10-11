@@ -336,6 +336,50 @@ describe('NewGen Anim', () => {
             }
         });
 
+        test(`Exit time > 1`, () => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+
+            const animState1 = graph.addMotion();
+            animState1.name = 'AnimState';
+            const animState1Clip = animState1.motion = createClipMotionPositionX(1.0, 2.0, 'AnimState1Clip');
+            
+            const animState2 = graph.addMotion();
+            animState2.name = 'AnimState';
+            const animState2Clip = animState2.motion = createClipMotionPositionX(1.0, 2.0, 'AnimState2Clip');
+
+            graph.connect(graph.entryState, animState1);
+            const node1To2 = graph.connect(animState1, animState2);
+            node1To2.duration = 0.3;
+            node1To2.exitConditionEnabled = true;
+            node1To2.exitCondition = 2.7;
+
+            const graphEval = createAnimationGraphEval(animationGraph, new Node());
+            graphEval.update(animState1Clip.clip!.duration * 1.1);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: animState1Clip.clip!,
+                    weight: 1.0,
+                },
+            });
+
+            graphEval.update(animState1Clip.clip!.duration * 1.8);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: animState1Clip.clip!,
+                    weight: 0.333333,
+                },
+                transition: {
+                    time: 0.2,
+                    next: {
+                        clip: animState2Clip.clip!,
+                        weight: 0.666667,
+                    },
+                },
+            });
+        });
+
         test(`Transition into subgraph`, () => {
             const animationGraph = new AnimationGraph();
             const layer = animationGraph.addLayer();
