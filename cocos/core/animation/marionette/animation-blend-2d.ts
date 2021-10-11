@@ -5,9 +5,8 @@ import { createEval } from './create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem, validateBlendParam } from './animation-blend';
 import { Motion, MotionEvalContext } from './motion';
 import { serializable, type } from '../../data/decorators';
-import { BindableNumber, bindOr } from './parametric';
+import { BindableNumber, bindOr, VariableType } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
-import { VariableType } from '.';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 

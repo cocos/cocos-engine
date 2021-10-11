@@ -1,11 +1,10 @@
 import { serializable } from 'cc.decorator';
 import { ccclass } from '../../data/class-decorator';
 import { createEval } from './create-eval';
-import { BindableNumber, bindOr } from './parametric';
+import { BindableNumber, bindOr, VariableType } from './parametric';
 import { Motion, MotionEval, MotionEvalContext } from './motion';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem, validateBlendParam } from './animation-blend';
 import { blend1D } from './blend-1d';
-import { VariableType } from '.';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 

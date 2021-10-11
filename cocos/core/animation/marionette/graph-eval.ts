@@ -5,7 +5,7 @@ import { MotionEval, MotionEvalContext } from './motion';
 import type { Node } from '../../scene-graph/node';
 import { createEval } from './create-eval';
 import { Value } from './variable';
-import { BindContext, bindOr } from './parametric';
+import { BindContext, bindOr, VariableType } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { MotionState } from './motion-state';
@@ -17,7 +17,6 @@ import { AnimationClip } from '../animation-clip';
 import type { AnimationController } from './animation-controller';
 import { StateMachineComponent } from './state-machine-component';
 import { InteractiveState } from './state';
-import { VariableType } from '.';
 
 export class AnimationGraphEval {
     private declare _layerEvaluations: LayerEval[];
