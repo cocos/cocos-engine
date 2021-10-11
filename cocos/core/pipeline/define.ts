@@ -120,8 +120,8 @@ export enum PipelineGlobalBindings {
 
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
-    SAMPLER_DIFFUSEMAP,
     SAMPLER_SPOT_LIGHTING_MAP,
+    SAMPLER_DIFFUSEMAP,
 
     COUNT,
 }
