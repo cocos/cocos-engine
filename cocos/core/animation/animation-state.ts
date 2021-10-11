@@ -37,7 +37,9 @@ import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { debug } from '../platform/debug';
+import { SkeletonMask } from './skeleton-mask';
 import { PoseOutput } from './pose-output';
+import { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 
 /**
  * @en The event type supported by Animation
@@ -322,7 +324,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node) {
+    public initialize (root: Node, blendStateBuffer?: BlendStateBuffer, mask?: SkeletonMask) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         if (this._poseOutput) {
@@ -352,7 +354,7 @@ export class AnimationState extends Playable {
         }
 
         if (!this._doNotCreateEval) {
-            const pose = legacyCC.director.getAnimationManager()?.blendState ?? null;
+            const pose = blendStateBuffer ?? legacyCC.director.getAnimationManager()?.blendState ?? null;
             if (pose) {
                 this._poseOutput = new PoseOutput(pose);
             }
