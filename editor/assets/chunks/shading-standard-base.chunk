@@ -12,7 +12,7 @@
   #include <unpack>
 
   #if CC_USE_DIFFUSEMAP
-    #include <cc-diffuseMap>
+    #include <cc-diffusemap>
   #endif
 #endif
 
