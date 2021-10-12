@@ -70,7 +70,7 @@ class ScreenAdapter extends EventTarget {
         this.emit('resolution-change');
     }
 
-    private _resolutionScale = 1;  // TODO: native not support resize resolution for now
+    private _resolutionScale = 1;
     public get resolutionScale () {
         return this._resolutionScale;
     }

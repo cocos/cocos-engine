@@ -7,9 +7,6 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
-// NOTE: on BAIDU iOS end, when the resolutionScale is lower than 1, the canvas size will be resized.
-const fallbackResolutionScaleOne = RUNTIME_BASED || (BAIDU && systemInfo.os === OS.IOS) || ALIPAY;
-
 class ScreenAdapter extends EventTarget {
     private _cbToUpdateFrameBuffer?: () => void;
     public isFrameRotated = false;
@@ -87,14 +84,11 @@ class ScreenAdapter extends EventTarget {
         this.emit('resolution-change');
     }
 
-    private _resolutionScale = fallbackResolutionScaleOne ? 1 : 2;
+    private _resolutionScale = 1;
     public get resolutionScale () {
         return this._resolutionScale;
     }
     public set resolutionScale (value: number) {
-        if (fallbackResolutionScaleOne) {
-            value = 1;
-        }
         if (value === this._resolutionScale) {
             return;
         }

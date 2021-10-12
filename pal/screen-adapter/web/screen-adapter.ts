@@ -6,8 +6,6 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
-const fallbackResolutionScaleOne = TEST || EDITOR;
-
 interface IScreenFunctionName {
     requestFullscreen: string,
     exitFullscreen: string,
@@ -195,7 +193,7 @@ class ScreenAdapter extends EventTarget {
         this.emit('resolution-change');
     }
 
-    private _resolutionScale = fallbackResolutionScaleOne ? 1 : 2;
+    private _resolutionScale = 1;
     public get resolutionScale () {
         return this._resolutionScale;
     }
