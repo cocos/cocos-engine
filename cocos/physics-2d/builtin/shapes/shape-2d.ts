@@ -12,6 +12,8 @@ export class BuiltinShape2D implements IBaseShape {
 
     protected _worldAabb = new Rect();
 
+    protected _activated: boolean = false;
+
     get impl () {
         return null;
     }
@@ -33,10 +35,12 @@ export class BuiltinShape2D implements IBaseShape {
 
     onEnable () {
         (PhysicsSystem2D.instance.physicsWorld as BuiltinPhysicsWorld).addShape(this);
+        this._activated = true;
     }
 
     onDisable () {
         (PhysicsSystem2D.instance.physicsWorld as BuiltinPhysicsWorld).removeShape(this);
+        this._activated = false;
     }
 
     start () {
@@ -64,6 +68,7 @@ export class BuiltinShape2D implements IBaseShape {
     }
 
     onGroupChanged () {
+        if(!this._activated) return;
         (PhysicsSystem2D.instance.physicsWorld as BuiltinPhysicsWorld).updateShapeGroup(this);
     }
 }

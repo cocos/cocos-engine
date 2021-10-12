@@ -65,6 +65,7 @@ export class b2Shape2D implements IBaseShape {
     }
 
     apply () {
+        if (!this._init || PhysicsSystem2D.instance.stepping) return;
         this._destroy();
         this._init();
     }
