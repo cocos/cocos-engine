@@ -594,7 +594,16 @@ export class Game extends EventTarget {
         }
         garbageCollectionManager.init();
 
-        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash());
+        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
+            screenAdapter.init(() => {
+                const director = legacyCC.director;
+                if (!director.root) {
+                    debug.warn('Invalid setting screen.resolutionScale, director.root has not been defined.');
+                    return;
+                }
+                director.root.pipeline.pipelineSceneData.shadingScale = screenAdapter.resolutionScale;
+            });
+        });
     }
 
     //  @ Persist root node section
@@ -664,13 +673,6 @@ export class Game extends EventTarget {
         this._initDevice();
         const director = legacyCC.director;
         return Promise.resolve(director._init()).then(() => {
-            screenAdapter.init(() => {
-                if (!director.root) {
-                    debug.warn('Invalid setting screen.resolutionScale, director.root has not beed defined.');
-                    return;
-                }
-                director.root.resize(screenAdapter.resolution.width, screenAdapter.resolution.height);
-            });
             legacyCC.view.init();
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
