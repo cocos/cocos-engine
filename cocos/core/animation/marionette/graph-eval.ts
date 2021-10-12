@@ -222,6 +222,10 @@ class LayerEval {
     public getCurrentTransition (transitionStatus: TransitionStatus): boolean {
         const { _currentTransitionPath: currentTransitionPath } = this;
         if (currentTransitionPath.length !== 0) {
+            const lastNode = currentTransitionPath[currentTransitionPath.length - 1];
+            if (lastNode.to.kind !== NodeKind.animation) {
+                return false;
+            }
             const {
                 duration,
                 normalizedDuration,
@@ -393,6 +397,11 @@ class LayerEval {
         assertIsTrue(!this.exited);
         graphDebugGroup(`[Layer ${this.name}]: UpdateStart ${deltaTime}s`);
 
+        const haltOnNonMotionState = this._continueDanglingTransition();
+        if (haltOnNonMotionState) {
+            return 0.0;
+        }
+
         const MAX_ITERATIONS = 100;
         let passConsumed = 0.0;
 
@@ -458,7 +467,10 @@ class LayerEval {
                 }
 
                 remainTimePiece -= updateRequires;
-                this._switchTo(transition);
+                const ranIntoNonMotionState = this._switchTo(transition);
+                if (ranIntoNonMotionState) {
+                    break;
+                }
 
                 continueNextIterationForce = true;
             } else { // If no transition matched, we update current node.
@@ -621,59 +633,110 @@ class LayerEval {
         return null;
     }
 
+    /**
+     * Try switch current node using specified transition.
+     * @param transition The transition.
+     * @returns If the transition finally ran into entry/exit state.
+     */
     private _switchTo (transition: TransitionEval) {
         const { _currentNode: currentNode } = this;
 
         graphDebugGroup(`[SubStateMachine ${this.name}]: STARTED ${currentNode.name} -> ${transition.to.name}.`);
 
-        // TODO: what if the first is entry(ie. not animation play)?
-        // TODO: what if two of the path use same trigger?
-        let currentTransition = transition;
         const { _currentTransitionPath: currentTransitionPath } = this;
-        for (; ;) {
-            // Reset triggers
-            this._resetTriggersOnTransition(currentTransition);
 
-            currentTransitionPath.push(currentTransition);
-            const { to } = currentTransition;
-            if (to.kind === NodeKind.animation) {
-                break;
+        this._consumeTransition(transition);
+        currentTransitionPath.push(transition);
+
+        const motionNode = this._matchTransitionPathUntilMotion();
+        if (motionNode) {
+            // Apply transitions
+            this._doTransitionToMotion(motionNode);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Called every frame(not every iteration).
+     * Returns if we ran into an entry/exit node and still no satisfied transition matched this frame.
+     */
+    private _continueDanglingTransition () {
+        const {
+            _currentTransitionPath: currentTransitionPath,
+        } = this;
+
+        const lenCurrentTransitionPath = currentTransitionPath.length;
+
+        if (lenCurrentTransitionPath === 0) {
+            return false;
+        }
+
+        const lastTransition = currentTransitionPath[lenCurrentTransitionPath - 1];
+        const tailNode = lastTransition.to;
+
+        if (tailNode.kind !== NodeKind.animation) {
+            const motionNode = this._matchTransitionPathUntilMotion();
+            if (motionNode) {
+                // Apply transitions
+                this._doTransitionToMotion(motionNode);
+                return false;
+            } else {
+                return true;
             }
+        }
 
-            if (to.kind === NodeKind.entry) {
-                // We're entering a state machine
-                this._callEnterMethods(to);
-            }
+        return false;
+    }
 
+    private _matchTransitionPathUntilMotion () {
+        const {
+            _currentTransitionPath: currentTransitionPath,
+        } = this;
+
+        const lenCurrentTransitionPath = currentTransitionPath.length;
+        assertIsTrue(lenCurrentTransitionPath !== 0);
+
+        const lastTransition = currentTransitionPath[lenCurrentTransitionPath - 1];
+        let tailNode = lastTransition.to;
+        for (; tailNode.kind !== NodeKind.animation;) {
             const transitionMatch = this._matchTransition(
-                to,
-                to,
+                tailNode,
+                tailNode,
                 0.0,
                 transitionMatchCache,
             );
             if (!transitionMatch) {
                 break;
             }
-            currentTransition = transitionMatch.transition;
+            const transition = transitionMatch.transition;
+            this._consumeTransition(transition);
+            currentTransitionPath.push(transition);
+            tailNode = transition.to;
         }
 
-        const realTargetNode = currentTransition.to;
-        if (realTargetNode.kind !== NodeKind.animation) {
-            // We ran into a exit/entry node.
-            // Current: ignore the transition, but triggers are consumed
-            // TODO: what should we done here?
-            currentTransitionPath.length = 0;
-            return;
-        }
+        return tailNode.kind === NodeKind.animation ? tailNode : null;
+    }
 
-        // Apply transitions
+    private _consumeTransition (transition: TransitionEval) {
+        const { to } = transition;
+
+        // Reset triggers
+        this._resetTriggersOnTransition(transition);
+
+        if (to.kind === NodeKind.entry) {
+            // We're entering a state machine
+            this._callEnterMethods(to);
+        }
+    }
+
+    private _doTransitionToMotion (targetNode: MotionStateEval) {
         this._transitionProgress = 0.0;
-        this._currentTransitionToNode = realTargetNode;
+        this._currentTransitionToNode = targetNode;
 
-        realTargetNode.resetToPort();
-        this._callEnterMethods(realTargetNode);
-
-        graphDebugGroupEnd();
+        targetNode.resetToPort();
+        this._callEnterMethods(targetNode);
     }
 
     /**
