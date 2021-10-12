@@ -26,7 +26,8 @@
         "tween": { "modules": [ "tween" ] },
         "tiled-map": { "modules": [ "tiled-map" ] },
         "spine": { "modules": [ "spine" ] },
-        "dragon-bones": { "modules": [ "dragon-bones" ] }
+        "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "ar": { "modules": [ "ar" ] }
     },
     "moduleOverrides": [
         {

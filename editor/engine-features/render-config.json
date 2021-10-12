@@ -179,6 +179,14 @@
             "native": "USE_DRAGONBONES",
 	        "wechatPlugin": true,
             "category": "2d"
+        },
+        "ar": {
+            "default": ["ar"],
+            "label": "i18n:ENGINE.features.ar.label",
+            "description": "i18n:ENGINE.features.ar.description",
+            "native": "USE_AR_MODULE",
+            "wechatPlugin": false,
+            "category": "3d"
         }
     },
     "categories": {

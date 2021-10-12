@@ -818,6 +818,10 @@ module.exports = {
             label: "DragonBones",
             description: "DragonBones support.",
         },
+        ar: {
+            label: "AR Module",
+            description: "native AR support.",
+        },
     },
     renderable_2d: {
         srcBlendFactor: 'Specifies the source blend mode, it will clone a new material object.',

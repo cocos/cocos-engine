@@ -799,6 +799,10 @@ module.exports = {
             label: "DragonBones",
             description: "DragonBones 支持。",
         },
+        ar: {
+            label: "AR Module",
+            description: "native AR 支持。",
+        },
     },
     renderable_2d: {
         srcBlendFactor: '指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗',
