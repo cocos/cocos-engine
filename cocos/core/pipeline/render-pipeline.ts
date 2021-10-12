@@ -258,15 +258,12 @@ export abstract class RenderPipeline extends Asset {
         return true;
     }
 
-    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
-        let renderPass = this._renderPasses.get(clearFlags);
-        if (renderPass) { return renderPass; }
-
+    public createRenderPass (clearFlags: ClearFlags, colorFmt: Format, depthFmt: Format): RenderPass {
         const device = this._device;
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
-        colorAttachment.format = swapchain.colorTexture.format;
-        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
+        colorAttachment.format = colorFmt;
+        depthStencilAttachment.format = depthFmt;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
@@ -286,9 +283,15 @@ export abstract class RenderPipeline extends Asset {
         depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
-        renderPass = device.createRenderPass(renderPassInfo);
-        this._renderPasses.set(clearFlags, renderPass);
 
+        return device.createRenderPass(renderPassInfo);
+    }
+
+    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
+        let renderPass = this._renderPasses.get(clearFlags);
+        if (renderPass) { return renderPass; }
+        renderPass = this.createRenderPass(clearFlags, swapchain.colorTexture.format, swapchain.depthStencilTexture.format);
+        this._renderPasses.set(clearFlags, renderPass);
         return renderPass;
     }
 
@@ -581,7 +584,7 @@ export abstract class RenderPipeline extends Asset {
 
         // create renderPass
         const colorAttachment = new ColorAttachment();
-        colorAttachment.format = Format.RGBA16F;
+        colorAttachment.format = Format.BGRA8;
         colorAttachment.loadOp = LoadOp.CLEAR;
         colorAttachment.storeOp = StoreOp.STORE;
         colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -594,7 +597,7 @@ export abstract class RenderPipeline extends Asset {
         bloom.prefiterTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
+            Format.BGRA8,
             curWidth >> 1,
             curHeight >> 1,
         ));
@@ -610,7 +613,7 @@ export abstract class RenderPipeline extends Asset {
             bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F,
+                Format.BGRA8,
                 curWidth >> 1,
                 curHeight >> 1,
             )));
@@ -622,7 +625,7 @@ export abstract class RenderPipeline extends Asset {
             bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.RGBA16F,
+                Format.BGRA8,
                 curWidth,
                 curHeight,
             )));
@@ -639,7 +642,7 @@ export abstract class RenderPipeline extends Asset {
         bloom.combineTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
+            Format.BGRA8,
             this._width,
             this._height,
         ));
