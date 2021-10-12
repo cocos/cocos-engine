@@ -778,9 +778,9 @@ class ContentStrategy {
     class ExactFit extends ContentStrategy {
         public name = 'ExactFit';
         public apply (_view: View, designedResolution: Size) {
-            const resolution = screen.resolution;
-            const containerW = resolution.width;
-            const containerH = resolution.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const scaleX = containerW / designedResolution.width;
             const scaleY = containerH / designedResolution.height;
 
@@ -791,9 +791,9 @@ class ContentStrategy {
     class ShowAll extends ContentStrategy {
         public name = 'ShowAll';
         public apply (_view, designedResolution) {
-            const resolution = screen.resolution;
-            const containerW = resolution.width;
-            const containerH = resolution.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designW = designedResolution.width;
             const designH = designedResolution.height;
             const scaleX = containerW / designW;
@@ -819,9 +819,9 @@ class ContentStrategy {
     class NoBorder extends ContentStrategy {
         public name = 'NoBorder';
         public apply (_view, designedResolution) {
-            const resolution = screen.resolution;
-            const containerW = resolution.width;
-            const containerH = resolution.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designW = designedResolution.width;
             const designH = designedResolution.height;
             const scaleX = containerW / designW;
@@ -847,9 +847,9 @@ class ContentStrategy {
     class FixedHeight extends ContentStrategy {
         public name = 'FixedHeight';
         public apply (_view, designedResolution) {
-            const resolution = screen.resolution;
-            const containerW = resolution.width;
-            const containerH = resolution.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designH = designedResolution.height;
             const scale = containerH / designH;
             const contentW = containerW;
@@ -862,9 +862,9 @@ class ContentStrategy {
     class FixedWidth extends ContentStrategy {
         public name = 'FixedWidth';
         public apply (_view, designedResolution) {
-            const resolution = screen.resolution;
-            const containerW = resolution.width;
-            const containerH = resolution.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designW = designedResolution.width;
             const scale = containerW / designW;
             const contentW = containerW;

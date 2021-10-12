@@ -22,13 +22,8 @@ export class MouseInputSource {
 
     private _getLocation (event: MouseEventData): Vec2 {
         const windowSize = screenAdapter.windowSize;
-        let x = event.x;
-        let y = windowSize.height - event.y;
-        // TODO: should not call engine API
-        const view = legacyCC.view;
-        const dpr = view._devicePixelRatio;
-        x *= dpr;
-        y *= dpr;
+        const x = event.x;
+        const y = windowSize.height - event.y;
         return new Vec2(x, y);
     }
 

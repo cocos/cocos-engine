@@ -56,13 +56,8 @@ export class TouchInputSource {
     }
 
     private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
-        let x = touch.clientX;
-        let y = windowSize.height - touch.clientY;
-        // TODO: should not call engine API
-        const view = legacyCC.view;
-        const dpr = view._devicePixelRatio;
-        x *= dpr;
-        y *= dpr;
+        const x = touch.clientX;
+        const y = windowSize.height - touch.clientY;
         return new Vec2(x, y);
     }
 

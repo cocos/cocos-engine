@@ -9,6 +9,7 @@ import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
+import { screenAdapter } from 'pal/screen-adapter';
 
 export class TouchInputSource {
     private _canvas?: HTMLCanvasElement;
@@ -83,16 +84,11 @@ export class TouchInputSource {
     private _getLocation (touch: globalThis.Touch, canvasRect: Rect): Vec2 {
         let x = touch.clientX - canvasRect.x;
         let y = canvasRect.y + canvasRect.height - touch.clientY;
-        // TODO: should not call engine API
-        const view = legacyCC.view;
-        if (view._isRotated) {
+        if (screenAdapter.isFrameRotated) {
             const tmp = x;
             x = canvasRect.height - y;
             y = tmp;
         }
-        const dpr = view._devicePixelRatio;
-        x *= dpr;
-        y *= dpr;
         return new Vec2(x, y);
     }
 
