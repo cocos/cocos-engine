@@ -78,7 +78,6 @@ export class PipelineUBO {
         const exposure = camera.exposure;
         const isHDR = sceneData.isHDR;
         const shadingScale = sceneData.shadingScale;
-        const fpScale = sceneData.fpScale;
 
         // update camera ubo
         cv[UBOCamera.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth * shadingScale;
@@ -89,7 +88,7 @@ export class PipelineUBO {
         cv[UBOCamera.EXPOSURE_OFFSET] = exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
         cv[UBOCamera.EXPOSURE_OFFSET + 2] = isHDR ? 1.0 : 0.0;
-        cv[UBOCamera.EXPOSURE_OFFSET + 3] = fpScale / exposure;
+        cv[UBOCamera.EXPOSURE_OFFSET + 3] = 0.0;
 
         if (mainLight) {
             Vec3.toArray(cv, mainLight.direction, UBOCamera.MAIN_LIT_DIR_OFFSET);
@@ -102,23 +101,29 @@ export class PipelineUBO {
             }
 
             if (isHDR) {
-                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * fpScale;
-            } else {
                 cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+            } else {
+                cv[UBOCamera.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance;
             }
         } else {
             Vec3.toArray(cv, Vec3.UNIT_Z, UBOCamera.MAIN_LIT_DIR_OFFSET);
             Vec4.toArray(cv, Vec4.ZERO, UBOCamera.MAIN_LIT_COLOR_OFFSET);
         }
 
-        const skyColor = ambient.colorArray;
+        const skyColor = ambient.skyColor;
         if (isHDR) {
-            skyColor[3] = ambient.skyIllum * fpScale;
+            skyColor.w = ambient.skyIllum * exposure;
         } else {
-            skyColor[3] = ambient.skyIllum * exposure;
+            skyColor.w = ambient.skyIllum;
         }
-        cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
-        cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 0] = skyColor.x;
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 1] = skyColor.y;
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 2] = skyColor.z;
+        cv[UBOCamera.AMBIENT_SKY_OFFSET + 3] = skyColor.w;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 0] = ambient.groundAlbedo.x;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 1] = ambient.groundAlbedo.y;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 2] = ambient.groundAlbedo.z;
+        cv[UBOCamera.AMBIENT_GROUND_OFFSET + 3] = ambient.groundAlbedo.w;
 
         Mat4.toArray(cv, camera.matView, UBOCamera.MAT_VIEW_OFFSET);
         Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
