@@ -73,7 +73,8 @@ bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::DirectionalLight);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_setDirection);
-SE_DECLARE_FUNC(js_scene_DirectionalLight_setIlluminance);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setIlluminanceHDR);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setIlluminanceLDR);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_DirectionalLight);
 
 extern se::Object* __jsb_cc_scene_Plane_proto;
@@ -126,7 +127,8 @@ SE_DECLARE_FUNC(js_scene_SpotLight_setAngle);
 SE_DECLARE_FUNC(js_scene_SpotLight_setAspect);
 SE_DECLARE_FUNC(js_scene_SpotLight_setDirection);
 SE_DECLARE_FUNC(js_scene_SpotLight_setFrustum);
-SE_DECLARE_FUNC(js_scene_SpotLight_setIlluminance);
+SE_DECLARE_FUNC(js_scene_SpotLight_setLuminanceHDR);
+SE_DECLARE_FUNC(js_scene_SpotLight_setLuminanceLDR);
 SE_DECLARE_FUNC(js_scene_SpotLight_setNeedUpdate);
 SE_DECLARE_FUNC(js_scene_SpotLight_setPosition);
 SE_DECLARE_FUNC(js_scene_SpotLight_setRange);
@@ -141,7 +143,8 @@ bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SphereLight);
 SE_DECLARE_FUNC(js_scene_SphereLight_setAABB);
-SE_DECLARE_FUNC(js_scene_SphereLight_setIlluminance);
+SE_DECLARE_FUNC(js_scene_SphereLight_setLuminanceHDR);
+SE_DECLARE_FUNC(js_scene_SphereLight_setLuminanceLDR);
 SE_DECLARE_FUNC(js_scene_SphereLight_setPosition);
 SE_DECLARE_FUNC(js_scene_SphereLight_setRange);
 SE_DECLARE_FUNC(js_scene_SphereLight_setSize);
