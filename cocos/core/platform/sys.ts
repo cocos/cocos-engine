@@ -38,7 +38,6 @@ import { Vec2 } from '../math';
 import { screen } from './screen';
 
 const windowSize = screenAdapter.windowSize;
-const pixelRatio = screenAdapter.devicePixelRatio;
 
 export declare namespace sys {
     /**
@@ -191,11 +190,11 @@ export const sys = {
      * @en Indicate the real pixel resolution of the whole game window
      * @zh 指示游戏窗口的像素分辨率
      *
-     * @deprecated since v3.4.0, windowPixelResolution is calculated from windowSize and devicePixelRatio, please use screen.resolution instead.
+     * @deprecated since v3.4.0, please use screen.windowSize instead.
      */
     windowPixelResolution: {
-        width: windowSize.width * pixelRatio,
-        height: windowSize.height * pixelRatio,
+        width: windowSize.width,
+        height: windowSize.height,
     },
 
     /**

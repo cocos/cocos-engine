@@ -42,6 +42,7 @@ import { logID, errorID } from './debug';
 import { screen } from './screen';
 import { macro } from './macro';
 import { Orientation } from '../../../pal/screen-adapter/enum-type';
+import { game } from '../game';
 
 /**
  * @en View represents the game window.<br/>
@@ -268,18 +269,24 @@ export class View extends EventTarget {
     }
 
     /**
-     * Not support on native.<br/>
-     * On web, it sets the size of the canvas.
-     * @zh 这个方法并不支持 native 平台，在 Web 平台下，可以用来设置 canvas 尺寸。
+     * @en Set the canvas size in CSS pixels on Web platform.
+     * This method is not supported on other platforms.
+     * @zh  Web 平台下，可以以 CSS 像素尺寸来设置 canvas 尺寸。
+     * 这个方法并不支持其他平台。
      * @private
      * @param {Number} width
      * @param {Number} height
      *
-     * @deprecated since v3.4.0, please use screen.windowSize and screen.resolutionScale instead.
+     * @deprecated since v3.4.0, setting size in CSS pixels is not recommended, please use screen.windowSize instead.
      */
     public setCanvasSize (width: number, height: number) {
-        screen.windowSize = new Size(width, height);
+        // set resolution scale to 1;
         screen.resolutionScale = 1;
+
+        // set window size
+        const dpr = screenAdapter.devicePixelRatio;
+        const windowSize = new Size(width * dpr, height * dpr);
+        screen.windowSize = windowSize;
     }
 
     /**
@@ -291,39 +298,46 @@ export class View extends EventTarget {
      * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
      * 在 Web 平台下，它返回 canvas 元素尺寸。
      *
-     * @deprecated since v3.4.0, please use screen.resolution instead.
-     */
-    public getCanvasSize (): Size {
-        return screen.resolution;
-    }
-
-    /**
-     * @en
-     * Returns the frame size of the view.<br/>
-     * On native platforms, it returns the screen size since the view is a fullscreen view.<br/>
-     * On web, it returns the size of the canvas's outer DOM element.
-     * @zh 返回视图中边框尺寸。
-     * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
-     * 在 web 平台下，它返回 canvas 元素的外层 DOM 元素尺寸。
-     *
      * @deprecated since v3.4.0, please use screen.windowSize instead.
      */
-    public getFrameSize (): Size {
+    public getCanvasSize (): Size {
         return screen.windowSize;
     }
 
     /**
-     * @en On native, it sets the frame size of view.<br/>
+     * @en
+     * Returns the frame size of the view in CSS pixels.<br/>
+     * On native platforms, it returns the screen size since the view is a fullscreen view.<br/>
+     * On web, it returns the size of the canvas's outer DOM element.
+     * @zh 以 CSS 像素尺寸返回视图中边框尺寸。
+     * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
+     * 在 web 平台下，它返回 canvas 元素的外层 DOM 元素尺寸。
+     *
+     * @deprecated since v3.4.0, getting size in CSS pixels is not recommended, please use screen.windowSize instead.
+     */
+    public getFrameSize (): Size {
+        const dpr = screenAdapter.devicePixelRatio;
+        const sizeInCssPixels = screen.windowSize;
+        sizeInCssPixels.width /= dpr;
+        sizeInCssPixels.height /= dpr;
+        return sizeInCssPixels;
+    }
+
+    /**
+     * @en Setting the frame size of the view in CSS pixels.
+     * On native, it sets the frame size of view.<br/>
      * On web, it sets the size of the canvas's outer DOM element.
-     * @zh 在 native 平台下，设置视图框架尺寸。
+     * @zh 以 CSS 像素尺寸设置视图中边框尺寸。
+     * 在 native 平台下，设置视图框架尺寸。
      * 在 web 平台下，设置 canvas 外层 DOM 元素尺寸。
      * @param {Number} width
      * @param {Number} height
      *
-     * @deprecated since v3.4.0, please use screen.windowSize instead.
+     * @deprecated since v3.4.0, setting size in CSS pixels is not recommended, please use screen.windowSize instead.
      */
     public setFrameSize (width: number, height: number) {
-        screen.windowSize = new Size(width, height);
+        const dpr = screenAdapter.devicePixelRatio;
+        screen.windowSize = new Size(width * dpr, height * dpr);
     }
 
     /**
@@ -546,7 +560,7 @@ export class View extends EventTarget {
         const x = screenAdapter.devicePixelRatio * (tx - relatedPos.left);
         const y = screenAdapter.devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - ty);
         if (screenAdapter.isFrameRotated) {
-            out.x = legacyCC.game.canvas.width - y;
+            out.x = screen.windowSize.width - y;
             out.y = x;
         } else {
             out.x = x;
@@ -627,7 +641,12 @@ class ContainerStrategy {
     }
 
     protected _setupContainer (_view, w, h) {
-        screen.windowSize = new Size(w, h);
+        const locCanvas = game.canvas;
+        if (locCanvas) {
+            const windowSize = screen.windowSize;
+            locCanvas.width = windowSize.width;
+            locCanvas.height = windowSize.height;
+        }
     }
 }
 
@@ -945,8 +964,7 @@ export class ResolutionPolicy {
     }
 
     get canvasSize () {
-        const windowSize = screen.windowSize;
-        return new Vec2(windowSize.width, windowSize.height);
+        return screen.windowSize;
     }
 
     /**
@@ -968,6 +986,7 @@ export class ResolutionPolicy {
      * @return An object contains the scale X/Y values and the viewport rect
      */
     public apply (_view: View, designedResolution: Size) {
+        this._containerStrategy!.apply(_view, designedResolution);
         return this._contentStrategy!.apply(_view, designedResolution);
     }
 

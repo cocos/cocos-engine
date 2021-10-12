@@ -98,7 +98,7 @@ class ScreenAdapter extends EventTarget {
 
     public init (cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._resizeFrame(this.windowSize);
+        this._resizeFrame(this._windowSizeInCssPixels);
     }
 
     private _registerEvent () {
@@ -110,7 +110,7 @@ class ScreenAdapter extends EventTarget {
             if (!this.handleResizeEvent) {
                 return;
             }
-            this._resizeFrame(this.windowSize);
+            this._resizeFrame(this._windowSizeInCssPixels);
         });
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
@@ -126,11 +126,11 @@ class ScreenAdapter extends EventTarget {
             if (!this.handleResizeEvent) {
                 return;
             }
-            this._resizeFrame(this.windowSize);
+            this._resizeFrame(this._windowSizeInCssPixels);
             this.emit('orientation-change');
         });
         document.addEventListener(this._fn.fullscreenchange, () => {
-            this._resizeFrame(this.windowSize);
+            this._resizeFrame(this._windowSizeInCssPixels);
             this._onFullscreenChange?.();
             this.emit('fullscreen-change');
         });
@@ -149,7 +149,7 @@ class ScreenAdapter extends EventTarget {
         return window.devicePixelRatio || 1;
     }
 
-    public get windowSize (): Size {
+    private get _windowSizeInCssPixels () {
         if (systemInfo.isMobile || EDITOR || TEST) {
             if (this.isFrameRotated) {
                 return new Size(window.innerHeight, window.innerWidth);
@@ -163,18 +163,33 @@ class ScreenAdapter extends EventTarget {
             return new Size(this._gameFrame.clientWidth, this._gameFrame.clientHeight);
         }
     }
+    public get windowSize (): Size {
+        const result = this._windowSizeInCssPixels;
+        const dpr = this.devicePixelRatio;
+        result.width *= dpr;
+        result.height *= dpr;
+        return result;
+    }
     public set windowSize (size: Size) {
         if (systemInfo.isMobile || EDITOR) {
             // We say that on web mobile, the window size equals to the browser inner size.
             // The window size is readonly on web mobile.
             return;
         }
-        this._resizeFrame(size);
+        this._resizeFrame(this._convertToSizeInCssPixels(size));
     }
-    private _resizeFrame (size: Size) {
+    private _convertToSizeInCssPixels (size: Size) {
+        const clonedSize = size.clone();
+        const dpr = this.devicePixelRatio;
+        clonedSize.width /= dpr;
+        clonedSize.height /= dpr;
+        return clonedSize;
+    }
+
+    private _resizeFrame (sizeInCssPixels: Size) {
         if (this._gameFrame) {
-            this._gameFrame.style.width = `${size.width}px`;
-            this._gameFrame.style.height = `${size.height}px`;
+            this._gameFrame.style.width = `${sizeInCssPixels.width}px`;
+            this._gameFrame.style.height = `${sizeInCssPixels.height}px`;
             this.emit('window-resize');
         }
         this._updateResolution();

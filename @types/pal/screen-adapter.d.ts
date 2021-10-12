@@ -39,17 +39,13 @@ declare module 'pal/screen-adapter' {
          */
         public get devicePixelRatio (): number;
         /**
-         * Get the size of current window in reference pixels.
-         * On Web platform, this should be the size of game frame in CSS pixels.
+         * Get the size of current window in physical pixels.
          */
-        public get windowSize (): import('cocos/core/math').Size;
 
         /**
-         * Set the size of current window in reference pixels.
-         * On Web platform, this should be the size of game frame in CSS pixels.
-         * @param {Size} Specify the size that the window need to resize to.
-         * @todo not implemented yet
+         * Get and set the size of current window in physical pixels.
          */
+        public get windowSize (): import('cocos/core/math').Size;
         public set windowSize (size: import('cocos/core/math').Size);
 
         /**
@@ -66,7 +62,7 @@ declare module 'pal/screen-adapter' {
         private _updateResolution ();
         /**
          * Get and set the resolution scale of screen, which will affect the quality of the rendering.
-         * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 2 by default.
+         * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
          */
         public get resolutionScale (): number;
         public set resolutionScale (value: number);

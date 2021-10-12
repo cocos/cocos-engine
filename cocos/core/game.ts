@@ -880,10 +880,9 @@ export class Game extends EventTarget {
         }
 
         const swapchainInfo = new SwapchainInfo(this.canvas!);
-        const windowSize = screenAdapter.windowSize;
-        const dpr = screenAdapter.devicePixelRatio;
-        swapchainInfo.width = windowSize.width * dpr;
-        swapchainInfo.height = windowSize.height * dpr;
+        const windowSize = screen.windowSize;
+        swapchainInfo.width = windowSize.width;
+        swapchainInfo.height = windowSize.height;
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         this.canvas!.oncontextmenu = () => false;

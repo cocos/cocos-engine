@@ -40,11 +40,9 @@ import { warn, warnID } from './debug';
  */
 class Screen {
     /**
-     * @en Get and set the size of current window in reference pixels.
-     * On Web platform, this should be the size of game frame in CSS pixels.
+     * @en Get and set the size of current window in physical pixels.
      * NOTE: Setting window size is only supported on Web platform for now.
-     * @zh 获取当前窗口参考像素尺寸。
-     * 在 Web 平台，这里应该是 game frame 的 CSS 像素尺寸。
+     * @zh 获取和设置当前窗口的物理像素尺寸。
      * 注意：设置窗口尺寸目前只在 Web 平台上支持。
      */
     public get windowSize (): Size {
@@ -68,9 +66,9 @@ class Screen {
 
     /**
      * @en Get and set the resolution scale of screen, which will affect the quality of the rendering.
-     * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 2 by default.
+     * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
      * @zh 获取和设置屏幕的分辨率缩放比，这将会影响最终渲染的质量。
-     * 注意：如果这个值设置的太高，会降低 GPU 的渲染性能，该值默认为 2。
+     * 注意：如果这个值设置的太高，会降低 GPU 的渲染性能，该值默认为 1。
      */
     public get resolutionScale () {
         return screenAdapter.resolutionScale;
@@ -83,7 +81,6 @@ class Screen {
      * @en Convert the native screen location (whose origin is at the top-left of canvas) to the location in Cocos screen coordinate (whose origin is at the bottom-left of canvas).
      * Note: The location here has been multiplied by the resolutionScale.
      * @zh 将原生的屏幕坐标 (坐标原点在画布左上角)，转换到 Cocos 的屏幕坐标 (坐标原点在画布左下角)
-     * 注意：这里的坐标已经乘过了 resolutionScale。
      *
      * @param nativeScreenX
      * @param nativeScreenY
@@ -91,8 +88,8 @@ class Screen {
      */
     public convertToScreenSpace (nativeScreenX: number, nativeScreenY: number, out: Vec2 = new Vec2(0, 0)) {
         const windowSize = this.windowSize;
-        out.x = this.resolutionScale * nativeScreenX;
-        out.y = this.resolutionScale * (windowSize.height - nativeScreenY);
+        out.x = nativeScreenX;
+        out.y = windowSize.height - nativeScreenY;
         return out;
     }
 

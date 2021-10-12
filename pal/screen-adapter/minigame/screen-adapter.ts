@@ -57,7 +57,8 @@ class ScreenAdapter extends EventTarget {
     }
     public get windowSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
-        return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
+        const dpr = this.devicePixelRatio;
+        return new Size(sysInfo.screenWidth * dpr, sysInfo.screenHeight * dpr);
     }
     public set windowSize (size: Size) {
         console.warn('Setting window size is not supported on this platform.');
@@ -106,10 +107,11 @@ class ScreenAdapter extends EventTarget {
     public get safeAreaEdge (): SafeAreaEdge {
         const minigameSafeArea = minigame.getSafeArea();
         const windowSize = this.windowSize;
-        let topEdge = minigameSafeArea.top;
-        let bottomEdge = windowSize.height - minigameSafeArea.bottom;
-        let leftEdge = minigameSafeArea.left;
-        let rightEdge = windowSize.width - minigameSafeArea.right;
+        const dpr = this.devicePixelRatio;
+        let topEdge = minigameSafeArea.top * dpr;
+        let bottomEdge = windowSize.height - minigameSafeArea.bottom * dpr;
+        let leftEdge = minigameSafeArea.left * dpr;
+        let rightEdge = windowSize.width - minigameSafeArea.right * dpr;
         const orientation = this.orientation;
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {

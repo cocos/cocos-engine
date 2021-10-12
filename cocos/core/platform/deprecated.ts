@@ -55,11 +55,19 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'setCanvasSize',
-        suggest: 'please use screen.windowSize and screen.resolutionScale instead.',
+        suggest: 'setting size in CSS pixels is not recommended, please use screen.windowSize instead.',
     },
     {
         name: 'getCanvasSize',
-        suggest: 'please use screen.resolution instead.',
+        suggest: 'please use screen.windowSize instead.',
+    },
+    {
+        name: 'getFrameSize',
+        suggest: 'getting size in CSS pixels is not recommended, please use screen.windowSize instead.',
+    },
+    {
+        name: 'setFrameSize',
+        suggest: 'setting size in CSS pixels is not recommended, please use screen.windowSize instead.',
     },
     {
         name: 'getDevicePixelRatio',
@@ -167,13 +175,7 @@ replaceProperty(sys, 'sys', [
         name: 'windowPixelResolution',
         target: screen,
         targetName: 'screen',
-        newName: 'resolution',
-        suggest: 'windowPixelResolution is calculated from windowSize and devicePixelRatio.',
-        customGetter () {
-            const windowSize = screenAdapter.windowSize;
-            const dpr = screenAdapter.devicePixelRatio;
-            return new Size(windowSize.width * dpr, windowSize.height * dpr);
-        },
+        newName: 'windowSize',
     },
 ]);
 

@@ -1,10 +1,10 @@
 import { TEST } from 'internal:constants';
 import { MouseCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
+import { screenAdapter } from 'pal/screen-adapter';
 import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Rect, Vec2 } from '../../../cocos/core/math';
-import legacyCC from '../../../predefine';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
 
@@ -36,8 +36,11 @@ export class MouseInputSource {
 
     private _getLocation (mouseEvent: MouseEvent): Vec2 {
         const canvasRect = this._getCanvasRect();
-        const x = this._pointLocked ? (this._preMousePos.x + mouseEvent.movementX) : (mouseEvent.clientX - canvasRect.x);
-        const y = this._pointLocked ? (this._preMousePos.y - mouseEvent.movementY) : (canvasRect.y + canvasRect.height - mouseEvent.clientY);
+        const dpr = screenAdapter.devicePixelRatio;
+        let x = this._pointLocked ? (this._preMousePos.x / dpr + mouseEvent.movementX) : (mouseEvent.clientX - canvasRect.x);
+        let y = this._pointLocked ? (this._preMousePos.y / dpr - mouseEvent.movementY) : (canvasRect.y + canvasRect.height - mouseEvent.clientY);
+        x *= dpr;
+        y *= dpr;
         return new Vec2(x, y);
     }
 

@@ -51,7 +51,8 @@ class ScreenAdapter extends EventTarget {
         return jsb.device.getDevicePixelRatio() || 1;
     }
     public get windowSize (): Size {
-        return new Size(window.innerWidth, window.innerHeight);
+        const dpr = this.devicePixelRatio;
+        return new Size(window.innerWidth * dpr, window.innerHeight * dpr);
     }
     public set windowSize (size: Size) {
         console.warn('Setting window size is not supported yet.');
@@ -91,10 +92,11 @@ class ScreenAdapter extends EventTarget {
 
     public get safeAreaEdge (): SafeAreaEdge {
         const nativeSafeArea = jsb.device.getSafeAreaEdge();
-        let topEdge = nativeSafeArea.x;
-        let bottomEdge = nativeSafeArea.z;
-        let leftEdge = nativeSafeArea.y;
-        let rightEdge = nativeSafeArea.w;
+        const dpr = this.devicePixelRatio;
+        let topEdge = nativeSafeArea.x * dpr;
+        let bottomEdge = nativeSafeArea.z * dpr;
+        let leftEdge = nativeSafeArea.y * dpr;
+        let rightEdge = nativeSafeArea.w * dpr;
         const orientation = this.orientation;
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {
