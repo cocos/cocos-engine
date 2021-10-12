@@ -35,7 +35,6 @@ CCProgram grid-vs %{
     color = a_color;
 
     pos = cc_matProj * (cc_matView * cc_matWorld) * position;
-    pos.z += 0.001;
     return pos;
   }
 }%
