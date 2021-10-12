@@ -793,18 +793,10 @@ export class Game extends EventTarget {
         this.renderType = Game.RENDER_TYPE_CANVAS;
         let supportRender = false;
 
-        if (userRenderMode === 0) {
-            if (sys.capabilities.opengl) {
-                this.renderType = Game.RENDER_TYPE_WEBGL;
-                supportRender = true;
-            } else if (sys.capabilities.canvas) {
-                this.renderType = Game.RENDER_TYPE_CANVAS;
-                supportRender = true;
-            }
-        } else if (userRenderMode === 1 && sys.capabilities.canvas) {
+        if (userRenderMode === 1) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
-        } else if (userRenderMode === 2 && sys.capabilities.opengl) {
+        } else if (userRenderMode === 0 || userRenderMode === 2) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
         } else if (userRenderMode === 3) {

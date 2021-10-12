@@ -111,11 +111,9 @@ function getKeyCode (code: string): KeyCode {
 }
 
 export class KeyboardInputSource {
-    public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        this.support = document.documentElement.onkeyup !== undefined;
         this._registerEvent();
     }
 

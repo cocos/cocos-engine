@@ -59,6 +59,14 @@ markAsWarning(legacyCC, 'cc', [
     },
 ]);
 // #endregion deprecation on view
+// deprecate capabilities field
+markAsWarning(sys, 'sys', [
+    {
+        name: 'capabilities',
+        suggest: 'please use sys.hasFeature() method instead.',
+    },
+]);
+
 // deprecate languageCode field
 replaceProperty(sys, 'sys',
     ['UNKNOWN', 'ENGLISH', 'CHINESE', 'FRENCH', 'ITALIAN',

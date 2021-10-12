@@ -1,11 +1,8 @@
 // TODO: some interface need to be designed in a module called 'Application' and 'Network'
 declare module 'pal/system-info' {
-    export interface SupportCapability {
-        readonly webp: boolean;
-        readonly gl: boolean;
-        readonly canvas: boolean;
-        readonly imageBitmap: boolean;
-    }
+    export type IFeatureMap = {
+        [feature in import('pal/system-info/enum-type').Feature]: boolean;
+    };
 
     class SystemInfo {
         public get networkType (): import('pal/system-info/enum-type/network-type').NetworkType;
@@ -35,7 +32,8 @@ declare module 'pal/system-info' {
         public get browserType (): import('pal/system-info/enum-type').BrowserType;
         public get browserVersion (): string;
         public get pixelRatio (): number;
-        public get supportCapability (): SupportCapability;
+        public hasFeature (feature: import('pal/system-info/enum-type').Feature): boolean;
+
         public getBatteryLevel (): number;
 
         public triggerGC (): void;

@@ -3141,3 +3141,7 @@ Can not encode CCON binary: lack of text encoder.
 ### 13104
 
 Can not decode CCON binary: lack of text decoder.
+
+### 14000
+
+Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.

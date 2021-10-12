@@ -33,11 +33,21 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
-import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system-info/enum-type';
+import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { Vec2 } from '../math';
 
 const windowSize = screenAdapter.windowSize;
 const pixelRatio = systemInfo.pixelRatio;
+
+export declare namespace sys {
+    /**
+     * @en
+     * Platform related feature enum type.
+     * @zh
+     * 平台相关的特性枚举类型。
+     */
+    export type Feature = EnumAlias<typeof Feature>;
+}
 
 /**
  * @en A set of system related variables
@@ -45,6 +55,18 @@ const pixelRatio = systemInfo.pixelRatio;
  * @main
  */
 export const sys = {
+    Feature,
+
+    /**
+     * @en
+     * Returns if the specified platform related feature is supported.
+     * @zn
+     * 返回指定的平台相关的特性是否支持。
+     */
+    hasFeature (feature: sys.Feature): boolean {
+        return systemInfo.hasFeature(feature);
+    },
+
     /**
      * @en
      * Network type enumeration
@@ -176,17 +198,18 @@ export const sys = {
     /**
      * @en The capabilities of the current platform
      * @zh 当前平台的功能可用性
+     *
+     * @deprecated since v3.4.0, please use sys.hasFeature() instead.
      */
     capabilities: {
-        canvas: systemInfo.supportCapability.canvas,
-        opengl: systemInfo.supportCapability.gl,
-        webp: systemInfo.supportCapability.webp,
-        imageBitmap: systemInfo.supportCapability.imageBitmap,
-        // TODO: move into pal/input
-        touches: false,
-        mouse: false,
-        keyboard: false,
-        accelerometer: false,
+        canvas: true,
+        opengl: true,
+        webp: systemInfo.hasFeature(Feature.WEBP),
+        imageBitmap: systemInfo.hasFeature(Feature.IMAGE_BITMAP),
+        touches: systemInfo.hasFeature(Feature.INPUT_TOUCH),
+        mouse: systemInfo.hasFeature(Feature.EVENT_MOUSE),
+        keyboard: systemInfo.hasFeature(Feature.EVENT_KEYBOARD),
+        accelerometer: systemInfo.hasFeature(Feature.EVENT_ACCELEROMETER),
     },
 
     /**
@@ -331,22 +354,6 @@ export const sys = {
             clear: warn,
             removeItem: warn,
         };
-    }
-
-    // TODO: move into pal/input
-    const win = window; const nav = win.navigator; const doc = document; const docEle = doc.documentElement;
-    const capabilities = sys.capabilities;
-    if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
-        capabilities.touches = true;
-    }
-    if (docEle.onmouseup !== undefined) {
-        capabilities.mouse = true;
-    }
-    if (docEle.onkeyup !== undefined) {
-        capabilities.keyboard = true;
-    }
-    if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
-        capabilities.accelerometer = true;
     }
 
     // @ts-expect-error HACK: this private property only needed on web

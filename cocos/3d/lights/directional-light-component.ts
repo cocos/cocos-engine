@@ -28,17 +28,25 @@
  * @module component/light
  */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, unit, serializable } from 'cc.decorator';
-import { scene } from '../../core/renderer';
+import { ccclass, help, executeInEditMode, menu, tooltip, serializable, formerlySerializedAs } from 'cc.decorator';
 import { Light } from './light-component';
+import { scene } from '../../core/renderer';
+import { legacyCC } from '../../core/global-exports';
+import { Camera } from '../../core/renderer/scene';
+import { Root } from '../../core/root';
+import { property } from '../../core/data/class-decorator';
 
 @ccclass('cc.DirectionalLight')
 @help('i18n:cc.DirectionalLight')
 @menu('Light/DirectionalLight')
 @executeInEditMode
 export class DirectionalLight extends Light {
+    @property
+    @formerlySerializedAs('_illuminance')
+    protected _illuminanceHDR = 65000;
+
     @serializable
-    protected _illuminance = 65000;
+    protected _illuminanceLDR = 1.0;
 
     protected _type = scene.LightType.DIRECTIONAL;
     protected _light: scene.DirectionalLight | null = null;
@@ -49,14 +57,24 @@ export class DirectionalLight extends Light {
      * @zh
      * 光源强度。
      */
-    @unit('lx')
     @tooltip('i18n:lights.illuminance')
     get illuminance () {
-        return this._illuminance;
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._illuminanceHDR;
+        } else {
+            return this._illuminanceLDR;
+        }
     }
     set illuminance (val) {
-        this._illuminance = val;
-        if (this._light) { this._light.illuminance = this._illuminance; }
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._illuminanceHDR = val;
+            this._light && (this._light.illuminanceHDR = this._illuminanceHDR);
+        } else {
+            this._illuminanceLDR = val;
+            this._light && (this._light.illuminanceLDR = this._illuminanceLDR);
+        }
     }
 
     constructor () {
@@ -66,7 +84,10 @@ export class DirectionalLight extends Light {
 
     protected _createLight () {
         super._createLight();
-        if (!this._light) { return; }
-        this.illuminance = this._illuminance;
+        this._illuminanceLDR = this._illuminanceHDR * Camera.standardExposureValue;
+        if (this._light) {
+            this._light.illuminanceHDR = this._illuminanceHDR;
+            this._light.illuminanceLDR = this._illuminanceLDR;
+        }
     }
 }
