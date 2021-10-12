@@ -229,10 +229,21 @@ void RenderPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
     }
 }
 
+gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
+    auto  scale{_pipelineSceneData->getSharedData()->shadingScale};
+    const gfx::Rect &rect = getRenderArea(camera);
+    return {
+        static_cast<int>(rect.x * scale),
+        static_cast<int>(rect.y * scale),
+        static_cast<uint>(rect.width * scale),
+        static_cast<uint>(rect.height * scale)
+    };
+}
+
 gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
-    auto scale{_pipelineSceneData->getSharedData()->shadingScale};
-    auto w{static_cast<float>(camera->window->getWidth()) * scale};
-    auto h{static_cast<float>(camera->window->getHeight()) * scale};
+    float shadingScale{_pipelineSceneData->getSharedData()->shadingScale};
+    float w{static_cast<float>(camera->window->getWidth()) * shadingScale};
+    float h{static_cast<float>(camera->window->getHeight()) * shadingScale};
 
     return {
         static_cast<int>(camera->viewPort.x * w),

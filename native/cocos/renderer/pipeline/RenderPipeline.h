@@ -88,6 +88,7 @@ public:
     RenderStage *                                  getRenderstageByName(const String &name) const;
 
     gfx::Rect               getRenderArea(scene::Camera *camera);
+    gfx::Viewport           getViewport(scene::Camera *camera);
     void                    genQuadVertexData(const Vec4 &viewport, float *data);
     uint                    getWidth() const { return _width; }
     uint                    getHeight() const { return _height; }

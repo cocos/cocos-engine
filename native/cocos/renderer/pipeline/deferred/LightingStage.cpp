@@ -339,7 +339,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
     auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     gfx::Color clearColor = pipeline->getClearcolor(camera);
-
+    float      shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
     auto lightingSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         builder.subpass(true);
 
@@ -374,8 +374,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = gfx::Format::RGBA16F;
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-        colorTexInfo.width  = pipeline->getWidth();
-        colorTexInfo.height = pipeline->getHeight();
+        colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
+        colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
         data.outputTex      = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
@@ -386,9 +386,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
-
         // set render area
-        builder.setViewport(pipeline->getRenderArea(camera));
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
     };
 
     auto lightingExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
@@ -444,7 +443,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
 
     auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     gfx::Color clearColor = pipeline->getClearcolor(camera);
-
+    float      shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
     auto transparentSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         // write to lighting output
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
@@ -459,8 +458,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
             framegraph::Texture::Descriptor colorTexInfo;
             colorTexInfo.format = gfx::Format::RGBA16F;
             colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-            colorTexInfo.width  = pipeline->getWidth();
-            colorTexInfo.height = pipeline->getHeight();
+            colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
+            colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
 
             colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
             colorAttachmentInfo.clearColor = clearColor;
@@ -483,8 +482,8 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
                 gfx::TextureType::TEX2D,
                 gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
                 gfx::Format::DEPTH_STENCIL,
-                pipeline->getWidth(),
-                pipeline->getHeight(),
+                static_cast<uint>(pipeline->getWidth() * shadingScale),
+                static_cast<uint>(pipeline->getHeight() * shadingScale),
             };
             data.depth = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         }
@@ -492,7 +491,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         // set render area
-        builder.setViewport(pipeline->getRenderArea(camera));
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
     };
 
     auto transparentExec = [this](RenderData const & /*data*/, const framegraph::DevicePassResourceTable &table) {
@@ -775,7 +774,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         data.depth = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture)), depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
-        builder.setViewport(pipeline->getRenderArea(camera));
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
     };
 
     auto renderExec = [this](DataRender const &data, const framegraph::DevicePassResourceTable &table) {

@@ -140,6 +140,7 @@ void ForwardStage::render(scene::Camera *camera) {
     auto *const sceneData  = _pipeline->getPipelineSceneData();
     auto *const sharedData = sceneData->getSharedData();
 
+    float shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
     _renderArea = pipeline->getRenderArea(camera);
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda
     dispenseRenderObject2Queues();
@@ -150,7 +151,6 @@ void ForwardStage::render(scene::Camera *camera) {
     _batchedQueue->uploadBuffers(cmdBuff);
     _additiveLightQueue->gatherLightPasses(camera, cmdBuff);
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
-
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
             if (sharedData->isHDR) {
@@ -166,8 +166,8 @@ void ForwardStage::render(scene::Camera *camera) {
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = sharedData->isHDR ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-        colorTexInfo.width  = pipeline->getWidth();
-        colorTexInfo.height = pipeline->getHeight();
+        colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
+        colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
         data.outputTex      = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
@@ -191,8 +191,8 @@ void ForwardStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
             gfx::Format::DEPTH_STENCIL,
-            camera->window->getWidth(),
-            camera->window->getHeight(),
+            static_cast<uint>(camera->window->getWidth() * shadingScale),
+            static_cast<uint>(camera->window->getHeight() * shadingScale),
         };
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
@@ -205,8 +205,7 @@ void ForwardStage::render(scene::Camera *camera) {
         data.depth = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
-
-        builder.setViewport(_renderArea);
+        builder.setViewport(pipeline->getViewport(camera), _renderArea);
     };
 
     auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
