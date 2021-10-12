@@ -78,6 +78,11 @@ export class DeferredPipelineSceneData extends CommonPipelineSceneData {
     private updateDeferredLightPass () {
         if (!this._deferredLightingMaterial) return;
 
+        // It's temporay solution for main light shadowmap
+        if (this.shadows.enabled) {
+            this._pipeline.macros.CC_RECEIVE_SHADOW = 1;
+        }
+
         const passLit = this._deferredLightingMaterial.passes[0];
         passLit.beginChangeStatesSilently();
         passLit.tryCompile();
