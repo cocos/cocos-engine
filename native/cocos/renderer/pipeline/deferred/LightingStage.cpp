@@ -428,6 +428,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
 
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindInputAssembler(inputAssembler);
+        cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet());
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->draw(inputAssembler);
     };
@@ -839,6 +840,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 
 void LightingStage::render(scene::Camera *camera) {
     auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
+    pipeline->getPipelineUBO()->updateShadowUBO(camera);
 
     // if gbuffer pass does not exist, skip lighting pass.
     // transparent objects draw after lighting pass, can be automatically merged by FG
