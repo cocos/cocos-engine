@@ -329,6 +329,22 @@ const gfx::UniformSamplerTexture SPOTLIGHTINGMAP::LAYOUT = {
     1,
 };
 
+const String                          DIFFUSEMAP::NAME       = "cc_diffuseMap";
+const gfx::DescriptorSetLayoutBinding DIFFUSEMAP::DESCRIPTOR = {
+    DIFFUSEMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture DIFFUSEMAP::LAYOUT = {
+    globalSet,
+    DIFFUSEMAP::BINDING,
+    DIFFUSEMAP::NAME,
+    gfx::Type::SAMPLER_CUBE,
+    1,
+};
+
 const String                          JOINTTEXTURE::NAME       = "cc_jointTexture";
 const gfx::DescriptorSetLayoutBinding JOINTTEXTURE::DESCRIPTOR = {
     JOINTTEXTURE::BINDING,

@@ -157,10 +157,10 @@ void ClusterLightCulling::updateLights() {
         }
     }
 
-    const auto  exposure        = _camera->exposure;
-    const auto  validLightCount = _validLights.size();
-    auto* const sceneData       = _pipeline->getPipelineSceneData();
-    auto* const sharedData      = sceneData->getSharedData();
+    const auto  exposure            = _camera->exposure;
+    const auto  validLightCount     = _validLights.size();
+    auto* const sceneData           = _pipeline->getPipelineSceneData();
+    auto* const sharedData          = sceneData->getSharedData();
 
     if (validLightCount > _lightBufferCount) {
         _lightBufferResized = true;
@@ -197,11 +197,12 @@ void ClusterLightCulling::updateLights() {
             _lightBufferData[index++] = color.z;
         }
 
-        float illuminance = isSpotLight ? spotLight->getIlluminance() : sphereLight->getIlluminance();
+        float luminanceHDR = isSpotLight ? spotLight->getLuminanceHDR() : sphereLight->getLuminanceHDR();
+        float luminanceLDR = isSpotLight ? spotLight->getLuminanceLDR() : sphereLight->getLuminanceLDR();
         if (sharedData->isHDR) {
-            _lightBufferData[index] = illuminance * sharedData->fpScale * _lightMeterScale;
+            _lightBufferData[index] = luminanceHDR * exposure * _lightMeterScale;
         } else {
-            _lightBufferData[index] = illuminance * exposure * _lightMeterScale;
+            _lightBufferData[index] = luminanceLDR;
         }
 
         switch (light->getType()) {

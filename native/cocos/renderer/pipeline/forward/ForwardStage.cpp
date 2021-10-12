@@ -155,10 +155,6 @@ void ForwardStage::render(scene::Camera *camera) {
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
             if (sharedData->isHDR) {
                 srgbToLinear(&_clearColors[0], camera->clearColor);
-                auto scale{sharedData->fpScale / camera->exposure};
-                _clearColors[0].x *= scale;
-                _clearColors[0].y *= scale;
-                _clearColors[0].z *= scale;
             } else {
                 _clearColors[0].x = camera->clearColor.x;
                 _clearColors[0].y = camera->clearColor.y;

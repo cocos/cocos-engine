@@ -43,13 +43,16 @@ public:
     void update() override;
 
     inline void setDirection(const Vec3 &dir) { _dir = dir; }
-    inline void setIlluminance(float illum) { _illuminance = illum; }
+    inline void setIlluminanceHDR(float illum) { _illuminanceHDR = illum; }
+    inline void setIlluminanceLDR(float illum) { _illuminanceLDR = illum; }
 
     inline const Vec3 &getDirection() const { return _dir; }
-    inline float       getIlluminance() const { return _illuminance; }
+    inline float       getIlluminanceHDR() const { return _illuminanceHDR; }
+    inline float       getIlluminanceLDR() const { return _illuminanceLDR; }
 
 private:
-    float _illuminance{0.F};
+    float _illuminanceHDR{0.F};
+    float _illuminanceLDR{0.F};
     Vec3  _dir;
 };
 
