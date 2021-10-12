@@ -157,10 +157,6 @@ export class GbufferStage extends RenderStage {
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.pipelineSceneData.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
             } else {
                 colors[0].x = camera.clearColor.x;
                 colors[0].y = camera.clearColor.y;

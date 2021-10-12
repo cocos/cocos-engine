@@ -211,6 +211,20 @@ export class Camera {
         }
     }
 
+    /**
+     * this exposure value corresponding to default standard camera exposure parameters
+     */
+    public static get standardExposureValue () {
+        return 1.0 / 38400.0;
+    }
+
+    /**
+     * luminance unit scale used by area lights
+     */
+    public static get standardLightMeterScale () {
+        return 10000.0;
+    }
+
     public initialize (info: ICameraInfo) {
         this._init(info);
         this.node = info.node;

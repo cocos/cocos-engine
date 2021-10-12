@@ -107,7 +107,7 @@ CCProgram unlit-vs %{
 
 CCProgram unlit-fs %{
   precision highp float;
-  #include <output>
+  #include <output-standard>
   #include <cc-fog-fs>
 
   #if USE_ALPHA_TEST
