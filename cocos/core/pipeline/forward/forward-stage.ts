@@ -169,10 +169,13 @@ export class ForwardStage extends RenderStage {
         pipeline.updateQuadVertexData(this._renderArea, camera.window!);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
-            SRGBToLinear(colors[0], camera.clearColor);
-            colors[0].x = camera.clearColor.x;
-            colors[0].y = camera.clearColor.y;
-            colors[0].z = camera.clearColor.z;
+            if (sceneData.isHDR) {
+                SRGBToLinear(colors[0], camera.clearColor);
+            } else {
+                colors[0].x = camera.clearColor.x;
+                colors[0].y = camera.clearColor.y;
+                colors[0].z = camera.clearColor.z;
+            }
         }
 
         colors[0].w = camera.clearColor.w;

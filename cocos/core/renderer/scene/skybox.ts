@@ -68,8 +68,7 @@ export class Skybox {
 
     set useHDR (val: boolean) {
         this._setUseHDR(val);
-        const tex = this.envmap;
-        this.envmap = tex;
+        this.setEnvMaps(this._envmapHDR, this._envmapLDR);
     }
 
     /**
@@ -127,20 +126,10 @@ export class Skybox {
         const root = legacyCC.director.root as Root;
         const isHDR = root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._envmapHDR = val || this._default;
-            if (this._envmapHDR) {
-                root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = this._envmapHDR.mipmapLevel;
-                this._updateGlobalBinding();
-            }
+            this.setEnvMaps(val, this._envmapLDR);
         } else {
-            this._envmapLDR = val || this._default;
-            if (this._envmapLDR) {
-                root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = this._envmapLDR.mipmapLevel;
-                this._updateGlobalBinding();
-            }
+            this.setEnvMaps(this._envmapHDR, val);
         }
-
-        this._updatePipeline();
     }
 
     /**
@@ -158,12 +147,10 @@ export class Skybox {
     set diffuseMap (val: TextureCube | null) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
-            this._diffuseMapHDR = val;
+            this.setDiffuseMaps(val, this._diffuseMapLDR);
         } else {
-            this._diffuseMapLDR = val;
+            this.setDiffuseMaps(this._diffuseMapHDR, val);
         }
-        this._updateGlobalBinding();
-        this._updatePipeline();
     }
 
     protected _envmapLDR: TextureCube | null = null;
@@ -225,8 +212,19 @@ export class Skybox {
     }
 
     public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
-        this._envmapHDR = envmapHDR;
-        this._envmapLDR = envmapLDR;
+        this._envmapHDR = envmapHDR || this._default;
+        this._envmapLDR = envmapLDR || this._default;
+
+        const root = legacyCC.director.root as Root;
+        const isHDR = root.pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            if (envmapHDR) {
+                root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = envmapHDR.mipmapLevel;
+            }
+        } else if (envmapLDR) {
+            root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = envmapLDR.mipmapLevel;
+        }
+
         this._updateGlobalBinding();
         this._updatePipeline();
     }
