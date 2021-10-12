@@ -1026,6 +1026,28 @@ static bool js_pipeline_RenderPipeline_getRenderstageByName(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getRenderstageByName)
 
+static bool js_pipeline_RenderPipeline_getViewport(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getViewport : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::scene::Camera*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getViewport : Error processing arguments");
+        cc::gfx::Viewport result = cobj->getViewport(arg0.value());
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getViewport : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_getViewport)
+
 static bool js_pipeline_RenderPipeline_getWidth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1227,6 +1249,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("getProfiler", _SE(js_pipeline_RenderPipeline_getProfiler));
     cls->defineFunction("getRenderArea", _SE(js_pipeline_RenderPipeline_getRenderArea));
     cls->defineFunction("getRenderstageByName", _SE(js_pipeline_RenderPipeline_getRenderstageByName));
+    cls->defineFunction("getViewport", _SE(js_pipeline_RenderPipeline_getViewport));
     cls->defineFunction("getWidth", _SE(js_pipeline_RenderPipeline_getWidth));
     cls->defineFunction("initialize", _SE(js_pipeline_RenderPipeline_initialize));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));

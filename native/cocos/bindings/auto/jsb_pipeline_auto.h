@@ -83,6 +83,7 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getIAByRenderArea);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getProfiler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderstageByName);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getViewport);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
