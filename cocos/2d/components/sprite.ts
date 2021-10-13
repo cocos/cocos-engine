@@ -593,7 +593,7 @@ export class Sprite extends Renderable2D {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        if (lastInstanceMaterialType !== this._instanceMaterialType) {
+        if (lastInstanceMaterialType !== this._instanceMaterialType || this._customMaterial) {
             this.updateMaterial();
         }
     }

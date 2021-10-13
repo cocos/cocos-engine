@@ -468,18 +468,16 @@ export class Renderable2D extends RenderableComponent {
     protected _postCanRender () {}
 
     protected _updateColor () {
-        if (UI_GPU_DRIVEN) {
-            if (this._canDrawByFourVertex) {
-                const opacityZero = this._cacheAlpha <= 0;
-                this._updateWorldAlpha();
-                if (this._colorDirty) {
-                    if (opacityZero || this._cacheAlpha <= 0) {
-                        this._renderFlag = this._canRender();
-                    }
-                    this._colorDirty = false;
+        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
+            const opacityZero = this._cacheAlpha <= 0;
+            this._updateWorldAlpha();
+            if (this._colorDirty) {
+                if (opacityZero || this._cacheAlpha <= 0) {
+                    this._renderFlag = this._canRender();
                 }
-                return;
+                this._colorDirty = false;
             }
+            return;
         }
         // Need update rendFlag when opacity changes from 0 to !0
         const opacityZero = this._cacheAlpha <= 0;
