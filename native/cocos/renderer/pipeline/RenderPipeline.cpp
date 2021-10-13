@@ -151,11 +151,7 @@ gfx::Color RenderPipeline::getClearcolor(scene::Camera *camera) const {
     auto *const sharedData = sceneData->getSharedData();
     gfx::Color  clearColor{0.0, 0.0, 0.0, 1.0F};
     if (camera->clearFlag & static_cast<uint>(gfx::ClearFlagBit::COLOR)) {
-        if (sharedData->isHDR) {
-            srgbToLinear(&clearColor, camera->clearColor);
-        } else {
-            clearColor = camera->clearColor;
-        }
+        clearColor = camera->clearColor;
     }
 
     clearColor.w = 0;

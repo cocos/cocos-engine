@@ -153,13 +153,9 @@ void ForwardStage::render(scene::Camera *camera) {
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
-            if (sharedData->isHDR) {
-                srgbToLinear(&_clearColors[0], camera->clearColor);
-            } else {
-                _clearColors[0].x = camera->clearColor.x;
-                _clearColors[0].y = camera->clearColor.y;
-                _clearColors[0].z = camera->clearColor.z;
-            }
+            _clearColors[0].x = camera->clearColor.x;
+            _clearColors[0].y = camera->clearColor.y;
+            _clearColors[0].z = camera->clearColor.z;
         }
         _clearColors[0].w = camera->clearColor.w;
         // color
