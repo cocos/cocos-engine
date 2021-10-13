@@ -72,10 +72,6 @@ export class MorphModel extends Model {
         }
     }
 
-    public _updateWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
-        super._updateWorldBoundDescriptors(subModelIndex, descriptorSet);
-    }
-
     private _launderMaterial (material: Material) {
         return material;
         // if (this._usedMaterials.has(material)) {

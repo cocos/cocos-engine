@@ -229,10 +229,6 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
-    public _updateWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
-        super._updateWorldBoundDescriptors(subModelIndex, descriptorSet);
-    }
-
     private _setInstAnimInfoIdx (idx: number) {
         this._instAnimInfoIdx = idx;
         if (JSB) {
