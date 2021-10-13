@@ -117,7 +117,7 @@ export class PipelineSceneData {
 
     public initOcclusionQuery () {
         if (!this._occlusionQueryInputAssembler) {
-            this._occlusionQueryInputAssembler = this.createInputAssembler();
+            this._occlusionQueryInputAssembler = this._createOcclusionQueryIA();
 
             if (JSB) {
                 this._nativeObj!.occlusionQueryInputAssembler = this._occlusionQueryInputAssembler;
@@ -161,7 +161,7 @@ export class PipelineSceneData {
         }
     }
 
-    private createInputAssembler () {
+    private _createOcclusionQueryIA () {
         // create vertex buffer
         const device = this._device;
         const vertices = new Float32Array([-1, -1, -1, 1, -1, -1, -1, 1, -1, 1, 1, -1, -1, -1, 1, 1, -1, 1, -1, 1, 1, 1, 1, 1]);

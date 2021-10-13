@@ -18,7 +18,7 @@ CCEffect %{
 CCProgram occlusion-query-vs %{
   precision highp float;
   #include <cc-global>
-  #include <cc-local-world-bound>
+  #include <cc-world-bound>
 
   layout(location = 0) in vec3 a_position;
 

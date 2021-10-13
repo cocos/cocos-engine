@@ -112,11 +112,11 @@ export const effects = [
     "shaders": [
       {
         "name": "occlusion-query|occlusion-query-vs:vert|occlusion-query-fs:frag",
-        "hash": 1875771392,
+        "hash": 1571978323,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 41, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] },
-          "locals": { "blocks": [{ "name": "CCLocalWorldBound", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
+          "locals": { "blocks": [{ "name": "CCWorldBound", "defines": [] }], "samplerTextures": [], "buffers": [], "images": [] }
         },
         "defines": [],
         "attributes": [

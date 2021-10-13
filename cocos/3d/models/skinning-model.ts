@@ -227,8 +227,8 @@ export class SkinningModel extends MorphModel {
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
     }
 
-    public _updateLocalWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
-        super._updateLocalWorldBoundDescriptors(subModelIndex, descriptorSet);
+    public _updateWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
+        super._updateWorldBoundDescriptors(subModelIndex, descriptorSet);
     }
 
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {

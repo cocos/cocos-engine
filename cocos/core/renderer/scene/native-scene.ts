@@ -30,7 +30,7 @@ export const NativeModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
-    setLocalWorldBoundBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -48,7 +48,7 @@ export const NativeSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
-    setLocalWorldBoundBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -84,7 +84,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
-    setLocalWorldBoundBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
