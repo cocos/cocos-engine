@@ -58,20 +58,20 @@ const normalizeHDRColor = (color : Vec4) => {
 export class AmbientInfo {
     @serializable
     @formerlySerializedAs('_skyColor')
-    protected _skyColorHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+    protected _skyColorHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
     @serializable
     @formerlySerializedAs('_skyIllum')
     protected _skyIllumHDR = Ambient.SKY_ILLUM;
     @serializable
     @formerlySerializedAs('_groundAlbedo')
-    protected _groundAlbedoHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
 
     @serializable
-    protected _skyColorLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+    protected _skyColorLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
     @serializable
     protected _skyIllumLDR = Ambient.SKY_ILLUM;
     @serializable
-    protected _groundAlbedoLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    protected _groundAlbedoLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
 
     protected _resource: Ambient | null = null;
 
@@ -221,7 +221,7 @@ export class SkyboxInfo {
     @serializable
     protected _useIBL = false;
     @serializable
-    protected _useHDR = false;
+    protected _useHDR = true;
 
     protected _resource: Skybox | null = null;
 
