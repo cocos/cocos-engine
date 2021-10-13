@@ -50,6 +50,7 @@ import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FAC
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { CCBoolean, CCFloat, CCInteger, Node, RenderPipeline } from '../core';
+import { JSB } from 'internal:constants';
 
 /**
  * @en Terrain info
@@ -1478,11 +1479,15 @@ export class Terrain extends Component {
             this._buildImp();
         }
 
-        RenderPipeline.addRenderCallback(this);
+        if (!JSB) {
+            RenderPipeline.addRenderCallback(this);
+        }
     }
 
     public onDisable () {
-        RenderPipeline.removeRenderCallback(this);
+        if (!JSB) {
+            RenderPipeline.removeRenderCallback(this);
+        }
 
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].destroy();
