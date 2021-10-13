@@ -154,6 +154,7 @@ Application::~Application() {
     gfx::DeviceManager::destroy();
 
     Application::instance = nullptr;
+    [_timer pause];
     [_timer release];
 }
 

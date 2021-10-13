@@ -150,6 +150,7 @@ Application::~Application() {
 
     Application::instance = nullptr;
 
+    [_timer pause];
     [_timer release];
 }
 
