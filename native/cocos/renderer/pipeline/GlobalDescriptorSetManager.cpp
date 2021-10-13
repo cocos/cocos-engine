@@ -175,6 +175,8 @@ void GlobalDSManager::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[UBOLocalBatched::BINDING]      = UBOLocalBatched::DESCRIPTOR;
     localDescriptorSetLayout.blocks[UBOLocal::NAME]                  = UBOLocal::LAYOUT;
     localDescriptorSetLayout.bindings[UBOLocal::BINDING]             = UBOLocal::DESCRIPTOR;
+    localDescriptorSetLayout.blocks[UBOWorldBound::NAME]        = UBOWorldBound::LAYOUT;
+    localDescriptorSetLayout.bindings[UBOWorldBound::BINDING]   = UBOWorldBound::DESCRIPTOR;
     localDescriptorSetLayout.blocks[UBOForwardLight::NAME]           = UBOForwardLight::LAYOUT;
     localDescriptorSetLayout.bindings[UBOForwardLight::BINDING]      = UBOForwardLight::DESCRIPTOR;
     localDescriptorSetLayout.blocks[UBOSkinningTexture::NAME]        = UBOSkinningTexture::LAYOUT;

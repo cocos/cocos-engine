@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <unordered_map>
 #include "Define.h"
 #include "GlobalDescriptorSetManager.h"
 #include "PipelineSceneData.h"
@@ -42,6 +43,9 @@ class CommandBuffer;
 class DescriptorSet;
 class DescriptorSetLayout;
 } // namespace gfx
+namespace scene {
+class SubModel;
+} // namespace scene
 namespace pipeline {
 class DefineMap;
 class GlobalDSManager;
@@ -81,10 +85,14 @@ public:
     inline gfx::Texture *                          getDefaultTexture() const { return _defaultTexture; }
     inline PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
     inline const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
+    inline const gfx::QueryPoolList &              getQueryPools() const { return _queryPools; }
     inline PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
     inline const String &                          getConstantMacros() const { return _constantMacros; }
     inline gfx::Device *                           getDevice() const { return _device; }
     RenderStage *                                  getRenderstageByName(const String &name) const;
+    bool                                           isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
+    bool                                           getOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
+    void                                           setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
 
     gfx::Rect               getRenderArea(scene::Camera *camera);
     gfx::Viewport           getViewport(scene::Camera *camera);
@@ -114,6 +122,7 @@ protected:
     void destroyQuadInputAssembler();
 
     gfx::CommandBufferList           _commandBuffers;
+    gfx::QueryPoolList               _queryPools;
     RenderFlowList                   _flows;
     map<String, InternalBindingInst> _globalBindings;
     DefineMap                        _macros;
@@ -141,6 +150,7 @@ protected:
     // use cluster culling or not
     bool _clusterEnabled{false};
     bool _bloomEnabled{false};
+    bool _occlusionQueryEnabled{true};
 };
 
 } // namespace pipeline

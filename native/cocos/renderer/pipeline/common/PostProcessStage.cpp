@@ -26,9 +26,9 @@
 
 #include "PostProcessStage.h"
 #include "../PipelineStateManager.h"
+#include "../RenderPipeline.h"
 #include "../RenderQueue.h"
 #include "UIPhase.h"
-#include "../RenderPipeline.h"
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/PassNodeBuilder.h"
 #include "frame-graph/Resource.h"
@@ -38,6 +38,7 @@
 #include "pipeline/Define.h"
 #include "pipeline/helper/Utils.h"
 #include "scene/SubModel.h"
+
 
 namespace cc {
 namespace pipeline {
@@ -87,7 +88,7 @@ void PostProcessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         }
 
         RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
+        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info))));
     }
 }
 
@@ -191,8 +192,8 @@ void PostProcessStage::render(scene::Camera *camera) {
             gfx::Shader *sd        = sceneData->getSharedData()->pipelinePostPassShader;
 
             // get pso and draw quad
-            gfx::InputAssembler *ia        = pipeline->getIAByRenderArea(pipeline->getRenderArea(camera));
-            gfx::PipelineState * pso       = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
+            gfx::InputAssembler *ia  = pipeline->getIAByRenderArea(pipeline->getRenderArea(camera));
+            gfx::PipelineState * pso = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
 
             pv->getDescriptorSet()->bindTexture(0, table.getRead(data.outColorTex));
             pv->getDescriptorSet()->bindSampler(0, pipeline->getDevice()->getSampler({

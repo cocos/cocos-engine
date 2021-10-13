@@ -52,6 +52,7 @@ namespace gfx {
 
 class CCVKGPUDevice;
 
+extern VkQueryType           mapVkQueryType(QueryType type);
 extern VkFormat              mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice);
 extern VkAttachmentLoadOp    mapVkLoadOp(LoadOp loadOp);
 extern VkAttachmentStoreOp   mapVkStoreOp(StoreOp storeOp);

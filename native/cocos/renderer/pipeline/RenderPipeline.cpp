@@ -133,6 +133,11 @@ void RenderPipeline::destroy() {
     CC_SAFE_DESTROY(_pipelineUBO);
     CC_SAFE_DESTROY(_pipelineSceneData);
 
+    for (auto *const queryPool : _queryPools) {
+        queryPool->destroy();
+    }
+    _queryPools.clear();
+
     for (auto *const cmdBuffer : _commandBuffers) {
         cmdBuffer->destroy();
     }
@@ -225,14 +230,13 @@ void RenderPipeline::ensureEnoughSize(const vector<scene::Camera *> &cameras) {
 }
 
 gfx::Viewport RenderPipeline::getViewport(scene::Camera *camera) {
-    auto  scale{_pipelineSceneData->getSharedData()->shadingScale};
+    auto             scale{_pipelineSceneData->getSharedData()->shadingScale};
     const gfx::Rect &rect = getRenderArea(camera);
     return {
         static_cast<int>(rect.x * scale),
         static_cast<int>(rect.y * scale),
         static_cast<uint>(rect.width * scale),
-        static_cast<uint>(rect.height * scale)
-    };
+        static_cast<uint>(rect.height * scale)};
 }
 
 gfx::Rect RenderPipeline::getRenderArea(scene::Camera *camera) {
@@ -303,6 +307,30 @@ RenderStage *RenderPipeline::getRenderstageByName(const String &name) const {
         }
     }
     return nullptr;
+}
+
+bool RenderPipeline::isOccluded(const scene::Camera *camera, const scene::SubModel *subModel) {
+    auto *model      = subModel->getOwner();
+    auto *worldBound = model->getWorldBounds();
+
+    // assume visible if there is no worldBound.
+    if (!worldBound) {
+        return false;
+    }
+
+    // assume visible if camera is inside of worldBound.
+    if (worldBound->contain(camera->position)) {
+        return false;
+    }
+
+    // assume visible if no query in the last frame.
+    uint32_t id = subModel->getId();
+    if (!_queryPools[0]->hasResult(id)) {
+        return false;
+    }
+
+    // check query results.
+    return _queryPools[0]->getResult(id) == 0;
 }
 
 } // namespace pipeline

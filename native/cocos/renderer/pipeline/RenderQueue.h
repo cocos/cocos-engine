@@ -28,21 +28,28 @@
 #include "Define.h"
 
 namespace cc {
+namespace scene {
+struct Camera;
+}
 namespace pipeline {
+
+class RenderPipeline;
 
 class CC_DLL RenderQueue : public Object {
 public:
-    explicit RenderQueue(RenderQueueCreateInfo desc);
+    explicit RenderQueue(RenderPipeline *pipeline, RenderQueueCreateInfo desc, bool useOcclusionQuery = false);
 
     void clear();
     bool insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx);
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, uint32_t subpassIndex = 0);
+    void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, uint32_t subpassIndex = 0);
     void sort();
     bool empty() { return _queue.empty(); }
 
 private:
+    RenderPipeline *      _pipeline = nullptr;
     RenderPassList        _queue;
     RenderQueueCreateInfo _passDesc;
+    bool                  _useOcclusionQuery{false};
 };
 
 } // namespace pipeline

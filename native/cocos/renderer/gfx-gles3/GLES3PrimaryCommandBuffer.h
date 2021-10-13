@@ -49,9 +49,15 @@ public:
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
+    void beginQuery(QueryPool *queryPool, uint32_t id) override;
+    void endQuery(QueryPool *queryPool, uint32_t id) override;
+    void resetQuery(QueryPool *queryPool) override;
 
 protected:
     friend class GLES3Queue;
+    friend class GLES3QueryPool;
+
+    void getQueryPoolResults(QueryPool *query) override;
 
     void bindStates() override;
 };

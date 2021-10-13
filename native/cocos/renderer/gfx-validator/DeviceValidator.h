@@ -47,6 +47,7 @@ public:
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
+    using Device::createQueryPool;
     using Device::createQueue;
     using Device::createRenderPass;
     using Device::createSampler;
@@ -59,6 +60,7 @@ public:
 
     CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Queue *              createQueue() override;
+    QueryPool *          createQueryPool() override;
     Swapchain *          createSwapchain() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
@@ -77,6 +79,7 @@ public:
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
+    void getQueryPoolResults(QueryPool *queryPool) override;
 
     void          flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }

@@ -34,6 +34,7 @@
 #include "VKInputAssembler.h"
 #include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
+#include "VKQueryPool.h"
 #include "VKQueue.h"
 #include "VKRenderPass.h"
 #include "VKShader.h"
@@ -74,6 +75,7 @@ CCVKDevice::CCVKDevice() {
     _api        = API::VULKAN;
     _deviceName = "Vulkan";
 
+    _caps.supportQuery     = true;
     _caps.clipSpaceMinZ    = 0.0F;
     _caps.screenSpaceSignY = -1.0F;
     _caps.clipSpaceSignY   = -1.0F;
@@ -297,6 +299,9 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     queueInfo.type = QueueType::GRAPHICS;
     _queue         = createQueue(queueInfo);
 
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS};
+    _queryPool = CCVKDevice::getInstance()->createQueryPool(queryPoolInfo);
+
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type  = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
@@ -456,6 +461,7 @@ void CCVKDevice::doDestroy() {
     }
     _depthStencilTextures.clear();
 
+    CC_SAFE_DESTROY(_queryPool)
     CC_SAFE_DESTROY(_queue)
     CC_SAFE_DESTROY(_cmdBuff)
 
@@ -682,6 +688,10 @@ Queue *CCVKDevice::createQueue() {
     return CC_NEW(CCVKQueue);
 }
 
+QueryPool *CCVKDevice::createQueryPool() {
+    return CC_NEW(CCVKQueryPool);
+}
+
 Swapchain *CCVKDevice::createSwapchain() {
     return CC_NEW(CCVKSwapchain);
 }
@@ -776,6 +786,41 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
         uint32_t regionSize                = 0;
         std::tie(regionOffset, regionSize) = regionOffsetSizes[i];
         memcpy(buffers[i], stagingBuffer.mappedData + regionOffset, regionSize);
+    }
+}
+
+void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
+    auto *vkQueryPool = static_cast<CCVKQueryPool *>(queryPool);
+    auto  queryCount  = static_cast<uint32_t>(vkQueryPool->_ids.size());
+    CCASSERT(queryCount <= vkQueryPool->getMaxQueryObjects(), "Too many query commands.");
+    std::vector<uint64_t> results(queryCount, 0ULL);
+
+    if (queryCount > 0U) {
+        VK_CHECK(vkGetQueryPoolResults(
+            gpuDevice()->vkDevice,
+            vkQueryPool->_gpuQueryPool->pool,
+            0,
+            queryCount,
+            queryCount * sizeof(uint64_t),
+            results.data(),
+            sizeof(uint64_t),
+            VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
+    }
+
+    std::unordered_map<uint32_t, uint64_t> mapResults;
+    for (auto queryId = 0U; queryId < queryCount; queryId++) {
+        uint32_t id   = vkQueryPool->_ids[queryId];
+        auto     iter = mapResults.find(id);
+        if (iter != mapResults.end()) {
+            iter->second += results[queryId];
+        } else {
+            mapResults[id] = results[queryId];
+        }
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(vkQueryPool->_mutex);
+        vkQueryPool->_results = std::move(mapResults);
     }
 }
 

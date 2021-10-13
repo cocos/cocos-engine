@@ -65,6 +65,7 @@ public:
     void               merge(const Frustum &frustum);
     void               set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal);
     void               transform(const Mat4 &m, AABB *out) const;
+    bool               contain(const cc::Vec3 &point) const;
     inline void        setCenter(float x, float y, float z) { _aabbLayout->center.set(x, y, z); }
     inline void        setCenter(const Vec3 &center) { _aabbLayout->center.set(center); }
     inline void        setValid(bool isValid) { _isValid = isValid; }

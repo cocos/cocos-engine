@@ -168,6 +168,25 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
     1,
 };
 
+const String                          UBOWorldBound::NAME       = "CCWorldBound";
+const gfx::DescriptorSetLayoutBinding UBOWorldBound::DESCRIPTOR = {
+    UBOWorldBound::BINDING,
+    gfx::DescriptorType::UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::COMPUTE,
+    {},
+};
+const gfx::UniformBlock UBOWorldBound::LAYOUT = {
+    localSet,
+    UBOWorldBound::BINDING,
+    UBOWorldBound::NAME,
+    {
+        {"cc_worldBoundCenter", gfx::Type::FLOAT4, 1},
+        {"cc_worldBoundHalfExtents", gfx::Type::FLOAT4, 1},
+    },
+    1,
+};
+
 const String                          UBOForwardLight::NAME       = "CCForwardLight";
 const gfx::DescriptorSetLayoutBinding UBOForwardLight::DESCRIPTOR = {
     UBOForwardLight::BINDING,

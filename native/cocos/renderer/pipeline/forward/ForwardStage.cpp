@@ -33,9 +33,10 @@
 #include "../RenderQueue.h"
 #include "../helper/Utils.h"
 #include "ForwardPipeline.h"
-#include "pipeline/common/UIPhase.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "pipeline/common/UIPhase.h"
+
 
 namespace cc {
 namespace pipeline {
@@ -67,10 +68,10 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        const uint                phase    = convertPhase(descriptor.stages);
-        const RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo     info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
+        uint                  phase    = convertPhase(descriptor.stages);
+        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
+        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
     }
 
     _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
@@ -206,19 +207,19 @@ void ForwardStage::render(scene::Camera *camera) {
 
     auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
     auto forwardExec = [this, camera, offset](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
-        auto *                    renderPass    = table.getRenderPass();
-        auto *                    cmdBuff       = _pipeline->getCommandBuffers()[0];
+        auto *renderPass = table.getRenderPass();
+        auto *cmdBuff    = _pipeline->getCommandBuffers()[0];
         cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
         if (!_pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
-            _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _renderQueues[0]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
             _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
 
-            _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _additiveLightQueue->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
 
             cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-            _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
     };
 

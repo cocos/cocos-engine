@@ -31,6 +31,7 @@ namespace cc {
 namespace gfx {
 
 class GLES3Device;
+class GLES3QueryPool;
 
 class GLES3CmdBeginRenderPass final : public GLESCmd {
 public:
@@ -149,6 +150,28 @@ public:
     }
 };
 
+enum class GLES3QueryType : uint8_t {
+    BEGIN,
+    END,
+    RESET,
+    GET_RESULTS,
+};
+
+class GLES3CmdQuery final : public GLESCmd {
+public:
+    GLES3QueryPool *queryPool = nullptr;
+    GLES3QueryType  type      = GLES3QueryType::BEGIN;
+    uint32_t        id        = 0U;
+
+    GLES3CmdQuery() : GLESCmd(GLESCmdType::QUERY) {}
+
+    void clear() override {
+        queryPool = nullptr;
+        type      = GLES3QueryType::BEGIN;
+        id        = 0U;
+    }
+};
+
 class GLES3CmdPackage final : public Object {
 public:
     CachedArray<GLESCmdType>                   cmds;
@@ -160,6 +183,7 @@ public:
     CachedArray<GLES3CmdUpdateBuffer *>        updateBufferCmds;
     CachedArray<GLES3CmdCopyBufferToTexture *> copyBufferToTextureCmds;
     CachedArray<GLES3CmdBlitTexture *>         blitTextureCmds;
+    CachedArray<GLES3CmdQuery *>               queryCmds;
 };
 
 class GLES3GPUCommandAllocator final : public Object {
@@ -172,6 +196,7 @@ public:
     CommandPool<GLES3CmdUpdateBuffer>        updateBufferCmdPool;
     CommandPool<GLES3CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
     CommandPool<GLES3CmdBlitTexture>         blitTextureCmdPool;
+    CommandPool<GLES3CmdQuery>               queryCmdPool;
 
     void clearCmds(GLES3CmdPackage *cmdPackage) {
         if (cmdPackage->beginRenderPassCmds.size()) {
@@ -197,6 +222,9 @@ public:
         }
         if (cmdPackage->blitTextureCmds.size()) {
             blitTextureCmdPool.freeCmds(cmdPackage->blitTextureCmds);
+        }
+        if (cmdPackage->queryCmds.size()) {
+            queryCmdPool.freeCmds(cmdPackage->queryCmds);
         }
 
         cmdPackage->cmds.clear();
@@ -231,6 +259,10 @@ CC_GLES3_API void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GP
 CC_GLES3_API void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
 CC_GLES3_API void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
 CC_GLES3_API void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier);
+CC_GLES3_API void cmdFuncGLES3CreateQuery(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
+CC_GLES3_API void cmdFuncGLES3DestroyQuery(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
+
+CC_GLES3_API void cmdFuncGLES3Query(GLES3Device *device, GLES3QueryPool *query, GLES3QueryType type, uint32_t id);
 
 CC_GLES3_API void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx,
                                               GLES3GPURenderPass * gpuRenderPass  = nullptr,

@@ -71,7 +71,7 @@ void GbufferStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         uint                  phase    = convertPhase(descriptor.stages);
         RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
+        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info))));
     }
     _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
 }
@@ -127,7 +127,7 @@ void GbufferStage::dispenseRenderObject2Queues() {
         queue->sort();
     }
 }
-void GbufferStage::recordCommands(DeferredPipeline *pipeline, gfx::RenderPass *renderPass) {
+void GbufferStage::recordCommands(DeferredPipeline *pipeline, scene::Camera *camera, gfx::RenderPass *renderPass) {
     auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
     // DescriptorSet bindings
@@ -135,7 +135,7 @@ void GbufferStage::recordCommands(DeferredPipeline *pipeline, gfx::RenderPass *r
     cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
 
     // record commands
-    _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
+    _renderQueues[0]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
     _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
     _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
 }
@@ -224,8 +224,8 @@ void GbufferStage::render(scene::Camera *camera) {
         builder.setViewport(pipeline->getViewport(camera), _renderArea);
     };
 
-    auto gbufferExec = [this](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
-        recordCommands(static_cast<DeferredPipeline *>(_pipeline), table.getRenderPass());
+    auto gbufferExec = [this, camera](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
+        recordCommands(static_cast<DeferredPipeline *>(_pipeline), camera, table.getRenderPass());
     };
 
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda

@@ -68,12 +68,14 @@ class PipelineState;
 class DescriptorSet;
 class CommandBuffer;
 class Queue;
+class QueryPool;
 class Window;
 class Context;
 
 using TextureBarrierList = vector<TextureBarrier *>;
 using BufferDataList     = vector<const uint8_t *>;
 using CommandBufferList  = vector<CommandBuffer *>;
+using QueryPoolList      = vector<QueryPool *>;
 
 constexpr uint32_t MAX_ATTACHMENTS  = 4U;
 constexpr uint32_t INVALID_BINDING  = ~0U;
@@ -100,6 +102,7 @@ enum class ObjectType : uint32_t {
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     QUEUE,
+    QUERY_POOL,
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
@@ -738,6 +741,13 @@ enum class QueueType : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(QueueType);
 
+enum class QueryType : uint32_t {
+    OCCLUSION,
+    PIPELINE_STATISTICS,
+    TIMESTAMP,
+};
+CC_ENUM_CONVERSION_OPERATOR(QueryType);
+
 enum class CommandBufferType : uint32_t {
     PRIMARY,
     SECONDARY,
@@ -781,6 +791,8 @@ struct DeviceCaps {
     uint32_t maxComputeWorkGroupInvocations{0U};
     Size     maxComputeWorkGroupSize;
     Size     maxComputeWorkGroupCount;
+
+    bool supportQuery{false};
 
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};
@@ -1274,6 +1286,13 @@ struct CommandBufferInfo {
 
 struct QueueInfo {
     QueueType type{QueueType::GRAPHICS};
+};
+
+constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 65536U;
+
+struct QueryPoolInfo {
+    QueryType type{QueryType::OCCLUSION};
+    uint32_t  maxQueryObjects{DEFAULT_MAX_QUERY_OBJECTS};
 };
 
 struct FormatInfo {

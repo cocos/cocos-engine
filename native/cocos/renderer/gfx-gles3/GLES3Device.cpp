@@ -37,6 +37,7 @@
 #include "GLES3PipelineLayout.h"
 #include "GLES3PipelineState.h"
 #include "GLES3PrimaryCommandBuffer.h"
+#include "GLES3QueryPool.h"
 #include "GLES3Queue.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Shader.h"
@@ -79,15 +80,6 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         destroy();
         return false;
     };
-
-    QueueInfo queueInfo;
-    queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
-
-    CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
-    cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
@@ -214,6 +206,19 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.y));
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.z));
     }
+    _caps.supportQuery = true;
+
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
+
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS};
+    _queryPool = GLES3Device::getInstance()->createQueryPool(queryPoolInfo);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxImageUnits, _caps.maxUniformBufferBindings, _caps.maxShaderStorageBufferBindings, _caps.maxVertexAttributes);
 
@@ -236,6 +241,7 @@ void GLES3Device::doDestroy() {
     CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 
     CC_SAFE_DESTROY(_cmdBuff)
+    CC_SAFE_DESTROY(_queryPool)
     CC_SAFE_DESTROY(_queue)
     CC_SAFE_DESTROY(_gpuContext)
 }
@@ -274,6 +280,10 @@ CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, b
 
 Queue *GLES3Device::createQueue() {
     return CC_NEW(GLES3Queue);
+}
+
+QueryPool *GLES3Device::createQueryPool() {
+    return CC_NEW(GLES3QueryPool);
 }
 
 Swapchain *GLES3Device::createSwapchain() {
@@ -338,6 +348,11 @@ void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 
 void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     cmdFuncGLES3CopyTextureToBuffers(this, static_cast<GLES3Texture *>(srcTexture)->gpuTexture(), buffers, regions, count);
+}
+
+void GLES3Device::getQueryPoolResults(QueryPool *queryPool) {
+    auto *cmdBuff = static_cast<GLES3CommandBuffer *>(getCommandBuffer());
+    cmdBuff->getQueryPoolResults(queryPool);
 }
 
 } // namespace gfx

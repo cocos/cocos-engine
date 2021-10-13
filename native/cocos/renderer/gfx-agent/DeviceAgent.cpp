@@ -36,6 +36,7 @@
 #include "InputAssemblerAgent.h"
 #include "PipelineLayoutAgent.h"
 #include "PipelineStateAgent.h"
+#include "QueryPoolAgent.h"
 #include "QueueAgent.h"
 #include "RenderPassAgent.h"
 #include "ShaderAgent.h"
@@ -71,6 +72,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     _api        = _actor->getGfxAPI();
     _deviceName = _actor->getDeviceName();
     _queue      = CC_NEW(QueueAgent(_actor->getQueue()));
+    _queryPool  = CC_NEW(QueryPoolAgent(_actor->getQueryPool()));
     _cmdBuff    = CC_NEW(CommandBufferAgent(_actor->getCommandBuffer()));
     _renderer   = _actor->getRenderer();
     _vendor     = _actor->getVendor();
@@ -82,7 +84,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     _mainMessageQueue = _CC_NEW_T_ALIGN(MessageQueue, alignof(MessageQueue)); //NOLINT
 
     static_cast<CommandBufferAgent *>(_cmdBuff)->_queue = _queue;
-    static_cast<CommandBufferAgent *>(_cmdBuff)->initMessageQueue();
+    static_cast<CommandBufferAgent *>(_cmdBuff)->initAgent();
 
     setMultithreaded(true);
 
@@ -98,10 +100,15 @@ void DeviceAgent::doDestroy() {
         });
 
     if (_cmdBuff) {
-        static_cast<CommandBufferAgent *>(_cmdBuff)->destroyMessageQueue();
+        static_cast<CommandBufferAgent *>(_cmdBuff)->destroyAgent();
         static_cast<CommandBufferAgent *>(_cmdBuff)->_actor = nullptr;
         CC_DELETE(_cmdBuff);
         _cmdBuff = nullptr;
+    }
+    if (_queryPool) {
+        static_cast<QueryPoolAgent *>(_queryPool)->_actor = nullptr;
+        CC_DELETE(_queryPool);
+        _queryPool = nullptr;
     }
     if (_queue) {
         static_cast<QueueAgent *>(_queue)->_actor = nullptr;
@@ -192,6 +199,11 @@ CommandBuffer *DeviceAgent::createCommandBuffer(const CommandBufferInfo &info, b
 Queue *DeviceAgent::createQueue() {
     Queue *actor = _actor->createQueue();
     return CC_NEW(QueueAgent(actor));
+}
+
+QueryPool *DeviceAgent::createQueryPool() {
+    QueryPool *actor = _actor->createQueryPool();
+    return CC_NEW(QueryPoolAgent(actor));
 }
 
 Swapchain *DeviceAgent::createSwapchain() {
@@ -343,6 +355,23 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) 
         {
             CommandBufferAgent::flushCommands(count, cmdBuffs, multiThreaded);
         });
+}
+
+void DeviceAgent::getQueryPoolResults(QueryPool *queryPool) {
+    QueryPool *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
+    ENQUEUE_MESSAGE_2(
+        _mainMessageQueue, DeviceGetQueryPoolResults,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        {
+            actor->getQueryPoolResults(queryPool);
+        });
+
+    auto *                      actorQueryPoolAgent = static_cast<QueryPoolAgent *>(actorQueryPool);
+    auto *                      queryPoolAgent      = static_cast<QueryPoolAgent *>(queryPool);
+    std::lock_guard<std::mutex> lock(actorQueryPoolAgent->_mutex);
+    queryPoolAgent->_results = actorQueryPoolAgent->_results;
 }
 
 } // namespace gfx

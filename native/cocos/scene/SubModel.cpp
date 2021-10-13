@@ -28,11 +28,16 @@
 namespace cc {
 namespace scene {
 
+SubModel::SubModel() {
+    _id = generateId();
+}
+
 void SubModel::update() {
     for (Pass *pass : _passes) {
         pass->update();
     }
     _descriptSet->update();
+    _worldBoundDescriptorSet->update();
 }
 
 SubModel::~SubModel() {

@@ -259,7 +259,7 @@ void MemoryHook::registerAll() {
     malloc_logger          = cc_malloc_logger;
     g_new_hooker           = newHook;
     g_delete_hooker        = deleteHook;
-    #elif CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     MallocHook_AddNewHook(&newHook);
     MallocHook_AddDeleteHook(&deleteHook);
     #endif
@@ -273,7 +273,7 @@ void MemoryHook::unRegisterAll() {
     malloc_logger   = g_system_malloc_logger;
     g_new_hooker    = nullptr;
     g_delete_hooker = nullptr;
-    #elif CC_PLATFORM_WINDOWS
+    #elif CC_PLATFORM == CC_PLATFORM_WINDOWS
     MallocHook_RemoveNewHook(&newHook);
     MallocHook_RemoveDeleteHook(&deleteHook);
     #endif

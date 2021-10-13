@@ -37,6 +37,7 @@
 #include "GLES2PipelineLayout.h"
 #include "GLES2PipelineState.h"
 #include "GLES2PrimaryCommandBuffer.h"
+#include "GLES2QueryPool.h"
 #include "GLES2Queue.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Shader.h"
@@ -79,15 +80,6 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         destroy();
         return false;
     };
-
-    QueueInfo queueInfo;
-    queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
-
-    CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
-    cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
@@ -217,6 +209,18 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
 
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
+
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS};
+    _queryPool = GLES2Device::getInstance()->createQueryPool(queryPoolInfo);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
     _gpuBlitManager->initialize();
 
@@ -243,6 +247,7 @@ void GLES2Device::doDestroy() {
     CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 
     CC_SAFE_DESTROY(_cmdBuff)
+    CC_SAFE_DESTROY(_queryPool)
     CC_SAFE_DESTROY(_queue)
     CC_SAFE_DESTROY(_gpuContext)
 }
@@ -281,6 +286,10 @@ CommandBuffer *GLES2Device::createCommandBuffer(const CommandBufferInfo &info, b
 
 Queue *GLES2Device::createQueue() {
     return CC_NEW(GLES2Queue);
+}
+
+QueryPool *GLES2Device::createQueryPool() {
+    return CC_NEW(GLES2QueryPool);
 }
 
 Swapchain *GLES2Device::createSwapchain() {

@@ -34,6 +34,9 @@
 #include "scene/SpotLight.h"
 
 namespace cc {
+namespace scene {
+struct Camera;
+}
 namespace pipeline {
 struct RenderObject;
 class RenderPipeline;
@@ -55,7 +58,7 @@ public:
     explicit RenderAdditiveLightQueue(RenderPipeline *pipeline);
     ~RenderAdditiveLightQueue() override;
 
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
+    void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void destroy() const;
 

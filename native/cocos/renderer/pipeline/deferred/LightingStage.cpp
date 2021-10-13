@@ -275,7 +275,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
         uint                  phase    = convertPhase(descriptor.stages);
         RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
         RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
+        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info))));
     }
 
     // not use cluster shading, go normal deferred render path
@@ -298,7 +298,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     _reflectionComp            = new ReflectionComp();
     _reflectionComp->init(_device, 8, 8);
 
-    _reflectionRenderQueue = CC_NEW(RenderQueue(std::move(info)));
+    _reflectionRenderQueue = CC_NEW(RenderQueue(_pipeline, std::move(info)));
 
     gfx::SamplerInfo samplerInfo;
     samplerInfo.minFilter = gfx::Filter::POINT;
@@ -495,7 +495,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
     };
 
-    auto transparentExec = [this](RenderData const & /*data*/, const framegraph::DevicePassResourceTable &table) {
+    auto transparentExec = [this, camera](RenderData const & /*data*/, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
         auto *cmdBuff  = pipeline->getCommandBuffers()[0];
 
@@ -508,7 +508,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         // transparent
         for (auto *queue : _renderQueues) {
             queue->sort();
-            queue->recordCommandBuffer(pipeline->getDevice(), table.getRenderPass(), cmdBuff, table.getSubpassIndex());
+            queue->recordCommandBuffer(pipeline->getDevice(), camera, table.getRenderPass(), cmdBuff, table.getSubpassIndex());
         }
 
         //_planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
@@ -778,7 +778,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
     };
 
-    auto renderExec = [this](DataRender const &data, const framegraph::DevicePassResourceTable &table) {
+    auto renderExec = [this, camera](DataRender const &data, const framegraph::DevicePassResourceTable &table) {
         auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
         auto *cmdBuff  = pipeline->getCommandBuffers()[0];
         auto &elem     = _reflectionElems[_denoiseIndex];
@@ -799,7 +799,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
 
         gfx::RenderPass *renderPass = table.getRenderPass();
         _reflectionRenderQueue->sort();
-        _reflectionRenderQueue->recordCommandBuffer(pipeline->getDevice(), renderPass, cmdBuff);
+        _reflectionRenderQueue->recordCommandBuffer(pipeline->getDevice(), camera, renderPass, cmdBuff);
     };
 
     // step 5 add framegraph passes

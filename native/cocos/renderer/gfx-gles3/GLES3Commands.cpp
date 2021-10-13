@@ -27,6 +27,7 @@
 
 #include "GLES3Commands.h"
 #include "GLES3Device.h"
+#include "GLES3QueryPool.h"
 #include "gfx-base/GFXDef-common.h"
 
 #define BUFFER_OFFSET(idx) (static_cast<char *>(0) + (idx))
@@ -1765,6 +1766,78 @@ void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses
     }
 }
 
+void cmdFuncGLES3CreateQuery(GLES3Device * /*device*/, GLES3GPUQueryPool *gpuQueryPool) {
+    GL_CHECK(glGenQueries(gpuQueryPool->maxQueryObjects, &gpuQueryPool->glQueryIds[0]));
+}
+
+void cmdFuncGLES3DestroyQuery(GLES3Device * /*device*/, GLES3GPUQueryPool *gpuQueryPool) {
+    GL_CHECK(glDeleteQueries(gpuQueryPool->maxQueryObjects, &gpuQueryPool->glQueryIds[0]));
+}
+
+void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES3QueryType type, uint32_t id) {
+    GLES3GPUQueryPool *gpuQueryPool = queryPool->gpuQueryPool();
+
+    switch (type) {
+        case GLES3QueryType::BEGIN: {
+            auto   queryId   = queryPool->getIdCount();
+            GLuint glQueryId = gpuQueryPool->mapGLQueryId(queryId);
+            if (glQueryId != -1) {
+                GL_CHECK(glBeginQuery(GL_ANY_SAMPLES_PASSED, glQueryId));
+            }
+            break;
+        }
+        case GLES3QueryType::END: {
+            auto   queryId   = queryPool->getIdCount();
+            GLuint glQueryId = gpuQueryPool->mapGLQueryId(queryId);
+            if (glQueryId != -1) {
+                GL_CHECK(glEndQuery(GL_ANY_SAMPLES_PASSED));
+                queryPool->addId(id);
+            }
+            break;
+        }
+        case GLES3QueryType::RESET: {
+            queryPool->clearId();
+            break;
+        }
+        case GLES3QueryType::GET_RESULTS: {
+            auto                  queryCount = queryPool->getIdCount();
+            std::vector<uint64_t> results(queryCount);
+
+            for (auto queryId = 0U; queryId < queryCount; queryId++) {
+                GLuint glQueryId = gpuQueryPool->mapGLQueryId(queryId);
+
+                if (glQueryId != -1) {
+                    GLuint result{0};
+                    GL_CHECK(glGetQueryObjectuiv(glQueryId, GL_QUERY_RESULT, &result));
+                    results[queryId] = static_cast<uint64_t>(result);
+                } else {
+                    results[queryId] = 1ULL;
+                }
+            }
+
+            std::unordered_map<uint32_t, uint64_t> mapResults;
+            for (auto queryId = 0U; queryId < queryCount; queryId++) {
+                uint32_t id   = queryPool->getId(queryId);
+                auto     iter = mapResults.find(id);
+                if (iter != mapResults.end()) {
+                    iter->second += results[queryId];
+                } else {
+                    mapResults[id] = results[queryId];
+                }
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(queryPool->getMutex());
+                queryPool->setResults(std::move(mapResults));
+            }
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
 void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3GPURenderPass *gpuRenderPass,
                                  GLES3GPUFramebuffer *gpuFramebuffer, const Rect *renderArea,
                                  const Color *clearColors, float clearDepth, uint32_t clearStencil) {
@@ -3025,6 +3098,11 @@ void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
             case GLESCmdType::BLIT_TEXTURE: {
                 GLES3CmdBlitTexture *cmd = cmdPackage->blitTextureCmds[cmdIdx];
                 cmdFuncGLES3BlitTexture(device, cmd->gpuTextureSrc, cmd->gpuTextureDst, cmd->regions, cmd->count, cmd->filter);
+                break;
+            }
+            case GLESCmdType::QUERY: {
+                GLES3CmdQuery *cmd = cmdPackage->queryCmds[cmdIdx];
+                cmdFuncGLES3Query(device, cmd->queryPool, cmd->type, cmd->id);
                 break;
             }
             default:
