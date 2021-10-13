@@ -23,10 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "RenderPipeline.h"
+#include <boost/functional/hash.hpp>
+
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "RenderFlow.h"
+#include "RenderPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
@@ -161,7 +163,7 @@ gfx::Color RenderPipeline::getClearcolor(scene::Camera *camera) const {
 }
 
 void RenderPipeline::updateQuadVertexData(const Vec4 &viewport, gfx::Buffer *buffer) {
-    float vbData[16]    = {0};
+    float vbData[16] = {0};
     genQuadVertexData(viewport, vbData);
     buffer->update(vbData, sizeof(vbData));
 }
@@ -170,17 +172,14 @@ gfx::InputAssembler *RenderPipeline::getIAByRenderArea(const gfx::Rect &renderAr
     auto bufferWidth{static_cast<float>(_width)};
     auto bufferHeight{static_cast<float>(_height)};
     Vec4 viewport{
-            static_cast<float>(renderArea.x) / bufferWidth,
-            static_cast<float>(renderArea.y) / bufferHeight,
-            static_cast<float>(renderArea.width) / bufferWidth,
-            static_cast<float>(renderArea.height) / bufferHeight,
+        static_cast<float>(renderArea.x) / bufferWidth,
+        static_cast<float>(renderArea.y) / bufferHeight,
+        static_cast<float>(renderArea.width) / bufferWidth,
+        static_cast<float>(renderArea.height) / bufferHeight,
     };
 
-    uint32_t hash = 4;
-    hash ^= *reinterpret_cast<uint32_t*>(&viewport.x) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-    hash ^= *reinterpret_cast<uint32_t*>(&viewport.y) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-    hash ^= *reinterpret_cast<uint32_t*>(&viewport.z) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-    hash ^= *reinterpret_cast<uint32_t*>(&viewport.w) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    size_t hash = boost::hash_range(reinterpret_cast<const uint64_t *>(&viewport.x),
+                                    reinterpret_cast<const uint64_t *>(&viewport.x + 4));
 
     const auto iter = _quadIA.find(hash);
     if (iter != _quadIA.end()) {

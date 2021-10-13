@@ -126,7 +126,7 @@ void PostProcessStage::render(scene::Camera *camera) {
             colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
             colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
 
-            data.outColorTex = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+            data.outColorTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         }
 
         data.outColorTex = builder.read(data.outColorTex);
@@ -156,7 +156,7 @@ void PostProcessStage::render(scene::Camera *camera) {
             static_cast<uint>(camera->window->getWidth() * shadingScale),
             static_cast<uint>(camera->window->getHeight() * shadingScale),
         };
-        data.backBuffer = builder.create<framegraph::Texture>(fgStrHandlePostProcessOutTexture, textureInfo);
+        data.backBuffer = builder.create(fgStrHandlePostProcessOutTexture, textureInfo);
         data.backBuffer = builder.write(data.backBuffer, colorAttachmentInfo);
         builder.writeToBlackboard(fgStrHandlePostProcessOutTexture, data.backBuffer);
 

@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/functional/hash.hpp>
+
 #include "VKStd.h"
 
 #include "VKCommands.h"
@@ -307,21 +309,16 @@ struct SubpassDependencyManager final {
     }
 
     void append(const VkSubpassDependency2 &dependency) {
-        uint32_t hash = 6U;
-        hash ^= (dependency.srcSubpass) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        hash ^= (dependency.srcStageMask) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        hash ^= (dependency.srcAccessMask) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        hash ^= (dependency.dstSubpass) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        hash ^= (dependency.dstStageMask) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        hash ^= (dependency.dstAccessMask) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-
+        // only cares about src/dst attributes
+        size_t hash = boost::hash_range(reinterpret_cast<const uint64_t *>(&dependency.srcSubpass),
+                                        reinterpret_cast<const uint64_t *>(&dependency.dependencyFlags));
         if (_hashes.count(hash)) return;
         subpassDependencies.push_back(dependency);
         _hashes.insert(hash);
     }
 
 private:
-    unordered_set<uint32_t> _hashes;
+    unordered_set<size_t> _hashes;
 };
 
 void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRenderPass) {
@@ -603,7 +600,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             statistics.storeSubpass = index;
         };
         auto calculateLifeCycle = [&](uint32_t targetAttachment, AttachmentStatistics &statistics) {
-            for (size_t j = 0U; j < subpassCount; ++j) {
+            for (uint32_t j = 0U; j < utils::toUint(subpassCount); ++j) {
                 auto &subpass = subpassDescriptions[j];
                 for (size_t k = 0U; k < subpass.colorAttachmentCount; ++k) {
                     if (subpass.pColorAttachments[k].attachment == targetAttachment) {
@@ -628,7 +625,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             }
         };
         attachmentStatistics.resize(colorAttachmentCount + hasDepth);
-        for (size_t i = 0U; i < colorAttachmentCount + hasDepth; ++i) {
+        for (uint32_t i = 0U; i < utils ::toUint(colorAttachmentCount + hasDepth); ++i) {
             attachmentStatistics[i].clear();
             calculateLifeCycle(i, attachmentStatistics[i]);
             CC_ASSERT(attachmentStatistics[i].loadSubpass != VK_SUBPASS_EXTERNAL &&
@@ -654,7 +651,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         VkSubpassDependency2 beginDependency;
         uint32_t             lastLoadSubpass{VK_SUBPASS_EXTERNAL};
         bool                 beginDependencyValid{false};
-        for (size_t i = 0U; i < colorAttachmentCount + hasDepth; ++i) {
+        for (uint32_t i = 0U; i < utils ::toUint(colorAttachmentCount + hasDepth); ++i) {
             auto &statistics = attachmentStatistics[i];
             if (lastLoadSubpass != statistics.loadSubpass) {
                 if (beginDependencyValid) dependencyManager.append(beginDependency);
@@ -686,7 +683,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         VkSubpassDependency2 endDependency;
         uint32_t             lastStoreSubpass{VK_SUBPASS_EXTERNAL};
         bool                 endDependencyValid{false};
-        for (size_t i = 0U; i < colorAttachmentCount + hasDepth; ++i) {
+        for (uint32_t i = 0U; i < utils ::toUint(colorAttachmentCount + hasDepth); ++i) {
             auto &statistics = attachmentStatistics[i];
             if (lastStoreSubpass != statistics.storeSubpass) {
                 if (endDependencyValid) dependencyManager.append(endDependency);

@@ -27,7 +27,6 @@
 
 #include "GFXBuffer.h"
 #include "GFXDevice.h"
-#include "GFXObject.h"
 
 namespace cc {
 namespace gfx {
@@ -38,9 +37,8 @@ Buffer::Buffer()
 
 Buffer::~Buffer() = default;
 
-uint32_t Buffer::computeHash(const BufferInfo &info) {
-    std::hash<BufferInfo> hasher;
-    return utils::toUint(hasher(info));
+size_t Buffer::computeHash(const BufferInfo &info) {
+    return Hasher<BufferInfo>()(info);
 }
 
 void Buffer::initialize(const BufferInfo &info) {

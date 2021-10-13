@@ -30,7 +30,7 @@
 namespace cc {
 namespace gfx {
 
-CCVKTextureBarrier::CCVKTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) : TextureBarrier(info, hash) {
+CCVKTextureBarrier::CCVKTextureBarrier(const TextureBarrierInfo &info, size_t hash) : TextureBarrier(info, hash) {
     _typedID = generateObjectID<decltype(this)>();
 
     _gpuBarrier = CC_NEW(CCVKGPUTextureBarrier);

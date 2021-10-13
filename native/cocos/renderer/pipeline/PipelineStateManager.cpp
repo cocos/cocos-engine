@@ -30,7 +30,7 @@
 namespace cc {
 namespace pipeline {
 
-unordered_map<uint, gfx::PipelineState *> PipelineStateManager::psoHashMap;
+unordered_map<size_t, gfx::PipelineState *> PipelineStateManager::psoHashMap;
 
 gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const scene::Pass *  pass,
                                                                    gfx::Shader *        shader,

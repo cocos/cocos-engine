@@ -376,7 +376,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
         colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
         colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
-        data.outputTex      = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+        data.outputTex      = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage         = framegraph::RenderTargetAttachment::Usage::COLOR;
@@ -465,7 +465,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
             colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
             colorAttachmentInfo.clearColor = clearColor;
 
-            data.outputTex = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+            data.outputTex = builder.create(DeferredPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         }
 
         data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
@@ -486,7 +486,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
                 static_cast<uint>(pipeline->getWidth() * shadingScale),
                 static_cast<uint>(pipeline->getHeight() * shadingScale),
             };
-            data.depth = builder.create<framegraph::Texture>(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
+            data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         }
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
@@ -595,7 +595,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
                              gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
         colorTexInfo.width  = _ssprTexWidth;
         colorTexInfo.height = _ssprTexHeight;
-        data.reflection     = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
+        data.reflection     = builder.create(reflectTexHandle, colorTexInfo);
 
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
@@ -634,7 +634,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
             colorTexInfo.usage  = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC | gfx::TextureUsageBit::TRANSFER_DST;
             colorTexInfo.width  = _ssprTexWidth;
             colorTexInfo.height = _ssprTexHeight;
-            data.reflection     = builder.create<framegraph::Texture>(reflectTexHandle, colorTexInfo);
+            data.reflection     = builder.create(reflectTexHandle, colorTexInfo);
         }
 
         data.reflection = builder.read(framegraph::TextureHandle(builder.readFromBlackboard(reflectTexHandle)));
@@ -700,7 +700,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         colorTexInfo.usage  = gfx::TextureUsageBit::STORAGE | gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_SRC;
         colorTexInfo.width  = _ssprTexWidth;
         colorTexInfo.height = _ssprTexHeight;
-        data.denoise        = builder.create<framegraph::Texture>(denoiseTexHandle[_denoiseIndex], colorTexInfo);
+        data.denoise        = builder.create(denoiseTexHandle[_denoiseIndex], colorTexInfo);
 
         data.denoise = builder.write(data.denoise);
         builder.writeToBlackboard(denoiseTexHandle[_denoiseIndex], data.denoise);

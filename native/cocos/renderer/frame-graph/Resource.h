@@ -44,13 +44,16 @@ struct DeviceResourceCreator final {
     }
 };
 
+template <typename DescriptorType>
+struct ResourceTypeLookupTable final {};
+
 template <typename DeviceResourceType, typename DescriptorType,
           typename DeviceResourceCreatorType = DeviceResourceCreator<DeviceResourceType, DescriptorType>>
 class Resource final {
 public:
-    using Allocator        = ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>;
-    using DeviceResource   = DeviceResourceType;
-    using Descriptor       = DescriptorType;
+    using Allocator      = ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>;
+    using DeviceResource = DeviceResourceType;
+    using Descriptor     = DescriptorType;
 
     Resource() = default;
     explicit Resource(const Descriptor &desc);
@@ -136,7 +139,11 @@ const DescriptorType &Resource<DeviceResourceType, DescriptorType, DeviceResourc
         }                                                                 \
     };                                                                    \
     using Type         = Resource<gfx::Type, gfx::Type##Info>;            \
-    using Type##Handle = TypedHandle<Type>;
+    using Type##Handle = TypedHandle<Type>;                               \
+    template <>                                                           \
+    struct ResourceTypeLookupTable<gfx::Type##Info> final {               \
+        using Resource = Type;                                            \
+    };
 
 // Descriptors must have std::hash specialization and == operators
 DEFINE_GFX_RESOURCE(Buffer)

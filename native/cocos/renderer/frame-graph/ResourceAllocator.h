@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <unordered_map>
 #include "base/memory/Memory.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace framegraph {
@@ -62,9 +63,9 @@ private:
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
 
-    std::unordered_map<DescriptorType, DeviceResourcePool>   _livepool{};
-    std::unordered_map<DescriptorType, DeviceResourcePoolGC> _deadpool{};
-    uint64_t                                                 _age{0};
+    std::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>>   _livepool{};
+    std::unordered_map<DescriptorType, DeviceResourcePoolGC, gfx::Hasher<DescriptorType>> _deadpool{};
+    uint64_t                                                                              _age{0};
 };
 
 //////////////////////////////////////////////////////////////////////////

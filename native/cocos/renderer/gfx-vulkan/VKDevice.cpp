@@ -726,15 +726,15 @@ PipelineState *CCVKDevice::createPipelineState() {
     return CC_NEW(CCVKPipelineState);
 }
 
-Sampler *CCVKDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
+Sampler *CCVKDevice::createSampler(const SamplerInfo &info, size_t hash) {
     return CC_NEW(CCVKSampler(info, hash));
 }
 
-GlobalBarrier *CCVKDevice::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+GlobalBarrier *CCVKDevice::createGlobalBarrier(const GlobalBarrierInfo &info, size_t hash) {
     return CC_NEW(CCVKGlobalBarrier(info, hash));
 }
 
-TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info, size_t hash) {
     return CC_NEW(CCVKTextureBarrier(info, hash));
 }
 

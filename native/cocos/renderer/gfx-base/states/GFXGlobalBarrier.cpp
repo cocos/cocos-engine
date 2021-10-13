@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/functional/hash.hpp>
+
 #include "base/CoreStd.h"
 
 #include "GFXGlobalBarrier.h"
@@ -31,22 +33,16 @@
 namespace cc {
 namespace gfx {
 
-GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash)
+GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info, size_t hash)
 : GFXObject(ObjectType::GLOBAL_BARRIER) {
     _info = info;
     _hash = hash;
 }
 
-uint32_t GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
-    auto seed = utils::toUint(info.prevAccesses.size() + info.nextAccesses.size());
-
-    for (const AccessType type : info.prevAccesses) {
-        seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-    for (const AccessType type : info.nextAccesses) {
-        seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-
+size_t GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
+    size_t seed = 2;
+    boost::hash_combine(seed, info.prevAccesses);
+    boost::hash_combine(seed, info.nextAccesses);
     return seed;
 }
 

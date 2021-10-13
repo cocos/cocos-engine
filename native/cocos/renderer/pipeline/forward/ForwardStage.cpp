@@ -168,7 +168,7 @@ void ForwardStage::render(scene::Camera *camera) {
         colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
         colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
         colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
-        data.outputTex      = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+        data.outputTex      = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
@@ -202,7 +202,7 @@ void ForwardStage::render(scene::Camera *camera) {
         depthAttachmentInfo.clearStencil = camera->clearStencil;
         depthAttachmentInfo.endAccesses  = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
-        data.depth = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
+        data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
         builder.setViewport(pipeline->getViewport(camera), _renderArea);

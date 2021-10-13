@@ -32,16 +32,16 @@ namespace gfx {
 
 class CC_DLL TextureBarrier : public GFXObject {
 public:
-    TextureBarrier(const TextureBarrierInfo &info, uint32_t hash);
+    TextureBarrier(const TextureBarrierInfo &info, size_t hash);
 
-    static uint32_t computeHash(const TextureBarrierInfo &info);
+    static size_t computeHash(const TextureBarrierInfo &info);
 
     inline const TextureBarrierInfo &getInfo() const { return _info; }
-    inline const uint32_t &   getHash() const { return _hash; }
+    inline const size_t &            getHash() const { return _hash; }
 
 protected:
     TextureBarrierInfo _info;
-    uint32_t    _hash{0U};
+    size_t             _hash{0U};
 };
 
 } // namespace gfx

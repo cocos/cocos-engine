@@ -28,6 +28,7 @@
 
 #include "GFXSwapchain.h"
 #include "GFXTexture.h"
+#include <boost/functional/hash.hpp>
 
 namespace cc {
 namespace gfx {
@@ -38,19 +39,17 @@ Texture::Texture()
 
 Texture::~Texture() = default;
 
-uint32_t Texture::computeHash(const TextureInfo &info) {
-    std::hash<TextureInfo> hasher;
-    return utils::toUint(hasher(info));
+size_t Texture::computeHash(const TextureInfo &info) {
+    return Hasher<TextureInfo>()(info);
 }
 
-uint32_t Texture::computeHash(const TextureViewInfo &info) {
-    std::hash<TextureViewInfo> hasher;
-    return utils::toUint(hasher(info));
+size_t Texture::computeHash(const TextureViewInfo &info) {
+    return Hasher<TextureViewInfo>()(info);
 }
 
-uint32_t Texture::computeHash(const Texture *texture) {
-    uint32_t hash = texture->isTextureView() ? computeHash(texture->getViewInfo()) : computeHash(texture->getInfo());
-    if (texture->_swapchain) hash ^= (texture->_swapchain->getObjectID()) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+size_t Texture::computeHash(const Texture *texture) {
+    size_t hash = texture->isTextureView() ? computeHash(texture->getViewInfo()) : computeHash(texture->getInfo());
+    if (texture->_swapchain) boost::hash_combine(hash, texture->_swapchain->getObjectID());
     return hash;
 }
 
@@ -100,7 +99,7 @@ void Texture::destroy() {
     _viewInfo = TextureViewInfo();
 
     _isTextureView = false;
-    _size = _hash = 0;
+    _hash = _size = 0;
 }
 
 ///////////////////////////// Swapchain Specific /////////////////////////////

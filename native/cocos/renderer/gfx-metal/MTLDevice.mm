@@ -213,7 +213,7 @@ void CCMTLDevice::present() {
     //hold this pointer before update _currentFrameIndex
     _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
-    
+
     std::vector<id<CAMetalDrawable>> releaseQ;
     for (auto* swapchain: _swapchains) {
         auto drawable = swapchain->currentDrawable();
@@ -233,7 +233,7 @@ void CCMTLDevice::present() {
             [cmdBuffer presentDrawable:drawable];
             [drawable release];
         }
-        
+
         [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
             onPresentCompleted();
         }];
@@ -307,15 +307,15 @@ PipelineState *CCMTLDevice::createPipelineState() {
     return CC_NEW(CCMTLPipelineState);
 }
 
-GlobalBarrier *CCMTLDevice::createGlobalBarrier(const GlobalBarrierInfo& info, uint32_t hash) {
+GlobalBarrier *CCMTLDevice::createGlobalBarrier(const GlobalBarrierInfo& info, size_t hash) {
     return new GlobalBarrier(info, hash);
 }
 
-TextureBarrier *CCMTLDevice::createTextureBarrier(const TextureBarrierInfo& info, uint32_t hash) {
+TextureBarrier *CCMTLDevice::createTextureBarrier(const TextureBarrierInfo& info, size_t hash) {
     return new TextureBarrier(info, hash);
 }
 
-Sampler *CCMTLDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
+Sampler *CCMTLDevice::createSampler(const SamplerInfo &info, size_t hash) {
     return new CCMTLSampler(info, hash);
 }
 

@@ -133,9 +133,9 @@ protected:
     virtual PipelineLayout *     createPipelineLayout()                                            = 0;
     virtual PipelineState *      createPipelineState()                                             = 0;
 
-    virtual Sampler *       createSampler(const SamplerInfo &info, uint32_t hash)               = 0;
-    virtual GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash)   = 0;
-    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) = 0;
+    virtual Sampler *       createSampler(const SamplerInfo &info, size_t hash)                 = 0;
+    virtual GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, size_t hash)     = 0;
+    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, size_t hash)   = 0;
 
     // For context switching between threads
     virtual void bindContext(bool bound) {}
@@ -159,9 +159,9 @@ protected:
     uint32_t     _numTriangles{0U};
     MemoryStatus _memoryStatus;
 
-    unordered_map<uint32_t, Sampler *>        _samplers;
-    unordered_map<uint32_t, GlobalBarrier *>  _globalBarriers;
-    unordered_map<uint32_t, TextureBarrier *> _textureBarriers;
+    unordered_map<size_t, Sampler *>        _samplers;
+    unordered_map<size_t, GlobalBarrier *>  _globalBarriers;
+    unordered_map<size_t, TextureBarrier *> _textureBarriers;
 
 private:
     vector<Swapchain *> _swapchains;
@@ -261,7 +261,7 @@ PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
 }
 
 Sampler *Device::getSampler(const SamplerInfo &info) {
-    uint32_t hash = gfx::Sampler::computeHash(info);
+    size_t hash = gfx::Sampler::computeHash(info);
     if (!_samplers.count(hash)) {
         _samplers[hash] = createSampler(info, hash);
     }
@@ -269,7 +269,7 @@ Sampler *Device::getSampler(const SamplerInfo &info) {
 }
 
 GlobalBarrier *Device::getGlobalBarrier(const GlobalBarrierInfo &info) {
-    uint32_t hash = gfx::GlobalBarrier::computeHash(info);
+    size_t hash = gfx::GlobalBarrier::computeHash(info);
     if (!_globalBarriers.count(hash)) {
         _globalBarriers[hash] = createGlobalBarrier(info, hash);
     }
@@ -277,7 +277,7 @@ GlobalBarrier *Device::getGlobalBarrier(const GlobalBarrierInfo &info) {
 }
 
 TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
-    uint32_t hash = gfx::TextureBarrier::computeHash(info);
+    size_t hash = gfx::TextureBarrier::computeHash(info);
     if (!_textureBarriers.count(hash)) {
         _textureBarriers[hash] = createTextureBarrier(info, hash);
     }

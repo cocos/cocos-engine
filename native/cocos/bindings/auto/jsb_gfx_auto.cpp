@@ -4061,141 +4061,6 @@ bool js_register_gfx_DeviceInfo(se::Object* obj) // NOLINT(readability-identifie
 se::Object* __jsb_cc_gfx_BufferInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_BufferInfo_class = nullptr;
 
-static bool js_gfx_BufferInfo_get_usage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_get_usage : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->usage, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->usage, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_BufferInfo_get_usage)
-
-static bool js_gfx_BufferInfo_set_usage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_set_usage : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->usage, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_BufferInfo_set_usage : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_BufferInfo_set_usage)
-
-static bool js_gfx_BufferInfo_get_memUsage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_get_memUsage : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->memUsage, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->memUsage, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_BufferInfo_get_memUsage)
-
-static bool js_gfx_BufferInfo_set_memUsage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_set_memUsage : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->memUsage, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_BufferInfo_set_memUsage : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_BufferInfo_set_memUsage)
-
-static bool js_gfx_BufferInfo_get_size(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_get_size : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->size, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->size, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_BufferInfo_get_size)
-
-static bool js_gfx_BufferInfo_set_size(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_set_size : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->size, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_BufferInfo_set_size : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_BufferInfo_set_size)
-
-static bool js_gfx_BufferInfo_get_stride(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_get_stride : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->stride, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->stride, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_BufferInfo_get_stride)
-
-static bool js_gfx_BufferInfo_set_stride(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_set_stride : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->stride, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_BufferInfo_set_stride : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_BufferInfo_set_stride)
-
-static bool js_gfx_BufferInfo_get_flags(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_get_flags : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->flags, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->flags, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_BufferInfo_get_flags)
-
-static bool js_gfx_BufferInfo_set_flags(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::BufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_BufferInfo_set_flags : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->flags, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_BufferInfo_set_flags : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_BufferInfo_set_flags)
-
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::BufferInfo * to, se::Object *ctx)
@@ -4209,26 +4074,6 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::BufferInfo * to, se::Obje
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("usage", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->usage), ctx);
-    }
-    json->getProperty("memUsage", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->memUsage), ctx);
-    }
-    json->getProperty("size", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->size), ctx);
-    }
-    json->getProperty("stride", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->stride), ctx);
-    }
-    json->getProperty("flags", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->flags), ctx);
-    }
     return ok;
 }
 
@@ -4248,40 +4093,7 @@ static bool js_gfx_BufferInfo_constructor(se::State& s) // NOLINT(readability-id
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::gfx::BufferInfo* cobj = JSB_ALLOC(cc::gfx::BufferInfo);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::gfx::BufferInfo* cobj = JSB_ALLOC(cc::gfx::BufferInfo);
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->usage), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->memUsage), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->size), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->stride), nullptr);
-    }
-    if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->flags), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -4314,11 +4126,6 @@ bool js_register_gfx_BufferInfo(se::Object* obj) // NOLINT(readability-identifie
 {
     auto* cls = se::Class::create("BufferInfo", obj, nullptr, _SE(js_gfx_BufferInfo_constructor));
 
-    cls->defineProperty("usage", _SE(js_gfx_BufferInfo_get_usage), _SE(js_gfx_BufferInfo_set_usage));
-    cls->defineProperty("memUsage", _SE(js_gfx_BufferInfo_get_memUsage), _SE(js_gfx_BufferInfo_set_memUsage));
-    cls->defineProperty("size", _SE(js_gfx_BufferInfo_get_size), _SE(js_gfx_BufferInfo_set_size));
-    cls->defineProperty("stride", _SE(js_gfx_BufferInfo_get_stride), _SE(js_gfx_BufferInfo_set_stride));
-    cls->defineProperty("flags", _SE(js_gfx_BufferInfo_get_flags), _SE(js_gfx_BufferInfo_set_flags));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_BufferInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::BufferInfo>(cls);
@@ -5258,303 +5065,6 @@ bool js_register_gfx_IndirectBuffer(se::Object* obj) // NOLINT(readability-ident
 se::Object* __jsb_cc_gfx_TextureInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureInfo_class = nullptr;
 
-static bool js_gfx_TextureInfo_get_type(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_type : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->type, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->type, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_type)
-
-static bool js_gfx_TextureInfo_set_type(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_type : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->type, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_type : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_type)
-
-static bool js_gfx_TextureInfo_get_usage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_usage : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->usage, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->usage, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_usage)
-
-static bool js_gfx_TextureInfo_set_usage(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_usage : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->usage, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_usage : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_usage)
-
-static bool js_gfx_TextureInfo_get_format(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_format : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->format, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->format, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_format)
-
-static bool js_gfx_TextureInfo_set_format(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_format : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->format, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_format : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_format)
-
-static bool js_gfx_TextureInfo_get_width(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_width : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->width, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->width, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_width)
-
-static bool js_gfx_TextureInfo_set_width(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_width : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->width, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_width : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_width)
-
-static bool js_gfx_TextureInfo_get_height(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_height : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->height, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->height, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_height)
-
-static bool js_gfx_TextureInfo_set_height(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_height : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->height, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_height : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_height)
-
-static bool js_gfx_TextureInfo_get_flags(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_flags : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->flags, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->flags, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_flags)
-
-static bool js_gfx_TextureInfo_set_flags(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_flags : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->flags, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_flags : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_flags)
-
-static bool js_gfx_TextureInfo_get_layerCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_layerCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->layerCount, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->layerCount, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_layerCount)
-
-static bool js_gfx_TextureInfo_set_layerCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_layerCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->layerCount, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_layerCount : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_layerCount)
-
-static bool js_gfx_TextureInfo_get_levelCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_levelCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->levelCount, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->levelCount, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_levelCount)
-
-static bool js_gfx_TextureInfo_set_levelCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_levelCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->levelCount, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_levelCount : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_levelCount)
-
-static bool js_gfx_TextureInfo_get_samples(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_samples : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->samples, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->samples, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_samples)
-
-static bool js_gfx_TextureInfo_set_samples(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_samples : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->samples, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_samples : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_samples)
-
-static bool js_gfx_TextureInfo_get_depth(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_depth : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->depth, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->depth, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_depth)
-
-static bool js_gfx_TextureInfo_set_depth(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_depth : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->depth, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_depth : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_depth)
-
-static bool js_gfx_TextureInfo_get_externalRes(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_get_externalRes : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->externalRes, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->externalRes, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureInfo_get_externalRes)
-
-static bool js_gfx_TextureInfo_set_externalRes(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureInfo_set_externalRes : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->externalRes, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureInfo_set_externalRes : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureInfo_set_externalRes)
-
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::TextureInfo * to, se::Object *ctx)
@@ -5568,50 +5078,6 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureInfo * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("type", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->type), ctx);
-    }
-    json->getProperty("usage", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->usage), ctx);
-    }
-    json->getProperty("format", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->format), ctx);
-    }
-    json->getProperty("width", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->width), ctx);
-    }
-    json->getProperty("height", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->height), ctx);
-    }
-    json->getProperty("flags", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->flags), ctx);
-    }
-    json->getProperty("layerCount", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->layerCount), ctx);
-    }
-    json->getProperty("levelCount", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->levelCount), ctx);
-    }
-    json->getProperty("samples", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->samples), ctx);
-    }
-    json->getProperty("depth", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->depth), ctx);
-    }
-    json->getProperty("externalRes", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->externalRes), ctx);
-    }
     return ok;
 }
 
@@ -5631,58 +5097,7 @@ static bool js_gfx_TextureInfo_constructor(se::State& s) // NOLINT(readability-i
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::gfx::TextureInfo* cobj = JSB_ALLOC(cc::gfx::TextureInfo);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::gfx::TextureInfo* cobj = JSB_ALLOC(cc::gfx::TextureInfo);
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->type), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->usage), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->format), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->width), nullptr);
-    }
-    if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->height), nullptr);
-    }
-    if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->flags), nullptr);
-    }
-    if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->layerCount), nullptr);
-    }
-    if (argc > 7 && !args[7].isUndefined()) {
-        ok &= sevalue_to_native(args[7], &(cobj->levelCount), nullptr);
-    }
-    if (argc > 8 && !args[8].isUndefined()) {
-        ok &= sevalue_to_native(args[8], &(cobj->samples), nullptr);
-    }
-    if (argc > 9 && !args[9].isUndefined()) {
-        ok &= sevalue_to_native(args[9], &(cobj->depth), nullptr);
-    }
-    if (argc > 10 && !args[10].isUndefined()) {
-        ok &= sevalue_to_native(args[10], &(cobj->externalRes), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -5715,17 +5130,6 @@ bool js_register_gfx_TextureInfo(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("TextureInfo", obj, nullptr, _SE(js_gfx_TextureInfo_constructor));
 
-    cls->defineProperty("type", _SE(js_gfx_TextureInfo_get_type), _SE(js_gfx_TextureInfo_set_type));
-    cls->defineProperty("usage", _SE(js_gfx_TextureInfo_get_usage), _SE(js_gfx_TextureInfo_set_usage));
-    cls->defineProperty("format", _SE(js_gfx_TextureInfo_get_format), _SE(js_gfx_TextureInfo_set_format));
-    cls->defineProperty("width", _SE(js_gfx_TextureInfo_get_width), _SE(js_gfx_TextureInfo_set_width));
-    cls->defineProperty("height", _SE(js_gfx_TextureInfo_get_height), _SE(js_gfx_TextureInfo_set_height));
-    cls->defineProperty("flags", _SE(js_gfx_TextureInfo_get_flags), _SE(js_gfx_TextureInfo_set_flags));
-    cls->defineProperty("layerCount", _SE(js_gfx_TextureInfo_get_layerCount), _SE(js_gfx_TextureInfo_set_layerCount));
-    cls->defineProperty("levelCount", _SE(js_gfx_TextureInfo_get_levelCount), _SE(js_gfx_TextureInfo_set_levelCount));
-    cls->defineProperty("samples", _SE(js_gfx_TextureInfo_get_samples), _SE(js_gfx_TextureInfo_set_samples));
-    cls->defineProperty("depth", _SE(js_gfx_TextureInfo_get_depth), _SE(js_gfx_TextureInfo_set_depth));
-    cls->defineProperty("externalRes", _SE(js_gfx_TextureInfo_get_externalRes), _SE(js_gfx_TextureInfo_set_externalRes));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_TextureInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::TextureInfo>(cls);
@@ -5738,195 +5142,6 @@ bool js_register_gfx_TextureInfo(se::Object* obj) // NOLINT(readability-identifi
 }
 se::Object* __jsb_cc_gfx_TextureViewInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_TextureViewInfo_class = nullptr;
-
-static bool js_gfx_TextureViewInfo_get_texture(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_get_texture : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->texture, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->texture, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureViewInfo_get_texture)
-
-static bool js_gfx_TextureViewInfo_set_texture(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_set_texture : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->texture, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureViewInfo_set_texture : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureViewInfo_set_texture)
-
-static bool js_gfx_TextureViewInfo_get_type(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_get_type : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->type, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->type, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureViewInfo_get_type)
-
-static bool js_gfx_TextureViewInfo_set_type(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_set_type : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->type, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureViewInfo_set_type : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureViewInfo_set_type)
-
-static bool js_gfx_TextureViewInfo_get_format(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_get_format : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->format, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->format, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureViewInfo_get_format)
-
-static bool js_gfx_TextureViewInfo_set_format(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_set_format : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->format, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureViewInfo_set_format : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureViewInfo_set_format)
-
-static bool js_gfx_TextureViewInfo_get_baseLevel(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_get_baseLevel : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->baseLevel, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->baseLevel, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureViewInfo_get_baseLevel)
-
-static bool js_gfx_TextureViewInfo_set_baseLevel(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_set_baseLevel : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->baseLevel, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureViewInfo_set_baseLevel : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureViewInfo_set_baseLevel)
-
-static bool js_gfx_TextureViewInfo_get_levelCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_get_levelCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->levelCount, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->levelCount, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureViewInfo_get_levelCount)
-
-static bool js_gfx_TextureViewInfo_set_levelCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_set_levelCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->levelCount, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureViewInfo_set_levelCount : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureViewInfo_set_levelCount)
-
-static bool js_gfx_TextureViewInfo_get_baseLayer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_get_baseLayer : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->baseLayer, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->baseLayer, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureViewInfo_get_baseLayer)
-
-static bool js_gfx_TextureViewInfo_set_baseLayer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_set_baseLayer : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->baseLayer, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureViewInfo_set_baseLayer : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureViewInfo_set_baseLayer)
-
-static bool js_gfx_TextureViewInfo_get_layerCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_get_layerCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->layerCount, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->layerCount, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_TextureViewInfo_get_layerCount)
-
-static bool js_gfx_TextureViewInfo_set_layerCount(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::TextureViewInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_TextureViewInfo_set_layerCount : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->layerCount, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_TextureViewInfo_set_layerCount : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_TextureViewInfo_set_layerCount)
 
 
 template<>
@@ -5941,34 +5156,6 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::TextureViewInfo * to, se:
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("texture", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->texture), ctx);
-    }
-    json->getProperty("type", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->type), ctx);
-    }
-    json->getProperty("format", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->format), ctx);
-    }
-    json->getProperty("baseLevel", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->baseLevel), ctx);
-    }
-    json->getProperty("levelCount", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->levelCount), ctx);
-    }
-    json->getProperty("baseLayer", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->baseLayer), ctx);
-    }
-    json->getProperty("layerCount", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->layerCount), ctx);
-    }
     return ok;
 }
 
@@ -5988,46 +5175,7 @@ static bool js_gfx_TextureViewInfo_constructor(se::State& s) // NOLINT(readabili
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::gfx::TextureViewInfo* cobj = JSB_ALLOC(cc::gfx::TextureViewInfo);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::gfx::TextureViewInfo* cobj = JSB_ALLOC(cc::gfx::TextureViewInfo);
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->texture), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->type), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->format), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->baseLevel), nullptr);
-    }
-    if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->levelCount), nullptr);
-    }
-    if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->baseLayer), nullptr);
-    }
-    if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->layerCount), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -6060,13 +5208,6 @@ bool js_register_gfx_TextureViewInfo(se::Object* obj) // NOLINT(readability-iden
 {
     auto* cls = se::Class::create("TextureViewInfo", obj, nullptr, _SE(js_gfx_TextureViewInfo_constructor));
 
-    cls->defineProperty("texture", _SE(js_gfx_TextureViewInfo_get_texture), _SE(js_gfx_TextureViewInfo_set_texture));
-    cls->defineProperty("type", _SE(js_gfx_TextureViewInfo_get_type), _SE(js_gfx_TextureViewInfo_set_type));
-    cls->defineProperty("format", _SE(js_gfx_TextureViewInfo_get_format), _SE(js_gfx_TextureViewInfo_set_format));
-    cls->defineProperty("baseLevel", _SE(js_gfx_TextureViewInfo_get_baseLevel), _SE(js_gfx_TextureViewInfo_set_baseLevel));
-    cls->defineProperty("levelCount", _SE(js_gfx_TextureViewInfo_get_levelCount), _SE(js_gfx_TextureViewInfo_set_levelCount));
-    cls->defineProperty("baseLayer", _SE(js_gfx_TextureViewInfo_get_baseLayer), _SE(js_gfx_TextureViewInfo_set_baseLayer));
-    cls->defineProperty("layerCount", _SE(js_gfx_TextureViewInfo_get_layerCount), _SE(js_gfx_TextureViewInfo_set_layerCount));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_TextureViewInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::TextureViewInfo>(cls);
@@ -15541,9 +14682,9 @@ bool js_register_gfx_GFXObject(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
 
-    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID), nullptr);
-    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID), nullptr);
     cls->defineProperty("objectType", _SE(js_gfx_GFXObject_getObjectType), nullptr);
+    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID), nullptr);
+    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXObject_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GFXObject>(cls);
@@ -15733,7 +14874,7 @@ static bool js_gfx_Buffer_computeHash(se::State& s) // NOLINT(readability-identi
         HolderType<cc::gfx::BufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash : Error processing arguments");
-        unsigned int result = cc::gfx::Buffer::computeHash(arg0.value());
+        size_t result = cc::gfx::Buffer::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Buffer_computeHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -15773,12 +14914,12 @@ bool js_register_gfx_Buffer(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Buffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Buffer_constructor));
 
-    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
     cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage), nullptr);
     cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride), nullptr);
-    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
-    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
+    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
     cls->defineFunction("isBufferView", _SE(js_gfx_Buffer_isBufferView));
     cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
@@ -15838,7 +14979,7 @@ static bool js_gfx_InputAssembler_getAttributesHash(se::State& s) // NOLINT(read
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getAttributesHash();
+        size_t result = cobj->getAttributesHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_InputAssembler_getAttributesHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -16239,19 +15380,19 @@ bool js_register_gfx_InputAssembler(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("InputAssembler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_InputAssembler_constructor));
 
-    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount), _SE(js_gfx_InputAssembler_setInstanceCount));
     cls->defineProperty("vertexBuffers", _SE(js_gfx_InputAssembler_getVertexBuffers), nullptr);
-    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash), nullptr);
-    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance), _SE(js_gfx_InputAssembler_setFirstInstance));
-    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount), _SE(js_gfx_InputAssembler_setVertexCount));
-    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo), nullptr);
-    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer), nullptr);
-    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset), _SE(js_gfx_InputAssembler_setVertexOffset));
     cls->defineProperty("attributes", _SE(js_gfx_InputAssembler_getAttributes), nullptr);
+    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer), nullptr);
+    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer), nullptr);
+    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash), nullptr);
+    cls->defineProperty("drawInfo", _SE(js_gfx_InputAssembler_getDrawInfo), nullptr);
+    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount), _SE(js_gfx_InputAssembler_setVertexCount));
+    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex), _SE(js_gfx_InputAssembler_setFirstVertex));
     cls->defineProperty("indexCount", _SE(js_gfx_InputAssembler_getIndexCount), _SE(js_gfx_InputAssembler_setIndexCount));
     cls->defineProperty("firstIndex", _SE(js_gfx_InputAssembler_getFirstIndex), _SE(js_gfx_InputAssembler_setFirstIndex));
-    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer), nullptr);
-    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex), _SE(js_gfx_InputAssembler_setFirstVertex));
+    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset), _SE(js_gfx_InputAssembler_setVertexOffset));
+    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount), _SE(js_gfx_InputAssembler_setInstanceCount));
+    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance), _SE(js_gfx_InputAssembler_setFirstInstance));
     cls->defineFunction("destroy", _SE(js_gfx_InputAssembler_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_InputAssembler_initialize));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_InputAssembler_finalize));
@@ -17827,7 +16968,7 @@ static bool js_gfx_Framebuffer_computeHash(se::State& s) // NOLINT(readability-i
         HolderType<cc::gfx::FramebufferInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash : Error processing arguments");
-        unsigned int result = cc::gfx::Framebuffer::computeHash(arg0.value());
+        size_t result = cc::gfx::Framebuffer::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Framebuffer_computeHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -17867,8 +17008,8 @@ bool js_register_gfx_Framebuffer(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Framebuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Framebuffer_constructor));
 
-    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass), nullptr);
+    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures), nullptr);
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Framebuffer_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Framebuffer_initialize));
@@ -18237,14 +17378,14 @@ bool js_register_gfx_PipelineState(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("PipelineState", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_PipelineState_constructor));
 
-    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive), nullptr);
-    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState), nullptr);
     cls->defineProperty("shader", _SE(js_gfx_PipelineState_getShader), nullptr);
+    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive), nullptr);
+    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint), nullptr);
+    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState), nullptr);
+    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState), nullptr);
+    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState), nullptr);
     cls->defineProperty("blendState", _SE(js_gfx_PipelineState_getBlendState), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_PipelineState_getRenderPass), nullptr);
-    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState), nullptr);
-    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint), nullptr);
-    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_PipelineState_destroy));
     cls->defineFunction("getDynamicStates", _SE(js_gfx_PipelineState_getDynamicStates));
     cls->defineFunction("getPipelineLayout", _SE(js_gfx_PipelineState_getPipelineLayout));
@@ -18459,7 +17600,7 @@ static bool js_gfx_RenderPass_getHash(se::State& s) // NOLINT(readability-identi
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getHash();
+        size_t result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -18517,7 +17658,7 @@ static bool js_gfx_RenderPass_computeHash(se::State& s) // NOLINT(readability-id
         HolderType<cc::gfx::RenderPassInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash : Error processing arguments");
-        unsigned int result = cc::gfx::RenderPass::computeHash(arg0.value());
+        size_t result = cc::gfx::RenderPass::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_computeHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -18830,10 +17971,10 @@ bool js_register_gfx_Shader(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Shader", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Shader_constructor));
 
-    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
-    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
-    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
     cls->defineProperty("name", _SE(js_gfx_Shader_getName), nullptr);
+    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
+    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
     cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
     cls->defineFunction("getBuffers", _SE(js_gfx_Shader_getBuffers));
@@ -18897,7 +18038,7 @@ static bool js_gfx_Texture_getHash(se::State& s) // NOLINT(readability-identifie
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getHash();
+        size_t result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Texture_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19053,7 +18194,7 @@ static bool js_gfx_Texture_computeHash(se::State& s) // NOLINT(readability-ident
             HolderType<cc::gfx::TextureViewInfo, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            unsigned int result = cc::gfx::Texture::computeHash(arg0.value());
+            size_t result = cc::gfx::Texture::computeHash(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19065,7 +18206,7 @@ static bool js_gfx_Texture_computeHash(se::State& s) // NOLINT(readability-ident
             HolderType<cc::gfx::TextureInfo, true> arg0 = {};
             ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
             if (!ok) { ok = true; break; }
-            unsigned int result = cc::gfx::Texture::computeHash(arg0.value());
+            size_t result = cc::gfx::Texture::computeHash(arg0.value());
             ok &= nativevalue_to_se(result, s.rval(), s.thisObject() /*ctx*/);
             SE_PRECONDITION2(ok, false, "js_gfx_Texture_computeHash : Error processing arguments");
             SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19107,12 +18248,12 @@ bool js_register_gfx_Texture(se::Object* obj) // NOLINT(readability-identifier-n
     auto* cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Texture_constructor));
 
     cls->defineProperty("info", _SE(js_gfx_Texture_getInfo), nullptr);
-    cls->defineProperty("hash", _SE(js_gfx_Texture_getHash), nullptr);
-    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
     cls->defineProperty("viewInfo", _SE(js_gfx_Texture_getViewInfo), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
+    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
+    cls->defineProperty("hash", _SE(js_gfx_Texture_getHash), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
     cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
     cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
@@ -19384,10 +18525,10 @@ bool js_register_gfx_Swapchain(se::Object* obj) // NOLINT(readability-identifier
     auto* cls = se::Class::create("Swapchain", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Swapchain_constructor));
 
     cls->defineProperty("width", _SE(js_gfx_Swapchain_getWidth), nullptr);
-    cls->defineProperty("surfaceTransform", _SE(js_gfx_Swapchain_getSurfaceTransform), nullptr);
-    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Swapchain_getDepthStencilTexture), nullptr);
-    cls->defineProperty("colorTexture", _SE(js_gfx_Swapchain_getColorTexture), nullptr);
     cls->defineProperty("height", _SE(js_gfx_Swapchain_getHeight), nullptr);
+    cls->defineProperty("surfaceTransform", _SE(js_gfx_Swapchain_getSurfaceTransform), nullptr);
+    cls->defineProperty("colorTexture", _SE(js_gfx_Swapchain_getColorTexture), nullptr);
+    cls->defineProperty("depthStencilTexture", _SE(js_gfx_Swapchain_getDepthStencilTexture), nullptr);
     cls->defineFunction("createSurface", _SE(js_gfx_Swapchain_createSurface));
     cls->defineFunction("destroy", _SE(js_gfx_Swapchain_destroy));
     cls->defineFunction("destroySurface", _SE(js_gfx_Swapchain_destroySurface));
@@ -19416,7 +18557,7 @@ static bool js_gfx_GlobalBarrier_getHash(se::State& s) // NOLINT(readability-ide
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const unsigned int& result = cobj->getHash();
+        const size_t& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19455,7 +18596,7 @@ static bool js_gfx_GlobalBarrier_computeHash(se::State& s) // NOLINT(readability
         HolderType<cc::gfx::GlobalBarrierInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash : Error processing arguments");
-        unsigned int result = cc::gfx::GlobalBarrier::computeHash(arg0.value());
+        size_t result = cc::gfx::GlobalBarrier::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_GlobalBarrier_computeHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19519,7 +18660,7 @@ static bool js_gfx_Sampler_getHash(se::State& s) // NOLINT(readability-identifie
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const unsigned int& result = cobj->getHash();
+        const size_t& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Sampler_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19558,7 +18699,7 @@ static bool js_gfx_Sampler_computeHash(se::State& s) // NOLINT(readability-ident
         HolderType<cc::gfx::SamplerInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash : Error processing arguments");
-        unsigned int result = cc::gfx::Sampler::computeHash(arg0.value());
+        size_t result = cc::gfx::Sampler::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_Sampler_computeHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19622,7 +18763,7 @@ static bool js_gfx_TextureBarrier_getHash(se::State& s) // NOLINT(readability-id
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const unsigned int& result = cobj->getHash();
+        const size_t& result = cobj->getHash();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_getHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -19661,7 +18802,7 @@ static bool js_gfx_TextureBarrier_computeHash(se::State& s) // NOLINT(readabilit
         HolderType<cc::gfx::TextureBarrierInfo, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash : Error processing arguments");
-        unsigned int result = cc::gfx::TextureBarrier::computeHash(arg0.value());
+        size_t result = cc::gfx::TextureBarrier::computeHash(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_gfx_TextureBarrier_computeHash : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -20418,17 +19559,17 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
+    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
     cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName), nullptr);
+    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
+    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue), nullptr);
+    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
+    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
     cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
     cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls), nullptr);
-    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
-    cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
-    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities), nullptr);
-    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
-    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue), nullptr);
-    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
-    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
     cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
+    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities), nullptr);
     cls->defineFunction("acquire", _SE(js_gfx_Device_acquire));
     cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
     cls->defineFunction("createCommandBuffer", _SE(js_gfx_Device_createCommandBuffer));
@@ -20462,19 +19603,6 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
 se::Object* __jsb_cc_gfx_DeviceManager_proto = nullptr;
 se::Class* __jsb_cc_gfx_DeviceManager_class = nullptr;
 
-static bool js_gfx_DeviceManager_destroy(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::gfx::DeviceManager::destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DeviceManager_destroy)
-
 static bool js_gfx_DeviceManager_create(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -20494,6 +19622,19 @@ static bool js_gfx_DeviceManager_create(se::State& s) // NOLINT(readability-iden
     return false;
 }
 SE_BIND_FUNC(js_gfx_DeviceManager_create)
+
+static bool js_gfx_DeviceManager_destroy(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::gfx::DeviceManager::destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_destroy)
 
 static bool js_gfx_DeviceManager_addSurfaceEventListener(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -20526,8 +19667,8 @@ bool js_register_gfx_DeviceManager(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("DeviceManager", obj, nullptr, nullptr);
 
-    cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy));
     cls->defineStaticFunction("create", _SE(js_gfx_DeviceManager_create));
+    cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy));
     cls->defineStaticFunction("addSurfaceEventListener", _SE(js_gfx_DeviceManager_addSurfaceEventListener));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DeviceManager_finalize));
     cls->install();
@@ -20551,81 +19692,81 @@ bool register_all_gfx(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_gfx_Size(ns);
+    js_register_gfx_DeviceCaps(ns);
+    js_register_gfx_Offset(ns);
+    js_register_gfx_Rect(ns);
+    js_register_gfx_Extent(ns);
+    js_register_gfx_TextureSubresLayers(ns);
+    js_register_gfx_TextureSubresRange(ns);
+    js_register_gfx_TextureCopy(ns);
+    js_register_gfx_TextureBlit(ns);
+    js_register_gfx_BufferTextureCopy(ns);
+    js_register_gfx_Viewport(ns);
+    js_register_gfx_Color(ns);
+    js_register_gfx_BindingMappingInfo(ns);
     js_register_gfx_SwapchainInfo(ns);
+    js_register_gfx_DeviceInfo(ns);
+    js_register_gfx_BufferInfo(ns);
+    js_register_gfx_BufferViewInfo(ns);
+    js_register_gfx_DrawInfo(ns);
+    js_register_gfx_DispatchInfo(ns);
+    js_register_gfx_IndirectBuffer(ns);
+    js_register_gfx_TextureInfo(ns);
+    js_register_gfx_TextureViewInfo(ns);
+    js_register_gfx_SamplerInfo(ns);
+    js_register_gfx_Uniform(ns);
+    js_register_gfx_UniformBlock(ns);
+    js_register_gfx_UniformSamplerTexture(ns);
+    js_register_gfx_UniformSampler(ns);
+    js_register_gfx_UniformTexture(ns);
+    js_register_gfx_UniformStorageImage(ns);
+    js_register_gfx_UniformStorageBuffer(ns);
+    js_register_gfx_UniformInputAttachment(ns);
+    js_register_gfx_ShaderStage(ns);
+    js_register_gfx_Attribute(ns);
+    js_register_gfx_ShaderInfo(ns);
+    js_register_gfx_InputAssemblerInfo(ns);
+    js_register_gfx_ColorAttachment(ns);
+    js_register_gfx_DepthStencilAttachment(ns);
     js_register_gfx_SubpassInfo(ns);
+    js_register_gfx_SubpassDependency(ns);
+    js_register_gfx_RenderPassInfo(ns);
+    js_register_gfx_GlobalBarrierInfo(ns);
+    js_register_gfx_TextureBarrierInfo(ns);
+    js_register_gfx_FramebufferInfo(ns);
+    js_register_gfx_DescriptorSetLayoutBinding(ns);
+    js_register_gfx_DescriptorSetLayoutInfo(ns);
+    js_register_gfx_DescriptorSetInfo(ns);
+    js_register_gfx_PipelineLayoutInfo(ns);
+    js_register_gfx_InputState(ns);
+    js_register_gfx_RasterizerState(ns);
+    js_register_gfx_DepthStencilState(ns);
+    js_register_gfx_BlendTarget(ns);
+    js_register_gfx_BlendState(ns);
+    js_register_gfx_PipelineStateInfo(ns);
+    js_register_gfx_CommandBufferInfo(ns);
+    js_register_gfx_QueueInfo(ns);
+    js_register_gfx_MemoryStatus(ns);
     js_register_gfx_GFXObject(ns);
     js_register_gfx_Buffer(ns);
+    js_register_gfx_InputAssembler(ns);
+    js_register_gfx_CommandBuffer(ns);
+    js_register_gfx_DescriptorSet(ns);
+    js_register_gfx_DescriptorSetLayout(ns);
+    js_register_gfx_Framebuffer(ns);
+    js_register_gfx_PipelineLayout(ns);
+    js_register_gfx_PipelineState(ns);
+    js_register_gfx_Queue(ns);
+    js_register_gfx_RenderPass(ns);
+    js_register_gfx_Shader(ns);
+    js_register_gfx_Texture(ns);
+    js_register_gfx_Swapchain(ns);
+    js_register_gfx_GlobalBarrier(ns);
+    js_register_gfx_Sampler(ns);
     js_register_gfx_TextureBarrier(ns);
     js_register_gfx_Device(ns);
-    js_register_gfx_Texture(ns);
-    js_register_gfx_Uniform(ns);
-    js_register_gfx_DescriptorSet(ns);
-    js_register_gfx_BlendTarget(ns);
-    js_register_gfx_DispatchInfo(ns);
-    js_register_gfx_PipelineState(ns);
-    js_register_gfx_TextureBarrierInfo(ns);
-    js_register_gfx_PipelineLayout(ns);
-    js_register_gfx_Sampler(ns);
-    js_register_gfx_InputAssembler(ns);
-    js_register_gfx_RenderPass(ns);
-    js_register_gfx_BufferInfo(ns);
-    js_register_gfx_SamplerInfo(ns);
-    js_register_gfx_QueueInfo(ns);
-    js_register_gfx_UniformStorageBuffer(ns);
-    js_register_gfx_SubpassDependency(ns);
-    js_register_gfx_UniformSamplerTexture(ns);
-    js_register_gfx_BufferTextureCopy(ns);
-    js_register_gfx_PipelineLayoutInfo(ns);
-    js_register_gfx_InputAssemblerInfo(ns);
-    js_register_gfx_TextureBlit(ns);
-    js_register_gfx_TextureInfo(ns);
-    js_register_gfx_GlobalBarrierInfo(ns);
-    js_register_gfx_RenderPassInfo(ns);
-    js_register_gfx_Extent(ns);
-    js_register_gfx_Offset(ns);
-    js_register_gfx_CommandBuffer(ns);
-    js_register_gfx_Framebuffer(ns);
-    js_register_gfx_Viewport(ns);
-    js_register_gfx_TextureSubresLayers(ns);
-    js_register_gfx_BufferViewInfo(ns);
-    js_register_gfx_UniformInputAttachment(ns);
-    js_register_gfx_UniformSampler(ns);
-    js_register_gfx_ShaderInfo(ns);
-    js_register_gfx_PipelineStateInfo(ns);
-    js_register_gfx_Shader(ns);
-    js_register_gfx_BlendState(ns);
-    js_register_gfx_GlobalBarrier(ns);
-    js_register_gfx_DescriptorSetInfo(ns);
-    js_register_gfx_DescriptorSetLayoutInfo(ns);
-    js_register_gfx_DrawInfo(ns);
-    js_register_gfx_InputState(ns);
-    js_register_gfx_CommandBufferInfo(ns);
-    js_register_gfx_UniformStorageImage(ns);
-    js_register_gfx_UniformBlock(ns);
-    js_register_gfx_DepthStencilAttachment(ns);
-    js_register_gfx_TextureSubresRange(ns);
-    js_register_gfx_TextureViewInfo(ns);
-    js_register_gfx_Queue(ns);
-    js_register_gfx_ColorAttachment(ns);
-    js_register_gfx_RasterizerState(ns);
     js_register_gfx_DeviceManager(ns);
-    js_register_gfx_Color(ns);
-    js_register_gfx_Attribute(ns);
-    js_register_gfx_MemoryStatus(ns);
-    js_register_gfx_DeviceInfo(ns);
-    js_register_gfx_Swapchain(ns);
-    js_register_gfx_DepthStencilState(ns);
-    js_register_gfx_BindingMappingInfo(ns);
-    js_register_gfx_FramebufferInfo(ns);
-    js_register_gfx_DeviceCaps(ns);
-    js_register_gfx_Rect(ns);
-    js_register_gfx_ShaderStage(ns);
-    js_register_gfx_DescriptorSetLayoutBinding(ns);
-    js_register_gfx_UniformTexture(ns);
-    js_register_gfx_DescriptorSetLayout(ns);
-    js_register_gfx_TextureCopy(ns);
-    js_register_gfx_IndirectBuffer(ns);
-    js_register_gfx_Size(ns);
     return true;
 }
 

@@ -76,6 +76,8 @@ while (enumCap) {
 header = header.replace(/\/\*.*?\*\//gs, '');
 header = header.replace(/\s*[*&](.)/g, (_, c) => (c === '>' ? '' : ' ') + c);
 header = header.replace(/(?:\w*::)?vector<(.+?)>/g, '$1[]');
+// and preprocessors
+header = header.replace(/\s*#(if|else|elif|end).*/gm, '');
 
 const typedefRE = /^\s*using\s+(.+?)\s*=\s*(.+?);/gsm;
 const typedefMap = { lists: {}, others: [] };
@@ -122,7 +124,7 @@ const getMemberList = (() => {
     };
 })();
 
-const structRE = /struct\s+(\w+).*?{\s*(.+?)\s*};/gs;
+const structRE = /(struct\s+(?:\w+\(\w+\)\s+)?)(\w+).*?{\s*(.+?)\s*};/gs;
 const structMemberRE = /^\s*(const\w*\s*)?([\w[\]]+)\s+?(\w+)(?:\s*[={]?\s*(.*?)\s*}*\s*)?;(?:\s*\/\/\s*@ts-(.*?)$)?/gm;
 const structMap = {};
 const replaceConstants = (() => {
@@ -150,60 +152,62 @@ const getArrayValue = (decayedType, value) => {
 };
 let structCap = structRE.exec(header);
 while (structCap) {
-    const struct = structMap[structCap[1]] = {};
+    const struct = structMap[structCap[2]] = {};
     struct.member = {};
-    // structRE can not reliably extract the corrent member declaration range
-    const memberList = getMemberList(header, structCap.index);
+    // structRE can not reliably extract the correct member declaration range
+    const memberList = getMemberList(header, structCap.index + structCap[1].length);
 
     let memberCap = structMemberRE.exec(memberList);
     while (memberCap) {
-
-        let type = memberCap[2];
-        let readonly = false;
-        if (typedefMap.lists[type]) {
-            type = typedefMap.lists[type];
-        } else {
-            type = type.replace(/(\b)(void)(\b)/, '$1number$1');
-            type = type.replace(/(\b)(?:uint\w+?_t|int\w+?_t|float)(\b)/, '$1number$1');
-            type = type.replace(/(\b)(?:bool)(\b)/, '$1boolean$2');
-            type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
-        }
-        if (memberCap[1]) { readonly = true; }
-        const isArray = type.endsWith('[]');
-        const decayedType = isArray ? type.slice(0, -2) : type;
-
-        let value = memberCap[4];
-        let n = Number.parseInt(value);
-        if (!Number.isNaN(n)) {
-            if (!value.startsWith('0x')) { value = n; } // keep hexadecimal numbers
-        } else if (value) {
-            value = replaceConstants(value);
-            if (isArray) { value = getArrayValue(decayedType, value); }
-        } else {
-            if (isArray) { value = '[]'; }
-            else if (type === 'string') { value = '\'\''; }
-            else { value = `new ${type}()`; }
-        }
-
-        const info = struct.member[memberCap[3]] = {
-            // all the overridable values
-            readonly, type, value, isArray, decayedType,
-        };
-
-        const directives = memberCap[5];
-        if (directives) {
-            if (directives.startsWith('nullable')) {
-                info.type += ' | null';
-                info.value = 'null';
-            } else if (directives.startsWith('overrides')) {
-                let overrides = {};
-                try { overrides = yaml.load(memberCap[5].slice(9)); }
-                catch (e) { console.warn(e); }
-                Object.assign(info, overrides);
+        if (!memberCap[3].startsWith('_')) {
+            let type = memberCap[2];
+            let readonly = false;
+            if (typedefMap.lists[type]) {
+                type = typedefMap.lists[type];
+            } else {
+                type = type.replace(/(\b)(void)(\b)/, '$1number$1');
+                type = type.replace(/(\b)(?:uint\w+?_t|int\w+?_t|float)(\b)/, '$1number$1');
+                type = type.replace(/(\b)(?:bool)(\b)/, '$1boolean$2');
+                type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
             }
+            if (memberCap[1]) { readonly = true; }
+            const isArray = type.endsWith('[]');
+            const decayedType = isArray ? type.slice(0, -2) : type;
+
+            let value = memberCap[4];
+            let n = Number.parseInt(value);
+            if (!Number.isNaN(n)) {
+                if (!value.startsWith('0x')) { value = n; } // keep hexadecimal numbers
+            } else if (value) {
+                value = replaceConstants(value);
+                if (isArray) { value = getArrayValue(decayedType, value); }
+            } else {
+                if (isArray) { value = '[]'; }
+                else if (type === 'string') { value = '\'\''; }
+                else { value = `new ${type}()`; }
+            }
+
+            const info = struct.member[memberCap[3]] = {
+                // all the overridable values
+                readonly, type, value, isArray, decayedType,
+            };
+
+            const directives = memberCap[5];
+            if (directives) {
+                if (directives.startsWith('nullable')) {
+                    info.type += ' | null';
+                    info.value = 'null';
+                } else if (directives.startsWith('overrides')) {
+                    let overrides = {};
+                    try { overrides = yaml.load(memberCap[5].slice(9)); }
+                    catch (e) { console.warn(e); }
+                    Object.assign(info, overrides);
+                }
+            }
+
+            if (info.type === 'number' && info.value === 'null!') { info.value = 0; }
         }
 
-        if (info.type === 'number' && info.value === 'null!') { info.value = 0; }
         memberCap = structMemberRE.exec(memberList);
     }
 

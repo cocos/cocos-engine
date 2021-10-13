@@ -136,15 +136,15 @@ PipelineState *EmptyDevice::createPipelineState() {
     return CC_NEW(EmptyPipelineState());
 }
 
-Sampler *EmptyDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
+Sampler *EmptyDevice::createSampler(const SamplerInfo &info, size_t hash) {
     return CC_NEW(Sampler(info, hash));
 }
 
-GlobalBarrier *EmptyDevice::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+GlobalBarrier *EmptyDevice::createGlobalBarrier(const GlobalBarrierInfo &info, size_t hash) {
     return CC_NEW(GlobalBarrier(info, hash));
 }
 
-TextureBarrier *EmptyDevice::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+TextureBarrier *EmptyDevice::createTextureBarrier(const TextureBarrierInfo &info, size_t hash) {
     return CC_NEW(TextureBarrier(info, hash));
 }
 

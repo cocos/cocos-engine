@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/functional/hash.hpp>
+
 #include "base/CoreStd.h"
 
 #include "GFXBuffer.h"
@@ -38,19 +40,17 @@ InputAssembler::InputAssembler()
 
 InputAssembler::~InputAssembler() = default;
 
-uint32_t InputAssembler::computeAttributesHash() const {
-    // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
-    // 6: Attribute has 6 elements.
-    std::size_t seed = _attributes.size() * 6;
+size_t InputAssembler::computeAttributesHash() const {
+    size_t seed = _attributes.size() * 6;
     for (const auto &attribute : _attributes) {
-        seed ^= std::hash<std::string>{}(attribute.name) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= static_cast<uint32_t>(attribute.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= attribute.isNormalized + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= attribute.stream + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= attribute.isInstanced + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= attribute.location + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        boost::hash_combine(seed, attribute.name);
+        boost::hash_combine(seed, attribute.format);
+        boost::hash_combine(seed, attribute.isNormalized);
+        boost::hash_combine(seed, attribute.stream);
+        boost::hash_combine(seed, attribute.isInstanced);
+        boost::hash_combine(seed, attribute.location);
     }
-    return static_cast<uint32_t>(seed);
+    return seed;
 }
 
 void InputAssembler::initialize(const InputAssemblerInfo &info) {

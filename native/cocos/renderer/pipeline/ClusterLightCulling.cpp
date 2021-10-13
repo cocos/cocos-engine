@@ -670,7 +670,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
             bufferInfo.size     = clusterBufferSize;
             bufferInfo.stride   = clusterBufferSize;
             bufferInfo.flags    = gfx::BufferFlagBit::NONE;
-            data.clusterBuffer  = builder.create<framegraph::Buffer>(fgStrHandleClusterBuffer, bufferInfo);
+            data.clusterBuffer  = builder.create(fgStrHandleClusterBuffer, bufferInfo);
             builder.writeToBlackboard(fgStrHandleClusterBuffer, data.clusterBuffer);
         }
         // only rebuild cluster necceray
@@ -689,7 +689,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
             bufferInfo.size        = atomicIndexBufferSize;
             bufferInfo.stride      = atomicIndexBufferSize;
             bufferInfo.flags       = gfx::BufferFlagBit::NONE;
-            data.globalIndexBuffer = builder.create<framegraph::Buffer>(fgStrHandleClusterGlobalIndexBuffer, bufferInfo);
+            data.globalIndexBuffer = builder.create(fgStrHandleClusterGlobalIndexBuffer, bufferInfo);
             builder.writeToBlackboard(fgStrHandleClusterGlobalIndexBuffer, data.globalIndexBuffer);
         }
         // atomic counter for building the light grid
@@ -735,7 +735,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
             bufferInfo.size     = _lightBufferStride * _lightBufferCount;
             bufferInfo.stride   = _lightBufferStride;
             bufferInfo.flags    = gfx::BufferFlagBit::NONE;
-            data.lightBuffer    = builder.create<framegraph::Buffer>(fgStrHandleClusterLightBuffer, bufferInfo);
+            data.lightBuffer    = builder.create(fgStrHandleClusterLightBuffer, bufferInfo);
             builder.writeToBlackboard(fgStrHandleClusterLightBuffer, data.lightBuffer);
             _lightBufferResized = false;
         }
@@ -753,7 +753,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
             bufferInfo.size       = lightIndicesBufferSize;
             bufferInfo.stride     = lightIndicesBufferSize;
             bufferInfo.flags      = gfx::BufferFlagBit::NONE;
-            data.lightIndexBuffer = builder.create<framegraph::Buffer>(fgStrHandleClusterLightIndexBuffer, bufferInfo);
+            data.lightIndexBuffer = builder.create(fgStrHandleClusterLightIndexBuffer, bufferInfo);
             builder.writeToBlackboard(fgStrHandleClusterLightIndexBuffer, data.lightIndexBuffer);
         }
         data.lightIndexBuffer = builder.write(data.lightIndexBuffer);
@@ -770,7 +770,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
             bufferInfo.size      = lightGridBufferSize;
             bufferInfo.stride    = lightGridBufferSize;
             bufferInfo.flags     = gfx::BufferFlagBit::NONE;
-            data.lightGridBuffer = builder.create<framegraph::Buffer>(fgStrHandleClusterLightGridBuffer, bufferInfo);
+            data.lightGridBuffer = builder.create(fgStrHandleClusterLightGridBuffer, bufferInfo);
             builder.writeToBlackboard(fgStrHandleClusterLightGridBuffer, data.lightGridBuffer);
         }
         data.lightGridBuffer = builder.write(data.lightGridBuffer);

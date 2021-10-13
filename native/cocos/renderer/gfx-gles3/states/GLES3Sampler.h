@@ -35,7 +35,7 @@ class GLES3GPUSampler;
 
 class CC_GLES3_API GLES3Sampler final : public Sampler {
 public:
-    explicit GLES3Sampler(const SamplerInfo &info, uint32_t hash);
+    explicit GLES3Sampler(const SamplerInfo &info, size_t hash);
     ~GLES3Sampler() override;
 
     inline GLES3GPUSampler *gpuSampler() const { return _gpuSampler; }

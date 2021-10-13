@@ -177,7 +177,7 @@ void BloomStage::render(scene::Camera *camera) {
             colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
             colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
 
-            data.inputTexHandle = builder.create<framegraph::Texture>(
+            data.inputTexHandle = builder.create(
                 RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         }
 
@@ -193,7 +193,7 @@ void BloomStage::render(scene::Camera *camera) {
             colorTexInfo.width  = static_cast<uint>(renderArea.width * shadingScale);
             colorTexInfo.height = static_cast<uint>(renderArea.height * shadingScale);
 
-            data.outputTexHandle = builder.create<framegraph::Texture>(prefilterTexHandle, colorTexInfo);
+            data.outputTexHandle = builder.create(prefilterTexHandle, colorTexInfo);
         }
         data.outputTexHandle = builder.write(data.outputTexHandle, colorAttachmentInfo);
         builder.writeToBlackboard(prefilterTexHandle, data.outputTexHandle);
@@ -268,7 +268,7 @@ void BloomStage::render(scene::Camera *camera) {
                 colorTexInfo.width  = static_cast<uint>(renderArea.width * shadingScale);
                 colorTexInfo.height = static_cast<uint>(renderArea.height * shadingScale);
 
-                data.outputTexHandle = builder.create<framegraph::Texture>(downsampleTexHandles[data.index], colorTexInfo);
+                data.outputTexHandle = builder.create(downsampleTexHandles[data.index], colorTexInfo);
             }
             data.outputTexHandle = builder.write(data.outputTexHandle, colorAttachmentInfo);
             builder.writeToBlackboard(downsampleTexHandles[data.index], data.outputTexHandle);
@@ -345,7 +345,7 @@ void BloomStage::render(scene::Camera *camera) {
                 colorTexInfo.width  = static_cast<uint>(renderArea.width * shadingScale);
                 colorTexInfo.height = static_cast<uint>(renderArea.height * shadingScale);
 
-                data.outputTexHandle = builder.create<framegraph::Texture>(
+                data.outputTexHandle = builder.create(
                     upsampleTexHandles[data.index], colorTexInfo);
             }
             data.outputTexHandle = builder.write(data.outputTexHandle, colorAttachmentInfo);
@@ -427,7 +427,7 @@ void BloomStage::render(scene::Camera *camera) {
             colorTexInfo.width  = static_cast<uint>(renderArea.width * shadingScale);
             colorTexInfo.height = static_cast<uint>(renderArea.height * shadingScale);
 
-            data.bloomOutTexHandle = builder.create<framegraph::Texture>(
+            data.bloomOutTexHandle = builder.create(
                 RenderPipeline::fgStrHandleBloomOutTexture, colorTexInfo);
         }
         data.bloomOutTexHandle = builder.write(data.bloomOutTexHandle, colorAttachmentInfo);

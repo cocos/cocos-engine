@@ -225,15 +225,15 @@ PipelineState *DeviceValidator::createPipelineState() {
     return result;
 }
 
-Sampler *DeviceValidator::createSampler(const SamplerInfo &info, uint32_t hash) {
+Sampler *DeviceValidator::createSampler(const SamplerInfo &info, size_t hash) {
     return _actor->createSampler(info, hash);
 }
 
-GlobalBarrier *DeviceValidator::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
+GlobalBarrier *DeviceValidator::createGlobalBarrier(const GlobalBarrierInfo &info, size_t hash) {
     return _actor->createGlobalBarrier(info, hash);
 }
 
-TextureBarrier *DeviceValidator::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
+TextureBarrier *DeviceValidator::createTextureBarrier(const TextureBarrierInfo &info, size_t hash) {
     return _actor->createTextureBarrier(info, hash);
 }
 

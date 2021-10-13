@@ -126,14 +126,14 @@ protected:
     scene::Model *      _profiler{nullptr};
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
-    gfx::Texture *                                  _defaultTexture{nullptr};
-    uint                                            _width{0};
-    uint                                            _height{0};
-    gfx::Buffer *                                   _quadIB{nullptr};
-    std::vector<gfx::Buffer *>                      _quadVB;
-    std::unordered_map<uint, gfx::InputAssembler *> _quadIA;
+    gfx::Texture *                                    _defaultTexture{nullptr};
+    uint                                              _width{0};
+    uint                                              _height{0};
+    gfx::Buffer *                                     _quadIB{nullptr};
+    std::vector<gfx::Buffer *>                        _quadVB;
+    std::unordered_map<size_t, gfx::InputAssembler *> _quadIA;
 
-    framegraph::FrameGraph                  _fg;
+    framegraph::FrameGraph                            _fg;
     unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
 
     // use cluster culling or not

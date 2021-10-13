@@ -30,14 +30,14 @@
 namespace cc {
 namespace gfx {
 
-Sampler::Sampler(const SamplerInfo &info, uint32_t hash)
+Sampler::Sampler(const SamplerInfo &info, size_t hash)
 : GFXObject(ObjectType::SAMPLER) {
     _info = info;
     _hash = hash;
 }
 
-uint32_t Sampler::computeHash(const SamplerInfo &info) {
-    uint32_t hash = toNumber(info.minFilter);
+size_t Sampler::computeHash(const SamplerInfo &info) {
+    size_t hash = toNumber(info.minFilter);
     hash |= (toNumber(info.magFilter) << 2);
     hash |= (toNumber(info.mipFilter) << 4);
     hash |= (toNumber(info.addressU) << 6);

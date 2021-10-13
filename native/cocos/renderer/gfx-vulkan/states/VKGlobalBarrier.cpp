@@ -29,7 +29,7 @@
 namespace cc {
 namespace gfx {
 
-CCVKGlobalBarrier::CCVKGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) : GlobalBarrier(info, hash) {
+CCVKGlobalBarrier::CCVKGlobalBarrier(const GlobalBarrierInfo &info, size_t hash) : GlobalBarrier(info, hash) {
     _typedID = generateObjectID<decltype(this)>();
 
     _gpuBarrier = CC_NEW(CCVKGPUGlobalBarrier);

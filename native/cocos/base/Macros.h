@@ -29,6 +29,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #include <BaseTsd.h>
     #if !defined(__SSIZE_T) && !defined(_SSIZE_T_)
@@ -325,10 +327,10 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_CPU CC_CPU_UNKNOWN
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64) || defined(__powerpc64__) || defined(__alpha__) || defined(__ia64__) || defined(__s390__) || defined(__s390x__) || defined(__arm64__) || defined(_aarch64_) || defined(__mips64) || defined(__mips64_)
-    #define CC_CPU_ARCH CC_CPU_ARCH_64
-#else
+#if INTPTR_MAX == INT32_MAX
     #define CC_CPU_ARCH CC_CPU_ARCH_32
+#else
+    #define CC_CPU_ARCH CC_CPU_ARCH_64
 #endif
 
 // C11 features

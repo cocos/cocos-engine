@@ -40,8 +40,8 @@ public:
     PassNodeBuilder &operator=(const PassNodeBuilder &) = delete;
     PassNodeBuilder &operator=(PassNodeBuilder &&) = delete;
 
-    template <typename ResourceType>
-    TypedHandle<ResourceType> create(const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept;
+    template <typename DescriptorType, typename ResourceType = typename ResourceTypeLookupTable<DescriptorType>::Resource>
+    TypedHandle<ResourceType> create(const StringHandle &name, const DescriptorType &desc) const noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> importExternal(const StringHandle &name, ResourceType &resource) const noexcept;
     template <typename ResourceType>

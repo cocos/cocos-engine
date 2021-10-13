@@ -43,8 +43,8 @@ class FrameGraph final {
 public:
     using ResourceHandleBlackboard = Blackboard<StringHandle, Handle::IndexType, Handle::UNINITIALIZED>;
 
-    FrameGraph() = default;
-    ~FrameGraph() = default;
+    FrameGraph()                       = default;
+    ~FrameGraph()                      = default;
     FrameGraph(const FrameGraph &)     = delete;
     FrameGraph(FrameGraph &&) noexcept = delete;
     FrameGraph &operator=(const FrameGraph &) = delete;
@@ -64,8 +64,8 @@ public:
     template <typename Data, typename SetupMethod, typename ExecuteMethod>
     const CallbackPass<Data, ExecuteMethod> &addPass(PassInsertPoint insertPoint, const StringHandle &name, SetupMethod setup, ExecuteMethod &&execute) noexcept;
 
-    template <typename ResourceType>
-    TypedHandle<ResourceType> create(const StringHandle &name, const typename ResourceType::Descriptor &desc) noexcept;
+    template <typename DescriptorType, typename ResourceType = typename ResourceTypeLookupTable<DescriptorType>::Resource>
+    TypedHandle<ResourceType> create(const StringHandle &name, const DescriptorType &desc) noexcept;
     template <typename ResourceType>
     TypedHandle<ResourceType> importExternal(const StringHandle &name, ResourceType &resource) noexcept;
     void                      move(TextureHandle from, TextureHandle to, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition) noexcept;
@@ -113,8 +113,8 @@ const CallbackPass<Data, ExecuteMethod> &FrameGraph::addPass(const PassInsertPoi
     return *pass;
 }
 
-template <typename ResourceType>
-TypedHandle<ResourceType> FrameGraph::create(const StringHandle &name, const typename ResourceType::Descriptor &desc) noexcept {
+template <typename DescriptorType, typename ResourceType>
+TypedHandle<ResourceType> FrameGraph::create(const StringHandle &name, const DescriptorType &desc) noexcept {
     auto *const virtualResource = new ResourceEntry<ResourceType>(name, static_cast<ID>(_virtualResources.size()), desc);
     return TypedHandle<ResourceType>(create(virtualResource));
 }
@@ -132,9 +132,9 @@ void FrameGraph::enableMerge(bool const enable) noexcept {
 
 //////////////////////////////////////////////////////////////////////////
 
-template <typename ResourceType>
-TypedHandle<ResourceType> PassNodeBuilder::create(const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept {
-    return _graph.create<ResourceType>(name, desc);
+template <typename DescriptorType, typename ResourceType>
+TypedHandle<ResourceType> PassNodeBuilder::create(const StringHandle &name, const DescriptorType &desc) const noexcept {
+    return _graph.create(name, desc);
 }
 
 template <typename ResourceType>

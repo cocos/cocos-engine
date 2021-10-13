@@ -1240,7 +1240,7 @@ class NativeClass(object):
 
         elif cursor.kind == cindex.CursorKind.FIELD_DECL:
             self.fields.append(NativeField(cursor, self.generator))
-            if (self.is_struct or self._current_visibility == cindex.AccessSpecifier.PUBLIC) and NativeField.can_parse(cursor.type, self.generator, cursor):
+            if (self.is_struct or self._current_visibility == cindex.AccessSpecifier.PUBLIC) and NativeField.can_parse(cursor.type, self.generator, cursor) and not self.generator.should_skip(self.class_name, cursor.displayname):
                 self.public_fields.append(NativeField(cursor, self.generator))
         elif cursor.kind == cindex.CursorKind.CXX_ACCESS_SPEC_DECL:
             self._current_visibility = cursor.access_specifier

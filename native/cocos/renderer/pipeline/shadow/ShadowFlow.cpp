@@ -36,7 +36,7 @@
 
 namespace cc {
 namespace pipeline {
-std::unordered_map<uint, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
+std::unordered_map<size_t, cc::gfx::RenderPass *> ShadowFlow::renderPassHashMap;
 
 RenderFlowInfo ShadowFlow::initInfo = {
     "ShadowFlow",
@@ -207,7 +207,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     rpInfo.colorAttachments.emplace_back(colorAttachment);
     rpInfo.depthStencilAttachment = depthStencilAttachment;
 
-    uint rpHash = cc::gfx::RenderPass::computeHash(rpInfo);
+    size_t rpHash = cc::gfx::RenderPass::computeHash(rpInfo);
     auto iter   = renderPassHashMap.find(rpHash);
     if (iter != renderPassHashMap.end()) {
         _renderPass = iter->second;

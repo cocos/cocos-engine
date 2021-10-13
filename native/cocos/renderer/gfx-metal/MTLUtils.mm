@@ -40,8 +40,8 @@ namespace cc {
 namespace gfx {
 namespace {
 
-std::unordered_map<uint, PipelineState*> pipelineMap;
-std::unordered_map<uint, RenderPass*> renderPassMap;
+std::unordered_map<size_t, PipelineState*> pipelineMap;
+std::unordered_map<size_t, RenderPass*> renderPassMap;
 
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
@@ -357,13 +357,13 @@ gfx::Shader *createShader(CCMTLDevice *device) {
 }
 
 CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass * curPass) {
-    uint rpHash = curPass->getHash();
+    size_t rpHash = curPass->getHash();
     const auto iter = pipelineMap.find(rpHash);
     if(iter != pipelineMap.end()) {
         auto *ccMtlPiplineState = static_cast<CCMTLPipelineState *>(iter->second);
         return ccMtlPiplineState->getGPUPipelineState();
     }
-    
+
     RenderPass* renderPass = nullptr;
     const auto rpIter = renderPassMap.find(rpHash);
     if(rpIter != renderPassMap.end()) {
@@ -379,7 +379,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
                 uint32_t color = subpasses[curSubpassIndex].colors[i];
                 colorAttachments.push_back(originAttachments[color]);
             }
-            
+
             uint32_t depthStencil = subpasses[curSubpassIndex].depthStencil;
             if(depthStencil >= subpasses[curSubpassIndex].colors.size()) {
                 depthStencilAttachment = curPass->getDepthStencilAttachment();
@@ -407,7 +407,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
             });
         }
     }
-    
+
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
@@ -944,7 +944,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     auto active = msl.get_active_interface_variables();
     spirv_cross::ShaderResources resources = msl.get_shader_resources(active);
     msl.set_enabled_interface_variables(std::move(active));
-    
+
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
     options.enable_decoration_binding = true;
@@ -1049,7 +1049,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             samplerIndex++;
         }
     }
-    
+
     if(executionModel == spv::ExecutionModelFragment) {
         gpuShader->outputs.resize(resources.stage_outputs.size());
         for(size_t i = 0; i < resources.stage_outputs.size(); i++) {
@@ -1061,7 +1061,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             gpuShader->outputs[i].set = set;
             gpuShader->outputs[i].binding = attachmentIndex;
         }
-        
+
         if(!resources.subpass_inputs.empty()) {
             gpuShader->inputs.resize(resources.subpass_inputs.size());
             for(size_t i = 0; i < resources.subpass_inputs.size(); i++) {

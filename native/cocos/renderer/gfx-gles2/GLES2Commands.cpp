@@ -1194,7 +1194,7 @@ void cmdFuncGLES2CreateRenderPass(GLES2Device * /*device*/, GLES2GPURenderPass *
         statistics.storeSubpass = index;
     };
     auto calculateLifeCycle = [&](GLES2GPURenderPass::AttachmentStatistics &statistics, uint32_t targetAttachment) {
-        for (size_t j = 0U; j < gpuRenderPass->subpasses.size(); ++j) {
+        for (uint32_t j = 0U; j < utils::toUint(gpuRenderPass->subpasses.size()); ++j) {
             auto &subpass = gpuRenderPass->subpasses[j];
             for (size_t k = 0U; k < subpass.colors.size(); ++k) {
                 if (subpass.colors[k] == targetAttachment) {
@@ -1220,7 +1220,7 @@ void cmdFuncGLES2CreateRenderPass(GLES2Device * /*device*/, GLES2GPURenderPass *
 
     bool hasDepth = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN;
     gpuRenderPass->statistics.resize(gpuRenderPass->colorAttachments.size() + hasDepth);
-    for (size_t i = 0U; i < gpuRenderPass->statistics.size(); ++i) {
+    for (uint32_t i = 0U; i < utils::toUint(gpuRenderPass->statistics.size()); ++i) {
         calculateLifeCycle(gpuRenderPass->statistics[i], i);
         CC_ASSERT(gpuRenderPass->statistics[i].loadSubpass != SUBPASS_EXTERNAL &&
                   gpuRenderPass->statistics[i].storeSubpass != SUBPASS_EXTERNAL);
@@ -1440,7 +1440,7 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
 
         gpuFBO->uberColorAttachmentIndices.clear();
         bool hasDepth{gpuFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN};
-        gpuFBO->uberDepthStencil = hasDepth ? gpuFBO->gpuColorTextures.size() : INVALID_BINDING;
+        gpuFBO->uberDepthStencil = hasDepth ? utils::toUint(gpuFBO->gpuColorTextures.size()) : INVALID_BINDING;
         for (uint32_t i = 0U; i < gpuFBO->gpuColorTextures.size(); ++i) {
             if (i == gpuFBO->uberFinalOutput) continue;
             const auto *gpuTexture = gpuFBO->gpuColorTextures[i];
