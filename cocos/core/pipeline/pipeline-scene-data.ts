@@ -109,7 +109,7 @@ export class PipelineSceneData {
     protected _occlusionQueryInputAssembler: InputAssembler | null = null;
     protected _occlusionQueryMaterial: Material | null = null;
     protected _occlusionQueryShader: Shader | null = null;
-    protected _isHDR = false;
+    protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _isShadingScale = false;
 
