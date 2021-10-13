@@ -323,8 +323,8 @@ export const sys = {
         const rightTop = new Vec2(windowSize.width - edge.right, edge.top);
 
         // Convert to the location in Cocos screen coordinates system.
-        screen.convertToScreenSpace(leftBottom.x, leftBottom.y, leftBottom);
-        screen.convertToScreenSpace(rightTop.x, rightTop.y, rightTop);
+        screen.convertToCocosScreenSpace(leftBottom.x, leftBottom.y, leftBottom);
+        screen.convertToCocosScreenSpace(rightTop.x, rightTop.y, rightTop);
 
         // Convert view point to UI coordinate system.
         locView._convertToUISpace(leftBottom);

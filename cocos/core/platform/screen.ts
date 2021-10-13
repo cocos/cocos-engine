@@ -86,7 +86,7 @@ class Screen {
      * @param nativeScreenY
      * @param out
      */
-    public convertToScreenSpace (nativeScreenX: number, nativeScreenY: number, out: Vec2 = new Vec2(0, 0)) {
+    public convertToCocosScreenSpace (nativeScreenX: number, nativeScreenY: number, out: Vec2 = new Vec2(0, 0)) {
         const windowSize = this.windowSize;
         out.x = nativeScreenX;
         out.y = windowSize.height - nativeScreenY;
