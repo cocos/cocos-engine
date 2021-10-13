@@ -577,6 +577,7 @@ export class View extends EventTarget {
     }
 
     private _updateAdaptResult () {
+        legacyCC.director.root.resize(screen.windowSize.width, screen.windowSize.height);
         // Frame size changed, do resize works
         const width = this._designResolutionSize.width;
         const height = this._designResolutionSize.height;
