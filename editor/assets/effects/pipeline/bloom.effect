@@ -9,18 +9,31 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
-    - vert: bloom-vs
-      frag: downsample-fs
-      phase: bloom-downsample
-      depthStencilState:
-        depthTest: false
-        depthWrite: false
-    - vert: bloom-vs
-      frag: upsample-fs
-      phase: bloom-upsample
-      depthStencilState:
-        depthTest: false
-        depthWrite: false
+    # Supports up to MAX_BLOOM_FILTER_PASS_NUM upsample/downsample passes
+    - &downsample
+        vert: bloom-vs
+        frag: downsample-fs
+        phase: bloom-downsample
+        depthStencilState:
+          depthTest: false
+          depthWrite: false
+    - *downsample
+    - *downsample
+    - *downsample
+    - *downsample
+    - *downsample
+    - &upsample
+        vert: bloom-vs
+        frag: upsample-fs
+        phase: bloom-upsample
+        depthStencilState:
+          depthTest: false
+          depthWrite: false
+    - *upsample
+    - *upsample
+    - *upsample
+    - *upsample
+    - *upsample
     - vert: bloom-vs
       frag: combine-fs
       phase: bloom-combine
@@ -54,7 +67,10 @@ CCProgram prefilter-fs %{
 
   in vec2 v_uv;
 
-  layout (binding = 0) uniform sampler2D outputResultMap;
+  uniform BloomUBO {
+    mediump vec4 texSize;
+  };
+  uniform sampler2D outputResultMap;
 
   layout(location = 0) out vec4 fragColor;
 
@@ -65,7 +81,7 @@ CCProgram prefilter-fs %{
   void main() {
     vec3 color = texture(outputResultMap, v_uv).xyz;
 
-    if (luminance(SRGBToLinear(color)) > 1.0) {
+    if (luminance(SRGBToLinear(color)) > texSize.z) {
       fragColor = vec4(color, 1.0);
     } else {
       fragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -163,15 +179,18 @@ CCProgram combine-fs %{
 
   in vec2 v_uv;
 
-  layout(binding = 0) uniform sampler2D outputResultMap;
-  layout(binding = 1) uniform sampler2D bloomTexture;
+  uniform BloomUBO {
+    mediump vec4 texSize;
+  };
+  uniform sampler2D outputResultMap;
+  uniform sampler2D bloomTexture;
 
   layout(location = 0) out vec4 fragColor;
 
   void main() {
     vec4 hdrColor = texture(outputResultMap, v_uv);
     vec3 bloomColor = texture(bloomTexture, v_uv).rgb;
-    vec3 result = hdrColor.rgb + bloomColor * 0.8 * hdrColor.a;
+    vec3 result = hdrColor.rgb + bloomColor * texSize.w * hdrColor.a;
 
     fragColor = vec4(result, hdrColor.a);
   }

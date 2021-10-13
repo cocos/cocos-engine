@@ -124,7 +124,7 @@ export class PostProcessStage extends RenderStage {
         const pass = builtinPostProcess.passes[0];
         const shader = pass.getShaderVariant();
 
-        if (pipeline.bloomEnable) {
+        if (pipeline.bloomEnabled) {
             pass.descriptorSet.bindTexture(0, renderData.bloom!.combineTex);
         } else {
             pass.descriptorSet.bindTexture(0, renderData.outputRenderTargets[0]);
