@@ -924,6 +924,77 @@ describe('NewGen Anim', () => {
                 },
             });
         });
+
+        test(`Ran into entry/exit node`, () => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+
+            const animState = graph.addMotion();
+            animState.name = 'AnimState';
+            const animClip = animState.motion = createClipMotionPositionX(1.0, 2.0, 'AnimStateClip');
+
+            const subStateMachine = graph.addSubStateMachine();
+            subStateMachine.name = 'SubStateMachine';
+            const subStateMachineAnimState = subStateMachine.stateMachine.addMotion();
+            subStateMachineAnimState.name = 'SubStateMachineAnimState';
+            const subStateMachineAnimStateClip = subStateMachineAnimState.motion = createClipMotionPositionX(1.0, 3.0, 'SubStateMachineAnimStateClip');
+            subStateMachine.stateMachine.connect(subStateMachine.stateMachine.entryState, subStateMachineAnimState);
+            const subStateMachineAnimStateToExit = subStateMachine.stateMachine.connect(
+                subStateMachineAnimState, subStateMachine.stateMachine.exitState);
+            subStateMachineAnimStateToExit.exitConditionEnabled = true;
+            subStateMachineAnimStateToExit.exitCondition = 1.0;
+
+            graph.connect(graph.entryState, subStateMachine);
+            const subStateMachineToAnimState = graph.connect(subStateMachine, animState);
+            const [ triggerCondition ] = subStateMachineToAnimState.conditions = [new TriggerCondition()];
+            triggerCondition.trigger = 'trigger';
+
+            animationGraph.addVariable('trigger', VariableType.TRIGGER);
+
+            const graphEval = createAnimationGraphEval(animationGraph, new Node());
+
+            graphEval.update(0.5);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: subStateMachineAnimStateClip.clip!,
+                    weight: 1.0,
+                },
+            });
+
+            graphEval.update(0.6);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: subStateMachineAnimStateClip.clip!,
+                    weight: 1.0,
+                },
+            });
+
+            // Still halt
+            graphEval.update(5.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: subStateMachineAnimStateClip.clip!,
+                    weight: 1.0,
+                },
+            });
+
+            graphEval.setValue('trigger', true);
+            graphEval.update(0.1);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                current: {
+                    clip: subStateMachineAnimStateClip.clip!,
+                    weight: 0.6666667,
+                },
+                transition: {
+                    time: 0.1,
+                    next: {
+                        clip: animClip.clip!,
+                        weight: 0.333333,
+                    },
+                },
+            });
+        });
     });
 
     describe(`Any state`, () => {
