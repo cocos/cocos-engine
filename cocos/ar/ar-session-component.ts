@@ -52,7 +52,7 @@ let _temp_quat = new Quat();
  * @zh AR session 组件
  */
 @ccclass('cc.ARSession')
-@menu("AR/ARSession")
+@menu('AR/ARSession')
 @disallowMultiple
 export class ARSession extends Component {
     

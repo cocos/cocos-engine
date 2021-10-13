@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { JSB } from 'internal:constants';
 import { ccclass } from '../core/data/class-decorator'
 import { ARModuleWeb } from './ar-module-web'
-import { JSB } from 'internal:constants';
 
 import { legacyCC } from '../core/global-exports';
 
