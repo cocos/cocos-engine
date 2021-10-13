@@ -303,7 +303,7 @@ export class Renderable2D extends RenderableComponent {
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+    protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
