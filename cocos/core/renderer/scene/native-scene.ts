@@ -337,9 +337,9 @@ export const NativePipelineSharedSceneData: Constructor<{
     bloomPrefilterPassShader: Shader | null;
     bloomPrefilterPass: NativePass;
     bloomDownsamplePassShader: Shader | null;
-    bloomDownsamplePass: NativePass;
+    bloomDownsamplePass: NativePass[];
     bloomUpsamplePassShader: Shader | null;
-    bloomUpsamplePass: NativePass;
+    bloomUpsamplePass: NativePass[];
     bloomCombinePassShader: Shader | null;
     bloomCombinePass: NativePass;
     pipelinePostPassShader: Shader | null;

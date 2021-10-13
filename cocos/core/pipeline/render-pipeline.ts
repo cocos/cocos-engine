@@ -55,13 +55,10 @@ export interface IRenderPipelineInfo {
     tag?: number;
 }
 
+export const MAX_BLOOM_FILTER_PASS_NUM = 6;
+
 export class BloomRenderData {
     renderPass: RenderPass = null!;
-    /*
-     * The down/upsample pass number should be calculated using the data passed by user
-     * through the camera, but for now we always use 2.
-     */
-    filterPassNum = 2;
 
     sampler: Sampler = null!;
 
@@ -226,12 +223,12 @@ export abstract class RenderPipeline extends Asset {
         return this._clusterEnabled;
     }
 
-    set bloomEnable (value) {
-        this._bloomEnable = value;
+    set bloomEnabled (value) {
+        this._bloomEnabled = value;
     }
 
-    get bloomEnable () {
-        return this._bloomEnable;
+    get bloomEnabled () {
+        return this._bloomEnabled;
     }
 
     protected _device!: Device;
@@ -249,7 +246,7 @@ export abstract class RenderPipeline extends Asset {
     protected _height = 0;
     protected _lastUsedRenderArea: Rect = new Rect();
     protected _clusterEnabled = false;
-    protected _bloomEnable = false;
+    protected _bloomEnabled = false;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -436,7 +433,7 @@ export abstract class RenderPipeline extends Asset {
 
     protected _destroyBloomData () {
         const bloom = this._pipelineRenderData!.bloom;
-        if (bloom === null) return;
+        if (bloom === null || this.bloomEnabled === false) return;
 
         if (bloom.prefiterTex) bloom.prefiterTex.destroy();
         if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
@@ -623,6 +620,8 @@ export abstract class RenderPipeline extends Asset {
     }
 
     protected _generateBloomRenderData () {
+        if (this.bloomEnabled === false) return;
+
         const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
         const device = this.device;
 
@@ -650,10 +649,10 @@ export abstract class RenderPipeline extends Asset {
             [bloom.prefiterTex],
         ));
 
-        // downsample
+        // downsample & upsample
         curWidth >>= 1;
         curHeight >>= 1;
-        for (let i = 0; i < bloom.filterPassNum; ++i) {
+        for (let i = 0; i < MAX_BLOOM_FILTER_PASS_NUM; ++i) {
             bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
@@ -665,25 +664,21 @@ export abstract class RenderPipeline extends Asset {
                 bloom.renderPass,
                 [bloom.downsampleTexs[i]],
             ));
-            curWidth >>= 1;
-            curHeight >>= 1;
-        }
 
-        // upsample
-        for (let i = 0; i < bloom.filterPassNum; ++i) {
             bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
                 Format.BGRA8,
-                curWidth << 1,
-                curHeight << 1,
+                curWidth,
+                curHeight,
             )));
             bloom.upsampleFramebuffers[i] = device.createFramebuffer(new FramebufferInfo(
                 bloom.renderPass,
                 [bloom.upsampleTexs[i]],
             ));
-            curWidth <<= 1;
-            curHeight <<= 1;
+
+            curWidth >>= 1;
+            curHeight >>= 1;
         }
 
         // combine

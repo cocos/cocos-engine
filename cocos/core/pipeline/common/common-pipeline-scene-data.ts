@@ -25,15 +25,16 @@
 
 import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
-import { RenderPipeline } from '../render-pipeline';
+import { MAX_BLOOM_FILTER_PASS_NUM, RenderPipeline } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../platform/macro';
+import { NativePass } from '../../renderer/scene';
 
 export const BLOOM_PREFILTERPASS_INDEX = 0;
 export const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
-export const BLOOM_UPSAMPLEPASS_INDEX = 2;
-export const BLOOM_COMBINEPASS_INDEX = 3;
+export const BLOOM_UPSAMPLEPASS_INDEX = BLOOM_DOWNSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
+export const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 
 export class CommonPipelineSceneData extends PipelineSceneData {
     public get bloomMaterial () {
@@ -102,35 +103,42 @@ export class CommonPipelineSceneData extends PipelineSceneData {
     private updateBloomPass () {
         if (!this._bloomMaterial) return;
 
-        const passPrefilter = this._bloomMaterial.passes[BLOOM_PREFILTERPASS_INDEX];
-        passPrefilter.beginChangeStatesSilently();
-        passPrefilter.tryCompile();
-        passPrefilter.endChangeStatesSilently();
+        const prefilterPass = this._bloomMaterial.passes[BLOOM_PREFILTERPASS_INDEX];
+        prefilterPass.beginChangeStatesSilently();
+        prefilterPass.tryCompile();
+        prefilterPass.endChangeStatesSilently();
 
-        const passDownsample = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX];
-        passDownsample.beginChangeStatesSilently();
-        passDownsample.tryCompile();
-        passDownsample.endChangeStatesSilently();
+        const downsamplePasses : NativePass[] = [];
+        const upsamplePasses : NativePass[] = [];
+        for (let i = 0; i < MAX_BLOOM_FILTER_PASS_NUM; ++i) {
+            const downsamplePass = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX + i];
+            downsamplePass.beginChangeStatesSilently();
+            downsamplePass.tryCompile();
+            downsamplePass.endChangeStatesSilently();
 
-        const passUpsample = this._bloomMaterial.passes[BLOOM_UPSAMPLEPASS_INDEX];
-        passUpsample.beginChangeStatesSilently();
-        passUpsample.tryCompile();
-        passUpsample.endChangeStatesSilently();
+            const upsamplePass = this._bloomMaterial.passes[BLOOM_UPSAMPLEPASS_INDEX + i];
+            upsamplePass.beginChangeStatesSilently();
+            upsamplePass.tryCompile();
+            upsamplePass.endChangeStatesSilently();
 
-        const passCombine = this._bloomMaterial.passes[BLOOM_COMBINEPASS_INDEX];
-        passCombine.beginChangeStatesSilently();
-        passCombine.tryCompile();
-        passCombine.endChangeStatesSilently();
+            downsamplePasses.push(downsamplePass.native);
+            upsamplePasses.push(upsamplePass.native);
+        }
+
+        const combinePass = this._bloomMaterial.passes[BLOOM_COMBINEPASS_INDEX];
+        combinePass.beginChangeStatesSilently();
+        combinePass.tryCompile();
+        combinePass.endChangeStatesSilently();
 
         if (JSB) {
-            this._nativeObj!.bloomPrefilterPassShader = passPrefilter.getShaderVariant();
-            this._nativeObj!.bloomPrefilterPass = passPrefilter.native;
-            this._nativeObj!.bloomDownsamplePassShader = passDownsample.getShaderVariant();
-            this._nativeObj!.bloomDownsamplePass = passDownsample.native;
-            this._nativeObj!.bloomUpsamplePassShader = passUpsample.getShaderVariant();
-            this._nativeObj!.bloomUpsamplePass = passUpsample.native;
-            this._nativeObj!.bloomCombinePassShader = passCombine.getShaderVariant();
-            this._nativeObj!.bloomCombinePass = passCombine.native;
+            this._nativeObj!.bloomPrefilterPassShader = prefilterPass.getShaderVariant();
+            this._nativeObj!.bloomPrefilterPass = prefilterPass.native;
+            this._nativeObj!.bloomDownsamplePassShader = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX].getShaderVariant();
+            this._nativeObj!.bloomDownsamplePass = downsamplePasses;
+            this._nativeObj!.bloomUpsamplePassShader = this._bloomMaterial.passes[BLOOM_UPSAMPLEPASS_INDEX].getShaderVariant();
+            this._nativeObj!.bloomUpsamplePass = upsamplePasses;
+            this._nativeObj!.bloomCombinePassShader = combinePass.getShaderVariant();
+            this._nativeObj!.bloomCombinePass = combinePass.native;
         }
     }
 
