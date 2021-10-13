@@ -334,6 +334,27 @@ export class UBOLocal {
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
 localDescriptorSetLayout.bindings[UBOLocal.BINDING] = UBOLocal.DESCRIPTOR;
 
+/**
+ * @en The world bound uniform buffer object
+ * @zh 世界空间包围盒 UBO。
+ */
+export class UBOWorldBound {
+    public static readonly WORLD_BOUND_CENTER = 0;
+    public static readonly WORLD_BOUND_HALF_EXTENTS = UBOWorldBound.WORLD_BOUND_CENTER + 4;
+    public static readonly COUNT = UBOWorldBound.WORLD_BOUND_HALF_EXTENTS + 4;
+    public static readonly SIZE = UBOWorldBound.COUNT * 4;
+
+    public static readonly NAME = 'CCWorldBound';
+    public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOWorldBound.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOWorldBound.BINDING, UBOWorldBound.NAME, [
+        new Uniform('cc_worldBoundCenter', Type.FLOAT4, 1),
+        new Uniform('cc_worldBoundHalfExtents', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOWorldBound.NAME] = UBOWorldBound.LAYOUT;
+localDescriptorSetLayout.bindings[UBOWorldBound.BINDING] = UBOWorldBound.DESCRIPTOR;
+
 export const INST_MAT_WORLD = 'a_matWorld0';
 
 export class UBOLocalBatched {

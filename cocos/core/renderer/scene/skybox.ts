@@ -245,6 +245,8 @@ export class Skybox {
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
             // @ts-expect-error private member access
             this._model._initLocalDescriptors = () => {};
+            // @ts-expect-error private member access
+            this._model._initWorldBoundDescriptors = () => {};
             if (JSB) {
                 this._nativeObj!.model = this._model.native;
             }

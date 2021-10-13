@@ -88,6 +88,11 @@ export class PipelineInputAssemblerData {
     quadIA: InputAssembler|null = null;
 }
 
+export interface IRenderPipelineCallback {
+    onPreRender(cam: Camera): void;
+    onPostRender(cam: Camera): void;
+}
+
 /**
  * @en Render pipeline describes how we handle the rendering process for all render objects in the related render scene root.
  * It contains some general pipeline configurations, necessary rendering resources and some [[RenderFlow]]s.
@@ -155,6 +160,29 @@ export abstract class RenderPipeline extends Asset {
 
     public getPipelineRenderData (): PipelineRenderData {
         return this._pipelineRenderData!;
+    }
+
+    protected static _renderCallbacks: IRenderPipelineCallback[] = [];
+
+    /**
+     * @en Add render callback
+     * @zh 添加渲染回掉。
+     */
+    public static addRenderCallback (callback: IRenderPipelineCallback) {
+        RenderPipeline._renderCallbacks.push(callback);
+    }
+
+    /**
+     * @en Remove render callback
+     * @zh 移除渲染回掉。
+     */
+    public static removeRenderCallback (callback: IRenderPipelineCallback) {
+        for (let i = 0; i < RenderPipeline._renderCallbacks.length; ++i) {
+            if (RenderPipeline._renderCallbacks[i] === callback) {
+                RenderPipeline._renderCallbacks.slice(i);
+                break;
+            }
+        }
     }
 
     /**
