@@ -55,11 +55,7 @@ export interface IRenderPipelineInfo {
     tag?: number;
 }
 
-/**
- * @en Render pipeline callback
- * @zh 渲染事件回掉。
- */
- export interface IRenderPipelineCallback {
+export interface IRenderPipelineCallback {
     onPreRender(cam: Camera): void;
     onPostRender(cam: Camera): void;
 }
