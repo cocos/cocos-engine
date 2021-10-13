@@ -276,7 +276,8 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleX *= widthRatio;
         scaleY *= heightRatio;
         const viewport = view.getViewportRect();
-        const resolutionScale = screen.resolutionScale;
+        // TODO: implement editBox in PAL
+        const dpr = screenAdapter.devicePixelRatio;
 
         node.getWorldMatrix(_matrix);
         const transform = node._uiProps.uiTransformComp;
@@ -302,8 +303,8 @@ export class EditBoxImpl extends EditBoxImplBase {
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
         Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
-        scaleX /= resolutionScale;
-        scaleY /= resolutionScale;
+        scaleX /= dpr;
+        scaleY /= dpr;
 
         const container = legacyCC.GAME_VIEW ? legacyCC.gameView.container : game.container;
         const a = _matrix_temp.m00 * scaleX;
@@ -312,9 +313,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         const d = _matrix_temp.m05 * scaleY;
 
         let offsetX = parseInt((container && container.style.paddingLeft) || '0');
-        offsetX += viewport.x * widthRatio / resolutionScale;
+        offsetX += viewport.x * widthRatio / dpr;
         let offsetY = parseInt((container && container.style.paddingBottom) || '0');
-        offsetY += viewport.y / resolutionScale;
+        offsetY += viewport.y / dpr;
         const tx = _matrix_temp.m12 * scaleX + offsetX;
         const ty = _matrix_temp.m13 * scaleY + offsetY;
 

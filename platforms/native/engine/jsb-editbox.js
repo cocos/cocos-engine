@@ -161,7 +161,7 @@
             let node = this._delegate.node;
             let viewScaleX = cc.view._scaleX;
             let viewScaleY = cc.view._scaleY;
-            let resolutionScale = cc.screen.resolutionScale;
+            let dpr = jsb.device.getDevicePixelRatio() || 1;
             node.getWorldMatrix(worldMat);
 
             let transform = node._uiProps.uiTransformComp;
@@ -179,15 +179,15 @@
 
             cc.Mat4.translate(worldMat, worldMat, vec3);
 
-            viewScaleX /= resolutionScale;
-            viewScaleY /= resolutionScale;
+            viewScaleX /= dpr;
+            viewScaleY /= dpr;
 
             let finalScaleX = worldMat.m00 * viewScaleX;
             let finaleScaleY = worldMat.m05 * viewScaleY;
 
             let viewportRect = cc.view._viewportRect;
-            let offsetX = viewportRect.x / resolutionScale,
-                offsetY = viewportRect.y / resolutionScale;
+            let offsetX = viewportRect.x / dpr,
+                offsetY = viewportRect.y / dpr;
             return {
                 x: worldMat.m12 * viewScaleX + offsetX,
                 y: worldMat.m13 * viewScaleY + offsetY,

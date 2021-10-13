@@ -28,8 +28,9 @@
  * @module component/web-view
  */
 
+import { screenAdapter } from 'pal/screen-adapter';
 import { EventType } from './web-view-enums';
-import { error, warn, view, screen } from '../core/platform';
+import { error, warn } from '../core/platform';
 import { WebViewImpl } from './web-view-impl';
 import { game } from '../core';
 import { mat4 } from '../core/math';
@@ -164,9 +165,10 @@ export class WebViewImplWeb extends WebViewImpl {
         this._w = width;
         this._h = height;
 
-        const resolutionScale = screen.resolutionScale;
-        const scaleX = 1 / resolutionScale;
-        const scaleY = 1 / resolutionScale;
+        // TODO: implement webView in PAL
+        const dpr = screenAdapter.devicePixelRatio;
+        const scaleX = 1 / dpr;
+        const scaleY = 1 / dpr;
 
         const container = game.container!;
         const sx = _mat4_temp.m00 * scaleX;
