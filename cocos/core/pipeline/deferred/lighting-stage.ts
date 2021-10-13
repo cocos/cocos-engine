@@ -255,10 +255,10 @@ export class LightingStage extends RenderStage {
         const deferredData = pipeline.getPipelineRenderData();
         const framebuffer = deferredData.outputFrameBuffer;
         const renderPass = framebuffer.renderPass;
-
+        pipeline.applyFramebufferRatio(framebuffer);
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
+        cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting

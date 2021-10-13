@@ -69,10 +69,21 @@ export class PipelineSceneData {
     }
 
     public set shadingScale (val: number) {
+        if (this._shadingScale !== val) {
+            this._isShadingScale = true;
+        }
         this._shadingScale = val;
         if (JSB) {
             this._nativeObj!.shadingScale = val;
         }
+    }
+
+    public get isShadingScale () {
+        return this._isShadingScale;
+    }
+
+    public set isShadingScale (val: boolean) {
+        this._isShadingScale = val;
     }
 
     public fog: Fog = new Fog();
@@ -92,6 +103,7 @@ export class PipelineSceneData {
     protected declare _nativeObj: NativePipelineSharedSceneData | null;
     protected _isHDR = false;
     protected _shadingScale = 1.0;
+    protected _isShadingScale = false;
 
     constructor () {
         this._init();

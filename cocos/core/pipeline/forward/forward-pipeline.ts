@@ -42,7 +42,6 @@ import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
-import { sceneCulling } from '../scene-culling';
 import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
 
 const PIPELINE_TYPE = 0;
@@ -107,7 +106,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    private _ensureEnoughSize (cameras: Camera[]) {
+    protected _ensureEnoughSize (cameras: Camera[]) {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
@@ -121,27 +120,6 @@ export class ForwardPipeline extends RenderPipeline {
             this._destroyRenderData();
             this._generateForwardRenderData();
         }
-    }
-
-    public render (cameras: Camera[]) {
-        if (cameras.length === 0) {
-            return;
-        }
-        this._commandBuffers[0].begin();
-        this._ensureEnoughSize(cameras);
-        for (let i = 0; i < cameras.length; i++) {
-            const camera = cameras[i];
-            if (camera.scene) {
-                sceneCulling(this, camera);
-                this._pipelineUBO.updateGlobalUBO(camera.window!);
-                this._pipelineUBO.updateCameraUBO(camera);
-                for (let j = 0; j < this._flows.length; j++) {
-                    this._flows[j].render(camera);
-                }
-            }
-        }
-        this._commandBuffers[0].end();
-        this._device.queue.submit(this._commandBuffers);
     }
 
     public destroy () {
