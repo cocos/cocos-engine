@@ -55,11 +55,6 @@ export interface IRenderPipelineInfo {
     tag?: number;
 }
 
-export interface IRenderPipelineCallback {
-    onPreRender(cam: Camera): void;
-    onPostRender(cam: Camera): void;
-}
-
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
 
 export class BloomRenderData {
@@ -91,6 +86,11 @@ export class PipelineInputAssemblerData {
     quadIB: Buffer|null = null;
     quadVB: Buffer|null = null;
     quadIA: InputAssembler|null = null;
+}
+
+export interface IRenderPipelineCallback {
+    onPreRender(cam: Camera): void;
+    onPostRender(cam: Camera): void;
 }
 
 /**
