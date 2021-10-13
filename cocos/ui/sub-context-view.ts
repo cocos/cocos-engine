@@ -31,19 +31,19 @@
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { minigame } from 'pal/minigame';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../core/components/component';
 import { view } from '../core/platform/view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../core/scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
-
 import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../core/assets/image-asset';
 import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
-import { CCObject, screen, Texture2D } from '../core';
+import { CCObject, Texture2D } from '../core';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -194,13 +194,13 @@ export class SubContextView extends Component {
         const viewportRect = view.getViewportRect();
         const box = contentTrans.getBoundingBoxToWorld();
         const visibleSize = view.getVisibleSize();
-        const resolutionScale = screen.resolutionScale;
+        const dpr = screenAdapter.devicePixelRatio;
 
         // TODO: the visibleSize need to be the size of Canvas node where the content node is.
-        const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / resolutionScale;
-        const y = (viewportRect.height * (box.y / visibleSize.height) + viewportRect.y) / resolutionScale;
-        const width = viewportRect.width * (box.width / visibleSize.width) / resolutionScale;
-        const height = viewportRect.height * (box.height / visibleSize.height) / resolutionScale;
+        const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / dpr;
+        const y = (viewportRect.height * (box.y / visibleSize.height) + viewportRect.y) / dpr;
+        const width = viewportRect.width * (box.width / visibleSize.width) / dpr;
+        const height = viewportRect.height * (box.height / visibleSize.height) / dpr;
 
         this._openDataContext.postMessage({
             fromEngine: true,  // compatible deprecated property

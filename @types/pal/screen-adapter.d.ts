@@ -75,7 +75,7 @@ declare module 'pal/screen-adapter' {
         public set orientation (value: import('pal/screen-adapter/enum-type').Orientation);
 
         /**
-         * Get the SafeAreaEdge based on the screen coordinate system.
+         * Get the SafeAreaEdge based on the screen coordinate system in physical pixels.
          * @return {SafeAreaEdge} An interface displaying the distance of the sides 'top', 'bottom', 'left' and 'right'.
          */
         public get safeAreaEdge (): SafeAreaEdge;
