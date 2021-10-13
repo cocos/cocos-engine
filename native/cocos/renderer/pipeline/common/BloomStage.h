@@ -29,6 +29,8 @@
 #include "frame-graph/Handle.h"
 #include "Enum.h"
 
+#define MAX_BLOOM_FILTER_PASS_NUM 6
+
 namespace cc {
 namespace pipeline {
 
@@ -43,16 +45,26 @@ public:
     BloomStage();
     ~BloomStage() override = default;
 
-    static const int              MAX_SCALING_SAMPLE_PASS_NUM = 6;
     static const RenderStageInfo &getInitializeInfo();
     bool                          initialize(const RenderStageInfo &info) override;
     void                          activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     void                          destroy() override;
     void                          render(scene::Camera *camera) override;
 
+    gfx::Buffer * getPrefilterUBO() { return _prefilterUBO; }
     auto &        getDownsampelUBO() { return _downsampleUBO; }
     auto &        getUpsampleUBO() { return _upsampleUBO; }
+    gfx::Buffer * getCombineUBO() { return _combineUBO; }
     gfx::Sampler *getSampler() const { return _sampler; }
+
+    inline float getThreshold() const { return _threshold; }
+    inline void  setThreshold(float value) { _threshold = value; }
+    inline float getIntensity() const { return _intensity; }
+    inline void  setIntensity(float value) { _intensity = value; }
+    inline int   getIterations() const { return _iterations; }
+    inline void  setIterations(int value) {
+        _iterations = std::max(1, std::min(value, MAX_BLOOM_FILTER_PASS_NUM));
+    }
 
 private:
     gfx::Rect _renderArea;
@@ -60,10 +72,15 @@ private:
 
     static RenderStageInfo initInfo;
 
-    gfx::Sampler *                                         _sampler = nullptr;
-    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _downsampleUBO{};
-    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _upsampleUBO{};
-    framegraph::StringHandle                               _fgStrHandleBloomOut;
+    float                                                _threshold    = 1.0F;
+    float                                                _intensity    = 0.8F;
+    int                                                  _iterations   = 2;
+    gfx::Sampler *                                       _sampler      = nullptr;
+    gfx::Buffer *                                        _prefilterUBO = nullptr;
+    std::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _downsampleUBO{};
+    std::array<gfx::Buffer *, MAX_BLOOM_FILTER_PASS_NUM> _upsampleUBO{};
+    gfx::Buffer *                                        _combineUBO = nullptr;
+    framegraph::StringHandle                             _fgStrHandleBloomOut;
 };
 } // namespace pipeline
 } // namespace cc

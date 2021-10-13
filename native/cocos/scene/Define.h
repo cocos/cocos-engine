@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <vector>
 #include "math/Mat4.h"
 #include "math/Vec2.h"
 #include "math/Vec3.h"
@@ -107,24 +108,24 @@ struct Ambient {
 };
 
 struct PipelineSharedSceneData {
-    bool         isHDR{true};
-    float        shadingScale{0.0F};
-    Ambient *    ambient{nullptr};
-    Shadow *     shadow{nullptr};
-    Skybox *     skybox{nullptr};
-    Fog *        fog{nullptr};
-    Pass *       deferredLightPass{nullptr};
-    gfx::Shader *deferredLightPassShader{nullptr};
-    Pass *       bloomPrefilterPass{nullptr};
-    gfx::Shader *bloomPrefilterPassShader{nullptr};
-    Pass *       bloomDownsamplePass{nullptr};
-    gfx::Shader *bloomDownsamplePassShader{nullptr};
-    Pass *       bloomUpsamplePass{nullptr};
-    gfx::Shader *bloomUpsamplePassShader{nullptr};
-    Pass *       bloomCombinePass{nullptr};
-    gfx::Shader *bloomCombinePassShader{nullptr};
-    Pass *       pipelinePostPass{nullptr};
-    gfx::Shader *pipelinePostPassShader{nullptr};
+    bool                isHDR{true};
+    float               shadingScale{0.0F};
+    Ambient *           ambient{nullptr};
+    Shadow *            shadow{nullptr};
+    Skybox *            skybox{nullptr};
+    Fog *               fog{nullptr};
+    Pass *              deferredLightPass{nullptr};
+    gfx::Shader *       deferredLightPassShader{nullptr};
+    Pass *              bloomPrefilterPass{nullptr};
+    gfx::Shader *       bloomPrefilterPassShader{nullptr};
+    std::vector<Pass *> bloomDownsamplePass;
+    gfx::Shader *       bloomDownsamplePassShader{nullptr};
+    std::vector<Pass *> bloomUpsamplePass;
+    gfx::Shader *       bloomUpsamplePassShader{nullptr};
+    Pass *              bloomCombinePass{nullptr};
+    gfx::Shader *       bloomCombinePassShader{nullptr};
+    Pass *              pipelinePostPass{nullptr};
+    gfx::Shader *       pipelinePostPassShader{nullptr};
 };
 
 struct FlatBuffer {

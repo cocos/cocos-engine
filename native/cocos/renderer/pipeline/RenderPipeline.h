@@ -84,7 +84,6 @@ public:
     inline PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
     inline const String &                          getConstantMacros() const { return _constantMacros; }
     inline gfx::Device *                           getDevice() const { return _device; }
-    inline bool                                    getBloomEnable() const { return _bloomEnable; }
     RenderStage *                                  getRenderstageByName(const String &name) const;
 
     gfx::Rect               getRenderArea(scene::Camera *camera);
@@ -104,6 +103,9 @@ public:
 
     inline bool getClusterEnabled() const { return _clusterEnabled; }
     inline void setClusterEnabled(bool enable) { _clusterEnabled = enable; }
+
+    inline bool getBloomEnabled() const { return _bloomEnabled; }
+    inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
 
 protected:
     static RenderPipeline *instance;
@@ -138,7 +140,7 @@ protected:
 
     // use cluster culling or not
     bool _clusterEnabled{false};
-    bool _bloomEnable{false};
+    bool _bloomEnabled{false};
 };
 
 } // namespace pipeline
