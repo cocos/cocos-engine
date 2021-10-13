@@ -242,13 +242,9 @@ export class LightingStage extends RenderStage {
         this._renderArea = pipeline.generateRenderArea(camera);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
-            if (sceneData.isHDR) {
-                SRGBToLinear(colors[0], camera.clearColor);
-            } else {
-                colors[0].x = camera.clearColor.x;
-                colors[0].y = camera.clearColor.y;
-                colors[0].z = camera.clearColor.z;
-            }
+            colors[0].x = camera.clearColor.x;
+            colors[0].y = camera.clearColor.y;
+            colors[0].z = camera.clearColor.z;
         }
 
         colors[0].w = 0;

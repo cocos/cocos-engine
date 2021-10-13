@@ -162,7 +162,7 @@ export class Skybox {
     protected _default: TextureCube | null = null;
     protected _enabled = false;
     protected _useIBL = false;
-    protected _useHDR = false;
+    protected _useHDR = true;
     protected _useDiffuseMap = false;
     protected declare _nativeObj: NaitveSkybox | null;
 
@@ -280,6 +280,18 @@ export class Skybox {
     }
 
     protected _updatePipeline () {
+        if (this.enabled && skybox_material) {
+            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
+        }
+
+        if (this._model) {
+            this._model.setSubModelMaterial(0, skybox_material!);
+        }
+
+        if (JSB) {
+            this._nativeObj!.isRGBE = this.isRGBE;
+        }
+
         const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
 
@@ -295,18 +307,6 @@ export class Skybox {
         pipeline.macros.CC_USE_IBL = useIBLValue;
         pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
         pipeline.macros.CC_USE_HDR = useHDRValue;
-
-        if (JSB) {
-            this._nativeObj!.isRGBE = this.isRGBE;
-        }
-
-        if (skybox_material) {
-            skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
-        }
-
-        if (this._model) {
-            this._model.setSubModelMaterial(0, skybox_material!);
-        }
 
         root.onGlobalPipelineStateChanged();
     }
