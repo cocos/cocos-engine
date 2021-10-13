@@ -106,6 +106,42 @@ describe('NewGen Anim', () => {
         const n3 = layerGraph.addMotion();
         const selfTransition = layerGraph.connect(n3, n3);
         expect([...layerGraph.getTransition(n3, n3)]).toMatchObject([selfTransition]);
+
+        test('Remove transition by transition object', () => {
+            const graph = new AnimationGraph();
+            const layer = graph.addLayer();
+            const layerGraph = layer.stateMachine;
+            const n1 = layerGraph.addMotion();
+            const n2 = layerGraph.addMotion();
+            const n3 = layerGraph.addMotion();
+            const n4 = layerGraph.addMotion();
+            layerGraph.connect(n1, n3);
+            const trans1 = layerGraph.connect(n1, n2);
+            const trans2 = layerGraph.connect(n1, n2);
+            const trans3 = layerGraph.connect(n1, n2);
+            layerGraph.connect(n1, n4);
+
+            layerGraph.removeTransition(trans2);
+            {
+                const transitions = Array.from(layerGraph.getTransition(n1, n2));
+                expect(transitions).toHaveLength(2);
+                expect(transitions[0]).toBe(trans1);
+                expect(transitions[1]).toBe(trans3);
+            }
+
+            layerGraph.removeTransition(trans1);
+            {
+                const transitions = Array.from(layerGraph.getTransition(n1, n2));
+                expect(transitions).toHaveLength(1);
+                expect(transitions[0]).toBe(trans3);
+            }
+
+            layerGraph.removeTransition(trans3);
+            {
+                const transitions = Array.from(layerGraph.getTransition(n1, n2));
+                expect(transitions).toHaveLength(0);
+            }
+        });
     });
 
     describe('Transitions', () => {

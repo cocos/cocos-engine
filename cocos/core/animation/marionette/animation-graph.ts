@@ -338,6 +338,19 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
+    public removeTransition (removal: Transition) {
+        assertIsTrue(
+            remove(this._transitions, removal),
+        );
+        assertIsNonNullable(
+            removeIf(removal.from[outgoingsSymbol], (transition) => transition === removal),
+        );
+        assertIsNonNullable(
+            removeIf(removal.to[incomingsSymbol], (transition) => transition === removal),
+        );
+        markAsDangling(removal);
+    }
+
     public eraseOutgoings (from: State) {
         assertsOwnedBy(from, this);
 
