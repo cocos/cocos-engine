@@ -47,6 +47,8 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                 }
             }
             this._nativeDescriptorSet.update();
+            nativeLib.nativeDevice.debug();
         }
+        this._isDirty = false;
     }
 }

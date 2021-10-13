@@ -33,8 +33,10 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature, API } from '../gfx';
+import {
+    BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
+    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature, API,
+} from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
@@ -280,7 +282,7 @@ globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
  */
 const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
 export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
-const UNIFORM_SHADOWMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SHADOWMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SHADOWMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SHADOWMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT | ShaderStageFlagBit.VERTEX);
 const UNIFORM_SHADOWMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SHADOWMAP_NAME, Type.SAMPLER2D, 1);
 globalDescriptorSetLayout.layouts[UNIFORM_SHADOWMAP_NAME] = UNIFORM_SHADOWMAP_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP_BINDING] = UNIFORM_SHADOWMAP_DESCRIPTOR;
@@ -298,7 +300,7 @@ globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT_BINDING] = UNIFORM_ENVIRO
  */
 const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME = 'cc_spotLightingMap';
 export const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_SPOT_LIGHTING_MAP;
-const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT | ShaderStageFlagBit.VERTEX);
 const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
 globalDescriptorSetLayout.layouts[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR;
@@ -555,7 +557,7 @@ localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_STORAGE_NAME] = UNIFORM_REFL
 localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_STORAGE_BINDING] = UNIFORM_REFLECTION_STORAGE_DESCRIPTOR;
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
@@ -567,8 +569,8 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
  */
 export function supportsHalfFloatTexture (device: Device) {
     return device.hasFeature(Feature.COLOR_HALF_FLOAT)
-     && device.hasFeature(Feature.TEXTURE_HALF_FLOAT)
-     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+        && device.hasFeature(Feature.TEXTURE_HALF_FLOAT)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
 /* eslint-enable max-len */

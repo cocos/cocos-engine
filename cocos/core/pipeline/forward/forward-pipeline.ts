@@ -35,9 +35,11 @@ import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
-import { ColorAttachment, DepthStencilAttachment, LoadOp,
+import {
+    ColorAttachment, DepthStencilAttachment, LoadOp,
     RenderPassInfo, Filter, Address, StoreOp, AccessType, Swapchain, SamplerInfo, Format,
-    RenderPass, TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
+    RenderPass, TextureInfo, TextureType, TextureUsageBit, FramebufferInfo
+} from '../../gfx';
 import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
@@ -239,7 +241,7 @@ export class ForwardPipeline extends RenderPipeline {
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA8,
+            Format.BGRA8,
             this._width,
             this._height,
         )));
