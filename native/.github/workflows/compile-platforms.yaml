@@ -147,7 +147,16 @@ jobs:
           RES_DIR=$COCOS2DX_ROOT/templates/mac/build-mac
           cd build-mac
           cmake ../ -GXcode -DCC_USE_GLES3=ON -DCMAKE_OSX_ARCHITECTURES=x86_64 -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          set +e
           cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES -arch x86_64
+          retcode=$?
+          set -e
+          if [ $retcode -ne 0 ]; then
+              echo "-----------------------------------------------------------------------------------------------"
+              echo "------------------------------------ recompile without `-quiet` -------------------------------"
+              echo "-----------------------------------------------------------------------------------------------"
+              cmake --build . --config Release -- -jobs $NUM_OF_CORES -arch x86_64
+          fi
           echo "Compile MacOSX x86_64 Release Done!"
 
           cd ..
@@ -207,6 +216,15 @@ jobs:
               -DCMAKE_OSX_ARCHITECTURES=arm64 \
               -DRES_DIR=$RES_DIR \
               -DCOCOS_X_PATH=$COCOS2DX_ROOT
+          set +e
           #cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES -allowProvisioningUpdates CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO 
           cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          retcode=$?
+          set -e
+          if [ $retcode -ne 0 ]; then
+              echo "-----------------------------------------------------------------------------------------------"
+              echo "------------------------------------ recompile without `-quiet` -------------------------------"
+              echo "-----------------------------------------------------------------------------------------------"
+              cmake --build . --config Debug --  -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          fi
           echo "Compile iOS Done!"
