@@ -268,6 +268,9 @@ export class DrawBatch2D {
         const ia = this.inputAssembler;
         if (!dc) {
             dc = DrawBatch2D.drawcallPool.add();
+            dc.bufferHash = 0;
+            dc.bufferView = null;
+            dc.bufferUboIndex = 0;
             this._pushDrawCall(dc);
         }
         if (ia) {
