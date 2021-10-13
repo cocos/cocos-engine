@@ -262,15 +262,12 @@ export abstract class RenderPipeline extends Asset {
         return true;
     }
 
-    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
-        let renderPass = this._renderPasses.get(clearFlags);
-        if (renderPass) { return renderPass; }
-
+    public createRenderPass (clearFlags: ClearFlags, colorFmt: Format, depthFmt: Format): RenderPass {
         const device = this._device;
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
-        colorAttachment.format = swapchain.colorTexture.format;
-        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
+        colorAttachment.format = colorFmt;
+        depthStencilAttachment.format = depthFmt;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
@@ -290,9 +287,15 @@ export abstract class RenderPipeline extends Asset {
         depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
 
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
-        renderPass = device.createRenderPass(renderPassInfo);
-        this._renderPasses.set(clearFlags, renderPass);
 
+        return device.createRenderPass(renderPassInfo);
+    }
+
+    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
+        let renderPass = this._renderPasses.get(clearFlags);
+        if (renderPass) { return renderPass; }
+        renderPass = this.createRenderPass(clearFlags, swapchain.colorTexture.format, swapchain.depthStencilTexture.format);
+        this._renderPasses.set(clearFlags, renderPass);
         return renderPass;
     }
 

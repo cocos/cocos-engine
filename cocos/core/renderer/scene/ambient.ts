@@ -71,7 +71,7 @@ export class Ambient {
             this._skyColorLDR.z = color.z;
         }
         if (JSB) {
-            this._nativeObj!.skyColor = this.skyColor;
+            this._nativeObj!.skyColor = isHDR ? this._skyColorHDR : this._skyColorLDR;
         }
     }
 
@@ -96,7 +96,7 @@ export class Ambient {
             this._skyIllumLDR = illum;
         }
         if (JSB) {
-            this._nativeObj!.skyIllum = illum;
+            this._nativeObj!.skyIllum = isHDR ? this._skyIllumHDR : this._skyIllumLDR;
         }
     }
     /**
@@ -125,7 +125,7 @@ export class Ambient {
         }
 
         if (JSB) {
-            this._nativeObj!.groundAlbedo = this.groundAlbedo;
+            this._nativeObj!.groundAlbedo = isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR;
         }
     }
 
@@ -151,8 +151,6 @@ export class Ambient {
     }
 
     public initialize (ambientInfo: AmbientInfo) {
-        this.skyIllum = ambientInfo.skyIllum;
-
         // Init HDR/LDR from serialized data on load
         this._skyColorHDR = ambientInfo.skyColorHDR;
         this._groundAlbedoHDR = ambientInfo.groundAlbedoHDR;
@@ -161,6 +159,12 @@ export class Ambient {
         this._skyColorLDR = ambientInfo.skyColorLDR;
         this._groundAlbedoLDR = ambientInfo.groundAlbedoLDR;
         this._skyIllumLDR = ambientInfo.skyIllumLDR;
+
+        if (JSB) {
+            this._nativeObj!.skyIllum = this.skyIllum;
+            this._nativeObj!.skyColor = this.skyColor;
+            this._nativeObj!.groundAlbedo = this.groundAlbedo;
+        }
     }
 
     protected _destroy () {

@@ -116,6 +116,8 @@ export class DrawBatch2DGPU extends DrawBatch2D {
                     }
                     fillType = renderComp.fillType / 10 + 0.01;
                 }
+            } else if (!renderComp.trim) {
+                to = renderComp.tillingOffsetWithTrim;
             }
         }
 

@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, override, displayName } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible, override, displayName } from 'cc.decorator';
 import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
@@ -398,6 +398,9 @@ export class Sprite extends Renderable2D {
      * sprite.trim = true;
      * ```
      */
+    @visible(function (this: Sprite) {
+        return this._type === SpriteType.SIMPLE;
+    })
     @displayOrder(8)
     @tooltip('i18n:sprite.trim')
     get trim () {
@@ -414,6 +417,7 @@ export class Sprite extends Renderable2D {
             && this._renderData) {
             this.markForUpdateRenderData(true);
         }
+        this._updateUVWithTrim();
     }
 
     @editable
@@ -491,6 +495,9 @@ export class Sprite extends Renderable2D {
     protected _atlas: SpriteAtlas | null = null;
     // static State = State;
 
+    // macro.UI_GPU_DRIVEN
+    public declare tillingOffsetWithTrim: number[];
+
     constructor () {
         super();
         if (UI_GPU_DRIVEN) {
@@ -533,6 +540,9 @@ export class Sprite extends Renderable2D {
         // this._flushAssembler();
         this._activateMaterial();
         this._markForUpdateUvDirty();
+        if (UI_GPU_DRIVEN) {
+            this.tillingOffsetWithTrim = [];
+        }
     }
 
     public onDestroy () {
@@ -765,5 +775,39 @@ export class Sprite extends Renderable2D {
 
         out.x = content.width / rect.width;
         out.y = content.height / rect.height;
+    }
+
+    // macro.UI_GPU_DRIVEN
+    public _updateUVWithTrim () {
+        this.tillingOffsetWithTrim.length = 0;
+        const frame = this.spriteFrame!;
+        const originSize = frame.originalSize;
+        const rect = frame.rect;
+        const tex = frame.texture;
+        const texw = tex.width;
+        const texh = tex.height;
+        let x = 0;
+        let y = 0;
+        if (frame.original) {
+            x = rect.x - frame.original._x;
+            y = rect.y - frame.original._y;
+        }
+        let l = texw === 0 ? 0 : x / texw;
+        let r = texw === 0 ? 1 : (x + originSize.width) / texw;
+        let b = texh === 0 ? 1 : (y + originSize.height) / texh;
+        let t = texh === 0 ? 0 : y / texh;
+        if (frame.rotated) {
+            l = texw === 0 ? 0 : x / texw;
+            r = texw === 0 ? 1 : (x + originSize.height) / texw;
+            t = texh === 0 ? 0 : y / texh;
+            b = texh === 0 ? 1 : (y + originSize.width) / texh;
+        }
+        this.tillingOffsetWithTrim[0] = r - l;//r-l
+        this.tillingOffsetWithTrim[1] = b - t;//b-t
+        this.tillingOffsetWithTrim[2] = l;//l
+        this.tillingOffsetWithTrim[3] = t;//t
+        if (frame.rotated) {
+            this.tillingOffsetWithTrim[0] = -this.tillingOffsetWithTrim[0];
+        }
     }
 }
