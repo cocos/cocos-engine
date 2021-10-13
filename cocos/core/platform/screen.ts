@@ -39,6 +39,17 @@ import { warn, warnID } from './debug';
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
 class Screen {
+    private _init () {
+        screenAdapter.init(() => {
+            const director = legacyCC.director;
+            if (!director.root) {
+                warn('Invalid setting screen.resolutionScale, director.root has not been defined.');
+                return;
+            }
+            director.root.pipeline.pipelineSceneData.shadingScale = screenAdapter.resolutionScale;
+        });
+    }
+
     /**
      * @en Get and set the size of current window in physical pixels.
      * NOTE: Setting window size is only supported on Web platform for now.

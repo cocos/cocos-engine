@@ -30,7 +30,6 @@
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { screenAdapter } from 'pal/screen-adapter';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { input } from '../input';
@@ -595,14 +594,8 @@ export class Game extends EventTarget {
         garbageCollectionManager.init();
 
         return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
-            screenAdapter.init(() => {
-                const director = legacyCC.director;
-                if (!director.root) {
-                    debug.warn('Invalid setting screen.resolutionScale, director.root has not been defined.');
-                    return;
-                }
-                director.root.pipeline.pipelineSceneData.shadingScale = screenAdapter.resolutionScale;
-            });
+            // @ts-expect-error access private method.
+            screen._init();
         });
     }
 
