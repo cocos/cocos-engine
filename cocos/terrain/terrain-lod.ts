@@ -58,26 +58,26 @@ export class TerrainIndexData {
 }
 
 export class TerrainLod {
-    public static ConnecterIndex (i: number, j: number, k: number) {
+    public static mapIndex (i: number, j: number, k: number) {
         return i * (TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS) + j * TERRAIN_LOD_LEVELS + k;
     }
 
-    public mBodyIndex: TerrainIndexPool[];
-    public mConnecterIndex: TerrainIndexPool[];
-    public mIndexMap: TerrainIndexData[] = [];
-    public mIndexBuffer: Uint16Array = new Uint16Array();
+    public _bodyIndexPool: TerrainIndexPool[];
+    public _connecterIndexPool: TerrainIndexPool[];
+    public _indexMap: TerrainIndexData[] = [];
+    public _indexBuffer: Uint16Array = new Uint16Array();
 
     constructor () {
-        this.mBodyIndex = new Array<TerrainIndexPool>(TERRAIN_LOD_LEVELS);
+        this._bodyIndexPool = new Array<TerrainIndexPool>(TERRAIN_LOD_LEVELS);
         for (let i = 0; i < TERRAIN_LOD_LEVELS; ++i) {
-            this.mBodyIndex[i] = new TerrainIndexPool();
+            this._bodyIndexPool[i] = new TerrainIndexPool();
         }
 
-        this.mConnecterIndex = new Array<TerrainIndexPool>(TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS * 4);
+        this._connecterIndexPool = new Array<TerrainIndexPool>(TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS * 4);
         for (let i = 0; i < TERRAIN_LOD_LEVELS; ++i) {
             for (let j = 0; j < TERRAIN_LOD_LEVELS; ++j) {
                 for (let k = 0; k < 4; ++k) {
-                    this.mConnecterIndex[TerrainLod.ConnecterIndex(i, j, k)] = new TerrainIndexPool();
+                    this._connecterIndexPool[TerrainLod.mapIndex(i, j, k)] = new TerrainIndexPool();
                 }
             }
         }
@@ -132,9 +132,9 @@ export class TerrainLod {
     }
 
     public getIndexData (k: TerrainLodKey) {
-        for (let i = 0; i < this.mIndexMap.length; ++i) {
-            if (this.mIndexMap[i].key.compare(k)) {
-                return this.mIndexMap[i];
+        for (let i = 0; i < this._indexMap.length; ++i) {
+            if (this._indexMap[i].key.compare(k)) {
+                return this._indexMap[i];
             }
         }
 
@@ -156,7 +156,7 @@ export class TerrainLod {
         }
 
         const count = tiles * tiles * 6;
-        this.mBodyIndex[level].indices = new Uint16Array(count);
+        this._bodyIndexPool[level].indices = new Uint16Array(count);
 
         let index = 0;
         const indices = new Uint16Array(count);
@@ -190,16 +190,16 @@ export class TerrainLod {
             row_n += TERRAIN_LOD_VERTS * step;
         }
 
-        this.mBodyIndex[level].size = index;
-        this.mBodyIndex[level].indices = indices;
+        this._bodyIndexPool[level].size = index;
+        this._bodyIndexPool[level].indices = indices;
     }
 
     private _genConnecterIndexNorth (level: number, connecter: number) {
-        const connecterIndex = TerrainLod.ConnecterIndex(level, connecter, TERRAIN_LOD_NORTH_INDEX);
+        const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_NORTH_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConnecterIndex[connecterIndex].size = 0;
-            this.mConnecterIndex[connecterIndex].indices = null;
+            this._connecterIndexPool[connecterIndex].size = 0;
+            this._connecterIndexPool[connecterIndex].indices = null;
             return;
         }
 
@@ -233,16 +233,16 @@ export class TerrainLod {
         indices[index++] = TERRAIN_LOD_VERTS - 1;
         indices[index++] = TERRAIN_LOD_VERTS - 1;
 
-        this.mConnecterIndex[connecterIndex].size = index;
-        this.mConnecterIndex[connecterIndex].indices = indices;
+        this._connecterIndexPool[connecterIndex].size = index;
+        this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
     private _genConnecterIndexSouth (level: number, connecter: number) {
-        const connecterIndex = TerrainLod.ConnecterIndex(level, connecter, TERRAIN_LOD_SOUTH_INDEX);
+        const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_SOUTH_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConnecterIndex[connecterIndex].size = 0;
-            this.mConnecterIndex[connecterIndex].indices = null;
+            this._connecterIndexPool[connecterIndex].size = 0;
+            this._connecterIndexPool[connecterIndex].indices = null;
             return;
         }
 
@@ -276,16 +276,16 @@ export class TerrainLod {
         indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
         indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
 
-        this.mConnecterIndex[connecterIndex].size = index;
-        this.mConnecterIndex[connecterIndex].indices = indices;
+        this._connecterIndexPool[connecterIndex].size = index;
+        this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
     private _genConnecterIndexWest (level: number, connecter: number) {
-        const connecterIndex = TerrainLod.ConnecterIndex(level, connecter, TERRAIN_LOD_WEST_INDEX);
+        const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_WEST_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConnecterIndex[connecterIndex].size = 0;
-            this.mConnecterIndex[connecterIndex].indices = null;
+            this._connecterIndexPool[connecterIndex].size = 0;
+            this._connecterIndexPool[connecterIndex].indices = null;
             return;
         }
 
@@ -319,16 +319,16 @@ export class TerrainLod {
         indices[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
         indices[index++] = TERRAIN_LOD_TILES * TERRAIN_LOD_VERTS;
 
-        this.mConnecterIndex[connecterIndex].size = index;
-        this.mConnecterIndex[connecterIndex].indices = indices;
+        this._connecterIndexPool[connecterIndex].size = index;
+        this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
     private _genConnecterIndexEast (level: number, connecter: number) {
-        const connecterIndex = TerrainLod.ConnecterIndex(level, connecter, TERRAIN_LOD_EAST_INDEX);
+        const connecterIndex = TerrainLod.mapIndex(level, connecter, TERRAIN_LOD_EAST_INDEX);
 
         if (connecter < level || level === TERRAIN_LOD_LEVELS - 1) {
-            this.mConnecterIndex[connecterIndex].size = 0;
-            this.mConnecterIndex[connecterIndex].indices = null;
+            this._connecterIndexPool[connecterIndex].size = 0;
+            this._connecterIndexPool[connecterIndex].indices = null;
             return;
         }
 
@@ -362,12 +362,12 @@ export class TerrainLod {
         indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
         indices[index++] = TERRAIN_LOD_VERTS * TERRAIN_LOD_VERTS - 1;
 
-        this.mConnecterIndex[connecterIndex].size = index;
-        this.mConnecterIndex[connecterIndex].indices = indices;
+        this._connecterIndexPool[connecterIndex].size = index;
+        this._connecterIndexPool[connecterIndex].indices = indices;
     }
 
     private _getConnenterIndex (i: number, j: number, k: number) {
-        return this.mConnecterIndex[TerrainLod.ConnecterIndex(i, j, k)];
+        return this._connecterIndexPool[TerrainLod.mapIndex(i, j, k)];
     }
 
     private _genIndexData (k: TerrainLodKey) {
@@ -376,7 +376,7 @@ export class TerrainLod {
             return data;
         }
 
-        const body = this.mBodyIndex[k.level];
+        const body = this._bodyIndexPool[k.level];
         const north = this._getConnenterIndex(k.level, k.north, TERRAIN_LOD_NORTH_INDEX);
         const south = this._getConnenterIndex(k.level, k.south, TERRAIN_LOD_SOUTH_INDEX);
         const west = this._getConnenterIndex(k.level, k.west, TERRAIN_LOD_WEST_INDEX);
@@ -485,13 +485,13 @@ export class TerrainLod {
         }
 
         data.primCount = index / 3;
-        data.start = this.mIndexBuffer.length;
-        this.mIndexMap.push(data);
+        data.start = this._indexBuffer.length;
+        this._indexMap.push(data);
 
         const temp = new Uint16Array(data.start + data.size);
-        temp.set(this.mIndexBuffer, 0);
+        temp.set(this._indexBuffer, 0);
         temp.set(data.buffer, data.start);
-        this.mIndexBuffer = temp;
+        this._indexBuffer = temp;
 
         return data;
     }
