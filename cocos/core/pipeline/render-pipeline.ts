@@ -29,11 +29,12 @@
  */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
+import { sceneCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
 import { AccessType, Address, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
     DepthStencilAttachment, DescriptorSet, Device, Feature, Filter, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
     LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, SamplerInfo, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
-    TextureType, TextureUsageBit } from '../gfx';
+    TextureType, TextureUsageBit, Viewport } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { RenderWindow } from '../renderer/core/render-window';
@@ -298,6 +299,28 @@ export abstract class RenderPipeline extends Asset {
         return renderPass;
     }
 
+    public applyFramebufferRatio (framebuffer: Framebuffer) {
+        if (!this.pipelineSceneData.isShadingScale) {
+            return;
+        }
+        const sceneData = this.pipelineSceneData;
+        const width = this._width * sceneData.shadingScale;
+        const height = this._height * sceneData.shadingScale;
+        const colorTexArr: any = framebuffer.colorTextures;
+        for (let i = 0; i < colorTexArr.length; i++) {
+            colorTexArr[i]!.resize(width, height);
+        }
+        if (framebuffer.depthStencilTexture) {
+            framebuffer.depthStencilTexture.resize(width, height);
+        }
+        framebuffer.destroy();
+        framebuffer.initialize(new FramebufferInfo(
+            framebuffer.renderPass,
+            colorTexArr,
+            framebuffer.depthStencilTexture,
+        ));
+    }
+
     /**
      * @en generate renderArea by camera
      * @zh 生成renderArea
@@ -317,6 +340,13 @@ export abstract class RenderPipeline extends Asset {
         res.width = vp.width * w * sceneData.shadingScale;
         res.height = vp.height * h * sceneData.shadingScale;
         return res;
+    }
+
+    public generateViewport (camera: Camera, out?: Viewport): Viewport {
+        const rect = this.generateRenderArea(camera);
+        const shadingScale = this.pipelineSceneData.shadingScale;
+        const viewport = out || new Viewport(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
+        return viewport;
     }
 
     /**
@@ -344,20 +374,33 @@ export abstract class RenderPipeline extends Asset {
         return true;
     }
 
+    protected _ensureEnoughSize (cameras: Camera[]) {}
+
     /**
      * @en Render function, it basically run the render process of all flows in sequence for the given view.
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染流程。
      * @param view Render view。
      */
     public render (cameras: Camera[]) {
+        if (cameras.length === 0) {
+            return;
+        }
+        this._commandBuffers[0].begin();
+        this._ensureEnoughSize(cameras);
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
+                sceneCulling(this, camera);
+                this._pipelineUBO.updateGlobalUBO(camera.window!);
+                this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }
             }
         }
+        this._commandBuffers[0].end();
+        this._device.queue.submit(this._commandBuffers);
+        this.pipelineSceneData.isShadingScale = false;
     }
 
     /**
