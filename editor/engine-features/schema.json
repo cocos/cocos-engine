@@ -49,6 +49,99 @@
             },
             "type": "object"
         },
+        "Features": {
+            "additionalProperties": false,
+            "properties": {
+                "2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "3d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "audio": {
+                    "$ref": "#/definitions/Item"
+                },
+                "base": {
+                    "$ref": "#/definitions/Item"
+                },
+                "dragon-bones": {
+                    "$ref": "#/definitions/Item"
+                },
+                "gfx-webgl": {
+                    "$ref": "#/definitions/Item"
+                },
+                "gfx-webgl2": {
+                    "$ref": "#/definitions/Item"
+                },
+                "graphcis": {
+                    "$ref": "#/definitions/Item"
+                },
+                "intersection-2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "marionette": {
+                    "$ref": "#/definitions/Item"
+                },
+                "particle": {
+                    "$ref": "#/definitions/Item"
+                },
+                "particle-2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-2d-box2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-2d-builtin": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-ammo": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-builtin": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-cannon": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-physx": {
+                    "$ref": "#/definitions/Item"
+                },
+                "primitive": {
+                    "$ref": "#/definitions/Item"
+                },
+                "profiler": {
+                    "$ref": "#/definitions/Item"
+                },
+                "spine": {
+                    "$ref": "#/definitions/Item"
+                },
+                "terrain": {
+                    "$ref": "#/definitions/Item"
+                },
+                "tiled-map": {
+                    "$ref": "#/definitions/Item"
+                },
+                "tween": {
+                    "$ref": "#/definitions/Item"
+                },
+                "ui": {
+                    "$ref": "#/definitions/Item"
+                },
+                "video": {
+                    "$ref": "#/definitions/Item"
+                },
+                "webview": {
+                    "$ref": "#/definitions/Item"
+                }
+            },
+            "type": "object"
+        },
         "Item": {
             "additionalProperties": false,
             "properties": {
@@ -93,7 +186,6 @@
         },
         "Record<EngineFeature,BaseItem>": {
             "additionalProperties": false,
-            "description": "Construct a type with a set of properties K of type T",
             "properties": {
                 "2d": {
                     "$ref": "#/definitions/BaseItem"
@@ -120,6 +212,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "intersection-2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "marionette": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "particle": {
@@ -178,103 +273,12 @@
                 },
                 "webview": {
                     "$ref": "#/definitions/BaseItem"
-                }
-            },
-            "type": "object"
-        },
-        "Record<EngineFeature,Item>": {
-            "additionalProperties": false,
-            "properties": {
-                "2d": {
-                    "$ref": "#/definitions/Item"
-                },
-                "3d": {
-                    "$ref": "#/definitions/Item"
-                },
-                "audio": {
-                    "$ref": "#/definitions/Item"
-                },
-                "base": {
-                    "$ref": "#/definitions/Item"
-                },
-                "dragon-bones": {
-                    "$ref": "#/definitions/Item"
-                },
-                "gfx-webgl": {
-                    "$ref": "#/definitions/Item"
-                },
-                "gfx-webgl2": {
-                    "$ref": "#/definitions/Item"
-                },
-                "graphcis": {
-                    "$ref": "#/definitions/Item"
-                },
-                "intersection-2d": {
-                    "$ref": "#/definitions/Item"
-                },
-                "particle": {
-                    "$ref": "#/definitions/Item"
-                },
-                "particle-2d": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics-2d": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics-2d-box2d": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics-2d-builtin": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics-ammo": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics-builtin": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics-cannon": {
-                    "$ref": "#/definitions/Item"
-                },
-                "physics-physx": {
-                    "$ref": "#/definitions/Item"
-                },
-                "primitive": {
-                    "$ref": "#/definitions/Item"
-                },
-                "profiler": {
-                    "$ref": "#/definitions/Item"
-                },
-                "spine": {
-                    "$ref": "#/definitions/Item"
-                },
-                "terrain": {
-                    "$ref": "#/definitions/Item"
-                },
-                "tiled-map": {
-                    "$ref": "#/definitions/Item"
-                },
-                "tween": {
-                    "$ref": "#/definitions/Item"
-                },
-                "ui": {
-                    "$ref": "#/definitions/Item"
-                },
-                "video": {
-                    "$ref": "#/definitions/Item"
-                },
-                "webview": {
-                    "$ref": "#/definitions/Item"
                 }
             },
             "type": "object"
         },
         "Record<string,FlagBaseItem>": {
             "additionalProperties": false,
-            "description": "Construct a type with a set of properties K of type T",
             "type": "object"
         }
     },
@@ -290,7 +294,7 @@
             "type": "object"
         },
         "features": {
-            "$ref": "#/definitions/Record<EngineFeature,Item>",
+            "$ref": "#/definitions/Features",
             "description": "The modules info"
         }
     },

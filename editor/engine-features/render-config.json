@@ -186,6 +186,12 @@
             "native": "USE_DRAGONBONES",
 	        "wechatPlugin": true,
             "category": "2d"
+        },
+        "marionette": {
+            "default": ["marionette"],
+            "label": "Marionette 动画系统",
+            "description": "启用 Marionette 动画系统。",
+            "wechatPlugin": true
         }
     },
     "categories": {

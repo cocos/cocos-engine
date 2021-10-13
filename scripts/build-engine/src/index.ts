@@ -248,10 +248,17 @@ async function doBuild ({
         }
     }
 
+    const intrinsicFlags = statsQuery.getIntrinsicFlagsOfFeatures(features);
+
+    const buildTimeConstants = {
+        ...intrinsicFlags,
+        ...options.buildTimeConstants,
+    };
+
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
         platform: options.platform,
-        buildTimeConstants: options.buildTimeConstants,
+        buildTimeConstants,
     })).reduce((result, [k, v]) => {
         result[makePathEqualityKey(k)] = v;
         return result;
@@ -262,7 +269,7 @@ async function doBuild ({
     const rpVirtualOptions: Record<string, string> = {};
     const vmInternalConstants = statsQuery.evaluateEnvModuleSourceFromRecord({
         EXPORT_TO_GLOBAL: true,
-        ...options.buildTimeConstants,
+        ...buildTimeConstants,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
