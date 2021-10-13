@@ -58,7 +58,7 @@ export interface IRenderPipelineInfo {
  * @en Render pipeline callback
  * @zh 渲染事件回掉。
  */
- export interface IRenderPipelineCallback {
+export interface IRenderPipelineCallback {
     onPreRender(cam: Camera): void;
     onPostRender(cam: Camera): void;
 }
@@ -248,7 +248,7 @@ export abstract class RenderPipeline extends Asset {
      * @en Add render callback
      * @zh 添加渲染回掉。
      */
-     public static addRenderCallback (callback: IRenderPipelineCallback) {
+    public static addRenderCallback (callback: IRenderPipelineCallback) {
         RenderPipeline._renderCallbacks.push(callback);
     }
 
