@@ -1,7 +1,8 @@
 import { Component } from '../../components';
 import { AnimationGraph } from './animation-graph';
 import { property, ccclass, menu } from '../../data/class-decorator';
-import { AnimationGraphEval, StateStatus, TransitionStatus, ClipStatus } from './graph-eval';
+import { AnimationGraphEval } from './graph-eval';
+import type { StateStatus, TransitionStatus, ClipStatus } from './graph-eval';
 import { Value } from './variable';
 import { assertIsNonNullable } from '../../data/utils/asserts';
 

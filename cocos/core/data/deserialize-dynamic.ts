@@ -44,7 +44,6 @@ import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
-import { onAfterDeserializedTag } from './deserialize-symbols';
 
 function compileObjectTypeJit (
     sources: string[],
@@ -569,17 +568,11 @@ class _Deserializer {
         if (!(EDITOR && legacyCC.js.isChildClassOf(klass, legacyCC.Component))) {
             const obj = createObject(klass);
             this._deserializeInto(value, obj, klass);
-            if ((obj as { [onAfterDeserializedTag]?(): void; })[onAfterDeserializedTag]) {
-                (obj as { [onAfterDeserializedTag]?(): void; })[onAfterDeserializedTag]!();
-            }
             return obj;
         } else {
             try {
                 const obj = createObject(klass);
                 this._deserializeInto(value, obj, klass);
-                if ((obj as { [onAfterDeserializedTag]?(): void; })[onAfterDeserializedTag]) {
-                    (obj as { [onAfterDeserializedTag]?(): void; })[onAfterDeserializedTag]!();
-                }
                 return obj;
             } catch (e: unknown) {
                 if (DEBUG) {
