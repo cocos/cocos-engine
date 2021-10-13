@@ -878,10 +878,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Frustum * to, se::Objec
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->planes), ctx);
     }
-    json->getProperty("type", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->type), ctx);
-    }
     return ok;
 }
 
@@ -925,9 +921,6 @@ static bool js_scene_Frustum_constructor(se::State& s) // NOLINT(readability-ide
     }
     if (argc > 1 && !args[1].isUndefined()) {
         ok &= sevalue_to_native(args[1], &(cobj->planes), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->type), nullptr);
     }
 
     if(!ok) {
@@ -5706,18 +5699,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::BakedAnimInfo * to, se:
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("buffer", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->buffer), ctx);
-    }
-    json->getProperty("data", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->data), ctx);
-    }
-    json->getProperty("dirty", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->dirty), ctx);
-    }
     return ok;
 }
 
@@ -5737,34 +5718,7 @@ static bool js_scene_BakedAnimInfo_constructor(se::State& s) // NOLINT(readabili
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::scene::BakedAnimInfo* cobj = JSB_ALLOC(cc::scene::BakedAnimInfo);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::scene::BakedAnimInfo* cobj = JSB_ALLOC(cc::scene::BakedAnimInfo);
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->buffer), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->data), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->dirty), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -5824,22 +5778,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::BakedJointInfo * to, se
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("boundsInfo", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->boundsInfo), ctx);
-    }
-    json->getProperty("jointTextureInfo", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->jointTextureInfo), ctx);
-    }
-    json->getProperty("animInfo", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->animInfo), ctx);
-    }
-    json->getProperty("buffer", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->buffer), ctx);
-    }
     return ok;
 }
 
@@ -5859,37 +5797,7 @@ static bool js_scene_BakedJointInfo_constructor(se::State& s) // NOLINT(readabil
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::scene::BakedJointInfo* cobj = JSB_ALLOC(cc::scene::BakedJointInfo);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::scene::BakedJointInfo* cobj = JSB_ALLOC(cc::scene::BakedJointInfo);
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->boundsInfo), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->jointTextureInfo), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->animInfo), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->buffer), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -6370,26 +6278,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::DrawBatch2D * to, se::O
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("visFlags", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->visFlags), ctx);
-    }
-    json->getProperty("descriptorSet", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->descriptorSet), ctx);
-    }
-    json->getProperty("inputAssembler", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->inputAssembler), ctx);
-    }
-    json->getProperty("passes", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->passes), ctx);
-    }
-    json->getProperty("shaders", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->shaders), ctx);
-    }
     json->getProperty("drawCalls", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->drawCalls), ctx);
@@ -6413,42 +6301,9 @@ static bool js_scene_DrawBatch2D_constructor(se::State& s) // NOLINT(readability
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::scene::DrawBatch2D* cobj = JSB_ALLOC(cc::scene::DrawBatch2D);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::scene::DrawBatch2D* cobj = JSB_ALLOC(cc::scene::DrawBatch2D);
     if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->visFlags), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->descriptorSet), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->inputAssembler), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->passes), nullptr);
-    }
-    if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->shaders), nullptr);
-    }
-    if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->drawCalls), nullptr);
+        ok &= sevalue_to_native(args[0], &(cobj->drawCalls), nullptr);
     }
 
     if(!ok) {
@@ -6511,22 +6366,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::JointTransform * to, se
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("node", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->node), ctx);
-    }
-    json->getProperty("local", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->local), ctx);
-    }
-    json->getProperty("world", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->world), ctx);
-    }
-    json->getProperty("stamp", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->stamp), ctx);
-    }
     return ok;
 }
 
@@ -6546,37 +6385,7 @@ static bool js_scene_JointTransform_constructor(se::State& s) // NOLINT(readabil
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::scene::JointTransform* cobj = JSB_ALLOC(cc::scene::JointTransform);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::scene::JointTransform* cobj = JSB_ALLOC(cc::scene::JointTransform);
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->node), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->local), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->world), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->stamp), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -6635,34 +6444,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::JointInfo * to, se::Obj
     }
     se::Value field;
     bool ok = true;
-    json->getProperty("bound", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->bound), ctx);
-    }
-    json->getProperty("target", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->target), ctx);
-    }
-    json->getProperty("bindpose", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->bindpose), ctx);
-    }
-    json->getProperty("transform", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->transform), ctx);
-    }
-    json->getProperty("parents", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->parents), ctx);
-    }
-    json->getProperty("buffers", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->buffers), ctx);
-    }
-    json->getProperty("indices", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->indices), ctx);
-    }
     return ok;
 }
 
@@ -6682,46 +6463,7 @@ static bool js_scene_JointInfo_constructor(se::State& s) // NOLINT(readability-i
         return true;
     }
 
-    if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cc::scene::JointInfo* cobj = JSB_ALLOC(cc::scene::JointInfo);
-        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
-        if(!ok) {
-            JSB_FREE(cobj);
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
     cc::scene::JointInfo* cobj = JSB_ALLOC(cc::scene::JointInfo);
-    if (argc > 0 && !args[0].isUndefined()) {
-        ok &= sevalue_to_native(args[0], &(cobj->bound), nullptr);
-    }
-    if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->target), nullptr);
-    }
-    if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->bindpose), nullptr);
-    }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->transform), nullptr);
-    }
-    if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->parents), nullptr);
-    }
-    if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->buffers), nullptr);
-    }
-    if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->indices), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
