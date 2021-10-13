@@ -129,6 +129,21 @@ export class StateMachine extends EditorExtendable {
     private _anyState: State;
 
     /**
+     * // TODO: HACK
+     * @internal
+     */
+    public __callOnAfterDeserializeRecursive () {
+        this[onAfterDeserializedTag]();
+        const nStates = this._states.length;
+        for (let iState = 0; iState < nStates; ++iState) {
+            const state = this._states[iState];
+            if (state instanceof SubStateMachine) {
+                state.stateMachine.__callOnAfterDeserializeRecursive();
+            }
+        }
+    }
+
+    /**
      * @internal
      */
     constructor () {
@@ -535,6 +550,15 @@ export class AnimationGraph extends Asset {
 
     constructor () {
         super();
+    }
+
+    onLoaded () {
+        const { _layers: layers } = this;
+        const nLayers = layers.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const layer = layers[iLayer];
+            layer.stateMachine.__callOnAfterDeserializeRecursive();
+        }
     }
 
     get layers (): readonly Layer[] {
