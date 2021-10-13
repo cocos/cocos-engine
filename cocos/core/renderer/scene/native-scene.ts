@@ -30,6 +30,7 @@ export const NativeModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -47,6 +48,7 @@ export const NativeSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -82,6 +84,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -217,6 +220,7 @@ export type NativePass = InstanceType<typeof NativePass>;
 
 export const NativeSubModel: Constructor<{
     setDescriptorSet(val: DescriptorSet | null): void;
+    setWorldBoundDescriptorSet(val: DescriptorSet | null): void;
     setInputAssembler(val: InputAssembler | null): void;
     setSubMeshBuffers(val: IFlatBuffer[]): void;
     setPlanarShader(val: Shader | null): void;
@@ -332,6 +336,9 @@ export const NativePipelineSharedSceneData: Constructor<{
     ambient: NativeAmbient;
     skybox: NaitveSkybox;
     shadow: NativeShadow;
+    occlusionQueryInputAssembler: InputAssembler | null;
+    occlusionQueryPass: NativePass | null;
+    occlusionQueryShader: Shader | null;
     deferredLightPassShader: Shader | null;
     deferredLightPass: NativePass;
     bloomPrefilterPassShader: Shader | null;
