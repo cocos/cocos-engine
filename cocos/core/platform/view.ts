@@ -136,7 +136,7 @@ export class View extends EventTarget {
         }
 
         // For now, the engine UI is adapted to resolution size, instead of window size.
-        screenAdapter.on('resolution-change', this._updateAdaptResult, this);
+        screenAdapter.on('window-resize', this._updateAdaptResult, this);
         screenAdapter.on('orientation-change', this._updateAdaptResult, this);
     }
 
