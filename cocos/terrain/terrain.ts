@@ -28,6 +28,7 @@
  * @module terrain
  */
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../core/builtin';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { EffectAsset, Texture2D } from '../core/assets';
@@ -50,7 +51,6 @@ import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FAC
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { CCBoolean, CCFloat, CCInteger, Node, RenderPipeline } from '../core';
-import { JSB } from 'internal:constants';
 
 /**
  * @en Terrain info
@@ -1492,10 +1492,10 @@ export class Terrain extends Component {
         this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * this._lod.mIndexBuffer.length,
+            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
-        this._sharedIndexBuffer.update(this._lod.mIndexBuffer);
+        this._sharedIndexBuffer.update(this._lod._indexBuffer);
     }
 
     public onEnable () {
