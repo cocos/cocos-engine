@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 
-import { ccclass, menu, property, disallowMultiple, type } from '../core/data/class-decorator'
-import { Component } from '../core/components/component'
+import { ccclass, menu, property, disallowMultiple, type } from '../core/data/class-decorator';
+import { Component } from '../core/components/component';
 import { legacyCC } from '../core/global-exports';
 
 import { Camera } from '../core/renderer/scene/camera';
 import { Camera as CameraComponent, ClearFlag } from '../core/components/camera-component';
-import { JsonAsset } from '../core'
+import { JsonAsset } from '../core';
 
 import { EDITOR, BUILD } from 'internal:constants';
 

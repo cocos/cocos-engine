@@ -23,8 +23,8 @@
 */
 
 import { JSB } from 'internal:constants';
-import { ccclass } from '../core/data/class-decorator'
-import { ARModuleWeb } from './ar-module-web'
+import { ccclass } from '../core/data/class-decorator';
+import { ARModuleWeb } from './ar-module-web';
 
 import { legacyCC } from '../core/global-exports';
 

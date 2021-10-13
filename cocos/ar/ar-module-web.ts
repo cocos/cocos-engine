@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ARModule } from './ar-module-base'
+import { ARModule } from './ar-module-base';
 
 export class ARModuleWeb extends ARModule {
 
