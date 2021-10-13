@@ -101,7 +101,7 @@ export class PipelineSceneData {
     protected declare _device: Device;
     protected declare _pipeline: RenderPipeline;
     protected declare _nativeObj: NativePipelineSharedSceneData | null;
-    protected _isHDR = false;
+    protected _isHDR = true;
     protected _shadingScale = 1.0;
     protected _isShadingScale = false;
 

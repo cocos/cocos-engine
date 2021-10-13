@@ -212,8 +212,8 @@ export class Skybox {
     }
 
     public setEnvMaps (envmapHDR: TextureCube | null, envmapLDR: TextureCube | null) {
-        this._envmapHDR = envmapHDR || this._default;
-        this._envmapLDR = envmapLDR || this._default;
+        this._envmapHDR = envmapHDR;
+        this._envmapLDR = envmapLDR;
 
         const root = legacyCC.director.root as Root;
         const isHDR = root.pipeline.pipelineSceneData.isHDR;
@@ -315,18 +315,20 @@ export class Skybox {
         if (this._globalDSManager) {
             const device = legacyCC.director.root.device as Device;
 
-            if (this.envmap) {
-                const texture = this.envmap.getGFXTexture()!;
-                const sampler = device.getSampler(this.envmap.getSamplerInfo());
+            const envmap = this.envmap ? this.envmap : this._default;
+            if (envmap) {
+                const texture = envmap.getGFXTexture()!;
+                const sampler = device.getSampler(envmap.getSamplerInfo());
                 this._globalDSManager.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
                 this._globalDSManager.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
             }
 
-            if (this.diffuseMap) {
-                const textureDiffuseMap = this.diffuseMap.getGFXTexture()!;
-                const samplerDiffuseMap = device.getSampler(this.diffuseMap.getSamplerInfo());
-                this._globalDSManager.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, samplerDiffuseMap);
-                this._globalDSManager.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, textureDiffuseMap);
+            const diffuseMap = this.diffuseMap ? this.diffuseMap : this._default;
+            if (diffuseMap) {
+                const texture = diffuseMap.getGFXTexture()!;
+                const sampler = device.getSampler(diffuseMap.getSamplerInfo());
+                this._globalDSManager.bindSampler(UNIFORM_DIFFUSEMAP_BINDING, sampler);
+                this._globalDSManager.bindTexture(UNIFORM_DIFFUSEMAP_BINDING, texture);
             }
 
             this._globalDSManager.update();
