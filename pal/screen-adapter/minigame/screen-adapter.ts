@@ -1,4 +1,4 @@
-import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED } from 'internal:constants';
+import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -44,6 +44,10 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio () {
+        if (VIVO) {
+            // NOTE: wrong DPR on vivo platform
+            return 1;
+        }
         const sysInfo = minigame.getSystemInfoSync();
         return sysInfo.pixelRatio;
     }
