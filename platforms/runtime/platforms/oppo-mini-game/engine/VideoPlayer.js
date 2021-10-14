@@ -33,8 +33,6 @@ if (cc.internal.VideoPlayer) {
     let _topLeft = new vec3();
     let _bottomRight = new vec3();
 
-    const dpr = ral.getSystemInfoSync().pixelRatio;
-
     cc.internal.VideoPlayerImplManager.getImpl = function (componenet) {
         return new VideoPlayerImplMiniGame(componenet);
     };
@@ -377,6 +375,8 @@ if (cc.internal.VideoPlayer) {
 
             let canvas_width = cc.game.canvas.width;
             let canvas_height = cc.game.canvas.height;
+
+            let dpr = cc.view._devicePixelRatio;
 
             let ap = this._uiTrans.anchorPoint;
             // Vectors in node space

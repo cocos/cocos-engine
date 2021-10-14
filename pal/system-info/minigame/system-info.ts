@@ -44,6 +44,7 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
+    public readonly pixelRatio: number;
     private _featureMap: IFeatureMap;
 
     constructor () {
@@ -92,6 +93,8 @@ class SystemInfo extends EventTarget {
         // init browserType and browserVersion
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
+
+        this.pixelRatio = minigameSysInfo.pixelRatio;
 
         // init capability
         const _tmpCanvas1 = document.createElement('canvas');  // TODO: remove this

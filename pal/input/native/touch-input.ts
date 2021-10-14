@@ -4,6 +4,7 @@ import { Size, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { EventTouch, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
+import { legacyCC } from '../../../cocos/core/global-exports';
 import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
@@ -54,9 +55,13 @@ export class TouchInputSource {
     }
 
     private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
-        const dpr = screenAdapter.devicePixelRatio;
-        const x = touch.clientX * dpr;
-        const y = windowSize.height - touch.clientY * dpr;
+        let x = touch.clientX;
+        let y = windowSize.height - touch.clientY;
+        // TODO: should not call engine API
+        const view = legacyCC.view;
+        const dpr = view._devicePixelRatio;
+        x *= dpr;
+        y *= dpr;
         return new Vec2(x, y);
     }
 

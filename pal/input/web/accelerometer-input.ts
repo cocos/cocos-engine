@@ -1,8 +1,8 @@
 import { AccelerometerCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
-import { screenAdapter } from 'pal/screen-adapter';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, OS } from '../../system-info/enum-type';
+import { legacyCC } from '../../../cocos/core/global-exports';
 import { EventAcceleration, Acceleration } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
@@ -58,7 +58,8 @@ export class AccelerometerInputSource {
             z = ((deviceOrientationEvent.alpha || 0) / 90) * 0.981;
         }
 
-        if (screenAdapter.isFrameRotated) {
+        // TODO: should not call engine API
+        if (legacyCC.view._isRotated) {
             const tmp = x;
             x = -y;
             y = tmp;

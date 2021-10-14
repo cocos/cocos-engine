@@ -254,14 +254,6 @@ Forward render pipeline initialized.
 
 Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.
 
-### 1220
-
-Failed to set shading scale, pipelineSceneData is invalid.
-
-### 1221
-
-Setting orientation is not supported yet.
-
 ### 1300
 
 %s is not in the model pool and cannot be destroyed by destroyModel.

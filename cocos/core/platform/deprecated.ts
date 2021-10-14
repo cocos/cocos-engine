@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
-import { screenAdapter } from 'pal/screen-adapter';
 import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { sys } from './sys';
 import { View } from './view';
 import { legacyCC } from '../global-exports';
 import { screen } from './screen';
-import { Size } from '../math';
 
 // #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
@@ -52,35 +50,6 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'isAutoFullScreenEnabled',
-    },
-    {
-        name: 'setCanvasSize',
-        suggest: 'setting size in CSS pixels is not recommended, please use screen.windowSize instead.',
-    },
-    {
-        name: 'getCanvasSize',
-        suggest: 'please use screen.windowSize instead.',
-    },
-    {
-        name: 'getFrameSize',
-        suggest: 'getting size in CSS pixels is not recommended, please use screen.windowSize instead.',
-    },
-    {
-        name: 'setFrameSize',
-        suggest: 'setting size in CSS pixels is not recommended, please use screen.windowSize instead.',
-    },
-    {
-        name: 'getDevicePixelRatio',
-        suggest: 'devicePixelRatio is a concept on web standard, please use screen.resolutionScale instead',
-    },
-    {
-        name: 'convertToLocationInView',
-    },
-    {
-        name: 'enableRetina',
-    },
-    {
-        name: 'isRetinaEnabled',
     },
 ]);
 markAsWarning(legacyCC, 'cc', [
@@ -169,14 +138,6 @@ removeProperty(sys, 'sys',
         'WINRT', 'WP8', 'QQ_PLAY', 'FB_PLAYABLE_ADS'].map((item) => ({
         name: item,
     })));
-replaceProperty(sys, 'sys', [
-    {
-        name: 'windowPixelResolution',
-        target: screen,
-        targetName: 'screen',
-        newName: 'windowSize',
-    },
-]);
 
 // deprecate screen API
 markAsWarning(screen, 'screen', [

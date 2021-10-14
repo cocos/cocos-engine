@@ -35,7 +35,9 @@ import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { Vec2 } from '../math';
-import { screen } from './screen';
+
+const windowSize = screenAdapter.windowSize;
+const pixelRatio = systemInfo.pixelRatio;
 
 export declare namespace sys {
     /**
@@ -187,10 +189,11 @@ export const sys = {
     /**
      * @en Indicate the real pixel resolution of the whole game window
      * @zh 指示游戏窗口的像素分辨率
-     *
-     * @deprecated since v3.4.0, please use screen.windowSize instead.
      */
-    windowPixelResolution: screen.windowSize,
+    windowPixelResolution: {
+        width: windowSize.width * pixelRatio,
+        height: windowSize.height * pixelRatio,
+    },
 
     /**
      * @en The capabilities of the current platform
@@ -314,12 +317,17 @@ export const sys = {
         const windowSize = screenAdapter.windowSize;
 
         // Get leftBottom and rightTop point in screen coordinates system.
-        const leftBottom = new Vec2(edge.left, edge.bottom);
-        const rightTop = new Vec2(windowSize.width - edge.right, windowSize.height - edge.top);
+        const leftBottom = new Vec2(edge.left, windowSize.height - edge.bottom);
+        const rightTop = new Vec2(windowSize.width - edge.right, edge.top);
 
-        // Convert view point to UI coordinate system.
-        locView._convertToUISpace(leftBottom);
-        locView._convertToUISpace(rightTop);
+        // Convert to the location in game view coordinates system.
+        const relatedPos = { left: 0, top: 0, width: windowSize.width, height: windowSize.height };
+        locView.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
+        locView.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop);
+
+        // Convert view point to design resolution size
+        locView._convertPointWithScale(leftBottom);
+        locView._convertPointWithScale(rightTop);
 
         const x = leftBottom.x;
         const y = leftBottom.y;
@@ -351,6 +359,14 @@ export const sys = {
     // @ts-expect-error HACK: this private property only needed on web
     sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
         && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+
+    screenAdapter.on('window-resize', () => {
+        const windowSize = screenAdapter.windowSize;
+        sys.windowPixelResolution = {
+            width: Math.round(windowSize.width * pixelRatio),
+            height: Math.round(windowSize.height * pixelRatio),
+        };
+    });
 }());
 
 legacyCC.sys = sys;

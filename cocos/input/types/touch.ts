@@ -99,7 +99,7 @@ export class Touch {
         }
 
         out.set(this._point.x, this._point.y);
-        legacyCC.view._convertToUISpace(out);
+        legacyCC.view._convertPointWithScale(out);
         return out;
     }
 
@@ -146,7 +146,7 @@ export class Touch {
         }
 
         out.set(this._prevPoint.x, this._prevPoint.y);
-        legacyCC.view._convertToUISpace(out);
+        legacyCC.view._convertPointWithScale(out);
         return out;
     }
 
@@ -175,7 +175,7 @@ export class Touch {
         }
 
         out.set(this._startPoint.x, this._startPoint.y);
-        legacyCC.view._convertToUISpace(out);
+        legacyCC.view._convertPointWithScale(out);
         return out;
     }
 
@@ -274,7 +274,7 @@ export class Touch {
         this._id = id;
         if (!this._startPointCaptured) {
             this._startPoint = new Vec2(this._point);
-            // cc.view._convertToUISpace(this._startPoint);
+            // cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
     }

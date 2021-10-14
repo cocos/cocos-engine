@@ -28,9 +28,8 @@
  * @module component/video
  */
 
-import { screenAdapter } from 'pal/screen-adapter';
 import { mat4 } from '../core/math';
-import { sys, screen, warn } from '../core/platform';
+import { sys, view, screen, warn } from '../core/platform';
 import { game } from '../core';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
@@ -387,8 +386,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         this._w = width;
         this._h = height;
 
-        // TODO: implement videoPlayer in PAL
-        const dpr = screenAdapter.devicePixelRatio;
+        const dpr = view.getDevicePixelRatio();
         const scaleX = 1 / dpr;
         const scaleY = 1 / dpr;
 

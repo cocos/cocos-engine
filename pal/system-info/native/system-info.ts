@@ -90,6 +90,10 @@ class SystemInfo extends EventTarget {
         this._registerEvent();
     }
 
+    get pixelRatio () {
+        return jsb.device.getDevicePixelRatio() || 1;
+    }
+
     private _registerEvent () {
         jsb.onPause = () => {
             this.emit('hide');
