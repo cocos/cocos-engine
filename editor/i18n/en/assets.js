@@ -287,6 +287,7 @@ module.exports = {
             animationBakeRate: {
                 name: 'Animation Bake Rate',
                 title: 'Specify the animation bake rate in frames per second (fps).',
+                auto: '自动',
             },
             promoteSingleRootNode: {
                 name: 'Promote single root node',
