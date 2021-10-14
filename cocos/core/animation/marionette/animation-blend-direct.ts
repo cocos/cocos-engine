@@ -25,7 +25,7 @@ class AnimationBlendDirectItem extends AnimationBlendItem {
 }
 
 @ccclass('cc.animation.AnimationBlendDirect')
-export class AnimationBlendDirect extends EditorExtendable implements AnimationBlend {
+export class AnimationBlendDirect extends AnimationBlend {
     public static Item = AnimationBlendDirectItem;
 
     @serializable

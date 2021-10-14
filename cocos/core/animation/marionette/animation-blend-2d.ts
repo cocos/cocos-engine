@@ -7,7 +7,6 @@ import { Motion, MotionEvalContext } from './motion';
 import { serializable, type } from '../../data/decorators';
 import { BindableNumber, bindOr, VariableType } from './parametric';
 import { sampleFreeformCartesian, sampleFreeformDirectional, blendSimpleDirectional } from './blend-2d';
-import { EditorExtendable } from '../../data/editor-extendable';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 enum Algorithm {
@@ -37,7 +36,7 @@ class AnimationBlend2DItem extends AnimationBlendItem {
 }
 
 @ccclass('cc.animation.AnimationBlend2D')
-export class AnimationBlend2D extends EditorExtendable implements AnimationBlend {
+export class AnimationBlend2D extends AnimationBlend {
     public static Algorithm = Algorithm;
 
     public static Item = AnimationBlend2DItem;
