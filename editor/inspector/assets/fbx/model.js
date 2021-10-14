@@ -62,7 +62,7 @@ exports.template = `
                 </ui-prop>
             </ui-section>
             <div class="warn-words">
-                <ui-label i18n value="inspector.asset.fbx.meshOptimizer.warn"></ui-label>
+                <ui-label value="i18n:inspector.asset.fbx.meshOptimizer.warn"></ui-label>
             </div>
         </div>
     </ui-section>

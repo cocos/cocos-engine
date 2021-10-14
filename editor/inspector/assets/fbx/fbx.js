@@ -7,12 +7,12 @@ exports.template = `
         <ui-checkbox slot="content" class="legacyFbxImporter-checkbox"></ui-checkbox>
     </ui-prop>
     <div class="warn-words">
-        <ui-label i18n value="ENGINE.assets.fbx.legacyFbxImporter.warn"></ui-label>
+        <ui-label value="i18n:ENGINE.assets.fbx.legacyFbxImporter.warn"></ui-label>
     </div>
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.animationBakeRate.name" tooltip="i18n:ENGINE.assets.fbx.animationBakeRate.title"></ui-label>
         <ui-select slot="content" class="animationBakeRate-select">
-            <option value="0">i18n:ENGINE.assets.fbx.animationBakeRate.auto</option>
+            <option value="0">0</option>
             <option value="24">24</option>
             <option value="25">25</option>
             <option value="30">30</option>
@@ -53,6 +53,8 @@ const Elements = {
     legacyFbxImporter: {
         ready() {
             const panel = this;
+
+            panel.$.animationBakeRateSelect.children[0].innerText = Editor.I18n.t('ENGINE.assets.fbx.animationBakeRate.auto');
 
             panel.$.legacyFbxImporterCheckbox.addEventListener('change', panel.setProp.bind(panel, 'legacyFbxImporter', 'boolean'));
         },
