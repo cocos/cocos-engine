@@ -8,6 +8,30 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
+// HACK: In some platform like CocosPlay or Alipay iOS end
+// the windowSize need to rotate when init screenAdapter if it's landscape
+let rotateLandscape = false;
+try {
+    if (ALIPAY) {
+        if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
+            // @ts-expect-error TODO: use pal/fs
+            const fs = my.getFileSystemManager();
+            const screenOrientation = JSON.parse(fs.readFileSync({
+                filePath: 'game.json',
+                encoding: 'utf8',
+            }).data).screenOrientation;
+            rotateLandscape = (screenOrientation === 'landscape');
+        }
+    } else if (COCOSPLAY) {
+        // @ts-expect-error TODO: use pal/fs
+        const fs = ral.getFileSystemManager();
+        const deviceOrientation = JSON.parse(fs.readFileSync('game.config.json', 'utf8')).deviceOrientation;
+        rotateLandscape = (deviceOrientation === 'landscape');
+    }
+} catch (e) {
+    console.error(e);
+}
+
 class ScreenAdapter extends EventTarget {
     public isFrameRotated = false;
     public handleResizeEvent = true;
@@ -27,7 +51,14 @@ class ScreenAdapter extends EventTarget {
     public get windowSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
         const dpr = this.devicePixelRatio;
-        return new Size(sysInfo.screenWidth * dpr, sysInfo.screenHeight * dpr);
+        let screenWidth = sysInfo.screenWidth;
+        let screenHeight = sysInfo.screenHeight;
+        if ((COCOSPLAY || ALIPAY) && rotateLandscape  && screenWidth < screenHeight) {
+            const temp = screenWidth;
+            screenWidth = screenHeight;
+            screenHeight = temp;
+        }
+        return new Size(screenWidth * dpr, screenHeight * dpr);
     }
     public set windowSize (size: Size) {
         warnID(1221);
@@ -94,30 +125,7 @@ class ScreenAdapter extends EventTarget {
 
     public init (cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        // HACK: In some platform like CocosPlay or Alipay iOS end
-        // the windowSize need to rotate when init screenAdapter.
-        let rotateWindowSize = false;
-        try {
-            if (ALIPAY) {
-                if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
-                    // @ts-expect-error TODO: use pal/fs
-                    const fs = my.getFileSystemManager();
-                    const screenOrientation = JSON.parse(fs.readFileSync({
-                        filePath: 'game.json',
-                        encoding: 'utf8',
-                    }).data).screenOrientation;
-                    rotateWindowSize = (screenOrientation === 'landscape');
-                }
-            } else if (COCOSPLAY) {
-                // @ts-expect-error TODO: use pal/fs
-                const fs = ral.getFileSystemManager();
-                const deviceOrientation = JSON.parse(fs.readFileSync('game.config.json', 'utf8')).deviceOrientation;
-                rotateWindowSize = (deviceOrientation === 'landscape');
-            }
-        } catch (e) {
-            console.error(e);
-        }
-        this._updateResolution(rotateWindowSize);
+        this._updateResolution();
     }
 
     public requestFullScreen (): Promise<void> {
@@ -127,11 +135,11 @@ class ScreenAdapter extends EventTarget {
         return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
     }
 
-    private _updateResolution (rotateWindowSize = false) {
+    private _updateResolution () {
         const windowSize = this.windowSize;
         // update resolution
-        this._resolution.width = rotateWindowSize ? windowSize.height : windowSize.width;
-        this._resolution.height = rotateWindowSize ? windowSize.width : windowSize.height;
+        this._resolution.width = windowSize.width;
+        this._resolution.height = windowSize.height;
         // NOTE: on Alipay iOS end, the resolution size need forcing to be screenSize * dpr.
         if (ALIPAY && systemInfo.os === OS.IOS) {
             this._resolution.width *= this.devicePixelRatio;
