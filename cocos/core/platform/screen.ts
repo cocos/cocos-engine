@@ -32,7 +32,7 @@
 import { screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Size, Vec2 } from '../math';
-import { warn, warnID } from './debug';
+import { warnID } from './debug';
 
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
@@ -43,7 +43,7 @@ class Screen {
         screenAdapter.init(() => {
             const director = legacyCC.director;
             if (!director.root) {
-                warn('Invalid setting screen.resolutionScale, director.root has not been defined.');
+                warnID(1220);
                 return;
             }
             director.root.pipeline.pipelineSceneData.shadingScale = screenAdapter.resolutionScale;
