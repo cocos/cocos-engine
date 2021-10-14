@@ -123,6 +123,7 @@ export enum PipelineGlobalBindings {
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
     SAMPLER_SPOT_LIGHTING_MAP,
+    SAMPLER_DIFFUSEMAP,
 
     COUNT,
 }
@@ -294,6 +295,13 @@ const UNIFORM_ENVIRONMENT_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UN
 globalDescriptorSetLayout.layouts[UNIFORM_ENVIRONMENT_NAME] = UNIFORM_ENVIRONMENT_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT_BINDING] = UNIFORM_ENVIRONMENT_DESCRIPTOR;
 
+const UNIFORM_DIFFUSEMAP_NAME = 'cc_diffuseMap';
+export const UNIFORM_DIFFUSEMAP_BINDING = PipelineGlobalBindings.SAMPLER_DIFFUSEMAP;
+const UNIFORM_DIFFUSEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_DIFFUSEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_DIFFUSEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_DIFFUSEMAP_BINDING, UNIFORM_DIFFUSEMAP_NAME, Type.SAMPLER_CUBE, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_DIFFUSEMAP_NAME] = UNIFORM_DIFFUSEMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_DIFFUSEMAP_BINDING] = UNIFORM_DIFFUSEMAP_DESCRIPTOR;
+
 /**
  * @en The sampler for spot light shadow map
  * @zn 聚光灯阴影纹理采样器
@@ -327,6 +335,27 @@ export class UBOLocal {
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
 localDescriptorSetLayout.bindings[UBOLocal.BINDING] = UBOLocal.DESCRIPTOR;
+
+/**
+ * @en The world bound uniform buffer object
+ * @zh 世界空间包围盒 UBO。
+ */
+export class UBOWorldBound {
+    public static readonly WORLD_BOUND_CENTER = 0;
+    public static readonly WORLD_BOUND_HALF_EXTENTS = UBOWorldBound.WORLD_BOUND_CENTER + 4;
+    public static readonly COUNT = UBOWorldBound.WORLD_BOUND_HALF_EXTENTS + 4;
+    public static readonly SIZE = UBOWorldBound.COUNT * 4;
+
+    public static readonly NAME = 'CCWorldBound';
+    public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOWorldBound.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOWorldBound.BINDING, UBOWorldBound.NAME, [
+        new Uniform('cc_worldBoundCenter', Type.FLOAT4, 1),
+        new Uniform('cc_worldBoundHalfExtents', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOWorldBound.NAME] = UBOWorldBound.LAYOUT;
+localDescriptorSetLayout.bindings[UBOWorldBound.BINDING] = UBOWorldBound.DESCRIPTOR;
 
 export const INST_MAT_WORLD = 'a_matWorld0';
 

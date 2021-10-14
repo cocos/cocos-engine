@@ -682,6 +682,8 @@ export class UITransform extends Component {
         const uiComp = this.node._uiProps.uiComp;
         if (uiComp) {
             uiComp.markForUpdateRenderData();
+            // @ts-expect-error hack for canRender is false // HACK,Need remove
+            if (uiComp.renderData) { uiComp.renderData.vertDirty = true; }
         }
     }
 

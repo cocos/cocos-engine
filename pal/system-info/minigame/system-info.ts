@@ -1,8 +1,8 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/system-info';
 import { minigame } from 'pal/minigame';
+import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
-import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -45,7 +45,7 @@ class SystemInfo extends EventTarget {
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
     public readonly pixelRatio: number;
-    public readonly supportCapability: SupportCapability;
+    private _featureMap: IFeatureMap;
 
     constructor () {
         super();
@@ -104,11 +104,20 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
-        this.supportCapability = {
-            webp: supportWebp,  // TODO
-            gl: true,
-            canvas: true,
-            imageBitmap: false,
+
+        const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
+        this._featureMap = {
+            [Feature.WEBP]: supportWebp,
+            [Feature.IMAGE_BITMAP]: false,
+            [Feature.WEB_VIEW]: false,
+            [Feature.VIDEO_PLAYER]: WECHAT || OPPO,
+            [Feature.SAFE_AREA]: WECHAT || BYTEDANCE,
+
+            [Feature.INPUT_TOUCH]: !isPCWechat,
+            [Feature.EVENT_KEYBOARD]: isPCWechat,
+            [Feature.EVENT_MOUSE]: isPCWechat,
+            [Feature.EVENT_TOUCH]: true,
+            [Feature.EVENT_ACCELEROMETER]: !isPCWechat,
         };
 
         this._registerEvent();
@@ -121,6 +130,10 @@ class SystemInfo extends EventTarget {
         minigame.onShow(() => {
             this.emit('show');
         });
+    }
+
+    public hasFeature (feature: Feature): boolean {
+        return this._featureMap[feature];
     }
 
     public getBatteryLevel (): number {

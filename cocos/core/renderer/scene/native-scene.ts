@@ -3,7 +3,7 @@ import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
     DescriptorSet, DrawInfo, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
-import { Color, Mat4, Rect, Vec2 } from '../../math';
+import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
 
@@ -30,6 +30,7 @@ export const NativeModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -47,6 +48,7 @@ export const NativeSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -82,6 +84,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
+    setWorldBoundBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
     setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
@@ -105,7 +108,8 @@ export type NativeLight = InstanceType<typeof NativeLight>;
 
 export const NativeDirectionalLight: Constructor<{
     setDirection (dir: Vec3): void;
-    setIlluminance (lum: number): void;
+    setIlluminanceHDR (lum: number): void;
+    setIlluminanceLDR(lum: number): void;
 } & NativeLight> = null!;
 export type NativeDirectionalLight = InstanceType<typeof NativeDirectionalLight>;
 
@@ -114,7 +118,8 @@ export const NativeSphereLight: Constructor<{
     setAABB (aabb: NativeAABB): void;
     setSize (size: number): void;
     setRange (range: number): void;
-    setIlluminance (lum: number): void;
+    setLuminanceHDR (lum: number): void;
+    setLuminanceLDR(lum: number): void;
 }  & NativeLight> = null!;
 export type NativeSphereLight = InstanceType<typeof NativeSphereLight>;
 
@@ -127,7 +132,8 @@ export const NativeSpotLight: Constructor<{
     setRange (range: number): void;
     setAspect (aspect: number): void;
     setAngle (angle: number): void;
-    setIlluminance (lum: number): void;
+    setLuminanceHDR (lum: number): void;
+    setLuminanceLDR(lum: number): void;
 } & NativeLight> = null!;
 export type NativeSpotLight = InstanceType<typeof NativeSpotLight>;
 
@@ -135,6 +141,8 @@ export const NaitveSkybox: Constructor<{
     enabled: boolean;
     useIBL: boolean;
     isRGBE: boolean;
+    useHDR: boolean;
+    useDiffuseMap: boolean;
     model: NativeModel | null;
 }> = null!;
 export type NaitveSkybox = InstanceType<typeof NaitveSkybox>;
@@ -212,6 +220,7 @@ export type NativePass = InstanceType<typeof NativePass>;
 
 export const NativeSubModel: Constructor<{
     setDescriptorSet(val: DescriptorSet | null): void;
+    setWorldBoundDescriptorSet(val: DescriptorSet | null): void;
     setInputAssembler(val: InputAssembler | null): void;
     setSubMeshBuffers(val: IFlatBuffer[]): void;
     setPlanarShader(val: Shader | null): void;
@@ -266,9 +275,9 @@ export type NativeRenderScene = InstanceType<typeof NativeRenderScene>;
 
 export const NativeAmbient: Constructor<{
     enabled: boolean;
-    skyColor: Color;
+    skyColor: Vec4;
     skyIllum: number;
-    groundAlbedo: Color;
+    groundAlbedo: Vec4;
 }> = null!;
 export type NativeAmbient = InstanceType<typeof NativeAmbient>;
 
@@ -323,19 +332,21 @@ export type NativeJointInfo = InstanceType<typeof NativeJointInfo>;
 export const NativePipelineSharedSceneData: Constructor<{
     isHDR: boolean;
     shadingScale: number;
-    fpScale: number;
     fog: NativeFog;
     ambient: NativeAmbient;
     skybox: NaitveSkybox;
     shadow: NativeShadow;
+    occlusionQueryInputAssembler: InputAssembler | null;
+    occlusionQueryPass: NativePass | null;
+    occlusionQueryShader: Shader | null;
     deferredLightPassShader: Shader | null;
     deferredLightPass: NativePass;
     bloomPrefilterPassShader: Shader | null;
     bloomPrefilterPass: NativePass;
     bloomDownsamplePassShader: Shader | null;
-    bloomDownsamplePass: NativePass;
+    bloomDownsamplePass: NativePass[];
     bloomUpsamplePassShader: Shader | null;
-    bloomUpsamplePass: NativePass;
+    bloomUpsamplePass: NativePass[];
     bloomCombinePassShader: Shader | null;
     bloomCombinePass: NativePass;
     pipelinePostPassShader: Shader | null;

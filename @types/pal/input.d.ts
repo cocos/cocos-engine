@@ -1,19 +1,9 @@
 declare module 'pal/input' {
-    /**
-     * Basic class for all input sources.
-     */
-    abstract class BaseInputSource {
-        /**
-         * Query whether this input source is supported.
-         */
-        public readonly support: boolean;
-    }
-
     type TouchCallback = (res: import('cocos/input/types').EventTouch) => void;
     /**
      * Class designed for touch input.
      */
-    export class TouchInputSource extends BaseInputSource {
+    export class TouchInputSource {
         /**
          * Register the touch event callback.
          */
@@ -24,7 +14,7 @@ declare module 'pal/input' {
     /**
      * Class designed for mouse input.
      */
-    export class MouseInputSource extends BaseInputSource {
+    export class MouseInputSource {
         /**
          * Register the mouse event callback.
          */
@@ -35,7 +25,7 @@ declare module 'pal/input' {
     /**
      * Class Designed for keyboard input.
      */
-    export class KeyboardInputSource extends BaseInputSource {
+    export class KeyboardInputSource {
         /**
          * Register the keyboard event callback.
          */
@@ -45,7 +35,7 @@ declare module 'pal/input' {
     /**
      * Class designed for gamepad input
      */
-    export class GamepadInputSource extends BaseInputSource {
+    export class GamepadInputSource {
         // TODO: add more details for GamepadInputSource class
     }
 
@@ -53,7 +43,7 @@ declare module 'pal/input' {
     /**
      * Class designed for accelerometer input
      */
-    export class AccelerometerInputSource extends BaseInputSource {
+    export class AccelerometerInputSource {
         /**
          * Asynchronously start the accelerometer.
          * TODO: return a promise.

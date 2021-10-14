@@ -303,7 +303,7 @@ export class Renderable2D extends RenderableComponent {
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+    protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
@@ -468,18 +468,16 @@ export class Renderable2D extends RenderableComponent {
     protected _postCanRender () {}
 
     protected _updateColor () {
-        if (UI_GPU_DRIVEN) {
-            if (this._canDrawByFourVertex) {
-                const opacityZero = this._cacheAlpha <= 0;
-                this._updateWorldAlpha();
-                if (this._colorDirty) {
-                    if (opacityZero || this._cacheAlpha <= 0) {
-                        this._renderFlag = this._canRender();
-                    }
-                    this._colorDirty = false;
+        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
+            const opacityZero = this._cacheAlpha <= 0;
+            this._updateWorldAlpha();
+            if (this._colorDirty) {
+                if (opacityZero || this._cacheAlpha <= 0) {
+                    this._renderFlag = this._canRender();
                 }
-                return;
+                this._colorDirty = false;
             }
+            return;
         }
         // Need update rendFlag when opacity changes from 0 to !0
         const opacityZero = this._cacheAlpha <= 0;

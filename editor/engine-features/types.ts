@@ -29,7 +29,8 @@ export type EngineFeature =
     | 'spine'
     | 'dragon-bones'
     | 'primitive'
-    | 'profiler';
+    | 'profiler'
+    | 'marionette';
 export interface ModuleRenderConfig {
     $schema?: string;
 

@@ -100,8 +100,8 @@ export class PostProcessStage extends RenderStage {
         const vp = camera.viewport;
         this._renderArea.x = vp.x * camera.width;
         this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width * sceneData.shadingScale;
-        this._renderArea.height = vp.height * camera.height * sceneData.shadingScale;
+        this._renderArea.width = vp.width * camera.width;
+        this._renderArea.height = vp.height * camera.height;
         const renderData = pipeline.getPipelineRenderData();
         const framebuffer = camera.window!.framebuffer;
         const swapchain = camera.window!.swapchain;
@@ -117,7 +117,6 @@ export class PostProcessStage extends RenderStage {
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Postprocess
@@ -125,7 +124,7 @@ export class PostProcessStage extends RenderStage {
         const pass = builtinPostProcess.passes[0];
         const shader = pass.getShaderVariant();
 
-        if (pipeline.bloomEnable) {
+        if (pipeline.bloomEnabled) {
             pass.descriptorSet.bindTexture(0, renderData.bloom!.combineTex);
         } else {
             pass.descriptorSet.bindTexture(0, renderData.outputRenderTargets[0]);

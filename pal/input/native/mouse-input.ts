@@ -8,13 +8,11 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class MouseInputSource {
-    public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
     private _preMousePos: Vec2 = new Vec2();
     private _isPressed = false;
 
     constructor () {
-        this.support = !systemInfo.isMobile;
         this._registerEvent();
     }
 

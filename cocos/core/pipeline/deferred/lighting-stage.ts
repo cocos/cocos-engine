@@ -126,9 +126,9 @@ export class LightingStage extends RenderStage {
                 }
 
                 if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
-                } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
                 }
 
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
@@ -159,9 +159,9 @@ export class LightingStage extends RenderStage {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
-                } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
                 }
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 
@@ -242,27 +242,22 @@ export class LightingStage extends RenderStage {
         this._renderArea = pipeline.generateRenderArea(camera);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
-            if (sceneData.isHDR) {
-                SRGBToLinear(colors[0], camera.clearColor);
-                const scale = sceneData.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
-            } else {
-                colors[0].x = camera.clearColor.x;
-                colors[0].y = camera.clearColor.y;
-                colors[0].z = camera.clearColor.z;
-            }
+            colors[0].x = camera.clearColor.x;
+            colors[0].y = camera.clearColor.y;
+            colors[0].z = camera.clearColor.z;
         }
 
         colors[0].w = 0;
         const deferredData = pipeline.getPipelineRenderData();
         const framebuffer = deferredData.outputFrameBuffer;
         const renderPass = framebuffer.renderPass;
+        pipeline.applyFramebufferRatio(framebuffer);
+
+        pipeline.pipelineUBO.updateShadowUBO(camera);
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
+        cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting

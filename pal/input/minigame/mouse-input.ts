@@ -1,21 +1,21 @@
 import { MouseCallback } from 'pal/input';
 import { MouseEventData, MouseWheelEventData, minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
+import { systemInfo } from 'pal/system-info';
 import { Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { EventMouse } from '../../../cocos/input/types';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { Feature } from '../../system-info/enum-type';
 
 export class MouseInputSource {
-    public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
     private _isPressed = false;
     private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
-        this.support = typeof minigame.wx === 'object' && typeof minigame.wx.onMouseDown !== 'undefined';
-        if (this.support) {
+        if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
             this._registerEvent();
         }
     }

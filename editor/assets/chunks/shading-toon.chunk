@@ -99,9 +99,6 @@ struct ToonSurface {
 
     // TODO: no ambient, no IBL for now
 
-    #if CC_USE_HDR
-      s.emissive *= cc_exposure.w;
-    #endif
     finalColor += s.emissive;
 
     return vec4(finalColor, s.baseColor.a);
