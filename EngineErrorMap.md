@@ -258,6 +258,10 @@ Deferred render pipeline initialized. Note that non-transparent materials with n
 
 Failed to set shading scale, director.root is invalid.
 
+### 1221
+
+Setting orientation is not supported yet.
+
 ### 1300
 
 %s is not in the model pool and cannot be destroyed by destroyModel.

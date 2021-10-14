@@ -2,6 +2,7 @@ import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
+import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
@@ -29,7 +30,7 @@ class ScreenAdapter extends EventTarget {
         return new Size(sysInfo.screenWidth * dpr, sysInfo.screenHeight * dpr);
     }
     public set windowSize (size: Size) {
-        console.warn('Setting window size is not supported on this platform.');
+        warnID(1221);
     }
 
     public get resolution () {
