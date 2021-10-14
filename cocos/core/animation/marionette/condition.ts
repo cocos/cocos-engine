@@ -59,14 +59,14 @@ export class BinaryCondition implements Condition {
         const lhsValue = bindNumericOr(
             context,
             lhs,
-            VariableType.NUMBER,
+            VariableType.FLOAT,
             evaluation.setLhs,
             evaluation,
         );
         const rhsValue = bindNumericOr(
             context,
             rhs,
-            VariableType.NUMBER,
+            VariableType.FLOAT,
             evaluation.setRhs,
             evaluation,
         );

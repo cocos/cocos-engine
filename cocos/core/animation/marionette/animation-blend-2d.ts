@@ -75,7 +75,7 @@ export class AnimationBlend2D extends EditorExtendable implements AnimationBlend
         const initialValueX = bindOr(
             context,
             this.paramX,
-            VariableType.NUMBER,
+            VariableType.FLOAT,
             evaluation.setInput,
             evaluation,
             0,
@@ -83,7 +83,7 @@ export class AnimationBlend2D extends EditorExtendable implements AnimationBlend
         const initialValueY = bindOr(
             context,
             this.paramY,
-            VariableType.NUMBER,
+            VariableType.FLOAT,
             evaluation.setInput,
             evaluation,
             1,

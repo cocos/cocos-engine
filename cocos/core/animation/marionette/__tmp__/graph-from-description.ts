@@ -167,7 +167,7 @@ function createParametric<T extends string | number | boolean> (paramDesc: Param
 function getVariableTypeFromValue (value: Value) {
     switch (true) {
     case typeof value === 'boolean': return VariableType.BOOLEAN;
-    case typeof value === 'number': return VariableType.NUMBER;
+    case typeof value === 'number': return VariableType.FLOAT;
     default: throw new Error(`Unknown variable type.`);
     }
 }
