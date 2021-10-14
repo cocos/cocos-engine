@@ -37,8 +37,6 @@ import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../..
 import { Vec2 } from '../math';
 import { screen } from './screen';
 
-const windowSize = screenAdapter.windowSize;
-
 export declare namespace sys {
     /**
      * @en
@@ -192,10 +190,7 @@ export const sys = {
      *
      * @deprecated since v3.4.0, please use screen.windowSize instead.
      */
-    windowPixelResolution: {
-        width: windowSize.width,
-        height: windowSize.height,
-    },
+    windowPixelResolution: screen.windowSize,
 
     /**
      * @en The capabilities of the current platform
