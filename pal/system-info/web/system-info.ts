@@ -184,10 +184,6 @@ class SystemInfo extends EventTarget {
         this._registerEvent();
     }
 
-    get pixelRatio () {
-        return window.devicePixelRatio || 1;
-    }
-
     private _registerEvent () {
         let hiddenPropName: string;
         if (typeof document.hidden !== 'undefined') {

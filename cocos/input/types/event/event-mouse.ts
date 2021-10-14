@@ -215,7 +215,7 @@ export class EventMouse extends Event {
         }
 
         Vec2.set(out, this._x, this._y);
-        legacyCC.view._convertPointWithScale(out);
+        legacyCC.view._convertToUISpace(out);
         return out;
     }
 
@@ -244,7 +244,7 @@ export class EventMouse extends Event {
         }
 
         Vec2.set(out, this._prevX, this._prevY);
-        legacyCC.view._convertPointWithScale(out);
+        legacyCC.view._convertToUISpace(out);
         return out;
     }
 
