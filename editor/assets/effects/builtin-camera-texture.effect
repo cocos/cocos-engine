@@ -3,8 +3,8 @@ CCEffect %{
   techniques:
   - name: opaque
     passes:
-    - vert: camera-ui-vs:vert
-      frag: camera-ui-fs:frag
+    - vert: camera-texture-vs:vert
+      frag: camera-texture-fs:frag
       properties: &props
         mainTexture:    { value: grey }
         tilingOffset:   { value: [1, 1, 0, 0] }
@@ -17,8 +17,8 @@ CCEffect %{
           mainColor:    { formerlySerializedAs: color }
   - name: transparent
     passes:
-    - vert: camera-ui-vs:vert
-      frag: camera-ui-fs:frag
+    - vert: camera-texture-vs:vert
+      frag: camera-texture-fs:frag
       depthStencilState: &d1
         depthTest: true
         depthWrite: false
@@ -32,8 +32,8 @@ CCEffect %{
       migrations: *migs
   - name: add
     passes:
-    - vert: camera-ui-vs:vert
-      frag: camera-ui-fs:frag
+    - vert: camera-texture-vs:vert
+      frag: camera-texture-fs:frag
       rasterizerState: &r1 { cullMode: none }
       depthStencilState: *d1
       blendState:
@@ -47,8 +47,8 @@ CCEffect %{
       migrations: *migs
   - name: alpha-blend
     passes:
-    - vert: camera-ui-vs:vert
-      frag: camera-ui-fs:frag
+    - vert: camera-texture-vs:vert
+      frag: camera-texture-fs:frag
       rasterizerState: *r1
       depthStencilState: *d1
       blendState:
@@ -62,7 +62,7 @@ CCEffect %{
       migrations: *migs
 }%
 
-CCProgram camera-ui-vs %{
+CCProgram camera-texture-vs %{
   precision highp float;
   #include <input>
   #include <cc-global>
@@ -103,7 +103,7 @@ CCProgram camera-ui-vs %{
   }
 }%
 
-CCProgram camera-ui-fs %{
+CCProgram camera-texture-fs %{
   precision highp float;
   #include <output>
 
