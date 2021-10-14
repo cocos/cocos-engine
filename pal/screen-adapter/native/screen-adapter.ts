@@ -52,7 +52,10 @@ class ScreenAdapter extends EventTarget {
     }
     public get windowSize (): Size {
         const dpr = this.devicePixelRatio;
-        return new Size(window.innerWidth * dpr, window.innerHeight * dpr);
+        // NOTE: fix precision issue on Metal render end.
+        const roundWidth = Math.round(window.innerWidth);
+        const roundHeight = Math.round(window.innerHeight);
+        return new Size(roundWidth * dpr, roundHeight * dpr);
     }
     public set windowSize (size: Size) {
         console.warn('Setting window size is not supported yet.');
