@@ -42,7 +42,7 @@ class Screen {
     private _init () {
         screenAdapter.init(() => {
             const director = legacyCC.director;
-            if (!director.root) {
+            if (!director.root?.pipeline) {
                 warnID(1220);
                 return;
             }

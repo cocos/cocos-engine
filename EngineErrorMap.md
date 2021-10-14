@@ -256,7 +256,7 @@ Deferred render pipeline initialized. Note that non-transparent materials with n
 
 ### 1220
 
-Failed to set shading scale, director.root is invalid.
+Failed to set shading scale, pipelineSceneData is invalid.
 
 ### 1221
 
