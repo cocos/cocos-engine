@@ -1304,7 +1304,7 @@ describe('NewGen Anim', () => {
                 animState.motion = createClipMotionPositionXLinear(1.0, 0.3, 1.7);
                 animState.speed.variable = 'speed';
                 animState.speed.value = 1.2;
-                graph.addVariable('speed', VariableType.NUMBER, 0.5);
+                graph.addVariable('speed', VariableType.FLOAT, 0.5);
                 layerGraph.connect(layerGraph.entryState, animState);
 
                 const node = new Node();

@@ -31,6 +31,8 @@ export class AnimationBlendItem {
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationBlend`)
 export class AnimationBlend extends EditorExtendable implements Motion {
+    @serializable
+    name = '';
 }
 
 export class AnimationBlendEval implements MotionEval {
