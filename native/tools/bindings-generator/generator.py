@@ -1240,7 +1240,7 @@ class NativeClass(object):
 
         elif cursor.kind == cindex.CursorKind.FIELD_DECL:
             self.fields.append(NativeField(cursor, self.generator))
-            if (self.is_struct or self._current_visibility == cindex.AccessSpecifier.PUBLIC) and NativeField.can_parse(cursor.type, self.generator, cursor) and not self.generator.should_skip(self.class_name, cursor.displayname):
+            if (self.is_struct or self._current_visibility == cindex.AccessSpecifier.PUBLIC) and NativeField.can_parse(cursor.type, self.generator, cursor) and not self.generator.should_skip_public_field(self.class_name, cursor.displayname):
                 self.public_fields.append(NativeField(cursor, self.generator))
         elif cursor.kind == cindex.CursorKind.CXX_ACCESS_SPEC_DECL:
             self._current_visibility = cursor.access_specifier
@@ -1379,6 +1379,7 @@ class Generator(object):
         self.impl_file = None
         self.head_file = None
         self.skip_classes = {}
+        self.skip_public_fields_classes = {}
         self.bind_fields = {}
         self.obtain_return_value = {}
         self.generated_classes = {}
@@ -1431,6 +1432,16 @@ class Generator(object):
                 match = re.match("\[([^]]+)\]", methods)
                 if match:
                     self.skip_classes[class_name] = match.group(1).split(" ")
+                else:
+                    raise Exception("invalid list of skip methods")
+        if opts['skip_public_fields']:
+            list_of_skip_public_fields = re.split(",\n?", opts['skip_public_fields'])
+            for skip in list_of_skip_public_fields:
+                class_name, methods = skip.split("::")
+                self.skip_public_fields_classes[class_name] = []
+                match = re.match("\[([^]]+)\]", methods)
+                if match:
+                    self.skip_public_fields_classes[class_name] = match.group(1).split(" ")
                 else:
                     raise Exception("invalid list of skip methods")
         if opts['field']:
@@ -1571,6 +1582,31 @@ class Generator(object):
                                 return True
         if verbose:
             logger.info("(%s:%s) will be accepted" % (class_name, method_name))
+        return False
+
+    def should_skip_public_field(self, class_name, field_name, verbose=False):
+       
+        if class_name == "*" and "*" in self.skip_public_fields_classes:
+            for func in self.skip_public_fields_classes["*"]:
+                if re.match(func, field_name):
+                    return True
+        else:
+            for key in iter(self.skip_public_fields_classes.keys()):
+                if key == "*" or re.match("^" + key + "$", class_name):
+                    if verbose:
+                        logger.info("%s in skip_public_fields_classes" % (class_name))
+                    if len(self.skip_public_fields_classes[key]) == 1 and self.skip_public_fields_classes[key][0] == "*":
+                        if verbose:
+                            logger.info("public fields of %s will be skipped completely" % (class_name))
+                        return True
+                    if field_name != None:
+                        for func in self.skip_public_fields_classes[key]:
+                            if re.match(func, field_name):
+                                if verbose:
+                                    logger.info("%s will skip method %s" % (class_name, field_name))
+                                return True
+        if verbose:
+            logger.info("(%s:%s) will be accepted" % (class_name, field_name))
         return False
 
     def should_skip_field(self, class_name, field_name):
@@ -1983,6 +2019,7 @@ def main():
                 'persistent_classes': config.get(s, 'persistent_classes') if config.has_option(s, 'persistent_classes') else None,
                 'classes_owned_by_cpp': config.get(s, 'classes_owned_by_cpp') if config.has_option(s, 'classes_owned_by_cpp') else None,
                 'skip': config.get(s, 'skip'),
+                'skip_public_fields': config.get(s, 'skip_public_fields') if config.has_option(s, 'skip_public_fields') else None,
                 'field': config.get(s, 'field') if config.has_option(s, 'field') else None,
                 'obtain_return_value': config.get(s, 'obtain_return_value') if config.has_option(s, 'obtain_return_value') else None,
                 'rename_functions': config.get(s, 'rename_functions'),
