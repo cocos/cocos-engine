@@ -554,7 +554,7 @@ export class View extends EventTarget {
      * @param relatedPos - The related position object including "left", "top", "width", "height" informations
      * @param out - The out object to save the conversion result
      *
-     * @deprecated since v3.4.0, please use screen.convertToCocosScreenSpace instead.
+     * @deprecated since v3.4.0
      */
     public convertToLocationInView (tx: number, ty: number, relatedPos: any, out: Vec2 = new Vec2()): Vec2 {
         const x = screenAdapter.devicePixelRatio * (tx - relatedPos.left);

@@ -24,13 +24,11 @@ describe('cc.view', () => {
         expect(screen.resolutionScale).toBe(2);
         expect(screen.windowSize).toEqual(new Size(1024, 768));
         expect(screen.resolution).toEqual(new Size(2048, 1536));
-        expect(screen.convertToScreenSpace(tmpX, tmpY)).toEqual(new Vec2(20, 1556));
 
         screen.resolutionScale = 1;
         expect(screen.resolutionScale).toBe(1);
         expect(screen.windowSize).toEqual(new Size(1024, 768));
         expect(screen.resolution).toEqual(new Size(1024, 768));
-        expect(screen.convertToScreenSpace(tmpX, tmpY)).toEqual(new Vec2(10, 778));
     });
 
     test('test view SHOW_ALL', () => {

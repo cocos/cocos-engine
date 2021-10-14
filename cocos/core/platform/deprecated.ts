@@ -75,7 +75,6 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'convertToLocationInView',
-        suggest: 'please use screen.convertToCocosScreenSpace instead',
     },
     {
         name: 'enableRetina',

@@ -89,22 +89,6 @@ class Screen {
     }
 
     /**
-     * @en Convert the native screen location (whose origin is at the top-left of canvas) to the location in Cocos screen coordinate (whose origin is at the bottom-left of canvas).
-     * Note: The location here has been multiplied by the resolutionScale.
-     * @zh 将原生的屏幕坐标 (坐标原点在画布左上角)，转换到 Cocos 的屏幕坐标 (坐标原点在画布左下角)
-     *
-     * @param nativeScreenX
-     * @param nativeScreenY
-     * @param out
-     */
-    public convertToCocosScreenSpace (nativeScreenX: number, nativeScreenY: number, out: Vec2 = new Vec2(0, 0)) {
-        const windowSize = this.windowSize;
-        out.x = nativeScreenX;
-        out.y = windowSize.height - nativeScreenY;
-        return out;
-    }
-
-    /**
      * @en Whether it supports full screen？
      * @zh 是否支持全屏？
      * @returns {Boolean}
