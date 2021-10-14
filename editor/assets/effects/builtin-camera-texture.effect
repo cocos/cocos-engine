@@ -1,0 +1,146 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: camera-ui-vs:vert
+      frag: camera-ui-fs:frag
+      properties: &props
+        mainTexture:    { value: grey }
+        tilingOffset:   { value: [1, 1, 0, 0] }
+        mainColor:      { value: [1, 1, 1, 1], editor: { type: color } }
+        colorScale:     { value: [1, 1, 1], target: colorScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: colorScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        color:          { target: mainColor, editor: { visible: false } } # backward compability
+      migrations: &migs
+        properties:
+          mainColor:    { formerlySerializedAs: color }
+  - name: transparent
+    passes:
+    - vert: camera-ui-vs:vert
+      frag: camera-ui-fs:frag
+      depthStencilState: &d1
+        depthTest: true
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+      migrations: *migs
+  - name: add
+    passes:
+    - vert: camera-ui-vs:vert
+      frag: camera-ui-fs:frag
+      rasterizerState: &r1 { cullMode: none }
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one
+      properties: *props
+      migrations: *migs
+  - name: alpha-blend
+    passes:
+    - vert: camera-ui-vs:vert
+      frag: camera-ui-fs:frag
+      rasterizerState: *r1
+      depthStencilState: *d1
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      properties: *props
+      migrations: *migs
+}%
+
+CCProgram camera-ui-vs %{
+  precision highp float;
+  #include <input>
+  #include <cc-global>
+  #include <cc-local-batch>
+  #include <input>
+
+  #if USE_VERTEX_COLOR
+    in lowp vec4 a_color;
+    out lowp vec4 v_color;
+  #endif
+
+  #if USE_TEXTURE
+    out vec2 v_uv;
+    uniform TexCoords {
+      vec4 tilingOffset;
+    };
+  #endif
+
+  vec4 vert () {
+    vec4 position;
+    CCVertInput(position);
+
+    mat4 matWorld;
+    CCGetWorldMatrix(matWorld);
+
+    #if USE_TEXTURE
+      v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+      #if SAMPLE_FROM_RT
+        CC_HANDLE_RT_SAMPLE_FLIP(v_uv);
+      #endif
+    #endif
+
+    #if USE_VERTEX_COLOR
+      v_color = a_color;
+    #endif
+
+    return cc_matProj * (cc_matView * matWorld) * position;
+  }
+}%
+
+CCProgram camera-ui-fs %{
+  precision highp float;
+  #include <output>
+
+  #if USE_ALPHA_TEST
+    #pragma define ALPHA_TEST_CHANNEL options([a, r, g, b])
+  #endif
+
+  #if USE_TEXTURE
+    in vec2 v_uv;
+    uniform sampler2D mainTexture;
+  #endif
+
+  uniform Constant {
+    vec4 mainColor;
+    vec4 colorScaleAndCutoff;
+  };
+
+  #if USE_VERTEX_COLOR
+    in lowp vec4 v_color;
+  #endif
+
+  vec4 frag () {
+    vec4 o = mainColor;
+    o.rgb *= colorScaleAndCutoff.xyz;
+
+    #if USE_VERTEX_COLOR
+      o *= v_color;
+    #endif
+
+    #if USE_TEXTURE
+      o *= texture(mainTexture, v_uv);
+    #endif
+
+    #if USE_ALPHA_TEST
+      if (o.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
+    #endif
+
+    return CCFragOutput(o);
+  }
+}%
