@@ -120,6 +120,7 @@ module.exports = {
         skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
     },
     sprite: {
+        gray_scale: '是否开启灰度渲染模式',
         atlas: '图片资源所属的 Atlas 图集资源',
         sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
         type:
@@ -141,6 +142,9 @@ module.exports = {
         size_mode:
             '指定 Sprite 所在节点的尺寸，CUSTOM 表示自定义尺寸，TRIMMED 表示取原始图片剪裁透明像素后的尺寸，RAW 表示取原始图片未剪裁的尺寸',
         trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
+    },
+    UIOpacity: {
+        opacity: '表示该物体的不透明度，取值0~255',
     },
     billboard: {
         texture: 'billboard 纹理',
@@ -286,6 +290,7 @@ module.exports = {
     renderable2D: {
         srcBlendFactor: '原始混合因子',
         dstBlendFactor: '目标混合因子',
+        customMaterial: '用户指定的材质',
         color: '渲染颜色',
     },
     rotationOvertimeModule: {
@@ -489,7 +494,7 @@ module.exports = {
         distance: '距相机多少距离为正常显示计算大小',
         sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',
     },
-    SubContextView: {
+    subContextView: {
         design_size: '子域的设计分辨率，禁止在运行时动态更新',
         fps: '主域更新子域贴图的频率',
     },
@@ -815,6 +820,7 @@ module.exports = {
         priority:'渲染排序优先级',
     },
     graphics: {
+        lineWidth: '线条宽度',
         lineJoin: '用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性',
         lineCap: '指定如何绘制每一条线段末端',
         strokeColor: '笔触的颜色',

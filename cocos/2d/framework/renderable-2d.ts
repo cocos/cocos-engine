@@ -151,6 +151,7 @@ export class Renderable2D extends RenderableComponent {
      */
     @type(Material)
     @displayOrder(0)
+    @tooltip('i18n:renderable2D.customMaterial')
     @displayName('CustomMaterial')
     get customMaterial () {
         return this._customMaterial;
