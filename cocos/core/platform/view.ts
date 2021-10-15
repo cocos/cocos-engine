@@ -35,14 +35,14 @@ import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../event';
-import '../game';
 import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
-import { sys } from './sys';
-import { OS } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
+import { macro } from './macro';
+import { Orientation } from '../../../pal/screen-adapter/enum-type';
+import { game } from '../game';
 
 /**
  * @en View represents the game window.<br/>
@@ -63,26 +63,23 @@ import { screen } from './screen';
 
 const localWinSize = new Size();
 
+const orientationMap = {
+    [macro.ORIENTATION_AUTO]: Orientation.AUTO,
+    [macro.ORIENTATION_LANDSCAPE]: Orientation.LANDSCAPE,
+    [macro.ORIENTATION_PORTRAIT]: Orientation.PORTRAIT,
+};
+
 export class View extends EventTarget {
     public static instance: View;
-    public _resizeWithBrowserSize: boolean;
     public _designResolutionSize: Size;
-    private _prevDPR = -1;
 
-    private _frameSize: Size;
     private _scaleX: number;
     private _scaleY: number;
     private _viewportRect: Rect;
     private _visibleRect: Rect;
     private _autoFullScreen: boolean;
-    private _devicePixelRatio: number;
-    private _maxPixelRatio: number;
     private _retinaEnabled: boolean;
     private _resizeCallback: (() => void) | null;
-    private _resizing: boolean;
-    private _orientationChanging: boolean;
-    private _isRotated: boolean;
-    private _orientation: any;
     private _resolutionPolicy: ResolutionPolicy;
     private _rpExactFit: ResolutionPolicy;
     private _rpShowAll: ResolutionPolicy;
@@ -96,9 +93,6 @@ export class View extends EventTarget {
         const _strategyer = ContainerStrategy;
         const _strategy = ContentStrategy;
 
-        // Size of parent node that contains cc.game.container and cc.game.canvas
-        this._frameSize = new Size(0, 0);
-
         // resolution size, it is the size appropriate for the app resources.
         this._designResolutionSize = new Size(0, 0);
         this._scaleX = 1;
@@ -109,22 +103,10 @@ export class View extends EventTarget {
         this._visibleRect = new Rect(0, 0, 0, 0);
         // Auto full screen disabled by default
         this._autoFullScreen = false;
-        // The device's pixel ratio (for retina displays)
-        this._devicePixelRatio = 1;
-        if (JSB || RUNTIME_BASED) {
-            this._maxPixelRatio = 4;
-        } else {
-            this._maxPixelRatio = 2;
-        }
         // Retina disabled by default
         this._retinaEnabled = false;
         // Custom callback for resize event
         this._resizeCallback = null;
-        this._resizing = false;
-        this._resizeWithBrowserSize = false;
-        this._orientationChanging = true;
-        this._isRotated = false;
-        this._orientation = legacyCC.macro.ORIENTATION_AUTO;
 
         // Setup system default resolution policies
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
@@ -133,15 +115,13 @@ export class View extends EventTarget {
         this._rpFixedHeight = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
         this._rpFixedWidth = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
         this._resolutionPolicy = this._rpShowAll;
-
-        legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this.init, this);
     }
 
+    // Call init at the time Game.EVENT_ENGINE_INITED
     public init () {
-        this._initFrameSize();
-
-        const w = legacyCC.game.canvas.width;
-        const h = legacyCC.game.canvas.height;
+        const windowSize = screen.windowSize;
+        const w = windowSize.width;
+        const h = windowSize.height;
         this._designResolutionSize.width = w;
         this._designResolutionSize.height = h;
         this._viewportRect.width = w;
@@ -154,6 +134,10 @@ export class View extends EventTarget {
         if (visibleRect) {
             visibleRect.init(this._visibleRect);
         }
+
+        // For now, the engine UI is adapted to resolution size, instead of window size.
+        screenAdapter.on('window-resize', this._updateAdaptResult, this);
+        screenAdapter.on('orientation-change', this._updateAdaptResult, this);
     }
 
     /**
@@ -165,19 +149,7 @@ export class View extends EventTarget {
      * @param enabled - Whether enable automatic resize with browser's resize event
      */
     public resizeWithBrowserSize (enabled: boolean) {
-        if (enabled) {
-            // enable
-            if (!this._resizeWithBrowserSize) {
-                this._resizeWithBrowserSize = true;
-                screenAdapter.on('window-resize', this._resizeEvent, this);
-                screenAdapter.on('orientation-change', this._orientationChange, this);
-            }
-        } else if (this._resizeWithBrowserSize) {
-            // disable
-            this._resizeWithBrowserSize = false;
-            screenAdapter.off('window-resize', this._resizeEvent, this);
-            screenAdapter.off('orientation-change', this._orientationChange, this);
-        }
+        screenAdapter.handleResizeEvent = enabled;
     }
 
     /**
@@ -212,10 +184,7 @@ export class View extends EventTarget {
      * @param orientation - Possible values: macro.ORIENTATION_LANDSCAPE | macro.ORIENTATION_PORTRAIT | macro.ORIENTATION_AUTO
      */
     public setOrientation (orientation: number) {
-        orientation &= legacyCC.macro.ORIENTATION_AUTO;
-        if (orientation && this._orientation !== orientation) {
-            this._orientation = orientation;
-        }
+        screenAdapter.orientation = orientationMap[orientation];
     }
 
     /**
@@ -244,6 +213,8 @@ export class View extends EventTarget {
      * 它仅会在你调用 setDesignResolutionPolicy 方法时有影响。
      * 仅在 Web 模式下有效。
      * @param enabled - Enable or disable retina display
+     *
+     * @deprecated since v3.4.0
      */
     public enableRetina (enabled: boolean) {
         this._retinaEnabled = !!enabled;
@@ -255,6 +226,8 @@ export class View extends EventTarget {
      * Only useful on web
      * @zh 检查是否对 Retina 显示设备进行优化。
      * 仅在 Web 模式下有效。
+     *
+     * @deprecated since v3.4.0
      */
     public isRetinaEnabled (): boolean {
         return this._retinaEnabled;
@@ -295,31 +268,25 @@ export class View extends EventTarget {
         return this._autoFullScreen;
     }
 
-    /*
-     * Not support on native.<br/>
-     * On web, it sets the size of the canvas.
-     * @zh 这个方法并不支持 native 平台，在 Web 平台下，可以用来设置 canvas 尺寸。
+    /**
+     * @en Set the canvas size in CSS pixels on Web platform.
+     * This method is not supported on other platforms.
+     * @zh  Web 平台下，可以以 CSS 像素尺寸来设置 canvas 尺寸。
+     * 这个方法并不支持其他平台。
      * @private
      * @param {Number} width
      * @param {Number} height
+     *
+     * @deprecated since v3.4.0, setting size in CSS pixels is not recommended, please use screen.windowSize instead.
      */
     public setCanvasSize (width: number, height: number) {
-        const canvas = legacyCC.game.canvas;
-        const container = legacyCC.game.container;
-        this._devicePixelRatio = window.devicePixelRatio;
-        canvas.width = sys.windowPixelResolution.width;
-        canvas.height = sys.windowPixelResolution.height;
+        // set resolution scale to 1;
+        screen.resolutionScale = 1;
 
-        // canvas.width = width;
-        // canvas.height = height;
-
-        canvas.style.width = `${width}px`;
-        canvas.style.height = `${height}px`;
-
-        container.style.width = `${width}px`;
-        container.style.height = `${height}px`;
-
-        this._resizeEvent();
+        // set window size
+        const dpr = screenAdapter.devicePixelRatio;
+        const windowSize = new Size(width * dpr, height * dpr);
+        screen.windowSize = windowSize;
     }
 
     /**
@@ -330,38 +297,47 @@ export class View extends EventTarget {
      * @zh 返回视图中 canvas 的尺寸。
      * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
      * 在 Web 平台下，它返回 canvas 元素尺寸。
+     *
+     * @deprecated since v3.4.0, please use screen.windowSize instead.
      */
     public getCanvasSize (): Size {
-        return new Size(legacyCC.game.canvas.width, legacyCC.game.canvas.height);
+        return screen.windowSize;
     }
 
     /**
      * @en
-     * Returns the frame size of the view.<br/>
+     * Returns the frame size of the view in CSS pixels.<br/>
      * On native platforms, it returns the screen size since the view is a fullscreen view.<br/>
      * On web, it returns the size of the canvas's outer DOM element.
-     * @zh 返回视图中边框尺寸。
+     * @zh 以 CSS 像素尺寸返回视图中边框尺寸。
      * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
      * 在 web 平台下，它返回 canvas 元素的外层 DOM 元素尺寸。
+     *
+     * @deprecated since v3.4.0, getting size in CSS pixels is not recommended, please use screen.windowSize instead.
      */
     public getFrameSize (): Size {
-        return new Size(this._frameSize.width, this._frameSize.height);
+        const dpr = screenAdapter.devicePixelRatio;
+        const sizeInCssPixels = screen.windowSize;
+        sizeInCssPixels.width /= dpr;
+        sizeInCssPixels.height /= dpr;
+        return sizeInCssPixels;
     }
 
     /**
-     * @en On native, it sets the frame size of view.<br/>
+     * @en Setting the frame size of the view in CSS pixels.
+     * On native, it sets the frame size of view.<br/>
      * On web, it sets the size of the canvas's outer DOM element.
-     * @zh 在 native 平台下，设置视图框架尺寸。
+     * @zh 以 CSS 像素尺寸设置视图中边框尺寸。
+     * 在 native 平台下，设置视图框架尺寸。
      * 在 web 平台下，设置 canvas 外层 DOM 元素尺寸。
      * @param {Number} width
      * @param {Number} height
+     *
+     * @deprecated since v3.4.0, setting size in CSS pixels is not recommended, please use screen.windowSize instead.
      */
     public setFrameSize (width: number, height: number) {
-        this._frameSize.width = width;
-        this._frameSize.height = height;
-        legacyCC.game.frame.style.width = `${width}px`;
-        legacyCC.game.frame.style.height = `${height}px`;
-        this._resizeEvent();
+        const dpr = screenAdapter.devicePixelRatio;
+        screen.windowSize = new Size(width * dpr, height * dpr);
     }
 
     /**
@@ -463,18 +439,6 @@ export class View extends EventTarget {
             policy.preApply(this);
         }
 
-        // Permit to re-detect the orientation of device.
-        this._orientationChanging = true;
-        // If resizing, then frame size is already initialized, this logic should be improved
-        if (!this._resizing) {
-            this._initFrameSize();
-        }
-
-        if (!policy) {
-            logID(2201);
-            return;
-        }
-
         this._designResolutionSize.width = width;
         this._designResolutionSize.height = height;
 
@@ -514,9 +478,7 @@ export class View extends EventTarget {
 
     /**
      * @en Returns the designed size for the view.
-     * Default resolution size is the same as 'getFrameSize'.
      * @zh 返回视图的设计分辨率。
-     * 默认下分辨率尺寸同 `getFrameSize` 方法相同
      */
     public getDesignResolutionSize (): Size {
         return new Size(this._designResolutionSize.width, this._designResolutionSize.height);
@@ -577,9 +539,11 @@ export class View extends EventTarget {
     /**
      * @en Returns device pixel ratio for retina display.
      * @zh 返回设备或浏览器像素比例。
+     *
+     * @deprecated since v3.4.0, devicePixelRatio is a concept on web standard, please use screen.resolutionScale instead.
      */
     public getDevicePixelRatio (): number {
-        return this._devicePixelRatio;
+        return screenAdapter.devicePixelRatio;
     }
 
     /**
@@ -589,111 +553,41 @@ export class View extends EventTarget {
      * @param ty - The Y axis translation
      * @param relatedPos - The related position object including "left", "top", "width", "height" informations
      * @param out - The out object to save the conversion result
+     *
+     * @deprecated since v3.4.0
      */
-    public convertToLocationInView (tx: number, ty: number, relatedPos: any, out: Vec2): Vec2 {
-        const result = out || new Vec2();
-        const x = this._devicePixelRatio * (tx - relatedPos.left);
-        const y = this._devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - ty);
-        if (this._isRotated) {
-            result.x = legacyCC.game.canvas.width - y;
-            result.y = x;
+    public convertToLocationInView (tx: number, ty: number, relatedPos: any, out: Vec2 = new Vec2()): Vec2 {
+        const x = screenAdapter.devicePixelRatio * (tx - relatedPos.left);
+        const y = screenAdapter.devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - ty);
+        if (screenAdapter.isFrameRotated) {
+            out.x = screen.windowSize.width - y;
+            out.y = x;
         } else {
-            result.x = x;
-            result.y = y;
+            out.x = x;
+            out.y = y;
         }
-        if (legacyCC.GAME_VIEW) {
-            result.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
-            result.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
-        }
-        return result;
+        return out;
     }
 
-    private _convertPointWithScale (point) {
+    // Convert location in Cocos screen coordinate to location in UI space
+    private _convertToUISpace (point) {
         const viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
         point.y = (point.y - viewport.y) / this._scaleY;
     }
 
-    // Resize helper functions
-    private _resizeEvent () {
-        // Check frame size changed or not
-        const prevFrameW = this._frameSize.width;
-        const prevFrameH = this._frameSize.height;
-        const prevRotated = this._isRotated;
-        if (legacyCC.sys.isMobile) {
-            const containerStyle = legacyCC.game.container.style;
-            const margin = containerStyle.margin;
-            containerStyle.margin = '0';
-            containerStyle.display = 'none';
-            this._initFrameSize();
-            containerStyle.margin = margin;
-            containerStyle.display = 'block';
-        } else {
-            this._initFrameSize();
-        }
-
-        if (!JSB && !RUNTIME_BASED && !this._orientationChanging && this._isRotated === prevRotated && this._frameSize.width === prevFrameW && this._frameSize.height === prevFrameH && this._prevDPR === systemInfo.pixelRatio) {
-            return;
-        }
-        this._prevDPR = systemInfo.pixelRatio;
-
+    private _updateAdaptResult () {
+        legacyCC.director.root.resize(screen.windowSize.width, screen.windowSize.height);
         // Frame size changed, do resize works
         const width = this._designResolutionSize.width;
         const height = this._designResolutionSize.height;
 
-        this._resizing = true;
         if (width > 0) {
             this.setDesignResolutionSize(width, height, this._resolutionPolicy);
         }
-        this._resizing = false;
 
         this.emit('canvas-resize');
         this._resizeCallback?.();
-    }
-
-    private _orientationChange () {
-        this._orientationChanging = true;
-        this._resizeEvent();
-    }
-
-    private _initFrameSize () {
-        const locFrameSize = this._frameSize;
-        const windowSize = screenAdapter.windowSize;
-        const w = windowSize.width;
-        const h = windowSize.height;
-        const isLandscape: boolean = w >= h;
-
-        if (EDITOR || !legacyCC.sys.isMobile
-            || (isLandscape && this._orientation & legacyCC.macro.ORIENTATION_LANDSCAPE)
-            || (!isLandscape && this._orientation & legacyCC.macro.ORIENTATION_PORTRAIT)) {
-            locFrameSize.width = w;
-            locFrameSize.height = h;
-            legacyCC.game.container.style['-webkit-transform'] = 'rotate(0deg)';
-            legacyCC.game.container.style.transform = 'rotate(0deg)';
-            this._isRotated = false;
-        } else {
-            locFrameSize.width = h;
-            locFrameSize.height = w;
-            legacyCC.game.container.style['-webkit-transform'] = 'rotate(90deg)';
-            legacyCC.game.container.style.transform = 'rotate(90deg)';
-            legacyCC.game.container.style['-webkit-transform-origin'] = '0px 0px 0px';
-            legacyCC.game.container.style.transformOrigin = '0px 0px 0px';
-            this._isRotated = true;
-
-            // Fix for issue: https://github.com/cocos-creator/fireball/issues/8365
-            // Reference: https://www.douban.com/note/343402554/
-            // For Chrome, z-index not working after container transform rotate 90deg.
-            // Because 'transform' style adds canvas (the top-element of container) to a new stack context.
-            // That causes the DOM Input was hidden under canvas.
-            // This should be done after container rotated, instead of in style-mobile.css.
-            legacyCC.game.canvas.style['-webkit-transform'] = 'translateZ(0px)';
-            legacyCC.game.canvas.style.transform = 'translateZ(0px)';
-        }
-        if (this._orientationChanging) {
-            setTimeout(() => {
-                legacyCC.view._orientationChanging = false;
-            }, 1000);
-        }
     }
 }
 
@@ -748,45 +642,12 @@ class ContainerStrategy {
     }
 
     protected _setupContainer (_view, w, h) {
-        const locCanvas = legacyCC.game.canvas;
-        const locContainer = legacyCC.game.container;
-
-        if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
-            document.body.style.width = `${_view._isRotated ? h : w}px`;
-            document.body.style.height = `${_view._isRotated ? w : h}px`;
+        const locCanvas = game.canvas;
+        if (locCanvas) {
+            const windowSize = screen.windowSize;
+            locCanvas.width = windowSize.width;
+            locCanvas.height = windowSize.height;
         }
-        // Setup style
-        locContainer.style.width = locCanvas.style.width = `${w}px`;
-        locContainer.style.height = locCanvas.style.height = `${h}px`;
-        // Setup pixel ratio for retina display
-        _view._devicePixelRatio = 1;
-        if (_view.isRetinaEnabled()) {
-            _view._devicePixelRatio = Math.min(_view._maxPixelRatio, window.devicePixelRatio || 1);
-        }
-        // Setup canvas
-        if (JSB) {
-            locCanvas.width = sys.windowPixelResolution.width;
-            locCanvas.height = sys.windowPixelResolution.height;
-        } else {
-            locCanvas.width = w * _view._devicePixelRatio;
-            locCanvas.height = h * _view._devicePixelRatio;
-        }
-    }
-
-    protected _fixContainer () {
-        // Add container to document body
-        document.body.insertBefore(legacyCC.game.container, document.body.firstChild);
-        // Set body's width height to window's size, and forbid overflow, so that game will be centered
-        const bs = document.body.style;
-        bs.width = `${window.innerWidth}px`;
-        bs.height = `${window.innerHeight}px`;
-        bs.overflow = 'hidden';
-        // Body size solution doesn't work on all mobile browser so this is the aleternative: fixed container
-        const contStyle = legacyCC.game.container.style;
-        contStyle.position = 'fixed';
-        contStyle.left = contStyle.top = '0px';
-        // Reposition body
-        document.body.scrollTop = 0;
     }
 }
 
@@ -875,16 +736,8 @@ class ContentStrategy {
     class EqualToFrame extends ContainerStrategy {
         public name = 'EqualToFrame';
         public apply (_view) {
-            const frameH = _view._frameSize.height;
-            const containerStyle = legacyCC.game.container.style;
-            this._setupContainer(_view, _view._frameSize.width, _view._frameSize.height);
-            // Setup container's margin and padding
-            if (_view._isRotated) {
-                containerStyle.margin = `0 0 0 ${frameH}px`;
-            } else {
-                containerStyle.margin = '0px';
-            }
-            containerStyle.padding = '0px';
+            const windowSize = screen.windowSize;
+            this._setupContainer(_view, windowSize.width, windowSize.height);
         }
     }
 
@@ -895,8 +748,9 @@ class ContentStrategy {
     class ProportionalToFrame extends ContainerStrategy {
         public name = 'ProportionalToFrame';
         public apply (_view, designedResolution) {
-            const frameW = _view._frameSize.width;
-            const frameH = _view._frameSize.height;
+            const windowSize = screen.windowSize;
+            const frameW = windowSize.width;
+            const frameH = windowSize.height;
             const containerStyle = legacyCC.game.container.style;
             const designW = designedResolution.width;
             const designH = designedResolution.height;
@@ -922,7 +776,7 @@ class ContentStrategy {
             this._setupContainer(_view, containerW, containerH);
             if (!EDITOR) {
                 // Setup container's margin and padding
-                if (_view._isRotated) {
+                if (screenAdapter.isFrameRotated) {
                     containerStyle.margin = `0 0 0 ${frameH}px`;
                 } else {
                     containerStyle.margin = '0px';
@@ -935,18 +789,6 @@ class ContentStrategy {
         }
     }
 
-    // need to adapt prototype before instantiating
-    const _global = typeof window === 'undefined' ? global : window;
-    const globalAdapter = _global.__globalAdapter;
-    if (globalAdapter) {
-        if (globalAdapter.adaptContainerStrategy) {
-            globalAdapter.adaptContainerStrategy(ContainerStrategy.prototype);
-        }
-        if (globalAdapter.adaptView) {
-            globalAdapter.adaptView(View.prototype);
-        }
-    }
-
     // Alias: Strategy that makes the container's size equals to the frame's size
     ContainerStrategy.EQUAL_TO_FRAME = new EqualToFrame();
     // Alias: Strategy that scale proportionally the container's size to frame's size
@@ -956,8 +798,9 @@ class ContentStrategy {
     class ExactFit extends ContentStrategy {
         public name = 'ExactFit';
         public apply (_view: View, designedResolution: Size) {
-            const containerW = legacyCC.game.canvas.width;
-            const containerH = legacyCC.game.canvas.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const scaleX = containerW / designedResolution.width;
             const scaleY = containerH / designedResolution.height;
 
@@ -968,8 +811,9 @@ class ContentStrategy {
     class ShowAll extends ContentStrategy {
         public name = 'ShowAll';
         public apply (_view, designedResolution) {
-            const containerW = legacyCC.game.canvas.width;
-            const containerH = legacyCC.game.canvas.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designW = designedResolution.width;
             const designH = designedResolution.height;
             const scaleX = containerW / designW;
@@ -995,8 +839,9 @@ class ContentStrategy {
     class NoBorder extends ContentStrategy {
         public name = 'NoBorder';
         public apply (_view, designedResolution) {
-            const containerW = legacyCC.game.canvas.width;
-            const containerH = legacyCC.game.canvas.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designW = designedResolution.width;
             const designH = designedResolution.height;
             const scaleX = containerW / designW;
@@ -1022,8 +867,9 @@ class ContentStrategy {
     class FixedHeight extends ContentStrategy {
         public name = 'FixedHeight';
         public apply (_view, designedResolution) {
-            const containerW = legacyCC.game.canvas.width;
-            const containerH = legacyCC.game.canvas.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designH = designedResolution.height;
             const scale = containerH / designH;
             const contentW = containerW;
@@ -1036,8 +882,9 @@ class ContentStrategy {
     class FixedWidth extends ContentStrategy {
         public name = 'FixedWidth';
         public apply (_view, designedResolution) {
-            const containerW = legacyCC.game.canvas.width;
-            const containerH = legacyCC.game.canvas.height;
+            const windowSize = screen.windowSize;
+            const containerW = windowSize.width;
+            const containerH = windowSize.height;
             const designW = designedResolution.width;
             const scale = containerW / designW;
             const contentW = containerW;
@@ -1118,7 +965,7 @@ export class ResolutionPolicy {
     }
 
     get canvasSize () {
-        return new Vec2(legacyCC.game.canvas.width, legacyCC.game.canvas.height);
+        return screen.windowSize;
     }
 
     /**
@@ -1127,7 +974,6 @@ export class ResolutionPolicy {
      * @param _view The target view
      */
     public preApply (_view: View) {
-        this._containerStrategy!.preApply(_view);
         this._contentStrategy!.preApply(_view);
     }
 
@@ -1151,7 +997,6 @@ export class ResolutionPolicy {
      * @param _view - The target view
      */
     public postApply (_view: View) {
-        this._containerStrategy!.postApply(_view);
         this._contentStrategy!.postApply(_view);
     }
 

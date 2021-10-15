@@ -31,6 +31,7 @@
  * @hidden
  */
 
+import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
@@ -102,8 +103,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
-
-        this.__autoResize = view._resizeWithBrowserSize;
     }
 
     public clear () {
@@ -226,18 +225,13 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        if (this.__autoResize) {
-            view.resizeWithBrowserSize(false);
-        }
-
+        screenAdapter.handleResizeEvent = false;
         this._adjustWindowScroll();
     }
 
     private _hideDomOnMobile () {
         if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
-            if (this.__autoResize) {
-                view.resizeWithBrowserSize(true);
-            }
+            screenAdapter.handleResizeEvent = true;
         }
 
         this._scrollBackWindow();
@@ -282,7 +276,8 @@ export class EditBoxImpl extends EditBoxImplBase {
         scaleX *= widthRatio;
         scaleY *= heightRatio;
         const viewport = view.getViewportRect();
-        const dpr = view.getDevicePixelRatio();
+        // TODO: implement editBox in PAL
+        const dpr = screenAdapter.devicePixelRatio;
 
         node.getWorldMatrix(_matrix);
         const transform = node._uiProps.uiTransformComp;

@@ -1,10 +1,8 @@
 import { MouseCallback } from 'pal/input';
 import { screenAdapter } from 'pal/screen-adapter';
-import { systemInfo } from 'pal/system-info';
 import { EventMouse } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
-import { legacyCC } from '../../../cocos/core/global-exports';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class MouseInputSource {
@@ -18,13 +16,9 @@ export class MouseInputSource {
 
     private _getLocation (event: jsb.MouseEvent): Vec2 {
         const windowSize = screenAdapter.windowSize;
-        let x = event.x;
-        let y = windowSize.height - event.y;
-        // TODO: should not call engine API
-        const view = legacyCC.view;
-        const dpr = view._devicePixelRatio;
-        x *= dpr;
-        y *= dpr;
+        const dpr = screenAdapter.devicePixelRatio;
+        const x = event.x * dpr;
+        const y = windowSize.height - event.y * dpr;
         return new Vec2(x, y);
     }
 

@@ -42,7 +42,7 @@ import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { SetIndex } from './pipeline/define';
-import { error } from './platform';
+import { error } from './platform/debug';
 import { Mat4, Vec2 } from './math';
 
 const v2_0 = new Vec2();
@@ -128,7 +128,6 @@ export class SplashScreen {
             (this.settings as any) = null;
             this._directCall = true;
         } else {
-            legacyCC.view.enableRetina(true);
             legacyCC.view.resizeWithBrowserSize(true);
             const designRes = window._CCSettings.designResolution;
             if (designRes) {
