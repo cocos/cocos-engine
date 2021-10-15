@@ -37,20 +37,17 @@ import { SubModel } from './submodel';
 import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
 import { InstancedBuffer } from '../../pipeline/instanced-buffer';
-
 import { Mat4, Vec3, Vec4 } from '../../math';
-import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
-    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
+    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature, SamplerInfo } from '../../gfx';
+import { INST_MAT_WORLD, UBOLocal, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
 import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
 
-const _subModelPool = new Pool(() => new SubModel(), 32);
-
 const shadowMapPatches: IMacroPatch[] = [
+    { name: 'CC_ENABLE_DIR_SHADOW', value: true },
     { name: 'CC_RECEIVE_SHADOW', value: true },
 ];
 
@@ -75,23 +72,23 @@ function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView
     v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
 }
 
-const lightmapSamplerHash = genSamplerHash([
+const lightmapSamplerHash = new SamplerInfo(
     Filter.LINEAR,
     Filter.LINEAR,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-]);
+);
 
-const lightmapSamplerWithMipHash = genSamplerHash([
+const lightmapSamplerWithMipHash = new SamplerInfo(
     Filter.LINEAR,
     Filter.LINEAR,
     Filter.LINEAR,
     Address.CLAMP,
     Address.CLAMP,
     Address.CLAMP,
-]);
+);
 
 /**
  * A representation of a model
@@ -115,6 +112,10 @@ export class Model {
 
     get localBuffer () {
         return this._localBuffer;
+    }
+
+    get worldBoundBuffer () {
+        return this._worldBoundBuffer;
     }
 
     get updateStamp () {
@@ -204,13 +205,16 @@ export class Model {
     protected _inited = false;
     protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
-    protected _transformUpdated = true;
+    protected _localDataUpdated = true;
 
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
+
+    protected _worldBoundData = new Float32Array(UBOWorldBound.COUNT);
+    protected _worldBoundBuffer: Buffer | null = null;
 
     protected _receiveShadow = false;
     protected _castShadow = false;
@@ -274,11 +278,15 @@ export class Model {
             this._localBuffer.destroy();
             this._localBuffer = null;
         }
+        if (this._worldBoundBuffer) {
+            this._worldBoundBuffer.destroy();
+            this._worldBoundBuffer = null;
+        }
         this._worldBounds = null;
         this._modelBounds = null;
         this._subModels.length = 0;
         this._inited = false;
-        this._transformUpdated = true;
+        this._localDataUpdated = true;
         this._transform = null!;
         this._node = null!;
         this.isDynamicBatching = false;
@@ -299,7 +307,7 @@ export class Model {
         // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
-            this._transformUpdated = true;
+            this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
@@ -312,7 +320,7 @@ export class Model {
         const node = this.transform;
         if (node !== null) {
             node.updateWorldTransform();
-            this._transformUpdated = true;
+            this._localDataUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
@@ -327,9 +335,21 @@ export class Model {
         }
     }
 
+    private _applyWorldBoundData () {
+        if (JSB) {
+            // this._nativeObj!.setWorldBoundData(this._worldBoundData);
+        }
+    }
+
     private _applyLocalBuffer () {
         if (JSB) {
             this._nativeObj!.setLocalBuffer(this._localBuffer);
+        }
+    }
+
+    private _applyWorldBoundBuffer () {
+        if (JSB) {
+            this._nativeObj!.setWorldBoundBuffer(this._worldBoundBuffer);
         }
     }
 
@@ -340,8 +360,8 @@ export class Model {
         }
         this._updateStamp = stamp;
 
-        if (!this._transformUpdated) { return; }
-        this._transformUpdated = false;
+        if (!this._localDataUpdated) { return; }
+        this._localDataUpdated = false;
 
         // @ts-expect-error using private members here for efficiency
         const worldMatrix = this.transform._mat;
@@ -363,6 +383,25 @@ export class Model {
             this._localBuffer.update(this._localData);
             this._applyLocalData();
             this._applyLocalBuffer();
+
+            this._updateWorldBoundUBOs();
+        }
+    }
+
+    private _updateWorldBoundUBOs () {
+        if (this._worldBoundBuffer) {
+            const worldBoundCenter = new Vec4(0.0, 0.0, 0.0, 0.0);
+            const worldBoundHalfExtents = new Vec4(1.0, 1.0, 1.0, 1.0);
+            const worldBounds = this._worldBounds;
+            if (worldBounds) {
+                worldBoundCenter.set(worldBounds.center.x, worldBounds.center.y, worldBounds.center.z, 0.0);
+                worldBoundHalfExtents.set(worldBounds.halfExtents.x, worldBounds.halfExtents.y, worldBounds.halfExtents.z, 1.0);
+            }
+            Vec4.toArray(this._worldBoundData, worldBoundCenter, UBOWorldBound.WORLD_BOUND_CENTER);
+            Vec4.toArray(this._worldBoundData, worldBoundHalfExtents, UBOWorldBound.WORLD_BOUND_HALF_EXTENTS);
+            this._worldBoundBuffer.update(this._worldBoundData);
+            this._applyWorldBoundData();
+            this._applyWorldBoundBuffer();
         }
     }
 
@@ -438,7 +477,7 @@ export class Model {
 
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
-        this._applyLocalData();
+        this._localDataUpdated = true;
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
 
@@ -448,7 +487,7 @@ export class Model {
 
         const gfxTexture = texture.getGFXTexture();
         if (gfxTexture) {
-            const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
+            const sampler = this._device.getSampler(texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
                 const { descriptorSet } = subModels[i];
@@ -471,6 +510,9 @@ export class Model {
 
         this._initLocalDescriptors(subModelIndex);
         this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
+
+        this._initWorldBoundDescriptors(subModelIndex);
+        this._updateWorldBoundDescriptors(subModelIndex, subModel.worldBoundDescriptorSet);
 
         const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
@@ -527,7 +569,7 @@ export class Model {
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
         this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
-        this._transformUpdated = true;
+        this._localDataUpdated = true;
 
         if (JSB) {
             this._nativeObj!.setInstancedAttrBlock(attrs.buffer.buffer, attrs.views, attrs.attributes);
@@ -538,7 +580,7 @@ export class Model {
         if (!this._localBuffer) {
             this._localBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                MemoryUsageBit.DEVICE,
                 UBOLocal.SIZE,
                 UBOLocal.SIZE,
             ));
@@ -546,7 +588,23 @@ export class Model {
         }
     }
 
+    protected _initWorldBoundDescriptors (subModelIndex: number) {
+        if (!this._worldBoundBuffer) {
+            this._worldBoundBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                UBOWorldBound.SIZE,
+                UBOWorldBound.SIZE,
+            ));
+            this._applyWorldBoundBuffer();
+        }
+    }
+
     protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
         if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
+    }
+
+    protected _updateWorldBoundDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
+        if (this._worldBoundBuffer) descriptorSet.bindBuffer(UBOWorldBound.BINDING, this._worldBoundBuffer);
     }
 }

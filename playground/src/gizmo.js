@@ -1,29 +1,28 @@
-
 const scene = new cc.Scene('scene');
 
 const cameraNode = new cc.Node('camera');
 cameraNode.parent = scene;
 cameraNode.setPosition(20, 20, 20);
 cameraNode.lookAt(cc.v3());
-cameraNode.addComponent(FirstPersonCamera);
+cameraNode.addComponent(window.FirstPersonCamera);
 cameraNode.addComponent(cc.Camera);
 
 const material = new cc.Material();
 material.initialize({
-  effectName: 'builtin-unlit',
+  effectName: 'unlit',
   defines: { USE_COLOR: true },
 });
 const material2 = new cc.Material();
 material2.initialize({
-  effectName: 'builtin-unlit',
+  effectName: 'unlit',
   defines: { USE_COLOR: true },
   states: {
     depthStencilState: { depthTest: false, depthWrite: false },
     rasterizerState: { cullMode: cc.gfx.CullMode.NONE },
     blendState: { targets: [
-      { blend: true, blendDst: cc.gfx.BlendFactor.ONE_MINUS_SRC_ALPHA, blendDstAlpha: cc.gfx.BlendFactor.ONE_MINUS_SRC_ALPHA }
-    ] }
-  }
+      { blend: true, blendDst: cc.gfx.BlendFactor.ONE_MINUS_SRC_ALPHA, blendDstAlpha: cc.gfx.BlendFactor.ONE_MINUS_SRC_ALPHA },
+    ] },
+  },
 });
 
 const createArrow = (color, rotation) => {
@@ -32,13 +31,13 @@ const createArrow = (color, rotation) => {
   const arrowHead = new cc.Node('arrowHead');
   arrowHead.parent = arrow;
   arrowHead.setPosition(0, 10, 0);
-  const headModel = arrowHead.addComponent(cc.MeshRenderer);
+  const headModel = arrowHead.addComponent('cc.MeshRenderer');
   headModel.mesh = cc.utils.createMesh(cc.primitives.cone());
   headModel.material = material;
   headModel.material.setProperty('color', color);
   const arrowBody = new cc.Node('arrowBody');
   arrowBody.parent = arrow;
-  const bodyModel = arrowBody.addComponent(cc.MeshRenderer);
+  const bodyModel = arrowBody.addComponent('cc.MeshRenderer');
   bodyModel.mesh = cc.utils.createMesh({
     positions: [0, 0, 0, 0, 10, 0],
     indices: [0, 1],
@@ -56,9 +55,9 @@ const createBorderPlane = (color, position, rotation) => {
   borderPlane.setRotation(rotation);
   const plane = new cc.Node('plane');
   plane.parent = borderPlane;
-  const planeModel = plane.addComponent(cc.MeshRenderer);
+  const planeModel = plane.addComponent('cc.MeshRenderer');
   const mesh = planeModel.mesh = cc.utils.createMesh(cc.primitives.quad());
-  const submesh = mesh.renderingMesh.getSubmesh(0);
+  const submesh = mesh.renderingSubMeshes[0];
 
   const vbInfo = mesh.struct.vertexBundles[0].view;
   submesh.vbuffer = mesh.data.buffer.slice(vbInfo.offset, vbInfo.offset + vbInfo.length);
@@ -69,7 +68,7 @@ const createBorderPlane = (color, position, rotation) => {
   planeModel.material.setProperty('color', cc.color(0, 0, 0, 0).lerp(color, 0.5));
   const border = new cc.Node('border');
   border.parent = borderPlane;
-  const borderModel = border.addComponent(cc.MeshRenderer);
+  const borderModel = border.addComponent('cc.MeshRenderer');
   borderModel.mesh = cc.utils.createMesh({
     positions: [0.5, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0],
     indices: [0, 1, 0, 2],
@@ -90,7 +89,7 @@ createBorderPlane(cc.Color.RED, cc.v3(0.5, 0.5, 0), cc.Quat.fromEuler(new cc.Qua
 createBorderPlane(cc.Color.GREEN, cc.v3(0.5, 0, 0.5), cc.Quat.fromEuler(new cc.Quat(), -90, -90, 0)).parent = moveTool;
 createBorderPlane(cc.Color.BLUE, cc.v3(0, 0.5, 0.5), cc.Quat.fromEuler(new cc.Quat(), 90, 0, 90)).parent = moveTool;
 
-const vel = cc.v3(), speed = 0.1, keys = 'IKJLOUR';
+const vel = cc.v3(); const speed = 0.1; const keys = 'IKJLOUR';
 const KEYCODE = new Array(keys.length).fill(0).reduce((acc, _, i) => (acc[keys[i]] = keys.charCodeAt(i), acc), {});
 cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN, (e) => {
   if      (e.keyCode === KEYCODE.I) vel.z =  speed;

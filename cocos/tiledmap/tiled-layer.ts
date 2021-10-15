@@ -40,7 +40,7 @@ import { TMXMapInfo } from './tmx-xml-parser';
 import { Color, IVec2Like, Mat4, Size, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
 import { TiledTile } from './tiled-tile';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher.js';
 import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
@@ -444,7 +444,7 @@ export class TiledLayer extends Renderable2D {
     /**
      * @en Set the layer name.
      * @zh 设置层的名称
-     * @method SetLayerName
+     * @method setLayerName
      * @param {String} layerName
      * @example
      * tiledLayer.setLayerName("New Layer");
@@ -1435,7 +1435,7 @@ export class TiledLayer extends Renderable2D {
 
     // 当前的 _meshRenderDataArray 的索引, 以便 fillBuffers 选取 RenderData
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: Batcher2D) {
+    protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 this._meshRenderDataArrayIdx = i;

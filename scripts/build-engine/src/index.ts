@@ -248,10 +248,17 @@ async function doBuild ({
         }
     }
 
+    const intrinsicFlags = statsQuery.getIntrinsicFlagsOfFeatures(features);
+
+    const buildTimeConstants = {
+        ...intrinsicFlags,
+        ...options.buildTimeConstants,
+    };
+
     const moduleOverrides = Object.entries(statsQuery.evaluateModuleOverrides({
         mode: options.mode,
         platform: options.platform,
-        buildTimeConstants: options.buildTimeConstants,
+        buildTimeConstants,
     })).reduce((result, [k, v]) => {
         result[makePathEqualityKey(k)] = v;
         return result;
@@ -262,7 +269,7 @@ async function doBuild ({
     const rpVirtualOptions: Record<string, string> = {};
     const vmInternalConstants = statsQuery.evaluateEnvModuleSourceFromRecord({
         EXPORT_TO_GLOBAL: true,
-        ...options.buildTimeConstants,
+        ...buildTimeConstants,
     });
     console.debug(`Module source "internal-constants":\n${vmInternalConstants}`);
     rpVirtualOptions['internal:constants'] = vmInternalConstants;
@@ -508,38 +515,17 @@ async function doBuild ({
         rollupOptions.perf = true;
     }
 
-    const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
-    const ammoJsWasmModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.wasm.js');
-    const wasmBinaryPath = ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm');
-    if (ammoJsWasm === 'fallback') {
-        rpVirtualOptions['@cocos/ammo'] = `
+    const bulletAsmJsModule = await nodeResolveAsync('@cocos/bullet/bullet.cocos.js');
+    const wasmBinaryPath = ps.join(bulletAsmJsModule, '..', 'bullet.wasm.wasm');
+    if (ammoJsWasm === true || ammoJsWasm === 'fallback') {
+    rpVirtualOptions['@cocos/bullet'] = `
 import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
-let ammo;
-let isWasm = false;
-if (typeof WebAssembly === 'undefined') {
-    ammo = await import('${filePathToModuleRequest(ammoJsAsmJsModule)}');
-} else {
-    ammo = await import('${filePathToModuleRequest(ammoJsWasmModule)}');
-    isWasm = true;
-}
-export default ammo.default;
-export { isWasm, wasmBinaryURL };
-`;
-    } else if (ammoJsWasm === true) {
-        rpVirtualOptions['@cocos/ammo'] = `
-import wasmBinaryURL from '${pathToAssetRefURL(wasmBinaryPath)}';
-import Ammo from '${filePathToModuleRequest(ammoJsWasmModule)}';
-export default Ammo;
-const isWasm = true;
-export { isWasm, wasmBinaryURL };
+export default wasmBinaryURL;
 `;
     } else {
-        rpVirtualOptions['@cocos/ammo'] = `
-import Ammo from '${filePathToModuleRequest(ammoJsAsmJsModule)}';
-export default Ammo;
-const isWasm = false;
-const wasmBinaryURL = '';
-export { isWasm, wasmBinaryURL };
+    rpVirtualOptions['@cocos/bullet'] = `
+import Bullet from '${filePathToModuleRequest(bulletAsmJsModule)}';
+export default Bullet;
 `;
     }
 

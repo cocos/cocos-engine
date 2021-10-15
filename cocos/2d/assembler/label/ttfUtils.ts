@@ -285,10 +285,15 @@ export const ttfUtils =  {
         const lineHeight = this._getLineHeight();
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        // to keep the one model same as before
-        // Todo: remove this protect when component remove blend function
-        // @ts-expect-error remove when component remove blend function
-        if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
+
+        if (_outlineComp) {
+            _context.fillStyle = `rgba(${_outlineColor.r}, ${_outlineColor.g}, ${_outlineColor.b}, ${_invisibleAlpha})`;
+            // Notice: fillRect twice will not effect
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+            // to keep the one model same as before
+            // Todo: remove this protect when component remove blend function
+            // @ts-expect-error remove when component remove blend function
+        } else if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
             _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
         }

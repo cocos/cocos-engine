@@ -49,8 +49,9 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
     UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
     supportsHalfFloatTexture } from './define';
 import { updatePlanarPROJ } from './scene-culling';
-import { Camera } from '../renderer/scene';
+import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { legacyCC } from '../global-exports';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -162,8 +163,6 @@ export class RenderAdditiveLightQueue {
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
                 descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
-                descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
-                descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.destroy();
@@ -328,14 +327,16 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
-        const packing = linear ? 0.0 : 1.0;
+        const linear = 0.0;
+        const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
 
         for (let i = 0; i < this._validLights.length; i++) {
             const light = this._validLights[i];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(i);
             if (!descriptorSet) { continue; }
+            let matShadowProj : Mat4;
+            let matShadowInvProj : Mat4;
             switch (light.type) {
             case LightType.SPHERE:
                 // planar PROJ
@@ -360,15 +361,17 @@ export class RenderAdditiveLightQueue {
                 if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
 
                 // light view
-                Mat4.toArray(this._shadowUBO, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
 
                 // light proj
-                Mat4.perspective(_matShadowViewProj, (light as SpotLight).spotAngle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
+                Mat4.perspective(_matShadowViewProj, (light as SpotLight).angle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
+                matShadowProj = _matShadowViewProj.clone();
+                matShadowInvProj = _matShadowViewProj.clone().invert();
 
                 // light viewProj
                 Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
 
+                Mat4.toArray(this._shadowUBO, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = 0.01;
@@ -385,6 +388,21 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
+
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowProj.m10;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowProj.m14;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowProj.m11;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowProj.m15;
+
+                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 0] = matShadowInvProj.m10;
+                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 1] = matShadowInvProj.m14;
+                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 2] = matShadowInvProj.m11;
+                this._shadowUBO[UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 3] = matShadowInvProj.m15;
+
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 0] = matShadowProj.m00;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 1] = matShadowProj.m05;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 2] = 1.0 / matShadowProj.m00;
+                this._shadowUBO[UBOShadow.SHADOW_PROJ_INFO_OFFSET + 3] = 1.0 / matShadowProj.m05;
 
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 
@@ -408,7 +426,8 @@ export class RenderAdditiveLightQueue {
         const { exposure } = camera;
         const sceneData = this._pipeline.pipelineSceneData;
         const isHDR = sceneData.isHDR;
-        const fpScale = sceneData.fpScale;
+        const root = legacyCC.director.root;
+        const shadowInfo = sceneData.shadows;
 
         if (this._validLights.length > this._lightBufferCount) {
             this._firstLightBufferView.destroy();
@@ -433,6 +452,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SphereLight).size;
                 _vec4Array[1] = (light as SphereLight).range;
                 _vec4Array[2] = 0.0;
+                _vec4Array[3] = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, light.color);
@@ -443,9 +463,9 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (isHDR) {
-                    _vec4Array[3] = (light as SphereLight).luminance * fpScale * this._lightMeterScale;
-                } else {
                     _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = (light as SphereLight).luminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
@@ -458,6 +478,7 @@ export class RenderAdditiveLightQueue {
                 _vec4Array[0] = (light as SpotLight).size;
                 _vec4Array[1] = (light as SpotLight).range;
                 _vec4Array[2] = (light as SpotLight).spotAngle;
+                _vec4Array[3] = (shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0;
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
                 Vec3.toArray(_vec4Array, (light as SpotLight).direction);
@@ -471,9 +492,9 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (isHDR) {
-                    _vec4Array[3] = (light as SpotLight).luminance * fpScale * this._lightMeterScale;
-                } else {
                     _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = (light as SpotLight).luminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;

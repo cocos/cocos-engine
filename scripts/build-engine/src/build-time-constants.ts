@@ -15,6 +15,9 @@ export function setupBuildTimeConstants ({
     const buildModeConstantNames = getBuildModeConstantNames();
     const platformConstantNames = getPlatformConstantNames();
 
+    // setup default value
+    flags.UI_GPU_DRIVEN ??= false;
+
     const result: Record<string, string | number | boolean> = {};
     platformConstantNames.forEach(name => result[name] = false);
     buildModeConstantNames.forEach(name => result[name] = false);

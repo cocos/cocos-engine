@@ -726,6 +726,10 @@ module.exports = {
             label: "User Interface",
             description: "User interface support.",
         },
+        gpu_driven: {
+            label: "GPU Driven",
+            description: "Whether to enable GPU-driven solutions (only works for packaged projects for now)",
+        },
         base_3d: {
             label: "Basic 3D Features",
             description: "Components and tools that are widely used in general 3D applications.",
@@ -747,8 +751,8 @@ module.exports = {
             description: "Physics system that based on cannon.js.",
         },
         physics_ammo: {
-            label: "bullet(ammo.js) Based Physics System",
-            description: "Physics system that based on bullet(ammo.js).",
+            label: "Bullet Based Physics System",
+            description: "Physics system that based on Bullet.",
         },
         physics_physx: {
             label: "PhysX Based Physics System",

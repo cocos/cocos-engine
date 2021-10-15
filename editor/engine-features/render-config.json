@@ -39,7 +39,14 @@
             "label": "i18n:ENGINE.features.base_2d.label",
             "description": "i18n:ENGINE.features.base_2d.description",
             "category": "2d",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "flags": {
+                "UI_GPU_DRIVEN": {
+                    "default": true,
+                    "label": "i18n:ENGINE.features.gpu_driven.label",
+                    "description": "i18n:ENGINE.features.gpu_driven.description"
+                }
+            }
         },
         "ui": {
             "default": ["ui"],
@@ -179,6 +186,12 @@
             "native": "USE_DRAGONBONES",
 	        "wechatPlugin": true,
             "category": "2d"
+        },
+        "marionette": {
+            "default": ["marionette"],
+            "label": "Marionette 动画系统",
+            "description": "启用 Marionette 动画系统。",
+            "wechatPlugin": false
         }
     },
     "categories": {

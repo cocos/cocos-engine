@@ -32,25 +32,21 @@ export class WebGLQueue extends Queue {
     public numInstances = 0;
     public numTris = 0;
 
-    public initialize (info: QueueInfo): boolean {
+    public initialize (info: QueueInfo) {
         this._type = info.type;
-
-        return true;
     }
 
     public destroy () {
     }
 
     public submit (cmdBuffs: CommandBuffer[]) {
-        if (!this._isAsync) {
-            const len = cmdBuffs.length;
-            for (let i = 0; i < len; i++) {
-                const cmdBuff = cmdBuffs[i];
-                // WebGLCmdFuncExecuteCmds( this._device as WebGLDevice, (cmdBuff as WebGLCommandBuffer).cmdPackage); // opted out
-                this.numDrawCalls += cmdBuff.numDrawCalls;
-                this.numInstances += cmdBuff.numInstances;
-                this.numTris += cmdBuff.numTris;
-            }
+        const len = cmdBuffs.length;
+        for (let i = 0; i < len; i++) {
+            const cmdBuff = cmdBuffs[i];
+            // WebGLCmdFuncExecuteCmds( this._device as WebGLDevice, (cmdBuff as WebGLCommandBuffer).cmdPackage); // opted out
+            this.numDrawCalls += cmdBuff.numDrawCalls;
+            this.numInstances += cmdBuff.numInstances;
+            this.numTris += cmdBuff.numTris;
         }
     }
 

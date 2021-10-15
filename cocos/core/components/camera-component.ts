@@ -484,7 +484,7 @@ export class Camera extends Component {
         return out;
     }
 
-    public worldToScreen (worldPos: Readonly<Vec3>, out?: Vec3) {
+    public worldToScreen (worldPos: Vec3 | Readonly<Vec3>, out?: Vec3) {
         if (!out) { out = new Vec3(); }
         if (this._camera) { this._camera.worldToScreen(out, worldPos); }
         return out;
@@ -510,7 +510,7 @@ export class Camera extends Component {
      * uiNode.position = out;
      * ```
      */
-    public convertToUINode (wpos: Readonly<Vec3>, uiNode: Node, out?: Vec3) {
+    public convertToUINode (wpos: Vec3 | Readonly<Vec3>, uiNode: Node, out?: Vec3) {
         if (!out) {
             out = new Vec3();
         }
@@ -580,18 +580,16 @@ export class Camera extends Component {
     }
 
     protected _checkTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (window: RenderWindow) => {
-            if (this._camera) {
-                this._camera.setFixedSize(window.width, window.height);
-            }
-        };
-
         if (old) {
             old.off('resize');
         }
 
         if (this._targetTexture) {
-            this._targetTexture.on('resize', resizeFunc, this);
+            this._targetTexture.on('resize', (window: RenderWindow) => {
+                if (this._camera) {
+                    this._camera.setFixedSize(window.width, window.height);
+                }
+            }, this);
         }
     }
 

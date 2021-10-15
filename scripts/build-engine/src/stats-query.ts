@@ -49,6 +49,11 @@ interface Feature {
      * The ID of a module is its relative path(no extension) under /exports/.
      */
     modules: string[];
+
+    /**
+     * Flags to set when this feature is enabled.
+     */
+    intrinsicFlags?: Record<string, unknown>;
 }
 
 interface Context {
@@ -111,6 +116,17 @@ export class StatsQuery {
             this._features[featureId]?.modules.forEach((entry) => units.add(entry));
         }
         return Array.from(units);
+    }
+
+    public getIntrinsicFlagsOfFeatures (featureIds: string[]) {
+        const flags: Record<string, unknown> = {};
+        for (const featureId of featureIds) {
+            const featureFlags = this._features[featureId]?.intrinsicFlags;
+            if (featureFlags) {
+                Object.assign(flags, featureFlags);
+            }
+        }
+        return flags as Record<string, number | boolean | string>;
     }
 
     /**
@@ -232,12 +248,12 @@ export class StatsQuery {
 
     private _evalPathTemplate (pathTemplate: string, context: Context): string {
         let resultPath = pathTemplate;
-        let regExp = /\{\{(.*?)\}\}/g;
+        const regExp = /\{\{(.*?)\}\}/g;
         let exeResult;
-        while(exeResult = regExp.exec(pathTemplate)) {
-            let templateItem = exeResult[0];
-            let exp = exeResult[1];
-            let evalResult = (new Function('context', `return ${exp}`)(context)) as string;
+        while (exeResult = regExp.exec(pathTemplate)) {
+            const templateItem = exeResult[0];
+            const exp = exeResult[1];
+            const evalResult = (new Function('context', `return ${exp}`)(context)) as string;
             resultPath = pathTemplate.replace(templateItem, evalResult);
         }
         return resultPath;
@@ -259,6 +275,7 @@ export class StatsQuery {
                 }
                 parsedFeature.modules.push(featureUnitName);
             }
+            parsedFeature.intrinsicFlags = feature.intrinsicFlags;
         }
 
         if (config.index) {

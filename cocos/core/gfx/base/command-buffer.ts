@@ -30,7 +30,6 @@
 
 import { Buffer } from './buffer';
 import { DescriptorSet } from './descriptor-set';
-import { Device } from './device';
 import { Framebuffer } from './framebuffer';
 import { InputAssembler } from './input-assembler';
 import { PipelineState } from './pipeline-state';
@@ -38,22 +37,22 @@ import { Queue } from './queue';
 import { RenderPass } from './render-pass';
 import { Texture } from './texture';
 import {
-    Obj,
+    GFXObject,
     ObjectType,
     StencilFace,
     CommandBufferType,
     CommandBufferInfo,
     BufferTextureCopy, Color, Rect, Viewport, DrawInfo,
 } from './define';
-import { GlobalBarrier } from './global-barrier';
-import { TextureBarrier } from './texture-barrier';
+import { GlobalBarrier } from './states/global-barrier';
+import { TextureBarrier } from './states/texture-barrier';
 
 /**
  * @en GFX command buffer.
  * @zh GFX 命令缓冲。
  */
 
-export abstract class CommandBuffer extends Obj {
+export abstract class CommandBuffer extends GFXObject {
     /**
      * @en Type of the command buffer.
      * @zh 命令缓冲类型。
@@ -94,24 +93,17 @@ export abstract class CommandBuffer extends Obj {
         return this._numTris;
     }
 
-    protected _device: Device;
-
     protected _queue: Queue | null = null;
-
     protected _type: CommandBufferType = CommandBufferType.PRIMARY;
-
     protected _numDrawCalls = 0;
-
     protected _numInstances = 0;
-
     protected _numTris = 0;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.COMMAND_BUFFER);
-        this._device = device;
     }
 
-    public abstract initialize (info: CommandBufferInfo): boolean;
+    public abstract initialize (info: CommandBufferInfo): void;
 
     public abstract destroy (): void;
 
@@ -238,9 +230,9 @@ export abstract class CommandBuffer extends Obj {
     /**
      * @en Draw the specified primitives.
      * @zh 绘制。
-     * @param info The draw call information.
+     * @param infoOrAssembler The draw call information.
      */
-    public abstract draw (info: DrawInfo | InputAssembler): void;
+    public abstract draw (infoOrAssembler: DrawInfo | InputAssembler): void;
 
     /**
      * @en Update buffer.
@@ -275,5 +267,5 @@ export abstract class CommandBuffer extends Obj {
      * @param globalBarrier The global memory barrier to apply.
      * @param textureBarriers The texture memory barriers to apply.
      */
-    public abstract pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[] | null): void;
+    public abstract pipelineBarrier (globalBarrier: GlobalBarrier | null, textureBarriers?: TextureBarrier[], textures?: Texture[]): void;
 }

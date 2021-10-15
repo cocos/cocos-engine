@@ -1,0 +1,5 @@
+#pragma define ANTIALIAS_TYPE
+
+#if ANTIALIAS_TYPE == 1
+    #include <fxaa>
+#endif

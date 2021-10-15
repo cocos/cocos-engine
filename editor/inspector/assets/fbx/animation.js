@@ -358,7 +358,6 @@ const Elements = {
     clips: {
         ready() {
             const panel = this;
-
             Object.assign(panel, {
                 splitClipIndex: 0,
                 rawClipIndex: 0,
@@ -470,6 +469,10 @@ const Elements = {
                     }
                     panel.clipNames.delete(panel.currentClipInfo.name);
                     panel.animationInfos[panel.rawClipIndex].splits.splice(panel.splitClipIndex, 1);
+                    const length = panel.animationInfos[panel.rawClipIndex].splits.length;
+                    if (length > 0 && panel.splitClipIndex > 0 && panel.splitClipIndex >= length) {
+                        panel.splitClipIndex = length - 1;
+                    }
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
@@ -627,7 +630,7 @@ exports.update = function(assetList, metaList) {
     this.initAnimationNameToUUIDMap();
     this.initAnimationInfos();
     if (this.animationInfos) {
-        this.onSelect(0, 0);
+        this.onSelect(this.rawClipIndex, this.splitClipIndex);
     }
 };
 
@@ -699,13 +702,18 @@ exports.methods = {
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
     },
     getCurClipInfo() {
+        if (!this.animationInfos) {
+            return null;
+        }
         const animInfo = this.animationInfos[this.rawClipIndex];
         const splitInfo = animInfo.splits[this.splitClipIndex];
 
         if (!animInfo) {
             return null;
         }
-
+        if (!splitInfo) {
+            return null;
+        }
         const rawClipUUID = this.animationNameToUUIDMap.get(animInfo.name);
         const clipUUID = this.animationNameToUUIDMap.get(splitInfo.name);
         let duration = animInfo.duration;

@@ -26,11 +26,10 @@
 import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets';
-import { PipelineSceneData } from '../pipeline-scene-data';
+import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
 
-export class DeferredPipelineSceneData extends PipelineSceneData {
+export class DeferredPipelineSceneData extends CommonPipelineSceneData {
     public get deferredLightingMaterial () {
         return this._deferredLightingMaterial;
     }
@@ -38,24 +37,19 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
     public set deferredLightingMaterial (mat: Material) {
         if (this._deferredLightingMaterial === mat || !mat) return;
         this._deferredLightingMaterial = mat;
-        this.updateDeferredPassInfo();
-    }
-
-    public get deferredPostMaterial () {
-        return this._deferredPostMaterial;
-    }
-
-    public set deferredPostMaterial (mat: Material) {
-        if (this._deferredPostMaterial === mat || !mat) return;
-        this._deferredPostMaterial = mat;
-        this.updateDeferredPassInfo();
+        this.updatePipelinePassInfo();
     }
 
     protected declare _deferredLightingMaterial: Material;
     protected declare _deferredPostMaterial: Material;
 
-    public onGlobalPipelineStateChanged () {
+    protected updatePipelinePassInfo () {
+        super.updatePipelinePassInfo();
         this.updateDeferredPassInfo();
+    }
+
+    public onGlobalPipelineStateChanged () {
+        this.updatePipelinePassInfo();
     }
 
     public initPipelinePassInfo () {
@@ -67,15 +61,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
             deferredMat.passes[i].tryCompile();
         }
         this._deferredLightingMaterial = deferredMat;
-
-        const postMat = new Material();
-        postMat._uuid = 'builtin-post-process-material';
-        postMat.initialize({ effectName: 'post-process' });
-        for (let i = 0; i < postMat.passes.length; ++i) {
-            postMat.passes[i].tryCompile();
-        }
-        this._deferredPostMaterial = postMat;
-
+        super.initPipelinePassInfo();
         this.updateDeferredPassInfo();
     }
 
@@ -87,11 +73,15 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
 
     private updateDeferredPassInfo () {
         this.updateDeferredLightPass();
-        this.updateDeferredPostPass();
     }
 
     private updateDeferredLightPass () {
         if (!this._deferredLightingMaterial) return;
+
+        // It's temporary solution for main light shadowmap
+        if (this.shadows.enabled) {
+            this._pipeline.macros.CC_RECEIVE_SHADOW = 1;
+        }
 
         const passLit = this._deferredLightingMaterial.passes[0];
         passLit.beginChangeStatesSilently();
@@ -101,20 +91,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         if (JSB) {
             this._nativeObj!.deferredLightPassShader = passLit.getShaderVariant();
             this._nativeObj!.deferredLightPass = passLit.native;
-        }
-    }
-
-    private updateDeferredPostPass () {
-        if (!this.deferredPostMaterial) return;
-
-        const passPost = this.deferredPostMaterial.passes[0];
-        passPost.beginChangeStatesSilently();
-        passPost.tryCompile();
-        passPost.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.deferredPostPassShader = passPost.getShaderVariant();
-            this._nativeObj!.deferredPostPass = passPost.native;
         }
     }
 }

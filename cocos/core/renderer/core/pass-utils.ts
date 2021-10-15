@@ -31,35 +31,18 @@
 import { Type } from '../../gfx';
 import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like } from '../../math';
 
-const dtMask      = 0xf0000000; //  4 bits => 16 property types
-const typeMask    = 0x0fc00000; //  6 bits => 64 types
-const setMask     = 0x00300000; //  2 bits => 4 sets
-const bindingMask = 0x000fc000; //  6 bits => 64 bindings
-const offsetMask  = 0x00003fff; // 14 bits => 4096 vectors
+const typeMask    = 0xfc000000; //  6 bits => 64 types
+const bindingMask = 0x03f00000; //  6 bits => 64 bindings
+const countMask   = 0x000ff000; //  8 bits => 256 vectors
+const offsetMask  = 0x00000fff; // 12 bits => 1024 vectors
 
-/**
- * @en The type enums of the property
- * @zh Uniform 的绑定类型（UBO 或贴图等）
- */
-export enum PropertyType {
-    /**
-     * Uniform buffer object
-     */
-    BUFFER,
-    /**
-     * Texture sampler
-     */
-    TEXTURE,
-}
-
-export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset = 0): number => ((pt << 28) & dtMask)
-    | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
-export const getPropertyTypeFromHandle = (handle: number): number => (handle & dtMask) >>> 28;
-export const getTypeFromHandle = (handle: number): number => (handle & typeMask) >>> 22;
-export const getSetIndexFromHandle = (handle: number): number => (handle & setMask) >>> 20;
-export const getBindingFromHandle = (handle: number): number => (handle & bindingMask) >>> 14;
+export const genHandle = (binding: number, type: Type, count: number, offset = 0): number => ((type << 26) & typeMask)
+    | ((binding << 20) & bindingMask) | (count << 12) & countMask | (offset & offsetMask);
+export const getTypeFromHandle = (handle: number): number => (handle & typeMask) >>> 26;
+export const getBindingFromHandle = (handle: number): number => (handle & bindingMask) >>> 20;
+export const getCountFromHandle = (handle: number): number => (handle & countMask) >>> 12;
 export const getOffsetFromHandle = (handle: number): number => (handle & offsetMask);
-export const customizeType = (handle: number, type: Type): number => (handle & ~typeMask) | ((type << 22) & typeMask);
+export const customizeType = (handle: number, type: Type): number => (handle & ~typeMask) | ((type << 26) & typeMask);
 
 /**
  * @en Vector type uniforms
