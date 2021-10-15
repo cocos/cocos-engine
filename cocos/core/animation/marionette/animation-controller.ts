@@ -1,5 +1,6 @@
 import { Component } from '../../components';
 import { AnimationGraph } from './animation-graph';
+import type { AnimationGraphRunTime } from './animation-graph';
 import { property, ccclass, menu } from '../../data/class-decorator';
 import { AnimationGraphEval } from './graph-eval';
 import type { StateStatus, TransitionStatus, ClipStatus } from './graph-eval';
@@ -16,13 +17,13 @@ export type {
 @menu('Components/Animation/Animation Controller')
 export class AnimationController extends Component {
     @property(AnimationGraph)
-    public graph: AnimationGraph | null = null;
+    public graph: AnimationGraphRunTime | null = null;
 
     private _graphEval: AnimationGraphEval | null = null;
 
     public start () {
         if (this.graph) {
-            this._graphEval = new AnimationGraphEval(this.graph, this.node, this);
+            this._graphEval = new AnimationGraphEval(this.graph as AnimationGraph, this.node, this);
         }
     }
 

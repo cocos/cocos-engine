@@ -10,11 +10,7 @@ export type { AnimationBlend } from './animation-blend';
 export { AnimationBlendDirect } from './animation-blend-direct';
 export { AnimationBlend1D } from './animation-blend-1d';
 export { AnimationBlend2D } from './animation-blend-2d';
-export { AnimationController } from './animation-controller';
-export type { ClipStatus, TransitionStatus, StateStatus } from './animation-controller';
 export { VariableType } from './parametric';
 export type { BindableNumber, BindableBoolean } from './parametric';
-export { SkeletonMask } from '../skeleton-mask';
-export { StateMachineComponent } from './state-machine-component';
 
 export { __getDemoGraphs } from './__tmp__/get-demo-graphs';
