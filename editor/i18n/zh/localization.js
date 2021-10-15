@@ -144,7 +144,7 @@ module.exports = {
         trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
     },
     UIOpacity: {
-        opacity: '表示该物体的不透明度，取值0~255',
+        opacity: '表示该物体的不透明度，取值 0 ~ 255 之间',
     },
     billboard: {
         texture: 'billboard 纹理',
