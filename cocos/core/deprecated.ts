@@ -319,4 +319,10 @@ removeProperty(Director.prototype, 'director', [
         name: 'purgeCachedData',
         suggest: 'please use assetManager.releaseAll instead',
     },
+    {
+        name: 'convertToGL',
+    },
+    {
+        name: 'convertToUI',
+    },
 ]);
