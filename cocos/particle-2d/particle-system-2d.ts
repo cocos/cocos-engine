@@ -718,7 +718,6 @@ export class ParticleSystem2D extends Renderable2D {
      * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
      */
     @formerlySerializedAs('preview')
-    @editable
     @tooltip('i18n:particle_system.preview')
     private _preview = true;
     @serializable
