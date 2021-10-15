@@ -521,6 +521,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @ch 查看粒子效果
      */
     @editable
+    @tooltip('i18n:particle_system.preview')
     public get preview () {
         return this._preview;
     }
@@ -718,7 +719,6 @@ export class ParticleSystem2D extends Renderable2D {
      * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
      */
     @formerlySerializedAs('preview')
-    @tooltip('i18n:particle_system.preview')
     private _preview = true;
     @serializable
     private _custom = false;
