@@ -1,9 +1,9 @@
 import { TouchCallback } from 'pal/input';
 import { TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
-import { legacyCC } from '../../../cocos/core/global-exports';
 import { Touch, EventTouch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
@@ -83,14 +83,12 @@ export class TouchInputSource {
     private _getLocation (touch: globalThis.Touch, canvasRect: Rect): Vec2 {
         let x = touch.clientX - canvasRect.x;
         let y = canvasRect.y + canvasRect.height - touch.clientY;
-        // TODO: should not call engine API
-        const view = legacyCC.view;
-        if (view._isRotated) {
+        if (screenAdapter.isFrameRotated) {
             const tmp = x;
             x = canvasRect.height - y;
             y = tmp;
         }
-        const dpr = view._devicePixelRatio;
+        const dpr = screenAdapter.devicePixelRatio;
         x *= dpr;
         y *= dpr;
         return new Vec2(x, y);

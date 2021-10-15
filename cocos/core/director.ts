@@ -248,50 +248,6 @@ export class Director extends EventTarget {
     public calculateDeltaTime (now) {}
 
     /**
-     * @en
-     * Converts a view coordinate to an WebGL coordinate<br/>
-     * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
-     * Implementation can be found in directorWebGL.
-     * @zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
-     * @deprecated since v2.0
-     */
-    public convertToGL (uiPoint: Vec2) {
-        const container = game.container as Element;
-        const view = legacyCC.view;
-        const box = container.getBoundingClientRect();
-        const left = box.left + window.pageXOffset - container.clientLeft;
-        const top = box.top + window.pageYOffset - container.clientTop;
-        const x = view._devicePixelRatio * (uiPoint.x - left);
-        const y = view._devicePixelRatio * (top + box.height - uiPoint.y);
-        return view._isRotated ? v2(view._viewportRect.width - y, x) : v2(x, y);
-    }
-
-    /**
-     * @en
-     * Converts an OpenGL coordinate to a view coordinate<br/>
-     * Useful to convert node points to window points for calls such as glScissor<br/>
-     * Implementation can be found in directorWebGL.
-     * @zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
-     * @deprecated since v2.0
-     */
-    public convertToUI (glPoint: Vec2) {
-        const container = game.container as Element;
-        const view = legacyCC.view;
-        const box = container.getBoundingClientRect();
-        const left = box.left + window.pageXOffset - container.clientLeft;
-        const top = box.top + window.pageYOffset - container.clientTop;
-        const uiPoint = v2(0, 0);
-        if (view._isRotated) {
-            uiPoint.x = left + glPoint.y / view._devicePixelRatio;
-            uiPoint.y = top + box.height - (view._viewportRect.width - glPoint.x) / view._devicePixelRatio;
-        } else {
-            uiPoint.x = left + glPoint.x * view._devicePixelRatio;
-            uiPoint.y = top + box.height - glPoint.y * view._devicePixelRatio;
-        }
-        return uiPoint;
-    }
-
-    /**
      * @en End the life of director in the next frame
      * @zh 执行完当前帧后停止 director 的执行
      */

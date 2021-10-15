@@ -161,7 +161,7 @@
             let node = this._delegate.node;
             let viewScaleX = cc.view._scaleX;
             let viewScaleY = cc.view._scaleY;
-            let dpr = cc.view._devicePixelRatio;
+            let dpr = jsb.device.getDevicePixelRatio() || 1;
             node.getWorldMatrix(worldMat);
 
             let transform = node._uiProps.uiTransformComp;
