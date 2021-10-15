@@ -600,6 +600,11 @@ module.exports = {
         trailModule: '粒子轨迹模块（只支持 CPU 粒子）',
         renderer: '粒子渲染模块',
         enableCulling: '是否剔除非 enable 的模块数据',
+        cullingMode: '剔除之后的发射器行为',
+        alignSpace: '粒子对齐方向空间',
+        aabbHalfX: '发射器包围盒半宽',
+        aabbHalfY: '发射器包围盒半高',
+        aabbHalfZ: '发射器包围盒半长',
     },
     mask: {
         type: '遮罩类型',

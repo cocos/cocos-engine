@@ -616,6 +616,11 @@ module.exports = {
         trailModule: 'Trail module(only support on CPU)',
         renderer: 'Particle render module',
         enableCulling: 'Cull disabled data if true',
+        cullingMode: 'Behavior if culled',
+        alignSpace: 'Particle align space',
+        aabbHalfX: 'Emitter aabb half width',
+        aabbHalfY: 'Emitter aabb half height',
+        aabbHalfZ: 'Emitter aabb half length',
     },
     mask: {
         type: 'The mask type',
