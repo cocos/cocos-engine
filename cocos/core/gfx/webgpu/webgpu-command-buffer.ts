@@ -122,7 +122,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             colors.push_back(color);
         }
 
-        this._nativeCommandBuffer.beginRenderPass((framebuffer.renderPass as WebGPURenderPass).nativeRenderPass,
+        this._nativeCommandBuffer.beginRenderPass((renderPass as WebGPURenderPass).nativeRenderPass,
             (framebuffer as WebGPUFramebuffer).nativeFrameBuffer,
             rect,
             colors,
@@ -132,6 +132,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public endRenderPass () {
         this._nativeCommandBuffer.endRenderPass();
+        nativeLib.nativeDevice.debug();
     }
 
     public bindPipelineState (pipelineState: PipelineState) {

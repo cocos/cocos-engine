@@ -33,9 +33,7 @@ import { WebGPUShader } from './webgpu-shader';
 import { WebGPUPipelineState } from './webgpu-pipeline-state';
 import { WebGPUInputAssembler } from './webgpu-input-assembler';
 import { WebGPUCommandBuffer } from './webgpu-command-buffer';
-import { assert } from '../../platform';
 import { Queue } from '../base/queue';
-import { Graphics } from '../../../2d';
 import { WebGPUQueue } from './webgpu-queue';
 import wasmDevice from './lib/webgpu_wasm.js';
 
@@ -45,6 +43,9 @@ function getChromeVersion () {
     return raw ? parseInt(raw[2], 10) : false;
 }
 
+// if (EDITOR || PREVIEW || HTML5) {
+//     fetch('http://127.0.0.1://webgpu.wasm');
+// }
 export class WebGPUDevice extends Device {
     private _nativeDevice = undefined;
 
