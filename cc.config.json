@@ -114,7 +114,7 @@
             "test": "!context.buildTimeConstants.MARIONETTE",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/core/animation/marionette/index.ts": "cocos/core/animation/marionette/index-empty.ts"
+                "cocos/core/animation/marionette/runtime-exports.ts": "cocos/core/animation/marionette/index-empty.ts"
             }
         }
     ],

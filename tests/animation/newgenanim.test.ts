@@ -1,6 +1,6 @@
 
 import { AnimationClip, Component, Node, Vec2, Vec3, warnID } from '../../cocos/core';
-import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, ClipMotion, AnimationBlendDirect, VectorTrack, VariableType } from '../../cocos/core/animation/animation';
+import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, __getDemoGraphs, ClipMotion, AnimationBlendDirect, VariableType } from '../../cocos/core/animation/marionette/asset-creation';
 import { LayerBlending, AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
@@ -20,6 +20,7 @@ import '../utils/matcher-deep-close-to';
 import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/core/animation/marionette/condition';
 import { AnimationController } from '../../cocos/core/animation/marionette/animation-controller';
 import { StateMachineComponent } from '../../cocos/core/animation/marionette/state-machine-component';
+import { VectorTrack } from '../../cocos/core/animation/animation';
 
 describe('NewGen Anim', () => {
     const demoGraphs = __getDemoGraphs();

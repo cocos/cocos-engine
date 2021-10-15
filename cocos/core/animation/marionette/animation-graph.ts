@@ -553,8 +553,14 @@ export class Variable {
     }
 }
 
+export interface AnimationGraphRunTime {
+    readonly __brand: 'AnimationGraph';
+}
+
 @ccclass('cc.animation.AnimationGraph')
-export class AnimationGraph extends Asset {
+export class AnimationGraph extends Asset implements AnimationGraphRunTime {
+    public declare readonly __brand: 'AnimationGraph';
+
     @serializable
     private _layers: Layer[] = [];
 
