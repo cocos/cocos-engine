@@ -31,9 +31,7 @@ declare module 'pal/system-info' {
         public get osMainVersion (): number;
         public get browserType (): import('pal/system-info/enum-type').BrowserType;
         public get browserVersion (): string;
-        public get pixelRatio (): number;
         public hasFeature (feature: import('pal/system-info/enum-type').Feature): boolean;
-
         public getBatteryLevel (): number;
 
         public triggerGC (): void;

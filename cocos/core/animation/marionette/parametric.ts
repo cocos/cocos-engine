@@ -6,7 +6,7 @@ import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import type { VarInstance } from './graph-eval';
 
 export enum VariableType {
-    NUMBER,
+    FLOAT,
 
     BOOLEAN,
 
@@ -129,7 +129,7 @@ export function bindNumericOr<TValue, TThis, TArgs extends any[]> (
         return value;
     }
 
-    if (type !== VariableType.NUMBER && type !== VariableType.INTEGER) {
+    if (type !== VariableType.FLOAT && type !== VariableType.INTEGER) {
         throw new VariableTypeMismatchedError(variable, 'number or integer');
     }
 
@@ -158,7 +158,7 @@ export function validateVariableType (type: VariableType, expected: VariableType
 }
 
 export function validateVariableTypeNumeric (type: VariableType, name: string) {
-    if (type !== VariableType.NUMBER && type !== VariableType.INTEGER) {
+    if (type !== VariableType.FLOAT && type !== VariableType.INTEGER) {
         throw new VariableTypeMismatchedError(name, 'number or integer');
     }
 }

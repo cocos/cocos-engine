@@ -497,7 +497,7 @@ export class Variable {
     // TODO: we should not specify type here but due to de-serialization limitation
     // See: https://github.com/cocos-creator/3d-tasks/issues/7909
     @serializable
-    private _type: VariableType = VariableType.NUMBER;
+    private _type: VariableType = VariableType.FLOAT;
 
     // Same as `_type`
     @serializable
@@ -512,7 +512,7 @@ export class Variable {
         switch (type) {
         default:
             break;
-        case VariableType.NUMBER:
+        case VariableType.FLOAT:
             this._value = 0;
             break;
         case VariableType.INTEGER:
@@ -538,7 +538,7 @@ export class Variable {
             switch (this._type) {
             default:
                 break;
-            case VariableType.NUMBER:
+            case VariableType.FLOAT:
                 assertIsTrue(typeof value === 'number');
                 break;
             case VariableType.INTEGER:
@@ -553,8 +553,14 @@ export class Variable {
     }
 }
 
+export interface AnimationGraphRunTime {
+    readonly __brand: 'AnimationGraph';
+}
+
 @ccclass('cc.animation.AnimationGraph')
-export class AnimationGraph extends Asset {
+export class AnimationGraph extends Asset implements AnimationGraphRunTime {
+    public declare readonly __brand: 'AnimationGraph';
+
     @serializable
     private _layers: Layer[] = [];
 

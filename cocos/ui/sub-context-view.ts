@@ -31,12 +31,12 @@
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { minigame } from 'pal/minigame';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../core/components/component';
 import { view } from '../core/platform/view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../core/scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
-
 import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../core/assets/image-asset';
 import {  Size } from '../core/math';
@@ -194,7 +194,7 @@ export class SubContextView extends Component {
         const viewportRect = view.getViewportRect();
         const box = contentTrans.getBoundingBoxToWorld();
         const visibleSize = view.getVisibleSize();
-        const dpr = view.getDevicePixelRatio();
+        const dpr = screenAdapter.devicePixelRatio;
 
         // TODO: the visibleSize need to be the size of Canvas node where the content node is.
         const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / dpr;

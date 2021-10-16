@@ -986,7 +986,7 @@ export class MotionStateEval extends StateEval {
         const speed = bindOr(
             context,
             node.speed,
-            VariableType.NUMBER,
+            VariableType.FLOAT,
             this._setSpeed,
             this,
         );

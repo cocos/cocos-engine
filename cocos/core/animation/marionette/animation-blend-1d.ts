@@ -57,7 +57,7 @@ export class AnimationBlend1D extends AnimationBlend {
         const initialValue = bindOr(
             context,
             this.param,
-            VariableType.NUMBER,
+            VariableType.FLOAT,
             evaluation.setInput,
             evaluation,
             0,

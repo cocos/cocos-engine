@@ -12,3 +12,5 @@ export {
 export type {
     SimpleDirectionalSampleIssue,
 } from '../../cocos/core/animation/marionette/blend-2d';
+
+export * from '../../cocos/core/animation/marionette/asset-creation';
