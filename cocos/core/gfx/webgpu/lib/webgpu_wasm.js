@@ -1613,8 +1613,9 @@ function createWasm() {
  }
  function instantiateArrayBuffer(receiver) {
   return getBinaryPromise().then(function(binary) {
-   var result = WebAssembly.instantiate(binary, info);
-   return result;
+   return WebAssembly.instantiate(binary, info);
+  }).then(function(instance) {
+   return instance;
   }).then(receiver, function(reason) {
    err("failed to asynchronously prepare wasm: " + reason);
    if (isFileURI(wasmBinaryFile)) {
@@ -1719,15 +1720,17 @@ function unSign(value, bits) {
  return bits <= 32 ? 2 * Math.abs(1 << bits - 1) + value : Math.pow(2, bits) + value;
 }
 
+function ___assert_fail(condition, filename, line, func) {
+ abort("Assertion failed: " + UTF8ToString(condition) + ", at: " + [ filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function" ]);
+}
+
 function _atexit(func, arg) {}
 
 function ___cxa_atexit(a0, a1) {
  return _atexit(a0, a1);
 }
 
-function _tzset() {
- if (_tzset.called) return;
- _tzset.called = true;
+function _tzset_impl() {
  var currentYear = new Date().getFullYear();
  var winter = new Date(currentYear, 0, 1);
  var summer = new Date(currentYear, 6, 1);
@@ -1751,6 +1754,12 @@ function _tzset() {
   SAFE_HEAP_STORE(__get_tzname() | 0, summerNamePtr | 0, 4);
   SAFE_HEAP_STORE(__get_tzname() + 4 | 0, winterNamePtr | 0, 4);
  }
+}
+
+function _tzset() {
+ if (_tzset.called) return;
+ _tzset.called = true;
+ _tzset_impl();
 }
 
 function _localtime_r(time, tmPtr) {
@@ -3778,10 +3787,6 @@ function _time(ptr) {
  return ret;
 }
 
-function _wgpuBindGroupLayoutRelease(id) {
- WebGPU.mgrBindGroupLayout.release(id);
-}
-
 function _wgpuBindGroupRelease(id) {
  WebGPU.mgrBindGroup.release(id);
 }
@@ -4647,6 +4652,7 @@ function intArrayToString(array) {
 }
 
 var asmLibraryArg = {
+ "__assert_fail": ___assert_fail,
  "__cxa_atexit": ___cxa_atexit,
  "__localtime_r": ___localtime_r,
  "_embind_finalize_value_object": __embind_finalize_value_object,
@@ -4687,7 +4693,6 @@ var asmLibraryArg = {
  "segfault": segfault,
  "setTempRet0": _setTempRet0,
  "time": _time,
- "wgpuBindGroupLayoutRelease": _wgpuBindGroupLayoutRelease,
  "wgpuBindGroupRelease": _wgpuBindGroupRelease,
  "wgpuBufferDestroy": _wgpuBufferDestroy,
  "wgpuBufferGetMappedRange": _wgpuBufferGetMappedRange,
@@ -5120,6 +5125,10 @@ if (!Object.getOwnPropertyDescriptor(Module, "dynCall")) Module["dynCall"] = fun
 
 if (!Object.getOwnPropertyDescriptor(Module, "callRuntimeCallbacks")) Module["callRuntimeCallbacks"] = function() {
  abort("'callRuntimeCallbacks' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+};
+
+if (!Object.getOwnPropertyDescriptor(Module, "handleException")) Module["handleException"] = function() {
+ abort("'handleException' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
 };
 
 if (!Object.getOwnPropertyDescriptor(Module, "runtimeKeepalivePush")) Module["runtimeKeepalivePush"] = function() {
@@ -6158,4 +6167,11 @@ run();
 }
 );
 })();
+if (typeof exports === 'object' && typeof module === 'object')
+  module.exports = wasmDevice;
+else if (typeof define === 'function' && define['amd'])
+  define([], function() { return wasmDevice; });
+else if (typeof exports === 'object')
+  exports["wasmDevice"] = wasmDevice;
+
 export default wasmDevice;

@@ -59,9 +59,9 @@ export class WebGPUPipelineState extends PipelineState {
         const polygonModeStr = PolygonMode[info.rasterizerState.polygonMode];
         rasterizerState.polygonMode = nativeLib.PolygonMode[polygonModeStr];
         const shadeModelStr = ShadeModel[info.rasterizerState.shadeModel];
-        rasterizerState.polygonMode = nativeLib.ShadeModel[shadeModelStr];
+        rasterizerState.shadeModel = nativeLib.ShadeModel[shadeModelStr];
         const cullModeStr = CullMode[info.rasterizerState.cullMode];
-        rasterizerState.polygonMode = nativeLib.CullMode[cullModeStr];
+        rasterizerState.cullMode = nativeLib.CullMode[cullModeStr];
         rasterizerState.isFrontFaceCCW = info.rasterizerState.isFrontFaceCCW;
         rasterizerState.depthBiasEnabled = info.rasterizerState.depthBiasEnabled;
         rasterizerState.depthBias = info.rasterizerState.depthBias;
