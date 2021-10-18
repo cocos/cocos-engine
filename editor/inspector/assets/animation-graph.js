@@ -1,7 +1,9 @@
 exports.template = `
 <section class="asset-animation-graph">
-    <ui-button class="open">Open Animation Graph Editor Panel</ui-button>
-    <ui-label class="tip" value="Not support multiple selections"></ui-label>
+    <ui-button class="open">
+        <ui-label value="i18n:ENGINE.assets.animationGraph.edit"></ui-label>
+    </ui-button>
+    <ui-label class="tip" value="i18n:ENGINE.assets.multipleWarning"></ui-label>
 </section>
 `;
 
