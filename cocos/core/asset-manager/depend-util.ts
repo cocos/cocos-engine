@@ -35,6 +35,7 @@ import { decodeUuid } from './helper';
 import { files, parsed } from './shared';
 import { dependMap, nativeDependMap } from './depend-maps';
 import { assertIsNonNullable } from '../data/utils/asserts';
+import { CCON } from '../data/ccon';
 
 export interface IDependencies {
     nativeDep?: Record<string, any>;
@@ -146,7 +147,7 @@ export class DependUtil {
      */
     public parse (uuid: string, json: any): IDependencies {
         let out: IDependencies | null = null;
-        if (Array.isArray(json) || json.__type__) {
+        if (Array.isArray(json) || json.__type__ || json instanceof CCON) {
             if (this._depends.has(uuid)) {
                 return this._depends.get(uuid)!;
             }

@@ -10,16 +10,18 @@ exports.sortProp = function(propMap) {
 
     Object.keys(propMap).forEach((key) => {
         const item = propMap[key];
-        if ('displayOrder' in item) {
-            orderList.push({
-                key,
-                dump: item,
-            });
-        } else {
-            normalList.push({
-                key,
-                dump: item,
-            });
+        if (item != null) {
+            if ('displayOrder' in item) {
+                orderList.push({
+                    key,
+                    dump: item,
+                });
+            } else {
+                normalList.push({
+                    key,
+                    dump: item,
+                });
+            }
         }
     });
 
@@ -30,25 +32,55 @@ exports.sortProp = function(propMap) {
 
 /**
  *
- * This function can filter the contents of the dump and is mainly used to get the user's dump data
+* This method is used to update the custom node
+ * @param {HTMLElement} container
  * @param {string[]} excludeList
  * @param {object} dump
- * @param {(element,prop)=>void} onElementCreated
+ * @param {(element,prop)=>void} update
  */
-exports.getCustomPropElements = function(excludeList, dump, onElementCreated) {
-    const customPropElements = [];
+exports.updateCustomPropElements = function(container, excludeList, dump, update) {
     const sortedProp = exports.sortProp(dump.value);
+    container.$ = container.$ || {};
+    /**
+     * @type {Array<HTMLElement>}
+     */
+    const children = [];
     sortedProp.forEach((prop) => {
         if (!excludeList.includes(prop.key)) {
-            const node = document.createElement('ui-prop');
-            node.setAttribute('type', 'dump');
-            if (typeof onElementCreated === 'function') {
-                onElementCreated(node, prop);
+            if (!prop.dump.visible) {
+                return;
             }
-            customPropElements.push(node);
+            let node = container.$[prop.key];
+            if (!node) {
+                node = document.createElement('ui-prop');
+                node.setAttribute('type', 'dump');
+                node.dump = prop.dump;
+                node.key = prop.key;
+                container.$[prop.key] = node;
+            }
+
+            if (typeof update === 'function') {
+                update(node, prop);
+            }
+
+            children.push(node);
         }
     });
-    return customPropElements;
+    const currentChildren = Array.from(container.children);
+    children.forEach((child, i) => {
+        if (child === currentChildren[i]) {
+            return;
+        }
+
+        container.appendChild(child);
+    });
+
+    // delete extra children
+    currentChildren.forEach(($child) => {
+        if (!children.includes($child)) {
+            $child.remove();
+        }
+    });
 };
 
 /**
@@ -285,7 +317,7 @@ exports.setTooltip = function(element, dump) {
         let tooltip = dump.tooltip;
         if (tooltip.startsWith('i18n:')) {
             tooltip = Editor.I18n.t('ENGINE.' + tooltip.substr(5));
-            // 如果 ENGINE 翻译不出来，就当成插件的翻译数据，尝试直接翻译
+            // If ENGINE doesn't translate, use extension's translation data and try to translate directly  
             if (!tooltip || tooltip === dump.tooltip) {
                 tooltip = Editor.I18n.t(dump.tooltip.substr(5)) || dump.tooltip;
             }

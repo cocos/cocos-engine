@@ -738,7 +738,7 @@ export class Layout extends Component {
             child.on(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
             child.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.on('active-in-hierarchy-changed', this._childrenChanged, this);
+            child.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         }
     }
 
@@ -749,7 +749,7 @@ export class Layout extends Component {
             child.off(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
             child.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-            child.off('active-in-hierarchy-changed', this._childrenChanged, this);
+            child.off(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         }
     }
 
@@ -757,7 +757,7 @@ export class Layout extends Component {
         child.on(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
         child.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.on('active-in-hierarchy-changed', this._childrenChanged, this);
+        child.on(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         this._childrenChanged();
     }
 
@@ -765,7 +765,7 @@ export class Layout extends Component {
         child.off(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
         child.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        child.off('active-in-hierarchy-changed', this._childrenChanged, this);
+        child.off(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, this._childrenChanged, this);
         this._childrenChanged();
     }
 
@@ -964,7 +964,7 @@ export class Layout extends Component {
         return containerResizeBoundary;
     }
 
-    protected _doLayoutGridAxisHorizontal (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
+    protected _doLayoutGridAxisHorizontal (layoutAnchor: Vec2 | Readonly<Vec2>, layoutSize: Size) {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
@@ -997,7 +997,7 @@ export class Layout extends Component {
         }
     }
 
-    protected _doLayoutGridAxisVertical (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
+    protected _doLayoutGridAxisVertical (layoutAnchor: Vec2 | Readonly<Vec2>, layoutSize: Size) {
         const baseHeight = layoutSize.height;
 
         let sign = 1;

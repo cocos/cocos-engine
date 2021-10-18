@@ -24,21 +24,32 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
-import { Color, Quat, Vec3, Vec2, color } from '../math';
+import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
 import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { Root } from '../root';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
 const _qt = new Quat();
 
+// Normalize HDR color
+const normalizeHDRColor = (color : Vec4) => {
+    const intensity = 1.0 / Math.max(Math.max(color[0], color[1]), color[2]);
+    if (intensity < 1.0) {
+        for (let i = 0; i < 3; ++i) {
+            color[i] *= intensity;
+        }
+    }
+};
 /**
  * @en Environment lighting information in the Scene
  * @zh 场景的环境光照相关信息
@@ -46,25 +57,79 @@ const _qt = new Quat();
 @ccclass('cc.AmbientInfo')
 export class AmbientInfo {
     @serializable
-    protected _skyColor = new Color(51, 128, 204, 1.0);
+    @formerlySerializedAs('_skyColor')
+    protected _skyColorHDR = new Vec4(0.2, 0.5, 0.8, 1.0);
     @serializable
-    protected _skyIllum = Ambient.SKY_ILLUM;
+    @formerlySerializedAs('_skyIllum')
+    protected _skyIllumHDR = Ambient.SKY_ILLUM;
     @serializable
-    protected _groundAlbedo = new Color(51, 51, 51, 255);
+    @formerlySerializedAs('_groundAlbedo')
+    protected _groundAlbedoHDR = new Vec4(0.2, 0.2, 0.2, 1.0);
+
+    @serializable
+    protected _skyColorLDR = new Vec4(0.2, 0.5, 0.8, 1.0);
+    @serializable
+    protected _skyIllumLDR = Ambient.SKY_ILLUM;
+    @serializable
+    protected _groundAlbedoLDR = new Vec4(0.2, 0.2, 0.2, 1.0);
 
     protected _resource: Ambient | null = null;
 
+    get skyColorHDR () {
+        return this._skyColorHDR;
+    }
+
+    get groundAlbedoHDR () {
+        return this._groundAlbedoHDR;
+    }
+
+    get skyIllumHDR () {
+        return this._skyIllumHDR;
+    }
+
+    get skyColorLDR () {
+        return this._skyColorLDR;
+    }
+
+    get groundAlbedoLDR () {
+        return this._groundAlbedoLDR;
+    }
+
+    get skyIllumLDR () {
+        return this._skyIllumLDR;
+    }
+
     /**
-     * @en Sky color
-     * @zh 天空颜色
+     * @en Sky lighting color configurable in editor with color picker
+     * @zh 编辑器中可配置的天空光照颜色（通过颜色拾取器）
      */
     @editable
-    set skyColor (val: Color) {
-        this._skyColor.set(val);
-        if (this._resource) { this._resource.skyColor = this._skyColor; }
+    set skyLightingColor (val: Color) {
+        let result;
+        const color = new Vec4(val.x, val.y, val.z, val.w);
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._skyColorHDR = color;
+            (result as Vec4) = this._skyColorHDR;
+        } else {
+            this._skyColorLDR = color;
+            (result as Vec4) = this._skyColorLDR;
+        }
+        if (this._resource) { this._resource.skyColor = _v3.set(color.x, color.y, color.z); }
     }
-    get skyColor () {
-        return this._skyColor;
+    get skyLightingColor () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const color = isHDR ? this._skyColorHDR.clone() : this._skyColorLDR.clone();
+        normalizeHDRColor(color);
+        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
+    }
+
+    set skyColor (val: Vec4) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._skyColorHDR = val;
+        } else {
+            this._skyColorLDR = val;
+        }
+        if (this._resource) { this._resource.skyColor = val; }
     }
 
     /**
@@ -74,29 +139,56 @@ export class AmbientInfo {
     @editable
     @type(CCFloat)
     set skyIllum (val: number) {
-        this._skyIllum = val;
-        if (this._resource) { this._resource.skyIllum = this.skyIllum; }
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._skyIllumHDR = val;
+        } else {
+            this._skyIllumLDR = val;
+        }
+
+        if (this._resource) { this._resource.skyIllum = val; }
     }
     get skyIllum () {
-        return this._skyIllum;
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            return this._skyIllumHDR;
+        } else {
+            return this._skyIllumLDR;
+        }
     }
 
     /**
-     * @en Ground color
-     * @zh 地面颜色
+     * @en Ground lighting color configurable in editor with color picker
+     * @zh 编辑器中可配置的地面光照颜色（通过颜色拾取器）
      */
     @editable
-    set groundAlbedo (val: Color) {
-        this._groundAlbedo.set(val);
-        // only RGB channels are used, alpha channel are intensionally left unchanged here
-        if (this._resource) { this._resource.groundAlbedo = this._groundAlbedo; }
+    set groundLightingColor (val: Color) {
+        let result;
+        const color = new Vec4(val.x, val.y, val.z, val.w);
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._groundAlbedoHDR = color;
+            (result as Vec4) = this._groundAlbedoHDR;
+        } else {
+            this._groundAlbedoLDR = color;
+            (result as Vec4) = this._groundAlbedoLDR;
+        }
+        if (this._resource) { this._resource.groundAlbedo = _v3.set(color.x, color.y, color.z); }
     }
-    get groundAlbedo () {
-        return this._groundAlbedo;
+    get groundLightingColor () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        const color = isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR;
+        normalizeHDRColor(color);
+        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
+    }
+
+    set groundAlbedo (val: Vec4) {
+        if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
+            this._groundAlbedoHDR = val;
+        } else {
+            this._groundAlbedoLDR = val;
+        }
+        if (this._resource) { this._resource.groundAlbedo = val; }
     }
 
     public activate (resource: Ambient) {
-        const aa :Ambient = resource;
         this._resource = resource;
         this._resource.initialize(this);
     }
@@ -109,16 +201,51 @@ legacyCC.AmbientInfo = AmbientInfo;
  */
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
-    @type(TextureCube)
-    protected _envmap: TextureCube | null = null;
     @serializable
-    protected _isRGBE = false;
+    protected _applyDiffuseMap = false;
+    @serializable
+    @type(TextureCube)
+    @formerlySerializedAs('_envmap')
+    protected _envmapHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _envmapLDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _diffuseMapHDR: TextureCube | null = null;
+    @serializable
+    @type(TextureCube)
+    protected _diffuseMapLDR: TextureCube | null = null;
     @serializable
     protected _enabled = false;
     @serializable
     protected _useIBL = false;
+    @serializable
+    protected _useHDR = true;
 
     protected _resource: Skybox | null = null;
+
+    /**
+     * @en Whether to use diffuse convolution map. Enabled -> Will use map specified. Disabled -> Will revert to hemispheric lighting
+     * @zh 是否为IBL启用漫反射卷积图？不启用的话将使用默认的半球光照
+     */
+    @visible(function (this : SkyboxInfo) {
+        if (this.useIBL) {
+            return true;
+        }
+        return false;
+    })
+    @editable
+    set applyDiffuseMap (val) {
+        this._applyDiffuseMap = val;
+
+        if (this._resource) {
+            this._resource.useDiffuseMap = val;
+        }
+    }
+    get applyDiffuseMap () {
+        return this._applyDiffuseMap;
+    }
 
     /**
      * @en Whether activate skybox in the scene
@@ -128,6 +255,7 @@ export class SkyboxInfo {
     set enabled (val) {
         if (this._enabled === val) return;
         this._enabled = val;
+
         if (this._resource) {
             this._resource.enabled = this._enabled;
         }
@@ -143,43 +271,116 @@ export class SkyboxInfo {
     @editable
     set useIBL (val) {
         this._useIBL = val;
-        if (this._resource) { this._resource.useIBL = this._useIBL; }
+
+        if (this._resource) {
+            this._resource.useIBL = this._useIBL;
+        }
     }
     get useIBL () {
         return this._useIBL;
     }
 
     /**
-     * @en The texture cube used for the skybox
-     * @zh 使用的立方体贴图
+     * @en Toggle HDR (TODO: This SHOULD be moved into it's own subgroup away from skybox)
+     * @zh 是否启用HDR？
      */
-
     @editable
-    @type(TextureCube)
-    set envmap (val) {
-        this._envmap = val;
-        if (this._resource) { this._resource.envmap = this._envmap; }
+    set useHDR (val) {
+        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = val;
+        this._useHDR = val;
+
+        // Switch UI to and from LDR/HDR textures depends on HDR state
+        if (this._resource) {
+            this.envmap = this._resource.envmap;
+            this.diffuseMap = this._resource.diffuseMap;
+
+            if (this.diffuseMap == null) {
+                this.applyDiffuseMap = false;
+            }
+        }
+
+        if (this._resource) { this._resource.useHDR = this._useHDR; }
     }
-    get envmap () {
-        return this._envmap;
+    get useHDR () {
+        (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = this._useHDR;
+        return this._useHDR;
     }
 
     /**
-     * @en Whether enable RGBE data support in skybox shader
-     * @zh 是否需要开启 shader 内的 RGBE 数据支持？
+     * @en The texture cube used for the skybox
+     * @zh 使用的立方体贴图
      */
     @editable
-    set isRGBE (val) {
-        this._isRGBE = val;
-        if (this._resource) { this._resource.isRGBE = this._isRGBE; }
+    @type(TextureCube)
+    set envmap (val) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._envmapHDR = val;
+        } else {
+            this._envmapLDR = val;
+        }
+
+        if (!this._envmapHDR) {
+            this._diffuseMapHDR = null;
+            this._applyDiffuseMap = false;
+            this.useIBL = false;
+        }
+
+        if (this._resource) {
+            this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+            this._resource.useDiffuseMap = this._applyDiffuseMap;
+            this._resource.envmap = val;
+        }
     }
-    get isRGBE () {
-        return this._isRGBE;
+    get envmap () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._envmapHDR;
+        } else {
+            return this._envmapLDR;
+        }
+    }
+
+    /**
+     * @en The optional diffusion convolution map used in tandem with IBL
+     * @zh 使用的漫反射卷积图
+     */
+    @visible(function (this : SkyboxInfo) {
+        if (this.useIBL) {
+            return true;
+        }
+        return false;
+    })
+    @editable
+    @readOnly
+    @type(TextureCube)
+    set diffuseMap (val : TextureCube | null) {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this._diffuseMapHDR = val;
+        } else {
+            this._diffuseMapLDR = val;
+        }
+
+        if (this._resource) {
+            this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
+        }
+    }
+    get diffuseMap () {
+        const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._diffuseMapHDR;
+        } else {
+            return this._diffuseMapLDR;
+        }
     }
 
     public activate (resource: Skybox) {
         this._resource = resource;
         this._resource.initialize(this);
+        this._resource.setEnvMaps(this._envmapHDR, this._envmapLDR);
+        this._resource.setDiffuseMaps(this._diffuseMapHDR, this._diffuseMapLDR);
         this._resource.activate(); // update global DS first
     }
 }
@@ -391,7 +592,9 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
-    protected _autoAdapt = true;
+    protected _firstSetCSM = false;
+    @serializable
+    protected _fixedArea = false;
     @serializable
     protected _pcf = PCFType.HARD;
     @serializable
@@ -399,9 +602,13 @@ export class ShadowsInfo {
     @serializable
     protected _normalBias = 0.0;
     @serializable
-    protected _near = 1;
+    protected _near = 0.1;
     @serializable
-    protected _far = 30;
+    protected _far = 10.0;
+    @serializable
+    protected _shadowDistance = 100;
+    @serializable
+    protected _invisibleOcclusionRange = 200;
     @serializable
     protected _orthoSize = 5;
     @serializable
@@ -581,17 +788,17 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set shadow Map sampler auto adapt
-     * @zh 阴影纹理生成是否自适应
+     * @en get or set fixed area shadow
+     * @zh 是否是固定区域阴影
      */
     @type(CCBoolean)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
-    set autoAdapt (val) {
-        this._autoAdapt = val;
-        if (this._resource) { this._resource.autoAdapt = val; }
+    set fixedArea (val) {
+        this._fixedArea = val;
+        if (this._resource) { this._resource.fixedArea = val; }
     }
-    get autoAdapt () {
-        return this._autoAdapt;
+    get fixedArea () {
+        return this._fixedArea;
     }
 
     /**
@@ -599,7 +806,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -613,13 +820,53 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set far (val: number) {
-        this._far = val;
-        if (this._resource) { this._resource.far = val; }
+        this._far = Math.min(val, Shadows.MAX_FAR);
+        if (this._resource) { this._resource.far = this._far; }
     }
     get far () {
         return this._far;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置潜在阴影产生的范围
+     */
+    @editable
+    @tooltip('if shadow has been culled, increase this value to fix it')
+    @range([0.0, 2000.0, 0.1])
+    @slide
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
+    set invisibleOcclusionRange (val: number) {
+        this._invisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
+        if (this._resource) {
+            this._resource.invisibleOcclusionRange = this._invisibleOcclusionRange;
+        }
+    }
+    get invisibleOcclusionRange () {
+        return this._invisibleOcclusionRange;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置潜在阴影产生的范围
+     */
+    @editable
+    @tooltip('shadow visible distance: shadow quality is inversely proportional of the magnitude of this value')
+    @range([0.0, 2000.0, 0.1])
+    @slide
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
+    set shadowDistance (val: number) {
+        this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
+        if (this._resource) {
+            this._resource.shadowDistance = this._shadowDistance;
+        }
+    }
+    get shadowDistance () {
+        return this._shadowDistance;
     }
 
     /**
@@ -627,7 +874,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -649,7 +896,20 @@ export class ShadowsInfo {
     }
 
     public activate (resource: Shadows) {
+        this.pcf = Math.min(this._pcf, PCFType.SOFT_2X);
+
         this._resource = resource;
+        if (EDITOR && this._firstSetCSM) {
+            this._resource.firstSetCSM = this._firstSetCSM;
+            // Only the first time render in editor will trigger the auto calculation of shadowDistance
+            legacyCC.director.once(legacyCC.Director.EVENT_AFTER_DRAW, () => {
+                // Sync automatic calculated shadowDistance in renderer
+                this._firstSetCSM = false;
+                if (this._resource) {
+                    this.shadowDistance = Math.min(this._resource.shadowDistance, Shadows.MAX_FAR);
+                }
+            });
+        }
         this._resource.initialize(this);
         this._resource.activate();
     }
@@ -697,8 +957,9 @@ export class SceneGlobals {
 
     public activate () {
         const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
-        this.ambient.activate(sceneData.ambient);
         this.skybox.activate(sceneData.skybox);
+        this.ambient.activate(sceneData.ambient);
+
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
     }

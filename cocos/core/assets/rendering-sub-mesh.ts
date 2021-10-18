@@ -70,7 +70,7 @@ export interface IGeometricInfo {
      * @en The bounding box
      * @zh 此几何体的轴对齐包围盒。
      */
-    boundingBox: { max: Readonly<Vec3>; min: Readonly<Vec3> };
+    boundingBox: { max: Vec3 | Readonly<Vec3>; min: Vec3 | Readonly<Vec3> };
 }
 
 /**

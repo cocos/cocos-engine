@@ -1,10 +1,10 @@
 'use strict';
 
-// TODO Retain the previously modified data when switching pass, etc.
-
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 const { join, sep, normalize } = require('path');
+const cacheDot = '._';
+
 exports.style = `
 ui-button.location { flex: none; margin-left: 6px; }
 `;
@@ -68,6 +68,7 @@ exports.methods = {
     reset() {
         this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
+        this.cacheData = {};
     },
     /**
      * 
@@ -83,7 +84,7 @@ exports.methods = {
                 const name = relatePath.split(sep)[0];
                 const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
                 const path = join(packagePath, relatePath.split(name)[1]);
-                if (this.$.customPanel.getAttribute('src') !== join(path)) {
+                if (this.$.customPanel.getAttribute('src') !== path) {
                     this.$.customPanel.setAttribute('src', path);
                 }
                 this.$.customPanel.update(this.material, this.assetList, this.metaList);
@@ -138,29 +139,7 @@ exports.methods = {
             return;
         }
 
-        const firstPass = technique.passes[0];
-        if (firstPass.childMap.USE_INSTANCING) {
-            technique.useInstancing.value = firstPass.childMap.USE_INSTANCING.value;
-
-            if (firstPass.childMap.USE_BATCHING) {
-                technique.useBatching.value = firstPass.childMap.USE_BATCHING.value;
-                technique.useBatching.visible = !technique.useInstancing.value;
-            }
-
-            this.changeInstancing(technique.useInstancing.value);
-        }
-
-        if (technique.useInstancing) {
-            this.$.useInstancing.render(technique.useInstancing);
-            setHidden(technique.useInstancing && !technique.useInstancing.visible, this.$.useInstancing);
-            setReadonly(this.asset.readonly, this.$.useInstancing);
-        }
-
-        if (technique.useBatching) {
-            this.$.useBatching.render(technique.useBatching);
-            setHidden(technique.useInstancing.value || (technique.useBatching && !technique.useBatching.visible), this.$.useBatching);
-            setReadonly(this.asset.readonly, this.$.useBatching);
-        }
+        this.useCache();
 
         if (technique.passes) {
             // The interface is not a regular data loop, which needs to be completely cleared and placed, but the UI-prop element is still reusable
@@ -249,6 +228,35 @@ exports.methods = {
             }
         }
     },
+
+    updateInstancing() {
+        const technique = this.technique;
+
+        const firstPass = technique.passes[0];
+        if (firstPass.childMap.USE_INSTANCING) {
+            technique.useInstancing.value = firstPass.childMap.USE_INSTANCING.value;
+
+            if (firstPass.childMap.USE_BATCHING) {
+                technique.useBatching.value = firstPass.childMap.USE_BATCHING.value;
+                technique.useBatching.visible = !technique.useInstancing.value;
+            }
+
+            this.changeInstancing(technique.useInstancing.value);
+        }
+
+        if (technique.useInstancing) {
+            this.$.useInstancing.render(technique.useInstancing);
+            setHidden(technique.useInstancing && !technique.useInstancing.visible, this.$.useInstancing);
+            setReadonly(this.asset.readonly, this.$.useInstancing);
+        }
+
+        if (technique.useBatching) {
+            this.$.useBatching.render(technique.useBatching);
+            setHidden(technique.useInstancing.value || (technique.useBatching && !technique.useBatching.visible), this.$.useBatching);
+            setReadonly(this.asset.readonly, this.$.useBatching);
+        }
+    },
+
     changeInstancing(checked) {
         this.technique.passes.forEach((pass) => {
             if (pass.childMap.USE_INSTANCING) {
@@ -286,6 +294,161 @@ exports.methods = {
         this.$.section.style = hide ? 'display:none' : '';
         this.$.materialDump.style = hide ? 'display:none' : '';
     },
+
+    async updatePreview() {
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
+        Editor.Message.broadcast('material-inspector:change-dump');
+    },
+
+    storeCache() {
+        if (!this.technique || !this.technique.passes) {
+            return;
+        }
+
+        const excludeNames = [
+            'children',
+            'name',
+            'default',
+            'defines',
+            'propertyIndex',
+            'extends',
+            'readonly',
+            'visible',
+            'displayName',
+            'elementTypeData',
+            'isArray',
+            'isMat',
+            'enumList',
+            'bitmaskList',
+            'enumData',
+            'isEnum',
+            'isObject',
+            'switch',
+            'pipelineStates',
+            'pro',
+        ];
+
+        // Obtain an independent and clear data
+        const copyData = JSON.parse(JSON.stringify(this.technique.passes));
+
+        Object.assign(this.cacheData, getKeys(copyData, ''));
+        function getKeys(data, prev) {
+            return Object.keys(data).reduce((rt, key) => {
+                // 这些字段是基础类型或配置性的数据，不需要变动
+                if (excludeNames.includes(key)) {
+                    return rt;
+                }
+
+                const dot = prev.length ? cacheDot : '';
+                const keyPath = prev + dot + key;
+
+                if (typeof data[key] === 'object') {
+                    Object.assign(rt, getKeys(data[key], keyPath));
+                } else {
+                    if (keyPath.includes('type') || keyPath.includes('value')) {
+                        rt[keyPath] = data[key];
+                    }
+                }
+                return rt;
+            }, {});
+        }
+    },
+
+    useCache() {
+        if (!this.technique || !this.technique.passes) {
+            return;
+        }
+
+        const keyPaths = Object.keys(this.cacheData).sort((a, b) => a.length - b.length);
+        let typeIndex = 0;
+
+        // First filter out data with the same field path but inconsistent types
+        loopType: for (; typeIndex < keyPaths.length; typeIndex++) {
+            const keyPath = keyPaths[typeIndex];
+
+            if (!keyPath) {
+                continue loopType;
+            }
+
+            const keys = keyPath.split(cacheDot);
+            if (keys.length === 0) {
+                deleteKeyPaths(keyPath);
+                continue loopType;
+            }
+
+            let index = 0;
+            let target = this.technique.passes;
+            let currentKey = '';
+            let currentPath = '';
+            while (index <= keys.length - 1) {
+                if (target === undefined) {
+                    deleteKeyPaths(currentPath);
+                    continue loopType;
+                }
+
+                currentKey = keys[index];
+                target = target[currentKey];
+                index += 1;
+                currentPath = keys.slice(0, index).join(cacheDot);
+
+                if (currentKey === 'type') {
+                    deleteKeyPaths(currentPath);
+                    if (this.cacheData[currentPath] !== target) {
+                        index -= 1;
+                        currentPath = keys.slice(0, index).join(cacheDot);
+                        deleteKeyPaths(currentPath);
+                    }
+                    continue loopType;
+                }
+            }
+        }
+
+        // Delete fields that are not suitable for pasting into new data
+        function deleteKeyPaths(keyPath, startIndex = typeIndex) {
+            if (!keyPath) {
+                return;
+            }
+
+            for (; startIndex < keyPaths.length; startIndex++) {
+                if (startIndex >= 0 && keyPaths[startIndex].startsWith(keyPath)) {
+                    keyPaths.splice(startIndex, 1);
+                    startIndex--;
+                    typeIndex--;
+                }
+            }
+        }
+
+        loopValue: for (const keyPath of keyPaths) {
+            const keys = keyPath.split('._');
+            if (keys.length === 0) {
+                break;
+            }
+
+            let index = 0;
+            let target = this.technique.passes;
+            while (index <= keys.length - 2) {
+                if (target === undefined) {
+                    continue loopValue;
+                }
+
+                target = target[keys[index]];
+                index += 1;
+            }
+
+            const key = keys[index++];
+
+            if (target && target !== this.technique.passes) {
+                if (typeof target === 'object') {
+                    if (key in target) {
+                        target[key] = this.cacheData[keyPath];
+                    }
+                }
+            }
+        }
+
+        // Update the extracted useInstancing and useBatching
+        this.updateInstancing();
+    },
 };
 
 /**
@@ -294,7 +457,6 @@ exports.methods = {
  * @param metaList
  */
 exports.update = async function(assetList, metaList) {
-
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -310,6 +472,7 @@ exports.update = async function(assetList, metaList) {
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
+        this.cacheData = {};
     }
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
@@ -344,6 +507,9 @@ exports.ready = async function() {
         realtime: '',
     };
 
+    // Retain the previously modified data when switching pass
+    this.cacheData = {};
+
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', async (event) => {
         const dump = event.target.dump;
@@ -357,11 +523,11 @@ exports.ready = async function() {
             }
         }
 
-        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
-        Editor.Message.broadcast('material-inspector:change-dump');
-
         this.setDirtyData();
+        this.storeCache();
         this.dispatch('change');
+
+        await this.updatePreview();
     });
 
     // The event that is triggered when the effect used is modified
@@ -374,6 +540,9 @@ exports.ready = async function() {
         } else {
             this.$.technique.value = this.material.technique;
         }
+
+        this.storeCache();
+
         const inspector = await this.getCustomInspector();
         if (inspector) {
             this.updateCustomInspector(inspector);
@@ -394,6 +563,9 @@ exports.ready = async function() {
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = event.target.value;
+
+        this.storeCache();
+
         const inspector = await this.getCustomInspector();
         if (inspector) {
             this.updateCustomInspector(inspector);
@@ -407,6 +579,7 @@ exports.ready = async function() {
     // The event is triggered when the useInstancing is modified
     this.$.useInstancing.addEventListener('change-dump', (event) => {
         this.changeInstancing(event.target.dump.value);
+        this.storeCache();
         this.setDirtyData();
         this.dispatch('change');
     });
@@ -414,6 +587,7 @@ exports.ready = async function() {
     //  The event is triggered when the useBatching is modified
     this.$.useBatching.addEventListener('change-dump', (event) => {
         this.changeBatching(event.target.dump.value);
+        this.storeCache();
         this.setDirtyData();
         this.dispatch('change');
     });
@@ -439,8 +613,10 @@ exports.ready = async function() {
     }
     this.$.effect.innerHTML = effectOption;
     this.$.customPanel.addEventListener('change', () => {
+        this.storeCache();
         this.setDirtyData();
         this.dispatch('change');
+        this.updatePreview();
     });
 };
 
@@ -451,4 +627,6 @@ exports.close = function() {
         origin: '',
         realtime: '',
     };
+
+    this.cacheData = {};
 };

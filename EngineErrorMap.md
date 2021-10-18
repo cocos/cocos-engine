@@ -254,6 +254,14 @@ Forward render pipeline initialized.
 
 Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.
 
+### 1220
+
+Failed to set shading scale, pipelineSceneData is invalid.
+
+### 1221
+
+Setting orientation is not supported yet.
+
 ### 1300
 
 %s is not in the model pool and cannot be destroyed by destroyModel.
@@ -1808,6 +1816,10 @@ Misconfigured legacy curve: the first keyframe value is number but others aren't
 
 We don't currently support conversion of \`CubicSplineQuatValue\`.
 
+### 3936
+
+Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
+
 ### 4000
 
 <!-- DEPRECATED -->
@@ -3137,3 +3149,7 @@ Can not encode CCON binary: lack of text encoder.
 ### 13104
 
 Can not decode CCON binary: lack of text decoder.
+
+### 14000
+
+Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.

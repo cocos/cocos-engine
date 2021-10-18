@@ -99,8 +99,9 @@ export class InstancedBuffer {
             }
 
             if (instance.stride !== stride) {
-                // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
-                return;
+                // we allow this considering both baked and non-baked
+                // skinning models may be present in the same buffer
+                continue;
             }
             if (instance.count >= instance.capacity) { // resize buffers
                 instance.capacity <<= 1;

@@ -129,7 +129,10 @@ module.exports = {
             browse: 'Change Target',
             model: 'Model',
             animation: 'Animation',
+            modelPreview: 'Model preview',
             material: 'Material',
+            no_model_tips:'No model is available for preview',
+            drag_model_tips:'Drag a model here for preview',
             fbx: 'FBX',
             GlTFUserData: {
                 normals: {
@@ -284,6 +287,7 @@ module.exports = {
             animationBakeRate: {
                 name: 'Animation Bake Rate',
                 title: 'Specify the animation bake rate in frames per second (fps).',
+                auto: '自动',
             },
             promoteSingleRootNode: {
                 name: 'Promote single root node',
@@ -313,5 +317,9 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
             'illegal-inspector-url': "Inspector's URL is not valid",
         },
+        animationGraph: {
+            edit: 'Edit in the Animation Graph panel',
+        },
+        multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },
 };

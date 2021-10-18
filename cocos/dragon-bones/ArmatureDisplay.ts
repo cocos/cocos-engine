@@ -7,7 +7,8 @@ import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, EventTarget, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
+import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
@@ -18,7 +19,7 @@ import { DragonBonesAtlasAsset } from './DragonBonesAtlasAsset';
 import { Graphics } from '../2d/components';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
 import { ArmatureSystem } from './ArmatureSystem';
@@ -557,14 +558,16 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: Batcher2D) {
+    protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 // HACK
                 const mat = this.material;
                 this._meshRenderDataArrayIdx = i;
                 const m = this._meshRenderDataArray[i];
-                this.material = m.renderData.material;
+                if (m.renderData.material) {
+                    this.material = m.renderData.material;
+                }
                 if (m.texture) {
                     ui.commitComp(this, m.texture, this._assembler, null);
                 }

@@ -41,7 +41,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 import visibleRect from '../../core/platform/visible-rect';
 import { RenderRoot2D } from './render-root-2d';
-import { Node } from '../../core';
+import { Node, screen } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const _worldPos = new Vec3();
@@ -225,9 +225,9 @@ export class Canvas extends RenderRoot2D {
                 if (this._cameraComponent.camera) { this._cameraComponent.camera.setFixedSize(win!.width, win!.height); }
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
             } else if (game.canvas) {
-                const size = game.canvas;
+                const size = screen.windowSize;
                 if (this._cameraComponent.camera) { this._cameraComponent.camera.resize(size.width, size.height); }
-                this._cameraComponent.orthoHeight = game.canvas.height / view.getScaleY() / 2;
+                this._cameraComponent.orthoHeight = size.height / view.getScaleY() / 2;
             }
 
             this.node.getWorldPosition(_worldPos);

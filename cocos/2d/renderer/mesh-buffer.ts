@@ -28,7 +28,7 @@
  * @module ui
  */
 import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo, InputAssembler } from '../../core/gfx';
-import { Batcher2D } from './batcher-2d';
+import { IBatcher } from './i-batcher';
 import { getComponentPerVertex } from './vertex-format';
 
 export class MeshBuffer {
@@ -57,7 +57,7 @@ export class MeshBuffer {
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
     // include pos, uv, color in ui attributes
-    private _batcher: Batcher2D;
+    private _batcher: IBatcher;
     private _dirty = false;
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
@@ -66,7 +66,7 @@ export class MeshBuffer {
     private _hInputAssemblers: InputAssembler[] = [];
     private _nextFreeIAHandle = 0;
 
-    constructor (batcher: Batcher2D) {
+    constructor (batcher: IBatcher) {
         this._batcher = batcher;
     }
 

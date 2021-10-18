@@ -31,16 +31,16 @@
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_SHADOW, supportsHalfFloatTexture } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { ForwardFlowPriority } from '../forward/enum';
+import { ForwardFlowPriority } from '../common/enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
     Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
-    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Feature } from '../../gfx';
+    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Swapchain } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
-import { Light } from '../../renderer/scene/light';
+import { Light, LightType } from '../../renderer/scene/light';
 import { lightCollecting } from '../scene-culling';
 import { Camera } from '../../renderer/scene';
 
@@ -78,12 +78,12 @@ export class ShadowFlow extends RenderFlow {
         const pipeline = this._pipeline as ForwardPipeline;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const shadowObjects = pipeline.pipelineSceneData.shadowObjects;
+        const castShadowObjects = pipeline.pipelineSceneData.castShadowObjects;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
 
-        if (shadowObjects.length === 0) {
+        if (castShadowObjects.length === 0) {
             this.clearShadowMap(validLights, camera);
             return;
         }
@@ -92,22 +92,20 @@ export class ShadowFlow extends RenderFlow {
 
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
+            const isMainLight = light.type === LightType.DIRECTIONAL;
+            const globalDS = isMainLight ? pipeline.descriptorSet : pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
 
             if (!shadowFrameBufferMap.has(light)) {
-                this._initShadowFrameBuffer(pipeline, light);
+                this._initShadowFrameBuffer(pipeline, light, camera.window!.swapchain);
             }
 
             const shadowFrameBuffer = shadowFrameBufferMap.get(light);
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
-                shadowStage.setUsage(light, shadowFrameBuffer!);
+                shadowStage.setUsage(globalDS, light, shadowFrameBuffer!);
                 shadowStage.render(camera);
             }
         }
-
-        // After the shadowMap rendering of all lights is completed,
-        // restore the ShadowUBO data of the main light.
-        pipeline.pipelineUBO.updateShadowUBO(camera);
     }
 
     public destroy () {
@@ -138,12 +136,12 @@ export class ShadowFlow extends RenderFlow {
         if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
-    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light) {
-        const device = pipeline.device;
+    public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
+        const { device } = pipeline;
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsHalfFloatTexture(device) ? Format.R16F : Format.RGBA8;
+        const format = supportsHalfFloatTexture(device) ? Format.R32F : Format.RGBA8;
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
@@ -153,7 +151,7 @@ export class ShadowFlow extends RenderFlow {
             colorAttachment.sampleCount = 1;
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = device.depthStencilFormat;
+            depthStencilAttachment.format = Format.DEPTH_STENCIL;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
@@ -176,7 +174,7 @@ export class ShadowFlow extends RenderFlow {
         const depth = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-            device.depthStencilFormat,
+            Format.DEPTH_STENCIL,
             shadowMapSize.x,
             shadowMapSize.y,
         ));
@@ -195,13 +193,15 @@ export class ShadowFlow extends RenderFlow {
         const scene = this._pipeline.pipelineSceneData;
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
+            const isMainLight = light.type === LightType.DIRECTIONAL;
             const shadowFrameBuffer = scene.shadowFrameBufferMap.get(light);
+            const globalDS = isMainLight ? this._pipeline.descriptorSet : this._pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
 
             if (!scene.shadowFrameBufferMap.has(light)) { continue; }
 
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
-                shadowStage.setUsage(light, shadowFrameBuffer!);
+                shadowStage.setUsage(globalDS, light, shadowFrameBuffer!);
                 shadowStage.clearFramebuffer(camera);
             }
         }
@@ -213,7 +213,7 @@ export class ShadowFlow extends RenderFlow {
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsHalfFloatTexture(device) ? Format.R16F : Format.RGBA8;
+        const format = supportsHalfFloatTexture(device) ? Format.R32F : Format.RGBA8;
 
         const it = shadowFrameBufferMap.values();
         let res = it.next();

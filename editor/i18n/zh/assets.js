@@ -129,8 +129,11 @@ module.exports = {
             browse: '更换贴图',
             model: '模型',
             animation: '动画',
+            modelPreview: '模型预览',
             material: '材质',
             fbx: 'FBX',
+            no_model_tips:'没有模型可供预览',
+            drag_model_tips:'可将模型拖到这里进行预览',
             GlTFUserData: {
                 normals: {
                     name: '法线',
@@ -280,6 +283,7 @@ module.exports = {
             animationBakeRate: {
                 name: '动画烘焙速率',
                 title: '指定动画烘焙速率，单位为帧每秒（FPS）',
+                auto: '自动',
             },
             promoteSingleRootNode: {
                 name: '提升单一根结点',
@@ -306,5 +310,9 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: 自定义 effect {effect} 的 inspector 加载失败',
             'illegal-inspector-url': "Inspector的路径不合法",
         },
+        animationGraph: {
+            edit: '打开动画图面板进行编辑',
+        },
+        multipleWarning: '不支持此类型资源的多选编辑',
     },
 };
