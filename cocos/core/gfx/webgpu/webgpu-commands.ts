@@ -302,7 +302,7 @@ export function removeCombinedSamplerTexture (shaderSource: string) {
         if (!samplerTypeSet.has(samplerFunc)) {
             samplerTypeSet.add(samplerFunc);
             // gathering referred func
-            const referredFuncStr = `([\\w]+)\\(sampler${samplerFunc}[^\\)]+\\).*{`;
+            const referredFuncStr = `([\\w]+)[\\s]*\\(sampler${samplerFunc}[^\\)]+\\)[\\s]*{`;
             const referredFuncRe = new RegExp(referredFuncStr, 'g');
             let reArr = referredFuncRe.exec(code);
             while (reArr) {
@@ -326,7 +326,7 @@ export function removeCombinedSamplerTexture (shaderSource: string) {
     // function
     referredFuncSet.forEach((pair) => {
         // 1. fn definition
-        const fnDefReStr = `.*?${pair[0]}\\(sampler${pair[1]}[^}]+}`;
+        const fnDefReStr = `${pair[0]}[\\s]*\\(sampler${pair[1]}[^}]+}`;
         const fnDefRe = new RegExp(fnDefReStr);
         let fnArr = fnDefRe.exec(code);
         while (fnArr) {
@@ -337,7 +337,7 @@ export function removeCombinedSamplerTexture (shaderSource: string) {
             let funcDef = fnArr[0].replace(new RegExp(paramReStr), `texture${pair[1]} ${textureName}, sampler ${textureName}Sampler`);
 
             // 2. texture(...) inside, builtin funcs
-            const textureOpArr = ['texture', 'textureSize', 'texelFetch'];
+            const textureOpArr = ['texture', 'textureSize', 'texelFetch', 'textureLod'];
             for (let i = 0; i < textureOpArr.length; i++) {
                 const texFuncReStr = `(${textureOpArr[i]})\\(${textureName},`;
                 const texFuncRe = new RegExp(texFuncReStr, 'g');
@@ -350,7 +350,7 @@ export function removeCombinedSamplerTexture (shaderSource: string) {
 
         // 3. fn called
         // getVec3DisplacementFromTexture\(([\S]+),[^\)]+
-        const calledReStr = `(?<!vec.*?)${pair[0]}\\(([\\S]+),[\\s]*[^\\)]+`;
+        const calledReStr = `(?<!vec.)${pair[0]}\\(([\\S]+),[\\s]*[^\\)]+`;
         const calledRe = new RegExp(calledReStr, 'g');
         let calledArr = calledRe.exec(code);
         while (calledArr) {

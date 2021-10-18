@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { Glslang } from '@webgpu/glslang/dist/web-devel/glslang';
 // import { wasmBase64 } from './lib/tempArray.js';
 // ({
 //     wasm: require('fs').readFileSync('CocosGameWASM.wasm'),
@@ -27,7 +26,7 @@ const wgpuWasmModule = {
     nativeDevice: undefined,
 };
 
-fetch('http://localhost:7456/webgpu.wasm').then((response) => {
+fetch('http://localhost:7456/webgpu_wasm.wasm').then((response) => {
     response.arrayBuffer().then((buffer) => {
         (wgpuWasmModule as any).wasmBinary = buffer;
     });
@@ -40,4 +39,4 @@ const glslalgWasmModule = {
 
 const nativeLib = wgpuWasmModule as any;
 
-export { nativeLib, wgpuWasmModule, glslalgWasmModule };
+export { nativeLib, glslalgWasmModule };
