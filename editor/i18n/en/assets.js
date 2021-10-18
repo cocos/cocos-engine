@@ -317,6 +317,9 @@ module.exports = {
             'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
             'illegal-inspector-url': "Inspector's URL is not valid",
         },
+        animationGraph: {
+            edit: 'Edit in the Animation Graph panel',
+        },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },
 };
