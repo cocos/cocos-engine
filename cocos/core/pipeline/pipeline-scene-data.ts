@@ -33,9 +33,9 @@ import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, Buffer
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';
-import { builtinResMgr } from '../builtin';
-import { Pass, IMacroPatch } from '../renderer/core/pass';
+import { Pass } from '../renderer/core/pass';
 import { NativePipelineSharedSceneData } from '../renderer/scene';
+import { PipelineEventType } from './pipeline-event';
 
 export class PipelineSceneData {
     private _init (): void {
@@ -73,20 +73,12 @@ export class PipelineSceneData {
 
     public set shadingScale (val: number) {
         if (this._shadingScale !== val) {
-            this._isShadingScale = true;
+            this._shadingScale = val;
+            if (JSB) {
+                this._nativeObj!.shadingScale = val;
+            }
+            this._pipeline.emit(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, val);
         }
-        this._shadingScale = val;
-        if (JSB) {
-            this._nativeObj!.shadingScale = val;
-        }
-    }
-
-    public get isShadingScale () {
-        return this._isShadingScale;
-    }
-
-    public set isShadingScale (val: boolean) {
-        this._isShadingScale = val;
     }
 
     public fog: Fog = new Fog();
@@ -111,7 +103,6 @@ export class PipelineSceneData {
     protected _occlusionQueryShader: Shader | null = null;
     protected _isHDR = true;
     protected _shadingScale = 1.0;
-    protected _isShadingScale = false;
 
     constructor () {
         this._init();

@@ -43,6 +43,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
+import { PipelineEventType } from '../pipeline-event';
 
 const PIPELINE_TYPE = 0;
 
@@ -234,6 +235,10 @@ export class ForwardPipeline extends RenderPipeline {
             data.outputRenderTargets,
             data.outputDepth,
         ));
+        // Listens when the attachment texture is scaled
+        this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, () => {
+            this.applyFramebufferRatio(data.outputFrameBuffer);
+        });
         data.sampler = device.getSampler(_samplerInfo);
 
         this._generateBloomRenderData();
