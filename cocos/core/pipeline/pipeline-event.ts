@@ -1,4 +1,4 @@
-import { EventTarget } from 'cocos/core/event/event-target';
+import { EventTarget } from '../event/event-target';
 
 export enum PipelineEventType {
     /**
