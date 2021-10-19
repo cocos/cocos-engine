@@ -1744,18 +1744,6 @@ export function WebGL2CmdFuncBeginRenderPass (
             cache.viewport.height = renderArea.height;
         }
 
-        if (cache.scissorRect.x !== renderArea.x
-            || cache.scissorRect.y !== renderArea.y
-            || cache.scissorRect.width !== renderArea.width
-            || cache.scissorRect.height !== renderArea.height) {
-            gl.scissor(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
-
-            cache.scissorRect.x = renderArea.x;
-            cache.scissorRect.y = renderArea.y;
-            cache.scissorRect.width = renderArea.width;
-            cache.scissorRect.height = renderArea.height;
-        }
-
         gfxStateCache.invalidateAttachments.length = 0;
 
         for (let j = 0; j < clearColors.length; ++j) {
