@@ -183,7 +183,6 @@ export class ForwardStage extends RenderStage {
             renderPass = pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain);
             const forwardData = pipeline.getPipelineRenderData();
             framebuffer = forwardData.outputFrameBuffer;
-            pipeline.applyFramebufferRatio(framebuffer);
         }
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);

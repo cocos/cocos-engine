@@ -42,8 +42,8 @@ import { Format, StoreOp, Filter, Address,
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
-import { sceneCulling } from '../scene-culling';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
+import { PipelineEventType } from '../pipeline-event';
 
 const PIPELINE_TYPE = 1;
 
@@ -302,7 +302,6 @@ export class DeferredPipeline extends RenderPipeline {
             data.gbufferRenderTargets,
             data.outputDepth,
         ));
-
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
@@ -316,7 +315,11 @@ export class DeferredPipeline extends RenderPipeline {
             data.outputRenderTargets,
             data.outputDepth,
         ));
-
+        // Listens when the attachment texture is scaled
+        this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, () => {
+            this.applyFramebufferRatio(data.gbufferFrameBuffer);
+            this.applyFramebufferRatio(data.outputFrameBuffer);
+        });
         data.sampler = device.getSampler(_samplerInfo);
 
         this._generateBloomRenderData();
