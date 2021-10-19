@@ -48,8 +48,8 @@ import { PipelineEventType } from '../pipeline-event';
 const PIPELINE_TYPE = 0;
 
 const _samplerInfo = new SamplerInfo(
-    Filter.POINT,
-    Filter.POINT,
+    Filter.LINEAR,
+    Filter.LINEAR,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,

@@ -94,14 +94,14 @@ export class PostProcessStage extends RenderStage {
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const cmdBuff = pipeline.commandBuffers[0];
-
+        const shadingScale = sceneData.shadingScale > 1 ? sceneData.shadingScale : 1;
         pipeline.pipelineUBO.updateCameraUBO(camera);
 
         const vp = camera.viewport;
         this._renderArea.x = vp.x * camera.width;
         this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width;
-        this._renderArea.height = vp.height * camera.height;
+        this._renderArea.width = vp.width * camera.width * shadingScale;
+        this._renderArea.height = vp.height * camera.height * shadingScale;
         const renderData = pipeline.getPipelineRenderData();
         const framebuffer = camera.window!.framebuffer;
         const swapchain = camera.window!.swapchain;
