@@ -1097,6 +1097,8 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
                 }
 
                 attachments.push(gl.COLOR_ATTACHMENT0 + i);
+                gpuFramebuffer.width = Math.min(gpuFramebuffer.width, gpuTexture.width);
+                gpuFramebuffer.height = Math.min(gpuFramebuffer.height, gpuTexture.height);
             }
         }
 
@@ -1119,6 +1121,8 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
                     dst.glRenderbuffer,
                 );
             }
+            gpuFramebuffer.width = Math.min(gpuFramebuffer.width, dst.width);
+            gpuFramebuffer.height = Math.min(gpuFramebuffer.height, dst.height);
         }
 
         if (device.extensions.WEBGL_draw_buffers) {
@@ -1600,6 +1604,18 @@ export function WebGLCmdFuncBeginRenderPass (
             cache.viewport.top = renderArea.y;
             cache.viewport.width = renderArea.width;
             cache.viewport.height = renderArea.height;
+        }
+
+        if (cache.scissorRect.x !== 0
+            || cache.scissorRect.y !== 0
+            || cache.scissorRect.width !== gpuFramebuffer.width
+            || cache.scissorRect.height !== gpuFramebuffer.height) {
+            gl.scissor(0, 0, gpuFramebuffer.width, gpuFramebuffer.height);
+
+            cache.scissorRect.x = 0;
+            cache.scissorRect.y = 0;
+            cache.scissorRect.width = gpuFramebuffer.width;
+            cache.scissorRect.height = gpuFramebuffer.height;
         }
 
         // const invalidateAttachments: GLenum[] = [];
