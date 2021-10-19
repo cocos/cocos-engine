@@ -789,6 +789,8 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         createInfo.height = std::min(createInfo.height, gpuFramebuffer->gpuDepthStencilView->gpuTexture->height);
     }
     gpuFramebuffer->isOffscreen = !swapchainImageIndices;
+    gpuFramebuffer->width       = createInfo.width;
+    gpuFramebuffer->height      = createInfo.height;
 
     if (gpuFramebuffer->isOffscreen) {
         CCVKGPUTextureView *gpuTextureView{colorViewCount ? gpuFramebuffer->gpuColorViews[0] : gpuFramebuffer->gpuDepthStencilView};

@@ -1534,17 +1534,6 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
                 cache->viewport.width  = renderArea->width;
                 cache->viewport.height = renderArea->height;
             }
-
-            if (cache->scissor.x != renderArea->x ||
-                cache->scissor.y != renderArea->y ||
-                cache->scissor.width != renderArea->width ||
-                cache->scissor.height != renderArea->height) {
-                GL_CHECK(glScissor(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->scissor.x      = renderArea->x;
-                cache->scissor.y      = renderArea->y;
-                cache->scissor.width  = renderArea->width;
-                cache->scissor.height = renderArea->height;
-            }
         }
 
         GLbitfield glClears = 0;

@@ -169,10 +169,18 @@ void PostProcessStage::render(scene::Camera *camera) {
         depthAttachmentInfo.endAccesses   = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
         data.depth = framegraph::TextureHandle(builder.readFromBlackboard(RenderPipeline::fgStrHandleOutDepthTexture));
-        if (data.depth.isValid()) {
-            data.depth = builder.write(data.depth, depthAttachmentInfo);
-            builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
+        if (!data.depth.isValid()) {
+            gfx::TextureInfo depthTexInfo{
+                gfx::TextureType::TEX2D,
+                gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
+                gfx::Format::DEPTH_STENCIL,
+                static_cast<uint>(pipeline->getWidth() * shadingScale),
+                static_cast<uint>(pipeline->getHeight() * shadingScale),
+            };
+            data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         }
+        data.depth = builder.write(data.depth, depthAttachmentInfo);
+        builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         builder.setViewport(pipeline->getRenderArea(camera));
     };

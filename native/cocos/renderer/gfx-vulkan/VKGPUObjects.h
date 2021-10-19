@@ -210,6 +210,8 @@ public:
     VkFramebuffer                vkFramebuffer       = VK_NULL_HANDLE;
     CCVKGPUSwapchain *           swapchain           = nullptr;
     bool                         isOffscreen         = true;
+    uint32_t                     width               = 0U;
+    uint32_t                     height              = 0U;
 };
 
 using FramebufferList        = vector<VkFramebuffer>;

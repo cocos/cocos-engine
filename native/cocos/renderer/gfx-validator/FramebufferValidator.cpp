@@ -54,9 +54,11 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
 
     for (auto *colorTexture : info.colorTextures) {
         CCASSERT(colorTexture && static_cast<TextureValidator *>(colorTexture)->isInited(), "already destroyed?");
+        CCASSERT(hasAnyFlags(colorTexture->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT), "Input is not an attachment");
     }
     if (info.depthStencilTexture) {
         CCASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited(), "already destroyed?");
+        CCASSERT(hasFlag(info.depthStencilTexture->getInfo().usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT), "Input is not a depth stencil attachment");
     }
     CCASSERT(info.renderPass && static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
 

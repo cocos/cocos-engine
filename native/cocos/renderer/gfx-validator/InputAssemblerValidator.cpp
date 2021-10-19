@@ -50,12 +50,15 @@ void InputAssemblerValidator::doInit(const InputAssemblerInfo &info) {
 
     for (auto *vertexBuffer : info.vertexBuffers) {
         CCASSERT(vertexBuffer && static_cast<BufferValidator *>(vertexBuffer)->isInited(), "already destroyed?");
+        CCASSERT(hasFlag(vertexBuffer->getUsage(), BufferUsageBit::VERTEX), "Input is not a vertex buffer");
     }
     if (info.indexBuffer) {
         CCASSERT(static_cast<BufferValidator *>(info.indexBuffer)->isInited(), "already destroyed?");
+        CCASSERT(hasFlag(info.indexBuffer->getUsage(), BufferUsageBit::INDEX), "Input is not an index buffer");
     }
     if (info.indirectBuffer) {
         CCASSERT(static_cast<BufferValidator *>(info.indirectBuffer)->isInited(), "already destroyed?");
+        CCASSERT(hasFlag(info.indirectBuffer->getUsage(), BufferUsageBit::INDIRECT), "Input is not an indirect buffer");
     }
 
     /////////// execute ///////////
