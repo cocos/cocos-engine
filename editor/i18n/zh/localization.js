@@ -144,7 +144,7 @@ module.exports = {
         trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
     },
     UIOpacity: {
-        opacity: '表示该物体的不透明度，取值 0 ~ 255 之间',
+        opacity: '设置物体的不透明度，取值范围为 0 ~ 255',
     },
     billboard: {
         texture: 'billboard 纹理',
@@ -495,7 +495,7 @@ module.exports = {
         sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',
     },
     subContextView: {
-        design_size: '子域的设计分辨率，禁止在运行时动态更新',
+        design_size: '开放数据域的设计分辨率，禁止在运行时动态更新',
         fps: '主域更新子域贴图的频率',
     },
     skeleton: {
