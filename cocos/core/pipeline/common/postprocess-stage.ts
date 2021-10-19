@@ -38,7 +38,6 @@ import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
 import { RenderFlow, RenderPipeline } from '..';
 import { CommonPipelineSceneData } from './common-pipeline-scene-data';
-import { macro } from '../..';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 

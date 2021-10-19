@@ -370,7 +370,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     public generateViewport (camera: Camera, out?: Viewport): Viewport {
         const rect = this.generateRenderArea(camera);
         let shadingScale = this.pipelineSceneData.shadingScale;
-        shadingScale = shadingScale > 1 ? 1 : shadingScale;
+        shadingScale = Math.min(shadingScale, 1);
         const viewport = out || new Viewport(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
         return viewport;
     }
