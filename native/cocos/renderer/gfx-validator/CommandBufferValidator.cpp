@@ -484,5 +484,13 @@ void CommandBufferValidator::resetQuery(QueryPool *queryPool) {
     _actor->resetQuery(actorQueryPool);
 }
 
+void CommandBufferValidator::completeQuery(QueryPool *queryPool) {
+    CCASSERT(isInited(), "already destroyed?");
+    CCASSERT(static_cast<QueryPoolValidator *>(queryPool)->isInited(), "already destroyed?");
+
+    QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
+    _actor->completeQuery(actorQueryPool);
+}
+
 } // namespace gfx
 } // namespace cc

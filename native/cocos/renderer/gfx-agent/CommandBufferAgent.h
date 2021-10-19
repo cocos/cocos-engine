@@ -67,6 +67,7 @@ public:
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
     void resetQuery(QueryPool *queryPool) override;
+    void completeQuery(QueryPool *queryPool) override;
 
     uint32_t getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     uint32_t getNumInstances() const override { return _actor->getNumInstances(); }

@@ -43,6 +43,7 @@ namespace gfx {
  *      beginQuery
  *          drawObject
  *      endQuery
+ *  completeQuery
  */
 
 class CC_DLL QueryPool : public GFXObject {

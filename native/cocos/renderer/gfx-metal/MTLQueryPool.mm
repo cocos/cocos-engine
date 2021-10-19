@@ -30,6 +30,7 @@
 #import "MTLFramebuffer.h"
 #import "MTLGPUObjects.h"
 #import "MTLQueryPool.h"
+#import "MTLSemaphore.h"
 #import "MTLSwapchain.h"
 
 namespace cc {
@@ -44,9 +45,33 @@ CCMTLQueryPool::~CCMTLQueryPool() {
 }
 
 void CCMTLQueryPool::doInit(const QueryPoolInfo& info) {
+    id<MTLDevice> mtlDevice               = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+    _gpuQueryPool                         = CC_NEW(CCMTLGPUQueryPool);
+    _gpuQueryPool->type                   = _type;
+    _gpuQueryPool->maxQueryObjects        = _maxQueryObjects;
+    _gpuQueryPool->visibilityResultBuffer = [mtlDevice newBufferWithLength:_maxQueryObjects * sizeof(uint64_t) options:MTLResourceStorageModeShared];
+    _gpuQueryPool->semaphore              = CC_NEW(CCMTLSemaphore(1));
 }
 
 void CCMTLQueryPool::doDestroy() {
+    if (_gpuQueryPool) {
+        if (_gpuQueryPool->semaphore) {
+            _gpuQueryPool->semaphore->syncAll();
+            CC_SAFE_DELETE(_gpuQueryPool->semaphore);
+        }
+
+        id<MTLBuffer> mtlBuffer               = _gpuQueryPool->visibilityResultBuffer;
+        _gpuQueryPool->visibilityResultBuffer = nil;
+
+        auto destroyFunc = [mtlBuffer]() {
+            if (mtlBuffer) {
+                [mtlBuffer release];
+            }
+        };
+        CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
+
+        CC_SAFE_DELETE(_gpuQueryPool);
+    }
 }
 
 } // namespace gfx

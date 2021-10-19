@@ -47,7 +47,6 @@
 #import "cocos/bindings/event/CustomEventTypes.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 
-
 namespace cc {
 namespace gfx {
 
@@ -61,7 +60,7 @@ CCMTLDevice::CCMTLDevice() {
     _api        = API::METAL;
     _deviceName = "Metal";
 
-    _caps.supportQuery     = false;
+    _caps.supportQuery     = true;
     _caps.clipSpaceMinZ    = 0.0f;
     _caps.screenSpaceSignY = -1.0f;
     _caps.clipSpaceSignY   = 1.0f;
@@ -219,7 +218,7 @@ void CCMTLDevice::present() {
 
     //hold this pointer before update _currentFrameIndex
     _currentBufferPoolId = _currentFrameIndex;
-    _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+    _currentFrameIndex   = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
     std::vector<id<CAMetalDrawable>> releaseQ;
     for (auto *swapchain : _swapchains) {
@@ -339,6 +338,32 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
 void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
     _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
+}
+
+void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {
+    auto *             mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
+    CCMTLGPUQueryPool *gpuQueryPool = mtlQueryPool->gpuQueryPool();
+    auto               queryCount   = static_cast<uint32_t>(mtlQueryPool->_ids.size());
+    CCASSERT(queryCount <= mtlQueryPool->getMaxQueryObjects(), "Too many query commands.");
+
+    gpuQueryPool->semaphore->wait();
+    uint64_t *results = queryCount > 0U ? static_cast<uint64_t *>(gpuQueryPool->visibilityResultBuffer.contents) : nullptr;
+
+    std::unordered_map<uint32_t, uint64_t> mapResults;
+    for (auto queryId = 0U; queryId < queryCount; queryId++) {
+        uint32_t id   = mtlQueryPool->_ids[queryId];
+        auto     iter = mapResults.find(id);
+        if (iter != mapResults.end()) {
+            iter->second += results[queryId];
+        } else {
+            mapResults[id] = results[queryId];
+        }
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(mtlQueryPool->_mutex);
+        mtlQueryPool->_results = std::move(mapResults);
+    }
 }
 
 void CCMTLDevice::onMemoryWarning() {

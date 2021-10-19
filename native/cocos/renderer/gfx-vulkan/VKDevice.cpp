@@ -300,7 +300,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _queue         = createQueue(queueInfo);
 
     QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS};
-    _queryPool = CCVKDevice::getInstance()->createQueryPool(queryPoolInfo);
+    _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type  = CommandBufferType::PRIMARY;

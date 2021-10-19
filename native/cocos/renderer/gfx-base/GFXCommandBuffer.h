@@ -67,6 +67,7 @@ public:
     virtual void beginQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                        = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                          = 0;
     virtual void resetQuery(QueryPool *queryPool)                                                                                                                                                                     = 0;
+    virtual void completeQuery(QueryPool *queryPool)                                                                                                                                                                  = 0;
 
     inline void begin();
     inline void begin(RenderPass *renderPass);

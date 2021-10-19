@@ -523,5 +523,16 @@ void CommandBufferAgent::resetQuery(QueryPool *queryPool) {
         });
 }
 
+void CommandBufferAgent::completeQuery(QueryPool *queryPool) {
+    QueryPool *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+    ENQUEUE_MESSAGE_2(
+        _messageQueue, CommandBufferCompleteQuery,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        {
+            actor->completeQuery(queryPool);
+        });
+}
+
 } // namespace gfx
 } // namespace cc

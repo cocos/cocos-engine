@@ -28,7 +28,6 @@
 #import "MTLConfig.h"
 #import "gfx-base/GFXDevice.h"
 
-
 namespace cc {
 namespace gfx {
 
@@ -113,7 +112,7 @@ protected:
     Swapchain           *createSwapchain() override;
     void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
     void                 copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) override;
-    void                 getQueryPoolResults(QueryPool *queryPool) override {}
+    void                 getQueryPoolResults(QueryPool *queryPool) override;
 
     void onMemoryWarning();
 
