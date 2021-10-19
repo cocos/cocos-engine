@@ -156,6 +156,8 @@ export interface IWebGL2GPUFramebuffer {
     isOffscreen?: boolean;
 
     glFramebuffer: WebGLFramebuffer | null;
+    width: number;
+    height: number;
 }
 
 export interface IWebGL2GPUSampler {
