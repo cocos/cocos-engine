@@ -61,6 +61,8 @@ export class WebGL2Framebuffer extends Framebuffer {
             gpuColorTextures,
             gpuDepthStencilTexture,
             glFramebuffer: null,
+            width: Number.MAX_SAFE_INTEGER,
+            height: Number.MAX_SAFE_INTEGER,
         };
 
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
