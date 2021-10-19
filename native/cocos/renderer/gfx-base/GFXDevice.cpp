@@ -101,5 +101,26 @@ void Device::createSurface(void *windowHandle) {
     }
 }
 
+Sampler *Device::getSampler(const SamplerInfo &info) {
+    if (!_samplers.count(info)) {
+        _samplers[info] = createSampler(info);
+    }
+    return _samplers[info];
+}
+
+GlobalBarrier *Device::getGlobalBarrier(const GlobalBarrierInfo &info) {
+    if (!_globalBarriers.count(info)) {
+        _globalBarriers[info] = createGlobalBarrier(info);
+    }
+    return _globalBarriers[info];
+}
+
+TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
+    if (!_textureBarriers.count(info)) {
+        _textureBarriers[info] = createTextureBarrier(info);
+    }
+    return _textureBarriers[info];
+}
+
 } // namespace gfx
 } // namespace cc

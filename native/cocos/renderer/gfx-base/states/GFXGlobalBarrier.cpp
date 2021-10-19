@@ -33,17 +33,14 @@
 namespace cc {
 namespace gfx {
 
-GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info, size_t hash)
+GlobalBarrier::GlobalBarrier(const GlobalBarrierInfo &info)
 : GFXObject(ObjectType::GLOBAL_BARRIER) {
     _info = info;
-    _hash = hash;
+    _hash = computeHash(info);
 }
 
 size_t GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
-    size_t seed = 2;
-    boost::hash_combine(seed, info.prevAccesses);
-    boost::hash_combine(seed, info.nextAccesses);
-    return seed;
+    return Hasher<GlobalBarrierInfo>()(info);
 }
 
 } // namespace gfx

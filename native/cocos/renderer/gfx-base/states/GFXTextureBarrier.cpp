@@ -34,20 +34,14 @@
 namespace cc {
 namespace gfx {
 
-TextureBarrier::TextureBarrier(const TextureBarrierInfo &info, size_t hash)
+TextureBarrier::TextureBarrier(const TextureBarrierInfo &info)
 : GFXObject(ObjectType::TEXTURE_BARRIER) {
     _info = info;
-    _hash = hash;
+    _hash = computeHash(info);
 }
 
 size_t TextureBarrier::computeHash(const TextureBarrierInfo &info) {
-    size_t seed = 5;
-    boost::hash_combine(seed, info.prevAccesses);
-    boost::hash_combine(seed, info.nextAccesses);
-    boost::hash_combine(seed, info.discardContents);
-    boost::hash_combine(seed, info.srcQueue);
-    boost::hash_combine(seed, info.dstQueue);
-    return seed;
+    return Hasher<TextureBarrierInfo>()(info);
 }
 
 } // namespace gfx

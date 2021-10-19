@@ -121,6 +121,8 @@ protected:
     void generateConstantMacros();
     void destroyQuadInputAssembler();
 
+    static void framegraphGC();
+
     gfx::CommandBufferList           _commandBuffers;
     gfx::QueryPoolList               _queryPools;
     RenderFlowList                   _flows;
@@ -137,12 +139,12 @@ protected:
     scene::Model *      _profiler{nullptr};
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
-    gfx::Texture *                                    _defaultTexture{nullptr};
-    uint                                              _width{0};
-    uint                                              _height{0};
-    gfx::Buffer *                                     _quadIB{nullptr};
-    std::vector<gfx::Buffer *>                        _quadVB;
-    std::unordered_map<size_t, gfx::InputAssembler *> _quadIA;
+    gfx::Texture *                                                _defaultTexture{nullptr};
+    uint                                                          _width{0};
+    uint                                                          _height{0};
+    gfx::Buffer *                                                 _quadIB{nullptr};
+    std::vector<gfx::Buffer *>                                    _quadVB;
+    std::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;
 
     framegraph::FrameGraph                            _fg;
     unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;

@@ -1817,12 +1817,12 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
 
             std::unordered_map<uint32_t, uint64_t> mapResults;
             for (auto queryId = 0U; queryId < queryCount; queryId++) {
-                uint32_t id   = queryPool->getId(queryId);
-                auto     iter = mapResults.find(id);
+                uint32_t glID = queryPool->getId(queryId);
+                auto     iter = mapResults.find(glID);
                 if (iter != mapResults.end()) {
                     iter->second += results[queryId];
                 } else {
-                    mapResults[id] = results[queryId];
+                    mapResults[glID] = results[queryId];
                 }
             }
 

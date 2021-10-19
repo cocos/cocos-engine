@@ -751,9 +751,10 @@ private:
 /**
  * Staging buffer pool, based on multiple fix-sized VkBuffer blocks.
  */
-constexpr size_t               CHUNK_SIZE = 32 * 1024 * 1024; // 32M per block by default
 class CCVKGPUStagingBufferPool final : public Object {
 public:
+    static constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
+
     explicit CCVKGPUStagingBufferPool(CCVKGPUDevice *device)
     : _device(device) {
     }
@@ -767,6 +768,8 @@ public:
 
     void alloc(CCVKGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1U); }
     void alloc(CCVKGPUBuffer *gpuBuffer, uint32_t alignment) {
+        CCASSERT(gpuBuffer->size <= CHUNK_SIZE, "required size exceeds single chunk size");
+
         size_t       bufferCount = _pool.size();
         Buffer *     buffer      = nullptr;
         VkDeviceSize offset      = 0U;

@@ -249,7 +249,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
 void ShadowFlow::destroy() {
     _renderPass = nullptr;
     for (const auto &rpPair : renderPassHashMap) {
-        rpPair.second->destroy();
+        CC_DELETE(rpPair.second);
     }
     renderPassHashMap.clear();
 

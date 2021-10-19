@@ -261,16 +261,16 @@ PipelineState *DeviceAgent::createPipelineState() {
     return CC_NEW(PipelineStateAgent(actor));
 }
 
-Sampler *DeviceAgent::createSampler(const SamplerInfo &info, size_t hash) {
-    return _actor->createSampler(info, hash);
+Sampler *DeviceAgent::getSampler(const SamplerInfo &info) {
+    return _actor->getSampler(info);
 }
 
-GlobalBarrier *DeviceAgent::createGlobalBarrier(const GlobalBarrierInfo &info, size_t hash) {
-    return _actor->createGlobalBarrier(info, hash);
+GlobalBarrier *DeviceAgent::getGlobalBarrier(const GlobalBarrierInfo &info) {
+    return _actor->getGlobalBarrier(info);
 }
 
-TextureBarrier *DeviceAgent::createTextureBarrier(const TextureBarrierInfo &info, size_t hash) {
-    return _actor->createTextureBarrier(info, hash);
+TextureBarrier *DeviceAgent::getTextureBarrier(const TextureBarrierInfo &info) {
+    return _actor->getTextureBarrier(info);
 }
 
 void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

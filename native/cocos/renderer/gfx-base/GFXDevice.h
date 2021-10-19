@@ -84,9 +84,9 @@ public:
     inline PipelineLayout *     createPipelineLayout(const PipelineLayoutInfo &info);
     inline PipelineState *      createPipelineState(const PipelineStateInfo &info);
 
-    inline Sampler *       getSampler(const SamplerInfo &info);
-    inline GlobalBarrier * getGlobalBarrier(const GlobalBarrierInfo &info);
-    inline TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info);
+    virtual Sampler *       getSampler(const SamplerInfo &info);
+    virtual GlobalBarrier * getGlobalBarrier(const GlobalBarrierInfo &info);
+    virtual TextureBarrier *getTextureBarrier(const TextureBarrierInfo &info);
 
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) = 0;
     virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count)        = 0;
@@ -138,9 +138,9 @@ protected:
     virtual PipelineLayout *     createPipelineLayout()                                            = 0;
     virtual PipelineState *      createPipelineState()                                             = 0;
 
-    virtual Sampler *       createSampler(const SamplerInfo &info, size_t hash)                 = 0;
-    virtual GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, size_t hash)     = 0;
-    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, size_t hash)   = 0;
+    virtual Sampler *       createSampler(const SamplerInfo &info) { return CC_NEW(Sampler(info)); }
+    virtual GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info) { return CC_NEW(GlobalBarrier(info)); }
+    virtual TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) { return CC_NEW(TextureBarrier(info)); }
 
     // For context switching between threads
     virtual void bindContext(bool bound) {}
@@ -165,9 +165,9 @@ protected:
     uint32_t     _numTriangles{0U};
     MemoryStatus _memoryStatus;
 
-    unordered_map<size_t, Sampler *>        _samplers;
-    unordered_map<size_t, GlobalBarrier *>  _globalBarriers;
-    unordered_map<size_t, TextureBarrier *> _textureBarriers;
+    unordered_map<SamplerInfo, Sampler *, Hasher<SamplerInfo>>                      _samplers;
+    unordered_map<GlobalBarrierInfo, GlobalBarrier *, Hasher<GlobalBarrierInfo>>    _globalBarriers;
+    unordered_map<TextureBarrierInfo, TextureBarrier *, Hasher<TextureBarrierInfo>> _textureBarriers;
 
 private:
     vector<Swapchain *> _swapchains;
@@ -270,30 +270,6 @@ PipelineState *Device::createPipelineState(const PipelineStateInfo &info) {
     PipelineState *res = createPipelineState();
     res->initialize(info);
     return res;
-}
-
-Sampler *Device::getSampler(const SamplerInfo &info) {
-    size_t hash = gfx::Sampler::computeHash(info);
-    if (!_samplers.count(hash)) {
-        _samplers[hash] = createSampler(info, hash);
-    }
-    return _samplers[hash];
-}
-
-GlobalBarrier *Device::getGlobalBarrier(const GlobalBarrierInfo &info) {
-    size_t hash = gfx::GlobalBarrier::computeHash(info);
-    if (!_globalBarriers.count(hash)) {
-        _globalBarriers[hash] = createGlobalBarrier(info, hash);
-    }
-    return _globalBarriers[hash];
-}
-
-TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
-    size_t hash = gfx::TextureBarrier::computeHash(info);
-    if (!_textureBarriers.count(hash)) {
-        _textureBarriers[hash] = createTextureBarrier(info, hash);
-    }
-    return _textureBarriers[hash];
 }
 
 void Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {

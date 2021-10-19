@@ -108,7 +108,7 @@ public:
             return glQueryIds[queryId];
         }
 
-        return -1;
+        return ~0U;
     }
 };
 

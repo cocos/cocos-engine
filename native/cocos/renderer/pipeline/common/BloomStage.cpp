@@ -144,7 +144,7 @@ void BloomStage::render(scene::Camera *camera) {
     colorAttachmentInfo.usage       = framegraph::RenderTargetAttachment::Usage::COLOR;
     colorAttachmentInfo.loadOp      = gfx::LoadOp::CLEAR;
     colorAttachmentInfo.clearColor  = _clearColors[0];
-    colorAttachmentInfo.endAccesses = {gfx::AccessType::FRAGMENT_SHADER_WRITE};
+    colorAttachmentInfo.endAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
 
     uint insertPoint = static_cast<uint>(CommonInsertPoint::DIP_BLOOM);
 

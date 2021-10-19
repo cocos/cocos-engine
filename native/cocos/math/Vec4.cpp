@@ -20,19 +20,21 @@
  This file was modified to fit the cocos2d-x project
  */
 
+#include <boost/functional/hash.hpp>
+
 #include "math/Vec4.h"
 
 #include <cmath>
-#include "math/MathUtil.h"
 #include "base/Macros.h"
+#include "math/MathUtil.h"
 
 NS_CC_MATH_BEGIN
 
 Vec4::Vec4()
-: x(0.0f),
-  y(0.0f),
-  z(0.0f),
-  w(0.0f) {
+: x(0.0F),
+  y(0.0F),
+  z(0.0F),
+  w(0.0F) {
 }
 
 Vec4::Vec4(float xx, float yy, float zz, float ww)
@@ -56,26 +58,23 @@ Vec4::Vec4(const Vec4 &copy) {
 
 Vec4 Vec4::fromColor(unsigned int color) {
     float components[4];
-    int componentIndex = 0;
+    int   componentIndex = 0;
     for (int i = 3; i >= 0; --i) {
-        int component = (color >> i * 8) & 0x000000ff;
+        uint32_t component = (color >> i * 8) & 0x000000ff;
 
-        components[componentIndex++] = static_cast<float>(component) / 255.0f;
+        components[componentIndex++] = static_cast<float>(component) / 255.0F;
     }
 
     Vec4 value(components);
     return value;
 }
 
-Vec4::~Vec4() {
-}
-
 bool Vec4::isZero() const {
-    return x == 0.0f && y == 0.0f && z == 0.0f && w == 0.0f;
+    return x == 0.0F && y == 0.0F && z == 0.0F && w == 0.0F;
 }
 
 bool Vec4::isOne() const {
-    return x == 1.0f && y == 1.0f && z == 1.0f && w == 1.0f;
+    return x == 1.0F && y == 1.0F && z == 1.0F && w == 1.0F;
 }
 
 float Vec4::angle(const Vec4 &v1, const Vec4 &v2) {
@@ -106,28 +105,36 @@ void Vec4::clamp(const Vec4 &min, const Vec4 &max) {
     GP_ASSERT(!(min.x > max.x || min.y > max.y || min.z > max.z || min.w > max.w));
 
     // Clamp the x value.
-    if (x < min.x)
+    if (x < min.x) {
         x = min.x;
-    if (x > max.x)
+}
+    if (x > max.x) {
         x = max.x;
+}
 
     // Clamp the y value.
-    if (y < min.y)
+    if (y < min.y) {
         y = min.y;
-    if (y > max.y)
+}
+    if (y > max.y) {
         y = max.y;
+}
 
     // Clamp the z value.
-    if (z < min.z)
+    if (z < min.z) {
         z = min.z;
-    if (z > max.z)
+}
+    if (z > max.z) {
         z = max.z;
+}
 
     // Clamp the z value.
-    if (w < min.w)
+    if (w < min.w) {
         w = min.w;
-    if (w > max.w)
+}
+    if (w > max.w) {
         w = max.w;
+}
 }
 
 void Vec4::clamp(const Vec4 &v, const Vec4 &min, const Vec4 &max, Vec4 *dst) {
@@ -136,31 +143,39 @@ void Vec4::clamp(const Vec4 &v, const Vec4 &min, const Vec4 &max, Vec4 *dst) {
 
     // Clamp the x value.
     dst->x = v.x;
-    if (dst->x < min.x)
+    if (dst->x < min.x) {
         dst->x = min.x;
-    if (dst->x > max.x)
+}
+    if (dst->x > max.x) {
         dst->x = max.x;
+}
 
     // Clamp the y value.
     dst->y = v.y;
-    if (dst->y < min.y)
+    if (dst->y < min.y) {
         dst->y = min.y;
-    if (dst->y > max.y)
+}
+    if (dst->y > max.y) {
         dst->y = max.y;
+}
 
     // Clamp the z value.
     dst->z = v.z;
-    if (dst->z < min.z)
+    if (dst->z < min.z) {
         dst->z = min.z;
-    if (dst->z > max.z)
+}
+    if (dst->z > max.z) {
         dst->z = max.z;
+}
 
     // Clamp the w value.
     dst->w = v.w;
-    if (dst->w < min.w)
+    if (dst->w < min.w) {
         dst->w = min.w;
-    if (dst->w > max.w)
+}
+    if (dst->w > max.w) {
         dst->w = max.w;
+}
 }
 
 float Vec4::distance(const Vec4 &v) const {
@@ -207,15 +222,17 @@ void Vec4::negate() {
 void Vec4::normalize() {
     float n = x * x + y * y + z * z + w * w;
     // Already normalized.
-    if (n == 1.0f)
+    if (n == 1.0F) {
         return;
+}
 
     n = std::sqrt(n);
     // Too close to zero.
-    if (n < MATH_TOLERANCE)
+    if (n < MATH_TOLERANCE) {
         return;
+}
 
-    n = 1.0f / n;
+    n = 1.0F / n;
     x *= n;
     y *= n;
     z *= n;
@@ -281,11 +298,17 @@ void Vec4::subtract(const Vec4 &v1, const Vec4 &v2, Vec4 *dst) {
     dst->w = v1.w - v2.w;
 }
 
-const Vec4 Vec4::ZERO = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
-const Vec4 Vec4::ONE = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-const Vec4 Vec4::UNIT_X = Vec4(1.0f, 0.0f, 0.0f, 0.0f);
-const Vec4 Vec4::UNIT_Y = Vec4(0.0f, 1.0f, 0.0f, 0.0f);
-const Vec4 Vec4::UNIT_Z = Vec4(0.0f, 0.0f, 1.0f, 0.0f);
-const Vec4 Vec4::UNIT_W = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
+const Vec4 Vec4::ZERO   = Vec4(0.0F, 0.0F, 0.0F, 0.0F);
+const Vec4 Vec4::ONE    = Vec4(1.0F, 1.0F, 1.0F, 1.0F);
+const Vec4 Vec4::UNIT_X = Vec4(1.0F, 0.0F, 0.0F, 0.0F);
+const Vec4 Vec4::UNIT_Y = Vec4(0.0F, 1.0F, 0.0F, 0.0F);
+const Vec4 Vec4::UNIT_Z = Vec4(0.0F, 0.0F, 1.0F, 0.0F);
+const Vec4 Vec4::UNIT_W = Vec4(0.0F, 0.0F, 0.0F, 1.0F);
+
+template <>
+size_t Hasher<Vec4>::operator()(const Vec4 &v) const {
+    return boost::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
+                             reinterpret_cast<const uint64_t *>(&v.x + 4));
+}
 
 NS_CC_MATH_END

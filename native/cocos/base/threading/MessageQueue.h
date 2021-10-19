@@ -66,6 +66,11 @@ private:
     friend class MessageQueue;
 };
 
+// structs may be padded
+#if (CC_COMPILER == CC_COMPILER_MSVC)
+    #pragma warning(disable : 4324)
+#endif
+
 struct ALIGNAS(64) WriterContext final {
     uint8_t *             currentMemoryChunk{nullptr};
     Message *             lastMessage{nullptr};
@@ -155,6 +160,11 @@ private:
         ChunkQueue            _chunkPool{};
         ChunkQueue            _chunkFreeQueue{};
     };
+
+// structs may be padded
+#if (CC_COMPILER == CC_COMPILER_MSVC)
+    #pragma warning(default : 4324)
+#endif
 
     uint8_t *allocateImpl(uint32_t allocatedSize, uint32_t requestSize) noexcept;
     void     pushMessages() noexcept;

@@ -30,22 +30,14 @@
 namespace cc {
 namespace gfx {
 
-Sampler::Sampler(const SamplerInfo &info, size_t hash)
+Sampler::Sampler(const SamplerInfo &info)
 : GFXObject(ObjectType::SAMPLER) {
     _info = info;
-    _hash = hash;
+    _hash = computeHash(info);
 }
 
 size_t Sampler::computeHash(const SamplerInfo &info) {
-    size_t hash = toNumber(info.minFilter);
-    hash |= (toNumber(info.magFilter) << 2);
-    hash |= (toNumber(info.mipFilter) << 4);
-    hash |= (toNumber(info.addressU) << 6);
-    hash |= (toNumber(info.addressV) << 8);
-    hash |= (toNumber(info.addressW) << 10);
-    hash |= (info.maxAnisotropy << 12);
-    hash |= (toNumber(info.cmpFunc) << 16);
-    return hash;
+    return Hasher<SamplerInfo>()(info);
 }
 
 } // namespace gfx

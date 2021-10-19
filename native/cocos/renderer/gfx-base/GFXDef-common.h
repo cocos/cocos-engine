@@ -976,7 +976,7 @@ struct ALIGNAS(8) TextureViewInfo {
 #endif
 };
 
-struct SamplerInfo {
+struct ALIGNAS(8) SamplerInfo {
     Filter         minFilter{Filter::LINEAR};
     Filter         magFilter{Filter::LINEAR};
     Filter         mipFilter{Filter::NONE};

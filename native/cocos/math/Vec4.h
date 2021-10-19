@@ -95,7 +95,7 @@ public:
      *
      * @param array An array containing the elements of the vector in the order x, y, z, w.
      */
-    Vec4(const float *array);
+    explicit Vec4(const float *src);
 
     /**
      * Constructs a vector that describes the direction between the specified points.
@@ -123,11 +123,6 @@ public:
      * @return A vector corresponding to the interpreted RGBA color.
      */
     static Vec4 fromColor(unsigned int color);
-
-    /**
-     * Destructor.
-     */
-    ~Vec4();
 
     /**
      * Indicates whether this vector contains all zeros.

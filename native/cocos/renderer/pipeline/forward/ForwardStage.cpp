@@ -179,7 +179,7 @@ void ForwardStage::render(scene::Camera *camera) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
             }
         }
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
+        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);

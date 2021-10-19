@@ -57,10 +57,6 @@ void TextureValidator::doInit(const TextureInfo &info) {
 
     CCASSERT(!featureCheckMap.count(_info.format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_info.format]), "unsupported format");
 
-    // Potentially inefficient
-    static const TextureUsageBit INEFFICIENT_MASK{TextureUsageBit::INPUT_ATTACHMENT | TextureUsageBit::SAMPLED};
-    CCASSERT((info.usage & INEFFICIENT_MASK) != INEFFICIENT_MASK, "Both SAMPLED and INPUT_ATTACHMENT are specified?");
-
     /////////// execute ///////////
 
     _actor->initialize(info);

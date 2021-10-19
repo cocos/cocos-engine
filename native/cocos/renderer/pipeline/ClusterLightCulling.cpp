@@ -60,8 +60,6 @@ ClusterLightCulling::~ClusterLightCulling() {
     CC_SAFE_DESTROY(_cullingDescriptorSet);
 
     CC_SAFE_DESTROY(_constantsBuffer);
-
-    delete _resetBarrier;
 }
 
 void ClusterLightCulling::initialize(gfx::Device* dev) {

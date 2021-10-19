@@ -69,6 +69,17 @@
     #define USING_NS_CC_MATH
 #endif
 
+NS_CC_MATH_BEGIN
+
+template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
+struct Hasher final { size_t operator()(const T& info) const; };
+
+// make this boost::hash compatible
+template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
+size_t hash_value(const T& info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
+
+NS_CC_MATH_END
+
 /**
  * end of base group
  * @}

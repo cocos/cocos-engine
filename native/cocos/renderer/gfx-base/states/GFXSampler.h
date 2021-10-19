@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL Sampler : public GFXObject {
 public:
-    Sampler(const SamplerInfo &info, size_t hash);
+    explicit Sampler(const SamplerInfo &info);
 
     static size_t computeHash(const SamplerInfo &info);
 

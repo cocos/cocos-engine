@@ -121,31 +121,31 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
     for (auto &pair : _deadpool) {
         DeviceResourcePoolGC &deadpool = pair.second;
 
-        const size_t count = deadpool.size();
+        auto count = static_cast<int>(deadpool.size());
 
         if (!count) {
             return;
         }
 
-        size_t destroyBegin = count - 1;
+        int destroyBegin = count - 1;
 
-        for (size_t i = 0; i < count; ++i) {
+        for (int i = 0; i < count; ++i) {
             if (_age - deadpool[i].age < unusedFrameCount) {
                 continue;
             }
 
-            size_t j = destroyBegin;
+            int j = destroyBegin;
 
             for (; j > i; --j) {
                 if (_age - deadpool[j].age < unusedFrameCount) {
                     std::swap(deadpool[i], deadpool[j]);
-                    destroyBegin = j;
+                    destroyBegin = j - 1;
                     break;
                 }
             }
 
             if (i >= j) {
-                destroyBegin = i;
+                destroyBegin = i - 1;
             }
 
             if (i >= destroyBegin) {
@@ -153,7 +153,7 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
             }
         }
 
-        while (++destroyBegin <= count) {
+        while (++destroyBegin < count) {
             CC_SAFE_DESTROY(deadpool.back().resource);
             deadpool.pop_back();
         }

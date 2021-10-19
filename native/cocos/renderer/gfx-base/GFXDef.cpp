@@ -125,6 +125,41 @@ size_t Hasher<BufferInfo>::operator()(const BufferInfo& info) const {
     return quickHashTrivialStruct(&info);
 }
 
+template <>
+size_t Hasher<SamplerInfo>::operator()(const SamplerInfo& info) const {
+    // return quickHashTrivialStruct(&info);
+
+    // the hash may be used to reconstruct the original struct
+    auto hash = static_cast<size_t>(info.minFilter);
+    hash |= static_cast<size_t>(info.magFilter) << 2;
+    hash |= static_cast<size_t>(info.mipFilter) << 4;
+    hash |= static_cast<size_t>(info.addressU) << 6;
+    hash |= static_cast<size_t>(info.addressV) << 8;
+    hash |= static_cast<size_t>(info.addressW) << 10;
+    hash |= static_cast<size_t>(info.maxAnisotropy) << 12;
+    hash |= static_cast<size_t>(info.cmpFunc) << 16;
+    return hash;
+}
+
+template <>
+size_t Hasher<GlobalBarrierInfo>::operator()(const GlobalBarrierInfo& info) const {
+    size_t seed = 2;
+    boost::hash_combine(seed, info.prevAccesses);
+    boost::hash_combine(seed, info.nextAccesses);
+    return seed;
+}
+
+template <>
+size_t Hasher<TextureBarrierInfo>::operator()(const TextureBarrierInfo& info) const {
+    size_t seed = 5;
+    boost::hash_combine(seed, info.prevAccesses);
+    boost::hash_combine(seed, info.nextAccesses);
+    boost::hash_combine(seed, info.discardContents);
+    boost::hash_combine(seed, info.srcQueue);
+    boost::hash_combine(seed, info.dstQueue);
+    return seed;
+}
+
 bool operator==(const ColorAttachment& lhs, const ColorAttachment& rhs) {
     return lhs.format == rhs.format &&
            lhs.sampleCount == rhs.sampleCount &&
@@ -186,18 +221,12 @@ bool operator==(const Viewport& lhs, const Viewport& rhs) {
            lhs.minDepth == rhs.minDepth &&
            lhs.maxDepth == rhs.maxDepth;
 }
-bool operator!=(const Viewport& lhs, const Viewport& rhs) {
-    return !(lhs == rhs);
-}
 
 bool operator==(const Rect& lhs, const Rect& rhs) {
     return lhs.x == rhs.x &&
            lhs.y == rhs.y &&
            lhs.width == rhs.width &&
            lhs.height == rhs.height;
-}
-bool operator!=(const Rect& lhs, const Rect& rhs) {
-    return !(lhs == rhs);
 }
 
 bool operator==(const Color& lhs, const Color& rhs) {
@@ -235,6 +264,23 @@ bool operator==(const TextureViewInfo& lhs, const TextureViewInfo& rhs) {
 
 bool operator==(const BufferInfo& lhs, const BufferInfo& rhs) {
     return !memcmp(&lhs, &rhs, sizeof(BufferInfo));
+}
+
+bool operator==(const SamplerInfo& lhs, const SamplerInfo& rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(SamplerInfo));
+}
+
+bool operator==(const GlobalBarrierInfo& lhs, const GlobalBarrierInfo& rhs) {
+    return lhs.prevAccesses == rhs.prevAccesses &&
+           lhs.nextAccesses == rhs.nextAccesses;
+}
+
+bool operator==(const TextureBarrierInfo& lhs, const TextureBarrierInfo& rhs) {
+    return lhs.prevAccesses == rhs.prevAccesses &&
+           lhs.nextAccesses == rhs.nextAccesses &&
+           lhs.discardContents == rhs.discardContents &&
+           lhs.srcQueue == rhs.srcQueue &&
+           lhs.dstQueue == rhs.dstQueue;
 }
 
 const FormatInfo GFX_FORMAT_INFOS[] = {
@@ -463,6 +509,91 @@ uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t dep
             return ceilDiv(width, 12) * ceilDiv(height, 12) * 16 * depth;
         default:
             return 0;
+    }
+}
+
+std::pair<uint32_t, uint32_t> formatAlignment(Format format) {
+    switch (format) {
+        case Format::BC1:
+        case Format::BC1_ALPHA:
+        case Format::BC1_SRGB:
+        case Format::BC1_SRGB_ALPHA:
+        case Format::BC2:
+        case Format::BC2_SRGB:
+        case Format::BC3:
+        case Format::BC3_SRGB:
+        case Format::BC4:
+        case Format::BC4_SNORM:
+        case Format::BC6H_SF16:
+        case Format::BC6H_UF16:
+        case Format::BC7:
+        case Format::BC7_SRGB:
+        case Format::BC5:
+        case Format::BC5_SNORM:
+        case Format::ETC_RGB8:
+        case Format::ETC2_RGB8:
+        case Format::ETC2_SRGB8:
+        case Format::ETC2_RGB8_A1:
+        case Format::EAC_R11:
+        case Format::EAC_R11SN:
+        case Format::ETC2_RGBA8:
+        case Format::ETC2_SRGB8_A1:
+        case Format::EAC_RG11:
+        case Format::EAC_RG11SN:
+        case Format::PVRTC_RGB2:
+        case Format::PVRTC_RGBA2:
+        case Format::PVRTC2_2BPP:
+            return std::make_pair(4, 4);
+
+        case Format::PVRTC_RGB4:
+        case Format::PVRTC_RGBA4:
+        case Format::PVRTC2_4BPP:
+            return std::make_pair(2, 2);
+
+        case Format::ASTC_RGBA_4X4:
+        case Format::ASTC_SRGBA_4X4:
+            return std::make_pair(4, 4);
+        case Format::ASTC_RGBA_5X4:
+        case Format::ASTC_SRGBA_5X4:
+            return std::make_pair(5, 4);
+        case Format::ASTC_RGBA_5X5:
+        case Format::ASTC_SRGBA_5X5:
+            return std::make_pair(5, 5);
+        case Format::ASTC_RGBA_6X5:
+        case Format::ASTC_SRGBA_6X5:
+            return std::make_pair(6, 5);
+        case Format::ASTC_RGBA_6X6:
+        case Format::ASTC_SRGBA_6X6:
+            return std::make_pair(6, 6);
+        case Format::ASTC_RGBA_8X5:
+        case Format::ASTC_SRGBA_8X5:
+            return std::make_pair(8, 5);
+        case Format::ASTC_RGBA_8X6:
+        case Format::ASTC_SRGBA_8X6:
+            return std::make_pair(8, 6);
+        case Format::ASTC_RGBA_8X8:
+        case Format::ASTC_SRGBA_8X8:
+            return std::make_pair(8, 8);
+        case Format::ASTC_RGBA_10X5:
+        case Format::ASTC_SRGBA_10X5:
+            return std::make_pair(10, 5);
+        case Format::ASTC_RGBA_10X6:
+        case Format::ASTC_SRGBA_10X6:
+            return std::make_pair(10, 6);
+        case Format::ASTC_RGBA_10X8:
+        case Format::ASTC_SRGBA_10X8:
+            return std::make_pair(10, 8);
+        case Format::ASTC_RGBA_10X10:
+        case Format::ASTC_SRGBA_10X10:
+            return std::make_pair(10, 10);
+        case Format::ASTC_RGBA_12X10:
+        case Format::ASTC_SRGBA_12X10:
+            return std::make_pair(12, 10);
+        case Format::ASTC_RGBA_12X12:
+        case Format::ASTC_SRGBA_12X12:
+            return std::make_pair(12, 12);
+        default:
+            return std::make_pair(1, 1);
     }
 }
 

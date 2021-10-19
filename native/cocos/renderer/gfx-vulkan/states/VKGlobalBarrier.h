@@ -35,7 +35,7 @@ class CCVKGPUGlobalBarrier;
 
 class CC_VULKAN_API CCVKGlobalBarrier : public GlobalBarrier {
 public:
-    explicit CCVKGlobalBarrier(const GlobalBarrierInfo &info, size_t hash);
+    explicit CCVKGlobalBarrier(const GlobalBarrierInfo &info);
     ~CCVKGlobalBarrier() override;
 
     inline const CCVKGPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }

@@ -30,7 +30,7 @@
 namespace cc {
 namespace gfx {
 
-GLES3Sampler::GLES3Sampler(const SamplerInfo &info, size_t hash) : Sampler(info, hash) {
+GLES3Sampler::GLES3Sampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
     _gpuSampler            = CC_NEW(GLES3GPUSampler);

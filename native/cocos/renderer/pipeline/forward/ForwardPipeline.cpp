@@ -112,6 +112,8 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);
+
+    RenderPipeline::framegraphGC();
 }
 
 bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
