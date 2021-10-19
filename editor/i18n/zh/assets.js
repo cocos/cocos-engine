@@ -112,7 +112,7 @@ module.exports = {
         },
         texture: {
             anisotropy: 'Anisotropy',
-            anisotropyTip: '各向异性值，通过对具有最高纹理像素密度的像素的坐标轴进行取样的数量',
+            anisotropyTip: '应用各向异性过滤算法的最大阈值',
             minfilter: 'Min Filter',
             minfilterTip: '缩小贴图时采用的过滤算法',
             magfilter: 'Mag Filter',
