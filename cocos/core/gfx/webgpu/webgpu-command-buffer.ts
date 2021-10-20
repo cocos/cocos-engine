@@ -132,7 +132,6 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public endRenderPass () {
         this._nativeCommandBuffer.endRenderPass();
-        nativeLib.nativeDevice.debug();
     }
 
     public bindPipelineState (pipelineState: PipelineState) {
