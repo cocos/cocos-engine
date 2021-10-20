@@ -1478,20 +1478,20 @@ void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
     gpuInputAssembler->glVAOs.clear();
 }
 
-static GLuint doCreateFramebuffer(GLES3Device *                    device,
+static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *                    device,
                                   const vector<GLES3GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
                                   const GLES3GPUTexture *depthStencil,
                                   const uint32_t *       resolves            = nullptr,
                                   const GLES3GPUTexture *depthStencilResolve = nullptr,
                                   GLbitfield *           resolveMask         = nullptr) {
     static vector<GLenum> drawBuffers;
-    GLuint                glFramebuffer{0U};
     GLES3GPUStateCache *  cache = device->stateCache();
+    GLES3GPUFramebuffer::GLFramebufferInfo res;
 
-    GL_CHECK(glGenFramebuffers(1, &glFramebuffer));
-    if (cache->glDrawFramebuffer != glFramebuffer) {
-        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glFramebuffer));
-        cache->glDrawFramebuffer = glFramebuffer;
+    GL_CHECK(glGenFramebuffers(1, &res.glFramebuffer));
+    if (cache->glDrawFramebuffer != res.glFramebuffer) {
+        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, res.glFramebuffer));
+        cache->glDrawFramebuffer = res.glFramebuffer;
     }
 
     drawBuffers.clear();
@@ -1520,6 +1520,8 @@ static GLuint doCreateFramebuffer(GLES3Device *                    device,
             GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
                                                gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
         }
+        res.width = std::min(res.width, gpuColorTexture->width);
+        res.height = std::min(res.height, gpuColorTexture->height);
     }
     if (depthStencil) {
         bool   hasStencil   = GFX_FORMAT_INFOS[static_cast<int>(depthStencil->format)].hasStencil;
@@ -1532,11 +1534,13 @@ static GLuint doCreateFramebuffer(GLES3Device *                    device,
 
         // fallback to blit-based manual resolve
         if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
+        res.width = std::min(res.width, depthStencil->width);
+        res.height = std::min(res.height, depthStencil->height);
     }
 
     // register to framebuffer caches
-    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(glFramebuffer, attachments[colors[0]], 0);
-    if (depthStencil) device->framebufferCacheMap()->registerExternal(glFramebuffer, depthStencil, 0);
+    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, attachments[colors[0]], 0);
+    if (depthStencil) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, depthStencil, 0);
 
     GL_CHECK(glDrawBuffers(utils::toUint(drawBuffers.size()), drawBuffers.data()));
 
@@ -1565,7 +1569,7 @@ static GLuint doCreateFramebuffer(GLES3Device *                    device,
         }
     }
 
-    return glFramebuffer;
+    return res;
 }
 
 static GLES3GPUSwapchain *getSwapchainIfExists(const vector<GLES3GPUTexture *> &textures, const uint32_t *indices, size_t count) {
@@ -1883,6 +1887,19 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3
                 cache->viewport.top    = renderArea->y;
                 cache->viewport.width  = renderArea->width;
                 cache->viewport.height = renderArea->height;
+            }
+
+            uint32_t fboWidth  = instance.framebuffer.getWidth();
+            uint32_t fboHeight = instance.framebuffer.getHeight();
+            if (cache->scissor.x != 0 ||
+                cache->scissor.y != 0 ||
+                cache->scissor.width != fboWidth ||
+                cache->scissor.height != fboHeight) {
+                GL_CHECK(glScissor(0, 0, fboWidth, fboHeight));
+                cache->scissor.x      = 0;
+                cache->scissor.y      = 0;
+                cache->scissor.width  = fboWidth;
+                cache->scissor.height = fboHeight;
             }
         }
 
