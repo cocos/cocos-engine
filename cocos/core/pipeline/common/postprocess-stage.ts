@@ -29,7 +29,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
-import { Color, Rect, PipelineState, ClearFlagBit } from '../../gfx';
+import { Color, Rect, PipelineState, ClearFlagBit, Viewport } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from './enum';
 import { Material } from '../../assets/material';
@@ -117,7 +117,12 @@ export class PostProcessStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-
+        cmdBuff.setScissor(this._renderArea);
+        const viewport: Viewport = new Viewport(this._renderArea.x,
+            this._renderArea.y,
+            this._renderArea.width,
+            this._renderArea.height);
+        cmdBuff.setViewport(viewport);
         // Postprocess
         const builtinPostProcess = (sceneData as CommonPipelineSceneData).postprocessMaterial;
         const pass = builtinPostProcess.passes[0];
