@@ -354,15 +354,14 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     public generateRenderArea (camera: Camera, out?: Rect): Rect {
         const res = out || new Rect();
         const vp = camera.viewport;
-        const sceneData = this.pipelineSceneData;
         // render area is not oriented
         const swapchain = camera.window!.swapchain;
         const w = swapchain && swapchain.surfaceTransform % 2 ? camera.height : camera.width;
         const h = swapchain && swapchain.surfaceTransform % 2 ? camera.width : camera.height;
         res.x = vp.x * w;
         res.y = vp.y * h;
-        res.width = vp.width * w * sceneData.shadingScale;
-        res.height = vp.height * h * sceneData.shadingScale;
+        res.width = vp.width * w;
+        res.height = vp.height * h;
         return res;
     }
 

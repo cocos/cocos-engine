@@ -117,9 +117,6 @@ export class GbufferStage extends RenderStage {
         pipeline.updateQuadVertexData(this._renderArea, camera.window!);
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
-        if (renderObjects.length === 0) {
-            return;
-        }
 
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {

@@ -167,7 +167,6 @@ export class ForwardStage extends RenderStage {
         const sceneData = pipeline.pipelineSceneData;
         this._renderArea = pipeline.generateRenderArea(camera);
         pipeline.updateQuadVertexData(this._renderArea, camera.window!);
-
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
             colors[0].y = camera.clearColor.y;
