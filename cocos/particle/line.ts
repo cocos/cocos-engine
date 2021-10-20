@@ -120,7 +120,6 @@ export class Line extends Component {
     }
 
     @type(CurveRange)
-    @range([0, 1])
     private _width = new CurveRange();
 
     /**

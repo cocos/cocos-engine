@@ -54,6 +54,8 @@ export { ShadowStage } from './shadow/shadow-stage';
 export { InstancedBuffer } from './instanced-buffer';
 export { PipelineStateManager } from './pipeline-state-manager';
 
+export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+
 export function createDefaultPipeline () {
     const rppl = new ForwardPipeline();
     rppl.initialize({ flows: [] });

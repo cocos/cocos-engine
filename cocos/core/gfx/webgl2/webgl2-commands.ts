@@ -1308,6 +1308,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                 }
 
                 attachments.push(gl.COLOR_ATTACHMENT0 + i);
+                gpuFramebuffer.width = Math.min(gpuFramebuffer.width, colorTexture.width);
+                gpuFramebuffer.height = Math.min(gpuFramebuffer.height, colorTexture.height);
             }
         }
 
@@ -1330,6 +1332,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                     dst.glRenderbuffer,
                 );
             }
+            gpuFramebuffer.width = Math.min(gpuFramebuffer.width, dst.width);
+            gpuFramebuffer.height = Math.min(gpuFramebuffer.height, dst.height);
         }
 
         gl.drawBuffers(attachments);
@@ -1744,16 +1748,16 @@ export function WebGL2CmdFuncBeginRenderPass (
             cache.viewport.height = renderArea.height;
         }
 
-        if (cache.scissorRect.x !== renderArea.x
-            || cache.scissorRect.y !== renderArea.y
-            || cache.scissorRect.width !== renderArea.width
-            || cache.scissorRect.height !== renderArea.height) {
-            gl.scissor(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+        if (cache.scissorRect.x !== 0
+            || cache.scissorRect.y !== 0
+            || cache.scissorRect.width !== gpuFramebuffer.width
+            || cache.scissorRect.height !== gpuFramebuffer.height) {
+            gl.scissor(0, 0, gpuFramebuffer.width, gpuFramebuffer.height);
 
-            cache.scissorRect.x = renderArea.x;
-            cache.scissorRect.y = renderArea.y;
-            cache.scissorRect.width = renderArea.width;
-            cache.scissorRect.height = renderArea.height;
+            cache.scissorRect.x = 0;
+            cache.scissorRect.y = 0;
+            cache.scissorRect.width = gpuFramebuffer.width;
+            cache.scissorRect.height = gpuFramebuffer.height;
         }
 
         gfxStateCache.invalidateAttachments.length = 0;

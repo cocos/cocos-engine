@@ -169,7 +169,6 @@ export class GbufferStage extends RenderStage {
         const deferredData = pipeline.getPipelineRenderData();
         const framebuffer = deferredData.gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
-        pipeline.applyFramebufferRatio(framebuffer);
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.setViewport(pipeline.generateViewport(camera));
