@@ -93,14 +93,13 @@ export class PostProcessStage extends RenderStage {
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const cmdBuff = pipeline.commandBuffers[0];
-        const shadingScale = sceneData.shadingScale > 1 ? sceneData.shadingScale : 1;
         pipeline.pipelineUBO.updateCameraUBO(camera);
 
         const vp = camera.viewport;
         this._renderArea.x = vp.x * camera.width;
         this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width * shadingScale;
-        this._renderArea.height = vp.height * camera.height * shadingScale;
+        this._renderArea.width = vp.width * camera.width;
+        this._renderArea.height = vp.height * camera.height;
         const renderData = pipeline.getPipelineRenderData();
         const framebuffer = camera.window!.framebuffer;
         const swapchain = camera.window!.swapchain;
@@ -117,12 +116,6 @@ export class PostProcessStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-        cmdBuff.setScissor(this._renderArea);
-        const viewport: Viewport = new Viewport(this._renderArea.x,
-            this._renderArea.y,
-            this._renderArea.width,
-            this._renderArea.height);
-        cmdBuff.setViewport(viewport);
         // Postprocess
         const builtinPostProcess = (sceneData as CommonPipelineSceneData).postprocessMaterial;
         const pass = builtinPostProcess.passes[0];
