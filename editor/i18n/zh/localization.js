@@ -496,7 +496,7 @@ module.exports = {
     },
     subContextView: {
         design_size: '开放数据域的设计分辨率，禁止在运行时动态更新',
-        fps: '主域更新子域贴图的频率',
+        fps: '主域更新开放数据域贴图的频率',
     },
     skeleton: {
         skeleton_data: '骨骼信息数据，拖拽 Spine 导出的骨骼动画信息 json 资源到这里来开始使用',
@@ -821,7 +821,7 @@ module.exports = {
     },
     graphics: {
         lineWidth: '线条宽度',
-        lineJoin: '用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性',
+        lineJoin: '用来设置 2 个长度不为 0 的相连部分（线段、圆弧、曲线）如何连接在一起',
         lineCap: '指定如何绘制每一条线段末端',
         strokeColor: '笔触的颜色',
         fillColor: '填充绘画的颜色',
