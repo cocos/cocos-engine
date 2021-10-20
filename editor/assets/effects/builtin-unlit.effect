@@ -133,11 +133,14 @@ CCProgram unlit-fs %{
     o.rgb *= colorScaleAndCutoff.xyz;
 
     #if USE_VERTEX_COLOR
-      o *= v_color;
+      o.rgb *= SRGBToLinear(v_color.rgb);//use linear
+      o.a *= v_color.a;
     #endif
 
     #if USE_TEXTURE
-      o *= texture(mainTexture, v_uv);
+      vec4 texColor = texture(mainTexture, v_uv);
+      texColor.rgb = SRGBToLinear(texColor.rgb);
+      o *= texColor;
     #endif
 
     #if USE_ALPHA_TEST
