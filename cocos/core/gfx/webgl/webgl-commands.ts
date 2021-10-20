@@ -1062,7 +1062,10 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
         const tex = gpuFramebuffer.gpuColorTextures[i];
-        if (tex.isSwapchainTexture) return;
+        if (tex.isSwapchainTexture) {
+            gpuFramebuffer.isOffscreen = false;
+            return;
+        }
     }
 
     const { gl } = device;
