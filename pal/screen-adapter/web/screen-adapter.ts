@@ -255,7 +255,8 @@ class ScreenAdapter extends EventTarget {
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
                 const dpr = window.devicePixelRatio;
-                window.matchMedia(`(resolution: ${dpr}dppx)`).addEventListener('change', () => {
+                // NOTE: some browsers especially on iPhone doesn't support MediaQueryList
+                window.matchMedia(`(resolution: ${dpr}dppx)`)?.addEventListener?.('change', () => {
                     this.emit('window-resize');
                     updateDPRChangeListener();
                 }, { once: true });
