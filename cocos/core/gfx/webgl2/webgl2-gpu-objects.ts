@@ -153,9 +153,8 @@ export interface IWebGL2GPUFramebuffer {
     gpuRenderPass: IWebGL2GPURenderPass;
     gpuColorTextures: IWebGL2GPUTexture[];
     gpuDepthStencilTexture: IWebGL2GPUTexture | null;
-    isOffscreen?: boolean;
-
     glFramebuffer: WebGLFramebuffer | null;
+    isOffscreen: boolean;
     width: number;
     height: number;
 }

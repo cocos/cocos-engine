@@ -1273,7 +1273,10 @@ export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: I
 export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebuffer: IWebGL2GPUFramebuffer) {
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
         const tex = gpuFramebuffer.gpuColorTextures[i];
-        if (tex.isSwapchainTexture) return;
+        if (tex.isSwapchainTexture) {
+            gpuFramebuffer.isOffscreen = false;
+            return;
+        }
     }
 
     const { gl } = device;
