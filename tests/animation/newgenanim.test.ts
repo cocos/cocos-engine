@@ -763,6 +763,59 @@ describe('NewGen Anim', () => {
             });
         });
 
+        test('Exit transition shall not consume triggers', () => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+
+            const motionState = graph.addMotion();
+            motionState.name = 'motionState';
+            motionState.motion = createEmptyClipMotion(1.0);
+
+            const sm0 = graph.addSubStateMachine();
+            {
+                const sm1 = sm0.stateMachine.addSubStateMachine();
+                sm1.name = 'subStateMachine';
+                const subStateMachineMotionState = sm1.stateMachine.addMotion();
+                subStateMachineMotionState.name = 'subStateMachineMotionState';
+                subStateMachineMotionState.motion = createEmptyClipMotion(1.0);
+
+                sm1.stateMachine.connect(sm1.stateMachine.entryState, subStateMachineMotionState);
+                {
+                    const subStateMachineExitTransition = sm1.stateMachine.connect(
+                        subStateMachineMotionState, sm1.stateMachine.exitState);
+                    subStateMachineExitTransition.duration = 0.3;
+                    subStateMachineExitTransition.exitConditionEnabled = false;
+                    const [subStateMachineExitTransitionTriggerCondition] = subStateMachineExitTransition.conditions = [new TriggerCondition()];
+                    subStateMachineExitTransitionTriggerCondition.trigger = 't';
+                }
+
+                sm0.stateMachine.connect(sm0.stateMachine.entryState, sm1);
+                {
+                    const [triggerCondition] = sm0.stateMachine.connect(sm1, sm0.stateMachine.exitState).conditions = [new TriggerCondition()];
+                    triggerCondition.trigger = 't';
+                }
+            }
+
+            graph.connect(graph.entryState, sm0);
+            {
+                const transition = graph.connect(sm0, motionState);
+                const [triggerCondition] = transition.conditions = [new TriggerCondition()];
+                triggerCondition.trigger = 't';
+            }
+
+            animationGraph.addVariable('t', VariableType.TRIGGER);
+            
+            const graphEval = createAnimationGraphEval(animationGraph, new Node());
+
+            graphEval.update(0.4);
+            expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'subStateMachineMotionState' } });
+
+            graphEval.setValue('t', true);
+            graphEval.update(0.31);
+            expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'motionState' } });
+        });
+
         test('All triggers along the transition path should be reset', () => {
             const animationGraph = new AnimationGraph();
             const layer = animationGraph.addLayer();
