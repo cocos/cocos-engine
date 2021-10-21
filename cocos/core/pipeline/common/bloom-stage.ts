@@ -145,7 +145,6 @@ export class BloomStage extends RenderStage {
         cmdBuff.updateBuffer(this._bloomUBO[0], textureSize);
 
         cmdBuff.beginRenderPass(bloomData.renderPass, bloomData.prefilterFramebuffer, this._renderArea, colors, 0, 0);
-        cmdBuff.setScissor(this._renderArea);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         pass.descriptorSet.bindBuffer(0, this._bloomUBO[0]);
@@ -189,7 +188,6 @@ export class BloomStage extends RenderStage {
             this._renderArea.width >>= 1;
             this._renderArea.height >>= 1;
             cmdBuff.beginRenderPass(bloomData.renderPass, bloomData.downsampleFramebuffers[i]!, this._renderArea, colors, 0, 0);
-            cmdBuff.setScissor(this._renderArea);
             const pass = builtinBloomProcess.passes[BLOOM_DOWNSAMPLEPASS_INDEX + i];
             const shader = pass.getShaderVariant();
             pass.descriptorSet.bindBuffer(0, this._bloomUBO[i + 1]);
@@ -239,7 +237,6 @@ export class BloomStage extends RenderStage {
             this._renderArea.width <<= 1;
             this._renderArea.height <<= 1;
             cmdBuff.beginRenderPass(bloomData.renderPass, bloomData.upsampleFramebuffers[this.iterations - 1 - i], this._renderArea, colors, 0, 0);
-            cmdBuff.setScissor(this._renderArea);
             const pass = builtinBloomProcess.passes[BLOOM_UPSAMPLEPASS_INDEX + i];
             const shader = pass.getShaderVariant();
             pass.descriptorSet.bindBuffer(0, this._bloomUBO[index]);
@@ -284,7 +281,6 @@ export class BloomStage extends RenderStage {
         cmdBuff.updateBuffer(this._bloomUBO[uboIndex], textureSize);
 
         cmdBuff.beginRenderPass(bloomData.renderPass, bloomData.combineFramebuffer, this._renderArea, colors, 0, 0);
-        cmdBuff.setScissor(this._renderArea);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         const pass = builtinBloomProcess.passes[BLOOM_COMBINEPASS_INDEX];
         pass.descriptorSet.bindBuffer(0, this._bloomUBO[uboIndex]);
