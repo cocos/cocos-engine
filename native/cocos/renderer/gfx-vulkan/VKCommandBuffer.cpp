@@ -178,6 +178,8 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
                             static_cast<float>(renderArea.width), static_cast<float>(renderArea.height), 0.F, 1.F};
         vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
         _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
+        vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &passBeginInfo.renderArea);
+        _curDynamicStates.scissor = {0, 0, renderArea.width, renderArea.height};
     }
 }
 
