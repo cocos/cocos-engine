@@ -61,7 +61,7 @@ void BufferValidator::doInit(const BufferInfo &info) {
 
     CCASSERT(info.usage != BufferUsageBit::NONE, "invalid buffer param");
     CCASSERT(info.memUsage != MemoryUsageBit::NONE, "invalid buffer param");
-    // CCASSERT(info.size, "zero-sized buffer?"); // be more lenient on this for now
+    CCASSERT(info.size, "zero-sized buffer?");
 
     _initStack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
 
@@ -83,6 +83,7 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
 
     CCASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited(), "already destroyed?");
     CCASSERT(info.offset + info.range <= info.buffer->getSize(), "invalid range");
+    CCASSERT(info.range, "zero-sized buffer?");
 
     /////////// execute ///////////
 

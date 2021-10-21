@@ -248,8 +248,6 @@ CC_GLES3_API void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *
 CC_GLES3_API void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
 CC_GLES3_API void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
 CC_GLES3_API void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
-CC_GLES3_API void cmdFuncGLES3CreateSampler(GLES3Device *device, GLES3GPUSampler *gpuSampler);
-CC_GLES3_API void cmdFuncGLES3DestroySampler(GLES3Device *device, GLES3GPUSampler *gpuSampler);
 CC_GLES3_API void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader);
 CC_GLES3_API void cmdFuncGLES3DestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader);
 CC_GLES3_API void cmdFuncGLES3CreateRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
@@ -261,6 +259,7 @@ CC_GLES3_API void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFr
 CC_GLES3_API void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier);
 CC_GLES3_API void cmdFuncGLES3CreateQuery(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
 CC_GLES3_API void cmdFuncGLES3DestroyQuery(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
+CC_GLES3_API void cmdFuncGLES3PrepareSamplerInfo(GLES3Device *device, GLES3GPUSampler *gpuSampler);
 
 CC_GLES3_API void cmdFuncGLES3Query(GLES3Device *device, GLES3QueryPool *query, GLES3QueryType type, uint32_t id);
 

@@ -988,8 +988,7 @@ void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
     }
 }
 
-void cmdFuncGLES3CreateSampler(GLES3Device * /*device*/, GLES3GPUSampler *gpuSampler) {
-    GL_CHECK(glGenSamplers(1, &gpuSampler->glSampler));
+void cmdFuncGLES3PrepareSamplerInfo(GLES3Device * /*device*/, GLES3GPUSampler *gpuSampler) {
     if (gpuSampler->minFilter == Filter::LINEAR || gpuSampler->minFilter == Filter::ANISOTROPIC) {
         if (gpuSampler->mipFilter == Filter::LINEAR || gpuSampler->mipFilter == Filter::ANISOTROPIC) {
             gpuSampler->glMinFilter = GL_LINEAR_MIPMAP_LINEAR;
@@ -1017,25 +1016,22 @@ void cmdFuncGLES3CreateSampler(GLES3Device * /*device*/, GLES3GPUSampler *gpuSam
     gpuSampler->glWrapS = GLES3_WRAPS[toNumber(gpuSampler->addressU)];
     gpuSampler->glWrapT = GLES3_WRAPS[toNumber(gpuSampler->addressV)];
     gpuSampler->glWrapR = GLES3_WRAPS[toNumber(gpuSampler->addressW)];
-    GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_MIN_FILTER, gpuSampler->glMinFilter));
-    GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_MAG_FILTER, gpuSampler->glMagFilter));
-    GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_WRAP_S, gpuSampler->glWrapS));
-    GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_WRAP_T, gpuSampler->glWrapT));
-    GL_CHECK(glSamplerParameteri(gpuSampler->glSampler, GL_TEXTURE_WRAP_R, gpuSampler->glWrapR));
-    GL_CHECK(glSamplerParameterf(gpuSampler->glSampler, GL_TEXTURE_MIN_LOD, 0.F));
-    GL_CHECK(glSamplerParameterf(gpuSampler->glSampler, GL_TEXTURE_MAX_LOD, 1000.F));
 }
 
-void cmdFuncGLES3DestroySampler(GLES3Device *device, GLES3GPUSampler *gpuSampler) {
-    if (gpuSampler->glSampler) {
-        for (GLuint &glSampler : device->stateCache()->glSamplers) {
-            if (glSampler == gpuSampler->glSampler) {
-                glSampler = 0;
-            }
-        }
-        GL_CHECK(glDeleteSamplers(1, &gpuSampler->glSampler));
-        gpuSampler->glSampler = 0;
+GLuint GLES3GPUSamplerRegistry::getGLSampler(GLES3GPUSampler *gpuSampler) {
+    if (!_cache.count(gpuSampler)) {
+        GLuint glSampler{0U};
+        GL_CHECK(glGenSamplers(1, &glSampler));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_MIN_FILTER, gpuSampler->glMinFilter));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_MAG_FILTER, gpuSampler->glMagFilter));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_S, gpuSampler->glWrapS));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_T, gpuSampler->glWrapT));
+        GL_CHECK(glSamplerParameteri(glSampler, GL_TEXTURE_WRAP_R, gpuSampler->glWrapR));
+        GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MIN_LOD, 0.F));
+        GL_CHECK(glSamplerParameterf(glSampler, GL_TEXTURE_MAX_LOD, 1000.F));
+        _cache[gpuSampler] = glSampler;
     }
+    return _cache[gpuSampler];
 }
 
 // NOLINTNEXTLINE(google-readability-function-size, readability-function-size)
@@ -1479,13 +1475,13 @@ void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembl
 }
 
 static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device *                    device,
-                                  const vector<GLES3GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
-                                  const GLES3GPUTexture *depthStencil,
-                                  const uint32_t *       resolves            = nullptr,
-                                  const GLES3GPUTexture *depthStencilResolve = nullptr,
-                                  GLbitfield *           resolveMask         = nullptr) {
-    static vector<GLenum> drawBuffers;
-    GLES3GPUStateCache *  cache = device->stateCache();
+                                                                  const vector<GLES3GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
+                                                                  const GLES3GPUTexture *depthStencil,
+                                                                  const uint32_t *       resolves            = nullptr,
+                                                                  const GLES3GPUTexture *depthStencilResolve = nullptr,
+                                                                  GLbitfield *           resolveMask         = nullptr) {
+    static vector<GLenum>                  drawBuffers;
+    GLES3GPUStateCache *                   cache = device->stateCache();
     GLES3GPUFramebuffer::GLFramebufferInfo res;
 
     GL_CHECK(glGenFramebuffers(1, &res.glFramebuffer));
@@ -1520,7 +1516,7 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device * 
             GL_CHECK(glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
                                                gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
         }
-        res.width = std::min(res.width, gpuColorTexture->width);
+        res.width  = std::min(res.width, gpuColorTexture->width);
         res.height = std::min(res.height, gpuColorTexture->height);
     }
     if (depthStencil) {
@@ -1534,7 +1530,7 @@ static GLES3GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES3Device * 
 
         // fallback to blit-based manual resolve
         if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
-        res.width = std::min(res.width, depthStencil->width);
+        res.width  = std::min(res.width, depthStencil->width);
         res.height = std::min(res.height, depthStencil->height);
     }
 
@@ -2489,9 +2485,10 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
                         cache->glTextures[unit] = glTexture;
                     }
 
-                    if (cache->glSamplers[unit] != gpuDescriptor->gpuSampler->glSampler) {
-                        GL_CHECK(glBindSampler(unit, gpuDescriptor->gpuSampler->glSampler));
-                        cache->glSamplers[unit] = gpuDescriptor->gpuSampler->glSampler;
+                    GLuint glSampler = device->samplerRegistry()->getGLSampler(gpuDescriptor->gpuSampler);
+                    if (cache->glSamplers[unit] != glSampler) {
+                        GL_CHECK(glBindSampler(unit, glSampler));
+                        cache->glSamplers[unit] = glSampler;
                     }
                 }
             }

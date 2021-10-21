@@ -55,6 +55,7 @@ void TextureValidator::doInit(const TextureInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
+    CCASSERT(info.width && info.height && info.depth, "zero-sized texture?");
     CCASSERT(!featureCheckMap.count(_info.format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_info.format]), "unsupported format");
 
     /////////// execute ///////////

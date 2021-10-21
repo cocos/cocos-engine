@@ -50,17 +50,25 @@ void FramebufferValidator::doInit(const FramebufferInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
+    CCASSERT(info.renderPass && static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
     CCASSERT(!info.colorTextures.empty() || info.depthStencilTexture, "no attachments?");
+    CCASSERT(info.colorTextures.size() == info.renderPass->getColorAttachments().size(), "attachment count mismatch");
+    if (info.renderPass->getDepthStencilAttachment().format != Format::UNKNOWN) {
+        CCASSERT(info.depthStencilTexture, "missing depth stencil attachment");
+    }
 
-    for (auto *colorTexture : info.colorTextures) {
-        CCASSERT(colorTexture && static_cast<TextureValidator *>(colorTexture)->isInited(), "already destroyed?");
-        CCASSERT(hasAnyFlags(colorTexture->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT), "Input is not an attachment");
+    for (uint32_t i = 0U; i < info.colorTextures.size(); ++i) {
+        const auto &desc = info.renderPass->getColorAttachments()[i];
+        const auto *tex  = info.colorTextures[i];
+        CCASSERT(tex && static_cast<const TextureValidator *>(tex)->isInited(), "already destroyed?");
+        CCASSERT(hasAnyFlags(tex->getInfo().usage, TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT), "Input is not an attachment");
+        CCASSERT(tex->getFormat() == desc.format, "attachment format mismatch");
     }
     if (info.depthStencilTexture) {
         CCASSERT(static_cast<TextureValidator *>(info.depthStencilTexture)->isInited(), "already destroyed?");
         CCASSERT(hasFlag(info.depthStencilTexture->getInfo().usage, TextureUsageBit::DEPTH_STENCIL_ATTACHMENT), "Input is not a depth stencil attachment");
+        CCASSERT(info.depthStencilTexture->getFormat() == info.renderPass->getDepthStencilAttachment().format, "attachment format mismatch");
     }
-    CCASSERT(info.renderPass && static_cast<RenderPassValidator *>(info.renderPass)->isInited(), "already destroyed?");
 
     /////////// execute ///////////
 
