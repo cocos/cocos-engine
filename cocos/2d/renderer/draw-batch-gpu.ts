@@ -41,6 +41,10 @@ import { DrawBatch2D } from './draw-batch';
 import { IBatcher } from './i-batcher';
 
 const EPSILON = 1 / 4096; // ulp(2049)
+/** both numbers need to be in the range of [0, 1] */
+function pack2 (a: number, b: number) {
+    return Math.min(a, 1 - EPSILON) + Math.floor(b * 2048.0);
+}
 
 export class DrawBatch2DGPU extends DrawBatch2D {
     static _tempRect: UITransform | null = null;
@@ -223,15 +227,16 @@ export class DrawBatch2DGPU extends DrawBatch2D {
     // Need Dirty
     private _packageSlicedData (spriteData: number[], frameData: number[], rotated: boolean) { // LTRB
         if (rotated) {
-            DrawBatch2DGPU._tiledCache.x = 1 - spriteData[3] + Math.floor((1 - frameData[3]) * 2048.0);
-            DrawBatch2DGPU._tiledCache.y = spriteData[0] + Math.floor(frameData[0] * 2048.0);
-            DrawBatch2DGPU._tiledCache.z = Math.min(1 - spriteData[1], 1 - EPSILON) + Math.floor((1 - frameData[1]) * 2048.0);
-            DrawBatch2DGPU._tiledCache.w = Math.min(spriteData[2], 1 - EPSILON) + Math.floor(frameData[2] * 2048.0);
+            // https://user-images.githubusercontent.com/9102404/138222856-32175cf9-7aaf-4b7e-b7f4-e7b957db59aa.png
+            DrawBatch2DGPU._tiledCache.x = pack2(1 - spriteData[3], 1 - frameData[3]);
+            DrawBatch2DGPU._tiledCache.y = pack2(spriteData[0], frameData[0]);
+            DrawBatch2DGPU._tiledCache.z = pack2(1 - spriteData[1], 1 - frameData[1]);
+            DrawBatch2DGPU._tiledCache.w = pack2(spriteData[2], frameData[2]);
         } else {
-            DrawBatch2DGPU._tiledCache.x = spriteData[0] + Math.floor(frameData[0] * 2048.0);
-            DrawBatch2DGPU._tiledCache.y = spriteData[1] + Math.floor(frameData[1] * 2048.0);
-            DrawBatch2DGPU._tiledCache.z = Math.min(spriteData[2], 1 - EPSILON) + Math.floor(frameData[2] * 2048.0);
-            DrawBatch2DGPU._tiledCache.w = Math.min(spriteData[3], 1 - EPSILON) + Math.floor(frameData[3] * 2048.0);
+            DrawBatch2DGPU._tiledCache.x = pack2(spriteData[0], frameData[0]);
+            DrawBatch2DGPU._tiledCache.y = pack2(spriteData[1], frameData[1]);
+            DrawBatch2DGPU._tiledCache.z = pack2(spriteData[2], frameData[2]);
+            DrawBatch2DGPU._tiledCache.w = pack2(spriteData[3], frameData[3]);
         }
     }
 }
