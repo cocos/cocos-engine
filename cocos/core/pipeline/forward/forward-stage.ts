@@ -185,7 +185,10 @@ export class ForwardStage extends RenderStage {
         }
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-        if (swapchain) cmdBuff.setViewport(pipeline.generateViewport(camera));
+        if (swapchain) {
+            cmdBuff.setScissor(pipeline.generateScissor(camera));
+            cmdBuff.setViewport(pipeline.generateViewport(camera));
+        }
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);

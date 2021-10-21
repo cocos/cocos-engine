@@ -372,6 +372,13 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         return viewport;
     }
 
+    public generateScissor (camera: Camera, out?: Rect): Rect {
+        const rect = this.generateRenderArea(camera);
+        const shadingScale = this.pipelineSceneData.shadingScale;
+        const scissor = out || new Rect(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
+        return scissor;
+    }
+
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
