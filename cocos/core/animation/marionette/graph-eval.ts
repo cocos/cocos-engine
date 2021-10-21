@@ -831,6 +831,10 @@ class LayerEval {
     }
 
     private _resetTriggersOnTransition (transition: TransitionEval) {
+        if (transition.to.kind === NodeKind.exit) {
+            // Exit transition(transitions whose target is exit)
+            return;
+        }
         const { triggers } = transition;
         if (triggers) {
             const nTriggers = triggers.length;
