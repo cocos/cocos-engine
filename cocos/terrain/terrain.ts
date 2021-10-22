@@ -50,7 +50,7 @@ import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCFloat, CCInteger, Node, RenderPipeline } from '../core';
+import { CCBoolean, CCFloat, CCInteger, Node, PipelineEventType, RenderPipeline } from '../core';
 
 /**
  * @en Terrain info
@@ -1507,15 +1507,11 @@ export class Terrain extends Component {
             this._blocks[i].visible = true;
         }
 
-        if (!JSB) {
-            RenderPipeline.addRenderCallback(this);
-        }
+        legacyCC.director.root.pipeline.on(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
     }
 
     public onDisable () {
-        if (!JSB) {
-            RenderPipeline.removeRenderCallback(this);
-        }
+        legacyCC.director.root.pipeline.off(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
 
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].visible = false;
@@ -1549,7 +1545,7 @@ export class Terrain extends Component {
         }
     }
 
-    public onPreRender (cam: Camera): void {
+    public onUpdateFromCamera (cam: Camera): void {
         if (!this.LodEnable) {
             return;
         }
@@ -1565,8 +1561,6 @@ export class Terrain extends Component {
             this._blocks[i]._updateLod();
         }
     }
-
-    public onPostRender (cam: Camera): void {}
 
     /**
      * @en add layer
