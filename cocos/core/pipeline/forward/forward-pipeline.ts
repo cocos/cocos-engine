@@ -47,15 +47,6 @@ import { PipelineEventType } from '../pipeline-event';
 
 const PIPELINE_TYPE = 0;
 
-const _samplerInfo = new SamplerInfo(
-    Filter.LINEAR,
-    Filter.LINEAR,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-);
-
 /**
  * @en The forward render pipeline
  * @zh 前向渲染管线。
@@ -160,7 +151,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const shadowMapSampler = device.getSampler(_samplerInfo);
+        const shadowMapSampler = this.globalDSManager.pointSampler;
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
         this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
@@ -236,10 +227,11 @@ export class ForwardPipeline extends RenderPipeline {
             data.outputDepth,
         ));
         // Listens when the attachment texture is scaled
-        this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, () => {
+        this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, (val: number) => {
+            data.sampler = val < 1 ? this.globalDSManager.pointSampler : this.globalDSManager.linearSampler;
             this.applyFramebufferRatio(data.outputFrameBuffer);
         });
-        data.sampler = device.getSampler(_samplerInfo);
+        data.sampler = this.globalDSManager.linearSampler;
 
         this._generateBloomRenderData();
     }
