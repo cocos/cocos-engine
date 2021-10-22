@@ -142,14 +142,7 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _queryPools.push_back(_device->getQueryPool());
     auto *const sharedData = _pipelineSceneData->getSharedData();
 
-    gfx::Sampler *const sampler = _device->getSampler({
-        gfx::Filter::POINT,
-        gfx::Filter::POINT,
-        gfx::Filter::NONE,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-    });
+    gfx::Sampler *const sampler = getGlobalDSManager()->getPointSampler();
 
     // Main light sampler binding
     _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);

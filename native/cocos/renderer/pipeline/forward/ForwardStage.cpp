@@ -142,7 +142,7 @@ void ForwardStage::render(scene::Camera *camera) {
     auto *const sharedData = sceneData->getSharedData();
 
     float shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
-    _renderArea = pipeline->getRenderArea(camera);
+    _renderArea = RenderPipeline::getRenderArea(camera);
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda
     dispenseRenderObject2Queues();
     pipeline->getPipelineUBO()->updateShadowUBO(camera);
@@ -202,7 +202,7 @@ void ForwardStage::render(scene::Camera *camera) {
         data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
-        builder.setViewport(pipeline->getViewport(camera), _renderArea);
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
     auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();

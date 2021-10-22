@@ -300,13 +300,7 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 
     _reflectionRenderQueue = CC_NEW(RenderQueue(_pipeline, std::move(info)));
 
-    gfx::SamplerInfo samplerInfo;
-    samplerInfo.minFilter = gfx::Filter::POINT;
-    samplerInfo.magFilter = gfx::Filter::POINT;
-    samplerInfo.addressU  = gfx::Address::CLAMP;
-    samplerInfo.addressV  = gfx::Address::CLAMP;
-    samplerInfo.addressW  = gfx::Address::CLAMP;
-    _defaultSampler       = _device->getSampler(samplerInfo);
+    _defaultSampler       = pipeline->getGlobalDSManager()->getPointSampler();
 }
 
 void LightingStage::destroy() {
@@ -387,7 +381,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
         // set render area
-        builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
     auto lightingExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
@@ -405,7 +399,7 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
         // get PSO and draw quad
-        auto rendeArea = pipeline->getRenderArea(camera);
+        auto rendeArea = RenderPipeline::getRenderArea(camera);
 
         scene::Pass *        pass           = sceneData->getSharedData()->deferredLightPass;
         gfx::Shader *        shader         = sceneData->getSharedData()->deferredLightPassShader;
@@ -492,7 +486,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         // set render area
-        builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
     auto transparentExec = [this, camera](RenderData const & /*data*/, const framegraph::DevicePassResourceTable &table) {
@@ -775,7 +769,7 @@ void LightingStage::fgSsprPass(scene::Camera *camera) {
         data.depth = builder.write(framegraph::TextureHandle(builder.readFromBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture)), depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
-        builder.setViewport(pipeline->getViewport(camera), pipeline->getRenderArea(camera));
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
     auto renderExec = [this, camera](DataRender const &data, const framegraph::DevicePassResourceTable &table) {

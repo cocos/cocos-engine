@@ -63,6 +63,7 @@ public:
     static framegraph::StringHandle fgStrHandleOutColorTexture;
     static framegraph::StringHandle fgStrHandlePostprocessPass;
     static framegraph::StringHandle fgStrHandleBloomOutTexture;
+    static gfx::Rect                getRenderArea(scene::Camera *camera);
 
     RenderPipeline();
     ~RenderPipeline() override;
@@ -94,8 +95,8 @@ public:
     bool                                           getOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
     void                                           setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
 
-    gfx::Rect               getRenderArea(scene::Camera *camera);
     gfx::Viewport           getViewport(scene::Camera *camera);
+    gfx::Rect               getScissor(scene::Camera *camera);
     void                    genQuadVertexData(const Vec4 &viewport, float *data);
     uint                    getWidth() const { return _width; }
     uint                    getHeight() const { return _height; }

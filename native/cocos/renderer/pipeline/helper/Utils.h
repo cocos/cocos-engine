@@ -51,16 +51,11 @@ inline void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
 
 inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, gfx::Swapchain *swapchain) {
     if (profiler && profiler->getEnabled() && swapchain) {
-        gfx::Viewport viewport{0, 0, swapchain->getWidth(), swapchain->getHeight()};
-        gfx::Rect     scissor{0, 0, swapchain->getWidth(), swapchain->getHeight()};
 
         auto *submodel = profiler->getSubModels()[0];
         auto *pass     = submodel->getPass(0);
         auto *ia       = submodel->getInputAssembler();
         auto *pso      = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
-
-        cmdBuff->setViewport(viewport);
-        cmdBuff->setScissor(scissor);
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->bindDescriptorSet(localSet, submodel->getDescriptorSet());

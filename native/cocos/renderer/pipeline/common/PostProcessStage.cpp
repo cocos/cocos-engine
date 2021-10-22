@@ -182,7 +182,7 @@ void PostProcessStage::render(scene::Camera *camera) {
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
 
-        builder.setViewport(pipeline->getRenderArea(camera));
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
     auto postExec = [this, camera](RenderData const &data, const framegraph::DevicePassResourceTable &table) {
@@ -198,20 +198,15 @@ void PostProcessStage::render(scene::Camera *camera) {
             auto *const  sceneData = pipeline->getPipelineSceneData();
             scene::Pass *pv        = sceneData->getSharedData()->pipelinePostPass;
             gfx::Shader *sd        = sceneData->getSharedData()->pipelinePostPassShader;
-
+            float                  shadingScale{sceneData->getSharedData()->shadingScale};
             // get pso and draw quad
-            gfx::InputAssembler *ia  = pipeline->getIAByRenderArea(pipeline->getRenderArea(camera));
+            gfx::InputAssembler *      ia       = pipeline->getIAByRenderArea(RenderPipeline::getRenderArea(camera));
             gfx::PipelineState * pso = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
-
+            pipeline::GlobalDSManager *globalDS = pipeline->getGlobalDSManager();
+            gfx::Sampler *             sampler  = shadingScale < 1.F ? globalDS->getPointSampler() : globalDS->getLinearSampler();
+            
             pv->getDescriptorSet()->bindTexture(0, table.getRead(data.outColorTex));
-            pv->getDescriptorSet()->bindSampler(0, pipeline->getDevice()->getSampler({
-                                                       gfx::Filter::POINT,
-                                                       gfx::Filter::POINT,
-                                                       gfx::Filter::NONE,
-                                                       gfx::Address::CLAMP,
-                                                       gfx::Address::CLAMP,
-                                                       gfx::Address::CLAMP,
-                                                   }));
+            pv->getDescriptorSet()->bindSampler(0, sampler);
             pv->getDescriptorSet()->update();
 
             cmdBuff->bindPipelineState(pso);

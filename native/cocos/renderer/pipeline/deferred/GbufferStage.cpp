@@ -148,7 +148,7 @@ void GbufferStage::render(scene::Camera *camera) {
 
     auto  *pipeline = static_cast<DeferredPipeline *>(_pipeline);
     float  shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
-    _renderArea     = pipeline->getRenderArea(camera);
+    _renderArea = RenderPipeline::getRenderArea(camera);
 
     // render area is not oriented, copy buffer must be called outsize of RenderPass, it should not be called in execute lambda expression
     // If there are only transparent object, lighting pass is ignored, we should call getIAByRenderArea here
@@ -221,7 +221,7 @@ void GbufferStage::render(scene::Camera *camera) {
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
 
         // viewport setup
-        builder.setViewport(pipeline->getViewport(camera), _renderArea);
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
     auto gbufferExec = [this, camera](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
