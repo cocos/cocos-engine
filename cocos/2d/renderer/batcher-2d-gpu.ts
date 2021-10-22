@@ -358,11 +358,10 @@ export class Batcher2D implements IBatcher {
                 continue;
             }
 
+            DrawBatch2D.drawcallPool.freeArray(batch.drawCalls);
             batch.clear();
             this._drawBatchPool.free(batch as DrawBatch2DGPU);
         }
-        // macro.UI_GPU_DRIVEN
-        DrawBatch2D.drawcallPool.reset();
 
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
