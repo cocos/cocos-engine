@@ -212,6 +212,7 @@ export class AudioPlayer implements OperationQueueable {
                         this._cachedState.currentTime = 0;
                     }
                     audioEngine.setFinishCallback(this._id, () => {
+                        this._cachedState.currentTime = 0;
                         this._id = INVALID_AUDIO_ID;
                         this._state = AudioState.INIT;
                         this._eventTarget.emit(AudioEvent.ENDED);
