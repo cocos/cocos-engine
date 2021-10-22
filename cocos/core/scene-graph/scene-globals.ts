@@ -43,11 +43,11 @@ const _qt = new Quat();
 
 // Normalize HDR color
 const normalizeHDRColor = (color : Vec4) => {
-    const intensity = 1.0 / Math.max(Math.max(color[0], color[1]), color[2]);
+    const intensity = 1.0 / Math.max(Math.max(Math.max(color.x, color.y), color.z), 0.0001);
     if (intensity < 1.0) {
-        for (let i = 0; i < 3; ++i) {
-            color[i] *= intensity;
-        }
+        color.x *= intensity;
+        color.y *= intensity;
+        color.z *= intensity;
     }
 };
 /**
