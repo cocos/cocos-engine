@@ -4,6 +4,8 @@ import {
     BufferSource,
     BufferInfo,
     BufferViewInfo,
+    DrawInfo,
+    IndirectBuffer,
 } from '../base/define';
 
 import { toWGPUNativeBufferFlag, toWGPUNativeBufferMemUsage, toWGPUNativeBufferUsage } from './webgpu-commands';
@@ -65,19 +67,34 @@ export class WebGPUBuffer extends Buffer {
     }
 
     public update (buffer: BufferSource, size?: number) {
-        // TODO_Zeqiang: idirect buffer.
-        const buff = buffer as ArrayBuffer;
-        let data;
-        let rawBuffer;
-        if ('buffer' in buff) {
-            // es-lint as any
-            rawBuffer = (buff as any).buffer;
-            data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+        if (buffer instanceof IndirectBuffer) {
+            const drawInfos = new nativeLib.DrawInfoList();
+            for (let i = 0; i < buffer.drawInfos.length; i++) {
+                const drawInfo = new nativeLib.DrawInfo();
+                drawInfo.vertexCount = buffer.drawInfos[i].vertexCount;
+                drawInfo.firstVertex = buffer.drawInfos[i].firstVertex;
+                drawInfo.indexCount = buffer.drawInfos[i].indexCount;
+                drawInfo.firstIndex = buffer.drawInfos[i].firstIndex;
+                drawInfo.vertexOffset = buffer.drawInfos[i].vertexOffset;
+                drawInfo.instanceCount = buffer.drawInfos[i].instanceCount;
+                drawInfo.firstInstance = buffer.drawInfos[i].firstInstance;
+                drawInfos.push_back(drawInfo);
+            }
+            this._nativeBuffer.updateDrawInfo(drawInfos);
         } else {
-            rawBuffer = buff;
-            data = new Uint8Array(rawBuffer);
+            const buff = buffer;
+            let data;
+            let rawBuffer;
+            if ('buffer' in buff) {
+                // es-lint as any
+                rawBuffer = (buff as any).buffer;
+                data = new Uint8Array((buff as any).buffer, (buff as any).byteOffset, (buff as any).byteLength);
+            } else {
+                rawBuffer = buff;
+                data = new Uint8Array(rawBuffer);
+            }
+            const bufferSize = size === undefined ? buff.byteLength : size;
+            this._nativeBuffer.update(data, bufferSize);
         }
-        const bufferSize = size === undefined ? buff.byteLength : size;
-        this._nativeBuffer.update(data, bufferSize);
     }
 }
