@@ -731,15 +731,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         ));
 
         // sampler
-        const samplerInfo = new SamplerInfo(
-            Filter.LINEAR,
-            Filter.LINEAR,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        );
-        bloom.sampler = device.getSampler(samplerInfo);
+        bloom.sampler = this.globalDSManager.linearSampler;
     }
 
     /**
