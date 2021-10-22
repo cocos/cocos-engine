@@ -141,7 +141,6 @@ export class Batcher2D implements IBatcher {
     private _meshBufferUseCount: Map<number, number> = new Map();
 
     private _batches: CachedArray<DrawBatch2D>;
-    private _doUploadBuffersCall: Map<any, ((ui: Batcher2D) => void)> = new Map();
     private _emptyMaterial = new Material();
     private _currScene: RenderScene | null = null;
     private _currMaterial: Material = this._emptyMaterial;
@@ -249,14 +248,6 @@ export class Batcher2D implements IBatcher {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target, func: ((ui: Batcher2D) => void)) {
-        this._doUploadBuffersCall.set(target, func);
-    }
-
-    public removeUploadBuffersFunc (target: any) {
-        this._doUploadBuffersCall.delete(target);
-    }
-
     public update () {
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
@@ -291,11 +282,6 @@ export class Batcher2D implements IBatcher {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
-            const calls = this._doUploadBuffersCall;
-            calls.forEach((value, key) => {
-                value.call(key, this);
-            });
-
             const buffers = this._meshBuffers;
             buffers.forEach((value, key) => {
                 value.forEach((bb) => {
