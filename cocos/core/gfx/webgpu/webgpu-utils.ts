@@ -29,6 +29,7 @@ const wgpuWasmModule = {
 fetch('http://localhost:7456/webgpu_wasm.wasm').then((response) => {
     response.arrayBuffer().then((buffer) => {
         (wgpuWasmModule as any).wasmBinary = buffer;
+        (wgpuWasmModule as any).wasmLoaded = true;
     });
 }).catch((e) => {
 

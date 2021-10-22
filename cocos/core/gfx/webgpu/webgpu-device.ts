@@ -105,13 +105,28 @@ export class WebGPUDevice extends Device {
             return true;
         };
 
-        const mainEntry: Promise<boolean> = wasmDevice(nativeLib).then(() => {
-            nativeLib.wasmLoaded = true;
-            console.log(nativeLib);
-            return Promise.resolve(getDevice().then(() => launch()));
-        });
+        function mainEntry(): Promise<boolean> {
+            const poll = (resolve) => {
+                if (nativeLib.wasmLoaded) {
+                    wasmDevice(nativeLib).then(() => {
+                        nativeLib.wasmLoaded = true;
+                        console.log(nativeLib);
+                        return getDevice().then(() => {
+                                launch();
+                                resolve();
+                            });
+                    });
+                } else {
+                    setTimeout((_) => {
+                        poll(resolve);
+                    }, 30);
+                }
+            };
 
-        return Promise.resolve(mainEntry);
+            return new Promise(poll);
+        }
+
+        return mainEntry();
     }
 
     public destroy (): void {
@@ -146,7 +161,6 @@ export class WebGPUDevice extends Device {
         if (buffer.initialize(info)) {
             return buffer;
         }
-        return null!;
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
