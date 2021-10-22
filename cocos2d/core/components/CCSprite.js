@@ -555,7 +555,7 @@ if (CC_EDITOR) {
     };
 
     // override onDestroy
-    Sprite.prototype.__superOnDestroy = cc.Component.prototype.onDestroy;
+    Sprite.prototype.__superOnDestroy = RenderComponent.prototype.onDestroy;
     Sprite.prototype.onDestroy = function () {
         if (this.__superOnDestroy) this.__superOnDestroy();
         this.node.off(NodeEvent.SIZE_CHANGED, this._resizedInEditor, this);
