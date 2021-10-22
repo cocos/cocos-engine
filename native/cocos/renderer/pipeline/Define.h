@@ -492,6 +492,8 @@ uint nextPow2(uint val);
 
 bool supportsHalfFloatTexture(gfx::Device *device);
 
+bool supportsFloatTexture(gfx::Device *device);
+
 extern CC_DLL uint skyboxFlag;
 
 struct CC_DLL SHADOWMAP : public Object {

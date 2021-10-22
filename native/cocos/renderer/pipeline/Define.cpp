@@ -511,6 +511,12 @@ bool supportsHalfFloatTexture(gfx::Device *device) {
            device->getGfxAPI() != gfx::API::GLES2;
 }
 
+bool supportsFloatTexture(gfx::Device *device) {
+    return device->hasFeature(gfx::Feature::COLOR_FLOAT) &&
+           device->hasFeature(gfx::Feature::TEXTURE_FLOAT) &&
+           device->getGfxAPI() != gfx::API::GLES2;
+}
+
 uint getPhaseID(const String &phase) {
     se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
 
