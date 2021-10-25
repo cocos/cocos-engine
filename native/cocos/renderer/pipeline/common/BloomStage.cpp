@@ -131,7 +131,7 @@ void BloomStage::destroy() {
 void BloomStage::render(scene::Camera *camera) {
     auto *pipeline = _pipeline;
     CC_ASSERT(pipeline != nullptr);
-    if (!pipeline->getBloomEnabled() || !pipeline->getPipelineSceneData()->getRenderObjects().empty()) return;
+    if (!pipeline->getBloomEnabled() || pipeline->getPipelineSceneData()->getRenderObjects().empty()) return;
 
     if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
         _clearColors[0].x = camera->clearColor.x;
