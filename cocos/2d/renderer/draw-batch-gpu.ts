@@ -145,7 +145,7 @@ export class DrawBatch2DGPU extends DrawBatch2D {
             dc = this._drawCalls[this._dcIndex];
         }
         if (!dc) {
-            dc = DrawBatch2DGPU.drawcallPool.add();
+            dc = DrawBatch2DGPU.drawcallPool.alloc();
             // make sure to assign initial values to all members here
             dc.bufferHash = localBuffer.hash;
             dc.bufferUboIndex = localBuffer.prevUBOIndex;
