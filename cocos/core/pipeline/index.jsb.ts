@@ -43,6 +43,7 @@ export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;
+export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 
 let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
