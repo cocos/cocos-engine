@@ -73,6 +73,7 @@ export class Graphics extends Renderable2D {
      * 当前线条宽度。
      */
     @editable
+    @tooltip('i18n:graphics.lineWidth')
     get lineWidth () {
         return this._lineWidth;
     }

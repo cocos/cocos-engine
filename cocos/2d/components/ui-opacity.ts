@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, editable, serializable } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, editable, serializable } from 'cc.decorator';
 import { Component } from '../../core/components/component';
 import { clampf } from '../../core/utils/misc';
 
@@ -55,6 +55,7 @@ export class UIOpacity extends Component {
      * 透明度。
      */
     @editable
+    @tooltip('i18n:UIOpacity.opacity')
     get opacity () {
         return this._opacity;
     }

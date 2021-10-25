@@ -305,7 +305,7 @@ export class RichText extends UIComponent {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @tooltip('i18n:richtext')
+    @tooltip('i18n:richtext.cache_mode')
     get cacheMode () {
         return this._cacheMode;
     }

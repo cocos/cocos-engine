@@ -421,6 +421,7 @@ export class Sprite extends Renderable2D {
     }
 
     @editable
+    @tooltip('i18n:sprite.gray_scale')
     get grayscale () {
         return this._useGrayscale;
     }
