@@ -1,6 +1,6 @@
 import { Node, Scene } from "../../cocos/core/scene-graph"
 import { Vec3 } from "../../cocos/core/math"
-import { director } from "../../cocos/core";
+import { BaseNode, director } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
 
 describe(`Node`, () => {
@@ -15,6 +15,41 @@ describe(`Node`, () => {
         let p = new Vec3(100, 200, 0);
         subNode.inverseTransformPoint(p, p);
         expect(p).toStrictEqual(new Vec3(25, 195, -122));
+    });
+
+    test('get-current-path',() => {
+        let scene = new Scene('tempScene');
+        
+        let node1: BaseNode = new Node();
+        node1.name = 'node1';
+        node1.setParent(scene);
+        
+        let node2: BaseNode = new Node();
+        node2.name = 'node2';
+        node2.setParent(node1);
+
+        let node3: BaseNode = new Node();
+        node3.name = 'node3';
+        node3.setParent(node2);
+
+        let node3Bro: BaseNode = new Node();
+        node3Bro.name = 'node3Bro';
+        node3Bro.setParent(node2);
+
+        let path1 = node1.getCompletePath();
+        expect(path1).toStrictEqual('node1');
+
+        let path2 = node2.getCompletePath();
+        expect(path2).toStrictEqual('node1/node2');
+
+        let path3 = node3.getCompletePath();
+        expect(path3).toStrictEqual('node1/node2/node3');
+
+        let path3Bro = node3Bro.getCompletePath();
+        expect(path3Bro).toStrictEqual('node1/node2/node3Bro');
+
+        let pathScene = scene.getCompletePath();
+        expect(pathScene).toStrictEqual('');
     });
 
     test('active-in-hierarchy-changed', () => {
