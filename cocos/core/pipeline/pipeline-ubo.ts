@@ -72,15 +72,13 @@ export class PipelineUBO {
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
         const fog = sceneData.fog;
-        const shadingWidth = Math.floor(root.mainWindow.width);
-        const shadingHeight = Math.floor(root.mainWindow.height);
         const cv = bufferView;
         const exposure = camera.exposure;
         const isHDR = sceneData.isHDR;
 
         // update camera ubo
-        cv[UBOCamera.SCREEN_SCALE_OFFSET] = camera.width / shadingWidth;
-        cv[UBOCamera.SCREEN_SCALE_OFFSET + 1] = camera.height / shadingHeight;
+        cv[UBOCamera.SCREEN_SCALE_OFFSET] = sceneData.shadingScale;
+        cv[UBOCamera.SCREEN_SCALE_OFFSET + 1] = sceneData.shadingScale;
         cv[UBOCamera.SCREEN_SCALE_OFFSET + 2] = 1.0 / cv[UBOCamera.SCREEN_SCALE_OFFSET];
         cv[UBOCamera.SCREEN_SCALE_OFFSET + 3] = 1.0 / cv[UBOCamera.SCREEN_SCALE_OFFSET + 1];
 

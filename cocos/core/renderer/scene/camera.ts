@@ -203,6 +203,18 @@ export class Camera {
         }
     }
 
+    private _updateAspect (oriented = true) {
+        this._aspect = (this.window.width * this._viewport.width) / (this.window.height * this._viewport.height);
+        if (oriented) {
+            const swapchain = this.window.swapchain;
+            const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
+            if (orientation % 2) this._aspect = 1 / this._aspect;
+        }
+        this._isProjDirty = true;
+
+        if (JSB) this._nativeObj!.aspect = this._aspect;
+    }
+
     protected _init (info: ICameraInfo) {
         if (JSB) {
             this._nativeObj = new NativeCamera();
@@ -248,7 +260,7 @@ export class Camera {
     public destroy () {
         if (this._window) {
             this._window.detachCamera(this);
-            this.window = null;
+            this.window = null!;
         }
         this._name = null;
         this._destroy();
@@ -269,20 +281,13 @@ export class Camera {
 
         this._setWidth(width);
         this._setHeight(height);
-        this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
-        if (JSB) {
-            this._nativeObj!.aspect = this._aspect;
-        }
-        this._isProjDirty = true;
+        this._updateAspect();
     }
 
     public setFixedSize (width: number, height: number) {
         this._setWidth(width);
         this._setHeight(height);
-        this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
-        if (JSB) {
-            this._nativeObj!.aspect = this._aspect;
-        }
+        this._updateAspect(false);
         this.isWindowSize = false;
     }
 
@@ -330,7 +335,7 @@ export class Camera {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
             } else {
-                const x = this._orthoHeight * this._aspect; // aspect is already oriented
+                const x = this._orthoHeight * this._aspect;
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
@@ -456,10 +461,12 @@ export class Camera {
         return this._clearColor as IVec4Like;
     }
 
+    // Pre-rotated (i.e. always in identity/portrait mode) if supported.
     get viewport () {
         return this._viewport;
     }
 
+    // Oriented
     set viewport (val) {
         const { x, width, height } = val;
         const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
@@ -554,12 +561,12 @@ export class Camera {
     set window (val) {
         this._window = val;
         if (JSB && val) {
-            this._nativeObj!.window = this._window!.native;
+            this._nativeObj!.window = this._window.native;
         }
     }
 
     get window () {
-        return this._window;
+        return this._window!;
     }
 
     set forward (val) {
@@ -701,7 +708,12 @@ export class Camera {
         if (win) {
             win.attachCamera(this);
             this.window = win;
-            this.resize(win.width, win.height);
+
+            // window size is pre-rotated
+            const swapchain = win.swapchain;
+            const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
+            if (orientation % 2) this.resize(win.height, win.width);
+            else this.resize(win.width, win.height);
         }
     }
 
@@ -717,8 +729,8 @@ export class Camera {
     public screenPointToRay (out: Ray, x: number, y: number): Ray {
         if (!this._node) return null!;
 
-        const width = this.width;
-        const height = this.height;
+        const width = this.window.width;
+        const height = this.window.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -750,8 +762,8 @@ export class Camera {
      * transform a screen position (in oriented space) to world space
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
-        const width = this.width;
-        const height = this.height;
+        const width = this.window.width;
+        const height = this.window.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -796,8 +808,8 @@ export class Camera {
      * transform a world space position to screen space
      */
     public worldToScreen (out: Vec3, worldPos: Vec3 | Readonly<Vec3>): Vec3 {
-        const width = this.width;
-        const height = this.height;
+        const width = this.window.width;
+        const height = this.window.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;

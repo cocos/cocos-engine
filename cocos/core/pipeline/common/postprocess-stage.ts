@@ -96,13 +96,13 @@ export class PostProcessStage extends RenderStage {
         pipeline.pipelineUBO.updateCameraUBO(camera);
 
         const vp = camera.viewport;
-        this._renderArea.x = vp.x * camera.width;
-        this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width;
-        this._renderArea.height = vp.height * camera.height;
+        this._renderArea.x = vp.x * camera.window.width;
+        this._renderArea.y = vp.y * camera.window.height;
+        this._renderArea.width = vp.width * camera.window.width;
+        this._renderArea.height = vp.height * camera.window.height;
         const renderData = pipeline.getPipelineRenderData();
-        const framebuffer = camera.window!.framebuffer;
-        const swapchain = camera.window!.swapchain;
+        const framebuffer = camera.window.framebuffer;
+        const swapchain = camera.window.swapchain;
         const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag, swapchain) : framebuffer.renderPass;
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
@@ -131,7 +131,7 @@ export class PostProcessStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-        const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
+        const inputAssembler = camera.window.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
         let pso: PipelineState | null = null;
         if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);

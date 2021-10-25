@@ -53,16 +53,16 @@ const orientationMap: Record<Orientation, SurfaceTransform> = {
  */
 export class RenderWindow {
     /**
-     * @en Get window width.
-     * @zh 窗口宽度。
+     * @en Get window width. Pre-rotated (i.e. always in identity/portrait mode) if supported.
+     * @zh 窗口宽度。如果支持交换链预变换，返回值始终处于单位旋转（竖屏）坐标系下。
      */
     get width (): number {
         return this._width;
     }
 
     /**
-     * @en Get window height.
-     * @zh 窗口高度。
+     * @en Get window height. Pre-rotated (i.e. always in identity/portrait mode) if supported.
+     * @zh 窗口高度。如果支持交换链预变换，返回值始终处于单位旋转（竖屏）坐标系下。
      */
     get height (): number {
         return this._height;
@@ -219,9 +219,7 @@ export class RenderWindow {
         }
 
         for (const camera of this._cameras) {
-            if (camera.isWindowSize) {
-                camera.resize(width, height);
-            }
+            camera.resize(width, height);
         }
     }
 
