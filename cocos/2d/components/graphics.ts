@@ -606,7 +606,7 @@ export class Graphics extends Renderable2D {
         }
     }
 
-    protected _uploadData (render: IBatcher) {
+    protected _uploadData () {
         const impl = this.impl;
         if (!impl) {
             return;
@@ -635,7 +635,6 @@ export class Graphics extends Renderable2D {
             renderData.lastFilledIndices = renderData.indicesStart;
         }
 
-        render.removeUploadBuffersFunc(this);
         this._isNeedUploadData = false;
     }
 
@@ -650,7 +649,7 @@ export class Graphics extends Renderable2D {
                     }
                 }
             }
-            render.addUploadBuffersFunc(this, this._uploadData);
+            this._uploadData();
         }
 
         render.commitModel(this, this.model, this.getMaterialInstance(0));

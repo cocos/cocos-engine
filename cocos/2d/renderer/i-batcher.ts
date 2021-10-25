@@ -31,8 +31,6 @@ export interface IBatcher {
     removeScreen (comp: RenderRoot2D);
 
     sortScreens ();
-    addUploadBuffersFunc (target, func: ((ui: IBatcher) => void));
-    removeUploadBuffersFunc (target);
 
     update ();
     uploadBuffers ();
