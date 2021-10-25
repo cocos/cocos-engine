@@ -86,8 +86,8 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, float *out
     const auto shadingWidth  = static_cast<float>(std::floor(camera->window->getWidth()));
     const auto shadingHeight = static_cast<float>(std::floor(camera->window->getHeight()));
 
-    output[UBOCamera::SCREEN_SCALE_OFFSET + 0] = static_cast<float>(camera->width / shadingWidth);
-    output[UBOCamera::SCREEN_SCALE_OFFSET + 1] = static_cast<float>(camera->height / shadingHeight);
+    output[UBOCamera::SCREEN_SCALE_OFFSET + 0] = sharedData->shadingScale;
+    output[UBOCamera::SCREEN_SCALE_OFFSET + 1] = sharedData->shadingScale;
     output[UBOCamera::SCREEN_SCALE_OFFSET + 2] = 1.0F / output[UBOCamera::SCREEN_SCALE_OFFSET];
     output[UBOCamera::SCREEN_SCALE_OFFSET + 3] = 1.0F / output[UBOCamera::SCREEN_SCALE_OFFSET + 1];
 

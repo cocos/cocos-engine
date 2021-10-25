@@ -156,10 +156,10 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         clearValues[attachmentCount].depthStencil = {depth, stencil};
     }
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
-    passBeginInfo.renderPass        = gpuRenderPass->vkRenderPass;
-    passBeginInfo.framebuffer       = framebuffer;
-    passBeginInfo.clearValueCount   = utils::toUint(clearValues.size());
-    passBeginInfo.pClearValues      = clearValues.data();
+    passBeginInfo.renderPass      = gpuRenderPass->vkRenderPass;
+    passBeginInfo.framebuffer     = framebuffer;
+    passBeginInfo.clearValueCount = utils::toUint(clearValues.size());
+    passBeginInfo.pClearValues    = clearValues.data();
 
     // don't quote me on this but:
     // metal doesn't really have the concept of render area (to limit the range of load ops)
@@ -252,7 +252,8 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
                                gpuInputAssembler->vertexBuffers.data(), gpuInputAssembler->vertexBufferOffsets.data());
 
         if (gpuInputAssembler->gpuIndexBuffer) {
-            vkCmdBindIndexBuffer(_gpuCommandBuffer->vkCommandBuffer, gpuInputAssembler->gpuIndexBuffer->gpuBuffer->vkBuffer, 0,
+            vkCmdBindIndexBuffer(_gpuCommandBuffer->vkCommandBuffer, gpuInputAssembler->gpuIndexBuffer->gpuBuffer->vkBuffer,
+                                 gpuInputAssembler->gpuIndexBuffer->gpuBuffer->getStartOffset(gpuDevice->curBackBufferIndex),
                                  gpuInputAssembler->gpuIndexBuffer->gpuBuffer->stride == 4 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16);
         }
         _curGPUInputAssember = gpuInputAssembler;

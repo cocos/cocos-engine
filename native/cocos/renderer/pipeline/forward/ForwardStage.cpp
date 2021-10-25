@@ -188,8 +188,8 @@ void ForwardStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
             gfx::Format::DEPTH_STENCIL,
-            static_cast<uint>(camera->window->getWidth() * shadingScale),
-            static_cast<uint>(camera->window->getHeight() * shadingScale),
+            static_cast<uint>(pipeline->getWidth() * shadingScale),
+            static_cast<uint>(pipeline->getHeight() * shadingScale),
         };
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
