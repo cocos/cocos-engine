@@ -158,8 +158,6 @@ export class Batcher2D implements IBatcher {
     private _currIsStatic = false;
     private _currOpacity = 1;
 
-    private _currBatch!: DrawBatch2D;
-
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
@@ -167,7 +165,6 @@ export class Batcher2D implements IBatcher {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
-        this._currBatch = this._drawBatchPool.alloc();
     }
 
     public initialize () {
@@ -309,10 +306,10 @@ export class Batcher2D implements IBatcher {
                 continue;
             }
 
+            DrawBatch2D.drawcallPool.freeArray(batch.drawCalls);
             batch.clear();
             this._drawBatchPool.free(batch);
         }
-        DrawBatch2D.drawcallPool.reset();
 
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
@@ -370,7 +367,6 @@ export class Batcher2D implements IBatcher {
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
-            this._currBatch = this._drawBatchPool.alloc();
 
             this._currScene = renderScene;
             this._currComponent = renderComp;
@@ -499,7 +495,7 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.bufferBatch = buffer;

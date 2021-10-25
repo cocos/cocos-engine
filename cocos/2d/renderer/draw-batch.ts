@@ -39,9 +39,9 @@ import { Model } from '../../core/renderer/scene/model';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
-import { RecyclePool } from '../../core/memop/recycle-pool';
 import { NativeDrawBatch2D, NativeDrawCall, NativePass } from '../../core/renderer/scene';
 import { IBatcher } from './i-batcher';
+import { Pool } from '../../core/memop';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -115,7 +115,7 @@ export class DrawCall {
 }
 
 export class DrawBatch2D {
-    static drawcallPool = new RecyclePool(() => new DrawCall(), 100);
+    static drawcallPool = new Pool(() => new DrawCall(), 100);
 
     public get native (): NativeDrawBatch2D {
         return this._nativeObj!;
@@ -267,7 +267,7 @@ export class DrawBatch2D {
         let dc = this._drawCalls[0];
         const ia = this.inputAssembler;
         if (!dc) {
-            dc = DrawBatch2D.drawcallPool.add();
+            dc = DrawBatch2D.drawcallPool.alloc();
             dc.bufferHash = 0;
             dc.bufferView = null;
             dc.bufferUboIndex = 0;
