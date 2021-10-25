@@ -42,6 +42,7 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { scene } from '../renderer';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -1318,6 +1319,17 @@ export class Node extends BaseNode implements CustomSerializable {
             dirtyNodes.length = 0;
             nativeDirtyNodes.length = 0;
         }
+    }
+
+    public getCompletePath (): string {
+        let result = this.name;
+        let curNode: BaseNode | null = this.parent;
+        while (curNode && curNode instanceof Node) {
+            result = `${curNode.name}/${result}`;
+            curNode = curNode.parent;
+        }
+
+        return result;
     }
 }
 
