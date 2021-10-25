@@ -15,7 +15,7 @@ import { displayName, displayOrder, editable, override, serializable, tooltip, t
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
@@ -153,11 +153,15 @@ export class Skeleton extends Renderable2D {
      * @zh 该骨骼动画是否暂停。
      * @property paused
      * @type {Boolean}
-     * @readOnly
      * @default false
      */
-    @visible(false)
-    public paused = false;
+    private _paused = false;
+    get paused () {
+        return this._paused;
+    }
+    set paused (value: boolean) {
+        this._paused = value;
+    }
 
     /** dstBlendFactor
      * @en
@@ -1322,6 +1326,14 @@ export class Skeleton extends Renderable2D {
         return inst;
     }
 
+    // For Redo, Undo
+    // call markForUpdateRenderData to make sure renderData will be re-built.
+    public onRestore () {
+        this.updateMaterial();
+        this._renderFlag = this._canRender();
+        this.markForUpdateRenderData();
+    }
+
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
@@ -1349,7 +1361,7 @@ export class Skeleton extends Renderable2D {
     }
 
     public _meshRenderDataArrayIdx = 0;
-    protected _render (ui: Batcher2D) {
+    protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {
             for (let i = 0; i < this._meshRenderDataArray.length; i++) {
                 // HACK

@@ -56,7 +56,7 @@ const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
-    const func = sys.capabilities.imageBitmap && legacyCC.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
+    const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && legacyCC.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 

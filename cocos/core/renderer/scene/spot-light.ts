@@ -25,6 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { AABB, Frustum } from '../../geometry';
+import { legacyCC } from '../../global-exports';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { NativeSpotLight } from './native-scene';
@@ -41,6 +42,10 @@ export class SpotLight extends Light {
 
     protected _range = 5.0;
 
+    /**
+     * @en Cached uniform variables.
+     * @zh 缓存下来的 uniform 变量。
+     */
     protected _spotAngle: number = Math.cos(Math.PI / 6);
 
     protected _pos: Vec3;
@@ -49,13 +54,19 @@ export class SpotLight extends Light {
 
     protected _frustum: Frustum;
 
+    /**
+     * @en User-specified full-angle radians.
+     * @zh 用户指定的全角弧度。
+     */
     protected _angle = 0;
 
     protected _needUpdate = false;
 
     protected _size = 0.15;
 
-    protected _luminance = 0;
+    protected _luminanceHDR = 0;
+
+    protected _luminanceLDR = 0;
 
     protected _aspect = 0;
 
@@ -109,25 +120,55 @@ export class SpotLight extends Light {
         return this._range;
     }
 
-    set luminance (lum: number) {
-        this._luminance = lum;
-        if (JSB) {
-            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
+    get luminance (): number {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._luminanceHDR;
+        } else {
+            return this._luminanceLDR;
+        }
+    }
+    set luminance (value: number) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this.luminanceHDR = value;
+        } else {
+            this.luminanceLDR = value;
         }
     }
 
-    get luminance (): number {
-        return this._luminance;
+    get luminanceHDR () {
+        return this._luminanceHDR;
+    }
+    set luminanceHDR (value: number) {
+        this._luminanceHDR = value;
+
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setLuminanceHDR(value);
+        }
+    }
+
+    get luminanceLDR () {
+        return this._luminanceLDR;
+    }
+    set luminanceLDR (value: number) {
+        this._luminanceLDR = value;
+
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setLuminanceLDR(value);
+        }
     }
 
     get direction (): Vec3 {
         return this._dir;
     }
 
+    // 获取 cache 下来的 cos(angle / 2) 属性值，uniform 里需要
     get spotAngle () {
         return this._spotAngle;
     }
 
+    // 设置用户指定的全角弧度，同时计算 cache 下来的 cos(angle / 2) 属性值，uniform 里需要。
     set spotAngle (val: number) {
         this._angle = val;
         this._spotAngle = Math.cos(val * 0.5);
@@ -136,6 +177,10 @@ export class SpotLight extends Light {
         }
 
         this._needUpdate = true;
+    }
+
+    get angle () {
+        return this._angle;
     }
 
     set aspect (val: number) {
@@ -174,6 +219,7 @@ export class SpotLight extends Light {
         this.size = size;
         this.aspect = 1.0;
         this.luminance = 1700 / nt2lm(size);
+        this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
         this._setDirection(new Vec3(1.0, -1.0, -1.0));
     }

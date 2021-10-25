@@ -56,7 +56,7 @@ export interface IMemoryImageSource {
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
 function isImageBitmap (imageSource: any): boolean {
-    return !!(legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap);
+    return !!(legacyCC.sys.hasFeature(legacyCC.sys.Feature.IMAGE_BITMAP) && imageSource instanceof ImageBitmap);
 }
 
 function fetchImageSource (imageSource: ImageSource) {
@@ -253,7 +253,6 @@ export class ImageAsset extends Asset {
         const device = _getGlobalDevice();
         const extensionIDs = fmtStr.split('_');
 
-        let defaultExt = '';
         let preferedExtensionIndex = Number.MAX_VALUE;
         let format = this._format;
         let ext = '';
@@ -278,23 +277,18 @@ export class ImageAsset extends Asset {
                 } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
                     && (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
                     continue;
-                } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
+                } else if (tmpExt === '.webp' && !legacyCC.sys.hasFeature(legacyCC.sys.Feature.WEBP)) {
                     continue;
                 }
                 preferedExtensionIndex = index;
                 ext = tmpExt;
                 format = fmt;
-            } else if (!defaultExt) {
-                defaultExt = tmpExt;
             }
         }
 
         if (ext) {
             this._setRawAsset(ext);
             this._format = format;
-        } else if (defaultExt) {
-            this._setRawAsset(defaultExt);
-            warnID(3120, defaultExt, defaultExt);
         } else {
             warnID(3121);
         }

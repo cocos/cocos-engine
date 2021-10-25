@@ -96,6 +96,18 @@ export abstract class RenderStage {
     protected _priority = 0;
 
     /**
+     * @en Whether to enable
+     * @zh 是否启用。
+     */
+    protected _enabled = true;
+    public set enabled (val: boolean) {
+        this._enabled = val;
+    }
+    public get enabled () {
+        return this._enabled;
+    }
+
+    /**
      * @en Type
      * @zh 类型。
      */

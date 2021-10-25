@@ -37,7 +37,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { ForwardStagePriority } from './enum';
+import { ForwardStagePriority } from '../common/enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
@@ -46,7 +46,7 @@ import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
-import { UIPhase } from './ui-phase';
+import { UIPhase } from '../common/ui-phase';
 import { Camera } from '../../renderer/scene';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
@@ -113,7 +113,7 @@ export class ForwardStage extends RenderStage {
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
         this._planarQueue = new PlanarShadowQueue(this._pipeline);
-        this._uiPhase.activate(pipeline);
+        if (!pipeline.postRenderPass) this._uiPhase.activate(pipeline);
     }
 
     public destroy () {
@@ -156,6 +156,7 @@ export class ForwardStage extends RenderStage {
         }
 
         this._renderQueues.forEach(renderQueueSortFunc);
+        pipeline.pipelineUBO.updateShadowUBO(camera);
 
         const cmdBuff = pipeline.commandBuffers[0];
 
@@ -165,39 +166,40 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
         const sceneData = pipeline.pipelineSceneData;
         this._renderArea = pipeline.generateRenderArea(camera);
-
+        pipeline.updateQuadVertexData(this._renderArea, camera.window!);
         if (camera.clearFlag & ClearFlagBit.COLOR) {
-            if (sceneData.isHDR) {
-                SRGBToLinear(colors[0], camera.clearColor);
-                const scale = sceneData.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
-            } else {
-                colors[0].x = camera.clearColor.x;
-                colors[0].y = camera.clearColor.y;
-                colors[0].z = camera.clearColor.z;
-            }
+            colors[0].x = camera.clearColor.x;
+            colors[0].y = camera.clearColor.y;
+            colors[0].z = camera.clearColor.z;
         }
 
         colors[0].w = camera.clearColor.w;
 
-        const framebuffer = camera.window!.framebuffer;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag & this._clearFlag);
-
+        const swapchain = camera.window!.swapchain;
+        let framebuffer = camera.window!.framebuffer;
+        let renderPass = framebuffer.renderPass;
+        if (swapchain) {
+            renderPass = pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain);
+            const forwardData = pipeline.getPipelineRenderData();
+            framebuffer = forwardData.outputFrameBuffer;
+        }
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
+        if (swapchain) {
+            cmdBuff.setScissor(pipeline.generateScissor(camera));
+            cmdBuff.setViewport(pipeline.generateViewport(camera));
+        }
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
         this._additiveLightQueue.recordCommandBuffer(device, renderPass, cmdBuff);
+
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
-
         cmdBuff.endRenderPass();
     }
 }

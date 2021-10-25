@@ -31,20 +31,92 @@
 import { JSB } from 'internal:constants';
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
-import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
+import { Texture, Sampler, DrawInfo, Buffer, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Model } from '../../core/renderer/scene/model';
-import { Batcher2D } from './batcher-2d';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
-import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
+import { RecyclePool } from '../../core/memop/recycle-pool';
+import { NativeDrawBatch2D, NativeDrawCall, NativePass } from '../../core/renderer/scene';
+import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
+export class DrawCall {
+    // UBO info
+    public bufferHash = 0;
+    public bufferUboIndex = 0;
+    public _bufferView: Buffer | null = null;
+
+    // actual draw call info
+    private _descriptorSet: DescriptorSet | null = null;
+    private _dynamicOffsets = [0, 0];// uboindex * _uniformBufferStride
+    private _drawInfo: DrawInfo| null = null;
+
+    private declare _nativeObj: NativeDrawCall | null;
+
+    public get native (): NativeDrawCall {
+        return this._nativeObj!;
+    }
+
+    public get bufferView () {
+        return this._bufferView;
+    }
+    public set bufferView (buffer: Buffer | null) {
+        this._bufferView = buffer;
+        if (JSB) {
+            this._nativeObj!.bufferView = buffer;
+        }
+    }
+
+    public get descriptorSet () {
+        return this._descriptorSet;
+    }
+    public set descriptorSet (ds: DescriptorSet | null) {
+        this._descriptorSet = ds;
+        if (JSB) {
+            this._nativeObj!.descriptorSet = ds;
+        }
+    }
+
+    public get drawInfo () {
+        return this._drawInfo;
+    }
+
+    public get dynamicOffsets () {
+        return this._dynamicOffsets;
+    }
+    public set dynamicOffsets (offsets: number[]) {
+        this._dynamicOffsets = offsets;
+        if (JSB) {
+            this._nativeObj!.dynamicOffsets = this._dynamicOffsets;
+        }
+    }
+
+    public setDynamicOffsets (value: number) {
+        this._dynamicOffsets[1] = value;
+        if (JSB) {
+            this._nativeObj!.setDynamicOffsets(value);
+        }
+    }
+
+    constructor () {
+        if (JSB) {
+            this._drawInfo = new gfx.DrawInfo();
+            this._nativeObj = new NativeDrawCall();
+            this._nativeObj.drawInfo = this.drawInfo;
+        } else {
+            this._drawInfo = new DrawInfo();
+        }
+    }
+}
+
 export class DrawBatch2D {
+    static drawcallPool = new RecyclePool(() => new DrawCall(), 100);
+
     public get native (): NativeDrawBatch2D {
         return this._nativeObj!;
     }
@@ -77,7 +149,8 @@ export class DrawBatch2D {
             this._nativeObj!.visFlags = vis;
         }
     }
-    public get passes () {
+
+    get passes () {
         return this._passes;
     }
 
@@ -102,6 +175,10 @@ export class DrawBatch2D {
     private _descriptorSet: DescriptorSet | null = null;
     private declare _nativeObj: NativeDrawBatch2D | null;
 
+    protected _drawCalls: DrawCall[] = [];
+
+    get drawCalls () { return this._drawCalls; }
+
     constructor () {
         if (JSB) {
             this._nativeObj = new NativeDrawBatch2D();
@@ -109,7 +186,7 @@ export class DrawBatch2D {
         }
     }
 
-    public destroy (ui: Batcher2D) {
+    public destroy (ui: IBatcher) {
         this._passes = [];
         if (JSB) {
             this._nativeObj = null;
@@ -128,10 +205,17 @@ export class DrawBatch2D {
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
         this.renderScene = null;
+        this._drawCalls.length = 0;
+        if (JSB) { this._nativeObj!.clearDrawCalls(); }
+    }
+
+    protected _pushDrawCall (dc: DrawCall) {
+        this._drawCalls.push(dc);
+        if (JSB) { this._nativeObj!.pushDrawCall(dc.native); }
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches) {
+    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches, batcher: IBatcher) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
@@ -150,9 +234,7 @@ export class DrawBatch2D {
 
                 mtlPass.update();
 
-                if (mtlPass.hash === passInUse.hash) {
-                    continue;
-                }
+                // Hack: Cause pass.hash can not check all pass value
 
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
                 if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
@@ -162,7 +244,7 @@ export class DrawBatch2D {
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
 
-                this._shaders[i] = passInUse.getShaderVariant()!;
+                this._shaders[i] = passInUse.getShaderVariant(patches)!;
 
                 dirty = true;
             }
@@ -178,6 +260,22 @@ export class DrawBatch2D {
                     this._nativeObj!.shaders = this._shaders;
                 }
             }
+        }
+    }
+
+    public fillDrawCallAssembler () {
+        let dc = this._drawCalls[0];
+        const ia = this.inputAssembler;
+        if (!dc) {
+            dc = DrawBatch2D.drawcallPool.add();
+            dc.bufferHash = 0;
+            dc.bufferView = null;
+            dc.bufferUboIndex = 0;
+            this._pushDrawCall(dc);
+        }
+        if (ia) {
+            dc.drawInfo!.firstIndex = ia.drawInfo.firstIndex;
+            dc.drawInfo!.indexCount = ia.drawInfo.indexCount;
         }
     }
 }

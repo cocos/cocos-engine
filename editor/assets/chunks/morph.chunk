@@ -94,7 +94,7 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
 
 #if CC_MORPH_TARGET_HAS_POSITION
   #pragma builtin(local)
-  layout(set = 2, binding = 6) uniform sampler2D cc_PositionDisplacements;
+  layout(set = 2, binding = 7) uniform sampler2D cc_PositionDisplacements;
   vec3 getPositionDisplacement(int vertexId) {
     return getVec3DisplacementFromTexture(cc_PositionDisplacements, vertexId);
   }
@@ -102,7 +102,7 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
 
 #if CC_MORPH_TARGET_HAS_NORMAL
   #pragma builtin(local)
-  layout(set = 2, binding = 7) uniform sampler2D cc_NormalDisplacements;
+  layout(set = 2, binding = 8) uniform sampler2D cc_NormalDisplacements;
   vec3 getNormalDisplacement(int vertexId) {
     return getVec3DisplacementFromTexture(cc_NormalDisplacements, vertexId);
   }
@@ -110,7 +110,7 @@ vec3 getVec3DisplacementFromTexture(sampler2D tex, int vertexIndex) {
 
 #if CC_MORPH_TARGET_HAS_TANGENT
   #pragma builtin(local)
-  layout(set = 2, binding = 8) uniform sampler2D cc_TangentDisplacements;
+  layout(set = 2, binding = 9) uniform sampler2D cc_TangentDisplacements;
   vec3 getTangentDisplacement(int vertexId) {
     return getVec3DisplacementFromTexture(cc_TangentDisplacements, vertexId);
   }

@@ -33,7 +33,7 @@ import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, edit
 import { EDITOR } from 'internal:constants';
 import { Renderable2D } from '../2d/framework';
 import { Texture2D } from '../core/assets/texture-2d';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
 
 class Point {
@@ -229,7 +229,7 @@ export class MotionStreak extends Renderable2D {
         if (this._assembler) this._assembler.update(this, dt);
     }
 
-    public _render (render: Batcher2D) {
+    public _render (render: IBatcher) {
         render.commitComp(this, this._texture, this._assembler, null);
     }
 }

@@ -213,8 +213,8 @@ CCProgram standard-fs %{
     #if USE_OCCLUSION_MAP
       pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
     #endif
-    s.occlusion = clamp(pbr.x, 0.0, 0.96);
-    s.roughness = clamp(pbr.y, 0.04, 1.0);
+    s.occlusion = pbr.x;
+    s.roughness = pbr.y;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
@@ -224,11 +224,11 @@ CCProgram standard-fs %{
   }
 
   #pragma builtin(local)
-  layout(set = 2, binding = 11) uniform sampler2D cc_reflectionTexture;
+  layout(set = 2, binding = 12) uniform sampler2D cc_reflectionTexture;
 
-  layout(location = 0) out vec4 fragColorX;                        
+  layout(location = 0) out vec4 fragColorX;
 
-  void main () {                                                   
+  void main () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);
     CC_APPLY_FOG(color);

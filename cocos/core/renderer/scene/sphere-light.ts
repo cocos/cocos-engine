@@ -25,6 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { AABB } from '../../geometry';
+import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { NativeSphereLight } from './native-scene';
@@ -70,15 +71,40 @@ export class SphereLight extends Light {
         return this._range;
     }
 
-    set luminance (lum: number) {
-        this._luminance = lum;
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
+    get luminance (): number {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._luminanceHDR;
+        } else {
+            return this._luminanceLDR;
+        }
+    }
+    set luminance (value: number) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this.luminanceHDR = value;
+        } else {
+            this.luminanceLDR = value;
         }
     }
 
-    get luminance (): number {
-        return this._luminance;
+    get luminanceHDR () {
+        return this._luminanceHDR;
+    }
+    set luminanceHDR (value: number) {
+        this._luminanceHDR = value;
+
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setLuminanceHDR(value);
+        }
+    }
+
+    set luminanceLDR (value: number) {
+        this._luminanceLDR = value;
+
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setLuminanceLDR(value);
+        }
     }
 
     get aabb () {
@@ -88,7 +114,8 @@ export class SphereLight extends Light {
     protected _needUpdate = false;
     protected _size = 0.15;
     protected _range = 1.0;
-    protected _luminance = 0;
+    protected _luminanceHDR = 0;
+    protected _luminanceLDR = 0;
     protected _pos: Vec3;
     protected _aabb: AABB;
 
@@ -106,6 +133,7 @@ export class SphereLight extends Light {
         this.size = size;
         this.range = 1.0;
         this.luminance = 1700 / nt2lm(size);
+        this.luminanceLDR = 1.0;
     }
 
     public update () {

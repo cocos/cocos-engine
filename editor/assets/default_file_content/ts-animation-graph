@@ -1,0 +1,26 @@
+import { _decorator, animation } from "cc";
+const { ccclass, property } = _decorator;
+
+/**
+ * Predefined variables
+ * Name = <%Name%>
+ * DateTime = <%DateTime%>
+ * Author = <%Author%>
+ * FileBasename = <%FileBasename%>
+ * FileBasenameNoExtension = <%FileBasenameNoExtension%>
+ * URL = <%URL%>
+ * ManualUrl = <%ManualUrl%>
+ *
+ */
+
+@ccclass("<%Name%>")
+export class <%Name%> extends animation.StateMachineComponent {
+    
+    onEnter (controller: animation.AnimationController) {
+  
+    }
+  
+    onExit (controller: animation.AnimationController) {
+  
+    }
+}

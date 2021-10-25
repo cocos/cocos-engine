@@ -2,6 +2,7 @@
 
 #include <lighting>
 
+#if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 0
 vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
@@ -10,7 +11,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
   vec3 N = normalize(s.normal);
   vec3 V = normalize(cc_cameraPos.xyz - s.position);
-  float NV = max(abs(dot(N, V)), 0.001);
+  float NV = max(abs(dot(N, V)), 0.0);
   specular = BRDFApprox(specular, s.roughness, NV);
   vec3 finalColor = vec3(0.0);
 
@@ -21,7 +22,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
     vec3 SLU = cc_lightPos[i].xyz - s.position;
     vec3 SL = normalize(SLU);
     vec3 SH = normalize(SL + V);
-    float SNL = max(dot(N, SL), 0.001);
+    float SNL = max(dot(N, SL), 0.0);
     float SNH = max(dot(N, SH), 0.0);
 
     float distSqr = dot(SLU, SLU);
@@ -45,7 +46,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
-      if (cc_lightPos[i].w > 0.0) {
+      if (cc_lightPos[i].w > 0.0 && cc_lightSizeRangeAngle[i].w > 0.0) {
         CC_SPOT_SHADOW_FACTOR_BASE(shadow, shadowPos, s.position, cc_lightPos[i], N);
       }
     #endif
@@ -56,3 +57,4 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
   return vec4(finalColor, 0.0);
 }
+#endif

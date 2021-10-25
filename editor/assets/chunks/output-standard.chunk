@@ -3,8 +3,9 @@
 #include <gamma>
 
 vec4 CCFragOutput (vec4 color) {
-  #if !CC_USE_HDR
-    color.rgb = LinearToSRGB(ACESToneMap(color.rgb));
+  #if CC_USE_HDR
+    color.rgb = ACESToneMap(color.rgb);
   #endif
+  color.rgb = LinearToSRGB(color.rgb);
   return color;
 }

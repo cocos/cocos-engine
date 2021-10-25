@@ -29,7 +29,7 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, requireComponent } from 'cc.decorator';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Component } from '../../core/components/component';
 import { UITransform } from './ui-transform';
 import { Node } from '../../core/scene-graph';
@@ -75,7 +75,7 @@ export class UIComponent extends Component {
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public updateAssembler (render: Batcher2D) {
+    public updateAssembler (render: IBatcher) {
     }
 
     /**
@@ -86,7 +86,7 @@ export class UIComponent extends Component {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: Batcher2D) {
+    public postUpdateAssembler (render: IBatcher) {
     }
 
     public markForUpdateRenderData (enable = true) {
