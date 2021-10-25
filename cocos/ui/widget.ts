@@ -133,6 +133,10 @@ export enum AlignMode {
      */
     ALWAYS = 1,
     /**
+     * @en
+     * At the beginning, the widget will be aligned as the method 'ONCE'.
+     * After that the widget will be aligned only when the size of screen is modified.
+     *
      * @zh
      * 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
      */

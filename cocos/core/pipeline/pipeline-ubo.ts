@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsHalfFloatTexture } from './define';
+import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsFloatTexture } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec2, Vec3, Vec4, Color } from '../math';
@@ -202,7 +202,7 @@ export class PipelineUBO {
                 Mat4.toArray(bufferView, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
                 const linear = 0.0;
-                const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
+                const packing = supportsFloatTexture(device) ? 0.0 : 1.0;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = near;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = far;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
@@ -230,7 +230,7 @@ export class PipelineUBO {
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
         const linear = 0.0;
-        const packing = supportsHalfFloatTexture(device) ? 0.0 : 1.0;
+        const packing = supportsFloatTexture(device) ? 0.0 : 1.0;
         let near = 0.1;
         let far = 0;
         let matShadowView;
