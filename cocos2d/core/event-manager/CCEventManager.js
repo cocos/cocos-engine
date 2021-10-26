@@ -128,7 +128,7 @@ var eventManager = {
     _setDirtyForNode: function (node) {
         // Mark the node dirty only when there is an event listener associated with it.
         let selListeners = this._nodeListenersMap[node._id];
-        if (selListeners !== undefined) {
+        if (selListeners) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
                 let selListener = selListeners[j];
                 let listenerID = selListener._getListenerID();
