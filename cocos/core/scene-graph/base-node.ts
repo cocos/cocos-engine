@@ -518,7 +518,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         let lastNode: this = this;
         for (let i = 0; i < segments.length; ++i) {
             const segment = segments[i];
-            if (segment.length === 0) {
+            if (i === 0 && segment.length === 0) {
                 continue;
             }
             const next = lastNode.children.find((childNode) => childNode.name === segment);
