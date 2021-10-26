@@ -629,12 +629,18 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * @en Calculates the radian angle between two vectors
-     * @zh 求两向量夹角弧度
+     * @en Calculates the radian angle between two vectors。
+     * @zh 计算两向量之间的弧度制夹角。
+     * @param a Vector A.
+     * @param b Vector B.
+     * @param normalized Indicates if both of the vectors are normalized.
+     * @returns The angle between the two vectors, in radians.
      */
-    public static angle (a: IVec3Like, b: IVec3Like) {
-        Vec3.normalize(v3_1, a);
-        Vec3.normalize(v3_2, b);
+    public static angle (a: IVec3Like, b: IVec3Like, normalized = false) {
+        if (!normalized) {
+            Vec3.normalize(v3_1, a);
+            Vec3.normalize(v3_2, b);
+        }
         const cosine = Vec3.dot(v3_1, v3_2);
         if (cosine > 1.0) {
             return 0;
