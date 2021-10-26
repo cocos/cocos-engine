@@ -56,7 +56,7 @@ export class Mat4 extends ValueType {
      * @en Clone a matrix and save the results to out matrix
      * @zh 获得指定矩阵的拷贝
      */
-    public static clone <Out extends IMat4Like> (a: Out) {
+    public static clone (a: IMat4Like) {
         return new Mat4(
             a.m00, a.m01, a.m02, a.m03,
             a.m04, a.m05, a.m06, a.m07,
@@ -69,7 +69,7 @@ export class Mat4 extends ValueType {
      * @en Copy a matrix into the out matrix
      * @zh 复制目标矩阵
      */
-    public static copy <Out extends IMat4Like> (out: Out, a: Out) {
+    public static copy (out: IMat4Like, a: IMat4Like) {
         out.m00 = a.m00;
         out.m01 = a.m01;
         out.m02 = a.m02;
@@ -93,8 +93,8 @@ export class Mat4 extends ValueType {
      * @en Sets a matrix with the given values and save the results to out matrix
      * @zh 设置矩阵值
      */
-    public static set <Out extends IMat4Like>  (
-        out: Out,
+    public static set  (
+        out: IMat4Like,
         m00: number, m01: number, m02: number, m03: number,
         m10: number, m11: number, m12: number, m13: number,
         m20: number, m21: number, m22: number, m23: number,
@@ -111,7 +111,7 @@ export class Mat4 extends ValueType {
      * @en return an identity matrix.
      * @zh 将目标赋值为单位矩阵
      */
-    public static identity <Out extends IMat4Like> (out: Out) {
+    public static identity (out: IMat4Like) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -135,7 +135,7 @@ export class Mat4 extends ValueType {
      * @en Transposes a matrix and save the results to out matrix
      * @zh 转置矩阵
      */
-    public static transpose <Out extends IMat4Like> (out: Out, a: Out) {
+    public static transpose (out: IMat4Like, a: IMat4Like) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
             const a01 = a.m01; const a02 = a.m02; const a03 = a.m03; const a12 = a.m06; const a13 = a.m07; const a23 = a.m11;
@@ -176,7 +176,7 @@ export class Mat4 extends ValueType {
      * @en Inverts a matrix. When matrix is not invertible the matrix will be set to zeros.
      * @zh 矩阵求逆，注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
-    public static invert <Out extends IMat4Like> (out: Out, a: Out) {
+    public static invert (out: IMat4Like, a: IMat4Like) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
         const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
         const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
@@ -231,7 +231,7 @@ export class Mat4 extends ValueType {
      * @en Calculates the determinant of a matrix
      * @zh 矩阵行列式
      */
-    public static determinant <Out extends IMat4Like> (a: Out): number {
+    public static determinant (a: IMat4Like): number {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
         const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
         const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
@@ -258,7 +258,7 @@ export class Mat4 extends ValueType {
      * @en Multiply two matrices and save the results to out matrix
      * @zh 矩阵乘法
      */
-    public static multiply <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
+    public static multiply (out: IMat4Like, a: IMat4Like, b: IMat4Like) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
         const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
         const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
@@ -295,7 +295,7 @@ export class Mat4 extends ValueType {
      * @en Transform a matrix with the given vector and save results to the out matrix
      * @zh 在给定矩阵变换基础上加入变换
      */
-    public static transform <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
+    public static transform <VecLike extends IVec3Like> (out: IMat4Like, a: IMat4Like, v: VecLike) {
         const x = v.x; const y = v.y; const z = v.z;
         if (a === out) {
             out.m12 = a.m00 * x + a.m04 * y + a.m08 * z + a.m12;
@@ -324,7 +324,7 @@ export class Mat4 extends ValueType {
      * @en Transform a matrix with the given translation vector and save results to the out matrix
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
+    public static translate <VecLike extends IVec3Like> (out: IMat4Like, a: IMat4Like, v: VecLike) {
         console.warn('function changed');
         if (a === out) {
             out.m12 += v.x;
@@ -346,7 +346,7 @@ export class Mat4 extends ValueType {
      * @en Multiply a matrix with a scale matrix given by a scale vector and save the results into the out matrix
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static scale <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
+    public static scale <VecLike extends IVec3Like> (out: IMat4Like, a: IMat4Like, v: VecLike) {
         const x = v.x; const y = v.y; const z = v.z;
         out.m00 = a.m00 * x;
         out.m01 = a.m01 * x;
@@ -373,7 +373,7 @@ export class Mat4 extends ValueType {
      * @param rad Angle of rotation (in radians)
      * @param axis axis of rotation
      */
-    public static rotate <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, rad: number, axis: VecLike) {
+    public static rotate <VecLike extends IVec3Like> (out: IMat4Like, a: IMat4Like, rad: number, axis: VecLike) {
         let x = axis.x; let y = axis.y; let z = axis.z;
 
         let len = Math.sqrt(x * x + y * y + z * z);
@@ -430,7 +430,7 @@ export class Mat4 extends ValueType {
      * @zh 在给定矩阵变换基础上加入绕 X 轴的旋转变换
      * @param rad Angle of rotation (in radians)
      */
-    public static rotateX <Out extends IMat4Like> (out: Out, a: Out, rad: number) {
+    public static rotateX (out: IMat4Like, a: IMat4Like, rad: number) {
         const s = Math.sin(rad);
         const c = Math.cos(rad);
         const a10 = a.m04;
@@ -471,7 +471,7 @@ export class Mat4 extends ValueType {
      * @zh 在给定矩阵变换基础上加入绕 Y 轴的旋转变换
      * @param rad Angle of rotation (in radians)
      */
-    public static rotateY <Out extends IMat4Like> (out: Out, a: Out, rad: number) {
+    public static rotateY (out: IMat4Like, a: IMat4Like, rad: number) {
         const s = Math.sin(rad);
         const c = Math.cos(rad);
         const a00 = a.m00;
@@ -512,7 +512,7 @@ export class Mat4 extends ValueType {
      * @zh 在给定矩阵变换基础上加入绕 Z 轴的旋转变换
      * @param rad Angle of rotation (in radians)
      */
-    public static rotateZ <Out extends IMat4Like> (out: Out, a: Out, rad: number) {
+    public static rotateZ (out: IMat4Like, a: IMat4Like, rad: number) {
         const s = Math.sin(rad);
         const c = Math.cos(rad);
         const a00 = a.m00;
@@ -553,7 +553,7 @@ export class Mat4 extends ValueType {
      * @en Sets the out matrix with a translation vector
      * @zh 计算位移矩阵
      */
-    public static fromTranslation <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
+    public static fromTranslation <VecLike extends IVec3Like> (out: IMat4Like, v: VecLike) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -577,7 +577,7 @@ export class Mat4 extends ValueType {
      * @en Sets the out matrix with a scale vector
      * @zh 计算缩放矩阵
      */
-    public static fromScaling <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
+    public static fromScaling <VecLike extends IVec3Like> (out: IMat4Like, v: VecLike) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -601,7 +601,7 @@ export class Mat4 extends ValueType {
      * @en Sets the out matrix with rotation angle
      * @zh 计算旋转矩阵
      */
-    public static fromRotation <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike) {
+    public static fromRotation <VecLike extends IVec3Like> (out: IMat4Like, rad: number, axis: VecLike) {
         let x = axis.x; let y = axis.y; let z = axis.z;
         let len = Math.sqrt(x * x + y * y + z * z);
 
@@ -642,7 +642,7 @@ export class Mat4 extends ValueType {
      * @en Calculates the matrix representing a rotation around the X axis
      * @zh 计算绕 X 轴的旋转矩阵
      */
-    public static fromXRotation <Out extends IMat4Like> (out: Out, rad: number) {
+    public static fromXRotation (out: IMat4Like, rad: number) {
         const s = Math.sin(rad); const c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -669,7 +669,7 @@ export class Mat4 extends ValueType {
      * @en Calculates the matrix representing a rotation around the Y axis
      * @zh 计算绕 Y 轴的旋转矩阵
      */
-    public static fromYRotation <Out extends IMat4Like> (out: Out, rad: number) {
+    public static fromYRotation (out: IMat4Like, rad: number) {
         const s = Math.sin(rad); const c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -696,7 +696,7 @@ export class Mat4 extends ValueType {
      * @en Calculates the matrix representing a rotation around the Z axis
      * @zh 计算绕 Z 轴的旋转矩阵
      */
-    public static fromZRotation <Out extends IMat4Like> (out: Out, rad: number) {
+    public static fromZRotation (out: IMat4Like, rad: number) {
         const s = Math.sin(rad); const c = Math.cos(rad);
 
         // Perform axis-specific matrix multiplication
@@ -723,7 +723,7 @@ export class Mat4 extends ValueType {
      * @en Calculates the transform representing the combination of a rotation and a translation
      * @zh 根据旋转和位移信息计算矩阵
      */
-    public static fromRT <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike) {
+    public static fromRT <VecLike extends IVec3Like> (out: IMat4Like, q: Quat, v: VecLike) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -763,7 +763,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the translation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的位移信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getTranslation <Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
+    public static getTranslation <VecLike extends IVec3Like> (out: VecLike, mat: IMat4Like) {
         out.x = mat.m12;
         out.y = mat.m13;
         out.z = mat.m14;
@@ -775,7 +775,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the scale vector from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的缩放信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getScaling <Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
+    public static getScaling <InType extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: InType) {
         const m00 = m3_1.m00 = mat.m00;
         const m01 = m3_1.m01 = mat.m01;
         const m02 = m3_1.m02 = mat.m02;
@@ -797,7 +797,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the rotation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的旋转信息, 默认输入矩阵不含有缩放信息，如考虑缩放应使用 `toRTS` 函数。
      */
-    public static getRotation <Out extends IMat4Like> (out: Quat, mat: Out) {
+    public static getRotation (out: Quat, mat: IMat4Like) {
         const trace = mat.m00 + mat.m05 + mat.m10;
         let S = 0;
 
@@ -834,7 +834,7 @@ export class Mat4 extends ValueType {
      * @en Extracts the scale, rotation and translation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static toRTS <Out extends IMat4Like, VecLike extends IVec3Like> (m: Out, q: Quat, v: VecLike, s: VecLike) {
+    public static toRTS <VecLike extends IVec3Like> (m: IMat4Like, q: Quat, v: VecLike, s: VecLike) {
         s.x = Vec3.set(v3_1, m.m00, m.m01, m.m02).length();
         m3_1.m00 = m.m00 / s.x;
         m3_1.m01 = m.m01 / s.x;
@@ -857,7 +857,7 @@ export class Mat4 extends ValueType {
      * @en Compose a matrix from scale, rotation and translation, applied in order.
      * @zh 根据旋转、位移、缩放信息计算矩阵，以 S->R->T 的顺序应用
      */
-    public static fromRTS <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike) {
+    public static fromRTS <VecLike extends IVec3Like> (out: IMat4Like, q: Quat, v: VecLike, s: VecLike) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -904,7 +904,7 @@ export class Mat4 extends ValueType {
      * @param s Scaling vector
      * @param o transformation Center
      */
-    public static fromRTSOrigin <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike, o: VecLike) {
+    public static fromRTSOrigin <VecLike extends IVec3Like> (out: IMat4Like, q: Quat, v: VecLike, s: VecLike, o: VecLike) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -952,7 +952,7 @@ export class Mat4 extends ValueType {
      * @en Sets the out matrix with the given quaternion
      * @zh 根据指定的旋转信息计算矩阵
      */
-    public static fromQuat <Out extends IMat4Like> (out: Out, q: Quat) {
+    public static fromQuat (out: IMat4Like, q: Quat) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -1001,7 +1001,7 @@ export class Mat4 extends ValueType {
      * @param near Z distance to the near plane from the origin in view space.
      * @param far Z distance to the far plane from the origin in view space.
      */
-    public static frustum <Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number) {
+    public static frustum (out: IMat4Like, left: number, right: number, bottom: number, top: number, near: number, far: number) {
         const rl = 1 / (right - left);
         const tb = 1 / (top - bottom);
         const nf = 1 / (near - far);
@@ -1033,8 +1033,8 @@ export class Mat4 extends ValueType {
      * @param near Near depth clipping plane value.
      * @param far Far depth clipping plane value.
      */
-    public static perspective <Out extends IMat4Like> (
-        out: Out, fov: number, aspect: number, near: number, far: number,
+    public static perspective (
+        out: IMat4Like, fov: number, aspect: number, near: number, far: number,
         isFOVY = true, minClipZ = -1, projectionSignY = 1, orientation = 0,
     ) {
         const f = 1.0 / Math.tan(fov / 2);
@@ -1073,8 +1073,8 @@ export class Mat4 extends ValueType {
      * @param near Near depth clipping plane value.
      * @param far Far depth clipping plane value.
      */
-    public static ortho <Out extends IMat4Like> (
-        out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number,
+    public static ortho (
+        out: IMat4Like, left: number, right: number, bottom: number, top: number, near: number, far: number,
         minClipZ = -1, projectionSignY = 1, orientation = 0,
     ) {
         const lr = 1 / (left - right);
@@ -1116,7 +1116,7 @@ export class Mat4 extends ValueType {
      * @param center The target point.
      * @param up The vector describing the up direction.
      */
-    public static lookAt <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, eye: VecLike, center: VecLike, up: VecLike) {
+    public static lookAt <VecLike extends IVec3Like> (out: IMat4Like, eye: VecLike, center: VecLike, up: VecLike) {
         const eyex = eye.x;
         const eyey = eye.y;
         const eyez = eye.z;
@@ -1172,7 +1172,7 @@ export class Mat4 extends ValueType {
      * @en Calculates the inverse transpose of a matrix and save the results to out matrix
      * @zh 计算逆转置矩阵
      */
-    public static inverseTranspose <Out extends IMat4Like> (out: Out, a: Out) {
+    public static inverseTranspose (out: IMat4Like, a: IMat4Like) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
         const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
         const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
@@ -1252,7 +1252,7 @@ export class Mat4 extends ValueType {
      * @zh 数组转矩阵
      * @param ofs Array Start Offset
      */
-    public static fromArray <Out extends IMat4Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
+    public static fromArray (out: IMat4Like, arr: IWritableArrayLike<number>, ofs = 0) {
         out.m00 = arr[ofs + 0];
         out.m01 = arr[ofs + 1];
         out.m02 = arr[ofs + 2];
@@ -1276,7 +1276,7 @@ export class Mat4 extends ValueType {
      * @en Adds two matrices and save the results to out matrix
      * @zh 逐元素矩阵加法
      */
-    public static add <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
+    public static add (out: IMat4Like, a: Out, b: Out) {
         out.m00 = a.m00 + b.m00;
         out.m01 = a.m01 + b.m01;
         out.m02 = a.m02 + b.m02;
@@ -1300,7 +1300,7 @@ export class Mat4 extends ValueType {
      * @en Subtracts matrix b from matrix a and save the results to out matrix
      * @zh 逐元素矩阵减法
      */
-    public static subtract <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
+    public static subtract (out: IMat4Like, a: IMat4Like, b: IMat4Like) {
         out.m00 = a.m00 - b.m00;
         out.m01 = a.m01 - b.m01;
         out.m02 = a.m02 - b.m02;
@@ -1324,7 +1324,7 @@ export class Mat4 extends ValueType {
      * @en Multiply each element of a matrix by a scalar number and save the results to out matrix
      * @zh 矩阵标量乘法
      */
-    public static multiplyScalar <Out extends IMat4Like> (out: Out, a: Out, b: number) {
+    public static multiplyScalar (out: IMat4Like, a: IMat4Like, b: number) {
         out.m00 = a.m00 * b;
         out.m01 = a.m01 * b;
         out.m02 = a.m02 * b;
@@ -1348,7 +1348,7 @@ export class Mat4 extends ValueType {
      * @en Adds two matrices after multiplying each element of the second operand by a scalar number. And save the results to out matrix.
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
-    public static multiplyScalarAndAdd <Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number) {
+    public static multiplyScalarAndAdd (out: IMat4Like, a: IMat4Like, b: IMat4Like, scale: number) {
         out.m00 = a.m00 + (b.m00 * scale);
         out.m01 = a.m01 + (b.m01 * scale);
         out.m02 = a.m02 + (b.m02 * scale);
@@ -1372,7 +1372,7 @@ export class Mat4 extends ValueType {
      * @en Returns whether the specified matrices are equal.
      * @zh 矩阵等价判断
      */
-    public static strictEquals <Out extends IMat4Like> (a: Out, b: Out) {
+    public static strictEquals (a: IMat4Like, b: IMat4Like) {
         return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 && a.m03 === b.m03
             && a.m04 === b.m04 && a.m05 === b.m05 && a.m06 === b.m06 && a.m07 === b.m07
             && a.m08 === b.m08 && a.m09 === b.m09 && a.m10 === b.m10 && a.m11 === b.m11
@@ -1383,7 +1383,7 @@ export class Mat4 extends ValueType {
      * @en Returns whether the specified matrices are approximately equal.
      * @zh 排除浮点数误差的矩阵近似等价判断
      */
-    public static equals <Out extends IMat4Like> (a: Out, b: Out, epsilon = EPSILON) {
+    public static equals (a: IMat4Like, b: IMat4Like, epsilon = EPSILON) {
         // TAOCP vol.2, 3rd ed., s.4.2.4, p.213-225
         // defines a 'close enough' relationship between u and v that scales for magnitude
         return (
