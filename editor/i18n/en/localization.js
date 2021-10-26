@@ -201,6 +201,7 @@ module.exports = {
         font_size: 'Font size, in points',
         font_family: 'Font family name',
         line_height: 'Line height, in points',
+        spacing_x: 'The space of text characters',
         overflow:
             'Text layout modes: \n 1. CLAMP: Text nodes outside the bounding box will be truncated. \n 2. SHRINK: Automatically shrink text box according to the constraint node. \n 3. RESIZE: Automatically updates the Node based on heightof the text.',
         wrap: 'Wrap text?',

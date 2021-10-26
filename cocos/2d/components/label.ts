@@ -348,6 +348,31 @@ export class Label extends Renderable2D {
 
     /**
      * @en
+     * The space of text characters.
+     *
+     * @zh
+     * 文本字符之间的间距。
+     */
+    @visible(function (this: Label) {
+        return this._font instanceof BitmapFont;
+    })
+    @displayOrder(8)
+    @tooltip('i18n:label.spacing_x')
+    get spacingX () {
+        return this._spacingX;
+    }
+
+    set spacingX (value) {
+        if (this._spacingX === value) {
+            return;
+        }
+
+        this._spacingX = value;
+        this.updateRenderData();
+    }
+
+    /**
+     * @en
      * Overflow of label.
      *
      * @zh
@@ -607,19 +632,6 @@ export class Label extends Renderable2D {
 
     set fontAtlas (value) {
         this._fontAtlas = value;
-    }
-
-    get spacingX () {
-        return this._spacingX;
-    }
-
-    set spacingX (value) {
-        if (this._spacingX === value) {
-            return;
-        }
-
-        this._spacingX = value;
-        this.updateRenderData();
     }
 
     get _bmFontOriginalSize () {
