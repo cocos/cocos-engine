@@ -633,7 +633,7 @@ export class Vec3 extends ValueType {
      * @zh 计算两向量之间的弧度制夹角。
      * @param a Vector A.
      * @param b Vector B.
-     * @param normalized Hints if both of the vectors are normalized.
+     * @param assumeNormalized Hints if both of the vectors are normalized.
      * @returns The angle between the two vectors, in radians.
      */
     public static angle (a: IVec3Like, b: IVec3Like, assumeNormalized = false) {
