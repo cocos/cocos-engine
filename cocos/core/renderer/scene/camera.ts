@@ -36,6 +36,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { preTransforms } from '../../math/mat4';
 import { NativeCamera } from './native-scene';
+import { warnID } from '../../platform/debug';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -205,6 +206,7 @@ export class Camera {
 
     private _updateAspect (oriented = true) {
         this._aspect = (this.window.width * this._viewport.width) / (this.window.height * this._viewport.height);
+        // window size/viewport is pre-rotated, but aspect should be oriented to acquire the correct projection
         if (oriented) {
             const swapchain = this.window.swapchain;
             const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
@@ -461,13 +463,22 @@ export class Camera {
         return this._clearColor as IVec4Like;
     }
 
-    // Pre-rotated (i.e. always in identity/portrait mode) if supported.
+    /**
+     * Pre-rotated (i.e. always in identity/portrait mode) if possible.
+     */
     get viewport () {
         return this._viewport;
     }
 
-    // Oriented
     set viewport (val) {
+        warnID(8302);
+        this.setViewportInOrientedSpace(val);
+    }
+
+    /**
+     * Set the viewport in oriented space (local to screen rotations)
+     */
+    public setViewportInOrientedSpace (val: Rect) {
         const { x, width, height } = val;
         const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
