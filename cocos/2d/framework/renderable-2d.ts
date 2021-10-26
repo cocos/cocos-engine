@@ -178,64 +178,6 @@ export class Renderable2D extends RenderableComponent {
     }
 
     /**
-     * @en Specifies the source blend mode, it will clone a new material object.
-     * @zh 指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
-     * @example
-     * ```ts
-     * sprite.srcBlendFactor = BlendFactor.ONE;
-     * ```
-     * @deprecated
-     */
-    get srcBlendFactor () {
-        if (!EDITOR && this._customMaterial) {
-            warnID(12001);
-        }
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value: BlendFactor) {
-        if (this._customMaterial) {
-            warnID(12001);
-            return;
-        }
-        if (this._srcBlendFactor === value) {
-            return;
-        }
-
-        this._srcBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    /**
-     * @en Specifies the destination blend mode.
-     * @zh 指定目标的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
-     * @example
-     * ```ts
-     * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
-     * ```
-     * @deprecated
-     */
-    get dstBlendFactor () {
-        if (!EDITOR && this._customMaterial) {
-            warnID(12001);
-        }
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value: BlendFactor) {
-        if (this._customMaterial) {
-            warnID(12001);
-            return;
-        }
-        if (this._dstBlendFactor === value) {
-            return;
-        }
-
-        this._dstBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    /**
      * @en Main color for rendering, it normally multiplies with texture color.
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
