@@ -1395,8 +1395,6 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @throws If one or more component of same type have been existed in this node.
      */
     protected _checkMultipleComp?<T extends Component> (constructor: Constructor<T>): void;
-
-    public getCompletePath? (): string;
 }
 
 baseNodePolyfill(BaseNode);

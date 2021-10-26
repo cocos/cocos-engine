@@ -20,19 +20,19 @@ describe(`Node`, () => {
     test('get-current-path',() => {
         let scene = new Scene('tempScene');
         
-        let node1: BaseNode = new Node();
+        let node1: Node = new Node();
         node1.name = 'node1';
         node1.setParent(scene);
         
-        let node2: BaseNode = new Node();
+        let node2: Node = new Node();
         node2.name = 'node2';
         node2.setParent(node1);
 
-        let node3: BaseNode = new Node();
+        let node3: Node = new Node();
         node3.name = 'node3';
         node3.setParent(node2);
 
-        let node3Bro: BaseNode = new Node();
+        let node3Bro: Node = new Node();
         node3Bro.name = 'node3Bro';
         node3Bro.setParent(node2);
 
@@ -47,9 +47,6 @@ describe(`Node`, () => {
 
         let path3Bro = node3Bro.getCompletePath();
         expect(path3Bro).toStrictEqual('node1/node2/node3Bro');
-
-        let pathScene = scene.getCompletePath();
-        expect(pathScene).toStrictEqual('');
     });
 
     test('active-in-hierarchy-changed', () => {

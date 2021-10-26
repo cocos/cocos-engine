@@ -294,10 +294,6 @@ export class Scene extends BaseNode {
         // The test environment does not currently support the renderer
         if (!TEST) this._globals.activate();
     }
-
-    public getCompletePath (): string {
-        return '';
-    }
 }
 
 legacyCC.Scene = Scene;
