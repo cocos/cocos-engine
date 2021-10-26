@@ -4,6 +4,9 @@ on: [create, push, delete]
 
 jobs:
   mirror_to_gitee:
+    concurrency: 
+      group: ${{ github.head_ref }}
+      cancel-in-progress: true  
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
