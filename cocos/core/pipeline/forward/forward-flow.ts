@@ -48,8 +48,6 @@ export class ForwardFlow extends RenderFlow {
      * @en The shared initialization information of forward render flow
      * @zh 共享的前向渲染流程初始化参数
      */
-    private postProcessStage: PostProcessStage | null = null;
-    private bloomStage: BloomStage | null = null;
     public static initInfo: IRenderFlowInfo = {
         name: PIPELINE_FLOW_FORWARD,
         priority: ForwardFlowPriority.FORWARD,
@@ -62,28 +60,17 @@ export class ForwardFlow extends RenderFlow {
             const forwardStage = new ForwardStage();
             forwardStage.initialize(ForwardStage.initInfo);
             this._stages.push(forwardStage);
+            const bloomStage = new BloomStage();
+            bloomStage.initialize(BloomStage.initInfo);
+            this._stages.push(bloomStage);
+            const postProcessStage = new PostProcessStage();
+            postProcessStage.initialize(PostProcessStage.initInfo);
+            this._stages.push(postProcessStage);
         }
         return true;
     }
 
-    protected _addPostStage () {
-        if (!(this._stages[this._stages.length - 1] instanceof PostProcessStage)) {
-            this.postProcessStage = new PostProcessStage();
-            this.postProcessStage.initialize(PostProcessStage.initInfo);
-            this._stages.push(this.postProcessStage);
-        }
-    }
-
-    protected _addBloomStage () {
-        this.bloomStage = new BloomStage();
-        this.bloomStage.initialize(BloomStage.initInfo);
-        this.bloomStage.enabled = false;
-        this._stages.push(this.bloomStage);
-    }
-
     public activate (pipeline: RenderPipeline) {
-        this._addBloomStage();
-        this._addPostStage();
         super.activate(pipeline);
     }
 
