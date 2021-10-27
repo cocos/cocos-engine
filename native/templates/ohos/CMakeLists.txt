@@ -7,6 +7,7 @@ project(${APP_NAME} CXX)
 
 set(CMAKE_CXX_FLAGS_DEBUG  "-Werror=return-type")
 
+set(COMMON_DIR ${CMAKE_CURRENT_LIST_DIR}/../common)
 include(${COMMON_DIR}/CMakeLists.txt)
 
 set(LIB_NAME cocos)

@@ -308,12 +308,14 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
 } // namespace internal
 } // namespace se
 
-    //TODO(PatriceJiang): modify this when OHOS llvm upgrade
-    #if CC_PLATFORM == CC_PLATFORM_OHOS && !__has_builtin(__builtin_bcmp)
-
-    // extern "C" int bcmp(const void *cs, const void *ct, size_t count) __attribute__((weak, alias("__builtin_memcmp"))); // does not work?
-
-        #if __has_builtin(__builtin_memcmp)
+//TODO(PatriceJiang): modify this when OHOS llvm upgrade
+    #if CC_PLATFORM == CC_PLATFORM_OHOS
+        // extern "C" int bcmp(const void *cs, const void *ct, size_t count) __attribute__((weak, alias("__builtin_memcmp"))); // does not work?
+        #if __has_builtin(__builtin_bcmp)
+extern "C" int bcmp(const void *cs, const void *ct, size_t count) {
+    return __builtin_bcmp(cs, ct, count);
+}
+        #elif __has_builtin(__builtin_memcmp)
 extern "C" int bcmp(const void *cs, const void *ct, size_t count) {
     return __builtin_memcmp(cs, ct, count);
 }
@@ -323,5 +325,4 @@ extern "C" int bcmp(const void *cs, const void *ct, size_t count) {
 }
         #endif
     #endif
-
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
