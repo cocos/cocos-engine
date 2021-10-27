@@ -351,7 +351,7 @@ export class Label extends Renderable2D {
      * The space of text characters. Currently only bitmap fonts are supported.
      *
      * @zh
-     * 文本字符之间的间距。当前只支持BitmapFont。
+     * 文本字符之间的间距。当前只支持 BitmapFont。
      */
     @visible(function (this: Label) {
         return this._font instanceof BitmapFont;
