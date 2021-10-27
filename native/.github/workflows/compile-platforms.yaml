@@ -22,7 +22,7 @@ jobs:
       - name: Install deps
         run: |
           choco install --forcex86 vulkan-sdk
-          python -m pip install PyYAML Cheetah3
+          python -m pip install PyYAML==5.4.1 Cheetah3
       - name: Generate bindings
         shell: bash
         run: |
@@ -65,7 +65,7 @@ jobs:
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
       - name: Generate bindings
         run: |
-          python3 -m pip install PyYAML Cheetah3
+          python3 -m pip install PyYAML==5.4.1 Cheetah3
           python3 ./tools/tojs/genbindings.py
           rm ./tools/tojs/userconf.ini
       - name: Compile
@@ -124,7 +124,7 @@ jobs:
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
       - name: Generate bindings
         run: |
-          python -m pip install PyYAML Cheetah3
+          python -m pip install PyYAML==5.4.1 Cheetah3
           python ./tools/tojs/genbindings.py
           rm ./tools/tojs/userconf.ini
       - name: Compile
@@ -185,7 +185,7 @@ jobs:
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
       - name: Generate bindings
         run: |
-          python -m pip install PyYAML Cheetah3
+          python -m pip install PyYAML==5.4.1  Cheetah3
           python ./tools/tojs/genbindings.py
           rm ./tools/tojs/userconf.ini
       - name: Compile

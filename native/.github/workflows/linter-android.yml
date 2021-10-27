@@ -23,7 +23,7 @@ jobs:
 
       - name: Install python deps
         run: |
-          python -m pip install PyYAML Cheetah3
+          python -m pip install PyYAML==5.4.1 Cheetah3
       - name: Download external
         run: |
           EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`

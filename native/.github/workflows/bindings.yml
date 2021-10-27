@@ -25,7 +25,7 @@ jobs:
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
       - name: Run genbindings.py
         run: |
-          python3 -m pip install PyYAML Cheetah3
+          python3 -m pip install PyYAML==5.4.1 Cheetah3
           python3 ./tools/tojs/genbindings.py
           rm ./tools/tojs/userconf.ini
 

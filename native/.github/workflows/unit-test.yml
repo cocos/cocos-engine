@@ -21,7 +21,7 @@ jobs:
       - name: Generate bindings
         shell: bash
         run: |
-          python -m pip install PyYAML Cheetah3
+          python -m pip install PyYAML==5.4.1 Cheetah3
           python ./tools/tojs/genbindings.py
 
       - name: Run Unit Tests
