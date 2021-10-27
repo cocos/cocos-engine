@@ -36,7 +36,7 @@ layout(location = 5) in vec4 a_weights;
    */
   #define CCGetJointTextureCoords(pixelsPerJoint, jointIdx, temp, x, y, invSize) \
     #if USE_INSTANCING                                                           \
-      highp float temp = pixelsPerJoint * (a_jointAnimInfo.x * a_jointAnimInfo.y + jointIdx) + a_jointAnimInfo.z; \
+      highp float temp = pixelsPerJoint * (a_jointAnimInfo.x * cc_jointTextureInfo.y + jointIdx) + cc_jointTextureInfo.z; \
     #else                                                                        \
       highp float temp = pixelsPerJoint * (cc_jointAnimInfo.x * cc_jointTextureInfo.y + jointIdx) + cc_jointTextureInfo.z; \
     #endif                                                                       \
