@@ -631,6 +631,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
     }
 
     se::ScriptEngine::getInstance()->setJSExceptionCallback([objFunc](const char *location, const char *message, const char *stack) {
+        se::AutoHandleScope scope;
         se::ValueArray jsArgs;
         jsArgs.resize(3);
         jsArgs[0] = se::Value(location);
