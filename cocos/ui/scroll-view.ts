@@ -1251,7 +1251,7 @@ export class ScrollView extends ViewGroup {
         const adjustedMove = this._flattenVectorByDirection(deltaMove);
         _tempVec3.set(this._getContentPosition());
         _tempVec3.add(adjustedMove);
-        _tempVec3.set(Math.floor(_tempVec3.x * TOLERANCE) * EPSILON, Math.floor(_tempVec3.y * TOLERANCE) * EPSILON, _tempVec3.z);
+        _tempVec3.set(Math.round(_tempVec3.x * TOLERANCE) * EPSILON, Math.round(_tempVec3.y * TOLERANCE) * EPSILON, _tempVec3.z);
         this._setContentPosition(_tempVec3);
         const outOfBoundary = this._getHowMuchOutOfBoundary();
         _tempVec2.set(outOfBoundary.x, outOfBoundary.y);
@@ -1303,16 +1303,20 @@ export class ScrollView extends ViewGroup {
         }
 
         const outOfBoundaryAmount = new Vec3();
-        if (this._getContentLeftBoundary() + addition.x > this._leftBoundary) {
-            outOfBoundaryAmount.x = this._leftBoundary - (this._getContentLeftBoundary() + addition.x);
-        } else if (this._getContentRightBoundary() + addition.x < this._rightBoundary) {
-            outOfBoundaryAmount.x = this._rightBoundary - (this._getContentRightBoundary() + addition.x);
+        const tempLeftBoundary: number = this._getContentLeftBoundary();
+        const tempRightBoundary: number  = this._getContentRightBoundary();
+        if (tempLeftBoundary + addition.x > this._leftBoundary) {
+            outOfBoundaryAmount.x = this._leftBoundary - (tempLeftBoundary + addition.x);
+        } else if (tempRightBoundary + addition.x < this._rightBoundary) {
+            outOfBoundaryAmount.x = this._rightBoundary - (tempRightBoundary + addition.x);
         }
 
-        if (this._getContentTopBoundary() + addition.y < this._topBoundary) {
-            outOfBoundaryAmount.y = this._topBoundary - (this._getContentTopBoundary() + addition.y);
-        } else if (this._getContentBottomBoundary() + addition.y > this._bottomBoundary) {
-            outOfBoundaryAmount.y = this._bottomBoundary - (this._getContentBottomBoundary() + addition.y);
+        const tempTopBoundary: number = this._getContentTopBoundary();
+        const tempBottomBoundary: number = this._getContentBottomBoundary();
+        if (tempTopBoundary + addition.y < this._topBoundary) {
+            outOfBoundaryAmount.y = this._topBoundary - (tempTopBoundary + addition.y);
+        } else if (tempBottomBoundary + addition.y > this._bottomBoundary) {
+            outOfBoundaryAmount.y = this._bottomBoundary - (tempBottomBoundary + addition.y);
         }
 
         if (addition.equals(Vec3.ZERO, EPSILON)) {
