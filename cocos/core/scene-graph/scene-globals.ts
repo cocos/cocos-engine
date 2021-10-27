@@ -75,11 +75,11 @@ export class AmbientInfo {
 
     protected _resource: Ambient | null = null;
 
-    get skyColorHDR () {
+    get skyColorHDR () : Readonly<Vec4> {
         return this._skyColorHDR;
     }
 
-    get groundAlbedoHDR () {
+    get groundAlbedoHDR () : Readonly<Vec4> {
         return this._groundAlbedoHDR;
     }
 
@@ -87,11 +87,11 @@ export class AmbientInfo {
         return this._skyIllumHDR;
     }
 
-    get skyColorLDR () {
+    get skyColorLDR () : Readonly<Vec4> {
         return this._skyColorLDR;
     }
 
-    get groundAlbedoLDR () {
+    get groundAlbedoLDR () : Readonly<Vec4> {
         return this._groundAlbedoLDR;
     }
 
@@ -460,7 +460,7 @@ export class FogInfo {
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
 
-    get fogColor () {
+    get fogColor () : Readonly<Color> {
         return this._fogColor;
     }
 
@@ -676,7 +676,7 @@ export class ShadowsInfo {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
-    get shadowColor () {
+    get shadowColor () : Readonly<Color> {
         return this._shadowColor;
     }
 
@@ -689,7 +689,7 @@ export class ShadowsInfo {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }
-    get normal () {
+    get normal () : Readonly<Vec3> {
         return this._normal;
     }
 
@@ -801,7 +801,7 @@ export class ShadowsInfo {
     get shadowMapSize () {
         return this._size.x;
     }
-    get size () {
+    get size () : Readonly<Vec2> {
         return this._size;
     }
 
