@@ -108,9 +108,9 @@ export class AmbientInfo {
         const skybox = scene.globals.skybox;
         if (skybox.useIBL && skybox.applyDiffuseMap) {
             return false;
+        } else {
+            return true;
         }
-
-        return true;
     })
     @editable
     set skyLightingColor (val: Color) {
@@ -173,9 +173,9 @@ export class AmbientInfo {
         const skybox = scene.globals.skybox;
         if (skybox.useIBL && skybox.applyDiffuseMap) {
             return false;
+        } else {
+            return true;
         }
-
-        return true;
     })
     @editable
     set groundLightingColor (val: Color) {
