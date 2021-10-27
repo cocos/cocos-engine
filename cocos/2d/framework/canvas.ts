@@ -221,12 +221,9 @@ export class Canvas extends RenderRoot2D {
     protected _onResizeCamera () {
         if (this._cameraComponent && this._alignCanvasWithScreen) {
             if (this._cameraComponent.targetTexture) {
-                const win = this._cameraComponent.targetTexture.window;
-                if (this._cameraComponent.camera) { this._cameraComponent.camera.setFixedSize(win!.width, win!.height); }
                 this._cameraComponent.orthoHeight = visibleRect.height / 2;
-            } else if (game.canvas) {
+            } else {
                 const size = screen.windowSize;
-                if (this._cameraComponent.camera) { this._cameraComponent.camera.resize(size.width, size.height); }
                 this._cameraComponent.orthoHeight = size.height / view.getScaleY() / 2;
             }
 
