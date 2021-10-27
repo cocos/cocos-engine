@@ -103,6 +103,15 @@ export class AmbientInfo {
      * @en Sky lighting color configurable in editor with color picker
      * @zh 编辑器中可配置的天空光照颜色（通过颜色拾取器）
      */
+    @visible(() => {
+        const scene = legacyCC.director.getScene();
+        const skybox = scene.globals.skybox;
+        if (skybox.useIBL && skybox.applyDiffuseMap) {
+            return false;
+        }
+
+        return true;
+    })
     @editable
     set skyLightingColor (val: Color) {
         let result;
@@ -159,6 +168,15 @@ export class AmbientInfo {
      * @en Ground lighting color configurable in editor with color picker
      * @zh 编辑器中可配置的地面光照颜色（通过颜色拾取器）
      */
+    @visible(() => {
+        const scene = legacyCC.director.getScene();
+        const skybox = scene.globals.skybox;
+        if (skybox.useIBL && skybox.applyDiffuseMap) {
+            return false;
+        }
+
+        return true;
+    })
     @editable
     set groundLightingColor (val: Color) {
         let result;
