@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "EditBox.h"
-#include "platform/Application.h"
+
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
 

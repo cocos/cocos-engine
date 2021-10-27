@@ -91,7 +91,7 @@ void EventDispatcher::destroy() {
     tickVal.setUndefined();
 }
 
-void EventDispatcher::dispatchTouchEvent(const struct TouchEvent &touchEvent) {
+void EventDispatcher::dispatchTouchEvent(const TouchEvent &touchEvent) {
     se::AutoHandleScope scope;
     if (!jsTouchObjArray) {
         jsTouchObjArray = se::Object::createArrayObject(0);
@@ -144,7 +144,7 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent &touchEvent) {
     EventDispatcher::doDispatchEvent(nullptr, eventName, args);
 }
 
-void EventDispatcher::dispatchMouseEvent(const struct MouseEvent &mouseEvent) {
+void EventDispatcher::dispatchMouseEvent(const MouseEvent &mouseEvent) {
     se::AutoHandleScope scope;
     if (!jsMouseEventObj) {
         jsMouseEventObj = se::Object::createPlainObject();
@@ -195,7 +195,7 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent &mouseEvent) {
     EventDispatcher::doDispatchEvent(eventName, jsFunctionName, args);
 }
 
-void EventDispatcher::dispatchKeyboardEvent(const struct KeyboardEvent &keyboardEvent) {
+void EventDispatcher::dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent) {
     se::AutoHandleScope scope;
     if (!jsKeyboardEventObj) {
         jsKeyboardEventObj = se::Object::createPlainObject();

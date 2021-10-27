@@ -31,8 +31,6 @@
     #include <cstdlib>
     #include <string>
     #include <unordered_map>
-    #include "../../platform/Application.h"
-    #include "platform/Application.h"
     #include "platform/FileUtils.h"
     #include "platform/java/jni/JniHelper.h"
 

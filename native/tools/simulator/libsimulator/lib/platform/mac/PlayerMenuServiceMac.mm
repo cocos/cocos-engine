@@ -27,7 +27,7 @@
 #include "PlayerMenuServiceMac.h"
 #include "PlayerUtils.h"
 #include "cocos/bindings/event/EventDispatcher.h"
-#include "AppEvent.h"
+#include "CustomAppEvent.h"
 #include <sstream>
 
 ///////////////////////////////////////  menu helper  //////////////////////////////////////////////
@@ -109,7 +109,7 @@ static bool __G_IS_MENUBAR_ENABLED__ = true;    // WTF
 
 -(void) onClicked:(id)sender
 {
-    AppEvent event(kAppEventName, APP_EVENT_MENU);
+    CustomAppEvent event(kAppEventName, APP_EVENT_MENU);
     
     std::stringstream buf;
     buf << "{\"data\":\"" << self.macMenuItem->getMenuId().c_str() << "\"";

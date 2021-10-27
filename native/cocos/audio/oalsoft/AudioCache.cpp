@@ -27,10 +27,9 @@
 #define LOG_TAG "AudioCache"
 
 #include "audio/oalsoft/AudioCache.h"
+#include <algorithm>
 #include <thread>
-#include "base/Scheduler.h"
-#include "platform/Application.h"
-
+#include "application/ApplicationManager.h"
 #include "audio/oalsoft/AudioDecoder.h"
 #include "audio/oalsoft/AudioDecoderManager.h"
 
@@ -317,7 +316,13 @@ void AudioCache::invokingLoadCallbacks() {
     }
 
     auto isDestroyed = _isDestroyed;
-    auto scheduler   = Application::getInstance()->getScheduler();
+
+    BaseEngine::SchedulerPtr scheduler =
+        CC_CURRENT_APPLICATION() ? CC_CURRENT_APPLICATION()->getEngine()->getScheduler() : nullptr;
+    if (!scheduler) {
+        return;
+    }
+
     scheduler->performFunctionInCocosThread([&, isDestroyed]() {
         if (*isDestroyed) {
             ALOGV("invokingLoadCallbacks perform in cocos thread, AudioCache (%p) was destroyed!", this);

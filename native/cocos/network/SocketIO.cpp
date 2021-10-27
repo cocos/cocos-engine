@@ -35,7 +35,7 @@
 #include "network/HttpClient.h"
 #include "network/Uri.h"
 #include "network/WebSocket.h"
-#include "platform/Application.h"
+#include "application/ApplicationManager.h"
 
 #include "json/document-wrapper.h"
 #include "json/rapidjson.h"
@@ -545,7 +545,7 @@ void SIOClientImpl::disconnect() {
         _ws->send(s);
     }
 
-    Application::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+    CC_CURRENT_ENGINE()->getScheduler()->unscheduleAllForTarget(this);
 
     _connected = false;
 
@@ -654,7 +654,7 @@ void SIOClientImpl::onOpen(WebSocket * /*ws*/) {
         _ws->send(s);
     }
 
-    Application::getInstance()->getScheduler()->schedule([this](auto &&pH1) { heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
+     CC_CURRENT_ENGINE()->getScheduler()->schedule([this](auto &&pH1) { heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
 
     for (auto &client : _clients) {
         client.second->onOpen();
@@ -881,8 +881,8 @@ void SIOClientImpl::onClose(WebSocket * /*ws*/) {
         }
         // discard this client
         _connected = false;
-        if (Application::getInstance()) {
-            Application::getInstance()->getScheduler()->unscheduleAllForTarget(this);
+        if (CC_CURRENT_APPLICATION() != nullptr) {
+            CC_CURRENT_APPLICATION()->getEngine()->getScheduler()->unscheduleAllForTarget(this);
         }
 
         SocketIO::getInstance()->removeSocket(_uri.getAuthority());

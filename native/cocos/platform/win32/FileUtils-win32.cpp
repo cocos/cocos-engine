@@ -28,12 +28,12 @@
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
     #include "platform/win32/FileUtils-win32.h"
+    #include "platform/win32/Utils-win32.h"
+    #include "base/Log.h"
     #include <Shlobj.h>
     #include <cstdlib>
     #include <regex>
     #include <sstream>
-    #include "base/Log.h"
-    #include "platform/win32/Utils-win32.h"
 
 using namespace std;
 
@@ -48,8 +48,8 @@ static std::string s_resourcePath = "";
 // D:\aaa\bbb\ccc\ddd\abc.txt --> D:/aaa/bbb/ccc/ddd/abc.txt
 static inline std::string convertPathFormatToUnixStyle(const std::string &path) {
     std::string ret = path;
-    size_t      len = ret.length();
-    for (size_t i = 0; i < len; ++i) {
+    int len = ret.length();
+    for (int i = 0; i < len; ++i) {
         if (ret[i] == '\\') {
             ret[i] = '/';
         }
@@ -67,13 +67,7 @@ static void _checkPath() {
         WCHAR *pUtf16DirEnd = wcsrchr(pUtf16ExePath, L'\\');
 
         char utf8ExeDir[CC_MAX_PATH] = {0};
-        int  nNum                    = WideCharToMultiByte(CP_UTF8,
-                                       0,
-                                       static_cast<LPCWCH>(pUtf16ExePath),
-                                       static_cast<int>(pUtf16DirEnd - pUtf16ExePath + 1),
-                                       static_cast<LPSTR>(utf8ExeDir),
-                                       static_cast<int>(sizeof(utf8ExeDir)),
-                                       nullptr, nullptr);
+        int nNum = WideCharToMultiByte(CP_UTF8, 0, pUtf16ExePath, pUtf16DirEnd - pUtf16ExePath + 1, utf8ExeDir, sizeof(utf8ExeDir), nullptr, nullptr);
 
         s_resourcePath = convertPathFormatToUnixStyle(utf8ExeDir);
     }
@@ -120,7 +114,7 @@ long FileUtilsWin32::getFileSize(const std::string &filepath) {
     }
     LARGE_INTEGER size;
     size.HighPart = fad.nFileSizeHigh;
-    size.LowPart  = fad.nFileSizeLow;
+    size.LowPart = fad.nFileSizeLow;
     return (long)size.QuadPart;
 }
 
@@ -159,7 +153,7 @@ FileUtils::Status FileUtilsWin32::getContents(const std::string &filename, Resiz
         return FileUtils::Status::OPEN_FAILED;
 
     DWORD hi;
-    auto  size = ::GetFileSize(fileHandle, &hi);
+    auto size = ::GetFileSize(fileHandle, &hi);
     if (hi > 0) {
         ::CloseHandle(fileHandle);
         return FileUtils::Status::TOO_LARGE;
@@ -171,8 +165,8 @@ FileUtils::Status FileUtilsWin32::getContents(const std::string &filename, Resiz
     }
 
     buffer->resize(size);
-    DWORD sizeRead  = 0;
-    BOOL  successed = ::ReadFile(fileHandle, buffer->buffer(), size, &sizeRead, nullptr);
+    DWORD sizeRead = 0;
+    BOOL successed = ::ReadFile(fileHandle, buffer->buffer(), size, &sizeRead, nullptr);
     ::CloseHandle(fileHandle);
 
     if (!successed) {
@@ -184,7 +178,7 @@ FileUtils::Status FileUtilsWin32::getContents(const std::string &filename, Resiz
 }
 
 std::string FileUtilsWin32::getPathForFilename(const std::string &filename, const std::string &searchPath) const {
-    std::string unixFileName   = convertPathFormatToUnixStyle(filename);
+    std::string unixFileName = convertPathFormatToUnixStyle(filename);
     std::string unixSearchPath = convertPathFormatToUnixStyle(searchPath);
 
     return FileUtils::getPathForFilename(unixFileName, unixSearchPath);
@@ -192,7 +186,7 @@ std::string FileUtilsWin32::getPathForFilename(const std::string &filename, cons
 
 std::string FileUtilsWin32::getFullPathForDirectoryAndFilename(const std::string &strDirectory, const std::string &strFilename) const {
     std::string unixDirectory = convertPathFormatToUnixStyle(strDirectory);
-    std::string unixFilename  = convertPathFormatToUnixStyle(strFilename);
+    std::string unixFilename = convertPathFormatToUnixStyle(strFilename);
 
     return FileUtils::getFullPathForDirectoryAndFilename(unixDirectory, unixFilename);
 }
@@ -209,7 +203,7 @@ string FileUtilsWin32::getWritablePath() const {
     // Debug app uses executable directory; Non-debug app uses local app data directory
     //#ifndef _DEBUG
     // Get filename of executable only, e.g. MyGame.exe
-    WCHAR * base_name = wcsrchr(full_path, '\\');
+    WCHAR *base_name = wcsrchr(full_path, '\\');
     wstring retPath;
     if (base_name) {
         WCHAR app_data_path[CC_MAX_PATH + 1];
@@ -271,7 +265,7 @@ bool FileUtilsWin32::renameFile(const std::string &path, const std::string &oldn
     std::string oldPath = path + oldname;
     std::string newPath = path + name;
 
-    std::regex  pat("\\/");
+    std::regex pat("\\/");
     std::string _old = std::regex_replace(oldPath, pat, "\\");
     std::string _new = std::regex_replace(newPath, pat, "\\");
 
@@ -287,9 +281,9 @@ bool FileUtilsWin32::createDirectory(const std::string &dirPath) {
     std::wstring path = StringUtf8ToWideChar(dirPath);
 
     // Split the path
-    size_t                    start = 0;
-    size_t                    found = path.find_first_of(L"/\\", start);
-    std::wstring              subpath;
+    size_t start = 0;
+    size_t found = path.find_first_of(L"/\\", start);
+    std::wstring subpath;
     std::vector<std::wstring> dirs;
 
     if (found != std::wstring::npos) {
@@ -327,7 +321,7 @@ bool FileUtilsWin32::createDirectory(const std::string &dirPath) {
 }
 
 bool FileUtilsWin32::removeFile(const std::string &filepath) {
-    std::regex  pat("\\/");
+    std::regex pat("\\/");
     std::string win32path = std::regex_replace(filepath, pat, "\\");
 
     if (DeleteFile(StringUtf8ToWideChar(win32path).c_str())) {
@@ -339,11 +333,11 @@ bool FileUtilsWin32::removeFile(const std::string &filepath) {
 }
 
 bool FileUtilsWin32::removeDirectory(const std::string &dirPath) {
-    std::wstring    wpath = StringUtf8ToWideChar(dirPath);
-    std::wstring    files = wpath + L"*.*";
+    std::wstring wpath = StringUtf8ToWideChar(dirPath);
+    std::wstring files = wpath + L"*.*";
     WIN32_FIND_DATA wfd;
-    HANDLE          search = FindFirstFileEx(files.c_str(), FindExInfoStandard, &wfd, FindExSearchNameMatch, NULL, 0);
-    bool            ret    = true;
+    HANDLE search = FindFirstFileEx(files.c_str(), FindExInfoStandard, &wfd, FindExSearchNameMatch, NULL, 0);
+    bool ret = true;
     if (search != INVALID_HANDLE_VALUE) {
         BOOL find = true;
         while (find) {

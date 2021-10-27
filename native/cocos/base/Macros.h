@@ -400,21 +400,25 @@ It should work same as apples CFSwapInt32LittleToHost(..)
         _Pragma("clang diagnostic pop")
 #endif
 
-#define ENABLE_COPY_SEMANTICS(cls) \
+#define CC_ENABLE_COPY_SEMANTICS(cls) \
     cls(const cls &) = default;    \
     cls &operator=(const cls &) = default;
 
-#define DISABLE_COPY_SEMANTICS(cls) \
+#define CC_DISABLE_COPY_SEMANTICS(cls) \
     cls(const cls &) = delete;      \
     cls &operator=(const cls &) = delete;
 
-#define ENABLE_MOVE_SEMANTICS(cls)  \
+#define CC_ENABLE_MOVE_SEMANTICS(cls) \
     cls(cls &&) noexcept = default; \
     cls &operator=(cls &&) noexcept = default;
 
-#define DISABLE_MOVE_SEMANTICS(cls) \
+#define CC_DISABLE_MOVE_SEMANTICS(cls) \
     cls(cls &&) noexcept = delete;  \
     cls &operator=(cls &&) noexcept = delete;
+
+#define CC_DISABLE_COPY_AND_MOVE_SEMANTICS(cls) \
+  CC_DISABLE_COPY_SEMANTICS(cls)         \
+  CC_DISABLE_MOVE_SEMANTICS(cls)
 
 #if (CC_COMPILER == CC_COMPILER_MSVC)
     #define CC_ALIGN(N)        __declspec(align(N))

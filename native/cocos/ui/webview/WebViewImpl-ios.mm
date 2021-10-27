@@ -32,7 +32,6 @@
     #import <WebKit/WKNavigationDelegate.h>
 
     #include "WebView-inl.h"
-    #include "platform/Application.h"
     #include "platform/FileUtils.h"
 
 @interface UIWebViewWrapper : NSObject

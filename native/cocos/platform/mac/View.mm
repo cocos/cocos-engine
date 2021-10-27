@@ -30,11 +30,14 @@
 #import <QuartzCore/QuartzCore.h>
 #import "KeyCodeHelper.h"
 #import "cocos/bindings/event/EventDispatcher.h"
-#include "platform/Application.h"
+#import "platform/mac/AppDelegate.h"
+
+//#include "platform/Application.h"
 
 @implementation View {
     cc::MouseEvent    _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
+    AppDelegate*      _delegate;
 }
 
 #ifdef CC_USE_METAL
@@ -50,7 +53,7 @@
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
-
+        _delegate = [[NSApplication sharedApplication] delegate];
 #ifdef CC_USE_METAL
         int    pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
         CGSize size       = CGSizeMake(frameRect.size.width * pixelRatio, frameRect.size.height * pixelRatio);
@@ -71,16 +74,21 @@
 
 #ifdef CC_USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
-    cc::Application::getInstance()->tick();
+    //cc::Application::getInstance()->tick();
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
-    cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(size.width), static_cast<int>(size.height));
+    cc::WindowEvent ev;
+    ev.type = cc::WindowEvent::Type::RESIZED;
+    ev.width = static_cast<int>(size.width);
+    ev.height = static_cast<int>(size.height);
+    [_delegate dispatchEvent:ev];
+    //cc::EventDispatcher::dispatchResizeEvent(, );
 }
 #endif
 
 - (void)displayLayer:(CALayer *)layer {
-    cc::Application::getInstance()->tick();
+    //cc::Application::getInstance()->tick();
 }
 
 - (void)setFrameSize:(NSSize)newSize {
@@ -99,8 +107,13 @@
                                                                userInfo:nil];
     [self addTrackingArea:[trackingArea autorelease]];
 
-    if (cc::EventDispatcher::initialized())
-        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(nativeSize.width), static_cast<int>(nativeSize.height));
+    if (cc::EventDispatcher::initialized()) {
+        cc::WindowEvent ev;
+        ev.type = cc::WindowEvent::Type::RESIZED;
+        ev.width = static_cast<int>(nativeSize.width);
+        ev.height = static_cast<int>(nativeSize.height);
+        [_delegate dispatchEvent:ev];
+    }
 }
 
 - (void)viewDidChangeBackingProperties {
@@ -114,14 +127,14 @@
     _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT
                                               : cc::KeyboardEvent::Action::PRESS;
     [self setModifierFlags:event];
-    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+    [_delegate dispatchEvent:_keyboardEvent];
 }
 
 - (void)keyUp:(NSEvent *)event {
     _keyboardEvent.key    = translateKeycode(event.keyCode);
     _keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
     [self setModifierFlags:event];
-    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+    [_delegate dispatchEvent:_keyboardEvent];
 }
 
 - (void)flagsChanged:(NSEvent *)event {
@@ -139,7 +152,7 @@
     _keyboardEvent.key = keyCode;
     _keyboardEvent.action = action;
     [self setModifierFlags:event];
-    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+    [_delegate dispatchEvent:_keyboardEvent];
 }
 
 - (void)setModifierFlags:(NSEvent *)event {
@@ -222,7 +235,7 @@
         _mouseEvent.button = 0;
         _mouseEvent.x      = deltaX;
         _mouseEvent.y      = deltaY;
-        cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
+        [_delegate dispatchEvent:_mouseEvent];
     }
 }
 
@@ -250,7 +263,7 @@
     _mouseEvent.button = button;
     _mouseEvent.x      = pos.x;
     _mouseEvent.y      = contentRect.size.height - pos.y;
-    cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
+    [_delegate dispatchEvent:_mouseEvent];
 }
 
 @end

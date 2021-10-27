@@ -93,8 +93,8 @@ libsimulator_source_files(
     lib/runtime/VisibleRect.h
 )
 libsimulator_source_files(
-    lib/AppEvent.cpp
-    lib/AppEvent.h
+    lib/CustomAppEvent.cpp
+    lib/CustomAppEvent.h
     lib/AppLang.cpp
     lib/AppLang.h
     lib/cocos2dx_extra.h

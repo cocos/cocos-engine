@@ -21,17 +21,6 @@ set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/Base.lproj/LaunchScreen.storyboard
 )
 
-list(APPEND PROJ_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.mm
-    ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.h
-    ${CMAKE_CURRENT_LIST_DIR}/service/SDKWrapper.m
-    ${CMAKE_CURRENT_LIST_DIR}/service/SDKWrapper.h
-    ${CMAKE_CURRENT_LIST_DIR}/main.m
-    ${CMAKE_CURRENT_LIST_DIR}/ViewController.mm
-    ${CMAKE_CURRENT_LIST_DIR}/ViewController.h
-    ${UI_RESOURCES}
-)
-
 include_resources(${RES_DIR}/assets)
 
 add_executable(${LIB_NAME} ${PROJ_SOURCES} ${ASSET_FILES} ${PROJ_COMMON_SOURCES})

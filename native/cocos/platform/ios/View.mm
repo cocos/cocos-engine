@@ -26,22 +26,14 @@
 #import "View.h"
 #include <UIKit/UIScreen.h>
 #include "bindings/event/EventDispatcher.h"
-#include "platform/Application.h"
+#include "platform/ios/AppDelegate.h"
 
 namespace {
-void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
-    for (UITouch *touch in touches) {
-        touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
-                                      static_cast<float>([touch locationInView:[touch view]].y),
-                                      static_cast<int>((intptr_t)touch)});
-    }
-    cc::EventDispatcher::dispatchTouchEvent(touchEvent);
-    touchEvent.touches.clear();
-}
 } // namespace
 
 @implementation View {
     cc::TouchEvent _touchEvent;
+    AppDelegate*      _delegate;
 }
 
 @synthesize preventTouch;
@@ -56,7 +48,18 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
 }
 #endif
 
+- (void)dispatchEvents:(cc::TouchEvent &)touchEvent withEvent:(NSSet*) touches {
+    for (UITouch *touch in touches) {
+        touchEvent.touches.push_back({static_cast<float>([touch locationInView:[touch view]].x),
+                                      static_cast<float>([touch locationInView:[touch view]].y),
+                                      static_cast<int>((intptr_t)touch)});
+    }
+    [_delegate dispatchEvent:touchEvent];
+    touchEvent.touches.clear();
+}
+
 - (id)initWithFrame:(CGRect)frame {
+    _delegate = [[UIApplication sharedApplication] delegate];
 #ifdef CC_USE_METAL
     if (self = [super initWithFrame:frame]) {
         self.preventTouch = FALSE;
@@ -85,7 +88,7 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
         return;
 
     _touchEvent.type = cc::TouchEvent::Type::BEGAN;
-    dispatchEvents(_touchEvent, touches);
+    [self dispatchEvents:_touchEvent withEvent:touches];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -93,7 +96,7 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
         return;
 
     _touchEvent.type = cc::TouchEvent::Type::MOVED;
-    dispatchEvents(_touchEvent, touches);
+    [self dispatchEvents:_touchEvent withEvent:touches];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -101,7 +104,7 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
         return;
 
     _touchEvent.type = cc::TouchEvent::Type::ENDED;
-    dispatchEvents(_touchEvent, touches);
+    [self dispatchEvents:_touchEvent withEvent:touches];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -109,7 +112,7 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
         return;
 
     _touchEvent.type = cc::TouchEvent::Type::CANCELLED;
-    dispatchEvents(_touchEvent, touches);
+    [self dispatchEvents:_touchEvent withEvent:touches];
 }
 
 - (void)setPreventTouchEvent:(BOOL)flag {

@@ -34,7 +34,8 @@
 #import "network/HttpAsynConnection-apple.h"
 #include "network/HttpCookie.h"
 #include "platform/FileUtils.h"
-#include "platform/Application.h"
+#include "application/ApplicationManager.h"
+#include "base/Scheduler.h"
 
 namespace cc {
 
@@ -337,7 +338,7 @@ HttpClient::HttpClient()
   _requestSentinel(new HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, sizeof(char) * RESPONSE_BUFFER_SIZE);
-    _scheduler = Application::getInstance()->getScheduler();
+      _scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
 }
 

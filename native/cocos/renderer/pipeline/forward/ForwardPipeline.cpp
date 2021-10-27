@@ -28,7 +28,6 @@
 #include "../shadow/ShadowFlow.h"
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
-#include "platform/Application.h"
 #include "scene/RenderScene.h"
 
 namespace cc {

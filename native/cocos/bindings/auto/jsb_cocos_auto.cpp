@@ -1,9 +1,11 @@
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
+
+#include "cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.h"
+
 #include "platform/FileUtils.h"
-#include "platform/CanvasRenderingContext2D.h"
-#include "platform/Device.h"
+#include "platform/interfaces/modules/Device.h"
 #include "platform/SAXParser.h"
 
 #ifndef JSB_ALLOC
@@ -882,7 +884,7 @@ se::Class* __jsb_cc_CanvasGradient_class = nullptr;
 
 static bool js_engine_CanvasGradient_addColorStop(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasGradient>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasGradient_addColorStop : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -905,7 +907,7 @@ SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
 static bool js_engine_CanvasGradient_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
-    cc::CanvasGradient* cobj = JSB_ALLOC(cc::CanvasGradient);
+    cc::ICanvasGradient* cobj = JSB_ALLOC(cc::CanvasGradient);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
@@ -916,11 +918,11 @@ SE_BIND_CTOR(js_engine_CanvasGradient_constructor, __jsb_cc_CanvasGradient_class
 
 static bool js_cc_CanvasGradient_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasGradient>(s));
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::ICanvasGradient>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
+        auto* cobj = SE_THIS_OBJECT<cc::ICanvasGradient>(s);
         JSB_FREE(cobj);
     }
     return true;
@@ -934,7 +936,7 @@ bool js_register_engine_CanvasGradient(se::Object* obj) // NOLINT(readability-id
     cls->defineFunction("addColorStop", _SE(js_engine_CanvasGradient_addColorStop));
     cls->defineFinalizeFunction(_SE(js_cc_CanvasGradient_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::CanvasGradient>(cls);
+    JSBClassType::registerClass<cc::ICanvasGradient>(cls);
 
     __jsb_cc_CanvasGradient_proto = cls->getProto();
     __jsb_cc_CanvasGradient_class = cls;
@@ -947,7 +949,7 @@ se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;
 
 static bool js_engine_CanvasRenderingContext2D_beginPath(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_beginPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -962,7 +964,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_beginPath)
 
 static bool js_engine_CanvasRenderingContext2D_clearRect(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_clearRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -987,7 +989,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_clearRect)
 
 static bool js_engine_CanvasRenderingContext2D_closePath(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_closePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1002,7 +1004,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_closePath)
 
 static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1017,7 +1019,7 @@ static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Error processing arguments");
-        cc::CanvasGradient* result = cobj->createLinearGradient(arg0.value(), arg1.value(), arg2.value(), arg3.value());
+        cc::ICanvasGradient* result = cobj->createLinearGradient(arg0.value(), arg1.value(), arg2.value(), arg3.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1030,7 +1032,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_createLinearGradient)
 
 static bool js_engine_CanvasRenderingContext2D_fill(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fill : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1045,7 +1047,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fill)
 
 static bool js_engine_CanvasRenderingContext2D_fillImageData(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fillImageData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1072,7 +1074,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fillImageData)
 
 static bool js_engine_CanvasRenderingContext2D_lineTo(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_lineTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1093,7 +1095,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_lineTo)
 
 static bool js_engine_CanvasRenderingContext2D_moveTo(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_moveTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1114,7 +1116,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_moveTo)
 
 static bool js_engine_CanvasRenderingContext2D_rect(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1139,7 +1141,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rect)
 
 static bool js_engine_CanvasRenderingContext2D_restore(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_restore : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1154,7 +1156,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_restore)
 
 static bool js_engine_CanvasRenderingContext2D_rotate(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rotate : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1173,7 +1175,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rotate)
 
 static bool js_engine_CanvasRenderingContext2D_save(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_save : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1188,7 +1190,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_save)
 
 static bool js_engine_CanvasRenderingContext2D_scale(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_scale : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1209,7 +1211,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_scale)
 
 static bool js_engine_CanvasRenderingContext2D_setFillStyle(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setFillStyle : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1228,7 +1230,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setFillStyle)
 
 static bool js_engine_CanvasRenderingContext2D_setFont(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setFont : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1247,7 +1249,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setFont)
 
 static bool js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1266,7 +1268,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation)
 
 static bool js_engine_CanvasRenderingContext2D_setHeight(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setHeight : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1285,7 +1287,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setHeight)
 
 static bool js_engine_CanvasRenderingContext2D_setLineCap(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setLineCap : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1304,7 +1306,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setLineCap)
 
 static bool js_engine_CanvasRenderingContext2D_setLineJoin(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setLineJoin : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1323,7 +1325,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setLineJoin)
 
 static bool js_engine_CanvasRenderingContext2D_setLineWidth(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setLineWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1342,7 +1344,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setLineWidth)
 
 static bool js_engine_CanvasRenderingContext2D_setStrokeStyle(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setStrokeStyle : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1361,7 +1363,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setStrokeStyle)
 
 static bool js_engine_CanvasRenderingContext2D_setTextAlign(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setTextAlign : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1380,7 +1382,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setTextAlign)
 
 static bool js_engine_CanvasRenderingContext2D_setTextBaseline(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setTextBaseline : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1399,7 +1401,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setTextBaseline)
 
 static bool js_engine_CanvasRenderingContext2D_setTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setTransform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1428,7 +1430,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setTransform)
 
 static bool js_engine_CanvasRenderingContext2D_setWidth(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1447,7 +1449,7 @@ SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setWidth)
 
 static bool js_engine_CanvasRenderingContext2D_stroke(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_stroke : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1462,7 +1464,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_stroke)
 
 static bool js_engine_CanvasRenderingContext2D_transform(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_transform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1491,7 +1493,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_transform)
 
 static bool js_engine_CanvasRenderingContext2D_translate(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_translate : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1521,7 +1523,7 @@ static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s) // NOLI
     ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
     ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
     SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_constructor : Error processing arguments");
-    cc::CanvasRenderingContext2D* cobj = JSB_ALLOC(cc::CanvasRenderingContext2D, arg0, arg1);
+    cc::ICanvasRenderingContext2D* cobj = JSB_ALLOC(cc::CanvasRenderingContext2D, arg0, arg1);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
@@ -1532,11 +1534,11 @@ SE_BIND_CTOR(js_engine_CanvasRenderingContext2D_constructor, __jsb_cc_CanvasRend
 
 static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s));
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+        auto* cobj = SE_THIS_OBJECT<cc::ICanvasRenderingContext2D>(s);
         JSB_FREE(cobj);
     }
     return true;
@@ -1577,7 +1579,7 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj) // NOLINT(read
     cls->defineFunction("translate", _SE(js_engine_CanvasRenderingContext2D_translate));
     cls->defineFinalizeFunction(_SE(js_cc_CanvasRenderingContext2D_finalize));
     cls->install();
-    JSBClassType::registerClass<cc::CanvasRenderingContext2D>(cls);
+    JSBClassType::registerClass<cc::ICanvasRenderingContext2D>(cls);
 
     __jsb_cc_CanvasRenderingContext2D_proto = cls->getProto();
     __jsb_cc_CanvasRenderingContext2D_class = cls;

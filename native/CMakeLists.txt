@@ -28,6 +28,7 @@ cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
 cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
 cc_set_if_undefined(USE_MODULES              OFF)
 
+add_definitions()
 
 if(ANDROID OR WINDOWS)
     cc_set_if_undefined(CC_USE_GLES3 ON)
@@ -307,6 +308,220 @@ cocos_source_files(
     cocos/base/Vector.h
 )
 
+############ application
+cocos_source_files(
+    cocos/application/BaseApplication.h
+    cocos/application/CocosApplication.h
+    cocos/application/CocosApplication.cpp
+    cocos/application/ApplicationManager.h
+    cocos/application/ApplicationManager.cpp
+)
+
+############ engine
+cocos_source_files(
+    cocos/engine/BaseEngine.cpp
+    cocos/engine/BaseEngine.h
+    cocos/engine/Engine.cpp
+    cocos/engine/Engine.h
+)
+
+############ main
+if(WINDOWS)
+    cocos_source_files(
+        cocos/main/main-win32.cpp
+    )
+elseif(MACOSX)
+    cocos_source_files(
+        cocos/main/main-mac.mm
+    )
+elseif(IOS)
+    cocos_source_files(
+        cocos/main/main-ios.mm
+    )
+endif()
+
+############ platformex
+cocos_source_files(
+    cocos/platform/IEventDispatch.h
+    cocos/platform/BasePlatform.cpp
+    cocos/platform/BasePlatform.h
+    cocos/platform/UniversalPlatform.cpp
+    cocos/platform/UniversalPlatform.h
+)
+if(WINDOWS)
+    cocos_source_files(
+        cocos/platform/win32/WindowsPlatform.cpp
+        cocos/platform/win32/WindowsPlatform.h
+    )
+elseif(ANDROID)
+    cocos_source_files(
+        cocos/platform/android/AndroidPlatform.cpp
+        cocos/platform/android/AndroidPlatform.h
+    )
+elseif(OHOS)
+    cocos_source_files(
+        cocos/platform/ohos/OhosPlatform.cpp
+        cocos/platform/ohos/OhosPlatform.h
+    )
+elseif(MACOSX)
+    cocos_source_files(
+        cocos/platform/mac/MacPlatform.mm
+        cocos/platform/mac/MacPlatform.h
+        cocos/platform/mac/ViewController.h
+        cocos/platform/mac/ViewController.mm
+        cocos/platform/mac/AppDelegate.h
+        cocos/platform/mac/AppDelegate.mm
+    )
+elseif(IOS)
+    cocos_source_files(
+        cocos/platform/ios/IOSPlatform.mm
+        cocos/platform/ios/IOSPlatform.h
+        cocos/platform/ios/AppDelegate.mm
+        cocos/platform/ios/AppDelegate.h
+        cocos/platform/ios/service/SDKWrapper.m
+        cocos/platform/ios/service/SDKWrapper.h
+        cocos/platform/ios/ViewController.mm
+        cocos/platform/ios/ViewController.h
+    )
+endif()
+
+############ platform : Abstract interface
+cocos_source_files(
+    cocos/platform/interfaces/OSInterface.cpp
+    cocos/platform/interfaces/OSInterface.h
+    cocos/platform/interfaces/OSInterfaceManager.cpp
+    cocos/platform/interfaces/OSInterfaceManager.h
+)
+
+############ platform : Interface definition
+cocos_source_files(
+    cocos/platform/interfaces/modules/Device.cpp
+    cocos/platform/interfaces/modules/Device.h
+    cocos/platform/interfaces/modules/IAccelerometer.cpp
+    cocos/platform/interfaces/modules/IAccelerometer.h
+    cocos/platform/interfaces/modules/IBattery.cpp
+    cocos/platform/interfaces/modules/IBattery.h
+    cocos/platform/interfaces/modules/IScreen.cpp
+    cocos/platform/interfaces/modules/IScreen.h
+    cocos/platform/interfaces/modules/INetwork.cpp
+    cocos/platform/interfaces/modules/INetwork.h
+    cocos/platform/interfaces/modules/ISystem.cpp
+    cocos/platform/interfaces/modules/ISystem.h
+    cocos/platform/interfaces/modules/ISystemWindow.cpp
+    cocos/platform/interfaces/modules/ISystemWindow.h
+    cocos/platform/interfaces/modules/IVibrator.cpp
+    cocos/platform/interfaces/modules/IVibrator.h
+)
+
+cocos_source_files(
+    cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.cpp
+    cocos/platform/interfaces/modules/canvas/CanvasRenderingContext2D.h
+    cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.cpp
+    cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h
+)
+if(WINDOWS)
+    cocos_source_files(
+        cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.cpp
+        cocos/platform/win32/modules/CanvasRenderingContext2DDelegate.h
+    )
+elseif(ANDROID OR OHOS)
+    cocos_source_files(
+        cocos/platform/java/modules/CanvasRenderingContext2DDelegate.cpp
+        cocos/platform/java/modules/CanvasRenderingContext2DDelegate.h
+    )
+elseif(MACOSX OR IOS)
+    cocos_source_files(
+        cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.mm
+        cocos/platform/apple/modules/CanvasRenderingContext2DDelegate.h
+    )
+endif()
+
+############ platform : Interface implementation of windows
+if(WINDOWS)
+    cocos_source_files(
+        cocos/platform/win32/modules/Accelerometer.cpp
+        cocos/platform/win32/modules/Accelerometer.h
+        cocos/platform/win32/modules/Battery.cpp
+        cocos/platform/win32/modules/Battery.h
+        cocos/platform/win32/modules/Screen.cpp
+        cocos/platform/win32/modules/Screen.h
+        cocos/platform/win32/modules/Network.cpp
+        cocos/platform/win32/modules/Network.h
+        cocos/platform/win32/modules/Vibrator.cpp
+        cocos/platform/win32/modules/Vibrator.h
+        cocos/platform/win32/modules/System.cpp
+        cocos/platform/win32/modules/System.h
+        cocos/platform/win32/modules/SystemWindow.cpp
+        cocos/platform/win32/modules/SystemWindow.h
+    )
+elseif(ANDROID OR OHOS)
+    cocos_source_files(
+        cocos/platform/java/modules/Accelerometer.cpp
+        cocos/platform/java/modules/Accelerometer.h
+        cocos/platform/java/modules/Battery.cpp
+        cocos/platform/java/modules/Battery.h
+        cocos/platform/java/modules/CommonScreen.cpp
+        cocos/platform/java/modules/CommonScreen.h
+        cocos/platform/java/modules/Network.cpp
+        cocos/platform/java/modules/Network.h
+        cocos/platform/java/modules/Vibrator.cpp
+        cocos/platform/java/modules/Vibrator.h
+        cocos/platform/java/modules/CommonSystem.cpp
+        cocos/platform/java/modules/CommonSystem.h
+        cocos/platform/java/modules/SystemWindow.cpp
+        cocos/platform/java/modules/SystemWindow.h
+    )
+endif()
+if(ANDROID)
+    cocos_source_files(
+        cocos/platform/android/modules/Screen.cpp
+        cocos/platform/android/modules/Screen.h
+        cocos/platform/android/modules/System.cpp
+        cocos/platform/android/modules/System.h
+    )
+elseif(OHOS)
+    cocos_source_files(
+        cocos/platform/ohos/modules/Screen.cpp
+        cocos/platform/ohos/modules/Screen.h
+        cocos/platform/ohos/modules/System.cpp
+        cocos/platform/ohos/modules/System.h
+    )
+elseif(MACOSX)
+   cocos_source_files(
+        cocos/platform/mac/modules/Accelerometer.mm
+        cocos/platform/mac/modules/Accelerometer.h
+        cocos/platform/mac/modules/Battery.mm
+        cocos/platform/mac/modules/Battery.h
+        cocos/platform/mac/modules/Screen.mm
+        cocos/platform/mac/modules/Screen.h
+        cocos/platform/mac/modules/Network.mm
+        cocos/platform/mac/modules/Network.h
+        cocos/platform/mac/modules/Vibrator.mm
+        cocos/platform/mac/modules/Vibrator.h
+        cocos/platform/mac/modules/System.mm
+        cocos/platform/mac/modules/System.h
+        cocos/platform/mac/modules/SystemWindow.mm
+        cocos/platform/mac/modules/SystemWindow.h
+   )
+elseif(IOS)
+   cocos_source_files(
+        cocos/platform/ios/modules/Accelerometer.mm
+        cocos/platform/ios/modules/Accelerometer.h
+        cocos/platform/ios/modules/Battery.mm
+        cocos/platform/ios/modules/Battery.h
+        cocos/platform/ios/modules/Screen.mm
+        cocos/platform/ios/modules/Screen.h
+        cocos/platform/ios/modules/Network.mm
+        cocos/platform/ios/modules/Network.h
+        cocos/platform/ios/modules/Vibrator.mm
+        cocos/platform/ios/modules/Vibrator.h
+        cocos/platform/ios/modules/System.mm
+        cocos/platform/ios/modules/System.h
+        cocos/platform/ios/modules/SystemWindow.mm
+        cocos/platform/ios/modules/SystemWindow.h
+   )
+endif()
+
 ############ module log
 cocos_source_files(MODULE cclog
     cocos/base/Log.cpp
@@ -506,10 +721,6 @@ endif()
 
 ##### platform
 cocos_source_files(
-    cocos/platform/Application.h
-    cocos/platform/Application.cpp
-    cocos/platform/CanvasRenderingContext2D.h
-    cocos/platform/Device.h
     cocos/platform/Image.cpp
     cocos/platform/Image.h
     cocos/platform/StdC.h
@@ -546,11 +757,6 @@ endif()
 
 if(WINDOWS)
     cocos_source_files(
-        NO_WERROR    cocos/platform/win32/Application-win32.cpp
-        NO_WERROR    cocos/platform/win32/CanvasRenderingContext2D-win32.cpp
-                     cocos/platform/win32/Device-win32.cpp
-                     cocos/platform/win32/View-win32.cpp
-                     cocos/platform/win32/View-win32.h
                      cocos/platform/win32/compat
                      cocos/platform/win32/compat/stdint.h
                      cocos/platform/win32/inet_pton_mingw.cpp
@@ -561,13 +767,6 @@ if(WINDOWS)
         cocos/platform/win32/FileUtils-win32.h
     )
 elseif(ANDROID)
-    cocos_source_files(
-        cocos/platform/android/Application-android.cpp
-        cocos/platform/java/CanvasRenderingContext2D-java.cpp
-        cocos/platform/android/Device-android.cpp
-        cocos/platform/android/View.cpp
-        cocos/platform/android/View.h
-    )
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/android/jni/JniCocosActivity.cpp
         ${CWD}/cocos/platform/android/jni/JniCocosActivity.h
@@ -579,6 +778,10 @@ elseif(ANDROID)
         ${CWD}/cocos/platform/java/jni/JniHelper.h
         ${CWD}/cocos/platform/java/jni/JniImp.cpp
         ${CWD}/cocos/platform/java/jni/JniImp.h
+        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.cpp
+        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.h
+        ${CWD}/cocos/platform/java/jni/glue/MessagePipe.cpp
+        ${CWD}/cocos/platform/java/jni/glue/MessagePipe.h
     )
 
     cocos_source_files(MODULE ccfilesystem
@@ -586,13 +789,6 @@ elseif(ANDROID)
         cocos/platform/android/FileUtils-android.h
     )
 elseif(OHOS)
-    cocos_source_files(
-        cocos/platform/ohos/Application-ohos.cpp
-        cocos/platform/java/CanvasRenderingContext2D-java.cpp
-        cocos/platform/ohos/Device-ohos.cpp
-        cocos/platform/ohos/View.cpp
-        cocos/platform/ohos/View.h
-    )
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/ohos/jni/JniCocosAbility.cpp
         ${CWD}/cocos/platform/ohos/jni/JniCocosAbility.h
@@ -604,6 +800,10 @@ elseif(OHOS)
         ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
         ${CWD}/cocos/platform/ohos/jni/AbilityConsts.h
+        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.cpp
+        ${CWD}/cocos/platform/java/jni/glue/JniNativeGlue.h
+        ${CWD}/cocos/platform/java/jni/glue/MessagePipe.cpp
+        ${CWD}/cocos/platform/java/jni/glue/MessagePipe.h
     )
     cocos_source_files(MODULE ccfilesystem
         cocos/platform/ohos/FileUtils-ohos.cpp
@@ -611,14 +811,8 @@ elseif(OHOS)
     )
 elseif(APPLE)
     cocos_source_files(
-                     cocos/platform/apple/Device-apple.mm
-                     cocos/platform/apple/CanvasRenderingContext2D-apple.mm
-                     cocos/platform/apple/Device-apple.h
-    )
-    # bad structure
-    cocos_source_files(
-                     cocos/platform/ios/Reachability.h
-                     cocos/platform/ios/Reachability.cpp
+        cocos/platform/apple/Reachability.h
+        cocos/platform/apple/Reachability.cpp
     )
 
     cocos_source_files(MODULE ccfilesystem
@@ -630,16 +824,12 @@ elseif(APPLE)
             cocos/platform/mac/View.h
             cocos/platform/mac/KeyCodeHelper.h
             cocos/platform/mac/View.mm
-            cocos/platform/mac/Device-mac.mm
-            cocos/platform/mac/Application-mac.mm
             cocos/platform/mac/KeyCodeHelper.cpp
         )
     elseif(IOS)
         cocos_source_files(
                          cocos/platform/ios/View.h
             NO_WERROR    cocos/platform/ios/View.mm     # CAMetalLayer bug for apple
-            NO_WERROR    cocos/platform/ios/Application-ios.mm
-            NO_WERROR    cocos/platform/ios/Device-ios.mm
         )
     endif()
 endif()
@@ -2110,6 +2300,7 @@ if(APPLE)
         )
     elseif(IOS)
         target_link_libraries(cocos2d PUBLIC
+            "-all_load"
             "-framework QuartzCore"
             "-framework MetalPerformanceShaders"
             "-framework UIKit"

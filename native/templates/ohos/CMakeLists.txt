@@ -15,7 +15,6 @@ set(LIB_NAME cocos)
 set(PROJ_SOURCES
     ${COMMON_DIR}/Classes/Game.h
     ${COMMON_DIR}/Classes/Game.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/entry/src/main/cpp/main.cpp
 )
 
 
