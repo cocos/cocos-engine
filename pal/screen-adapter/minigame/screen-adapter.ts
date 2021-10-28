@@ -62,8 +62,9 @@ class ScreenAdapter extends EventTarget {
             screenWidth = screenHeight;
             screenHeight = temp;
         }
-        // NOTE: screen size info on Alipay is in physical pixel. No need to multiply with DPR.
-        if (!ALIPAY && systemInfo.os === OS.ANDROID) {
+        // NOTE: screen size info on these platforms is in physical pixel.
+        // No need to multiply with DPR.
+        if (!(ALIPAY && systemInfo.os === OS.ANDROID || VIVO)) {
             screenWidth *= dpr;
             screenHeight *= dpr;
         }

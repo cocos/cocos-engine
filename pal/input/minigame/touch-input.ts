@@ -1,6 +1,7 @@
 import { TouchCallback } from 'pal/input';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
+import { VIVO } from 'internal:constants';
 import { Size, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { EventTouch, Touch } from '../../../cocos/input/types';
@@ -55,7 +56,9 @@ export class TouchInputSource {
     }
 
     private _getLocation (touch: globalThis.Touch, windowSize: Size): Vec2 {
-        const dpr = screenAdapter.devicePixelRatio;
+        // NOTE: touch position on vivo platform is in physical pixel.
+        // No need to multiply with DPR.
+        const dpr = VIVO ? 1 : screenAdapter.devicePixelRatio;
         const x = touch.clientX * dpr;
         const y = windowSize.height - touch.clientY * dpr;
         return new Vec2(x, y);
