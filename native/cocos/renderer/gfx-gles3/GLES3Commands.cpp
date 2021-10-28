@@ -1781,7 +1781,7 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
         case GLES3QueryType::BEGIN: {
             auto   queryId   = queryPool->getIdCount();
             GLuint glQueryId = gpuQueryPool->mapGLQueryId(queryId);
-            if (glQueryId != -1) {
+            if (glQueryId != UINT_MAX) {
                 GL_CHECK(glBeginQuery(GL_ANY_SAMPLES_PASSED, glQueryId));
             }
             break;
@@ -1789,7 +1789,7 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
         case GLES3QueryType::END: {
             auto   queryId   = queryPool->getIdCount();
             GLuint glQueryId = gpuQueryPool->mapGLQueryId(queryId);
-            if (glQueryId != -1) {
+            if (glQueryId != UINT_MAX) {
                 GL_CHECK(glEndQuery(GL_ANY_SAMPLES_PASSED));
                 queryPool->addId(id);
             }
@@ -1805,8 +1805,7 @@ void cmdFuncGLES3Query(GLES3Device * /*device*/, GLES3QueryPool *queryPool, GLES
 
             for (auto queryId = 0U; queryId < queryCount; queryId++) {
                 GLuint glQueryId = gpuQueryPool->mapGLQueryId(queryId);
-
-                if (glQueryId != -1) {
+                if (glQueryId != UINT_MAX) {
                     GLuint result{0};
                     GL_CHECK(glGetQueryObjectuiv(glQueryId, GL_QUERY_RESULT, &result));
                     results[queryId] = static_cast<uint64_t>(result);

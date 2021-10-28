@@ -518,7 +518,7 @@ void CommandBufferAgent::resetQueryPool(QueryPool *queryPool) {
     auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
 
     ENQUEUE_MESSAGE_2(
-        _messageQueue, CommandBufferResetQuery,
+        _messageQueue, CommandBufferResetQueryPool,
         actor, getActor(),
         queryPool, actorQueryPool,
         {
@@ -530,7 +530,7 @@ void CommandBufferAgent::completeQueryPool(QueryPool *queryPool) {
     auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
 
     ENQUEUE_MESSAGE_2(
-        _messageQueue, CommandBufferCompleteQuery,
+        _messageQueue, CommandBufferCompleteQueryPool,
         actor, getActor(),
         queryPool, actorQueryPool,
         {

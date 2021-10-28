@@ -300,7 +300,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     queueInfo.type = QueueType::GRAPHICS;
     _queue         = createQueue(queueInfo);
 
-    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS};
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, false};
     _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;
@@ -795,28 +795,37 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
     auto *vkQueryPool = static_cast<CCVKQueryPool *>(queryPool);
     auto  queryCount  = static_cast<uint32_t>(vkQueryPool->_ids.size());
     CCASSERT(queryCount <= vkQueryPool->getMaxQueryObjects(), "Too many query commands.");
-    std::vector<uint64_t> results(queryCount, 0ULL);
+
+    const bool            bWait  = queryPool->getForceWait();
+    uint32_t              width  = bWait ? 1U : 2U;
+    uint64_t              stride = sizeof(uint64_t) * width;
+    VkQueryResultFlagBits flag   = bWait ? VK_QUERY_RESULT_WAIT_BIT : VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
+    std::vector<uint64_t> results(queryCount * width, 0ULL);
 
     if (queryCount > 0U) {
-        VK_CHECK(vkGetQueryPoolResults(
+        VkResult result = vkGetQueryPoolResults(
             gpuDevice()->vkDevice,
             vkQueryPool->_gpuQueryPool->vkPool,
             0,
             queryCount,
-            queryCount * sizeof(uint64_t),
+            static_cast<size_t>(queryCount * stride),
             results.data(),
-            sizeof(uint64_t),
-            VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT));
+            stride,
+            VK_QUERY_RESULT_64_BIT | flag);
+        CCASSERT(result == VK_SUCCESS || result == VK_NOT_READY, "Unexpected error code.");
     }
 
     std::unordered_map<uint32_t, uint64_t> mapResults;
     for (auto queryId = 0U; queryId < queryCount; queryId++) {
-        uint32_t id   = vkQueryPool->_ids[queryId];
-        auto     iter = mapResults.find(id);
-        if (iter != mapResults.end()) {
-            iter->second += results[queryId];
-        } else {
-            mapResults[id] = results[queryId];
+        uint32_t offset = queryId * width;
+        if (bWait || results[offset + 1] > 0) {
+            uint32_t id   = vkQueryPool->_ids[queryId];
+            auto     iter = mapResults.find(id);
+            if (iter != mapResults.end()) {
+                iter->second += results[offset];
+            } else {
+                mapResults[id] = results[offset];
+            }
         }
     }
 

@@ -38,12 +38,12 @@ namespace gfx {
  * Update
  * Render
  *  getQueryPoolResults
- *  resetQuery
+ *  resetQueryPool
  *  for each renderObject
  *      beginQuery
  *          drawObject
  *      endQuery
- *  completeQuery
+ *  completeQueryPool
  */
 
 class CC_DLL QueryPool : public GFXObject {
@@ -58,6 +58,7 @@ public:
     inline uint64_t  getResult(uint32_t id) { return _results[id]; }
     inline QueryType getType() const { return _type; }
     inline uint32_t  getMaxQueryObjects() const { return _maxQueryObjects; }
+    inline bool      getForceWait() const { return _forceWait; }
 
 protected:
     virtual void doInit(const QueryPoolInfo &info) = 0;
@@ -65,6 +66,7 @@ protected:
 
     QueryType                              _type{QueryType::OCCLUSION};
     uint32_t                               _maxQueryObjects{0};
+    bool                                   _forceWait{true};
     std::mutex                             _mutex;
     std::unordered_map<uint32_t, uint64_t> _results;
 };

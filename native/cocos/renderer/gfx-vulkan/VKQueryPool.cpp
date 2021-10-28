@@ -47,6 +47,7 @@ void CCVKQueryPool::doInit(const QueryPoolInfo& /*info*/) {
     _gpuQueryPool                  = CC_NEW(CCVKGPUQueryPool);
     _gpuQueryPool->type            = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
+    _gpuQueryPool->forceWait       = _forceWait;
     cmdFuncCCVKCreateQuery(device, _gpuQueryPool);
 }
 

@@ -1293,6 +1293,7 @@ constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 65536U;
 struct QueryPoolInfo {
     QueryType type{QueryType::OCCLUSION};
     uint32_t  maxQueryObjects{DEFAULT_MAX_QUERY_OBJECTS};
+    bool      forceWait{true};
 };
 
 struct FormatInfo {

@@ -44,6 +44,7 @@ void GLES3QueryPool::doInit(const QueryPoolInfo& /*info*/) {
     _gpuQueryPool                  = CC_NEW(GLES3GPUQueryPool);
     _gpuQueryPool->type            = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
+    _gpuQueryPool->forceWait       = _forceWait;
     _gpuQueryPool->glQueryIds.resize(_maxQueryObjects, 0U);
 
     cmdFuncGLES3CreateQuery(device, _gpuQueryPool);
