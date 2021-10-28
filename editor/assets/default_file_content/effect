@@ -37,7 +37,7 @@ CCProgram unlit-fs %{
 
   vec4 frag () {
     vec4 col = mainColor * texture(mainTexture, v_uv);
-    CC_APPLY_FOG(col);
+    CC_APPLY_FOG(col, v_position);
     return CCFragOutput(col);
   }
 }%

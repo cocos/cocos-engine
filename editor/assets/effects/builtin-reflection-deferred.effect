@@ -231,7 +231,7 @@ CCProgram standard-fs %{
   void main () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);
-    CC_APPLY_FOG(color);
+    CC_APPLY_FOG(color, s.position.xyz);
     vec4 baseColor = CCFragOutput(color);
 
     vec2 noise = v_normal.xy * 0.02;
