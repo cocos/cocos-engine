@@ -28,7 +28,8 @@
 #include "platform/IEventDispatch.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/BasePlatform.h"
-#include "platform/ios/AppDelegate.h"
+
+#import "platform/ios/AppDelegate.h"
 //#include "cocos/platform/Device.h"
 
 namespace {

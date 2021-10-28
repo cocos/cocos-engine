@@ -24,9 +24,10 @@
 ****************************************************************************/
 
 #import "View.h"
+#import "platform/ios/AppDelegate.h"
+
 #include <UIKit/UIScreen.h>
 #include "bindings/event/EventDispatcher.h"
-#include "platform/ios/AppDelegate.h"
 
 namespace {
 } // namespace

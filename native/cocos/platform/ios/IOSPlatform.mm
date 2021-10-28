@@ -26,9 +26,10 @@
 #include "platform/ios/IOSPlatform.h"
 #include "platform/interfaces/OSInterface.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
-#include "platform/ios/AppDelegate.h"
 
 #import <UIKit/UIKit.h>
+#import "platform/ios/AppDelegate.h"
+
 extern int cocos_main(int argc, const char** argv);
 
 @interface MyTimer : NSObject {
@@ -101,10 +102,7 @@ int32_t IOSPlatform::loop() {
 }
 
 int32_t IOSPlatform::run(int argc, const char** argv) {
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, (char**)argv, nil, @"AppDelegate");
-    [pool release];
-    return retVal;
+    return runUIAppicationMain(argc, argv);
 }
 
 void IOSPlatform::setFps(int32_t fps) {

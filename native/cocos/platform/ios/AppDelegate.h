@@ -27,12 +27,12 @@
 
 @class ViewController;
 
-__attribute__((visibility("default")))
 @interface AppDelegate : NSObject <UIApplicationDelegate>
 {
 }
 
 @property(nonatomic, readonly) ViewController* viewController;
+int runUIAppicationMain(int argc, const char** argv);
 
 @end
 

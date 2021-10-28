@@ -23,9 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-#include "AppDelegate.h"
+#import "platform/ios/AppDelegate.h"
 #import "ViewController.h"
-#include "platform/ios/View.h"
+#import "platform/ios/View.h"
 
 #include "platform/ios/IOSPlatform.h"
 #include "platform/ios/service/SDKWrapper.h"
@@ -113,5 +113,17 @@ cc::IOSPlatform *_platform = nullptr;
     ev.type = cc::DeviceEvent::Type::DEVICE_MEMORY;
     _platform->dispatchEvent(ev);
 }
+
+// We must put UIApplicationMain in the same file as AppDelegate,
+// otherwise there will be instances where AppDelegate cannot be found at runtime.
+// Reference SDL implementation
+int runUIAppicationMain(int argc, const char** argv) {
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+    int retVal = UIApplicationMain(argc, (char**)argv, nil, @"AppDelegate");
+    [pool release];
+    return retVal;
+}
+
+
 
 @end
