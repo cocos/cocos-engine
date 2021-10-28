@@ -95,11 +95,13 @@ function strToColor (value: string): Color {
 
 function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
     const res: any[] = [];
-    const properties = node.getElementsByTagName('properties');
-    for (let i = 0; i < properties.length; ++i) {
-        const property = properties[i].getElementsByTagName('property');
-        for (let j = 0; j < property.length; ++j) {
-            res.push(property[j]);
+    for(let childNode = node.firstChild; childNode != null; childNode = childNode.nextSibling) {
+        if(childNode instanceof Element && childNode.nodeName == 'properties') {
+            const properties = childNode as Element;            
+            const property = properties.getElementsByTagName('property');
+            for (let j = 0; j < property.length; ++j) {
+                res.push(property[j]);
+            }
         }
     }
 
