@@ -429,6 +429,8 @@ export class FogInfo {
     protected _fogTop = 1.5;
     @serializable
     protected _fogRange = 1.2;
+    @serializable
+    protected _accurate = false;
     protected _resource: Fog | null = null;
     /**
      * @zh 是否启用全局雾效
@@ -448,6 +450,26 @@ export class FogInfo {
 
     get enabled () {
         return this._enabled;
+    }
+
+    /**
+     * @zh 是否启用精确雾效(像素雾)计算
+     * @en Enable accurate fog (pixel fog)
+     */
+    @editable
+    set accurate (val: boolean) {
+        if (this._accurate === val) return;
+        this._accurate = val;
+        if (this._resource) {
+            this._resource.accurate = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
+    }
+
+    get accurate () {
+        return this._accurate;
     }
 
     /**
@@ -501,10 +523,10 @@ export class FogInfo {
     }
 
     /**
-     * @zh 雾效起始位置，只适用于线性雾
-     * @en Global fog start position, only for linear fog
+     * @zh 雾效起始位置
+     * @en Global fog start position
      */
-    @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
+    @visible(function (this: FogInfo) { return this._type !== FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
     @displayOrder(4)

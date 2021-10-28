@@ -19,8 +19,9 @@ float LinearFog(vec4 pos) {
 float ExpFog(vec4 pos) {
   vec4 wPos = pos;
   float fogAtten = cc_fogAdd.z;
+  float fogStart = cc_fogBase.x;
   float fogDensity = cc_fogBase.z;
-  float cam_dis = distance(cc_cameraPos, wPos) / fogAtten * 4.;
+  float cam_dis = max(distance(cc_cameraPos, wPos) - fogStart, 0.0) / fogAtten * 4.;
   float f = exp(-cam_dis * fogDensity);
   return f;
 }
@@ -28,8 +29,9 @@ float ExpFog(vec4 pos) {
 float ExpSquaredFog(vec4 pos) {
   vec4 wPos = pos;
   float fogAtten = cc_fogAdd.z;
+  float fogStart = cc_fogBase.x;
   float fogDensity = cc_fogBase.z;
-  float cam_dis = distance(cc_cameraPos, wPos) / fogAtten * 4.;
+  float cam_dis = max(distance(cc_cameraPos, wPos) - fogStart, 0.0) / fogAtten * 4.;
   float f = exp(-cam_dis * cam_dis * fogDensity * fogDensity);
   return f;
 }
@@ -74,19 +76,21 @@ float LayeredFog(vec4 pos) {
   return f;
 }
 
-#define CC_TRANSFER_FOG_BASE(pos, factor) \
-  #if CC_USE_FOG == CC_FOG_LINEAR         \
-    factor = LinearFog(pos);              \
-  #elif CC_USE_FOG == CC_FOG_EXP          \
-    factor = ExpFog(pos);                 \
-  #elif CC_USE_FOG == CC_FOG_EXP_SQUARED  \
-    factor = ExpSquaredFog(pos);          \
-  #elif CC_USE_FOG == CC_FOG_LAYERED      \
-    factor = LayeredFog(pos);             \
-  #else                                   \
-    factor = 1.0;                         \
-  #endif                                  \
-#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+void CC_TRANSFER_FOG_BASE(vec4 pos, out float factor)
+{
+  #if CC_USE_FOG == CC_FOG_LINEAR
+	factor = LinearFog(pos);
+  #elif CC_USE_FOG == CC_FOG_EXP
+    factor = ExpFog(pos);
+  #elif CC_USE_FOG == CC_FOG_EXP_SQUARED
+    factor = ExpSquaredFog(pos);
+  #elif CC_USE_FOG == CC_FOG_LAYERED
+    factor = LayeredFog(pos);
+  #else
+    factor = 1.0;
+  #endif
+}
 
-#pragma define CC_FORWARD_ADD
-#define CC_APPLY_FOG_BASE(color, factor) color = vec4(mix(CC_FORWARD_ADD > 0 ? vec3(0.0) : cc_fogColor.rgb, color.rgb, factor), color.a)
+void CC_APPLY_FOG_BASE(inout vec4 color, float factor) {
+  color = vec4(mix(cc_fogColor.rgb, color.rgb, factor), color.a);
+}
