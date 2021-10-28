@@ -54,7 +54,9 @@ class ScreenAdapter extends EventTarget {
 
     public get windowSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
-        const dpr = this.devicePixelRatio;
+        // NOTE: screen size info on these platforms is in physical pixel.
+        // No need to multiply with DPR.
+        const dpr = ((ALIPAY && systemInfo.os === OS.ANDROID) || VIVO) ? 1 : this.devicePixelRatio;
         let screenWidth = sysInfo.screenWidth;
         let screenHeight = sysInfo.screenHeight;
         if ((COCOSPLAY || ALIPAY) && rotateLandscape  && screenWidth < screenHeight) {
@@ -62,13 +64,7 @@ class ScreenAdapter extends EventTarget {
             screenWidth = screenHeight;
             screenHeight = temp;
         }
-        // NOTE: screen size info on these platforms is in physical pixel.
-        // No need to multiply with DPR.
-        if (!(ALIPAY && systemInfo.os === OS.ANDROID || VIVO)) {
-            screenWidth *= dpr;
-            screenHeight *= dpr;
-        }
-        return new Size(screenWidth, screenHeight);
+        return new Size(screenWidth * dpr, screenHeight * dpr);
     }
     public set windowSize (size: Size) {
         warnID(1221);
