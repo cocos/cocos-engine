@@ -61,7 +61,7 @@ export class Socket {
     @type(Node)
     public target: Node | null = null;
 
-    constructor (path = '', target: Node | null = null) {
+    constructor(path = '', target: Node | null = null) {
         this.path = path;
         this.target = target;
     }
@@ -72,7 +72,7 @@ js.setClassAlias(Socket, 'cc.SkeletalAnimationComponent.Socket');
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
 
-function collectRecursively (node: Node, prefix = '', out: string[] = []) {
+function collectRecursively(node: Node, prefix = '', out: string[] = []) {
     for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
         if (!child) { continue; }
@@ -111,11 +111,11 @@ export class SkeletalAnimation extends Animation {
      */
     @type([Socket])
     @tooltip('i18n:animation.sockets')
-    get sockets () {
+    get sockets() {
         return this._sockets;
     }
 
-    set sockets (val) {
+    set sockets(val) {
         if (!this._useBakedAnimation) {
             const animMgr = legacyCC.director.getAnimationManager() as AnimationManager;
             animMgr.removeSockets(this.node, this._sockets);
@@ -135,11 +135,11 @@ export class SkeletalAnimation extends Animation {
      * 运行时动态修改此选项会在播放下一条动画片段时生效。
      */
     @tooltip('i18n:animation.use_baked_animation')
-    get useBakedAnimation () {
+    get useBakedAnimation() {
         return this._useBakedAnimation;
     }
 
-    set useBakedAnimation (val) {
+    set useBakedAnimation(val) {
         this._useBakedAnimation = val;
         const comps = this.node.getComponentsInChildren(SkinnedMeshRenderer);
         for (let i = 0; i < comps.length; ++i) {
@@ -161,21 +161,21 @@ export class SkeletalAnimation extends Animation {
     @type([Socket])
     protected _sockets: Socket[] = [];
 
-    public onDestroy () {
+    public onDestroy() {
         super.onDestroy();
         (legacyCC.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
         (legacyCC.director.getAnimationManager() as AnimationManager).removeSockets(this.node, this._sockets);
     }
 
-    public start () {
+    public start() {
         this.sockets = this._sockets;
         this.useBakedAnimation = this._useBakedAnimation;
         super.start();
     }
 
-    public querySockets () {
+    public querySockets() {
         const animPaths = (this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip).joints).sort()
-            .reduce((acc, cur) => (cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc)), [] as string[])) || [];
+            .reduce((acc, cur) => (cur.startsWith(acc[acc.length - 1] + "/") ? acc : (acc.push(cur), acc)), [] as string[])) || [];
         if (!animPaths.length) { return ['please specify a valid default animation clip first']; }
         const out: string[] = [];
         for (let i = 0; i < animPaths.length; i++) {
@@ -188,7 +188,7 @@ export class SkeletalAnimation extends Animation {
         return out;
     }
 
-    public rebuildSocketAnimations () {
+    public rebuildSocketAnimations() {
         for (const socket of this._sockets) {
             const joint = this.node.getChildByPath(socket.path);
             const { target } = socket;
@@ -206,7 +206,7 @@ export class SkeletalAnimation extends Animation {
         }
     }
 
-    public createSocket (path: string) {
+    public createSocket(path: string) {
         const socket = this._sockets.find((s) => s.path === path);
         if (socket) { return socket.target; }
         const joint = this.node.getChildByPath(path);
@@ -218,11 +218,11 @@ export class SkeletalAnimation extends Animation {
         return target;
     }
 
-    protected _createState (clip: AnimationClip, name?: string) {
+    protected _createState(clip: AnimationClip, name?: string) {
         return new SkeletalAnimationState(clip, name);
     }
 
-    protected _doCreateState (clip: AnimationClip, name: string) {
+    protected _doCreateState(clip: AnimationClip, name: string) {
         const state = super._doCreateState(clip, name) as SkeletalAnimationState;
         state.rebuildSocketCurves(this._sockets);
         return state;
