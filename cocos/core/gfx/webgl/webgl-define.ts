@@ -128,6 +128,7 @@ export interface IWebGLExtensions {
     ANGLE_instanced_arrays: ANGLE_instanced_arrays | null;
     destroyShadersImmediately: boolean;
     noCompressedTexSubImage2D: boolean;
+    isLocationActive: (glLoc: unknown) => glLoc is WebGLUniformLocation;
     useVAO: boolean;
 }
 

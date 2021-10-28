@@ -102,7 +102,7 @@ export class ForwardPipeline extends RenderPipeline {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
-            const window = cameras[i].window!;
+            const window = cameras[i].window;
             newWidth = Math.max(window.width, newWidth);
             newHeight = Math.max(window.height, newHeight);
         }
@@ -175,14 +175,14 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (!this._postRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.BGRA8;
+            colorAttachment.format = swapchain.colorTexture.format;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_READ];
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = Format.DEPTH_STENCIL;
+            depthStencilAttachment.format = swapchain.depthStencilTexture.format;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.depthStoreOp = StoreOp.STORE;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
@@ -209,7 +209,7 @@ export class ForwardPipeline extends RenderPipeline {
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             this._width,
             this._height,
         )));
