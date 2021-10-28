@@ -51,7 +51,7 @@ public:
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
-    void resetQuery(QueryPool *queryPool) override;
+    void resetQueryPool(QueryPool *queryPool) override;
 
 protected:
     friend class GLES3Queue;

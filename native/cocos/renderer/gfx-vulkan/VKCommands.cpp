@@ -100,7 +100,7 @@ void cmdFuncCCVKCreateQuery(CCVKDevice *device, CCVKGPUQueryPool *gpuQueryPool) 
     queryPoolInfo.sType                 = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     queryPoolInfo.queryType             = mapVkQueryType(gpuQueryPool->type);
     queryPoolInfo.queryCount            = gpuQueryPool->maxQueryObjects;
-    VK_CHECK(vkCreateQueryPool(device->gpuDevice()->vkDevice, &queryPoolInfo, nullptr, &gpuQueryPool->pool));
+    VK_CHECK(vkCreateQueryPool(device->gpuDevice()->vkDevice, &queryPoolInfo, nullptr, &gpuQueryPool->vkPool));
 }
 
 void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
@@ -1400,7 +1400,10 @@ CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTe
 }
 
 void cmdFuncCCVKDestroyQuery(CCVKGPUDevice *gpuDevice, CCVKGPUQueryPool *gpuQueryPool) {
-    vkDestroyQueryPool(gpuDevice->vkDevice, gpuQueryPool->pool, nullptr);
+    if (gpuQueryPool->vkPool != VK_NULL_HANDLE) {
+        vkDestroyQueryPool(gpuDevice->vkDevice, gpuQueryPool->vkPool, nullptr);
+        gpuQueryPool->vkPool = VK_NULL_HANDLE;
+    }
 }
 
 void cmdFuncCCVKDestroyRenderPass(CCVKGPUDevice *gpuDevice, CCVKGPURenderPass *gpuRenderPass) {
@@ -1424,25 +1427,6 @@ void cmdFuncCCVKDestroyShader(CCVKGPUDevice *gpuDevice, CCVKGPUShader *gpuShader
     for (CCVKGPUShaderStage &stage : gpuShader->gpuStages) {
         vkDestroyShaderModule(gpuDevice->vkDevice, stage.vkShader, nullptr);
         stage.vkShader = VK_NULL_HANDLE;
-    }
-}
-
-void cmdFuncCCVKDestroyFramebuffer(CCVKGPUDevice *gpuDevice, CCVKGPUFramebuffer *gpuFramebuffer) {
-    if (gpuFramebuffer->isOffscreen) {
-        if (gpuFramebuffer->vkFramebuffer != VK_NULL_HANDLE) {
-            vkDestroyFramebuffer(gpuDevice->vkDevice, gpuFramebuffer->vkFramebuffer, nullptr);
-            gpuFramebuffer->vkFramebuffer = VK_NULL_HANDLE;
-        }
-    } else if (gpuDevice->swapchains.count(gpuFramebuffer->swapchain)) {
-        FramebufferListMap &fboListMap     = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap;
-        auto                fboListMapIter = fboListMap.find(gpuFramebuffer);
-        if (fboListMapIter != fboListMap.end()) {
-            for (auto &i : fboListMapIter->second) {
-                vkDestroyFramebuffer(gpuDevice->vkDevice, i, nullptr);
-            }
-            fboListMapIter->second.clear();
-            fboListMap.erase(fboListMapIter);
-        }
     }
 }
 
@@ -1517,6 +1501,12 @@ void CCVKGPURecycleBin::clear() {
                     res.vkImageView = VK_NULL_HANDLE;
                 }
                 break;
+            case RecycledType::FRAMEBUFFER:
+                if (res.vkFramebuffer) {
+                    vkDestroyFramebuffer(_device->vkDevice, res.vkFramebuffer, nullptr);
+                    res.vkFramebuffer = VK_NULL_HANDLE;
+                }
+                break;
             case RecycledType::QUERY:
                 if (res.gpuQueryPool) {
                     cmdFuncCCVKDestroyQuery(_device, res.gpuQueryPool);
@@ -1529,13 +1519,6 @@ void CCVKGPURecycleBin::clear() {
                     cmdFuncCCVKDestroyRenderPass(_device, res.gpuRenderPass);
                     CC_DELETE(res.gpuRenderPass);
                     res.gpuRenderPass = nullptr;
-                }
-                break;
-            case RecycledType::FRAMEBUFFER:
-                if (res.gpuFramebuffer) {
-                    cmdFuncCCVKDestroyFramebuffer(_device, res.gpuFramebuffer);
-                    CC_DELETE(res.gpuFramebuffer);
-                    res.gpuFramebuffer = nullptr;
                 }
                 break;
             case RecycledType::SAMPLER:
@@ -1718,6 +1701,14 @@ void CCVKGPUBufferHub::flush(CCVKGPUTransportHub *transportHub) {
     }
 
     buffers.clear();
+}
+
+void CCVKGPUFramebufferHub::update(CCVKGPUTexture *texture) {
+    auto &pool = _framebuffers[texture];
+    for (auto *framebuffer : pool) {
+        CCVKDevice::getInstance()->gpuRecycleBin()->collect(framebuffer);
+        cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), framebuffer);
+    }
 }
 
 } // namespace gfx

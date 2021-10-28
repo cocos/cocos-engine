@@ -91,7 +91,7 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->begin();
 
     if (enableOcclusionQuery) {
-        _commandBuffers[0]->resetQuery(_queryPools[0]);
+        _commandBuffers[0]->resetQueryPool(_queryPools[0]);
     }
 
     _pipelineUBO->updateGlobalUBO(cameras[0]);
@@ -100,17 +100,17 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
 
     for (auto *camera : cameras) {
         sceneCulling(this, camera);
-        _fg.reset();
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
         _fg.compile();
         _fg.execute();
+        _fg.reset();
         _pipelineUBO->incCameraUBOOffset();
     }
 
     if (enableOcclusionQuery) {
-        _commandBuffers[0]->completeQuery(_queryPools[0]);
+        _commandBuffers[0]->completeQueryPool(_queryPools[0]);
     }
 
     _commandBuffers[0]->end();

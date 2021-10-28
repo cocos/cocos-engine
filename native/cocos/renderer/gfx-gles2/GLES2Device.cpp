@@ -43,6 +43,7 @@
 #include "GLES2Shader.h"
 #include "GLES2Swapchain.h"
 #include "GLES2Texture.h"
+#include "base/memory/Memory.h"
 #include "states/GLES2Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
@@ -73,6 +74,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     _gpuContext             = CC_NEW(GLES2GPUContext);
     _gpuStateCache          = CC_NEW(GLES2GPUStateCache);
     _gpuBlitManager         = CC_NEW(GLES2GPUBlitManager);
+    _gpuFramebufferHub      = CC_NEW(GLES2GPUFramebufferHub);
     _gpuConstantRegistry    = CC_NEW(GLES2GPUConstantRegistry);
     _gpuFramebufferCacheMap = CC_NEW(GLES2GPUFramebufferCacheMap(_gpuStateCache));
 
@@ -240,6 +242,7 @@ void GLES2Device::doDestroy() {
 
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
     CC_SAFE_DELETE(_gpuConstantRegistry)
+    CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuBlitManager)
     CC_SAFE_DELETE(_gpuStateCache)
 

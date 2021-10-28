@@ -868,13 +868,13 @@ void CCMTLCommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
     }
 }
 
-void CCMTLCommandBuffer::resetQuery(QueryPool *queryPool) {
+void CCMTLCommandBuffer::resetQueryPool(QueryPool *queryPool) {
     auto *mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
 
     mtlQueryPool->_ids.clear();
 }
 
-void CCMTLCommandBuffer::completeQuery(QueryPool *queryPool) {
+void CCMTLCommandBuffer::completeQueryPool(QueryPool *queryPool) {
     auto *             mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
     CCMTLGPUQueryPool *gpuQueryPool = mtlQueryPool->gpuQueryPool();
 

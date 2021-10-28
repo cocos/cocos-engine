@@ -17151,7 +17151,7 @@ static bool js_gfx_CommandBuffer_resetQuery(se::State& s) // NOLINT(readability-
         HolderType<cc::gfx::QueryPool*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_resetQuery : Error processing arguments");
-        cobj->resetQuery(arg0.value());
+        cobj->resetQueryPool(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);

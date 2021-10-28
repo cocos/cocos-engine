@@ -45,27 +45,19 @@ public:
 
     static ResourceAllocator &getInstance() noexcept;
     DeviceResourceType *      alloc(const DescriptorType &desc) noexcept;
-    void                      free(const DescriptorType &desc, DeviceResourceType *resource) noexcept;
+    void                      free(DeviceResourceType *resource) noexcept;
     inline void               tick() noexcept;
     void                      gc(uint32_t unusedFrameCount) noexcept;
 
 private:
-    using DeviceResourcePtr = DeviceResourceType *;
-    struct DeviceResourcePtrGC {
-        DeviceResourcePtr resource{nullptr};
-        uint64_t          age{0ULL};
-
-        DeviceResourcePtrGC(DeviceResourcePtr resource, uint64_t age) : resource(resource), age(age) {}
-    };
-    using DeviceResourcePool   = std::vector<DeviceResourcePtr>;
-    using DeviceResourcePoolGC = std::vector<DeviceResourcePtrGC>;
+    using DeviceResourcePool = std::vector<DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
 
-    std::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>>   _livepool{};
-    std::unordered_map<DescriptorType, DeviceResourcePoolGC, gfx::Hasher<DescriptorType>> _deadpool{};
-    uint64_t                                                                              _age{0};
+    std::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>> _pool{};
+    std::unordered_map<DeviceResourceType *, int64_t>                                   _ages{};
+    uint64_t                                                                            _age{0};
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,36 +71,29 @@ ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 DeviceResourceType *ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::alloc(const DescriptorType &desc) noexcept {
-    auto &deadpool{_deadpool[desc]};
+    DeviceResourcePool &pool{_pool[desc]};
 
-    DeviceResourcePtr resource{nullptr};
-
-    if (deadpool.empty()) {
+    DeviceResourceType *resource{nullptr};
+    for (DeviceResourceType *res : pool) {
+        if (_ages[res] >= 0) {
+            resource = res;
+            break;
+        }
+    }
+    if (!resource) {
         DeviceResourceCreator creator;
         resource = creator(desc);
-    } else {
-        resource = deadpool.back().resource;
-        deadpool.pop_back();
+        pool.push_back(resource);
     }
 
-    auto &livepool{_livepool[desc]};
-    livepool.emplace_back(resource);
+    _ages[resource] = -1;
     return resource;
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
-void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::free(const DescriptorType &desc, DeviceResourceType *const resource) noexcept {
-    auto &livepool{_livepool[desc]};
-    CC_ASSERT(!livepool.empty());
-
-    auto it = std::find_if(livepool.begin(), livepool.end(), [&resource](DeviceResourcePtr x) {
-        return resource == x;
-    });
-    CC_ASSERT(it != livepool.end());
-    livepool.erase(it);
-
-    DeviceResourcePoolGC &deadpool{_deadpool[desc]};
-    deadpool.emplace_back(resource, _age);
+void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::free(DeviceResourceType *const resource) noexcept {
+    CC_ASSERT(_ages.count(resource) && _ages[resource] < 0);
+    _ages[resource] = _age;
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
@@ -118,10 +103,10 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::gc(uint32_t const unusedFrameCount) noexcept {
-    for (auto &pair : _deadpool) {
-        DeviceResourcePoolGC &deadpool = pair.second;
+    for (auto &pair : _pool) {
+        DeviceResourcePool &pool = pair.second;
 
-        auto count = static_cast<int>(deadpool.size());
+        auto count = static_cast<int>(pool.size());
 
         if (!count) {
             return;
@@ -130,15 +115,17 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
         int destroyBegin = count - 1;
 
         for (int i = 0; i < count; ++i) {
-            if (_age - deadpool[i].age < unusedFrameCount) {
+            int64_t ageI = _ages[pool[i]];
+            if (ageI < 0 || _age - ageI < unusedFrameCount) {
                 continue;
             }
 
             int j = destroyBegin;
 
             for (; j > i; --j) {
-                if (_age - deadpool[j].age < unusedFrameCount) {
-                    std::swap(deadpool[i], deadpool[j]);
+                int64_t ageJ = _ages[pool[j]];
+                if (ageJ < 0 || _age - ageJ < unusedFrameCount) {
+                    std::swap(pool[i], pool[j]);
                     destroyBegin = j - 1;
                     break;
                 }
@@ -154,8 +141,10 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
         }
 
         while (++destroyBegin < count) {
-            CC_SAFE_DESTROY(deadpool.back().resource);
-            deadpool.pop_back();
+            auto *resource = pool.back();
+            CC_DELETE(resource);
+            _ages.erase(resource);
+            pool.pop_back();
         }
     }
 }

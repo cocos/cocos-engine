@@ -2956,5 +2956,13 @@ void GLES2GPUBlitManager::draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *
     }
 }
 
+void GLES2GPUFramebufferHub::update(GLES2GPUTexture *texture) {
+    auto &pool = _framebuffers[texture];
+    for (auto *framebuffer : pool) {
+        cmdFuncGLES2DestroyFramebuffer(GLES2Device::getInstance(), framebuffer);
+        cmdFuncGLES2CreateFramebuffer(GLES2Device::getInstance(), framebuffer);
+    }
+}
+
 } // namespace gfx
 } // namespace cc

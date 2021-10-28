@@ -489,7 +489,8 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
 }
 
 void CommandBufferAgent::beginQuery(QueryPool *queryPool, uint32_t id) {
-    QueryPool *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
     ENQUEUE_MESSAGE_3(
         _messageQueue, CommandBufferBeginQuery,
         actor, getActor(),
@@ -501,7 +502,8 @@ void CommandBufferAgent::beginQuery(QueryPool *queryPool, uint32_t id) {
 }
 
 void CommandBufferAgent::endQuery(QueryPool *queryPool, uint32_t id) {
-    QueryPool *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
     ENQUEUE_MESSAGE_3(
         _messageQueue, CommandBufferEndQuery,
         actor, getActor(),
@@ -512,25 +514,27 @@ void CommandBufferAgent::endQuery(QueryPool *queryPool, uint32_t id) {
         });
 }
 
-void CommandBufferAgent::resetQuery(QueryPool *queryPool) {
-    QueryPool *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+void CommandBufferAgent::resetQueryPool(QueryPool *queryPool) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferResetQuery,
         actor, getActor(),
         queryPool, actorQueryPool,
         {
-            actor->resetQuery(queryPool);
+            actor->resetQueryPool(queryPool);
         });
 }
 
-void CommandBufferAgent::completeQuery(QueryPool *queryPool) {
-    QueryPool *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+void CommandBufferAgent::completeQueryPool(QueryPool *queryPool) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferCompleteQuery,
         actor, getActor(),
         queryPool, actorQueryPool,
         {
-            actor->completeQuery(queryPool);
+            actor->completeQueryPool(queryPool);
         });
 }
 

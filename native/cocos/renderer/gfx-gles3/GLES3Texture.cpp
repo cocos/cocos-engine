@@ -74,6 +74,7 @@ void GLES3Texture::doDestroy() {
             GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
         }
         cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
+        GLES3Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
         CC_DELETE(_gpuTexture);
         _gpuTexture = nullptr;
     }
@@ -88,6 +89,8 @@ void GLES3Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     _gpuTexture->height = height;
     _gpuTexture->size   = size;
     cmdFuncGLES3ResizeTexture(GLES3Device::getInstance(), _gpuTexture);
+
+    GLES3Device::getInstance()->framebufferHub()->update(_gpuTexture);
 
     if (!_gpuTexture->memoryless) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize += size;

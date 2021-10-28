@@ -28,6 +28,7 @@
 #include "VKStd.h"
 #include "VKUtils.h"
 #include "gfx-base/GFXDef-common.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 #include "vulkan/vulkan_core.h"
 
 #define TBB_USE_EXCEPTIONS 0 // no-rtti for now
@@ -99,6 +100,7 @@ public:
 };
 
 class CCVKGPUSwapchain;
+class CCVKGPUFramebuffer;
 class CCVKGPUTexture final : public Object {
 public:
     TextureType        type        = TextureType::TEX2D;
@@ -257,7 +259,7 @@ class CCVKGPUQueryPool final : public Object {
 public:
     QueryType   type{QueryType::OCCLUSION};
     uint32_t    maxQueryObjects{0};
-    VkQueryPool pool;
+    VkQueryPool vkPool;
 };
 
 struct CCVKGPUShaderStage {
@@ -1100,6 +1102,27 @@ public:
         }
     }
 
+    void collect(CCVKGPUFramebuffer *gpuFramebuffer) {
+        if (_resources.size() <= _count) {
+            _resources.resize(_count * 2);
+        }
+        if (_device->swapchains.count(gpuFramebuffer->swapchain)) {
+            FramebufferListMap &fboListMap     = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap;
+            auto                fboListMapIter = fboListMap.find(gpuFramebuffer);
+            if (fboListMapIter != fboListMap.end()) {
+                for (auto &i : fboListMapIter->second) {
+                    vkDestroyFramebuffer(_device->vkDevice, i, nullptr);
+                }
+                fboListMapIter->second.clear();
+                fboListMap.erase(fboListMapIter);
+            }
+        } else if (gpuFramebuffer->vkFramebuffer) {
+            Resource &res     = _resources[_count++];
+            res.type          = RecycledType::FRAMEBUFFER;
+            res.vkFramebuffer = gpuFramebuffer->vkFramebuffer;
+        }
+    }
+
 #define DEFINE_RECYCLE_BIN_COLLECT_FN(_type, typeValue, expr)                  \
     void collect(_type *gpuRes) { /* NOLINT(bugprone-macro-parentheses) N/A */ \
         if (_resources.size() <= _count) {                                     \
@@ -1112,7 +1135,6 @@ public:
 
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUBuffer, RecycledType::BUFFER, (res.buffer = {gpuRes->vkBuffer, gpuRes->vmaAllocation}))
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, RecycledType::RENDER_PASS, res.gpuRenderPass = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUFramebuffer, RecycledType::FRAMEBUFFER, res.gpuFramebuffer = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUSampler, RecycledType::SAMPLER, res.gpuSampler = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUShader, RecycledType::SHADER, res.gpuShader = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUQueryPool, RecycledType::QUERY, res.gpuQueryPool = gpuRes)
@@ -1128,11 +1150,11 @@ private:
         BUFFER,
         TEXTURE,
         TEXTURE_VIEW,
-        RENDER_PASS,
         FRAMEBUFFER,
+        QUERY,
+        RENDER_PASS,
         SAMPLER,
         SHADER,
-        QUERY,
         DESCRIPTOR_SET_LAYOUT,
         PIPELINE_LAYOUT,
         PIPELINE_STATE,
@@ -1150,12 +1172,12 @@ private:
         union {
             // resizable resources, cannot take over directly
             // or descriptor sets won't work
-            Buffer      buffer;
-            Image       image;
-            VkImageView vkImageView;
+            Buffer        buffer;
+            Image         image;
+            VkImageView   vkImageView;
+            VkFramebuffer vkFramebuffer;
 
             CCVKGPURenderPass *         gpuRenderPass;
-            CCVKGPUFramebuffer *        gpuFramebuffer;
             CCVKGPUSampler *            gpuSampler;
             CCVKGPUShader *             gpuShader;
             CCVKGPUQueryPool *          gpuQueryPool;
@@ -1166,7 +1188,7 @@ private:
     };
     CCVKGPUDevice *  _device = nullptr;
     vector<Resource> _resources;
-    uint32_t         _count = 0U;
+    size_t           _count = 0U;
 };
 
 /**
@@ -1319,6 +1341,27 @@ private:
     vector<unordered_map<CCVKGPUBuffer *, BufferUpdate>> _buffersToBeUpdated;
 
     CCVKGPUDevice *_device = nullptr;
+};
+
+class CCVKGPUFramebufferHub final : public Object {
+public:
+    void connect(CCVKGPUTexture *texture, CCVKGPUFramebuffer *framebuffer) {
+        _framebuffers[texture].push_back(framebuffer);
+    }
+
+    void disengage(CCVKGPUTexture *texture) {
+        _framebuffers.erase(texture);
+    }
+
+    void disengage(CCVKGPUTexture *texture, CCVKGPUFramebuffer *framebuffer) {
+        auto &pool = _framebuffers[texture];
+        pool.erase(std::remove(pool.begin(), pool.end(), framebuffer), pool.end());
+    }
+
+    void update(CCVKGPUTexture *texture);
+
+private:
+    unordered_map<CCVKGPUTexture *, vector<CCVKGPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

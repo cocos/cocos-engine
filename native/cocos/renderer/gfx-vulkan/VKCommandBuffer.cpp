@@ -653,7 +653,7 @@ void CCVKCommandBuffer::beginQuery(QueryPool *queryPool, uint32_t /*id*/) {
     auto              queryId      = static_cast<uint32_t>(vkQueryPool->_ids.size());
 
     if (queryId < queryPool->getMaxQueryObjects()) {
-        vkCmdBeginQuery(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->pool, queryId, 0);
+        vkCmdBeginQuery(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->vkPool, queryId, 0);
     }
 }
 
@@ -663,16 +663,16 @@ void CCVKCommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
     auto              queryId      = static_cast<uint32_t>(vkQueryPool->_ids.size());
 
     if (queryId < queryPool->getMaxQueryObjects()) {
-        vkCmdEndQuery(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->pool, queryId);
+        vkCmdEndQuery(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->vkPool, queryId);
         vkQueryPool->_ids.push_back(id);
     }
 }
 
-void CCVKCommandBuffer::resetQuery(QueryPool *queryPool) {
+void CCVKCommandBuffer::resetQueryPool(QueryPool *queryPool) {
     auto *            vkQueryPool  = static_cast<CCVKQueryPool *>(queryPool);
     CCVKGPUQueryPool *gpuQueryPool = vkQueryPool->gpuQueryPool();
 
-    vkCmdResetQueryPool(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->pool, 0, queryPool->getMaxQueryObjects());
+    vkCmdResetQueryPool(_gpuCommandBuffer->vkCommandBuffer, gpuQueryPool->vkPool, 0, queryPool->getMaxQueryObjects());
     vkQueryPool->_ids.clear();
 }
 

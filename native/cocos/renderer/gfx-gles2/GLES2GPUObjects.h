@@ -582,5 +582,26 @@ private:
     CacheMap _textureMap;      // texture -> framebuffer
 };
 
+class GLES2GPUFramebufferHub final : public Object {
+public:
+    void connect(GLES2GPUTexture *texture, GLES2GPUFramebuffer *framebuffer) {
+        _framebuffers[texture].push_back(framebuffer);
+    }
+
+    void disengage(GLES2GPUTexture *texture) {
+        _framebuffers.erase(texture);
+    }
+
+    void disengage(GLES2GPUTexture *texture, GLES2GPUFramebuffer *framebuffer) {
+        auto &pool = _framebuffers[texture];
+        pool.erase(std::remove(pool.begin(), pool.end(), framebuffer), pool.end());
+    }
+
+    void update(GLES2GPUTexture *texture);
+
+private:
+    unordered_map<GLES2GPUTexture *, vector<GLES2GPUFramebuffer *>> _framebuffers;
+};
+
 } // namespace gfx
 } // namespace cc

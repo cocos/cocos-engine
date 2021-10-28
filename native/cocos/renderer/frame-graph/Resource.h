@@ -107,7 +107,7 @@ void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::cr
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::destroyTransient() noexcept {
-    Allocator::getInstance().free(_desc, _deviceObject);
+    Allocator::getInstance().free(_deviceObject);
     _deviceObject = nullptr;
 }
 

@@ -66,8 +66,8 @@ public:
     virtual void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount)                                            = 0;
     virtual void beginQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                        = 0;
     virtual void endQuery(QueryPool *queryPool, uint32_t id)                                                                                                                                                          = 0;
-    virtual void resetQuery(QueryPool *queryPool)                                                                                                                                                                     = 0;
-    virtual void completeQuery(QueryPool *queryPool)                                                                                                                                                                  = 0;
+    virtual void resetQueryPool(QueryPool *queryPool)                                                                                                                                                                     = 0;
+    virtual void completeQueryPool(QueryPool *queryPool) {}
 
     inline void begin();
     inline void begin(RenderPass *renderPass);

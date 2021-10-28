@@ -490,20 +490,20 @@ void CommandBufferValidator::endQuery(QueryPool *queryPool, uint32_t id) {
     _actor->endQuery(actorQueryPool, id);
 }
 
-void CommandBufferValidator::resetQuery(QueryPool *queryPool) {
+void CommandBufferValidator::resetQueryPool(QueryPool *queryPool) {
     CCASSERT(isInited(), "already destroyed?");
     CCASSERT(static_cast<QueryPoolValidator *>(queryPool)->isInited(), "already destroyed?");
 
     QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
-    _actor->resetQuery(actorQueryPool);
+    _actor->resetQueryPool(actorQueryPool);
 }
 
-void CommandBufferValidator::completeQuery(QueryPool *queryPool) {
+void CommandBufferValidator::completeQueryPool(QueryPool *queryPool) {
     CCASSERT(isInited(), "already destroyed?");
     CCASSERT(static_cast<QueryPoolValidator *>(queryPool)->isInited(), "already destroyed?");
 
     QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
-    _actor->completeQuery(actorQueryPool);
+    _actor->completeQueryPool(actorQueryPool);
 }
 
 } // namespace gfx

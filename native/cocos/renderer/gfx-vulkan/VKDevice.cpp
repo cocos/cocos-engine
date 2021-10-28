@@ -42,6 +42,7 @@
 #include "VKTexture.h"
 #include "VKUtils.h"
 #include "gfx-base/SPIRVUtils.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 #include "states/VKGlobalBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
@@ -373,6 +374,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuDescriptorHub    = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool    = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuBarrierManager   = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
+    _gpuFramebufferHub   = CC_NEW(CCVKGPUFramebufferHub);
     _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
 
     _gpuDescriptorHub->link(_gpuDescriptorSetHub);
@@ -470,6 +472,7 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuSemaphorePool)
     CC_SAFE_DELETE(_gpuDescriptorHub)
     CC_SAFE_DELETE(_gpuBarrierManager)
+    CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
     uint32_t backBufferCount = _gpuDevice->backBufferCount;
@@ -517,8 +520,7 @@ void CCVKDevice::doDestroy() {
             _gpuDevice->memoryAllocator = VK_NULL_HANDLE;
         }
 
-        for (CCVKGPUDevice::CommandBufferPools::iterator it = _gpuDevice->_commandBufferPools.begin();
-             it != _gpuDevice->_commandBufferPools.end(); ++it) {
+        for (auto it = _gpuDevice->_commandBufferPools.begin(); it != _gpuDevice->_commandBufferPools.end(); ++it) {
             CC_SAFE_DELETE(it->second)
         }
         _gpuDevice->_commandBufferPools.clear();
@@ -798,7 +800,7 @@ void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
     if (queryCount > 0U) {
         VK_CHECK(vkGetQueryPoolResults(
             gpuDevice()->vkDevice,
-            vkQueryPool->_gpuQueryPool->pool,
+            vkQueryPool->_gpuQueryPool->vkPool,
             0,
             queryCount,
             queryCount * sizeof(uint64_t),

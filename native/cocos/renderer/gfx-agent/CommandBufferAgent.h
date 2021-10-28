@@ -66,8 +66,8 @@ public:
     void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
-    void resetQuery(QueryPool *queryPool) override;
-    void completeQuery(QueryPool *queryPool) override;
+    void resetQueryPool(QueryPool *queryPool) override;
+    void completeQueryPool(QueryPool *queryPool) override;
 
     uint32_t getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     uint32_t getNumInstances() const override { return _actor->getNumInstances(); }

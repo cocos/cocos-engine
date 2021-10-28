@@ -540,7 +540,7 @@ private:
 
 class GLES3GPUSamplerRegistry final : public Object {
 public:
-    ~GLES3GPUSamplerRegistry() {
+    ~GLES3GPUSamplerRegistry() override {
         vector<GLuint> glSampelrs;
         for (const auto &pair : _cache) {
             glSampelrs.push_back(pair.second);
@@ -659,6 +659,27 @@ private:
     using CacheMap = unordered_map<GLuint, vector<FramebufferRecord>>;
     CacheMap _renderbufferMap; // renderbuffer -> mip level -> framebuffer
     CacheMap _textureMap;      // texture -> mip level -> framebuffer
+};
+
+class GLES3GPUFramebufferHub final : public Object {
+public:
+    void connect(GLES3GPUTexture *texture, GLES3GPUFramebuffer *framebuffer) {
+        _framebuffers[texture].push_back(framebuffer);
+    }
+
+    void disengage(GLES3GPUTexture *texture) {
+        _framebuffers.erase(texture);
+    }
+
+    void disengage(GLES3GPUTexture *texture, GLES3GPUFramebuffer *framebuffer) {
+        auto &pool = _framebuffers[texture];
+        pool.erase(std::remove(pool.begin(), pool.end(), framebuffer), pool.end());
+    }
+
+    void update(GLES3GPUTexture *texture);
+
+private:
+    unordered_map<GLES3GPUTexture *, vector<GLES3GPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

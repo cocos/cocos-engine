@@ -41,6 +41,7 @@
 #include "SwapchainValidator.h"
 #include "TextureValidator.h"
 #include "ValidationUtils.h"
+#include "base/Log.h"
 #include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
@@ -244,6 +245,12 @@ PipelineState *DeviceValidator::createPipelineState() {
 }
 
 Sampler *DeviceValidator::getSampler(const SamplerInfo &info) {
+    if (info.addressU != info.addressV || info.addressV != info.addressW) {
+        CC_LOG_WARNING("Samplers with different wrapping modes may case reduced performance");
+    }
+
+    /////////// execute ///////////
+
     return _actor->getSampler(info);
 }
 

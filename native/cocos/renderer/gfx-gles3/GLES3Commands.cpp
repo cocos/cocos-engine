@@ -3115,5 +3115,13 @@ void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
     }
 }
 
+void GLES3GPUFramebufferHub::update(GLES3GPUTexture *texture) {
+    auto &pool = _framebuffers[texture];
+    for (auto *framebuffer : pool) {
+        cmdFuncGLES3DestroyFramebuffer(GLES3Device::getInstance(), framebuffer);
+        cmdFuncGLES3CreateFramebuffer(GLES3Device::getInstance(), framebuffer);
+    }
+}
+
 } // namespace gfx
 } // namespace cc
