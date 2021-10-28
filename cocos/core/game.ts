@@ -381,6 +381,7 @@ export class Game extends EventTarget {
     // states
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
+    public _isDeserializing = false; // deserializing
     private _inited = false;
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;

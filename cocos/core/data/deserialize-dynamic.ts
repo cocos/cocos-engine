@@ -822,8 +822,10 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     const deserializer = _Deserializer.pool.get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;
+    legacyCC.game._isDeserializing = true;
     const res = deserializer.deserialize(data);
     legacyCC.game._isCloning = false;
+    legacyCC.game._isDeserializing = false;
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {

@@ -1034,9 +1034,11 @@ export function deserialize (data: IFileData | string | CCON | any, details: Det
         }
 
         legacyCC.game._isCloning = true;
+        legacyCC.game._isDeserializing = true;
         const instances = data[File.Instances];
         const rootIndex = parseInstances(data);
         legacyCC.game._isCloning = false;
+        legacyCC.game._isDeserializing = false;
 
         if (data[File.Refs]) {
             dereference(data[File.Refs] as IRefs, instances, data[File.SharedStrings]);
