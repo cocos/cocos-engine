@@ -62,7 +62,12 @@ class ScreenAdapter extends EventTarget {
             screenWidth = screenHeight;
             screenHeight = temp;
         }
-        return new Size(screenWidth * dpr, screenHeight * dpr);
+        // NOTE: screen size info on Alipay is in physical pixel. No need to multiply with DPR.
+        if (!ALIPAY && systemInfo.os === OS.ANDROID) {
+            screenWidth *= dpr;
+            screenHeight *= dpr;
+        }
+        return new Size(screenWidth, screenHeight);
     }
     public set windowSize (size: Size) {
         warnID(1221);
@@ -142,16 +147,8 @@ class ScreenAdapter extends EventTarget {
     private _updateResolution () {
         const windowSize = this.windowSize;
         // update resolution
-        this._resolution.width = windowSize.width;
-        this._resolution.height = windowSize.height;
-        // NOTE: on Alipay iOS end, the resolution size need forcing to be screenSize * dpr.
-        if (ALIPAY && systemInfo.os === OS.IOS) {
-            this._resolution.width *= this.devicePixelRatio;
-            this._resolution.height *= this.devicePixelRatio;
-        } else {
-            this._resolution.width *= this.resolutionScale;
-            this._resolution.height *= this.resolutionScale;
-        }
+        this._resolution.width = windowSize.width * this.resolutionScale;
+        this._resolution.height = windowSize.height * this.resolutionScale;
         this._cbToUpdateFrameBuffer?.();
         this.emit('resolution-change');
     }
