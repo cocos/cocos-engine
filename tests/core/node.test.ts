@@ -46,4 +46,15 @@ describe(`Node`, () => {
         expect(cb).toBeCalledTimes(3);
         expect(cb1).toBeCalledTimes(2);
     });
+
+    test('active-undefined', () => {
+        let scene = new Scene('temp');
+        let node = new Node();
+        node.parent = scene;
+        node.active = true;
+        node.active = undefined;
+        expect(node.active).toBe(false);
+        node.active = true;
+        expect(node.active).toBe(true);
+    });
 });
