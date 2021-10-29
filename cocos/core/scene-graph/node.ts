@@ -1321,7 +1321,14 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
-    public getCompletePath (): string {
+    /**
+     * @en
+     * Get the complete path of the current node under the scene node in the hierarchy.
+     *
+     * @zh
+     * 在 hierarchy 中获得 scene 节点下当前 node 的完整路径。
+     */
+    public getPathInHierarchy (): string {
         let result = this.name;
         let curNode: BaseNode | null = this.parent;
         while (curNode && curNode instanceof Node) {

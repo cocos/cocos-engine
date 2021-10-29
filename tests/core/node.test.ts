@@ -36,16 +36,16 @@ describe(`Node`, () => {
         node3Bro.name = 'node3Bro';
         node3Bro.setParent(node2);
 
-        let path1 = node1.getCompletePath();
+        let path1 = node1.getPathInHierarchy();
         expect(path1).toStrictEqual('node1');
 
-        let path2 = node2.getCompletePath();
+        let path2 = node2.getPathInHierarchy();
         expect(path2).toStrictEqual('node1/node2');
 
-        let path3 = node3.getCompletePath();
+        let path3 = node3.getPathInHierarchy();
         expect(path3).toStrictEqual('node1/node2/node3');
 
-        let path3Bro = node3Bro.getCompletePath();
+        let path3Bro = node3Bro.getPathInHierarchy();
         expect(path3Bro).toStrictEqual('node1/node2/node3Bro');
     });
 
