@@ -671,11 +671,9 @@ export class TerrainBlock {
     set visible (val) {
         if (this._renderable._model !== null) {
             if (val) {
-                if (this._renderable._model.scene == null &&  
-                    this._renderable.node.scene != null && 
-                    this._terrain.node != null &&
-                    this._terrain.node.scene != null &&
-                    this._terrain.node.scene.renderScene != null) {
+                if (this._terrain.node != null
+                    && this._terrain.node.scene != null
+                    && this._terrain.node.scene.renderScene != null) {
                     this._terrain.node.scene.renderScene.addModel(this._renderable._model);
                 }
             } else if (this._renderable._model.scene !== null) {
