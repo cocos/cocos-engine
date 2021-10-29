@@ -331,10 +331,9 @@ export class TerrainBlock {
         this._index[1] = j;
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
-        this._node = new Node();
+        this._node = new Node("TerrainBlock");
         this._node.setParent(this._terrain.node);
         this._node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-
         this._node.layer = this._terrain.node.layer;
 
         this._renderable = this._node.addComponent(TerrainRenderable);
@@ -386,11 +385,13 @@ export class TerrainBlock {
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
             PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
-
-        const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        model.createBoundingShape(this._bbMin, this._bbMax);
-        model.node = model.transform = this._node;
-        this._renderable._getRenderScene().addModel(model);
+        this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
+        this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
+        this._renderable._model.node = this._renderable._model.transform = this._node;
+        // ensure the terrain node is in the scene
+        if (this._renderable.node.scene != null) {
+            this._renderable._getRenderScene().addModel(this._renderable._model);
+        } 
 
         // reset weightmap
         this._updateWeightMap();
@@ -416,7 +417,7 @@ export class TerrainBlock {
     public destroy () {
         this._renderable._destroyModel();
 
-        if (this._node != null) {
+        if (this._node != null && this._node.isValid) {
             this._node.destroy();
         }
         if (this._weightMap != null) {
@@ -670,8 +671,12 @@ export class TerrainBlock {
     set visible (val) {
         if (this._renderable._model !== null) {
             if (val) {
-                if (this._renderable._model.scene == null) {
-                    this._terrain._getRenderScene().addModel(this._renderable._model);
+                if (this._renderable._model.scene == null &&  
+                    this._renderable.node.scene != null && 
+                    this._terrain.node != null &&
+                    this._terrain.node.scene != null &&
+                    this._terrain.node.scene.renderScene != null) {
+                    this._terrain.node.scene.renderScene.addModel(this._renderable._model);
                 }
             } else if (this._renderable._model.scene !== null) {
                 this._renderable._model.scene.removeModel(this._renderable._model);
@@ -1100,6 +1105,16 @@ export class Terrain extends Component {
         for (let i = 0; i < TERRAIN_MAX_LAYER_COUNT; ++i) {
             this._layerList.push(null);
         }
+
+        // initialize shared index buffer
+        const gfxDevice = legacyCC.director.root.device as Device;
+        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
+        this._sharedIndexBuffer.update(this._lod._indexBuffer);
     }
 
     @type(TerrainAsset)
@@ -1485,19 +1500,6 @@ export class Terrain extends Component {
         return this._effectAsset;
     }
 
-    public onLoad () {
-        const gfxDevice = legacyCC.director.root.device as Device;
-
-        // initialize shared index buffer
-        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-        this._sharedIndexBuffer.update(this._lod._indexBuffer);
-    }
-
     public onEnable () {
         if (this._blocks.length === 0) {
             this._buildImp();
@@ -1535,7 +1537,6 @@ export class Terrain extends Component {
 
     public onRestore () {
         this.onDisable();
-        this.onLoad();
         this._buildImp(true);
     }
 
