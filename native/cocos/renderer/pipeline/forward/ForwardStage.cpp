@@ -170,15 +170,6 @@ void ForwardStage::render(scene::Camera *camera) {
         colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
         colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
-
-        auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->clearFlag);
-        if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
-            if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
-                colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
-            } else {
-                colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
-            }
-        }
         colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
         data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
