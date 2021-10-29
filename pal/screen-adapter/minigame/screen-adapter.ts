@@ -54,7 +54,9 @@ class ScreenAdapter extends EventTarget {
 
     public get windowSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
-        const dpr = this.devicePixelRatio;
+        // NOTE: screen size info on these platforms is in physical pixel.
+        // No need to multiply with DPR.
+        const dpr = ((ALIPAY && systemInfo.os === OS.ANDROID) || VIVO) ? 1 : this.devicePixelRatio;
         let screenWidth = sysInfo.screenWidth;
         let screenHeight = sysInfo.screenHeight;
         if ((COCOSPLAY || ALIPAY) && rotateLandscape  && screenWidth < screenHeight) {
@@ -142,16 +144,8 @@ class ScreenAdapter extends EventTarget {
     private _updateResolution () {
         const windowSize = this.windowSize;
         // update resolution
-        this._resolution.width = windowSize.width;
-        this._resolution.height = windowSize.height;
-        // NOTE: on Alipay iOS end, the resolution size need forcing to be screenSize * dpr.
-        if (ALIPAY && systemInfo.os === OS.IOS) {
-            this._resolution.width *= this.devicePixelRatio;
-            this._resolution.height *= this.devicePixelRatio;
-        } else {
-            this._resolution.width *= this.resolutionScale;
-            this._resolution.height *= this.resolutionScale;
-        }
+        this._resolution.width = windowSize.width * this.resolutionScale;
+        this._resolution.height = windowSize.height * this.resolutionScale;
         this._cbToUpdateFrameBuffer?.();
         this.emit('resolution-change');
     }
