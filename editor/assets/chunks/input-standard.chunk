@@ -7,12 +7,13 @@
   #include <cc-skinning>
 #endif
 
-#define CCVertInput(In) \
-  CCDecode(In);         \
-  #if CC_USE_MORPH      \
-    applyMorph(In);     \
-  #endif                \
-  #if CC_USE_SKINNING   \
-    CCSkin(In);         \
-  #endif                \
-  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
+void CCVertInput(inout StandardVertInput In)
+{
+  CCDecode(In);
+  #if CC_USE_MORPH
+    applyMorph(In);
+  #endif
+  #if CC_USE_SKINNING
+    CCSkin(In);
+  #endif
+}
