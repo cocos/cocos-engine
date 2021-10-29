@@ -48,13 +48,13 @@ export type CreateHandler = (id: string, data: any, options: IDownloadParseOptio
 
 function createImageAsset (id: string, data: HTMLImageElement, options: IDownloadParseOptions, onComplete: CompleteCallback<ImageAsset>) {
     let out: ImageAsset | null = null;
-    let err = null;
+    let err: Error | null = null;
     try {
         out = new ImageAsset();
         out._nativeUrl = id;
         out._nativeAsset = data;
     } catch (e) {
-        err = e;
+        err = e as Error;
     }
     onComplete(err, out);
 }
