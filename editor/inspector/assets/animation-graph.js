@@ -25,14 +25,8 @@ exports.$ = {
 };
 
 exports.ready = function() {
-    this.$.button.addEventListener('click', async () => {
-        await Editor.Message.request('scene', 'execute-scene-script', {
-            name: 'animation-graph',
-            method: 'edit',
-            args: [this.asset.uuid],
-        });
-
-        Editor.Panel.open('animation-graph');
+    this.$.button.addEventListener('click', () => {
+        Editor.Message.request('asset-db', 'open-asset', this.asset.uuid);
     });
 };
 

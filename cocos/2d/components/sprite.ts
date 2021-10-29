@@ -417,7 +417,9 @@ export class Sprite extends Renderable2D {
             && this._renderData) {
             this.markForUpdateRenderData(true);
         }
-        this._updateUVWithTrim();
+        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
+            this._updateUVWithTrim();
+        }
     }
 
     @editable

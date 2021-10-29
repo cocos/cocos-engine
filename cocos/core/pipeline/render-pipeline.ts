@@ -326,10 +326,8 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     public generateRenderArea (camera: Camera, out?: Rect): Rect {
         const res = out || new Rect();
         const vp = camera.viewport;
-        // render area is not oriented
-        const swapchain = camera.window!.swapchain;
-        const w = swapchain && swapchain.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = swapchain && swapchain.surfaceTransform % 2 ? camera.width : camera.height;
+        const w = camera.window.width;
+        const h = camera.window.height;
         res.x = vp.x * w;
         res.y = vp.y * h;
         res.width = vp.width * w;
@@ -395,7 +393,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             if (camera.scene) {
                 this.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
                 sceneCulling(this, camera);
-                this._pipelineUBO.updateGlobalUBO(camera.window!);
+                this._pipelineUBO.updateGlobalUBO(camera.window);
                 this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
@@ -635,7 +633,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
         // create renderPass
         const colorAttachment = new ColorAttachment();
-        colorAttachment.format = Format.BGRA8;
+        colorAttachment.format = Format.RGBA8;
         colorAttachment.loadOp = LoadOp.CLEAR;
         colorAttachment.storeOp = StoreOp.STORE;
         colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -648,7 +646,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         bloom.prefiterTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             curWidth >> 1,
             curHeight >> 1,
         ));
@@ -664,7 +662,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.BGRA8,
+                Format.RGBA8,
                 curWidth >> 1,
                 curHeight >> 1,
             )));
@@ -676,7 +674,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.BGRA8,
+                Format.RGBA8,
                 curWidth,
                 curHeight,
             )));
@@ -693,7 +691,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         bloom.combineTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             this._width,
             this._height,
         ));

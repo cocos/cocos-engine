@@ -3023,6 +3023,10 @@ Should only one camera exists, please check your project.
 
 Camera does not support Canvas Mode.
 
+### 8302
+
+Camera.viewport is deprecated, please use setViewportInOrientedSpace instead.
+
 ### 8400
 
 Wrong type arguments, 'filePath' must be a String.

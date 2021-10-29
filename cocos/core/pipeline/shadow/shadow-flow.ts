@@ -96,7 +96,7 @@ export class ShadowFlow extends RenderFlow {
             const globalDS = isMainLight ? pipeline.descriptorSet : pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
 
             if (!shadowFrameBufferMap.has(light)) {
-                this._initShadowFrameBuffer(pipeline, light, camera.window!.swapchain);
+                this._initShadowFrameBuffer(pipeline, light, camera.window.swapchain);
             }
 
             const shadowFrameBuffer = shadowFrameBufferMap.get(light);
