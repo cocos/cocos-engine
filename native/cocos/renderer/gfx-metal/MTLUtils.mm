@@ -1002,8 +1002,6 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         newBinding.desc_set = set;
         newBinding.binding = binding;
         newBinding.msl_buffer = mappedBinding;
-        newBinding.msl_texture = 0;
-        newBinding.msl_sampler = 0;
         msl.add_msl_resource_binding(newBinding);
 
         if (gpuShader->blocks.find(mappedBinding) == gpuShader->blocks.end())
@@ -1022,6 +1020,9 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     // Get all sampled images in the shader.
     unsigned int samplerIndex = 0;
     const auto &samplerBindingOffset = device->bindingMappingInfo().samplerOffsets;
+    
+    // avoid conflict index with input attachments.
+    const uint8_t rtOffsets = executionModel == spv::ExecutionModelFragment ? resources.subpass_inputs.size() : 0;
     for (const auto &sampler : resources.sampled_images) {
         auto set = msl.get_decoration(sampler.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(sampler.id, spv::DecorationBinding);
@@ -1032,16 +1033,15 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
 
         for (int i = 0; i < size; ++i) {
-            auto mappedBinding = binding + samplerBindingOffset[set] + i;
+            auto mappedBinding = samplerIndex + rtOffsets;
             newBinding.desc_set = set;
             newBinding.binding = binding + i;
-            newBinding.msl_buffer = 0;
             newBinding.msl_texture = mappedBinding;
             newBinding.msl_sampler = samplerIndex;
             msl.add_msl_resource_binding(newBinding);
 
             if (gpuShader->samplers.find(mappedBinding) == gpuShader->samplers.end()) {
-                gpuShader->samplers[mappedBinding] = {sampler.name, set, binding, mappedBinding, samplerIndex, shaderType};
+                gpuShader->samplers[mappedBinding] = {sampler.name, set, binding, newBinding.msl_texture, newBinding.msl_sampler, shaderType};
             } else {
                 gpuShader->samplers[mappedBinding].stages |= shaderType;
             }
