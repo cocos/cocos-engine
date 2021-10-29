@@ -42,6 +42,7 @@ class Pass;
 
 struct Fog {
     bool     enabled{false};
+    bool     accurate{false};
     uint32_t type{0};
     float    density{0.0F};
     float    start{0.0F};
