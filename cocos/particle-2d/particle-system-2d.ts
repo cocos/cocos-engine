@@ -46,6 +46,7 @@ import codec from '../../external/compression/ZipUtils';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
+import { builtinResMgr } from 'cocos/core/builtin';
 
 /**
  * Image formats
@@ -946,7 +947,11 @@ export class ParticleSystem2D extends Renderable2D {
                         this._initTextureWithDictionary(dict);
                         error(err);
                     } else {
-                        this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                        if (imageAsset) {
+                            this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                        } else {
+                            this.spriteFrame = SpriteFrame.createWithImage(builtinResMgr.get<ImageAsset>("white-texture"));
+                        }
                     }
                 });
             } else if (dict.textureImageData) {
@@ -986,7 +991,11 @@ export class ParticleSystem2D extends Renderable2D {
                         warnID(6032, this._file!.name);
                     }
                     // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
-                    this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                    if (imageAsset) {
+                        this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                    } else {
+                        this.spriteFrame = SpriteFrame.createWithImage(builtinResMgr.get<ImageAsset>("white-texture"));
+                    }
                 } else {
                     return false;
                 }
