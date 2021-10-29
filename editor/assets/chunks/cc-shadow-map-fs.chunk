@@ -5,5 +5,14 @@ in highp vec4 v_shadowPos;
 #include <cc-shadow-map-base>
 
 #define CC_SHADOW_POSITION v_shadowPos
-#define CC_SPOT_SHADOW_FACTOR(realtimeShadow, worldPos, lightPos, normal) CC_SPOT_SHADOW_FACTOR_BASE(realtimeShadow, v_shadowPos, worldPos, lightPos, normal)
-#define CC_SHADOW_FACTOR(realtimeShadow, N, NL) CC_SHADOW_FACTOR_BASE(realtimeShadow, v_shadowPos, N, NL)
+
+// Just to be compatible with old projects only
+#ifdef CC_RECEIVE_SHADOW
+void CC_SPOT_SHADOW_FACTOR(out float realtimeShadow, vec3 worldPos, vec3 lightPos, vec3 normal) {
+    realtimeShadow = CCSpotShadowFactorBase(CC_SHADOW_POSITION, worldPos);
+}
+
+void CC_SHADOW_FACTOR(out float realtimeShadow, vec3 N, float NL) {
+    realtimeShadow = CCShadowFactorBase(CC_SHADOW_POSITION, N);
+}
+#endif

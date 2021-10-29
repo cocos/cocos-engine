@@ -323,27 +323,34 @@ float CCGetLinearDepth(vec3 worldPos) {
 
     return shadow * 0.25;
   }
+
+float CCSpotShadowFactorBase(vec4 shadowPos, vec3 worldPos)
+{
+  float pcf = cc_shadowWHPBInfo.z;
+  if (pcf > 1.9) { 
+    return CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos);
+  }else if (pcf > 0.9) { 
+    return CCGetSpotLightShadowFactorSoft(shadowPos, worldPos);
+  }else { 
+    return CCGetSpotLightShadowFactorHard(shadowPos, worldPos); 
+  }
+}
+
+float CCShadowFactorBase(vec4 shadowPos, vec3 N)
+{
+  float realtimeShadow = 1.0;
+  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N);
+  
+  float pcf = cc_shadowWHPBInfo.z;
+  if (pcf > 1.9) { 
+    realtimeShadow =  CCGetShadowFactorSoft2X(pos);
+  }else if (pcf > 0.9) {
+    realtimeShadow = CCGetShadowFactorSoft(pos);
+  }else { 
+    realtimeShadow = CCGetShadowFactorHard(pos); 
+  }
+  return mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);
+}
 #endif
 
-#define CC_SPOT_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, worldPos, lightPos, normal)           \
-{                                                                                                   \
-  float pcf = cc_shadowWHPBInfo.z;                                                                  \
-  if (pcf > 1.9) realtimeShadow = CCGetSpotLightShadowFactorSoft2X(shadowPos, worldPos);            \
-  else if (pcf > 0.9) realtimeShadow = CCGetSpotLightShadowFactorSoft(shadowPos, worldPos);         \
-  else realtimeShadow = CCGetSpotLightShadowFactorHard(shadowPos, worldPos);                        \
-}                                                                                                   \
-#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
-
-#define CC_SHADOW_FACTOR_BASE(realtimeShadow, shadowPos, N, NL)                 \
-{                                                                                         \
-  vec4 pos = ApplyShadowDepthBias_FaceNormal(shadowPos, N);                               \
-  float pcf = cc_shadowWHPBInfo.z;                                                        \
-  if (pcf > 1.9) realtimeShadow = CCGetShadowFactorSoft2X(pos);                           \
-  else if (pcf > 0.9) realtimeShadow = CCGetShadowFactorSoft(pos);                        \
-  else realtimeShadow = CCGetShadowFactorHard(pos);                                       \
-  realtimeShadow = mix(realtimeShadow, 1.0, cc_shadowNFLSInfo.w);                         \
-}                                                                                         \
-#pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
-
-#define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) \
-shadowPos = cc_matLightViewProj * pos
+#define CC_TRANSFER_SHADOW_BASE(pos, shadowPos) shadowPos = cc_matLightViewProj * pos

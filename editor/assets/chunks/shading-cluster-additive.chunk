@@ -131,7 +131,7 @@ vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW
       if (light.cc_lightPos.w > 0.0) {
-        CC_SPOT_SHADOW_FACTOR_BASE(shadow, shadowPos, s.position, light.cc_lightPos, N);
+        shadow = CCSpotShadowFactorBase(shadowPos, s.position);
       }
     #endif
 
