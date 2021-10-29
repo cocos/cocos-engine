@@ -28,7 +28,7 @@
  * @module scene-graph
  */
 
-import { boolean, ccclass, editable, serializable } from 'cc.decorator';
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
@@ -163,9 +163,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._active;
     }
     set active (isActive: boolean) {
-        if (isActive === undefined) {
-            isActive = false;
-        }
+        isActive = !!isActive;
 
         if (this._active !== isActive) {
             this._active = isActive;

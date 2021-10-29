@@ -51,9 +51,20 @@ describe(`Node`, () => {
         let scene = new Scene('temp');
         let node = new Node();
         node.parent = scene;
+        
         node.active = true;
         node.active = undefined;
         expect(node.active).toBe(false);
+
+        node.active = true;
+        node.active = null;
+        expect(node.active).toBe(false);
+
+        // // @ts-expect-error
+        // node.active = '' as boolean;
+        // // @ts-expect-error
+        // node.active = 0 as boolean;
+
         node.active = true;
         expect(node.active).toBe(true);
     });
