@@ -679,7 +679,7 @@ export class ScrollView extends ViewGroup {
      * @zh
      * 视图内容在规定时间内将滚动到 ScrollView 相对左上角原点的偏移位置, 如果 timeInSecond 参数不传，则立即滚动到指定偏移位置。
      *
-     * @param offset - 移动后，视图窗口（viewport）于视图内容（content）的相对位置。
+     * @param offset - 滚动视图后，视图内容（content）相对于视图窗口（viewport）的位置。
      * @param timeInSecond - 滚动时间（s）。 如果超时，内容将立即跳到指定偏移量处。
      * @param attenuated - 滚动加速是否衰减，默认为 true。
      * @example
@@ -711,10 +711,10 @@ export class ScrollView extends ViewGroup {
 
     /**
      * @en
-     * Get the content position value corresponds to the viewport's top left boundary.
+     * Get the position of the scrolling view relative to the origin in the upper-left corner of the viewport.
      *
      * @zh
-     * 获取滚动视图于视图窗口的左上角原点的相对位置。
+     * 获取滚动视图相对于视图窗口左上角原点的位置。
      *
      * @return - 当前滚动偏移量。
      */
