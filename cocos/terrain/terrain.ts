@@ -331,7 +331,7 @@ export class TerrainBlock {
         this._index[1] = j;
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
-        this._node = new Node("TerrainBlock");
+        this._node = new Node('TerrainBlock');
         this._node.setParent(this._terrain.node);
         this._node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
         this._node.layer = this._terrain.node.layer;
@@ -391,7 +391,7 @@ export class TerrainBlock {
         // ensure the terrain node is in the scene
         if (this._renderable.node.scene != null) {
             this._renderable._getRenderScene().addModel(this._renderable._model);
-        } 
+        }
 
         // reset weightmap
         this._updateWeightMap();
