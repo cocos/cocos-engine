@@ -208,6 +208,7 @@ export default class ParticleSystemRenderer {
      */
     @type(AlignmentSpace)
     @displayOrder(10)
+    @tooltip('i18n:particle_system.alignSpace')
     public get alignSpace () {
         return this._alignSpace;
     }
