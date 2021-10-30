@@ -1,6 +1,6 @@
 import { ALIPAY, BAIDU, COCOSPLAY, RUNTIME_BASED, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
-import { SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -129,7 +129,7 @@ class ScreenAdapter extends EventTarget {
         // TODO: onResize or onOrientationChange is not supported well
     }
 
-    public init (configOrientation: number, cbToRebuildFrameBuffer: () => void) {
+    public init (configOrientation: ConfigOrientation, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._updateResolution();
     }

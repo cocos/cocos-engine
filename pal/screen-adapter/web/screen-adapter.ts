@@ -1,12 +1,14 @@
 import { TEST } from 'internal:constants';
-import { SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 
-const orientationMap = {
+const OrientationMap: {
+    [key in ConfigOrientation]: Orientation;
+} = {
     auto: Orientation.AUTO,
     landscape: Orientation.LANDSCAPE,
     portrait: Orientation.PORTRAIT,
@@ -259,9 +261,9 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (configOrientation: number, cbToRebuildFrameBuffer: () => void) {
+    public init (configOrientation: ConfigOrientation, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this.orientation = orientationMap[configOrientation];
+        this.orientation = OrientationMap[configOrientation];
         this._resizeFrame();
     }
 
