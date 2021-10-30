@@ -163,6 +163,8 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._active;
     }
     set active (isActive: boolean) {
+        isActive = !!isActive;
+
         if (this._active !== isActive) {
             this._active = isActive;
             const parent = this._parent;
