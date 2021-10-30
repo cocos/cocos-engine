@@ -1,6 +1,7 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
+import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
@@ -11,6 +12,35 @@ const orientationMap = {
     'landscape': Orientation.LANDSCAPE,
     'portrait': Orientation.PORTRAIT,
 };
+
+/**
+ * On Web platform, the game window may points to defferent type of window.
+ */
+enum WindowType {
+    /**
+     * Uknown window type.
+     */
+    Unknown,
+    /**
+     * A SubFrame in BrowserWindow.
+     * Need to set the frame size from an external editor option.
+     * Should only dispatch 'resize' event when the frame size chanaged.
+     * Setting window size is supported.
+     */
+    SubFrame,
+    /**
+     * The window size is determined by the size of BrowserWindow.
+     * Should dispatch 'resize' event when the BrowserWindow size changed.
+     * Setting window size is NOT supported.
+     */
+    BrowserWindow,
+    /**
+     * The window size is equal to the size of screen.
+     * Should dispatch 'resize' event when enter / exit fullscreen or screen resize.
+     * Setting window size is NOT supported.
+     */
+    Fullscreen,
+}
 
 interface IScreenFunctionName {
     requestFullscreen: string,
@@ -47,12 +77,13 @@ class ScreenAdapter extends EventTarget {
         return result;
     }
     public set windowSize (size: Size) {
-        if (systemInfo.isMobile || EDITOR) {
-            // We say that on web mobile, the window size equals to the browser inner size.
-            // The window size is readonly on web mobile.
+        if (this._windowType !== WindowType.SubFrame) {
+            warnID(9202);
             return;
         }
         this._resizeFrame(this._convertToSizeInCssPixels(size));
+        this.emit('window-resize');
+        this._updateResolution();
     }
 
     public get resolution () {
@@ -171,18 +202,53 @@ class ScreenAdapter extends EventTarget {
         ],
     ];
     private get _windowSizeInCssPixels () {
-        if (systemInfo.isMobile || EDITOR || TEST) {
-            if (this.isFrameRotated) {
-                return new Size(window.innerHeight, window.innerWidth);
-            }
+        if (TEST) {
             return new Size(window.innerWidth, window.innerHeight);
-        } else {
-            if (!this._gameFrame) {
-                console.warn('Cannot access game frame');
-                return new Size(0, 0);
-            }
-            return new Size(this._gameFrame.clientWidth, this._gameFrame.clientHeight);
         }
+        switch (this._windowType) {
+            case WindowType.SubFrame:
+                if (!this._gameFrame) {
+                    warnID(9201);
+                    return new Size(0, 0);
+                }
+                return new Size(this._gameFrame.clientWidth, this._gameFrame.clientHeight);
+            case WindowType.Fullscreen:
+                const fullscreenTarget = this._getFullscreenTarget()!;
+                const fullscreenTargetWidth = this.isFrameRotated ? fullscreenTarget.clientHeight : fullscreenTarget.clientWidth;
+                const fullscreenTargetHeight = this.isFrameRotated ? fullscreenTarget.clientWidth : fullscreenTarget.clientHeight;
+                return new Size(fullscreenTargetWidth, fullscreenTargetHeight);
+            case WindowType.BrowserWindow:
+                const winWidth = this.isFrameRotated ? window.innerHeight : window.innerWidth;
+                const winHeight = this.isFrameRotated ? window.innerWidth : window.innerHeight; 
+                return new Size(winWidth, winHeight);
+            case WindowType.Unknown:
+                return new Size(0, 0);
+        }
+    }
+    private get _windowType (): WindowType {
+        if (this.isFullScreen) {
+            return WindowType.Fullscreen;
+        }
+        if (!this._gameFrame) {
+            warnID(9201);
+            return WindowType.Unknown;
+        }
+        if (this._gameFrame.attributes['cc_exact_fit_screen']?.value === 'true') {
+            // Note: It doesn't work well to determine whether the frame exact fits the screen.
+            // Need to specify the attribute from Editor.
+            return WindowType.BrowserWindow;
+        } else {
+            // A fallback case when the 'cc_exact_fit_screen' attribute is not specified.
+            const body = document.body;
+            const frame = this._gameFrame;
+            const bodyWidth = body.clientWidth, bodyHeight = body.clientHeight;
+            const frameWidth = frame.clientWidth, frameHeight = frame.clientHeight;
+            if ((bodyWidth === frameWidth && bodyHeight === frameHeight)
+                || (this.isFrameRotated && bodyWidth === frameHeight && bodyHeight === frameWidth)) {
+                return WindowType.BrowserWindow;
+            }
+        }
+        return WindowType.SubFrame;
     }
     private _resolution: Size = new Size(0, 0);
     private _resolutionScale = 1;
@@ -310,9 +376,16 @@ class ScreenAdapter extends EventTarget {
     }
 
     private _getFullscreenTarget () {
+        const windowType = this._windowType;
+        if (windowType === WindowType.Fullscreen) {
+            return document[this._fn.fullscreenElement];
+        }
+        if (windowType === WindowType.SubFrame) {
+            return this._gameFrame;
+        }
         // On web mobile, the transform of game frame doesn't work when it's on fullscreen.
         // So we need to make the body fullscreen.
-        return systemInfo.isMobile ? document.body : this._gameFrame;
+        return document.body;
     }
     private _doRequestFullScreen (): Promise<void> {
         return new Promise((resolve, reject) => {
