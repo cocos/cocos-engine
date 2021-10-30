@@ -127,6 +127,10 @@ class ScreenAdapter extends EventTarget {
     private _touchEventName: string;
     private _onFullscreenChange?: () => void;
     private _onFullscreenError?: () => void;
+    // We need to set timeout to handle screen event.
+    private readonly _EVENT_TIMEOUT = 200;
+    private _resizeTimeoutId = -1;
+    private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _fn = {} as IScreenFunctionName;
     // Function mapping for cross browser support
@@ -300,10 +304,19 @@ class ScreenAdapter extends EventTarget {
         });
 
         window.addEventListener('resize', () => {
-            if (!this.handleResizeEvent) {
-                return;
+            if (this._resizeTimeoutId !== -1) {
+                clearTimeout(this._resizeTimeoutId);
             }
-            this._resizeFrame(this._windowSizeInCssPixels);
+            this._resizeTimeoutId = setTimeout(() => {
+                if (!this.handleResizeEvent) {
+                    return;
+                }
+                this._resizeFrame();
+                if (this._windowType !== WindowType.SubFrame) {
+                    this.emit('window-resize');
+                }
+                this._resizeTimeoutId = -1;
+            }, this._EVENT_TIMEOUT);
         });
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
@@ -317,11 +330,18 @@ class ScreenAdapter extends EventTarget {
             updateDPRChangeListener();
         }
         window.addEventListener('orientationchange', () => {
-            if (!this.handleResizeEvent) {
-                return;
+            if (this._orientationChangeTimeoutId !== -1) {
+                clearTimeout(this._orientationChangeTimeoutId);
             }
-            this._resizeFrame(this._windowSizeInCssPixels);
-            this.emit('orientation-change');
+            this._orientationChangeTimeoutId = setTimeout(() => {
+                if (!this.handleResizeEvent) {
+                    return;
+                }
+                this._updateFrameState();
+                this._resizeFrame();
+                this.emit('orientation-change');
+                this._orientationChangeTimeoutId = -1;
+            }, this._EVENT_TIMEOUT);
         });
         document.addEventListener(this._fn.fullscreenchange, () => {
             this._onFullscreenChange?.();
