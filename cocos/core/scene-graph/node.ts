@@ -1319,6 +1319,24 @@ export class Node extends BaseNode implements CustomSerializable {
             nativeDirtyNodes.length = 0;
         }
     }
+
+    /**
+     * @en
+     * Get the complete path of the current node in the hierarchy.
+     *
+     * @zh
+     * 获得当前节点在 hierarchy 中的完整路径。
+     */
+    public getPathInHierarchy (): string {
+        let result = this.name;
+        let curNode: BaseNode | null = this.parent;
+        while (curNode && curNode instanceof Node) {
+            result = `${curNode.name}/${result}`;
+            curNode = curNode.parent;
+        }
+
+        return result;
+    }
 }
 
 legacyCC.Node = Node;
