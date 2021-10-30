@@ -7,9 +7,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 
 const EVENT_TIMEOUT = 200;
-const OrientationMap: {
-    [key in ConfigOrientation]: Orientation;
-} = {
+const orientationMap: Record<ConfigOrientation, Orientation> = {
     auto: Orientation.AUTO,
     landscape: Orientation.LANDSCAPE,
     portrait: Orientation.PORTRAIT,
@@ -263,7 +261,7 @@ class ScreenAdapter extends EventTarget {
 
     public init (configOrientation: ConfigOrientation, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this.orientation = OrientationMap[configOrientation];
+        this.orientation = orientationMap[configOrientation];
         this._resizeFrame();
     }
 
