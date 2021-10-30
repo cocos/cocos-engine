@@ -5,6 +5,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../../core/global-exports';
+import { js } from '../../../core/utils/js';
 import { Atlas } from './atlas';
 
 export class DynamicAtlasManager {
@@ -127,8 +128,7 @@ export class DynamicAtlasManager {
         let atlas;
         for (let i = this._atlases.length - 1; i >= 0; i--) {
             atlas = this._atlases[i];
-            const index = atlas._innerSpriteFrames.indexOf(spriteFrame);
-            atlas._innerSpriteFrames.splice(index, 1);
+            js.array.fastRemove(atlas._innerSpriteFrames, spriteFrame);
         }
         const texture = spriteFrame._original._texture;
         this.deleteAtlasTexture(texture);
