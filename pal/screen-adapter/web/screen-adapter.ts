@@ -6,6 +6,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 
+const EVENT_TIMEOUT = 200;
 const OrientationMap: {
     [key in ConfigOrientation]: Orientation;
 } = {
@@ -130,7 +131,6 @@ class ScreenAdapter extends EventTarget {
     private _onFullscreenChange?: () => void;
     private _onFullscreenError?: () => void;
     // We need to set timeout to handle screen event.
-    private readonly _EVENT_TIMEOUT = 200;
     private _resizeTimeoutId = -1;
     private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
@@ -323,7 +323,7 @@ class ScreenAdapter extends EventTarget {
                     this.emit('window-resize');
                 }
                 this._resizeTimeoutId = -1;
-            }, this._EVENT_TIMEOUT);
+            }, EVENT_TIMEOUT);
         });
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
@@ -348,7 +348,7 @@ class ScreenAdapter extends EventTarget {
                 this._resizeFrame();
                 this.emit('orientation-change');
                 this._orientationChangeTimeoutId = -1;
-            }, this._EVENT_TIMEOUT);
+            }, EVENT_TIMEOUT);
         });
         document.addEventListener(this._fn.fullscreenchange, () => {
             this._onFullscreenChange?.();
