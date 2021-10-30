@@ -42,7 +42,6 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
-import { scene } from '../renderer';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -1323,10 +1322,10 @@ export class Node extends BaseNode implements CustomSerializable {
 
     /**
      * @en
-     * Get the complete path of the current node under the scene node in the hierarchy.
+     * Get the complete path of the current node in the hierarchy.
      *
      * @zh
-     * 在 hierarchy 中获得 scene 节点下当前 node 的完整路径。
+     * 获得当前节点在 hierarchy 中的完整路径。
      */
     public getPathInHierarchy (): string {
         let result = this.name;
