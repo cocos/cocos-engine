@@ -157,6 +157,7 @@ class ScreenAdapter extends EventTarget {
     private _touchEventName: string;
     private _onFullscreenChange?: () => void;
     private _onFullscreenError?: () => void;
+    private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _fn = {} as IScreenFunctionName;
     // Function mapping for cross browser support
     private _fnGroup = [
@@ -287,6 +288,11 @@ class ScreenAdapter extends EventTarget {
 
     public requestFullScreen (): Promise<void> {
         return new Promise((resolve, reject) => {
+            if (this.isFullScreen) {
+                resolve();
+                return;
+            }
+            this._cachedFrameSize = this.windowSize;
             this._doRequestFullScreen().then(() => {
                 resolve();
             }).catch(() => {
@@ -307,9 +313,13 @@ class ScreenAdapter extends EventTarget {
         return new Promise((resolve, reject) => {
             const requestPromise = document[this._fn.exitFullscreen]();
             if (window.Promise && requestPromise instanceof Promise) {
-                requestPromise.then(resolve).catch(reject);
+                requestPromise.then(() => {
+                    this.windowSize = this._cachedFrameSize;
+                    resolve();
+                }).catch(reject);
                 return;
             }
+            this.windowSize = this._cachedFrameSize;
             resolve();
         });
     }
