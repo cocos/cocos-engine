@@ -124,6 +124,12 @@ export class DynamicAtlasManager {
     public deleteAtlasSpriteFrame (spriteFrame) {
         if (!spriteFrame._original) return;
 
+        let atlas;
+        for (let i = this._atlases.length - 1; i >= 0; i--) {
+            atlas = this._atlases[i];
+            const index = atlas._innerSpriteFrames.indexOf(spriteFrame);
+            atlas._innerSpriteFrames.splice(index, 1);
+        }
         const texture = spriteFrame._original._texture;
         this.deleteAtlasTexture(texture);
     }
