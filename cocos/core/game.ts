@@ -171,7 +171,7 @@ export interface IGameConfig {
         container: HTMLDivElement,
         [x: string]: any,
     };
-    
+
     /**
      * The orientation from the builder configuration.
      * Available value can be 'auto', 'landscape', 'portrait'.

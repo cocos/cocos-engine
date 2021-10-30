@@ -410,7 +410,7 @@ class ScreenAdapter extends EventTarget {
     private _getFullscreenTarget () {
         const windowType = this._windowType;
         if (windowType === WindowType.Fullscreen) {
-            return document[this._fn.fullscreenElement];
+            return document[this._fn.fullscreenElement] as HTMLElement;
         }
         if (windowType === WindowType.SubFrame) {
             return this._gameFrame;
