@@ -4,7 +4,6 @@ import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
-import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
 const orientationMap = {
@@ -108,36 +107,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._orientation = value;
-        if (!this._gameFrame) {
-            return;
-        }
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        const isBrowserLandscape = width > height;
-        const needToRotateDocument = systemInfo.isMobile && systemInfo.os === OS.ANDROID
-            && ((isBrowserLandscape && value & Orientation.PORTRAIT) || (!isBrowserLandscape && value & Orientation.LANDSCAPE));
-        if (needToRotateDocument) {
-            this.isFrameRotated = true;
-            this._gameFrame.style['-webkit-transform'] = 'rotate(90deg)';
-            this._gameFrame.style.transform = 'rotate(90deg)';
-            this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
-            this._gameFrame.style.transformOrigin = '0px 0px 0px';
-            this._gameFrame.style.margin = `0 0 0 ${width}px`;
-            this._gameFrame.style.width = `${height}px`;
-            this._gameFrame.style.height = `${width}px`;
-            this._resizeFrame(new Size(height, width));
-        } else {
-            this.isFrameRotated = false;
-            this._gameFrame.style['-webkit-transform'] = 'rotate(0deg)';
-            this._gameFrame.style.transform = 'rotate(0deg)';
-            // TODO
-            // this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
-            // this._gameFrame.style.transformOrigin = '0px 0px 0px';
-            this._gameFrame.style.margin = '0px';
-            this._gameFrame.style.width = `${width}px`;
-            this._gameFrame.style.height = `${height}px`;
-            this._resizeFrame(new Size(width, height));
-        }
+        this._updateFrameState();
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
@@ -282,8 +252,8 @@ class ScreenAdapter extends EventTarget {
 
     public init (configOrientation: number, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._resizeFrame(this._windowSizeInCssPixels);
         this.orientation = orientationMap[configOrientation];
+        this._resizeFrame();
     }
 
     public requestFullScreen (): Promise<void> {
@@ -354,7 +324,6 @@ class ScreenAdapter extends EventTarget {
             this.emit('orientation-change');
         });
         document.addEventListener(this._fn.fullscreenchange, () => {
-            this._resizeFrame(this._windowSizeInCssPixels);
             this._onFullscreenChange?.();
             this.emit('fullscreen-change');
         });
@@ -367,13 +336,41 @@ class ScreenAdapter extends EventTarget {
         return clonedSize;
     }
 
-    private _resizeFrame (sizeInCssPixels: Size) {
-        if (this._gameFrame) {
+    /**
+     * The frame size may be from screen size or an external editor options by setting screen.windowSize.
+     * @param sizeInCssPixels you need to specify this size when the windowType is SubFrame.
+     */
+    private _resizeFrame (sizeInCssPixels?: Size) {
+        if (!this._gameFrame) {
+            return;
+        }
+        if (this._windowType === WindowType.SubFrame) {
+            if (!sizeInCssPixels) {
+                return;
+            }
             this._gameFrame.style.width = `${sizeInCssPixels.width}px`;
             this._gameFrame.style.height = `${sizeInCssPixels.height}px`;
-            this.emit('window-resize');
-        }
-        this._updateResolution();
+        } else {
+            const winWidth = window.innerWidth, winHeight = window.innerHeight;
+            if (this.isFrameRotated) {
+                this._gameFrame.style['-webkit-transform'] = 'rotate(90deg)';
+                this._gameFrame.style.transform = 'rotate(90deg)';
+                this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
+                this._gameFrame.style.transformOrigin = '0px 0px 0px';
+                this._gameFrame.style.margin = `0 0 0 ${winWidth}px`;
+                this._gameFrame.style.width = `${winHeight}px`;
+                this._gameFrame.style.height = `${winWidth}px`;
+            } else {
+                this._gameFrame.style['-webkit-transform'] = 'rotate(0deg)';
+                this._gameFrame.style.transform = 'rotate(0deg)';
+                // TODO
+                // this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
+                // this._gameFrame.style.transformOrigin = '0px 0px 0px';
+                this._gameFrame.style.margin = '0px auto';
+                this._gameFrame.style.width = `${winWidth}px`;
+                this._gameFrame.style.height = `${winHeight}px`;
+            }
+        }  
     }
 
     private _updateResolution () {
@@ -418,6 +415,14 @@ class ScreenAdapter extends EventTarget {
                 this._onFullscreenError = reject;
             }
         });
+    }
+    private _updateFrameState () {
+        const orientation = this.orientation;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const isBrowserLandscape = width > height;
+        this.isFrameRotated = systemInfo.isMobile && 
+            ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
     }
 }
 
