@@ -426,7 +426,7 @@ var Sprite = cc.Class({
 
     onEnable () {
         this._super();
-        this._spriteFrame && this._spriteFrame.ensureLoadTexture();
+        this._spriteFrame && this._spriteFrame.isValid && this._spriteFrame.ensureLoadTexture();
 
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
@@ -464,7 +464,7 @@ var Sprite = cc.Class({
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
         // Set atlas
-        if (spriteFrame && spriteFrame._atlasUuid) {
+        if (spriteFrame && spriteFrame.isValid && spriteFrame._atlasUuid) {
             var self = this;
             cc.assetManager.loadAny(spriteFrame._atlasUuid, function (err, asset) {
                 self._atlas = asset;
@@ -486,7 +486,9 @@ var Sprite = cc.Class({
     },
 
     _applySpriteSize () {
-        if (!this._spriteFrame || !this.isValid)  return;
+        if (!this.isValid || !this._spriteFrame || !this._spriteFrame.isValid) {
+            return;
+        }
 
         if (SizeMode.RAW === this._sizeMode) {
             var size = this._spriteFrame._originalSize;
@@ -502,13 +504,14 @@ var Sprite = cc.Class({
     _applySpriteFrame (oldFrame) {
         if (!this.isValid)  return;
 
-        let oldTexture = oldFrame && oldFrame.getTexture();
+        let oldTexture = oldFrame && oldFrame.isValid && oldFrame.getTexture();
         if (oldTexture && !oldTexture.loaded) {
             oldFrame.off('load', this._applySpriteSize, this);
         }
 
         let spriteFrame = this._spriteFrame;
-        let newTexture = spriteFrame && spriteFrame.getTexture();
+        const frameValid = spriteFrame && spriteFrame.isValid;
+        let newTexture = frameValid && spriteFrame.getTexture();
 
         if (oldTexture !== newTexture) {
             this._updateMaterial();
@@ -519,7 +522,7 @@ var Sprite = cc.Class({
         }
         else {
             this.disableRender();
-            if (spriteFrame) {
+            if (frameValid) {
                 spriteFrame.once('load', this._applySpriteSize, this);
             }
         }
@@ -533,7 +536,7 @@ var Sprite = cc.Class({
 
 if (CC_EDITOR) {
     Sprite.prototype._resizedInEditor = function () {
-        if (this._spriteFrame) {
+        if (this._spriteFrame && this._spriteFrame.isValid) {
             var actualSize = this.node.getContentSize();
             var expectedW = actualSize.width;
             var expectedH = actualSize.height;

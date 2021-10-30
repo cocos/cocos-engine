@@ -1051,38 +1051,43 @@ let ScrollView = cc.Class({
             realMove = realMove.add(outOfBoundary);
         }
 
-        let scrollEventType = -1;
+        let vertical_scrollEventType = "";
+        let horizontal_scrollEventType = "";
+        
+        if (this.vertical) {
+            if (realMove.y > 0) { //up
+                let icBottomPos = this.content.y - this.content.anchorY * this.content.height;
 
-        if (realMove.y > 0) { //up
-            let icBottomPos = this.content.y - this.content.anchorY * this.content.height;
+                if (icBottomPos + realMove.y >= this._bottomBoundary) {
+                    vertical_scrollEventType = 'scroll-to-bottom';
+                }
+            }
+            else if (realMove.y < 0) { //down
+                let icTopPos = this.content.y - this.content.anchorY * this.content.height + this.content.height;
 
-            if (icBottomPos + realMove.y >= this._bottomBoundary) {
-                scrollEventType = 'scroll-to-bottom';
+                if (icTopPos + realMove.y <= this._topBoundary) {
+                    vertical_scrollEventType = 'scroll-to-top';
+                }
             }
         }
-        else if (realMove.y < 0) { //down
-            let icTopPos = this.content.y - this.content.anchorY * this.content.height + this.content.height;
-
-            if (icTopPos + realMove.y <= this._topBoundary) {
-                scrollEventType = 'scroll-to-top';
+        if (this.horizontal) {
+            if (realMove.x < 0) { //left
+                let icRightPos = this.content.x - this.content.anchorX * this.content.width + this.content.width;
+                if (icRightPos + realMove.x <= this._rightBoundary) {
+                    horizontal_scrollEventType = 'scroll-to-right';
+                }
             }
-        }
-        if (realMove.x < 0) { //left
-            let icRightPos = this.content.x - this.content.anchorX * this.content.width + this.content.width;
-            if (icRightPos + realMove.x <= this._rightBoundary) {
-                scrollEventType = 'scroll-to-right';
-            }
-        }
-        else if (realMove.x > 0) { //right
-            let icLeftPos = this.content.x - this.content.anchorX * this.content.width;
-            if (icLeftPos + realMove.x >= this._leftBoundary) {
-                scrollEventType = 'scroll-to-left';
+            else if (realMove.x > 0) { //right
+                let icLeftPos = this.content.x - this.content.anchorX * this.content.width;
+                if (icLeftPos + realMove.x >= this._leftBoundary) {
+                    horizontal_scrollEventType = 'scroll-to-left';
+                }
             }
         }
 
         this._moveContent(realMove, false);
 
-        if (realMove.x !== 0 || realMove.y !== 0) {
+        if ((this.horizontal && realMove.x !== 0) || (this.vertical && realMove.y !== 0)) {
             if (!this._scrolling) {
                 this._scrolling = true;
                 this._dispatchEvent('scroll-began');
@@ -1090,8 +1095,12 @@ let ScrollView = cc.Class({
             this._dispatchEvent('scrolling');
         }
 
-        if (scrollEventType !== -1) {
-            this._dispatchEvent(scrollEventType);
+        if (vertical_scrollEventType !== '') {
+            this._dispatchEvent(vertical_scrollEventType);
+        }
+
+        if (horizontal_scrollEventType !== '') {
+            this._dispatchEvent(horizontal_scrollEventType);
         }
 
     },
