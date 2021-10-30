@@ -1,4 +1,4 @@
-import { EDITOR, TEST } from 'internal:constants';
+import { TEST } from 'internal:constants';
 import { SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
@@ -13,17 +13,17 @@ const orientationMap = {
 };
 
 /**
- * On Web platform, the game window may points to defferent type of window.
+ * On Web platform, the game window may points to different type of window.
  */
 enum WindowType {
     /**
-     * Uknown window type.
+     * Unknown window type.
      */
     Unknown,
     /**
      * A SubFrame in BrowserWindow.
      * Need to set the frame size from an external editor option.
-     * Should only dispatch 'resize' event when the frame size chanaged.
+     * Should only dispatch 'resize' event when the frame size changed.
      * Setting window size is supported.
      */
     SubFrame,
