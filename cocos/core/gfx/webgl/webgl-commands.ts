@@ -451,7 +451,7 @@ export abstract class WebGLCmdObject {
         this.cmdType = type;
     }
 
-    public abstract clear ();
+    public abstract clear (): void;
 }
 
 export class WebGLCmdBeginRenderPass extends WebGLCmdObject {

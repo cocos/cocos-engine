@@ -146,7 +146,7 @@ export function transform (input: Request, options?: IOptions | null): string | 
         for (const item of subTask.output) {
             item.recycle();
         }
-        error(e.message, e.stack);
+        error((e as Error).message, (e as Error).stack);
     }
     subTask.recycle();
     return urls.length > 1 ? urls : urls[0];

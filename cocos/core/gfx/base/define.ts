@@ -28,7 +28,6 @@
  * @module gfx
  */
 
-import { ccenum } from '../../value-types/enum';
 import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';
@@ -1788,8 +1787,6 @@ export class DynamicStates {
  * Changes to these public interfaces should be made there first and synced back.
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
  */
-
-ccenum(Format);
 
 /**
  * @en GFX base object.

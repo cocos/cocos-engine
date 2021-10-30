@@ -24,7 +24,8 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { macro, warnID, warn, debug } from '../../platform';
+import { warnID, warn, debug } from '../../platform/debug';
+import { macro } from '../../platform/macro';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType,
