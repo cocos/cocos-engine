@@ -7,9 +7,9 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 
 const orientationMap = {
-    'auto': Orientation.AUTO,
-    'landscape': Orientation.LANDSCAPE,
-    'portrait': Orientation.PORTRAIT,
+    auto: Orientation.AUTO,
+    landscape: Orientation.LANDSCAPE,
+    portrait: Orientation.PORTRAIT,
 };
 
 /**
@@ -180,24 +180,28 @@ class ScreenAdapter extends EventTarget {
         if (TEST) {
             return new Size(window.innerWidth, window.innerHeight);
         }
+        let fullscreenTarget;
+        let width: number;
+        let height: number;
         switch (this._windowType) {
-            case WindowType.SubFrame:
-                if (!this._gameFrame) {
-                    warnID(9201);
-                    return new Size(0, 0);
-                }
-                return new Size(this._gameFrame.clientWidth, this._gameFrame.clientHeight);
-            case WindowType.Fullscreen:
-                const fullscreenTarget = this._getFullscreenTarget()!;
-                const fullscreenTargetWidth = this.isFrameRotated ? fullscreenTarget.clientHeight : fullscreenTarget.clientWidth;
-                const fullscreenTargetHeight = this.isFrameRotated ? fullscreenTarget.clientWidth : fullscreenTarget.clientHeight;
-                return new Size(fullscreenTargetWidth, fullscreenTargetHeight);
-            case WindowType.BrowserWindow:
-                const winWidth = this.isFrameRotated ? window.innerHeight : window.innerWidth;
-                const winHeight = this.isFrameRotated ? window.innerWidth : window.innerHeight; 
-                return new Size(winWidth, winHeight);
-            case WindowType.Unknown:
+        case WindowType.SubFrame:
+            if (!this._gameFrame) {
+                warnID(9201);
                 return new Size(0, 0);
+            }
+            return new Size(this._gameFrame.clientWidth, this._gameFrame.clientHeight);
+        case WindowType.Fullscreen:
+            fullscreenTarget = this._getFullscreenTarget()!;
+            width = this.isFrameRotated ? fullscreenTarget.clientHeight : fullscreenTarget.clientWidth;
+            height = this.isFrameRotated ? fullscreenTarget.clientWidth : fullscreenTarget.clientHeight;
+            return new Size(width, height);
+        case WindowType.BrowserWindow:
+            width = this.isFrameRotated ? window.innerHeight : window.innerWidth;
+            height = this.isFrameRotated ? window.innerWidth : window.innerHeight;
+            return new Size(width, height);
+        case WindowType.Unknown:
+        default:
+            return new Size(0, 0);
         }
     }
     private get _windowType (): WindowType {
@@ -208,7 +212,8 @@ class ScreenAdapter extends EventTarget {
             warnID(9201);
             return WindowType.Unknown;
         }
-        if (this._gameFrame.attributes['cc_exact_fit_screen']?.value === 'true') {
+        // @ts-expect-error Property 'cc_exact_fit_screen' does not exist on type 'NamedNodeMap'.
+        if (this._gameFrame.attributes.cc_exact_fit_screen?.value === 'true') {
             // Note: It doesn't work well to determine whether the frame exact fits the screen.
             // Need to specify the attribute from Editor.
             return WindowType.BrowserWindow;
@@ -216,8 +221,8 @@ class ScreenAdapter extends EventTarget {
             // A fallback case when the 'cc_exact_fit_screen' attribute is not specified.
             const body = document.body;
             const frame = this._gameFrame;
-            const bodyWidth = body.clientWidth, bodyHeight = body.clientHeight;
-            const frameWidth = frame.clientWidth, frameHeight = frame.clientHeight;
+            const bodyWidth = body.clientWidth; const bodyHeight = body.clientHeight;
+            const frameWidth = frame.clientWidth; const frameHeight = frame.clientHeight;
             if ((bodyWidth === frameWidth && bodyHeight === frameHeight)
                 || (this.isFrameRotated && bodyWidth === frameHeight && bodyHeight === frameWidth)) {
                 return WindowType.BrowserWindow;
@@ -371,7 +376,7 @@ class ScreenAdapter extends EventTarget {
             this._gameFrame.style.width = `${sizeInCssPixels.width}px`;
             this._gameFrame.style.height = `${sizeInCssPixels.height}px`;
         } else {
-            const winWidth = window.innerWidth, winHeight = window.innerHeight;
+            const winWidth = window.innerWidth; const winHeight = window.innerHeight;
             if (this.isFrameRotated) {
                 this._gameFrame.style['-webkit-transform'] = 'rotate(90deg)';
                 this._gameFrame.style.transform = 'rotate(90deg)';
@@ -390,7 +395,7 @@ class ScreenAdapter extends EventTarget {
                 this._gameFrame.style.width = `${winWidth}px`;
                 this._gameFrame.style.height = `${winHeight}px`;
             }
-        }  
+        }
     }
 
     private _updateResolution () {
@@ -441,8 +446,8 @@ class ScreenAdapter extends EventTarget {
         const width = window.innerWidth;
         const height = window.innerHeight;
         const isBrowserLandscape = width > height;
-        this.isFrameRotated = systemInfo.isMobile && 
-            ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
+        this.isFrameRotated = systemInfo.isMobile
+            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
     }
 }
 
