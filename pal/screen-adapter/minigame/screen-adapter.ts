@@ -129,7 +129,7 @@ class ScreenAdapter extends EventTarget {
         // TODO: onResize or onOrientationChange is not supported well
     }
 
-    public init (cbToRebuildFrameBuffer: () => void) {
+    public init (configOrientation: number, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._updateResolution();
     }

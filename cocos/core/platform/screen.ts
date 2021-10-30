@@ -39,8 +39,8 @@ import { warnID } from './debug';
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
 class Screen {
-    private _init () {
-        screenAdapter.init(() => {
+    private _init (configOrientation: number) {
+        screenAdapter.init(configOrientation, () => {
             const director = legacyCC.director;
             if (!director.root?.pipeline) {
                 warnID(1220);

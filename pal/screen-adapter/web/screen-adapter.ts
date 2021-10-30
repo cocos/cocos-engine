@@ -6,6 +6,12 @@ import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
 
+const orientationMap = {
+    'auto': Orientation.AUTO,
+    'landscape': Orientation.LANDSCAPE,
+    'portrait': Orientation.PORTRAIT,
+};
+
 interface IScreenFunctionName {
     requestFullscreen: string,
     exitFullscreen: string,
@@ -207,9 +213,10 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (cbToRebuildFrameBuffer: () => void) {
+    public init (configOrientation: number, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._resizeFrame(this._windowSizeInCssPixels);
+        this.orientation = orientationMap[configOrientation];
     }
 
     public requestFullScreen (): Promise<void> {

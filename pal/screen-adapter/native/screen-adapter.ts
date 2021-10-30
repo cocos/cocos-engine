@@ -95,7 +95,7 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (cbToRebuildFrameBuffer: () => void) {
+    public init (configOrientation: number, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._updateResolution();
     }
