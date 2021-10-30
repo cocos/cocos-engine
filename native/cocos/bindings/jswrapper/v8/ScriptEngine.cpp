@@ -336,7 +336,8 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
 
     if (!value.IsEmpty()) {
         // prepend error object to stack message
-        v8::Local<v8::String> str = value->ToString(isolate->GetCurrentContext()).ToLocalChecked();
+        v8::MaybeLocal<v8::String> maybeStr = value->ToString(isolate->GetCurrentContext());
+        v8::Local<v8::String>      str      = maybeStr.IsEmpty() ? v8::String::NewFromUtf8(isolate, "[empty string]").ToLocalChecked() : maybeStr.ToLocalChecked();
         v8::String::Utf8Value valueUtf8(isolate, str);
         auto *                strp = *valueUtf8;
         if (strp == nullptr) {
