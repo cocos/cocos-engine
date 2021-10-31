@@ -3053,6 +3053,14 @@ texture size exceeds current device limits %d/%d
 <!-- DEPRECATED -->
 cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
 
+### 9201
+
+Cannot access game frame.
+
+### 9202
+
+Setting window size is not supported.
+
 ### 9300
 
 The current buffer beyond the limit in ui static component, please reduce the amount

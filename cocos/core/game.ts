@@ -28,8 +28,9 @@
  * @module core
  */
 
-import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
+import { ConfigOrientation } from 'pal/screen-adapter';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { input } from '../input';
@@ -49,7 +50,6 @@ import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
-import { Size } from './math';
 
 interface ISceneInfo {
     url: string;
@@ -172,6 +172,12 @@ export interface IGameConfig {
         container: HTMLDivElement,
         [x: string]: any,
     };
+
+    /**
+     * The orientation from the builder configuration.
+     * Available value can be 'auto', 'landscape', 'portrait'.
+     */
+    orientation?: ConfigOrientation;
 }
 
 /**
@@ -548,6 +554,11 @@ export class Game extends EventTarget {
      */
     public init (config: IGameConfig) {
         this._initConfig(config);
+        // TODO: unify the screen initialization workflow.
+        if (HTML5) {
+            // @ts-expect-error access private method.
+            screen._init(config.orientation || 'auto');
+        }
         // Init assetManager
         if (this.config.assetOptions) {
             legacyCC.assetManager.init(this.config.assetOptions);
@@ -594,8 +605,10 @@ export class Game extends EventTarget {
         garbageCollectionManager.init();
 
         return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
-            // @ts-expect-error access private method.
-            screen._init();
+            if (!HTML5) {
+                // @ts-expect-error access private method.
+                screen._init('auto');
+            }
         });
     }
 

@@ -1,4 +1,4 @@
-import { SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
@@ -95,7 +95,7 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (cbToRebuildFrameBuffer: () => void) {
+    public init (configOrientation: ConfigOrientation, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
         this._updateResolution();
     }
