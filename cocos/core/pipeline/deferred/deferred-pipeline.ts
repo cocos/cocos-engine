@@ -254,7 +254,7 @@ export class DeferredPipeline extends RenderPipeline {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
-            const window = cameras[i].window!;
+            const window = cameras[i].window;
             newWidth = Math.max(window.width, newWidth);
             newHeight = Math.max(window.height, newHeight);
         }
@@ -313,7 +313,5 @@ export class DeferredPipeline extends RenderPipeline {
             this.applyFramebufferRatio(data.outputFrameBuffer);
         });
         data.sampler = this.globalDSManager.linearSampler;
-
-        this._generateBloomRenderData();
     }
 }
