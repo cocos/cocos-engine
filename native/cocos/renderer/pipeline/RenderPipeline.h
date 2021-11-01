@@ -94,6 +94,7 @@ public:
     bool                                           isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
     bool                                           getOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
     void                                           setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
+    bool                                           isEnvmapEnabled() const;
 
     gfx::Viewport           getViewport(scene::Camera *camera);
     gfx::Rect               getScissor(scene::Camera *camera);
@@ -136,8 +137,8 @@ protected:
     GlobalDSManager *   _globalDSManager{nullptr};
     gfx::DescriptorSet *_descriptorSet{nullptr};
     PipelineUBO *       _pipelineUBO{nullptr};
-    PipelineSceneData * _pipelineSceneData{nullptr};
     scene::Model *      _profiler{nullptr};
+    PipelineSceneData * _pipelineSceneData{nullptr};
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
     gfx::Texture *                                                _defaultTexture{nullptr};

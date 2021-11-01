@@ -204,7 +204,7 @@ void GbufferStage::render(scene::Camera *camera) {
         // depth setup
         gfx::TextureInfo depthTexInfo = {
             gfx::TextureType::TEX2D,
-            gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
+            gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
             gfx::Format::DEPTH_STENCIL,
             static_cast<uint>(pipeline->getWidth() * shadingScale),
             static_cast<uint>(pipeline->getHeight() * shadingScale),

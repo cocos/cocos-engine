@@ -71,6 +71,10 @@ bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
     return true;
 }
 
+bool RenderPipeline::isEnvmapEnabled() const {
+    return _pipelineSceneData->getSharedData()->skybox->useIBL;
+}
+
 bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _globalDSManager->activate(_device, this);
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
