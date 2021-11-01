@@ -113,10 +113,10 @@ export class GbufferStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues.forEach(renderQueueClearFunc);
 
+        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.updateQuadVertexData(this._renderArea, camera.window!);
+
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
-        if (renderObjects.length === 0) {
-            return;
-        }
 
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
@@ -151,8 +151,6 @@ export class GbufferStage extends RenderStage {
 
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
-        this._renderArea = pipeline.generateRenderArea(camera);
-        pipeline.updateQuadVertexData(this._renderArea, camera.window!);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
@@ -171,6 +169,7 @@ export class GbufferStage extends RenderStage {
         const renderPass = framebuffer.renderPass;
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.setScissor(pipeline.generateScissor(camera));
         cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 

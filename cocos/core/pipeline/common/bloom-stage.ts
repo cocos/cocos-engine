@@ -145,7 +145,6 @@ export class BloomStage extends RenderStage {
         cmdBuff.updateBuffer(this._bloomUBO[0], textureSize);
 
         cmdBuff.beginRenderPass(bloomData.renderPass, bloomData.prefilterFramebuffer, this._renderArea, colors, 0, 0);
-
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         pass.descriptorSet.bindBuffer(0, this._bloomUBO[0]);
@@ -282,7 +281,6 @@ export class BloomStage extends RenderStage {
         cmdBuff.updateBuffer(this._bloomUBO[uboIndex], textureSize);
 
         cmdBuff.beginRenderPass(bloomData.renderPass, bloomData.combineFramebuffer, this._renderArea, colors, 0, 0);
-
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         const pass = builtinBloomProcess.passes[BLOOM_COMBINEPASS_INDEX];
         pass.descriptorSet.bindBuffer(0, this._bloomUBO[uboIndex]);

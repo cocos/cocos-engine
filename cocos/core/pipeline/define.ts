@@ -602,4 +602,14 @@ export function supportsHalfFloatTexture (device: Device) {
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
+/**
+ * @en Does the device support half float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
+ */
+export function supportsFloatTexture (device: Device) {
+    return device.hasFeature(Feature.COLOR_FLOAT)
+     && device.hasFeature(Feature.TEXTURE_FLOAT)
+     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
 /* eslint-enable max-len */

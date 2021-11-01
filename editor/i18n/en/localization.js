@@ -123,6 +123,7 @@ module.exports = {
         skinning_root: 'The skinning root, where the controlling Animation is located',
     },
     sprite: {
+        gray_scale: 'Whether turn on grayscale rendering mode',
         sprite_frame: 'SpriteFrame image to use',
         atlas: 'Atlas that the image belongs to',
         type:
@@ -145,6 +146,9 @@ module.exports = {
             'Set the size of the node on which the Sprite component is on. CUSTOM for setting width and height manually;TRIMMED to use image size with transparent pixels trimmed; RAW to use image size without trimming.',
         trim:
             "Whether to render transparent pixels around image in node's bounding box. If you check this option the bounding box will not include transparent pixels around the image.",
+    },
+    UIOpacity: {
+        opacity: 'The value between 0 to 255 showing the transparency of the object',
     },
     billboard: {
         texture: 'Billboard texture',
@@ -204,7 +208,7 @@ module.exports = {
         system_font: 'Whether to use the system default font',
         cache_mode:
             'Text cache modes：\n 1. NONE: No cache，draw once. \n 2. BITMAP: Text is added as a static image to the dynamic atlas for batch merging, but its content cannot be dynamically modified frequently. \n 3. CHAR: Split the text into characters and cache the character texture into a character atlas for reuse, which is suitable for text content with repeated character content and frequently updated.',
-        font_bold: 'Bold font',
+        font_bold: 'Font bold',
         font_italic: 'Font italic',
         font_underline: 'Font underlined',
     },
@@ -292,6 +296,7 @@ module.exports = {
     renderable2D: {
         srcBlendFactor: 'Source blend factor',
         dstBlendFactor: 'Destination blend factor',
+        customMaterial: 'User specified material',
         color: 'Render color',
     },
     rotationOvertimeModule: {
@@ -501,7 +506,7 @@ module.exports = {
         distance: 'The distance from the camera for displaying the 2d node in normal size',
         sync_events: 'Event callback after coordinates synchronization.\nThe first parameter of the callback is the mapped local coordinate in UI camera.\nThe second parameter is the distance scale of the 3d node from the 3d camera viewport.',
     },
-    SubContextView: {
+    subContextView: {
         design_size: 'Design resolution of the SubContextView, dynamic updates at runtime is not possible',
         fps: 'Update frame rate for the SubContextView',
     },
@@ -615,7 +620,12 @@ module.exports = {
         textureAnimationModule: 'Texture animation module',
         trailModule: 'Trail module(only support on CPU)',
         renderer: 'Particle render module',
-        enableCulling: 'Cull disabled data if true',
+        enableCulling: 'Enable culling option, if switch enable the emitter will generate a bounding box and if main camera can not see the bounding box the emitter will be culled. The culled behavior will be described in cullingMode.',
+        cullingMode: 'Behavior if culled. There are 3 options include pause, pause and catchup, always simulate. Pause means if we can not see bounding box of the emitter the emitter will pause simulation, if we see the bounding box again the emitter will continue simulation from the pause time. Pause and catchup means if we can not see bounding box of the emitter the emitter will pause simulation, if we see the bounding box again the emitter will continue simulation from current time. Always simulate means no matter we see the bounding box or not, the emitter will always simulate and we do not render the particle of whose emitter is invisible.',
+        alignSpace: 'Particle align space. There are 3 options include view, world, local. If we choose view, the particle mesh will have the same rotation of the main camera. World means the rotation of particle mesh will be the same as the world rotation of the emitter node. If we choose local, the rotation of particle mesh will be the same as the local rotation of the emitter node.',
+        aabbHalfX: 'Half width of emitter bounding box',
+        aabbHalfY: 'Half height of emitter bounding box',
+        aabbHalfZ: 'Half length of emitter bounding box',
     },
     mask: {
         type: 'The mask type',
@@ -838,6 +848,7 @@ module.exports = {
         priority: 'Priority of rendering ordering.',
     },
     graphics: {
+        lineWidth: 'The width of edges',
         lineJoin: 'Determines how two connecting segments (of lines, arcs or curves) with non-zero lengths in a shape are joined together.',
         lineCap: 'Determines how the end points of every line are drawn.',
         strokeColor: 'Brush stroke color.',

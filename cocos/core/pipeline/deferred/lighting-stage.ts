@@ -42,7 +42,6 @@ import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
-import { SRGBToLinear } from '../pipeline-funcs';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';
@@ -256,6 +255,7 @@ export class LightingStage extends RenderStage {
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.setScissor(pipeline.generateScissor(camera));
         cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 

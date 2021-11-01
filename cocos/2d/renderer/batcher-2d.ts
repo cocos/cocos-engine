@@ -141,7 +141,6 @@ export class Batcher2D implements IBatcher {
     private _meshBufferUseCount: Map<number, number> = new Map();
 
     private _batches: CachedArray<DrawBatch2D>;
-    private _doUploadBuffersCall: Map<any, ((ui: Batcher2D) => void)> = new Map();
     private _emptyMaterial = new Material();
     private _currScene: RenderScene | null = null;
     private _currMaterial: Material = this._emptyMaterial;
@@ -159,8 +158,6 @@ export class Batcher2D implements IBatcher {
     private _currIsStatic = false;
     private _currOpacity = 1;
 
-    private _currBatch!: DrawBatch2D;
-
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
@@ -168,7 +165,6 @@ export class Batcher2D implements IBatcher {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
-        this._currBatch = this._drawBatchPool.alloc();
     }
 
     public initialize () {
@@ -249,14 +245,6 @@ export class Batcher2D implements IBatcher {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target, func: ((ui: Batcher2D) => void)) {
-        this._doUploadBuffersCall.set(target, func);
-    }
-
-    public removeUploadBuffersFunc (target: any) {
-        this._doUploadBuffersCall.delete(target);
-    }
-
     public update () {
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
@@ -291,11 +279,6 @@ export class Batcher2D implements IBatcher {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
-            const calls = this._doUploadBuffersCall;
-            calls.forEach((value, key) => {
-                value.call(key, this);
-            });
-
             const buffers = this._meshBuffers;
             buffers.forEach((value, key) => {
                 value.forEach((bb) => {
@@ -323,10 +306,10 @@ export class Batcher2D implements IBatcher {
                 continue;
             }
 
+            DrawBatch2D.drawcallPool.freeArray(batch.drawCalls);
             batch.clear();
             this._drawBatchPool.free(batch);
         }
-        DrawBatch2D.drawcallPool.reset();
 
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
@@ -384,7 +367,6 @@ export class Batcher2D implements IBatcher {
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
-            this._currBatch = this._drawBatchPool.alloc();
 
             this._currScene = renderScene;
             this._currComponent = renderComp;
@@ -513,7 +495,7 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(renderComp.stencilStage);
         }
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.bufferBatch = buffer;

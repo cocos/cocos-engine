@@ -39,6 +39,9 @@ import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
+import { Vec4 } from '../math';
+
+const v4_1 = new Vec4();
 
 /**
  * @en The basic infos for material initialization.
@@ -423,6 +426,7 @@ export class Material extends Asset {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
+                if (pass.properties[name]?.linear) val = Vec4.multiply(v4_1, val as Vec4, val as Vec4);
                 pass.setUniform(handle, val as MaterialProperty);
             } else {
                 pass.resetUniform(name);

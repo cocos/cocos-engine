@@ -89,11 +89,6 @@ export class PipelineInputAssemblerData {
     quadIA: InputAssembler|null = null;
 }
 
-export interface IRenderPipelineCallback {
-    onPreRender(cam: Camera): void;
-    onPostRender(cam: Camera): void;
-}
-
 /**
  * @en Render pipeline describes how we handle the rendering process for all render objects in the related render scene root.
  * It contains some general pipeline configurations, necessary rendering resources and some [[RenderFlow]]s.
@@ -162,29 +157,6 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
     public getPipelineRenderData (): PipelineRenderData {
         return this._pipelineRenderData!;
-    }
-
-    protected static _renderCallbacks: IRenderPipelineCallback[] = [];
-
-    /**
-     * @en Add render callback
-     * @zh 添加渲染回掉。
-     */
-    public static addRenderCallback (callback: IRenderPipelineCallback) {
-        RenderPipeline._renderCallbacks.push(callback);
-    }
-
-    /**
-     * @en Remove render callback
-     * @zh 移除渲染回掉。
-     */
-    public static removeRenderCallback (callback: IRenderPipelineCallback) {
-        for (let i = 0; i < RenderPipeline._renderCallbacks.length; ++i) {
-            if (RenderPipeline._renderCallbacks[i] === callback) {
-                RenderPipeline._renderCallbacks.slice(i);
-                break;
-            }
-        }
     }
 
     /**
@@ -354,15 +326,12 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     public generateRenderArea (camera: Camera, out?: Rect): Rect {
         const res = out || new Rect();
         const vp = camera.viewport;
-        const sceneData = this.pipelineSceneData;
-        // render area is not oriented
-        const swapchain = camera.window!.swapchain;
-        const w = swapchain && swapchain.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = swapchain && swapchain.surfaceTransform % 2 ? camera.width : camera.height;
+        const w = camera.window.width;
+        const h = camera.window.height;
         res.x = vp.x * w;
         res.y = vp.y * h;
-        res.width = vp.width * w * sceneData.shadingScale;
-        res.height = vp.height * h * sceneData.shadingScale;
+        res.width = vp.width * w;
+        res.height = vp.height * h;
         return res;
     }
 
@@ -371,6 +340,13 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         const shadingScale = this.pipelineSceneData.shadingScale;
         const viewport = out || new Viewport(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
         return viewport;
+    }
+
+    public generateScissor (camera: Camera, out?: Rect): Rect {
+        const rect = this.generateRenderArea(camera);
+        const shadingScale = this.pipelineSceneData.shadingScale;
+        const scissor = out || new Rect(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
+        return scissor;
     }
 
     /**
@@ -417,7 +393,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             if (camera.scene) {
                 this.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
                 sceneCulling(this, camera);
-                this._pipelineUBO.updateGlobalUBO(camera.window!);
+                this._pipelineUBO.updateGlobalUBO(camera.window);
                 this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
@@ -657,7 +633,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
         // create renderPass
         const colorAttachment = new ColorAttachment();
-        colorAttachment.format = Format.BGRA8;
+        colorAttachment.format = Format.RGBA8;
         colorAttachment.loadOp = LoadOp.CLEAR;
         colorAttachment.storeOp = StoreOp.STORE;
         colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -670,7 +646,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         bloom.prefiterTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             curWidth >> 1,
             curHeight >> 1,
         ));
@@ -686,7 +662,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.BGRA8,
+                Format.RGBA8,
                 curWidth >> 1,
                 curHeight >> 1,
             )));
@@ -698,7 +674,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
             bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.BGRA8,
+                Format.RGBA8,
                 curWidth,
                 curHeight,
             )));
@@ -715,7 +691,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         bloom.combineTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             this._width,
             this._height,
         ));
@@ -725,15 +701,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         ));
 
         // sampler
-        const samplerInfo = new SamplerInfo(
-            Filter.LINEAR,
-            Filter.LINEAR,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        );
-        bloom.sampler = device.getSampler(samplerInfo);
+        bloom.sampler = this.globalDSManager.linearSampler;
     }
 
     /**

@@ -26,13 +26,13 @@ export class AnimationGraphEval {
         time: 0.0,
     };
 
-    constructor (graph: AnimationGraph, root: Node, newGenAnim: AnimationController) {
+    constructor (graph: AnimationGraph, root: Node, controller: AnimationController) {
         for (const [name, { type, value }] of graph.variables) {
             this._varInstances[name] = new VarInstance(type, value);
         }
 
         const context: LayerContext = {
-            newGenAnim,
+            controller,
             blendBuffer: this._blendBuffer,
             node: root,
             getVar: (id: string): VarInstance | undefined => this._varInstances[id],
@@ -66,13 +66,7 @@ export class AnimationGraphEval {
     }
 
     public getCurrentStateStatus (layer: number): Readonly<StateStatus> | null {
-        // TODO optimize object
-        const stats: StateStatus = { __DEBUG_ID__: '' };
-        if (this._layerEvaluations[layer].getCurrentStateStatus(stats)) {
-            return stats;
-        } else {
-            return null;
-        }
+        return this._layerEvaluations[layer].getCurrentStateStatus();
     }
 
     public getCurrentClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
@@ -89,13 +83,7 @@ export class AnimationGraphEval {
     }
 
     public getNextStateStatus (layer: number): Readonly<StateStatus> | null {
-        // TODO optimize object
-        const stats: StateStatus = { __DEBUG_ID__: '' };
-        if (this._layerEvaluations[layer].getNextStateStatus(stats)) {
-            return stats;
-        } else {
-            return null;
-        }
+        return this._layerEvaluations[layer].getNextStateStatus();
     }
 
     public getNextClipStatuses (layer: number): Iterable<Readonly<ClipStatus>> {
@@ -138,13 +126,18 @@ export interface StateStatus {
      * For testing.
      * TODO: remove it.
      */
-    __DEBUG_ID__: string | undefined;
+    __DEBUG_ID__?: string;
+
+    /**
+     * The normalized time of the state.
+     */
+    progress: number;
 }
 
 type TriggerResetFn = (name: string) => void;
 
 interface LayerContext extends BindContext {
-    newGenAnim: AnimationController;
+    controller: AnimationController;
 
     /**
      * The root node bind to the graph.
@@ -173,7 +166,7 @@ class LayerEval {
 
     constructor (layer: Layer, context: LayerContext) {
         this.name = layer.name;
-        this._newGenAnim = context.newGenAnim;
+        this._controller = context.controller;
         this._weight = layer.weight;
         const { entry, exit } = this._addStateMachine(layer.stateMachine, null, {
             ...context,
@@ -200,13 +193,12 @@ class LayerEval {
         }
     }
 
-    public getCurrentStateStatus (status: StateStatus): boolean {
+    public getCurrentStateStatus (): Readonly<StateStatus> | null {
         const { _currentNode: currentNode } = this;
         if (currentNode.kind === NodeKind.animation) {
-            status.__DEBUG_ID__ = currentNode.name;
-            return true;
+            return currentNode.getFromPortStatus();
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -240,10 +232,9 @@ class LayerEval {
         }
     }
 
-    public getNextStateStatus (status: StateStatus): boolean {
+    public getNextStateStatus (): Readonly<StateStatus> | null {
         assertIsTrue(this._currentTransitionToNode, 'There is no transition currently in layer.');
-        status.__DEBUG_ID__ = this._currentTransitionToNode.name;
-        return true;
+        return this._currentTransitionToNode.getToPortStatus();
     }
 
     public getNextClipStatuses (): Iterable<ClipStatus> {
@@ -255,7 +246,7 @@ class LayerEval {
         return to.getClipStatuses(this._toWeight) ?? emptyClipStatusesIterable;
     }
 
-    private declare _newGenAnim: AnimationController;
+    private declare _controller: AnimationController;
     private _weight: number;
     private _nodes: NodeEval[] = [];
     private _topLevelEntry: NodeEval;
@@ -267,6 +258,8 @@ class LayerEval {
     private declare _triggerReset: TriggerResetFn;
     private _fromWeight = 0.0;
     private _toWeight = 0.0;
+    private _fromUpdated = false;
+    private _toUpdated = false;
 
     private _addStateMachine (
         graph: StateMachine, parentStateMachineInfo: StateMachineInfo | null, context: LayerContext, __DEBUG_ID__: string,
@@ -459,14 +452,16 @@ class LayerEval {
                 } = transitionMatch;
 
                 graphDebug(`[SubStateMachine ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
+                if (GRAPH_DEBUG_ENABLED) {
+                    passConsumed = updateRequires;
+                }
+                remainTimePiece -= updateRequires;
+
                 if (currentNode.kind === NodeKind.animation) {
                     currentNode.updateFromPort(updateRequires);
-                }
-                if (GRAPH_DEBUG_ENABLED) {
-                    passConsumed = remainTimePiece;
+                    this._fromUpdated = true;
                 }
 
-                remainTimePiece -= updateRequires;
                 const ranIntoNonMotionState = this._switchTo(transition);
                 if (ranIntoNonMotionState) {
                     break;
@@ -477,6 +472,7 @@ class LayerEval {
                 graphDebug(`[SubStateMachine ${this.name}]: CurrentNodeUpdate: ${currentNode.name}`);
                 if (currentNode.kind === NodeKind.animation) {
                     currentNode.updateFromPort(remainTimePiece);
+                    this._fromUpdated = true;
                     // Animation play eat all times.
                     remainTimePiece = 0.0;
                 }
@@ -489,6 +485,16 @@ class LayerEval {
 
         graphDebug(`[SubStateMachine ${this.name}]: UpdateEnd`);
         graphDebugGroupEnd();
+
+        if (this._fromUpdated && this._currentNode.kind === NodeKind.animation) {
+            this._fromUpdated = false;
+            this._currentNode.triggerFromPortUpdate(this._controller);
+        }
+
+        if (this._currentTransitionToNode && this._toUpdated && this._currentNode.kind === NodeKind.animation) {
+            this._toUpdated = false;
+            this._currentTransitionToNode.triggerToPortUpdate(this._controller);
+        }
 
         return remainTimePiece;
     }
@@ -734,6 +740,7 @@ class LayerEval {
     private _doTransitionToMotion (targetNode: MotionStateEval) {
         this._transitionProgress = 0.0;
         this._currentTransitionToNode = targetNode;
+        this._toUpdated = false;
 
         targetNode.resetToPort();
         this._callEnterMethods(targetNode);
@@ -792,25 +799,33 @@ class LayerEval {
         this._fromWeight = weight * (1.0 - ratio);
         this._toWeight = weight * ratio;
 
-        if (fromNode.kind === NodeKind.animation) {
+        const shouldUpdatePorts = contrib !== 0;
+        const hasFinished = ratio === 1.0;
+
+        if (fromNode.kind === NodeKind.animation && shouldUpdatePorts) {
             graphDebugGroup(`Update ${fromNode.name}`);
             fromNode.updateFromPort(contrib);
+            this._fromUpdated = true;
             graphDebugGroupEnd();
         }
 
-        if (toNode) {
+        if (toNode && shouldUpdatePorts) {
             graphDebugGroup(`Update ${toNode.name}`);
             toNode.updateToPort(contrib);
+            this._toUpdated = true;
             graphDebugGroupEnd();
         }
 
         graphDebugGroupEnd();
 
-        if (ratio === 1.0) {
+        if (hasFinished) {
             // Transition done.
             graphDebug(`[SubStateMachine ${this.name}]: Transition finished:  ${fromNode.name} -> ${toNodeName}.`);
 
             this._callExitMethods(fromNode);
+            // Exiting overrides the updating
+            // Processed below.
+            // this._fromUpdated = false;
             const { _currentTransitionPath: transitions } = this;
             const nTransition = transitions.length;
             for (let iTransition = 0; iTransition < nTransition; ++iTransition) {
@@ -819,6 +834,8 @@ class LayerEval {
                     this._callExitMethods(to);
                 }
             }
+            this._fromUpdated = this._toUpdated;
+            this._toUpdated = false;
             toNode.finishTransition();
             this._currentNode = toNode;
             this._currentTransitionToNode = null;
@@ -831,6 +848,10 @@ class LayerEval {
     }
 
     private _resetTriggersOnTransition (transition: TransitionEval) {
+        if (transition.to.kind === NodeKind.exit) {
+            // Exit transition(transitions whose target is exit)
+            return;
+        }
         const { triggers } = transition;
         if (triggers) {
             const nTriggers = triggers.length;
@@ -847,32 +868,40 @@ class LayerEval {
     }
 
     private _callEnterMethods (node: NodeEval) {
-        const { _newGenAnim: newGenAnim } = this;
+        const { _controller: controller } = this;
         switch (node.kind) {
         default:
             break;
-        case NodeKind.animation:
-            node.components.callEnterMethods(newGenAnim);
+        case NodeKind.animation: {
+            node.components.callMotionStateEnterMethods(controller, node.getToPortStatus());
             break;
+        }
         case NodeKind.entry:
-            node.stateMachine.components?.callEnterMethods(newGenAnim);
+            node.stateMachine.components?.callStateMachineEnterMethods(controller);
             break;
         }
     }
 
     private _callExitMethods (node: NodeEval) {
-        const { _newGenAnim: newGenAnim } = this;
+        const { _controller: controller } = this;
         switch (node.kind) {
         default:
             break;
-        case NodeKind.animation:
-            node.components.callExitMethods(newGenAnim);
+        case NodeKind.animation: {
+            node.components.callMotionStateExitMethods(controller, node.getFromPortStatus());
             break;
+        }
         case NodeKind.exit:
-            node.stateMachine.components?.callExitMethods(newGenAnim);
+            node.stateMachine.components?.callStateMachineExitMethods(controller);
             break;
         }
     }
+}
+
+function createStateStatusCache (): StateStatus {
+    return {
+        progress: 0.0,
+    };
 }
 
 const emptyClipStatusesIterator: Iterator<ClipStatus> = Object.freeze({
@@ -938,38 +967,81 @@ export class StateEval {
     public outgoingTransitions: readonly TransitionEval[] = [];
 }
 
-const DEFAULT_ENTER_METHOD = StateMachineComponent.prototype.onEnter;
+const DEFAULT_MOTION_STATE_ENTER_METHOD = StateMachineComponent.prototype.onMotionStateEnter;
 
-const DEFAULT_EXIT_METHOD = StateMachineComponent.prototype.onExit;
+const DEFAULT_MOTION_STATE_EXIT_METHOD = StateMachineComponent.prototype.onMotionStateExit;
+
+const DEFAULT_MOTION_STATE_UPDATE_METHOD = StateMachineComponent.prototype.onMotionStateUpdate;
+
+type StateMachineComponentMotionStateCallbackName = keyof Pick<
+StateMachineComponent,
+'onMotionStateEnter' | 'onMotionStateExit' | 'onMotionStateUpdate'
+>;
+
+type StateMachineComponentStateMachineCallbackName = keyof Pick<
+StateMachineComponent,
+'onStateMachineEnter' | 'onStateMachineExit'
+>;
 
 class InstantiatedComponents {
     constructor (node: InteractiveState) {
         this._components = node.instantiateComponents();
     }
 
-    public callEnterMethods (newGenAnim: AnimationController) {
-        const { _components: components } = this;
-        const nComponents = components.length;
-        for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
-            const component = components[iComponent];
-            if (component.onEnter !== DEFAULT_ENTER_METHOD) {
-                component.onEnter(newGenAnim);
-            }
-        }
+    public callMotionStateEnterMethods (controller: AnimationController, status: Readonly<StateStatus>) {
+        this._callMotionStateCallbackIfNonDefault('onMotionStateEnter', controller, status);
     }
 
-    public callExitMethods (newGenAnim: AnimationController) {
-        const { _components: components } = this;
-        const nComponents = components.length;
-        for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
-            const component = components[iComponent];
-            if (component.onExit !== DEFAULT_EXIT_METHOD) {
-                component.onExit(newGenAnim);
-            }
-        }
+    public callMotionStateUpdateMethods (controller: AnimationController, status: Readonly<StateStatus>) {
+        this._callMotionStateCallbackIfNonDefault('onMotionStateUpdate', controller, status);
+    }
+
+    public callMotionStateExitMethods (controller: AnimationController, status: Readonly<StateStatus>) {
+        this._callMotionStateCallbackIfNonDefault('onMotionStateExit', controller, status);
+    }
+
+    public callStateMachineEnterMethods (controller: AnimationController) {
+        this._callStateMachineCallbackIfNonDefault('onStateMachineEnter', controller);
+    }
+
+    public callStateMachineExitMethods (controller: AnimationController) {
+        this._callStateMachineCallbackIfNonDefault('onStateMachineExit', controller);
     }
 
     private declare _components: StateMachineComponent[];
+
+    private _callMotionStateCallbackIfNonDefault<
+        TMethodName extends StateMachineComponentMotionStateCallbackName
+    > (
+        methodName: TMethodName,
+        controller: AnimationController,
+        status: StateStatus,
+    ) {
+        const { _components: components } = this;
+        const nComponents = components.length;
+        for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
+            const component = components[iComponent];
+            if (component[methodName] !== StateMachineComponent.prototype[methodName]) {
+                component[methodName](controller, status);
+            }
+        }
+    }
+
+    private _callStateMachineCallbackIfNonDefault<
+        TMethodName extends StateMachineComponentStateMachineCallbackName
+    > (
+        methodName: TMethodName,
+        controller: AnimationController,
+    ) {
+        const { _components: components } = this;
+        const nComponents = components.length;
+        for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
+            const component = components[iComponent];
+            if (component[methodName] !== StateMachineComponent.prototype[methodName]) {
+                component[methodName](controller);
+            }
+        }
+    }
 }
 
 interface StateMachineInfo {
@@ -1030,6 +1102,32 @@ export class MotionStateEval extends StateEval {
         );
     }
 
+    public triggerFromPortUpdate (controller: AnimationController) {
+        this.components.callMotionStateUpdateMethods(controller, this.getFromPortStatus());
+    }
+
+    public triggerToPortUpdate (controller: AnimationController) {
+        this.components.callMotionStateUpdateMethods(controller, this.getToPortStatus());
+    }
+
+    public getFromPortStatus (): Readonly<StateStatus> {
+        const { statusCache: stateStatus } = this._fromPort;
+        if (DEBUG) {
+            stateStatus.__DEBUG_ID__ = this.name;
+        }
+        stateStatus.progress = normalizeProgress(this._fromPort.progress);
+        return stateStatus;
+    }
+
+    public getToPortStatus (): Readonly<StateStatus> {
+        const { statusCache: stateStatus } = this._toPort;
+        if (DEBUG) {
+            stateStatus.__DEBUG_ID__ = this.name;
+        }
+        stateStatus.progress = normalizeProgress(this._toPort.progress);
+        return stateStatus;
+    }
+
     public resetToPort () {
         this._toPort.progress = 0.0;
     }
@@ -1063,9 +1161,11 @@ export class MotionStateEval extends StateEval {
     private _speed = 1.0;
     private _fromPort: MotionEvalPort = {
         progress: 0.0,
+        statusCache: createStateStatusCache(),
     };
     private _toPort: MotionEvalPort = {
         progress: 0.0,
+        statusCache: createStateStatusCache(),
     };
 
     private _setSpeed (value: number) {
@@ -1088,6 +1188,7 @@ function normalizeProgress (progress: number) {
 
 interface MotionEvalPort {
     progress: number;
+    statusCache: StateStatus;
 }
 
 export class SpecialStateEval extends StateEval {

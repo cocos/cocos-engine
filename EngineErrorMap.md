@@ -3023,6 +3023,10 @@ Should only one camera exists, please check your project.
 
 Camera does not support Canvas Mode.
 
+### 8302
+
+Camera.viewport is deprecated, please use setViewportInOrientedSpace instead.
+
 ### 8400
 
 Wrong type arguments, 'filePath' must be a String.
@@ -3048,6 +3052,14 @@ texture size exceeds current device limits %d/%d
 
 <!-- DEPRECATED -->
 cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
+
+### 9201
+
+Cannot access game frame.
+
+### 9202
+
+Setting window size is not supported.
 
 ### 9300
 

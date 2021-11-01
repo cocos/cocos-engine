@@ -29,7 +29,8 @@ import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
 import { Shadows } from '../renderer/scene/shadows';
 import { IRenderObject } from './define';
-import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
+import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
+    BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { Material } from '../assets';

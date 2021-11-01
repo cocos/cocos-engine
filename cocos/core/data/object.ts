@@ -34,7 +34,6 @@ import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
-import { visible } from './decorators/editable';
 
 // definitions for CCObject.Flags
 
@@ -244,7 +243,6 @@ class CCObject implements EditorExtendableObject {
         return this._objFlags & CCObject.Flags.AllHideMasks;
     }
 
-    @visible(false)
     public set replicated (value: boolean) {
         if (value) {
             this._objFlags |= IsReplicated;
@@ -462,6 +460,7 @@ prototype._onPreDestroy = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
 CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+CCClass.Attr.setClassAttr(CCObject, 'replicated', 'visible', false);
 
 /**
  * Bit mask that controls object states.

@@ -213,8 +213,8 @@ CCProgram standard-fs %{
     #if USE_OCCLUSION_MAP
       pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
     #endif
-    s.occlusion = clamp(pbr.x, 0.0, 0.96);
-    s.roughness = clamp(pbr.y, 0.04, 1.0);
+    s.occlusion = pbr.x;
+    s.roughness = pbr.y;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
@@ -231,7 +231,7 @@ CCProgram standard-fs %{
   void main () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);
-    CC_APPLY_FOG(color);
+    CC_APPLY_FOG(color, s.position.xyz);
     vec4 baseColor = CCFragOutput(color);
 
     vec2 noise = v_normal.xy * 0.02;

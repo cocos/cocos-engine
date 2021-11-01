@@ -56,13 +56,26 @@ export class WebGL2Framebuffer extends Framebuffer {
             gpuDepthStencilTexture = (info.depthStencilTexture as WebGL2Texture).gpuTexture;
         }
 
+        let width = Number.MAX_SAFE_INTEGER;
+        let height = Number.MAX_SAFE_INTEGER;
         this._gpuFramebuffer = {
             gpuRenderPass: (info.renderPass as WebGL2RenderPass).gpuRenderPass,
             gpuColorTextures,
             gpuDepthStencilTexture,
             glFramebuffer: null,
-            width: Number.MAX_SAFE_INTEGER,
-            height: Number.MAX_SAFE_INTEGER,
+            isOffscreen: true,
+            get width () {
+                return this.isOffscreen ? width : this.gpuColorTextures[0].width;
+            },
+            set width (val) {
+                width = val;
+            },
+            get height () {
+                return this.isOffscreen ? height : this.gpuColorTextures[0].height;
+            },
+            set height (val) {
+                height = val;
+            },
         };
 
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);

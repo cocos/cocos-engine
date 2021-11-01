@@ -1062,7 +1062,10 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
         const tex = gpuFramebuffer.gpuColorTextures[i];
-        if (tex.isSwapchainTexture) return;
+        if (tex.isSwapchainTexture) {
+            gpuFramebuffer.isOffscreen = false;
+            return;
+        }
     }
 
     const { gl } = device;
@@ -1316,7 +1319,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
                     offset: 0,
 
                     glType,
-                    glLoc: -1,
+                    glLoc: null!,
                     array: null!,
                 };
             }
@@ -1362,8 +1365,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
 
             if (!isSampler) {
                 const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
-                // Note: wEcHAT just returns { id: -1 } for non-existing names /eyerolling
-                if (glLoc && (glLoc as any).id !== -1) {
+                if (device.extensions.isLocationActive(glLoc)) {
                     let varName: string;
                     const nameOffset = uniformInfo.name.indexOf('[');
                     if (nameOffset !== -1) {
@@ -1423,8 +1425,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     for (let i = 0; i < gpuShader.samplerTextures.length; ++i) {
         const sampler = gpuShader.samplerTextures[i];
         const glLoc = gl.getUniformLocation(gpuShader.glProgram, sampler.name);
-        // Note: wEcHAT just returns { id: -1 } for non-existing names /eyerolling
-        if (glLoc && (glLoc as any).id !== -1) {
+        if (device.extensions.isLocationActive(glLoc)) {
             glActiveSamplers.push(gpuShader.glSamplerTextures[i]);
             glActiveSamplerLocations.push(glLoc);
         }
@@ -1459,7 +1460,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
         for (let i = 0; i < glActiveSamplers.length; ++i) {
             const glSampler = glActiveSamplers[i];
 
-            if (!glSampler.glLoc) {
+            if (!device.extensions.isLocationActive(glSampler.glLoc)) {
                 glSampler.glLoc = glActiveSamplerLocations[i];
                 for (let t = 0; t < glSampler.count; ++t) {
                     while (usedTexUnits[unitIdx]) {
@@ -2198,8 +2199,7 @@ export function WebGLCmdFuncBindStates (
                     continue;
                 }
 
-                if (gpuDescriptor.gpuTexture
-                    && gpuDescriptor.gpuTexture.size > 0) {
+                if (gpuDescriptor.gpuTexture && gpuDescriptor.gpuTexture.size > 0) {
                     const { gpuTexture } = gpuDescriptor;
                     const glTexUnit = cache.glTexUnits[texUnit];
 
@@ -2511,7 +2511,7 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
                     }
                 } else {
                     for (let j = 0; j < indirects.drawCount; j++) {
-                        if (indirects.instances[j] > 1 && ia) {
+                        if (indirects.instances[j] && ia) {
                             ia.drawElementsInstancedANGLE(glPrimitive, indirects.counts[j],
                                 gpuInputAssembler.glIndexType, indirects.byteOffsets[j], indirects.instances[j]);
                         } else {
@@ -2534,14 +2534,14 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
                 }
             } else {
                 for (let j = 0; j < indirects.drawCount; j++) {
-                    if (indirects.instances[j] > 1 && ia) {
+                    if (indirects.instances[j] && ia) {
                         ia.drawArraysInstancedANGLE(glPrimitive, indirects.offsets[j], indirects.counts[j], indirects.instances[j]);
                     } else {
                         gl.drawArrays(glPrimitive, indirects.offsets[j], indirects.counts[j]);
                     }
                 }
             }
-        } else if (drawInfo.instanceCount > 1 && ia) {
+        } else if (drawInfo.instanceCount && ia) {
             if (indexBuffer) {
                 if (drawInfo.indexCount > 0) {
                     const offset = drawInfo.firstIndex * indexBuffer.stride;

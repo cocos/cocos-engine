@@ -61,7 +61,7 @@ export class WebGLIndirectDrawInfos {
     public setDrawInfo (idx: number, info: DrawInfo) {
         this._ensureCapacity(idx);
         this.drawByIndex = info.indexCount > 0;
-        this.instancedDraw = info.instanceCount > 1;
+        this.instancedDraw = !!info.instanceCount;
         this.drawCount = Math.max(idx + 1, this.drawCount);
 
         if (this.drawByIndex) {
@@ -161,6 +161,7 @@ export interface IWebGLGPUFramebuffer {
     gpuColorTextures: IWebGLGPUTexture[];
     gpuDepthStencilTexture: IWebGLGPUTexture | null;
     glFramebuffer: WebGLFramebuffer | null;
+    isOffscreen: boolean;
     width: number;
     height: number;
 }

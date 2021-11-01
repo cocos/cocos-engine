@@ -34,6 +34,7 @@ import { Asset } from '../assets/asset';
 import { Swapchain } from '../gfx';
 import { Model, Camera } from '../renderer/scene';
 import { CommonPipelineSceneData } from './common/common-pipeline-scene-data';
+import { IPipelineEvent, PipelineEventType } from './pipeline-event';
 
 nr.getPhaseID = getPhaseID;
 
@@ -42,6 +43,7 @@ export const RenderFlow = nr.RenderFlow;
 export const RenderStage = nr.RenderStage;
 export const InstancedBuffer = nr.InstancedBuffer;
 export const PipelineStateManager = nr.PipelineStateManager;
+export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 
 let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
@@ -58,7 +60,7 @@ export function createDefaultPipeline () {
 }
 
 // ForwardPipeline
-export class ForwardPipeline extends nr.ForwardPipeline {
+export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEvent {
     public pipelineSceneData = new CommonPipelineSceneData();
 
     constructor() {
@@ -68,11 +70,18 @@ export class ForwardPipeline extends nr.ForwardPipeline {
       this.renderTextures = [];
       this.materials = [];
     }
+    on(type: PipelineEventType, callback: any, target?: any, once?: boolean) {}
+    once(type: PipelineEventType, callback: any, target?: any) {}
+    off(type: PipelineEventType, callback?: any, target?: any) {}
+    emit(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
+    targetOff(typeOrTarget: any): void {}
+    removeAll(typeOrTarget: any): void {}
+    hasEventListener(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
 
     public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.native);
         for (let i = 0; i < this._flows.length; i++) {
-            this._flows[i].init();
+            this._flows[i].init(this);
         }
         const info = new nr.RenderPipelineInfo(this._tag, this._flows);
         this.initialize(info);
@@ -118,9 +127,9 @@ export class ForwardFlow extends nr.ForwardFlow {
         this._tag = 0;
         this._stages = [];
     }
-    init() {
+    init(pipeline) {
         for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].init();
+            this._stages[i].init(pipeline);
         }
         const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
         this.initialize(info);
@@ -135,9 +144,9 @@ export class ShadowFlow extends nr.ShadowFlow {
         this._tag = 0;
         this._stages = [];
     }
-    init() {
+    init(pipeline) {
         for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].init();
+            this._stages[i].init(pipeline);
         }
         const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
         this.initialize(info);
@@ -152,7 +161,7 @@ export class ForwardStage extends nr.ForwardStage {
         this._tag = 0;
         this.renderQueues = [];
     }
-    public init() {
+    public init(pipeline) {
         const queues = [];
         for (let i = 0; i < this.renderQueues.length; i++) {
             queues.push(this.renderQueues[i].init());
@@ -169,7 +178,7 @@ export class ShadowStage extends nr.ShadowStage {
         this._priority = 0;
         this._tag = 0;
     }
-    public init() {
+    public init(pipeline) {
         const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
         this.initialize(info);
     }
@@ -191,7 +200,7 @@ export class RenderQueueDesc {
     }
 }
 
-export class DeferredPipeline extends nr.DeferredPipeline {
+export class DeferredPipeline extends nr.DeferredPipeline implements IPipelineEvent {
   public pipelineSceneData = new DeferredPipelineSceneData();
   constructor() {
     super();
@@ -200,6 +209,13 @@ export class DeferredPipeline extends nr.DeferredPipeline {
     this.renderTextures = [];
     this.materials = [];
   }
+  on(type: PipelineEventType, callback: any, target?: any, once?: boolean) {}
+  once(type: PipelineEventType, callback: any, target?: any) {}
+  off(type: PipelineEventType, callback?: any, target?: any) {}
+  emit(type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {}
+  targetOff(typeOrTarget: any): void {}
+  removeAll(typeOrTarget: any): void {}
+  hasEventListener(type: PipelineEventType, callback?: any, target?: any): boolean { return false; }
 
   init() {
     this.setPipelineSharedSceneData(this.pipelineSceneData.native);
