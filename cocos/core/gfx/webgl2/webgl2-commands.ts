@@ -2436,7 +2436,7 @@ export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
                     }
                 } else {
                     for (let j = 0; j < indirects.drawCount; j++) {
-                        if (indirects.instances[j] > 1) {
+                        if (indirects.instances[j]) {
                             gl.drawElementsInstanced(glPrimitive, indirects.counts[j],
                                 gpuInputAssembler.glIndexType, indirects.byteOffsets[j], indirects.instances[j]);
                         } else {
@@ -2459,7 +2459,7 @@ export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
                 }
             } else {
                 for (let j = 0; j < indirects.drawCount; j++) {
-                    if (indirects.instances[j] > 1) {
+                    if (indirects.instances[j]) {
                         gl.drawArraysInstanced(glPrimitive, indirects.offsets[j], indirects.counts[j], indirects.instances[j]);
                     } else {
                         gl.drawArrays(glPrimitive, indirects.offsets[j], indirects.counts[j]);
