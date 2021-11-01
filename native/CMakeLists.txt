@@ -2109,6 +2109,7 @@ if(APPLE)
         "-lsqlite3"
         "-framework Security"
         "-framework SystemConfiguration"
+        "$(inherited)"
         ${CC_EXTERNAL_LIBS}
     )
     set_target_properties(cocos2d PROPERTIES
