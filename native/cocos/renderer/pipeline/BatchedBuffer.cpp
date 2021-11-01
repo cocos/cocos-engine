@@ -42,6 +42,19 @@ BatchedBuffer *BatchedBuffer::get(scene::Pass *pass, uint extraKey) {
     return buffer;
 }
 
+void BatchedBuffer::destroyBatchedBuffer() {
+    for (auto &pair : BatchedBuffer::buffers) {
+        const map<uint, BatchedBuffer *> &bufferItem = pair.second;
+        for (const auto &item : bufferItem) {
+            BatchedBuffer *batchedBuffer = item.second;
+            if (batchedBuffer) {
+                batchedBuffer->destroy();
+            }
+        }
+    }
+    BatchedBuffer::buffers.clear();
+}
+
 BatchedBuffer::BatchedBuffer(const scene::Pass *pass)
 : _pass(pass),
   _device(gfx::Device::getInstance()) {
@@ -52,16 +65,16 @@ BatchedBuffer::~BatchedBuffer() = default;
 void BatchedBuffer::destroy() {
     for (auto &batch : _batches) {
         for (auto *vb : batch.vbs) {
-            vb->destroy();
+            CC_SAFE_DESTROY(vb);
         }
 
         for (auto *data : batch.vbDatas) {
             CC_FREE(data);
         }
 
-        batch.indexBuffer->destroy();
-        batch.ia->destroy();
-        batch.ubo->destroy();
+        CC_SAFE_DESTROY(batch.indexBuffer);
+        CC_SAFE_DESTROY(batch.ia);
+        CC_SAFE_DESTROY(batch.ubo);
 
         CC_FREE(batch.indexData);
     }

@@ -26,6 +26,7 @@
 #include <boost/functional/hash.hpp>
 
 #include "InstancedBuffer.h"
+#include "BatchedBuffer.h"
 #include "PipelineStateManager.h"
 #include "RenderFlow.h"
 #include "RenderPipeline.h"
@@ -153,6 +154,7 @@ void RenderPipeline::destroy() {
     CC_SAFE_DESTROY(_defaultTexture);
 
     PipelineStateManager::destroyAll();
+    BatchedBuffer::destroyBatchedBuffer();
     InstancedBuffer::destroyInstancedBuffer();
 }
 

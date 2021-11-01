@@ -55,6 +55,7 @@ class CC_DLL BatchedBuffer : public Object {
 public:
     static BatchedBuffer *get(scene::Pass *pass);
     static BatchedBuffer *get(scene::Pass *pass, uint extraKey);
+    static void           destroyBatchedBuffer();
 
     explicit BatchedBuffer(const scene::Pass *pass);
     ~BatchedBuffer() override;
