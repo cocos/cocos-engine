@@ -67,8 +67,15 @@ void ClusterLightCulling::initialize(gfx::Device* dev) {
     if (!_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) return;
 
     uint maxInvocations = _device->getCapabilities().maxComputeWorkGroupInvocations;
-    CCASSERT(CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * CLUSTERS_Z_THREADS <= maxInvocations, "maxInvocations is too small");
-    CC_LOG_INFO(" work group size: %dx%dx%d", CLUSTERS_X_THREADS, CLUSTERS_Y_THREADS, CLUSTERS_Z_THREADS);
+    if (CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * 4 <= maxInvocations) {
+        clusterZThreads = 4;
+    } else if (CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * 2 <= maxInvocations) {
+        clusterZThreads = 2;
+    } else {
+        clusterZThreads = 1;
+    }
+    CCASSERT(CLUSTERS_X_THREADS * CLUSTERS_Y_THREADS * clusterZThreads <= maxInvocations, "maxInvocations is too small");
+    CC_LOG_INFO(" work group size: %dx%dx%d", CLUSTERS_X_THREADS, CLUSTERS_Y_THREADS, clusterZThreads);
 
     _constantsBuffer = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM,
@@ -79,9 +86,9 @@ void ClusterLightCulling::initialize(gfx::Device* dev) {
     });
 
     _lightBufferStride    = 4 * sizeof(Vec4);
-    _buildingDispatchInfo = {CLUSTERS_X / CLUSTERS_X_THREADS, CLUSTERS_Y / CLUSTERS_Y_THREADS, CLUSTERS_Z / CLUSTERS_Z_THREADS};
+    _buildingDispatchInfo = {CLUSTERS_X / CLUSTERS_X_THREADS, CLUSTERS_Y / CLUSTERS_Y_THREADS, CLUSTERS_Z / clusterZThreads};
     _resetDispatchInfo    = {1, 1, 1};
-    _cullingDispatchInfo  = {CLUSTERS_X / CLUSTERS_X_THREADS, CLUSTERS_Y / CLUSTERS_Y_THREADS, CLUSTERS_Z / CLUSTERS_Z_THREADS};
+    _cullingDispatchInfo  = {CLUSTERS_X / CLUSTERS_X_THREADS, CLUSTERS_Y / CLUSTERS_Y_THREADS, CLUSTERS_Z / clusterZThreads};
 
     gfx::GlobalBarrierInfo resetBarrierInfo = {
         {
@@ -155,10 +162,10 @@ void ClusterLightCulling::updateLights() {
         }
     }
 
-    const auto  exposure            = _camera->exposure;
-    const auto  validLightCount     = _validLights.size();
-    auto* const sceneData           = _pipeline->getPipelineSceneData();
-    auto* const sharedData          = sceneData->getSharedData();
+    const auto  exposure        = _camera->exposure;
+    const auto  validLightCount = _validLights.size();
+    auto* const sceneData       = _pipeline->getPipelineSceneData();
+    auto* const sharedData      = sceneData->getSharedData();
 
     if (validLightCount > _lightBufferCount) {
         _lightBufferResized = true;
@@ -251,10 +258,10 @@ void ClusterLightCulling::initBuildingSatge() {
 			return eye;
 		}
 
-		layout(local_size_x=16, local_size_y=8, local_size_z=4) in;
+		layout(local_size_x=16, local_size_y=8, local_size_z=%d) in;
 		void main() {
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, 4).x * uvec3(16, 8, 4).y +
-								gl_GlobalInvocationID.y * uvec3(16, 8, 4).x + gl_GlobalInvocationID.x;
+			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+								gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			float clusterSizeX = ceil(cc_viewPort.z / float(CLUSTERS_X));
 			float clusterSizeY = ceil(cc_viewPort.w / float(CLUSTERS_Y));
 			vec4  minScreen    = vec4(vec2(gl_GlobalInvocationID.xy) * vec2(clusterSizeX, clusterSizeY), 1.0, 1.0);
@@ -272,7 +279,8 @@ void ClusterLightCulling::initBuildingSatge() {
 
 			b_clusters[2u * clusterIndex + 0u] = vec4(minBounds, 1.0);
 			b_clusters[2u * clusterIndex + 1u] = vec4(maxBounds, 1.0);
-		})");
+		})",
+        clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads);
     sources.glsl3 = StringUtil::format(
         R"(
 		#define CLUSTERS_X 16
@@ -296,10 +304,10 @@ void ClusterLightCulling::initBuildingSatge() {
 			return eye;
 		}
 
-		layout(local_size_x=16, local_size_y=8, local_size_z=4) in;
+		layout(local_size_x=16, local_size_y=8, local_size_z=%d) in;
 		void main() {
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, 4).x * uvec3(16, 8, 4).y +
-								gl_GlobalInvocationID.y * uvec3(16, 8, 4).x + gl_GlobalInvocationID.x;
+			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+								gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			float clusterSizeX = ceil(cc_viewPort.z / float(CLUSTERS_X));
 			float clusterSizeY = ceil(cc_viewPort.w / float(CLUSTERS_Y));
 			vec4  minScreen    = vec4(vec2(gl_GlobalInvocationID.xy) * vec2(clusterSizeX, clusterSizeY), 1.0, 1.0);
@@ -317,7 +325,8 @@ void ClusterLightCulling::initBuildingSatge() {
 
 			b_clusters[2u * clusterIndex + 0u] = vec4(minBounds, 1.0);
 			b_clusters[2u * clusterIndex + 1u] = vec4(maxBounds, 1.0);
-		})");
+		})",
+        clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads);
     // no compute support in GLES2
 
     gfx::ShaderInfo shaderInfo;
@@ -467,19 +476,19 @@ void ClusterLightCulling::initCullingStage() {
 			vec3 dist = closest - light.cc_lightPos.xyz;
 			return dot(dist, dist) <= (light.cc_lightSizeRangeAngle.y * light.cc_lightSizeRangeAngle.y);
 		}
-		shared CCLight lights[(16 * 8 * 4)];
-		layout(local_size_x = 16, local_size_y = 8, local_size_z = 4) in;
+		shared CCLight lights[(16 * 8 * %d)];
+		layout(local_size_x = 16, local_size_y = 8, local_size_z = %d) in;
 		void main()
 		{
 			uint visibleLights[100];
 			uint visibleCount = 0u;
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, 4).x * uvec3(16, 8, 4).y +
-				gl_GlobalInvocationID.y * uvec3(16, 8, 4).x + gl_GlobalInvocationID.x;
+			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+				gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			Cluster cluster = getCluster(clusterIndex);
 			uint lightCount = ccLightCount();
 			uint lightOffset = 0u;
 			while (lightOffset < lightCount) {
-				uint batchSize = min((16u * 8u * 4u), lightCount - lightOffset);
+				uint batchSize = min((16u * 8u * %du), lightCount - lightOffset);
 				if (uint(gl_LocalInvocationIndex) < batchSize) {
 					uint lightIndex = lightOffset + gl_LocalInvocationIndex;
 					CCLight light = getCCLight(lightIndex);
@@ -502,7 +511,8 @@ void ClusterLightCulling::initCullingStage() {
 				b_clusterLightIndices[offset + i] = visibleLights[i];
 			}
 			b_clusterLightGrid[clusterIndex] = uvec4(offset, visibleCount, 0, 0);
-		})");
+		})",
+        clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads);
     sources.glsl3 = StringUtil::format(
         R"(
 		layout(std140) uniform CCConst {
@@ -574,19 +584,19 @@ void ClusterLightCulling::initCullingStage() {
 			vec3 dist = closest - light.cc_lightPos.xyz;
 			return dot(dist, dist) <= (light.cc_lightSizeRangeAngle.y * light.cc_lightSizeRangeAngle.y);
 		}
-		shared CCLight lights[(16 * 8 * 4)];
-		layout(local_size_x = 16, local_size_y = 8, local_size_z = 4) in;
+		shared CCLight lights[(16 * 8 * %d)];
+		layout(local_size_x = 16, local_size_y = 8, local_size_z = %d) in;
 		void main()
 		{
 			uint visibleLights[100];
 			uint visibleCount = 0u;
-			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, 4).x * uvec3(16, 8, 4).y +
-				gl_GlobalInvocationID.y * uvec3(16, 8, 4).x + gl_GlobalInvocationID.x;
+			uint clusterIndex = gl_GlobalInvocationID.z * uvec3(16, 8, %d).x * uvec3(16, 8, %d).y +
+				gl_GlobalInvocationID.y * uvec3(16, 8, %d).x + gl_GlobalInvocationID.x;
 			Cluster cluster = getCluster(clusterIndex);
 			uint lightCount = ccLightCount();
 			uint lightOffset = 0u;
 			while (lightOffset < lightCount) {
-				uint batchSize = min((16u * 8u * 4u), lightCount - lightOffset);
+				uint batchSize = min((16u * 8u * %du), lightCount - lightOffset);
 				if (uint(gl_LocalInvocationIndex) < batchSize) {
 					uint lightIndex = lightOffset + gl_LocalInvocationIndex;
 					CCLight light = getCCLight(lightIndex);
@@ -609,7 +619,8 @@ void ClusterLightCulling::initCullingStage() {
 				b_clusterLightIndices[offset + i] = visibleLights[i];
 			}
 			b_clusterLightGrid[clusterIndex] = uvec4(offset, visibleCount, 0, 0);
-		})");
+		})",
+        clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads, clusterZThreads);
     // no compute support in GLES2
 
     gfx::ShaderInfo shaderInfo;
@@ -647,7 +658,7 @@ void ClusterLightCulling::initCullingStage() {
 }
 
 void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
-    if (!_initialized) return;
+    if (!_initialized || _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset() != 0) return;
     _camera = camera;
     update(); // update ubo and light data
 

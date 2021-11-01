@@ -125,9 +125,8 @@ void LightingStage::gatherLights(scene::Camera *camera) {
     uint          offset     = 0;
     cc::Vec4      tmpArray;
 
-    uint i = 0;
     for (auto *light : scene->getSphereLights()) {
-        if (i >= _maxDeferredLights) {
+        if (idx >= _maxDeferredLights) {
             break;
         }
 
@@ -172,13 +171,11 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         _lightBufferData[offset + 1] = light->getRange();
         _lightBufferData[offset + 2] = 0;
 
-        ++i;
         ++idx;
     }
 
-    i = 0;
     for (auto *light : scene->getSpotLights()) {
-        if (i >= _maxDeferredLights) {
+        if (idx >= _maxDeferredLights) {
             break;
         }
 
@@ -230,7 +227,6 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         _lightBufferData[offset + 1] = direction.y;
         _lightBufferData[offset + 2] = direction.z;
 
-        ++i;
         ++idx;
     }
 
