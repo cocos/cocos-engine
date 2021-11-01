@@ -240,6 +240,29 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
+    public updateScale () {
+        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
+        if (!mat) {
+            return;
+        }
+        const pass = mat.passes[0];
+        this.doUpdateScale(pass);
+    }
+
+    private doUpdateScale (pass) {
+        switch (this._particleSystem.scaleSpace) {
+            case Space.Local:
+                this._particleSystem.node.getScale(this._node_scale);
+                break;
+            case Space.World:
+                this._particleSystem.node.getWorldScale(this._node_scale);
+                break;
+            default:
+                break;
+        }
+        pass.setUniform(pass.getHandle('scale'), this._node_scale);
+    }
+
     public updateParticles (dt: number) {
         if (EDITOR) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
@@ -301,7 +324,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._uRotHandle = pass.getHandle('u_worldRot');
         this._uNodeRotHandle = pass.getHandle('nodeRotation');
 
-        pass.setUniform(pass.getHandle('scale'), this._node_scale);
+        this.doUpdateScale(pass);
         pass.setUniform(pass.getHandle('frameTile_velLenScale'), this._unifrom_velLenScale);
         _tempVec4.x = _sample_num;
         _tempVec4.y = _sample_interval;
@@ -475,16 +498,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
 
         ps.node.getWorldMatrix(_tempWorldTrans);
-        switch (ps.scaleSpace) {
-        case Space.Local:
-            ps.node.getScale(this._node_scale);
-            break;
-        case Space.World:
-            ps.node.getWorldScale(this._node_scale);
-            break;
-        default:
-            break;
-        }
 
         if (ps._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;

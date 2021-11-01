@@ -1069,6 +1069,7 @@ export class ParticleSystem extends RenderableComponent {
             }
         } else {
             this.processor.updateRotation();
+            this.processor.updateScale();
         }
         // update render data
         this.processor.updateRenderData();
