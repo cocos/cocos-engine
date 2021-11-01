@@ -50,6 +50,7 @@ export interface IParticleSystemRenderer {
     getParticleCount (): number;
     getFreeParticle (): Particle | null;
     setNewParticle (p: Particle): void;
+    updateRotation (): void;
     updateParticles (dt: number): number;
     updateRenderData (): void;
     enableModule (name: string, val: boolean, pm: IParticleModule): void;
@@ -145,6 +146,7 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
     public abstract setNewParticle (p: Particle): void;
+    public abstract updateRotation (): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
     public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;

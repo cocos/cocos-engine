@@ -245,26 +245,19 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._alignSpace = space;
     }
 
-    public updateParticles (dt: number) {
+    public updateRotation () {
         const ps = this._particleSystem;
         if (!ps) {
             return this._particles!.length;
-        }
-        ps.node.getWorldMatrix(_tempWorldTrans);
-        switch (ps.scaleSpace) {
-        case Space.Local:
-            ps.node.getScale(this._node_scale);
-            break;
-        case Space.World:
-            ps.node.getWorldScale(this._node_scale);
-            break;
-        default:
-            break;
         }
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         pass.setUniform(this._uScaleHandle, this._node_scale);
 
+        this.doUpdateRotation(pass);
+    }
+
+    private doUpdateRotation (pass) {
         if (this._alignSpace === AlignmentSpace.Local) {
             this._particleSystem.node.getRotation(_node_rot);
         } else if (this._alignSpace === AlignmentSpace.World) {
@@ -288,6 +281,28 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             _node_rot.set(0.0, 0.0, 0.0, 1.0);
         }
         pass.setUniform(this._uNodeRotHandle, _node_rot);
+    }
+
+    public updateParticles (dt: number) {
+        const ps = this._particleSystem;
+        if (!ps) {
+            return this._particles!.length;
+        }
+        ps.node.getWorldMatrix(_tempWorldTrans);
+        switch (ps.scaleSpace) {
+        case Space.Local:
+            ps.node.getScale(this._node_scale);
+            break;
+        case Space.World:
+            ps.node.getWorldScale(this._node_scale);
+            break;
+        default:
+            break;
+        }
+        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
+        const pass = mat!.passes[0];
+        pass.setUniform(this._uScaleHandle, this._node_scale);
+        this.doUpdateRotation(pass);
 
         this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps._simulationSpace, _tempWorldTrans);

@@ -1067,6 +1067,8 @@ export class ParticleSystem extends RenderableComponent {
             if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
             }
+        } else {
+            this.processor.updateRotation();
         }
         // update render data
         this.processor.updateRenderData();
