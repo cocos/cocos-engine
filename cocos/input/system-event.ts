@@ -53,6 +53,8 @@ export declare namespace SystemEvent {
     export type EventType = EnumAlias<typeof SystemEventType>;
 }
 
+const inputEvents = Object.values(InputEventType);
+
 interface SystemEventMap {
     [SystemEvent.EventType.MOUSE_DOWN]: (event: EventMouse) => void,
     [SystemEvent.EventType.MOUSE_MOVE]: (event: EventMouse) => void,
@@ -124,16 +126,24 @@ export class SystemEvent extends EventTarget {
     // @ts-expect-error Property 'on' in type 'SystemEvent' is not assignable to the same property in base type
     public on<K extends keyof SystemEventMap> (type: K, callback: SystemEventMap[K], target?: any, once?: boolean) {
         const registerMethod = once ? input.once : input.on;
-        if (type === SystemEventType.KEY_DOWN) {
-            // @ts-expect-error wrong mapped type
-            registerMethod.call(input, InputEventType.KEY_DOWN, callback, target);
-            // @ts-expect-error wrong mapped type
-            registerMethod.call(input, InputEventType.KEY_PRESSING, callback, target, once);
-        } else {
+        // @ts-expect-error wrong type mapping
+        if (inputEvents.includes(type)) {
             // @ts-expect-error wrong type mapping
-            type = pointerEvent2SystemEvent[type] || type;
-            // @ts-expect-error wrong mapped type
-            registerMethod.call(input, type, callback, target, once);
+            const mappedPointerType = pointerEvent2SystemEvent[type];
+            if (mappedPointerType) {
+                // @ts-expect-error wrong type mapping
+                registerMethod.call(input, mappedPointerType, callback, target);
+            } else if (type === SystemEventType.KEY_DOWN) {
+                // @ts-expect-error wrong mapped type
+                registerMethod.call(input, InputEventType.KEY_DOWN, callback, target);
+                // @ts-expect-error wrong mapped type
+                registerMethod.call(input, InputEventType.KEY_PRESSING, callback, target, once);
+            } else {
+                // @ts-expect-error wrong type mapping
+                registerMethod.call(input, type, callback, target);
+            }
+        } else {
+            super.on(type, callback, target, once);
         }
         return callback;
     }
@@ -150,16 +160,24 @@ export class SystemEvent extends EventTarget {
      * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
     public off<K extends keyof SystemEventMap> (type: K, callback?: SystemEventMap[K], target?: any) {
-        if (type === SystemEventType.KEY_DOWN) {
-            // @ts-expect-error wrong mapped type
-            input.off(InputEventType.KEY_DOWN, callback, target);
-            // @ts-expect-error wrong mapped type
-            input.off(InputEventType.KEY_PRESSING, callback, target);
-        } else {
+        // @ts-expect-error wrong type mapping
+        if (inputEvents.includes(type)) {
             // @ts-expect-error wrong type mapping
-            type = pointerEvent2SystemEvent[type] || type;
-            // @ts-expect-error wrong mapped type
-            input.off(type, callback, target);
+            const mappedPointerType = pointerEvent2SystemEvent[type];
+            if (mappedPointerType) {
+                input.off(mappedPointerType, callback, target);
+            } else if (type === SystemEventType.KEY_DOWN) {
+                // @ts-expect-error wrong mapped type
+                input.off(InputEventType.KEY_DOWN, callback, target);
+                // @ts-expect-error wrong mapped type
+                input.off(InputEventType.KEY_PRESSING, callback, target);
+            // eslint-disable-next-line brace-style
+            } else {
+                // @ts-expect-error wrong type mapping
+                input.off(type, callback, target);
+            }
+        } else {
+            super.off(type, callback, target);
         }
     }
 }
