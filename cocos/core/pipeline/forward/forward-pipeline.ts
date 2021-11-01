@@ -232,8 +232,6 @@ export class ForwardPipeline extends RenderPipeline {
             this.applyFramebufferRatio(data.outputFrameBuffer);
         });
         data.sampler = this.globalDSManager.linearSampler;
-
-        this._generateBloomRenderData();
     }
 
     private _destroyUBOs () {
