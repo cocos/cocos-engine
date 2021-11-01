@@ -7,23 +7,23 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       properties: &props
-        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
-        albedoScale:          { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
-        occlusion:            { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        roughness:            { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        metallic:             { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        SpecularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:      { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
+        roughness:      { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
+        metallic:       { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        SpecularIntensity:  { value: 0.5, target: pbrParams.w, editor: {  slide: true, range: [0.0, 1.0], step: 0.001 } }
         emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
-        emissiveScale:        { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
+        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         normalStrenth:        { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
-        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        normalMap:            { value: normal }
-        pbrMap:               { value: grey }
-        metallicRoughnessMap: { value: grey }
-        occlusionMap:         { value: white }
-        emissiveMap:          { value: grey }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:      { value: normal       }
+        pbrMap:         { value: grey         }
+        metallicRoughnessMap: { value: grey   }
+        occlusionMap:   { value: white        }
+        emissiveMap:    { value: grey         }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -41,6 +41,7 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
+      properties: *props
     - &shadow-caster
       vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
@@ -48,6 +49,12 @@ CCEffect %{
       propertyIndex: 0
       rasterizerState:
         cullMode: front
+      properties:
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
   - name: transparent
     passes:
     - vert: standard-vs
@@ -202,9 +209,9 @@ CCProgram standard-fs %{
     #pragma define EMISSIVE_UV options([v_uv, v_uv1])
   #endif
 
-  #define OCCLUSION_CHANNEL          r
-  #define ROUGHNESS_CHANNEL          g
-  #define METALLIC_CHANNEL           b
+  #define OCCLUSION_CHANNEL r
+  #define ROUGHNESS_CHANNEL g
+  #define METALLIC_CHANNEL  b
   #define SPECULAR_INTENSITY_CHANNEL a
 
   #if USE_ALPHA_TEST
