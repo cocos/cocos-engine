@@ -67,6 +67,11 @@ void CCMTLCommandBuffer::doInit(const CommandBufferInfo &info) {
 }
 
 void CCMTLCommandBuffer::doDestroy() {
+    if(_texCopySemaphore) {
+        CC_DELETE(_texCopySemaphore);
+        _texCopySemaphore = nullptr;
+    }
+    
     _GPUDescriptorSets.clear();
     _dynamicOffsets.clear();
     _firstDirtyDescriptorSet = UINT_MAX;
@@ -98,7 +103,6 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
         auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
         // Only primary command buffer should request command buffer explicitly
         _gpuCommandBufferObj->mtlCommandBuffer = [mtlQueue commandBuffer];
-        [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
     }
 
     _numTriangles = 0;
@@ -124,6 +128,8 @@ void CCMTLCommandBuffer::end() {
         // Secondary command buffer should end encoding here
         _renderEncoder.endEncoding();
     }
+    
+    [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
@@ -828,22 +834,69 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
     auto *         ccMTLTexture    = static_cast<CCMTLTexture *>(src);
     Format         convertedFormat = ccMTLTexture->getConvertedFormat();
     id<MTLTexture> mtlTexture      = ccMTLTexture->getMTLTexture();
+    
+    if([mtlTexture storageMode] == MTLStorageModeShared) {
+        for (size_t i = 0; i < count; ++i) {
+            uint32_t      width         = regions[i].texExtent.width;
+            uint32_t      height        = regions[i].texExtent.height;
+            uint32_t      depth         = regions[i].texExtent.depth;
+            uint32_t      bytesPerRow   = mu::getBytesPerRow(convertedFormat, width);
+            uint32_t      bytesPerImage = formatSize(convertedFormat, width, height, depth);
+            const Offset &origin        = regions[i].texOffset;
+            const Extent &extent        = regions[i].texExtent;
 
-    for (size_t i = 0; i < count; ++i) {
-        uint32_t      width         = regions[i].texExtent.width;
-        uint32_t      height        = regions[i].texExtent.height;
-        uint32_t      depth         = regions[i].texExtent.depth;
-        uint32_t      bytesPerRow   = mu::getBytesPerRow(convertedFormat, width);
-        uint32_t      bytesPerImage = formatSize(convertedFormat, width, height, depth);
-        const Offset &origin        = regions[i].texOffset;
-        const Extent &extent        = regions[i].texExtent;
-
-        [mtlTexture getBytes:buffers[i]
-                 bytesPerRow:bytesPerRow
-               bytesPerImage:bytesPerImage
-                  fromRegion:{MTLOriginMake(origin.x, origin.y, origin.z), MTLSizeMake(extent.width, extent.height, extent.depth)}
-                 mipmapLevel:regions[i].texSubres.mipLevel
-                       slice:regions[i].texSubres.baseArrayLayer];
+            [mtlTexture getBytes:buffers[i]
+                     bytesPerRow:bytesPerRow
+                   bytesPerImage:bytesPerImage
+                      fromRegion:{MTLOriginMake(origin.x, origin.y, origin.z), MTLSizeMake(extent.width, extent.height, extent.depth)}
+                     mipmapLevel:regions[i].texSubres.mipLevel
+                           slice:regions[i].texSubres.baseArrayLayer];
+        }
+    } else {
+        // TODO_Zeqiang: metal commandbuffer ownership
+        auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
+        id<MTLCommandBuffer> cmdBuff = [mtlQueue commandBufferWithUnretainedReferences];
+        [cmdBuff enqueue];
+        std::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
+        for (size_t i = 0; i < count; ++i) {
+            uint32_t      width         = regions[i].texExtent.width;
+            uint32_t      height        = regions[i].texExtent.height;
+            uint32_t      depth         = regions[i].texExtent.depth;
+            uint32_t      bytesPerRow   = mu::getBytesPerRow(convertedFormat, width);
+            uint32_t      bytesPerImage = formatSize(convertedFormat, width, height, depth);
+            const Offset &origin        = regions[i].texOffset;
+            const Extent &extent        = regions[i].texExtent;
+            
+            id<MTLBlitCommandEncoder> encoder = [cmdBuff blitCommandEncoder];
+            CCMTLGPUBuffer stagingBuffer;
+            stagingBuffer.size = bytesPerImage;
+            _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
+            [encoder copyFromTexture:mtlTexture
+                         sourceSlice:regions[i].texSubres.baseArrayLayer
+                         sourceLevel:regions[i].texSubres.mipLevel
+                        sourceOrigin:MTLOriginMake(origin.x, origin.y, origin.z)
+                          sourceSize:MTLSizeMake(extent.width, extent.height, extent.depth)
+                            toBuffer:stagingBuffer.mtlBuffer
+                   destinationOffset:0
+              destinationBytesPerRow:bytesPerRow
+            destinationBytesPerImage:bytesPerImage];
+            [encoder endEncoding];
+            stagingAddrs[i] = {stagingBuffer.mappedData, bytesPerImage};
+        }
+        if(!_texCopySemaphore)
+            _texCopySemaphore = CC_NEW(CCMTLSemaphore(1));
+        _texCopySemaphore->wait();
+        [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+            for(size_t i = 0; i < count; ++i) {
+                memcpy(buffers[i], stagingAddrs[i].first, stagingAddrs[i].second);
+            }
+            _texCopySemaphore->signal();
+        }];
+        [cmdBuff commit];
+        // wait this cmdbuff done;
+        _texCopySemaphore->wait();
+        _texCopySemaphore->signal();
+        
     }
 }
 

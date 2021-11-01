@@ -109,6 +109,8 @@ protected:
     MTLPrimitiveType                    _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
 
     CCMTLGPUCommandBufferObject *_gpuCommandBufferObj = nullptr;
+    
+    CCMTLSemaphore* _texCopySemaphore = nullptr;
 };
 
 } // namespace gfx
