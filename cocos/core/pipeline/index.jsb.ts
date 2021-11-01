@@ -81,7 +81,7 @@ export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEven
     public init () {
         this.setPipelineSharedSceneData(this.pipelineSceneData.native);
         for (let i = 0; i < this._flows.length; i++) {
-            this._flows[i].init();
+            this._flows[i].init(this);
         }
         const info = new nr.RenderPipelineInfo(this._tag, this._flows);
         this.initialize(info);
@@ -127,9 +127,9 @@ export class ForwardFlow extends nr.ForwardFlow {
         this._tag = 0;
         this._stages = [];
     }
-    init() {
+    init(pipeline) {
         for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].init();
+            this._stages[i].init(pipeline);
         }
         const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
         this.initialize(info);
@@ -144,9 +144,9 @@ export class ShadowFlow extends nr.ShadowFlow {
         this._tag = 0;
         this._stages = [];
     }
-    init() {
+    init(pipeline) {
         for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].init();
+            this._stages[i].init(pipeline);
         }
         const info = new nr.RenderFlowInfo(this._name, this._priority, this._tag, this._stages);
         this.initialize(info);
@@ -161,7 +161,7 @@ export class ForwardStage extends nr.ForwardStage {
         this._tag = 0;
         this.renderQueues = [];
     }
-    public init() {
+    public init(pipeline) {
         const queues = [];
         for (let i = 0; i < this.renderQueues.length; i++) {
             queues.push(this.renderQueues[i].init());
@@ -178,7 +178,7 @@ export class ShadowStage extends nr.ShadowStage {
         this._priority = 0;
         this._tag = 0;
     }
-    public init() {
+    public init(pipeline) {
         const info = new nr.RenderStageInfo(this._name, this._priority, this._tag, []);
         this.initialize(info);
     }

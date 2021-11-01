@@ -91,6 +91,19 @@ export class Fog {
     }
 
     /**
+     * @zh 是否启用精确雾效(像素雾)计算
+     * @en Enable accurate fog (pixel fog)
+     */
+    set accurate (val: boolean) {
+        this._setAccurate(val);
+        this._updatePipeline();
+    }
+
+    get accurate (): boolean {
+        return this._accurate;
+    }
+
+    /**
      * @zh 全局雾颜色
      * @en Global fog color
      */
@@ -219,6 +232,7 @@ export class Fog {
     protected _fogColor = new Color('#C8C8C8');
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
     protected _enabled = false;
+    protected _accurate = false;
     protected _type = 0;
     protected _fogDensity = 0.3;
     protected _fogStart = 0.5;
@@ -252,9 +266,17 @@ export class Fog {
         }
     }
 
+    protected _setAccurate (val) {
+        this._accurate = val;
+        if (JSB) {
+            this._nativeObj!.accurate = val;
+        }
+    }
+
     public initialize (fogInfo : FogInfo) {
         this.fogColor = fogInfo.fogColor;
         this._setEnable(fogInfo.enabled);
+        this._setAccurate(fogInfo.accurate);
         this._setType(fogInfo.type);
         this.fogDensity = fogInfo.fogDensity;
         this.fogStart = fogInfo.fogStart;
@@ -271,9 +293,13 @@ export class Fog {
     protected _updatePipeline () {
         const root = legacyCC.director.root;
         const value = this.enabled ? this.type : FOG_TYPE_NONE;
+        const accurateValue = this.accurate ? 1 : 0;
         const pipeline = root.pipeline;
-        if (pipeline.macros.CC_USE_FOG === value) { return; }
+        if (pipeline.macros.CC_USE_FOG === value && pipeline.macros.CC_USE_ACCURATE_FOG === accurateValue) {
+            return;
+        }
         pipeline.macros.CC_USE_FOG = value;
+        pipeline.macros.CC_USE_ACCURATE_FOG = accurateValue;
         root.onGlobalPipelineStateChanged();
     }
 

@@ -348,6 +348,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CullingMode)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.cullingMode')
     get cullingMode () {
         return this._cullingMode;
     }
@@ -367,6 +368,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Number)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.aabbHalfX')
     get aabbHalfX () {
         const res = this.getBoundingX();
         if (res) {
@@ -389,6 +391,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Number)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.aabbHalfY')
     get aabbHalfY () {
         const res = this.getBoundingY();
         if (res) {
@@ -411,6 +414,7 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Number)
     @displayOrder(17)
+    @tooltip('i18n:particle_system.aabbHalfZ')
     get aabbHalfZ () {
         const res = this.getBoundingZ();
         if (res) {
