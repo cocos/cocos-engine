@@ -2511,7 +2511,7 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
                     }
                 } else {
                     for (let j = 0; j < indirects.drawCount; j++) {
-                        if (indirects.instances[j] > 1 && ia) {
+                        if (indirects.instances[j] && ia) {
                             ia.drawElementsInstancedANGLE(glPrimitive, indirects.counts[j],
                                 gpuInputAssembler.glIndexType, indirects.byteOffsets[j], indirects.instances[j]);
                         } else {
@@ -2534,14 +2534,14 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
                 }
             } else {
                 for (let j = 0; j < indirects.drawCount; j++) {
-                    if (indirects.instances[j] > 1 && ia) {
+                    if (indirects.instances[j] && ia) {
                         ia.drawArraysInstancedANGLE(glPrimitive, indirects.offsets[j], indirects.counts[j], indirects.instances[j]);
                     } else {
                         gl.drawArrays(glPrimitive, indirects.offsets[j], indirects.counts[j]);
                     }
                 }
             }
-        } else if (drawInfo.instanceCount > 1 && ia) {
+        } else if (drawInfo.instanceCount && ia) {
             if (indexBuffer) {
                 if (drawInfo.indexCount > 0) {
                     const offset = drawInfo.firstIndex * indexBuffer.stride;
