@@ -26,13 +26,13 @@ export class AnimationGraphEval {
         time: 0.0,
     };
 
-    constructor (graph: AnimationGraph, root: Node, newGenAnim: AnimationController) {
+    constructor (graph: AnimationGraph, root: Node, controller: AnimationController) {
         for (const [name, { type, value }] of graph.variables) {
             this._varInstances[name] = new VarInstance(type, value);
         }
 
         const context: LayerContext = {
-            newGenAnim,
+            controller,
             blendBuffer: this._blendBuffer,
             node: root,
             getVar: (id: string): VarInstance | undefined => this._varInstances[id],
@@ -137,7 +137,7 @@ export interface StateStatus {
 type TriggerResetFn = (name: string) => void;
 
 interface LayerContext extends BindContext {
-    newGenAnim: AnimationController;
+    controller: AnimationController;
 
     /**
      * The root node bind to the graph.
@@ -166,7 +166,7 @@ class LayerEval {
 
     constructor (layer: Layer, context: LayerContext) {
         this.name = layer.name;
-        this._controller = context.newGenAnim;
+        this._controller = context.controller;
         this._weight = layer.weight;
         const { entry, exit } = this._addStateMachine(layer.stateMachine, null, {
             ...context,
