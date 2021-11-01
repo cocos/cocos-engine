@@ -1,6 +1,5 @@
 /**
  * @packageDocumentation
- * @hidden
  */
 
 import { PixelFormat } from '../../../core/assets/asset-enum';
@@ -41,6 +40,16 @@ export class Atlas {
         this._count = 0;
     }
 
+    /**
+     * @en
+     * Append a sprite frame into the dynamic atlas.
+     *
+     * @zh
+     * 添加碎图进入动态图集。
+     *
+     * @method insertSpriteFrame
+     * @param spriteFrame  the sprite frame that will be inserted in the atlas.
+     */
     public insertSpriteFrame (spriteFrame: SpriteFrame) {
         const rect = spriteFrame.rect;
         // Todo:No renderTexture
@@ -112,6 +121,16 @@ export class Atlas {
         return frame;
     }
 
+    /**
+     * @en
+     * Delete a texture from the atlas.
+     *
+     * @zh
+     * 从动态图集中删除某张纹理。
+     *
+     * @method deleteAtlasTexture
+     * @param texture  the texture that will be removed from the atlas.
+     */
     public deleteInnerTexture (texture: Texture2D) {
         if (texture && this._innerTextureInfos[texture.getId()]) {
             delete this._innerTextureInfos[texture.getId()];
@@ -119,10 +138,28 @@ export class Atlas {
         }
     }
 
+    /**
+     * @en
+     * Whether the atlas is empty.
+     *
+     * @zh
+     * 图集是否为空图集。
+     *
+     * @method isEmpty
+     */
     public isEmpty () {
         return this._count <= 0;
     }
 
+    /**
+     * @en
+     * Resets the dynamic atlas.
+     *
+     * @zh
+     * 重置该动态图集。
+     *
+     * @method reset
+    */
     public reset () {
         this._x = space;
         this._y = space;
@@ -140,6 +177,15 @@ export class Atlas {
         this._innerTextureInfos = {};
     }
 
+    /**
+     * @en
+     * Resets the dynamic atlas, and destroy the texture of the atlas.
+     *
+     * @zh
+     * 重置该动态图集，并销毁该图集的纹理。
+     *
+     * @method destroy
+    */
     public destroy () {
         this.reset();
         this._texture.destroy();
@@ -149,9 +195,12 @@ export class Atlas {
 export class DynamicAtlasTexture extends Texture2D {
     /**
      * @en
-     * Init the render texture with size.
+     * Initialize the render texture with size.
+     *
      * @zh
      * 初始化 render texture。
+     *
+     * @method initWithSize
      */
     public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888) {
         this.reset({
@@ -162,8 +211,13 @@ export class DynamicAtlasTexture extends Texture2D {
     }
 
     /**
-     * @en Draw a texture to the specified position
-     * @zh 将指定的图片渲染到指定的位置上。
+     * @en
+     * Draw a texture to the specified position
+     *
+     * @zh
+     * 将指定的图片渲染到指定的位置上。
+     *
+     * @method drawTextureAt
      * @param {Texture2D} image
      * @param {Number} x
      * @param {Number} y
