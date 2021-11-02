@@ -121,7 +121,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            let defaultValue = false;
+            let defaultValue = true;
             if (panel.meta.userData.fbx) {
                 defaultValue = panel.getDefault(panel.meta.userData.fbx.preferLocalTimeSpan, defaultValue);
             }
