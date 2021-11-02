@@ -310,19 +310,11 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
 
 //TODO(PatriceJiang): modify this when OHOS llvm upgrade
     #if CC_PLATFORM == CC_PLATFORM_OHOS
-        // extern "C" int bcmp(const void *cs, const void *ct, size_t count) __attribute__((weak, alias("__builtin_memcmp"))); // does not work?
-        #if __has_builtin(__builtin_bcmp)
-extern "C" int bcmp(const void *cs, const void *ct, size_t count) {
-    return __builtin_bcmp(cs, ct, count);
-}
-        #elif __has_builtin(__builtin_memcmp)
-extern "C" int bcmp(const void *cs, const void *ct, size_t count) {
-    return __builtin_memcmp(cs, ct, count);
-}
-        #else
-extern "C" int bcmp(const void *cs, const void *ct, size_t count) {
+extern "C" {
+int local_bcmp(const void *cs, const void *ct, size_t count) {
     return memcmp(cs, ct, count);
 }
-        #endif
+int bcmp(const void *cs, const void *ct, size_t count) __attribute__((weak, alias("local_bcmp"))); 
+} // extern "C"
     #endif
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
