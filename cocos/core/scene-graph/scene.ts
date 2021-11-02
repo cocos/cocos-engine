@@ -79,9 +79,9 @@ export class Scene extends BaseNode {
     @serializable
     public _globals = new SceneGlobals();
 
-    public _renderScene: RenderScene | null = null;
-
     public dependAssets = null; // cache all depend assets for auto release
+
+    protected _renderScene: RenderScene | null = null;
 
     protected _inited: boolean;
 
