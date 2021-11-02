@@ -738,7 +738,7 @@ module.exports = {
         },
         gpu_driven: {
             label: "GPU Driven",
-            description: "Whether to enable GPU-driven solutions (only works for packaged projects for now)",
+            description: "Whether to enable GPU-driven solutions",
         },
         base_3d: {
             label: "Basic 3D Features",

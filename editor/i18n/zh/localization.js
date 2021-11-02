@@ -719,7 +719,7 @@ module.exports = {
         },
         gpu_driven: {
             label: "GPU驱动",
-            description: "是否启用GPU驱动方案（暂时只对打包后的工程起效）",
+            description: "是否启用GPU驱动方案",
         },
         base_3d: {
             label: "基础 3D 功能",

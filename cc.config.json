@@ -121,7 +121,7 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.UI_GPU_DRIVEN",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/2d/renderer/batcher-2d.ts": "cocos/2d/renderer/batcher-2d-GPU.ts"
+                "cocos/2d/renderer/batcher-2d.ts": "cocos/2d/renderer/batcher-2d-gpu.ts"
             }
         }
     ],
