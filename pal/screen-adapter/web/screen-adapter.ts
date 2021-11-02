@@ -1,5 +1,5 @@
 import { TEST } from 'internal:constants';
-import { ConfigOrientation, SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -132,6 +132,7 @@ class ScreenAdapter extends EventTarget {
     private _resizeTimeoutId = -1;
     private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
+    private _exactFitScreen = false;
     private _fn = {} as IScreenFunctionName;
     // Function mapping for cross browser support
     private _fnGroup = [
@@ -212,21 +213,10 @@ class ScreenAdapter extends EventTarget {
             warnID(9201);
             return WindowType.Unknown;
         }
-        // @ts-expect-error Property 'cc_exact_fit_screen' does not exist on type 'NamedNodeMap'.
-        if (this._gameFrame.attributes.cc_exact_fit_screen?.value === 'true') {
+        if (this._exactFitScreen) {
             // Note: It doesn't work well to determine whether the frame exact fits the screen.
             // Need to specify the attribute from Editor.
             return WindowType.BrowserWindow;
-        } else {
-            // A fallback case when the 'cc_exact_fit_screen' attribute is not specified.
-            const body = document.body;
-            const frame = this._gameFrame;
-            const bodyWidth = body.clientWidth; const bodyHeight = body.clientHeight;
-            const frameWidth = frame.clientWidth; const frameHeight = frame.clientHeight;
-            if ((bodyWidth === frameWidth && bodyHeight === frameHeight)
-                || (this.isFrameRotated && bodyWidth === frameHeight && bodyHeight === frameWidth)) {
-                return WindowType.BrowserWindow;
-            }
         }
         return WindowType.SubFrame;
     }
@@ -259,9 +249,10 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (configOrientation: ConfigOrientation, cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this.orientation = orientationMap[configOrientation];
+        this.orientation = orientationMap[options.configOrientation];
+        this._exactFitScreen = options.exactFitScreen;
         this._resizeFrame();
     }
 
