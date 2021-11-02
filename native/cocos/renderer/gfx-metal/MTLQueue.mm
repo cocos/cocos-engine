@@ -73,6 +73,8 @@ void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
         _gpuQueueObj->numTriangles += cmdBuffer->getNumTris();
         id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer;
         [mtlCmdBuffer commit];
+        [mtlCmdBuffer release];
+        cmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer = nil;
         cmdBuffer->reset();
     }
 }

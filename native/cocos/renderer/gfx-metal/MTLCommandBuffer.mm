@@ -81,7 +81,6 @@ void CCMTLCommandBuffer::doDestroy() {
     _mtlCommandQueue         = nil;
     _parallelEncoder         = nil;
 
-    // mtlCommandbuffer released in present.completeHandler
     CC_SAFE_DELETE(_gpuCommandBufferObj);
 }
 
@@ -102,7 +101,7 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     if (!_gpuCommandBufferObj->isSecondary) {
         auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
         // Only primary command buffer should request command buffer explicitly
-        _gpuCommandBufferObj->mtlCommandBuffer = [mtlQueue commandBuffer];
+        _gpuCommandBufferObj->mtlCommandBuffer = [[mtlQueue commandBuffer] retain];
     }
 
     _numTriangles = 0;
