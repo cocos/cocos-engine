@@ -1,4 +1,4 @@
-import { TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
@@ -6,7 +6,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 
-const EVENT_TIMEOUT = 200;
+const EVENT_TIMEOUT = EDITOR ? 5 : 200;
 const orientationMap: Record<ConfigOrientation, Orientation> = {
     auto: Orientation.AUTO,
     landscape: Orientation.LANDSCAPE,
