@@ -245,7 +245,7 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         let pushNum = 0;
 
         let checkWhile = 0;
-        const checkCount = 10;
+        const checkCount = 100;
 
         // Exceeded the size
         while (width > maxWidth && checkWhile++ < checkCount) {
@@ -284,7 +284,9 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         let sText = _safeSubstring(text, 0, fuzzyLen);
         let result;
 
-        // symbol in the first
+        // Symbols cannot be the first character in a new line.
+        // In condition that a symbol appears at the beginning of the new line, we will move the last word of this line to the new line.
+        // If there is only one word in this line, we will keep the first character of this word and move the rest of characters to the new line.
         if (WRAP_INSPECTION) {
             if (SYMBOL_REG.test(sLine || tmpText)) {
                 result = LAST_WORD_REG.exec(sText);
@@ -297,9 +299,11 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         }
 
         // To judge whether a English words are truncated
+        // If it starts with an English word in the next line and it ends with an English word in this line,
+        // we consider that a complete word is truncated into two lines. The last word without symbols of this line will be moved to the next line.
         if (FIRST_ENGLISH_REG.test(sLine)) {
             result = LAST_ENGLISH_REG.exec(sText);
-            if (result && sText !== result[0]) {
+            if (result && (sText !== result[0])) {
                 fuzzyLen -= result[0].length;
                 sLine = _safeSubstring(text, fuzzyLen);
                 sText = _safeSubstring(text, 0, fuzzyLen);

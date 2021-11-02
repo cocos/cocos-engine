@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable, string } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
@@ -46,7 +46,7 @@ import { UIComponent, UITransform } from '../framework';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
-import { CCObject } from '../../core';
+import { CCObject, CubicSplineNumberValue } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const _htmlTextParser = new HtmlTextParser();
@@ -451,6 +451,8 @@ export class RichText extends UIComponent {
     protected _lineOffsetX = 0;
     protected _updateRichTextStatus: () => void;
 
+    protected _splitLongStrArr: Array<string> = [];
+
     constructor () {
         super();
         if (EDITOR) {
@@ -546,19 +548,45 @@ export class RichText extends UIComponent {
         }
     }
 
+    protected splitLongStringIntoSeveralShortString (styleIndex: number, s: string) {
+        const labelSize = this._calculateSize(styleIndex, s);
+
+        if (labelSize.x >= 2048) {
+            let tempString = s.substring(0, s.length / 2);
+            let tempSize = this._calculateSize(styleIndex, tempString);
+            while (tempSize.x >= 2048) {
+                tempString = tempString.substring(0, tempString.length / 2);
+                tempSize = this._calculateSize(styleIndex, tempString);
+            }
+            //console.log(`tempString = ${tempString}, tempSize = ${tempSize.x}`);
+
+            let tempIndex = 0;
+            while (tempIndex < s.length) {
+                const thisLength = Math.min(tempSize.x, s.length - tempIndex);
+                this._splitLongStrArr.push(s.substring(tempIndex, thisLength));
+                tempIndex += thisLength;
+            }
+
+            for (let i = 0; i < this._splitLongStrArr.length; i++) {
+                console.log(this._splitLongStrArr[i]);
+            }
+        }
+    }
+
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            let label: ISegment;
-            if (this._labelSegmentsCache.length === 0) {
-                label = this._createFontLabel(s);
-                this._labelSegmentsCache.push(label);
-            } else {
-                label = this._labelSegmentsCache[0];
-                label.node.getComponent(Label)!.string = s;
-            }
-            label.styleIndex = styleIndex;
-            this._applyTextAttribute(label);
-            const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
+            // let label: ISegment;
+            // if (this._labelSegmentsCache.length === 0) {
+            //     label = this._createFontLabel(s);
+            //     this._labelSegmentsCache.push(label);
+            // } else {
+            //     label = this._labelSegmentsCache[0];
+            //     label.node.getComponent(Label)!.string = s;
+            // }
+            // label.styleIndex = styleIndex;
+            // this._applyTextAttribute(label);
+            // const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
+            const labelSize = this._calculateSize(styleIndex, s);
             return labelSize.width;
         };
         if (string) {
@@ -566,6 +594,21 @@ export class RichText extends UIComponent {
         } else {
             return func;
         }
+    }
+
+    protected _calculateSize (styleIndex: number, s: string) {
+        let label: ISegment;
+        if (this._labelSegmentsCache.length === 0) {
+            label = this._createFontLabel(s);
+            this._labelSegmentsCache.push(label);
+        } else {
+            label = this._labelSegmentsCache[0];
+            label.node.getComponent(Label)!.string = s;
+        }
+        label.styleIndex = styleIndex;
+        this._applyTextAttribute(label);
+        const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
+        return labelSize;
     }
 
     protected _onTouchEnded (event: EventTouch) {
@@ -694,7 +737,8 @@ export class RichText extends UIComponent {
             }
         }
         if (fragmentWidth > this._maxWidth) {
-            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth, this._measureText(styleIndex) as (s: string) => number);
+            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth,
+                this._measureText(styleIndex) as unknown as (s: string) => number);
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
@@ -781,13 +825,13 @@ export class RichText extends UIComponent {
             const sprite = segment.comp;
             switch (style.imageAlign) {
             case 'top':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
                 break;
             case 'center':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
                 break;
             default:
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
                 break;
             }
 
@@ -876,6 +920,11 @@ export class RichText extends UIComponent {
                     continue;
                 }
             }
+
+            this.splitLongStringIntoSeveralShortString(i, text);
+
+            //在split分行展示
+
             const multilineTexts = text.split('\n');
 
             for (let j = 0; j < multilineTexts.length; ++j) {
