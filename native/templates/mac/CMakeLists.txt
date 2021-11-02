@@ -57,9 +57,14 @@ set_target_properties(${LIB_NAME} PROPERTIES
     XCODE_ATTRIBUTE_SKIP_INSTALL NO
     XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
 )
-set_target_properties(${LIB_NAME} PROPERTIES
-    XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CMAKE_CURRENT_LIST_DIR}/entitlements.plist"
-)
+
+option(ENABLE_SANDBOX "enable sandbox with entitlements.plist" ON)
+if(ENABLE_SANDBOX)
+    set_target_properties(${LIB_NAME} PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CMAKE_CURRENT_LIST_DIR}/entitlements.plist"
+    )
+endif()
+
 get_property(gles2_loc TARGET GLESv2 PROPERTY IMPORTED_LOCATION)
 get_property(egl_loc TARGET EGL PROPERTY IMPORTED_LOCATION)
 add_custom_command(TARGET ${LIB_NAME} POST_BUILD
