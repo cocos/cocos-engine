@@ -46,6 +46,7 @@ import codec from '../../external/compression/ZipUtils';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
+import { builtinResMgr } from '../core';
 
 /**
  * Image formats
@@ -521,6 +522,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @ch 查看粒子效果
      */
     @editable
+    @tooltip('i18n:particle_system.preview')
     public get preview () {
         return this._preview;
     }
@@ -718,8 +720,6 @@ export class ParticleSystem2D extends Renderable2D {
      * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
      */
     @formerlySerializedAs('preview')
-    @editable
-    @tooltip('i18n:particle_system.preview')
     private _preview = true;
     @serializable
     private _custom = false;
@@ -946,7 +946,12 @@ export class ParticleSystem2D extends Renderable2D {
                         this._initTextureWithDictionary(dict);
                         error(err);
                     } else {
-                        this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                        // eslint-disable-next-line no-lonely-if
+                        if (imageAsset) {
+                            this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                        } else {
+                            this.spriteFrame = SpriteFrame.createWithImage(builtinResMgr.get<ImageAsset>('white-texture'));
+                        }
                     }
                 });
             } else if (dict.textureImageData) {
@@ -986,7 +991,11 @@ export class ParticleSystem2D extends Renderable2D {
                         warnID(6032, this._file!.name);
                     }
                     // TODO: Use cc.assetManager to load asynchronously the SpriteFrame object, avoid using textureUtil
-                    this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                    if (imageAsset) {
+                        this.spriteFrame = SpriteFrame.createWithImage(imageAsset);
+                    } else {
+                        this.spriteFrame = SpriteFrame.createWithImage(builtinResMgr.get<ImageAsset>('white-texture'));
+                    }
                 } else {
                     return false;
                 }

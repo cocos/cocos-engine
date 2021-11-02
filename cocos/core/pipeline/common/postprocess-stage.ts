@@ -29,7 +29,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
-import { Color, Rect, PipelineState, ClearFlagBit } from '../../gfx';
+import { Color, Rect, PipelineState, ClearFlagBit, Viewport } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from './enum';
 import { Material } from '../../assets/material';
@@ -38,7 +38,6 @@ import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
 import { RenderFlow, RenderPipeline } from '..';
 import { CommonPipelineSceneData } from './common-pipeline-scene-data';
-import { macro } from '../..';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -94,17 +93,16 @@ export class PostProcessStage extends RenderStage {
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const cmdBuff = pipeline.commandBuffers[0];
-
         pipeline.pipelineUBO.updateCameraUBO(camera);
 
         const vp = camera.viewport;
-        this._renderArea.x = vp.x * camera.width;
-        this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width;
-        this._renderArea.height = vp.height * camera.height;
+        this._renderArea.x = vp.x * camera.window.width;
+        this._renderArea.y = vp.y * camera.window.height;
+        this._renderArea.width = vp.width * camera.window.width;
+        this._renderArea.height = vp.height * camera.window.height;
         const renderData = pipeline.getPipelineRenderData();
-        const framebuffer = camera.window!.framebuffer;
-        const swapchain = camera.window!.swapchain;
+        const framebuffer = camera.window.framebuffer;
+        const swapchain = camera.window.swapchain;
         const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag, swapchain) : framebuffer.renderPass;
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
@@ -118,7 +116,6 @@ export class PostProcessStage extends RenderStage {
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-
         // Postprocess
         const builtinPostProcess = (sceneData as CommonPipelineSceneData).postprocessMaterial;
         const pass = builtinPostProcess.passes[0];
@@ -134,7 +131,7 @@ export class PostProcessStage extends RenderStage {
 
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-        const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
+        const inputAssembler = camera.window.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
         let pso: PipelineState | null = null;
         if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);

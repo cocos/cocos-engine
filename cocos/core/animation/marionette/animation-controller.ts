@@ -14,7 +14,7 @@ export type {
 };
 
 @ccclass('cc.animation.AnimationController')
-@menu('Components/Animation/Animation Controller')
+@menu('Animation/Animation Controller')
 export class AnimationController extends Component {
     @property(AnimationGraph)
     public graph: AnimationGraphRunTime | null = null;

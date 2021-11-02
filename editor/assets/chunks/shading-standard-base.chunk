@@ -39,6 +39,32 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
   return specular * AB.x + AB.y;
 }
 
+#if USE_REFLECTION_DENOISE
+  vec3 GetEnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
+    #if CC_USE_IBL
+    	float mip = roughness * mipCount;
+    	float delta = (dot(dFdx(R), dFdy(R))) * 1000.0;
+    	float mipBias = mix(0.0, 5.0, clamp(delta, 0.0, 1.0));
+
+    	vec4 biased = fragTextureLod(cc_environment, R, mip + mipBias);
+     	vec4 filtered = texture(cc_environment, R);
+
+      #if CC_USE_IBL == IBL_RGBE
+      	biased.rgb = unpackRGBE(biased);
+      	filtered.rgb = unpackRGBE(filtered);
+      #else
+      	biased.rgb = SRGBToLinear(biased.rgb);
+      	filtered.rgb = SRGBToLinear(filtered.rgb);
+      #endif
+      	
+      return mix(biased.rgb, filtered.rgb, denoiseIntensity);
+    #else
+      return vec3(0.0, 0.0, 0.0);
+    #endif
+  }
+#endif
+
+
 struct StandardSurface {
   // albedo
   vec4 albedo;
@@ -113,12 +139,17 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #endif
 
     vec3 R = normalize(reflect(-V, N));
-    vec4 envmap = fragTextureLod(cc_environment, R, s.roughness * cc_ambientGround.w);
 
-    #if CC_USE_IBL == IBL_RGBE
-      vec3 env = unpackRGBE(envmap);
+    #if USE_REFLECTION_DENOISE
+      vec3 env = GetEnvReflectionWithMipFiltering(R, s.roughness, cc_ambientGround.w, 0.6);
     #else
-      vec3 env = SRGBToLinear(envmap.rgb);
+      vec4 envmap = fragTextureLod(cc_environment, R, s.roughness * cc_ambientGround.w);
+
+      #if CC_USE_IBL == IBL_RGBE
+        vec3 env = unpackRGBE(envmap);
+      #else
+        vec3 env = SRGBToLinear(envmap.rgb);
+      #endif
     #endif
 
     finalColor += env * cc_ambientSky.w * specular * s.occlusion;

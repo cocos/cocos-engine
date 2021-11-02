@@ -393,7 +393,7 @@ export class Camera extends Component {
 
     set rect (val) {
         this._rect = val;
-        if (this._camera) { this._camera.viewport = val; }
+        if (this._camera) { this._camera.setViewportInOrientedSpace(val); }
     }
 
     /**
@@ -543,7 +543,7 @@ export class Camera extends Component {
                 priority: this._priority,
             });
 
-            this._camera.viewport = this._rect;
+            this._camera.setViewportInOrientedSpace(this._rect);
             this._camera.fovAxis = this._fovAxis;
             this._camera.fov = toRadian(this._fov);
             this._camera.orthoHeight = this._orthoHeight;

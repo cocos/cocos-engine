@@ -120,6 +120,7 @@ export function getExtensions (gl: WebGLRenderingContext) {
         WEBGL_compressed_texture_astc: null,
         destroyShadersImmediately: true,
         noCompressedTexSubImage2D: false,
+        isLocationActive: (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc,
         useVAO: false,
     };
 
@@ -154,14 +155,25 @@ export function getExtensions (gl: WebGLRenderingContext) {
             res.destroyShadersImmediately = false;
         }
 
-        // compressedTexSubImage2D has always been problematic because the parameters differs slightly from GLES
-        if (WECHAT) { // and MANY platforms get it wrong
+        // compressedTexSubImage2D has always been problematic because the
+        // parameters differs slightly from GLES, and many platforms get it wrong
+        if (WECHAT) {
             res.noCompressedTexSubImage2D = true;
         }
 
-        if (res.OES_vertex_array_object) {
-            res.useVAO = true;
+        // getUniformLocation too [eyerolling]
+        if (WECHAT) {
+            // wEcHaT just returns { id: -1 } for inactive names
+            res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && (glLoc as { id: number }).id !== -1;
         }
+        if (ALIPAY) {
+            // aLiPaY just returns the location number directly on actual devices, and WebGLUniformLocation objects in simulators
+            res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && glLoc !== -1 || glLoc === 0;
+        }
+    }
+
+    if (res.OES_vertex_array_object) {
+        res.useVAO = true;
     }
 
     return res;

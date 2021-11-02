@@ -45,6 +45,7 @@ import { GlobalDSManager } from './global-descriptor-set-manager';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
+import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 
 /**
  * @en Render pipeline information descriptor
@@ -88,11 +89,6 @@ export class PipelineInputAssemblerData {
     quadIA: InputAssembler|null = null;
 }
 
-export interface IRenderPipelineCallback {
-    onPreRender(cam: Camera): void;
-    onPostRender(cam: Camera): void;
-}
-
 /**
  * @en Render pipeline describes how we handle the rendering process for all render objects in the related render scene root.
  * It contains some general pipeline configurations, necessary rendering resources and some [[RenderFlow]]s.
@@ -102,7 +98,7 @@ export interface IRenderPipelineCallback {
  * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[Camera]] 执行预设的渲染流程。
  */
 @ccclass('cc.RenderPipeline')
-export abstract class RenderPipeline extends Asset {
+export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     /**
      * @en The tag of pipeline.
      * @zh 管线的标签。
@@ -145,6 +141,7 @@ export abstract class RenderPipeline extends Asset {
     protected _quadVBOffscreen: Buffer | null = null;
     protected _quadIAOnscreen: InputAssembler | null = null;
     protected _quadIAOffscreen: InputAssembler | null = null;
+    protected _eventProcessor: PipelineEventProcessor = new PipelineEventProcessor();
 
     /**
      * @zh
@@ -160,29 +157,6 @@ export abstract class RenderPipeline extends Asset {
 
     public getPipelineRenderData (): PipelineRenderData {
         return this._pipelineRenderData!;
-    }
-
-    protected static _renderCallbacks: IRenderPipelineCallback[] = [];
-
-    /**
-     * @en Add render callback
-     * @zh 添加渲染回掉。
-     */
-    public static addRenderCallback (callback: IRenderPipelineCallback) {
-        RenderPipeline._renderCallbacks.push(callback);
-    }
-
-    /**
-     * @en Remove render callback
-     * @zh 移除渲染回掉。
-     */
-    public static removeRenderCallback (callback: IRenderPipelineCallback) {
-        for (let i = 0; i < RenderPipeline._renderCallbacks.length; ++i) {
-            if (RenderPipeline._renderCallbacks[i] === callback) {
-                RenderPipeline._renderCallbacks.slice(i);
-                break;
-            }
-        }
     }
 
     /**
@@ -325,9 +299,6 @@ export abstract class RenderPipeline extends Asset {
     }
 
     public applyFramebufferRatio (framebuffer: Framebuffer) {
-        if (!this.pipelineSceneData.isShadingScale) {
-            return;
-        }
         const sceneData = this.pipelineSceneData;
         const width = this._width * sceneData.shadingScale;
         const height = this._height * sceneData.shadingScale;
@@ -355,15 +326,12 @@ export abstract class RenderPipeline extends Asset {
     public generateRenderArea (camera: Camera, out?: Rect): Rect {
         const res = out || new Rect();
         const vp = camera.viewport;
-        const sceneData = this.pipelineSceneData;
-        // render area is not oriented
-        const swapchain = camera.window!.swapchain;
-        const w = swapchain && swapchain.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = swapchain && swapchain.surfaceTransform % 2 ? camera.width : camera.height;
+        const w = camera.window.width;
+        const h = camera.window.height;
         res.x = vp.x * w;
         res.y = vp.y * h;
-        res.width = vp.width * w * sceneData.shadingScale;
-        res.height = vp.height * h * sceneData.shadingScale;
+        res.width = vp.width * w;
+        res.height = vp.height * h;
         return res;
     }
 
@@ -372,6 +340,13 @@ export abstract class RenderPipeline extends Asset {
         const shadingScale = this.pipelineSceneData.shadingScale;
         const viewport = out || new Viewport(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
         return viewport;
+    }
+
+    public generateScissor (camera: Camera, out?: Rect): Rect {
+        const rect = this.generateRenderArea(camera);
+        const shadingScale = this.pipelineSceneData.shadingScale;
+        const scissor = out || new Rect(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
+        return scissor;
     }
 
     /**
@@ -411,21 +386,24 @@ export abstract class RenderPipeline extends Asset {
             return;
         }
         this._commandBuffers[0].begin();
+        this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
+                this.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
                 sceneCulling(this, camera);
-                this._pipelineUBO.updateGlobalUBO(camera.window!);
+                this._pipelineUBO.updateGlobalUBO(camera.window);
                 this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }
+                this.emit(PipelineEventType.RENDER_CAMERA_END, camera);
             }
         }
+        this.emit(PipelineEventType.RENDER_FRAME_END, cameras);
         this._commandBuffers[0].end();
         this._device.queue.submit(this._commandBuffers);
-        this.pipelineSceneData.isShadingScale = false;
     }
 
     /**
@@ -461,7 +439,7 @@ export abstract class RenderPipeline extends Asset {
 
     protected _destroyBloomData () {
         const bloom = this._pipelineRenderData!.bloom;
-        if (bloom === null || this.bloomEnabled === false) return;
+        if (bloom === null) return;
 
         if (bloom.prefiterTex) bloom.prefiterTex.destroy();
         if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
@@ -647,15 +625,15 @@ export abstract class RenderPipeline extends Asset {
         this._constantMacros = str;
     }
 
-    protected _generateBloomRenderData () {
-        if (this.bloomEnabled === false) return;
+    public generateBloomRenderData () {
+        if (this._pipelineRenderData!.bloom != null) return;
 
         const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
         const device = this.device;
 
         // create renderPass
         const colorAttachment = new ColorAttachment();
-        colorAttachment.format = Format.BGRA8;
+        colorAttachment.format = Format.RGBA8;
         colorAttachment.loadOp = LoadOp.CLEAR;
         colorAttachment.storeOp = StoreOp.STORE;
         colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -668,7 +646,7 @@ export abstract class RenderPipeline extends Asset {
         bloom.prefiterTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             curWidth >> 1,
             curHeight >> 1,
         ));
@@ -684,7 +662,7 @@ export abstract class RenderPipeline extends Asset {
             bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.BGRA8,
+                Format.RGBA8,
                 curWidth >> 1,
                 curHeight >> 1,
             )));
@@ -696,7 +674,7 @@ export abstract class RenderPipeline extends Asset {
             bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                Format.BGRA8,
+                Format.RGBA8,
                 curWidth,
                 curHeight,
             )));
@@ -713,7 +691,7 @@ export abstract class RenderPipeline extends Asset {
         bloom.combineTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             this._width,
             this._height,
         ));
@@ -723,15 +701,83 @@ export abstract class RenderPipeline extends Asset {
         ));
 
         // sampler
-        const samplerInfo = new SamplerInfo(
-            Filter.LINEAR,
-            Filter.LINEAR,
-            Filter.NONE,
-            Address.CLAMP,
-            Address.CLAMP,
-            Address.CLAMP,
-        );
-        bloom.sampler = device.getSampler(samplerInfo);
+        bloom.sampler = this.globalDSManager.linearSampler;
+    }
+
+    /**
+     * @en
+     * Register an callback of the pipeline event type on the RenderPipeline.
+     * @zh
+     * 在渲染管线中注册管线事件类型的回调。
+     */
+    public on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback {
+        return this._eventProcessor.on(type, callback, target, once);
+    }
+
+    /**
+     * @en
+     * Register an callback of the pipeline event type on the RenderPipeline,
+     * the callback will remove itself after the first time it is triggered.
+     * @zh
+     * 在渲染管线中注册管线事件类型的回调, 回调后会在第一时间删除自身。
+     */
+    public once (type: PipelineEventType, callback: any, target?: any): typeof callback {
+        return this._eventProcessor.once(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Removes the listeners previously registered with the same type, callback, target and or useCapture,
+     * if only type is passed as parameter, all listeners registered with that type will be removed.
+     * @zh
+     * 删除之前用同类型、回调、目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
+     */
+    public off (type: PipelineEventType, callback?: any, target?: any) {
+        this._eventProcessor.off(type, callback, target);
+    }
+
+    /**
+     * @zh 派发一个指定事件，并传递需要的参数
+     * @en Trigger an event directly with the event name and necessary arguments.
+     * @param type - event type
+     * @param args - Arguments when the event triggered
+     */
+    public emit (type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+        this._eventProcessor.emit(type, arg0, arg1, arg2, arg3, arg4);
+    }
+
+    /**
+     * @en Removes all callbacks previously registered with the same target (passed as parameter).
+     * This is not for removing all listeners in the current event target,
+     * and this is not for removing all listeners the target parameter have registered.
+     * It's only for removing all listeners (callback and target couple) registered on the current event target by the target parameter.
+     * @zh 在当前 EventTarget 上删除指定目标（target 参数）注册的所有事件监听器。
+     * 这个函数无法删除当前 EventTarget 的所有事件监听器，也无法删除 target 参数所注册的所有事件监听器。
+     * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
+     * @param typeOrTarget - The target to be searched for all related listeners
+     */
+    public targetOff (typeOrTarget: any) {
+        this._eventProcessor.targetOff(typeOrTarget);
+    }
+
+    /**
+     * @zh 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
+     * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
+     * @param typeOrTarget - The event type or target with which the listeners will be removed
+     */
+    public removeAll (typeOrTarget: any) {
+        this._eventProcessor.removeAll(typeOrTarget);
+    }
+
+    /**
+     * @zh 检查指定事件是否已注册回调。
+     * @en Checks whether there is correspond event listener registered on the given event.
+     * @param type - Event type.
+     * @param callback - Callback function when event triggered.
+     * @param target - Callback callee.
+     */
+    public hasEventListener (type: PipelineEventType, callback?: any, target?: any): boolean {
+        return this._eventProcessor.hasEventListener(type, callback, target);
     }
 }
 

@@ -50,7 +50,7 @@ import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCBoolean, CCFloat, CCInteger, Node, RenderPipeline } from '../core';
+import { CCBoolean, CCFloat, CCInteger, Node, PipelineEventType, RenderPipeline } from '../core';
 
 /**
  * @en Terrain info
@@ -331,10 +331,9 @@ export class TerrainBlock {
         this._index[1] = j;
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
-        this._node = new Node();
+        this._node = new Node('TerrainBlock');
         this._node.setParent(this._terrain.node);
         this._node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-
         this._node.layer = this._terrain.node.layer;
 
         this._renderable = this._node.addComponent(TerrainRenderable);
@@ -386,11 +385,13 @@ export class TerrainBlock {
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
             PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
-
-        const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        model.createBoundingShape(this._bbMin, this._bbMax);
-        model.node = model.transform = this._node;
-        this._renderable._getRenderScene().addModel(model);
+        this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
+        this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
+        this._renderable._model.node = this._renderable._model.transform = this._node;
+        // ensure the terrain node is in the scene
+        if (this._renderable.node.scene != null) {
+            this._renderable._getRenderScene().addModel(this._renderable._model);
+        }
 
         // reset weightmap
         this._updateWeightMap();
@@ -416,7 +417,7 @@ export class TerrainBlock {
     public destroy () {
         this._renderable._destroyModel();
 
-        if (this._node != null) {
+        if (this._node != null && this._node.isValid) {
             this._node.destroy();
         }
         if (this._weightMap != null) {
@@ -667,11 +668,13 @@ export class TerrainBlock {
      * @en 地形块的可见性
      * @zh block visible
      */
-     set visible (val) {
+    set visible (val) {
         if (this._renderable._model !== null) {
             if (val) {
-                if (this._renderable._model.scene == null) {
-                    this._terrain._getRenderScene().addModel(this._renderable._model);
+                if (this._terrain.node != null
+                    && this._terrain.node.scene != null
+                    && this._terrain.node.scene.renderScene != null) {
+                    this._terrain.node.scene.renderScene.addModel(this._renderable._model);
                 }
             } else if (this._renderable._model.scene !== null) {
                 this._renderable._model.scene.removeModel(this._renderable._model);
@@ -1133,8 +1136,11 @@ export class Terrain extends Component {
                 this._blocks = [];
             }
 
-            // rebuild
-            this._buildImp();
+             // Ensure device is created
+             if (legacyCC.director.root.device) {
+                // rebuild
+                this._buildImp();
+            }
         }
     }
 
@@ -1485,19 +1491,6 @@ export class Terrain extends Component {
         return this._effectAsset;
     }
 
-    public onLoad () {
-        const gfxDevice = legacyCC.director.root.device as Device;
-
-        // initialize shared index buffer
-        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-        this._sharedIndexBuffer.update(this._lod._indexBuffer);
-    }
-
     public onEnable () {
         if (this._blocks.length === 0) {
             this._buildImp();
@@ -1507,15 +1500,11 @@ export class Terrain extends Component {
             this._blocks[i].visible = true;
         }
 
-        if (!JSB) {
-            RenderPipeline.addRenderCallback(this);
-        }
+        legacyCC.director.root.pipeline.on(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
     }
 
     public onDisable () {
-        if (!JSB) {
-            RenderPipeline.removeRenderCallback(this);
-        }
+        legacyCC.director.root.pipeline.off(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
 
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].visible = false;
@@ -1539,7 +1528,6 @@ export class Terrain extends Component {
 
     public onRestore () {
         this.onDisable();
-        this.onLoad();
         this._buildImp(true);
     }
 
@@ -1549,7 +1537,7 @@ export class Terrain extends Component {
         }
     }
 
-    public onPreRender (cam: Camera): void {
+    public onUpdateFromCamera (cam: Camera): void {
         if (!this.LodEnable) {
             return;
         }
@@ -1565,8 +1553,6 @@ export class Terrain extends Component {
             this._blocks[i]._updateLod();
         }
     }
-
-    public onPostRender (cam: Camera): void {}
 
     /**
      * @en add layer
@@ -2010,6 +1996,18 @@ export class Terrain extends Component {
     }
 
     public _getSharedIndexBuffer () {
+        if (this._sharedIndexBuffer == null) {
+            // initialize shared index buffer
+            const gfxDevice = legacyCC.director.root.device as Device;
+            this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            this._sharedIndexBuffer.update(this._lod._indexBuffer);
+        }
+
         return this._sharedIndexBuffer;
     }
 

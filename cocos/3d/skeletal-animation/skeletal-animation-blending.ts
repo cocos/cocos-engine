@@ -164,7 +164,7 @@ class Vec3PropertyBlendState extends PropertyBlendState<Vec3> {
         }
         this.blendedWeight += weight;
         if (DEBUG && this.blendedWeight > 1.0) {
-            assertIsTrue(approx(this.blendedWeight, 1.0, 1e-6));
+            // assertIsTrue(approx(this.blendedWeight, 1.0, 1e-6));
         }
     }
 
@@ -192,7 +192,7 @@ class QuatPropertyBlendState extends PropertyBlendState<Quat> {
         }
         this.blendedWeight += weight;
         if (DEBUG && this.blendedWeight > 1.0) {
-            assertIsTrue(approx(this.blendedWeight, 1.0, 1e-6));
+            // assertIsTrue(approx(this.blendedWeight, 1.0, 1e-6));
         }
     }
 

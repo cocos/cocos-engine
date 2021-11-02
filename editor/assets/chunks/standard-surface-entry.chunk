@@ -22,7 +22,7 @@
     #else                                                          \
     vec4 color = CCStandardShadingAdditive(s, CC_SHADOW_POSITION); \
     #endif                                                         \
-    CC_APPLY_FOG(color);                                           \
+    CC_APPLY_FOG(color, s.position.xyz);                           \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \
@@ -33,7 +33,7 @@
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);     \
-    CC_APPLY_FOG(color);                                           \
+    CC_APPLY_FOG(color, s.position.xyz);                           \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \

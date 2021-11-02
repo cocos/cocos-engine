@@ -43,17 +43,9 @@ import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { CommonPipelineSceneData } from '../common/common-pipeline-scene-data';
+import { PipelineEventType } from '../pipeline-event';
 
 const PIPELINE_TYPE = 0;
-
-const _samplerInfo = new SamplerInfo(
-    Filter.POINT,
-    Filter.POINT,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-);
 
 /**
  * @en The forward render pipeline
@@ -110,7 +102,7 @@ export class ForwardPipeline extends RenderPipeline {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
-            const window = cameras[i].window!;
+            const window = cameras[i].window;
             newWidth = Math.max(window.width, newWidth);
             newHeight = Math.max(window.height, newHeight);
         }
@@ -159,7 +151,7 @@ export class ForwardPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const shadowMapSampler = device.getSampler(_samplerInfo);
+        const shadowMapSampler = this.globalDSManager.pointSampler;
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
         this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
@@ -183,14 +175,14 @@ export class ForwardPipeline extends RenderPipeline {
 
         if (!this._postRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.BGRA8;
+            colorAttachment.format = swapchain.colorTexture.format;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_READ];
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = Format.DEPTH_STENCIL;
+            depthStencilAttachment.format = swapchain.depthStencilTexture.format;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.depthStoreOp = StoreOp.STORE;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
@@ -217,7 +209,7 @@ export class ForwardPipeline extends RenderPipeline {
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.BGRA8,
+            Format.RGBA8,
             this._width,
             this._height,
         )));
@@ -234,9 +226,12 @@ export class ForwardPipeline extends RenderPipeline {
             data.outputRenderTargets,
             data.outputDepth,
         ));
-        data.sampler = device.getSampler(_samplerInfo);
-
-        this._generateBloomRenderData();
+        // Listens when the attachment texture is scaled
+        this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, (val: number) => {
+            data.sampler = val < 1 ? this.globalDSManager.pointSampler : this.globalDSManager.linearSampler;
+            this.applyFramebufferRatio(data.outputFrameBuffer);
+        });
+        data.sampler = this.globalDSManager.linearSampler;
     }
 
     private _destroyUBOs () {

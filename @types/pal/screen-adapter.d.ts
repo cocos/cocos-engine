@@ -6,14 +6,17 @@ declare module 'pal/screen-adapter' {
         right: number;
     }
 
+    export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+
     class ScreenAdapter {
         /**
          * Init the callback to rebuild frame buffer when update the resolution.
          * This method will also init the resolution.
          * This method should be called when the engine director.root is initiated.
+         * @param configOrientation The orientation from the builder configuration
          * @param cbToRebuildFrameBuffer
          */
-        public init (cbToRebuildFrameBuffer: () => void);
+        public init (configOrientation: ConfigOrientation, cbToRebuildFrameBuffer: () => void);
         /**
          * On web mobile platform, sometimes we need to rotate the game frame.
          * This field record the rotate state of game frame, which is false by default.

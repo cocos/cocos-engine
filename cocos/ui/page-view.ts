@@ -292,6 +292,7 @@ export class PageView extends ScrollView {
      */
     @serializable
     @editable
+    @tooltip('i18n:pageview.pageTurningSpeed')
     public pageTurningSpeed = 0.3;
 
     /**

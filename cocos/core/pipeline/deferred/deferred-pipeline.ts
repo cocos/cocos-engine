@@ -35,26 +35,17 @@ import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputA
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { Format, StoreOp, Filter, Address,
+import { Format, StoreOp,
     ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, Texture, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, SamplerInfo } from '../../gfx';
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
-import { sceneCulling } from '../scene-culling';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
+import { PipelineEventType } from '../pipeline-event';
 
 const PIPELINE_TYPE = 1;
-
-const _samplerInfo = new SamplerInfo(
-    Filter.POINT,
-    Filter.POINT,
-    Filter.NONE,
-    Address.CLAMP,
-    Address.CLAMP,
-    Address.CLAMP,
-);
 
 export class DeferredRenderData extends PipelineRenderData {
     gbufferFrameBuffer: Framebuffer = null!;
@@ -142,7 +133,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         this._commandBuffers.push(device.commandBuffer);
 
-        const sampler = device.getSampler(_samplerInfo);
+        const sampler = this.globalDSManager.pointSampler;
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, sampler);
         this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, sampler);
@@ -263,7 +254,7 @@ export class DeferredPipeline extends RenderPipeline {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
-            const window = cameras[i].window!;
+            const window = cameras[i].window;
             newWidth = Math.max(window.width, newWidth);
             newHeight = Math.max(window.height, newHeight);
         }
@@ -302,7 +293,6 @@ export class DeferredPipeline extends RenderPipeline {
             data.gbufferRenderTargets,
             data.outputDepth,
         ));
-
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
@@ -316,9 +306,12 @@ export class DeferredPipeline extends RenderPipeline {
             data.outputRenderTargets,
             data.outputDepth,
         ));
-
-        data.sampler = device.getSampler(_samplerInfo);
-
-        this._generateBloomRenderData();
+        // Listens when the attachment texture is scaled
+        this.on(PipelineEventType.ATTACHMENT_SCALE_CAHNGED, (val: number) => {
+            data.sampler = val < 1 ? this.globalDSManager.pointSampler : this.globalDSManager.linearSampler;
+            this.applyFramebufferRatio(data.gbufferFrameBuffer);
+            this.applyFramebufferRatio(data.outputFrameBuffer);
+        });
+        data.sampler = this.globalDSManager.linearSampler;
     }
 }

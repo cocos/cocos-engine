@@ -150,6 +150,7 @@ export type NaitveSkybox = InstanceType<typeof NaitveSkybox>;
 export const NativeFog: Constructor<{
     type: number;
     enabled: boolean;
+    accurate: boolean;
     color: Color;
     density: number;
     start: number;

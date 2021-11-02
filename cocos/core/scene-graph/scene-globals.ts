@@ -43,11 +43,11 @@ const _qt = new Quat();
 
 // Normalize HDR color
 const normalizeHDRColor = (color : Vec4) => {
-    const intensity = 1.0 / Math.max(Math.max(color[0], color[1]), color[2]);
+    const intensity = 1.0 / Math.max(Math.max(Math.max(color.x, color.y), color.z), 0.0001);
     if (intensity < 1.0) {
-        for (let i = 0; i < 3; ++i) {
-            color[i] *= intensity;
-        }
+        color.x *= intensity;
+        color.y *= intensity;
+        color.z *= intensity;
     }
 };
 /**
@@ -75,11 +75,11 @@ export class AmbientInfo {
 
     protected _resource: Ambient | null = null;
 
-    get skyColorHDR () {
+    get skyColorHDR () : Readonly<Vec4> {
         return this._skyColorHDR;
     }
 
-    get groundAlbedoHDR () {
+    get groundAlbedoHDR () : Readonly<Vec4> {
         return this._groundAlbedoHDR;
     }
 
@@ -87,11 +87,11 @@ export class AmbientInfo {
         return this._skyIllumHDR;
     }
 
-    get skyColorLDR () {
+    get skyColorLDR () : Readonly<Vec4> {
         return this._skyColorLDR;
     }
 
-    get groundAlbedoLDR () {
+    get groundAlbedoLDR () : Readonly<Vec4> {
         return this._groundAlbedoLDR;
     }
 
@@ -103,6 +103,15 @@ export class AmbientInfo {
      * @en Sky lighting color configurable in editor with color picker
      * @zh 编辑器中可配置的天空光照颜色（通过颜色拾取器）
      */
+    @visible(() => {
+        const scene = legacyCC.director.getScene();
+        const skybox = scene.globals.skybox;
+        if (skybox.useIBL && skybox.applyDiffuseMap) {
+            return false;
+        } else {
+            return true;
+        }
+    })
     @editable
     set skyLightingColor (val: Color) {
         let result;
@@ -159,6 +168,15 @@ export class AmbientInfo {
      * @en Ground lighting color configurable in editor with color picker
      * @zh 编辑器中可配置的地面光照颜色（通过颜色拾取器）
      */
+    @visible(() => {
+        const scene = legacyCC.director.getScene();
+        const skybox = scene.globals.skybox;
+        if (skybox.useIBL && skybox.applyDiffuseMap) {
+            return false;
+        } else {
+            return true;
+        }
+    })
     @editable
     set groundLightingColor (val: Color) {
         let result;
@@ -411,6 +429,8 @@ export class FogInfo {
     protected _fogTop = 1.5;
     @serializable
     protected _fogRange = 1.2;
+    @serializable
+    protected _accurate = false;
     protected _resource: Fog | null = null;
     /**
      * @zh 是否启用全局雾效
@@ -433,6 +453,26 @@ export class FogInfo {
     }
 
     /**
+     * @zh 是否启用精确雾效(像素雾)计算
+     * @en Enable accurate fog (pixel fog)
+     */
+    @editable
+    set accurate (val: boolean) {
+        if (this._accurate === val) return;
+        this._accurate = val;
+        if (this._resource) {
+            this._resource.accurate = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
+    }
+
+    get accurate () {
+        return this._accurate;
+    }
+
+    /**
      * @zh 全局雾颜色
      * @en Global fog color
      */
@@ -442,7 +482,7 @@ export class FogInfo {
         if (this._resource) { this._resource.fogColor = this._fogColor; }
     }
 
-    get fogColor () {
+    get fogColor () : Readonly<Color> {
         return this._fogColor;
     }
 
@@ -483,10 +523,10 @@ export class FogInfo {
     }
 
     /**
-     * @zh 雾效起始位置，只适用于线性雾
-     * @en Global fog start position, only for linear fog
+     * @zh 雾效起始位置
+     * @en Global fog start position
      */
-    @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
+    @visible(function (this: FogInfo) { return this._type !== FogType.LAYERED; })
     @type(CCFloat)
     @rangeStep(0.01)
     @displayOrder(4)
@@ -658,7 +698,7 @@ export class ShadowsInfo {
         this._shadowColor.set(val);
         if (this._resource) { this._resource.shadowColor = val; }
     }
-    get shadowColor () {
+    get shadowColor () : Readonly<Color> {
         return this._shadowColor;
     }
 
@@ -671,7 +711,7 @@ export class ShadowsInfo {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
     }
-    get normal () {
+    get normal () : Readonly<Vec3> {
         return this._normal;
     }
 
@@ -783,7 +823,7 @@ export class ShadowsInfo {
     get shadowMapSize () {
         return this._size.x;
     }
-    get size () {
+    get size () : Readonly<Vec2> {
         return this._size;
     }
 

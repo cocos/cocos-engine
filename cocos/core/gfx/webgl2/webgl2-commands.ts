@@ -1273,7 +1273,10 @@ export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: I
 export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebuffer: IWebGL2GPUFramebuffer) {
     for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
         const tex = gpuFramebuffer.gpuColorTextures[i];
-        if (tex.isSwapchainTexture) return;
+        if (tex.isSwapchainTexture) {
+            gpuFramebuffer.isOffscreen = false;
+            return;
+        }
     }
 
     const { gl } = device;
@@ -1308,6 +1311,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                 }
 
                 attachments.push(gl.COLOR_ATTACHMENT0 + i);
+                gpuFramebuffer.width = Math.min(gpuFramebuffer.width, colorTexture.width);
+                gpuFramebuffer.height = Math.min(gpuFramebuffer.height, colorTexture.height);
             }
         }
 
@@ -1330,6 +1335,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                     dst.glRenderbuffer,
                 );
             }
+            gpuFramebuffer.width = Math.min(gpuFramebuffer.width, dst.width);
+            gpuFramebuffer.height = Math.min(gpuFramebuffer.height, dst.height);
         }
 
         gl.drawBuffers(attachments);
@@ -1744,16 +1751,16 @@ export function WebGL2CmdFuncBeginRenderPass (
             cache.viewport.height = renderArea.height;
         }
 
-        if (cache.scissorRect.x !== renderArea.x
-            || cache.scissorRect.y !== renderArea.y
-            || cache.scissorRect.width !== renderArea.width
-            || cache.scissorRect.height !== renderArea.height) {
-            gl.scissor(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+        if (cache.scissorRect.x !== 0
+            || cache.scissorRect.y !== 0
+            || cache.scissorRect.width !== gpuFramebuffer.width
+            || cache.scissorRect.height !== gpuFramebuffer.height) {
+            gl.scissor(0, 0, gpuFramebuffer.width, gpuFramebuffer.height);
 
-            cache.scissorRect.x = renderArea.x;
-            cache.scissorRect.y = renderArea.y;
-            cache.scissorRect.width = renderArea.width;
-            cache.scissorRect.height = renderArea.height;
+            cache.scissorRect.x = 0;
+            cache.scissorRect.y = 0;
+            cache.scissorRect.width = gpuFramebuffer.width;
+            cache.scissorRect.height = gpuFramebuffer.height;
         }
 
         gfxStateCache.invalidateAttachments.length = 0;
@@ -2429,7 +2436,7 @@ export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
                     }
                 } else {
                     for (let j = 0; j < indirects.drawCount; j++) {
-                        if (indirects.instances[j] > 1) {
+                        if (indirects.instances[j]) {
                             gl.drawElementsInstanced(glPrimitive, indirects.counts[j],
                                 gpuInputAssembler.glIndexType, indirects.byteOffsets[j], indirects.instances[j]);
                         } else {
@@ -2452,7 +2459,7 @@ export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
                 }
             } else {
                 for (let j = 0; j < indirects.drawCount; j++) {
-                    if (indirects.instances[j] > 1) {
+                    if (indirects.instances[j]) {
                         gl.drawArraysInstanced(glPrimitive, indirects.offsets[j], indirects.counts[j], indirects.instances[j]);
                     } else {
                         gl.drawArrays(glPrimitive, indirects.offsets[j], indirects.counts[j]);
