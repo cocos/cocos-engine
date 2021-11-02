@@ -251,14 +251,14 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
     private doUpdateScale (pass) {
         switch (this._particleSystem.scaleSpace) {
-            case Space.Local:
-                this._particleSystem.node.getScale(this._node_scale);
-                break;
-            case Space.World:
-                this._particleSystem.node.getWorldScale(this._node_scale);
-                break;
-            default:
-                break;
+        case Space.Local:
+            this._particleSystem.node.getScale(this._node_scale);
+            break;
+        case Space.World:
+            this._particleSystem.node.getWorldScale(this._node_scale);
+            break;
+        default:
+            break;
         }
         pass.setUniform(pass.getHandle('scale'), this._node_scale);
     }
@@ -354,7 +354,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             if (this._velocityTexture) this._velocityTexture.destroy();
-            this._velocityTexture = packCurveRangeXYZW(_sample_num, velocityModule.x, velocityModule.y, velocityModule.z, velocityModule.speedModifier);
+            this._velocityTexture = packCurveRangeXYZW(_sample_num, velocityModule.x, velocityModule.y,
+                velocityModule.z, velocityModule.speedModifier);
             const handle = pass.getHandle('velocity_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle);
             pass.bindSampler(binding, this._velocityTexture.getGFXSampler()!);
