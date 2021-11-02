@@ -248,13 +248,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public updateRotation () {
         const ps = this._particleSystem;
         if (!ps) {
-            return this._particles!.length;
+            return;
         }
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
 
         this.doUpdateRotation(pass);
-        return this._particles!.length;
     }
 
     private doUpdateRotation (pass) {
@@ -286,12 +285,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public updateScale () {
         const ps = this._particleSystem;
         if (!ps) {
-            return this._particles!.length;
+            return;
         }
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         this.doUpdateScale(pass);
-        return this._particles!.length;
     }
 
     private doUpdateScale (pass) {
