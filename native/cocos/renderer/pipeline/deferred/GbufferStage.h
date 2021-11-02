@@ -63,7 +63,6 @@ private:
     PlanarShadowQueue *    _planarShadowQueue = nullptr;
     RenderBatchedQueue *   _batchedQueue      = nullptr;
     RenderInstancedQueue * _instancedQueue    = nullptr;
-    gfx::Rect              _renderArea;
     uint                   _phaseID = 0;
 };
 

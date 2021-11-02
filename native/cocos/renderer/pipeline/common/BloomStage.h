@@ -67,7 +67,6 @@ public:
     }
 
 private:
-    gfx::Rect _renderArea;
     uint      _phaseID = 0;
 
     static RenderStageInfo initInfo;

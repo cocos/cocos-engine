@@ -150,10 +150,6 @@ void GbufferStage::render(scene::Camera *camera) {
     float  shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
     _renderArea = RenderPipeline::getRenderArea(camera);
 
-    // render area is not oriented, copy buffer must be called outsize of RenderPass, it should not be called in execute lambda expression
-    // If there are only transparent object, lighting pass is ignored, we should call getIAByRenderArea here
-    pipeline->getIAByRenderArea(_renderArea);
-
     auto gbufferSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         builder.subpass();
 

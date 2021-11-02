@@ -46,7 +46,6 @@ public:
     void render(scene::Camera *camera) override;
 
 private:
-    gfx::Rect _renderArea;
     UIPhase * _uiPhase = nullptr;
     uint      _phaseID = 0;
 

@@ -330,6 +330,8 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
     auto *     pipeline   = static_cast<DeferredPipeline *>(_pipeline);
     gfx::Color clearColor = pipeline->getClearcolor(camera);
     float      shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
+    _renderArea      = RenderPipeline::getRenderArea(camera);
+    _inputAssembler    = pipeline->getIAByRenderArea(_renderArea);
     auto lightingSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         builder.subpass(true);
 
@@ -395,12 +397,9 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         const std::array<uint, 1> globalOffsets = {_pipeline->getPipelineUBO()->getCurrentCameraUBOOffset()};
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet(), utils::toUint(globalOffsets.size()), globalOffsets.data());
         // get PSO and draw quad
-        auto rendeArea = RenderPipeline::getRenderArea(camera);
-
         scene::Pass *        pass           = sceneData->getSharedData()->deferredLightPass;
         gfx::Shader *        shader         = sceneData->getSharedData()->deferredLightPassShader;
-        gfx::InputAssembler *inputAssembler = pipeline->getIAByRenderArea(rendeArea);
-        gfx::PipelineState * pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, table.getRenderPass(), table.getSubpassIndex());
+        gfx::PipelineState * pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, _inputAssembler, table.getRenderPass(), table.getSubpassIndex());
 
         for (uint i = 0; i < DeferredPipeline::GBUFFER_COUNT; ++i) {
             pass->getDescriptorSet()->bindTexture(i, table.getRead(data.gbuffer[i]));
@@ -417,10 +416,10 @@ void LightingStage::fgLightingPass(scene::Camera *camera) {
         pass->getDescriptorSet()->update();
 
         cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindInputAssembler(inputAssembler);
+        cmdBuff->bindInputAssembler(_inputAssembler);
         cmdBuff->bindDescriptorSet(globalSet, pipeline->getDescriptorSet());
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-        cmdBuff->draw(inputAssembler);
+        cmdBuff->draw(_inputAssembler);
     };
 
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(DeferredInsertPoint::DIP_LIGHTING), DeferredPipeline::fgStrHandleLightingPass, lightingSetup, lightingExec);

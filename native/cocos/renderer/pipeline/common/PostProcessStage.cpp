@@ -109,7 +109,8 @@ void PostProcessStage::render(scene::Camera *camera) {
         _clearColors[0].z = camera->clearColor.z;
     }
     _clearColors[0].w = camera->clearColor.w;
-
+    _renderArea       = RenderPipeline::getRenderArea(camera);
+    _inputAssembler   = _pipeline->getIAByRenderArea(_renderArea);
     auto *pipeline = _pipeline;
     float shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
     auto  postSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
@@ -157,6 +158,9 @@ void PostProcessStage::render(scene::Camera *camera) {
             static_cast<uint>(camera->window->getWidth() * shadingScale),
             static_cast<uint>(camera->window->getHeight() * shadingScale),
         };
+        if (shadingScale != 1.F) {
+            textureInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
+        }
         data.backBuffer = builder.create(fgStrHandlePostProcessOutTexture, textureInfo);
         data.backBuffer = builder.write(data.backBuffer, colorAttachmentInfo);
         builder.writeToBlackboard(fgStrHandlePostProcessOutTexture, data.backBuffer);
@@ -200,8 +204,7 @@ void PostProcessStage::render(scene::Camera *camera) {
             gfx::Shader *sd        = sceneData->getSharedData()->pipelinePostPassShader;
             float        shadingScale{sceneData->getSharedData()->shadingScale};
             // get pso and draw quad
-            gfx::InputAssembler *      ia       = pipeline->getIAByRenderArea(RenderPipeline::getRenderArea(camera));
-            gfx::PipelineState *       pso      = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, renderPass);
+            gfx::PipelineState *       pso      = PipelineStateManager::getOrCreatePipelineState(pv, sd, _inputAssembler, renderPass);
             pipeline::GlobalDSManager *globalDS = pipeline->getGlobalDSManager();
             gfx::Sampler *             sampler  = shadingScale < 1.F ? globalDS->getPointSampler() : globalDS->getLinearSampler();
 
@@ -211,8 +214,8 @@ void PostProcessStage::render(scene::Camera *camera) {
 
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pv->getDescriptorSet());
-            cmdBuff->bindInputAssembler(ia);
-            cmdBuff->draw(ia);
+            cmdBuff->bindInputAssembler(_inputAssembler);
+            cmdBuff->draw(_inputAssembler);
         }
 
         _uiPhase->render(camera, renderPass);
