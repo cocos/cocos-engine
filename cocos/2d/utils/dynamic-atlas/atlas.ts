@@ -153,7 +153,7 @@ export class Atlas {
 
     /**
      * @en
-     * Resets the dynamic atlas.
+     * Reset the dynamic atlas.
      *
      * @zh
      * 重置该动态图集。
@@ -179,7 +179,7 @@ export class Atlas {
 
     /**
      * @en
-     * Resets the dynamic atlas, and destroy the texture of the atlas.
+     * Reset the dynamic atlas, and destroy the texture of the atlas.
      *
      * @zh
      * 重置该动态图集，并销毁该图集的纹理。
@@ -195,7 +195,7 @@ export class Atlas {
 export class DynamicAtlasTexture extends Texture2D {
     /**
      * @en
-     * Initialize the render texture with size.
+     * Initialize the render texture.
      *
      * @zh
      * 初始化 render texture。
@@ -212,7 +212,7 @@ export class DynamicAtlasTexture extends Texture2D {
 
     /**
      * @en
-     * Draw a texture to the specified position
+     * Draw a texture to the specified position.
      *
      * @zh
      * 将指定的图片渲染到指定的位置上。

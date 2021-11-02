@@ -46,7 +46,7 @@ export class DynamicAtlasManager {
 
     /**
      * @en
-     * The maximum number of atlas that can be created.
+     * The maximum number of atlases that can be created.
      *
      * @zh
      * 可以创建的最大图集数量。
@@ -71,7 +71,7 @@ export class DynamicAtlasManager {
 
     /**
      * @en
-     * Has enabled textureBleeding.
+     * Whether to enable textureBleeding.
      *
      * @zh
      * 是否开启 textureBleeding。
@@ -85,7 +85,7 @@ export class DynamicAtlasManager {
 
     /**
      * @en
-     * The size of the atlas that was created.
+     * The size of the created atlas.
      *
      * @zh
      * 创建的图集的宽高。
@@ -156,7 +156,7 @@ export class DynamicAtlasManager {
 
     /**
      * @en
-     * Resets all dynamic atlas, and the existing ones will be destroyed.
+     * Reset all dynamic atlases, and all existing ones will be destroyed.
      *
      * @zh
      * 重置所有动态图集，已有的动态图集会被销毁。
