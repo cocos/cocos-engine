@@ -1,5 +1,5 @@
 import { Node } from '../../scene-graph';
-import { SkeletonMask } from '../skeleton-mask';
+import { AnimationMask } from './animation-mask';
 import { createEval } from './create-eval';
 import type { BindContext } from './parametric';
 import type { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
@@ -10,7 +10,7 @@ export interface MotionEvalContext extends BindContext {
 
     blendBuffer: BlendStateBuffer;
 
-    mask?: SkeletonMask;
+    mask?: AnimationMask;
 }
 
 export interface MotionEval {

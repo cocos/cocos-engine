@@ -11,7 +11,7 @@ import { InvalidTransitionError } from './errors';
 import { createEval } from './create-eval';
 import { MotionState } from './motion-state';
 import { State, outgoingsSymbol, incomingsSymbol, InteractiveState } from './state';
-import { SkeletonMask } from '../skeleton-mask';
+import { AnimationMask } from './animation-mask';
 import { EditorExtendable } from '../../data/editor-extendable';
 import { array } from '../../utils/js';
 import { move } from '../../algorithm/move';
@@ -476,7 +476,7 @@ export class Layer implements OwnedBy<AnimationGraph> {
     public weight = 1.0;
 
     @serializable
-    public mask: SkeletonMask | null = null;
+    public mask: AnimationMask | null = null;
 
     @serializable
     public blending: LayerBlending = LayerBlending.additive;

@@ -9,7 +9,7 @@ import { BindContext, bindOr, VariableType } from './parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { MotionState } from './motion-state';
-import { SkeletonMask } from '../skeleton-mask';
+import { AnimationMask } from './animation-mask';
 import { debug, warnID } from '../../platform/debug';
 import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
@@ -156,7 +156,7 @@ interface LayerContext extends BindContext {
     /**
      * The mask applied to this layer.
      */
-    mask?: SkeletonMask;
+    mask?: AnimationMask;
 
     /**
      * TODO: A little hacky.

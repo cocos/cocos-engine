@@ -52,6 +52,7 @@ import { ObjectTrack } from './tracks/object-track';
 import type { ExoticAnimation } from './exotic-animation/exotic-animation';
 import './exotic-animation/exotic-animation';
 import { array } from '../utils/js';
+import type { AnimationMask } from './marionette/animation-mask';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -309,6 +310,10 @@ export class AnimationClip extends Asset {
         } = context;
 
         const binder: Binder = (binding: TrackBinding) => {
+            if (context.mask && binding.isMaskedOff(context.mask)) {
+                return undefined;
+            }
+
             const trackTarget = binding.createRuntimeBinding(
                 target,
                 this.enableTrsBlending ? context.pose : undefined,
@@ -802,6 +807,11 @@ interface AnimationClipEvalContext {
      * The root animating target(should be scene node now).
      */
     target: unknown;
+
+    /**
+     * The animation mask applied.
+     */
+    mask?: AnimationMask;
 
     /**
      * Path to the root bone.

@@ -36,7 +36,7 @@ class ClipMotionEval implements MotionEval {
     constructor (context: MotionEvalContext, clip: AnimationClip) {
         this.duration = clip.duration;
         this._state = new AnimationState(clip);
-        this._state.initialize(context.node, context.blendBuffer);
+        this._state.initialize(context.node, context.blendBuffer, context.mask);
     }
 
     public getClipStatuses (baseWeight: number): Iterator<ClipStatus, any, undefined> {
