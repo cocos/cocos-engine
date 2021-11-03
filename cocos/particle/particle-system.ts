@@ -442,7 +442,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     set dataCulling (value: boolean) {
-        this.dataCulling = value;
+        this._dataCulling = value;
     }
 
     @serializable
