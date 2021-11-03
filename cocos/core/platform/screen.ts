@@ -29,7 +29,7 @@
  * @module core
  */
 
-import { ConfigOrientation, screenAdapter } from 'pal/screen-adapter';
+import { ConfigOrientation, IScreenOptions, screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Size, Vec2 } from '../math';
 import { warnID } from './debug';
@@ -39,8 +39,8 @@ import { warnID } from './debug';
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
 class Screen {
-    private _init (configOrientation: ConfigOrientation) {
-        screenAdapter.init(configOrientation, () => {
+    private _init (options: IScreenOptions) {
+        screenAdapter.init(options, () => {
             const director = legacyCC.director;
             if (!director.root?.pipeline) {
                 warnID(1220);

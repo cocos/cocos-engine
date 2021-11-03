@@ -626,6 +626,7 @@ module.exports = {
         aabbHalfX: 'Half width of the emitter bounding box',
         aabbHalfY: 'Half height of the emitter bounding box',
         aabbHalfZ: 'Half length of the emitter bounding box',
+        dataCulling: 'Cull disabled data if true',
     },
     mask: {
         type: 'The mask type',
@@ -738,7 +739,7 @@ module.exports = {
         },
         gpu_driven: {
             label: "GPU Driven",
-            description: "Whether to enable GPU-driven solutions (only works for packaged projects for now)",
+            description: "Whether to enable GPU-driven solutions",
         },
         base_3d: {
             label: "Basic 3D Features",

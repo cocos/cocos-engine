@@ -206,19 +206,20 @@ export class ForwardPipeline extends RenderPipeline {
     private _generateForwardRenderData () {
         const device = this.device;
         const data: PipelineRenderData = this._pipelineRenderData = new PipelineRenderData();
+        const sceneData = this.pipelineSceneData;
         data.outputRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
             Format.RGBA8,
-            this._width,
-            this._height,
+            this._width * sceneData.shadingScale,
+            this._height * sceneData.shadingScale,
         )));
         data.outputDepth = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
             Format.DEPTH_STENCIL,
-            this._width,
-            this._height,
+            this._width * sceneData.shadingScale,
+            this._height * sceneData.shadingScale,
         ));
 
         data.outputFrameBuffer = device.createFramebuffer(new FramebufferInfo(

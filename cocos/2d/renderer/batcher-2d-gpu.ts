@@ -1036,3 +1036,5 @@ class DescriptorSetCache {
         this._localCachePool.destroy((obj) => { obj.destroy(); });
     }
 }
+
+legacyCC.internal.Batcher2D = Batcher2D;

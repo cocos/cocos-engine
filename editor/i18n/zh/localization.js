@@ -610,6 +610,7 @@ module.exports = {
         aabbHalfX: '设置发射器包围盒半宽',
         aabbHalfY: '设置发射器包围盒半高',
         aabbHalfZ: '设置发射器包围盒半长',
+        dataCulling: '是否剔除非 enable 的模块数据',
     },
     mask: {
         type: '遮罩类型',
@@ -719,7 +720,7 @@ module.exports = {
         },
         gpu_driven: {
             label: "GPU驱动",
-            description: "是否启用GPU驱动方案（暂时只对打包后的工程起效）",
+            description: "是否启用GPU驱动方案",
         },
         base_3d: {
             label: "基础 3D 功能",
