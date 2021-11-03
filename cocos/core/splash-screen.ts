@@ -73,6 +73,7 @@ export class SplashScreen {
     private callBack: (() => void) | null = null;
     private cancelAnimate = false;
     private startTime = -1;
+    private needRender = true;
     private _splashFinish = false;
     private _loadFinish = false;
     private _directCall = false;
@@ -96,6 +97,14 @@ export class SplashScreen {
 
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
+
+    public pauseRender(){
+        this.needRender = false;
+    }
+
+    public resumeRender(){
+        this.needRender = true;
+    }
 
     public main (root: Root) {
         if (root == null) {
@@ -266,8 +275,8 @@ export class SplashScreen {
                 this.watermarkMat.setProperty('u_projection', this.projection);
                 this.watermarkMat.passes[0].update();
             }
-
-            this.frame();
+            if(this.needRender)
+                this.frame();
             if (elapsedTime > settings.totalTime) this.splashFinish = true;
             requestAnimationFrame(animate);
         };
