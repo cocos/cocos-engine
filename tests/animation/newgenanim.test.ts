@@ -1087,6 +1087,89 @@ describe('NewGen Anim', () => {
         });
     });
 
+    describe('Wrap mode', () => {
+        test.each([
+            ['Normal', {
+                wrapMode: AnimationClip.WrapMode.Normal,
+                moments: [{
+                    time: 0.0,
+                    value: 0.1,
+                }, {
+                    time: 0.6,
+                    value: 0.1 + (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.5,
+                }],
+            }],
+            ['Loop', {
+                wrapMode: AnimationClip.WrapMode.Loop,
+                moments: [{
+                    time: 0.0,
+                    value: 0.1,
+                }, {
+                    time: 0.6,
+                    value: 0.1 + (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.1 + (0.01 / 0.8) * (0.5 - 0.1),
+                }],
+            }],
+            ['PingPong', {
+                wrapMode: AnimationClip.WrapMode.PingPong,
+                moments: [{
+                    time: 0.0,
+                    value: 0.1,
+                }, {
+                    time: 0.6,
+                    value: 0.1 + (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.5 - (0.01 / 0.8) * (0.5 - 0.1),
+                }],
+            }],
+            ['Reverse', {
+                wrapMode: AnimationClip.WrapMode.Reverse,
+                moments: [{
+                    time: 0.0,
+                    value: 0.5,
+                }, {
+                    time: 0.6,
+                    value: 0.5 - (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.1,
+                }],
+            }],
+        ] as Array<[string, {
+            wrapMode: AnimationClip.WrapMode;
+            moments: Array<{
+                time: number;
+                value: number;
+            }>;
+        }]>)('%s', (_, { wrapMode, moments }) => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+            const animState1 = graph.addMotion();
+            animState1.name = 'Node1';
+            const { clip: animState1Clip } = animState1.motion = createClipMotionPositionXLinear(0.8, 0.1, 0.5);
+            animState1Clip.wrapMode = wrapMode;
+            graph.connect(graph.entryState, animState1);
+
+            const node = new Node();
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+
+            let currentTime = 0.0;
+            for (const { time: momentTime, value: expectedValue } of moments) {
+                const delta = momentTime - currentTime;
+                currentTime = momentTime;
+                graphEval.update(delta);
+                expect(node.position.x).toBeCloseTo(expectedValue);
+            }
+        });
+    });
+
     describe(`Any state`, () => {
         test('Could not transition to any node', () => {
             const graph = new AnimationGraph();

@@ -967,12 +967,6 @@ export class StateEval {
     public outgoingTransitions: readonly TransitionEval[] = [];
 }
 
-const DEFAULT_MOTION_STATE_ENTER_METHOD = StateMachineComponent.prototype.onMotionStateEnter;
-
-const DEFAULT_MOTION_STATE_EXIT_METHOD = StateMachineComponent.prototype.onMotionStateExit;
-
-const DEFAULT_MOTION_STATE_UPDATE_METHOD = StateMachineComponent.prototype.onMotionStateUpdate;
-
 type StateMachineComponentMotionStateCallbackName = keyof Pick<
 StateMachineComponent,
 'onMotionStateEnter' | 'onMotionStateExit' | 'onMotionStateUpdate'
@@ -1137,13 +1131,11 @@ export class MotionStateEval extends StateEval {
     }
 
     public sampleFromPort (weight: number) {
-        const normalized = normalizeProgress(this._fromPort.progress);
-        this._source?.sample(normalized, weight);
+        this._source?.sample(this._fromPort.progress, weight);
     }
 
     public sampleToPort (weight: number) {
-        const normalized = normalizeProgress(this._toPort.progress);
-        this._source?.sample(normalized, weight);
+        this._source?.sample(this._toPort.progress, weight);
     }
 
     public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {
