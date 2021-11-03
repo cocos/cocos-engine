@@ -37,16 +37,16 @@ exports.template = /* html*/`
         <!-- Render other data that has not taken over -->
         <div id="customProps">
         </div>
-        <ui-section key="dataCulling" cache-expand="particle-system-cullingMode">
-            <ui-prop slot="header" class="header" empty="true" labelflag="dataCulling" key="dataCulling">
+        <ui-section key="renderCulling" cache-expand="particle-system-cullingMode">
+            <ui-prop slot="header" class="header" empty="true" labelflag="renderCulling" key="renderCulling">
                 <ui-label></ui-label>
                 <ui-checkbox></ui-checkbox>
             </ui-prop>
-            <ui-prop type="dump" key="cullingMode" disableflag="!dataCulling"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfX" disableflag="!dataCulling"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfY" disableflag="!dataCulling"></ui-prop>
-            <ui-prop type="dump" key="aabbHalfZ" disableflag="!dataCulling"></ui-prop>
-            <ui-prop empty="true" disableflag="!dataCulling">
+            <ui-prop type="dump" key="cullingMode" disableflag="!renderCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfX" disableflag="!renderCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfY" disableflag="!renderCulling"></ui-prop>
+            <ui-prop type="dump" key="aabbHalfZ" disableflag="!renderCulling"></ui-prop>
+            <ui-prop empty="true" disableflag="!renderCulling">
                 <ui-label slot="label">Show Bounds</ui-label>
                 <ui-checkbox slot="content" id="showBounds"></ui-checkbox>
             </ui-prop>  
@@ -194,7 +194,7 @@ const excludeList = [
     'rateOverDistance', 'bursts', 'shapeModule',
     'velocityOvertimeModule', 'forceOvertimeModule', 'sizeOvertimeModule',
     'rotationOvertimeModule', 'colorOverLifetimeModule', 'textureAnimationModule',
-    'trailModule', 'renderer', 'dataCulling', 'limitVelocityOvertimeModule', 'cullingMode',
+    'trailModule', 'renderer', 'renderCulling', 'limitVelocityOvertimeModule', 'cullingMode',
     'aabbHalfX', 'aabbHalfY', 'aabbHalfZ',
 ];
 
@@ -321,8 +321,8 @@ const uiElements = {
             });
         },
         update() {
-            const isInvalid = propUtils.isMultipleInvalid(this.dump.value.dataCulling);
-            this.$.resetBounds.setAttribute('disabled', isInvalid || !this.dump.value.dataCulling.value);
+            const isInvalid = propUtils.isMultipleInvalid(this.dump.value.renderCulling);
+            this.$.resetBounds.setAttribute('disabled', isInvalid || !this.dump.value.renderCulling.value);
         },
     },
     uiSections: {
@@ -427,7 +427,7 @@ const uiElements = {
             });
         },
         async update() {
-            this.$.showBounds.disabled = !this.dump.value.dataCulling.value;
+            this.$.showBounds.disabled = !this.dump.value.renderCulling.value;
             const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
             const values = await Promise.all(
                 componentUUIDs.map(
