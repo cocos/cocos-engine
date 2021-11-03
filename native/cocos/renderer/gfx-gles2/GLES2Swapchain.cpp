@@ -123,6 +123,7 @@ void GLES2Swapchain::doDestroySurface() {
     if (_gpuSwapchain->eglSurface != EGL_NO_SURFACE) {
         auto* context = GLES2Device::getInstance()->context();
         eglDestroySurface(context->eglDisplay, _gpuSwapchain->eglSurface);
+        _gpuSwapchain->eglSurface = EGL_NO_SURFACE;
         context->bindContext(false);
     }
 }
