@@ -62,7 +62,6 @@ RenderPipeline::RenderPipeline()
 }
 
 RenderPipeline::~RenderPipeline() {
-    framegraph::FrameGraph::gc(0);
     RenderPipeline::instance = nullptr;
 }
 
@@ -156,6 +155,7 @@ void RenderPipeline::destroy() {
     PipelineStateManager::destroyAll();
     BatchedBuffer::destroyBatchedBuffer();
     InstancedBuffer::destroyInstancedBuffer();
+    framegraph::FrameGraph::gc(0);
 }
 
 gfx::Color RenderPipeline::getClearcolor(scene::Camera *camera) const {
