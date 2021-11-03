@@ -24,6 +24,7 @@
  */
 
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR } from 'internal:constants';
+import { systemInfo } from 'pal/system-info';
 import { warnID, warn, debug } from '../../platform/debug';
 import { macro } from '../../platform/macro';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
@@ -31,11 +32,9 @@ import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit,
     BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
-import { BrowserType } from '../../../../pal/system-info/enum-type/browser-type';
-import { OS } from '../../../../pal/system-info/enum-type/operating-system';
+import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
-import { legacyCC } from '../../global-exports';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -130,17 +129,17 @@ export function getExtensions (gl: WebGLRenderingContext) {
     // eslint-disable-next-line no-lone-blocks
     {
         // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
-        if (legacyCC.sys.os !== OS.IOS || legacyCC.sys.osMainVersion !== 14 || !legacyCC.sys.isBrowser) {
+        if (systemInfo.os !== OS.IOS || systemInfo.osMainVersion !== 14 || !systemInfo.isBrowser) {
             res.WEBGL_compressed_texture_astc = getExtension(gl, 'WEBGL_compressed_texture_astc');
         }
 
         // UC browser instancing implementation doesn't work
-        if (legacyCC.sys.browserType === BrowserType.UC) {
+        if (systemInfo.browserType === BrowserType.UC) {
             res.ANGLE_instanced_arrays = null;
         }
 
         // bytedance ios depth texture implementation doesn't work
-        if (BYTEDANCE && legacyCC.sys.os === OS.IOS) {
+        if (BYTEDANCE && systemInfo.os === OS.IOS) {
             res.WEBGL_depth_texture = null;
         }
 
@@ -152,8 +151,8 @@ export function getExtensions (gl: WebGLRenderingContext) {
         }
 
         // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
-        if ((legacyCC.sys.os === OS.IOS && legacyCC.sys.osMainVersion <= 10)
-            || (WECHAT && legacyCC.sys.os === OS.ANDROID)) {
+        if ((systemInfo.os === OS.IOS && systemInfo.osMainVersion <= 10)
+            || (WECHAT && systemInfo.os === OS.ANDROID)) {
             res.destroyShadersImmediately = false;
         }
 
