@@ -47,6 +47,8 @@ import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { NativePass } from '../scene/native-scene';
 import { errorID } from '../../platform/debug';
 import { PassHandle, PassView, NULL_HANDLE, PassPool } from './memory-pools';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+import { BatchedBuffer } from '../../pipeline/batched-buffer';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
@@ -188,6 +190,8 @@ export class Pass {
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
+    protected _instancedBuffers: Record<number, InstancedBuffer> = {};
+    protected _batchedBuffers: Record<number, BatchedBuffer> = {};
     protected _hash = 0;
     // external references
     protected _root: Root;
@@ -381,6 +385,14 @@ export class Pass {
         }
     }
 
+    public getInstancedBuffer (extraKey = 0) {
+        return this._instancedBuffers[extraKey] || (this._instancedBuffers[extraKey] = new InstancedBuffer(this));
+    }
+
+    public getBatchedBuffer (extraKey = 0) {
+        return this._batchedBuffers[extraKey] || (this._batchedBuffers[extraKey] = new BatchedBuffer(this));
+    }
+
     private _initNative () {
         if (JSB && !this._nativeObj) {
             this._nativeObj = new NativePass();
@@ -420,6 +432,14 @@ export class Pass {
         if (this._rootBuffer) {
             this._rootBuffer.destroy();
             this._rootBuffer = null;
+        }
+
+        for (const ib in this._instancedBuffers) {
+            this._instancedBuffers[ib].destroy();
+        }
+
+        for (const bb in this._batchedBuffers) {
+            this._batchedBuffers[bb].destroy();
         }
 
         this._descriptorSet.destroy();
