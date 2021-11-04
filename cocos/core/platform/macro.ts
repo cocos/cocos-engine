@@ -997,6 +997,8 @@ const macro = {
      * 你可以在 {{game.init}} 之前设置这个值，否则它不会生效。
      * 仅影响 WebGL 后端
      * @default true
+     *
+     * @deprecated since 3.4.0, please use macro.ENABLE_ANTIALIAS_FXAA instead.
      */
     ENABLE_WEBGL_ANTIALIAS: true,
 
