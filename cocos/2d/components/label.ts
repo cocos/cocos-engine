@@ -29,7 +29,7 @@
  * @module ui
  */
 
-import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable, rangeStep } from 'cc.decorator';
 import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
@@ -348,13 +348,36 @@ export class Label extends Renderable2D {
 
     /**
      * @en
+     * The spacing of the x axis between characters.
+     *
+     * @zh
+     * 字符之间 x 轴的间距。
+     */
+    @visible(function (this: Label) { return !this._isSystemFontUsed && this._font instanceof BitmapFont; })
+    @rangeStep(0.1)
+    @displayOrder(9)
+    @tooltip('i18n:label.spacingX')
+    get spacingX () {
+        return this._spacingX;
+    }
+    set spacingX (value) {
+        if (this._spacingX === value) {
+            return;
+        }
+
+        this._spacingX = value;
+        this.updateRenderData();
+    }
+
+    /**
+     * @en
      * Overflow of label.
      *
      * @zh
      * 文字显示超出范围时的处理方式。
      */
     @type(Overflow)
-    @displayOrder(9)
+    @displayOrder(10)
     @tooltip('i18n:label.overflow')
     get overflow () {
         return this._overflow;
@@ -376,7 +399,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否自动换行。
      */
-    @displayOrder(10)
+    @displayOrder(11)
     @tooltip('i18n:label.wrap')
     get enableWrapText () {
         return this._enableWrapText;
@@ -398,7 +421,7 @@ export class Label extends Renderable2D {
      * 文本字体。
      */
     @type(Font)
-    @displayOrder(11)
+    @displayOrder(12)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
     @tooltip('i18n:label.font')
     get font () {
@@ -439,7 +462,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否使用系统字体。
      */
-    @displayOrder(12)
+    @displayOrder(13)
     @tooltip('i18n:label.system_font')
     get useSystemFont () {
         return this._isSystemFontUsed;
@@ -477,7 +500,7 @@ export class Label extends Renderable2D {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @displayOrder(13)
+    @displayOrder(14)
     @tooltip('i18n:label.cache_mode')
     get cacheMode () {
         return this._cacheMode;
@@ -586,7 +609,10 @@ export class Label extends Renderable2D {
      * @zh 下划线高度。
      */
     @visible(function (this: Label) { return this._isUnderline; })
+    @rangeStep(0.1)
     @editable
+    @displayOrder(18)
+    @tooltip('i18n:label.underline_height')
     public get underlineHeight () {
         return this._underlineHeight;
     }
@@ -607,19 +633,6 @@ export class Label extends Renderable2D {
 
     set fontAtlas (value) {
         this._fontAtlas = value;
-    }
-
-    get spacingX () {
-        return this._spacingX;
-    }
-
-    set spacingX (value) {
-        if (this._spacingX === value) {
-            return;
-        }
-
-        this._spacingX = value;
-        this.updateRenderData();
     }
 
     get _bmFontOriginalSize () {
@@ -658,6 +671,7 @@ export class Label extends Renderable2D {
     protected _font: Font | null = null;
     @serializable
     protected _isSystemFontUsed = true;
+    @serializable
     protected _spacingX = 0;
     @serializable
     protected _isItalic = false;
