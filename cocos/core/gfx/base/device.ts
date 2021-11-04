@@ -160,6 +160,8 @@ export abstract class Device {
     protected _globalBarriers = new Map<number, GlobalBarrier>();
     protected _textureBarriers = new Map<number, TextureBarrier>();
 
+    public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
+
     public abstract initialize (info: Readonly<DeviceInfo>): boolean;
 
     public abstract destroy (): void;
