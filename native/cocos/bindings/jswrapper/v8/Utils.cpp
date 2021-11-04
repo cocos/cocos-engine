@@ -307,14 +307,5 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
 
 } // namespace internal
 } // namespace se
-
-//TODO(PatriceJiang): modify this when OHOS llvm upgrade
-    #if CC_PLATFORM == CC_PLATFORM_OHOS
-extern "C" {
-int local_bcmp(const void *cs, const void *ct, size_t count) {
-    return memcmp(cs, ct, count);
-}
-int bcmp(const void *cs, const void *ct, size_t count) __attribute__((weak, alias("local_bcmp"))); 
-} // extern "C"
-    #endif
 #endif // #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
+

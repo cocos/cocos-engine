@@ -32,6 +32,7 @@
     #include "Class.h"
     #include "Object.h"
     #include "Utils.h"
+    #include "MissingSymbols.h"
     #include "platform/FileUtils.h"
 
     #include <sstream>
