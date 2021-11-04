@@ -96,13 +96,11 @@ class SystemInfo extends EventTarget {
     private _registerEvent () {
         jsb.onPause = () => {
             this.emit('hide');
-            legacyCC.director.pauseRender();
-            legacyCC.internal.SplashScreen.instance.pauseRender();
+            legacyCC.internal.SplashScreen.instance.pause();
         };
         jsb.onResume = () => {
             this.emit('show');
-            legacyCC.director.resumeRender();
-            legacyCC.internal.SplashScreen.instance.resumeRender();
+            legacyCC.internal.SplashScreen.instance.resume();
         };
         jsb.onClose = () => {
             this.emit('close');

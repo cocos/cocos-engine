@@ -210,7 +210,6 @@ export class Director extends EventTarget {
     private _totalFrames: number;
     private _scheduler: Scheduler;
     private _systems: System[];
-    private _needRender: boolean;
     constructor () {
         super();
 
@@ -218,8 +217,6 @@ export class Director extends EventTarget {
         // paused?
         this._paused = false;
 
-        //Need Render in tick loop
-        this._needRender = true;
         // root
         this._root = null;
 
@@ -658,12 +655,7 @@ export class Director extends EventTarget {
     public stopAnimation () {
         this._invalid = true;
     }
-    public pauseRender () {
-        this._needRender = false;
-    }
-    public resumeRender () {
-        this._needRender = true;
-    }
+
     /**
      * @en Run main loop of director
      * @zh 运行主循环
@@ -716,8 +708,7 @@ export class Director extends EventTarget {
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
-            if(this._needRender)
-                this._root!.frameMove(dt);
+            this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
             Node.resetHasChangedFlags();
