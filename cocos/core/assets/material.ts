@@ -426,7 +426,11 @@ export class Material extends Asset {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
-                if (pass.properties[name]?.linear) val = Vec4.multiply(v4_1, val as Vec4, val as Vec4);
+                if (pass.properties[name]?.linear) {
+                    const newValue = (val as Vec4).clone();
+                    newValue.w = 1.0;
+                    val = Vec4.multiply(v4_1, val as Vec4, newValue);
+                }
                 pass.setUniform(handle, val as MaterialProperty);
             } else {
                 pass.resetUniform(name);
