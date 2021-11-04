@@ -29,6 +29,8 @@ CCProgram unlit-fs %{
   #include <cc-fog-fs>
 
   in vec2 v_uv;
+  in vec3 v_position;
+
   uniform sampler2D mainTexture;
 
   uniform Constant {
