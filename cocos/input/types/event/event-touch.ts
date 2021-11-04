@@ -67,7 +67,7 @@ export class EventTouch extends Event {
      *
      * @experimental May be optimized in the future.
      */
-    public swallowedByTopNode = true;
+    public swallowEvent = true;
 
     private _eventCode: SystemEventTypeUnion;  // deprecated since v3.3
 

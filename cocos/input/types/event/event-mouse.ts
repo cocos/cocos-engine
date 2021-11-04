@@ -111,7 +111,7 @@ export class EventMouse extends Event {
      *
      * @experimental May be optimized in the future.
      */
-    public swallowedByTopNode = true;
+    public swallowEvent = true;
 
     private _eventType: SystemEventTypeUnion;
     /**
