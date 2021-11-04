@@ -82,7 +82,7 @@ class PointerEventDispatcher {
                 // @ts-expect-error access private method
                 && pointerEventProcessor._handleEventMouse(eventMouse)) {
                 shouldDispatchToSystemEvent = false;
-                if (eventMouse.swallowEvent) {
+                if (!eventMouse.preventSwallow) {
                     break;
                 }
             }
@@ -112,7 +112,7 @@ class PointerEventDispatcher {
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
                         shouldDispatchToSystemEvent = false;
-                        if (eventTouch.swallowEvent) {
+                        if (!eventTouch.preventSwallow) {
                             break;
                         }
                     }
@@ -125,7 +125,7 @@ class PointerEventDispatcher {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
                         }
                         shouldDispatchToSystemEvent = false;
-                        if (eventTouch.swallowEvent) {
+                        if (!eventTouch.preventSwallow) {
                             break;
                         }
                     }

@@ -101,17 +101,17 @@ export class EventMouse extends Event {
     public movementY = 0;
 
     /**
-     * @en Set whether the event is triggered only by the top node, which is true by default.
-     * If set to false, the event is allowed to be dispatched to nodes at the bottom layer.
-     * NOTE: Setting to false will reduce the efficiency of event dispatching.
+     * @en Set whether to prevent events from being swallowed by nodes, which is false by default.
+     * If set to true, the event is allowed to be dispatched to nodes at the bottom layer.
+     * NOTE: Setting to true will reduce the efficiency of event dispatching.
      *
-     * @zh 设置事件是否只被顶部的节点触发, 默认为 true 。
-     * 如果设置为 false，则事件允许派发给渲染在下一层级的节点。
-     * 注意：设置为 false 会降低事件派发的效率。
+     * @zh 设置是否阻止事件被节点吞噬, 默认为 false 。
+     * 如果设置为 true，则事件允许派发给渲染在下一层级的节点。
+     * 注意：设置为 true 会降低事件派发的效率。
      *
      * @experimental May be optimized in the future.
      */
-    public swallowEvent = true;
+    public preventSwallow = false;
 
     private _eventType: SystemEventTypeUnion;
     /**
