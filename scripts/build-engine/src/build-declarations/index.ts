@@ -181,6 +181,10 @@ export async function build (options: {
                 { test: /^cc\/.*$/, path: ps.join(dirName,'index.d.ts') },
                 { test: /^cc.*$/, path: indexOutputPath },
             ],
+            nonExportedSymbolDistribution: [{
+                sourceModule: /.*/, // Put everything non-exported that 'cc' encountered into 'cc'
+                targetModule: 'cc',
+            }],
         });
 
         await Promise.all(giftResult.groups.map(async (group) => {
