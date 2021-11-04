@@ -114,7 +114,7 @@ export class GbufferStage extends RenderStage {
         this._renderQueues.forEach(renderQueueClearFunc);
 
         this._renderArea = pipeline.generateRenderArea(camera);
-        pipeline.updateQuadVertexData(this._renderArea, camera.window!);
+        pipeline.updateQuadVertexData(this._renderArea, camera.window);
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
 
@@ -130,11 +130,11 @@ export class GbufferStage extends RenderStage {
                     if (pass.phase !== this._phaseID) continue;
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
-                        const instancedBuffer = InstancedBuffer.get(pass);
+                        const instancedBuffer = pass.getInstancedBuffer();
                         instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                        const batchedBuffer = BatchedBuffer.get(pass);
+                        const batchedBuffer = pass.getBatchedBuffer();
                         batchedBuffer.merge(subModel, p, ro.model);
                         this._batchedQueue.queue.add(batchedBuffer);
                     } else {
