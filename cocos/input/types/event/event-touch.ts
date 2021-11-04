@@ -48,6 +48,8 @@ export class EventTouch extends Event {
     /**
      * @en The current touch object
      * @zh 当前触点对象
+     *
+     * @deprecated since v3.4.0, please use eventTouch.getTouches() or eventTouch.getAllTouches() instead.
      */
     public touch: Touch | null = null;
     /**
