@@ -64,6 +64,8 @@ export class EventTouch extends Event {
      * @zh 设置事件是否只被顶部的节点触发, 默认为 true 。
      * 如果设置为 false，则事件允许派发给渲染在下一层级的节点。
      * 注意：设置为 false 会降低事件派发的效率。
+     *
+     * @experimental May be optimized in the future.
      */
     public swallowedByTopNode = true;
 
