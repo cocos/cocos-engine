@@ -7,16 +7,27 @@ declare module 'pal/screen-adapter' {
     }
 
     export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+    export interface IScreenOptions {
+        /**
+         * Orientation options from editor builder.
+         */
+        configOrientation: ConfigOrientation;
+        /**
+         * Determine whether the game frame exact fits the screen.
+         * Now it only works on Web platform.
+         */
+        exactFitScreen: boolean,
+    }
 
     class ScreenAdapter {
         /**
          * Init the callback to rebuild frame buffer when update the resolution.
          * This method will also init the resolution.
          * This method should be called when the engine director.root is initiated.
-         * @param configOrientation The orientation from the builder configuration
+         * @param options
          * @param cbToRebuildFrameBuffer
          */
-        public init (configOrientation: ConfigOrientation, cbToRebuildFrameBuffer: () => void);
+        public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void);
         /**
          * On web mobile platform, sometimes we need to rotate the game frame.
          * This field record the rotate state of game frame, which is false by default.

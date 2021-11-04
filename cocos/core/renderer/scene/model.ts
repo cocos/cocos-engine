@@ -567,7 +567,7 @@ export class Model {
             attrs.views.push(typeViewArray);
             offset += info.size;
         }
-        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
+        if (pass.batchingScheme === BatchingSchemes.INSTANCING) { pass.getInstancedBuffer().destroy(); } // instancing IA changed
         this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
         this._localDataUpdated = true;
 

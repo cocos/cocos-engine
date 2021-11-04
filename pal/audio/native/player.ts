@@ -243,6 +243,7 @@ export class AudioPlayer implements OperationQueueable {
             }
             this._state = AudioState.STOPPED;
             this._id = INVALID_AUDIO_ID;
+            this._cachedState.currentTime = 0;
             resolve();
         });
     }

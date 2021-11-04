@@ -763,57 +763,100 @@ describe('NewGen Anim', () => {
             });
         });
 
-        test('Exit transition shall not consume triggers', () => {
-            const animationGraph = new AnimationGraph();
-            const layer = animationGraph.addLayer();
-            const graph = layer.stateMachine;
-
-            const motionState = graph.addMotion();
-            motionState.name = 'motionState';
-            motionState.motion = createEmptyClipMotion(1.0);
-
-            const sm0 = graph.addSubStateMachine();
-            {
-                const sm1 = sm0.stateMachine.addSubStateMachine();
-                sm1.name = 'subStateMachine';
-                const subStateMachineMotionState = sm1.stateMachine.addMotion();
-                subStateMachineMotionState.name = 'subStateMachineMotionState';
-                subStateMachineMotionState.motion = createEmptyClipMotion(1.0);
-
-                sm1.stateMachine.connect(sm1.stateMachine.entryState, subStateMachineMotionState);
+        describe('Triggers are only reset when a motion state arrived', () => {
+            test('Triggers on exit transition', () => {
+                const animationGraph = new AnimationGraph();
+                const layer = animationGraph.addLayer();
+                const graph = layer.stateMachine;
+    
+                const motionState = graph.addMotion();
+                motionState.name = 'motionState';
+                motionState.motion = createEmptyClipMotion(1.0);
+    
+                const sm0 = graph.addSubStateMachine();
                 {
-                    const subStateMachineExitTransition = sm1.stateMachine.connect(
-                        subStateMachineMotionState, sm1.stateMachine.exitState);
-                    subStateMachineExitTransition.duration = 0.3;
-                    subStateMachineExitTransition.exitConditionEnabled = false;
-                    const [subStateMachineExitTransitionTriggerCondition] = subStateMachineExitTransition.conditions = [new TriggerCondition()];
-                    subStateMachineExitTransitionTriggerCondition.trigger = 't';
+                    const sm1 = sm0.stateMachine.addSubStateMachine();
+                    sm1.name = 'subStateMachine';
+                    const subStateMachineMotionState = sm1.stateMachine.addMotion();
+                    subStateMachineMotionState.name = 'subStateMachineMotionState';
+                    subStateMachineMotionState.motion = createEmptyClipMotion(1.0);
+    
+                    sm1.stateMachine.connect(sm1.stateMachine.entryState, subStateMachineMotionState);
+                    {
+                        const subStateMachineExitTransition = sm1.stateMachine.connect(
+                            subStateMachineMotionState, sm1.stateMachine.exitState);
+                        subStateMachineExitTransition.duration = 0.3;
+                        subStateMachineExitTransition.exitConditionEnabled = false;
+                        const [subStateMachineExitTransitionTriggerCondition] = subStateMachineExitTransition.conditions = [new TriggerCondition()];
+                        subStateMachineExitTransitionTriggerCondition.trigger = 't';
+                    }
+    
+                    sm0.stateMachine.connect(sm0.stateMachine.entryState, sm1);
+                    {
+                        const [triggerCondition] = sm0.stateMachine.connect(sm1, sm0.stateMachine.exitState).conditions = [new TriggerCondition()];
+                        triggerCondition.trigger = 't';
+                    }
                 }
-
-                sm0.stateMachine.connect(sm0.stateMachine.entryState, sm1);
+    
+                graph.connect(graph.entryState, sm0);
                 {
-                    const [triggerCondition] = sm0.stateMachine.connect(sm1, sm0.stateMachine.exitState).conditions = [new TriggerCondition()];
+                    const transition = graph.connect(sm0, motionState);
+                    const [triggerCondition] = transition.conditions = [new TriggerCondition()];
                     triggerCondition.trigger = 't';
                 }
-            }
+    
+                animationGraph.addVariable('t', VariableType.TRIGGER);
+                
+                const graphEval = createAnimationGraphEval(animationGraph, new Node());
+    
+                graphEval.update(0.4);
+                expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'subStateMachineMotionState' } });
+    
+                graphEval.setValue('t', true);
+                graphEval.update(0.31);
+                expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'motionState' } });
+            });
 
-            graph.connect(graph.entryState, sm0);
-            {
-                const transition = graph.connect(sm0, motionState);
-                const [triggerCondition] = transition.conditions = [new TriggerCondition()];
-                triggerCondition.trigger = 't';
-            }
+            test('Triggers on transition to sub-state machine', () => {
+                const animationGraph = new AnimationGraph();
+                const layer = animationGraph.addLayer();
+                const graph = layer.stateMachine;
+    
+                const motionState = graph.addMotion();
+                motionState.name = 'motionState';
+                motionState.motion = createEmptyClipMotion(1.0);
+    
+                const sm0 = graph.addSubStateMachine();
+                {
+                    const subStateMachineMotionState = sm0.stateMachine.addMotion();
+                    subStateMachineMotionState.name = 'subStateMachineMotionState';
+                    subStateMachineMotionState.motion = createEmptyClipMotion(1.0);
 
-            animationGraph.addVariable('t', VariableType.TRIGGER);
-            
-            const graphEval = createAnimationGraphEval(animationGraph, new Node());
+                    const [triggerCondition] = sm0.stateMachine.connect(
+                        sm0.stateMachine.entryState, subStateMachineMotionState).conditions = [new TriggerCondition()];
+                    triggerCondition.trigger = 't';
+                }
 
-            graphEval.update(0.4);
-            expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'subStateMachineMotionState' } });
-
-            graphEval.setValue('t', true);
-            graphEval.update(0.31);
-            expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'motionState' } });
+                graph.connect(graph.entryState, motionState);
+                {
+                    const transition = graph.connect(motionState, sm0);
+                    transition.duration = 0.3;
+                    transition.exitConditionEnabled = false;
+                    const [triggerCondition] = transition.conditions = [new TriggerCondition()];
+                    triggerCondition.trigger = 't';
+                }
+    
+                animationGraph.addVariable('t', VariableType.TRIGGER);
+                
+                const graphEval = createAnimationGraphEval(animationGraph, new Node());
+    
+                graphEval.update(0.4);
+                expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'motionState' } });
+    
+                graphEval.setValue('t', true);
+                graphEval.update(0.31);
+                expectAnimationGraphEvalStatusLayer0(graphEval, { currentNode: { __DEBUG_ID__: 'subStateMachineMotionState' } });
+            });
         });
 
         test('All triggers along the transition path should be reset', () => {
@@ -1084,6 +1127,89 @@ describe('NewGen Anim', () => {
                     },
                 },
             });
+        });
+    });
+
+    describe('Wrap mode', () => {
+        test.each([
+            ['Normal', {
+                wrapMode: AnimationClip.WrapMode.Normal,
+                moments: [{
+                    time: 0.0,
+                    value: 0.1,
+                }, {
+                    time: 0.6,
+                    value: 0.1 + (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.5,
+                }],
+            }],
+            ['Loop', {
+                wrapMode: AnimationClip.WrapMode.Loop,
+                moments: [{
+                    time: 0.0,
+                    value: 0.1,
+                }, {
+                    time: 0.6,
+                    value: 0.1 + (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.1 + (0.01 / 0.8) * (0.5 - 0.1),
+                }],
+            }],
+            ['PingPong', {
+                wrapMode: AnimationClip.WrapMode.PingPong,
+                moments: [{
+                    time: 0.0,
+                    value: 0.1,
+                }, {
+                    time: 0.6,
+                    value: 0.1 + (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.5 - (0.01 / 0.8) * (0.5 - 0.1),
+                }],
+            }],
+            ['Reverse', {
+                wrapMode: AnimationClip.WrapMode.Reverse,
+                moments: [{
+                    time: 0.0,
+                    value: 0.5,
+                }, {
+                    time: 0.6,
+                    value: 0.5 - (0.6 / 0.8) * (0.5 - 0.1),
+                }, {
+                    time: 0.81,
+                    value: 0.1,
+                }],
+            }],
+        ] as Array<[string, {
+            wrapMode: AnimationClip.WrapMode;
+            moments: Array<{
+                time: number;
+                value: number;
+            }>;
+        }]>)('%s', (_, { wrapMode, moments }) => {
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+            const animState1 = graph.addMotion();
+            animState1.name = 'Node1';
+            const { clip: animState1Clip } = animState1.motion = createClipMotionPositionXLinear(0.8, 0.1, 0.5);
+            animState1Clip.wrapMode = wrapMode;
+            graph.connect(graph.entryState, animState1);
+
+            const node = new Node();
+            const graphEval = createAnimationGraphEval(animationGraph, node);
+
+            let currentTime = 0.0;
+            for (const { time: momentTime, value: expectedValue } of moments) {
+                const delta = momentTime - currentTime;
+                currentTime = momentTime;
+                graphEval.update(delta);
+                expect(node.position.x).toBeCloseTo(expectedValue);
+            }
         });
     });
 

@@ -67,7 +67,7 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
-        const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
+        const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
         this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < this._castModels.length; i++) {

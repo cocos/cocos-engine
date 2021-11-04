@@ -778,6 +778,12 @@ export class AnimationClip extends Asset {
     }
 }
 
+type WrapMode_ = WrapMode;
+
+export declare namespace AnimationClip {
+    export type WrapMode = WrapMode_;
+}
+
 legacyCC.AnimationClip = AnimationClip;
 
 interface TrackEvalStatus {
