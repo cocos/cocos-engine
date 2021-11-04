@@ -45,7 +45,7 @@ export async function build (options: {
             getCurrentDirectory: ts.sys.getCurrentDirectory,
             fileExists: ts.sys.fileExists,
             readFile: ts.sys.readFile,
-        },
+        }
     );
     if (!parsedCommandLine) {
         throw new Error(`Can not get 'parsedCommandLine'.`);
@@ -92,36 +92,36 @@ export async function build (options: {
         true, // emitOnlyDtsFiles
         undefined, // customTransformers
     );
-
-    const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+    
+    let allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
     for (const diagnostic of allDiagnostics) {
         let printer;
         switch (diagnostic.category) {
-        case ts.DiagnosticCategory.Error:
-            printer = console.error;
-            break;
-        case ts.DiagnosticCategory.Warning:
-            printer = console.warn;
-            break;
-        case ts.DiagnosticCategory.Message:
-        case ts.DiagnosticCategory.Suggestion:
-        default:
-            printer = console.log;
-            break;
+            case ts.DiagnosticCategory.Error:
+                printer = console.error;
+                break;
+            case ts.DiagnosticCategory.Warning:
+                printer = console.warn;
+                break;
+            case ts.DiagnosticCategory.Message:
+            case ts.DiagnosticCategory.Suggestion:
+            default:
+                printer = console.log;
+                break;
         }
         if (!printer) {
             continue;
         }
         if (diagnostic.file && diagnostic.start !== undefined) {
-            const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
+            let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
             printer(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
         } else {
-            printer(`${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`);
+            printer(`${ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")}`);
         }
     }
 
-    const tscOutputDtsFile = ps.join(dirName, `${baseName}.d.ts`);
+    const tscOutputDtsFile = ps.join(dirName, baseName + '.d.ts');
     if (!await fs.pathExists(tscOutputDtsFile)) {
         console.error(`Failed to compile.`);
         return false;
@@ -136,30 +136,28 @@ export async function build (options: {
         }
     }
 
-    const giftInputs = [tscOutputDtsFile];
+    const giftInputs = [ tscOutputDtsFile ];
 
     const giftEntries: Record<string, string> = { };
 
-    const cleanupFiles = [tscOutputDtsFile];
+    const cleanupFiles = [ tscOutputDtsFile ];
 
     if (withExports) {
         for (const exportEntry of featureUnits) {
             giftEntries[exportEntry] = getModuleNameInTsOutFile(
-                statsQuery.getFeatureUnitFile(exportEntry), statsQuery,
-            );
+                statsQuery.getFeatureUnitFile(exportEntry), statsQuery);
         }
     }
 
     if (withEditorExports) {
         for (const editorExportModule of editorExportModules) {
             giftEntries[editorExportModule] = getModuleNameInTsOutFile(
-                statsQuery.getEditorPublicModuleFile(editorExportModule), statsQuery,
-            );
+                statsQuery.getEditorPublicModuleFile(editorExportModule), statsQuery);
         }
     }
 
     if (withIndex && !withExports) {
-        giftEntries.cc = 'cc';
+        giftEntries['cc'] = 'cc';
         const ccDtsFile = ps.join(dirName, 'virtual-cc.d.ts');
         giftInputs.push(ccDtsFile);
         cleanupFiles.push(ccDtsFile);
@@ -172,24 +170,17 @@ export async function build (options: {
 
     console.log(`Bundling...`);
     try {
-        const indexOutputPath = ps.join(dirName, 'cc.d.ts');
+        const indexOutputPath = ps.join(dirName,'cc.d.ts');
         const giftResult = gift.bundle({
             input: giftInputs,
             name: 'cc',
             rootModule: 'index',
             entries: giftEntries,
-            priority: [
-                'cc', // Things should be exported to 'cc' as far as possible.
-            ],
             groups: [
-                { test: /^cc\/editor.*$/, path: ps.join(dirName, 'cc.editor.d.ts') },
-                { test: /^cc\/.*$/, path: ps.join(dirName, 'index.d.ts') },
+                { test: /^cc\/editor.*$/, path: ps.join(dirName,'cc.editor.d.ts') },
+                { test: /^cc\/.*$/, path: ps.join(dirName,'index.d.ts') },
                 { test: /^cc.*$/, path: indexOutputPath },
             ],
-            nonExportedSymbolDistribution: [{
-                sourceModule: /.*/, // Put everything non-exported that 'cc' encountered into 'cc'
-                targetModule: 'cc',
-            }],
         });
 
         await Promise.all(giftResult.groups.map(async (group) => {
@@ -200,11 +191,11 @@ export async function build (options: {
             await fs.outputFile(
                 indexOutputPath,
                 buildIndexModule(featureUnits, statsQuery),
-                { encoding: 'utf8' },
-            );
+                { encoding: 'utf8' });
         }
+
     } catch (error) {
-        console.error(error);
+        console.error(error)
         return false;
     } finally {
         await Promise.all((cleanupFiles.map(async (file) => fs.unlink(file))));
@@ -219,10 +210,10 @@ export function buildIndexModule (featureUnits: string[], statsQuery: StatsQuery
             .split('\n')
             .map((line) => `    ${line}`)
             .join('\n')
-    }\n}`;
+        }\n}`;
 }
 
-function getModuleNameInTsOutFile (moduleFile: string, statsQuery: StatsQuery) {
+function getModuleNameInTsOutFile(moduleFile: string, statsQuery: StatsQuery) {
     const path = ps.relative(statsQuery.path, moduleFile);
     const tsOutFileModuleName = ps.join(ps.dirname(path), ps.basename(path, ps.extname(path))).replace(/\\/g, '/');
     return tsOutFileModuleName;
