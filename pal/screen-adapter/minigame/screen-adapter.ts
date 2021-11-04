@@ -44,10 +44,6 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio () {
-        if (VIVO) {
-            // NOTE: wrong DPR on vivo platform
-            return 1;
-        }
         const sysInfo = minigame.getSystemInfoSync();
         return sysInfo.pixelRatio;
     }
