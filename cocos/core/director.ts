@@ -210,6 +210,7 @@ export class Director extends EventTarget {
     private _totalFrames: number;
     private _scheduler: Scheduler;
     private _systems: System[];
+
     constructor () {
         super();
 
@@ -235,7 +236,7 @@ export class Director extends EventTarget {
         this._nodeActivator = new NodeActivator();
 
         this._systems = [];
-        
+
         game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
     }
 
