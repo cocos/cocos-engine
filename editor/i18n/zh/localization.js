@@ -208,6 +208,7 @@ module.exports = {
         font_bold: '字体加粗',
         font_italic: '字体倾斜',
         font_underline: '字体加下划线',
+        underline_height: '下划线高度',
     },
     labelOutline: {
         color: '描边的颜色',
