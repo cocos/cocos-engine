@@ -354,9 +354,9 @@ export class Label extends Renderable2D {
      * 文本字符之间的间距。仅在使用 BMFont 位图字体时生效。
      */
     @visible(function (this: Label) {
-        return this._font instanceof BitmapFont;
+        return !this._isSystemFontUsed && this._font instanceof BitmapFont;
     })
-    @displayOrder(8)
+    @displayOrder(9)
     @tooltip('i18n:label.spacing_x')
     get spacingX () {
         return this._spacingX;
@@ -379,7 +379,7 @@ export class Label extends Renderable2D {
      * 文字显示超出范围时的处理方式。
      */
     @type(Overflow)
-    @displayOrder(9)
+    @displayOrder(10)
     @tooltip('i18n:label.overflow')
     get overflow () {
         return this._overflow;
@@ -401,7 +401,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否自动换行。
      */
-    @displayOrder(10)
+    @displayOrder(11)
     @tooltip('i18n:label.wrap')
     get enableWrapText () {
         return this._enableWrapText;
@@ -423,7 +423,7 @@ export class Label extends Renderable2D {
      * 文本字体。
      */
     @type(Font)
-    @displayOrder(11)
+    @displayOrder(12)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
     @tooltip('i18n:label.font')
     get font () {
@@ -464,7 +464,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否使用系统字体。
      */
-    @displayOrder(12)
+    @displayOrder(13)
     @tooltip('i18n:label.system_font')
     get useSystemFont () {
         return this._isSystemFontUsed;
@@ -502,7 +502,7 @@ export class Label extends Renderable2D {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @displayOrder(13)
+    @displayOrder(14)
     @tooltip('i18n:label.cache_mode')
     get cacheMode () {
         return this._cacheMode;
@@ -612,6 +612,8 @@ export class Label extends Renderable2D {
      */
     @visible(function (this: Label) { return this._isUnderline; })
     @editable
+    @displayOrder(18)
+    @tooltip('i18n:label.underline_height')
     public get underlineHeight () {
         return this._underlineHeight;
     }
