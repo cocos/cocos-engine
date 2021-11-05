@@ -1283,13 +1283,13 @@ void cmdFuncGLES2DestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembl
 }
 
 static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device *                    device,
-                                  const vector<GLES2GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
-                                  const GLES2GPUTexture *depthStencil,
-                                  const uint32_t *       resolves            = nullptr,
-                                  const GLES2GPUTexture *depthStencilResolve = nullptr,
-                                  GLbitfield *           resolveMask         = nullptr) {
-    static vector<GLenum> drawBuffers;
-    GLES2GPUStateCache *  cache = device->stateCache();
+                                                                  const vector<GLES2GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
+                                                                  const GLES2GPUTexture *depthStencil,
+                                                                  const uint32_t *       resolves            = nullptr,
+                                                                  const GLES2GPUTexture *depthStencilResolve = nullptr,
+                                                                  GLbitfield *           resolveMask         = nullptr) {
+    static vector<GLenum>                  drawBuffers;
+    GLES2GPUStateCache *                   cache = device->stateCache();
     GLES2GPUFramebuffer::GLFramebufferInfo res;
 
     GL_CHECK(glGenFramebuffers(1, &res.glFramebuffer));
@@ -1324,7 +1324,7 @@ static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device * 
             GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
                                                gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
         }
-        res.width = std::min(res.width, gpuColorTexture->width);
+        res.width  = std::min(res.width, gpuColorTexture->width);
         res.height = std::min(res.height, gpuColorTexture->height);
     }
     if (depthStencil) {
@@ -1339,7 +1339,7 @@ static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device * 
 
         // fallback to blit-based manual resolve
         if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
-        res.width = std::min(res.width, depthStencil->width);
+        res.width  = std::min(res.width, depthStencil->width);
         res.height = std::min(res.height, depthStencil->height);
     }
 
@@ -1539,7 +1539,7 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
                 cache->viewport.height = renderArea->height;
             }
 
-            uint32_t fboWidth = instance.framebuffer.getWidth();
+            uint32_t fboWidth  = instance.framebuffer.getWidth();
             uint32_t fboHeight = instance.framebuffer.getHeight();
             if (cache->scissor.x != 0 ||
                 cache->scissor.y != 0 ||
@@ -2051,8 +2051,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             const GLES2GPUDescriptor &   gpuDescriptor    = gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
             if (!gpuDescriptor.gpuBuffer && !gpuDescriptor.gpuBufferView) {
-                CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
-                             glBlock.name.c_str(), glBlock.set, glBlock.binding);
+                //CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
+                //             glBlock.name.c_str(), glBlock.set, glBlock.binding);
                 continue;
             }
 
@@ -2174,9 +2174,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                 auto unit = static_cast<uint32_t>(glSamplerTexture.units[u]);
 
                 if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
-                    CC_LOG_ERROR(
-                        "Sampler binding '%s' at set %d binding %d index %d is not bounded",
-                        glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
+                    //CC_LOG_ERROR("Sampler texture '%s' at set %d binding %d index %d is not bounded",
+                    //             glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
                     continue;
                 }
 

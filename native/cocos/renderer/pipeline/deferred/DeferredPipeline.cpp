@@ -144,12 +144,7 @@ bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
 
     // Main light sampler binding
     _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
-    _descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
-
-    // Spot light sampler binding
     _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
-    _descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, getDefaultTexture());
-
     _descriptorSet->update();
 
     // update global defines when all states initialized.

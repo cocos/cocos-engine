@@ -1107,17 +1107,7 @@ public:
         if (_resources.size() <= _count) {
             _resources.resize(_count * 2);
         }
-        if (_device->swapchains.count(gpuFramebuffer->swapchain)) {
-            FramebufferListMap &fboListMap     = gpuFramebuffer->swapchain->vkSwapchainFramebufferListMap;
-            auto                fboListMapIter = fboListMap.find(gpuFramebuffer);
-            if (fboListMapIter != fboListMap.end()) {
-                for (auto &i : fboListMapIter->second) {
-                    vkDestroyFramebuffer(_device->vkDevice, i, nullptr);
-                }
-                fboListMapIter->second.clear();
-                fboListMap.erase(fboListMapIter);
-            }
-        } else if (gpuFramebuffer->vkFramebuffer) {
+        if (gpuFramebuffer->vkFramebuffer) {
             Resource &res     = _resources[_count++];
             res.type          = RecycledType::FRAMEBUFFER;
             res.vkFramebuffer = gpuFramebuffer->vkFramebuffer;

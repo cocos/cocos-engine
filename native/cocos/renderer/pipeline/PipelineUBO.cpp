@@ -422,7 +422,6 @@ void PipelineUBO::updateShadowUBO(const scene::Camera *camera) {
 
     const auto &                   shadowFrameBufferMap = sceneData->getShadowFramebufferMap();
     const scene::DirectionalLight *mainLight            = scene->getMainLight();
-    ds->update();
     if (mainLight && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
         if (shadowFrameBufferMap.count(mainLight) > 0) {
             auto *texture = shadowFrameBufferMap.at(mainLight)->getColorTextures()[0];
@@ -431,6 +430,7 @@ void PipelineUBO::updateShadowUBO(const scene::Camera *camera) {
             }
         }
     }
+    ds->update();
     PipelineUBO::updateShadowUBOView(_pipeline, &_shadowUBO, camera);
     cmdBuffer->updateBuffer(ds->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
 }

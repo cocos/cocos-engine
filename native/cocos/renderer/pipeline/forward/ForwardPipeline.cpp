@@ -125,17 +125,13 @@ bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _queryPools.push_back(_device->getQueryPool());
     auto *const sharedData = _pipelineSceneData->getSharedData();
 
-    gfx::Sampler *const shadowMapSampler = getGlobalDSManager()->getPointSampler();
+    gfx::Sampler *const sampler = getGlobalDSManager()->getPointSampler();
 
     // Main light sampler binding
-    _descriptorSet->bindSampler(SHADOWMAP::BINDING, shadowMapSampler);
-    _descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
-
-    // Spot light sampler binding
-    _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, shadowMapSampler);
-    _descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, getDefaultTexture());
-
+    _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
+    _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
     _descriptorSet->update();
+
     // update global defines when all states initialized.
     _macros.setValue("CC_USE_HDR", static_cast<bool>(sharedData->isHDR));
     _macros.setValue("CC_SUPPORT_FLOAT_TEXTURE", _device->hasFeature(gfx::Feature::TEXTURE_FLOAT));

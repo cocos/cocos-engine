@@ -83,7 +83,6 @@ public:
     inline GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
     inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
     inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
-    inline gfx::Texture *                          getDefaultTexture() const { return _defaultTexture; }
     inline PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
     inline const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
     inline const gfx::QueryPoolList &              getQueryPools() const { return _queryPools; }
@@ -141,7 +140,6 @@ protected:
     PipelineSceneData * _pipelineSceneData{nullptr};
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
-    gfx::Texture *                                                _defaultTexture{nullptr};
     uint                                                          _width{0};
     uint                                                          _height{0};
     gfx::Buffer *                                                 _quadIB{nullptr};

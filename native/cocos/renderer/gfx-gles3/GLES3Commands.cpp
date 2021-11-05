@@ -2417,8 +2417,8 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             const GLES3GPUDescriptor &   gpuDescriptor    = gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
             if (!gpuDescriptor.gpuBuffer) {
-                CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
-                             glBuffer.name.c_str(), glBuffer.set, glBuffer.binding);
+                //CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
+                //             glBuffer.name.c_str(), glBuffer.set, glBuffer.binding);
                 continue;
             }
 
@@ -2467,8 +2467,8 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
                 auto unit = static_cast<uint32_t>(glSamplerTexture.units[u]);
 
                 if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
-                    CC_LOG_ERROR("Sampler texture '%s' at binding %d set %d index %d is not bounded",
-                                 glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
+                    //CC_LOG_ERROR("Sampler texture '%s' at binding %d set %d index %d is not bounded",
+                    //             glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
                     continue;
                 }
 
@@ -2505,8 +2505,8 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
                 auto unit = static_cast<uint32_t>(glImage.units[u]);
 
                 if (!gpuDescriptor->gpuTexture) {
-                    CC_LOG_ERROR("Storage image '%s' at binding %d set %d index %d is not bounded",
-                                 glImage.name.c_str(), glImage.set, glImage.binding, u);
+                    //CC_LOG_ERROR("Storage image '%s' at binding %d set %d index %d is not bounded",
+                    //             glImage.name.c_str(), glImage.set, glImage.binding, u);
                     continue;
                 }
 

@@ -148,6 +148,12 @@ gfx::DescriptorSet *GlobalDSManager::getOrCreateDescriptorSet(uint idx) {
 }
 
 void GlobalDSManager::destroy() {
+    for (auto &pair : _descriptorSetMap) {
+        CC_DELETE(pair.second->getBuffer(UBOShadow::BINDING));
+        CC_SAFE_DELETE(pair.second);
+    }
+    _descriptorSetMap.clear();
+
     CC_SAFE_DESTROY(_descriptorSetLayout);
     CC_SAFE_DESTROY(_globalDescriptorSet);
 }
