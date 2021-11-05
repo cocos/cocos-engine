@@ -149,7 +149,7 @@ static std::vector<cc::network::WebSocket *> *__websocketInstances = nullptr;
     if (!_isDestroyed) {
         cc::network::WebSocket::Data data;
         data.bytes    = const_cast<char *>([string cStringUsingEncoding:NSUTF8StringEncoding]);
-        data.len      = [string length];
+        data.len      = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
         data.isBinary = false;
         data.issued   = 0;
         data.ext      = nullptr;
