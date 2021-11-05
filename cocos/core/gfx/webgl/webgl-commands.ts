@@ -96,7 +96,7 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext)
     case Format.RGB9E5: return gl.UNSIGNED_BYTE;
 
     case Format.DEPTH: return gl.UNSIGNED_INT;
-    case Format.DEPTH_STENCIL: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
+    case Format.DEPTH_STENCIL: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL;
 
     case Format.BC1: return gl.UNSIGNED_BYTE;
     case Format.BC1_SRGB: return gl.UNSIGNED_BYTE;
