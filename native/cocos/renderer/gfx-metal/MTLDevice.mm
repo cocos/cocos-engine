@@ -331,7 +331,6 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
     // the wiggle room to leverage immediate update vs. copy-upload strategies without
     // breaking compatibilities. When we reached some conclusion on this subject,
     // getting rid of this interface all together may become a better option.
-    _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
 }
 

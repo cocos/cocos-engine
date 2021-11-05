@@ -427,7 +427,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
 MTLResourceOptions mu::toMTLResourceOption(MemoryUsage usage) {
     if (usage & MemoryUsage::HOST && usage & MemoryUsage::DEVICE)
         return MTLResourceStorageModeShared;
-    else if (hasFlag(usage, MemoryUsage::DEVICE))
+    else if (hasFlag(MemoryUsage::DEVICE, usage))
         return MTLResourceStorageModePrivate;
     else
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
@@ -975,19 +975,25 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
-        auto mappedBinding = binding + bufferBindingOffset[set];
-        newBinding.desc_set = set;
-        newBinding.binding = binding;
-        newBinding.msl_buffer = mappedBinding;
-        newBinding.msl_texture = 0;
-        newBinding.msl_sampler = 0;
-        msl.add_msl_resource_binding(newBinding);
 
-        if (gpuShader->blocks.find(mappedBinding) == gpuShader->blocks.end())
-            gpuShader->blocks[mappedBinding] = {ubo.name, set, binding, mappedBinding, shaderType, size};
-        else {
-            gpuShader->blocks[mappedBinding].stages |= shaderType;
+        uint nameHash = static_cast<uint>(std::hash<String>{}(ubo.name));
+        if (gpuShader->blocks.find(nameHash) == gpuShader->blocks.end()) {
+            auto mappedBinding = gpuShader->bufferIndex;
+            newBinding.desc_set = set;
+            newBinding.binding = binding;
+            newBinding.msl_buffer = mappedBinding;
+            msl.add_msl_resource_binding(newBinding);
+            gpuShader->blocks[nameHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+        } else {
+            auto mappedBinding = gpuShader->blocks[nameHash].mappedBinding;
+            newBinding.desc_set = set;
+            newBinding.binding = binding;
+            newBinding.msl_buffer = mappedBinding;
+            msl.add_msl_resource_binding(newBinding);
+            gpuShader->blocks[nameHash].stages |= shaderType;
         }
+        //msl.set_decoration(ubo.id, spv::DecorationLocation, gpuShader->blocks[nameHash].mappedBinding);
+        ++gpuShader->bufferIndex;
     }
 
     for (const auto &ubo : resources.storage_buffers) {
@@ -998,17 +1004,25 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         if (binding >= maxBufferBindingIndex) {
             CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
         }
-        auto mappedBinding = binding + bufferBindingOffset[set];
-        newBinding.desc_set = set;
-        newBinding.binding = binding;
-        newBinding.msl_buffer = mappedBinding;
-        msl.add_msl_resource_binding(newBinding);
-
-        if (gpuShader->blocks.find(mappedBinding) == gpuShader->blocks.end())
-            gpuShader->blocks[mappedBinding] = {ubo.name, set, binding, mappedBinding, shaderType, size};
-        else {
-            gpuShader->blocks[mappedBinding].stages |= shaderType;
+        
+        uint nameHash = static_cast<uint>(std::hash<String>{}(ubo.name));
+        if (gpuShader->blocks.find(nameHash) == gpuShader->blocks.end()) {
+            auto mappedBinding = gpuShader->bufferIndex;
+            newBinding.desc_set = set;
+            newBinding.binding = binding;
+            newBinding.msl_buffer = mappedBinding;
+            msl.add_msl_resource_binding(newBinding);
+            gpuShader->blocks[nameHash] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+        } else {
+            auto mappedBinding = gpuShader->blocks[nameHash].mappedBinding;
+            newBinding.desc_set = set;
+            newBinding.binding = binding;
+            newBinding.msl_buffer = mappedBinding;
+            msl.add_msl_resource_binding(newBinding);
+            gpuShader->blocks[nameHash].stages |= shaderType;
         }
+        //msl.set_decoration(ubo.id, spv::DecorationLocation, gpuShader->blocks[nameHash].mappedBinding);
+        ++gpuShader->bufferIndex;
     }
 
     //TODO: coulsonwang, need to set sampler binding explicitly
@@ -1018,7 +1032,6 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
     }
 
     // Get all sampled images in the shader.
-    unsigned int samplerIndex = 0;
     const auto &samplerBindingOffset = device->bindingMappingInfo().samplerOffsets;
     
     // avoid conflict index with input attachments.
@@ -1033,11 +1046,11 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
         }
 
         for (int i = 0; i < size; ++i) {
-            auto mappedBinding = samplerIndex + rtOffsets;
+            auto mappedBinding = gpuShader->samplerIndex + rtOffsets;
             newBinding.desc_set = set;
             newBinding.binding = binding + i;
             newBinding.msl_texture = mappedBinding;
-            newBinding.msl_sampler = samplerIndex;
+            newBinding.msl_sampler = gpuShader->samplerIndex;
             msl.add_msl_resource_binding(newBinding);
 
             if (gpuShader->samplers.find(mappedBinding) == gpuShader->samplers.end()) {
@@ -1045,8 +1058,7 @@ String mu::spirv2MSL(const uint32_t *ir, size_t word_count,
             } else {
                 gpuShader->samplers[mappedBinding].stages |= shaderType;
             }
-
-            samplerIndex++;
+            ++gpuShader->samplerIndex;
         }
     }
 
