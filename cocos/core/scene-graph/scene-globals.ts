@@ -123,7 +123,7 @@ export class AmbientInfo {
             this._skyColorLDR = color;
             (result as Vec4) = this._skyColorLDR;
         }
-        if (this._resource) { this._resource.skyColor = _v3.set(color.x, color.y, color.z); }
+        if (this._resource) { this._resource.skyColor = color; }
     }
     get skyLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
@@ -188,7 +188,7 @@ export class AmbientInfo {
             this._groundAlbedoLDR = color;
             (result as Vec4) = this._groundAlbedoLDR;
         }
-        if (this._resource) { this._resource.groundAlbedo = _v3.set(color.x, color.y, color.z); }
+        if (this._resource) { this._resource.groundAlbedo = color; }
     }
     get groundLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
