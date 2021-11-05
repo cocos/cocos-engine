@@ -109,7 +109,7 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
         auto count = static_cast<int>(pool.size());
 
         if (!count) {
-            return;
+            continue;
         }
 
         int destroyBegin = count - 1;
