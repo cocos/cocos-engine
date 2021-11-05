@@ -1103,16 +1103,6 @@ export class Terrain extends Component {
         for (let i = 0; i < TERRAIN_MAX_LAYER_COUNT; ++i) {
             this._layerList.push(null);
         }
-
-        // initialize shared index buffer
-        const gfxDevice = legacyCC.director.root.device as Device;
-        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-        this._sharedIndexBuffer.update(this._lod._indexBuffer);
     }
 
     @type(TerrainAsset)
@@ -1146,8 +1136,11 @@ export class Terrain extends Component {
                 this._blocks = [];
             }
 
-            // rebuild
-            this._buildImp();
+             // Ensure device is created
+             if (legacyCC.director.root.device) {
+                // rebuild
+                this._buildImp();
+            }
         }
     }
 
@@ -2003,6 +1996,18 @@ export class Terrain extends Component {
     }
 
     public _getSharedIndexBuffer () {
+        if (this._sharedIndexBuffer == null) {
+            // initialize shared index buffer
+            const gfxDevice = legacyCC.director.root.device as Device;
+            this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            this._sharedIndexBuffer.update(this._lod._indexBuffer);
+        }
+
         return this._sharedIndexBuffer;
     }
 

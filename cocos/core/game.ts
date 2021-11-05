@@ -178,6 +178,11 @@ export interface IGameConfig {
      * Available value can be 'auto', 'landscape', 'portrait'.
      */
     orientation?: ConfigOrientation;
+    /**
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     */
+    exactFitScreen: boolean,
 }
 
 /**
@@ -557,7 +562,10 @@ export class Game extends EventTarget {
         // TODO: unify the screen initialization workflow.
         if (HTML5) {
             // @ts-expect-error access private method.
-            screen._init(config.orientation || 'auto');
+            screen._init({
+                configOrientation: config.orientation || 'auto',
+                exactFitScreen: config.exactFitScreen,
+            });
         }
         // Init assetManager
         if (this.config.assetOptions) {
@@ -607,7 +615,10 @@ export class Game extends EventTarget {
         return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
             if (!HTML5) {
                 // @ts-expect-error access private method.
-                screen._init('auto');
+                screen._init({
+                    configOrientation: 'auto',
+                    exactFitScreen: true,
+                });
             }
         });
     }

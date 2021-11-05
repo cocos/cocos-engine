@@ -150,11 +150,11 @@ export class RenderShadowMapBatchedQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                const buffer = InstancedBuffer.get(pass);
+                const buffer = pass.getInstancedBuffer();
                 buffer.merge(subModel, model.instancedAttributes, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);
             } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                const buffer = BatchedBuffer.get(pass);
+                const buffer = pass.getBatchedBuffer();
                 buffer.merge(subModel, shadowPassIdx, model);
                 this._batchedQueue.queue.add(buffer);
             } else {

@@ -728,16 +728,26 @@ class LayerEval {
     private _consumeTransition (transition: TransitionEval) {
         const { to } = transition;
 
-        // Reset triggers
-        this._resetTriggersOnTransition(transition);
-
         if (to.kind === NodeKind.entry) {
             // We're entering a state machine
             this._callEnterMethods(to);
         }
     }
 
+    private _resetTriggersAlongThePath () {
+        const { _currentTransitionPath: currentTransitionPath } = this;
+
+        const nTransitions = currentTransitionPath.length;
+        for (let iTransition = 0; iTransition < nTransitions; ++iTransition) {
+            const transition = currentTransitionPath[iTransition];
+            this._resetTriggersOnTransition(transition);
+        }
+    }
+
     private _doTransitionToMotion (targetNode: MotionStateEval) {
+        // Reset triggers
+        this._resetTriggersAlongThePath();
+
         this._transitionProgress = 0.0;
         this._currentTransitionToNode = targetNode;
         this._toUpdated = false;
@@ -848,10 +858,6 @@ class LayerEval {
     }
 
     private _resetTriggersOnTransition (transition: TransitionEval) {
-        if (transition.to.kind === NodeKind.exit) {
-            // Exit transition(transitions whose target is exit)
-            return;
-        }
         const { triggers } = transition;
         if (triggers) {
             const nTriggers = triggers.length;
@@ -966,12 +972,6 @@ export class StateEval {
 
     public outgoingTransitions: readonly TransitionEval[] = [];
 }
-
-const DEFAULT_MOTION_STATE_ENTER_METHOD = StateMachineComponent.prototype.onMotionStateEnter;
-
-const DEFAULT_MOTION_STATE_EXIT_METHOD = StateMachineComponent.prototype.onMotionStateExit;
-
-const DEFAULT_MOTION_STATE_UPDATE_METHOD = StateMachineComponent.prototype.onMotionStateUpdate;
 
 type StateMachineComponentMotionStateCallbackName = keyof Pick<
 StateMachineComponent,
@@ -1137,13 +1137,11 @@ export class MotionStateEval extends StateEval {
     }
 
     public sampleFromPort (weight: number) {
-        const normalized = normalizeProgress(this._fromPort.progress);
-        this._source?.sample(normalized, weight);
+        this._source?.sample(this._fromPort.progress, weight);
     }
 
     public sampleToPort (weight: number) {
-        const normalized = normalizeProgress(this._toPort.progress);
-        this._source?.sample(normalized, weight);
+        this._source?.sample(this._toPort.progress, weight);
     }
 
     public getClipStatuses (baseWeight: number): Iterable<ClipStatus> {

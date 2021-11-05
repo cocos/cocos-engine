@@ -324,9 +324,9 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(Boolean)
     @displayOrder(27)
-    @tooltip('i18n:particle_system.enableCulling')
-    set enableCulling (value: boolean) {
-        this._enableCulling = value;
+    @tooltip('i18n:particle_system.renderCulling')
+    set renderCulling (value: boolean) {
+        this._renderCulling = value;
         if (value) {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
@@ -335,12 +335,12 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
-    get enableCulling () {
-        return this._enableCulling;
+    get renderCulling () {
+        return this._renderCulling;
     }
 
     @serializable
-    private _enableCulling = false;
+    private _renderCulling = false;
 
     /**
      * @en Particle culling mode option. Includes pause, pause and catchup, always simulate.
@@ -430,6 +430,24 @@ export class ParticleSystem extends RenderableComponent {
 
     @serializable
     private _aabbHalfZ = 0;
+
+    /**
+     * @en Culling module data before serialize.
+     * @zh 序列化之前剔除不需要的模块数据。
+     */
+    @displayOrder(28)
+    @tooltip('i18n:particle_system.dataCulling')
+    get dataCulling () {
+        return this._dataCulling;
+    }
+
+    set dataCulling (value: boolean) {
+        this._dataCulling = value;
+    }
+
+    @serializable
+    @formerlySerializedAs('enableCulling')
+    private _dataCulling = false;
 
     @override
     @visible(false)
@@ -979,7 +997,7 @@ export class ParticleSystem extends RenderableComponent {
     protected update (dt: number) {
         const scaledDeltaTime = dt * this.simulationSpeed;
 
-        if (this.enableCulling) {
+        if (this.renderCulling) {
             if (!this._boundingBox) {
                 this._boundingBox = new AABB();
                 this._calculateBounding(false);
@@ -1071,6 +1089,9 @@ export class ParticleSystem extends RenderableComponent {
             if (this.processor.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
             }
+        } else {
+            this.processor.updateRotation();
+            this.processor.updateScale();
         }
         // update render data
         this.processor.updateRenderData();
@@ -1316,6 +1337,6 @@ export class ParticleSystem extends RenderableComponent {
 
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this.enableCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
+        return this.dataCulling ? props.filter((p) => !PARTICLE_MODULE_PROPERTY.includes(p) || (this[p] && this[p].enable)) : props;
     }
 }

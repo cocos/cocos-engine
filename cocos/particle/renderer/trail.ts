@@ -639,10 +639,10 @@ export default class TrailModule {
         const indexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            Math.max(1, this._trailNum) * 6 * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
-        this._iBuffer = new Uint16Array(this._trailNum * 6);
+        this._iBuffer = new Uint16Array(Math.max(1, this._trailNum) * 6);
         indexBuffer.update(this._iBuffer);
 
         this._iaInfoBuffer = device.createBuffer(new BufferInfo(

@@ -41,6 +41,7 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
+      properties: *props
     - &shadow-caster
       vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
@@ -48,6 +49,12 @@ CCEffect %{
       propertyIndex: 0
       rasterizerState:
         cullMode: front
+      properties:
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
   - name: transparent
     passes:
     - vert: standard-vs

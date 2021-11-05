@@ -439,7 +439,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
     protected _destroyBloomData () {
         const bloom = this._pipelineRenderData!.bloom;
-        if (bloom === null || this.bloomEnabled === false) return;
+        if (bloom === null) return;
 
         if (bloom.prefiterTex) bloom.prefiterTex.destroy();
         if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
@@ -625,8 +625,8 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._constantMacros = str;
     }
 
-    protected _generateBloomRenderData () {
-        if (this.bloomEnabled === false) return;
+    public generateBloomRenderData () {
+        if (this._pipelineRenderData!.bloom != null) return;
 
         const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
         const device = this.device;
