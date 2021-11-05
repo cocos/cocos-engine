@@ -39,6 +39,8 @@ import { Root } from '../root';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
+const _v4 = new Vec4();
+const _col = new Color();
 const _qt = new Quat();
 
 // Normalize HDR color
@@ -114,31 +116,28 @@ export class AmbientInfo {
     })
     @editable
     set skyLightingColor (val: Color) {
-        let result;
-        const color = new Vec4(val.x, val.y, val.z, val.w);
+        _v4.set(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._skyColorHDR = color;
-            (result as Vec4) = this._skyColorHDR;
+            this._skyColorHDR.set(_v4);
         } else {
-            this._skyColorLDR = color;
-            (result as Vec4) = this._skyColorLDR;
+            this._skyColorLDR.set(_v4);
         }
-        if (this._resource) { this._resource.skyColor = color; }
+        if (this._resource) { this._resource.skyColor.set(_v4); }
     }
     get skyLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const color = isHDR ? this._skyColorHDR.clone() : this._skyColorLDR.clone();
-        normalizeHDRColor(color);
-        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
+        _v4.set(isHDR ? this._skyColorHDR : this._skyColorLDR);
+        normalizeHDRColor(_v4);
+        return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
     set skyColor (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._skyColorHDR = val;
+            this._skyColorHDR.set(val);
         } else {
-            this._skyColorLDR = val;
+            this._skyColorLDR.set(val);
         }
-        if (this._resource) { this._resource.skyColor = val; }
+        if (this._resource) { this._resource.skyColor.set(val); }
     }
 
     /**
@@ -179,31 +178,28 @@ export class AmbientInfo {
     })
     @editable
     set groundLightingColor (val: Color) {
-        let result;
-        const color = new Vec4(val.x, val.y, val.z, val.w);
+        _v4.set(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._groundAlbedoHDR = color;
-            (result as Vec4) = this._groundAlbedoHDR;
+            this._groundAlbedoHDR.set(_v4);
         } else {
-            this._groundAlbedoLDR = color;
-            (result as Vec4) = this._groundAlbedoLDR;
+            this._groundAlbedoLDR.set(_v4);
         }
-        if (this._resource) { this._resource.groundAlbedo = color; }
+        if (this._resource) { this._resource.groundAlbedo.set(_v4); }
     }
     get groundLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const color = isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR;
-        normalizeHDRColor(color);
-        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
+        _v4.set(isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR);
+        normalizeHDRColor(_v4);
+        return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
     set groundAlbedo (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._groundAlbedoHDR = val;
+            this._groundAlbedoHDR.set(val);
         } else {
-            this._groundAlbedoLDR = val;
+            this._groundAlbedoLDR.set(val);
         }
-        if (this._resource) { this._resource.groundAlbedo = val; }
+        if (this._resource) { this._resource.groundAlbedo.set(val); }
     }
 
     public activate (resource: Ambient) {
