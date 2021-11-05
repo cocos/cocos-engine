@@ -87,9 +87,10 @@ struct ToonSurface {
     vec3 dirlightContrib = diffuse + specular;
 
     float shadow = 1.0;
-    #if CC_RECEIVE_SHADOW
+    #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
+      NL = max(dot(N, L), 0.0);
       if (NL > 0.0) {
-        CC_SHADOW_FACTOR(shadow, N, NL);
+        shadow = CCShadowFactorBase(CC_SHADOW_POSITION, N);
       }
     #endif
 
@@ -98,9 +99,6 @@ struct ToonSurface {
 
     // TODO: no ambient, no IBL for now
 
-    #if CC_USE_HDR
-      s.emissive *= cc_exposure.w;
-    #endif
     finalColor += s.emissive;
 
     return vec4(finalColor, s.baseColor.a);

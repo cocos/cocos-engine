@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
-import { Frustum, Ray } from '../../geometry';
+import { EDITOR, JSB } from 'internal:constants';
+import { enums, Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
@@ -36,6 +36,7 @@ import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { preTransforms } from '../../math/mat4';
 import { NativeCamera } from './native-scene';
+import { warnID } from '../../platform/debug';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -140,7 +141,6 @@ export class Camera {
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
-    private _matViewInv: Mat4 | null = null;
     private _matProj: Mat4 = new Mat4();
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
@@ -172,6 +172,7 @@ export class Camera {
         this._isoValue = ISOS[this._iso];
 
         this._aspect = this.screenScale = 1;
+        this._frustum.accurate = true;
 
         if (!correctionMatrices.length) {
             const ySign = device.capabilities.clipSpaceSignY;
@@ -203,12 +204,39 @@ export class Camera {
         }
     }
 
+    private _updateAspect (oriented = true) {
+        this._aspect = (this.window.width * this._viewport.width) / (this.window.height * this._viewport.height);
+        // window size/viewport is pre-rotated, but aspect should be oriented to acquire the correct projection
+        if (oriented) {
+            const swapchain = this.window.swapchain;
+            const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
+            if (orientation % 2) this._aspect = 1 / this._aspect;
+        }
+        this._isProjDirty = true;
+
+        if (JSB) this._nativeObj!.aspect = this._aspect;
+    }
+
     protected _init (info: ICameraInfo) {
         if (JSB) {
             this._nativeObj = new NativeCamera();
             if (this._scene) this._nativeObj.scene = this._scene.native;
             this._nativeObj.frustum = this._frustum;
         }
+    }
+
+    /**
+     * this exposure value corresponding to default standard camera exposure parameters
+     */
+    public static get standardExposureValue () {
+        return 1.0 / 38400.0;
+    }
+
+    /**
+     * luminance unit scale used by area lights
+     */
+    public static get standardLightMeterScale () {
+        return 10000.0;
     }
 
     public initialize (info: ICameraInfo) {
@@ -234,7 +262,7 @@ export class Camera {
     public destroy () {
         if (this._window) {
             this._window.detachCamera(this);
-            this.window = null;
+            this.window = null!;
         }
         this._name = null;
         this._destroy();
@@ -255,15 +283,26 @@ export class Camera {
 
         this._setWidth(width);
         this._setHeight(height);
-        this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
-        this._isProjDirty = true;
+        this._updateAspect();
     }
 
     public setFixedSize (width: number, height: number) {
         this._setWidth(width);
         this._setHeight(height);
-        this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
+        this._updateAspect(false);
         this.isWindowSize = false;
+    }
+
+    // Editor specific gizmo camera logic
+    public syncCameraEditor (camera) {
+        if (EDITOR) {
+            this.position = camera.position;
+            this.forward = camera.forward;
+            this._matView = camera.matView;
+            this._matProj = camera.matProj;
+            this._matProjInv = camera.matProjInv;
+            this._matViewProj = camera.matViewProj;
+        }
     }
 
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
@@ -288,22 +327,23 @@ export class Camera {
         }
 
         // projection matrix
-        let orientation = this._device.surfaceTransform;
+        const swapchain = this.window?.swapchain;
+        const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
             // Only for rendertexture processing
-            if (this.window?.hasOffScreenAttachments) {
-                orientation = SurfaceTransform.IDENTITY;
-            }
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
             } else {
-                const x = this._orthoHeight * this._aspect; // aspect is already oriented
+                const x = this._orthoHeight * this._aspect;
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+            }
+            if (JSB) {
+                this._nativeObj!.aspect = this._aspect;
             }
             Mat4.invert(this._matProjInv, this._matProj);
             if (JSB) {
@@ -375,6 +415,9 @@ export class Camera {
 
     set fov (fov) {
         this._fov = fov;
+        if (JSB) {
+            this._nativeObj!.fov = fov;
+        }
         this._isProjDirty = true;
     }
 
@@ -384,6 +427,9 @@ export class Camera {
 
     set nearClip (nearClip) {
         this._nearClip = nearClip;
+        if (JSB) {
+            this._nativeObj!.nearClip = this._nearClip;
+        }
         this._isProjDirty = true;
     }
 
@@ -393,6 +439,9 @@ export class Camera {
 
     set farClip (farClip) {
         this._farClip = farClip;
+        if (JSB) {
+            this._nativeObj!.farClip = this._farClip;
+        }
         this._isProjDirty = true;
     }
 
@@ -414,15 +463,29 @@ export class Camera {
         return this._clearColor as IVec4Like;
     }
 
+    /**
+     * Pre-rotated (i.e. always in identity/portrait mode) if possible.
+     */
     get viewport () {
         return this._viewport;
     }
 
     set viewport (val) {
-        const { x, width, height } = val;
-        const y = this._device.capabilities.clipSpaceSignY < 0 ? 1 - val.y - height : val.y;
+        warnID(8302);
+        this.setViewportInOrientedSpace(val);
+    }
 
-        switch (this._device.surfaceTransform) {
+    /**
+     * Set the viewport in oriented space (local to screen rotations)
+     */
+    public setViewportInOrientedSpace (val: Rect) {
+        const { x, width, height } = val;
+        const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
+
+        const swapchain = this.window?.swapchain;
+        const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
+
+        switch (orientation) {
         case SurfaceTransform.ROTATE_90:
             this._viewport.x = 1 - y - height;
             this._viewport.y = x;
@@ -475,63 +538,20 @@ export class Camera {
         return this._aspect;
     }
 
-    set matView (val) {
-        this._matView = val;
-        if (JSB) {
-            this._nativeObj!.matView = this._matView;
-        }
-    }
-
     get matView () {
         return this._matView;
-    }
-
-    set matViewInv (val: Mat4 | null) {
-        this._matViewInv = val;
-    }
-
-    get matViewInv () {
-        return this._matViewInv || this._node!.worldMatrix as Mat4;
-    }
-
-    set matProj (val) {
-        this._matProj = val;
-        if (JSB) {
-            this._nativeObj!.matProj = this._matProj;
-        }
     }
 
     get matProj () {
         return this._matProj;
     }
 
-    set matProjInv (val) {
-        this._matProjInv = val;
-        if (JSB) {
-            this._nativeObj!.matProjInv = this._matProjInv;
-        }
-    }
-
     get matProjInv () {
         return this._matProjInv;
     }
 
-    set matViewProj (val) {
-        this._matViewProj = val;
-        if (JSB) {
-            this._nativeObj!.matViewProj = this._matViewProj;
-        }
-    }
-
     get matViewProj () {
         return this._matViewProj;
-    }
-
-    set matViewProjInv (val) {
-        this._matViewProjInv = val;
-        if (JSB) {
-            this._nativeObj!.matViewProjInv = this._matViewProjInv;
-        }
     }
 
     get matViewProjInv () {
@@ -552,12 +572,12 @@ export class Camera {
     set window (val) {
         this._window = val;
         if (JSB && val) {
-            this._nativeObj!.window = this._window!.native;
+            this._nativeObj!.window = this._window.native;
         }
     }
 
     get window () {
-        return this._window;
+        return this._window!;
     }
 
     set forward (val) {
@@ -699,7 +719,12 @@ export class Camera {
         if (win) {
             win.attachCamera(this);
             this.window = win;
-            this.resize(win.width, win.height);
+
+            // window size is pre-rotated
+            const swapchain = win.swapchain;
+            const orientation = swapchain && swapchain.surfaceTransform || SurfaceTransform.IDENTITY;
+            if (orientation % 2) this.resize(win.height, win.width);
+            else this.resize(win.width, win.height);
         }
     }
 
@@ -715,8 +740,8 @@ export class Camera {
     public screenPointToRay (out: Ray, x: number, y: number): Ray {
         if (!this._node) return null!;
 
-        const width = this.width;
-        const height = this.height;
+        const width = this.window.width;
+        const height = this.window.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -748,8 +773,8 @@ export class Camera {
      * transform a screen position (in oriented space) to world space
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
-        const width = this.width;
-        const height = this.height;
+        const width = this.window.width;
+        const height = this.window.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -793,9 +818,9 @@ export class Camera {
     /**
      * transform a world space position to screen space
      */
-    public worldToScreen (out: Vec3, worldPos: Readonly<Vec3>): Vec3 {
-        const width = this.width;
-        const height = this.height;
+    public worldToScreen (out: Vec3, worldPos: Vec3 | Readonly<Vec3>): Vec3 {
+        const width = this.window.width;
+        const height = this.window.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;

@@ -243,7 +243,8 @@ CCProgram shadow-caster-vs %{
   #include <cc-shadow>
 
   out vec2 v_uv;
-  out vec2 v_clip_depth;
+  out vec4 v_worldPos;
+  out float v_clip_depth;
 
   vec4 vert () {
     StandardVertInput In;
@@ -252,11 +253,11 @@ CCProgram shadow-caster-vs %{
     mat4 matWorld, matWorldIT;
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
-    vec4 worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * worldPos;
+    v_worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * v_worldPos;
+    v_clip_depth = clipPos.z / clipPos.w * 0.5 + 0.5;
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
-    v_clip_depth = clipPos.zw;
 
     return clipPos;
   }
@@ -266,9 +267,11 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
   #include <packing>
-
+  #include <cc-shadow-map-base>
+  
   in vec2 v_uv;
-  in vec2 v_clip_depth;
+  in vec4 v_worldPos;
+  in float v_clip_depth;
 
   #if USE_BASE_COLOR_MAP
     uniform sampler2D baseColorMap;
@@ -288,6 +291,18 @@ CCProgram shadow-caster-fs %{
       if (baseColor.ALPHA_TEST_CHANNEL < colorScaleAndCutoff.w) discard;
     #endif
 
-    return packDepthToRGBA(v_clip_depth.x / v_clip_depth.y * 0.5 + 0.5);
+    // spot use linear
+    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      // enabled linear depth
+      if (cc_shadowNFLSInfo.z > 0.000001) {
+        return vec4(CCGetLinearDepth(v_worldPos.xyz), 1.0, 1.0, 1.0);
+      }
+    }
+
+    if (cc_shadowLPNNInfo.y > 0.000001) {
+      return packDepthToRGBA(v_clip_depth);
+    }
+  
+    return vec4(v_clip_depth, 1.0, 1.0, 1.0);
   }
 }%

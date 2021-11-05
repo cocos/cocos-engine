@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @module ui
  */
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
@@ -38,7 +38,7 @@ import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
 import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../core/scene-graph';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { UITransform } from './ui-transform';
@@ -46,6 +46,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
+import { director } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 // hack
@@ -150,6 +151,7 @@ export class Renderable2D extends RenderableComponent {
      */
     @type(Material)
     @displayOrder(0)
+    @tooltip('i18n:renderable2D.customMaterial')
     @displayName('CustomMaterial')
     get customMaterial () {
         return this._customMaterial;
@@ -160,72 +162,18 @@ export class Renderable2D extends RenderableComponent {
         this.updateMaterial();
     }
 
+    // macro.UI_GPU_DRIVEN
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
             this._blendHash = -1; // a flag to check merge
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
             return;
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
-        this._updateBlendFunc();
-    }
-
-    /**
-     * @en Specifies the source blend mode, it will clone a new material object.
-     * @zh 指定源的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
-     * @example
-     * ```ts
-     * sprite.srcBlendFactor = BlendFactor.ONE;
-     * ```
-     * @deprecated
-     */
-    get srcBlendFactor () {
-        if (!EDITOR && this._customMaterial) {
-            warnID(12001);
-        }
-        return this._srcBlendFactor;
-    }
-
-    set srcBlendFactor (value: BlendFactor) {
-        if (this._customMaterial) {
-            warnID(12001);
-            return;
-        }
-        if (this._srcBlendFactor === value) {
-            return;
-        }
-
-        this._srcBlendFactor = value;
-        this._updateBlendFunc();
-    }
-
-    /**
-     * @en Specifies the destination blend mode.
-     * @zh 指定目标的混合模式，这会克隆一个新的材质对象，注意这带来的性能和内存损耗。
-     * @example
-     * ```ts
-     * sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
-     * ```
-     * @deprecated
-     */
-    get dstBlendFactor () {
-        if (!EDITOR && this._customMaterial) {
-            warnID(12001);
-        }
-        return this._dstBlendFactor;
-    }
-
-    set dstBlendFactor (value: BlendFactor) {
-        if (this._customMaterial) {
-            warnID(12001);
-            return;
-        }
-        if (this._dstBlendFactor === value) {
-            return;
-        }
-
-        this._dstBlendFactor = value;
         this._updateBlendFunc();
     }
 
@@ -298,12 +246,22 @@ export class Renderable2D extends RenderableComponent {
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    protected _instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
+    protected _instanceMaterialType = -1;
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
     protected _colorDirty = true;
     protected _cacheAlpha = 1;
+
+    // macro.UI_GPU_DRIVEN
+    protected declare _canDrawByFourVertex: boolean;
+
+    constructor () {
+        super();
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = false;
+        }
+    }
 
     get blendHash () {
         return this._blendHash;
@@ -409,7 +367,7 @@ export class Renderable2D extends RenderableComponent {
      * 一般在 UI 渲染流程中调用，用于组装所有的渲染数据到顶点数据缓冲区。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public updateAssembler (render: Batcher2D) {
+    public updateAssembler (render: IBatcher) {
         this._updateColor();
         if (this._renderFlag) {
             this._checkAndUpdateRenderData();
@@ -425,15 +383,15 @@ export class Renderable2D extends RenderableComponent {
      * 它可能会组装额外的渲染数据到顶点数据缓冲区，也可能只是重置一些渲染状态。
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
-    public postUpdateAssembler (render: Batcher2D) {
+    public postUpdateAssembler (render: IBatcher) {
         if (this._renderFlag) {
             this._postRender(render);
         }
     }
 
-    protected _render (render: Batcher2D) {}
+    protected _render (render: IBatcher) {}
 
-    protected _postRender (render: Batcher2D) {}
+    protected _postRender (render: IBatcher) {}
 
     protected _checkAndUpdateRenderData () {
         if (this._renderDataFlag) {
@@ -453,12 +411,24 @@ export class Renderable2D extends RenderableComponent {
     protected _postCanRender () {}
 
     protected _updateColor () {
+        if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
+            const opacityZero = this._cacheAlpha <= 0;
+            this._updateWorldAlpha();
+            if (this._colorDirty) {
+                if (opacityZero || this._cacheAlpha <= 0) {
+                    this._renderFlag = this._canRender();
+                }
+                this._colorDirty = false;
+            }
+            return;
+        }
         // Need update rendFlag when opacity changes from 0 to !0
         const opacityZero = this._cacheAlpha <= 0;
         this._updateWorldAlpha();
         if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
-            if (opacityZero) {
+            // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
+            if (opacityZero || this._cacheAlpha <= 0) {
                 this._renderFlag = this._canRender();
             }
             this._colorDirty = false;
@@ -509,23 +479,30 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
+    // macro.UI_GPU_DRIVEN
     protected _updateBuiltinMaterial () : Material {
+        let gpuMat = '';
+        if (UI_GPU_DRIVEN) {
+            if (this._canDrawByFourVertex) {
+                gpuMat = '-gpu';
+            }
+        }
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
-            mat = builtinResMgr.get('ui-base-material');
+            mat = builtinResMgr.get(`ui-base${gpuMat}-material`);
             break;
         case InstanceMaterialType.GRAYSCALE:
-            mat = builtinResMgr.get('ui-sprite-gray-material');
+            mat = builtinResMgr.get(`ui-sprite-gray${gpuMat}-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED:
-            mat = builtinResMgr.get('ui-sprite-alpha-sep-material');
+            mat = builtinResMgr.get(`ui-sprite-alpha-sep${gpuMat}-material`);
             break;
         case InstanceMaterialType.USE_ALPHA_SEPARATED_AND_GRAY:
-            mat = builtinResMgr.get('ui-sprite-gray-alpha-sep-material');
+            mat = builtinResMgr.get(`ui-sprite-gray-alpha-sep${gpuMat}-material`);
             break;
         default:
-            mat = builtinResMgr.get('ui-sprite-material');
+            mat = builtinResMgr.get(`ui-sprite${gpuMat}-material`);
             break;
         }
         return mat;

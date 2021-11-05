@@ -46,12 +46,15 @@ export { DeferredPipeline } from './deferred/deferred-pipeline';
 export { MainFlow } from './deferred/main-flow';
 export { GbufferStage } from './deferred/gbuffer-stage';
 export { LightingStage } from './deferred/lighting-stage';
-export { PostprocessStage } from './deferred/postprocess-stage';
+export { BloomStage } from './common/bloom-stage';
+export { PostProcessStage } from './common/postprocess-stage';
 export { ShadowFlow } from './shadow/shadow-flow';
 export { ShadowStage } from './shadow/shadow-stage';
 
 export { InstancedBuffer } from './instanced-buffer';
 export { PipelineStateManager } from './pipeline-state-manager';
+
+export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 
 export function createDefaultPipeline () {
     const rppl = new ForwardPipeline();

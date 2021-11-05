@@ -1,5 +1,4 @@
-interface EXT_color_buffer_float {
-}
+interface EXT_color_buffer_float {}
 
 interface EXT_disjoint_timer_query_webgl2 {
     readonly QUERY_COUNTER_BITS_EXT: GLenum;

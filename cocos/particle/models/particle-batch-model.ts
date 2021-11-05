@@ -167,7 +167,7 @@ export default class ParticleBatchModel extends scene.Model {
 
         const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
@@ -308,8 +308,13 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     public updateIA (count: number) {
+        if (count <= 0) {
+            return;
+        }
         const ia = this._subModels[0].inputAssembler;
-        ia.vertexBuffers[0].update(this._vdataF32!);
+        const byteLength = this._vertAttrsFloatCount * this._vertCount;
+        ia.vertexBuffers[0].update(this._vdataF32!, count * byteLength * 4);
+        // ia.vertexBuffers[0].update(this._vdataF32!);
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount * count;
         this._iaInfoBuffer!.update(this._iaInfo);

@@ -26,7 +26,7 @@
 import { DescriptorSet } from '../base/descriptor-set';
 import { WebGLBuffer } from './webgl-buffer';
 import { IWebGLGPUDescriptorSet, IWebGLGPUDescriptor } from './webgl-gpu-objects';
-import { WebGLSampler } from './webgl-sampler';
+import { WebGLSampler } from './states/webgl-sampler';
 import { WebGLTexture } from './webgl-texture';
 import { WebGLDescriptorSetLayout } from './webgl-descriptor-set-layout';
 import { DescriptorSetInfo, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE } from '../base/define';
@@ -38,7 +38,7 @@ export class WebGLDescriptorSet extends DescriptorSet {
 
     private _gpuDescriptorSet: IWebGLGPUDescriptorSet | null = null;
 
-    public initialize (info: DescriptorSetInfo): boolean {
+    public initialize (info: DescriptorSetInfo) {
         this._layout = info.layout;
         const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGLDescriptorSetLayout).gpuDescriptorSetLayout;
 
@@ -60,8 +60,6 @@ export class WebGLDescriptorSet extends DescriptorSet {
                 });
             }
         }
-
-        return true;
     }
 
     public destroy () {

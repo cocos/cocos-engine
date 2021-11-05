@@ -120,6 +120,7 @@ module.exports = {
         skinning_root: '骨骼根节点的引用，对应控制此模型的动画组件所在节点',
     },
     sprite: {
+        gray_scale: '是否开启灰度渲染模式',
         atlas: '图片资源所属的 Atlas 图集资源',
         sprite_frame: '渲染 Sprite 使用的 SpriteFrame 图片资源',
         type:
@@ -141,6 +142,9 @@ module.exports = {
         size_mode:
             '指定 Sprite 所在节点的尺寸，CUSTOM 表示自定义尺寸，TRIMMED 表示取原始图片剪裁透明像素后的尺寸，RAW 表示取原始图片未剪裁的尺寸',
         trim: '节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域',
+    },
+    UIOpacity: {
+        opacity: '设置物体的不透明度，取值范围为 0 ~ 255',
     },
     billboard: {
         texture: 'billboard 纹理',
@@ -193,6 +197,7 @@ module.exports = {
         font_size: '文字尺寸，以 point 为单位',
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
+        spacing_x: '文本字符之间的间距，仅在使用 BMFont 位图字体时生效',
         overflow:
             '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
         wrap: '是否允许自动换行',
@@ -203,6 +208,7 @@ module.exports = {
         font_bold: '字体加粗',
         font_italic: '字体倾斜',
         font_underline: '字体加下划线',
+        underline_height: '下划线高度',
     },
     labelOutline: {
         color: '描边的颜色',
@@ -286,6 +292,7 @@ module.exports = {
     renderable2D: {
         srcBlendFactor: '原始混合因子',
         dstBlendFactor: '目标混合因子',
+        customMaterial: '用户指定的材质',
         color: '渲染颜色',
     },
     rotationOvertimeModule: {
@@ -489,9 +496,9 @@ module.exports = {
         distance: '距相机多少距离为正常显示计算大小',
         sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',
     },
-    SubContextView: {
-        design_size: '子域的设计分辨率，禁止在运行时动态更新',
-        fps: '主域更新子域贴图的频率',
+    subContextView: {
+        design_size: '开放数据域的设计分辨率，禁止在运行时动态更新',
+        fps: '主域更新开放数据域贴图的频率',
     },
     skeleton: {
         skeleton_data: '骨骼信息数据，拖拽 Spine 导出的骨骼动画信息 json 资源到这里来开始使用',
@@ -707,6 +714,10 @@ module.exports = {
             label: "用户界面",
             description: "用户界面支持。",
         },
+        gpu_driven: {
+            label: "GPU驱动",
+            description: "是否启用GPU驱动方案（暂时只对打包后的工程起效）",
+        },
         base_3d: {
             label: "基础 3D 功能",
             description: "常用于一般 3D 应用的工具与组件。",
@@ -728,8 +739,8 @@ module.exports = {
             description: "基于 cannon.js 的物理系统支持。",
         },
         physics_ammo: {
-            label: "基于 bullet(ammo.js) 的物理系统",
-            description: "基于 bullet(ammo.js) 的物理系统支持。",
+            label: "基于 Bullet 的物理系统",
+            description: "基于 Bullet 的物理系统支持。",
         },
         physics_physx: {
             label: "基于 PhysX 的物理系统",
@@ -811,7 +822,8 @@ module.exports = {
         priority:'渲染排序优先级',
     },
     graphics: {
-        lineJoin: '用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性',
+        lineWidth: '线条宽度',
+        lineJoin: '用来设置 2 个长度不为 0 的相连部分（线段、圆弧、曲线）如何连接在一起',
         lineCap: '指定如何绘制每一条线段末端',
         strokeColor: '笔触的颜色',
         fillColor: '填充绘画的颜色',

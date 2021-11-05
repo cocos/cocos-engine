@@ -1,0 +1,143 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#define CLUSTERS_X 16
+#define CLUSTERS_Y 8
+#define CLUSTERS_Z 24
+#define MAX_LIGHTS_PER_CLUSTER 100u
+
+#pragma glBinding(4)
+readonly buffer b_ccLightsBuffer { vec4 b_ccLights[]; };
+
+#pragma glBinding(5)
+readonly buffer b_clusterLightIndicesBuffer { uint b_clusterLightIndices[]; };
+
+#pragma glBinding(6)
+readonly buffer b_clusterLightGridBuffer { uvec4 b_clusterLightGrid[]; };
+
+struct CCLight
+{
+  vec4 cc_lightPos;
+  vec4 cc_lightColor;
+  vec4 cc_lightSizeRangeAngle;
+  vec4 cc_lightDir;
+};
+
+struct Cluster
+{
+  vec3 minBounds;
+  vec3 maxBounds;
+};
+
+struct LightGrid
+{
+  uint offset;
+  uint ccLights;
+};
+
+float screen2EyeDepth(float depth, float near, float far)
+{
+  float ndc = 2.0 * depth - 1.0;
+  float eye = 2.0 * far * near / (far + near + ndc * (near - far));
+  return eye;
+}
+
+CCLight getCCLight(uint i)
+{
+  CCLight light;
+  light.cc_lightPos = b_ccLights[4u * i + 0u];
+  light.cc_lightColor = b_ccLights[4u * i + 1u];
+  light.cc_lightSizeRangeAngle = b_ccLights[4u * i + 2u];
+  light.cc_lightDir = b_ccLights[4u * i + 3u];
+  return light;
+}
+
+LightGrid getLightGrid(uint cluster)
+{
+  uvec4 gridvec = b_clusterLightGrid[cluster];
+  LightGrid grid;
+  grid.offset = gridvec.x;
+  grid.ccLights = gridvec.y;
+  return grid;
+}
+
+uint getGridLightIndex(uint start, uint offset)
+{
+  return b_clusterLightIndices[start + offset];
+}
+
+uint getClusterZIndex(vec4 worldPos)
+{
+  float scale = float(CLUSTERS_Z) / log(cc_nearFar.y / cc_nearFar.x);
+  float bias = -(float(CLUSTERS_Z) * log(cc_nearFar.x) / log(cc_nearFar.y / cc_nearFar.x));
+  float eyeDepth = -(cc_matView * worldPos).z;
+  uint zIndex = uint(max(log(eyeDepth) * scale + bias, 0.0));
+  return zIndex;
+}
+
+uint getClusterIndex(vec4 fragCoord, vec4 worldPos)
+{
+  uint zIndex = getClusterZIndex(worldPos);
+  float clusterSizeX = ceil(cc_screenSize.x / float(CLUSTERS_X));
+  float clusterSizeY = ceil(cc_screenSize.y / float(CLUSTERS_Y));
+  uvec3 indices = uvec3(uvec2(fragCoord.xy / vec2(clusterSizeX, clusterSizeY)), zIndex);
+  uint cluster = (16u * 8u) * indices.z + 16u * indices.y + indices.x;
+  return cluster;
+}
+
+vec4 CCClusterShadingAdditive (StandardSurface s, vec4 shadowPos) {
+  // Calculate diffuse & specular
+  vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
+  vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
+  vec3 diffuseContrib = diffuse / PI;
+
+  vec3 N = normalize(s.normal);
+  vec3 V = normalize(cc_cameraPos.xyz - s.position);
+  float NV = max(abs(dot(N, V)), 0.001);
+  specular = BRDFApprox(specular, s.roughness, NV);
+  vec3 finalColor = vec3(0.0);
+
+  uint cluster = getClusterIndex(gl_FragCoord, vec4(s.position, 1.0));
+  LightGrid grid = getLightGrid(cluster);
+  uint numLights = grid.ccLights;
+
+  for (uint i = 0u; i < MAX_LIGHTS_PER_CLUSTER; i++) {
+    if (i >= numLights) break;
+    uint lightIndex = getGridLightIndex(grid.offset, i);
+    CCLight light = getCCLight(lightIndex);
+    vec3 SLU = light.cc_lightPos.xyz - s.position;
+    vec3 SL = normalize(SLU);
+    vec3 SH = normalize(SL + V);
+    float SNL = max(dot(N, SL), 0.001);
+    float SNH = max(dot(N, SH), 0.0);
+
+    float distSqr = dot(SLU, SLU);
+    float litRadius = light.cc_lightSizeRangeAngle.x;
+    float litRadiusSqr = litRadius * litRadius;
+    float illum = PI * (litRadiusSqr / max(litRadiusSqr , distSqr));
+    float attRadiusSqrInv = 1.0 / max(light.cc_lightSizeRangeAngle.y, 0.01);
+    attRadiusSqrInv *= attRadiusSqrInv;
+    float att = GetDistAtt(distSqr, attRadiusSqrInv);
+    vec3 lspec = specular * CalcSpecular(s.roughness, SNH, SH, N);
+
+    if (light.cc_lightPos.w > 0.0) {
+      float cosInner = max(dot(-light.cc_lightDir.xyz, SL), 0.01);
+      float cosOuter = light.cc_lightSizeRangeAngle.z;
+      float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
+      float litAngleOffset = -cosOuter * litAngleScale;
+      att *= GetAngleAtt(SL, -light.cc_lightDir.xyz, litAngleScale, litAngleOffset);
+    }
+
+    vec3 lightColor = light.cc_lightColor.rgb;
+
+    float shadow = 1.0;
+    #if CC_RECEIVE_SHADOW
+      if (light.cc_lightPos.w > 0.0) {
+        shadow = CCSpotShadowFactorBase(shadowPos, s.position);
+      }
+    #endif
+
+    lightColor *= shadow;
+    finalColor += SNL * lightColor * light.cc_lightColor.w * illum * att * (diffuseContrib + lspec);
+  }
+
+  return vec4(finalColor, 0.0);
+}

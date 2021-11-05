@@ -289,6 +289,9 @@ export class MeshRenderer extends RenderableComponent {
     // Redo, Undo, Prefab restore, etc.
     public onRestore () {
         this._updateModels();
+        if (this.enabledInHierarchy) {
+            this._attachToScene();
+        }
         this._updateCastShadow();
         this._updateReceiveShadow();
     }

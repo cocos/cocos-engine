@@ -64,7 +64,7 @@ const IsPositionLocked = 1 << 21;
 
 // Distributed
 const IsReplicated = 1 << 22;
-const IsClientLoad = 1 << 23;
+export const IsClientLoad = 1 << 23;
 
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
@@ -460,6 +460,7 @@ prototype._onPreDestroy = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
 CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+CCClass.Attr.setClassAttr(CCObject, 'replicated', 'visible', false);
 
 /**
  * Bit mask that controls object states.

@@ -56,7 +56,7 @@ const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
 
 const downloadImage = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) => {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
-    const func = sys.capabilities.imageBitmap && legacyCC.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
+    const func = sys.hasFeature(sys.Feature.IMAGE_BITMAP) && legacyCC.assetManager.allowImageBitmap ? downloadBlob : downloadDomImage;
     func(url, options, onComplete);
 };
 
@@ -110,7 +110,7 @@ const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: 
             const ccon = decodeCCONBinary(new Uint8Array(arrayBuffer));
             onComplete(null, ccon);
         } catch (err) {
-            onComplete(err);
+            onComplete(err as Error);
         }
     });
 };
@@ -155,7 +155,8 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
 
 /**
  * @en
- * Control all download process, it is a singleton. All member can be accessed with `cc.assetManager.downloader` , it can download several types of files:
+ * Control all download process, it is a singleton.
+ * All member can be accessed with `cc.assetManager.downloader`, it can download several types of files:
  * 1. Text
  * 2. Image
  * 3. Audio
@@ -326,7 +327,8 @@ export class Downloader {
      *
      * @example
      * downloader.register('.tga', (url, options, onComplete) => onComplete(null, null));
-     * downloader.register({'.tga': (url, options, onComplete) => onComplete(null, null), '.ext': (url, options, onComplete) => onComplete(null, null)});
+     * downloader.register({'.tga': (url, options, onComplete) => onComplete(null, null),
+     *                      '.ext': (url, options, onComplete) => onComplete(null, null)});
      *
      */
     public register (type: string, handler: DownloadHandler): void;
@@ -360,8 +362,8 @@ export class Downloader {
      * @param onComplete.content - The downloaded file
      *
      * @example
-     * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.log(loaded/total)}, onComplete: (err) => console.log(err));
-     *
+     * download('http://example.com/test.tga', '.tga', { onFileProgress: (loaded, total) => console.log(loaded/total) },
+     *      onComplete: (err) => console.log(err));
      */
     public download (id: string, url: string, type: string, options: IDownloadParseOptions, onComplete: CompleteCallback): void {
         // if it is downloaded, don't download again

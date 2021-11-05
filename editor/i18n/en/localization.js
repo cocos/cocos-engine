@@ -123,6 +123,7 @@ module.exports = {
         skinning_root: 'The skinning root, where the controlling Animation is located',
     },
     sprite: {
+        gray_scale: 'Whether turn on grayscale rendering mode',
         sprite_frame: 'SpriteFrame image to use',
         atlas: 'Atlas that the image belongs to',
         type:
@@ -145,6 +146,9 @@ module.exports = {
             'Set the size of the node on which the Sprite component is on. CUSTOM for setting width and height manually;TRIMMED to use image size with transparent pixels trimmed; RAW to use image size without trimming.',
         trim:
             "Whether to render transparent pixels around image in node's bounding box. If you check this option the bounding box will not include transparent pixels around the image.",
+    },
+    UIOpacity: {
+        opacity: 'The value between 0 to 255 showing the transparency of the object',
     },
     billboard: {
         texture: 'Billboard texture',
@@ -197,6 +201,7 @@ module.exports = {
         font_size: 'Font size, in points',
         font_family: 'Font family name',
         line_height: 'Line height, in points',
+        spacing_x: 'The spacing between text characters, only available in BMFont',
         overflow:
             'Text layout modes: \n 1. CLAMP: Text nodes outside the bounding box will be truncated. \n 2. SHRINK: Automatically shrink text box according to the constraint node. \n 3. RESIZE: Automatically updates the Node based on heightof the text.',
         wrap: 'Wrap text?',
@@ -204,9 +209,10 @@ module.exports = {
         system_font: 'Whether to use the system default font',
         cache_mode:
             'Text cache modes：\n 1. NONE: No cache，draw once. \n 2. BITMAP: Text is added as a static image to the dynamic atlas for batch merging, but its content cannot be dynamically modified frequently. \n 3. CHAR: Split the text into characters and cache the character texture into a character atlas for reuse, which is suitable for text content with repeated character content and frequently updated.',
-        font_bold: 'Bold font',
+        font_bold: 'Font bold',
         font_italic: 'Font italic',
         font_underline: 'Font underlined',
+        underline_height: 'The height of underline',
     },
     labelOutline: {
         color: 'Outline color',
@@ -292,6 +298,7 @@ module.exports = {
     renderable2D: {
         srcBlendFactor: 'Source blend factor',
         dstBlendFactor: 'Destination blend factor',
+        customMaterial: 'User specified material',
         color: 'Render color',
     },
     rotationOvertimeModule: {
@@ -501,7 +508,7 @@ module.exports = {
         distance: 'The distance from the camera for displaying the 2d node in normal size',
         sync_events: 'Event callback after coordinates synchronization.\nThe first parameter of the callback is the mapped local coordinate in UI camera.\nThe second parameter is the distance scale of the 3d node from the 3d camera viewport.',
     },
-    SubContextView: {
+    subContextView: {
         design_size: 'Design resolution of the SubContextView, dynamic updates at runtime is not possible',
         fps: 'Update frame rate for the SubContextView',
     },
@@ -726,6 +733,10 @@ module.exports = {
             label: "User Interface",
             description: "User interface support.",
         },
+        gpu_driven: {
+            label: "GPU Driven",
+            description: "Whether to enable GPU-driven solutions (only works for packaged projects for now)",
+        },
         base_3d: {
             label: "Basic 3D Features",
             description: "Components and tools that are widely used in general 3D applications.",
@@ -747,8 +758,8 @@ module.exports = {
             description: "Physics system that based on cannon.js.",
         },
         physics_ammo: {
-            label: "bullet(ammo.js) Based Physics System",
-            description: "Physics system that based on bullet(ammo.js).",
+            label: "Bullet Based Physics System",
+            description: "Physics system that based on Bullet.",
         },
         physics_physx: {
             label: "PhysX Based Physics System",
@@ -830,6 +841,7 @@ module.exports = {
         priority:'Priority of rendering ordering.',
     },
     graphics: {
+        lineWidth: 'The width of edges',
         lineJoin: 'Determines how two connecting segments (of lines, arcs or curves) with non-zero lengths in a shape are joined together.',
         lineCap: 'Determines how the end points of every line are drawn.',
         strokeColor: 'Brush stroke color.',

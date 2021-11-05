@@ -53,7 +53,7 @@ export class CachedArray<T> {
      */
     public length = 0;
 
-    private _compareFn;
+    private _compareFn?: (a: T, b: T) => number;
 
     /**
      * @param length Initial length
@@ -62,12 +62,7 @@ export class CachedArray<T> {
     constructor (length: number, compareFn?: (a: T, b: T) => number) {
         this.array = new Array(length);
         this.length = 0;
-
-        if (compareFn !== undefined) {
-            this._compareFn = compareFn;
-        } else {
-            this._compareFn = (a: number, b: number) => a - b;
-        }
+        this._compareFn = compareFn;
     }
 
     /**
@@ -100,7 +95,7 @@ export class CachedArray<T> {
      * @param idx The index of the requested element
      * @return The element at given index
      */
-    public get (idx: number): T {
+    public get (idx: number): T | undefined {
         return this.array[idx];
     }
 
@@ -168,6 +163,11 @@ export class CachedArray<T> {
      * @param val The element
      */
     public indexOf (val: T) {
-        return this.array.indexOf(val);
+        for (let i = 0, len = this.length; i < len; ++i) {
+            if (this.array[i] === val) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

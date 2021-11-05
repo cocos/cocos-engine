@@ -26,7 +26,13 @@
         "tween": { "modules": [ "tween" ] },
         "tiled-map": { "modules": [ "tiled-map" ] },
         "spine": { "modules": [ "spine" ] },
-        "dragon-bones": { "modules": [ "dragon-bones" ] }
+        "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "marionette": {
+            "modules": [],
+            "intrinsicFlags": {
+                "MARIONETTE": true
+            }
+        }
     },
     "moduleOverrides": [
         {
@@ -46,7 +52,11 @@
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
                 "cocos/core/renderer/scene/native-scene.ts": "cocos/core/renderer/scene/native-scene.jsb.ts",
-                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts"
+                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts",
+                "cocos/core/math/vec3.ts": "cocos/core/math/vec3.jsb.ts",
+                "cocos/core/math/quat.ts": "cocos/core/math/quat.jsb.ts",
+                "cocos/core/math/mat3.ts": "cocos/core/math/mat3.jsb.ts",
+                "cocos/core/math/mat4.ts": "cocos/core/math/mat4.jsb.ts"
             }
         },
         {
@@ -99,6 +109,19 @@
             "overrides": {
                 "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
             }
+        },
+        {
+            "test": "!context.buildTimeConstants.MARIONETTE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/core/animation/marionette/runtime-exports.ts": "cocos/core/animation/marionette/index-empty.ts"
+            }
         }
+    ],
+    "includes": [
+        "./exports/**/*.{ts,js,json}",
+        "./editor/exports/**/*.{ts,js,json}",
+        "./cocos/**/*.{ts,js,json}",
+        "./pal/**/*.{ts,js,json}"
     ]
 }

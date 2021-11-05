@@ -68,11 +68,11 @@ export default function preprocess (task: Task, done: CompleteCallbackNoData) {
 
     // transform url
     const subTask = Task.create({ input: task.input, options: subOptions });
-    let err = null;
+    let err: Error | null = null;
     try {
         task.output = task.source = transformPipeline.sync(subTask);
     } catch (e) {
-        err = e;
+        err = e as Error;
         for (let i = 0, l = subTask.output.length; i < l; i++) {
             subTask.output[i].recycle();
         }

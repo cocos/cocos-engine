@@ -49,6 +49,7 @@ import {
     OPPO,
     VIVO,
     EXPORT_TO_GLOBAL,
+    UI_GPU_DRIVEN,
 } from 'internal:constants';
 
 const _global = typeof window === 'undefined' ? global : window;
@@ -167,13 +168,18 @@ if (EXPORT_TO_GLOBAL) {
      * @zh 预编译宏变量，通常用来做平台或环境相关自动代码剔除：CC_SUPPORT_JIT（在支持 JIT 的平台上生效）
      */
     _global.CC_SUPPORT_JIT = SUPPORT_JIT;
+    /**
+     * @zh 预编译宏变量，决定是否使用 GPUDriven
+     */
+    _global.CC_UI_GPU_DRIVEN = UI_GPU_DRIVEN;
 }
 
 if (DEV) {
     legacyCC._Test = {};
 }
 
-const engineVersion = '3.3.0';
+const engineVersion = '3.5.0';
+
 /**
  * The current version of Cocos2d being used.<br/>
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>

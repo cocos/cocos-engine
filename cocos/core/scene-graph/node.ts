@@ -34,17 +34,12 @@ import {
 import { EDITOR, JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
-    applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
-import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
-import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 
@@ -57,6 +52,7 @@ const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
 const dirtyNodes: any[] = [];
 const nativeDirtyNodes: any[] = [];
+const view_tmp:[Uint32Array, number] = [] as any;
 class BookOfChange {
     private _chunks: Uint32Array[] = [];
     private _freelists: number[][] = [];
@@ -97,14 +93,14 @@ class BookOfChange {
     private _createChunk () {
         this._chunks.push(new Uint32Array(BookOfChange.CAPACITY_PER_CHUNK));
         const freelist: number[] = [];
-        for (let i = 0; i < BookOfChange.CAPACITY_PER_CHUNK; ++i) freelist.push(i);
+        for (let i = BookOfChange.CAPACITY_PER_CHUNK - 1; i >= 0; i--) freelist.push(i);
         this._freelists.push(freelist);
     }
 
     private _createView (chunkIdx: number): [Uint32Array, number] {
-        const chunk = this._chunks[chunkIdx];
-        const offset = this._freelists[chunkIdx].pop()!;
-        return [chunk, offset];
+        view_tmp[0] = this._chunks[chunkIdx];
+        view_tmp[1] = this._freelists[chunkIdx].pop()!;
+        return view_tmp;
     }
 }
 
@@ -167,6 +163,9 @@ export class Node extends BaseNode implements CustomSerializable {
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
     // UI 部分的脏数据
+    /**
+     * @private
+     */
     public _uiProps = new NodeUIProperties(this);
 
     /**
@@ -221,6 +220,7 @@ export class Node extends BaseNode implements CustomSerializable {
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
     protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
     protected declare _hasChangedFlagsOffset: number;
+    protected declare _hasChangedFlags: Uint32Array;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
@@ -229,25 +229,26 @@ export class Node extends BaseNode implements CustomSerializable {
         const [chunk, offset] = bookOfChange.alloc();
         this._hasChangedFlagsChunk = chunk;
         this._hasChangedFlagsOffset = offset;
+        const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
+        this._hasChangedFlags = flagBuffer;
         if (JSB) {
             // new node
             this._nodeHandle = NodePool.alloc();
-            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
-            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
-            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
+            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as any);
+            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as any);
+            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as any);
 
-            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
-            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
-            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
+            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as any);
+            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as any);
+            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as any);
 
-            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
+            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as any);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
             this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
             this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, nativeDirtyNodes);
         } else {
             this._pos = new Vec3();
@@ -573,33 +574,13 @@ export class Node extends BaseNode implements CustomSerializable {
             this._nativeLayer[0] = this._layer;
             this._nativeObj!.setParent(this.parent?.native);
         }
-        const prefabInstance = this._prefab?.instance;
-        if (!dontSyncChildPrefab && prefabInstance) {
-            createNodeWithPrefab(this);
-        }
-
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags |= TransformBit.TRS;
-        this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
-
-        // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
-        if (!dontSyncChildPrefab && prefabInstance) {
-            const targetMap: Record<string, any | Node | Component> = {};
-            prefabInstance.targetMap = targetMap;
-            generateTargetMap(this, targetMap, true);
-
-            applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
-            applyRemovedComponents(this, prefabInstance.removedComponents, targetMap);
-            applyMountedComponents(this, prefabInstance.mountedComponents, targetMap);
-            applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
-        }
-
-        applyTargetOverrides(this);
     }
 
     public _onBeforeSerialize () {
@@ -609,11 +590,11 @@ export class Node extends BaseNode implements CustomSerializable {
 
     public _onPostActivated (active: boolean) {
         if (active) { // activated
-            eventManager.resumeTarget(this);
+            this._eventProcessor.setEnabled(true);
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
         } else { // deactivated
-            eventManager.pauseTarget(this);
+            this._eventProcessor.setEnabled(false);
         }
     }
 
@@ -708,19 +689,59 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const childDirtyBit = dirtyBit | TransformBit.POSITION;
-        this._setDirtyNode(0, this);
         let i = 0;
+        let j = 0;
+        let l = 0;
+        let cur: this;
+        let c : this;
+        let flag = 0;
+        let children:this[];
+        let hasChangedFlags = 0;
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+
+        // NOTE: inflate function
+        // ```
+        // this._setDirtyNode(0, this);
+        // ```
+        dirtyNodes[0] = this;
+        if (JSB) {
+            nativeDirtyNodes[0] = this.native;
+        }
+
         while (i >= 0) {
-            const cur: this = dirtyNodes[i--];
-            const hasChangedFlags = cur.hasChangedFlags;
-            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._dirtyFlags |= dirtyBit;
-                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
-                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
-                const children = cur._children;
-                const len = children.length;
-                for (let j = 0; j < len; ++j) this._setDirtyNode(++i, children[j]);
+            cur = dirtyNodes[i--];
+            hasChangedFlags = cur._hasChangedFlags[0];
+            flag =  cur._dirtyFlagsPri;
+            if (cur.isValid && (flag & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                // NOTE: inflate procedure
+                // ```
+                // cur._dirtyFlags |= dirtyBit;
+                // ```
+                flag |= dirtyBit;
+                cur._dirtyFlagsPri = flag;
+                if (JSB) {
+                    cur._nativeDirtyFlag[0] = flag;
+                }
+
+                // NOTE: inflate attribute accessor
+                // ```
+                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                // ```
+                cur._hasChangedFlags[0] = hasChangedFlags | dirtyBit;
+
+                children = cur._children;
+                l = children.length;
+                for (j = 0; j < l; j++) {
+                    c = children[j];
+                    // NOTE: inflate function
+                    // ```
+                    // this._setDirtyNode(0, c);
+                    // ```
+                    dirtyNodes[++i] = c;
+                    if (JSB) {
+                        nativeDirtyNodes[i] = c.native;
+                    }
+                }
             }
             dirtyBit = childDirtyBit;
         }
@@ -1255,7 +1276,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param recursive Whether pause system events recursively for the child node tree
      */
     public pauseSystemEvents (recursive: boolean): void {
-        eventManager.pauseTarget(this, recursive);
+        this._eventProcessor.setEnabled(false, recursive);
     }
 
     /**
@@ -1270,7 +1291,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * @param recursive Whether resume system events recursively for the child node tree
      */
     public resumeSystemEvents (recursive: boolean): void {
-        eventManager.resumeTarget(this, recursive);
+        this._eventProcessor.setEnabled(true, recursive);
     }
 
     /**
@@ -1297,6 +1318,24 @@ export class Node extends BaseNode implements CustomSerializable {
             dirtyNodes.length = 0;
             nativeDirtyNodes.length = 0;
         }
+    }
+
+    /**
+     * @en
+     * Get the complete path of the current node in the hierarchy.
+     *
+     * @zh
+     * 获得当前节点在 hierarchy 中的完整路径。
+     */
+    public getPathInHierarchy (): string {
+        let result = this.name;
+        let curNode: BaseNode | null = this.parent;
+        while (curNode && curNode instanceof Node) {
+            result = `${curNode.name}/${result}`;
+            curNode = curNode.parent;
+        }
+
+        return result;
     }
 }
 

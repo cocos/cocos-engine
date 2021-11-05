@@ -1,4 +1,3 @@
-
 // tslint:disable:interface-name
 
 export type EngineFeature =
@@ -29,7 +28,8 @@ export type EngineFeature =
     | 'spine'
     | 'dragon-bones'
     | 'primitive'
-    | 'profiler';
+    | 'profiler'
+    | 'marionette';
 export interface ModuleRenderConfig {
     $schema?: string;
 
@@ -38,13 +38,31 @@ export interface ModuleRenderConfig {
      */
     features: Features;
 
-     /**
+    /**
      * The categories info
      */
-    categories: {[category: string]: CategoryInfo};
+    categories: { [category: string]: CategoryInfo };
 }
 
 export type Features = Record<EngineFeature, Item>;
+
+export interface FlagBaseItem {
+    /**
+     * Display text.
+     */
+    label: string;
+
+    /**
+     * Description.
+     */
+    description?: string;
+
+    native?: string;
+
+    wechatPlugin?: boolean;
+
+    default?: string[];
+}
 
 export interface BaseItem {
     /**
@@ -66,6 +84,8 @@ export interface BaseItem {
     default?: string[];
 
     category?: string;
+
+    flags?: Record<string, FlagBaseItem>;
 }
 
 export interface Item extends BaseItem {
