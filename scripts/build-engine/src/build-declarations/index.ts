@@ -187,6 +187,9 @@ export async function build (options: {
                 { test: /^cc.*$/, path: indexOutputPath },
             ],
             nonExportedSymbolDistribution: [{
+                sourceModule: /cocos\/core\/animation\/marionette/,
+                targetModule: 'cc/editor/new-gen-anim',
+            }, {
                 sourceModule: /.*/, // Put everything non-exported that 'cc' encountered into 'cc'
                 targetModule: 'cc',
             }],
