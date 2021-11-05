@@ -1884,17 +1884,9 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx, GLES3
                 cache->viewport.height = renderArea->height;
             }
 
-            uint32_t fboWidth  = instance.framebuffer.getWidth();
-            uint32_t fboHeight = instance.framebuffer.getHeight();
-            if (cache->scissor.x != 0 ||
-                cache->scissor.y != 0 ||
-                cache->scissor.width != fboWidth ||
-                cache->scissor.height != fboHeight) {
-                GL_CHECK(glScissor(0, 0, fboWidth, fboHeight));
-                cache->scissor.x      = 0;
-                cache->scissor.y      = 0;
-                cache->scissor.width  = fboWidth;
-                cache->scissor.height = fboHeight;
+            if (cache->scissor != *renderArea) {
+                GL_CHECK(glScissor(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
+                cache->scissor = *renderArea;
             }
         }
 

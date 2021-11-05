@@ -69,6 +69,7 @@ private:
     gfx::DescriptorSetLayout *                     _descriptorSetLayout = nullptr;
     gfx::DescriptorSet *                           _globalDescriptorSet = nullptr;
     std::unordered_map<uint, gfx::DescriptorSet *> _descriptorSetMap{};
+    std::vector<gfx::Buffer *>                     _shadowUBOs;
 };
 
 } // namespace pipeline

@@ -203,8 +203,33 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     uint32_t                       clearStencil = 0;
     static std::vector<gfx::Color> clearColors;
     clearColors.clear();
-    _viewport = {};
-    _scissor  = {0, 0, UINT_MAX, UINT_MAX};
+
+    bool hasDefaultViewport{false};
+    for (auto &subpass : _subpasses) {
+        for (auto &pass : subpass.logicPasses) {
+            if (!pass.customViewport) {
+                hasDefaultViewport = true;
+                break;
+            }
+        }
+    }
+
+    if (hasDefaultViewport) {
+        _viewport = {};
+        _scissor  = {0, 0, UINT_MAX, UINT_MAX};
+    } else { // if all passes use customize viewport
+        _scissor = {INT_MAX, INT_MAX, 0, 0};
+
+        for (auto &subpass : _subpasses) {
+            for (auto &pass : subpass.logicPasses) {
+                // calculate the union of all viewports as render area
+                _viewport.left = _scissor.x = std::min(_scissor.x, pass.viewport.left);
+                _viewport.top = _scissor.y = std::min(_scissor.y, pass.viewport.top);
+                _viewport.width = _scissor.width = std::max(_scissor.width, pass.viewport.width);
+                _viewport.height = _scissor.height = std::max(_scissor.height, pass.viewport.height);
+            }
+        }
+    }
 
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;
@@ -233,8 +258,10 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             clearDepth                     = attachElem.attachment.desc.clearDepth;
             clearStencil                   = attachElem.attachment.desc.clearStencil;
         }
-        _viewport.width = _scissor.width = std::min(_scissor.width, attachment->getWidth());
-        _viewport.height = _scissor.height = std::min(_scissor.height, attachment->getHeight());
+        if (hasDefaultViewport) {
+            _viewport.width = _scissor.width = std::min(_scissor.width, attachment->getWidth());
+            _viewport.height = _scissor.height = std::min(_scissor.height, attachment->getHeight());
+        }
     }
 
     for (auto &subpass : _subpasses) {

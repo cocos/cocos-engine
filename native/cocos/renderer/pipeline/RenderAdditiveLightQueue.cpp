@@ -146,15 +146,6 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
 }
 
 void RenderAdditiveLightQueue::destroy() const {
-    for (auto &pair : _pipeline->getGlobalDSManager()->getDescriptorSetMap()) {
-        auto *descriptorSet = pair.second;
-        if (descriptorSet) {
-            auto *shadowBuffer = descriptorSet->getBuffer(UBOShadow::BINDING);
-            CC_SAFE_DESTROY(shadowBuffer);
-            CC_SAFE_DESTROY(descriptorSet);
-        }
-    }
-    _pipeline->getGlobalDSManager()->getDescriptorSetMap().clear();
 }
 
 void RenderAdditiveLightQueue::clear() {
