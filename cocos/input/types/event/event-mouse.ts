@@ -100,6 +100,19 @@ export class EventMouse extends Event {
      */
     public movementY = 0;
 
+    /**
+     * @en Set whether to prevent events from being swallowed by nodes, which is false by default.
+     * If set to true, the event is allowed to be dispatched to nodes at the bottom layer.
+     * NOTE: Setting to true will reduce the efficiency of event dispatching.
+     *
+     * @zh 设置是否阻止事件被节点吞噬, 默认为 false 。
+     * 如果设置为 true，则事件允许派发给渲染在下一层级的节点。
+     * 注意：设置为 true 会降低事件派发的效率。
+     *
+     * @experimental May be optimized in the future.
+     */
+    public preventSwallow = false;
+
     private _eventType: SystemEventTypeUnion;
     /**
      * @en The type of the event
