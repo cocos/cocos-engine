@@ -879,7 +879,30 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
         return;
     }
 
-    if (gpuTexture->glSamples <= 1) {
+    if (gpuTexture->glSamples > 1 || hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT, gpuTexture->usage)) {
+        switch (gpuTexture->type) {
+            case TextureType::TEX2D: {
+                gpuTexture->glTarget = GL_RENDERBUFFER;
+                GL_CHECK(glGenRenderbuffers(1, &gpuTexture->glRenderbuffer));
+                if (gpuTexture->size > 0) {
+                    GLuint &glRenderbuffer = device->stateCache()->glRenderbuffer;
+                    if (gpuTexture->glRenderbuffer != glRenderbuffer) {
+                        GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, gpuTexture->glRenderbuffer));
+                        glRenderbuffer = gpuTexture->glRenderbuffer;
+                    }
+                    if (gpuTexture->glSamples > 1) {
+                        GL_CHECK(glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    } else {
+                        GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    }
+                }
+                break;
+            }
+            default:
+                CCASSERT(false, "Unsupported TextureType, create texture failed.");
+                break;
+        }
+    } else {
         switch (gpuTexture->type) {
             case TextureType::TEX2D: {
                 gpuTexture->glTarget = GL_TEXTURE_2D;
@@ -908,25 +931,6 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                     uint32_t w = gpuTexture->width;
                     uint32_t h = gpuTexture->height;
                     GL_CHECK(glTexStorage2D(GL_TEXTURE_CUBE_MAP, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
-                }
-                break;
-            }
-            default:
-                CCASSERT(false, "Unsupported TextureType, create texture failed.");
-                break;
-        }
-    } else {
-        switch (gpuTexture->type) {
-            case TextureType::TEX2D: {
-                gpuTexture->glTarget = GL_RENDERBUFFER;
-                GL_CHECK(glGenRenderbuffers(1, &gpuTexture->glRenderbuffer));
-                if (gpuTexture->size > 0) {
-                    GLuint &glRenderbuffer = device->stateCache()->glRenderbuffer;
-                    if (gpuTexture->glRenderbuffer != glRenderbuffer) {
-                        GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, gpuTexture->glRenderbuffer));
-                        glRenderbuffer = gpuTexture->glRenderbuffer;
-                    }
-                    GL_CHECK(glRenderbufferStorageMultisample(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
                 }
                 break;
             }
@@ -977,7 +981,11 @@ void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                         GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, gpuTexture->glRenderbuffer));
                         glRenderbuffer = gpuTexture->glRenderbuffer;
                     }
-                    GL_CHECK(glRenderbufferStorageMultisample(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    if (gpuTexture->glSamples > 1) {
+                        GL_CHECK(glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    } else {
+                        GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    }
                 }
                 break;
             }

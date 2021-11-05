@@ -27,9 +27,8 @@
 
 #include "DeviceValidator.h"
 #include "TextureValidator.h"
+#include "SwapchainValidator.h"
 #include "ValidationUtils.h"
-#include "base/Macros.h"
-#include "gfx-validator/SwapchainValidator.h"
 
 namespace cc {
 namespace gfx {

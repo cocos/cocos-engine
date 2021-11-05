@@ -92,18 +92,18 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::FORMAT_SRGB)] = true;
     }
 
-    if (checkExtension("GL_OES_texture_float")) {
+    _features[toNumber(Feature::FORMAT_R11G11B10F)] = true;
+
+    if (checkExtension("element_index_uint")) {
+        _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
+    }
+
+    if (checkExtension("texture_float")) {
         _features[toNumber(Feature::TEXTURE_FLOAT)] = true;
     }
 
-    if (checkExtension("GL_OES_texture_half_float")) {
+    if (checkExtension("texture_half_float")) {
         _features[toNumber(Feature::TEXTURE_HALF_FLOAT)] = true;
-    }
-
-    _features[toNumber(Feature::FORMAT_R11G11B10F)] = true;
-
-    if (checkExtension("GL_OES_element_index_uint")) {
-        _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
     }
 
     if (checkExtension("color_buffer_float")) {
