@@ -23,13 +23,24 @@
  THE SOFTWARE.
  */
 
-import { screenAdapter } from 'pal/screen-adapter';
 import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { sys } from './sys';
 import { View } from './view';
 import { legacyCC } from '../global-exports';
 import { screen } from './screen';
-import { Size } from '../math';
+import { macro } from './macro';
+
+replaceProperty(macro, 'macro', [{
+    name: 'ENABLE_WEBGL_ANTIALIAS',
+    newName: 'ENABLE_ANTIALIAS_FXAA',
+    suggest: 'macro.ENABLE_WEBGL_ANTIALIAS is now a readonly macro.',
+    customGetter () {
+        return macro.ENABLE_ANTIALIAS_FXAA;
+    },
+    customSetter (v: boolean) {
+        // DO NOTHING
+    },
+}]);
 
 // #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
