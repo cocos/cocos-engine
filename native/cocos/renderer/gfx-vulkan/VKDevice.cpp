@@ -222,8 +222,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     findPreferredDepthFormat(depthFormatPriorityList, 3, &_gpuDevice->depthFormat);
 
     VkFormat depthStencilFormatPriorityList[]{
-        VK_FORMAT_D32_SFLOAT_S8_UINT,
         VK_FORMAT_D24_UNORM_S8_UINT,
+        VK_FORMAT_D32_SFLOAT_S8_UINT,
         VK_FORMAT_D16_UNORM_S8_UINT,
     };
     findPreferredDepthFormat(depthStencilFormatPriorityList, 3, &_gpuDevice->depthStencilFormat);

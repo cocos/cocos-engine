@@ -73,6 +73,7 @@ void GLES3Texture::doDestroy() {
         if (!_gpuTexture->memoryless) {
             GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
         }
+
         cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
         GLES3Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
         CC_DELETE(_gpuTexture);

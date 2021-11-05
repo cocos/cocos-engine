@@ -94,7 +94,7 @@ GLenum mapGLInternalFormat(Format format) {
         case Format::RGB10A2UI: return GL_RGB10_A2UI;
         case Format::R11G11B10F: return GL_R11F_G11F_B10F;
         case Format::DEPTH: return GL_DEPTH_COMPONENT32F;
-        case Format::DEPTH_STENCIL: return GL_DEPTH32F_STENCIL8;
+        case Format::DEPTH_STENCIL: return GL_DEPTH24_STENCIL8;
 
         case Format::BC1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
         case Format::BC1_ALPHA: return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -416,7 +416,7 @@ GLenum formatToGLType(Format format) {
         case Format::RGB9E5: return GL_UNSIGNED_INT_5_9_9_9_REV;
 
         case Format::DEPTH: return GL_FLOAT;
-        case Format::DEPTH_STENCIL: return GL_FLOAT_32_UNSIGNED_INT_24_8_REV;
+        case Format::DEPTH_STENCIL: return GL_UNSIGNED_INT_24_8;
 
         case Format::BC1:
         case Format::BC1_SRGB:
