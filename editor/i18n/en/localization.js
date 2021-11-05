@@ -211,6 +211,8 @@ module.exports = {
         font_bold: 'Font bold',
         font_italic: 'Font italic',
         font_underline: 'Font underlined',
+        spacing_x: 'The spacing between text characters, only available in BMFont',
+        underline_height: 'The height of underline',
     },
     labelOutline: {
         color: 'Outline color',
