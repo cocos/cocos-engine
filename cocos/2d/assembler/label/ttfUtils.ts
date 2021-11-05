@@ -244,14 +244,14 @@ export const ttfUtils =  {
 
         const lineHeight = this._getLineHeight();
         const drawStartY = lineHeight * (_splitStrings.length - 1);
-        // TOP
+        // TOP，ttf font rect anchor locates at middle-bottom(87%), no at bottom(100%), so we need minus 0.26 / 2
         let firstLinelabelY = _fontSize * (1 - BASELINE_RATIO / 2);
         if (_vAlign !== VerticalTextAlignment.TOP) {
             // free space in vertical direction
             let blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
             if (_vAlign === VerticalTextAlignment.BOTTOM) {
                 // Unlike BMFont, needs to reserve space below.
-                blank += BASELINE_RATIO / 2 * _fontSize;
+                blank += 0;// BASELINE_RATIO / 2 * _fontSize;
                 // BOTTOM
                 firstLinelabelY -= blank;
             } else {
@@ -588,7 +588,7 @@ export const ttfUtils =  {
                 const paraLength = safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = (_splitStrings.length + BASELINE_RATIO) * this._getLineHeight();
+            canvasSizeY = (_splitStrings.length /*+ BASELINE_RATIO*/) * this._getLineHeight();
             const rawWidth = parseFloat(canvasSizeX.toFixed(2));
             const rawHeight = parseFloat(canvasSizeY.toFixed(2));
             _canvasSize.width = rawWidth + _canvasPadding.width;
@@ -608,7 +608,7 @@ export const ttfUtils =  {
         }
         case Overflow.RESIZE_HEIGHT: {
             this._calculateWrapText(paragraphedStrings);
-            const rawHeight = (_splitStrings.length + BASELINE_RATIO) * this._getLineHeight();
+            const rawHeight = (_splitStrings.length /*+ BASELINE_RATIO*/) * this._getLineHeight();
             _canvasSize.height = rawHeight + _canvasPadding.height;
             // set node height
             _nodeContentSize.height = rawHeight + _contentSizeExtend.height;
