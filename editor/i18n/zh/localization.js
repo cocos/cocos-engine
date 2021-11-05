@@ -207,6 +207,8 @@ module.exports = {
         font_bold: '字体加粗',
         font_italic: '字体倾斜',
         font_underline: '字体加下划线',
+        spacing_x: '文本字符之间的间距。仅在使用 BMFont 位图字体时生效',
+        underline_height: '下划线高度',
     },
     labelOutline: {
         color: '描边的颜色',
