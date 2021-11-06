@@ -28,10 +28,11 @@
  * @module ui
  */
 import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo, InputAssembler } from '../../core/gfx';
+import { ScalableContainer } from '../../core/memop/scalable-container';
 import { IBatcher } from './i-batcher';
 import { getComponentPerVertex } from './vertex-format';
 
-export class MeshBuffer {
+export class MeshBuffer extends ScalableContainer {
     public static OPACITY_OFFSET = 8;
 
     get attributes () { return this._attributes; }
@@ -67,6 +68,7 @@ export class MeshBuffer {
     private _nextFreeIAHandle = 0;
 
     constructor (batcher: IBatcher) {
+        super();
         this._batcher = batcher;
     }
 
@@ -158,7 +160,21 @@ export class MeshBuffer {
         this._dirty = false;
     }
 
+    public tryShrink () {
+        if (!this.vData || !this.iData) return;
+        if (this.vData.byteLength >> 2 > this.byteOffset && this.iData.length >> 2 > this.indicesOffset) {
+            const vDataCount = Math.max(256 * this._vertexFormatBytes, this._initVDataCount >> 1);
+            const iDataCount = Math.max(256 * 6, this._initIDataCount >> 1);
+            if (vDataCount !== this._initVDataCount || iDataCount !== this._initIDataCount) {
+                this._initIDataCount = iDataCount;
+                this._initVDataCount = vDataCount;
+                this._reallocBuffer();
+            }
+        }
+    }
+
     public destroy () {
+        super.destroy();
         this._attributes = null!;
 
         this.vertexBuffers[0].destroy();

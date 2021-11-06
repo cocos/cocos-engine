@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 
+import { ScalableContainer } from './scalable-container';
+
 /**
  * @packageDocumentation
  * @module memop
@@ -39,10 +41,12 @@
  * 池子尺寸可以在池子满时自动扩充，也可以手动调整。
  * @see [[Pool]]
  */
-export class RecyclePool<T = any> {
+export class RecyclePool<T = any> extends ScalableContainer {
     private _fn: () => T;
+    private _dtor: ((obj: T) => void) | null = null;
     private _count = 0;
     private _data: T[];
+    private _initSize = 0;
 
     /**
      * @en Constructor with the allocator of elements and initial pool size, all elements will be pre-allocated.
@@ -50,9 +54,12 @@ export class RecyclePool<T = any> {
      * @param fn The allocator of elements in pool, it's invoked directly without `new`
      * @param size Initial pool size
      */
-    constructor (fn: () => T, size: number) {
+    constructor (fn: () => T, size: number, dtor?: (obj: T) => void) {
+        super();
         this._fn = fn;
+        this._dtor = dtor || null;
         this._data = new Array(size);
+        this._initSize = size;
 
         for (let i = 0; i < size; ++i) {
             this._data[i] = fn();
@@ -103,10 +110,33 @@ export class RecyclePool<T = any> {
      */
     public add () {
         if (this._count >= this._data.length) {
-            this.resize(this._data.length * 2);
+            this.resize(this._data.length << 1);
         }
 
         return this._data[this._count++];
+    }
+
+    public destroy () {
+        super.destroy();
+        if (this._dtor) {
+            for (let i = 0; i < this._data.length; i++) {
+                this._dtor(this._data[i]);
+            }
+        }
+        this._data.length = 0;
+        this._count = 0;
+    }
+
+    public tryShrink () {
+        if (this._data.length >> 2 > this._count) {
+            const length = Math.max(this._initSize, this._data.length >> 1);
+            if (this._dtor) {
+                for (let i = length; i < this._data.length; i++) {
+                    this._dtor(this._data[i]);
+                }
+            }
+            this._data.length = length;
+        }
     }
 
     /**

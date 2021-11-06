@@ -133,9 +133,8 @@ export class Batcher2D implements IBatcher {
 
     public device: Device;
     private _screens: RenderRoot2D[] = [];
+    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128, (obj) => obj.destroy());
     private _drawBatchPool: Pool<DrawBatch2D>;
-
-    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
@@ -164,7 +163,7 @@ export class Batcher2D implements IBatcher {
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
-        this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
+        this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
     }
 
     public initialize () {
@@ -187,9 +186,7 @@ export class Batcher2D implements IBatcher {
         }
 
         if (this._drawBatchPool) {
-            this._drawBatchPool.destroy((obj) => {
-                obj.destroy(this);
-            });
+            this._drawBatchPool.destroy();
         }
 
         this._descriptorSetCache.destroy();
@@ -246,6 +243,19 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
+        const buffers = this._meshBuffers;
+        buffers.forEach((value, key) => {
+            value.forEach((bb) => {
+                bb.reset();
+            });
+        });
+
+        const customs = this._customMeshBuffers;
+        customs.forEach((value, key) => {
+            value.forEach((bb) => {
+                bb.reset();
+            });
+        });
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
@@ -283,7 +293,6 @@ export class Batcher2D implements IBatcher {
             buffers.forEach((value, key) => {
                 value.forEach((bb) => {
                     bb.uploadBuffers();
-                    bb.reset();
                 });
             });
 
@@ -291,7 +300,6 @@ export class Batcher2D implements IBatcher {
             customs.forEach((value, key) => {
                 value.forEach((bb) => {
                     bb.uploadBuffers();
-                    bb.reset();
                 });
             });
 
@@ -773,7 +781,7 @@ class DescriptorSetCache {
     private _localCachePool: Pool<LocalDescriptorSet>;
 
     constructor () {
-        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16);
+        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());
     }
 
     public getDescriptorSet (batch: DrawBatch2D, drawCall: DrawCall): DescriptorSet {

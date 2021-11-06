@@ -28,17 +28,20 @@
  * @module memop
  */
 
+import { ScalableContainer } from './scalable-container';
+
 /**
  * @en Typed object pool.
  * It's a traditional design, you can get elements out of the pool or recycle elements by putting back into the pool.
  * @zh 支持类型的对象池。这是一个传统设计的对象池，你可以从对象池中取出对象或是放回不再需要对象来复用。
  * @see [[RecyclePool]]
  */
-export class Pool<T> {
+export class Pool<T> extends ScalableContainer {
     private _ctor: () => T;
     private _elementsPerBatch: number;
     private _nextAvail: number;
     private _freepool: T[] = [];
+    private _dtor: ((obj: T) => void) | null;
 
     /**
      * @en Constructor with the allocator of elements and initial pool size
@@ -46,8 +49,10 @@ export class Pool<T> {
      * @param ctor The allocator of elements in pool, it's invoked directly without `new`
      * @param elementsPerBatch Initial pool size, this size will also be the incremental size when the pool is overloaded
      */
-    constructor (ctor: () => T, elementsPerBatch: number) {
+    constructor (ctor: () => T, elementsPerBatch: number, dtor?: (obj: T) => void) {
+        super();
         this._ctor = ctor;
+        this._dtor = dtor || null;
         this._elementsPerBatch = Math.max(elementsPerBatch, 1);
         this._nextAvail = this._elementsPerBatch - 1;
 
@@ -93,15 +98,29 @@ export class Pool<T> {
         this._nextAvail += objs.length;
     }
 
+    public tryShrink () {
+        if (this._nextAvail > this._elementsPerBatch << 1) {
+            if (this._dtor) {
+                for (let i = this._nextAvail >> 1; i <= this._nextAvail; i++) {
+                    this._dtor(this._freepool[i]);
+                }
+            }
+            this._freepool.length = this._nextAvail >> 1;
+            this._nextAvail = this._freepool.length - 1;
+        }
+    }
+
     /**
      * @en Destroy all elements and clear the pool.
      * @zh 释放对象池中所有资源并清空缓存池。
      * @param dtor The destructor function, it will be invoked for all elements in the pool
      */
     public destroy (dtor?: (obj: T) => void) {
-        if (dtor) {
+        super.destroy();
+        const readDtor = dtor || this._dtor;
+        if (readDtor) {
             for (let i = 0; i <= this._nextAvail; i++) {
-                dtor(this._freepool[i]);
+                readDtor(this._freepool[i]);
             }
         }
         this._freepool.length = 0;
