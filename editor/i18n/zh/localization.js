@@ -479,6 +479,7 @@ module.exports = {
     richtext: {
         string: '富文本的内容字符串, 你可以在里面使用 BBCode 来指定特定文本的样式',
         horizontal_align: '水平对齐方式',
+        vertical_align: '竖直对齐方式',
         font_size: '字体大小, 单位是 point',
         font: '富文本定制字体',
         font_family: '富文本定制系统字体',

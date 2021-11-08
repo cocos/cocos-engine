@@ -489,6 +489,7 @@ module.exports = {
     richtext: {
         string: 'Text of the RichText, you could use BBcode in the string',
         horizontal_align: 'Horizontal alignment',
+        vertical_align: 'Vertical alignment',
         font_size: 'Font size, in points',
         font: 'Custom TTF font of RichText',
         font_family:'Custom System font of RichText',

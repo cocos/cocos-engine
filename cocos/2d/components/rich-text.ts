@@ -199,6 +199,29 @@ export class RichText extends UIComponent {
 
     /**
      * @en
+     * Vertical Alignment of each line in RichText.
+     *
+     * @zh
+     * 文本内容的竖直对齐方式。
+     */
+    @type(VerticalTextAlignment)
+    @tooltip('i18n:richtext.vertical_align')
+    get verticalAlign () {
+        return this._verticalAlign;
+    }
+
+    set verticalAlign (value) {
+        if (this._verticalAlign === value) {
+            return;
+        }
+
+        this._verticalAlign = value;
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
      * Font size of RichText.
      *
      * @zh
@@ -421,6 +444,8 @@ export class RichText extends UIComponent {
     // protected _updateRichTextStatus =
     @serializable
     protected _horizontalAlign = HorizontalTextAlignment.LEFT;
+    @serializable
+    protected _verticalAlign = VerticalTextAlignment.TOP;
     @serializable
     protected _fontSize = 40;
     @serializable
@@ -781,13 +806,13 @@ export class RichText extends UIComponent {
             const sprite = segment.comp;
             switch (style.imageAlign) {
             case 'top':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
                 break;
             case 'center':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
                 break;
             default:
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
                 break;
             }
 
