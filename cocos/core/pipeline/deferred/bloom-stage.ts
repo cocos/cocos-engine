@@ -130,7 +130,7 @@ export class BloomStage extends RenderStage {
     }
 
     private _prefilterPass (camera: Camera, pipeline: RenderPipeline) {
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= 1;
         this._renderArea.height >>= 1;
         const cmdBuff = pipeline.commandBuffers[0];
@@ -171,7 +171,7 @@ export class BloomStage extends RenderStage {
     }
 
     private _downsamplePass (camera: Camera, pipeline: RenderPipeline) {
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= 1;
         this._renderArea.height >>= 1;
         const cmdBuff = pipeline.commandBuffers[0];
@@ -220,7 +220,7 @@ export class BloomStage extends RenderStage {
 
     private _upsamplePass (camera: Camera, pipeline: RenderPipeline) {
         const bloomData = pipeline.getPipelineRenderData().bloom!;
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= this.iterations + 1;
         this._renderArea.height >>= this.iterations + 1;
         const cmdBuff = pipeline.commandBuffers[0];
@@ -268,7 +268,7 @@ export class BloomStage extends RenderStage {
     }
 
     private _combinePass (camera: Camera, pipeline: RenderPipeline) {
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
 
         const cmdBuff = pipeline.commandBuffers[0];
         const sceneData = pipeline.pipelineSceneData as DeferredPipelineSceneData;

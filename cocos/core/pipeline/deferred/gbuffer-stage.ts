@@ -113,7 +113,7 @@ export class GbufferStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues.forEach(renderQueueClearFunc);
 
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         pipeline.updateQuadVertexData(this._renderArea, camera.window);
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;

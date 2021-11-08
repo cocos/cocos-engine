@@ -58,6 +58,9 @@ export interface IRenderPipelineInfo {
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
 
+const tmpRect = new Rect();
+const tmpViewport = new Viewport();
+
 export class BloomRenderData {
     renderPass: RenderPass = null!;
 
@@ -323,30 +326,36 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
      * @param camera the camera
      * @returns
      */
-    public generateRenderArea (camera: Camera, out?: Rect): Rect {
-        const res = out || new Rect();
+    public generateRenderArea (camera: Camera, out: Rect) {
         const vp = camera.viewport;
         const w = camera.window.width;
         const h = camera.window.height;
-        res.x = vp.x * w;
-        res.y = vp.y * h;
-        res.width = vp.width * w;
-        res.height = vp.height * h;
-        return res;
+        out.x = vp.x * w;
+        out.y = vp.y * h;
+        out.width = vp.width * w;
+        out.height = vp.height * h;
     }
 
     public generateViewport (camera: Camera, out?: Viewport): Viewport {
-        const rect = this.generateRenderArea(camera);
+        this.generateRenderArea(camera, tmpRect);
+        if (!out) out = tmpViewport;
         const shadingScale = this.pipelineSceneData.shadingScale;
-        const viewport = out || new Viewport(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
-        return viewport;
+        out.left = tmpRect.x * shadingScale;
+        out.top = tmpRect.y * shadingScale;
+        out.width = tmpRect.width * shadingScale;
+        out.height = tmpRect.height * shadingScale;
+        return out;
     }
 
     public generateScissor (camera: Camera, out?: Rect): Rect {
-        const rect = this.generateRenderArea(camera);
+        if (!out) out = tmpRect;
+        this.generateRenderArea(camera, out);
         const shadingScale = this.pipelineSceneData.shadingScale;
-        const scissor = out || new Rect(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
-        return scissor;
+        out.x *= shadingScale;
+        out.y *= shadingScale;
+        out.width *= shadingScale;
+        out.height *= shadingScale;
+        return out;
     }
 
     /**
@@ -528,7 +537,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
         const quadVB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
             vbSize,
             vbStride,
         ));
@@ -577,16 +586,20 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     }
 
     public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
-        if (this._lastUsedRenderArea === renderArea) {
+        const cachedArea = this._lastUsedRenderArea;
+        if (cachedArea.x === renderArea.x
+            && cachedArea.y === renderArea.y
+            && cachedArea.width === renderArea.width
+            && cachedArea.height === renderArea.height) {
             return;
         }
 
-        this._lastUsedRenderArea = renderArea;
         const offData = this._genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOffscreen!.update(offData);
-
         const onData = this._genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOnscreen!.update(onData);
+
+        cachedArea.copy(renderArea);
     }
 
     /**

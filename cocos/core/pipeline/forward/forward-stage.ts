@@ -161,8 +161,8 @@ export class ForwardStage extends RenderStage {
         this._batchedQueue.uploadBuffers(cmdBuff);
         this._additiveLightQueue.gatherLightPasses(camera, cmdBuff);
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
-        const sceneData = pipeline.pipelineSceneData;
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
+        pipeline.updateQuadVertexData(this._renderArea, camera.window);
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
             colors[0].y = camera.clearColor.y;
