@@ -116,9 +116,15 @@ class ScreenAdapter extends EventTarget {
         };
     }
 
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) { }
+
     private _cbToUpdateFrameBuffer?: () => void;
     private _resolution: Size = new Size(0, 0);
     private _resolutionScale = 1;
+    private _isProportionalToFrame = false;
 
     constructor () {
         super();

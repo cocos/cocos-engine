@@ -119,10 +119,21 @@ class ScreenAdapter extends EventTarget {
             right: 0,
         };
     }
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) {
+        if (this._isProportionalToFrame === v) {
+            return;
+        }
+        // TODO
+        this._isProportionalToFrame = v;
+    }
 
     private _gameFrame?: HTMLDivElement;
     private _gameContainer?: HTMLDivElement;
     private _gameCanvas?: HTMLCanvasElement;
+    private _isProportionalToFrame = false;
     private _cbToUpdateFrameBuffer?: () => void;
     private _supportFullScreen = false;
     private _touchEventName: string;
