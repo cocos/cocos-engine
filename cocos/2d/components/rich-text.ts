@@ -199,6 +199,29 @@ export class RichText extends Component {
 
     /**
      * @en
+     * Vertical Alignment of each line in RichText.
+     *
+     * @zh
+     * 文本内容的竖直对齐方式。
+     */
+    @type(VerticalTextAlignment)
+    @tooltip('i18n:richtext.vertical_align')
+    get verticalAlign () {
+        return this._verticalAlign;
+    }
+
+    set verticalAlign (value) {
+        if (this._verticalAlign === value) {
+            return;
+        }
+
+        this._verticalAlign = value;
+        this._layoutDirty = true;
+        this._updateRichTextStatus();
+    }
+
+    /**
+     * @en
      * Font size of RichText.
      *
      * @zh
@@ -421,6 +444,8 @@ export class RichText extends Component {
     // protected _updateRichTextStatus =
     @serializable
     protected _horizontalAlign = HorizontalTextAlignment.LEFT;
+    @serializable
+    protected _verticalAlign = VerticalTextAlignment.TOP;
     @serializable
     protected _fontSize = 40;
     @serializable
