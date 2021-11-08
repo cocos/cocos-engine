@@ -680,6 +680,16 @@ export class RichText extends UIComponent {
             }
         }
 
+        // set alignments
+        if (labelSegment.comp instanceof Label) {
+            if (labelSegment.comp.horizontalAlign !== this._horizontalAlign) {
+                labelSegment.comp.horizontalAlign = this._horizontalAlign;
+            }
+            if (labelSegment.comp.verticalAlign !== this._verticalAlign) {
+                labelSegment.comp.verticalAlign = this._verticalAlign;
+            }
+        }
+
         labelSegment.styleIndex = styleIndex;
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
