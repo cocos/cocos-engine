@@ -26,16 +26,64 @@
 
 const Asset = require('./CCAsset');
 
-var GifAsset = cc.Class({
+const GifAsset = cc.Class({
     name: 'cc.GifAsset',
     extends: Asset,
 
-    ctor(){
-
+    properties: {
+        /**
+         * !#en Gif prefab is used to create node
+         * !#zh gif 节点预制
+         * @property prefab
+         * @type {Prefab}
+         * @default null
+         */
+        prefab: {
+            get: function () {
+                return this._prefab;
+            },
+            set: function (value) {
+                this._prefab = value;
+            }
+        },
+        /**
+         * !#en Gif sequence SpriteFrame
+         * !#zh gif 序列 SpriteFrame
+         * @property spriteFrames
+         * @type {Object}
+         * @default {}
+         */
+        spriteFrames: {
+            get: function () {
+                return this._spriteFrames;
+            },
+            set: function (value) {
+                this._spriteFrames = value;
+            }
+        },
+        /**
+         * !#en Gif AnimationClip
+         * !#zh gif 动画剪辑
+         * @property animationClip
+         * @type {AnimationClip}
+         * @default null
+         */
+        animationClip: {
+            get: function () {
+                return this._animationClip;
+            },
+            set: function (value) {
+                this._animationClip = value;
+            }
+        }
     },
-    properties:{
 
+    ctor: function () {
+        this._prefab = null;
+        this._animationClip = null;
+        this._spriteFrames = {};
     },
+
 });
 cc.GifAsset = GifAsset;
 module.exports = GifAsset;
