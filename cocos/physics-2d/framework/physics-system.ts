@@ -3,20 +3,23 @@
  * @module physics2d
  */
 
-import { EDITOR, DEBUG } from 'internal:constants';
-import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
-import { IPhysicsWorld } from '../spec/i-physics-world';
-import { createPhysicsWorld } from './instance';
-import { physicsEngineId } from './physics-selector';
-import { DelayEvent } from './physics-internal-types';
-import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
-import { CollisionMatrix } from '../../physics/framework/collision-matrix';
-import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
-import { Collider2D } from './components/colliders/collider-2d';
-
-let instance: PhysicsSystem2D | null = null;
-
-export class PhysicsSystem2D extends Eventify(System) {
+ import { EDITOR, DEBUG } from 'internal:constants';
+ import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
+ import { IPhysicsWorld } from '../spec/i-physics-world';
+ import { createPhysicsWorld } from './instance';
+ import { physicsEngineId } from './physics-selector';
+ import { DelayEvent } from './physics-internal-types';
+ import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
+ import { CollisionMatrix } from '../../physics/framework/collision-matrix';
+ import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
+ import { Collider2D } from './components/colliders/collider-2d';
+ import { legacyCC } from '../../core/global-exports';
+ 
+ legacyCC.internal.PhysicsGroup = PhysicsGroup;
+ 
+ let instance: PhysicsSystem2D | null = null;
+ 
+ export class PhysicsSystem2D extends Eventify(System) {
     /**
      * @en
      * Gets or sets whether the physical system is enabled, which can be used to pause or continue running the physical system.
@@ -236,12 +239,12 @@ export class PhysicsSystem2D extends Eventify(System) {
     }
 
     /**
-    * @en
-    * Perform a simulation of the physics system, which will now be performed automatically on each frame.
-    * @zh
-    * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-    * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
-    */
+     * @en
+     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
+     * @zh
+     * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
+     * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
+     */
     postUpdate (deltaTime: number) {
         if (!this._enable) {
             return;
@@ -354,6 +357,7 @@ director.once(Director.EVENT_INIT, () => {
 
 function initPhysicsSystem () {
     if (!PhysicsSystem2D.PHYSICS_NONE && !EDITOR) {
-        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
+        const sys = PhysicsSystem2D.instance;
+        director.registerSystem(PhysicsSystem2D.ID, sys, sys.priority);
     }
 }
