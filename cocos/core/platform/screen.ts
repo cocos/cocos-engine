@@ -52,9 +52,14 @@ class Screen {
 
     /**
      * @en Get and set the size of current window in physical pixels.
-     * NOTE: Setting window size is only supported on Web platform for now.
+     * NOTE:
+     * - Setting window size is only supported on Web platform for now.
+     * - On Web platform, if the ContainerStrategy is PROPORTIONAL_TO_FRAME, we set windowSize on game frame,
+     *    and get windowSize from the game container after adaptation.
      * @zh 获取和设置当前窗口的物理像素尺寸。
-     * 注意：设置窗口尺寸目前只在 Web 平台上支持。
+     * 注意
+     * - 设置窗口尺寸目前只在 Web 平台上支持。
+     * - Web 平台上，如果 ContainerStrategy 为 PROPORTIONAL_TO_FRAME, 则设置 windowSize 作用于 game frame, 而从适配之后 game container 尺寸获取 windowSize.
      */
     public get windowSize (): Size {
         return screenAdapter.windowSize;
