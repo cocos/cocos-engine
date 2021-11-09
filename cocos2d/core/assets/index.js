@@ -42,3 +42,4 @@ require('./CCTextAsset');
 require('./CCJsonAsset');
 require('./CCBufferAsset');
 require('./material');
+require('./CCGifAssset');
