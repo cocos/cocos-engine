@@ -95,6 +95,8 @@ export class WebGPUTexture extends Texture {
     }
 
     public resize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
         this._nativeTexture.resize(width, height);
     }
 }

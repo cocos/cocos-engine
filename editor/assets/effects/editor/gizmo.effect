@@ -152,9 +152,9 @@ CCProgram line-fs %{
   uniform Constant {
     vec4 mainColor;
   };
-
+  #if USE_DASHED_LINE
   in float lineDistance;
-
+  #endif
   vec4 front() {
     #if USE_FORWARD_PIPELINE
       return CCFragOutput(mainColor);
