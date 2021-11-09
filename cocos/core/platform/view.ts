@@ -384,12 +384,7 @@ export class View extends EventTarget {
         return this._resolutionPolicy;
     }
 
-    /**
-     * @en Sets the current resolution policy
-     * @zh 设置当前分辨率模式
-     * @see {{ResolutionPolicy}}
-     */
-    public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
+    private _updateResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
         if (resolutionPolicy instanceof ResolutionPolicy) {
             this._resolutionPolicy = resolutionPolicy;
         } else {
@@ -411,6 +406,16 @@ export class View extends EventTarget {
                 this._resolutionPolicy = this._rpFixedWidth;
             }
         }
+    }
+    /**
+     * @en Sets the current resolution policy
+     * @zh 设置当前分辨率模式
+     * @see {{ResolutionPolicy}}
+     */
+    public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
+        this._updateResolutionPolicy(resolutionPolicy);
+        const designedResolution = view.getDesignResolutionSize();
+        view.setDesignResolutionSize(designedResolution.width, designedResolution.height, resolutionPolicy);
     }
 
     /**
@@ -434,7 +439,7 @@ export class View extends EventTarget {
             return;
         }
 
-        this.setResolutionPolicy(resolutionPolicy);
+        this._updateResolutionPolicy(resolutionPolicy);
         const policy = this._resolutionPolicy;
         if (policy) {
             policy.preApply(this);
