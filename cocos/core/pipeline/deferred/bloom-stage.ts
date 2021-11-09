@@ -33,14 +33,14 @@ import { SetIndex } from '../define';
 import { RenderFlow, RenderPipeline } from '..';
 import { Material } from '../../assets/material';
 import { BufferInfo, BufferUsageBit, ClearFlagBit, Color, MemoryUsageBit, PipelineState, Rect } from '../../gfx';
-import { Pass } from '../../renderer';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { CommonStagePriority } from './enum';
-import { BLOOM_COMBINEPASS_INDEX, BLOOM_DOWNSAMPLEPASS_INDEX, BLOOM_PREFILTERPASS_INDEX, BLOOM_UPSAMPLEPASS_INDEX, CommonPipelineSceneData }
-    from './common-pipeline-scene-data';
+import { CommonStagePriority } from '../enum';
 import { gfx } from '../..';
 import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
+import { BLOOM_COMBINEPASS_INDEX, BLOOM_DOWNSAMPLEPASS_INDEX, BLOOM_PREFILTERPASS_INDEX,
+    BLOOM_UPSAMPLEPASS_INDEX,
+    DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -89,7 +89,7 @@ export class BloomStage extends RenderStage {
     public activate (pipeline: RenderPipeline, flow: RenderFlow) {
         super.activate(pipeline, flow);
 
-        if (this._bloomMaterial) { (pipeline.pipelineSceneData as CommonPipelineSceneData).bloomMaterial = this._bloomMaterial; }
+        if (this._bloomMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).bloomMaterial = this._bloomMaterial; }
     }
 
     public destroy () {
@@ -135,8 +135,8 @@ export class BloomStage extends RenderStage {
         this._renderArea.height >>= 1;
         const cmdBuff = pipeline.commandBuffers[0];
 
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const pass = builtinBloomProcess.passes[BLOOM_PREFILTERPASS_INDEX];
         const renderData = pipeline.getPipelineRenderData();
         const bloomData = renderData.bloom!;
@@ -175,8 +175,8 @@ export class BloomStage extends RenderStage {
         this._renderArea.width >>= 1;
         this._renderArea.height >>= 1;
         const cmdBuff = pipeline.commandBuffers[0];
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const bloomData = pipeline.getPipelineRenderData().bloom!;
         const textureSize = new Float32Array(UBOBloom.COUNT);
 
@@ -224,8 +224,8 @@ export class BloomStage extends RenderStage {
         this._renderArea.width >>= this.iterations + 1;
         this._renderArea.height >>= this.iterations + 1;
         const cmdBuff = pipeline.commandBuffers[0];
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData  as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const textureSize = new Float32Array(UBOBloom.COUNT);
 
         for (let i = 0; i < this.iterations; ++i) {
@@ -271,8 +271,8 @@ export class BloomStage extends RenderStage {
         this._renderArea = pipeline.generateRenderArea(camera);
 
         const cmdBuff = pipeline.commandBuffers[0];
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const deferredData = pipeline.getPipelineRenderData();
         const bloomData = deferredData.bloom!;
         const uboIndex = MAX_BLOOM_FILTER_PASS_NUM * 2 + 1;

@@ -1,8 +1,6 @@
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
-
  https://www.cocos.com/
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +8,8 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
-
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -54,10 +50,10 @@ export class PipelineSceneData {
     }
 
     /**
-     * @en Is open HDR.
-     * @zh 是否开启 HDR。
-     * @readonly
-     */
+      * @en Is open HDR.
+      * @zh 是否开启 HDR。
+      * @readonly
+      */
     public get isHDR () {
         return this._isHDR;
     }
@@ -87,9 +83,9 @@ export class PipelineSceneData {
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
     /**
-     * @en The list for render objects, only available after the scene culling of the current frame.
-     * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
-     */
+      * @en The list for render objects, only available after the scene culling of the current frame.
+      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
+      */
     public renderObjects: IRenderObject[] = [];
     public castShadowObjects: IRenderObject[] = [];
     public dirShadowObjects: IRenderObject[] = [];

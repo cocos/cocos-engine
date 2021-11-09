@@ -31,12 +31,12 @@ import { ccclass } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { PIPELINE_FLOW_MAIN } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { DeferredFlowPriority } from '../common/enum';
+import { DeferredFlowPriority } from '../enum';
 import { GbufferStage } from './gbuffer-stage';
 import { LightingStage } from './lighting-stage';
-import { PostProcessStage } from '../common/postprocess-stage';
+import { PostProcessStage } from './postprocess-stage';
 import { RenderPipeline } from '../render-pipeline';
-import { BloomStage } from '../common/bloom-stage';
+import { BloomStage } from './bloom-stage';
 
 /**
  * @en The main flow in deferred render pipeline

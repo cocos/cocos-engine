@@ -33,8 +33,8 @@ import { legacyCC } from '../../core/global-exports';
 import { Asset } from '../assets/asset';
 import { Swapchain } from '../gfx';
 import { Model, Camera } from '../renderer/scene';
-import { CommonPipelineSceneData } from './common/common-pipeline-scene-data';
 import { IPipelineEvent, PipelineEventType } from './pipeline-event';
+import { PipelineSceneData } from './pipeline-scene-data';
 
 nr.getPhaseID = getPhaseID;
 
@@ -61,7 +61,7 @@ export function createDefaultPipeline () {
 
 // ForwardPipeline
 export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEvent {
-    public pipelineSceneData = new CommonPipelineSceneData();
+    public pipelineSceneData = new PipelineSceneData();
 
     constructor() {
       super();

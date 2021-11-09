@@ -6,7 +6,6 @@ CCEffect %{
     - vert: post-process-vs
       frag: post-process-fs
       phase: post-process
-      embeddedMacros: { ANTIALIAS_TYPE: 0 }
       depthStencilState:
         depthTest: false
         depthWrite: false
