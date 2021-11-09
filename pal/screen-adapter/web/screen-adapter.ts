@@ -140,7 +140,6 @@ class ScreenAdapter extends EventTarget {
     private _onFullscreenChange?: () => void;
     private _onFullscreenError?: () => void;
     // We need to set timeout to handle screen event.
-    private _resizeTimeoutId = -1;
     private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _exactFitScreen = false;
@@ -311,19 +310,10 @@ class ScreenAdapter extends EventTarget {
         });
 
         window.addEventListener('resize', () => {
-            if (this._resizeTimeoutId !== -1) {
-                clearTimeout(this._resizeTimeoutId);
+            if (!this.handleResizeEvent) {
+                return;
             }
-            this._resizeTimeoutId = setTimeout(() => {
-                if (!this.handleResizeEvent) {
-                    return;
-                }
-                this._resizeFrame();
-                if (this._windowType !== WindowType.SubFrame) {
-                    this.emit('window-resize');
-                }
-                this._resizeTimeoutId = -1;
-            }, EVENT_TIMEOUT);
+            this._resizeFrame();
         });
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
