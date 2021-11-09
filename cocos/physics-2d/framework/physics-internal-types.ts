@@ -1,4 +1,4 @@
 export declare class DelayEvent {
-    target: Object;
-    func: Function;
+    target: unknown;
+    func: () => void;
 }

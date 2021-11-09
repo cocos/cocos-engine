@@ -285,7 +285,7 @@ export class PhysicsSystem2D extends Eventify(System) {
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
 
-    _callAfterStep (target: object, func: Function) {
+    _callAfterStep (target: unknown, func: () => void) {
         if (this._steping) {
             this._delayEvents.push({
                 target,
