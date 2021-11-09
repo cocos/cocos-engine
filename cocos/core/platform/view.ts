@@ -642,7 +642,7 @@ class ContainerStrategy {
 
     }
 
-    protected _setupContainer (_view, w, h) {
+    protected _setupCanvas () {
         const locCanvas = game.canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
@@ -737,8 +737,8 @@ class ContentStrategy {
     class EqualToFrame extends ContainerStrategy {
         public name = 'EqualToFrame';
         public apply (_view) {
-            const windowSize = screen.windowSize;
-            this._setupContainer(_view, windowSize.width, windowSize.height);
+            screenAdapter.isProportionalToFrame = false;
+            this._setupCanvas();
         }
     }
 
@@ -749,10 +749,10 @@ class ContentStrategy {
     class ProportionalToFrame extends ContainerStrategy {
         public name = 'ProportionalToFrame';
         public apply (_view, designedResolution) {
-            const windowSize = screen.windowSize;
-            const frameW = windowSize.width;
-            const frameH = windowSize.height;
-            const containerStyle = legacyCC.game.container.style;
+            screenAdapter.isProportionalToFrame = true;
+            const frame = game.frame!;
+            const frameW = frame.clientWidth;
+            const frameH = frame.clientHeight;
             const designW = designedResolution.width;
             const designH = designedResolution.height;
             const scaleX = frameW / designW;
@@ -767,6 +767,8 @@ class ContentStrategy {
                 containerW = designW * scaleY;
                 containerH = frameH;
             }
+            screenAdapter.windowSize = new Size(containerW, containerH);
+            this._setupCanvas();
 
             // Adjust container size with integer value
             const offx = Math.round((frameW - containerW) / 2);
@@ -774,8 +776,8 @@ class ContentStrategy {
             containerW = frameW - 2 * offx;
             containerH = frameH - 2 * offy;
 
-            this._setupContainer(_view, containerW, containerH);
             if (!EDITOR) {
+                const containerStyle = legacyCC.game.container.style;
                 // Setup container's margin and padding
                 if (screenAdapter.isFrameRotated) {
                     containerStyle.margin = `0 0 0 ${frameH}px`;
