@@ -4,6 +4,11 @@ import ts from 'typescript';
 import * as gift from 'tfig';
 import { StatsQuery } from '../stats-query';
 
+const DEBUG = false;
+const REMOVE_TMP = true;
+const REMOVE_OLD = !DEBUG;
+const RECOMPILE = !DEBUG;
+
 export async function build (options: {
     engine: string;
     outDir: string;
@@ -65,11 +70,13 @@ export async function build (options: {
         '.d.ts',
         '.d.ts.map',
     ];
-    for (const destExtension of destExtensions) {
-        const destFile = ps.join(dirName, baseName + destExtension);
-        if (await fs.pathExists(destFile)) {
-            console.log(`Delete old ${destFile}.`);
-            await fs.unlink(destFile);
+    if (REMOVE_OLD) {
+        for (const destExtension of destExtensions) {
+            const destFile = ps.join(dirName, baseName + destExtension);
+            if (await fs.pathExists(destFile)) {
+                console.log(`Delete old ${destFile}.`);
+                await fs.unlink(destFile);
+            }
         }
     }
 
@@ -79,45 +86,47 @@ export async function build (options: {
 
     const editorExportModules = statsQuery.getEditorPublicModules();
 
-    let fileNames = parsedCommandLine.fileNames;
-    if (withEditorExports) {
-        fileNames = fileNames.concat(editorExportModules.map((e) => statsQuery.getEditorPublicModuleFile(e)));
-    }
-
-    const program = ts.createProgram(fileNames, parsedCommandLine.options);
-    const emitResult = program.emit(
-        undefined, // targetSourceFile
-        undefined, // writeFile
-        undefined, // cancellationToken,
-        true, // emitOnlyDtsFiles
-        undefined, // customTransformers
-    );
-
-    const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-    for (const diagnostic of allDiagnostics) {
-        let printer;
-        switch (diagnostic.category) {
-        case ts.DiagnosticCategory.Error:
-            printer = console.error;
-            break;
-        case ts.DiagnosticCategory.Warning:
-            printer = console.warn;
-            break;
-        case ts.DiagnosticCategory.Message:
-        case ts.DiagnosticCategory.Suggestion:
-        default:
-            printer = console.log;
-            break;
+    if (RECOMPILE) {
+        let fileNames = parsedCommandLine.fileNames;
+        if (withEditorExports) {
+            fileNames = fileNames.concat(editorExportModules.map((e) => statsQuery.getEditorPublicModuleFile(e)));
         }
-        if (!printer) {
-            continue;
-        }
-        if (diagnostic.file && diagnostic.start !== undefined) {
-            const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
-            printer(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-        } else {
-            printer(`${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`);
+
+        const program = ts.createProgram(fileNames, parsedCommandLine.options);
+        const emitResult = program.emit(
+            undefined, // targetSourceFile
+            undefined, // writeFile
+            undefined, // cancellationToken,
+            true, // emitOnlyDtsFiles
+            undefined, // customTransformers
+        );
+
+        const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+        for (const diagnostic of allDiagnostics) {
+            let printer;
+            switch (diagnostic.category) {
+            case ts.DiagnosticCategory.Error:
+                printer = console.error;
+                break;
+            case ts.DiagnosticCategory.Warning:
+                printer = console.warn;
+                break;
+            case ts.DiagnosticCategory.Message:
+            case ts.DiagnosticCategory.Suggestion:
+            default:
+                printer = console.log;
+                break;
+            }
+            if (!printer) {
+                continue;
+            }
+            if (diagnostic.file && diagnostic.start !== undefined) {
+                const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+                const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, ts.sys.newLine);
+                printer(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+            } else {
+                printer(`${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`);
+            }
         }
     }
 
@@ -210,7 +219,9 @@ export async function build (options: {
         console.error(error);
         return false;
     } finally {
-        await Promise.all((cleanupFiles.map(async (file) => fs.unlink(file))));
+        if (REMOVE_TMP) {
+            await Promise.all((cleanupFiles.map(async (file) => fs.unlink(file))));
+        }
     }
 
     return true;

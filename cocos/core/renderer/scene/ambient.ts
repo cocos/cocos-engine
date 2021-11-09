@@ -153,11 +153,15 @@ export class Ambient {
     public initialize (ambientInfo: AmbientInfo) {
         // Init HDR/LDR from serialized data on load
         this._skyColorHDR = ambientInfo.skyColorHDR;
-        this._groundAlbedoHDR = ambientInfo.groundAlbedoHDR;
+        this._groundAlbedoHDR.x = ambientInfo.groundAlbedoHDR.x;
+        this._groundAlbedoHDR.y = ambientInfo.groundAlbedoHDR.y;
+        this._groundAlbedoHDR.z = ambientInfo.groundAlbedoHDR.z;
         this._skyIllumHDR = ambientInfo.skyIllumHDR;
 
         this._skyColorLDR = ambientInfo.skyColorLDR;
-        this._groundAlbedoLDR = ambientInfo.groundAlbedoLDR;
+        this._groundAlbedoLDR.x = ambientInfo.groundAlbedoLDR.x;
+        this._groundAlbedoLDR.y = ambientInfo.groundAlbedoLDR.y;
+        this._groundAlbedoLDR.z = ambientInfo.groundAlbedoLDR.z;
         this._skyIllumLDR = ambientInfo.skyIllumLDR;
 
         if (JSB) {
