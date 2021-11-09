@@ -741,7 +741,7 @@ class ContentStrategy {
      */
     class EqualToFrame extends ContainerStrategy {
         public name = 'EqualToFrame';
-        public apply (_view) {
+        public apply (_view, designedResolution) {
             screenAdapter.isProportionalToFrame = false;
             this._setupCanvas();
         }
@@ -755,45 +755,7 @@ class ContentStrategy {
         public name = 'ProportionalToFrame';
         public apply (_view, designedResolution) {
             screenAdapter.isProportionalToFrame = true;
-            const frame = game.frame!;
-            const frameW = frame.clientWidth;
-            const frameH = frame.clientHeight;
-            const designW = designedResolution.width;
-            const designH = designedResolution.height;
-            const scaleX = frameW / designW;
-            const scaleY = frameH / designH;
-            let containerW;
-            let containerH;
-
-            if (scaleX < scaleY) {
-                containerW = frameW;
-                containerH = designH * scaleX;
-            } else {
-                containerW = designW * scaleY;
-                containerH = frameH;
-            }
-            screenAdapter.windowSize = new Size(containerW, containerH);
             this._setupCanvas();
-
-            // Adjust container size with integer value
-            const offx = Math.round((frameW - containerW) / 2);
-            const offy = Math.round((frameH - containerH) / 2);
-            containerW = frameW - 2 * offx;
-            containerH = frameH - 2 * offy;
-
-            if (!EDITOR) {
-                const containerStyle = legacyCC.game.container.style;
-                // Setup container's margin and padding
-                if (screenAdapter.isFrameRotated) {
-                    containerStyle.margin = `0 0 0 ${frameH}px`;
-                } else {
-                    containerStyle.margin = '0px';
-                }
-                containerStyle.paddingLeft = `${offx}px`;
-                containerStyle.paddingRight = `${offx}px`;
-                containerStyle.paddingTop = `${offy}px`;
-                containerStyle.paddingBottom = `${offy}px`;
-            }
         }
     }
 
