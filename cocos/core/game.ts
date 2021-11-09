@@ -702,7 +702,11 @@ export class Game extends EventTarget {
             this.emit(Game.EVENT_ENGINE_INITED);
             this._engineInited = true;
             if (legacyCC.internal.dynamicAtlasManager) { legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE; }
-        }).then(() => Promise.all(this._onEngineInitedCallback.map((func) => func()).filter(Boolean)));
+        }).then(() => {
+            const initCallbackPromises = this._onEngineInitedCallback.map((func) => func()).filter(Boolean);
+            this._onEngineInitedCallback.length = 0;
+            return Promise.all(initCallbackPromises);
+        });
     }
 
     // @Methods
