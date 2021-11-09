@@ -403,6 +403,7 @@ export class Game extends EventTarget {
     private _startTime = 0;
     private _deltaTime = 0.0;
     private declare _frameCB: (time: number) => void;
+    private _onEngineInitedCallback: Array<() => (Promise<void> | void)> = [];
 
     // @Methods
 
@@ -684,6 +685,11 @@ export class Game extends EventTarget {
         return !!node._persistNode;
     }
 
+    // hack for PhysX initialization
+    public onEngineInitedAsync (func: () => (Promise<void> | void)) {
+        this._onEngineInitedCallback.push(func);
+    }
+
     //  @Engine loading
 
     private _initEngine () {
@@ -696,7 +702,7 @@ export class Game extends EventTarget {
             this.emit(Game.EVENT_ENGINE_INITED);
             this._engineInited = true;
             if (legacyCC.internal.dynamicAtlasManager) { legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE; }
-        });
+        }).then(() => Promise.all(this._onEngineInitedCallback.map((func) => func()).filter(Boolean)));
     }
 
     // @Methods
