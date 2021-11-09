@@ -42,6 +42,8 @@ public:
     inline bool isInited() const { return _inited; }
 
 protected:
+    friend class SwapchainValidator;
+
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
     void doInit(const SwapchainTextureInfo &info) override;

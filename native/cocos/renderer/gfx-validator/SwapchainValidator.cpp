@@ -36,7 +36,7 @@ namespace gfx {
 
 SwapchainValidator::SwapchainValidator(Swapchain *actor)
 : Agent<Swapchain>(actor) {
-    _typedID = actor->getTypedID();
+    _typedID            = actor->getTypedID();
     _preRotationEnabled = static_cast<SwapchainValidator *>(actor)->_preRotationEnabled;
 }
 
@@ -93,6 +93,12 @@ void SwapchainValidator::doResize(uint32_t width, uint32_t height, SurfaceTransf
     CCASSERT(isInited(), "alread destroyed?");
 
     _actor->resize(width, height, transform);
+
+    auto *colorTexture        = static_cast<TextureValidator *>(_colorTexture);
+    auto *depthStencilTexture = static_cast<TextureValidator *>(_depthStencilTexture);
+    colorTexture->_info.width = colorTexture->_info.width = _actor->getWidth();
+    colorTexture->_info.height = colorTexture->_info.height = _actor->getHeight();
+    _transform = _actor->getSurfaceTransform();
 }
 
 void SwapchainValidator::doDestroySurface() {

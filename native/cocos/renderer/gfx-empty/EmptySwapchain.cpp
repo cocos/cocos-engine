@@ -50,7 +50,9 @@ void EmptySwapchain::doDestroy() {
     CC_SAFE_DESTROY(_colorTexture);
 }
 
-void EmptySwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
+void EmptySwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
+    _colorTexture->resize(width, height);
+    _depthStencilTexture->resize(width, height);
 }
 
 void EmptySwapchain::doDestroySurface() {

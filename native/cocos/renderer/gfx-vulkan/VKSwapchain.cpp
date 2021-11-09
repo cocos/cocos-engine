@@ -237,14 +237,8 @@ void CCVKSwapchain::doDestroy() {
     CC_SAFE_DELETE(_gpuSwapchain)
 }
 
-void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
-    checkSwapchainStatus(width, height);
-
-    // If these assertions are hit that almost always means something is wrong with the
-    // resize event dispatch logic instead of the resize implementation executed above.
-    if (ENABLE_PRE_ROTATION && toNumber(transform) & 1) std::swap(width, height);
-    CCASSERT(getWidth() == width && getHeight() == height, "Wrong input size");
-    CCASSERT(_transform == transform, "Wrong surface transformation");
+void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
+    checkSwapchainStatus(width, height); // the orientation info from system event is not reliable
 }
 
 bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
