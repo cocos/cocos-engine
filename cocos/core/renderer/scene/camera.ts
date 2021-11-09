@@ -138,6 +138,7 @@ export class Camera {
     private _farClip = 1000.0;
     private _clearColor = new Color(0.2, 0.2, 0.2, 1);
     private _viewport: Rect = new Rect(0, 0, 1, 1);
+    private _orientedViewport: Rect = new Rect(0, 0, 1, 1);
     private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
@@ -512,6 +513,11 @@ export class Camera {
             break;
         default:
         }
+        this._orientedViewport.x = x;
+        this._orientedViewport.y = y;
+        this._orientedViewport.width = width;
+        this._orientedViewport.height = height;
+
         if (JSB) {
             this._nativeObj!.viewPort = this._viewport;
         }
@@ -740,12 +746,12 @@ export class Camera {
     public screenPointToRay (out: Ray, x: number, y: number): Ray {
         if (!this._node) return null!;
 
-        const width = this.window.width;
-        const height = this.window.height;
-        const cx = this._viewport.x * width;
-        const cy = this._viewport.y * height;
-        const cw = this._viewport.width * width;
-        const ch = this._viewport.height * height;
+        const width = this.width;
+        const height = this.height;
+        const cx = this._orientedViewport.x * width;
+        const cy = this._orientedViewport.y * height;
+        const cw = this._orientedViewport.width * width;
+        const ch = this._orientedViewport.height * height;
         const isProj = this._proj === CameraProjection.PERSPECTIVE;
         const ySign = this._device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
@@ -773,12 +779,12 @@ export class Camera {
      * transform a screen position (in oriented space) to world space
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
-        const width = this.window.width;
-        const height = this.window.height;
-        const cx = this._viewport.x * width;
-        const cy = this._viewport.y * height;
-        const cw = this._viewport.width * width;
-        const ch = this._viewport.height * height;
+        const width = this.width;
+        const height = this.height;
+        const cx = this._orientedViewport.x * width;
+        const cy = this._orientedViewport.y * height;
+        const cw = this._orientedViewport.width * width;
+        const ch = this._orientedViewport.height * height;
         const ySign = this._device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
@@ -819,12 +825,6 @@ export class Camera {
      * transform a world space position to screen space
      */
     public worldToScreen (out: Vec3, worldPos: Vec3 | Readonly<Vec3>): Vec3 {
-        const width = this.window.width;
-        const height = this.window.height;
-        const cx = this._viewport.x * width;
-        const cy = this._viewport.y * height;
-        const cw = this._viewport.width * width;
-        const ch = this._viewport.height * height;
         const ySign = this._device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
@@ -833,6 +833,13 @@ export class Camera {
         const { x, y } = out;
         out.x = x * preTransform[0] + y * preTransform[2] * ySign;
         out.y = x * preTransform[1] + y * preTransform[3] * ySign;
+
+        const width = this.width;
+        const height = this.height;
+        const cx = this._orientedViewport.x * width;
+        const cy = this._orientedViewport.y * height;
+        const cw = this._orientedViewport.width * width;
+        const ch = this._orientedViewport.height * height;
 
         out.x = cx + (out.x + 1) * 0.5 * cw;
         out.y = cy + (out.y + 1) * 0.5 * ch;
