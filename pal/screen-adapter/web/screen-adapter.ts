@@ -7,6 +7,11 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 
+interface ICachedStyle {
+    width: string;
+    height: string;
+}
+
 const EVENT_TIMEOUT = EDITOR ? 5 : 200;
 const orientationMap: Record<ConfigOrientation, Orientation> = {
     auto: Orientation.AUTO,
@@ -134,6 +139,8 @@ class ScreenAdapter extends EventTarget {
     private _gameContainer?: HTMLDivElement;
     private _gameCanvas?: HTMLCanvasElement;
     private _isProportionalToFrame = false;
+    private _cachedFrameStyle: ICachedStyle = { width: '0px', height: '0px' };
+    private _cachedContainerStyle: ICachedStyle = { width: '0px', height: '0px' };
     private _cbToUpdateFrameBuffer?: () => void;
     private _supportFullScreen = false;
     private _touchEventName: string;
@@ -501,7 +508,21 @@ class ScreenAdapter extends EventTarget {
             containerStyle.width = '100%';
             containerStyle.height = '100%';
         }
-        this.emit('window-resize');
+
+        // Cache Test
+        if (this._gameFrame
+            && (this._cachedFrameStyle.width !== this._gameFrame.style.width
+            || this._cachedFrameStyle.height !== this._gameFrame.style.height
+            || this._cachedContainerStyle.width !== this._gameContainer.style.width
+            || this._cachedContainerStyle.height !== this._gameContainer.style.height)) {
+            this.emit('window-resize');
+
+            // Update Cache
+            this._cachedFrameStyle.width = this._gameFrame.style.width;
+            this._cachedFrameStyle.height = this._gameFrame.style.height;
+            this._cachedContainerStyle.width = this._gameContainer.style.width;
+            this._cachedContainerStyle.height = this._gameContainer.style.height;
+        }
     }
 }
 
