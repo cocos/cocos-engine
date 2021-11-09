@@ -122,6 +122,8 @@ void SwapchainAgent::doDestroySurface() {
         {
             actor->destroySurface();
         });
+
+    DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
 }
 
 void SwapchainAgent::doCreateSurface(void *windowHandle) {
