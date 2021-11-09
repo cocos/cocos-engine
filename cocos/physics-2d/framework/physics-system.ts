@@ -3,23 +3,23 @@
  * @module physics2d
  */
 
- import { EDITOR, DEBUG } from 'internal:constants';
- import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
- import { IPhysicsWorld } from '../spec/i-physics-world';
- import { createPhysicsWorld } from './instance';
- import { physicsEngineId } from './physics-selector';
- import { DelayEvent } from './physics-internal-types';
- import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
- import { CollisionMatrix } from '../../physics/framework/collision-matrix';
- import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
- import { Collider2D } from './components/colliders/collider-2d';
- import { legacyCC } from '../../core/global-exports';
- 
- legacyCC.internal.PhysicsGroup = PhysicsGroup;
- 
- let instance: PhysicsSystem2D | null = null;
- 
- export class PhysicsSystem2D extends Eventify(System) {
+import { EDITOR, DEBUG } from 'internal:constants';
+import { System, Vec2, director, Director, game, error, IVec2Like, Rect, Eventify, Enum } from '../../core';
+import { IPhysicsWorld } from '../spec/i-physics-world';
+import { createPhysicsWorld } from './instance';
+import { physicsEngineId } from './physics-selector';
+import { DelayEvent } from './physics-internal-types';
+import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physics-config';
+import { CollisionMatrix } from '../../physics/framework/collision-matrix';
+import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO, PhysicsGroup } from './physics-types';
+import { Collider2D } from './components/colliders/collider-2d';
+import { legacyCC } from '../../core/global-exports';
+
+legacyCC.internal.PhysicsGroup = PhysicsGroup;
+
+let instance: PhysicsSystem2D | null = null;
+
+export class PhysicsSystem2D extends Eventify(System) {
     /**
      * @en
      * Gets or sets whether the physical system is enabled, which can be used to pause or continue running the physical system.
