@@ -680,11 +680,9 @@ export class RichText extends UIComponent {
             }
         }
 
-        // set alignments
+        // set vertical alignments
+        // because horizontal alignment is applied with line offsets in method "_updateRichTextPosition"
         if (labelSegment.comp instanceof Label) {
-            if (labelSegment.comp.horizontalAlign !== this._horizontalAlign) {
-                labelSegment.comp.horizontalAlign = this._horizontalAlign;
-            }
             if (labelSegment.comp.verticalAlign !== this._verticalAlign) {
                 labelSegment.comp.verticalAlign = this._verticalAlign;
             }
