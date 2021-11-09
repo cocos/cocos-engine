@@ -908,7 +908,7 @@ struct ALIGNAS(8) BufferInfo {
     BufferUsage usage{BufferUsageBit::NONE};
     MemoryUsage memUsage{MemoryUsageBit::NONE};
     uint32_t    size{0U};
-    uint32_t    stride{0U}; // in bytes
+    uint32_t    stride{1U}; // in bytes
     BufferFlags flags{BufferFlagBit::NONE};
     uint32_t    _padding{0U};
 };
