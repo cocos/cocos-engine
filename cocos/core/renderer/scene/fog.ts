@@ -85,8 +85,12 @@ export class Fog {
      */
     set enabled (val: boolean) {
         this._setEnable(val);
-        if (!val) this._type = FOG_TYPE_NONE;
-        val ? this.activate() : this._updatePipeline();
+        if (!val) {
+            this._type = FOG_TYPE_NONE;
+            this._updatePipeline();
+        } else {
+            this.activate();
+        }
     }
 
     get enabled (): boolean {
