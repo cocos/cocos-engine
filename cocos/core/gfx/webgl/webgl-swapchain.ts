@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
 import { macro, warnID, warn, debug } from '../../platform';
 import { sys } from '../../platform/sys';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
@@ -155,13 +155,8 @@ export function getExtensions (gl: WebGLRenderingContext) {
             res.destroyShadersImmediately = false;
         }
 
-        // compressedTexSubImage2D has always been problematic because the
-        // parameters differs slightly from GLES, and many platforms get it wrong
-        if (WECHAT) {
-            res.noCompressedTexSubImage2D = true;
-        }
-
-        // getUniformLocation too [eyerolling]
+        // getUniformLocation has always been problematic because the
+        // paradigm differs from GLES, and many platforms get it wrong [eyerolling]
         if (WECHAT) {
             // wEcHaT just returns { id: -1 } for inactive names
             res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && (glLoc as { id: number }).id !== -1;
@@ -169,6 +164,11 @@ export function getExtensions (gl: WebGLRenderingContext) {
         if (ALIPAY) {
             // aLiPaY just returns the location number directly on actual devices, and WebGLUniformLocation objects in simulators
             res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && glLoc !== -1 || glLoc === 0;
+        }
+
+        // compressedTexSubImage2D too
+        if (WECHAT) {
+            res.noCompressedTexSubImage2D = true;
         }
     }
 

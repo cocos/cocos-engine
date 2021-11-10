@@ -46,6 +46,7 @@ import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+import { decideProfilerCamera } from './pipeline-funcs';
 
 /**
  * @en Render pipeline information descriptor
@@ -397,6 +398,8 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._commandBuffers[0].begin();
         this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
+        decideProfilerCamera(cameras);
+
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
