@@ -1066,6 +1066,6 @@ export function v3 (x?: number | Vec3, y?: number, z?: number) {
 
 legacyCC.v3 = v3;
 
-if (JSB) {
-    mixin(jsb.Vec3.prototype, Vec3.prototype);
-}
+// if (JSB) {
+//     mixin(jsb.Vec3.prototype, Vec3.prototype);
+// }

@@ -1,4 +1,4 @@
-import type { Node } from "../scene-graph";
+import type { Node } from '../scene-graph';
 
 export interface IArrayProxy {
     owner: any,
@@ -12,11 +12,11 @@ export interface IArrayProxy {
 
 class ProxyHandler {
     private _options: IArrayProxy;
-    constructor(options: IArrayProxy) {
+    constructor (options: IArrayProxy) {
         this._options = options;
     }
 
-    get(target: any, property: string) {
+    get (target: any, property: string) {
         const i = parseInt(property);
         let result;
         if (!isNaN(i)) {
@@ -29,7 +29,7 @@ class ProxyHandler {
             result = this._options.getArraySizeCB.call(this._options.owner);
         } else if (property === 'push') {
             const func = target[property];
-            result = function() {
+            result = function () {
                 for (let i = 0, len = arguments.length; i < len; ++i) {
                     this._options.setArrayElementCB(i, arguments[i]);
                 }
@@ -44,7 +44,7 @@ class ProxyHandler {
         return result;
     }
 
-    set(target: any, property: string, value: any, receiver: any) {
+    set (target: any, property: string, value: any, receiver: any) {
         console.warn(`==> set [${property}]=${value}, for target: ${target}`);
         const i = parseInt(property);
         if (!isNaN(i)) {
@@ -61,16 +61,16 @@ class ProxyHandler {
     }
 }
 
-export function defineArrayProxy(options: IArrayProxy) {
+export function defineArrayProxy (options: IArrayProxy) {
     const arrProxy = [new Proxy([], new ProxyHandler(options))];
     Object.defineProperty(options.owner, options.arrPropertyName, {
         enumerable: true,
         configurable: true,
-        get() {
+        get () {
             // TODO: get children from native and sync to arrProxy
             return arrProxy[0];
         },
-        set(v) {
+        set (v) {
             arrProxy[0] = new Proxy(v, new ProxyHandler(options));
             // TODO: resize native array
             options.setArraySizeCB.call(options.owner, v.length);
@@ -80,8 +80,24 @@ export function defineArrayProxy(options: IArrayProxy) {
                     options.setArrayElementCB(i, e);
                 }
             }
-        }
+        },
     });
+}
+
+function syncNodeValue (node: Node) {
+    const lpos = node._lpos;
+    node.setPosition(lpos.x, lpos.y, lpos.z);
+
+    const lscale = node._lscale;
+    node.setPosition(lscale.x, lscale.y, lscale.z);
+
+    const lrot = node._lrot;
+    node.setRotation(lrot.x, lrot.y, lrot.z, lrot.w);
+
+    node.setLayerForJS(node._layer);
+
+    const euler = node._euler;
+    node.setRotationFromEuler(euler.x, euler.y, euler.z);
 }
 
 export function updateChildren (node: Node) {
@@ -89,10 +105,12 @@ export function updateChildren (node: Node) {
         return;
     }
     node._setChildren(node._children);
+    syncNodeValue(node);
     for (let i = 0, len = node._children.length; i < len; ++i) {
         const child = node._children[i];
         jsb.registerNativeRef(node, child);
         updateChildren(child);
+        syncNodeValue(child);
     }
     Object.defineProperty(node, '_children', {
         enumerable: true,
@@ -102,6 +120,6 @@ export function updateChildren (node: Node) {
         },
         set (v) {
             this._setChildren(v);
-        }
+        },
     });
 }

@@ -962,6 +962,12 @@ nodeProto._ctor = function (name?: string) {
     // });
 
     this._children = [];
+
+    this._lpos = new Vec3();
+    this._lrot = new Quat();
+    this._lscale = new Vec3(1, 1, 1);
+    this._layer = Layers.Enum.DEFAULT;
+    this._euler = new Vec3();
 };
 //
 clsDecorator(Node);
