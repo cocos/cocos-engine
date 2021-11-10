@@ -31,9 +31,9 @@
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { sceneCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
-import { AccessType, Address, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
-    DepthStencilAttachment, DescriptorSet, Device, Feature, Filter, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
-    LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, SamplerInfo, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
+import { AccessType, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
+    DepthStencilAttachment, DescriptorSet, Device, Feature, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
+    LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';

@@ -23,12 +23,12 @@
  THE SOFTWARE.
 */
 
-import { RenderPass } from '../../gfx';
-import { PipelineStateManager } from '../pipeline-state-manager';
-import { SetIndex } from '../define';
-import { Camera } from '../../renderer/scene/camera';
-import { RenderPipeline } from '../render-pipeline';
-import { getPhaseID } from '../pass-phase';
+import { RenderPass } from '../gfx';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { SetIndex } from './define';
+import { Camera } from '../renderer/scene/camera';
+import { RenderPipeline } from './render-pipeline';
+import { getPhaseID } from './pass-phase';
 
 export class UIPhase {
     private _phaseID = getPhaseID('default');
@@ -58,11 +58,11 @@ export class UIPhase {
                 const pass = batch.passes[j];
                 if (pass.phase !== this._phaseID) continue;
                 const shader = batch.shaders[j];
-                const inputAssembler = batch.inputAssembler;
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler!);
+                const inputAssembler = batch.inputAssembler!;
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-                cmdBuff.bindInputAssembler(inputAssembler!);
+                cmdBuff.bindInputAssembler(inputAssembler);
                 for (let i = 0; i < batch.drawCalls.length; i++) {
                     const ds = batch.drawCalls[i].descriptorSet!;
                     cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds, batch.drawCalls[i].dynamicOffsets);

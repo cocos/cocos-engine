@@ -37,7 +37,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from '../common/enum';
+import { DeferredStagePriority } from '../enum';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
