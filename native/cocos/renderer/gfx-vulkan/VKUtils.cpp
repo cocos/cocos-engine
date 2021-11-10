@@ -585,5 +585,11 @@ bool isExtensionSupported(const char *required, const vector<VkExtensionProperti
     return false;
 }
 
+bool isFormatSupported(VkPhysicalDevice device, VkFormat format) {
+	VkFormatProperties properties;
+	vkGetPhysicalDeviceFormatProperties(device, format, &properties);
+	return (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0;
+}
+
 } // namespace gfx
 } // namespace cc
