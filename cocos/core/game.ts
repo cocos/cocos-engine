@@ -286,11 +286,15 @@ export class Game extends EventTarget {
     /**
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
+     *
+     * @deprecated since 3.4.0, frame is a concept on web standard, please manager screens via the `screen` module.
      */
     public frame: HTMLDivElement | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
+     *
+     * @deprecated since 3.4.0, container is a concept on web standard, please manager screens via the `screen` module.
      */
     public container: HTMLDivElement | null = null;
     /**
