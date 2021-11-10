@@ -20,13 +20,13 @@ describe('cc.view', () => {
         expect(view.getDevicePixelRatio()).toBe(1);
 
         // new interface
-        screen.resolutionScale = 2;
-        expect(screen.resolutionScale).toBe(2);
+        // screen.resolutionScale = 2;
+        // expect(screen.resolutionScale).toBe(2);
         expect(screen.windowSize).toEqual(new Size(1024, 768));
         expect(screen.resolution).toEqual(new Size(2048, 1536));
 
-        screen.resolutionScale = 1;
-        expect(screen.resolutionScale).toBe(1);
+        // screen.resolutionScale = 1;
+        // expect(screen.resolutionScale).toBe(1);
         expect(screen.windowSize).toEqual(new Size(1024, 768));
         expect(screen.resolution).toEqual(new Size(1024, 768));
     });

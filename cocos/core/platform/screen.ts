@@ -70,9 +70,9 @@ class Screen {
 
     /**
      * @en Get the current resolution of game.
-     * This is a readonly property, you can change the value by setting screen.resolutionScale.
+     * This is a readonly property.
      * @zh 获取当前游戏的分辨率。
-     * 这是一个只读属性，你可以通过设置 screen.resolutionScale 来改变这个值。
+     * 这是一个只读属性。
      *
      * @readonly
      */
@@ -80,18 +80,18 @@ class Screen {
         return screenAdapter.resolution;
     }
 
-    /**
-     * @en Get and set the resolution scale of screen, which will affect the quality of the rendering.
-     * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
-     * @zh 获取和设置屏幕的分辨率缩放比，这将会影响最终渲染的质量。
-     * 注意：如果这个值设置的太高，会降低 GPU 的渲染性能，该值默认为 1。
-     */
-    public get resolutionScale () {
-        return screenAdapter.resolutionScale;
-    }
-    public set resolutionScale (v: number) {
-        screenAdapter.resolutionScale = v;
-    }
+    // /**
+    //  * @en Get and set the resolution scale of screen, which will affect the quality of the rendering.
+    //  * Note: if this value is set too high, the rendering performance of GPU will be reduced, this value is 1 by default.
+    //  * @zh 获取和设置屏幕的分辨率缩放比，这将会影响最终渲染的质量。
+    //  * 注意：如果这个值设置的太高，会降低 GPU 的渲染性能，该值默认为 1。
+    //  */
+    // public get resolutionScale () {
+    //     return screenAdapter.resolutionScale;
+    // }
+    // public set resolutionScale (v: number) {
+    //     screenAdapter.resolutionScale = v;
+    // }
 
     /**
      * @en Whether it supports full screen？
