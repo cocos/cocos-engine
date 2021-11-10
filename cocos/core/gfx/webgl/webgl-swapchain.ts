@@ -204,7 +204,7 @@ export class WebGLSwapchain extends Swapchain {
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-                antialias: EDITOR || macro.ENABLE_ANTIALIAS_FXAA,
+                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 depth: true,
                 stencil: true,
                 premultipliedAlpha: false,
