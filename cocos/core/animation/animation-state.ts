@@ -361,6 +361,7 @@ export class AnimationState extends Playable {
             this._clipEval = clip.createEvaluator({
                 target: root,
                 pose: this._poseOutput ?? undefined,
+                mask,
             });
         }
 

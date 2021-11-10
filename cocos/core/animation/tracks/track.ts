@@ -268,7 +268,7 @@ export class TrackBinding {
             if (jointMaskInfo.path !== trsPath.node) {
                 continue;
             }
-            return jointMaskInfo.enabled;
+            return !jointMaskInfo.enabled;
         }
         return false;
     }
