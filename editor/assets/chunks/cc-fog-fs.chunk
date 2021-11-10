@@ -10,14 +10,13 @@ in float v_fog_factor;
 
 // Just to be compatible with old projects only
 // Do not support accurate fog
-vec4 CC_APPLY_FOG(vec4 color) {
+void CC_APPLY_FOG(inout vec4 color) {
 #if !CC_USE_ACCURATE_FOG
     CC_APPLY_FOG_BASE(color, CC_FOG_FACTOR);
 #endif
-    return color;
 }
 
-vec4 CC_APPLY_FOG(vec4 color, vec3 worldPos) {
+void CC_APPLY_FOG(inout vec4 color, vec3 worldPos) {
 #if CC_USE_ACCURATE_FOG
     float factor;
     CC_TRANSFER_FOG_BASE(vec4(worldPos, 1.0), factor);
@@ -25,5 +24,4 @@ vec4 CC_APPLY_FOG(vec4 color, vec3 worldPos) {
     float factor = CC_FOG_FACTOR;
 #endif
     CC_APPLY_FOG_BASE(color, factor);
-    return color;
 }
