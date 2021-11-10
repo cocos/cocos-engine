@@ -211,6 +211,8 @@ module.exports = {
         font_bold: 'Font bold',
         font_italic: 'Font italic',
         font_underline: 'Font underlined',
+        spacing_x: 'The spacing between text characters, only available in BMFont',
+        underline_height: 'The height of underline',
     },
     labelOutline: {
         color: 'Outline color',
@@ -620,7 +622,7 @@ module.exports = {
         textureAnimationModule: 'Texture animation module',
         trailModule: 'Trail module(only support on CPU)',
         renderer: 'Particle render module',
-        enableCulling: 'Whether to enable the particle culling feature. If enabled, a particle emitter bounding box will be generated, and the particle emitter will be culled if the bounding box is not in the visible range of the camera. Please refer to the cullingMode option below for the behavior settings after particle culling.',
+        renderCulling: 'Whether to enable the particle culling feature. If enabled, a particle emitter bounding box will be generated, and the particle emitter will be culled if the bounding box is not in the visible range of the camera. Please refer to the cullingMode option below for the behavior settings after particle culling.',
         cullingMode: 'Sets the behavior of the particle emitter after it has been culled. The available options include Pause, Pause and Catchup, and Always Simulate.\nWhen the Pause is selected, the particle will pause the simulation if the particle emitter bounding box is not in the camera\'s visible range. If it resumes visibility, the particle will continue simulating at the time of last pause.\nWhen the Pause and Catchup is selected, if the particle emitter bounding box is not in the camera\'s visible range, the particle will pause the simulation.  If visible again, the particle will start simulating at the current time.\nWhen the Always Simulate is selected, the particle will keep simulating regardless of whether the particle emitter bounding box is in the camera\'s visible range, but will not render when it is not in the camera\'s visible range.',
         alignSpace: 'Particle alignment space, the available options include View Space, World Space and Local Space.\nWhen the View Space is selected, the rotation direction of the particle mesh will follow the camera\'s view direction.\nWhen the World Space is selected, the direction of the particle mesh will use the world space rotation direction of the node where the particle emitter is located.\nWhen the Local Space is selected, the particle mesh will use the local space rotation direction of the node where the particle emitter is located.',
         aabbHalfX: 'Half width of the emitter bounding box',
