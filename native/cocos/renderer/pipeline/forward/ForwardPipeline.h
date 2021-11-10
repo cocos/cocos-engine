@@ -29,7 +29,7 @@
 #include "../RenderPipeline.h"
 #include "frame-graph/FrameGraph.h"
 #include "frame-graph/Handle.h"
-#include "pipeline/common/Enum.h"
+#include "pipeline/Enum.h"
 
 namespace cc {
 namespace pipeline {

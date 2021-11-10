@@ -28,7 +28,7 @@
 #include "../PipelineStateManager.h"
 #include "../RenderPipeline.h"
 #include "../RenderQueue.h"
-#include "UIPhase.h"
+#include "pipeline/UIPhase.h"
 #include "frame-graph/DevicePass.h"
 #include "frame-graph/PassNodeBuilder.h"
 #include "frame-graph/Resource.h"

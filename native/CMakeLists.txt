@@ -841,13 +841,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowFlow.h
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp
                  cocos/renderer/pipeline/shadow/ShadowStage.h
-                 cocos/renderer/pipeline/common/Enum.h
-                 cocos/renderer/pipeline/common/BloomStage.cpp
-                 cocos/renderer/pipeline/common/BloomStage.h
-                 cocos/renderer/pipeline/common/PostProcessStage.cpp
-                 cocos/renderer/pipeline/common/PostProcessStage.h
-                 cocos/renderer/pipeline/common/UIPhase.cpp
-                 cocos/renderer/pipeline/common/UIPhase.h
+                 cocos/renderer/pipeline/Enum.h
+                 cocos/renderer/pipeline/deferred/BloomStage.cpp
+                 cocos/renderer/pipeline/deferred/BloomStage.h
+                 cocos/renderer/pipeline/deferred/PostProcessStage.cpp
+                 cocos/renderer/pipeline/deferred/PostProcessStage.h
+                 cocos/renderer/pipeline/UIPhase.cpp
+                 cocos/renderer/pipeline/UIPhase.h
 
                  cocos/renderer/pipeline/helper/DefineMap.h
                  cocos/renderer/pipeline/helper/DefineMap.cpp

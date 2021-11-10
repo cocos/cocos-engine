@@ -35,7 +35,7 @@
 #include "ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
-#include "pipeline/common/UIPhase.h"
+#include "pipeline/UIPhase.h"
 
 
 namespace cc {
@@ -162,16 +162,26 @@ void ForwardStage::render(scene::Camera *camera) {
         // color
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = sharedData->isHDR ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-        colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
+        colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT;
         colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
         colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
+        if (shadingScale != 1.F) {
+            colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
+        }
         data.outputTex      = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
         colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        auto clearFlags                = static_cast<gfx::ClearFlagBit>(camera->clearFlag);
+        if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
+            if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
+                colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
+            } else {
+                colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
+            }
+        }
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
         data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
         // depth
@@ -212,10 +222,13 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
+        _uiPhase->render(camera, renderPass);
+        renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera->window->swapchain);
     };
 
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
+    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->window->frameBuffer->getColorTextures()[0], true);
 }
 
 } // namespace pipeline

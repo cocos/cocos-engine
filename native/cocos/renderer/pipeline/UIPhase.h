@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,32 +24,22 @@
 ****************************************************************************/
 
 #pragma once
-
-#include "../RenderStage.h"
-#include "frame-graph/Handle.h"
-#include "Enum.h"
+#include "RenderPipeline.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
 
-class UIPhase;
-
-class CC_DLL PostProcessStage : public RenderStage {
+class CC_DLL UIPhase {
 public:
-    PostProcessStage();
-    ~PostProcessStage() override = default;
+    UIPhase() = default;
+    void activate(RenderPipeline* pipeline);
+    void render(scene::Camera* camera, gfx::RenderPass* renderPass);
 
-    static const RenderStageInfo &getInitializeInfo();
-    bool initialize(const RenderStageInfo &info) override;
-    void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
-    void destroy() override;
-    void render(scene::Camera *camera) override;
-
-private:
-    UIPhase * _uiPhase = nullptr;
-    uint      _phaseID = 0;
-
-    static RenderStageInfo initInfo;
+protected:
+    RenderPipeline* _pipeline = nullptr;
+    uint            _phaseID  = 0;
 };
+
 } // namespace pipeline
 } // namespace cc
