@@ -23,11 +23,9 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { NativeDirectionalLight } from './native-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -38,9 +36,6 @@ export class DirectionalLight extends Light {
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setDirection(dir);
-        }
     }
 
     get direction (): Vec3 {
@@ -50,9 +45,6 @@ export class DirectionalLight extends Light {
     // in Lux(lx)
     set illuminance (illum: number) {
         this._illuminance = illum;
-        if (JSB) {
-            (this._nativeObj as NativeDirectionalLight).setIlluminance(illum);
-        }
     }
 
     get illuminance (): number {

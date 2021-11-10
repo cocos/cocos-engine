@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../builtin';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../../3d/assets/mesh';
@@ -36,7 +35,6 @@ import { legacyCC } from '../../global-exports';
 import { DescriptorSet } from '../../gfx';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
-import { NaitveSkybox } from './native-scene';
 import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
 
 let skybox_mesh: Mesh | null = null;
@@ -56,7 +54,7 @@ export class Skybox {
     }
 
     set enabled (val: boolean) {
-        this._setEnabled(val);
+        this._enabled = val;
         if (val) this.activate(); else this._updatePipeline();
     }
     /**
@@ -68,7 +66,7 @@ export class Skybox {
     }
 
     set useIBL (val: boolean) {
-        this._setUseIBL(val);
+        this._useIBL = val;
         this._updatePipeline();
     }
 
@@ -90,7 +88,7 @@ export class Skybox {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
         }
-        this._setIsRGBE(val);
+        this._isRGBE = val;
         this._updatePipeline();
     }
 
@@ -117,43 +115,11 @@ export class Skybox {
     protected _enabled = false;
     protected _useIBL = false;
     protected _isRGBE = false;
-    protected declare _nativeObj: NaitveSkybox | null;
-
-    get native (): NaitveSkybox {
-        return this._nativeObj!;
-    }
-
-    constructor () {
-        if (JSB) {
-            this._nativeObj = new NaitveSkybox();
-        }
-    }
-
-    private _setEnabled (val) {
-        this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.enabled = val;
-        }
-    }
-
-    private _setUseIBL (val) {
-        this._useIBL = val;
-        if (JSB) {
-            this._nativeObj!.useIBL = val;
-        }
-    }
-
-    private _setIsRGBE (val) {
-        this._isRGBE = val;
-        if (JSB) {
-            this._nativeObj!.isRGBE = val;
-        }
-    }
 
     public initialize (skyboxInfo: SkyboxInfo) {
-        this._setEnabled(skyboxInfo.enabled);
-        this._setUseIBL(skyboxInfo.useIBL);
-        this._setIsRGBE(skyboxInfo.isRGBE);
+        this._enabled = skyboxInfo.enabled;
+        this._useIBL = skyboxInfo.useIBL;
+        this._isRGBE = skyboxInfo.isRGBE;
         this._envmap = skyboxInfo.envmap;
     }
 
@@ -167,9 +133,6 @@ export class Skybox {
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
             // @ts-expect-error private member access
             this._model._initLocalDescriptors = () => {};
-            if (JSB) {
-                this._nativeObj!.model = this._model.native;
-            }
         }
         if (!this._envmap) {
             this._envmap = this._default;
@@ -208,16 +171,6 @@ export class Skybox {
         this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
         this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
         this._globalDSManager!.update();
-    }
-
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    public destroy () {
-        this._destroy();
     }
 }
 

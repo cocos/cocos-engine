@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { JSB } from 'internal:constants';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Camera } from './camera';
@@ -32,7 +31,6 @@ import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
-import { NativeDrawBatch2D, NativeRenderScene } from './native-scene';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -78,10 +76,6 @@ export class RenderScene {
         return this._models;
     }
 
-    get native (): NativeRenderScene {
-        return this._nativeObj!;
-    }
-
     get batches () {
         return this._batches;
     }
@@ -100,29 +94,17 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _mainLight: DirectionalLight | null = null;
     private _modelId = 0;
-    private declare _nativeObj: NativeRenderScene | null;
 
     constructor (root: Root) {
         this._root = root;
-        this._createNativeObject();
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._createNativeObject();
         return true;
     }
 
     public update (stamp: number) {
-        if (JSB) {
-            const nativeBatches: NativeDrawBatch2D[]  = [];
-            for (let i = 0, len = this._batches.length; i < len; ++i) {
-                nativeBatches.push(this._batches[i].native);
-            }
-            this._nativeObj!.updateBatches(nativeBatches);
-            this._nativeObj!.update(stamp);
-            return;
-        }
         const mainLight = this._mainLight;
         if (mainLight) {
             mainLight.update();
@@ -151,18 +133,11 @@ export class RenderScene {
         }
     }
 
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
     public destroy () {
         this.removeCameras();
         this.removeSphereLights();
         this.removeSpotLights();
         this.removeModels();
-        this._destroy();
     }
 
     public addCamera (cam: Camera) {
@@ -189,9 +164,6 @@ export class RenderScene {
 
     public setMainLight (dl: DirectionalLight | null) {
         this._mainLight = dl;
-        if (JSB) {
-            this._nativeObj!.setMainLight(dl ? dl.native : null);
-        }
     }
 
     public unsetMainLight (dl: DirectionalLight) {
@@ -226,9 +198,6 @@ export class RenderScene {
     public addSphereLight (pl: SphereLight) {
         pl.attachToScene(this);
         this._sphereLights.push(pl);
-        if (JSB) {
-            this._nativeObj!.addSphereLight(pl.native);
-        }
     }
 
     public removeSphereLight (pl: SphereLight) {
@@ -236,9 +205,7 @@ export class RenderScene {
             if (this._sphereLights[i] === pl) {
                 pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
-                if (JSB) {
-                    this._nativeObj!.removeSphereLight(pl.native);
-                }
+
                 return;
             }
         }
@@ -247,9 +214,6 @@ export class RenderScene {
     public addSpotLight (sl: SpotLight) {
         sl.attachToScene(this);
         this._spotLights.push(sl);
-        if (JSB) {
-            this._nativeObj!.addSpotLight(sl.native);
-        }
     }
 
     public removeSpotLight (sl: SpotLight) {
@@ -257,9 +221,7 @@ export class RenderScene {
             if (this._spotLights[i] === sl) {
                 sl.detachFromScene();
                 this._spotLights.splice(i, 1);
-                if (JSB) {
-                    this._nativeObj!.removeSpotLight(sl.native);
-                }
+
                 return;
             }
         }
@@ -270,9 +232,6 @@ export class RenderScene {
             this._sphereLights[i].detachFromScene();
         }
         this._sphereLights.length = 0;
-        if (JSB) {
-            this._nativeObj!.removeSphereLights();
-        }
     }
 
     public removeSpotLights () {
@@ -280,27 +239,11 @@ export class RenderScene {
             this._spotLights[i].detachFromScene();
         }
         this._spotLights = [];
-        if (JSB) {
-            this._nativeObj!.removeSpotLights();
-        }
     }
 
     public addModel (m: Model) {
         m.attachToScene(this);
         this._models.push(m);
-        if (JSB) {
-            switch (m.type) {
-            case ModelType.SKINNING:
-                this._nativeObj!.addSkinningModel(m.native);
-                break;
-            case ModelType.BAKED_SKINNING:
-                this._nativeObj!.addBakedSkinningModel(m.native);
-                break;
-            case ModelType.DEFAULT:
-            default:
-                this._nativeObj!.addModel(m.native);
-            }
-        }
     }
 
     public removeModel (model: Model) {
@@ -308,9 +251,7 @@ export class RenderScene {
             if (this._models[i] === model) {
                 model.detachFromScene();
                 this._models.splice(i, 1);
-                if (JSB) {
-                    this._nativeObj!.removeModel(i);
-                }
+
                 return;
             }
         }
@@ -322,9 +263,6 @@ export class RenderScene {
             m.destroy();
         }
         this._models.length = 0;
-        if (JSB) {
-            this._nativeObj!.removeModels();
-        }
     }
 
     public addBatch (batch: DrawBatch2D) {
@@ -335,9 +273,6 @@ export class RenderScene {
         for (let i = 0; i < this._batches.length; ++i) {
             if (this._batches[i] === batch) {
                 this._batches.splice(i, 1);
-                if (JSB) {
-                    this._nativeObj!.removeBatch(i);
-                }
                 return;
             }
         }
@@ -345,9 +280,6 @@ export class RenderScene {
 
     public removeBatches () {
         this._batches.length = 0;
-        if (JSB) {
-            this._nativeObj!.removeBatches();
-        }
     }
 
     public onGlobalPipelineStateChanged () {
@@ -358,11 +290,5 @@ export class RenderScene {
 
     public generateModelId (): number {
         return this._modelId++;
-    }
-
-    private _createNativeObject () {
-        if (JSB) {
-            this._nativeObj = new NativeRenderScene();
-        }
     }
 }

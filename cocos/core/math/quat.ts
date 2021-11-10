@@ -35,6 +35,8 @@ import { IQuatLike, IVec3Like } from './type-define';
 import { EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { mixin } from '../utils/js-typed';
+import { JSB } from '../default-constants';
 
 /**
  * @en quaternion
@@ -836,3 +838,6 @@ export function quat (x: number | Quat = 0, y = 0, z = 0, w = 1) {
 }
 
 legacyCC.quat = quat;
+if (JSB) {
+    mixin(jsb.Quat.prototype, Quat.prototype);
+}

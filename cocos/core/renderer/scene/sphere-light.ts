@@ -23,34 +23,17 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { AABB } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { NativeSphereLight } from './native-scene';
 
 export class SphereLight extends Light {
-    protected _init (): void {
-        super._init();
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setPosition(this._pos);
-            (this._nativeObj! as NativeSphereLight).setAABB(this._aabb.native);
-        }
-    }
-
-    protected _destroy (): void {
-        super._destroy();
-    }
-
     get position () {
         return this._pos;
     }
 
     set size (size: number) {
         this._size = size;
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setSize(size);
-        }
     }
 
     get size (): number {
@@ -59,9 +42,6 @@ export class SphereLight extends Light {
 
     set range (range: number) {
         this._range = range;
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setRange(range);
-        }
 
         this._needUpdate = true;
     }
@@ -72,9 +52,6 @@ export class SphereLight extends Light {
 
     set luminance (lum: number) {
         this._luminance = lum;
-        if (JSB) {
-            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
-        }
     }
 
     get luminance (): number {

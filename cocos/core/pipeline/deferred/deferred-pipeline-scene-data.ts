@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
@@ -97,11 +96,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         passLit.beginChangeStatesSilently();
         passLit.tryCompile();
         passLit.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.deferredLightPassShader = passLit.getShaderVariant();
-            this._nativeObj!.deferredLightPass = passLit.native;
-        }
     }
 
     private updateDeferredPostPass () {
@@ -111,10 +105,5 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         passPost.beginChangeStatesSilently();
         passPost.tryCompile();
         passPost.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.deferredPostPassShader = passPost.getShaderVariant();
-            this._nativeObj!.deferredPostPass = passPost.native;
-        }
     }
 }

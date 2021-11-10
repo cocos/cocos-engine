@@ -164,10 +164,8 @@
       "id": "aae0f",
       "name": "primitives.prefab",
       "ver": "1.0.12",
-      "imported": true,
-      "files": [
-        ".json"
-      ],
+      "imported": false,
+      "files": [],
       "subMetas": {},
       "userData": {
         "gltfIndex": 0

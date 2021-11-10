@@ -38,6 +38,8 @@ import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets/prefab';
 import { Node } from '../scene-graph/node';
+import { JSB } from '../default-constants';
+import { updateChildren } from '../utils/jsb-utils';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -105,13 +107,23 @@ export function instantiate (original: any, internalForce?: boolean) {
     }
 
     let clone;
-    if (original instanceof CCObject) {
+    let isCCObject = original instanceof CCObject;
+    if (JSB) {
+        if (!isCCObject) {
+            isCCObject = original instanceof jsb.CCObject;
+        }
+    }
+
+    if (isCCObject) {
         // @ts-expect-error
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
             // @ts-expect-error
             clone = original._instantiate(null, true);
             legacyCC.game._isCloning = false;
+            if (JSB) {
+                updateChildren(clone);
+            }
             return clone;
         } else if (original instanceof legacyCC.Asset) {
             throw new TypeError(getError(6903));
@@ -121,6 +133,9 @@ export function instantiate (original: any, internalForce?: boolean) {
     legacyCC.game._isCloning = true;
     clone = doInstantiate(original);
     legacyCC.game._isCloning = false;
+    if (JSB) {
+        updateChildren(clone);
+    }
     return clone;
 }
 

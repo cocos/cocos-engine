@@ -31,7 +31,7 @@
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
-import { EDITOR, JSB } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { eventManager } from '../platform/event-manager/event-manager';
@@ -43,8 +43,6 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
-import { NativeNode } from '../renderer/scene/native-scene';
-import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
 import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 
@@ -204,62 +202,26 @@ export class Node extends BaseNode implements CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    private _dirtyFlagsPri = TransformBit.NONE; // does the world transform need to update?
-
-    protected get _dirtyFlags () {
-        return this._dirtyFlagsPri;
-    }
-
-    protected set _dirtyFlags (flags) {
-        this._dirtyFlagsPri = flags;
-        if (JSB) {
-            this._nativeDirtyFlag[0] = flags;
-        }
-    }
+    private _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
 
     protected _eulerDirty = false;
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
     protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
     protected declare _hasChangedFlagsOffset: number;
-    protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
 
-    protected _init () {
+    constructor (name?: string) {
+        super(name);
+
         const [chunk, offset] = bookOfChange.alloc();
         this._hasChangedFlagsChunk = chunk;
         this._hasChangedFlagsOffset = offset;
-        if (JSB) {
-            // new node
-            this._nodeHandle = NodePool.alloc();
-            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as any);
-            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as any);
-            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as any);
 
-            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as any);
-            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as any);
-            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as any);
-
-            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as any);
-            this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
-            this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
-            this._scale.set(1, 1, 1);
-            this._lscale.set(1, 1, 1);
-            this._nativeLayer[0] = this._layer;
-            this._nativeObj = new NativeNode();
-            const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, nativeDirtyNodes);
-        } else {
-            this._pos = new Vec3();
-            this._rot = new Quat();
-            this._scale = new Vec3(1, 1, 1);
-            this._mat = new Mat4();
-        }
-    }
-
-    constructor (name?: string) {
-        super(name);
-        this._init();
+        this._pos = new Vec3();
+        this._rot = new Quat();
+        this._scale = new Vec3(1, 1, 1);
+        this._mat = new Mat4();
     }
 
     /**
@@ -272,19 +234,8 @@ export class Node extends BaseNode implements CustomSerializable {
 
     protected _onPreDestroy () {
         const result = this._onPreDestroyBase();
-        if (JSB) {
-            if (this._nodeHandle) {
-                NodePool.free(this._nodeHandle);
-                this._nodeHandle = NULL_HANDLE;
-            }
-            this._nativeObj = null;
-        }
         bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
         return result;
-    }
-
-    get native (): any {
-        return this._nativeObj;
     }
 
     /**
@@ -466,9 +417,6 @@ export class Node extends BaseNode implements CustomSerializable {
     @editable
     set layer (l) {
         this._layer = l;
-        if (JSB) {
-            this._nativeLayer[0] = this._layer;
-        }
         this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
@@ -539,9 +487,6 @@ export class Node extends BaseNode implements CustomSerializable {
     public setParent (value: this | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
-        if (JSB) {
-            this._nativeObj!.setParent(this.parent ? this.parent.native : null);
-        }
     }
 
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
@@ -569,10 +514,6 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
-        if (JSB) {
-            this._nativeLayer[0] = this._layer;
-            this._nativeObj!.setParent(this.parent?.native);
-        }
         const prefabInstance = this._prefab?.instance;
         if (!dontSyncChildPrefab && prefabInstance) {
             createNodeWithPrefab(this);
@@ -696,9 +637,6 @@ export class Node extends BaseNode implements CustomSerializable {
 
     protected _setDirtyNode (idx: number, currNode: this) {
         dirtyNodes[idx] = currNode;
-        if (JSB) {
-            nativeDirtyNodes[idx] = currNode.native;
-        }
     }
 
     /**

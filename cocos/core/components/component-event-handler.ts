@@ -30,7 +30,7 @@
  */
 
 import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
-import { Node } from '../scene-graph';
+import type { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -191,5 +191,3 @@ export class EventHandler {
         }
     }
 }
-
-legacyCC.Component.EventHandler = EventHandler;

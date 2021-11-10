@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
 import { Fog } from '../renderer/scene/fog';
 import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
@@ -32,23 +31,8 @@ import { IRenderObject } from './define';
 import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
-import { NativePipelineSharedSceneData } from '../renderer/scene';
 
 export class PipelineSceneData {
-    private _init (): void {
-        if (JSB) {
-            this._nativeObj = new NativePipelineSharedSceneData();
-            this._nativeObj.fog = this.fog.native;
-            this._nativeObj.ambient = this.ambient.native;
-            this._nativeObj.skybox = this.skybox.native;
-            this._nativeObj.shadow = this.shadows.native;
-        }
-    }
-
-    public get native (): NativePipelineSharedSceneData {
-        return this._nativeObj!;
-    }
-
     /**
      * @en Is open HDR.
      * @zh 是否开启 HDR。
@@ -60,9 +44,6 @@ export class PipelineSceneData {
 
     public set isHDR (val: boolean) {
         this._isHDR = val;
-        if (JSB) {
-            this._nativeObj!.isHDR = val;
-        }
     }
     public get shadingScale () {
         return this._shadingScale;
@@ -70,18 +51,12 @@ export class PipelineSceneData {
 
     public set shadingScale (val: number) {
         this._shadingScale = val;
-        if (JSB) {
-            this._nativeObj!.shadingScale = val;
-        }
     }
     public get fpScale () {
         return this._fpScale;
     }
     public set fpScale (val: number) {
         this._fpScale = val;
-        if (JSB) {
-            this._fpScale = val;
-        }
     }
 
     public fog: Fog = new Fog();
@@ -97,13 +72,11 @@ export class PipelineSceneData {
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
     protected declare _pipeline: RenderPipeline;
-    protected declare _nativeObj: NativePipelineSharedSceneData | null;
     protected _isHDR = false;
     protected _shadingScale = 1.0;
     protected _fpScale = 1.0 / 1024.0;
 
     constructor () {
-        this._init();
         this.shadingScale = 1.0;
         this.fpScale = 1.0 / 1024.0;
     }
@@ -118,12 +91,6 @@ export class PipelineSceneData {
     }
 
     public destroy () {
-        this.ambient.destroy();
-        this.skybox.destroy();
-        this.fog.destroy();
         this.shadows.destroy();
-        if (JSB) {
-            this._nativeObj = null;
-        }
     }
 }
