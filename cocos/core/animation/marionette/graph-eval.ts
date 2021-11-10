@@ -479,6 +479,11 @@ class LayerEval {
                     this._fromUpdated = true;
                     // Animation play eat all times.
                     remainTimePiece = 0.0;
+                } else {
+                    // Happened when firstly entered the layer's top level entry
+                    // and no further transition.
+                    // I'm sure conscious of it's redundant with above statement, just emphasize.
+                    remainTimePiece = 0.0;
                 }
                 if (GRAPH_DEBUG_ENABLED) {
                     passConsumed = remainTimePiece;
