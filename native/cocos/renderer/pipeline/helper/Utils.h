@@ -27,6 +27,7 @@
 
 #include "../PipelineStateManager.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "pipeline/Define.h"
@@ -56,6 +57,14 @@ inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
         auto *pass     = submodel->getPass(0);
         auto *ia       = submodel->getInputAssembler();
         auto *pso      = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
+
+        gfx::Viewport profilerViewport;
+        gfx::Rect profilerScissor;
+        profilerViewport.width = profilerScissor.width = swapchain->getWidth();
+        profilerViewport.height = profilerScissor.height = swapchain->getHeight();
+        cmdBuff->setViewport(profilerViewport);
+        cmdBuff->setScissor(profilerScissor);
+
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->bindDescriptorSet(localSet, submodel->getDescriptorSet());
