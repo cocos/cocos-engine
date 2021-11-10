@@ -88,11 +88,12 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resizeFrame(this._convertToSizeInCssPixels(size));
-        this._updateResolution();
     }
 
     public get resolution () {
-        return this._resolution;
+        const windowSize = this.windowSize;
+        const resolutionScale = this.resolutionScale;
+        return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
     public get resolutionScale () {
         return this._resolutionScale;
@@ -102,7 +103,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resolutionScale = v;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer?.();
     }
 
     public get orientation (): Orientation {
@@ -244,7 +245,6 @@ class ScreenAdapter extends EventTarget {
         }
         return WindowType.SubFrame;
     }
-    private _resolution: Size = new Size(0, 0);
     private _resolutionScale = 1;
     private _orientation = Orientation.AUTO;
 
@@ -285,6 +285,7 @@ class ScreenAdapter extends EventTarget {
         this.orientation = orientationMap[options.configOrientation];
         this._exactFitScreen = options.exactFitScreen;
         this._resizeFrame();
+        this._cbToUpdateFrameBuffer();
     }
 
     public requestFullScreen (): Promise<void> {
@@ -416,15 +417,6 @@ class ScreenAdapter extends EventTarget {
         }
 
         this._updateContainer();
-    }
-
-    private _updateResolution () {
-        const windowSize = this.windowSize;
-        // update resolution
-        this._resolution.width = windowSize.width * this.resolutionScale;
-        this._resolution.height = windowSize.height * this.resolutionScale;
-        this._cbToUpdateFrameBuffer?.();
-        this.emit('resolution-change');
     }
 
     private _getFullscreenTarget () {
