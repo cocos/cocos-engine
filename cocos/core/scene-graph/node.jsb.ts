@@ -37,8 +37,8 @@ import { Mat4, Quat, Vec3 } from '../math';
 import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
 import { eventManager } from '../platform/event-manager/event-manager';
-import { SerializationContext, SerializationOutput, serializeTag } from "../data";
-import { EDITOR } from "../default-constants";
+import { SerializationContext, SerializationOutput, serializeTag } from '../data';
+import { EDITOR } from '../default-constants';
 import {
     applyMountedChildren,
     applyMountedComponents, applyPropertyOverrides,
@@ -218,11 +218,30 @@ nodeProto.on = function (type, callback, target, useCapture) {
     case NodeEventType.TRANSFORM_CHANGED:
         // this._eventMask |= TRANSFORM_ON;
         this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
+
+        this._registerOnTransformChanged();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.PARENT_CHANGED:
+        this._registerOnParentChanged();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.LAYER_CHANGED:
+        this._registerOnLayerChanged();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.CHILD_REMOVED:
+        this._registerOnChildRemoved();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.CHILD_ADDED:
+        this._registerOnChildAdded();
+        this._eventProcessor.on(type, callback, target, useCapture);
         break;
     default:
+        this._eventProcessor.on(type, callback, target, useCapture);
         break;
     }
-    this._eventProcessor.on(type, callback, target, useCapture);
 };
 
 nodeProto.off = function (type: string, callback?, target?, useCapture = false) {
@@ -688,9 +707,9 @@ Object.defineProperty(nodeProto, 'children', {
     get () {
         return this._children;
     },
-    set(v) {
+    set (v) {
         this._children = v;
-    }
+    },
 });
 
 nodeProto.addChild = function (child: Node): void {
@@ -731,7 +750,6 @@ nodeProto.removeAllChildren = function () {
 nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, context: SerializationContext) {
     if (!EDITOR) {
         serializationOutput.writeThis();
-        return;
     }
 };
 
@@ -739,7 +757,7 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
     legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
 };
 
-nodeProto._onBatchCreated = function(dontSyncChildPrefab: boolean) {
+nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     const prefabInstance = this._prefab?.instance;
     if (!dontSyncChildPrefab && prefabInstance) {
         createNodeWithPrefab(this);
