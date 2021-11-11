@@ -247,9 +247,9 @@ export class NodeEventProcessor {
     /**
      * Fix when reigster 'once' event callback, `this.off` method isn't be invoked after event is emitted.
      * We need to inject some nodeEventProcessor's logic into the `callbacksInvoker.off` method.
-     * @returns {CallbacksInvoker} decorated callbacks invoker
+     * @returns {CallbacksInvoker<SystemEventTypeUnion>} decorated callbacks invoker
      */
-    private _newDecoratedCallbacksInvoker () {
+    private _newDecoratedCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
         const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
         // decorate off method
         const offMethod = callbacksInvoker.off;
