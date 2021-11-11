@@ -86,18 +86,18 @@ export function defineArrayProxy (options: IArrayProxy) {
 
 function syncNodeValue (node: Node) {
     const lpos = node._lpos;
-    node.setPosition(lpos.x, lpos.y, lpos.z);
+    node.setPositionForJS(lpos.x, lpos.y, lpos.z);
 
     const lscale = node._lscale;
-    node.setPosition(lscale.x, lscale.y, lscale.z);
+    node.setScaleForJS(lscale.x, lscale.y, lscale.z);
 
     const lrot = node._lrot;
-    node.setRotation(lrot.x, lrot.y, lrot.z, lrot.w);
+    node.setRotationForJS(lrot.x, lrot.y, lrot.z, lrot.w);
 
     node.setLayerForJS(node._layer);
 
     const euler = node._euler;
-    node.setRotationFromEuler(euler.x, euler.y, euler.z);
+    node.setRotationFromEulerForJS(euler.x, euler.y, euler.z);
 }
 
 export function updateChildren (node: Node) {
