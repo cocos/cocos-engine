@@ -838,6 +838,6 @@ export function quat (x: number | Quat = 0, y = 0, z = 0, w = 1) {
 }
 
 legacyCC.quat = quat;
-if (JSB) {
-    mixin(jsb.Quat.prototype, Quat.prototype);
-}
+// if (JSB) {
+//     mixin(jsb.Quat.prototype, Quat.prototype);
+// }
