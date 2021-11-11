@@ -33,7 +33,7 @@
 #include "pipeline/Define.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
-
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
@@ -50,18 +50,29 @@ inline void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
     out->z = std::sqrt(linear.z);
 }
 
-inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, gfx::Swapchain *swapchain) {
-    if (profiler && profiler->getEnabled() && swapchain) {
+extern const scene::Camera *profilerCamera;
 
+inline void decideProfilerCamera(const vector<scene::Camera *> &cameras) {
+    for (int i = static_cast<int>(cameras.size() - 1); i >= 0; --i) {
+        if (cameras[i]->window->swapchain) {
+            profilerCamera = cameras[i];
+            return;
+        }
+    }
+    profilerCamera = nullptr;
+}
+
+inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera) {
+    if (profiler && profiler->getEnabled() && camera == profilerCamera) {
         auto *submodel = profiler->getSubModels()[0];
         auto *pass     = submodel->getPass(0);
         auto *ia       = submodel->getInputAssembler();
         auto *pso      = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
 
         gfx::Viewport profilerViewport;
-        gfx::Rect profilerScissor;
-        profilerViewport.width = profilerScissor.width = swapchain->getWidth();
-        profilerViewport.height = profilerScissor.height = swapchain->getHeight();
+        gfx::Rect     profilerScissor;
+        profilerViewport.width = profilerScissor.width = camera->window->getWidth();
+        profilerViewport.height = profilerScissor.height = camera->window->getHeight();
         cmdBuff->setViewport(profilerViewport);
         cmdBuff->setScissor(profilerScissor);
 

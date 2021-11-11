@@ -46,7 +46,6 @@
 #include "states/VKGlobalBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
-#include "vulkan/vulkan_core.h"
 
 CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION

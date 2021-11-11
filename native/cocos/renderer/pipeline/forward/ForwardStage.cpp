@@ -222,7 +222,7 @@ void ForwardStage::render(scene::Camera *camera) {
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
         _uiPhase->render(camera, renderPass);
-        renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera->window->swapchain);
+        renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
     };
 
     // add pass

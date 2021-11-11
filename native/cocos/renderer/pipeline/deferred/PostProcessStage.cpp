@@ -219,7 +219,7 @@ void PostProcessStage::render(scene::Camera *camera) {
         }
 
         _uiPhase->render(camera, renderPass);
-        renderProfiler(renderPass, cmdBuff, pipeline->getProfiler(), camera->window->swapchain);
+        renderProfiler(renderPass, cmdBuff, pipeline->getProfiler(), camera);
     };
 
     // add pass

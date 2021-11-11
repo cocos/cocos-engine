@@ -110,8 +110,8 @@ void SwapchainAgent::doResize(uint32_t width, uint32_t height, SurfaceTransform 
 
     auto *colorTexture        = static_cast<TextureAgent *>(_colorTexture);
     auto *depthStencilTexture = static_cast<TextureAgent *>(_depthStencilTexture);
-    colorTexture->_info.width = colorTexture->_info.width = _actor->getWidth();
-    colorTexture->_info.height = colorTexture->_info.height = _actor->getHeight();
+    colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
+    colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
     _transform = _actor->getSurfaceTransform();
 }
 

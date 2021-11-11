@@ -30,6 +30,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "platform/Application.h"
 #include "scene/RenderScene.h"
+#include "../helper/Utils.h"
 
 namespace cc {
 namespace pipeline {
@@ -97,6 +98,7 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     _pipelineUBO->updateGlobalUBO(cameras[0]);
     _pipelineUBO->updateMultiCameraUBO(cameras);
     ensureEnoughSize(cameras);
+    decideProfilerCamera(cameras);
 
     for (auto *camera : cameras) {
         sceneCulling(this, camera);
