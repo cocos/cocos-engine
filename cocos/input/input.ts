@@ -86,7 +86,7 @@ export class Input {
 
     /**
      * @en Dispatch input event immediately.
-     * The input events are collocted to dispatched in each main loop by default.
+     * The input events are collocted to be dispatched in each main loop by default.
      * If you need to recieve the input event immediately, please set this to true.
      * NOTE: if set this to true, the input events are dispatched between each tick, the input event can't be optimized by engine.
      *
@@ -125,16 +125,16 @@ export class Input {
         if (eventType === InputEventType.TOUCH_END) {
             touchManager.releaseTouch(touchID);
         }
-        this._dispatchOrPushEvent(eventTouch, this._eventTouchList);
+        this._dispatchOrPushEventTouch(eventTouch, this._eventTouchList);
     }
 
     private _registerEvent () {
         if (sys.hasFeature(sys.Feature.INPUT_TOUCH)) {
             const eventTouchList = this._eventTouchList;
-            this._touchInput.on(InputEventType.TOUCH_START, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
-            this._touchInput.on(InputEventType.TOUCH_MOVE, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
-            this._touchInput.on(InputEventType.TOUCH_END, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
-            this._touchInput.on(InputEventType.TOUCH_CANCEL, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
+            this._touchInput.on(InputEventType.TOUCH_START, (event) => { this._dispatchOrPushEventTouch(event, eventTouchList); });
+            this._touchInput.on(InputEventType.TOUCH_MOVE, (event) => { this._dispatchOrPushEventTouch(event, eventTouchList); });
+            this._touchInput.on(InputEventType.TOUCH_END, (event) => { this._dispatchOrPushEventTouch(event, eventTouchList); });
+            this._touchInput.on(InputEventType.TOUCH_CANCEL, (event) => { this._dispatchOrPushEventTouch(event, eventTouchList); });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_MOUSE)) {
@@ -183,6 +183,20 @@ export class Input {
             this._eventTarget.emit(event.type, event);
         } else {
             eventList.push(event);
+        }
+    }
+
+    private _dispatchOrPushEventTouch (eventTouch: EventTouch, touchEventList: EventTouch[]) {
+        if (this.dispatchImmediately) {
+            const touches = eventTouch.getTouches();
+            const touchesLength = touches.length;
+            for (let i = 0; i < touchesLength; ++i) {
+                eventTouch.touch = touches[i];
+                eventTouch.propagationStopped = eventTouch.propagationImmediateStopped = false;
+                this._eventTarget.emit(eventTouch.type, eventTouch);
+            }
+        } else {
+            touchEventList.push(eventTouch);
         }
     }
 
