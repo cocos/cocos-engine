@@ -218,11 +218,30 @@ nodeProto.on = function (type, callback, target, useCapture) {
     case NodeEventType.TRANSFORM_CHANGED:
         // this._eventMask |= TRANSFORM_ON;
         this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
+
+        this._registerOnTransformChanged();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.PARENT_CHANGED:
+        this._registerOnParentChanged();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.LAYER_CHANGED:
+        this._registerOnLayerChanged();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.CHILD_REMOVED:
+        this._registerOnChildRemoved();
+        this._eventProcessor.on(type, callback, target, useCapture);
+        break;
+    case NodeEventType.CHILD_ADDED:
+        this._registerOnChildAdded();
+        this._eventProcessor.on(type, callback, target, useCapture);
         break;
     default:
+        this._eventProcessor.on(type, callback, target, useCapture);
         break;
     }
-    this._eventProcessor.on(type, callback, target, useCapture);
 };
 
 nodeProto.off = function (type: string, callback?, target?, useCapture = false) {
