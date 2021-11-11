@@ -98,11 +98,11 @@ export class SplashScreen {
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
 
-    public pause(){
+    public pauseRendering(){
         this.isPause = true;
     }
 
-    public resume(){
+    public resumeRendering(){
         this.isPause = false;
     }
 
