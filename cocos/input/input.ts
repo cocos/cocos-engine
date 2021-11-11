@@ -34,7 +34,7 @@ import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerI
 import { touchManager } from '../../pal/input/touch-manager';
 import { sys } from '../core/platform/sys';
 import { EventTarget } from '../core/event/event-target';
-import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
+import { Event, EventAcceleration, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
 const pointerEventTypeMap = {
@@ -84,6 +84,18 @@ export class Input {
      */
     public static EventType = InputEventType;
 
+    /**
+     * @en Dispatch input event immediately.
+     * The input events are collocted to dispatched in each main loop by default.
+     * If you need to recieve the input event immediately, please set this to true.
+     * NOTE: if set this to true, the input events are dispatched between each tick, the input event can't be optimized by engine.
+     *
+     * @zh 立即派发输入事件。
+     * 输入事件默认会被收集到每一帧主循环里派发，如果你需要立即接收到输入事件，请把该属性设为 true。
+     * 注意：如果设置为 true，则输入事件可能会在帧间触发，这样的输入事件是没办法被引擎优化的。
+     */
+    public dispatchImmediately = false;
+
     private _eventTarget: EventTarget = new EventTarget();
     private _touchInput = new TouchInputSource();
     private _mouseInput = new MouseInputSource();
@@ -113,16 +125,16 @@ export class Input {
         if (eventType === InputEventType.TOUCH_END) {
             touchManager.releaseTouch(touchID);
         }
-        this._eventTouchList.push(eventTouch);
+        this._dispatchOrPushEvent(eventTouch, this._eventTouchList);
     }
 
     private _registerEvent () {
         if (sys.hasFeature(sys.Feature.INPUT_TOUCH)) {
             const eventTouchList = this._eventTouchList;
-            this._touchInput.on(InputEventType.TOUCH_START, (event) => { eventTouchList.push(event); });
-            this._touchInput.on(InputEventType.TOUCH_MOVE, (event) => { eventTouchList.push(event); });
-            this._touchInput.on(InputEventType.TOUCH_END, (event) => { eventTouchList.push(event); });
-            this._touchInput.on(InputEventType.TOUCH_CANCEL, (event) => { eventTouchList.push(event); });
+            this._touchInput.on(InputEventType.TOUCH_START, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
+            this._touchInput.on(InputEventType.TOUCH_MOVE, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
+            this._touchInput.on(InputEventType.TOUCH_END, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
+            this._touchInput.on(InputEventType.TOUCH_CANCEL, (event) => { this._dispatchOrPushEvent(event, eventTouchList); });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_MOUSE)) {
@@ -130,32 +142,32 @@ export class Input {
             this._mouseInput.on(InputEventType.MOUSE_DOWN, (event) => {
                 this._needSimulateTouchMoveEvent = true;
                 this._simulateEventTouch(event);
-                eventMouseList.push(event);
+                this._dispatchOrPushEvent(event, eventMouseList);
             });
             this._mouseInput.on(InputEventType.MOUSE_MOVE, (event) => {
                 if (this._needSimulateTouchMoveEvent) {
                     this._simulateEventTouch(event);
                 }
-                eventMouseList.push(event);
+                this._dispatchOrPushEvent(event, eventMouseList);
             });
             this._mouseInput.on(InputEventType.MOUSE_UP, (event) => {
                 this._needSimulateTouchMoveEvent = false;
                 this._simulateEventTouch(event);
-                eventMouseList.push(event);
+                this._dispatchOrPushEvent(event, eventMouseList);
             });
-            this._mouseInput.on(InputEventType.MOUSE_WHEEL, (event) => { eventMouseList.push(event); });
+            this._mouseInput.on(InputEventType.MOUSE_WHEEL, (event) => { this._dispatchOrPushEvent(event, eventMouseList); });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_KEYBOARD)) {
             const eventKeyboardList = this._eventKeyboardList;
-            this._keyboardInput.on(InputEventType.KEY_DOWN, (event) => { eventKeyboardList.push(event); });
-            this._keyboardInput.on(InputEventType.KEY_PRESSING, (event) => { eventKeyboardList.push(event); });
-            this._keyboardInput.on(InputEventType.KEY_UP, (event) => { eventKeyboardList.push(event); });
+            this._keyboardInput.on(InputEventType.KEY_DOWN, (event) => { this._dispatchOrPushEvent(event, eventKeyboardList); });
+            this._keyboardInput.on(InputEventType.KEY_PRESSING, (event) => { this._dispatchOrPushEvent(event, eventKeyboardList); });
+            this._keyboardInput.on(InputEventType.KEY_UP, (event) => { this._dispatchOrPushEvent(event, eventKeyboardList); });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_ACCELEROMETER)) {
             const eventAccelerationList = this._eventAccelerationList;
-            this._accelerometerInput.on(InputEventType.DEVICEMOTION, (event) => { eventAccelerationList.push(event); });
+            this._accelerometerInput.on(InputEventType.DEVICEMOTION, (event) => { this._dispatchOrPushEvent(event, eventAccelerationList); });
         }
     }
 
@@ -166,7 +178,18 @@ export class Input {
         this._eventAccelerationList.length = 0;
     }
 
+    private _dispatchOrPushEvent (event: Event, eventList: Event[]) {
+        if (this.dispatchImmediately) {
+            this._eventTarget.emit(event.type, event);
+        } else {
+            eventList.push(event);
+        }
+    }
+
     private _frameDispatchEvents () {
+        if (this.dispatchImmediately) {
+            return;
+        }
         const eventMouseList = this._eventMouseList;
         // TODO: culling event queue
         for (let i = 0, length = eventMouseList.length; i < length; ++i) {
