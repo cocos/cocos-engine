@@ -5,6 +5,12 @@ import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
+import legacyCC from '../../../predefine';
+
+interface ICachedStyle {
+    width: string;
+    height: string;
+}
 
 const EVENT_TIMEOUT = EDITOR ? 5 : 200;
 const orientationMap: Record<ConfigOrientation, Orientation> = {
@@ -82,12 +88,12 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resizeFrame(this._convertToSizeInCssPixels(size));
-        this.emit('window-resize');
-        this._updateResolution();
     }
 
     public get resolution () {
-        return this._resolution;
+        const windowSize = this.windowSize;
+        const resolutionScale = this.resolutionScale;
+        return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
     public get resolutionScale () {
         return this._resolutionScale;
@@ -97,7 +103,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resolutionScale = v;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer?.();
     }
 
     public get orientation (): Orientation {
@@ -119,17 +125,29 @@ class ScreenAdapter extends EventTarget {
             right: 0,
         };
     }
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) {
+        if (this._isProportionalToFrame === v) {
+            return;
+        }
+        this._isProportionalToFrame = v;
+        this._updateContainer();
+    }
 
     private _gameFrame?: HTMLDivElement;
     private _gameContainer?: HTMLDivElement;
     private _gameCanvas?: HTMLCanvasElement;
+    private _isProportionalToFrame = false;
+    private _cachedFrameStyle: ICachedStyle = { width: '0px', height: '0px' };
+    private _cachedContainerStyle: ICachedStyle = { width: '0px', height: '0px' };
     private _cbToUpdateFrameBuffer?: () => void;
     private _supportFullScreen = false;
     private _touchEventName: string;
     private _onFullscreenChange?: () => void;
     private _onFullscreenError?: () => void;
     // We need to set timeout to handle screen event.
-    private _resizeTimeoutId = -1;
     private _orientationChangeTimeoutId = -1;
     private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
     private _exactFitScreen = false;
@@ -181,6 +199,13 @@ class ScreenAdapter extends EventTarget {
         if (TEST) {
             return new Size(window.innerWidth, window.innerHeight);
         }
+        if (this.isProportionalToFrame) {
+            if (!this._gameContainer) {
+                warnID(9201);
+                return new Size(0, 0);
+            }
+            return new Size(this._gameContainer.clientWidth, this._gameContainer.clientHeight);
+        }
         let fullscreenTarget;
         let width: number;
         let height: number;
@@ -220,7 +245,6 @@ class ScreenAdapter extends EventTarget {
         }
         return WindowType.SubFrame;
     }
-    private _resolution: Size = new Size(0, 0);
     private _resolutionScale = 1;
     private _orientation = Orientation.AUTO;
 
@@ -230,6 +254,13 @@ class ScreenAdapter extends EventTarget {
         this._gameFrame = document.getElementById('GameDiv') as HTMLDivElement;
         this._gameContainer = document.getElementById('Cocos3dGameContainer') as HTMLDivElement;
         this._gameCanvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+        // Compability with old preview or build template in Editor.
+        if (!TEST && !EDITOR && !this._gameContainer) {
+            this._gameContainer = document.createElement<'div'>('div');
+            this._gameContainer.setAttribute('id', 'Cocos3dGameContainer');
+            this._gameCanvas?.parentNode?.insertBefore(this._gameContainer, this._gameCanvas);
+            this._gameContainer.appendChild(this._gameCanvas);
+        }
 
         let fnList: Array<string>;
         const fnGroup = this._fnGroup;
@@ -254,6 +285,7 @@ class ScreenAdapter extends EventTarget {
         this.orientation = orientationMap[options.configOrientation];
         this._exactFitScreen = options.exactFitScreen;
         this._resizeFrame();
+        this._cbToUpdateFrameBuffer();
     }
 
     public requestFullScreen (): Promise<void> {
@@ -300,19 +332,10 @@ class ScreenAdapter extends EventTarget {
         });
 
         window.addEventListener('resize', () => {
-            if (this._resizeTimeoutId !== -1) {
-                clearTimeout(this._resizeTimeoutId);
+            if (!this.handleResizeEvent) {
+                return;
             }
-            this._resizeTimeoutId = setTimeout(() => {
-                if (!this.handleResizeEvent) {
-                    return;
-                }
-                this._resizeFrame();
-                if (this._windowType !== WindowType.SubFrame) {
-                    this.emit('window-resize');
-                }
-                this._resizeTimeoutId = -1;
-            }, EVENT_TIMEOUT);
+            this._resizeFrame();
         });
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
@@ -360,8 +383,13 @@ class ScreenAdapter extends EventTarget {
         if (!this._gameFrame) {
             return;
         }
+        // Center align the canvas
+        this._gameFrame.style.display = 'flex';
+        this._gameFrame.style['justify-content'] = 'center';
+        this._gameFrame.style['align-items'] = 'center';
         if (this._windowType === WindowType.SubFrame) {
             if (!sizeInCssPixels) {
+                this._updateContainer();
                 return;
             }
             this._gameFrame.style.width = `${sizeInCssPixels.width}px`;
@@ -387,15 +415,8 @@ class ScreenAdapter extends EventTarget {
                 this._gameFrame.style.height = `${winHeight}px`;
             }
         }
-    }
 
-    private _updateResolution () {
-        const windowSize = this.windowSize;
-        // update resolution
-        this._resolution.width = windowSize.width * this.resolutionScale;
-        this._resolution.height = windowSize.height * this.resolutionScale;
-        this._cbToUpdateFrameBuffer?.();
-        this.emit('resolution-change');
+        this._updateContainer();
     }
 
     private _getFullscreenTarget () {
@@ -439,6 +460,61 @@ class ScreenAdapter extends EventTarget {
         const isBrowserLandscape = width > height;
         this.isFrameRotated = systemInfo.isMobile
             && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
+    }
+    private _updateContainer () {
+        if (!this._gameContainer) {
+            warnID(9201);
+            return;
+        }
+        if (this.isProportionalToFrame) {
+            if (!this._gameFrame) {
+                warnID(9201);
+                return;
+            }
+            // TODO: access designedResolution from Launcher module.
+            const designedResolution = legacyCC.view.getDesignResolutionSize() as Size;
+            const frame = this._gameFrame;
+            const frameW = frame.clientWidth;
+            const frameH = frame.clientHeight;
+            const designW = designedResolution.width;
+            const designH = designedResolution.height;
+            const scaleX = frameW / designW;
+            const scaleY = frameH / designH;
+            const containerStyle = this._gameContainer.style;
+            let containerW: number;
+            let containerH: number;
+
+            if (scaleX < scaleY) {
+                containerW = frameW;
+                containerH = designH * scaleX;
+            } else {
+                containerW = designW * scaleY;
+                containerH = frameH;
+            }
+            // Set window size on game container
+            containerStyle.width = `${containerW}px`;
+            containerStyle.height = `${containerH}px`;
+        } else {
+            const containerStyle = this._gameContainer.style;
+            // game container exact fit game frame.
+            containerStyle.width = '100%';
+            containerStyle.height = '100%';
+        }
+
+        // Cache Test
+        if (this._gameFrame
+            && (this._cachedFrameStyle.width !== this._gameFrame.style.width
+            || this._cachedFrameStyle.height !== this._gameFrame.style.height
+            || this._cachedContainerStyle.width !== this._gameContainer.style.width
+            || this._cachedContainerStyle.height !== this._gameContainer.style.height)) {
+            this.emit('window-resize');
+
+            // Update Cache
+            this._cachedFrameStyle.width = this._gameFrame.style.width;
+            this._cachedFrameStyle.height = this._gameFrame.style.height;
+            this._cachedContainerStyle.width = this._gameContainer.style.width;
+            this._cachedContainerStyle.height = this._gameContainer.style.height;
+        }
     }
 }
 

@@ -3055,7 +3055,7 @@ cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instea
 
 ### 9201
 
-Cannot access game frame.
+Cannot access game frame or container.
 
 ### 9202
 

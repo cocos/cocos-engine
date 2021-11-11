@@ -65,12 +65,12 @@ export class SafeArea extends Component {
     public onEnable () {
         this.updateArea();
         // IDEA: need to delay the callback on Native platform ?
-        screenAdapter.on('resolution-change', this.updateArea, this);
+        screenAdapter.on('window-resize', this.updateArea, this);
         screenAdapter.on('orientation-change', this.updateArea, this);
     }
 
     public onDisable () {
-        screenAdapter.off('resolution-change', this.updateArea, this);
+        screenAdapter.off('window-resize', this.updateArea, this);
         screenAdapter.off('orientation-change', this.updateArea, this);
     }
 

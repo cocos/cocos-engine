@@ -282,7 +282,7 @@ export class View extends EventTarget {
      */
     public setCanvasSize (width: number, height: number) {
         // set resolution scale to 1;
-        screen.resolutionScale = 1;
+        screenAdapter.resolutionScale = 1;
 
         // set window size
         const dpr = screenAdapter.devicePixelRatio;
@@ -384,12 +384,7 @@ export class View extends EventTarget {
         return this._resolutionPolicy;
     }
 
-    /**
-     * @en Sets the current resolution policy
-     * @zh 设置当前分辨率模式
-     * @see {{ResolutionPolicy}}
-     */
-    public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
+    private _updateResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
         if (resolutionPolicy instanceof ResolutionPolicy) {
             this._resolutionPolicy = resolutionPolicy;
         } else {
@@ -411,6 +406,16 @@ export class View extends EventTarget {
                 this._resolutionPolicy = this._rpFixedWidth;
             }
         }
+    }
+    /**
+     * @en Sets the current resolution policy
+     * @zh 设置当前分辨率模式
+     * @see {{ResolutionPolicy}}
+     */
+    public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
+        this._updateResolutionPolicy(resolutionPolicy);
+        const designedResolution = view.getDesignResolutionSize();
+        view.setDesignResolutionSize(designedResolution.width, designedResolution.height, resolutionPolicy);
     }
 
     /**
@@ -434,7 +439,7 @@ export class View extends EventTarget {
             return;
         }
 
-        this.setResolutionPolicy(resolutionPolicy);
+        this._updateResolutionPolicy(resolutionPolicy);
         const policy = this._resolutionPolicy;
         if (policy) {
             policy.preApply(this);
@@ -541,7 +546,7 @@ export class View extends EventTarget {
      * @en Returns device pixel ratio for retina display.
      * @zh 返回设备或浏览器像素比例。
      *
-     * @deprecated since v3.4.0, devicePixelRatio is a concept on web standard, please use screen.resolutionScale instead.
+     * @deprecated since v3.4.0, devicePixelRatio is a concept on web standard.
      */
     public getDevicePixelRatio (): number {
         return screenAdapter.devicePixelRatio;
@@ -642,7 +647,7 @@ class ContainerStrategy {
 
     }
 
-    protected _setupContainer (_view, w, h) {
+    protected _setupCanvas () {
         const locCanvas = game.canvas;
         if (locCanvas) {
             const windowSize = screen.windowSize;
@@ -736,9 +741,9 @@ class ContentStrategy {
      */
     class EqualToFrame extends ContainerStrategy {
         public name = 'EqualToFrame';
-        public apply (_view) {
-            const windowSize = screen.windowSize;
-            this._setupContainer(_view, windowSize.width, windowSize.height);
+        public apply (_view, designedResolution) {
+            screenAdapter.isProportionalToFrame = false;
+            this._setupCanvas();
         }
     }
 
@@ -749,44 +754,8 @@ class ContentStrategy {
     class ProportionalToFrame extends ContainerStrategy {
         public name = 'ProportionalToFrame';
         public apply (_view, designedResolution) {
-            const windowSize = screen.windowSize;
-            const frameW = windowSize.width;
-            const frameH = windowSize.height;
-            const containerStyle = legacyCC.game.container.style;
-            const designW = designedResolution.width;
-            const designH = designedResolution.height;
-            const scaleX = frameW / designW;
-            const scaleY = frameH / designH;
-            let containerW;
-            let containerH;
-
-            if (scaleX < scaleY) {
-                containerW = frameW;
-                containerH = designH * scaleX;
-            } else {
-                containerW = designW * scaleY;
-                containerH = frameH;
-            }
-
-            // Adjust container size with integer value
-            const offx = Math.round((frameW - containerW) / 2);
-            const offy = Math.round((frameH - containerH) / 2);
-            containerW = frameW - 2 * offx;
-            containerH = frameH - 2 * offy;
-
-            this._setupContainer(_view, containerW, containerH);
-            if (!EDITOR) {
-                // Setup container's margin and padding
-                if (screenAdapter.isFrameRotated) {
-                    containerStyle.margin = `0 0 0 ${frameH}px`;
-                } else {
-                    containerStyle.margin = '0px';
-                }
-                containerStyle.paddingLeft = `${offx}px`;
-                containerStyle.paddingRight = `${offx}px`;
-                containerStyle.paddingTop = `${offy}px`;
-                containerStyle.paddingBottom = `${offy}px`;
-            }
+            screenAdapter.isProportionalToFrame = true;
+            this._setupCanvas();
         }
     }
 
