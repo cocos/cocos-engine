@@ -88,7 +88,6 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
 
     uint32_t stride = info.buffer->getStride();
     CCASSERT(info.offset / stride * stride == info.offset, "offset is not multiple of stride?");
-    CCASSERT(info.range / stride * stride == info.range, "range is not multiple of stride?");
 
     /////////// execute ///////////
 

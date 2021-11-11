@@ -157,6 +157,9 @@ void GLES2CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descript
     if (dynamicOffsetCount) {
         _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
         _isStateInvalid = true;
+    } else if (!_curDynamicOffsets[set].empty()) {
+        _curDynamicOffsets[set].assign(_curDynamicOffsets[set].size(), 0);
+        _isStateInvalid = true;
     }
 }
 
