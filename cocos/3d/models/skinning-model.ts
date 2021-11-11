@@ -42,6 +42,7 @@ import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils'
 import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
 import { IMacroPatch } from '../../core/renderer';
+import { JSB } from '../../core/default-constants';
 
 const myPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -93,6 +94,9 @@ export class SkinningModel extends MorphModel {
     constructor () {
         super();
         this.type = ModelType.SKINNING;
+        if (JSB) {
+            (this as any)._registerListeners();
+        }
     }
 
     public destroy () {
@@ -157,7 +161,13 @@ export class SkinningModel extends MorphModel {
     }
 
     public updateUBOs (stamp: number) {
+        if (JSB) {
+            (this as any).setCalledFromJS(true);
+        }
         super.updateUBOs(stamp);
+        if (JSB) {
+            (this as any).setCalledFromJS(false);
+        }
         for (let i = 0; i < this._joints.length; i++) {
             const { indices, buffers, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);
@@ -180,7 +190,14 @@ export class SkinningModel extends MorphModel {
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
+        if (JSB) {
+            (this as any).setCalledFromJS(true);
+        }
         const superMacroPatches = super.getMacroPatches(subModelIndex);
+        if (JSB) {
+            (this as any).setCalledFromJS(false);
+        }
+
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
         }
