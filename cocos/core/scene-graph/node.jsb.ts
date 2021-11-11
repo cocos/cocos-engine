@@ -37,8 +37,8 @@ import { Mat4, Quat, Vec3 } from '../math';
 import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
 import { eventManager } from '../platform/event-manager/event-manager';
-import { SerializationContext, SerializationOutput, serializeTag } from "../data";
-import { EDITOR } from "../default-constants";
+import { SerializationContext, SerializationOutput, serializeTag } from '../data';
+import { EDITOR } from '../default-constants';
 import {
     applyMountedChildren,
     applyMountedComponents, applyPropertyOverrides,
@@ -688,9 +688,9 @@ Object.defineProperty(nodeProto, 'children', {
     get () {
         return this._children;
     },
-    set(v) {
+    set (v) {
         this._children = v;
-    }
+    },
 });
 
 nodeProto.addChild = function (child: Node): void {
@@ -731,7 +731,6 @@ nodeProto.removeAllChildren = function () {
 nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, context: SerializationContext) {
     if (!EDITOR) {
         serializationOutput.writeThis();
-        return;
     }
 };
 
@@ -739,7 +738,7 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
     legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
 };
 
-nodeProto._onBatchCreated = function(dontSyncChildPrefab: boolean) {
+nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     const prefabInstance = this._prefab?.instance;
     if (!dontSyncChildPrefab && prefabInstance) {
         createNodeWithPrefab(this);

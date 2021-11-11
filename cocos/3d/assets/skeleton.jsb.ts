@@ -43,6 +43,18 @@ const skeletonProto: any = Skeleton.prototype;
 
 const skeletonDecorator = ccclass('cc.Skeleton');
 
+Object.defineProperty(skeletonProto, 'bindposes', {
+    enumerable: true,
+    configurable: true,
+    get () {
+        return this._bindposes;
+    },
+    set (v) {
+        this._bindposes = v;
+        this._setBindposes(v);
+    },
+});
+
 const _dec2$1 = type([CCString]);
 const _dec3$1 = type([Mat4]);
 
@@ -74,7 +86,7 @@ const _descriptor3$1 = _applyDecoratedDescriptor(skeletonProto, '_hash', [serial
 });
 
 skeletonProto._ctor = function () {
-
+    this._bindposes = [];
 };
 
 skeletonProto.destroy = function () {
@@ -82,9 +94,10 @@ skeletonProto.destroy = function () {
     return Asset.prototype.destroy.call(this);
 };
 
-const oldOnLoaded = skeletonProto.onLoaded;
+const oldSkeletonProtoOnLoaded = skeletonProto.onLoaded;
 skeletonProto.onLoaded = function () {
-    Asset.prototype.onLoaded.call(this);
+    this._setBindposes(this._bindposes);
+    oldSkeletonProtoOnLoaded.call(this);
 };
 
 skeletonDecorator(Skeleton);

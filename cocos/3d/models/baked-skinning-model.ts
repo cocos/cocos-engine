@@ -42,6 +42,7 @@ import { ModelType } from '../../core/renderer/scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
+import { JSB } from '../../core/default-constants';
 
 interface IJointsInfo {
     buffer: Buffer | null;
@@ -79,6 +80,9 @@ export class BakedSkinningModel extends MorphModel {
         const jointTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
+        if (JSB) {
+            (this as any)._registerListeners();
+        }
     }
 
     public destroy () {
@@ -110,7 +114,14 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     public updateTransform (stamp: number) {
+        if (JSB) {
+            (this as any).setCalledFromJS(true);
+        }
         super.updateTransform(stamp);
+        if (JSB) {
+            (this as any).setCalledFromJS(false);
+        }
+
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
         const skelBound = boundsInfo![animInfo.data[0]];
@@ -124,12 +135,22 @@ export class BakedSkinningModel extends MorphModel {
 
     // update fid buffer only when visible
     public updateUBOs (stamp: number) {
+        if (JSB) {
+            (this as any).setCalledFromJS(true);
+        }
         super.updateUBOs(stamp);
+        if (JSB) {
+            (this as any).setCalledFromJS(false);
+        }
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
-            const view = this.instancedAttributes.views[idx];
-            view[0] = info.data[0];
+            if (JSB) {
+                (this as any)._setInstancedAttributesViewData(idx, 0, info.data[0]);
+            } else {
+                const view = this.instancedAttributes.views[idx];
+                view[0] = info.data[0];
+            }
         } else if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
@@ -179,7 +200,13 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
+        if (JSB) {
+            (this as any).setCalledFromJS(true);
+        }
         const patches = super.getMacroPatches(subModelIndex);
+        if (JSB) {
+            (this as any).setCalledFromJS(false);
+        }
         return patches ? patches.concat(myPatches) : myPatches;
     }
 
@@ -196,7 +223,13 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+        if (JSB) {
+            (this as any).setCalledFromJS(true);
+        }
         super._updateInstancedAttributes(attributes, pass);
+        if (JSB) {
+            (this as any).setCalledFromJS(false);
+        }
         this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
     }
@@ -205,10 +238,16 @@ export class BakedSkinningModel extends MorphModel {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
-            const view = this.instancedAttributes.views[idx];
-            view[0] = animInfo.data[0];
-            view[1] = jointTextureInfo[1];
-            view[2] = jointTextureInfo[2];
+            if (JSB) {
+                (this as any)._setInstancedAttributesViewData(idx, 0, animInfo.data[0]);
+                (this as any)._setInstancedAttributesViewData(idx, 1, jointTextureInfo[1]);
+                (this as any)._setInstancedAttributesViewData(idx, 2, jointTextureInfo[2]);
+            } else {
+                const view = this.instancedAttributes.views[idx];
+                view[0] = animInfo.data[0];
+                view[1] = jointTextureInfo[1];
+                view[2] = jointTextureInfo[2];
+            }
         }
     }
 }

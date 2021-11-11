@@ -34,6 +34,7 @@ import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DescriptorSet } from '../../core/gfx';
 import { IMacroPatch } from '../../core/renderer';
+import { JSB } from '../../core/default-constants';
 
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
@@ -65,7 +66,13 @@ export class MorphModel extends Model {
     }
 
     protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
+        if (JSB) {
+            (this as any).setCalledFromJS(true);
+        }
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
+        if (JSB) {
+            (this as any).setCalledFromJS(false);
+        }
 
         if (this._morphRenderingInstance) {
             this._morphRenderingInstance.adaptPipelineState(submodelIdx, descriptorSet);
