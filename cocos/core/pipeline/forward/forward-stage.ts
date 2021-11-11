@@ -45,6 +45,7 @@ import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization'
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from '../ui-phase';
 import { Camera } from '../../renderer/scene';
+import { renderProfiler } from '../pipeline-funcs';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -189,6 +190,7 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
+        renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, swapchain);
         cmdBuff.endRenderPass();
     }
 }
