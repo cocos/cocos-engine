@@ -15372,6 +15372,33 @@ static bool js_gfx_QueryPoolInfo_set_maxQueryObjects(se::State& s) // NOLINT(rea
 }
 SE_BIND_PROP_SET(js_gfx_QueryPoolInfo_set_maxQueryObjects)
 
+static bool js_gfx_QueryPoolInfo_get_forceWait(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::QueryPoolInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_QueryPoolInfo_get_forceWait : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->forceWait, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->forceWait, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_QueryPoolInfo_get_forceWait)
+
+static bool js_gfx_QueryPoolInfo_set_forceWait(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::QueryPoolInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_QueryPoolInfo_set_forceWait : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->forceWait, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_QueryPoolInfo_set_forceWait : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_QueryPoolInfo_set_forceWait)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::QueryPoolInfo * to, se::Object *ctx)
@@ -15392,6 +15419,10 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::QueryPoolInfo * to, se::O
     json->getProperty("maxQueryObjects", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->maxQueryObjects), ctx);
+    }
+    json->getProperty("forceWait", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->forceWait), ctx);
     }
     return ok;
 }
@@ -15437,6 +15468,9 @@ static bool js_gfx_QueryPoolInfo_constructor(se::State& s) // NOLINT(readability
     if (argc > 1 && !args[1].isUndefined()) {
         ok &= sevalue_to_native(args[1], &(cobj->maxQueryObjects), nullptr);
     }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->forceWait), nullptr);
+    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -15471,6 +15505,7 @@ bool js_register_gfx_QueryPoolInfo(se::Object* obj) // NOLINT(readability-identi
 
     cls->defineProperty("type", _SE(js_gfx_QueryPoolInfo_get_type), _SE(js_gfx_QueryPoolInfo_set_type));
     cls->defineProperty("maxQueryObjects", _SE(js_gfx_QueryPoolInfo_get_maxQueryObjects), _SE(js_gfx_QueryPoolInfo_set_maxQueryObjects));
+    cls->defineProperty("forceWait", _SE(js_gfx_QueryPoolInfo_get_forceWait), _SE(js_gfx_QueryPoolInfo_set_forceWait));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_QueryPoolInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::QueryPoolInfo>(cls);
@@ -16832,6 +16867,25 @@ static bool js_gfx_CommandBuffer_blitTexture(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_blitTexture)
 
+static bool js_gfx_CommandBuffer_completeQueryPool(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_completeQueryPool : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::gfx::QueryPool*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_completeQueryPool : Error processing arguments");
+        cobj->completeQueryPool(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_completeQueryPool)
+
 static bool js_gfx_CommandBuffer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
@@ -17140,24 +17194,24 @@ static bool js_gfx_CommandBuffer_pipelineBarrier(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_pipelineBarrier)
 
-static bool js_gfx_CommandBuffer_resetQuery(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_gfx_CommandBuffer_resetQueryPool(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_resetQuery : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_resetQueryPool : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         HolderType<cc::gfx::QueryPool*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_resetQuery : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_CommandBuffer_resetQueryPool : Error processing arguments");
         cobj->resetQueryPool(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_CommandBuffer_resetQuery)
+SE_BIND_FUNC(js_gfx_CommandBuffer_resetQueryPool)
 
 static bool js_gfx_CommandBuffer_setBlendConstants(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -17359,6 +17413,7 @@ bool js_register_gfx_CommandBuffer(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("bindInputAssembler", _SE(js_gfx_CommandBuffer_bindInputAssembler));
     cls->defineFunction("bindPipelineState", _SE(js_gfx_CommandBuffer_bindPipelineState));
     cls->defineFunction("blitTexture", _SE(js_gfx_CommandBuffer_blitTexture));
+    cls->defineFunction("completeQueryPool", _SE(js_gfx_CommandBuffer_completeQueryPool));
     cls->defineFunction("destroy", _SE(js_gfx_CommandBuffer_destroy));
     cls->defineFunction("dispatch", _SE(js_gfx_CommandBuffer_dispatch));
     cls->defineFunction("draw", _SE(js_gfx_CommandBuffer_draw));
@@ -17373,7 +17428,7 @@ bool js_register_gfx_CommandBuffer(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("initialize", _SE(js_gfx_CommandBuffer_initialize));
     cls->defineFunction("nextSubpass", _SE(js_gfx_CommandBuffer_nextSubpass));
     cls->defineFunction("pipelineBarrier", _SE(js_gfx_CommandBuffer_pipelineBarrier));
-    cls->defineFunction("resetQuery", _SE(js_gfx_CommandBuffer_resetQuery));
+    cls->defineFunction("resetQueryPool", _SE(js_gfx_CommandBuffer_resetQueryPool));
     cls->defineFunction("setBlendConstants", _SE(js_gfx_CommandBuffer_setBlendConstants));
     cls->defineFunction("setDepthBias", _SE(js_gfx_CommandBuffer_setDepthBias));
     cls->defineFunction("setDepthBound", _SE(js_gfx_CommandBuffer_setDepthBound));
@@ -18542,6 +18597,25 @@ static bool js_gfx_QueryPool_destroy(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_gfx_QueryPool_destroy)
 
+static bool js_gfx_QueryPool_getForceWait(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::QueryPool>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_QueryPool_getForceWait : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getForceWait();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_QueryPool_getForceWait : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_QueryPool_getForceWait)
+
 static bool js_gfx_QueryPool_getMaxQueryObjects(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::gfx::QueryPool>(s);
@@ -18673,6 +18747,7 @@ bool js_register_gfx_QueryPool(se::Object* obj) // NOLINT(readability-identifier
     auto* cls = se::Class::create("QueryPool", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_QueryPool_constructor));
 
     cls->defineFunction("destroy", _SE(js_gfx_QueryPool_destroy));
+    cls->defineFunction("getForceWait", _SE(js_gfx_QueryPool_getForceWait));
     cls->defineFunction("getMaxQueryObjects", _SE(js_gfx_QueryPool_getMaxQueryObjects));
     cls->defineFunction("getResult", _SE(js_gfx_QueryPool_getResult));
     cls->defineFunction("getType", _SE(js_gfx_QueryPool_getType));

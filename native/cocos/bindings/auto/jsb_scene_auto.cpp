@@ -2180,6 +2180,33 @@ static bool js_scene_Fog_set_enabled(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_enabled)
 
+static bool js_scene_Fog_get_accurate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_accurate : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->accurate, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->accurate, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_Fog_get_accurate)
+
+static bool js_scene_Fog_set_accurate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Fog_set_accurate : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->accurate, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_Fog_set_accurate : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_Fog_set_accurate)
+
 static bool js_scene_Fog_get_type(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -2413,6 +2440,10 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Fog * to, se::Object *c
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->enabled), ctx);
     }
+    json->getProperty("accurate", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->accurate), ctx);
+    }
     json->getProperty("type", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->type), ctx);
@@ -2487,28 +2518,31 @@ static bool js_scene_Fog_constructor(se::State& s) // NOLINT(readability-identif
         ok &= sevalue_to_native(args[0], &(cobj->enabled), nullptr);
     }
     if (argc > 1 && !args[1].isUndefined()) {
-        ok &= sevalue_to_native(args[1], &(cobj->type), nullptr);
+        ok &= sevalue_to_native(args[1], &(cobj->accurate), nullptr);
     }
     if (argc > 2 && !args[2].isUndefined()) {
-        ok &= sevalue_to_native(args[2], &(cobj->density), nullptr);
+        ok &= sevalue_to_native(args[2], &(cobj->type), nullptr);
     }
     if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->start), nullptr);
+        ok &= sevalue_to_native(args[3], &(cobj->density), nullptr);
     }
     if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->end), nullptr);
+        ok &= sevalue_to_native(args[4], &(cobj->start), nullptr);
     }
     if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->atten), nullptr);
+        ok &= sevalue_to_native(args[5], &(cobj->end), nullptr);
     }
     if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->top), nullptr);
+        ok &= sevalue_to_native(args[6], &(cobj->atten), nullptr);
     }
     if (argc > 7 && !args[7].isUndefined()) {
-        ok &= sevalue_to_native(args[7], &(cobj->range), nullptr);
+        ok &= sevalue_to_native(args[7], &(cobj->top), nullptr);
     }
     if (argc > 8 && !args[8].isUndefined()) {
-        ok &= sevalue_to_native(args[8], &(cobj->color), nullptr);
+        ok &= sevalue_to_native(args[8], &(cobj->range), nullptr);
+    }
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(cobj->color), nullptr);
     }
 
     if(!ok) {
@@ -2543,6 +2577,7 @@ bool js_register_scene_Fog(se::Object* obj) // NOLINT(readability-identifier-nam
     auto* cls = se::Class::create("Fog", obj, nullptr, _SE(js_scene_Fog_constructor));
 
     cls->defineProperty("enabled", _SE(js_scene_Fog_get_enabled), _SE(js_scene_Fog_set_enabled));
+    cls->defineProperty("accurate", _SE(js_scene_Fog_get_accurate), _SE(js_scene_Fog_set_accurate));
     cls->defineProperty("type", _SE(js_scene_Fog_get_type), _SE(js_scene_Fog_set_type));
     cls->defineProperty("density", _SE(js_scene_Fog_get_density), _SE(js_scene_Fog_set_density));
     cls->defineProperty("start", _SE(js_scene_Fog_get_start), _SE(js_scene_Fog_set_start));
