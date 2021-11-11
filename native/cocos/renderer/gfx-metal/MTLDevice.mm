@@ -169,16 +169,18 @@ void CCMTLDevice::doDestroy() {
         [(NSAutoreleasePool *)_autoreleasePool drain];
         _autoreleasePool = nullptr;
     }
+    
+    CC_SAFE_DESTROY(_queryPool)
+    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
 
     if (_inFlightSemaphore) {
-        _inFlightSemaphore->syncAll();
+        // has present ? syncSuccess : no need to wait;
+        _inFlightSemaphore->trySyncAll(1000);
     }
 
-    CC_SAFE_DESTROY(_queryPool)
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DELETE(_inFlightSemaphore);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {

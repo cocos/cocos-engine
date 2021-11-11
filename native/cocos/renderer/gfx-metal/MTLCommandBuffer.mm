@@ -72,11 +72,18 @@ void CCMTLCommandBuffer::doDestroy() {
         _texCopySemaphore = nullptr;
     }
     
+    if(_commandBufferBegan) {
+        if(_gpuCommandBufferObj && _gpuCommandBufferObj->mtlCommandBuffer) {
+            [_gpuCommandBufferObj->mtlCommandBuffer commit];
+            [_gpuCommandBufferObj->mtlCommandBuffer release];
+        }
+        _commandBufferBegan = false;
+    }
+    
     _GPUDescriptorSets.clear();
     _dynamicOffsets.clear();
     _firstDirtyDescriptorSet = UINT_MAX;
     _indirectDrawSuppotred   = false;
-    _commandBufferBegan      = false;
     _mtlDevice               = nullptr;
     _mtlCommandQueue         = nil;
     _parallelEncoder         = nil;
@@ -97,6 +104,7 @@ id<MTLCommandBuffer> CCMTLCommandBuffer::getMTLCommandBuffer() {
     if(!_gpuCommandBufferObj->mtlCommandBuffer) {
         auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
         _gpuCommandBufferObj->mtlCommandBuffer = [[mtlQueue commandBuffer] retain];
+        [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
     }
     return _gpuCommandBufferObj->mtlCommandBuffer;
 }
@@ -128,10 +136,6 @@ void CCMTLCommandBuffer::end() {
     if (_gpuCommandBufferObj->isSecondary) {
         // Secondary command buffer should end encoding here
         _renderEncoder.endEncoding();
-    }
-    
-    if(_gpuCommandBufferObj->mtlCommandBuffer) {
-        [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
     }
 }
 
@@ -220,8 +224,8 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         }
         updateDepthStencilState(ccMtlRenderPass->getCurrentSubpassIndex(), mtlRenderPassDescriptor);
     }
-
-    mtlRenderPassDescriptor.depthAttachment.clearDepth     = depth;
+    
+    mtlRenderPassDescriptor.depthAttachment.clearDepth     = clampf(depth, 0.0F, 1.0F);
     mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
 
     auto *queryPool                                = static_cast<CCMTLQueryPool *>(_mtlDevice->getQueryPool());
@@ -884,7 +888,6 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
             [commandBuffer release];
             _texCopySemaphore->signal();
         }];
-        [mtlCommandBuffer enqueue];
         [mtlCommandBuffer commit];
         _gpuCommandBufferObj->mtlCommandBuffer = nil;
         _texCopySemaphore->wait();
