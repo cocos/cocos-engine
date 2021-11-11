@@ -111,6 +111,20 @@ export const MotionStreakAssembler: IAssembler = {
 
         const renderData = comp.renderData!;
 
+        if (renderData.passDirty) {
+            renderData.updatePass(comp);
+        }
+        if (renderData.nodeDirty) {
+            renderData.updateNode(comp);
+        }
+        if (renderData.frameDirty && comp.texture) {
+            renderData.updateFrame(comp.texture);
+            renderData.material = comp.getRenderMaterial(0);
+        }
+        if (renderData.hashDirty) {
+            renderData.updateHash();
+        }
+
         const color = comp.color;
         const cr = color.r;
         const cg = color.g;

@@ -360,6 +360,18 @@ export const radialFilled: IAssembler = {
                 renderData.indicesCount = renderData.vertexCount = offset;
                 renderData.vertDirty = renderData.uvDirty = false;
             }
+            if (renderData.passDirty) {
+                renderData.updatePass(sprite);
+            }
+            if (renderData.nodeDirty) {
+                renderData.updateNode(sprite);
+            }
+            if (renderData.frameDirty) {
+                renderData.updateFrame(frame);
+            }
+            if (renderData.hashDirty) {
+                renderData.updateHash();
+            }
         }
     },
 

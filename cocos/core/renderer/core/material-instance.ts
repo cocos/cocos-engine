@@ -33,6 +33,9 @@ import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
 import { PassOverrides } from './pass';
+import IDGenerator from '../../utils/id-generator';
+
+const idGenerator = new IDGenerator('MatIns');
 
 export interface IMaterialInstanceInfo {
     parent: Material;
@@ -61,6 +64,7 @@ export class MaterialInstance extends Material {
 
     constructor (info: IMaterialInstanceInfo) {
         super();
+        this._id = idGenerator.getNewId();
         this._parent = info.parent;
         this._owner = info.owner || null;
         this._subModelIdx = info.subModelIdx || 0;

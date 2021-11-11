@@ -93,4 +93,10 @@ export class UIComponent extends Component {
     }
 
     public stencilStage : Stage = Stage.DISABLED;
+
+    public setNodeDirty () {
+    }
+
+    public setFrameDirty () {
+    }
 }

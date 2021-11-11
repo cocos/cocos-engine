@@ -166,6 +166,11 @@ export class Renderable2D extends RenderableComponent {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
+            if (this._renderData) {
+                this._renderData.material = this._customMaterial;
+                this.markForUpdateRenderData();
+                this._renderData.passDirty = true;
+            }
             this._blendHash = -1; // a flag to check merge
             if (UI_GPU_DRIVEN) {
                 this._canDrawByFourVertex = false;
@@ -174,6 +179,10 @@ export class Renderable2D extends RenderableComponent {
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
+        if (this._renderData) {
+            this._renderData.material = mat;
+            this.markForUpdateRenderData();
+        }
         this._updateBlendFunc();
     }
 
@@ -514,6 +523,9 @@ export class Renderable2D extends RenderableComponent {
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
+            if (this.renderData) {
+                this.renderData.passDirty = true;
+            }
         }
         this.updateBlendHash();
     }
@@ -570,6 +582,18 @@ export class Renderable2D extends RenderableComponent {
 
     public _setCacheAlpha (value) {
         this._cacheAlpha = value;
+    }
+
+    public setNodeDirty () {
+        if (this.renderData) {
+            this.renderData.nodeDirty = true;
+        }
+    }
+
+    public setFrameDirty () {
+        if (this.renderData) {
+            this.renderData.frameDirty = true;
+        }
     }
 }
 

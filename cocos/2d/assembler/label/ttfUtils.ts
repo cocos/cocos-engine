@@ -105,29 +105,45 @@ export const ttfUtils =  {
     },
 
     updateRenderData (comp: Label) {
-        if (!comp.renderData || !comp.renderData.vertDirty) { return; }
+        if (!comp.renderData) { return; }
 
-        const trans = comp.node._uiProps.uiTransformComp!;
-        this._updateFontFamily(comp);
-        this._updateProperties(comp, trans);
-        this._calculateLabelFont();
-        this._updateLabelDimensions();
-        this._updateTexture(comp);
-        this.updateOpacity(comp);
-        comp._setCacheAlpha(_alpha);
-        this._calDynamicAtlas(comp);
+        if (comp.renderData.vertDirty) {
+            const trans = comp.node._uiProps.uiTransformComp!;
+            this._updateFontFamily(comp);
+            this._updateProperties(comp, trans);
+            this._calculateLabelFont();
+            this._updateLabelDimensions();
+            this._updateTexture(comp);
+            this.updateOpacity(comp);
+            comp._setCacheAlpha(_alpha);
+            this._calDynamicAtlas(comp);
 
-        comp.actualFontSize = _fontSize;
-        trans.setContentSize(_canvasSize);
+            comp.actualFontSize = _fontSize;
+            trans.setContentSize(_canvasSize);
 
-        this.updateVertexData(comp);
-        this.updateUvs(comp);
+            this.updateVertexData(comp);
+            this.updateUvs(comp);
 
-        comp.markForUpdateRenderData(false);
+            comp.markForUpdateRenderData(false);
 
-        _context = null;
-        _canvas = null;
-        _texture = null;
+            _context = null;
+            _canvas = null;
+            _texture = null;
+        }
+
+        const renderData = comp.renderData;
+        if (renderData.passDirty) {
+            renderData.updatePass(comp);
+        }
+        if (renderData.nodeDirty) {
+            renderData.updateNode(comp);
+        }
+        if (renderData.frameDirty) {
+            renderData.updateFrame(comp.spriteFrame as SpriteFrame);
+        }
+        if (renderData.hashDirty) {
+            renderData.updateHash();
+        }
     },
 
     updateVertexData (comp: Label) {
@@ -345,6 +361,9 @@ export const ttfUtils =  {
                 if (_texture instanceof SpriteFrame) {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
+                }
+                if (comp.renderData) {
+                    comp.renderData.frameDirty = true;
                 }
                 if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
                     legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());

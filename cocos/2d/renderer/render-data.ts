@@ -29,8 +29,13 @@
  */
 
 import { Material } from '../../core/assets/material';
+import { TextureBase } from '../../core/assets/texture-base';
 import { Color } from '../../core/math';
 import { Pool, RecyclePool } from '../../core/memop';
+import { RenderScene } from '../../core/renderer/scene';
+import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
+import { SpriteFrame } from '../assets/sprite-frame';
+import { Renderable2D } from '../framework/renderable-2d';
 
 export interface IRenderData {
     x: number;
@@ -87,16 +92,60 @@ export class RenderData extends BaseRenderData {
         _pool.data[idx].clear();
         _pool.removeAt(idx);
     }
+
     public vData: Float32Array | null = null;
 
     public uvDirty = true;
     public vertDirty = true;
+
     private _data: IRenderData[] = [];
     private _indices: number[] = [];
     private _pivotX = 0;
     private _pivotY = 0;
     private _width = 0;
     private _height = 0;
+
+    public renderScene: RenderScene | null = null;
+    public layer = 0;
+    public nodeDirty = true;
+
+    public blendHash = -1;
+    public passDirty = true;
+
+    public frame;
+    public textureHash = 0;
+    public frameDirty = true;
+
+    public hashDirty = true;
+    public dataHash = 0;
+
+    public updateNode (comp: Renderable2D) {
+        // TODO: have bug when node not add to scene
+        this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
+        this.layer = comp.node.layer;
+        this.nodeDirty = false;
+        this.hashDirty = true;
+    }
+
+    public updatePass (comp: Renderable2D) {
+        this.material = comp.getRenderMaterial(0);
+        this.blendHash = comp.blendHash;
+        this.passDirty = false;
+        this.hashDirty = true;
+    }
+
+    public updateFrame (frame: SpriteFrame | TextureBase) {
+        this.frame = frame;
+        this.textureHash = frame.getHash();
+        this.frameDirty = false;
+        this.hashDirty = true;
+    }
+
+    public updateHash () {
+        const hashString = ` ${this.layer} ${this.blendHash} ${this.material!.ID} ${this.textureHash}`;
+        this.dataHash = murmurhash2_32_gc(hashString, 666);
+        this.hashDirty = false;
+    }
 
     public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {
         if (width !== this._width
@@ -123,6 +172,18 @@ export class RenderData extends BaseRenderData {
         this.material = null;
         this.vertexCount = 0;
         this.indicesCount = 0;
+
+        this.nodeDirty = true;
+        this.passDirty = true;
+        this.frameDirty = true;
+        this.hashDirty = true;
+
+        this.renderScene = null;
+        this.layer = 0;
+        this.blendHash = -1;
+        this.frame = null;
+        this.textureHash = 0;
+        this.dataHash = 0;
     }
 }
 

@@ -79,6 +79,18 @@ export const sliced: IAssembler = {
                 this.updateVertexData!(sprite);
                 this.updateWorldVertexData!(sprite);
             }
+            if (renderData.passDirty) {
+                renderData.updatePass(sprite);
+            }
+            if (renderData.nodeDirty) {
+                renderData.updateNode(sprite);
+            }
+            if (renderData.frameDirty) {
+                renderData.updateFrame(frame);
+            }
+            if (renderData.hashDirty) {
+                renderData.updateHash();
+            }
         }
     },
 

@@ -471,6 +471,10 @@ export class Node extends BaseNode implements CustomSerializable {
             this._nativeLayer[0] = this._layer;
         }
         this.emit(NodeEventType.LAYER_CHANGED, this._layer);
+        if (this._uiProps && this._uiProps.uiComp) {
+            this._uiProps.uiComp.setNodeDirty();
+            this._uiProps.uiComp.markForUpdateRenderData();
+        }
     }
 
     get layer () {

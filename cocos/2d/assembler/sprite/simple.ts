@@ -85,6 +85,18 @@ export const simple: IAssembler = {
             if (renderData.uvDirty) {
                 this.updateUvs(sprite);
             }
+            if (renderData.passDirty) {
+                renderData.updatePass(sprite);
+            }
+            if (renderData.nodeDirty) {
+                renderData.updateNode(sprite);
+            }
+            if (renderData.frameDirty) {
+                renderData.updateFrame(frame);
+            }
+            if (renderData.hashDirty) {
+                renderData.updateHash();
+            }
         }
     },
 
