@@ -27,7 +27,7 @@
 declare const nr: any;
 
 import { getPhaseID } from './pass-phase'
-import { setClassName, mixin } from '../../core/utils/js';
+import { setClassName, mixin, addon } from '../../core/utils/js';
 import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
 import { Asset } from '../assets/asset';
@@ -109,7 +109,7 @@ export class ForwardPipeline extends nr.ForwardPipeline implements IPipelineEven
     }
 }
 
-mixin(ForwardPipeline.prototype, Asset.prototype);
+addon(ForwardPipeline.prototype, Asset.prototype);
 
 const ForwardOnLoaded = ForwardPipeline.prototype.onLoaded;
 
@@ -253,7 +253,7 @@ export class DeferredPipeline extends nr.DeferredPipeline implements IPipelineEv
 
 }
 
-mixin(DeferredPipeline.prototype, Asset.prototype);
+addon(DeferredPipeline.prototype, Asset.prototype);
 
 const DeferredOnLoaded = DeferredPipeline.prototype.onLoaded;
 
