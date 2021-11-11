@@ -37,7 +37,7 @@ class ScreenAdapter extends EventTarget {
         console.warn('Setting window size is not supported yet.');
     }
 
-    public get resolution() {
+    public get resolution () {
         const windowSize = this.windowSize;
         const resolutionScale = this.resolutionScale;
         return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
