@@ -107,6 +107,8 @@
     [super viewDidChangeBackingProperties];
     CAMetalLayer *layer = (CAMetalLayer *)self.layer;
     layer.contentsScale = self.window.backingScaleFactor;
+    if (cc::EventDispatcher::initialized())
+        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>([layer drawableSize].width), static_cast<int>([layer drawableSize].height));
 }
 
 - (void)keyDown:(NSEvent *)event {
