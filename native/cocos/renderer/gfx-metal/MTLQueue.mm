@@ -74,7 +74,6 @@ void CCMTLQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
         id<MTLCommandBuffer> mtlCmdBuffer = cmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer;
         [mtlCmdBuffer commit];
         [mtlCmdBuffer release];
-        cmdBuffer->gpuCommandBufferObj()->mtlCommandBuffer = nil;
         cmdBuffer->reset();
     }
 }

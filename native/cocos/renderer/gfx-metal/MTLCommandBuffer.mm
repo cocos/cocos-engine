@@ -93,16 +93,17 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
     return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
+id<MTLCommandBuffer> CCMTLCommandBuffer::getMTLCommandBuffer() {
+    if(!_gpuCommandBufferObj->mtlCommandBuffer) {
+        auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
+        _gpuCommandBufferObj->mtlCommandBuffer = [[mtlQueue commandBuffer] retain];
+    }
+    return _gpuCommandBufferObj->mtlCommandBuffer;
+}
+
 void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     if (_commandBufferBegan) {
         return;
-    }
-
-    if (!_gpuCommandBufferObj->isSecondary) {
-        auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
-        // Only primary command buffer should request command buffer explicitly
-        if(!_gpuCommandBufferObj->mtlCommandBuffer)
-            _gpuCommandBufferObj->mtlCommandBuffer = [[mtlQueue commandBuffer] retain];
     }
 
     _numTriangles = 0;
@@ -129,7 +130,9 @@ void CCMTLCommandBuffer::end() {
         _renderEncoder.endEncoding();
     }
     
-    [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
+    if(_gpuCommandBufferObj->mtlCommandBuffer) {
+        [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
+    }
 }
 
 void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
@@ -137,6 +140,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     if (_gpuCommandBufferObj->isSecondary) {
         return;
     }
+    
     _gpuCommandBufferObj->renderPass = static_cast<CCMTLRenderPass *>(renderPass);
     _gpuCommandBufferObj->fbo        = static_cast<CCMTLFramebuffer *>(fbo);
 
@@ -223,7 +227,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     auto *queryPool                                = static_cast<CCMTLQueryPool *>(_mtlDevice->getQueryPool());
     mtlRenderPassDescriptor.visibilityResultBuffer = _mtlDevice->getCapabilities().supportQuery ? queryPool->gpuQueryPool()->visibilityResultBuffer : nil;
 
-    id<MTLCommandBuffer> mtlCommandBuffer = _gpuCommandBufferObj->mtlCommandBuffer;
+    id<MTLCommandBuffer> mtlCommandBuffer = getMTLCommandBuffer();
     if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
         //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
         mu::clearRenderArea(_mtlDevice, mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil);
@@ -339,7 +343,7 @@ void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
 
     } else if (bindPoint == PipelineBindPoint::COMPUTE) {
         if (!_computeEncoder.isInitialized()) {
-            _computeEncoder.initialize(_gpuCommandBufferObj->mtlCommandBuffer);
+            _computeEncoder.initialize(getMTLCommandBuffer());
         }
         pplState = ccPipeline->getGPUPipelineState();
         _computeEncoder.setComputePipelineState(pplState->mtlComputePipelineState);
@@ -423,7 +427,7 @@ void CCMTLCommandBuffer::nextSubpass() {
                 mtlRenderPassDescriptor.colorAttachments[slot].storeAction = mu::toMTLStoreAction(colorAttachments[slot].storeOp);
             }
             updateDepthStencilState(curSubpassIndex, mtlRenderPassDescriptor);
-            _renderEncoder.initialize(_gpuCommandBufferObj->mtlCommandBuffer, ccRenderpass->getMTLRenderPassDescriptor());
+            _renderEncoder.initialize(getMTLCommandBuffer(), ccRenderpass->getMTLRenderPassDescriptor());
             const TextureList &    colorTextures = _gpuCommandBufferObj->fbo->getColorTextures();
             const SubpassInfoList &subpasses     = curRenderPass->getSubpasses();
             if (!subpasses.empty()) {
@@ -556,33 +560,24 @@ void CCMTLCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size)
         CC_LOG_ERROR("CCMTLCommandBuffer::updateBuffer: buffer is nullptr.");
         return;
     }
-    
-    auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
-    id<MTLCommandBuffer> cmdBuff = [mtlQueue commandBufferWithUnretainedReferences];
-    
+
     CCMTLGPUBuffer stagingBuffer;
     stagingBuffer.size = size;
     _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
     memcpy(stagingBuffer.mappedData, data, size);
-    id<MTLBlitCommandEncoder> encoder = [cmdBuff blitCommandEncoder];
+    id<MTLBlitCommandEncoder> encoder = [getMTLCommandBuffer() blitCommandEncoder];
     [encoder copyFromBuffer:stagingBuffer.mtlBuffer
                sourceOffset:stagingBuffer.startOffset
                    toBuffer:static_cast<CCMTLBuffer *>(buff)->getMTLBuffer()
           destinationOffset:0
                        size:size];
     [encoder endEncoding];
-    [cmdBuff enqueue];
-    [cmdBuff commit];
 }
 
 void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     if (!texture) {
         CC_LOG_ERROR("CCMTLCommandBuffer::copyBufferToTexture: texture is nullptr");
         return;
-    }
-    if(!_gpuCommandBufferObj->mtlCommandBuffer) {
-        auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
-        _gpuCommandBufferObj->mtlCommandBuffer = [[mtlQueue commandBuffer] retain];
     }
 
     uint                            totalSize = 0;
@@ -610,7 +605,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     }
 
     size_t                    offset         = 0;
-    id<MTLBlitCommandEncoder> encoder        = [_gpuCommandBufferObj->mtlCommandBuffer blitCommandEncoder];
+    id<MTLBlitCommandEncoder> encoder        = [getMTLCommandBuffer() blitCommandEncoder];
     id<MTLTexture>            dstTexture     = mtlTexture->getMTLTexture();
     const bool                isArrayTexture = mtlTexture->isArray();
     for (size_t i = 0; i < count; i++) {
@@ -720,8 +715,8 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
 
 void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
     if (srcTexture && dstTexture && regions) {
-        id<MTLCommandBuffer> mtlCmdBuffer = [[static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue commandBuffer] retain];
-        [mtlCmdBuffer enqueue];
+        id<MTLCommandBuffer> cmdBuffer = getMTLCommandBuffer();
+
         auto *ccSrcTex = static_cast<CCMTLTexture *>(srcTexture);
         auto *ccDstTex = static_cast<CCMTLTexture *>(dstTexture);
 
@@ -754,7 +749,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         // 1. format conversion
         id<MTLTexture>      formatTex  = [mtlDevice newTextureWithDescriptor:descriptor];
         MPSImageConversion *conversion = [[MPSImageConversion alloc] initWithDevice:mtlDevice srcAlpha:MPSAlphaTypeNonPremultiplied destAlpha:MPSAlphaTypeNonPremultiplied backgroundColor:nil conversionInfo:nil];
-        [conversion encodeToCommandBuffer:mtlCmdBuffer sourceTexture:src destinationTexture:formatTex];
+        [conversion encodeToCommandBuffer:cmdBuffer sourceTexture:src destinationTexture:formatTex];
         [conversion release];
 
         double scaleFactorW = [dst width] / (double)[src width];
@@ -779,13 +774,13 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
 
             MPSScaleTransform scale{uniformScale, uniformScale, 0, 0};
             [imgScale setScaleTransform:&scale];
-            [imgScale encodeToCommandBuffer:mtlCmdBuffer sourceTexture:formatTex destinationTexture:sizeTex];
+            [imgScale encodeToCommandBuffer:cmdBuffer sourceTexture:formatTex destinationTexture:sizeTex];
             [imgScale release];
             [formatTex release];
         }
 
         //blit
-        id<MTLBlitCommandEncoder> encoder = [mtlCmdBuffer blitCommandEncoder];
+        id<MTLBlitCommandEncoder> encoder = [cmdBuffer blitCommandEncoder];
         for (uint i = 0; i < count; ++i) {
             // source region scale
             uint32_t width  = (uint32_t)(regions[i].srcExtent.width * scaleFactorW);
@@ -805,13 +800,8 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
                    destinationOrigin:MTLOriginMake(regions[i].dstOffset.x, regions[i].dstOffset.y, regions[i].dstOffset.z)];
         }
         [encoder endEncoding];
-        [descriptor release];
         [sizeTex release];
-        
-        [mtlCmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> cmdBuff) {
-            [cmdBuff release];
-        }];
-        [mtlCmdBuffer commit];
+        [descriptor release];
     }
 }
 
@@ -855,10 +845,8 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
                            slice:regions[i].texSubres.baseArrayLayer];
         }
     } else {
-        // TODO_Zeqiang: metal commandbuffer ownership
-        auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
-        id<MTLCommandBuffer> cmdBuff = [mtlQueue commandBufferWithUnretainedReferences];
-        [cmdBuff enqueue];
+        id<MTLCommandBuffer> mtlCommandBuffer = getMTLCommandBuffer();
+        
         std::vector<std::pair<uint8_t*, uint32_t>> stagingAddrs(count);
         for (size_t i = 0; i < count; ++i) {
             uint32_t      width         = regions[i].texExtent.width;
@@ -868,8 +856,8 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
             uint32_t      bytesPerImage = formatSize(convertedFormat, width, height, depth);
             const Offset &origin        = regions[i].texOffset;
             const Extent &extent        = regions[i].texExtent;
-            
-            id<MTLBlitCommandEncoder> encoder = [cmdBuff blitCommandEncoder];
+
+            id<MTLBlitCommandEncoder> encoder = [mtlCommandBuffer blitCommandEncoder];
             CCMTLGPUBuffer stagingBuffer;
             stagingBuffer.size = bytesPerImage;
             _mtlDevice->gpuStagingBufferPool()->alloc(&stagingBuffer);
@@ -885,20 +873,21 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
             [encoder endEncoding];
             stagingAddrs[i] = {stagingBuffer.mappedData, bytesPerImage};
         }
-        if(!_texCopySemaphore)
-            _texCopySemaphore = CC_NEW(CCMTLSemaphore(1));
-        _texCopySemaphore->wait();
-        [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+        if(!_texCopySemaphore) {
+            _texCopySemaphore = CC_NEW(CCMTLSemaphore(0));
+        }
+        
+        [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
             for(size_t i = 0; i < count; ++i) {
                 memcpy(buffers[i], stagingAddrs[i].first, stagingAddrs[i].second);
             }
+            [commandBuffer release];
             _texCopySemaphore->signal();
         }];
-        [cmdBuff commit];
-        // wait this cmdbuff done;
+        [mtlCommandBuffer enqueue];
+        [mtlCommandBuffer commit];
+        _gpuCommandBufferObj->mtlCommandBuffer = nil;
         _texCopySemaphore->wait();
-        _texCopySemaphore->signal();
-        
     }
 }
 
@@ -933,7 +922,8 @@ void CCMTLCommandBuffer::completeQueryPool(QueryPool *queryPool) {
     auto *             mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
     CCMTLGPUQueryPool *gpuQueryPool = mtlQueryPool->gpuQueryPool();
 
-    [_gpuCommandBufferObj->mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+    id<MTLCommandBuffer> mtlCommandBuffer = getMTLCommandBuffer();
+    [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
         gpuQueryPool->semaphore->signal();
     }];
 }
