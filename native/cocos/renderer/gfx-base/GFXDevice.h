@@ -104,6 +104,11 @@ public:
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
+    // for external update operations which has to be performed on the device thread.
+    // AR camera texture update, etc.
+    template <typename ExecuteMethod>
+    void registerOnAcquireCallback(ExecuteMethod &&execute);
+
 protected:
     static Device *instance;
 
@@ -153,6 +158,7 @@ protected:
 
     Queue *        _queue{nullptr};
     CommandBuffer *_cmdBuff{nullptr};
+    Executable *   _onAcquire{nullptr};
 
     uint32_t     _numDrawCalls{0U};
     uint32_t     _numInstances{0U};
@@ -294,6 +300,11 @@ void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {
 
 void Device::acquire(const vector<Swapchain *> &swapchains) {
     acquire(swapchains.data(), utils::toUint(swapchains.size()));
+}
+
+template <typename ExecuteMethod>
+void Device::registerOnAcquireCallback(ExecuteMethod &&execute) {
+    _onAcquire = CC_NEW(CallbackExecutable<ExecuteMethod>(std::forward<ExecuteMethod>(execute)));
 }
 
 } // namespace gfx

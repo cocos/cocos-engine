@@ -186,6 +186,8 @@ void CCMTLDevice::doDestroy() {
 }
 
 void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
+    if (_onAcquire) _onAcquire->execute();
+
     _inFlightSemaphore->wait();
 
     for (CCMTLSwapchain* swapchain : _swapchains) {

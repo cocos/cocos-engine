@@ -77,7 +77,8 @@ void EmptyDevice::doDestroy() {
     CC_SAFE_DESTROY(_queue);
 }
 
-void EmptyDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
+void EmptyDevice::acquire(Swapchain *const * /*swapchains*/, uint32_t /*count*/) {
+    if (_onAcquire) _onAcquire->execute();
 }
 
 void EmptyDevice::present() {

@@ -125,6 +125,7 @@ void DeviceValidator::acquire(Swapchain *const *swapchains, uint32_t count) {
         swapchainActors[i] = swapchain->getActor();
     }
 
+    if (_onAcquire) _onAcquire->execute();
     _actor->acquire(swapchainActors.data(), count);
 }
 
