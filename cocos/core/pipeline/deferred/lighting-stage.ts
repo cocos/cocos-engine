@@ -238,7 +238,7 @@ export class LightingStage extends RenderStage {
         const dynamicOffsets: number[] = [0];
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet, dynamicOffsets);
 
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;

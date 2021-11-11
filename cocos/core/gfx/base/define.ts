@@ -71,6 +71,7 @@ export enum ObjectType {
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     QUEUE,
+    QUERY_POOL,
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
@@ -132,7 +133,7 @@ export enum Feature {
     // for subpasses with exactly 4 inout attachments the output is automatically set
     // to the last attachment (taking advantage of 'inout' property), and a separate
     // blit operation (if needed) will be added for you afterwards to transfer the
-    // rendering result to the corrent subpass output texture. This is to ameliorate
+    // rendering result to the correct subpass output texture. This is to ameliorate
     // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
@@ -655,6 +656,12 @@ export enum QueueType {
     TRANSFER,
 }
 
+export enum QueryType {
+    OCCLUSION,
+    PIPELINE_STATISTICS,
+    TIMESTAMP,
+}
+
 export enum CommandBufferType {
     PRIMARY,
     SECONDARY,
@@ -718,7 +725,7 @@ export class DeviceCaps {
         public maxComputeWorkGroupInvocations: number = 0,
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
-        public supportQuery: number = 0,
+        public supportQuery: boolean = false,
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
         public clipSpaceSignY: number = 1,
@@ -1003,7 +1010,7 @@ export class BufferInfo {
         public usage: BufferUsage = BufferUsageBit.NONE,
         public memUsage: MemoryUsage = MemoryUsageBit.NONE,
         public size: number = 0,
-        public stride: number = 0,
+        public stride: number = 1,
         public flags: BufferFlags = BufferFlagBit.NONE,
     ) {}
 
@@ -1697,6 +1704,23 @@ export class QueueInfo {
 
     public copy (info: Readonly<QueueInfo>) {
         this.type = info.type;
+        return this;
+    }
+}
+
+export class QueryPoolInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public type: QueryType = QueryType.OCCLUSION,
+        public maxQueryObjects: number = 65536,
+        public forceWait: boolean = true,
+    ) {}
+
+    public copy (info: Readonly<QueryPoolInfo>) {
+        this.type = info.type;
+        this.maxQueryObjects = info.maxQueryObjects;
+        this.forceWait = info.forceWait;
         return this;
     }
 }

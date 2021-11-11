@@ -45,6 +45,7 @@ import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization'
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from '../ui-phase';
 import { Camera } from '../../renderer/scene';
+import { renderProfiler } from '../pipeline-funcs';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -161,23 +162,20 @@ export class ForwardStage extends RenderStage {
         this._batchedQueue.uploadBuffers(cmdBuff);
         this._additiveLightQueue.gatherLightPasses(camera, cmdBuff);
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
-        const sceneData = pipeline.pipelineSceneData;
-        this._renderArea = pipeline.generateRenderArea(camera);
+
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
             colors[0].y = camera.clearColor.y;
             colors[0].z = camera.clearColor.z;
+            colors[0].w = camera.clearColor.w;
         }
-
-        colors[0].w = camera.clearColor.w;
+        pipeline.generateRenderArea(camera, this._renderArea);
 
         const swapchain = camera.window.swapchain;
         const framebuffer = camera.window.framebuffer;
         const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain) : framebuffer.renderPass;
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-        cmdBuff.setScissor(pipeline.generateScissor(camera));
-        cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
@@ -189,6 +187,7 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
+        renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, camera);
         cmdBuff.endRenderPass();
     }
 }

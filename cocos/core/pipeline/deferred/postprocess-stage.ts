@@ -142,7 +142,7 @@ export class PostProcessStage extends RenderStage {
             cmdBuff.draw(inputAssembler);
         }
         this._uiPhase.render(camera, renderPass);
-        renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, swapchain);
+        renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, camera);
 
         cmdBuff.endRenderPass();
     }

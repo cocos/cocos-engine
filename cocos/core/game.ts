@@ -35,7 +35,7 @@ import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
+import { Device, DeviceInfo, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
@@ -856,7 +856,6 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Constructor<Device>[] = [];
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && window.gfx) {
@@ -869,18 +868,21 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
+
+                const deviceCtors: Constructor<Device>[] = [];
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    ctors.push(legacyCC.WebGL2Device);
+                    deviceCtors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    ctors.push(legacyCC.WebGLDevice);
+                    deviceCtors.push(legacyCC.WebGLDevice);
                 }
                 if (legacyCC.EmptyDevice) {
-                    ctors.push(legacyCC.EmptyDevice);
+                    deviceCtors.push(legacyCC.EmptyDevice);
                 }
 
-                for (let i = 0; i < ctors.length; i++) {
-                    this._gfxDevice = new ctors[i]();
+                Device.canvas = this.canvas!;
+                for (let i = 0; i < deviceCtors.length; i++) {
+                    this._gfxDevice = new deviceCtors[i]();
                     if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
             }
