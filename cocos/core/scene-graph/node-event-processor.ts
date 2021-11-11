@@ -244,14 +244,40 @@ export class NodeEventProcessor {
         }
     }
 
+    /**
+     * Fix when reigster 'once' event callback, `this.off` method isn't be invoked after event is emitted.
+     * We need to inject some nodeEventProcessor's logic into the `callbacksInvoker.off` method.
+     * @returns {CallbacksInvoker} decorated callbacks invoker
+     */
+    private _newDecoratedCallbacksInvoker () {
+        const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
+        // decorate off method
+        const offMethod = callbacksInvoker.off;
+        callbacksInvoker.off = (...args: any) => {
+            offMethod.apply(callbacksInvoker, args);
+
+            // Injected logic
+            if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
+                this.shouldHandleEventTouch = false;
+            }
+            if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
+                this.shouldHandleEventMouse = false;
+            }
+            if (!this._hasPointerListeners()) {
+                NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
+            }
+        };
+        return callbacksInvoker;
+    }
+
     public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         this._tryEmittingAddEvent(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.capturingTarget ??= this._newDecoratedCallbacksInvoker();
         } else {
-            invoker = this.bubblingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.bubblingTarget ??= this._newDecoratedCallbacksInvoker();
         }
         invoker.on(type, callback, target);
         return callback;
@@ -262,9 +288,9 @@ export class NodeEventProcessor {
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.capturingTarget ??= this._newDecoratedCallbacksInvoker();
         } else {
-            invoker = this.bubblingTarget ??= new CallbacksInvoker<SystemEventTypeUnion>();
+            invoker = this.bubblingTarget ??= this._newDecoratedCallbacksInvoker();
         }
 
         invoker.on(type, callback, target, true);
@@ -280,17 +306,6 @@ export class NodeEventProcessor {
             invoker = this.bubblingTarget;
         }
         invoker?.off(type, callback, target);
-
-        // emit event
-        if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
-            this.shouldHandleEventTouch = false;
-        }
-        if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
-            this.shouldHandleEventMouse = false;
-        }
-        if (!this._hasPointerListeners()) {
-            NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
-        }
     }
 
     public targetOff (target: unknown) {
