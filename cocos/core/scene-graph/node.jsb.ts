@@ -971,3 +971,11 @@ nodeProto._ctor = function (name?: string) {
 };
 //
 clsDecorator(Node);
+
+const oldGetWorldRT = nodeProto.getWorldRT;
+nodeProto.getWorldRT = function (out?: Mat4) {
+    const worldRT = oldGetWorldRT.call(this);
+    const target = out || new Mat4();
+    Mat4.copy(target, worldRT);
+    return target;
+};
