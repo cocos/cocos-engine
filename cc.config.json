@@ -118,7 +118,7 @@
             }
         },
         {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.UI_GPU_DRIVEN",
+            "test": "context.buildTimeConstants && context.buildTimeConstants.UI_GPU_DRIVEN && !context.buildTimeConstants.PREVIEW",
             "isVirtualModule": false,
             "overrides": {
                 "cocos/2d/renderer/batcher-2d.ts": "cocos/2d/renderer/batcher-2d-gpu.ts"
