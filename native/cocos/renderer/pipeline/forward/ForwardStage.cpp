@@ -218,7 +218,6 @@ void ForwardStage::render(scene::Camera *camera) {
 
             _additiveLightQueue->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
 
-            cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }

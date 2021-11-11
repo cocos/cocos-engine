@@ -91,8 +91,6 @@ constexpr DescriptorType DESCRIPTOR_DYNAMIC_TYPE = static_cast<DescriptorType>(
     static_cast<uint32_t>(DescriptorType::DYNAMIC_STORAGE_BUFFER) |
     static_cast<uint32_t>(DescriptorType::DYNAMIC_UNIFORM_BUFFER));
 
-constexpr uint32_t DRAW_INFO_SIZE = 28U;
-
 extern const FormatInfo GFX_FORMAT_INFOS[];
 extern const uint32_t   GFX_TYPE_SIZES[];
 
