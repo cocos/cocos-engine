@@ -35,15 +35,14 @@ import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
-import { Color, Size, Vec3 } from '../../core/math';
+import { color, Size } from '../../core/math';
 import { EventTouch } from '../../input/types';
 import { Node } from '../../core/scene-graph/node';
-import { Label, VerticalTextAlignment } from '../../2d/components/label';
+import { Label, HorizontalTextAlignment, VerticalTextAlignment } from '../../2d/components/label';
 import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { sys } from '../../core/platform/sys';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
@@ -117,6 +116,39 @@ export class EditBox extends Component {
     }
 
     set placeholder (value) {
+        if (!this._placeholderLabel) {
+            // If placeholderLabel doesn't exist, create one.
+            let node = this.node.getChildByName('PLACEHOLDER_LABEL');
+            if (!node) {
+                node = new Node('PLACEHOLDER_LABEL');
+            }
+            let placeholderLabel = node.getComponent(Label);
+            if (!placeholderLabel) {
+                placeholderLabel = node.addComponent(Label);
+            }
+            node.parent = this.node;
+
+            // set default placeholder attributes
+            placeholderLabel.color = color(187, 187, 187, 255);
+            placeholderLabel.fontSize = 20;
+            placeholderLabel.overflow = Label.Overflow.CLAMP;
+            placeholderLabel.horizontalAlign = HorizontalTextAlignment.LEFT;
+            if (this._inputMode === InputMode.ANY) {
+                placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
+            }
+            const trans = this.node._uiProps.uiTransformComp!;
+            const size = trans.contentSize;
+            const offX = -trans.anchorX * trans.width;
+            const offY = -trans.anchorY * trans.height;
+            placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
+            placeholderLabel.lineHeight = size.height;
+            placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
+            const transform = node._uiProps.uiTransformComp;
+            transform!.setAnchorPoint(0, 1);
+
+            this._placeholderLabel = placeholderLabel;
+        }
+
         if (this._placeholderLabel) {
             this._placeholderLabel.string = value;
         }
@@ -568,20 +600,10 @@ export class EditBox extends Component {
     }
 
     protected _updatePlaceholderLabel () {
-        let placeholderLabel = this._placeholderLabel;
+        const placeholderLabel = this._placeholderLabel;
 
-        // If placeholderLabel doesn't exist, create one.
         if (!placeholderLabel) {
-            let node = this.node.getChildByName('PLACEHOLDER_LABEL');
-            if (!node) {
-                node = new Node('PLACEHOLDER_LABEL');
-            }
-            placeholderLabel = node.getComponent(Label);
-            if (!placeholderLabel) {
-                placeholderLabel = node.addComponent(Label);
-            }
-            node.parent = this.node;
-            this._placeholderLabel = placeholderLabel;
+            return;
         }
 
         // update
