@@ -200,8 +200,8 @@ class EventManager {
             }
         }
         this._setDirtyForNode(node);
-        if (recursive === true && node.children.length > 0) {
-            const locChildren = node.children;
+        const locChildren = node.children;
+        if (recursive === true && locChildren.length > 0) {
             if (locChildren) {
                 for (let i = 0; i < locChildren.length; ++i) {
                     const locChild = locChildren[i];
@@ -630,8 +630,8 @@ class EventManager {
                 }
             }
         }
-        if (node.children.length > 0) {
-            const _children = node.children;
+        const _children = node.children;
+        if (_children.length > 0) {
             for (let i = 0, len = _children ? _children.length : 0; i < len; i++) {
                 this._setDirtyForNode(_children[i]);
             }
