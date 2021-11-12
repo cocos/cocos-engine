@@ -37,7 +37,7 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from '../common/enum';
+import { DeferredStagePriority } from '../enum';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
@@ -113,7 +113,7 @@ export class GbufferStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues.forEach(renderQueueClearFunc);
 
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         pipeline.updateQuadVertexData(this._renderArea, camera.window);
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;

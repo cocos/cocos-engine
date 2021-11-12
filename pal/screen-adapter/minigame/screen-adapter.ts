@@ -67,7 +67,9 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get resolution () {
-        return this._resolution;
+        const windowSize = this.windowSize;
+        const resolutionScale = this.resolutionScale;
+        return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
     public get resolutionScale () {
         return this._resolutionScale;
@@ -77,7 +79,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resolutionScale = value;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer?.();
     }
 
     public get orientation (): Orientation {
@@ -116,9 +118,14 @@ class ScreenAdapter extends EventTarget {
         };
     }
 
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) { }
+
     private _cbToUpdateFrameBuffer?: () => void;
-    private _resolution: Size = new Size(0, 0);
     private _resolutionScale = 1;
+    private _isProportionalToFrame = false;
 
     constructor () {
         super();
@@ -127,7 +134,7 @@ class ScreenAdapter extends EventTarget {
 
     public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer();
     }
 
     public requestFullScreen (): Promise<void> {
@@ -135,15 +142,6 @@ class ScreenAdapter extends EventTarget {
     }
     public exitFullScreen (): Promise<void> {
         return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
-    }
-
-    private _updateResolution () {
-        const windowSize = this.windowSize;
-        // update resolution
-        this._resolution.width = windowSize.width * this.resolutionScale;
-        this._resolution.height = windowSize.height * this.resolutionScale;
-        this._cbToUpdateFrameBuffer?.();
-        this.emit('resolution-change');
     }
 }
 

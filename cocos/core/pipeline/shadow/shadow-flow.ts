@@ -31,7 +31,7 @@
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_SHADOW, supportsFloatTexture } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { ForwardFlowPriority } from '../common/enum';
+import { ForwardFlowPriority } from '../enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
     Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
