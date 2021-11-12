@@ -327,14 +327,15 @@ DeferredPipeline.prototype.onLoaded = function () {
 //   }
 // }
 
-setClassName('DeferredPipeline', DeferredPipeline);
-setClassName('MainFlow', MainFlow);
-setClassName('GbufferStage', GbufferStage);
-setClassName('LightingStage', LightingStage);
-setClassName('PostprocessStage', PostprocessStage);
-setClassName('ForwardPipeline', ForwardPipeline);
-setClassName('ForwardFlow', ForwardFlow);
-setClassName('ShadowFlow', ShadowFlow);
-setClassName('ForwardStage', ForwardStage);
-setClassName('ShadowStage', ShadowStage);
-setClassName('RenderQueueDesc', RenderQueueDesc);
+// setClassName('DeferredPipeline', DeferredPipeline);
+// setClassName('GbufferFlow', GbufferFlow);
+// setClassName('GbufferStage', GbufferStage);
+// setClassName('LightingFlow', LightingFlow);
+// setClassName('LightingStage', LightingStage);
+// setClassName('PostprocessStage',PostprocessStage);
+// setClassName('ForwardPipeline', ForwardPipeline);
+// setClassName('ForwardFlow', ForwardFlow);
+// setClassName('ShadowFlow', ShadowFlow);
+// setClassName('ForwardStage', ForwardStage);
+// setClassName('ShadowStage', ShadowStage);
+// setClassName('RenderQueueDesc', RenderQueueDesc);
