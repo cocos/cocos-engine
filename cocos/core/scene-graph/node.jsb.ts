@@ -641,7 +641,7 @@ Object.defineProperty(nodeProto, 'forward', {
         return this.getForward();
     },
     set (dir: Vec3) {
-        this.forward = dir;
+        this.setForward(dir);
     },
 });
 
