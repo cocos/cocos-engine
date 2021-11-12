@@ -28,18 +28,48 @@ import {
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
+import { Material } from '../../assets';
+import { RenderableComponent } from '../../components';
 
 export const MaterialInstance = jsb.MaterialInstance;
 export type MaterialInstance = jsb.MaterialInstance;
 
 const materialInstanceProto:any = jsb.MaterialInstance.prototype;
 
-materialInstanceProto.ctor = function (info) {
-    this._owner = info.owner;
+export interface IMaterialInstanceInfo {
+    parent: Material;
+    owner?: RenderableComponent;
+    subModelIdx?: number;
+}
+
+Object.defineProperty(materialInstanceProto, 'parent', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._parent;
+    },
+});
+
+Object.defineProperty(materialInstanceProto, 'owner', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._owner;
+    },
+});
+
+materialInstanceProto._ctor = function (info: IMaterialInstanceInfo) {
+    this._registerListeners();
+    this._parent = info.parent;
+    this._owner = info.owner || null;
+    this._subModelIdx = info.subModelIdx || 0;
+    this.copy(this._parent);
 };
 
-materialInstanceProto.getOwner = function () {
-    return this._owner;
+materialInstanceProto._onRebuildPSO = function () {
+    if (this._owner) {
+        this._owner._onRebuildPSO(this._subModelIdx, this);
+    }
 };
 
 const clsDecorator = ccclass('cc.MaterialInstance');

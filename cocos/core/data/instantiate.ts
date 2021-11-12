@@ -39,7 +39,7 @@ import { legacyCC } from '../global-exports';
 import { Prefab } from '../assets/prefab';
 import { Node } from '../scene-graph/node';
 import { JSB } from '../default-constants';
-import { updateChildren } from '../utils/jsb-utils';
+import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -122,7 +122,7 @@ export function instantiate (original: any, internalForce?: boolean) {
             clone = original._instantiate(null, true);
             legacyCC.game._isCloning = false;
             if (JSB) {
-                updateChildren(clone);
+                updateChildrenForDeserialize(clone);
             }
             return clone;
         } else if (original instanceof legacyCC.Asset) {
@@ -134,7 +134,7 @@ export function instantiate (original: any, internalForce?: boolean) {
     clone = doInstantiate(original);
     legacyCC.game._isCloning = false;
     if (JSB) {
-        updateChildren(clone);
+        updateChildrenForDeserialize(clone);
     }
     return clone;
 }

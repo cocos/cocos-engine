@@ -31,7 +31,7 @@ import { Node } from './node';
 import { applyTargetOverrides } from "../utils/prefab/utils";
 import { EDITOR, TEST } from "../default-constants";
 import { assert } from "../platform/debug";
-import { updateChildren } from '../utils/jsb-utils';
+import { updateChildrenForDeserialize } from '../utils/jsb-utils';
 
 export const Scene = jsb.Scene;
 export type Scene = jsb.Scene;
@@ -111,7 +111,7 @@ sceneProto._load = function () {
         this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
         this._inited = true;
     }
-    updateChildren(this);
+    updateChildrenForDeserialize(this);
     oldLoad.call(this);
 };
 

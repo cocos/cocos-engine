@@ -35,6 +35,8 @@ import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
 import { assert, errorID } from '../platform/debug';
+import { JSB } from '../default-constants';
+import { updateChildren } from '../utils/jsb-utils';
 
 const MAX_POOL_SIZE = 4;
 
@@ -295,9 +297,13 @@ export default class NodeActivator {
             }
         }
 
-        // activate children recursively
-        for (let i = 0, len = node._children.length; i < len; ++i) {
-            const child = node._children[i];
+        if (JSB) {
+            updateChildren(node);
+        }
+        // activate children  recursively
+        const children = node._children;
+        for (let i = 0, len = children.length; i < len; ++i) {
+            const child = children[i];
             if (child._active) {
                 this._activateNodeRecursively(child, preloadInvoker, onLoadInvoker, onEnableInvoker);
             }
