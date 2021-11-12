@@ -202,19 +202,13 @@ export class Input {
 
     private _frameDispatchEvents () {
         const eventMouseList = this._eventMouseList;
-        const eventTouchList = this._eventTouchList;
-        const eventKeyboardList = this._eventKeyboardList;
-        const eventAccelerationList = this._eventAccelerationList;
-        if (this.dispatchImmediately
-            && eventMouseList.length === 0 && eventTouchList.length === 0 && eventKeyboardList.length === 0 && eventAccelerationList.length === 0) {
-            return;
-        }
         // TODO: culling event queue
         for (let i = 0, length = eventMouseList.length; i < length; ++i) {
             const eventMouse = eventMouseList[i];
             this._eventTarget.emit(eventMouse.type, eventMouse);
         }
 
+        const eventTouchList = this._eventTouchList;
         // TODO: culling event queue
         for (let i = 0, length = eventTouchList.length; i < length; ++i) {
             const eventTouch = eventTouchList[i];
@@ -227,12 +221,14 @@ export class Input {
             }
         }
 
+        const eventKeyboardList = this._eventKeyboardList;
         // TODO: culling event queue
         for (let i = 0, length = eventKeyboardList.length; i < length; ++i) {
             const eventKeyboard = eventKeyboardList[i];
             this._eventTarget.emit(eventKeyboard.type, eventKeyboard);
         }
 
+        const eventAccelerationList = this._eventAccelerationList;
         // TODO: culling event queue
         for (let i = 0, length = eventAccelerationList.length; i < length; ++i) {
             const eventAcceleration = eventAccelerationList[i];
