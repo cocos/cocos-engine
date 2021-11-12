@@ -29,7 +29,7 @@
  * @hidden
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, NATIVE } from 'internal:constants';
 import { TouchInputSource, MouseInputSource, KeyboardInputSource, AccelerometerInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
 import { sys } from '../core/platform/sys';
@@ -94,7 +94,7 @@ export class Input {
      * 输入事件默认会被收集到每一帧主循环里派发，如果你需要立即接收到输入事件，请把该属性设为 true。
      * 注意：如果设置为 true，则输入事件可能会在帧间触发，这样的输入事件是没办法被引擎优化的。
      */
-    public dispatchImmediately = false;
+    private _dispatchImmediately = !NATIVE;
 
     private _eventTarget: EventTarget = new EventTarget();
     private _touchInput = new TouchInputSource();
@@ -179,7 +179,7 @@ export class Input {
     }
 
     private _dispatchOrPushEvent (event: Event, eventList: Event[]) {
-        if (this.dispatchImmediately) {
+        if (this._dispatchImmediately) {
             this._eventTarget.emit(event.type, event);
         } else {
             eventList.push(event);
@@ -187,7 +187,7 @@ export class Input {
     }
 
     private _dispatchOrPushEventTouch (eventTouch: EventTouch, touchEventList: EventTouch[]) {
-        if (this.dispatchImmediately) {
+        if (this._dispatchImmediately) {
             const touches = eventTouch.getTouches();
             const touchesLength = touches.length;
             for (let i = 0; i < touchesLength; ++i) {
