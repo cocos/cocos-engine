@@ -86,21 +86,44 @@ export function defineArrayProxy (options: IArrayProxy) {
 
 function syncNodeValue (node: Node) {
     const lpos = node._lpos;
-    node.setPositionForJS(lpos.x, lpos.y, lpos.z);
+    let x = lpos.x;
+    let y = lpos.y;
+    let z = lpos.z;
+    if (x !== null && y !== null && z !== null) {
+        node.setPositionForJS(x, y, z);
+    }
 
     const lscale = node._lscale;
-    node.setScaleForJS(lscale.x, lscale.y, lscale.z);
+    x = lscale.x;
+    y = lscale.y;
+    z = lscale.z;
+    if (x !== null && y !== null && z !== null) {
+        node.setScaleForJS(x, y, z);
+    }
 
     const lrot = node._lrot;
-    node.setRotationForJS(lrot.x, lrot.y, lrot.z, lrot.w);
+    x = lrot.x;
+    y = lrot.y;
+    z = lrot.z;
+    const w = lrot.w;
+    if (x !== null && y !== null && z !== null && w != null) {
+        node.setRotationForJS(x, y, z, w);
+    }
 
-    node.setLayerForJS(node._layer);
+    if (node._layer !== null) {
+        node.setLayerForJS(node._layer);
+    }
 
     const euler = node._euler;
-    node.setRotationFromEulerForJS(euler.x, euler.y, euler.z);
+    x = euler.x;
+    y = euler.y;
+    z = euler.z;
+    if (x !== null && y !== null && z !== null) {
+        node.setRotationFromEulerForJS(euler.x, euler.y, euler.z);
+    }
 }
 
-export function updateChildren (node: Node) {
+export function updateChildrenForDeserialize (node: Node) {
     if (!node) {
         return;
     }
@@ -109,8 +132,7 @@ export function updateChildren (node: Node) {
     for (let i = 0, len = node._children.length; i < len; ++i) {
         const child = node._children[i];
         jsb.registerNativeRef(node, child);
-        updateChildren(child);
-        syncNodeValue(child);
+        updateChildrenForDeserialize(child);
     }
     Object.defineProperty(node, '_children', {
         enumerable: true,
@@ -122,4 +144,33 @@ export function updateChildren (node: Node) {
             this._setChildren(v);
         },
     });
+    node._isChildrenRedefined = true;
+}
+
+export function updateChildren (node: Node) {
+    if (!node) {
+        return;
+    }
+
+    const children = node.getChildren(); // cjh OPTIMIZE:  children is a GC object
+    for (let i = 0, len = children.length; i < len; ++i) {
+        const child = children[i];
+        updateChildren(child);
+    }
+
+    if (node._isChildrenRedefined) {
+        return;
+    }
+
+    Object.defineProperty(node, '_children', {
+        enumerable: true,
+        configurable: true,
+        get () {
+            return this.getChildren();
+        },
+        set (v) {
+            this._setChildren(v);
+        },
+    });
+    node._isChildrenRedefined = true;
 }

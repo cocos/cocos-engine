@@ -980,12 +980,21 @@ nodeProto._ctor = function (name?: string) {
     // });
 
     this._children = [];
+    this._isChildrenRedefined = false;
 
     this._lpos = new Vec3();
     this._lrot = new Quat();
     this._lscale = new Vec3(1, 1, 1);
-    this._layer = Layers.Enum.DEFAULT;
+    this._layer = null;// Layers.Enum.DEFAULT;
     this._euler = new Vec3();
+    const lpos = this._lpos;
+    lpos.x = lpos.y = lpos.z = null;
+    const lrot = this._lrot;
+    lrot.x = lrot.y = lrot.z = lrot.w = null;
+    const lscale = this._lscale;
+    lscale.x = lscale.y = lscale.z = null;
+    const euler = this._euler;
+    euler.x = euler.y = euler.z = null;
 };
 //
 clsDecorator(Node);
