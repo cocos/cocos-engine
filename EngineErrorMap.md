@@ -620,6 +620,9 @@ Invalid index in MultiplexLayer switchTo message
 <!-- DEPRECATED -->
 cc.Layer.addLayer(): layer should be non-null
 
+### 2104
+Layer collision. The name of layer (%s) is collided with the name or value of some layer
+
 ### 2200
 
 Design resolution not valid
