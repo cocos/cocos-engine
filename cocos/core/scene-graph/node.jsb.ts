@@ -84,7 +84,7 @@ const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
-function getConstructor<T> (typeOrClassName) {
+function getConstructor<T>(typeOrClassName) {
     if (!typeOrClassName) {
         return null;
     }
@@ -215,32 +215,32 @@ nodeProto.removeComponent = function (component) {
 
 nodeProto.on = function (type, callback, target, useCapture) {
     switch (type) {
-    case NodeEventType.TRANSFORM_CHANGED:
-        // this._eventMask |= TRANSFORM_ON;
-        this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
+        case NodeEventType.TRANSFORM_CHANGED:
+            // this._eventMask |= TRANSFORM_ON;
+            this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
 
-        this._registerOnTransformChanged();
-        this._eventProcessor.on(type, callback, target, useCapture);
-        break;
-    case NodeEventType.PARENT_CHANGED:
-        this._registerOnParentChanged();
-        this._eventProcessor.on(type, callback, target, useCapture);
-        break;
-    case NodeEventType.LAYER_CHANGED:
-        this._registerOnLayerChanged();
-        this._eventProcessor.on(type, callback, target, useCapture);
-        break;
-    case NodeEventType.CHILD_REMOVED:
-        this._registerOnChildRemoved();
-        this._eventProcessor.on(type, callback, target, useCapture);
-        break;
-    case NodeEventType.CHILD_ADDED:
-        this._registerOnChildAdded();
-        this._eventProcessor.on(type, callback, target, useCapture);
-        break;
-    default:
-        this._eventProcessor.on(type, callback, target, useCapture);
-        break;
+            this._registerOnTransformChanged();
+            this._eventProcessor.on(type, callback, target, useCapture);
+            break;
+        case NodeEventType.PARENT_CHANGED:
+            this._registerOnParentChanged();
+            this._eventProcessor.on(type, callback, target, useCapture);
+            break;
+        case NodeEventType.LAYER_CHANGED:
+            this._registerOnLayerChanged();
+            this._eventProcessor.on(type, callback, target, useCapture);
+            break;
+        case NodeEventType.CHILD_REMOVED:
+            this._registerOnChildRemoved();
+            this._eventProcessor.on(type, callback, target, useCapture);
+            break;
+        case NodeEventType.CHILD_ADDED:
+            this._registerOnChildAdded();
+            this._eventProcessor.on(type, callback, target, useCapture);
+            break;
+        default:
+            this._eventProcessor.on(type, callback, target, useCapture);
+            break;
     }
 };
 
@@ -251,12 +251,12 @@ nodeProto.off = function (type: string, callback?, target?, useCapture = false) 
     // All listener removed
     if (!hasListeners) {
         switch (type) {
-        case NodeEventType.TRANSFORM_CHANGED:
-            // this._eventMask &= ~TRANSFORM_ON;
-            this.setEventMask(this.getEventMask() & ~TRANSFORM_ON);
-            break;
-        default:
-            break;
+            case NodeEventType.TRANSFORM_CHANGED:
+                // this._eventMask &= ~TRANSFORM_ON;
+                this.setEventMask(this.getEventMask() & ~TRANSFORM_ON);
+                break;
+            default:
+                break;
         }
     }
 };
@@ -448,7 +448,7 @@ NodeCls._findChildComponents = function (children, constructor, components) {
  * @en Determine whether the given object is a normal Node. Will return false if [[Scene]] given.
  * @zh 指定对象是否是普通的节点？如果传入 [[Scene]] 会返回 false。
  */
-NodeCls.isNode =  function (obj: unknown): obj is jsb.Node {
+NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
     return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof legacyCC.Scene));
 };
 
@@ -464,12 +464,12 @@ const oldGetForward = nodeProto.getForward;
 const oldGetUp = nodeProto.getUp;
 const oldGetRight = nodeProto.getRight;
 
-nodeProto.getPosition = function (out?: Vec3) : Vec3 {
+nodeProto.getPosition = function (out?: Vec3): Vec3 {
     const r = oldGetPosition.call(this);
     if (out) {
         return Vec3.set(out, r.x, r.y, r.z);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._position || (this._position = new Vec3()), r);
 };
 
 nodeProto.getRotation = function (out?: Quat): Quat {
@@ -477,85 +477,85 @@ nodeProto.getRotation = function (out?: Quat): Quat {
     if (out) {
         return Quat.set(out, r.x, r.y, r.z, r.w);
     }
-    return Quat.copy(new Quat(), r);
+    return Quat.copy(this._rotation || (this._rotation = new Quat()), r);
 };
 
-nodeProto.getScale = function (out?: Vec3) : Vec3 {
+nodeProto.getScale = function (out?: Vec3): Vec3 {
     const r = oldGetScale.call(this);
     if (out) {
         return Vec3.set(out, r.x, r.y, r.z);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._scale || (this._scale = new Vec3()), r);
 };
 
-nodeProto.getWorldPosition = function (out?: Vec3) : Vec3 {
+nodeProto.getWorldPosition = function (out?: Vec3): Vec3 {
     const r = oldGetWorldPosition.call(this);
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._worldPosition || (this._worldPosition = new Vec3()), r);
 };
 
-nodeProto.getWorldRotation = function (out?: Quat) : Quat {
+nodeProto.getWorldRotation = function (out?: Quat): Quat {
     const r = oldGetWorldRotation.call(this);
     if (out) {
         return Quat.copy(out, r);
     }
-    return Quat.copy(new Quat(), r);
+    return Quat.copy(this._worldRotation || (this._worldRotation = new Quat()), r);
 };
 
-nodeProto.getWorldScale = function (out?: Vec3) : Vec3 {
+nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
     const r = oldGetWorldScale.call(this);
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._worldScale || (this._worldScale = new Vec3()), r);
 };
 
-nodeProto.getWorldMatrix = function (out?: Mat4) : Mat4 {
+nodeProto.getWorldMatrix = function (out?: Mat4): Mat4 {
     const r = oldGetWorldMatrix.call(this);
-    const target = out || new Mat4();
+    const target = out || this._worldMatrix || (this._worldMatrix = new Mat4());
     return Mat4.copy(target, r);
 };
 
-nodeProto.getEulerAngles = function (out?: Vec3) : Vec3 {
+nodeProto.getEulerAngles = function (out?: Vec3): Vec3 {
     const r = oldEulerAngles.call(this);
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._eulerAngles || (this._eulerAngles = new Vec3()), r);
 };
 
-nodeProto.getForward = function (out?: Vec3) : Vec3 {
+nodeProto.getForward = function (out?: Vec3): Vec3 {
     const r = oldGetForward.call(this);
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._forward || (this._forward = new Vec3()), r);
 };
 
-nodeProto.getUp = function (out?: Vec3) : Vec3 {
+nodeProto.getUp = function (out?: Vec3): Vec3 {
     const r = oldGetUp.call(this);
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._up || (this._up = new Vec3()), r);
 };
 
-nodeProto.getRight = function (out?: Vec3) : Vec3 {
+nodeProto.getRight = function (out?: Vec3): Vec3 {
     const r = oldGetRight.call(this);
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(new Vec3(), r);
+    return Vec3.copy(this._right || (this._right = new Vec3()), r);
 };
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getPosition();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setPosition(v as Vec3);
     },
 });
@@ -563,10 +563,10 @@ Object.defineProperty(nodeProto, 'position', {
 Object.defineProperty(nodeProto, 'rotation', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Quat> {
+    get(): Readonly<Quat> {
         return this.getRotation();
     },
-    set (v: Readonly<Quat>) {
+    set(v: Readonly<Quat>) {
         this.setRotation(v as Quat);
     },
 });
@@ -574,10 +574,10 @@ Object.defineProperty(nodeProto, 'rotation', {
 Object.defineProperty(nodeProto, 'scale', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getScale();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setScale(v as Vec3);
     },
 });
@@ -585,10 +585,10 @@ Object.defineProperty(nodeProto, 'scale', {
 Object.defineProperty(nodeProto, 'worldPosition', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getWorldPosition();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setWorldPosition(v as Vec3);
     },
 });
@@ -596,10 +596,10 @@ Object.defineProperty(nodeProto, 'worldPosition', {
 Object.defineProperty(nodeProto, 'worldRotation', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Quat> {
+    get(): Readonly<Quat> {
         return this.getWorldRotation();
     },
-    set (v: Readonly<Quat>) {
+    set(v: Readonly<Quat>) {
         this.setWorldRotation(v as Quat);
     },
 });
@@ -607,10 +607,10 @@ Object.defineProperty(nodeProto, 'worldRotation', {
 Object.defineProperty(nodeProto, 'worldScale', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getWorldScale();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setWorldScale(v as Vec3);
     },
 });
@@ -618,10 +618,10 @@ Object.defineProperty(nodeProto, 'worldScale', {
 Object.defineProperty(nodeProto, 'eulerAngles', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getEulerAngles();
     },
-    set (v: Readonly<Vec3>) {
+    set(v: Readonly<Vec3>) {
         this.setRotationFromEuler(v.x, v.y, v.z);
     },
 });
@@ -629,7 +629,7 @@ Object.defineProperty(nodeProto, 'eulerAngles', {
 Object.defineProperty(nodeProto, 'worldMatrix', {
     configurable: true,
     enumerable: true,
-    get () : Readonly<Vec3> {
+    get(): Readonly<Vec3> {
         return this.getWorldMatrix();
     },
 });
@@ -637,10 +637,10 @@ Object.defineProperty(nodeProto, 'worldMatrix', {
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
-    get () : Vec3 {
+    get(): Vec3 {
         return this.getForward();
     },
-    set (dir: Vec3) {
+    set(dir: Vec3) {
         this.setForward(dir);
     },
 });
@@ -648,7 +648,7 @@ Object.defineProperty(nodeProto, 'forward', {
 Object.defineProperty(nodeProto, 'up', {
     configurable: true,
     enumerable: true,
-    get () : Vec3 {
+    get(): Vec3 {
         return this.getUp();
     },
 });
@@ -656,7 +656,7 @@ Object.defineProperty(nodeProto, 'up', {
 Object.defineProperty(nodeProto, 'right', {
     configurable: true,
     enumerable: true,
-    get () : Vec3 {
+    get(): Vec3 {
         return this.getRight();
     },
 });
@@ -664,7 +664,7 @@ Object.defineProperty(nodeProto, 'right', {
 Object.defineProperty(nodeProto, 'eventProcessor', {
     configurable: true,
     enumerable: true,
-    get () : NodeEventProcessor {
+    get(): NodeEventProcessor {
         return this._eventProcessor;
     },
 });
@@ -672,7 +672,7 @@ Object.defineProperty(nodeProto, 'eventProcessor', {
 Object.defineProperty(nodeProto, 'components', {
     configurable: true,
     enumerable: true,
-    get () : ReadonlyArray<Component> {
+    get(): ReadonlyArray<Component> {
         return this._components;
     },
 });
@@ -680,10 +680,10 @@ Object.defineProperty(nodeProto, 'components', {
 Object.defineProperty(nodeProto, '_parent', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._parentInternal;
     },
-    set (v) {
+    set(v) {
         jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
         this._parentInternal = v;
     },
@@ -692,10 +692,10 @@ Object.defineProperty(nodeProto, '_parent', {
 Object.defineProperty(nodeProto, 'parent', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this.getParent();
     },
-    set (v) {
+    set(v) {
         jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
         this.setParent(v);
     },
@@ -704,10 +704,10 @@ Object.defineProperty(nodeProto, 'parent', {
 Object.defineProperty(nodeProto, 'children', {
     configurable: true,
     enumerable: true,
-    get () {
+    get() {
         return this._children;
     },
-    set (v) {
+    set(v) {
         this._children = v;
     },
 });
@@ -825,7 +825,7 @@ _applyDecoratedDescriptor(_class2$u.prototype, '_name', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return '';
     },
 });
@@ -834,7 +834,7 @@ _applyDecoratedDescriptor(_class2$u.prototype, '_objFlags', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return 0;
     },
 });
@@ -844,7 +844,7 @@ const _descriptor$o = _applyDecoratedDescriptor(_class2$u.prototype, '_parent', 
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return null;
     },
 });
@@ -853,7 +853,7 @@ const _descriptor2$h = _applyDecoratedDescriptor(_class2$u.prototype, '_children
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return [];
     },
 });
@@ -862,7 +862,7 @@ const _descriptor3$b = _applyDecoratedDescriptor(_class2$u.prototype, '_active',
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return true;
     },
 });
@@ -871,7 +871,7 @@ const _descriptor4$9 = _applyDecoratedDescriptor(_class2$u.prototype, '_componen
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return [];
     },
 });
@@ -880,7 +880,7 @@ const _descriptor5$6 = _applyDecoratedDescriptor(_class2$u.prototype, '_prefab',
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return null;
     },
 });
@@ -891,7 +891,7 @@ const _descriptor$p = _applyDecoratedDescriptor(_class2$v.prototype, '_lpos', [s
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return new Vec3();
     },
 });
@@ -900,7 +900,7 @@ const _descriptor2$i = _applyDecoratedDescriptor(_class2$v.prototype, '_lrot', [
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return new Quat();
     },
 });
@@ -909,7 +909,7 @@ const _descriptor3$c = _applyDecoratedDescriptor(_class2$v.prototype, '_lscale',
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return new Vec3(1, 1, 1);
     },
 });
@@ -918,7 +918,7 @@ const _descriptor4$a = _applyDecoratedDescriptor(_class2$v.prototype, '_layer', 
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return Layers.Enum.DEFAULT;
     },
 });
@@ -927,7 +927,7 @@ const _descriptor5$7 = _applyDecoratedDescriptor(_class2$v.prototype, '_euler', 
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer () {
+    initializer: function initializer() {
         return new Vec3();
     },
 });
@@ -995,6 +995,11 @@ nodeProto._ctor = function (name?: string) {
     lscale.x = lscale.y = lscale.z = null;
     const euler = this._euler;
     euler.x = euler.y = euler.z = null;
+
+    //inner use properties
+    //_worldRT, _position, _rotation, _scale, _worldPosition,
+    //_worldRotation, _worldScale, _worldMatrix, _eulerAngles,
+    //_forward, _up, _right
 };
 //
 clsDecorator(Node);
@@ -1002,7 +1007,7 @@ clsDecorator(Node);
 const oldGetWorldRT = nodeProto.getWorldRT;
 nodeProto.getWorldRT = function (out?: Mat4) {
     const worldRT = oldGetWorldRT.call(this);
-    const target = out || new Mat4();
+    const target = out || this._worldRT || (this._worldRT = new Mat4());
     Mat4.copy(target, worldRT);
     return target;
 };
