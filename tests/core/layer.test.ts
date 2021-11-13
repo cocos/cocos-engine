@@ -33,7 +33,8 @@ test('layer operate', () => {
     expect(Layers.layerToName(25)).toBe('UI_2D');
 
     Layers.addLayer('test', 10);
-    expect(Layers.Enum['test']).toBeTruthy();
+    expect(Layers.Enum['test']).toBe(1 << 10);
+    expect(Layers.BitMask['test']).toBe(1 << 10);
     expect(Layers.nameToLayer('test')).toBe(10);
     expect(Layers.layerToName(10)).toBe('test');
     expect(Layers.makeMaskInclude([1 << Layers.nameToLayer('test')])).toBe(Layers.Enum['test']);
