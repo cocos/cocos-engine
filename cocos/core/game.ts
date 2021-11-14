@@ -916,13 +916,13 @@ export class Game extends EventTarget {
         systemInfo.on('hide', this._onHide, this);
     }
 
-    private _onHide () {
-        this.emit(Game.EVENT_HIDE);
+    private _onHide (...args: any[]) {
+        this.emit(Game.EVENT_HIDE, ...args);
         this.pause();
     }
 
-    private _onShow () {
-        this.emit(Game.EVENT_SHOW);
+    private _onShow (...args: any[]) {
+        this.emit(Game.EVENT_SHOW, ...args);
         this.resume();
     }
 

@@ -121,11 +121,11 @@ class SystemInfo extends EventTarget {
     }
 
     private _registerEvent () {
-        minigame.onHide(() => {
-            this.emit('hide');
+        minigame.onHide((...args: any[]) => {
+            this.emit('hide', ...args);
         });
-        minigame.onShow(() => {
-            this.emit('show');
+        minigame.onShow((...args: any[]) => {
+            this.emit('show', ...args);
         });
     }
 
