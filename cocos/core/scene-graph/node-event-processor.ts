@@ -249,14 +249,10 @@ export class NodeEventProcessor {
      * We need to inject some nodeEventProcessor's logic into the `callbacksInvoker.off` method.
      * @returns {CallbacksInvoker<SystemEventTypeUnion>} decorated callbacks invoker
      */
-    private _newDecoratedCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
+    private _newCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
         const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
-        // decorate off method
-        const offMethod = callbacksInvoker.off;
-        callbacksInvoker.off = (...args: any) => {
-            offMethod.apply(callbacksInvoker, args);
-
-            // Injected logic
+        // @ts-expect-error Property '_registerOffCallback' is private
+        callbacksInvoker._registerOffCallback(() => {
             if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
                 this.shouldHandleEventTouch = false;
             }
@@ -266,7 +262,7 @@ export class NodeEventProcessor {
             if (!this._hasPointerListeners()) {
                 NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
             }
-        };
+        });
         return callbacksInvoker;
     }
 
@@ -275,9 +271,9 @@ export class NodeEventProcessor {
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= this._newDecoratedCallbacksInvoker();
+            invoker = this.capturingTarget ??= this._newCallbacksInvoker();
         } else {
-            invoker = this.bubblingTarget ??= this._newDecoratedCallbacksInvoker();
+            invoker = this.bubblingTarget ??= this._newCallbacksInvoker();
         }
         invoker.on(type, callback, target);
         return callback;
@@ -288,9 +284,9 @@ export class NodeEventProcessor {
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= this._newDecoratedCallbacksInvoker();
+            invoker = this.capturingTarget ??= this._newCallbacksInvoker();
         } else {
-            invoker = this.bubblingTarget ??= this._newDecoratedCallbacksInvoker();
+            invoker = this.bubblingTarget ??= this._newCallbacksInvoker();
         }
 
         invoker.on(type, callback, target, true);
