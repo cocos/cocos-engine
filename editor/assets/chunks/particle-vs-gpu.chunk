@@ -76,6 +76,7 @@ vec4 scaleAndAdd (vec4 a, vec4 b, float scale) {
   return a;
 }
 
+// Vulkan compatible issue#9858, do not use large number (more than 100) in mod function
 float pseudoRandom(float x) {
   float o = x;
   x = mod(x - 1.0, 2.0) - 1.0;
