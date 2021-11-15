@@ -28,6 +28,7 @@
  * @module scene-graph
  */
 
+import { JSB } from 'internal:constants';
 import { UIComponent } from '../../2d/framework/ui-component';
 import { Renderable2D } from '../../2d/framework/renderable-2d';
 import { UITransform } from '../../2d/framework/ui-transform';
@@ -79,9 +80,25 @@ export class NodeUIProperties {
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 
-    public uiTransformDirty = true;
+    public declare uiTransformDirty: boolean;
+    private declare _uiTransformDirty: Uint32Array;
 
     constructor (node: any) {
         this._node = node;
+
+        if (JSB) {
+            this._uiTransformDirty = new Uint32Array(1);
+            Object.defineProperty(this, 'uiTransformDirty',
+                {
+                    get (): boolean {
+                        return this._uiTransformDirty[0] !== 0;
+                    },
+                    set (val: boolean) {
+                        this._uiTransformDirty[0] = val ? 1 : 0;
+                    },
+                });
+        } else {
+            this.uiTransformDirty = false;
+        }
     }
 }
