@@ -17,6 +17,11 @@ float CCGetLinearDepth(vec3 worldPos) {
   return CCGetLinearDepthFromViewSpace(viewStartPos.xyz);
 }
 
+float CCGetViewSpaceDepth(float shadowHS)
+{
+   return cc_shadowProjDepthInfo.y / (shadow - cc_shadowProjDepthInfo.x);
+}
+
 #if CC_RECEIVE_SHADOW
   #pragma builtin(global)
   layout(set = 0, binding = 3) uniform sampler2D cc_shadowMap;
