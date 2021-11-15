@@ -76,17 +76,14 @@ vec4 scaleAndAdd (vec4 a, vec4 b, float scale) {
   return a;
 }
 
-float tent1(float x) {
-  return max(0.0, 1.0-abs(x));
-}
-
 float pseudoRandom(float x) {
   float o = x;
   x = mod(x - 1.0, 2.0) - 1.0;
-  float y = sin(3.1415927*(sqrt(5.0)+1.0)*floor((o-1.0)/2.0)); // some pseudorandom hash
-  float v = tent1(x);
-  v *= sqrt(0.5); // fix sheared 'distance' measurements - but this is 1D so unsure it's even a good thing to try
-  if (y < 0.0) v = -v;
+  float freqVar = 10.16640753482; //3.1415927*(sqrt(5.0)+1.0);
+  float y = sin(freqVar * floor(o * 0.5 - 0.5)); // some pseudorandom hash
+  float v = max(0.0, 1.0-abs(x));
+  v *= 0.7071067812; // fix sheared 'distance' measurements - but this is 1D so unsure it's even a good thing to try
+  v = y < 0.0 ? -v : v;
   return v;
 }
 
