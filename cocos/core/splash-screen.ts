@@ -98,11 +98,11 @@ export class SplashScreen {
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
 
-    public pauseRendering(){
+    public pauseRendering () {
         this.isPause = true;
     }
 
-    public resumeRendering(){
+    public resumeRendering () {
         this.isPause = false;
     }
 
@@ -275,7 +275,7 @@ export class SplashScreen {
                 this.watermarkMat.setProperty('u_projection', this.projection);
                 this.watermarkMat.passes[0].update();
             }
-            if(!this.isPause){
+            if (!this.isPause) {
                 this.frame();
                 if (elapsedTime > settings.totalTime) this.splashFinish = true;
             }
