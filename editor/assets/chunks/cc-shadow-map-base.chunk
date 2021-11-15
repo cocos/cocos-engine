@@ -17,9 +17,9 @@ float CCGetLinearDepth(vec3 worldPos) {
   return CCGetLinearDepthFromViewSpace(viewStartPos.xyz);
 }
 
-float CCGetViewSpaceDepth(float shadowHS)
+float CCGetViewSpaceDepth(float depthHS)
 {
-   return cc_shadowProjDepthInfo.y / (shadow - cc_shadowProjDepthInfo.x);
+   return cc_shadowProjDepthInfo.y / (depthHS - cc_shadowProjDepthInfo.x);
 }
 
 #if CC_RECEIVE_SHADOW
