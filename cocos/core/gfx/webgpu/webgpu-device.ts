@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 /* eslint-disable new-cap */
 /* eslint-disable dot-notation */
 import glslang from '@webgpu/glslang/dist/web-devel/glslang';/* eslint-disable @typescript-eslint/no-floating-promises */
@@ -5,7 +6,7 @@ import { Device } from '../base/device';
 import {
     DeviceInfo, RenderPassInfo, SwapchainInfo, SampleCount, FramebufferInfo, BufferTextureCopy,
     SamplerInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo, ShaderInfo,
-    InputAssemblerInfo, CommandBufferInfo, QueueInfo, QueueType, CommandBufferType,
+    InputAssemblerInfo, CommandBufferInfo, QueueInfo, QueueType, CommandBufferType, FormatInfos,
 } from '../base/define';
 import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { RenderPass } from '../base/render-pass';
@@ -303,25 +304,32 @@ export class WebGPUDevice extends Device {
         (this._nativeDevice as any).copyBuffersToTexture(bufferDataList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
-    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void {
-        const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
-        for (let i = 0; i < regions.length; i++) {
-            const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
-            bufferTextureCopy.buffStride = regions[i].buffStride;
-            bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
-            bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
-            bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
-            bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
-            bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
-            bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
-            bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
-            bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
-            bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
-            bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
-            bufferTextureCopyList.push_back(bufferTextureCopy);
-        }
-        buffers = (this._nativeDevice as any).copyTextureToBuffers((texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
-        const buff = buffers;
+    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): Promise<void> {
+        console.log('copyTextureToBuffers not fully implemented for sync issue on native webgpu.');
+
+        // const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();
+        // for (let i = 0; i < regions.length; i++) {
+        //     const bufferTextureCopy = new nativeLib.BufferTextureCopyInstance();
+        //     bufferTextureCopy.buffStride = regions[i].buffStride;
+        //     bufferTextureCopy.buffTexHeight = regions[i].buffTexHeight;
+        //     bufferTextureCopy.texOffset.x = regions[i].texOffset.x;
+        //     bufferTextureCopy.texOffset.y = regions[i].texOffset.y;
+        //     bufferTextureCopy.texOffset.z = regions[i].texOffset.z;
+        //     bufferTextureCopy.texExtent.width = regions[i].texExtent.width;
+        //     bufferTextureCopy.texExtent.height = regions[i].texExtent.height;
+        //     bufferTextureCopy.texExtent.depth = regions[i].texExtent.depth;
+        //     bufferTextureCopy.texSubres.mipLevel = regions[i].texSubres.mipLevel;
+        //     bufferTextureCopy.texSubres.baseArrayLayer = regions[i].texSubres.baseArrayLayer;
+        //     bufferTextureCopy.texSubres.layerCount = regions[i].texSubres.layerCount;
+        //     bufferTextureCopyList.push_back(bufferTextureCopy);
+        // }
+
+        // (this._nativeDevice as any).copyTextureToBuffers((texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
+        // while (!(this._nativeDevice as any).copyProgressDone()) {
+
+        // }
+        // buffers = (this._nativeDevice as any).getResultBuffer();
+        // console.log(buffers);
     }
 
     public copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void {
