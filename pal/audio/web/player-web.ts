@@ -46,10 +46,7 @@ export class AudioContextAgent {
             // Force running audio context if state is not 'running', may be 'suspended' or 'interrupted'.
             const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             const onGesture = () => {
-                context.resume().then(() => {
-                    console.log('test');
-                    resolve();
-                }).catch((e) => {});
+                context.resume().then(resolve).catch((e) => {});
             };
             canvas?.addEventListener('touchend', onGesture, { once: true, capture: true });
             canvas?.addEventListener('mouseup', onGesture, { once: true, capture: true });
