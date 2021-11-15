@@ -76,8 +76,8 @@ void Game::onPause() {
 }
 
 void Game::onResume() {
-    cc::Application::onResume();
     cc::EventDispatcher::dispatchEnterForegroundEvent();
+    cc::Application::onResume();
 }
 
 void Game::onClose() {

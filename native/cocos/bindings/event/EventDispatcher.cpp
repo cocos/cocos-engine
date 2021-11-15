@@ -24,11 +24,13 @@
 ****************************************************************************/
 
 #include "EventDispatcher.h"
-
 #include "cocos/bindings/event/CustomEventTypes.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
-
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include "platform/win32/View-win32.h"
+extern std::shared_ptr<cc::View> cc_get_application_view();
+#endif
 namespace {
 se::Value                 tickVal;
 std::vector<se::Object *> jsTouchObjPool;
@@ -41,6 +43,7 @@ bool                      inited                = false;
 } // namespace
 
 namespace cc {
+
 std::unordered_map<std::string, EventDispatcher::Node *> EventDispatcher::listeners;
 uint32_t                                                 EventDispatcher::hashListenerId = 1;
 
@@ -290,7 +293,7 @@ void EventDispatcher::dispatchEnterBackgroundEvent() {
 }
 
 void EventDispatcher::dispatchEnterForegroundEvent() {
-    EventDispatcher::doDispatchEvent(EVENT_COME_TO_FOREGROUND, "onResume", se::EmptyValueArray);
+    EventDispatcher::doDispatchEvent(EVENT_COME_TO_FOREGROUND, "onResume", se::EmptyValueArray); 
 }
 
 void EventDispatcher::dispatchMemoryWarningEvent() {
@@ -305,6 +308,15 @@ void EventDispatcher::dispatchCloseEvent() {
     EventDispatcher::doDispatchEvent(EVENT_CLOSE, "onClose", se::EmptyValueArray);
 }
 
+void EventDispatcher::dispatchDestroyWindowEvent() {
+    EventDispatcher::doDispatchEvent(EVENT_DESTROY_WINDOW, "", se::EmptyValueArray);
+}
+
+void EventDispatcher::dispatchRecreateWindowEvent() {
+    EventDispatcher::doDispatchEvent(EVENT_RECREATE_WINDOW, "", se::EmptyValueArray);
+}
+
+
 void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunctionName, const std::vector<se::Value> &args) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;
@@ -313,6 +325,9 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
     if (eventName) {
         CustomEvent event;
         event.name = eventName;
+        #if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        event.args->ptrVal = cc_get_application_view()->getWindowHandler();
+        #endif
         EventDispatcher::dispatchCustomEvent(event);
     }
 

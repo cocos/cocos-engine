@@ -59,13 +59,10 @@ void Application::restartVM() {
     scheduler->unscheduleAll();
 
     scriptEngine->cleanup();
+    cc::gfx::DeviceManager::destroy();
     cc::EventDispatcher::destroy();
-
-    // start
-
-    cc::EventDispatcher::init();
     init();
-    cc::gfx::DeviceManager::addSurfaceEventListener();
+    cc::EventDispatcher::init();
 }
 
 void Application::close() { // NOLINT
