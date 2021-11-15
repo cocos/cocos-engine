@@ -86,6 +86,7 @@ export class PipelineSceneData {
       * @en The list for render objects, only available after the scene culling of the current frame.
       * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
       */
+    public validPunctualLights: Light[] = [];
     public renderObjects: IRenderObject[] = [];
     public castShadowObjects: IRenderObject[] = [];
     public dirShadowObjects: IRenderObject[] = [];

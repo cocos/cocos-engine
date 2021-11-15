@@ -39,10 +39,11 @@ import { RenderPass, LoadOp, StoreOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
-import { Shadows, ShadowType } from '../../renderer/scene/shadows';
+import { ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
-import { lightCollecting } from '../scene-culling';
 import { Camera } from '../../renderer/scene';
+
+const _validLights: Light[] = [];
 
 /**
  * @en Shadow map render flow
@@ -81,7 +82,7 @@ export class ShadowFlow extends RenderFlow {
         const castShadowObjects = pipeline.pipelineSceneData.castShadowObjects;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        const validLights = lightCollecting(camera, shadowInfo.maxReceived);
+        const validLights = this.lightCollecting(shadowInfo.maxReceived);
 
         if (castShadowObjects.length === 0) {
             this.clearShadowMap(validLights, camera);
@@ -90,10 +91,24 @@ export class ShadowFlow extends RenderFlow {
 
         if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(); }
 
+        const { mainLight } = camera.scene!;
+        if (mainLight) {
+            const globalDS = pipeline.descriptorSet;
+            if (!shadowFrameBufferMap.has(mainLight)) {
+                this._initShadowFrameBuffer(pipeline, mainLight, camera.window.swapchain);
+            }
+
+            const shadowFrameBuffer = shadowFrameBufferMap.get(mainLight);
+            for (let i = 0; i < this._stages.length; i++) {
+                const shadowStage = this._stages[i] as ShadowStage;
+                shadowStage.setUsage(globalDS, mainLight, shadowFrameBuffer!);
+                shadowStage.render(camera);
+            }
+        }
+
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
-            const isMainLight = light.type === LightType.DIRECTIONAL;
-            const globalDS = isMainLight ? pipeline.descriptorSet : pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
+            const globalDS = pipeline.globalDSManager.getOrCreateDescriptorSet(l)!;
 
             if (!shadowFrameBufferMap.has(light)) {
                 this._initShadowFrameBuffer(pipeline, light, camera.window.swapchain);
@@ -189,13 +204,44 @@ export class ShadowFlow extends RenderFlow {
         shadowFrameBufferMap.set(light, shadowFrameBuffer);
     }
 
+    private lightCollecting (maxReceived: number) {
+        _validLights.length = 0;
+        const received = maxReceived - 1;
+
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
+        for (let i = 0; i < validPunctualLights.length; i++) {
+            const light = validPunctualLights[i];
+            if (_validLights.length < received && light.type === LightType.SPOT) {
+                _validLights.push(light);
+            }
+        }
+
+        return _validLights;
+    }
+
     private clearShadowMap (validLights: Light[], camera: Camera) {
-        const scene = this._pipeline.pipelineSceneData;
+        const pipeline = this._pipeline;
+        const scene = pipeline.pipelineSceneData;
+
+        const { mainLight } = camera.scene!;
+        if (mainLight) {
+            const globalDS = this._pipeline.descriptorSet;
+            if (!scene.shadowFrameBufferMap.has(mainLight)) {
+                this._initShadowFrameBuffer(this._pipeline, mainLight, camera.window.swapchain);
+            }
+
+            const shadowFrameBuffer = scene.shadowFrameBufferMap.get(mainLight);
+            for (let i = 0; i < this._stages.length; i++) {
+                const shadowStage = this._stages[i] as ShadowStage;
+                shadowStage.setUsage(globalDS, mainLight, shadowFrameBuffer!);
+                shadowStage.render(camera);
+            }
+        }
+
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
-            const isMainLight = light.type === LightType.DIRECTIONAL;
             const shadowFrameBuffer = scene.shadowFrameBufferMap.get(light);
-            const globalDS = isMainLight ? this._pipeline.descriptorSet : this._pipeline.globalDSManager.getOrCreateDescriptorSet(l - 1)!;
+            const globalDS = pipeline.globalDSManager.getOrCreateDescriptorSet(l)!;
 
             if (!scene.shadowFrameBufferMap.has(light)) { continue; }
 
