@@ -11,7 +11,7 @@ CCEffect %{
         mainColor:      { value: [1, 1, 1, 1], linear: true, editor: { type: color } }
         colorScale:     { value: [1, 1, 1], target: colorScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: colorScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        color:          { target: mainColor, linear: true, editor: { visible: false } } # backward compability
+        color:          { target: mainColor, editor: { visible: false } } # backward compability
       migrations: &migs
         properties:
           mainColor:    { formerlySerializedAs: color }
