@@ -147,7 +147,7 @@ export const sliced: IAssembler = {
 
         // buffer data may be realloc, need get reference after request.
         const vBuf: Float32Array|null = buffer.vData;
-        // const  uintbuf = buffer._uintVData,
+        const uintbuf = buffer.uintVData;
         const iBuf: Uint16Array|null = buffer.iData;
 
         for (let i = 4; i < 20; ++i) {
@@ -159,9 +159,7 @@ export const sliced: IAssembler = {
             vBuf![vertexOffset++] = vert.z;
             vBuf![vertexOffset++] = uvs.u;
             vBuf![vertexOffset++] = uvs.v;
-            Color.toArray(vBuf!, dataList[i].color, vertexOffset);
-            vertexOffset += 4;
-            // uintbuf[vertexOffset++] = color;
+            uintbuf![vertexOffset++] = vert.color;
         }
 
         for (let r = 0; r < 3; ++r) {
@@ -196,16 +194,11 @@ export const sliced: IAssembler = {
     updateColor (sprite: Sprite) {
         const datalist = sprite.renderData!.data;
 
-        const color = sprite.color;
-        const colorR = color.r;
-        const colorG = color.g;
-        const colorB = color.b;
         const colorA = sprite.node._uiProps.opacity * 255;
+        let color = sprite.color._val;
+        color = ((color & 0x00ffffff) | (colorA << 24)) >>> 0;
         for (let i = 4; i < 20; i++) {
-            datalist[i].color.r = colorR;
-            datalist[i].color.g = colorG;
-            datalist[i].color.b = colorB;
-            datalist[i].color.a = colorA;
+            datalist[i].color = color;
         }
     },
 };

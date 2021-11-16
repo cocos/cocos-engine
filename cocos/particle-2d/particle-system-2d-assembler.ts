@@ -71,7 +71,7 @@ export const ParticleAssembler: IAssembler = {
         const vData = renderData.vData;
         const iData = renderData.iData as number[];
 
-        const vLen = renderData.vertexCount * 9;
+        const vLen = renderData.vertexCount * 6;
         for (let i = 0; i < vLen; i++) {
             vBuf[vertexOffset++] = vData[i];
         }

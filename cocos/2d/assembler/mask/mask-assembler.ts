@@ -60,7 +60,8 @@ export const maskAssembler: IAssembler = {
         renderData.vertexCount = 4;
         renderData.indicesCount = 6;
 
-        renderData.vData = new Float32Array(4 * 9);
+        renderData.vData = new Float32Array(4 * 6);
+        renderData.vDataUint = new Uint32Array(renderData.vData.buffer);
         return renderData;
     },
 

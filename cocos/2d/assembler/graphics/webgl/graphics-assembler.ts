@@ -49,7 +49,7 @@ const cos = Math.cos;
 const sin = Math.sin;
 const atan2 = Math.atan2;
 
-const attrBytes = 8;
+const attrBytes = 5;
 
 let _renderData: MeshRenderData | null = null;
 let _impl: Impl | null = null;
@@ -674,14 +674,14 @@ export const graphicsAssembler: IAssembler = {
         const meshBuffer = _renderData;
         let dataOffset = meshBuffer.vertexStart * attrBytes;
         const vData = meshBuffer.vData;
+        const uintData = meshBuffer.vDataUint;
         // vec3.set(_tempVec3, x, y, 0);
         // vec3.transformMat4(_tempVec3, _tempVec3, _currMatrix);
 
         vData[dataOffset++] = x;
         vData[dataOffset++] = y;
         vData[dataOffset++] = 0;
-        Color.toArray(vData, _curColor, dataOffset);
-        dataOffset += 4;
+        uintData[dataOffset++] = _curColor._val;
         vData[dataOffset++] = distance;
         meshBuffer.vertexStart++;
     },

@@ -166,7 +166,7 @@ export const MotionStreakAssembler: IAssembler = {
             data[offset].y = point.y + _normal.y * stroke;
             data[offset].u = 1;
             data[offset].v = progress;
-            data[offset].color._val = c;
+            data[offset].color = c;
 
             offset += 1;
 
@@ -174,7 +174,7 @@ export const MotionStreakAssembler: IAssembler = {
             data[offset].y = point.y - _normal.y * stroke;
             data[offset].u = 0;
             data[offset].v = progress;
-            data[offset].color._val = c;
+            data[offset].color = c;
 
             verticesCount += 2;
         }
@@ -223,6 +223,7 @@ export const MotionStreakAssembler: IAssembler = {
         // buffer data may be reallocated, need get reference after request.
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
+        const uintbuf = buffer.uintVData!;
         const vertexCount = renderData.vertexCount;
         const indicesCount = renderData.indicesCount;
 
@@ -233,8 +234,7 @@ export const MotionStreakAssembler: IAssembler = {
             vBuf[vertexOffset++] = vert.z;
             vBuf[vertexOffset++] = vert.u;
             vBuf[vertexOffset++] = vert.v;
-            Color.toArray(vBuf, vert.color, vertexOffset);
-            vertexOffset += 4;
+            uintbuf[vertexOffset++] = vert.color;
         }
 
         // fill index data

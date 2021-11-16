@@ -17,8 +17,8 @@ import { legacyCC } from '../../core/global-exports';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
-const STRIDE_FLOAT = 9;
-const STRIDE_BYTES = 9 * 4;
+const STRIDE_FLOAT = 6;
+const STRIDE_BYTES = 6 * 4;
 
 const _boneColor = new Color(255, 0, 0, 255);
 const _slotColor = new Color(0, 0, 255, 255);
@@ -47,7 +47,7 @@ let _vertexCount: number;
 let _indexCount: number;
 let _x: number;
 let _y: number;
-const _c = new Float32Array(4);
+let _c: number;
 let _handleVal: number;
 let _m00: number;
 let _m04: number;
@@ -90,20 +90,12 @@ function _getSlotMaterial (tex: TextureBase | null, blendMode: BlendMode) {
 function _handleColor (color: {r:number, g:number, b:number, a:number}, parentOpacity: number) {
     const _a = color.a * parentOpacity * _nodeA;
     const _multiply = _premultipliedAlpha ? _a / 255.0 : 1.0;
-    const _r = color.r * _nodeR * _multiply / 255.0;
-    const _g = color.g * _nodeG * _multiply / 255.0;
-    const _b = color.b * _nodeB * _multiply / 255.0;
-    _c[0] = _r;
-    _c[1] = _g;
-    _c[2] = _b;
-    _c[3] = _premultipliedAlpha ? 1.0 : _a / 255.0;
+    const _r = color.r * _nodeR * _multiply;
+    const _g = color.g * _nodeG * _multiply;
+    const _b = color.b * _nodeB * _multiply;
+    _c = ((_a << 24) >>> 0) + (_b << 16) + (_g << 8) + _r;
 }
-function _intToColor (v:number) {
-    _c[0] = (0xFF & (v >>> 24)) / 255.0;
-    _c[1] = (0xFF & (v >>> 16)) / 255.0;
-    _c[2] = (0xFF & (v >>> 8)) / 255.0;
-    _c[3] = (0xFF & (v >>> 0)) / 255.0;
-}
+
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
@@ -177,6 +169,7 @@ export const simple: IAssembler = {
 function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parentOpacity: number) {
     const slots = armature._slots;
     let vbuf: Float32Array;
+    let uintbuf: Uint32Array;
     let ibuf: Uint16Array;
     let material: MaterialInstance;
     let vertices: number[];
@@ -242,6 +235,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;
         ibuf = _buffer!.renderData.iData;
+        uintbuf = _buffer!.renderData.vDataUint;
 
         _m00 = slotMat.m00;
         _m04 = slotMat.m04;
@@ -261,7 +255,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
             vbuf[_vfOffset + 3] = vertices[vi++]; // u
             vbuf[_vfOffset + 4] = vertices[vi++]; // v
 
-            vbuf.set(_c, _vfOffset + 5);// color
+            uintbuf[_vfOffset + 5] = _c; // color
             _vfOffset += STRIDE_FLOAT;
         }
 
@@ -279,11 +273,11 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     if (segments.length === 0) return;
 
     let vbuf: Float32Array;
+    let uintbuf: Uint32Array;
     let ibuf: Uint16Array;
     let material: MaterialInstance;
     // let offsetInfo;
     const vertices = frame.vertices;
-    const colorArray = new Uint32Array(vertices.buffer);
     const indices = frame.indices;
 
     let frameVFOffset = 0; let frameIndexOffset = 0; let segVFCount = 0;
@@ -334,6 +328,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;
         ibuf = _buffer!.renderData.iData;
+        uintbuf = _buffer!.renderData.vDataUint;
 
         for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
             ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
@@ -346,8 +341,8 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
             vbuf[jj + 1] =  vertices[ii++];
             vbuf[jj + 3] =  vertices[ii++];
             vbuf[jj + 4] =  vertices[ii++];
-            _intToColor(colorArray[ii++]);
-            vbuf.set(_c, jj + 5);
+            ii++;
+            uintbuf[jj + 5] = _c;
             jj += STRIDE_FLOAT;
         }
 
@@ -379,7 +374,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
                 _handleColor(nowColor, 1.0);
                 maxVFOffset = nowColor.vfOffset!;
             }
-            vbuf.set(_c, ii);
+            uintbuf[ii] = _c;
         }
     }
 }

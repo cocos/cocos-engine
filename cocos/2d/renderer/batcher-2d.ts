@@ -80,7 +80,7 @@ export class Batcher2D implements IBatcher {
      * @param attributes
      */
     public acquireBufferBatch (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
-        const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
+        const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 24 /* 6x4 */ : VertexFormat.getAttributeStride(attributes);
         if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes) !== strideBytes) {
             this._requireBufferBatch(attributes);
             return this._currMeshBuffer;

@@ -52,7 +52,8 @@ export const simple: IAssembler = {
         renderData.vertexCount = 4;
         renderData.indicesCount = 6;
 
-        renderData.vData = new Float32Array(4 * 9);
+        renderData.vData = new Float32Array(4 * 6);
+        renderData.vDataUint = new Uint32Array(renderData.vData.buffer);
 
         return renderData;
     },
@@ -117,14 +118,14 @@ export const simple: IAssembler = {
             vData[0] = vltx;
             vData[1] = vbty;
             // right bottom
-            vData[9] = vrtx;
-            vData[10] = vbty;
+            vData[6] = vrtx;
+            vData[7] = vbty;
             // left top
-            vData[18] = vltx;
-            vData[19] = vtty;
+            vData[12] = vltx;
+            vData[13] = vtty;
             // right top
-            vData[27] = vrtx;
-            vData[28] = vtty;
+            vData[18] = vrtx;
+            vData[19] = vtty;
         } else {
             const al = a * vl; const ar = a * vr;
             const bl = b * vl; const br = b * vr;
@@ -140,14 +141,14 @@ export const simple: IAssembler = {
             vData[0] = al + cbtx;
             vData[1] = bl + dbty;
             // right bottom
-            vData[9] = ar + cbtx;
-            vData[10] = br + dbty;
+            vData[6] = ar + cbtx;
+            vData[7] = br + dbty;
             // left top
-            vData[18] = al + cttx;
-            vData[19] = bl + dtty;
+            vData[12] = al + cttx;
+            vData[13] = bl + dtty;
             // right top
-            vData[27] = ar + cttx;
-            vData[28] = br + dtty;
+            vData[18] = ar + cttx;
+            vData[19] = br + dtty;
         }
     },
 
@@ -257,32 +258,26 @@ export const simple: IAssembler = {
         const uv = sprite.spriteFrame!.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
-        vData[12] = uv[2];
-        vData[13] = uv[3];
-        vData[21] = uv[4];
-        vData[22] = uv[5];
-        vData[30] = uv[6];
-        vData[31] = uv[7];
+        vData[9] = uv[2];
+        vData[10] = uv[3];
+        vData[15] = uv[4];
+        vData[16] = uv[5];
+        vData[21] = uv[6];
+        vData[22] = uv[7];
 
         renderData.uvDirty = false;
     },
 
     updateColor (sprite: Sprite) {
-        const vData = sprite.renderData!.vData;
+        const vData = sprite.renderData!.vDataUint!;
 
+        const a = sprite.node._uiProps.opacity * 255;
+        let c = sprite.color._val;
+        c = (c & 0x00ffffff) | (a << 24);
         let colorOffset = 5;
-        const color = sprite.color;
-        const colorR = color.r / 255;
-        const colorG = color.g / 255;
-        const colorB = color.b / 255;
-        const colorA = sprite.node._uiProps.opacity;
         for (let i = 0; i < 4; i++) {
-            vData![colorOffset] = colorR;
-            vData![colorOffset + 1] = colorG;
-            vData![colorOffset + 2] = colorB;
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
+            vData[colorOffset] = c;
+            colorOffset += 6;
         }
     },
 };

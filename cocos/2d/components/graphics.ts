@@ -41,7 +41,7 @@ import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
 import { RenderingSubMesh } from '../../core/assets';
 import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, MemoryUsageBit } from '../../core/gfx';
-import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
+import { vfmtPosColor, getAttributeStride, getSizePerVertex } from '../renderer/vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
 
@@ -49,7 +49,7 @@ const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
 ]);
 
-const componentPerVertex = getComponentPerVertex(attributes);
+const sizePerVertex = getSizePerVertex(attributes);
 
 const stride = getAttributeStride(attributes);
 
@@ -626,7 +626,7 @@ export class Graphics extends Renderable2D {
                 continue;
             }
 
-            const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * componentPerVertex);
+            const vb = new Float32Array(renderData.vData.buffer, 0, renderData.vertexStart * sizePerVertex / Float32Array.BYTES_PER_ELEMENT);
             ia.vertexBuffers[0].update(vb);
             ia.vertexCount = renderData.vertexStart;
             const ib = new Uint16Array(renderData.iData.buffer, 0, renderData.indicesStart);

@@ -50,14 +50,15 @@ export const ttf: IAssembler = {
         renderData.vertexCount = 4;
         renderData.indicesCount = 6;
 
-        const vData =  renderData.vData = new Float32Array(4 * 9);
+        const vData =  renderData.vData = new Float32Array(4 * 6);
+        const uintData = renderData.vDataUint = new Uint32Array(vData.buffer);
 
-        vData[3] = vData[21] = vData[22] = vData[31] = 0;
-        vData[4] = vData[12] = vData[13] = vData[30] = 1;
+        vData[3] = vData[15] = vData[16] = vData[22] = 0;
+        vData[4] = vData[9] = vData[10] = vData[21] = 1;
         let offset = 5;
         for (let i = 0; i < 4; i++) {
-            Color.toArray(vData, WHITE, offset);
-            offset += 9;
+            uintData[offset] = WHITE._val;
+            offset += 6;
         }
         return renderData;
     },
@@ -104,14 +105,14 @@ export const ttf: IAssembler = {
         vData[0] = cx1 * ax + cx2 * ay + x;
         vData[1] = cy1 * ay + cy2 * ax + y;
         // right bottom
-        vData[9] = cx1 * bx + cx2 * ay + x;
-        vData[10] = cy1 * ay + cy2 * bx + y;
+        vData[6] = cx1 * bx + cx2 * ay + x;
+        vData[7] = cy1 * ay + cy2 * bx + y;
         // left top
-        vData[18] = cx1 * ax + cx2 * by + x;
-        vData[19] = cy1 * by + cy2 * ax + y;
+        vData[12] = cx1 * ax + cx2 * by + x;
+        vData[13] = cy1 * by + cy2 * ax + y;
         // right top
-        vData[27] = cx1 * bx + cx2 * by + x;
-        vData[28] = cy1 * by + cy2 * bx + y;
+        vData[18] = cx1 * bx + cx2 * by + x;
+        vData[19] = cy1 * by + cy2 * bx + y;
 
         vBuf.set(vData, vertexOffset);
 
@@ -156,12 +157,12 @@ export const ttf: IAssembler = {
         const uv = comp.ttfSpriteFrame!.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
-        vData[12] = uv[2];
-        vData[13] = uv[3];
-        vData[21] = uv[4];
-        vData[22] = uv[5];
-        vData[30] = uv[6];
-        vData[31] = uv[7];
+        vData[9] = uv[2];
+        vData[10] = uv[3];
+        vData[15] = uv[4];
+        vData[16] = uv[5];
+        vData[21] = uv[6];
+        vData[22] = uv[7];
 
         renderData.uvDirty = false;
     },

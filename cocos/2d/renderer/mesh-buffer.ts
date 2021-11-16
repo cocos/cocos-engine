@@ -29,7 +29,7 @@
  */
 import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo, InputAssembler } from '../../core/gfx';
 import { IBatcher } from './i-batcher';
-import { getComponentPerVertex } from './vertex-format';
+import { getSizePerVertex } from './vertex-format';
 
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
@@ -39,6 +39,7 @@ export class MeshBuffer {
     get indexBuffer () { return this._indexBuffer; }
 
     public vData: Float32Array | null = null;
+    public uintVData: Uint32Array | null = null;
     public iData: Uint16Array | null = null;
 
     public byteStart = 0;
@@ -76,16 +77,14 @@ export class MeshBuffer {
 
     public initialize (attrs: Attribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
-        const formatBytes = getComponentPerVertex(attrs);
-        this._vertexFormatBytes = formatBytes * Float32Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = 256 * this._vertexFormatBytes;
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * formatBytes;
+        const vbStride = this._vertexFormatBytes = getSizePerVertex(attrs);
+        this._initVDataCount = 256 * vbStride;
 
         if (!this.vertexBuffers.length) {
             this.vertexBuffers.push(this._batcher.device.createBuffer(new BufferInfo(
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                vbStride,
+                vbStride * 256,
                 vbStride,
             )));
         }
@@ -96,7 +95,7 @@ export class MeshBuffer {
             this._indexBuffer = this._batcher.device.createBuffer(new BufferInfo(
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                ibStride,
+                ibStride * 256,
                 ibStride,
             ));
         }
@@ -223,6 +222,7 @@ export class MeshBuffer {
         }
 
         this.vData = new Float32Array(this._initVDataCount);
+        this.uintVData = new Uint32Array(this.vData.buffer);
 
         if (oldVData && copyOldData) {
             const newData = new Uint8Array(this.vData.buffer);

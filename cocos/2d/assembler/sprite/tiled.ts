@@ -29,7 +29,7 @@
  */
 
 import { IUV } from '../../assets';
-import { Mat4, Vec3, Color } from '../../../core/math';
+import { Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
@@ -41,7 +41,7 @@ for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
-const _perVertexLength = 9;
+const _perVertexLength = 6;
 
 export const tiled: IAssembler = {
     createData (sprite: Renderable2D) {
@@ -146,7 +146,9 @@ export const tiled: IAssembler = {
         const matrix = node.worldMatrix;
 
         const datalist = renderData.data;
-        this.fillVertices(vBuf, vertexOffset, matrix, row, col, datalist);
+        const uintData = buffer.uintVData!;
+        // fillVertices & Color
+        this.fillVertices(vBuf, vertexOffset, matrix, row, col, datalist, uintData);
 
         const offset = _perVertexLength;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
@@ -248,12 +250,6 @@ export const tiled: IAssembler = {
                 // rt
                 vBuf[vertexOffsetU + offset3] = tempXVerts[3];
                 vBuf[vertexOffsetV + offset3] = tempYVerts[3];
-                // color
-                // Hack: the color is same
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + 1);
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset1 + 1);
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset2 + 1);
-                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset3 + 1);
                 vertexOffset += offset4;
             }
         }
@@ -270,11 +266,13 @@ export const tiled: IAssembler = {
         }
     },
 
-    fillVertices (vBuf: Float32Array, vertexOffset: number, matrix: Mat4, row: number, col: number, dataList: IRenderData[]) {
+    fillVertices (vBuf: Float32Array, vertexOffset: number, matrix: Mat4, row: number, col: number, dataList: IRenderData[], uintBuf: Uint8Array) {
         let x = 0; let x1 = 0; let y = 0; let y1 = 0;
+        let color = 0;
         for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
             y = dataList[yIndex].y;
             y1 = dataList[yIndex + 1].y;
+            color = dataList[yIndex].color;
             for (let xIndex = 0, xLength = col; xIndex < xLength; ++xIndex) {
                 x = dataList[xIndex].x;
                 x1 = dataList[xIndex + 1].x;
@@ -291,9 +289,10 @@ export const tiled: IAssembler = {
                     vBuf[vertexOffset + offset] = vec3_temp.x;
                     vBuf[vertexOffset + offset + 1] = vec3_temp.y;
                     vBuf[vertexOffset + offset + 2] = vec3_temp.z;
+                    uintBuf[vertexOffset + offset + 5] = color;
                 }
 
-                vertexOffset += 36;
+                vertexOffset += 24;
             }
         }
     },
@@ -380,16 +379,11 @@ export const tiled: IAssembler = {
         const datalist = sprite.renderData!.data;
         const length = datalist.length;
         if (length === 0) return;
-        const color = sprite.color;
-        const colorR = color.r;
-        const colorG = color.g;
-        const colorB = color.b;
+        let color = sprite.color._val;
         const colorA = sprite.node._uiProps.opacity * 255;
+        color = ((color & 0x00ffffff) | (colorA << 24)) >>> 0;
         for (let i = 0; i < length; i++) {
-            datalist[i].color.r = colorR;
-            datalist[i].color.g = colorG;
-            datalist[i].color.b = colorB;
-            datalist[i].color.a = colorA;
+            datalist[i].color = color;
         }
     },
 };

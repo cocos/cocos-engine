@@ -43,7 +43,7 @@ export interface IRenderData {
     z: number;
     u: number;
     v: number;
-    color: Color;
+    color: number;
 }
 
 export class BaseRenderData {
@@ -94,6 +94,7 @@ export class RenderData extends BaseRenderData {
     }
 
     public vData: Float32Array | null = null;
+    public vDataUint: Uint32Array | null = null;
 
     public uvDirty = true;
     public vertDirty = true;
@@ -214,6 +215,7 @@ export class RenderData extends BaseRenderData {
 
 export class MeshRenderData extends BaseRenderData {
     public vData: Float32Array;
+    public vDataUint: Uint32Array;
     public iData: Uint16Array;
     /**
      * Each vertex contains multiple float numbers
@@ -231,10 +233,11 @@ export class MeshRenderData extends BaseRenderData {
 
     private _formatByte:number;
 
-    constructor (vertexFloatCnt = 9) {
+    constructor (vertexFloatCnt = 6) {
         super();
         this._formatByte = vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT;
         this.vData = new Float32Array(256 * vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT);
+        this.vDataUint = new Uint32Array(this.vData.buffer);
         this.iData = new Uint16Array(256 * 6);
     }
 
@@ -320,6 +323,7 @@ export class MeshRenderData extends BaseRenderData {
         const oldVData = this.vData;
         this.vData = new Float32Array(vCount);
         this.vData.set(oldVData, 0);
+        this.vDataUint = new Uint32Array(this.vData.buffer);
         const oldIData = this.iData;
         this.iData = new Uint16Array(iCount);
         this.iData.set(oldIData, 0);
@@ -354,7 +358,7 @@ const _dataPool = new Pool(() => ({
     z: 0,
     u: 0,
     v: 0,
-    color: Color.WHITE.clone(),
+    color: Color.WHITE.clone()._val,
 }), 128);
 
 const _pool = new RecyclePool(() => new RenderData(), 32);
