@@ -28,6 +28,7 @@
  * @module memop
  */
 
+import { warnID } from '../platform/debug';
 import { ScalableContainer } from './scalable-container';
 
 /**
@@ -48,6 +49,7 @@ export class Pool<T> extends ScalableContainer {
      * @zh 使用元素的构造器和初始大小的构造函数
      * @param ctor The allocator of elements in pool, it's invoked directly without `new`
      * @param elementsPerBatch Initial pool size, this size will also be the incremental size when the pool is overloaded
+     * @param dtor The finalizer of element, it's invoked when this container is destroyed or shrunk
      */
     constructor (ctor: () => T, elementsPerBatch: number, dtor?: (obj: T) => void) {
         super();
@@ -99,7 +101,7 @@ export class Pool<T> extends ScalableContainer {
     }
 
     public tryShrink () {
-        if (this._nextAvail > this._elementsPerBatch << 1) {
+        if (this._nextAvail >> 1 > this._elementsPerBatch) {
             if (this._dtor) {
                 for (let i = this._nextAvail >> 1; i <= this._nextAvail; i++) {
                     this._dtor(this._freepool[i]);
@@ -113,10 +115,10 @@ export class Pool<T> extends ScalableContainer {
     /**
      * @en Destroy all elements and clear the pool.
      * @zh 释放对象池中所有资源并清空缓存池。
-     * @param dtor The destructor function, it will be invoked for all elements in the pool
      */
-    public destroy (dtor?: (obj: T) => void) {
-        super.destroy();
+    public destroy () {
+        const dtor = arguments.length > 0 ? arguments[0] : null;
+        if (dtor) { warnID(14100); }
         const readDtor = dtor || this._dtor;
         if (readDtor) {
             for (let i = 0; i <= this._nextAvail; i++) {
@@ -125,5 +127,6 @@ export class Pool<T> extends ScalableContainer {
         }
         this._freepool.length = 0;
         this._nextAvail = -1;
+        super.destroy();
     }
 }

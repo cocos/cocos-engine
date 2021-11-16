@@ -174,7 +174,6 @@ export class MeshBuffer extends ScalableContainer {
     }
 
     public destroy () {
-        super.destroy();
         this._attributes = null!;
 
         this.vertexBuffers[0].destroy();
@@ -187,6 +186,7 @@ export class MeshBuffer extends ScalableContainer {
             this._hInputAssemblers[i].destroy();
         }
         this._hInputAssemblers.length = 0;
+        super.destroy();
     }
 
     public recordBatch (): InputAssembler | null {

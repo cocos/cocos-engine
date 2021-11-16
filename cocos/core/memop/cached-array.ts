@@ -126,9 +126,9 @@ export class CachedArray<T> extends ScalableContainer {
      * 清空数组所有元素。[[length]] 会被设为 0，并且清空内部数组
      */
     public destroy () {
-        super.destroy();
         this.length = 0;
         this.array.length = 0;
+        super.destroy();
     }
 
     public tryShrink () {

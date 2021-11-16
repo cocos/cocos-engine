@@ -53,6 +53,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @zh 使用元素的构造器和初始大小的构造函数，所有元素都会被预创建。
      * @param fn The allocator of elements in pool, it's invoked directly without `new`
      * @param size Initial pool size
+     * @param dtor The finalizer of element, it's invoked when this container is destroyed or shrunk
      */
     constructor (fn: () => T, size: number, dtor?: (obj: T) => void) {
         super();
@@ -117,7 +118,6 @@ export class RecyclePool<T = any> extends ScalableContainer {
     }
 
     public destroy () {
-        super.destroy();
         if (this._dtor) {
             for (let i = 0; i < this._data.length; i++) {
                 this._dtor(this._data[i]);
@@ -125,6 +125,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
         }
         this._data.length = 0;
         this._count = 0;
+        super.destroy();
     }
 
     public tryShrink () {
