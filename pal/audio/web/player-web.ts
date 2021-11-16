@@ -11,7 +11,7 @@ import { audioBufferManager } from '../audio-buffer-manager';
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 export class AudioContextAgent {
     public static support = !!AudioContextClass;
-    public _context: AudioContext;
+    private _context: AudioContext;
     constructor () {
         this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
     }
@@ -36,22 +36,20 @@ export class AudioContextAgent {
         return new Promise((resolve) => {
             const context = this._context;
             if (!context.resume) {
-                return resolve();
+                resolve();
+                return;
             }
             if (context.state === 'running') {
-                return resolve();
+                resolve();
+                return;
             }
-            context.resume().catch((e) => {});
-            // promise rejection cannot be caught, need to check running state again
-            if (<string>context.state !== 'running') {
-                const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-                const onGesture = () => {
-                    context.resume().then(resolve).catch((e) => {});
-                };
-                canvas?.addEventListener('touchend', onGesture, { once: true });
-                canvas?.addEventListener('mousedown', onGesture, { once: true });
-            }
-            return null;
+            // Force running audio context if state is not 'running', may be 'suspended' or 'interrupted'.
+            const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            const onGesture = () => {
+                context.resume().then(resolve).catch((e) => {});
+            };
+            canvas?.addEventListener('touchend', onGesture, { once: true, capture: true });
+            canvas?.addEventListener('mouseup', onGesture, { once: true, capture: true });
         });
     }
 
@@ -133,9 +131,9 @@ export class OneShotAudioWeb {
         if (EDITOR) {
             return;
         }
+        this._bufferSourceNode.start();
         // audioContextAgent does exist
         audioContextAgent!.runContext().then(() => {
-            this._bufferSourceNode.start();
             this.onPlay?.();
             this._currentTimer = window.setTimeout(() => {
                 audioBufferManager.tryReleasingCache(this._url);
@@ -308,12 +306,12 @@ export class AudioPlayerWeb implements OperationQueueable {
     // so we define this method to ensure that the audio seeking works.
     private _doPlay (): Promise<void> {
         return new Promise((resolve) => {
+            // one AudioBufferSourceNode can't start twice
+            this._stopSourceNode();
+            this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
+            this._sourceNode.connect(this._gainNode);
+            this._sourceNode.start(0, this._audioTimer.currentTime);
             audioContextAgent!.runContext().then(() => {
-                // one AudioBufferSourceNode can't start twice
-                this._stopSourceNode();
-                this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
-                this._sourceNode.connect(this._gainNode);
-                this._sourceNode.start(0, this._audioTimer.currentTime);
                 this._state = AudioState.PLAYING;
                 this._audioTimer.start();
 

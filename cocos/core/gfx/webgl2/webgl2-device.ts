@@ -50,7 +50,7 @@ import { WebGL2Queue } from './webgl2-queue';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2Sampler } from './states/webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
-import { WebGL2Swapchain, getExtensions } from './webgl2-swapchain';
+import { WebGL2Swapchain, getExtensions, getContext } from './webgl2-swapchain';
 import { WebGL2Texture } from './webgl2-texture';
 import {
     CommandBufferType, DescriptorSetLayoutInfo, DescriptorSetInfo,
@@ -67,7 +67,7 @@ import { WebGL2DeviceManager } from './webgl2-define';
 
 export class WebGL2Device extends Device {
     get gl () {
-        return this._swapchain!.gl;
+        return this._context!;
     }
 
     get extensions () {
@@ -87,6 +87,7 @@ export class WebGL2Device extends Device {
     }
 
     private _swapchain: WebGL2Swapchain | null = null;
+    private _context: WebGL2RenderingContext | null = null;
 
     public initialize (info: DeviceInfo): boolean {
         WebGL2DeviceManager.setInstance(this);
@@ -96,13 +97,7 @@ export class WebGL2Device extends Device {
         if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
         if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
 
-        let gl: WebGL2RenderingContext | null = null;
-
-        try {
-            gl = document.createElement('canvas').getContext('webgl2');
-        } catch (err) {
-            console.error(err);
-        }
+        const gl = this._context = getContext(Device.canvas);
 
         if (!gl) {
             console.error('This device does not support WebGL.');

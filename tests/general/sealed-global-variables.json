@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-08-24T10:14:20.085Z"
+        "stamp": "2021-11-09T10:07:10.295Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -135,6 +135,8 @@
         "cc.GFXPipelineStateInfo",
         "cc.GFXPolygonMode",
         "cc.GFXPrimitiveMode",
+        "cc.GFXQueryPoolInfo",
+        "cc.GFXQueryType",
         "cc.GFXQueue",
         "cc.GFXQueueInfo",
         "cc.GFXQueueType",

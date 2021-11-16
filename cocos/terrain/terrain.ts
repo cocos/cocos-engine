@@ -390,7 +390,7 @@ export class TerrainBlock {
         this._renderable._model.node = this._renderable._model.transform = this._node;
         // ensure the terrain node is in the scene
         if (this._renderable.node.scene != null) {
-            this._renderable._getRenderScene().addModel(this._renderable._model);
+            this.visible = true;
         }
 
         // reset weightmap
@@ -415,6 +415,7 @@ export class TerrainBlock {
     }
 
     public destroy () {
+        this.visible = false;
         this._renderable._destroyModel();
 
         if (this._node != null && this._node.isValid) {
@@ -673,7 +674,8 @@ export class TerrainBlock {
             if (val) {
                 if (this._terrain.node != null
                     && this._terrain.node.scene != null
-                    && this._terrain.node.scene.renderScene != null) {
+                    && this._terrain.node.scene.renderScene != null
+                    && this._renderable._model.scene == null) {
                     this._terrain.node.scene.renderScene.addModel(this._renderable._model);
                 }
             } else if (this._renderable._model.scene !== null) {
@@ -1083,6 +1085,7 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _lodBias = 0;
 
+    protected _buitinAsset : TerrainAsset|null = null;
     protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize = 128;
@@ -1108,8 +1111,10 @@ export class Terrain extends Component {
     @type(TerrainAsset)
     @visible(true)
     public set _asset (value: TerrainAsset|null) {
-        if (this.__asset !== value) {
-            this.__asset = value;
+        this.__asset = value;
+
+        if (this._buitinAsset !== this.__asset) {
+            this._buitinAsset = this.__asset;
 
             // destroy all block
             for (let i = 0; i < this._blocks.length; ++i) {
@@ -1136,8 +1141,8 @@ export class Terrain extends Component {
                 this._blocks = [];
             }
 
-             // Ensure device is created
-             if (legacyCC.director.root.device) {
+            // Ensure device is created
+            if (legacyCC.director.root.device) {
                 // rebuild
                 this._buildImp();
             }
@@ -1527,7 +1532,7 @@ export class Terrain extends Component {
     }
 
     public onRestore () {
-        this.onDisable();
+        this.onEnable();
         this._buildImp(true);
     }
 

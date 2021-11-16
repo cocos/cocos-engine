@@ -34,6 +34,12 @@ declare module 'pal/screen-adapter' {
          */
         public isFrameRotated: boolean;
         /**
+         * On web platform, we support to set container strategy.
+         * This field record whether we apply ProportionalToFrame strategy on container, which is false by default.
+         */
+        public get isProportionalToFrame (): boolean;
+        public set isProportionalToFrame (v: boolean);
+        /**
          * In some case we don't want to handle the resize event.
          * For example, when the soft keyboard shows up, we don't want to resize the canvas.
          * This is true by default.

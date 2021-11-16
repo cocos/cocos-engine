@@ -593,7 +593,11 @@ export function initializeWorld (world: any) {
             const allocator = new PX.PxDefaultAllocator();
             const defaultErrorCallback = new PX.PxDefaultErrorCallback();
             const foundation = PhysXInstance.foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
-            if (DEBUG) PhysXInstance.pvd = PX.PxCreatePvd(foundation);
+            if (DEBUG) {
+                PhysXInstance.pvd = PX.PxCreatePvd(foundation);
+            } else {
+                PhysXInstance.pvd = null;
+            }
             const scale = new PX.PxTolerancesScale();
             PhysXInstance.physics = PX.physics = PX.PxCreatePhysics(version, foundation, scale, false, PhysXInstance.pvd);
             PhysXInstance.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));
