@@ -84,6 +84,9 @@ const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
+const _tempFloatArray = new Float32Array([0, 0, 0, 0]); // For getPosition, getRotation, getScale
+Node._setTempFloatArray(_tempFloatArray.buffer);
+
 function getConstructor<T>(typeOrClassName) {
     if (!typeOrClassName) {
         return null;
@@ -465,11 +468,15 @@ const oldGetUp = nodeProto.getUp;
 const oldGetRight = nodeProto.getRight;
 
 nodeProto.getPosition = function (out?: Vec3): Vec3 {
-    const r = oldGetPosition.call(this);
+    oldGetPosition.call(this);
     if (out) {
-        return Vec3.set(out, r.x, r.y, r.z);
+        return Vec3.set(out, _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
     }
-    return Vec3.copy(this._positionCache || (this._positionCache = new Vec3()), r);
+    const pos = this._positionCache;
+    pos.x = _tempFloatArray[0];
+    pos.y = _tempFloatArray[1];
+    pos.z = _tempFloatArray[2];
+    return pos;
 };
 
 nodeProto.getRotation = function (out?: Quat): Quat {
@@ -711,6 +718,14 @@ Object.defineProperty(nodeProto, 'children', {
         this._children = v;
     },
 });
+
+nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
+    if (ns) {
+        this.rotateForJS(rot.x, rot.y, rot.z, rot.w, ns);
+    } else {
+        this.rotateForJS(rot.x, rot.y, rot.z, rot.w);
+    }
+};
 
 nodeProto.addChild = function (child: Node): void {
     jsb.registerNativeRef(this, child); // Root JSB object to avoid child node being garbage collected
@@ -997,9 +1012,18 @@ nodeProto._ctor = function (name?: string) {
     euler.x = euler.y = euler.z = null;
 
     //inner use properties
-    //_worldRTCache, _positionCache, _rotationCache, _scaleCache, _worldPosition,
-    //_worldRotationCache, _worldScaleCache, _worldMatrixCache, _eulerAnglesCache,
-    //_forwardCache, _upCache, _rightCache
+    this._positionCache = new Vec3();
+    this._rotationCache = new Quat();
+    this._scaleCache = new Vec3();
+    this._worldPosition = new Vec3();
+    this._worldRotationCache = new Quat();
+    this._worldScaleCache = new Vec3();
+    this._worldMatrixCache = new Mat4();
+    this._eulerAnglesCache = new Vec3();
+    this._forwardCache = new Vec3();
+    this._upCache = new Vec3();
+    this._rightCache = new Vec3();
+    this._worldRTCache = new Mat4();
 };
 //
 clsDecorator(Node);
