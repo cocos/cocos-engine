@@ -3,12 +3,12 @@ import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
 import { property, ccclass, menu } from '../../data/class-decorator';
 import { AnimationGraphEval } from './graph-eval';
-import type { StateStatus, TransitionStatus, ClipStatus } from './graph-eval';
+import type { MotionStateStatus, TransitionStatus, ClipStatus } from './graph-eval';
 import { Value } from './variable';
 import { assertIsNonNullable } from '../../data/utils/asserts';
 
 export type {
-    StateStatus,
+    MotionStateStatus,
     ClipStatus,
     TransitionStatus,
 };

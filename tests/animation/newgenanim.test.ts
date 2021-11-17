@@ -4,7 +4,7 @@ import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, 
 import { LayerBlending, AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition } from '../../cocos/core/animation/marionette/animation-graph';
 import { createEval } from '../../cocos/core/animation/marionette/create-eval';
 import { VariableTypeMismatchedError } from '../../cocos/core/animation/marionette/errors';
-import { AnimationGraphEval, StateStatus, ClipStatus } from '../../cocos/core/animation/marionette/graph-eval';
+import { AnimationGraphEval, MotionStateStatus, ClipStatus } from '../../cocos/core/animation/marionette/graph-eval';
 import { createGraphFromDescription } from '../../cocos/core/animation/marionette/__tmp__/graph-from-description';
 import gAnyTransition from './graphs/any-transition';
 import gUnspecifiedCondition from './graphs/unspecified-condition';
@@ -1691,7 +1691,7 @@ describe('NewGen Anim', () => {
         }: {
             id: string;
             kind: MotionStateInvocationKind;
-            status?: Parameters<typeof expectStateStatus>[1];
+            status?: Parameters<typeof expectMotionStateStatus>[1];
         } | {
             id: string;
             kind: StateMachineInvocationKind;
@@ -1707,7 +1707,7 @@ describe('NewGen Anim', () => {
                 default:
                     expect(invocation.args).toHaveLength(2);
                     if (status) {
-                        expectStateStatus(invocation.args[1], status);
+                        expectMotionStateStatus(invocation.args[1], status);
                     }
                     break;
             }
@@ -1922,17 +1922,17 @@ function getPositionFromLoopedIterations (iterations: number) {
 }
 
 function expectAnimationGraphEvalStatusLayer0 (graphEval: AnimationGraphEval, status: {
-    currentNode?: Parameters<typeof expectStateStatus>[1];
+    currentNode?: Parameters<typeof expectMotionStateStatus>[1];
     current?: Parameters<typeof expectClipStatuses>[1];
     transition?: {
         time?: number;
         duration?: number;
-        nextNode?: Parameters<typeof expectStateStatus>[1];
+        nextNode?: Parameters<typeof expectMotionStateStatus>[1];
         next?: Parameters<typeof expectClipStatuses>[1];
     };
 }) {
     if (status.currentNode) {
-        expectStateStatus(graphEval.getCurrentStateStatus(0), status.currentNode);
+        expectMotionStateStatus(graphEval.getCurrentStateStatus(0), status.currentNode);
     }
     if (status.current) {
         const currentClipStatuses = Array.from(graphEval.getCurrentClipStatuses(0));
@@ -1951,7 +1951,7 @@ function expectAnimationGraphEvalStatusLayer0 (graphEval: AnimationGraphEval, st
             expect(currentTransition.duration).toBeCloseTo(status.transition.duration, 5);
         }
         if (status.transition.nextNode) {
-            expectStateStatus(graphEval.getNextStateStatus(0), status.transition.nextNode);
+            expectMotionStateStatus(graphEval.getNextStateStatus(0), status.transition.nextNode);
         }
         if (status.transition.next) {
             expectClipStatuses(Array.from(graphEval.getNextClipStatuses(0)), status.transition.next);
@@ -1959,19 +1959,19 @@ function expectAnimationGraphEvalStatusLayer0 (graphEval: AnimationGraphEval, st
     }
 }
 
-function expectStateStatus (stateStatus: Readonly<StateStatus> | null, expected: null | {
+function expectMotionStateStatus (motionStateStatus: Readonly<MotionStateStatus> | null, expected: null | {
     __DEBUG_ID__?: string;
     progress?: number;
 }) {
     if (!expected) {
-        expect(stateStatus).toBeNull();
+        expect(motionStateStatus).toBeNull();
     } else {
-        expect(stateStatus).not.toBeNull();
+        expect(motionStateStatus).not.toBeNull();
         if (typeof expected.__DEBUG_ID__ !== 'undefined') {
-            expect(stateStatus.__DEBUG_ID__).toBe(expected.__DEBUG_ID__);
+            expect(motionStateStatus.__DEBUG_ID__).toBe(expected.__DEBUG_ID__);
         }
         if (typeof expected.progress !== 'undefined') {
-            expect(stateStatus.progress).toBeCloseTo(expected.progress, 5);
+            expect(motionStateStatus.progress).toBeCloseTo(expected.progress, 5);
         }
     }
 }
