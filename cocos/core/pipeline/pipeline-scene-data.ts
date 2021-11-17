@@ -82,11 +82,17 @@ export class PipelineSceneData {
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
     public shadows: Shadows = new Shadows();
+
+    /**
+      * @en The list for valid punctual Lights, only available after the scene culling of the current frame.
+      * @zh 场景中精确的有效光源，仅在当前帧的场景剔除完成后有效。
+      */
+    public validPunctualLights: Light[] = [];
+
     /**
       * @en The list for render objects, only available after the scene culling of the current frame.
       * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
       */
-    public validPunctualLights: Light[] = [];
     public renderObjects: IRenderObject[] = [];
     public castShadowObjects: IRenderObject[] = [];
     public dirShadowObjects: IRenderObject[] = [];
@@ -151,6 +157,7 @@ export class PipelineSceneData {
         this.skybox.destroy();
         this.fog.destroy();
         this.shadows.destroy();
+        this.validPunctualLights.length = 0;
         this._occlusionQueryInputAssembler?.destroy();
         this._occlusionQueryInputAssembler = null;
         this._occlusionQueryVertexBuffer?.destroy();

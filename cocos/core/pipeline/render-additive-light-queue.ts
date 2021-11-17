@@ -101,7 +101,6 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
 export class RenderAdditiveLightQueue {
     private _pipeline: RenderPipeline;
     private _device: Device;
-    private _validPunctualLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
@@ -169,8 +168,8 @@ export class RenderAdditiveLightQueue {
     public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
 
-        this._validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
-        if (!this._validPunctualLights.length) { return; }
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
+        if (!validPunctualLights.length) { return; }
 
         this._updateUBOs(camera, cmdBuff);
         this._updateLightDescriptorSet(camera, cmdBuff);
@@ -183,7 +182,7 @@ export class RenderAdditiveLightQueue {
 
             _lightIndices.length = 0;
 
-            this._lightCulling(model, this._validPunctualLights);
+            this._lightCulling(model, validPunctualLights);
 
             if (!_lightIndices.length) { continue; }
 
@@ -294,9 +293,10 @@ export class RenderAdditiveLightQueue {
         const linear = 0.0;
         const packing = supportsFloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
+        const validPunctualLights = sceneData.validPunctualLights;
 
-        for (let i = 0; i < this._validPunctualLights.length; i++) {
-            const light = this._validPunctualLights[i];
+        for (let i = 0; i < validPunctualLights.length; i++) {
+            const light = validPunctualLights[i];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(i);
             if (!descriptorSet) { continue; }
             let matShadowProj : Mat4;
@@ -391,19 +391,20 @@ export class RenderAdditiveLightQueue {
         const sceneData = this._pipeline.pipelineSceneData;
         const isHDR = sceneData.isHDR;
         const shadowInfo = sceneData.shadows;
+        const validPunctualLights = sceneData.validPunctualLights;
 
-        if (this._validPunctualLights.length > this._lightBufferCount) {
+        if (validPunctualLights.length > this._lightBufferCount) {
             this._firstLightBufferView.destroy();
 
-            this._lightBufferCount = nextPow2(this._validPunctualLights.length);
+            this._lightBufferCount = nextPow2(validPunctualLights.length);
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
             this._firstLightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
-        for (let l = 0, offset = 0; l < this._validPunctualLights.length; l++, offset += this._lightBufferElementCount) {
-            const light = this._validPunctualLights[l];
+        for (let l = 0, offset = 0; l < validPunctualLights.length; l++, offset += this._lightBufferElementCount) {
+            const light = validPunctualLights[l];
 
             switch (light.type) {
             case LightType.SPHERE:
