@@ -384,9 +384,9 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
                 vbuf[offset + 1] = _tempPos!.y;         // y
                 vbuf[offset + 3] = _tempUv!.x;          // u
                 vbuf[offset + 4] = _tempUv!.y;          // v
-                uintVData[offset + 5] = _spineColorToInt32(_finalColor);
+                uintVData[offset + 5] = _spineColorToInt32(_finalColor!);
                 if (_useTint) {
-                    uintVData[offset + 6] = _spineColorToInt32(_darkColor);
+                    uintVData[offset + 6] = _spineColorToInt32(_darkColor!);
                 }
             }
         } else {
