@@ -112,8 +112,8 @@ export const ttfUtils =  {
         this._updateProperties(comp, trans);
         this._calculateLabelFont();
         this._updateLabelDimensions();
-        this._resetDynamicAtlas(comp);
         this._updateTexture(comp);
+        this._uploadTexture(comp);
         this.updateOpacity(comp);
         comp._setCacheAlpha(_alpha);
         this._calDynamicAtlas(comp);
@@ -314,9 +314,17 @@ export const ttfUtils =  {
         if (_shadowComp) {
             _context.shadowColor = 'transparent';
         }
+    },
 
-        // _texture.handleLoadedTexture();
-        if (_texture) {
+    _uploadTexture (comp: Label) {
+        // May better for JIT
+        if (comp.cacheMode === Label.CacheMode.BITMAP) {
+            const frame = comp.ttfSpriteFrame!;
+            dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
+            frame._resetDynamicAtlasFrame();
+        }
+
+        if (_texture && _canvas) {
             let tex: Texture2D;
             if (_texture instanceof SpriteFrame) {
                 tex = (_texture.texture as Texture2D);
@@ -342,13 +350,6 @@ export const ttfUtils =  {
                 }
             }
         }
-    },
-
-    _resetDynamicAtlas (comp: Label) {
-        if (comp.cacheMode !== Label.CacheMode.BITMAP) return;
-        const frame = comp.ttfSpriteFrame!;
-        dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
-        frame._resetDynamicAtlasFrame();
     },
 
     _calDynamicAtlas (comp: Label) {
