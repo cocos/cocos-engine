@@ -70,9 +70,6 @@ export class MorphModel extends Model {
             (this as any).setCalledFromJS(true);
         }
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
-        if (JSB) {
-            (this as any).setCalledFromJS(false);
-        }
 
         if (this._morphRenderingInstance) {
             this._morphRenderingInstance.adaptPipelineState(submodelIdx, descriptorSet);

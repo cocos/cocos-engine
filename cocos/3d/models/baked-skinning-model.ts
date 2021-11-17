@@ -118,9 +118,6 @@ export class BakedSkinningModel extends MorphModel {
             (this as any).setCalledFromJS(true);
         }
         super.updateTransform(stamp);
-        if (JSB) {
-            (this as any).setCalledFromJS(false);
-        }
 
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
@@ -139,9 +136,7 @@ export class BakedSkinningModel extends MorphModel {
             (this as any).setCalledFromJS(true);
         }
         super.updateUBOs(stamp);
-        if (JSB) {
-            (this as any).setCalledFromJS(false);
-        }
+
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
@@ -204,9 +199,6 @@ export class BakedSkinningModel extends MorphModel {
             (this as any).setCalledFromJS(true);
         }
         const patches = super.getMacroPatches(subModelIndex);
-        if (JSB) {
-            (this as any).setCalledFromJS(false);
-        }
         return patches ? patches.concat(myPatches) : myPatches;
     }
 
@@ -227,9 +219,6 @@ export class BakedSkinningModel extends MorphModel {
             (this as any).setCalledFromJS(true);
         }
         super._updateInstancedAttributes(attributes, pass);
-        if (JSB) {
-            (this as any).setCalledFromJS(false);
-        }
         this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         this.updateInstancedJointTextureInfo();
     }

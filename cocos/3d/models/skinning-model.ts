@@ -165,9 +165,6 @@ export class SkinningModel extends MorphModel {
             (this as any).setCalledFromJS(true);
         }
         super.updateUBOs(stamp);
-        if (JSB) {
-            (this as any).setCalledFromJS(false);
-        }
         for (let i = 0; i < this._joints.length; i++) {
             const { indices, buffers, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);
@@ -194,9 +191,6 @@ export class SkinningModel extends MorphModel {
             (this as any).setCalledFromJS(true);
         }
         const superMacroPatches = super.getMacroPatches(subModelIndex);
-        if (JSB) {
-            (this as any).setCalledFromJS(false);
-        }
 
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);
