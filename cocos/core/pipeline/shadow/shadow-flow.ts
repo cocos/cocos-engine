@@ -80,14 +80,19 @@ export class ShadowFlow extends RenderFlow {
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
         const castShadowObjects = pipeline.pipelineSceneData.castShadowObjects;
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
-        for (let i = 0; i < validPunctualLights.length; i++) {
-            const light = validPunctualLights[i];
-            if (_validLights.length < shadowInfo.maxReceived && light.type === LightType.SPOT) {
+        let n = 0;
+        let m = 0;
+        for (;n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
+            const light = validPunctualLights[m];
+
+            if (light !== undefined && light.type === LightType.SPOT) {
                 _validLights.push(light);
+                n++;
             }
+            m++;
         }
 
         if (castShadowObjects.length === 0) {
