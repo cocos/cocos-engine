@@ -243,19 +243,19 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
-        const buffers = this._meshBuffers;
-        buffers.forEach((value, key) => {
-            value.forEach((bb) => {
-                bb.reset();
-            });
-        });
+        // const buffers = this._meshBuffers;
+        // buffers.forEach((value, key) => {
+        //     value.forEach((bb) => {
+        //         bb.reset();
+        //     });
+        // });
 
-        const customs = this._customMeshBuffers;
-        customs.forEach((value, key) => {
-            value.forEach((bb) => {
-                bb.reset();
-            });
-        });
+        // const customs = this._customMeshBuffers;
+        // customs.forEach((value, key) => {
+        //     value.forEach((bb) => {
+        //         bb.reset();
+        //     });
+        // });
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
@@ -293,6 +293,7 @@ export class Batcher2D implements IBatcher {
             buffers.forEach((value, key) => {
                 value.forEach((bb) => {
                     bb.uploadBuffers();
+                    bb.reset();
                 });
             });
 
@@ -300,6 +301,7 @@ export class Batcher2D implements IBatcher {
             customs.forEach((value, key) => {
                 value.forEach((bb) => {
                     bb.uploadBuffers();
+                    bb.reset();
                 });
             });
 
@@ -851,7 +853,7 @@ class DescriptorSetCache {
         this._descriptorSetCache.clear();
         this._dsCacheHashByTexture.clear();
         this._localDescriptorSetCache.length = 0;
-        this._localCachePool.destroy((obj) => { obj.destroy(); });
+        this._localCachePool.destroy();
     }
 }
 
