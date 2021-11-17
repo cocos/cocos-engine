@@ -48,6 +48,7 @@ import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
 import { director } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeUIProperties } from '../../core/scene-graph/node-ui-properties';
 
 // hack
 ccenum(BlendFactor);
@@ -249,8 +250,11 @@ export class Renderable2D extends RenderableComponent {
         if (this._color.equals(value)) {
             return;
         }
-
+        let oldAlpha = this._color.a;
         this._color.set(value);
+        if (oldAlpha !== this.color.a) {
+            NodeUIProperties.markOpacityTree(this.node);
+        }
         this._colorDirty = true;
         if (EDITOR) {
             const clone = value.clone();
@@ -471,7 +475,6 @@ export class Renderable2D extends RenderableComponent {
     protected _updateColor () {
         if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
             const opacityZero = this._cacheAlpha <= 0;
-            this._updateWorldAlpha();
             if (this._colorDirty) {
                 if (opacityZero || this._cacheAlpha <= 0) {
                     this._renderFlag = this._canRender();
@@ -482,7 +485,6 @@ export class Renderable2D extends RenderableComponent {
         }
         // Need update rendFlag when opacity changes from 0 to !0
         const opacityZero = this._cacheAlpha <= 0;
-        this._updateWorldAlpha();
         if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
@@ -493,13 +495,8 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    protected _updateWorldAlpha () {
-        let localAlpha = this.color.a / 255;
-        if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
-        const alpha = this.node._uiProps.opacity * localAlpha;
-        this.node._uiProps.opacity = alpha;
-        this._colorDirty = this._colorDirty || alpha !== this._cacheAlpha;
-        this._cacheAlpha = alpha;
+    public markColorDirty() {
+        this._colorDirty = true;
     }
 
     public _updateBlendFunc () {
