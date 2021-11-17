@@ -113,7 +113,6 @@ export const ttfUtils =  {
         this._calculateLabelFont();
         this._updateLabelDimensions();
         this._updateTexture(comp);
-        this._uploadTexture(comp);
         this.updateOpacity(comp);
         comp._setCacheAlpha(_alpha);
         this._calDynamicAtlas(comp);
@@ -314,6 +313,8 @@ export const ttfUtils =  {
         if (_shadowComp) {
             _context.shadowColor = 'transparent';
         }
+
+        this._uploadTexture(comp);
     },
 
     _uploadTexture (comp: Label) {
