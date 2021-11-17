@@ -202,7 +202,7 @@ export class Pass {
     protected _root: Root;
     protected _device: Device;
 
-    private  _rootBufferDirty = false;
+    protected  _rootBufferDirty = false;
 
     constructor (root: Root) {
         this._root = root;
@@ -349,7 +349,7 @@ export class Pass {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
-    protected _setRootBufferDirty (val: boolean) {
+    public _setRootBufferDirty (val: boolean) {
         this._rootBufferDirty = val;
     }
 
