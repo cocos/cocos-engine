@@ -43,6 +43,8 @@ import { ShadowType } from '../../renderer/scene/shadows';
 import { Light, LightType } from '../../renderer/scene/light';
 import { Camera } from '../../renderer/scene';
 
+const _validLights: Light[] = [];
+
 /**
  * @en Shadow map render flow
  * @zh 阴影贴图绘制流程
@@ -61,7 +63,6 @@ export class ShadowFlow extends RenderFlow {
     };
 
     private _shadowRenderPass: RenderPass|null = null;
-    private _validLights: Light[] = [];
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);
@@ -81,10 +82,16 @@ export class ShadowFlow extends RenderFlow {
         const castShadowObjects = pipeline.pipelineSceneData.castShadowObjects;
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
-        this.lightCollecting(shadowInfo.maxReceived);
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
+        for (let i = 0; i < validPunctualLights.length; i++) {
+            const light = validPunctualLights[i];
+            if (_validLights.length < shadowInfo.maxReceived && light.type === LightType.SPOT) {
+                _validLights.push(light);
+            }
+        }
 
         if (castShadowObjects.length === 0) {
-            this.clearShadowMap(this._validLights, camera);
+            this.clearShadowMap(_validLights, camera);
             return;
         }
 
@@ -105,8 +112,8 @@ export class ShadowFlow extends RenderFlow {
             }
         }
 
-        for (let l = 0; l < this._validLights.length; l++) {
-            const light = this._validLights[l];
+        for (let l = 0; l < _validLights.length; l++) {
+            const light = _validLights[l];
             const globalDS = pipeline.globalDSManager.getOrCreateDescriptorSet(l)!;
 
             if (!shadowFrameBufferMap.has(light)) {
@@ -121,7 +128,7 @@ export class ShadowFlow extends RenderFlow {
             }
         }
 
-        this._validLights.length = 0;
+        _validLights.length = 0;
     }
 
     public destroy () {
@@ -150,8 +157,6 @@ export class ShadowFlow extends RenderFlow {
         }
 
         if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
-
-        this._validLights.length = 0;
     }
 
     public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
@@ -205,18 +210,6 @@ export class ShadowFlow extends RenderFlow {
 
         // Cache frameBuffer
         shadowFrameBufferMap.set(light, shadowFrameBuffer);
-    }
-
-    private lightCollecting (maxReceived: number) {
-        const received = maxReceived - 1;
-
-        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
-        for (let i = 0; i < validPunctualLights.length; i++) {
-            const light = validPunctualLights[i];
-            if (this._validLights.length < received && light.type === LightType.SPOT) {
-                this._validLights.push(light);
-            }
-        }
     }
 
     private clearShadowMap (validLights: Light[], camera: Camera) {
