@@ -39,6 +39,9 @@ import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFi
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
+import { ccenum } from '../value-types/enum';
+
+ccenum(Format);
 
 const idGenerator = new IDGenerator('Tex');
 /**
