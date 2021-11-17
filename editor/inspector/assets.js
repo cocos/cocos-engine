@@ -5,7 +5,7 @@ module.exports = {
     'audio-clip': join(__dirname, './assets/audio-clip.js'),
     'auto-atlas': join(__dirname, './assets/texture/auto-atlas.js'), // reuse
     'dragonbones-atlas': join(__dirname, './assets/json.js'), // reuse
-    'dragonbones': join(__dirname, './assets/json.js'),  // reuse
+    dragonbones: join(__dirname, './assets/json.js'),  // reuse
     'effect-header': join(__dirname, './assets/effect-header.js'),
     'erp-texture-cube': join(__dirname, './assets/erp-texture-cube.js'),
     'gltf-material': join(__dirname, './assets/material.js'), // reuse

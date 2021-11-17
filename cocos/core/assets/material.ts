@@ -40,6 +40,7 @@ import { MacroRecord, MaterialProperty } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
 import { Vec4 } from '../math';
+import { SRGBToLinear } from '../pipeline/pipeline-funcs';
 
 const v4_1 = new Vec4();
 
@@ -428,9 +429,7 @@ export class Material extends Asset {
             } else if (val !== null) {
                 if (pass.properties[name]?.linear) {
                     const v4 = val as Vec4;
-                    v4_1.x = v4.x * v4.x;
-                    v4_1.y = v4.y * v4.y;
-                    v4_1.z = v4.z * v4.z;
+                    SRGBToLinear(v4_1, v4);
                     v4_1.w = v4.w;
                     val = v4_1;
                 }

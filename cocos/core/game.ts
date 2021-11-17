@@ -35,7 +35,7 @@ import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
+import { Device, DeviceInfo, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
@@ -286,11 +286,15 @@ export class Game extends EventTarget {
     /**
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
+     *
+     * @deprecated since 3.4.0, frame is a concept on web standard, please manager screens via the `screen` module.
      */
     public frame: HTMLDivElement | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
+     *
+     * @deprecated since 3.4.0, container is a concept on web standard, please manager screens via the `screen` module.
      */
     public container: HTMLDivElement | null = null;
     /**
@@ -862,7 +866,6 @@ export class Game extends EventTarget {
     private async _constructDevice () {
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Constructor<Device>[] = [];
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && window.gfx) {
@@ -875,26 +878,25 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
+
+                const deviceCtors: Constructor<Device>[] = [];
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    // ctors.push(legacyCC.WebGL2Device);
+                    // deviceCtors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    //ctors.push(legacyCC.WebGLDevice);
-                }
-                if (legacyCC.WebGPUDevice) {
-                    ctors.push(legacyCC.WebGPUDevice);
+                    // deviceCtors.push(legacyCC.WebGLDevice);
                 }
                 if (legacyCC.EmptyDevice) {
-                    //ctors.push(legacyCC.EmptyDevice);
+                    // deviceCtors.push(legacyCC.EmptyDevice);
                 }
-
-                for (let i = 0; i < ctors.length; i++) {
-                    this._gfxDevice = new ctors[i]();
+                if (legacyCC.WebGPUDevice) {
+                    deviceCtors.push(legacyCC.WebGPUDevice);
+                }
+                for (let i = 0; i < deviceCtors.length; i++) {
+                    this._gfxDevice = new deviceCtors[i]();
                     // eslint-disable-next-line no-await-in-loop
                     const success = await this._gfxDevice.initialize(deviceInfo);
-                    if (success) {
-                        break;
-                    }
+                    if (success) { break; }
                 }
             }
         } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {

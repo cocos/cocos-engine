@@ -96,7 +96,7 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext)
     case Format.RGB9E5: return gl.UNSIGNED_BYTE;
 
     case Format.DEPTH: return gl.UNSIGNED_INT;
-    case Format.DEPTH_STENCIL: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
+    case Format.DEPTH_STENCIL: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL;
 
     case Format.BC1: return gl.UNSIGNED_BYTE;
     case Format.BC1_SRGB: return gl.UNSIGNED_BYTE;
@@ -1607,16 +1607,16 @@ export function WebGLCmdFuncBeginRenderPass (
             cache.viewport.height = renderArea.height;
         }
 
-        if (cache.scissorRect.x !== 0
-            || cache.scissorRect.y !== 0
-            || cache.scissorRect.width !== gpuFramebuffer.width
-            || cache.scissorRect.height !== gpuFramebuffer.height) {
-            gl.scissor(0, 0, gpuFramebuffer.width, gpuFramebuffer.height);
+        if (cache.scissorRect.x !== renderArea.x
+            || cache.scissorRect.y !== renderArea.y
+            || cache.scissorRect.width !== renderArea.width
+            || cache.scissorRect.height !== renderArea.height) {
+            gl.scissor(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
 
-            cache.scissorRect.x = 0;
-            cache.scissorRect.y = 0;
-            cache.scissorRect.width = gpuFramebuffer.width;
-            cache.scissorRect.height = gpuFramebuffer.height;
+            cache.scissorRect.x = renderArea.x;
+            cache.scissorRect.y = renderArea.y;
+            cache.scissorRect.width = renderArea.width;
+            cache.scissorRect.height = renderArea.height;
         }
 
         // const invalidateAttachments: GLenum[] = [];
