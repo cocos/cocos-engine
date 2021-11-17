@@ -313,7 +313,6 @@ export class Renderable2D extends RenderableComponent {
     protected _blendHash = 0;
 
     protected _colorDirty = true;
-    protected _cacheAlpha = 1;
 
     // macro.UI_GPU_DRIVEN
     protected declare _canDrawByFourVertex: boolean;
@@ -474,23 +473,17 @@ export class Renderable2D extends RenderableComponent {
 
     protected _updateColor () {
         if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
-            const opacityZero = this._cacheAlpha <= 0;
             if (this._colorDirty) {
-                if (opacityZero || this._cacheAlpha <= 0) {
-                    this._renderFlag = this._canRender();
-                }
+                this._renderFlag = this._canRender();
                 this._colorDirty = false;
             }
             return;
         }
         // Need update rendFlag when opacity changes from 0 to !0
-        const opacityZero = this._cacheAlpha <= 0;
         if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
-            if (opacityZero || this._cacheAlpha <= 0) {
-                this._renderFlag = this._canRender();
-            }
+            this._renderFlag = this._canRender();
             this._colorDirty = false;
         }
     }
@@ -564,10 +557,6 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _flushAssembler? (): void;
-
-    public _setCacheAlpha (value) {
-        this._cacheAlpha = value;
-    }
 }
 
 legacyCC.internal.Renderable2D = Renderable2D;
