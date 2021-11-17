@@ -84,7 +84,15 @@ const nodeProto: any = jsb.Node.prototype;
 export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
-const _tempFloatArray = new Float32Array([0, 0, 0, 0]); // For getPosition, getRotation, getScale
+// For optimize getPosition, getRotation, getScale
+const _tempFloatArray = new Float32Array([
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0
+]);
+//
+
 Node._setTempFloatArray(_tempFloatArray.buffer);
 
 function getConstructor<T>(typeOrClassName) {
@@ -520,9 +528,25 @@ nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
 };
 
 nodeProto.getWorldMatrix = function (out?: Mat4): Mat4 {
-    const r = oldGetWorldMatrix.call(this);
-    const target = out || this._worldMatrixCache || (this._worldMatrixCache = new Mat4());
-    return Mat4.copy(target, r);
+    oldGetWorldMatrix.call(this);
+    const target = out || this._worldMatrixCache;
+    target.m00 = _tempFloatArray[0];
+    target.m01 = _tempFloatArray[1];
+    target.m02 = _tempFloatArray[2];
+    target.m03 = _tempFloatArray[3];
+    target.m04 = _tempFloatArray[4];
+    target.m05 = _tempFloatArray[5];
+    target.m06 = _tempFloatArray[6];
+    target.m07 = _tempFloatArray[7];
+    target.m08 = _tempFloatArray[8];
+    target.m09 = _tempFloatArray[9];
+    target.m10 = _tempFloatArray[10];
+    target.m11 = _tempFloatArray[11];
+    target.m12 = _tempFloatArray[12];
+    target.m13 = _tempFloatArray[13];
+    target.m14 = _tempFloatArray[14];
+    target.m15 = _tempFloatArray[15];
+    return target;
 };
 
 nodeProto.getEulerAngles = function (out?: Vec3): Vec3 {
