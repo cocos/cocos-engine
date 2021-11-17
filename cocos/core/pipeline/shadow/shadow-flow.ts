@@ -87,8 +87,7 @@ export class ShadowFlow extends RenderFlow {
         let m = 0;
         for (;n < shadowInfo.maxReceived && m < validPunctualLights.length;) {
             const light = validPunctualLights[m];
-
-            if (light !== undefined && light.type === LightType.SPOT) {
+            if (light.type === LightType.SPOT) {
                 _validLights.push(light);
                 n++;
             }
