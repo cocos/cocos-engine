@@ -89,7 +89,7 @@ public:
         _transformUpdated       = true;
     }
     inline void setOctreeNode(OctreeNode *node) { _octreeNode = node; }
-    inline void setScene(RenderScene *scene) { _scene = scene; }
+    inline void setScene(RenderScene *scene) { _scene = scene; if (scene) _transformUpdated = true;  }
 
     inline bool                               getCastShadow() const { return _castShadow; }
     inline bool                               getEnabled() const { return _enabled; }
