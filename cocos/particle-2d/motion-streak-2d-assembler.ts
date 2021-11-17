@@ -223,7 +223,7 @@ export const MotionStreakAssembler: IAssembler = {
         // buffer data may be reallocated, need get reference after request.
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
-        const uintbuf = buffer.uintVData!;
+        const uintVBuf = buffer.uintVData!;
         const vertexCount = renderData.vertexCount;
         const indicesCount = renderData.indicesCount;
 
@@ -234,7 +234,7 @@ export const MotionStreakAssembler: IAssembler = {
             vBuf[vertexOffset++] = vert.z;
             vBuf[vertexOffset++] = vert.u;
             vBuf[vertexOffset++] = vert.v;
-            uintbuf[vertexOffset++] = vert.color;
+            uintVBuf[vertexOffset++] = vert.color;
         }
 
         // fill index data

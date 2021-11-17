@@ -94,7 +94,7 @@ export class RenderData extends BaseRenderData {
     }
 
     public vData: Float32Array | null = null;
-    public vDataUint: Uint32Array | null = null;
+    public uintVData: Uint32Array | null = null;
 
     public uvDirty = true;
     public vertDirty = true;
@@ -215,7 +215,7 @@ export class RenderData extends BaseRenderData {
 
 export class MeshRenderData extends BaseRenderData {
     public vData: Float32Array;
-    public vDataUint: Uint32Array;
+    public uintVData: Uint32Array;
     public iData: Uint16Array;
     /**
      * Each vertex contains multiple float numbers
@@ -237,7 +237,7 @@ export class MeshRenderData extends BaseRenderData {
         super();
         this._formatByte = vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT;
         this.vData = new Float32Array(256 * vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT);
-        this.vDataUint = new Uint32Array(this.vData.buffer);
+        this.uintVData = new Uint32Array(this.vData.buffer);
         this.iData = new Uint16Array(256 * 6);
     }
 
@@ -323,7 +323,7 @@ export class MeshRenderData extends BaseRenderData {
         const oldVData = this.vData;
         this.vData = new Float32Array(vCount);
         this.vData.set(oldVData, 0);
-        this.vDataUint = new Uint32Array(this.vData.buffer);
+        this.uintVData = new Uint32Array(this.vData.buffer);
         const oldIData = this.iData;
         this.iData = new Uint16Array(iCount);
         this.iData.set(oldIData, 0);

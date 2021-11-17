@@ -54,7 +54,7 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
-    const uintBuf = buffer.uintVData!;
+    const uintVBuf = buffer.uintVData!;
 
     node.getWorldMatrix(_worldMatrix);
 
@@ -67,7 +67,7 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
         vBuf[vertexOffset++] = vec3_temp.z;
         vBuf[vertexOffset++] = vert.u;
         vBuf[vertexOffset++] = vert.v;
-        uintBuf[vertexOffset++] = color._val;
+        uintVBuf[vertexOffset++] = color._val;
     }
 
     // buffer data may be realloc, need get reference after request.
@@ -97,7 +97,7 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
     const iBuf = buffer.iData!;
-    const uintBuf = buffer.uintVData!;
+    const uintVBuf = buffer.uintVData!;
 
     node.getWorldMatrix(_worldMatrix);
 
@@ -110,7 +110,7 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
         vBuf[vertexOffset++] = vec3_temp.z;
         vBuf[vertexOffset++] = vert.u;
         vBuf[vertexOffset++] = vert.v;
-        uintBuf[vertexOffset++] = color._val;
+        uintVBuf[vertexOffset++] = color._val;
     }
 
     // fill index data
@@ -144,7 +144,7 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
-    const uintBuf = buffer.uintVData!;
+    const uintVBuf = buffer.uintVData!;
 
     for (let i = 0; i < vertexCount; i++) {
         const vert = dataList[i];
@@ -153,7 +153,7 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
         vBuf[vertexOffset++] = vert.z;
         vBuf[vertexOffset++] = vert.u;
         vBuf[vertexOffset++] = vert.v;
-        uintBuf[vertexOffset++] = color._val;
+        uintVBuf[vertexOffset++] = color._val;
     }
 
     // buffer data may be realloc, need get reference after request.

@@ -31,7 +31,7 @@
 import { Vec2, Color } from '../core/math';
 import Pool from '../core/utils/pool';
 import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
-import { vfmtPosUvColor, getSizePerVertex } from '../2d/renderer/vertex-format';
+import { vfmtPosUvColor, getByteLengthPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
 
@@ -41,7 +41,7 @@ const _tpa = new Vec2();
 const _tpb = new Vec2();
 const _tpc = new Vec2();
 
-const formatBytes = getSizePerVertex(vfmtPosUvColor);
+const formatBytes = getByteLengthPerVertex(vfmtPosUvColor);
 
 // In the Free mode to get emit real rotation in the world coordinate.
 function getWorldRotation (node) {
@@ -262,7 +262,7 @@ export class Simulator {
 
     public updateParticleBuffer (particle, pos, buffer, offset: number) {
         const vbuf = buffer.vData;
-        const uintbuf = buffer.vDataUint;
+        const uintVBuf = buffer.uintVData;
 
         const x: number = pos.x;
         const y: number = pos.y;
@@ -320,10 +320,10 @@ export class Simulator {
             vbuf[offset + 20] = 0;
         }
         // color
-        uintbuf[offset + 5] = particle.color._val;
-        uintbuf[offset + 11] = particle.color._val;
-        uintbuf[offset + 17] = particle.color._val;
-        uintbuf[offset + 23] = particle.color._val;
+        uintVBuf[offset + 5] = particle.color._val;
+        uintVBuf[offset + 11] = particle.color._val;
+        uintVBuf[offset + 17] = particle.color._val;
+        uintVBuf[offset + 23] = particle.color._val;
     }
 
     public step (dt) {

@@ -53,7 +53,7 @@ export const simple: IAssembler = {
         renderData.indicesCount = 6;
 
         renderData.vData = new Float32Array(4 * 6);
-        renderData.vDataUint = new Uint32Array(renderData.vData.buffer);
+        renderData.uintVData = new Uint32Array(renderData.vData.buffer);
 
         return renderData;
     },
@@ -269,7 +269,7 @@ export const simple: IAssembler = {
     },
 
     updateColor (sprite: Sprite) {
-        const vData = sprite.renderData!.vDataUint!;
+        const vData = sprite.renderData!.uintVData!;
 
         const a = sprite.node._uiProps.opacity * 255;
         let c = sprite.color._val;

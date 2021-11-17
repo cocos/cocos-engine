@@ -282,7 +282,7 @@ function updateComponentRenderData (comp: Skeleton, ui: IBatcher) {
 function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color, slotColor: spine.Color, clipper: spine.SkeletonClipping, slot: spine.Slot) {
     let vbuf = _buffer!.renderData.vData;
     let ibuf = _buffer!.renderData.iData;
-    const uintVData = _buffer!.renderData.vDataUint;
+    const uintVData = _buffer!.renderData.uintVData;
 
     _finalColor!.a = slotColor.a * attachmentColor.a * skeletonColor.a * _nodeA * 255;
     _multiplier =  _premultipliedAlpha ? _finalColor!.a : 255;
@@ -665,7 +665,7 @@ function cacheTraverse (worldMat?: Mat4) {
 
     let vbuf: Float32Array;
     let ibuf: Uint16Array;
-    let uintbuf: Uint32Array;
+    let uintVBuf: Uint32Array;
     let material: MaterialInstance | null = null;
     const vertices = frame.vertices;
     const indices = frame.indices;
@@ -722,7 +722,7 @@ function cacheTraverse (worldMat?: Mat4) {
         _vfOffset = _buffer!.renderData.vDataOffset;
         vbuf = _buffer!.renderData.vData;
         ibuf = _buffer!.renderData.iData;
-        uintbuf = _buffer!.renderData.vDataUint;
+        uintVBuf = _buffer!.renderData.uintVData;
 
         for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
             ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
@@ -776,8 +776,8 @@ function cacheTraverse (worldMat?: Mat4) {
                 _handleColor(nowColor);
                 maxVFOffset = nowColor.vfOffset;
             }
-            uintbuf[ii + 5] = _finalColor32;
-            uintbuf[ii + 6] = _darkColor32;
+            uintVBuf[ii + 5] = _finalColor32;
+            uintVBuf[ii + 6] = _darkColor32;
         }
     }
 }

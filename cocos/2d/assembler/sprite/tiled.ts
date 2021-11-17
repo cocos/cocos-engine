@@ -112,6 +112,7 @@ export const tiled: IAssembler = {
         const vertexCount = renderData.vertexCount;
         const indicesCount = renderData.indicesCount;
         const vBuf = buffer.vData!;
+        const uintVBuf = buffer.uintVData!;
         const iBuf = buffer.iData!;
 
         const isRecreate = buffer.request(vertexCount, indicesCount);
@@ -146,9 +147,8 @@ export const tiled: IAssembler = {
         const matrix = node.worldMatrix;
 
         const datalist = renderData.data;
-        const uintData = buffer.uintVData!;
         // fillVertices & Color
-        this.fillVertices(vBuf, vertexOffset, matrix, row, col, datalist, uintData);
+        this.fillVertices(vBuf, uintVBuf, vertexOffset, matrix, row, col, datalist);
 
         const offset = _perVertexLength;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
@@ -266,7 +266,7 @@ export const tiled: IAssembler = {
         }
     },
 
-    fillVertices (vBuf: Float32Array, vertexOffset: number, matrix: Mat4, row: number, col: number, dataList: IRenderData[], uintBuf: Uint8Array) {
+    fillVertices (vBuf: Float32Array, uintVBuf: Uint8Array, vertexOffset: number, matrix: Mat4, row: number, col: number, dataList: IRenderData[]) {
         let x = 0; let x1 = 0; let y = 0; let y1 = 0;
         let color = 0;
         for (let yIndex = 0, yLength = row; yIndex < yLength; ++yIndex) {
@@ -289,7 +289,7 @@ export const tiled: IAssembler = {
                     vBuf[vertexOffset + offset] = vec3_temp.x;
                     vBuf[vertexOffset + offset + 1] = vec3_temp.y;
                     vBuf[vertexOffset + offset + 2] = vec3_temp.z;
-                    uintBuf[vertexOffset + offset + 5] = color;
+                    uintVBuf[vertexOffset + offset + 5] = color;
                 }
 
                 vertexOffset += 24;

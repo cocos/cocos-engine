@@ -51,7 +51,7 @@ export const ttf: IAssembler = {
         renderData.indicesCount = 6;
 
         const vData =  renderData.vData = new Float32Array(4 * 6);
-        const uintData = renderData.vDataUint = new Uint32Array(vData.buffer);
+        const uintData = renderData.uintVData = new Uint32Array(vData.buffer);
 
         vData[3] = vData[15] = vData[16] = vData[22] = 0;
         vData[4] = vData[9] = vData[10] = vData[21] = 1;

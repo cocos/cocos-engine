@@ -338,7 +338,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     }
 
     let vertexBuf: Float32Array = _renderData.renderData.vData;
-    let uintbuf: Uint32Array = _renderData.renderData.vDataUint;
+    let uintVBuf: Uint32Array = _renderData.renderData.uintVData;
     // let idxBuf: Uint16Array = _renderData!.renderData.iData;
 
     _fillGrids = 0;
@@ -444,7 +444,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             _renderData!.renderData.reserve(4, 0);
             _vfOffset = _renderData!.renderData.vertexCount * 6;
             vertexBuf = _renderData!.renderData.vData;
-            uintbuf = _renderData!.renderData.vDataUint;
+            uintVBuf = _renderData!.renderData.uintVData;
             if (!tiledNode) {
                 if (diamondTile) {
                     const centerX = (left + right) / 2;
@@ -482,12 +482,12 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
                     vertexBuf[_vfOffset + vertStep3 + 1] = bottom;
                 }
 
-                uintbuf[_vfOffset + 5] = color;
-                uintbuf[_vfOffset + vertStep + 5] = color;
-                uintbuf[_vfOffset + vertStep2 + 5] = color;
-                uintbuf[_vfOffset + vertStep3 + 5] = color;
+                uintVBuf[_vfOffset + 5] = color;
+                uintVBuf[_vfOffset + vertStep + 5] = color;
+                uintVBuf[_vfOffset + vertStep2 + 5] = color;
+                uintVBuf[_vfOffset + vertStep3 + 5] = color;
             } else if (tiledNode.node.active) {
-                fillByTiledNode(tiledNode.node, color, vertexBuf, uintbuf, left, right, top, bottom, diamondTile);
+                fillByTiledNode(tiledNode.node, color, vertexBuf, uintVBuf, left, right, top, bottom, diamondTile);
             }
 
             flipTexture(grid, gid);
@@ -524,7 +524,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     }
 }
 
-function fillByTiledNode (tiledNode: Node, color: number, vbuf: Float32Array, uintbuf: Uint32Array,
+function fillByTiledNode (tiledNode: Node, color: number, vbuf: Float32Array, uintVBuf: Uint32Array,
     left: number, right: number, top: number, bottom: number, diamondTile: boolean) {
     const vertStep = 6;
     const vertStep2 = vertStep * 2;
@@ -611,8 +611,8 @@ function fillByTiledNode (tiledNode: Node, color: number, vbuf: Float32Array, ui
         vbuf[_vfOffset + vertStep3 + 1] = right * b + bottom * d + ty;
     }
 
-    uintbuf[_vfOffset + 5] = color;
-    uintbuf[_vfOffset + vertStep + 5] = color;
-    uintbuf[_vfOffset + vertStep2 + 5] = color;
-    uintbuf[_vfOffset + vertStep3 + 5] = color;
+    uintVBuf[_vfOffset + 5] = color;
+    uintVBuf[_vfOffset + vertStep + 5] = color;
+    uintVBuf[_vfOffset + vertStep2 + 5] = color;
+    uintVBuf[_vfOffset + vertStep3 + 5] = color;
 }

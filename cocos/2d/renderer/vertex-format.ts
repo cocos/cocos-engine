@@ -53,7 +53,7 @@ export const vfmtPosUvTwoColor = [
     new Attribute(AttributeName.ATTR_COLOR2, Format.RGBA8, true),
 ];
 
-export function getSizePerVertex (attrs: Attribute[]) {
+export function getByteLengthPerVertex (attrs: Attribute[]) {
     let size = 0;
     for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];

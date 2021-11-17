@@ -674,7 +674,7 @@ export const graphicsAssembler: IAssembler = {
         const meshBuffer = _renderData;
         let dataOffset = meshBuffer.vertexStart * attrBytes;
         const vData = meshBuffer.vData;
-        const uintData = meshBuffer.vDataUint;
+        const uintData = meshBuffer.uintVData;
         // vec3.set(_tempVec3, x, y, 0);
         // vec3.transformMat4(_tempVec3, _tempVec3, _currMatrix);
 

@@ -29,7 +29,7 @@
  */
 import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo, InputAssembler } from '../../core/gfx';
 import { IBatcher } from './i-batcher';
-import { getSizePerVertex } from './vertex-format';
+import { getByteLengthPerVertex } from './vertex-format';
 
 export class MeshBuffer {
     public static OPACITY_OFFSET = 8;
@@ -77,7 +77,7 @@ export class MeshBuffer {
 
     public initialize (attrs: Attribute[], outOfCallback: ((...args: number[]) => void) | null) {
         this._outOfCallback = outOfCallback;
-        const vbStride = this._vertexFormatBytes = getSizePerVertex(attrs);
+        const vbStride = this._vertexFormatBytes = getByteLengthPerVertex(attrs);
         this._initVDataCount = 256 * vbStride;
 
         if (!this.vertexBuffers.length) {

@@ -147,7 +147,7 @@ export const sliced: IAssembler = {
 
         // buffer data may be realloc, need get reference after request.
         const vBuf: Float32Array|null = buffer.vData;
-        const uintbuf = buffer.uintVData;
+        const uintVBuf = buffer.uintVData;
         const iBuf: Uint16Array|null = buffer.iData;
 
         for (let i = 4; i < 20; ++i) {
@@ -159,7 +159,7 @@ export const sliced: IAssembler = {
             vBuf![vertexOffset++] = vert.z;
             vBuf![vertexOffset++] = uvs.u;
             vBuf![vertexOffset++] = uvs.v;
-            uintbuf![vertexOffset++] = vert.color;
+            uintVBuf![vertexOffset++] = vert.color;
         }
 
         for (let r = 0; r < 3; ++r) {

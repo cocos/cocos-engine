@@ -143,7 +143,7 @@ export const ttfUtils =  {
     },
 
     updateOpacity (comp: Label) {
-        const vData = comp.renderData!.vDataUint!;
+        const vData = comp.renderData!.uintVData!;
 
         const colorA = comp.node._uiProps.opacity * 255;
         let color = comp.color._val;

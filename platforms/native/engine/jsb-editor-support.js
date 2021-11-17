@@ -30,8 +30,8 @@
     let director = cc.director;
     let game = cc.game;
 
-    let nativeXYZUVC = middleware.vfmtPosUvColor = 9;
-    let nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
+    let nativeXYZUVC = middleware.vfmtPosUvColor = 6;
+    let nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 7;
 
     let vfmtPosUvColor = cc.internal.vfmtPosUvColor;
     let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor;

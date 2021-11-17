@@ -169,7 +169,7 @@ export const simple: IAssembler = {
 function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parentOpacity: number) {
     const slots = armature._slots;
     let vbuf: Float32Array;
-    let uintbuf: Uint32Array;
+    let uintVBuf: Uint32Array;
     let ibuf: Uint16Array;
     let material: MaterialInstance;
     let vertices: number[];
@@ -235,7 +235,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;
         ibuf = _buffer!.renderData.iData;
-        uintbuf = _buffer!.renderData.vDataUint;
+        uintVBuf = _buffer!.renderData.uintVData;
 
         _m00 = slotMat.m00;
         _m04 = slotMat.m04;
@@ -255,7 +255,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
             vbuf[_vfOffset + 3] = vertices[vi++]; // u
             vbuf[_vfOffset + 4] = vertices[vi++]; // v
 
-            uintbuf[_vfOffset + 5] = _c; // color
+            uintVBuf[_vfOffset + 5] = _c; // color
             _vfOffset += STRIDE_FLOAT;
         }
 
@@ -273,7 +273,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
     if (segments.length === 0) return;
 
     let vbuf: Float32Array;
-    let uintbuf: Uint32Array;
+    let uintVBuf: Uint32Array;
     let ibuf: Uint16Array;
     let material: MaterialInstance;
     // let offsetInfo;
@@ -328,7 +328,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;
         ibuf = _buffer!.renderData.iData;
-        uintbuf = _buffer!.renderData.vDataUint;
+        uintVBuf = _buffer!.renderData.uintVData;
 
         for (let ii = _indexOffset, il = _indexOffset + _indexCount; ii < il; ii++) {
             ibuf[ii] = _vertexOffset + indices[frameIndexOffset++];
@@ -342,7 +342,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
             vbuf[jj + 3] =  vertices[ii++];
             vbuf[jj + 4] =  vertices[ii++];
             ii++;
-            uintbuf[jj + 5] = _c;
+            uintVBuf[jj + 5] = _c;
             jj += STRIDE_FLOAT;
         }
 
@@ -374,7 +374,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
                 _handleColor(nowColor, 1.0);
                 maxVFOffset = nowColor.vfOffset!;
             }
-            uintbuf[ii] = _c;
+            uintVBuf[ii] = _c;
         }
     }
 }
