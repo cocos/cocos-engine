@@ -124,6 +124,7 @@ void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
     }
     _firstDirtyDescriptorSet = UINT_MAX;
     _commandBufferBegan      = true;
+    _firstRenderPass         = true;
 }
 
 void CCMTLCommandBuffer::end() {
@@ -158,6 +159,8 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     Texture *                dsTexture               = fbo->getDepthStencilTexture();
     auto *                   swapchain               = static_cast<CCMTLSwapchain *>(_gpuCommandBufferObj->fbo->swapChain());
 
+    // if not rendering to full framebuffer(eg. left top area), draw a quad to pretend viewport clear.
+    bool renderingFullFramebuffer   = isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass));
     if (subpasses.empty()) {
         if (dsTexture) {
             auto *ccMtlTexture = static_cast<CCMTLTexture *>(dsTexture);
@@ -176,7 +179,11 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[i]);
                 ccMtlRenderPass->setColorAttachment(i, ccMtlTexture, 0);
                 mtlRenderPassDescriptor.colorAttachments[i].clearColor  = mu::toMTLClearColor(colors[i]);
-                mtlRenderPassDescriptor.colorAttachments[i].loadAction  = mu::toMTLLoadAction(colorAttachments[i].loadOp);
+                if(!renderingFullFramebuffer) {
+                    mtlRenderPassDescriptor.colorAttachments[i].loadAction  = _firstRenderPass ? MTLLoadActionClear : MTLLoadActionLoad;
+                } else {
+                    mtlRenderPassDescriptor.colorAttachments[i].loadAction  = mu::toMTLLoadAction(colorAttachments[i].loadOp);
+                }
                 mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[i].storeOp) : MTLStoreActionStore;
             }
         }
@@ -202,7 +209,11 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                 auto *ccMtlTexture = static_cast<CCMTLTexture *>(colorTextures[color]);
                 ccMtlRenderPass->setColorAttachment(color, ccMtlTexture, 0);
                 mtlRenderPassDescriptor.colorAttachments[color].clearColor  = mu::toMTLClearColor(colors[color]);
-                mtlRenderPassDescriptor.colorAttachments[color].loadAction  = mu::toMTLLoadAction(colorAttachments[color].loadOp);
+                if(!renderingFullFramebuffer) {
+                    mtlRenderPassDescriptor.colorAttachments[color].loadAction  = _firstRenderPass ? MTLLoadActionClear : MTLLoadActionLoad;
+                } else {
+                    mtlRenderPassDescriptor.colorAttachments[color].loadAction  = mu::toMTLLoadAction(colorAttachments[color].loadOp);
+                }
                 mtlRenderPassDescriptor.colorAttachments[color].storeAction = mu::isFramebufferFetchSupported() ? mu::toMTLStoreAction(colorAttachments[color].storeOp) : MTLStoreActionStore;
                 visited[color]                                              = true;
                 if (subpasses[i].resolves.size() > j) {
@@ -217,6 +228,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
                     mtlRenderPassDescriptor.colorAttachments[color].storeAction       = MTLStoreActionMultisampleResolve;
                 }
             }
+            
             for (size_t j = 0; j < subpasses[i].preserves.size(); ++j) {
                 uint32_t preserves                                              = subpasses[i].preserves[j];
                 mtlRenderPassDescriptor.colorAttachments[preserves].storeAction = MTLStoreActionStoreAndMultisampleResolve;
@@ -232,11 +244,6 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     mtlRenderPassDescriptor.visibilityResultBuffer = _mtlDevice->getCapabilities().supportQuery ? queryPool->gpuQueryPool()->visibilityResultBuffer : nil;
 
     id<MTLCommandBuffer> mtlCommandBuffer = getMTLCommandBuffer();
-    if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
-        //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
-        mu::clearRenderArea(_mtlDevice, mtlCommandBuffer, renderPass, renderArea, colors, depth, stencil);
-    }
-
     if (secondaryCBCount > 0) {
         _parallelEncoder = [[mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
         // Create command encoders from parallel encoder and assign to command buffers
@@ -250,6 +257,11 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         _renderEncoder.initialize(mtlCommandBuffer, mtlRenderPassDescriptor);
         //[_renderEncoder.getMTLEncoder() memoryBarrierWithScope:MTLBarrierScopeTextures afterStages:MTLRenderStageFragment beforeStages:MTLRenderStageFragment];
     }
+    
+    if (!renderingFullFramebuffer) {
+        //Metal doesn't apply the viewports and scissors to renderpass load-action clearing.
+        mu::clearRenderArea(_mtlDevice, _renderEncoder.getMTLEncoder(), renderPass, renderArea, colors, depth, stencil);
+    }
 
     Rect scissorArea = renderArea;
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
@@ -259,6 +271,10 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
 #endif
     _renderEncoder.setViewport(scissorArea);
     _renderEncoder.setScissor(scissorArea);
+    
+    if(_firstRenderPass) {
+        _firstRenderPass = false;
+    }
 }
 
 void CCMTLCommandBuffer::endRenderPass() {

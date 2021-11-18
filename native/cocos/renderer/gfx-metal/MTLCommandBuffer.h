@@ -103,6 +103,7 @@ protected:
 
     bool                                _indirectDrawSuppotred = false;
     bool                                _commandBufferBegan    = false;
+    bool                                _firstRenderPass       = true;
     CCMTLDevice *                       _mtlDevice             = nullptr;
     id<MTLCommandQueue>                 _mtlCommandQueue       = nil;
     CCMTLRenderCommandEncoder           _renderEncoder;

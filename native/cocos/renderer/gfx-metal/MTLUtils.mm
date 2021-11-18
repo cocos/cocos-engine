@@ -318,7 +318,7 @@ gfx::Shader *createShader(CCMTLDevice *device) {
     String vs = R"(
             layout(location = 0) in vec2 a_position;
             void main() {
-                gl_Position = vec4(a_position, 0.0, 1.0);
+                gl_Position = vec4(a_position, 1.0, 1.0);
             }
     )";
     String fs = R"(
@@ -414,6 +414,12 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.shader = createShader(device);
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = renderPass;
+    
+    DepthStencilState dsState;
+    dsState.depthWrite  = 0;
+    dsState.depthTest   = 1;
+    dsState.depthFunc   = ComparisonFunc::LESS_EQUAL;
+    pipelineInfo.depthStencilState = dsState;
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
     CC_DELETE(pipelineInfo.shader);
@@ -1669,12 +1675,11 @@ bool mu::isSamplerDescriptorCompareFunctionSupported(uint family) {
 #endif
 }
 
-void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, uint /*stencil*/) {
+void mu::clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> renderEncoder, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float /*depth*/, uint /*stencil*/) {
     const auto gpuPSO = getClearRenderPassPipelineState(device, renderPass);
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     uint slot = 0u;
-    MTLRenderPassDescriptor *renderPassDescriptor = mtlRenderPass->getMTLRenderPassDescriptor();
-    renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
+    
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
     float renderTargetHeight = renderTargetSizes[slot].y;
@@ -1693,7 +1698,6 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
     const auto &colorAttachments = renderPass->getColorAttachments();
     const auto &depthStencilAttachment = renderPass->getDepthStencilAttachment();
 
-    id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     [renderEncoder setViewport:(MTLViewport){0, 0, renderTargetWidth, renderTargetHeight}];
     MTLScissorRect scissorArea = {static_cast<NSUInteger>(renderArea.x), static_cast<NSUInteger>(renderArea.y), static_cast<NSUInteger>(renderArea.width), static_cast<NSUInteger>(renderArea.height)};
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
@@ -1721,8 +1725,6 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
                       vertexStart:0
                       vertexCount:count];
 
-    [renderEncoder endEncoding];
-    renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
 }
 
 void mu::clearUtilResource() {
