@@ -339,13 +339,6 @@ export class Director extends EventTarget {
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
-            node.walk((node) => {
-                if (node._uiProps && node._uiProps.uiComp) {
-                    node._uiProps.uiComp.setNodeDirty();
-                    node._uiProps.uiComp.setFrameDirty(); // for dynamic atlas
-                    node._uiProps.uiComp.markForUpdateRenderData();
-                }
-            });
             const existNode = scene.uuid === node._originalSceneId && scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one

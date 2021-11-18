@@ -55,18 +55,7 @@ export const tiled: IAssembler = {
             return;
         }
 
-        if (renderData.passDirty) {
-            renderData.updatePass(sprite);
-        }
-        if (renderData.nodeDirty) {
-            renderData.updateNode(sprite);
-        }
-        if (renderData.frameDirty) {
-            renderData.updateFrame(frame);
-        }
-        if (renderData.hashDirty) {
-            renderData.updateHash();
-        }
+        renderData.updateRenderData(sprite, frame);
 
         if (!renderData.uvDirty && !renderData.vertDirty) {
             return;

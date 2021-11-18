@@ -120,7 +120,6 @@ export class RenderData extends BaseRenderData {
     public dataHash = 0;
 
     public updateNode (comp: Renderable2D) {
-        // TODO: have bug when node not add to scene
         this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
         this.layer = comp.node.layer;
         this.nodeDirty = false;
@@ -145,6 +144,32 @@ export class RenderData extends BaseRenderData {
         const hashString = ` ${this.layer} ${this.blendHash} ${this.material!.ID} ${this.textureHash}`;
         this.dataHash = murmurhash2_32_gc(hashString, 666);
         this.hashDirty = false;
+    }
+
+    public updateRenderData (comp: Renderable2D, frame: SpriteFrame | TextureBase) {
+        if (this.passDirty) {
+            this.material = comp.getRenderMaterial(0);
+            this.blendHash = comp.blendHash;
+            this.passDirty = false;
+            this.hashDirty = true;
+        }
+        if (this.nodeDirty) {
+            this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
+            this.layer = comp.node.layer;
+            this.nodeDirty = false;
+            this.hashDirty = true;
+        }
+        if (this.frameDirty) {
+            this.frame = frame;
+            this.textureHash = frame.getHash();
+            this.frameDirty = false;
+            this.hashDirty = true;
+        }
+        if (this.hashDirty) {
+            const hashString = ` ${this.layer} ${this.blendHash} ${this.material!.ID} ${this.textureHash}`;
+            this.dataHash = murmurhash2_32_gc(hashString, 666);
+            this.hashDirty = false;
+        }
     }
 
     public updateSizeNPivot (width: number, height: number, pivotX: number, pivotY: number) {

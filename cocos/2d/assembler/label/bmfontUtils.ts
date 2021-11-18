@@ -110,19 +110,9 @@ export const bmfontUtils = {
             this._resetProperties();
         }
 
-        const renderData = comp.renderData;
-        if (renderData.passDirty) {
-            renderData.updatePass(comp);
-        }
-        if (renderData.nodeDirty) {
-            renderData.updateNode(comp);
-        }
-        if (renderData.frameDirty) {
-            // @ts-expect-error type error
-            renderData.updateFrame(comp.spriteFrame);
-        }
-        if (renderData.hashDirty) {
-            renderData.updateHash();
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
         }
     },
 

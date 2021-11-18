@@ -131,18 +131,9 @@ export const ttfUtils =  {
             _texture = null;
         }
 
-        const renderData = comp.renderData;
-        if (renderData.passDirty) {
-            renderData.updatePass(comp);
-        }
-        if (renderData.nodeDirty) {
-            renderData.updateNode(comp);
-        }
-        if (renderData.frameDirty) {
-            renderData.updateFrame(comp.spriteFrame as SpriteFrame);
-        }
-        if (renderData.hashDirty) {
-            renderData.updateHash();
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
         }
     },
 
