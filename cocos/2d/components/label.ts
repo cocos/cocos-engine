@@ -732,8 +732,10 @@ export class Label extends Renderable2D {
 
         this._assemblerData = null;
         if (this._ttfSpriteFrame) {
+            this._ttfSpriteFrame._resetDynamicAtlasFrame();
             const tex = this._ttfSpriteFrame.texture;
-            if (tex && this._ttfSpriteFrame.original === null) {
+            this._ttfSpriteFrame.destroy();
+            if (tex) {
                 const tex2d = tex as Texture2D;
                 if (tex2d.image) {
                     tex2d.image.destroy();
