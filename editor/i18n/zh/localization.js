@@ -366,6 +366,9 @@ module.exports = {
             'startRadius': '初始半径及变化范围，表示粒子出生时相对发射器的距离，只有在半径模式下可用',
             'endRadius': '结束半径及变化范围，只有在半径模式下可用',
             'rotatePerS': '粒子每秒围绕起始点的旋转角度及变化范围，只有在半径模式下可用',
+            'textureAnimation': '是否使用textureAnimation',
+            'numTilesX': 'X 方向动画帧数',
+            'numTilesY': 'Y 方向动画帧数'
         },
         "mask": {
             'type': '遮罩类型',

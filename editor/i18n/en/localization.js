@@ -362,6 +362,9 @@ module.exports = {
             'startRadius': 'Starting radius and variation of the particles. Only available in Radius mode',
             'endRadius': 'Ending radius and variation of the particles. Only available in Radius mode',
             'rotatePerS': 'Number of degress to rotate a particle around the source pos per second and variation. Only available in Radius mode',
+            'textureAnimation': 'Set _textureAnimation to enable textureAnimation features',
+            'numTilesX': 'Animation frames in X direction',
+            'numTilesY': 'Animation frames in Y direction'
         },
         "mask": {
             'type': 'The mask type',

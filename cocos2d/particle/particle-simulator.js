@@ -54,6 +54,9 @@ let Particle = function () {
     this.degreesPerSecond = 0;
     this.radius = 0;
     this.deltaRadius = 0;
+
+    this.totalLiveTime = 0;
+    this.frameIndex = 0;
 }
 
 let pool = new js.Pool(function (par) {
@@ -78,6 +81,9 @@ let pool = new js.Pool(function (par) {
     par.degreesPerSecond = 0;
     par.radius = 0;
     par.deltaRadius = 0;
+
+    par.totalLiveTime = 0;
+    par.frameIndex = 0;
 }, 1024);
 pool.get = function () {
     return this._get() || new Particle();
@@ -124,7 +130,7 @@ Simulator.prototype.emitParticle = function (pos) {
     // timeToLive
     // no negative life. prevent division by 0
     particle.timeToLive = psys.life + psys.lifeVar * (Math.random() - 0.5) * 2;
-    let timeToLive = particle.timeToLive = Math.max(0, particle.timeToLive);
+    let timeToLive = particle.totalLiveTime = particle.timeToLive = Math.max(0, particle.timeToLive);
 
     // position
     particle.pos.x = psys.sourcePos.x + psys.posVar.x * (Math.random() - 0.5) * 2;
@@ -232,14 +238,33 @@ Simulator.prototype.updateUVs = function (force) {
         let particleCount = this.particles.length;
         for (let i = start; i < particleCount; i++) {
             let offset = i * FLOAT_PER_PARTICLE;
-            vbuf[offset+2] = uv[0];
-            vbuf[offset+3] = uv[1];
-            vbuf[offset+7] = uv[2];
-            vbuf[offset+8] = uv[3];
-            vbuf[offset+12] = uv[4];
-            vbuf[offset+13] = uv[5];
-            vbuf[offset+17] = uv[6];
-            vbuf[offset+18] = uv[7];
+
+            // update textureanimation
+            if(this.sys.textureAnimation && (this.sys.numTilesX > 1 || this.sys.numTilesY > 1)){
+                let particle = this.particles[i];
+                let frameIndex = Math.floor( (1 - particle.timeToLive / particle.totalLiveTime) * (this.sys.numTilesX * this.sys.numTilesY));
+                if(particle.frameIndex != frameIndex){
+                    particle.frameIndex = frameIndex;
+                    let sx = uv[4];
+                    let sy = uv[5];
+                    let sw = uv[2] - uv[4];
+                    let wh = uv[3] - uv[5];
+                    let xc = this.sys.numTilesX;
+                    let yc = this.sys.numTilesY;
+                    let xl = sw / xc;
+                    let yl = wh / yc;
+                    this.updateParticleUVs(vbuf, offset, particle, sx, sy, xl, yl, xc);
+                }
+            } else {
+                vbuf[offset+2] = uv[0];
+                vbuf[offset+3] = uv[1];
+                vbuf[offset+7] = uv[2];
+                vbuf[offset+8] = uv[3];
+                vbuf[offset+12] = uv[4];
+                vbuf[offset+13] = uv[5];
+                vbuf[offset+17] = uv[6];
+                vbuf[offset+18] = uv[7];
+            }
         }
         this._uvFilled = particleCount;
     }
@@ -295,6 +320,25 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
     uintbuf[offset+14] = particle.color._val;
     uintbuf[offset+19] = particle.color._val;
 };
+
+
+Simulator.prototype.updateParticleUVs = function (vbuf, offset, p, sx, sy, xl ,yl, xc) {
+   // bl
+   vbuf[offset + 2] = sx + p.frameIndex % xc * xl;
+   vbuf[offset + 3] = sy + Math.floor(p.frameIndex / xc) * yl + yl;
+
+   // br
+   vbuf[offset + 7] = sx + p.frameIndex % xc * xl + xl;
+   vbuf[offset + 8] = sy + Math.floor(p.frameIndex / xc) * yl + yl;
+
+   // tl
+   vbuf[offset + 12] = sx + p.frameIndex % xc * xl;
+   vbuf[offset + 13] = sy + Math.floor(p.frameIndex / xc) * yl;
+
+   // tr
+   vbuf[offset + 17] = sx + p.frameIndex % xc * xl + xl;
+   vbuf[offset + 18] = sy + Math.floor(p.frameIndex / xc) * yl;
+}
 
 Simulator.prototype.step = function (dt) {
     dt = dt > cc.director._maxParticleDeltaTime ? cc.director._maxParticleDeltaTime : dt;
@@ -430,6 +474,24 @@ Simulator.prototype.step = function (dt) {
 
             let offset = FLOAT_PER_PARTICLE * particleIdx;
             this.updateParticleBuffer(particle, newPos, buffer, offset);
+
+            // update textureanimation
+            if(psys.textureAnimation && (psys.numTilesX > 1 || psys.numTilesY > 1)){
+                let frameIndex = Math.floor( (1 - particle.timeToLive / particle.totalLiveTime) * (psys.numTilesX * psys.numTilesY));
+                if(particle.frameIndex != frameIndex){
+                    particle.frameIndex = frameIndex;
+                    let uv = this.sys._renderSpriteFrame.uv;
+                    let sx = uv[4];
+                    let sy = uv[5];
+                    let sw = uv[2] - uv[4];
+                    let wh = uv[3] - uv[5];
+                    let xc = psys.numTilesX;
+                    let yc = psys.numTilesY;
+                    let xl = sw / xc;
+                    let yl = wh / yc;
+                    this.updateParticleUVs(buffer._vData, offset, particle, sx, sy, xl, yl, xc);
+                }
+            }
 
             // update particle counter
             ++particleIdx;

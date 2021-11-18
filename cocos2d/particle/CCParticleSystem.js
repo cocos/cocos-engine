@@ -283,6 +283,67 @@ var properties = {
         animatable: false
     },
 
+
+     /**
+     * !#en
+     * Set _textureAnimation to enable textureAnimation features.
+     * !#zh 是否使用textureAnimation。
+     * @property {Boolean} textureAnimation
+     * @default false
+     */
+    _textureAnimation: false,
+    textureAnimation: {
+        get: function () {
+            return this._textureAnimation;
+        },
+        set: function (value) {
+            if (this._textureAnimation !== value) {
+                this._textureAnimation = value;
+            }
+        },
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.textureAnimation'
+    },
+
+    /**
+     * !#en Animation frames in X direction.
+     * !#zh X 方向动画帧数。
+     * @property {Number} numTilesX
+     * @default 1
+     */
+    _numTilesX: 1,
+    numTilesX: {
+        get () {
+            return this._numTilesX
+        },
+        set (val) {
+            if (this._numTilesX != val){
+                this._numTilesX = val;
+            }
+        },
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.numTilesX'
+    },
+
+     /**
+     * !#en Animation frames in Y direction.
+     * !#zh Y 方向动画帧数。
+     * @property {Number} numTilesY
+     * @default 1
+     */
+    _numTilesY: 1,
+    numTilesY: {
+        get () {
+            return this._numTilesY
+        },
+        set (val) {
+            if (this._numTilesY != val){
+                this._numTilesY = val;
+            }
+        },
+        tooltip: CC_DEV && 'i18n:COMPONENT.particle_system.numTilesY'
+    },
+
+
+
     /**
      * !#en Current quantity of particles that are being simulated.
      * !#zh 当前播放的粒子数量。
