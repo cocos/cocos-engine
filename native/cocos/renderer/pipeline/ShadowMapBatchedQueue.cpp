@@ -67,7 +67,7 @@ void ShadowMapBatchedQueue::gatherLightPasses(gfx::DescriptorSet *globalDS, cons
             } break;
 
             case scene::LightType::SPOT: {
-                const auto *spotLight     = dynamic_cast<const scene::SpotLight *>(light);
+                const auto *spotLight     = static_cast<const scene::SpotLight *>(light);
                 const Mat4  matShadowView = light->getNode()->getWorldMatrix().getInversed();
                 Mat4        matShadowProj;
                 Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowProj);

@@ -143,22 +143,30 @@ void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::arra
     memcpy(shadowUBO->data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(color));
 }
 
-void lightCollecting(scene::Camera *camera, std::vector<const scene::Light *> *validLights) {
-    validLights->clear();
-    auto *              sphere    = CC_NEW(scene::Sphere);
-    const auto *        scene     = camera->scene;
-    const scene::Light *mainLight = scene->getMainLight();
-    validLights->emplace_back(mainLight);
+void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera) {
+    const auto *const    scene               = camera->scene;
+    PipelineSceneData *  sceneData           = pipeline->getPipelineSceneData();
+    vector<const scene::Light*> validPunctualLights = sceneData->getValidPunctualLights();
+    validPunctualLights.clear();
 
-    for (auto *spotLight : scene->getSpotLights()) {
-        sphere->setCenter(spotLight->getPosition());
-        sphere->setRadius(spotLight->getRange());
-        if (sphere->interset(camera->frustum)) {
-            validLights->emplace_back(static_cast<scene::Light *>(spotLight));
+    scene::Sphere     sphere;
+    for (auto *light : scene->getSpotLights()) {
+        sphere.setCenter(light->getPosition());
+        sphere.setRadius(light->getRange());
+        if (sphere.sphereFrustum(camera->frustum)) {
+            validPunctualLights.emplace_back(static_cast<scene::Light *>(light));
         }
     }
 
-    CC_SAFE_DELETE(sphere)
+    for (auto *light : scene->getSphereLights()) {
+        sphere.setCenter(light->getPosition());
+        sphere.setRadius(light->getRange());
+        if (sphere.sphereFrustum(camera->frustum)) {
+            validPunctualLights.emplace_back(static_cast<scene::Light *>(light));
+        }
+    }
+
+    sceneData->setValidPunctualLights(std::move(validPunctualLights));
 }
 
 Mat4 getCameraWorldMatrix(const scene::Camera *camera) {
@@ -307,7 +315,6 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         }
     }
 
-    scene::AABB      ab;
     RenderObjectList renderObjects;
     RenderObjectList castShadowObject;
 

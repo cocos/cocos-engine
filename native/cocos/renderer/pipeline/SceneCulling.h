@@ -42,7 +42,7 @@ class RenderPipeline;
 
 RenderObject genRenderObject(const scene::Model *, const scene::Camera *);
 void         quantizeDirLightShadowCamera(RenderPipeline *pipeline, const scene::Camera *camera, scene::Frustum *out);
-void         lightCollecting(scene::Camera *, std::vector<const scene::Light *> *);
+void         validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera);
 void         sceneCulling(RenderPipeline *, scene::Camera *);
 void         updateSphereLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);
 void         updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);

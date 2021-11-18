@@ -49,6 +49,8 @@ public:
     void destroy() override;
 
 private:
+    void lightCollecting();
+
     void clearShadowMap(scene::Camera *camera);
 
     void resizeShadowMap(scene::Shadow **shadowInfo);

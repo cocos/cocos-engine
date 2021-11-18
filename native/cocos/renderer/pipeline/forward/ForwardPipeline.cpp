@@ -83,8 +83,8 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 }
 
 void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
-    auto *device               = gfx::Device::getInstance();
-    bool  enableOcclusionQuery = getOcclusionQueryEnabled();
+    auto *     device               = gfx::Device::getInstance();
+    const bool enableOcclusionQuery = getOcclusionQueryEnabled();
     if (enableOcclusionQuery) {
         device->getQueryPoolResults(_queryPools[0]);
     }
@@ -101,6 +101,7 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     decideProfilerCamera(cameras);
 
     for (auto *camera : cameras) {
+        validPunctualLightsCulling(this, camera);
         sceneCulling(this, camera);
         for (auto *const flow : _flows) {
             flow->render(camera);
@@ -125,7 +126,7 @@ void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
 bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
     _queryPools.push_back(_device->getQueryPool());
-    auto *const sharedData = _pipelineSceneData->getSharedData();
+    const auto *sharedData = _pipelineSceneData->getSharedData();
 
     gfx::Sampler *const sampler = getGlobalDSManager()->getPointSampler();
 
