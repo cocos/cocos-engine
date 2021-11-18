@@ -78,7 +78,7 @@ export class NodeUIProperties {
     public get opacity () { return this._opacity; }
 
     /**
-     * @en The opacity of the UI node
+     * @en The opacity of the UI node itself
      * @zh 本节点的UI 透明度
      */
     private _localOpacity = 1;
@@ -96,7 +96,7 @@ export class NodeUIProperties {
         this._node = node;
     }
 
-    public ApplyOpacity (effectOpacity) {
+    public applyOpacity (effectOpacity) {
         this._opacity = this._localOpacity * effectOpacity;
     }
 

@@ -578,21 +578,6 @@ export class Batcher2D implements IBatcher {
 
     public walk (node: Node, level = 0) {
 
-        // update opacity
-        if (node._uiProps.opacityDirty) {
-            let opacity = 1.0;
-            if (node.parent?._uiProps) {
-                opacity = node.parent._uiProps.opacity;
-                const render = node._uiProps.uiComp as Renderable2D;
-                if (render && render.markColorDirty) {
-                    opacity *= (render.color.a / 255);
-                    render.markColorDirty();
-                }
-            }
-            node._uiProps.opacityDirty = false;
-            node._uiProps.ApplyOpacity(opacity);
-        }
-
         const len = node.children.length;
         this._preProcess(node);
         if (len > 0 && !node._static) {
@@ -609,6 +594,21 @@ export class Batcher2D implements IBatcher {
     }
 
     private _preProcess (node: Node) {
+        // update opacity
+        if (node._uiProps.opacityDirty) {
+            let opacity = 1.0;
+            if (node.parent?._uiProps) {
+                opacity = node.parent._uiProps.opacity;
+                const render = node._uiProps.uiComp as Renderable2D;
+                if (render && render.markColorDirty) {
+                    opacity *= (render.color.a / 255);
+                    render.markColorDirty();
+                }
+            }
+            node._uiProps.opacityDirty = false;
+            node._uiProps.applyOpacity(opacity);
+        }
+
         const render = node._uiProps.uiComp;
         if (!node._uiProps.uiTransformComp) {
             return;
