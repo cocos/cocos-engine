@@ -231,7 +231,7 @@ export function _resetDebugSetting (mode: DebugMode) {
 
     if (EDITOR) {
         ccLog = console.log.bind(console);
-    } else if (mode === DebugMode.INFO) {
+    } else if (mode <= DebugMode.INFO) {
         if (JSB) {
             // @ts-expect-error We have no typing for this
             if (scriptEngineType === 'JavaScriptCore') {
