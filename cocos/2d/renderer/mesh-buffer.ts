@@ -66,6 +66,8 @@ export class MeshBuffer extends ScalableContainer {
     private _outOfCallback: ((...args: number[]) => void) | null = null;
     private _hInputAssemblers: InputAssembler[] = [];
     private _nextFreeIAHandle = 0;
+    private _lastUsedVDataSize = 0;
+    private _lastUsedIDataSize = 0;
 
     constructor (batcher: IBatcher) {
         super();
@@ -161,8 +163,8 @@ export class MeshBuffer extends ScalableContainer {
     }
 
     public tryShrink () {
-        if (!this.vData || !this.iData) return;
-        if (this.vData.byteLength >> 2 > this.byteOffset && this.iData.length >> 2 > this.indicesOffset) {
+        if (this._dirty || !this.vData || !this.iData) return;
+        if (this.vData.byteLength >> 2 > this._lastUsedVDataSize && this.iData.length >> 2 > this._lastUsedIDataSize) {
             const vDataCount = Math.max(256 * this._vertexFormatBytes, this._initVDataCount >> 1);
             const iDataCount = Math.max(256 * 6, this._initIDataCount >> 1);
             if (vDataCount !== this._initVDataCount || iDataCount !== this._initIDataCount) {
@@ -224,6 +226,8 @@ export class MeshBuffer extends ScalableContainer {
             this.indexBuffer.resize(this.indicesOffset * 2);
         }
         this.indexBuffer.update(indicesData);
+        this._lastUsedVDataSize = this.byteOffset;
+        this._lastUsedIDataSize = this.indicesOffset;
         this._dirty = false;
     }
 

@@ -243,19 +243,6 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
-        // const buffers = this._meshBuffers;
-        // buffers.forEach((value, key) => {
-        //     value.forEach((bb) => {
-        //         bb.reset();
-        //     });
-        // });
-
-        // const customs = this._customMeshBuffers;
-        // customs.forEach((value, key) => {
-        //     value.forEach((bb) => {
-        //         bb.reset();
-        //     });
-        // });
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
