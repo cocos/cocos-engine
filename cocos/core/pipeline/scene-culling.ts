@@ -37,7 +37,6 @@ import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
-import { Layers } from '../scene-graph';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
@@ -47,7 +46,6 @@ const _mat4_trans = new Mat4();
 const _castLightViewBounds = new AABB();
 const _castWorldBounds = new AABB();
 let _castBoundsInited = false;
-const _validLights: Light[] = [];
 const _sphere = Sphere.create(0, 0, 0, 1);
 const _cameraBoundingSphere = new Sphere();
 const _validFrustum = new Frustum();
@@ -207,23 +205,35 @@ export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, 
     Mat4.toArray(shadowUBO, m, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
-export function lightCollecting (camera: Camera, lightNumber: number) {
-    _validLights.length = 0;
+export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera) {
+    const sceneData = pipeline.pipelineSceneData;
+    const validPunctualLights = sceneData.validPunctualLights;
+    validPunctualLights.length = 0;
 
-    const scene = camera.scene!;
-    _validLights.push(scene.mainLight!);
-
-    const spotLights = scene.spotLights;
+    const { spotLights } = camera.scene!;
     for (let i = 0; i < spotLights.length; i++) {
         const light = spotLights[i];
+        if (light.baked) {
+            continue;
+        }
+
         Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-        if (intersect.sphereFrustum(_sphere, camera.frustum)
-          && lightNumber > _validLights.length) {
-            _validLights.push(light);
+        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
         }
     }
 
-    return _validLights;
+    const { sphereLights } = camera.scene!;
+    for (let i = 0; i < sphereLights.length; i++) {
+        const light = sphereLights[i];
+        if (light.baked) {
+            continue;
+        }
+        Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+        if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+            validPunctualLights.push(light);
+        }
+    }
 }
 
 export function getCameraWorldMatrix (out: Mat4, camera: Camera) {
