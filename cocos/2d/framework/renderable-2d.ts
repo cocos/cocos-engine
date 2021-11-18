@@ -549,6 +549,14 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this._renderData) {
+            this.markForUpdateRenderData();
+            this._renderData.passDirty = true;
+        }
+        super._onMaterialModified(idx, material);
+    }
+
     // macro.UI_GPU_DRIVEN
     protected _updateBuiltinMaterial () : Material {
         let gpuMat = '';

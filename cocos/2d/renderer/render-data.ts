@@ -141,7 +141,7 @@ export class RenderData extends BaseRenderData {
     }
 
     public updateHash () {
-        const hashString = ` ${this.layer} ${this.blendHash} ${this.material!.ID} ${this.textureHash}`;
+        const hashString = ` ${this.layer} ${this.blendHash} ${this.textureHash}`;
         this.dataHash = murmurhash2_32_gc(hashString, 666);
         this.hashDirty = false;
     }
@@ -166,7 +166,7 @@ export class RenderData extends BaseRenderData {
             this.hashDirty = true;
         }
         if (this.hashDirty) {
-            const hashString = ` ${this.layer} ${this.blendHash} ${this.material!.ID} ${this.textureHash}`;
+            const hashString = ` ${this.layer} ${this.blendHash} ${this.textureHash}`;
             this.dataHash = murmurhash2_32_gc(hashString, 666);
             this.hashDirty = false;
         }

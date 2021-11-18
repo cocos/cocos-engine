@@ -346,13 +346,16 @@ export class Batcher2D implements IBatcher {
         const renderComp = comp;
         const renderData = comp.renderData;
         let dataHash = 0;
+        let mat;
         if (renderData) {
             dataHash = renderData.dataHash;
+            mat = renderData.material;
         }
         renderComp.stencilStage = StencilManager.sharedManager!.stage;
         const depthStencilStateStage = renderComp.stencilStage;
 
-        if (this._currHash !== dataHash || dataHash === 0 ||  this._currDepthStencilStateStage !== depthStencilStateStage) {
+        if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
+            || this._currDepthStencilStateStage !== depthStencilStateStage) {
             this.autoMergeBatches(this._currComponent!);
             if (renderData) {
                 this._currHash = renderData.dataHash;

@@ -41,10 +41,8 @@ import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
 import { Vec4 } from '../math';
 import { SRGBToLinear } from '../pipeline/pipeline-funcs';
-import IDGenerator from '../utils/id-generator';
 
 const v4_1 = new Vec4();
-const idGenerator = new IDGenerator('Mat');
 
 /**
  * @en The basic infos for material initialization.
@@ -128,16 +126,8 @@ export class Material extends Asset {
 
     protected _hash = 0;
 
-    protected _id: string;
-
     constructor () {
         super();
-
-        this._id = idGenerator.getNewId();
-    }
-
-    get ID () {
-        return this._id;
     }
 
     /**
