@@ -89,16 +89,16 @@ function syncNodeValue (node: Node) {
     let x = lpos.x;
     let y = lpos.y;
     let z = lpos.z;
-    if (x !== null && y !== null && z !== null) {
-        node.setPositionForJS(x, y, z);
+    if (x !== null || y !== null || z !== null) {
+        node.setPositionForJS(x || 0, y || 0, z || 0);
     }
 
     const lscale = node._lscale;
     x = lscale.x;
     y = lscale.y;
     z = lscale.z;
-    if (x !== null && y !== null && z !== null) {
-        node.setScaleForJS(x, y, z);
+    if (x !== null || y !== null || z !== null) {
+        node.setScaleForJS(x || 1, y || 1, z || 1);
     }
 
     const lrot = node._lrot;
@@ -106,8 +106,8 @@ function syncNodeValue (node: Node) {
     y = lrot.y;
     z = lrot.z;
     const w = lrot.w;
-    if (x !== null && y !== null && z !== null && w != null) {
-        node.setRotationForJS(x, y, z, w);
+    if (x !== null || y !== null || z !== null || w != null) {
+        node.setRotationForJS(x || 0, y || 0, z || 0, w || 1);
     }
 
     if (node._layer !== null) {
@@ -118,8 +118,8 @@ function syncNodeValue (node: Node) {
     x = euler.x;
     y = euler.y;
     z = euler.z;
-    if (x !== null && y !== null && z !== null) {
-        node.setRotationFromEulerForJS(euler.x, euler.y, euler.z);
+    if (x !== null || y !== null || z !== null) {
+        node.setRotationFromEulerForJS(x || 0, y || 0, z || 0);
     }
 }
 
