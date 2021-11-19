@@ -77,6 +77,7 @@ private:
     std::vector<float>        _lightBufferData;
     uint                      _lightBufferStride{0};
     uint                      _lightBufferElementCount{0};
+    bool                      _isTransparentQueueEmpty{true};
     float                     _lightMeterScale{10000.0};
     gfx::DescriptorSet *      _descriptorSet{nullptr};
     gfx::DescriptorSetLayout *_descLayout{nullptr};
