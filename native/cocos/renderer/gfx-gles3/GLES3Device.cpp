@@ -208,7 +208,10 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.y));
         glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, reinterpret_cast<GLint *>(&_caps.maxComputeWorkGroupCount.z));
     }
-    _caps.supportQuery = true;
+
+    if (checkExtension("GL_EXT_occlusion_query_boolean")) {
+        _caps.supportQuery = true;
+    }
 
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;

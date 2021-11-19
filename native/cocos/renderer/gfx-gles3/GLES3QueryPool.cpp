@@ -40,14 +40,16 @@ GLES3QueryPool::~GLES3QueryPool() {
 }
 
 void GLES3QueryPool::doInit(const QueryPoolInfo& /*info*/) {
-    GLES3Device* device            = GLES3Device::getInstance();
-    _gpuQueryPool                  = CC_NEW(GLES3GPUQueryPool);
-    _gpuQueryPool->type            = _type;
-    _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
-    _gpuQueryPool->forceWait       = _forceWait;
-    _gpuQueryPool->glQueryIds.resize(_maxQueryObjects, 0U);
+    GLES3Device* device = GLES3Device::getInstance();
+    if (device->getCapabilities().supportQuery) {
+        _gpuQueryPool                  = CC_NEW(GLES3GPUQueryPool);
+        _gpuQueryPool->type            = _type;
+        _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
+        _gpuQueryPool->forceWait       = _forceWait;
+        _gpuQueryPool->glQueryIds.resize(_maxQueryObjects, 0U);
 
-    cmdFuncGLES3CreateQuery(device, _gpuQueryPool);
+        cmdFuncGLES3CreateQuery(device, _gpuQueryPool);
+    }
 }
 
 void GLES3QueryPool::doDestroy() {

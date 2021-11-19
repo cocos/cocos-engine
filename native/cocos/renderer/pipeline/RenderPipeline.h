@@ -152,7 +152,7 @@ protected:
     // use cluster culling or not
     bool _clusterEnabled{false};
     bool _bloomEnabled{false};
-    bool _occlusionQueryEnabled{true};
+    bool _occlusionQueryEnabled{false};
 };
 
 } // namespace pipeline
