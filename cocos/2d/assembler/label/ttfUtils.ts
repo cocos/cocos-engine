@@ -354,7 +354,7 @@ export const ttfUtils =  {
                     _texture._calculateUV();
                 }
                 if (comp.renderData) {
-                    comp.renderData.frameDirty = true;
+                    comp.renderData.textureDirty = true;
                 }
                 if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
                     legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());

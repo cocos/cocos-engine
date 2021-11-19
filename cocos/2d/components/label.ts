@@ -822,7 +822,7 @@ export class Label extends Renderable2D {
             if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
                 if (this.renderData) {
-                    this.renderData.frameDirty = true;
+                    this.renderData.textureDirty = true;
                 }
                 this.changeMaterialForDefine();
                 if (this._assembler) {

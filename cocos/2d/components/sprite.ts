@@ -728,7 +728,7 @@ export class Sprite extends Renderable2D {
                 textureChanged = true;
             }
             if (textureChanged) {
-                if (this._renderData) this._renderData.frameDirty = true;
+                if (this._renderData) this._renderData.textureDirty = true;
                 this.changeMaterialForDefine();
             }
             this._applySpriteSize();

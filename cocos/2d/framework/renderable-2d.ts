@@ -598,9 +598,9 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    public setFrameDirty () {
+    public setTextureDirty () {
         if (this.renderData) {
-            this.renderData.frameDirty = true;
+            this.renderData.textureDirty = true;
         }
     }
 }

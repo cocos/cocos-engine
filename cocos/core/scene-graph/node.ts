@@ -600,7 +600,7 @@ export class Node extends BaseNode implements CustomSerializable {
             // ALL Node renderData dirty flag will set on here
             if (this._uiProps && this._uiProps.uiComp) {
                 this._uiProps.uiComp.setNodeDirty();
-                this._uiProps.uiComp.setFrameDirty(); // for dynamic atlas
+                this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
                 this._uiProps.uiComp.markForUpdateRenderData();
             }
         } else { // deactivated

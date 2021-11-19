@@ -97,6 +97,6 @@ export class UIComponent extends Component {
     public setNodeDirty () {
     }
 
-    public setFrameDirty () {
+    public setTextureDirty () {
     }
 }

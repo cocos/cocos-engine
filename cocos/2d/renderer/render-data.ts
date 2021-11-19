@@ -114,7 +114,7 @@ export class RenderData extends BaseRenderData {
 
     public frame;
     public textureHash = 0;
-    public frameDirty = true;
+    public textureDirty = true;
 
     public hashDirty = true;
     public dataHash = 0;
@@ -133,10 +133,10 @@ export class RenderData extends BaseRenderData {
         this.hashDirty = true;
     }
 
-    public updateFrame (frame: SpriteFrame | TextureBase) {
+    public updateTexture (frame: SpriteFrame | TextureBase) {
         this.frame = frame;
         this.textureHash = frame.getHash();
-        this.frameDirty = false;
+        this.textureDirty = false;
         this.hashDirty = true;
     }
 
@@ -159,10 +159,10 @@ export class RenderData extends BaseRenderData {
             this.nodeDirty = false;
             this.hashDirty = true;
         }
-        if (this.frameDirty) {
+        if (this.textureDirty) {
             this.frame = frame;
             this.textureHash = frame.getHash();
-            this.frameDirty = false;
+            this.textureDirty = false;
             this.hashDirty = true;
         }
         if (this.hashDirty) {
@@ -200,7 +200,7 @@ export class RenderData extends BaseRenderData {
 
         this.nodeDirty = true;
         this.passDirty = true;
-        this.frameDirty = true;
+        this.textureDirty = true;
         this.hashDirty = true;
 
         this.renderScene = null;
