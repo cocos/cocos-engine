@@ -167,6 +167,11 @@ export class Renderable2D extends RenderableComponent {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
+            if (this._renderData) {
+                this._renderData.material = this._customMaterial;
+                this.markForUpdateRenderData();
+                this._renderData.passDirty = true;
+            }
             this._blendHash = -1; // a flag to check merge
             if (UI_GPU_DRIVEN) {
                 this._canDrawByFourVertex = false;
@@ -175,6 +180,10 @@ export class Renderable2D extends RenderableComponent {
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
+        if (this._renderData) {
+            this._renderData.material = mat;
+            this.markForUpdateRenderData();
+        }
         this._updateBlendFunc();
     }
 
@@ -250,7 +259,7 @@ export class Renderable2D extends RenderableComponent {
         if (this._color.equals(value)) {
             return;
         }
-        let oldAlpha = this._color.a;
+        const oldAlpha = this._color.a;
         this._color.set(value);
         if (oldAlpha !== this.color.a) {
             NodeUIProperties.markOpacityTree(this.node);
@@ -488,7 +497,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    public markColorDirty() {
+    public markColorDirty () {
         this._colorDirty = true;
     }
 
@@ -504,6 +513,9 @@ export class Renderable2D extends RenderableComponent {
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
+            if (this.renderData) {
+                this.renderData.passDirty = true;
+            }
         }
         this.updateBlendHash();
     }
@@ -525,6 +537,14 @@ export class Renderable2D extends RenderableComponent {
                 renderComp.markForUpdateRenderData();
             }
         }
+    }
+
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this._renderData) {
+            this.markForUpdateRenderData();
+            this._renderData.passDirty = true;
+        }
+        super._onMaterialModified(idx, material);
     }
 
     // macro.UI_GPU_DRIVEN
@@ -557,6 +577,18 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _flushAssembler? (): void;
+
+    public setNodeDirty () {
+        if (this.renderData) {
+            this.renderData.nodeDirty = true;
+        }
+    }
+
+    public setTextureDirty () {
+        if (this.renderData) {
+            this.renderData.textureDirty = true;
+        }
+    }
 }
 
 legacyCC.internal.Renderable2D = Renderable2D;

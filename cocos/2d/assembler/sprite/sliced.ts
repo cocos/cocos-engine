@@ -79,6 +79,7 @@ export const sliced: IAssembler = {
                 this.updateVertexData!(sprite);
                 this.updateWorldVertexData!(sprite);
             }
+            renderData.updateRenderData(sprite, frame);
         }
     },
 
