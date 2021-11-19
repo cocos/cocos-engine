@@ -259,7 +259,7 @@ export class Renderable2D extends RenderableComponent {
         if (this._color.equals(value)) {
             return;
         }
-        let oldAlpha = this._color.a;
+        const oldAlpha = this._color.a;
         this._color.set(value);
         if (oldAlpha !== this.color.a) {
             NodeUIProperties.markOpacityTree(this.node);
@@ -497,7 +497,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    public markColorDirty() {
+    public markColorDirty () {
         this._colorDirty = true;
     }
 
@@ -577,14 +577,15 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _flushAssembler? (): void;
+
     public setNodeDirty () {
         if (this.renderData) {
             this.renderData.nodeDirty = true;
         }
     }
 
-        if (this.renderData) {
     public setTextureDirty () {
+        if (this.renderData) {
             this.renderData.textureDirty = true;
         }
     }
