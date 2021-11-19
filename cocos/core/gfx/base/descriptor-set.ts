@@ -43,6 +43,10 @@ export abstract class DescriptorSet extends GFXObject {
         return this._layout!;
     }
 
+    get textures () {
+        return this._textures;
+    }
+
     protected _layout: DescriptorSetLayout | null = null;
     protected _buffers: Buffer[] = [];
     protected _textures: Texture[] = [];

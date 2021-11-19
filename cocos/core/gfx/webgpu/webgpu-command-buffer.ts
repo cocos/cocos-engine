@@ -38,6 +38,7 @@ import { checkCircleReference } from '../../asset-manager/utilities';
 
 export class WebGPUCommandBuffer extends CommandBuffer {
     private _nativeCommandBuffer;
+    private _frameBuffer;
 
     private _device;
 
@@ -106,6 +107,14 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         clearDepth: number,
         clearStencil: number,
     ) {
+        // for (let i = 0; i < renderPass.colorAttachments.length; i++) {
+        //     if (renderPass.colorAttachments[i].format !== framebuffer.colorTextures[i]?.format) {
+        //         console.log('bingo!');
+        //     }
+        // }
+
+        this._frameBuffer = framebuffer;
+
         const rect = new nativeLib.Rect();
         rect.x = renderArea.x;
         rect.y = renderArea.y;
@@ -135,10 +144,22 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public bindPipelineState (pipelineState: PipelineState) {
+        // if (pipelineState.renderPass.colorAttachments[0].format !== (this._frameBuffer as Framebuffer).renderPass.colorAttachments[0].format) {
+        //     console.log('bingo!');
+        // }
+
         this._nativeCommandBuffer.bindPipelineState((pipelineState as WebGPUPipelineState).nativePipelineState);
     }
 
     public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: number[]) {
+        const fbos = (this._frameBuffer as Framebuffer).colorTextures;
+        for (let i = 0; i < fbos.length; ++i) {
+            if (fbos[i]) {
+                if (descriptorSet.textures.includes(fbos[i]!)) {
+                    console.log(set, descriptorSet, fbos[i]);
+                }
+            }
+        }
         if (dynamicOffsets) {
             const dynOffsets = new nativeLib.vector_uint32();
             for (let i = 0; i < dynamicOffsets.length; i++) {

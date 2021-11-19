@@ -35,10 +35,12 @@ import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputA
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { Format, StoreOp,
+import {
+    Format, StoreOp,
     ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, Texture, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain } from '../../gfx';
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain,
+} from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -192,7 +194,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         if (!this._lightingRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA8;
+            colorAttachment.format = Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -268,7 +270,7 @@ export class DeferredPipeline extends RenderPipeline {
 
     private _generateDeferredRenderData () {
         const device = this.device;
-
+        debugger;
         const data: DeferredRenderData = this._pipelineRenderData = new DeferredRenderData();
         const sceneData = this.pipelineSceneData;
         for (let i = 0; i < 4; ++i) {

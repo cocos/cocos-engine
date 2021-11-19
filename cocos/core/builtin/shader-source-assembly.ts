@@ -15,6 +15,7 @@ const assembly: Partial<Record<ShaderVersion, ShaderSource>> = (() => {
         return {
             glsl1,
             glsl3,
+            glsl4,
         };
     } else if (MINIGAME) {
         return {
