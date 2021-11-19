@@ -818,12 +818,12 @@ exports.methods = {
         panel.$.clipFrames.innerText = maxFrames;
         panel.$.clipFPS.value = fps;
 
-        panel.$.clipFrom.value = startFrames;
         panel.$.clipFrom.setAttribute('max', endFrames);
+        panel.$.clipFrom.value = startFrames;
 
-        panel.$.clipTo.value = endFrames;
         panel.$.clipTo.setAttribute('min', startFrames);
         panel.$.clipTo.setAttribute('max', maxFrames);
+        panel.$.clipTo.value = endFrames;
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
         panel.$.speed.value = panel.currentClipInfo.speed || 1;
