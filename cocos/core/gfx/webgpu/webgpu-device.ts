@@ -162,6 +162,7 @@ export class WebGPUDevice extends Device {
         if (buffer.initialize(info)) {
             return buffer;
         }
+        return null!;
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
@@ -304,7 +305,7 @@ export class WebGPUDevice extends Device {
         (this._nativeDevice as any).copyBuffersToTexture(bufferDataList, (texture as WebGPUTexture).nativeTexture, bufferTextureCopyList);
     }
 
-    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): Promise<void> {
+    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
         console.log('copyTextureToBuffers not fully implemented for sync issue on native webgpu.');
 
         // const bufferTextureCopyList = new nativeLib.BufferTextureCopyList();

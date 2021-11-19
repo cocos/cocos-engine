@@ -162,7 +162,7 @@ export abstract class Device {
 
     public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
 
-    public abstract initialize (info: Readonly<DeviceInfo>): oolean | Promise<boolean>;
+    public abstract initialize (info: Readonly<DeviceInfo>): boolean | Promise<boolean>;
 
     public abstract destroy (): void;
 
