@@ -104,11 +104,11 @@ export class NodeUIProperties {
      * @en Make the opacity state of node tree is dirty
      * @zh 为结点树的透明度状态设置脏标签
      */
-    public static markOpacityTree (node) {
-        node._uiProps.opacityDirty = true;
+    public static markOpacityTree (node, isDirty = true) {
+        node._uiProps.opacityDirty = isDirty;
         for (let i = 0, l = node.children.length; i < l; i++) {
             const c = node.children[i];
-            NodeUIProperties.markOpacityTree(c);
+            NodeUIProperties.markOpacityTree(c, isDirty);
         }
     }
 }
