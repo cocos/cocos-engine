@@ -1,0 +1,46 @@
+name: interface check
+
+#on: push
+on: [pull_request]
+
+jobs:
+  Check_pull_request_version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: npm install
+        run: |
+          npm install --ignore-scripts
+
+      - name: build HEAD declaration
+        run: |
+          npm run build-declaration
+          cp ./bin/.declarations/cc.d.ts ./bin/cc_head.d.ts
+        
+      - name: git checkout to base branch
+        run: |
+          base_branch=`echo ${{ github.base_ref }} | awk -F'/' '{print $NF}'`
+          git fetch origin ${base_branch}
+          git checkout remotes/origin/${base_branch}
+      
+      - name: build base declaration
+        run: |
+          npm run build-declaration
+
+      - uses: LouisBrunner/diff-action@v0.1.2
+        with:
+          old: ./bin/.declarations/cc.d.ts
+          new: ./bin/cc_head.d.ts
+          mode: addition
+          tolerance: worse
+          output: ./interface-diff.txt
+
+      - name: optimize interface check report
+        run: |
+          cat ./interface-diff.txt
+          node ./.github/workflows/interface-check-report.js
+          
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: ./interface-diff.txt
