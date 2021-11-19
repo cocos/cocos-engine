@@ -379,10 +379,9 @@ export class Material extends Asset {
             const passInfo = tech.passes[k] as IPassInfoFull;
             const propIdx = passInfo.passIndex = k;
             const defines = passInfo.defines = this._defines[propIdx] || (this._defines[propIdx] = {});
-            const states = passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
+            passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
             if (passInfo.propertyIndex !== undefined) {
                 Object.assign(defines, this._defines[passInfo.propertyIndex]);
-                Object.assign(states, this._states[passInfo.propertyIndex]);
             }
             if (passInfo.embeddedMacros !== undefined) {
                 Object.assign(defines, passInfo.embeddedMacros);

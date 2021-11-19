@@ -156,7 +156,6 @@ export class Batcher2D implements IBatcher {
     private _currLayer = 0;
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
-    private _currOpacity = 1;
     private _currHash = 0;
 
     // DescriptorSet Cache Map
@@ -253,7 +252,6 @@ export class Batcher2D implements IBatcher {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
-            this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
         }
 
@@ -321,7 +319,6 @@ export class Batcher2D implements IBatcher {
         this._currTransform = null;
         this._currScene = null;
         this._currMeshBuffer = null;
-        this._currOpacity = 1;
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
@@ -601,13 +598,12 @@ export class Batcher2D implements IBatcher {
     }
 
     public walk (node: Node, level = 0) {
-        const len = node.children.length;
 
+        const len = node.children.length;
         this._preProcess(node);
         if (len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
-                this._currOpacity = node._uiProps.opacity;
                 const child = children[i];
                 this.walk(child, level);
             }
@@ -619,9 +615,22 @@ export class Batcher2D implements IBatcher {
     }
 
     private _preProcess (node: Node) {
+        // update opacity
+        if (node._uiProps.opacityDirty) {
+            let opacity = 1.0;
+            if (node.parent?._uiProps) {
+                opacity = node.parent._uiProps.opacity;
+                const render = node._uiProps.uiComp as Renderable2D;
+                if (render && render.markColorDirty) {
+                    opacity *= (render.color.a / 255);
+                    render.markColorDirty();
+                }
+            }
+            node._uiProps.opacityDirty = false;
+            node._uiProps.applyOpacity(opacity);
+        }
+
         const render = node._uiProps.uiComp;
-        const localAlpha = node._uiProps.localOpacity;
-        node._uiProps.opacity = this._currOpacity * localAlpha;
         if (!node._uiProps.uiTransformComp) {
             return;
         }

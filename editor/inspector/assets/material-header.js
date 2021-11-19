@@ -108,7 +108,6 @@ exports.update = async function(assetList, metaList) {
     }
 
     await panel.glPreview.init({ width: this.$.canvas.clientWidth, height: this.$.canvas.clientHeight });
-    await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
 
     panel.isPreviewDataDirty = true;
     panel.refreshPreview();

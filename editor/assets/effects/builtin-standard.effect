@@ -41,7 +41,6 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
-      properties: *props
     - &shadow-caster
       vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
