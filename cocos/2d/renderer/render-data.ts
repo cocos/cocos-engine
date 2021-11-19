@@ -36,9 +36,9 @@ import { RenderScene } from '../../core/renderer/scene';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
-import { getAttributeFloatCount } from './vertex-format';
+import { getVertexFloatCount } from './vertex-format';
 
-const _floatCountPerVertex = getAttributeFloatCount();
+const _floatCountPerVertex = getVertexFloatCount();
 export interface IRenderData {
     x: number;
     y: number;

@@ -35,11 +35,11 @@ import { MeshRenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { PositionType } from './define';
 import { legacyCC } from '../core/global-exports';
-import { getAttributeFloatCount } from '../2d/renderer/vertex-format';
+import { getVertexFloatCount } from '../2d/renderer/vertex-format';
 
 export const ParticleAssembler: IAssembler = {
     maxParticleDeltaTime: 0,
-    floatCountPerVertex: getAttributeFloatCount(),
+    floatCountPerVertex: getVertexFloatCount(),
     createData (comp: ParticleSystem2D) {
         return MeshRenderData.add();
     },

@@ -34,7 +34,7 @@ import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { StencilManager } from '../../renderer/stencil-manager';
 import { simple } from '../sprite';
-import { getAttributeFloatCount } from '../../renderer/vertex-format';
+import { getVertexFloatCount } from '../../renderer/vertex-format';
 
 const _stencilManager = StencilManager.sharedManager!;
 
@@ -55,7 +55,7 @@ function applyAreaMask (mask: Mask, renderer: IBatcher) {
 }
 
 export const maskAssembler: IAssembler = {
-    floatCountPerVertex: getAttributeFloatCount(),
+    floatCountPerVertex: getVertexFloatCount(),
 
     createData (mask: Mask) {
         const renderData = mask.requestRenderData();

@@ -34,14 +34,14 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-import { getAttributeFloatCount } from '../../renderer/vertex-format';
+import { getVertexFloatCount } from '../../renderer/vertex-format';
 
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
-    floatCountPerVertex: getAttributeFloatCount(),
+    floatCountPerVertex: getVertexFloatCount(),
 
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();

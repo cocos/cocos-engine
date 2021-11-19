@@ -35,7 +35,7 @@ import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
 import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../renderer/render-data';
-import { getAttributeFloatCount } from '../../renderer/vertex-format';
+import { getVertexFloatCount } from '../../renderer/vertex-format';
 
 const WHITE = Color.WHITE.clone();
 
@@ -44,7 +44,7 @@ const WHITE = Color.WHITE.clone();
  * 可通过 `UI.ttf` 获取该组装器。
  */
 export const ttf: IAssembler = {
-    floatCountPerVertex: getAttributeFloatCount(),
+    floatCountPerVertex: getVertexFloatCount(),
 
     createData (comp: Label) {
         const renderData = comp.requestRenderData()!;

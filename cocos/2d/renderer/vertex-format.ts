@@ -75,7 +75,7 @@ export function getAttributeStride (attrs: Attribute[]) {
     return count;
 }
 
-export function getAttributeFloatCount (attrs: Attribute[] = vfmtPosUvColor) {
+export function getVertexFloatCount (attrs: Attribute[] = vfmtPosUvColor) {
     let count = 0;
     for (let i = 0; i < attrs.length; i++) {
         const attr = attrs[i];

@@ -35,7 +35,7 @@ import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledMeshData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { Texture2D, Node } from '../../core';
-import { getAttributeFloatCount } from '../../2d/renderer/vertex-format';
+import { getVertexFloatCount } from '../../2d/renderer/vertex-format';
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
 
@@ -52,7 +52,7 @@ let _fillGrids = 0;
 let _vfOffset = 0;
 let _moveX = 0;
 let _moveY = 0;
-const floatCountPerVertex = getAttributeFloatCount();
+const floatCountPerVertex = getVertexFloatCount();
 
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
 
