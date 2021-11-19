@@ -79,7 +79,7 @@ export class NodeUIProperties {
 
     /**
      * @en The opacity of the UI node itself
-     * @zh 本节点的UI 透明度
+     * @zh 本节点的 UI 透明度
      */
     private _localOpacity = 1;
     get localOpacity () { return this._localOpacity; }
