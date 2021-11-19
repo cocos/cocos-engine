@@ -34,8 +34,9 @@ import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
-import { assert, errorID, error } from '../platform/debug';
+import { assert, errorID, error, getError } from '../platform/debug';
 import { NodeEventType } from './node-event';
+import { assertIsTrue } from '../data/utils/asserts';
 
 const MAX_POOL_SIZE = 4;
 
@@ -245,12 +246,7 @@ export default class NodeActivator {
             }
         }
         if (comp._enabled) {
-            if (DEBUG) {
-                if (!comp.node) {
-                    error('The Node of component should not be null');
-                    return;
-                }
-            }
+            assertIsTrue(!comp.node, getError(3823));
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
@@ -385,12 +381,7 @@ if (EDITOR) {
             }
         }
         if (comp._enabled) {
-            if (DEBUG) {
-                if (!comp.node) {
-                    error('The Node of component should not be null');
-                    return;
-                }
-            }
+            assertIsTrue(!comp.node, getError(3823));
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;

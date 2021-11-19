@@ -1703,6 +1703,10 @@ Cannot change hierarchy while activating or deactivating the parent.
 
 addComponent: Cannot add any component to the scene.
 
+### 3823
+
+The Node of component should not be null.
+
 ### 3900
 
 Invalid clip to add
