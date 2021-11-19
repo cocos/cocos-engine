@@ -35,13 +35,9 @@ import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledMeshData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { Texture2D, Node } from '../../core';
+import { getAttributeFloatCount } from '../../2d/renderer/vertex-format';
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
-
-const vec3_temps: Vec3[] = [];
-for (let i = 0; i < 4; i++) {
-    vec3_temps.push(new Vec3());
-}
 
 const _mat4_temp = new Mat4();
 const _vec3u_temp = new Vec3();
@@ -56,6 +52,7 @@ let _fillGrids = 0;
 let _vfOffset = 0;
 let _moveX = 0;
 let _moveY = 0;
+const floatCountPerVertex = getAttributeFloatCount();
 
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
 
@@ -131,7 +128,7 @@ export const simple: IAssembler = {
                 const renderData = (r as any).renderData;
                 const vs = renderData.vDataUint;
                 for (let i = renderData.vertexStart, l = renderData.vertexCount; i < l; i++) {
-                    vs[i * 6 + 5] = color;
+                    vs[i * floatCountPerVertex + 5] = color;
                 }
             }
         }
@@ -168,9 +165,9 @@ export const simple: IAssembler = {
         const srcVIdx = renderData.vertexStart;
 
         // copy all vertexData
-        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * 6), vertexOffset);
+        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * floatCountPerVertex), vertexOffset);
         for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = vertexOffset + i * 6;
+            const pOffset = vertexOffset + i * floatCountPerVertex;
             _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
             _vec3u_temp.transformMat4(matrix);
             vBuf[pOffset] = _vec3u_temp.x;
@@ -349,7 +346,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     const texGrids = comp.texGrids!;
     const tiles = comp.tiles;
 
-    const vertStep = 6;
+    const vertStep = floatCountPerVertex;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;
 
@@ -442,7 +439,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
             tiledNode = tiledTiles[colData.index];
 
             _renderData!.renderData.reserve(4, 0);
-            _vfOffset = _renderData!.renderData.vertexCount * 6;
+            _vfOffset = _renderData!.renderData.vertexCount * floatCountPerVertex;
             vertexBuf = _renderData!.renderData.vData;
             uintVBuf = _renderData!.renderData.uintVData;
             if (!tiledNode) {
@@ -526,7 +523,7 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
 
 function fillByTiledNode (tiledNode: Node, color: number, vbuf: Float32Array, uintVBuf: Uint32Array,
     left: number, right: number, top: number, bottom: number, diamondTile: boolean) {
-    const vertStep = 6;
+    const vertStep = floatCountPerVertex;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;
 

@@ -35,13 +35,14 @@ import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
 import { Renderable2D } from '../../framework/renderable-2d';
 import { IAssembler } from '../../renderer/base';
+import { getAttributeFloatCount } from '../../renderer/vertex-format';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
-const _perVertexLength = 6;
+const _perVertexLength = getAttributeFloatCount();
 
 export const tiled: IAssembler = {
     createData (sprite: Renderable2D) {
@@ -292,7 +293,7 @@ export const tiled: IAssembler = {
                     uintVBuf[vertexOffset + offset + 5] = color;
                 }
 
-                vertexOffset += 24;
+                vertexOffset += _perVertexLength * 4;
             }
         }
     },

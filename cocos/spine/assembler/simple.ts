@@ -9,7 +9,7 @@ import { IBatcher } from '../../2d/renderer/i-batcher.js';
 import { FrameColor } from '../skeleton-cache';
 import { MaterialInstance } from '../../core/renderer';
 import { SkeletonTexture } from '../skeleton-texture';
-import { vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
+import { getAttributeFloatCount, vfmtPosUvColor, vfmtPosUvTwoColor } from '../../2d/renderer/vertex-format';
 import { Skeleton, SkeletonMeshData, SpineMaterialType } from '../skeleton';
 import { Color, Mat4, Material, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';
@@ -137,7 +137,7 @@ function _spineColorToInt32 (spineColor: spine.Color) {
 }
 
 function _vfmtFloatSize (useTint: boolean) {
-    return useTint ? 3 + 2 + 1 + 1 : 3 + 2 + 1;
+    return useTint ? getAttributeFloatCount(vfmtPosUvTwoColor) : getAttributeFloatCount(vfmtPosUvColor);
 }
 
 /**

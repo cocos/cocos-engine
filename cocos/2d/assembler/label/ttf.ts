@@ -35,6 +35,7 @@ import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
 import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../renderer/render-data';
+import { getAttributeFloatCount } from '../../renderer/vertex-format';
 
 const WHITE = Color.WHITE.clone();
 
@@ -43,6 +44,8 @@ const WHITE = Color.WHITE.clone();
  * 可通过 `UI.ttf` 获取该组装器。
  */
 export const ttf: IAssembler = {
+    floatCountPerVertex: getAttributeFloatCount(),
+
     createData (comp: Label) {
         const renderData = comp.requestRenderData()!;
 
@@ -50,7 +53,7 @@ export const ttf: IAssembler = {
         renderData.vertexCount = 4;
         renderData.indicesCount = 6;
 
-        const vData =  renderData.vData = new Float32Array(4 * 6);
+        const vData =  renderData.vData = new Float32Array(4 * this.floatCountPerVertex);
         const uintData = renderData.uintVData = new Uint32Array(vData.buffer);
 
         vData[3] = vData[15] = vData[16] = vData[22] = 0;
@@ -58,7 +61,7 @@ export const ttf: IAssembler = {
         let offset = 5;
         for (let i = 0; i < 4; i++) {
             uintData[offset] = WHITE._val;
-            offset += 6;
+            offset += this.floatCountPerVertex;
         }
         return renderData;
     },

@@ -75,5 +75,17 @@ export function getAttributeStride (attrs: Attribute[]) {
     return count;
 }
 
+export function getAttributeFloatCount (attrs: Attribute[] = vfmtPosUvColor) {
+    let count = 0;
+    for (let i = 0; i < attrs.length; i++) {
+        const attr = attrs[i];
+        const info = FormatInfos[attr.format];
+        const floatCount = info.size / 4;
+        count += floatCount;
+    }
+
+    return count;
+}
+
 legacyCC.internal.vfmtPosUvColor = vfmtPosUvColor;
 legacyCC.internal.vfmtPosUvTwoColor = vfmtPosUvTwoColor;

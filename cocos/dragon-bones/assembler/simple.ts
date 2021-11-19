@@ -14,11 +14,12 @@ import { ArmatureFrame } from '../ArmatureCache';
 import { ArmatureDisplay, ArmatureDisplayMeshData } from '../ArmatureDisplay';
 import { CCSlot } from '../CCSlot';
 import { legacyCC } from '../../core/global-exports';
+import { getAttributeFloatCount } from '../../2d/renderer/vertex-format';
 
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
-const STRIDE_FLOAT = 6;
-const STRIDE_BYTES = 6 * 4;
+const STRIDE_FLOAT = getAttributeFloatCount();
+const STRIDE_BYTES = STRIDE_FLOAT * 4;
 
 const _boneColor = new Color(255, 0, 0, 255);
 const _slotColor = new Color(0, 0, 255, 255);

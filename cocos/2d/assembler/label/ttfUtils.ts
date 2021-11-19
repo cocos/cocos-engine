@@ -151,7 +151,8 @@ export const ttfUtils =  {
         let colorOffset = 5;
         for (let i = 0; i < 4; i++) {
             vData[colorOffset] = color;
-            colorOffset += 6;
+            // @ts-expect-error typeError by addon
+            colorOffset += this.floatCountPerVertex;
         }
     },
 

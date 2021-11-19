@@ -29,30 +29,27 @@
  */
 
 import { UI_GPU_DRIVEN } from 'internal:constants';
-import { Vec3 } from '../../../core/math';
 import { IAssembler } from '../../renderer/base';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
-
-const vec3_temps: Vec3[] = [];
-for (let i = 0; i < 4; i++) {
-    vec3_temps.push(new Vec3());
-}
+import { getAttributeFloatCount } from '../../renderer/vertex-format';
 
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
+    floatCountPerVertex: getAttributeFloatCount(),
+
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 4;
         renderData.vertexCount = 4;
         renderData.indicesCount = 6;
 
-        renderData.vData = new Float32Array(4 * 6);
+        renderData.vData = new Float32Array(4 * this.floatCountPerVertex);
         renderData.uintVData = new Uint32Array(renderData.vData.buffer);
 
         return renderData;
@@ -277,7 +274,7 @@ export const simple: IAssembler = {
         let colorOffset = 5;
         for (let i = 0; i < 4; i++) {
             vData[colorOffset] = c;
-            colorOffset += 6;
+            colorOffset += this.floatCountPerVertex;
         }
     },
 };

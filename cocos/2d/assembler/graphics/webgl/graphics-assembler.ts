@@ -55,11 +55,6 @@ let _renderData: MeshRenderData | null = null;
 let _impl: Impl | null = null;
 const _curColor = new Color();
 
-const vec3_temps: Vec3[] = [];
-for (let i = 0; i < 4; i++) {
-    vec3_temps.push(new Vec3());
-}
-
 function curveDivs (r: number, arc: number, tol: number) {
     const da = acos(r / (r + tol)) * 2.0;
     return max(2, ceil(arc / da));

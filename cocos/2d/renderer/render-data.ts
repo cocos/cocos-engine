@@ -36,7 +36,9 @@ import { RenderScene } from '../../core/renderer/scene';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
+import { getAttributeFloatCount } from './vertex-format';
 
+const _floatCountPerVertex = getAttributeFloatCount();
 export interface IRenderData {
     x: number;
     y: number;
@@ -233,7 +235,7 @@ export class MeshRenderData extends BaseRenderData {
 
     private _formatByte:number;
 
-    constructor (vertexFloatCnt = 6) {
+    constructor (vertexFloatCnt = _floatCountPerVertex) {
         super();
         this._formatByte = vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT;
         this.vData = new Float32Array(256 * vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT);
@@ -358,7 +360,7 @@ const _dataPool = new Pool(() => ({
     z: 0,
     u: 0,
     v: 0,
-    color: Color.WHITE.clone()._val,
+    color: Color.WHITE._val,
 }), 128);
 
 const _pool = new RecyclePool(() => new RenderData(), 32);
