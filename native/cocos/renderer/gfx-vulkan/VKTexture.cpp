@@ -29,8 +29,7 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKTexture.h"
-#include "gfx-base/GFXDef.h"
-#include "gfx-vulkan/VKSwapchain.h"
+#include "VKSwapchain.h"
 
 namespace cc {
 namespace gfx {

@@ -607,7 +607,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         // try to deduce dependencies if not specified
 
         // first, gather necessary statistics for each attachment
-        auto updateLifeCycle = [subpassCount](AttachmentStatistics &statistics, uint32_t index, VkImageLayout layout, AttachmentStatistics::SubpassUsage usage) {
+        auto updateLifeCycle = [](AttachmentStatistics &statistics, uint32_t index, VkImageLayout layout, AttachmentStatistics::SubpassUsage usage) {
             if (statistics.records.count(index)) {
                 CC_ASSERT(statistics.records[index].layout == layout);
                 statistics.records[index].usage |= usage;
@@ -793,7 +793,6 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
     gpuFramebuffer->height      = createInfo.height;
 
     if (gpuFramebuffer->isOffscreen) {
-        CCVKGPUTextureView *gpuTextureView{colorViewCount ? gpuFramebuffer->gpuColorViews[0] : gpuFramebuffer->gpuDepthStencilView};
         createInfo.renderPass      = gpuFramebuffer->gpuRenderPass->vkRenderPass;
         createInfo.attachmentCount = utils::toUint(attachments.size());
         createInfo.pAttachments    = attachments.data();

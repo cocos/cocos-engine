@@ -352,10 +352,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     colorGPUTexture->currentAccessTypes.assign(1, THSVS_ACCESS_PRESENT);
     depthStencilGPUTexture->currentAccessTypes.assign(1, THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ);
 
-    for (auto &it : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-        cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), it.first);
-    }
-
     _gpuSwapchain->lastPresentResult = VK_SUCCESS;
 
     return true;
@@ -406,7 +402,7 @@ void CCVKSwapchain::createVkSurface() {
     VK_CHECK(vkCreateAndroidSurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
-    surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(0));
+    surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
     surfaceCreateInfo.hwnd      = reinterpret_cast<HWND>(_windowHandle);
     VK_CHECK(vkCreateWin32SurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #elif defined(VK_USE_PLATFORM_METAL_EXT)

@@ -151,17 +151,24 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     for (size_t i = 0U; i < attachmentCount; ++i) {
         clearValues[i].color = {{colors[i].x, colors[i].y, colors[i].z, colors[i].w}};
     }
-
     if (depthEnabled) {
         clearValues[attachmentCount].depthStencil = {depth, stencil};
     }
+
+    Rect safeArea{
+        std::min(renderArea.x, static_cast<int32_t>(_curGPUFBO->width)),
+        std::min(renderArea.y, static_cast<int32_t>(_curGPUFBO->height)),
+        std::min(renderArea.width, _curGPUFBO->width),
+        std::min(renderArea.height, _curGPUFBO->height),
+    };
+
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
-    passBeginInfo.renderPass      = gpuRenderPass->vkRenderPass;
-    passBeginInfo.framebuffer     = framebuffer;
-    passBeginInfo.clearValueCount = utils::toUint(clearValues.size());
-    passBeginInfo.pClearValues    = clearValues.data();
-    passBeginInfo.renderArea.offset = {renderArea.x, renderArea.y};
-    passBeginInfo.renderArea.extent = {renderArea.width, renderArea.height};
+    passBeginInfo.renderPass        = gpuRenderPass->vkRenderPass;
+    passBeginInfo.framebuffer       = framebuffer;
+    passBeginInfo.clearValueCount   = utils::toUint(clearValues.size());
+    passBeginInfo.pClearValues      = clearValues.data();
+    passBeginInfo.renderArea.offset = {safeArea.x, safeArea.y};
+    passBeginInfo.renderArea.extent = {safeArea.width, safeArea.height};
 
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
                          secondaryCBCount ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
@@ -169,12 +176,12 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     _secondaryRP = secondaryCBCount;
 
     if (!secondaryCBCount) {
-        VkViewport viewport{static_cast<float>(renderArea.x), static_cast<float>(renderArea.y),
-                            static_cast<float>(renderArea.width), static_cast<float>(renderArea.height), 0.F, 1.F};
+        VkViewport viewport{static_cast<float>(safeArea.x), static_cast<float>(safeArea.y),
+                            static_cast<float>(safeArea.width), static_cast<float>(safeArea.height), 0.F, 1.F};
         vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
-        _curDynamicStates.viewport = {renderArea.x, renderArea.y, renderArea.width, renderArea.height};
+        _curDynamicStates.viewport = {safeArea.x, safeArea.y, safeArea.width, safeArea.height};
         vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &passBeginInfo.renderArea);
-        _curDynamicStates.scissor = renderArea;
+        _curDynamicStates.scissor = safeArea;
     }
 }
 
