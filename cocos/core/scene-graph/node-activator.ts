@@ -28,13 +28,13 @@
  * @module scene-graph
  */
 
-import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR, DEV, TEST, SUPPORT_JIT, DEBUG } from 'internal:constants';
 import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
-import { assert, errorID } from '../platform/debug';
+import { assert, errorID, error } from '../platform/debug';
 import { NodeEventType } from './node-event';
 
 const MAX_POOL_SIZE = 4;
@@ -243,6 +243,12 @@ export default class NodeActivator {
             }
         }
         if (comp._enabled) {
+            if (DEBUG) {
+                if (!comp.node) {
+                    error('The Node of component should not be null');
+                    return;
+                }
+            }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
@@ -377,6 +383,12 @@ if (EDITOR) {
             }
         }
         if (comp._enabled) {
+            if (DEBUG) {
+                if (!comp.node) {
+                    error('The Node of component should not be null');
+                    return;
+                }
+            }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
