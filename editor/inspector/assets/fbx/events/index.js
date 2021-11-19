@@ -39,13 +39,13 @@ exports.update = function(eventInfo) {
 
 exports.apply = async function() {
     const clips = Object.keys(this.events.eventsMap);
+    const meta = this.meta;
     for (let i = 0; i < clips.length; i++) {
         const uuid = clips[i];
-        const metaData = await Editor.Message.request('asset-db', 'query-asset-meta', uuid);
+        const metaData = meta.subMetas[uuid];
         if (metaData && metaData.userData) {
             const eventData = this.events.eventsMap[uuid];
             metaData.userData.events = eventData;
-            await Editor.Message.send('asset-db', 'save-asset-meta', uuid, JSON.stringify(metaData));
         }
     }
     this.events.eventsMap = {};
