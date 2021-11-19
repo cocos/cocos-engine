@@ -98,7 +98,7 @@ function syncNodeValue (node: Node) {
     y = lscale.y;
     z = lscale.z;
     if (x !== null || y !== null || z !== null) {
-        node.setScaleForJS(x || 0, y || 0, z || 0);
+        node.setScaleForJS(x || 1, y || 1, z || 1);
     }
 
     const lrot = node._lrot;
@@ -107,7 +107,7 @@ function syncNodeValue (node: Node) {
     z = lrot.z;
     const w = lrot.w;
     if (x !== null || y !== null || z !== null || w != null) {
-        node.setRotationForJS(x || 0, y || 0, z || 0, w || 0);
+        node.setRotationForJS(x || 0, y || 0, z || 0, w || 1);
     }
 
     if (node._layer !== null) {
