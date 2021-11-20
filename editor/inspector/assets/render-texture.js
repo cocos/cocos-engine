@@ -63,7 +63,14 @@ const Elements = Object.assign({}, texture.Elements, {
     },
 });
 
-exports.ready = texture.ready;
+exports.ready = function() {
+    for (const prop in Elements) {
+        const element = Elements[prop];
+        if (element.ready) {
+            element.ready.call(this);
+        }
+    }
+};
 
 exports.methods = Object.assign({}, texture.methods, {
     async apply() {
