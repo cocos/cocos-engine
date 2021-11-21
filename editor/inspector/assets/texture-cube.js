@@ -39,7 +39,7 @@ exports.style = `
     width: calc(var(--size) * 4);
     height: calc(var(--size) * 3);
   }
-  .asset-texture-cube > .preview > .images > ui-image {
+  .asset-texture-cube > .preview > .images > ui-drag-item > ui-image {
     position: absolute;
     line-height: var(--size);
     width: var(--size);
@@ -47,27 +47,27 @@ exports.style = `
     background: var(--color-normal-fill);
     text-align: center;
   }
-  .asset-texture-cube > .preview > .images > .top {
+  .asset-texture-cube > .preview > .images > ui-drag-item > .top {
     top: 0;
     left: calc(var(--size) * 2);
   }
-  .asset-texture-cube > .preview > .images > .bottom {
+  .asset-texture-cube > .preview > .images > ui-drag-item > .bottom {
     top: calc(var(--size) * 2);
     left: calc(var(--size) * 2);
   }
-  .asset-texture-cube > .preview > .images > .front {
+  .asset-texture-cube > .preview > .images > ui-drag-item > .front {
     top: var(--size);
     left: calc(var(--size) * 2);
   }
-  .asset-texture-cube > .preview > .images > .back {
+  .asset-texture-cube > .preview > .images > ui-drag-item > .back {
     top: var(--size);
     left: 0;
   }
-  .asset-texture-cube > .preview > .images > .left {
+  .asset-texture-cube > .preview > .images > ui-drag-item > .left {
     top: var(--size);
     left: var(--size);
   }
-  .asset-texture-cube > .preview > .images > .right {
+  .asset-texture-cube > .preview > .images > ui-drag-item > .right {
     top: var(--size);
     left: calc(var(--size) * 3);
   }
@@ -85,7 +85,7 @@ const Elements = {
             for (const key in Direction) {
                 const prop = document.createElement('ui-prop');
                 panel.$.assets.appendChild(prop);
-                prop.setAttribute('is', 'asset');
+                prop.setAttribute('ui', 'asset');
 
                 const label = document.createElement('ui-label');
                 prop.appendChild(label);
@@ -116,8 +116,14 @@ const Elements = {
             const panel = this;
 
             for (const key in Direction) {
+                const dragItem = document.createElement('ui-drag-item');
+                dragItem.setAttribute('type', 'cc.ImageAsset');
+                dragItem.addEventListener('dragstart', panel.dragStart.bind(panel, key));
+
                 const image = document.createElement('ui-image');
-                panel.$.images.appendChild(image);
+
+                dragItem.appendChild(image);
+                panel.$.images.appendChild(dragItem);
 
                 image.setAttribute('class', key);
                 image.setAttribute('droppable', 'cc.ImageAsset');
@@ -125,6 +131,7 @@ const Elements = {
                 image.setAttribute('placeholder', key);
                 image.addEventListener('confirm', panel.dataChange.bind(panel, key));
 
+                panel.$[`${key}-drag-item`] = dragItem;
                 panel.$[`${key}-image`] = image;
             }
 
@@ -145,7 +152,21 @@ const Elements = {
             const panel = this;
 
             for (const key in Direction) {
-                panel.$[`${key}-image`].value = panel.meta.userData[key] || '';
+                const value = panel.meta.userData[key] || '';
+
+                panel.$[`${key}-drag-item`].setAttribute(
+                    'additional',
+                    JSON.stringify([
+                        {
+                            type: 'cc.ImageAsset',
+                            value,
+                        },
+                    ]),
+                );
+                panel.updateInvalid(panel.$[`${key}-drag-item`], key);
+                panel.updateReadonly(panel.$[`${key}-drag-item`]);
+
+                panel.$[`${key}-image`].value = value;
                 panel.updateInvalid(panel.$[`${key}-image`], key);
                 panel.updateReadonly(panel.$[`${key}-image`]);
             }
@@ -216,6 +237,11 @@ exports.methods = {
     },
     dataChange(key, event) {
         this.metaList.forEach((meta) => {
+            if (this.dragStart.exchange && this.dragStart.exchange.value) {
+                const exchangeValue = meta.userData[key] || '';
+                meta.userData[this.dragStart.exchange.key] = exchangeValue;
+            }
+
             meta.userData[key] = event.target.value || undefined;
         });
 
@@ -223,5 +249,10 @@ exports.methods = {
 
         Elements.assets.update.call(this);
         Elements.images.update.call(this);
+    },
+    dragStart(key, event) {
+        const additional = JSON.parse(event.currentTarget.getAttribute('additional'));
+        this.dragStart.exchange = additional[0];
+        this.dragStart.exchange.key = key;
     },
 };
