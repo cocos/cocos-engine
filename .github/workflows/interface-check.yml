@@ -44,4 +44,4 @@ jobs:
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: ./interface-diff.txt
-          GITHUB_TOKEN: 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
+          GITHUB_TOKEN: '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'
