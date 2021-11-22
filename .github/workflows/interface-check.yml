@@ -40,6 +40,8 @@ jobs:
         run: |
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
+          echo ${{ secrets.LABEl_TOKEN }}
+          echo ${{ secrets.GITHUB_TOKEN }}
           
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
