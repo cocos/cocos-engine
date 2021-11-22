@@ -44,5 +44,4 @@ jobs:
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: ./interface-diff.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.LABEL_TOKEN }}
+          token: ${{ secrets.LABEl_TOKEN }}
