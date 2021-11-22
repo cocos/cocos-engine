@@ -2,8 +2,7 @@ name: interface check
 
 #on: push
 on: [pull_request]
-permissions:
-  pull-requests: write
+
 jobs:
   Check_pull_request_version:
     runs-on: ubuntu-latest
@@ -46,4 +45,4 @@ jobs:
         with:
           path: ./interface-diff.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.LABEl_TOKEN }}
