@@ -45,4 +45,4 @@ jobs:
         with:
           path: ./interface-diff.txt
         env:
-          GITHUB_TOKEN: ${{ secrets.LABEl_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.LABEL_TOKEN }}
