@@ -43,5 +43,5 @@ jobs:
           
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
-          message: |
-            This is a Test Message, please ignore this.
+          path: ./interface-diff.txt
+          GITHUB_TOKEN: ${{ secrets.LABEl_TOKEN }}
