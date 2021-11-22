@@ -32,8 +32,8 @@ class ContainerManager {
 
     addContainer (pool: ScalableContainer) {
         if (pool._poolHandle !== -1) return;
-        this._pools.push(pool);
         pool._poolHandle = this._pools.length;
+        this._pools.push(pool);
     }
 
     removeContainer (pool: ScalableContainer) {
