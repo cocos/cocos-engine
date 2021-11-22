@@ -87,4 +87,11 @@ test('shrink', () => {
     expect(meshBuffer.vData.length).toBe(256 * 9 * 4);
     expect(meshBuffer.iData.length).toBe(256 * 6);
 
+    // can not shrink any more
+    meshBuffer.tryShrink();
+    meshBuffer.tryShrink();
+
+    expect(meshBuffer.vData.length).toBe(256 * 9 * 4);
+    expect(meshBuffer.iData.length).toBe(256 * 6);
+
 });
