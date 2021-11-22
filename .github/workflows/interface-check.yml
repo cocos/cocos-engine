@@ -43,4 +43,5 @@ jobs:
           
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: ./interface-diff.txt
+          message: |
+            This is a Test Message, please ignore this.
