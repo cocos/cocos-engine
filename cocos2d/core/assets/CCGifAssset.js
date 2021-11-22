@@ -38,13 +38,18 @@ const GifAsset = cc.Class({
          * @type {Prefab}
          * @default null
          */
+        _prefab: {
+            default: null,
+            type: cc.Prefab
+        },
         prefab: {
             get: function () {
                 return this._prefab;
             },
             set: function (value) {
                 this._prefab = value;
-            }
+            },
+            type: cc.Prefab,
         },
         /**
          * !#en Gif sequence SpriteFrame
@@ -53,13 +58,9 @@ const GifAsset = cc.Class({
          * @type {Object}
          * @default {}
          */
-        spriteFrames: {
-            get: function () {
-                return this._spriteFrames;
-            },
-            set: function (value) {
-                this._spriteFrames = value;
-            }
+        _spriteFrames: {
+            default: {},
+            type: cc.SpriteFrame,
         },
         /**
          * !#en Gif AnimationClip
@@ -68,22 +69,56 @@ const GifAsset = cc.Class({
          * @type {AnimationClip}
          * @default null
          */
+        _animationClip: {
+            default: null,
+            type: cc.AnimationClip,
+        },
         animationClip: {
             get: function () {
                 return this._animationClip;
             },
             set: function (value) {
                 this._animationClip = value;
-            }
+            },
+            type: cc.AnimationClip,
         }
     },
 
-    ctor: function () {
-        this._prefab = null;
-        this._animationClip = null;
-        this._spriteFrames = {};
+
+    /**
+     * !#en Get a single SpriteFrame by name
+     * !#zh 通过名字获取单个 SpriteFrame
+     * @method getSpriteFrame
+     * @param {String} name
+     * @returns {SpriteFrame}
+     */
+    getSpriteFrame: function (name) {
+        let sf = this._spriteFrames[name];
+        if (!sf) {
+            return null;
+        }
+        if (!sf.name) {
+            sf.name = name;
+        }
+        return sf;
     },
 
+    /**
+     * !#en Gif sequence SpriteFrame
+     * !#zh gif 序列 SpriteFrame
+     * @method getSpriteFrames
+     * @returns {[SpriteFrame]}
+     */
+    getSpriteFrames: function () {
+        const frames = [];
+        const spriteFrames = this._spriteFrames;
+
+        for (const key in spriteFrames) {
+            frames.push(this.getSpriteFrame(key));
+        }
+
+        return frames;
+    }
 });
 cc.GifAsset = GifAsset;
 module.exports = GifAsset;
