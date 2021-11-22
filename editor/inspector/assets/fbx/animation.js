@@ -818,12 +818,17 @@ exports.methods = {
         panel.$.clipFrames.innerText = maxFrames;
         panel.$.clipFPS.value = fps;
 
-        panel.$.clipFrom.setAttribute('max', endFrames);
-        panel.$.clipFrom.value = startFrames;
+        // HACK bugs for 3d-tasks#10113
+        panel.$.clipFrom.max = null;
+        panel.$.clipTo.min = null;
+        panel.$.clipTo.max = null;
 
+        panel.$.clipFrom.value = startFrames;
+        panel.$.clipFrom.setAttribute('max', endFrames);
+
+        panel.$.clipTo.value = endFrames;
         panel.$.clipTo.setAttribute('min', startFrames);
         panel.$.clipTo.setAttribute('max', maxFrames);
-        panel.$.clipTo.value = endFrames;
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
         panel.$.speed.value = panel.currentClipInfo.speed || 1;
