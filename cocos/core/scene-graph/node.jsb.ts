@@ -476,6 +476,44 @@ const oldGetWorldMatrix = nodeProto.getWorldMatrix;
 const oldGetForward = nodeProto.getForward;
 const oldGetUp = nodeProto.getUp;
 const oldGetRight = nodeProto.getRight;
+const oldSetRTS = nodeProto.setRTS;
+let _tempQuat = new Quat();
+
+nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
+    if (rot) {
+        let val = _tempQuat;
+        if (rot as Quat) {
+            val = rot as Quat;
+        } else {
+            Quat.fromEuler(val, rot.x, rot.y, rot.z);
+        }
+        _tempFloatArray[0] = 4;
+        _tempFloatArray[1] = val.x;
+        _tempFloatArray[2] = val.y;
+        _tempFloatArray[3] = val.z;
+        _tempFloatArray[4] = val.w;
+    } else {
+        _tempFloatArray[0] = 0;
+    }
+
+    if (pos) {
+        _tempFloatArray[5] = 3;
+        _tempFloatArray[6] = pos.x;
+        _tempFloatArray[7] = pos.y;
+        _tempFloatArray[8] = pos.z;
+    } else {
+        _tempFloatArray[5] = 0;
+    }
+    if (scale) {
+        _tempFloatArray[9] = 3;
+        _tempFloatArray[10] = scale.x;
+        _tempFloatArray[11] = scale.y;
+        _tempFloatArray[12] = scale.z;
+    } else {
+        _tempFloatArray[9] = 0;
+    }
+    oldSetRTS.call(this);
+};
 
 nodeProto.getPosition = function (out?: Vec3): Vec3 {
     oldGetPosition.call(this);
@@ -508,6 +546,7 @@ nodeProto.setPosition = function (val: Readonly<Vec3> | number, y?: number, z?: 
     }
     oldSetPosition.call(this);
 };
+nodeProto.setPositionForJS = nodeProto.setPosition;
 
 nodeProto.getRotation = function (out?: Quat): Quat {
     const r = oldGetRotation.call(this);
@@ -545,6 +584,7 @@ nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: num
     }
     oldSetScale.call(this);
 };
+nodeProto.setScaleForJS = nodeProto.setScale;
 
 nodeProto.getWorldPosition = function (out?: Vec3): Vec3 {
     const r = oldGetWorldPosition.call(this);
