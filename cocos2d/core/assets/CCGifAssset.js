@@ -60,7 +60,6 @@ const GifAsset = cc.Class({
          */
         _spriteFrames: {
             default: {},
-            type: cc.SpriteFrame,
         },
         /**
          * !#en Gif AnimationClip
