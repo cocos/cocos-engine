@@ -1564,7 +1564,7 @@ export class Terrain extends Component {
     }
 
     public onUpdateFromCamera (cam: Camera): void {
-        if (!this.LodEnable) {
+        if (!this.lodEnable) {
             return;
         }
         if (cam.scene !== this._getRenderScene()) {
