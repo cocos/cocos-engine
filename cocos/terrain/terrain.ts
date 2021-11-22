@@ -1243,11 +1243,11 @@ export class Terrain extends Component {
      * @zh 是否允许lod
      */
     @editable
-    get LodEnable () {
+    get lodEnable () {
         return this._lodEnable;
     }
 
-    set LodEnable (val) {
+    set lodEnable (val) {
         this._lodEnable = val;
         if (!this._lodEnable) {
             for (let i = 0; i < this._blocks.length; i++) {
