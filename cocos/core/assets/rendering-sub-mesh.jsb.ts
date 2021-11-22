@@ -1,5 +1,6 @@
 import { ccclass } from "cc.decorator";
 import {Vec3} from "../math";
+import { Attribute, PrimitiveMode, Buffer } from "../gfx";
 
 /**
  * @en Array views for index buffer
@@ -49,3 +50,54 @@ export interface IFlatBuffer {
 
 export type RenderingSubMesh = jsb.RenderingSubMesh;
 export const RenderingSubMesh = jsb.RenderingSubMesh;
+
+const renderingSubMeshProto = RenderingSubMesh.prototype;
+
+renderingSubMeshProto._ctor = function (vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
+                                             indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null) {
+    this._attributes = attributes;
+    this._vertexBuffers = vertexBuffers;
+    this._indexBuffer = indexBuffer;
+    this._indirectBuffer = indirectBuffer;
+    this._primitiveMode = primitiveMode;
+};
+
+Object.defineProperty(renderingSubMeshProto, 'attributes', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._attributes;
+    }
+});
+
+Object.defineProperty(renderingSubMeshProto, 'vertexBuffers', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._vertexBuffers;
+    }
+});
+
+Object.defineProperty(renderingSubMeshProto, 'indexBuffer', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._indexBuffer;
+    }
+});
+
+Object.defineProperty(renderingSubMeshProto, 'indirectBuffer', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._indirectBuffer;
+    }
+});
+
+Object.defineProperty(renderingSubMeshProto, 'primitiveMode', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._primitiveMode;
+    }
+});
