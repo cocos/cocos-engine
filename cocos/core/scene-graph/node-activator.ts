@@ -125,10 +125,8 @@ activateTasksPool.get = function getActivateTask () {
 };
 
 function _componentCorrupted (node, comp, index) {
-    if (DEV) {
-        errorID(3817, node.name, index);
-        console.log('Corrupted component value:', comp);
-    }
+    errorID(3817, node.name, index);
+    console.log('Corrupted component value:', comp);
     if (comp) {
         node._removeComponent(comp);
     } else {
