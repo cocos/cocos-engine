@@ -903,7 +903,23 @@ export class TerrainBlock {
             }
         }
 
-        if (this._lodKey.compare(key)) {
+        if (this._lodKey.equals(key)) {
+            return;
+        }
+
+        this._lodKey = key;
+        this._updateIndexBuffer();
+    }
+
+    public _resetLod () {
+        const key = new TerrainLodKey();
+        key.level = 0;
+        key.north = 0;
+        key.south = 0;
+        key.west = 0;
+        key.east = 0;
+
+        if (this._lodKey.equals(key)) {
             return;
         }
 
@@ -1233,6 +1249,11 @@ export class Terrain extends Component {
 
     set LodEnable (val) {
         this._lodEnable = val;
+        if (!this._lodEnable) {
+            for (let i = 0; i < this._blocks.length; i++) {
+                this._blocks[i]._resetLod();
+            }
+        }
     }
 
     /**
