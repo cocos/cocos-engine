@@ -44,4 +44,4 @@ jobs:
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: ./interface-diff.txt
-          GITHUB_TOKEN: testset2134123sdf
+          GITHUB_TOKEN: ${{ secrets.LABEl_TOKEN }}
