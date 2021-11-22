@@ -2,8 +2,7 @@ name: interface check
 
 #on: push
 on: [pull_request]
-permissions:
-  pull-requests: write
+
 jobs:
   Check_pull_request_version:
     runs-on: ubuntu-latest
@@ -44,6 +43,5 @@ jobs:
           
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
-          path: ./interface-diff.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          message: |
+            This is a Test Message, please ignore this.
