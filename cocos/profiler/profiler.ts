@@ -400,7 +400,6 @@ export class Profiler {
                 this.offsetData[3] = surfaceTransform;
             }
 
-            // @ts-expect-error using private members for efficiency
             this.pass._setRootBufferDirty(true);
         }
 

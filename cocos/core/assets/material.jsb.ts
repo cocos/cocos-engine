@@ -291,7 +291,7 @@ const _descriptor5$4 = _applyDecoratedDescriptor(_class2$f.prototype, '_props', 
 });
 
 materialProto._ctor = function () {
-    this._props = {};
+    this._props = [];
     // _initializerDefineProperty(_this, "_effectAsset", _descriptor$d, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_techIdx", _descriptor2$9, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_defines", _descriptor3$7, _assertThisInitialized(_this));
