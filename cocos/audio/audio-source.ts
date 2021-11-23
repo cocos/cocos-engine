@@ -71,7 +71,6 @@ export class AudioSource extends Component {
     @serializable
     protected _volume = 1;
 
-
     // An operation queue to store the operations before loading the AudioPlayer.
     private _operationsBeforeLoading: string[] = [];
     private _isLoaded = false;
@@ -132,25 +131,6 @@ export class AudioSource extends Component {
     }
     get loop () {
         return this._loop;
-    }
-
-    /**
-     * @en
-     * Is the autoplay enabled? <br>
-     * Note that for most platform autoplay will only start <br>
-     * after a user gesture is received, according to the latest autoplay policy: <br>
-     * https://www.chromium.org/audio-video/autoplay
-     * @zh
-     * 是否启用自动播放。 <br>
-     * 请注意，根据最新的自动播放策略，现在对大多数平台，自动播放只会在第一次收到用户输入后生效。 <br>
-     * 参考：https://www.chromium.org/audio-video/autoplay
-     */
-    @tooltip('i18n:audio.playOnAwake')
-    set playOnAwake (val) {
-        this._playOnAwake = val;
-    }
-    get playOnAwake () {
-        return this._playOnAwake;
     }
 
     /**
