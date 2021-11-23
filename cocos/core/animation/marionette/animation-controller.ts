@@ -31,7 +31,7 @@ export class AnimationController extends Component {
         this._graphEval?.update(deltaTime);
     }
 
-    public variables () {
+    public getVariables () {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         return graphEval.variables();
