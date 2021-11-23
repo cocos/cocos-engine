@@ -13,4 +13,4 @@ jobs:
         with:
           message: |
             hello comment
-          GITHUB_TOKEN: ${{ secrets.LABEl_TOKEN }}
+          GITHUB_TOKEN: ${ secrets.LABEl_TOKEN }
