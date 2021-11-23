@@ -818,7 +818,7 @@ exports.methods = {
         panel.$.clipFrames.innerText = maxFrames;
         panel.$.clipFPS.value = fps;
 
-        // HACK bugs for 3d-tasks#10113
+        // TODO: hack for bug at 3d-tasks#10113. Because the new value would be limited in min and max, should firstly remove min and max.
         panel.$.clipFrom.max = null;
         panel.$.clipTo.min = null;
         panel.$.clipTo.max = null;
