@@ -1,8 +1,10 @@
 name: interface check
 
-on:
-  pull_request_target:
-    types: [opened]
+#on:
+#  pull_request_target:
+#    types: [opened]
+
+on: [pull_request]
 
 jobs:
   interface_checkn:
@@ -43,4 +45,4 @@ jobs:
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           path: ./interface-diff.txt
-          #GITHUB_TOKEN: ${{ secrets.LABEl_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.LABEl_TOKEN }}
