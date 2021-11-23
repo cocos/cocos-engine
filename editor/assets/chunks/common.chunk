@@ -38,3 +38,8 @@ highp float decode32 (highp vec4 rgba) {
   highp float Mantissa = MOD_FINT_128(rgba[2]) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
   return Sign * exp2(Exponent - 23.0) * Mantissa;
 }
+
+float isNan(float val) 
+{ 
+    return (val <= 0.0 || 0.0 <= val) ? 0.0 : 1.0; 
+}
