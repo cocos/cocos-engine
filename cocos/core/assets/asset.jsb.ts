@@ -33,6 +33,7 @@ import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { applyMixins } from '../event/event-target-factory';
 import { createMap } from '../utils/js-typed';
 import { property } from '../data/class-decorator';
+import { getUrlWithUuid } from '../asset-manager/helper';
 
 /**
  * @param error - null or the error info
@@ -46,9 +47,41 @@ const assetProto: any = jsb.Asset.prototype;
 
 assetProto._ctor = function () {
     this._callbackTable = createMap(true);
+    this._file = null;
     // for deserialization
     // _initializerDefineProperty(_this, "_native", _descriptor$1, _assertThisInitialized(_this));
 };
+
+Object.defineProperty (assetProto, '_nativeAsset', {
+    get (): any {
+        return this._file;
+    },
+    set (obj: any) {
+        this._file = obj;
+    }
+});
+
+Object.defineProperty (assetProto, 'nativeUrl', {
+    get (): string {
+        if (!this._nativeUrl) {
+            if (!this._native) return '';
+            const name = this._native;
+            if (name.charCodeAt(0) === 47) {    // '/'
+                // remove library tag
+                // not imported in library, just created on-the-fly
+                return name.slice(1);
+            }
+            if (name.charCodeAt(0) === 46) {  // '.'
+                // imported in dir where json exist
+                this._nativeUrl = getUrlWithUuid(this._uuid, { nativeExt: name, isNative: true });
+            } else {
+                // imported in an independent dir
+                this._nativeUrl = getUrlWithUuid(this._uuid, { __nativeName__: name, nativeExt: extname(name), isNative: true });
+            }
+        }
+        return this._nativeUrl;
+    }
+});
 
 assetProto.createNode = null!;
 
