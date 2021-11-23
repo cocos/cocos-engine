@@ -71,7 +71,6 @@ export class AudioSource extends Component {
     @serializable
     protected _volume = 1;
 
-    private _cachedCurrentTime = 0;
 
     // An operation queue to store the operations before loading the AudioPlayer.
     private _operationsBeforeLoading: string[] = [];
