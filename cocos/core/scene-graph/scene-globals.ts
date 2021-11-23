@@ -1025,7 +1025,6 @@ export class OctreeInfo {
         this._resource.initialize(this);
     }
 }
-legacyCC.OctreeInfo = OctreeInfo;
 
 /**
  * @en All scene related global parameters, it affects all content in the corresponding scene

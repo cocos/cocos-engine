@@ -127,5 +127,3 @@ export class Octree {
         this._destroy();
     }
 }
-
-legacyCC.Octree = Octree;
