@@ -46,4 +46,148 @@ describe(`Node`, () => {
         expect(cb).toBeCalledTimes(3);
         expect(cb1).toBeCalledTimes(2);
     });
+
+    test('hierarchy-changed', () => {
+        const scene = new Scene('');
+        director.runSceneImmediate(scene);
+        const node = new Node();
+        const childNode = new Node();
+        node.addChild(childNode);
+        const nodeCB = jest.fn(() => {});
+        node.on(NodeEventType.HIERARCHY_CHANGED, nodeCB);
+        const childNodeCB = jest.fn(() => {});
+        childNode.on(NodeEventType.HIERARCHY_CHANGED, childNodeCB);
+        // scene -|
+        //        |-node-|
+        //               |-childNode                    
+        // insert node, node and child node hierarchy changed
+        scene.addChild(node);
+        expect(nodeCB).toBeCalledTimes(1);
+        expect(childNodeCB).toBeCalledTimes(1);
+
+        const node1CB = jest.fn(() => {});
+        const node1 = new Node();
+        node1.on(NodeEventType.HIERARCHY_CHANGED, node1CB);
+        // scene -|
+        //        |- node -|
+        //                 |-childNode
+        //        |- node1
+        // insert node1, node1 hierarchy changed, node and child node hierarchy remained
+        scene.addChild(node1);
+        expect(nodeCB).toBeCalledTimes(1);
+        expect(childNodeCB).toBeCalledTimes(1);
+        expect(node1CB).toBeCalledTimes(1);
+
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode
+        // change node1 sibling index, every node hierarchy changed
+        node.setSiblingIndex(1);
+        expect(nodeCB).toBeCalledTimes(2);
+        expect(childNodeCB).toBeCalledTimes(2);
+        expect(node1CB).toBeCalledTimes(2);
+
+        const childNode2 = new Node();
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode
+        //                 |-childNode2
+        // insert childNode2, every node hierarchy remained
+        node.addChild(childNode2);
+        expect(nodeCB).toBeCalledTimes(2);
+        expect(childNodeCB).toBeCalledTimes(2);
+        expect(node1CB).toBeCalledTimes(2);
+
+        const childNode2CB = jest.fn(() => {});
+        childNode2.on(NodeEventType.HIERARCHY_CHANGED, childNode2CB);
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode2
+        //                 |-childNode
+        // change childNode2 sibling, childNode2 and childNode hierarchy changed
+        childNode2.setSiblingIndex(0);
+        expect(nodeCB).toBeCalledTimes(2);
+        expect(childNodeCB).toBeCalledTimes(3);
+        expect(node1CB).toBeCalledTimes(2);
+        expect(childNode2CB).toBeCalledTimes(1);
+
+        const childNode3 = new Node();
+        const childNode3CB = jest.fn(() => {});
+        childNode3.on(NodeEventType.HIERARCHY_CHANGED, childNode3CB);
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode2
+        //                 |-childNode
+        //                 |-childNode3
+        // insert childNode3, childNode3 hierarchy changed
+        node.addChild(childNode3);
+        expect(nodeCB).toBeCalledTimes(2);
+        expect(childNodeCB).toBeCalledTimes(3);
+        expect(node1CB).toBeCalledTimes(2);
+        expect(childNode2CB).toBeCalledTimes(1);
+        expect(childNode3CB).toBeCalledTimes(1);
+
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode2
+        //                 |-childNode3
+        //                 |-childNode
+        // change childNode3 sibling, childNode, childNode3 hierarchy changed
+        childNode3.setSiblingIndex(1);
+        expect(nodeCB).toBeCalledTimes(2);
+        expect(childNodeCB).toBeCalledTimes(4);
+        expect(node1CB).toBeCalledTimes(2);
+        expect(childNode2CB).toBeCalledTimes(1);
+        expect(childNode3CB).toBeCalledTimes(2);
+
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode2
+        //                 |-childNode
+        // remove childNode3, childNode, childNode3 hierarchy changed
+        childNode3.removeFromParent();
+        expect(nodeCB).toBeCalledTimes(2);
+        expect(childNodeCB).toBeCalledTimes(5);
+        expect(node1CB).toBeCalledTimes(2);
+        expect(childNode2CB).toBeCalledTimes(1);
+        expect(childNode3CB).toBeCalledTimes(3);
+        
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode
+        // remove childNode2, childNode, childNode2 hierarchy changed
+        childNode2.removeFromParent();
+        expect(nodeCB).toBeCalledTimes(2);
+        expect(childNodeCB).toBeCalledTimes(6);
+        expect(node1CB).toBeCalledTimes(2);
+        expect(childNode2CB).toBeCalledTimes(2);
+        expect(childNode3CB).toBeCalledTimes(3);
+
+        // scene -|
+        //        |- node -|
+        //                 |-childNode
+        // remove node1, node, node1, childNode hierarchy changed
+        node1.removeFromParent();
+        expect(nodeCB).toBeCalledTimes(3);
+        expect(childNodeCB).toBeCalledTimes(7);
+        expect(node1CB).toBeCalledTimes(3);
+        expect(childNode2CB).toBeCalledTimes(2);
+        expect(childNode3CB).toBeCalledTimes(3);
+
+        // scene -|
+        // remove node, node, childNode hierarchy changed
+        node.removeFromParent();
+        expect(nodeCB).toBeCalledTimes(4);
+        expect(childNodeCB).toBeCalledTimes(8);
+        expect(node1CB).toBeCalledTimes(3);
+        expect(childNode2CB).toBeCalledTimes(2);
+        expect(childNode3CB).toBeCalledTimes(3);
+    });
 });

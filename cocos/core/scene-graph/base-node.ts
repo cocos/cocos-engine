@@ -455,7 +455,17 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
         }
 
+        this.notifyHierarchyChanged();
         this._onHierarchyChanged(oldParent);
+    }
+
+    public notifyHierarchyChanged () {
+        this.emit(NodeEventType.HIERARCHY_CHANGED);
+        if (this._children.length > 0) {
+            for (let i = 0; i < this._children.length; i++) {
+                this._children[i].notifyHierarchyChanged();
+            }
+        }
     }
 
     /**
@@ -1240,7 +1250,11 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public _updateSiblingIndex () {
         for (let i = 0; i < this._children.length; ++i) {
-            this._children[i]._siblingIndex = i;
+            const child = this._children[i];
+            if (child._siblingIndex !== i) {
+                child._siblingIndex = i;
+                child.notifyHierarchyChanged();
+            }
         }
 
         this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
