@@ -213,7 +213,6 @@ export class Model {
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
 
-    protected _worldBoundData = new Float32Array(UBOWorldBound.COUNT);
     protected _worldBoundBuffer: Buffer | null = null;
 
     protected _receiveShadow = false;
@@ -336,12 +335,6 @@ export class Model {
         }
     }
 
-    private _applyWorldBoundData () {
-        if (JSB) {
-            // this._nativeObj!.setWorldBoundData(this._worldBoundData);
-        }
-    }
-
     private _applyLocalBuffer () {
         if (JSB) {
             this._nativeObj!.setLocalBuffer(this._localBuffer);
@@ -384,25 +377,6 @@ export class Model {
             this._localBuffer.update(this._localData);
             this._applyLocalData();
             this._applyLocalBuffer();
-
-            this._updateWorldBoundUBOs();
-        }
-    }
-
-    private _updateWorldBoundUBOs () {
-        if (this._worldBoundBuffer) {
-            const worldBoundCenter = new Vec4(0.0, 0.0, 0.0, 0.0);
-            const worldBoundHalfExtents = new Vec4(1.0, 1.0, 1.0, 1.0);
-            const worldBounds = this._worldBounds;
-            if (worldBounds) {
-                worldBoundCenter.set(worldBounds.center.x, worldBounds.center.y, worldBounds.center.z, 0.0);
-                worldBoundHalfExtents.set(worldBounds.halfExtents.x, worldBounds.halfExtents.y, worldBounds.halfExtents.z, 1.0);
-            }
-            Vec4.toArray(this._worldBoundData, worldBoundCenter, UBOWorldBound.WORLD_BOUND_CENTER);
-            Vec4.toArray(this._worldBoundData, worldBoundHalfExtents, UBOWorldBound.WORLD_BOUND_HALF_EXTENTS);
-            this._worldBoundBuffer.update(this._worldBoundData);
-            this._applyWorldBoundData();
-            this._applyWorldBoundBuffer();
         }
     }
 
