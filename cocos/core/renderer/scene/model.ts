@@ -296,6 +296,7 @@ export class Model {
 
     public attachToScene (scene: RenderScene) {
         this.scene = scene;
+        this._localDataUpdated = true;
     }
 
     public detachFromScene () {

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,18 +22,40 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { js } from '../utils/js';
+import { ScalableContainer } from './scalable-container';
 
-export * from './ambient';
-export * from './octree';
-export * from './camera';
-export * from './deprecated';
-export * from './directional-light';
-export * from './light';
-export * from './model';
-export * from './shadows';
-export * from './render-scene';
-export * from './skybox';
-export * from './sphere-light';
-export * from './spot-light';
-export * from './submodel';
-export * from './native-scene';
+class ContainerManager {
+    private _pools: ScalableContainer[] = [];
+    private _lastShrinkPassed = 0;
+    public shrinkTimeSpan = 5;
+
+    addContainer (pool: ScalableContainer) {
+        if (pool._poolHandle !== -1) return;
+        pool._poolHandle = this._pools.length;
+        this._pools.push(pool);
+    }
+
+    removeContainer (pool: ScalableContainer) {
+        if (pool._poolHandle === -1) return;
+        this._pools[this._pools.length - 1]._poolHandle = pool._poolHandle;
+        js.array.fastRemoveAt(this._pools, pool._poolHandle);
+        pool._poolHandle = -1;
+    }
+
+    tryShrink () {
+        for (let i = 0; i < this._pools.length; i++) {
+            this._pools[i].tryShrink();
+        }
+    }
+
+    update (dt: number) {
+        this._lastShrinkPassed += dt;
+        if (this._lastShrinkPassed > this.shrinkTimeSpan) {
+            this.tryShrink();
+            this._lastShrinkPassed -= this.shrinkTimeSpan;
+        }
+    }
+}
+
+export const containerManager = new ContainerManager();

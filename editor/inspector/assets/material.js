@@ -476,6 +476,8 @@ exports.update = async function(assetList, metaList) {
     }
     // set this.material.technique
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
+    await this.updatePreview();
+
     // effect <select> tag
     this.$.effect.value = this.material.effect;
     setDisabled(this.asset.readonly, this.$.effect);

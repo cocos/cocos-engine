@@ -28,8 +28,6 @@
  * @hidden
  */
 
-/* eslint-disable no-restricted-globals */
-import { JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';

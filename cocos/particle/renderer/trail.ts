@@ -358,7 +358,7 @@ export default class TrailModule {
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
         this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
+        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment) => obj.trailElements.length = 0);
         if (this._enable) {
             this.enable = this._enable;
         }
@@ -395,7 +395,7 @@ export default class TrailModule {
             this._trailModel = null;
         }
         if (this._trailSegments) {
-            this._trailSegments.destroy((obj: TrailSegment) => { obj.trailElements.length = 0; });
+            this._trailSegments.destroy();
             this._trailSegments = null;
         }
     }
