@@ -441,9 +441,9 @@ export class Game extends EventTarget {
 
     /**
      * @en Pause the game main loop. This will pause:<br>
-     * game logic execution, rendering process, event manager, background music and all audio effects.<br>
+     * game logic execution, rendering process and input event dispatching (excluding Web and Minigame platforms).<br>
      * This is different with `director.pause` which only pause the game logic execution.<br>
-     * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 `director.pause` 不同。
+     * @zh 暂停游戏主循环。包含：游戏逻辑，渲染和输入事件派发（Web 和小游戏平台除外）。这点和只暂停游戏逻辑的 `director.pause` 不同。
      */
     public pause () {
         if (this._paused) { return; }
