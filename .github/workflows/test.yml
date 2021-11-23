@@ -6,9 +6,7 @@ on: [pull_request]
 jobs:
   Check_pull_request_version:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-          
+    steps:          
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
