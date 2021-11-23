@@ -76,26 +76,7 @@ export class AudioSource extends Component {
     // An operation queue to store the operations before loading the AudioPlayer.
     private _operationsBeforeLoading: string[] = [];
     private _isLoaded = false;
-
-    private _lastSetClip?: AudioClip;
-    /**
-     * @en
-     * The default AudioClip to be played for this audio source.
-     * @zh
-     * 设定要播放的音频。
-     */
-    @type(AudioClip)
-    @tooltip('i18n:audio.clip')
-    set clip (val) {
-        if (val === this._clip) {
-            return;
-        }
-        this._clip = val;
-        this._syncPlayer();
-    }
-    get clip () {
-        return this._clip;
-    }
+    public test = 1;
     private _syncPlayer () {
         const clip = this._clip;
         this._isLoaded = false;
