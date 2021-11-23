@@ -109,6 +109,13 @@ struct Ambient {
     Vec4  groundAlbedo;
 };
 
+struct OctreeInfo {
+    bool     enabled{false};
+    Vec3     minPos;
+    Vec3     maxPos;
+    uint32_t depth{0};
+};
+
 struct PipelineSharedSceneData {
     bool                 isHDR{true};
     float                shadingScale{1.0F};
@@ -116,6 +123,7 @@ struct PipelineSharedSceneData {
     Shadow *             shadow{nullptr};
     Skybox *             skybox{nullptr};
     Fog *                fog{nullptr};
+    OctreeInfo *         octree{nullptr};
     gfx::InputAssembler *occlusionQueryInputAssembler{nullptr};
     Pass *               occlusionQueryPass{nullptr};
     gfx::Shader *        occlusionQueryShader{nullptr};
@@ -123,9 +131,9 @@ struct PipelineSharedSceneData {
     gfx::Shader *        deferredLightPassShader{nullptr};
     Pass *               bloomPrefilterPass{nullptr};
     gfx::Shader *        bloomPrefilterPassShader{nullptr};
-    std::vector<Pass *> bloomDownsamplePass;
+    std::vector<Pass *>  bloomDownsamplePass;
     gfx::Shader *        bloomDownsamplePassShader{nullptr};
-    std::vector<Pass *> bloomUpsamplePass;
+    std::vector<Pass *>  bloomUpsamplePass;
     gfx::Shader *        bloomUpsamplePassShader{nullptr};
     Pass *               bloomCombinePass{nullptr};
     gfx::Shader *        bloomCombinePassShader{nullptr};

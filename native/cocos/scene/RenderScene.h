@@ -41,13 +41,14 @@ class Octree;
 
 class RenderScene final {
 public:
-    RenderScene();
+    RenderScene()                    = default;
     RenderScene(const RenderScene &) = delete;
     RenderScene(RenderScene &&)      = delete;
     ~RenderScene();
     RenderScene &operator=(const RenderScene &) = delete;
     RenderScene &operator=(RenderScene &&) = delete;
 
+    void activate();
     void update(uint32_t stamp);
 
     void addSphereLight(SphereLight *);

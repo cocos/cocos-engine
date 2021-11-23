@@ -144,12 +144,12 @@ void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::arra
 }
 
 void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera) {
-    const auto *const    scene               = camera->scene;
-    PipelineSceneData *  sceneData           = pipeline->getPipelineSceneData();
-    vector<const scene::Light*> validPunctualLights = sceneData->getValidPunctualLights();
+    const auto *const            scene               = camera->scene;
+    PipelineSceneData *          sceneData           = pipeline->getPipelineSceneData();
+    vector<const scene::Light *> validPunctualLights = sceneData->getValidPunctualLights();
     validPunctualLights.clear();
 
-    scene::Sphere     sphere;
+    scene::Sphere sphere;
     for (auto *light : scene->getSpotLights()) {
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
@@ -322,91 +322,90 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         renderObjects.emplace_back(genRenderObject(skyBox->model, camera));
     }
 
-#define USE_OCTREE_VISIBILITY_QUERY
-#ifdef USE_OCTREE_VISIBILITY_QUERY
-    for (const auto *model : scene->getModels()) {
-        // filter model by view visibility
-        if (model->getEnabled()) {
-            if (model->getCastShadow()) {
-                castShadowObject.emplace_back(genRenderObject(model, camera));
-            }
-
-            const auto        visibility       = camera->visibility;
-            const auto *const node             = model->getNode();
-
-            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
-                (visibility & model->getVisFlags())) {
-                const auto *modelWorldBounds = model->getWorldBounds();
-                if (!modelWorldBounds && skyBox->model != model) {
-                    renderObjects.emplace_back(genRenderObject(model, camera));
-                }
-            }
-        }
-    }
-
     const scene::Octree *octree = scene->getOctree();
-    if (isShadowMap) {
-        std::vector<scene::Model *> casters;
-        casters.reserve(scene->getModels().size() / 4);
-        if (shadowInfo->fixedArea) {
-            octree->queryVisibility(camera, camera->frustum, true, casters);
-        } else {
-            octree->queryVisibility(camera, dirLightFrustum, true, casters);
-        }
-        for (const auto *model : casters) {
-            dirShadowObjects.emplace_back(genRenderObject(model, camera));
-        }
-    }
-
-    std::vector<scene::Model *> models;
-    models.reserve(scene->getModels().size() / 4);
-    octree->queryVisibility(camera, camera->frustum, false, models);
-    for (const auto *model : models) {
-        renderObjects.emplace_back(genRenderObject(model, camera));
-    }
-#else
-    for (const auto *model : scene->getModels()) {
-        // filter model by view visibility
-        if (model->getEnabled()) {
-            const auto        visibility = camera->visibility;
-            const auto *const node       = model->getNode();
-
-            // cast shadow render Object
-            if (model->getCastShadow()) {
-                castShadowObject.emplace_back(genRenderObject(model, camera));
-            }
-
-            if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
-                (visibility & model->getVisFlags())) {
-                
-                const auto *modelWorldBounds = model->getWorldBounds();
-                if (!modelWorldBounds) {
-                    renderObjects.emplace_back(genRenderObject(model, camera));
-                    continue;
+    if (octree) {
+        for (const auto *model : scene->getModels()) {
+            // filter model by view visibility
+            if (model->getEnabled()) {
+                if (model->getCastShadow()) {
+                    castShadowObject.emplace_back(genRenderObject(model, camera));
                 }
 
-                // dir shadow render Object
-                if (isShadowMap && model->getCastShadow()) {
-                    if (shadowInfo->fixedArea) {
-                        model->getWorldBounds()->transform(shadowInfo->matLight, &ab);
-                        if (ab.aabbFrustum(camera->frustum)) {
-                            dirShadowObjects.emplace_back(genRenderObject(model, camera));
-                        }
-                    } else {
-                        if (modelWorldBounds->aabbFrustum(dirLightFrustum)) {
-                            dirShadowObjects.emplace_back(genRenderObject(model, camera));
-                        }
+                const auto        visibility = camera->visibility;
+                const auto *const node       = model->getNode();
+
+                if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
+                    (visibility & model->getVisFlags())) {
+                    const auto *modelWorldBounds = model->getWorldBounds();
+                    if (!modelWorldBounds && skyBox->model != model) {
+                        renderObjects.emplace_back(genRenderObject(model, camera));
                     }
                 }
+            }
+        }
 
-                // frustum culling
-                if (modelWorldBounds->aabbFrustum(camera->frustum)) {
-                    renderObjects.emplace_back(genRenderObject(model, camera));
+        if (isShadowMap) {
+            std::vector<scene::Model *> casters;
+            casters.reserve(scene->getModels().size() / 4);
+            if (shadowInfo->fixedArea) {
+                octree->queryVisibility(camera, camera->frustum, true, casters);
+            } else {
+                octree->queryVisibility(camera, dirLightFrustum, true, casters);
+            }
+            for (const auto *model : casters) {
+                dirShadowObjects.emplace_back(genRenderObject(model, camera));
+            }
+        }
+
+        std::vector<scene::Model *> models;
+        models.reserve(scene->getModels().size() / 4);
+        octree->queryVisibility(camera, camera->frustum, false, models);
+        for (const auto *model : models) {
+            renderObjects.emplace_back(genRenderObject(model, camera));
+        }
+    } else {
+        scene::AABB ab;
+        for (const auto *model : scene->getModels()) {
+            // filter model by view visibility
+            if (model->getEnabled()) {
+                const auto        visibility = camera->visibility;
+                const auto *const node       = model->getNode();
+
+                // cast shadow render Object
+                if (model->getCastShadow()) {
+                    castShadowObject.emplace_back(genRenderObject(model, camera));
+                }
+
+                if ((model->getNode() && ((visibility & node->getLayer()) == node->getLayer())) ||
+                    (visibility & model->getVisFlags())) {
+                    const auto *modelWorldBounds = model->getWorldBounds();
+                    if (!modelWorldBounds) {
+                        renderObjects.emplace_back(genRenderObject(model, camera));
+                        continue;
+                    }
+
+                    // dir shadow render Object
+                    if (isShadowMap && model->getCastShadow()) {
+                        if (shadowInfo->fixedArea) {
+                            model->getWorldBounds()->transform(shadowInfo->matLight, &ab);
+                            if (ab.aabbFrustum(camera->frustum)) {
+                                dirShadowObjects.emplace_back(genRenderObject(model, camera));
+                            }
+                        } else {
+                            if (modelWorldBounds->aabbFrustum(dirLightFrustum)) {
+                                dirShadowObjects.emplace_back(genRenderObject(model, camera));
+                            }
+                        }
+                    }
+
+                    // frustum culling
+                    if (modelWorldBounds->aabbFrustum(camera->frustum)) {
+                        renderObjects.emplace_back(genRenderObject(model, camera));
+                    }
                 }
             }
         }
     }
-#endif
 
     if (isShadowMap) {
         sceneData->setDirShadowObjects(std::move(dirShadowObjects));

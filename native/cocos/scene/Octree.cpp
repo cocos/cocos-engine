@@ -84,7 +84,7 @@ BBox OctreeNode::getChildBox(uint32_t index) const {
         max.z = center.z;
     }
 
-    return BBox(min, max);
+    return {min, max};
 }
 
 OctreeNode* OctreeNode::getOrCreateChild(uint32_t index) {
@@ -260,7 +260,8 @@ void OctreeNode::queryVisibilitySequentially(const Camera* camera, const Frustum
  * Octree class
  */
 Octree::Octree(const Vec3& minPos, const Vec3& maxPos, uint32_t maxDepth) {
-    _root     = new OctreeNode(this, nullptr, BBox(minPos, maxPos), 0, 0);
+    const Vec3 expand{OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE};
+    _root     = new OctreeNode(this, nullptr, BBox(minPos - expand, maxPos), 0, 0);
     _maxDepth = std::max(maxDepth, 1U);
 }
 
@@ -269,8 +270,9 @@ Octree::~Octree() {
 }
 
 void Octree::resize(const Vec3& minPos, const Vec3& maxPos, uint32_t maxDepth) {
-    BBox rootBox = _root->getBox();
-    if (minPos == rootBox.min && maxPos == rootBox.max && maxDepth == _maxDepth) {
+    const Vec3 expand{OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE, OCTREE_BOX_EXPAND_SIZE};
+    BBox       rootBox = _root->getBox();
+    if ((minPos - expand) == rootBox.min && maxPos == rootBox.max && maxDepth == _maxDepth) {
         return;
     }
 
@@ -278,7 +280,7 @@ void Octree::resize(const Vec3& minPos, const Vec3& maxPos, uint32_t maxDepth) {
     _root->gatherModels(models);
 
     delete _root;
-    _root     = new OctreeNode(this, nullptr, BBox(minPos, maxPos), 0, 0);
+    _root     = new OctreeNode(this, nullptr, BBox(minPos - expand, maxPos), 0, 0);
     _maxDepth = std::max(maxDepth, 1U);
 
     for (auto* model : models) {

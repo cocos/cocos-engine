@@ -38,11 +38,12 @@ struct Camera;
 class Model;
 class Octree;
 
-constexpr int OCTREE_CHILDREN_NUM   = 8;
-constexpr int DEFAULT_OCTREE_DEPTH  = 8;
-const Vec3    DEFAULT_WORLD_MIN_POS = {-1124.0F, -1124.0F, -1124.0F};
-const Vec3    DEFAULT_WORLD_MAX_POS = {1024.0F, 1024.0F, 1024.0F};
-constexpr int USE_MULTI_THRESHOLD   = 1024; // use parallel culling if greater than this value
+constexpr int OCTREE_CHILDREN_NUM    = 8;
+constexpr int DEFAULT_OCTREE_DEPTH   = 8;
+const Vec3    DEFAULT_WORLD_MIN_POS  = {-1024.0F, -1024.0F, -1024.0F};
+const Vec3    DEFAULT_WORLD_MAX_POS  = {1024.0F, 1024.0F, 1024.0F};
+const float   OCTREE_BOX_EXPAND_SIZE = 10.0F;
+constexpr int USE_MULTI_THRESHOLD    = 1024; // use parallel culling if greater than this value
 
 // Axis aligned bounding box
 struct CC_DLL BBox {

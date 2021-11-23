@@ -26,20 +26,26 @@
 #include "scene/RenderScene.h"
 #include <utility>
 #include "base/Log.h"
+#include "renderer/pipeline/RenderPipeline.h"
 #include "scene/Octree.h"
-
 
 extern void jsbFlushFastMQ();
 
 namespace cc {
 namespace scene {
 
-RenderScene::RenderScene() {
-    _octree = new Octree();
+RenderScene::~RenderScene() {
+    CC_SAFE_DELETE(_octree);
 }
 
-RenderScene::~RenderScene() {
-    delete _octree;
+void RenderScene::activate() {
+    const auto *sceneData  = pipeline::RenderPipeline::getInstance()->getPipelineSceneData();
+    const auto *sharedData = sceneData->getSharedData();
+    const auto *info       = sharedData->octree;
+
+    if (info->enabled) {
+        _octree = new Octree(info->minPos, info->maxPos, info->depth);
+    }
 }
 
 void RenderScene::update(uint32_t stamp) {
@@ -99,19 +105,25 @@ void RenderScene::removeSpotLights() {
 void RenderScene::addModel(Model *model) {
     _models.push_back(model);
     model->setScene(this);
-    _octree->insert(model);
+    if (_octree) {
+        _octree->insert(model);
+    }
 }
 
 void RenderScene::addBakedSkinningModel(BakedSkinningModel *bakedSkinModel) {
     _models.push_back(bakedSkinModel);
     bakedSkinModel->setScene(this);
-    _octree->insert(bakedSkinModel);
+    if (_octree) {
+        _octree->insert(bakedSkinModel);
+    }
 }
 
 void RenderScene::addSkinningModel(SkinningModel *skinModel) {
     _models.push_back(skinModel);
     skinModel->setScene(this);
-    _octree->insert(skinModel);
+    if (_octree) {
+        _octree->insert(skinModel);
+    }
 }
 
 void RenderScene::removeModel(uint32_t idx) {
@@ -120,7 +132,9 @@ void RenderScene::removeModel(uint32_t idx) {
         return;
     }
     auto iter = _models.begin() + idx;
-    _octree->remove(*iter);
+    if (_octree) {
+        _octree->remove(*iter);
+    }
     (*iter)->setScene(nullptr);
 
     _models.erase(iter);
@@ -128,7 +142,9 @@ void RenderScene::removeModel(uint32_t idx) {
 
 void RenderScene::removeModels() {
     for (auto *model : _models) {
-        _octree->remove(model);
+        if (_octree) {
+            _octree->remove(model);
+        }
         model->setScene(nullptr);
     }
 
