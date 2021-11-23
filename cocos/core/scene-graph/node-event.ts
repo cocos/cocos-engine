@@ -222,10 +222,4 @@ export enum NodeEventType {
      * 注意：此节点激活时，此事件仅从最顶部的节点发出。
      */
     ACTIVE_IN_HIERARCHY_CHANGED = 'active-in-hierarchy-changed',
-
-    /**
-     * @en This event is emit when the hierarchy of the node has changed
-     * @zh 此事件会在节点的层级结构发生变化
-     */
-    HIERARCHY_CHANGED = 'hierarchy-changed',
 }
