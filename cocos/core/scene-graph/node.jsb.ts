@@ -95,7 +95,7 @@ const _tempFloatArray = new Float32Array([
 
 Node._setTempFloatArray(_tempFloatArray.buffer);
 
-function getConstructor<T>(typeOrClassName) {
+function getConstructor<T> (typeOrClassName) {
     if (!typeOrClassName) {
         return null;
     }
@@ -464,8 +464,10 @@ NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
 };
 
 const oldGetPosition = nodeProto.getPosition;
+const oldSetPosition = nodeProto.setPosition;
 const oldGetRotation = nodeProto.getRotation;
 const oldGetScale = nodeProto.getScale;
+const oldSetScale = nodeProto.setScale;
 const oldGetWorldPosition = nodeProto.getWorldPosition;
 const oldGetWorldRotation = nodeProto.getWorldRotation;
 const oldGetWorldScale = nodeProto.getWorldScale;
@@ -474,6 +476,44 @@ const oldGetWorldMatrix = nodeProto.getWorldMatrix;
 const oldGetForward = nodeProto.getForward;
 const oldGetUp = nodeProto.getUp;
 const oldGetRight = nodeProto.getRight;
+const oldSetRTS = nodeProto.setRTS;
+let _tempQuat = new Quat();
+
+nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
+    if (rot) {
+        let val = _tempQuat;
+        if (rot as Quat) {
+            val = rot as Quat;
+        } else {
+            Quat.fromEuler(val, rot.x, rot.y, rot.z);
+        }
+        _tempFloatArray[0] = 4;
+        _tempFloatArray[1] = val.x;
+        _tempFloatArray[2] = val.y;
+        _tempFloatArray[3] = val.z;
+        _tempFloatArray[4] = val.w;
+    } else {
+        _tempFloatArray[0] = 0;
+    }
+
+    if (pos) {
+        _tempFloatArray[5] = 3;
+        _tempFloatArray[6] = pos.x;
+        _tempFloatArray[7] = pos.y;
+        _tempFloatArray[8] = pos.z;
+    } else {
+        _tempFloatArray[5] = 0;
+    }
+    if (scale) {
+        _tempFloatArray[9] = 3;
+        _tempFloatArray[10] = scale.x;
+        _tempFloatArray[11] = scale.y;
+        _tempFloatArray[12] = scale.z;
+    } else {
+        _tempFloatArray[9] = 0;
+    }
+    oldSetRTS.call(this);
+};
 
 nodeProto.getPosition = function (out?: Vec3): Vec3 {
     oldGetPosition.call(this);
@@ -486,6 +526,27 @@ nodeProto.getPosition = function (out?: Vec3): Vec3 {
     pos.z = _tempFloatArray[2];
     return pos;
 };
+
+nodeProto.setPosition = function (val: Readonly<Vec3> | number, y?: number, z?: number) {
+    if (y === undefined && z === undefined) {
+        _tempFloatArray[0] = 3;
+        const pos = val as Vec3;
+        _tempFloatArray[1] = pos.x;
+        _tempFloatArray[2] = pos.y;
+        _tempFloatArray[3] = pos.z;
+    } else if (z === undefined) {
+        _tempFloatArray[0] = 2;
+        _tempFloatArray[1] = val as number;
+        _tempFloatArray[2] = y;
+    } else {
+        _tempFloatArray[0] = 3;
+        _tempFloatArray[1] = val as number;
+        _tempFloatArray[2] = y as number;
+        _tempFloatArray[3] = z as number;
+    }
+    oldSetPosition.call(this);
+};
+nodeProto.setPositionForJS = nodeProto.setPosition;
 
 nodeProto.getRotation = function (out?: Quat): Quat {
     const r = oldGetRotation.call(this);
@@ -502,6 +563,28 @@ nodeProto.getScale = function (out?: Vec3): Vec3 {
     }
     return Vec3.copy(this._scaleCache || (this._scaleCache = new Vec3()), r);
 };
+
+
+nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: number) {
+    if (y === undefined && z === undefined) {
+        _tempFloatArray[0] = 3;
+        const scale = val as Vec3;
+        _tempFloatArray[1] = scale.x;
+        _tempFloatArray[2] = scale.y;
+        _tempFloatArray[3] = scale.z;
+    } else if (z === undefined) {
+        _tempFloatArray[0] = 2;
+        _tempFloatArray[1] = val as number;
+        _tempFloatArray[2] = y;
+    } else {
+        _tempFloatArray[0] = 3;
+        _tempFloatArray[1] = val as number;
+        _tempFloatArray[2] = y;
+        _tempFloatArray[3] = z;
+    }
+    oldSetScale.call(this);
+};
+nodeProto.setScaleForJS = nodeProto.setScale;
 
 nodeProto.getWorldPosition = function (out?: Vec3): Vec3 {
     const r = oldGetWorldPosition.call(this);
@@ -583,10 +666,10 @@ nodeProto.getRight = function (out?: Vec3): Vec3 {
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Vec3> {
+    get (): Readonly<Vec3> {
         return this.getPosition();
     },
-    set(v: Readonly<Vec3>) {
+    set (v: Readonly<Vec3>) {
         this.setPosition(v as Vec3);
     },
 });
@@ -594,10 +677,10 @@ Object.defineProperty(nodeProto, 'position', {
 Object.defineProperty(nodeProto, 'rotation', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Quat> {
+    get (): Readonly<Quat> {
         return this.getRotation();
     },
-    set(v: Readonly<Quat>) {
+    set (v: Readonly<Quat>) {
         this.setRotation(v as Quat);
     },
 });
@@ -605,10 +688,10 @@ Object.defineProperty(nodeProto, 'rotation', {
 Object.defineProperty(nodeProto, 'scale', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Vec3> {
+    get (): Readonly<Vec3> {
         return this.getScale();
     },
-    set(v: Readonly<Vec3>) {
+    set (v: Readonly<Vec3>) {
         this.setScale(v as Vec3);
     },
 });
@@ -616,10 +699,10 @@ Object.defineProperty(nodeProto, 'scale', {
 Object.defineProperty(nodeProto, 'worldPosition', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Vec3> {
+    get (): Readonly<Vec3> {
         return this.getWorldPosition();
     },
-    set(v: Readonly<Vec3>) {
+    set (v: Readonly<Vec3>) {
         this.setWorldPosition(v as Vec3);
     },
 });
@@ -627,10 +710,10 @@ Object.defineProperty(nodeProto, 'worldPosition', {
 Object.defineProperty(nodeProto, 'worldRotation', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Quat> {
+    get (): Readonly<Quat> {
         return this.getWorldRotation();
     },
-    set(v: Readonly<Quat>) {
+    set (v: Readonly<Quat>) {
         this.setWorldRotation(v as Quat);
     },
 });
@@ -638,10 +721,10 @@ Object.defineProperty(nodeProto, 'worldRotation', {
 Object.defineProperty(nodeProto, 'worldScale', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Vec3> {
+    get (): Readonly<Vec3> {
         return this.getWorldScale();
     },
-    set(v: Readonly<Vec3>) {
+    set (v: Readonly<Vec3>) {
         this.setWorldScale(v as Vec3);
     },
 });
@@ -649,10 +732,10 @@ Object.defineProperty(nodeProto, 'worldScale', {
 Object.defineProperty(nodeProto, 'eulerAngles', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Vec3> {
+    get (): Readonly<Vec3> {
         return this.getEulerAngles();
     },
-    set(v: Readonly<Vec3>) {
+    set (v: Readonly<Vec3>) {
         this.setRotationFromEuler(v.x, v.y, v.z);
     },
 });
@@ -660,18 +743,27 @@ Object.defineProperty(nodeProto, 'eulerAngles', {
 Object.defineProperty(nodeProto, 'worldMatrix', {
     configurable: true,
     enumerable: true,
-    get(): Readonly<Vec3> {
+    get (): Readonly<Vec3> {
         return this.getWorldMatrix();
+    },
+});
+
+Object.defineProperty(nodeProto, 'activeInHierarchy', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        this.isActiveInHierarchy();
+        return _tempFloatArray[0] == 1;
     },
 });
 
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
-    get(): Vec3 {
+    get (): Vec3 {
         return this.getForward();
     },
-    set(dir: Vec3) {
+    set (dir: Vec3) {
         this.setForward(dir);
     },
 });
@@ -679,7 +771,7 @@ Object.defineProperty(nodeProto, 'forward', {
 Object.defineProperty(nodeProto, 'up', {
     configurable: true,
     enumerable: true,
-    get(): Vec3 {
+    get (): Vec3 {
         return this.getUp();
     },
 });
@@ -687,7 +779,7 @@ Object.defineProperty(nodeProto, 'up', {
 Object.defineProperty(nodeProto, 'right', {
     configurable: true,
     enumerable: true,
-    get(): Vec3 {
+    get (): Vec3 {
         return this.getRight();
     },
 });
@@ -695,7 +787,7 @@ Object.defineProperty(nodeProto, 'right', {
 Object.defineProperty(nodeProto, 'eventProcessor', {
     configurable: true,
     enumerable: true,
-    get(): NodeEventProcessor {
+    get (): NodeEventProcessor {
         return this._eventProcessor;
     },
 });
@@ -703,7 +795,7 @@ Object.defineProperty(nodeProto, 'eventProcessor', {
 Object.defineProperty(nodeProto, 'components', {
     configurable: true,
     enumerable: true,
-    get(): ReadonlyArray<Component> {
+    get (): ReadonlyArray<Component> {
         return this._components;
     },
 });
@@ -711,10 +803,10 @@ Object.defineProperty(nodeProto, 'components', {
 Object.defineProperty(nodeProto, '_parent', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         return this._parentInternal;
     },
-    set(v) {
+    set (v) {
         jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
         this._parentInternal = v;
     },
@@ -723,10 +815,10 @@ Object.defineProperty(nodeProto, '_parent', {
 Object.defineProperty(nodeProto, 'parent', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         return this.getParent();
     },
-    set(v) {
+    set (v) {
         jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
         this.setParent(v);
     },
@@ -735,20 +827,26 @@ Object.defineProperty(nodeProto, 'parent', {
 Object.defineProperty(nodeProto, 'children', {
     configurable: true,
     enumerable: true,
-    get() {
+    get () {
         return this._children;
     },
-    set(v) {
+    set (v) {
         this._children = v;
     },
 });
 
 nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
+    _tempFloatArray[1] = rot.x;
+    _tempFloatArray[2] = rot.y;
+    _tempFloatArray[3] = rot.z;
+    _tempFloatArray[4] = rot.w;
     if (ns) {
-        this.rotateForJS(rot.x, rot.y, rot.z, rot.w, ns);
+        _tempFloatArray[5] = ns;
+        _tempFloatArray[0] = 5;
     } else {
-        this.rotateForJS(rot.x, rot.y, rot.z, rot.w);
+        _tempFloatArray[0] = 4;
     }
+    this.rotateForJS();
 };
 
 nodeProto.addChild = function (child: Node): void {
@@ -864,7 +962,7 @@ _applyDecoratedDescriptor(_class2$u.prototype, '_name', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return '';
     },
 });
@@ -873,7 +971,7 @@ _applyDecoratedDescriptor(_class2$u.prototype, '_objFlags', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return 0;
     },
 });
@@ -883,7 +981,7 @@ const _descriptor$o = _applyDecoratedDescriptor(_class2$u.prototype, '_parent', 
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return null;
     },
 });
@@ -892,7 +990,7 @@ const _descriptor2$h = _applyDecoratedDescriptor(_class2$u.prototype, '_children
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return [];
     },
 });
@@ -901,7 +999,7 @@ const _descriptor3$b = _applyDecoratedDescriptor(_class2$u.prototype, '_active',
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return true;
     },
 });
@@ -910,7 +1008,7 @@ const _descriptor4$9 = _applyDecoratedDescriptor(_class2$u.prototype, '_componen
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return [];
     },
 });
@@ -919,7 +1017,7 @@ const _descriptor5$6 = _applyDecoratedDescriptor(_class2$u.prototype, '_prefab',
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return null;
     },
 });
@@ -930,7 +1028,7 @@ const _descriptor$p = _applyDecoratedDescriptor(_class2$v.prototype, '_lpos', [s
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return new Vec3();
     },
 });
@@ -939,7 +1037,7 @@ const _descriptor2$i = _applyDecoratedDescriptor(_class2$v.prototype, '_lrot', [
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return new Quat();
     },
 });
@@ -948,7 +1046,7 @@ const _descriptor3$c = _applyDecoratedDescriptor(_class2$v.prototype, '_lscale',
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return new Vec3(1, 1, 1);
     },
 });
@@ -957,7 +1055,7 @@ const _descriptor4$a = _applyDecoratedDescriptor(_class2$v.prototype, '_layer', 
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return Layers.Enum.DEFAULT;
     },
 });
@@ -966,7 +1064,7 @@ const _descriptor5$7 = _applyDecoratedDescriptor(_class2$v.prototype, '_euler', 
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return new Vec3();
     },
 });
