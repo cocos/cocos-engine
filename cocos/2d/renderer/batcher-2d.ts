@@ -133,9 +133,8 @@ export class Batcher2D implements IBatcher {
 
     public device: Device;
     private _screens: RenderRoot2D[] = [];
+    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128, (obj) => obj.destroy());
     private _drawBatchPool: Pool<DrawBatch2D>;
-
-    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128);
     private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
@@ -164,7 +163,7 @@ export class Batcher2D implements IBatcher {
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
-        this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
+        this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
     }
 
     public initialize () {
@@ -187,9 +186,7 @@ export class Batcher2D implements IBatcher {
         }
 
         if (this._drawBatchPool) {
-            this._drawBatchPool.destroy((obj) => {
-                obj.destroy(this);
-            });
+            this._drawBatchPool.destroy();
         }
 
         this._descriptorSetCache.destroy();
@@ -803,7 +800,7 @@ class DescriptorSetCache {
     private _localCachePool: Pool<LocalDescriptorSet>;
 
     constructor () {
-        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16);
+        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());
     }
 
     public getDescriptorSet (batch: DrawBatch2D, drawCall: DrawCall): DescriptorSet {
@@ -873,7 +870,7 @@ class DescriptorSetCache {
         this._descriptorSetCache.clear();
         this._dsCacheHashByTexture.clear();
         this._localDescriptorSetCache.length = 0;
-        this._localCachePool.destroy((obj) => { obj.destroy(); });
+        this._localCachePool.destroy();
     }
 }
 

@@ -3168,3 +3168,7 @@ Can not decode CCON binary: lack of text decoder.
 ### 14000
 
 Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.
+
+### 14100
+
+Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead
