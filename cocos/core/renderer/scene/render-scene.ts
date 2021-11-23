@@ -361,7 +361,7 @@ export class RenderScene {
     }
 
     private _createNativeObject () {
-        if (JSB) {
+        if (JSB && !this._nativeObj) {
             this._nativeObj = new NativeRenderScene();
         }
     }
