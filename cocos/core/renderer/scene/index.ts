@@ -24,6 +24,7 @@
  */
 
 export * from './ambient';
+export * from './octree';
 export * from './camera';
 export * from './deprecated';
 export * from './directional-light';
