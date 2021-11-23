@@ -7,6 +7,9 @@ jobs:
   Check_pull_request_version:
     runs-on: ubuntu-latest
     steps:          
+      - run: |
+        echo ${{ secrets.LABEl_TOKEN }}
+        echo ${{ secrets.GITHUB_TOKEN }}
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
