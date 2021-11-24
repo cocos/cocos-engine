@@ -1326,6 +1326,23 @@ static bool js_pipeline_RenderPipeline_updateQuadVertexData(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_updateQuadVertexData)
 
+static bool js_pipeline_RenderPipeline_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::RenderPipeline* result = cc::pipeline::RenderPipeline::getInstance();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_getInstance)
+
 static bool js_pipeline_RenderPipeline_getRenderArea(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -1346,35 +1363,18 @@ static bool js_pipeline_RenderPipeline_getRenderArea(se::State& s) // NOLINT(rea
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getRenderArea)
 
-static bool js_pipeline_RenderPipeline_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::pipeline::RenderPipeline* result = cc::pipeline::RenderPipeline::getInstance();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getInstance : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_RenderPipeline_getInstance)
-
 
 
 bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("RenderPipeline", obj, nullptr, nullptr);
 
+    cls->defineProperty("globalDSManager", _SE(js_pipeline_RenderPipeline_getGlobalDSManager), nullptr);
     cls->defineProperty("descriptorSet", _SE(js_pipeline_RenderPipeline_getDescriptorSet), nullptr);
+    cls->defineProperty("descriptorSetLayout", _SE(js_pipeline_RenderPipeline_getDescriptorSetLayout), nullptr);
+    cls->defineProperty("constantMacros", _SE(js_pipeline_RenderPipeline_getConstantMacros), nullptr);
     cls->defineProperty("clusterEnabled", _SE(js_pipeline_RenderPipeline_getClusterEnabled), _SE(js_pipeline_RenderPipeline_setClusterEnabled));
     cls->defineProperty("bloomEnabled", _SE(js_pipeline_RenderPipeline_getBloomEnabled), _SE(js_pipeline_RenderPipeline_setBloomEnabled));
-    cls->defineProperty("constantMacros", _SE(js_pipeline_RenderPipeline_getConstantMacros), nullptr);
-    cls->defineProperty("globalDSManager", _SE(js_pipeline_RenderPipeline_getGlobalDSManager), nullptr);
-    cls->defineProperty("descriptorSetLayout", _SE(js_pipeline_RenderPipeline_getDescriptorSetLayout), nullptr);
     cls->defineFunction("activate", _SE(js_pipeline_RenderPipeline_activate));
     cls->defineFunction("createQuadInputAssembler", _SE(js_pipeline_RenderPipeline_createQuadInputAssembler));
     cls->defineFunction("destroy", _SE(js_pipeline_RenderPipeline_destroy));
@@ -1401,8 +1401,8 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("setProfiler", _SE(js_pipeline_RenderPipeline_setProfiler));
     cls->defineFunction("setValue", _SE(js_pipeline_RenderPipeline_setValue));
     cls->defineFunction("updateQuadVertexData", _SE(js_pipeline_RenderPipeline_updateQuadVertexData));
-    cls->defineStaticFunction("getRenderArea", _SE(js_pipeline_RenderPipeline_getRenderArea));
     cls->defineStaticFunction("getInstance", _SE(js_pipeline_RenderPipeline_getInstance));
+    cls->defineStaticFunction("getRenderArea", _SE(js_pipeline_RenderPipeline_getRenderArea));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::RenderPipeline>(cls);
 
@@ -2461,19 +2461,6 @@ static bool js_pipeline_InstancedBuffer_setDynamicOffset(se::State& s) // NOLINT
 }
 SE_BIND_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset)
 
-static bool js_pipeline_InstancedBuffer_destroyInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::pipeline::InstancedBuffer::destroyInstancedBuffer();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer)
-
 static bool js_pipeline_InstancedBuffer_get(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
@@ -2510,6 +2497,19 @@ static bool js_pipeline_InstancedBuffer_get(se::State& s) // NOLINT(readability-
     return false;
 }
 SE_BIND_FUNC(js_pipeline_InstancedBuffer_get)
+
+static bool js_pipeline_InstancedBuffer_destroyInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::pipeline::InstancedBuffer::destroyInstancedBuffer();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_InstancedBuffer_finalize)
 
@@ -2548,8 +2548,8 @@ bool js_register_pipeline_InstancedBuffer(se::Object* obj) // NOLINT(readability
 
     cls->defineFunction("destroy", _SE(js_pipeline_InstancedBuffer_destroy));
     cls->defineFunction("setDynamicOffset", _SE(js_pipeline_InstancedBuffer_setDynamicOffset));
-    cls->defineStaticFunction("destroyInstancedBuffer", _SE(js_pipeline_InstancedBuffer_destroyInstancedBuffer));
     cls->defineStaticFunction("get", _SE(js_pipeline_InstancedBuffer_get));
+    cls->defineStaticFunction("destroyInstancedBuffer", _SE(js_pipeline_InstancedBuffer_destroyInstancedBuffer));
     cls->defineFinalizeFunction(_SE(js_cc_pipeline_InstancedBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cc::pipeline::InstancedBuffer>(cls);
@@ -3137,26 +3137,26 @@ bool register_all_pipeline(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_pipeline_RenderStage(ns);
-    js_register_pipeline_BloomStage(ns);
     js_register_pipeline_RenderQueueDesc(ns);
-    js_register_pipeline_RenderFlow(ns);
-    js_register_pipeline_LightingStage(ns);
-    js_register_pipeline_RenderPipeline(ns);
-    js_register_pipeline_RenderStageInfo(ns);
-    js_register_pipeline_ForwardPipeline(ns);
-    js_register_pipeline_GbufferStage(ns);
-    js_register_pipeline_RenderPipelineInfo(ns);
-    js_register_pipeline_PostProcessStage(ns);
-    js_register_pipeline_ForwardStage(ns);
-    js_register_pipeline_ShadowStage(ns);
     js_register_pipeline_GlobalDSManager(ns);
+    js_register_pipeline_RenderPipelineInfo(ns);
+    js_register_pipeline_RenderPipeline(ns);
+    js_register_pipeline_ForwardPipeline(ns);
     js_register_pipeline_RenderFlowInfo(ns);
+    js_register_pipeline_RenderFlow(ns);
     js_register_pipeline_ForwardFlow(ns);
+    js_register_pipeline_RenderStageInfo(ns);
+    js_register_pipeline_RenderStage(ns);
+    js_register_pipeline_ForwardStage(ns);
+    js_register_pipeline_ShadowFlow(ns);
+    js_register_pipeline_ShadowStage(ns);
     js_register_pipeline_InstancedBuffer(ns);
     js_register_pipeline_DeferredPipeline(ns);
     js_register_pipeline_MainFlow(ns);
-    js_register_pipeline_ShadowFlow(ns);
+    js_register_pipeline_GbufferStage(ns);
+    js_register_pipeline_LightingStage(ns);
+    js_register_pipeline_BloomStage(ns);
+    js_register_pipeline_PostProcessStage(ns);
     return true;
 }
 

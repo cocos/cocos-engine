@@ -230,6 +230,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::scene::Ambient *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Ambient);
 
+extern se::Object* __jsb_cc_scene_OctreeInfo_proto;
+extern se::Class* __jsb_cc_scene_OctreeInfo_class;
+
+bool js_register_cc_scene_OctreeInfo(se::Object* obj);
+bool register_all_scene(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::OctreeInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::OctreeInfo);
+
 extern se::Object* __jsb_cc_scene_PipelineSharedSceneData_proto;
 extern se::Class* __jsb_cc_scene_PipelineSharedSceneData_class;
 
@@ -411,6 +421,7 @@ bool js_register_cc_scene_RenderScene(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderScene);
+SE_DECLARE_FUNC(js_scene_RenderScene_activate);
 SE_DECLARE_FUNC(js_scene_RenderScene_addBakedSkinningModel);
 SE_DECLARE_FUNC(js_scene_RenderScene_addBatch);
 SE_DECLARE_FUNC(js_scene_RenderScene_addModel);

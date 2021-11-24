@@ -3969,6 +3969,242 @@ bool js_register_scene_Ambient(se::Object* obj) // NOLINT(readability-identifier
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_scene_OctreeInfo_proto = nullptr;
+se::Class* __jsb_cc_scene_OctreeInfo_class = nullptr;
+
+static bool js_scene_OctreeInfo_get_enabled(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get_enabled : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->enabled, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->enabled, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_OctreeInfo_get_enabled)
+
+static bool js_scene_OctreeInfo_set_enabled(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set_enabled : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->enabled, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set_enabled : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_OctreeInfo_set_enabled)
+
+static bool js_scene_OctreeInfo_get_minPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get_minPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->minPos, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->minPos, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_OctreeInfo_get_minPos)
+
+static bool js_scene_OctreeInfo_set_minPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set_minPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->minPos, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set_minPos : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_OctreeInfo_set_minPos)
+
+static bool js_scene_OctreeInfo_get_maxPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get_maxPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->maxPos, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->maxPos, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_OctreeInfo_get_maxPos)
+
+static bool js_scene_OctreeInfo_set_maxPos(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set_maxPos : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->maxPos, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set_maxPos : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_OctreeInfo_set_maxPos)
+
+static bool js_scene_OctreeInfo_get_depth(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_get_depth : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->depth, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->depth, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_OctreeInfo_get_depth)
+
+static bool js_scene_OctreeInfo_set_depth(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_OctreeInfo_set_depth : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->depth, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_OctreeInfo_set_depth : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_OctreeInfo_set_depth)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::scene::OctreeInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::scene::OctreeInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("enabled", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->enabled), ctx);
+    }
+    json->getProperty("minPos", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->minPos), ctx);
+    }
+    json->getProperty("maxPos", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->maxPos), ctx);
+    }
+    json->getProperty("depth", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->depth), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_OctreeInfo_finalize)
+
+static bool js_scene_OctreeInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        cc::scene::OctreeInfo* cobj = JSB_ALLOC(cc::scene::OctreeInfo);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::scene::OctreeInfo* cobj = JSB_ALLOC(cc::scene::OctreeInfo);
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    cc::scene::OctreeInfo* cobj = JSB_ALLOC(cc::scene::OctreeInfo);
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->enabled), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->minPos), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->maxPos), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->depth), nullptr);
+    }
+
+    if(!ok) {
+        JSB_FREE(cobj);
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_scene_OctreeInfo_constructor, __jsb_cc_scene_OctreeInfo_class, js_cc_scene_OctreeInfo_finalize)
+
+
+
+static bool js_cc_scene_OctreeInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::OctreeInfo>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::scene::OctreeInfo>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_OctreeInfo_finalize)
+
+bool js_register_scene_OctreeInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("OctreeInfo", obj, nullptr, _SE(js_scene_OctreeInfo_constructor));
+
+    cls->defineProperty("enabled", _SE(js_scene_OctreeInfo_get_enabled), _SE(js_scene_OctreeInfo_set_enabled));
+    cls->defineProperty("minPos", _SE(js_scene_OctreeInfo_get_minPos), _SE(js_scene_OctreeInfo_set_minPos));
+    cls->defineProperty("maxPos", _SE(js_scene_OctreeInfo_get_maxPos), _SE(js_scene_OctreeInfo_set_maxPos));
+    cls->defineProperty("depth", _SE(js_scene_OctreeInfo_get_depth), _SE(js_scene_OctreeInfo_set_depth));
+    cls->defineFinalizeFunction(_SE(js_cc_scene_OctreeInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::OctreeInfo>(cls);
+
+    __jsb_cc_scene_OctreeInfo_proto = cls->getProto();
+    __jsb_cc_scene_OctreeInfo_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_scene_PipelineSharedSceneData_proto = nullptr;
 se::Class* __jsb_cc_scene_PipelineSharedSceneData_class = nullptr;
 
@@ -4133,6 +4369,33 @@ static bool js_scene_PipelineSharedSceneData_set_fog(se::State& s) // NOLINT(rea
     return true;
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_fog)
+
+static bool js_scene_PipelineSharedSceneData_get_octree(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_octree : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->octree, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->octree, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_octree)
+
+static bool js_scene_PipelineSharedSceneData_set_octree(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_set_octree : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->octree, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_PipelineSharedSceneData_set_octree : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_octree)
 
 static bool js_scene_PipelineSharedSceneData_get_occlusionQueryInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -4576,6 +4839,10 @@ bool sevalue_to_native(const se::Value &from, cc::scene::PipelineSharedSceneData
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->fog), ctx);
     }
+    json->getProperty("octree", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->octree), ctx);
+    }
     json->getProperty("occlusionQueryInputAssembler", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->occlusionQueryInputAssembler), ctx);
@@ -4693,49 +4960,52 @@ static bool js_scene_PipelineSharedSceneData_constructor(se::State& s) // NOLINT
         ok &= sevalue_to_native(args[5], &(cobj->fog), nullptr);
     }
     if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->occlusionQueryInputAssembler), nullptr);
+        ok &= sevalue_to_native(args[6], &(cobj->octree), nullptr);
     }
     if (argc > 7 && !args[7].isUndefined()) {
-        ok &= sevalue_to_native(args[7], &(cobj->occlusionQueryPass), nullptr);
+        ok &= sevalue_to_native(args[7], &(cobj->occlusionQueryInputAssembler), nullptr);
     }
     if (argc > 8 && !args[8].isUndefined()) {
-        ok &= sevalue_to_native(args[8], &(cobj->occlusionQueryShader), nullptr);
+        ok &= sevalue_to_native(args[8], &(cobj->occlusionQueryPass), nullptr);
     }
     if (argc > 9 && !args[9].isUndefined()) {
-        ok &= sevalue_to_native(args[9], &(cobj->deferredLightPass), nullptr);
+        ok &= sevalue_to_native(args[9], &(cobj->occlusionQueryShader), nullptr);
     }
     if (argc > 10 && !args[10].isUndefined()) {
-        ok &= sevalue_to_native(args[10], &(cobj->deferredLightPassShader), nullptr);
+        ok &= sevalue_to_native(args[10], &(cobj->deferredLightPass), nullptr);
     }
     if (argc > 11 && !args[11].isUndefined()) {
-        ok &= sevalue_to_native(args[11], &(cobj->bloomPrefilterPass), nullptr);
+        ok &= sevalue_to_native(args[11], &(cobj->deferredLightPassShader), nullptr);
     }
     if (argc > 12 && !args[12].isUndefined()) {
-        ok &= sevalue_to_native(args[12], &(cobj->bloomPrefilterPassShader), nullptr);
+        ok &= sevalue_to_native(args[12], &(cobj->bloomPrefilterPass), nullptr);
     }
     if (argc > 13 && !args[13].isUndefined()) {
-        ok &= sevalue_to_native(args[13], &(cobj->bloomDownsamplePass), nullptr);
+        ok &= sevalue_to_native(args[13], &(cobj->bloomPrefilterPassShader), nullptr);
     }
     if (argc > 14 && !args[14].isUndefined()) {
-        ok &= sevalue_to_native(args[14], &(cobj->bloomDownsamplePassShader), nullptr);
+        ok &= sevalue_to_native(args[14], &(cobj->bloomDownsamplePass), nullptr);
     }
     if (argc > 15 && !args[15].isUndefined()) {
-        ok &= sevalue_to_native(args[15], &(cobj->bloomUpsamplePass), nullptr);
+        ok &= sevalue_to_native(args[15], &(cobj->bloomDownsamplePassShader), nullptr);
     }
     if (argc > 16 && !args[16].isUndefined()) {
-        ok &= sevalue_to_native(args[16], &(cobj->bloomUpsamplePassShader), nullptr);
+        ok &= sevalue_to_native(args[16], &(cobj->bloomUpsamplePass), nullptr);
     }
     if (argc > 17 && !args[17].isUndefined()) {
-        ok &= sevalue_to_native(args[17], &(cobj->bloomCombinePass), nullptr);
+        ok &= sevalue_to_native(args[17], &(cobj->bloomUpsamplePassShader), nullptr);
     }
     if (argc > 18 && !args[18].isUndefined()) {
-        ok &= sevalue_to_native(args[18], &(cobj->bloomCombinePassShader), nullptr);
+        ok &= sevalue_to_native(args[18], &(cobj->bloomCombinePass), nullptr);
     }
     if (argc > 19 && !args[19].isUndefined()) {
-        ok &= sevalue_to_native(args[19], &(cobj->pipelinePostPass), nullptr);
+        ok &= sevalue_to_native(args[19], &(cobj->bloomCombinePassShader), nullptr);
     }
     if (argc > 20 && !args[20].isUndefined()) {
-        ok &= sevalue_to_native(args[20], &(cobj->pipelinePostPassShader), nullptr);
+        ok &= sevalue_to_native(args[20], &(cobj->pipelinePostPass), nullptr);
+    }
+    if (argc > 21 && !args[21].isUndefined()) {
+        ok &= sevalue_to_native(args[21], &(cobj->pipelinePostPassShader), nullptr);
     }
 
     if(!ok) {
@@ -4775,6 +5045,7 @@ bool js_register_scene_PipelineSharedSceneData(se::Object* obj) // NOLINT(readab
     cls->defineProperty("shadow", _SE(js_scene_PipelineSharedSceneData_get_shadow), _SE(js_scene_PipelineSharedSceneData_set_shadow));
     cls->defineProperty("skybox", _SE(js_scene_PipelineSharedSceneData_get_skybox), _SE(js_scene_PipelineSharedSceneData_set_skybox));
     cls->defineProperty("fog", _SE(js_scene_PipelineSharedSceneData_get_fog), _SE(js_scene_PipelineSharedSceneData_set_fog));
+    cls->defineProperty("octree", _SE(js_scene_PipelineSharedSceneData_get_octree), _SE(js_scene_PipelineSharedSceneData_set_octree));
     cls->defineProperty("occlusionQueryInputAssembler", _SE(js_scene_PipelineSharedSceneData_get_occlusionQueryInputAssembler), _SE(js_scene_PipelineSharedSceneData_set_occlusionQueryInputAssembler));
     cls->defineProperty("occlusionQueryPass", _SE(js_scene_PipelineSharedSceneData_get_occlusionQueryPass), _SE(js_scene_PipelineSharedSceneData_set_occlusionQueryPass));
     cls->defineProperty("occlusionQueryShader", _SE(js_scene_PipelineSharedSceneData_get_occlusionQueryShader), _SE(js_scene_PipelineSharedSceneData_set_occlusionQueryShader));
@@ -7213,6 +7484,21 @@ bool js_register_scene_SkinningModel(se::Object* obj) // NOLINT(readability-iden
 se::Object* __jsb_cc_scene_RenderScene_proto = nullptr;
 se::Class* __jsb_cc_scene_RenderScene_class = nullptr;
 
+static bool js_scene_RenderScene_activate(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_activate : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->activate();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_RenderScene_activate)
+
 static bool js_scene_RenderScene_addBakedSkinningModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
@@ -7641,6 +7927,7 @@ bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("RenderScene", obj, nullptr, _SE(js_scene_RenderScene_constructor));
 
+    cls->defineFunction("activate", _SE(js_scene_RenderScene_activate));
     cls->defineFunction("addBakedSkinningModel", _SE(js_scene_RenderScene_addBakedSkinningModel));
     cls->defineFunction("addBatch", _SE(js_scene_RenderScene_addBatch));
     cls->defineFunction("addModel", _SE(js_scene_RenderScene_addModel));
@@ -8966,36 +9253,37 @@ bool register_all_scene(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_scene_RenderScene(ns);
-    js_register_scene_Camera(ns);
-    js_register_scene_DrawCall(ns);
-    js_register_scene_Fog(ns);
     js_register_scene_BaseNode(ns);
+    js_register_scene_Scene(ns);
     js_register_scene_Node(ns);
-    js_register_scene_Frustum(ns);
-    js_register_scene_DrawBatch2D(ns);
     js_register_scene_Light(ns);
+    js_register_scene_DirectionalLight(ns);
+    js_register_scene_Plane(ns);
+    js_register_scene_Frustum(ns);
+    js_register_scene_AABB(ns);
+    js_register_scene_SpotLight(ns);
     js_register_scene_SphereLight(ns);
     js_register_scene_Model(ns);
-    js_register_scene_BakedSkinningModel(ns);
-    js_register_scene_Plane(ns);
-    js_register_scene_JointTransform(ns);
-    js_register_scene_RenderWindow(ns);
+    js_register_scene_Fog(ns);
     js_register_scene_Shadow(ns);
-    js_register_scene_SubModel(ns);
-    js_register_scene_BakedJointInfo(ns);
-    js_register_scene_AABB(ns);
-    js_register_scene_Ambient(ns);
-    js_register_scene_SkinningModel(ns);
-    js_register_scene_DirectionalLight(ns);
-    js_register_scene_JointInfo(ns);
-    js_register_scene_Root(ns);
-    js_register_scene_Scene(ns);
-    js_register_scene_BakedAnimInfo(ns);
-    js_register_scene_Pass(ns);
     js_register_scene_Skybox(ns);
+    js_register_scene_Ambient(ns);
+    js_register_scene_OctreeInfo(ns);
     js_register_scene_PipelineSharedSceneData(ns);
-    js_register_scene_SpotLight(ns);
+    js_register_scene_Root(ns);
+    js_register_scene_SubModel(ns);
+    js_register_scene_Pass(ns);
+    js_register_scene_BakedAnimInfo(ns);
+    js_register_scene_BakedJointInfo(ns);
+    js_register_scene_BakedSkinningModel(ns);
+    js_register_scene_DrawCall(ns);
+    js_register_scene_DrawBatch2D(ns);
+    js_register_scene_JointTransform(ns);
+    js_register_scene_JointInfo(ns);
+    js_register_scene_SkinningModel(ns);
+    js_register_scene_RenderScene(ns);
+    js_register_scene_RenderWindow(ns);
+    js_register_scene_Camera(ns);
     return true;
 }
 

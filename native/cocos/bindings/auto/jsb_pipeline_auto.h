@@ -95,8 +95,8 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setProfiler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_updateQuadVertexData);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
 
 extern se::Object* __jsb_cc_pipeline_ForwardPipeline_proto;
 extern se::Class* __jsb_cc_pipeline_ForwardPipeline_class;
@@ -202,8 +202,8 @@ bool register_all_pipeline(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroy);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset);
-SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_get);
+SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_InstancedBuffer);
 
 extern se::Object* __jsb_cc_pipeline_DeferredPipeline_proto;
