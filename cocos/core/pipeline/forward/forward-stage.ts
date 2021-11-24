@@ -33,21 +33,19 @@ import { SetIndex } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { ClearFlagBit, Color, Rect } from '../../gfx';
-import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { ForwardStagePriority } from '../common/enum';
+import { ForwardStagePriority } from '../enum';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
-import { InstancedBuffer } from '../instanced-buffer';
-import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
 import { ForwardFlow } from './forward-flow';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
-import { UIPhase } from '../common/ui-phase';
+import { UIPhase } from '../ui-phase';
 import { Camera } from '../../renderer/scene';
+import { renderProfiler } from '../pipeline-funcs';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -113,7 +111,7 @@ export class ForwardStage extends RenderStage {
 
         this._additiveLightQueue = new RenderAdditiveLightQueue(this._pipeline as ForwardPipeline);
         this._planarQueue = new PlanarShadowQueue(this._pipeline);
-        if (!pipeline.postRenderPass) this._uiPhase.activate(pipeline);
+        this._uiPhase.activate(pipeline);
     }
 
     public destroy () {
@@ -139,11 +137,11 @@ export class ForwardStage extends RenderStage {
                     if (pass.phase !== this._phaseID) continue;
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
-                        const instancedBuffer = InstancedBuffer.get(pass);
+                        const instancedBuffer = pass.getInstancedBuffer();
                         instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                        const batchedBuffer = BatchedBuffer.get(pass);
+                        const batchedBuffer = pass.getBatchedBuffer();
                         batchedBuffer.merge(subModel, p, ro.model);
                         this._batchedQueue.queue.add(batchedBuffer);
                     } else {
@@ -164,31 +162,20 @@ export class ForwardStage extends RenderStage {
         this._batchedQueue.uploadBuffers(cmdBuff);
         this._additiveLightQueue.gatherLightPasses(camera, cmdBuff);
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
-        const sceneData = pipeline.pipelineSceneData;
-        this._renderArea = pipeline.generateRenderArea(camera);
-        pipeline.updateQuadVertexData(this._renderArea, camera.window!);
+
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
             colors[0].y = camera.clearColor.y;
             colors[0].z = camera.clearColor.z;
+            colors[0].w = camera.clearColor.w;
         }
+        pipeline.generateRenderArea(camera, this._renderArea);
 
-        colors[0].w = camera.clearColor.w;
-
-        const swapchain = camera.window!.swapchain;
-        let framebuffer = camera.window!.framebuffer;
-        let renderPass = framebuffer.renderPass;
-        if (swapchain) {
-            renderPass = pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain);
-            const forwardData = pipeline.getPipelineRenderData();
-            framebuffer = forwardData.outputFrameBuffer;
-        }
+        const swapchain = camera.window.swapchain;
+        const framebuffer = camera.window.framebuffer;
+        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag, swapchain) : framebuffer.renderPass;
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-        if (swapchain) {
-            cmdBuff.setScissor(pipeline.generateScissor(camera));
-            cmdBuff.setViewport(pipeline.generateViewport(camera));
-        }
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._renderQueues[0].recordCommandBuffer(device, renderPass, cmdBuff);
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
@@ -200,6 +187,7 @@ export class ForwardStage extends RenderStage {
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
+        renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, camera);
         cmdBuff.endRenderPass();
     }
 }

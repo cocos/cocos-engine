@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsFloatTexture } from './define';
+import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsFloatTexture, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec2, Vec3, Vec4, Color } from '../math';
@@ -34,6 +34,8 @@ import { updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene';
 import { RenderWindow } from '../renderer/core/render-window';
+import { builtinResMgr } from '../builtin/builtin-res-mgr';
+import { Texture2D } from '../assets';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -132,7 +134,11 @@ export class PipelineUBO {
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
 
-        cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
+        const colorTempRGB = fog.colorArray;
+        cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET] = colorTempRGB.x;
+        cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 1] = colorTempRGB.y;
+        cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 2] = colorTempRGB.z;
+        cv[UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 3] = colorTempRGB.z;
 
         cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
         cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
@@ -391,16 +397,19 @@ export class PipelineUBO {
         const cmdBuffer = this._pipeline.commandBuffers;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        ds.update();
         if (mainLight && shadowFrameBufferMap.has(mainLight)) {
             ds.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
         }
+        ds.update();
         PipelineUBO.updateShadowUBOView(this._pipeline, this._shadowUBO, camera);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
     public updateShadowUBOLight (globalDS: DescriptorSet, light: Light) {
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light);
+        globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        globalDS.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        globalDS.update();
         globalDS.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }
 

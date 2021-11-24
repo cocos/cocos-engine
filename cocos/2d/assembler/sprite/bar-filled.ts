@@ -65,6 +65,7 @@ export const barFilled: IAssembler = {
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
+            renderData.updateRenderData(sprite, frame);
             const uvDirty = renderData.uvDirty;
             const vertDirty = renderData.vertDirty;
 

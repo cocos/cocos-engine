@@ -28,10 +28,11 @@
  * @module ui
  */
 import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo, InputAssembler } from '../../core/gfx';
+import { ScalableContainer } from '../../core/memop/scalable-container';
 import { IBatcher } from './i-batcher';
 import { getComponentPerVertex } from './vertex-format';
 
-export class MeshBuffer {
+export class MeshBuffer extends ScalableContainer {
     public static OPACITY_OFFSET = 8;
 
     get attributes () { return this._attributes; }
@@ -65,8 +66,11 @@ export class MeshBuffer {
     private _outOfCallback: ((...args: number[]) => void) | null = null;
     private _hInputAssemblers: InputAssembler[] = [];
     private _nextFreeIAHandle = 0;
+    private _lastUsedVDataSize = 0;
+    private _lastUsedIDataSize = 0;
 
     constructor (batcher: IBatcher) {
+        super();
         this._batcher = batcher;
     }
 
@@ -158,6 +162,19 @@ export class MeshBuffer {
         this._dirty = false;
     }
 
+    public tryShrink () {
+        if (this._dirty || !this.vData || !this.iData) return;
+        if (this.vData.byteLength >> 2 > this._lastUsedVDataSize && this.iData.length >> 2 > this._lastUsedIDataSize) {
+            const vDataCount = Math.max(256 * this._vertexFormatBytes, this._initVDataCount >> 1);
+            const iDataCount = Math.max(256 * 6, this._initIDataCount >> 1);
+            if (vDataCount !== this._initVDataCount || iDataCount !== this._initIDataCount) {
+                this._initIDataCount = iDataCount;
+                this._initVDataCount = vDataCount;
+                this._reallocBuffer();
+            }
+        }
+    }
+
     public destroy () {
         this._attributes = null!;
 
@@ -171,6 +188,7 @@ export class MeshBuffer {
             this._hInputAssemblers[i].destroy();
         }
         this._hInputAssemblers.length = 0;
+        super.destroy();
     }
 
     public recordBatch (): InputAssembler | null {
@@ -208,6 +226,8 @@ export class MeshBuffer {
             this.indexBuffer.resize(this.indicesOffset * 2);
         }
         this.indexBuffer.update(indicesData);
+        this._lastUsedVDataSize = this.byteOffset;
+        this._lastUsedIDataSize = this.indicesOffset;
         this._dirty = false;
     }
 

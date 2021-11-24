@@ -108,11 +108,29 @@ export function getExtensions (gl: WebGL2RenderingContext) {
     return res;
 }
 
-export class WebGL2Swapchain extends Swapchain {
-    get gl () {
-        return this._webGL2RC as WebGL2RenderingContext;
+export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
+    let context: WebGL2RenderingContext | null = null;
+    try {
+        const webGLCtxAttribs: WebGLContextAttributes = {
+            alpha: macro.ENABLE_TRANSPARENT_CANVAS,
+            antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+            depth: true,
+            stencil: true,
+            premultipliedAlpha: false,
+            preserveDrawingBuffer: false,
+            powerPreference: 'default',
+            failIfMajorPerformanceCaveat: false,
+        };
+
+        context = canvas.getContext('webgl2', webGLCtxAttribs);
+    } catch (err) {
+        return null;
     }
 
+    return context;
+}
+
+export class WebGL2Swapchain extends Swapchain {
     get extensions () {
         return this._extensions as IWebGL2Extensions;
     }
@@ -122,38 +140,16 @@ export class WebGL2Swapchain extends Swapchain {
     public nullTexCube: WebGL2Texture = null!;
 
     private _canvas: HTMLCanvasElement | null = null;
-    private _webGL2RC: WebGL2RenderingContext | null = null;
     private _webGL2ContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGL2Extensions | null = null;
 
     public initialize (info: SwapchainInfo) {
         this._canvas = info.windowHandle;
 
-        try {
-            const webGLCtxAttribs: WebGLContextAttributes = {
-                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                depth: true,
-                stencil: true,
-                premultipliedAlpha: false,
-                preserveDrawingBuffer: false,
-                powerPreference: 'default',
-                failIfMajorPerformanceCaveat: false,
-            };
-
-            this._webGL2RC = this._canvas.getContext('webgl2', webGLCtxAttribs);
-        } catch (err) {
-            return;
-        }
-
-        if (!this._webGL2RC) {
-            return;
-        }
-
         this._webGL2ContextLostHandler = this._onWebGLContextLost.bind(this);
         this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
 
-        const gl = this.gl;
+        const gl = WebGL2DeviceManager.instance.gl;
 
         this.stateCache.initialize(
             WebGL2DeviceManager.instance.capabilities.maxTextureUnits,
@@ -245,7 +241,6 @@ export class WebGL2Swapchain extends Swapchain {
         }
 
         this._extensions = null;
-        this._webGL2RC = null;
         this._canvas = null;
     }
 

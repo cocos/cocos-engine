@@ -254,7 +254,7 @@ export class DeferredPipeline extends RenderPipeline {
         let newWidth = this._width;
         let newHeight = this._height;
         for (let i = 0; i < cameras.length; ++i) {
-            const window = cameras[i].window!;
+            const window = cameras[i].window;
             newWidth = Math.max(window.width, newWidth);
             newHeight = Math.max(window.height, newHeight);
         }
@@ -270,22 +270,22 @@ export class DeferredPipeline extends RenderPipeline {
         const device = this.device;
 
         const data: DeferredRenderData = this._pipelineRenderData = new DeferredRenderData();
-
+        const sceneData = this.pipelineSceneData;
         for (let i = 0; i < 4; ++i) {
             data.gbufferRenderTargets.push(device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
                 Format.RGBA16F, // positions & normals need more precision
-                this._width,
-                this._height,
+                this._width * sceneData.shadingScale,
+                this._height * sceneData.shadingScale,
             )));
         }
         data.outputDepth = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
             Format.DEPTH_STENCIL,
-            this._width,
-            this._height,
+            this._width * sceneData.shadingScale,
+            this._height * sceneData.shadingScale,
         ));
 
         data.gbufferFrameBuffer = device.createFramebuffer(new FramebufferInfo(
@@ -297,8 +297,8 @@ export class DeferredPipeline extends RenderPipeline {
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
             Format.RGBA16F,
-            this._width,
-            this._height,
+            this._width * sceneData.shadingScale,
+            this._height * sceneData.shadingScale,
         )));
 
         data.outputFrameBuffer = device.createFramebuffer(new FramebufferInfo(
@@ -313,7 +313,5 @@ export class DeferredPipeline extends RenderPipeline {
             this.applyFramebufferRatio(data.outputFrameBuffer);
         });
         data.sampler = this.globalDSManager.linearSampler;
-
-        this._generateBloomRenderData();
     }
 }

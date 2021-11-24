@@ -50,7 +50,6 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera, ShadowType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
-import { legacyCC } from '../global-exports';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -62,7 +61,6 @@ interface IAdditiveLightPass {
 const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
 const _vec4Array = new Float32Array(4);
-const _sphere = Sphere.create(0, 0, 0, 1);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
 const _matShadowView = new Mat4();
@@ -103,7 +101,6 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[])
 export class RenderAdditiveLightQueue {
     private _pipeline: RenderPipeline;
     private _device: Device;
-    private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
@@ -142,8 +139,6 @@ export class RenderAdditiveLightQueue {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
 
-        this._validLights.length = 0;
-
         for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
             lp.dynamicOffsets.length = 0;
@@ -171,13 +166,10 @@ export class RenderAdditiveLightQueue {
     }
 
     public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
-        const validLights = this._validLights;
-
         this.clear();
 
-        this._gatherValidLights(camera, validLights);
-
-        if (!validLights.length) { return; }
+        const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
+        if (!validPunctualLights.length) { return; }
 
         this._updateUBOs(camera, cmdBuff);
         this._updateLightDescriptorSet(camera, cmdBuff);
@@ -190,7 +182,7 @@ export class RenderAdditiveLightQueue {
 
             _lightIndices.length = 0;
 
-            this._lightCulling(model, validLights);
+            this._lightCulling(model, validPunctualLights);
 
             if (!_lightIndices.length) { continue; }
 
@@ -202,7 +194,7 @@ export class RenderAdditiveLightQueue {
                 subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
                 subModel.descriptorSet.update();
 
-                this._addRenderQueue(pass, subModel, model, lightPassIdx, validLights);
+                this._addRenderQueue(pass, subModel, model, lightPassIdx);
             }
         }
         this._instancedQueue.uploadBuffers(cmdBuff);
@@ -238,38 +230,10 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    // gather validLights
-    protected _gatherValidLights (camera: Camera, validLights: Light[]) {
-        const { sphereLights } = camera.scene!;
-        for (let i = 0; i < sphereLights.length; i++) {
-            const light = sphereLights[i];
-            if (light.baked) {
-                continue;
-            }
-
-            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                validLights.push(light);
-            }
-        }
-        const { spotLights } = camera.scene!;
-        for (let i = 0; i < spotLights.length; i++) {
-            const light = spotLights[i];
-            if (light.baked) {
-                continue;
-            }
-
-            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                validLights.push(light);
-            }
-        }
-    }
-
     // light culling
-    protected _lightCulling (model:Model, validLights: Light[]) {
-        for (let l = 0; l < validLights.length; l++) {
-            const light = validLights[l];
+    protected _lightCulling (model:Model, validPunctualLights: Light[]) {
+        for (let l = 0; l < validPunctualLights.length; l++) {
+            const light = validPunctualLights[l];
             let isCulled = false;
             switch (light.type) {
             case LightType.SPHERE:
@@ -287,12 +251,12 @@ export class RenderAdditiveLightQueue {
     }
 
     // add renderQueue
-    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number, validLights: Light[]) {
+    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number) {
         const { batchingScheme } = pass;
         if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
             for (let l = 0; l < _lightIndices.length; l++) {
                 const idx = _lightIndices[l];
-                const buffer = InstancedBuffer.get(pass, idx);
+                const buffer = pass.getInstancedBuffer(idx);
                 buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
                 buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
                 this._instancedQueue.queue.add(buffer);
@@ -300,7 +264,7 @@ export class RenderAdditiveLightQueue {
         } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
             for (let l = 0; l < _lightIndices.length; l++) {
                 const idx = _lightIndices[l];
-                const buffer = BatchedBuffer.get(pass, idx);
+                const buffer = pass.getBatchedBuffer(idx);
                 buffer.merge(subModel, lightPassIdx, model);
                 buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
                 this._batchedQueue.queue.add(buffer);
@@ -329,9 +293,10 @@ export class RenderAdditiveLightQueue {
         const linear = 0.0;
         const packing = supportsFloatTexture(device) ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
+        const validPunctualLights = sceneData.validPunctualLights;
 
-        for (let i = 0; i < this._validLights.length; i++) {
-            const light = this._validLights[i];
+        for (let i = 0; i < validPunctualLights.length; i++) {
+            const light = validPunctualLights[i];
             const descriptorSet = globalDSManager.getOrCreateDescriptorSet(i);
             if (!descriptorSet) { continue; }
             let matShadowProj : Mat4;
@@ -425,21 +390,21 @@ export class RenderAdditiveLightQueue {
         const { exposure } = camera;
         const sceneData = this._pipeline.pipelineSceneData;
         const isHDR = sceneData.isHDR;
-        const root = legacyCC.director.root;
         const shadowInfo = sceneData.shadows;
+        const validPunctualLights = sceneData.validPunctualLights;
 
-        if (this._validLights.length > this._lightBufferCount) {
+        if (validPunctualLights.length > this._lightBufferCount) {
             this._firstLightBufferView.destroy();
 
-            this._lightBufferCount = nextPow2(this._validLights.length);
+            this._lightBufferCount = nextPow2(validPunctualLights.length);
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
             this._firstLightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
-        for (let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {
-            const light = this._validLights[l];
+        for (let l = 0, offset = 0; l < validPunctualLights.length; l++, offset += this._lightBufferElementCount) {
+            const light = validPunctualLights[l];
 
             switch (light.type) {
             case LightType.SPHERE:

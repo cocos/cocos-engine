@@ -84,29 +84,36 @@ let _maxLineWidth = 0;
 
 export const bmfontUtils = {
     updateRenderData (comp: Label) {
-        if (!comp.renderData || !comp.renderData.vertDirty) {
+        if (!comp.renderData) {
             return;
         }
 
         if (_comp === comp) { return; }
 
-        _comp = comp;
-        _uiTrans = _comp.node._uiProps.uiTransformComp!;
-        this._updateFontFamily(comp);
-        this._updateProperties(comp);
-        this._updateLabelInfo(comp);
-        this._updateContent();
+        if (comp.renderData.vertDirty) {
+            _comp = comp;
+            _uiTrans = _comp.node._uiProps.uiTransformComp!;
+            this._updateFontFamily(comp);
+            this._updateProperties(comp);
+            this._updateLabelInfo(comp);
+            this._updateContent();
 
-        _comp.actualFontSize = _fontSize;
-        _uiTrans.setContentSize(_contentSize);
+            _comp.actualFontSize = _fontSize;
+            _uiTrans.setContentSize(_contentSize);
 
-        _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
-        // fix bmfont run updateRenderData twice bug
-        _comp.markForUpdateRenderData(false);
+            _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
+            // fix bmfont run updateRenderData twice bug
+            _comp.markForUpdateRenderData(false);
 
-        _comp = null;
+            _comp = null;
 
-        this._resetProperties();
+            this._resetProperties();
+        }
+
+        if (comp.spriteFrame) {
+            const renderData = comp.renderData;
+            renderData.updateRenderData(comp, comp.spriteFrame);
+        }
     },
 
     _updateFontScale () {
@@ -237,7 +244,7 @@ export const bmfontUtils = {
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     console.log(`Can't find letter definition in texture atlas ${
-                     _fntConfig!.atlasName} for letter:${character}`);
+                        _fntConfig!.atlasName} for letter:${character}`);
                     continue;
                 }
 

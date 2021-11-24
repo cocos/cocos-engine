@@ -620,6 +620,9 @@ Invalid index in MultiplexLayer switchTo message
 <!-- DEPRECATED -->
 cc.Layer.addLayer(): layer should be non-null
 
+### 2104
+Layer collision. The name of layer (%s) is collided with the name or value of some layer
+
 ### 2200
 
 Design resolution not valid
@@ -3053,6 +3056,14 @@ texture size exceeds current device limits %d/%d
 <!-- DEPRECATED -->
 cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
 
+### 9201
+
+Cannot access game frame or container.
+
+### 9202
+
+Setting window size is not supported.
+
 ### 9300
 
 The current buffer beyond the limit in ui static component, please reduce the amount
@@ -3157,3 +3168,7 @@ Can not decode CCON binary: lack of text decoder.
 ### 14000
 
 Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.
+
+### 14100
+
+Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead
