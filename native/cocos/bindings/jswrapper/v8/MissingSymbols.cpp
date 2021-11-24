@@ -26,6 +26,7 @@
 
 //TODO(PatriceJiang): modify this when OHOS llvm upgrade
 #if CC_PLATFORM == CC_PLATFORM_OHOS
+#include <string.h>
 extern "C" {
 int local_bcmp(const void *cs, const void *ct, size_t count) {
 return memcmp(cs, ct, count);

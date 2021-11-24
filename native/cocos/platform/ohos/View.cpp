@@ -51,6 +51,7 @@ void View::engineHandleCmd(int cmd) {
         case ABILITY_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
             event.name = EVENT_DESTROY_WINDOW;
+            event.args->ptrVal = cocosApp.pendingWindow;
             cc::EventDispatcher::dispatchCustomEvent(event);
         } break;
         case ABILITY_CMD_RESUME:
