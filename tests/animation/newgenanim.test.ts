@@ -21,6 +21,7 @@ import { BinaryCondition, UnaryCondition, TriggerCondition } from '../../cocos/c
 import { AnimationController } from '../../cocos/core/animation/marionette/animation-controller';
 import { StateMachineComponent } from '../../cocos/core/animation/marionette/state-machine-component';
 import { VectorTrack } from '../../cocos/core/animation/animation';
+import 'jest-extended';
 
 describe('NewGen Anim', () => {
     const demoGraphs = __getDemoGraphs();
@@ -1869,6 +1870,50 @@ describe('NewGen Anim', () => {
     });
 
     describe('Property binding', () => {
+    });
+
+    test(`Runtime variable manipulation`, () => {
+        const animationGraph = new AnimationGraph();
+        animationGraph.addVariable('i0', VariableType.INTEGER, 0);
+        animationGraph.addVariable('i1', VariableType.INTEGER, 2);
+        animationGraph.addVariable('f0', VariableType.FLOAT, 0.0);
+        animationGraph.addVariable('f1', VariableType.FLOAT, 3.14);
+        animationGraph.addVariable('b0', VariableType.BOOLEAN, true);
+        animationGraph.addVariable('b1', VariableType.BOOLEAN, false);
+        animationGraph.addVariable('t0', VariableType.TRIGGER, true);
+        animationGraph.addVariable('t1', VariableType.TRIGGER, false);
+        const node = new Node();
+        const { newGenAnim: controller } = createAnimationGraphEval2(animationGraph, node);
+        expect(Array.from(controller.getVariables()).map(
+            ([name, { type }]) => [name, type, controller.getValue(name)] as const)).toIncludeAllMembers([
+            ['i0', VariableType.INTEGER, 0],
+            ['i1', VariableType.INTEGER, 2],
+            ['f0', VariableType.FLOAT, 0.0],
+            ['f1', VariableType.FLOAT, 3.14],
+            ['b0', VariableType.BOOLEAN, true],
+            ['b1', VariableType.BOOLEAN, false],
+            ['t0', VariableType.TRIGGER, true],
+            ['t1', VariableType.TRIGGER, false],
+        ]);
+        controller.setValue('i0', 3);
+        controller.setValue('i1', 4);
+        controller.setValue('f0', 1.0);
+        controller.setValue('f1', 6.28);
+        controller.setValue('b0', false);
+        controller.setValue('b1', true);
+        controller.setValue('t0', false);
+        controller.setValue('t1', true);
+        expect(Array.from(controller.getVariables()).map(
+            ([name, { type }]) => [name, type, controller.getValue(name)] as const)).toIncludeAllMembers([
+            ['i0', VariableType.INTEGER, 3],
+            ['i1', VariableType.INTEGER, 4],
+            ['f0', VariableType.FLOAT, 1.0],
+            ['f1', VariableType.FLOAT, 6.28],
+            ['b0', VariableType.BOOLEAN, false],
+            ['b1', VariableType.BOOLEAN, true],
+            ['t0', VariableType.TRIGGER, false],
+            ['t1', VariableType.TRIGGER, true],
+        ]);
     });
 });
 

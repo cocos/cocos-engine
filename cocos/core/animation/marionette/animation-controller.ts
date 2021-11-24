@@ -31,10 +31,22 @@ export class AnimationController extends Component {
         this._graphEval?.update(deltaTime);
     }
 
+    public getVariables () {
+        const { _graphEval: graphEval } = this;
+        assertIsNonNullable(graphEval);
+        return graphEval.getVariables();
+    }
+
     public setValue (name: string, value: Value) {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
         graphEval.setValue(name, value);
+    }
+
+    public getValue (name: string) {
+        const { _graphEval: graphEval } = this;
+        assertIsNonNullable(graphEval);
+        return graphEval.getValue(name);
     }
 
     public getCurrentStateStatus (layer: number) {

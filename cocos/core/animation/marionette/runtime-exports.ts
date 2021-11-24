@@ -9,6 +9,7 @@ import type { MotionStateStatus } from './animation-controller';
 export type { AnimationGraphRunTime } from './animation-graph';
 export { AnimationController } from './animation-controller';
 export type { ClipStatus, TransitionStatus, MotionStateStatus } from './animation-controller';
+export { VariableType } from './parametric';
 export { StateMachineComponent } from './state-machine-component';
 
 /**
