@@ -1,6 +1,6 @@
 import { Node, Scene } from "../../cocos/core/scene-graph"
 import { Vec3 } from "../../cocos/core/math"
-import { director } from "../../cocos/core";
+import { director, game } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
 import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
 
@@ -88,40 +88,46 @@ describe(`Node`, () => {
         const node = new Node();
         const childNode = new Node();
         node.addChild(childNode);
-        const nodeCB = jest.fn(() => {});
-        node.on(NodeEventType.HIERARCHY_CHANGED, nodeCB);
-        const childNodeCB = jest.fn(() => {});
-        childNode.on(NodeEventType.HIERARCHY_CHANGED, childNodeCB);
+        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
+
+        game.step();
+        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
+
         // scene -|
         //        |-node-|
         //               |-childNode                    
-        // insert node, node and child node hierarchy changed
+        // insert node, scene will be notify
         scene.addChild(node);
-        expect(nodeCB).toBeCalledTimes(1);
-        expect(childNodeCB).toBeCalledTimes(1);
+        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
 
-        const node1CB = jest.fn(() => {});
+        game.step();
+
         const node1 = new Node();
-        node1.on(NodeEventType.HIERARCHY_CHANGED, node1CB);
         // scene -|
         //        |- node -|
         //                 |-childNode
         //        |- node1
-        // insert node1, node1 hierarchy changed, node and child node hierarchy remained
+        // insert node1, scene will be notify
         scene.addChild(node1);
-        expect(nodeCB).toBeCalledTimes(1);
-        expect(childNodeCB).toBeCalledTimes(1);
-        expect(node1CB).toBeCalledTimes(1);
+        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+
+        game.step();
 
         // scene -|
         //        |- node1
         //        |- node -|
         //                 |-childNode
-        // change node1 sibling index, every node hierarchy changed
+        // change node sibling index, scene will be notify
         node.setSiblingIndex(1);
-        expect(nodeCB).toBeCalledTimes(2);
-        expect(childNodeCB).toBeCalledTimes(2);
-        expect(node1CB).toBeCalledTimes(2);
+        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+
+        game.step();
 
         const childNode2 = new Node();
         // scene -|
@@ -129,100 +135,59 @@ describe(`Node`, () => {
         //        |- node -|
         //                 |-childNode
         //                 |-childNode2
-        // insert childNode2, every node hierarchy remained
+        // insert childNode2, node and scene will be notify
         node.addChild(childNode2);
-        expect(nodeCB).toBeCalledTimes(2);
-        expect(childNodeCB).toBeCalledTimes(2);
-        expect(node1CB).toBeCalledTimes(2);
+        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
 
-        const childNode2CB = jest.fn(() => {});
-        childNode2.on(NodeEventType.HIERARCHY_CHANGED, childNode2CB);
+        game.step();
+
         // scene -|
         //        |- node1
         //        |- node -|
         //                 |-childNode2
         //                 |-childNode
-        // change childNode2 sibling, childNode2 and childNode hierarchy changed
+        // change childNode2 sibling, node and scene will be notify
         childNode2.setSiblingIndex(0);
-        expect(nodeCB).toBeCalledTimes(2);
-        expect(childNodeCB).toBeCalledTimes(3);
-        expect(node1CB).toBeCalledTimes(2);
-        expect(childNode2CB).toBeCalledTimes(1);
+        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(childNode2.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
+
+        game.step();
 
         const childNode3 = new Node();
-        const childNode3CB = jest.fn(() => {});
-        childNode3.on(NodeEventType.HIERARCHY_CHANGED, childNode3CB);
         // scene -|
         //        |- node1
         //        |- node -|
         //                 |-childNode2
         //                 |-childNode
         //                 |-childNode3
-        // insert childNode3, childNode3 hierarchy changed
+        // insert childNode3, node and scene will be notify
         node.addChild(childNode3);
-        expect(nodeCB).toBeCalledTimes(2);
-        expect(childNodeCB).toBeCalledTimes(3);
-        expect(node1CB).toBeCalledTimes(2);
-        expect(childNode2CB).toBeCalledTimes(1);
-        expect(childNode3CB).toBeCalledTimes(1);
+        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(childNode2.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(childNode3.hasChildrenHierarchyChanged()).toBeFalsy();
 
-        // scene -|
-        //        |- node1
-        //        |- node -|
-        //                 |-childNode2
-        //                 |-childNode3
-        //                 |-childNode
-        // change childNode3 sibling, childNode, childNode3 hierarchy changed
-        childNode3.setSiblingIndex(1);
-        expect(nodeCB).toBeCalledTimes(2);
-        expect(childNodeCB).toBeCalledTimes(4);
-        expect(node1CB).toBeCalledTimes(2);
-        expect(childNode2CB).toBeCalledTimes(1);
-        expect(childNode3CB).toBeCalledTimes(2);
+        game.step();
 
         // scene -|
         //        |- node1
         //        |- node -|
         //                 |-childNode2
         //                 |-childNode
-        // remove childNode3, childNode, childNode3 hierarchy changed
+        // remove childNode3, node and scene will be notify
         childNode3.removeFromParent();
-        expect(nodeCB).toBeCalledTimes(2);
-        expect(childNodeCB).toBeCalledTimes(5);
-        expect(node1CB).toBeCalledTimes(2);
-        expect(childNode2CB).toBeCalledTimes(1);
-        expect(childNode3CB).toBeCalledTimes(3);
-        
-        // scene -|
-        //        |- node1
-        //        |- node -|
-        //                 |-childNode
-        // remove childNode2, childNode, childNode2 hierarchy changed
-        childNode2.removeFromParent();
-        expect(nodeCB).toBeCalledTimes(2);
-        expect(childNodeCB).toBeCalledTimes(6);
-        expect(node1CB).toBeCalledTimes(2);
-        expect(childNode2CB).toBeCalledTimes(2);
-        expect(childNode3CB).toBeCalledTimes(3);
-
-        // scene -|
-        //        |- node -|
-        //                 |-childNode
-        // remove node1, node, node1, childNode hierarchy changed
-        node1.removeFromParent();
-        expect(nodeCB).toBeCalledTimes(3);
-        expect(childNodeCB).toBeCalledTimes(7);
-        expect(node1CB).toBeCalledTimes(3);
-        expect(childNode2CB).toBeCalledTimes(2);
-        expect(childNode3CB).toBeCalledTimes(3);
-
-        // scene -|
-        // remove node, node, childNode hierarchy changed
-        node.removeFromParent();
-        expect(nodeCB).toBeCalledTimes(4);
-        expect(childNodeCB).toBeCalledTimes(8);
-        expect(node1CB).toBeCalledTimes(3);
-        expect(childNode2CB).toBeCalledTimes(2);
-        expect(childNode3CB).toBeCalledTimes(3);
+        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(childNode2.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(childNode3.hasChildrenHierarchyChanged()).toBeFalsy();
     });
 });

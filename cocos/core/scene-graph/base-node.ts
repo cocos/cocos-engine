@@ -332,6 +332,8 @@ export class BaseNode extends CCObject implements ISchedulable {
     // record scene's id when set this node as persist node
     public _originalSceneId = '';
 
+    private _childrenChanged = 0;
+
     /**
      * Set `_scene` field of this node.
      * The derived `Scene` overrides this method to behavior differently.
@@ -438,6 +440,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 }
                 oldParent._children.splice(removeAt, 1);
                 oldParent._updateSiblingIndex();
+                oldParent._notifyChildrenHierarchyChanged();
                 if (oldParent.emit) {
                     oldParent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
@@ -450,22 +453,13 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             newParent._children.push(this);
             this._siblingIndex = newParent._children.length - 1;
+            newParent._notifyChildrenHierarchyChanged();
             if (newParent.emit) {
                 newParent.emit(NodeEventType.CHILD_ADDED, this);
             }
         }
 
-        this.notifyHierarchyChanged();
         this._onHierarchyChanged(oldParent);
-    }
-
-    public notifyHierarchyChanged () {
-        this.emit(NodeEventType.HIERARCHY_CHANGED);
-        if (this._children.length > 0) {
-            for (let i = 0; i < this._children.length; i++) {
-                this._children[i].notifyHierarchyChanged();
-            }
-        }
     }
 
     /**
@@ -1249,15 +1243,16 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     public _updateSiblingIndex () {
+        let siblingChanged = false;
         legacyCC.director.root!.batcher2D._reloadBatch();
         for (let i = 0; i < this._children.length; ++i) {
             const child = this._children[i];
             if (child._siblingIndex !== i) {
                 child._siblingIndex = i;
-                child.notifyHierarchyChanged();
+                siblingChanged = true;
             }
         }
-
+        if (siblingChanged) { this._notifyChildrenHierarchyChanged(); }
         this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
     }
 
@@ -1402,6 +1397,18 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         return destroyByParent;
+    }
+
+    private _notifyChildrenHierarchyChanged () {
+        let cur: BaseNode | null = this as BaseNode;
+        while (cur && cur._childrenChanged !== legacyCC.director.getTotalFrames()) {
+            cur._childrenChanged = legacyCC.director.getTotalFrames();
+            cur = cur._parent;
+        }
+    }
+
+    public hasChildrenHierarchyChanged () {
+        return this._childrenChanged === legacyCC.director.getTotalFrames();
     }
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
