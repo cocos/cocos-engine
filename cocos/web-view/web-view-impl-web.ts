@@ -70,17 +70,17 @@ export class WebViewImplWeb extends WebViewImpl {
     }
 
     public createWebView () {
-        const warpper = document.createElement('div');
-        this._warpper = warpper;
-        warpper.id = 'webview-wrapper';
-        warpper.style['-webkit-overflow'] = 'auto';
-        warpper.style['-webkit-overflow-scrolling'] = 'touch';
-        warpper.style.position = 'absolute';
-        warpper.style.bottom = '0px';
-        warpper.style.left = '0px';
-        warpper.style.transformOrigin = '0px 100% 0px';
-        warpper.style['-webkit-transform-origin'] = '0px 100% 0px';
-        game.container!.appendChild(warpper);
+        const wrapper = document.createElement('div');
+        this._wrapper = wrapper;
+        wrapper.id = 'webview-wrapper';
+        wrapper.style['-webkit-overflow'] = 'auto';
+        wrapper.style['-webkit-overflow-scrolling'] = 'touch';
+        wrapper.style.position = 'absolute';
+        wrapper.style.bottom = '0px';
+        wrapper.style.left = '0px';
+        wrapper.style.transformOrigin = '0px 100% 0px';
+        wrapper.style['-webkit-transform-origin'] = '0px 100% 0px';
+        game.container!.appendChild(wrapper);
 
         const webview = document.createElement('iframe');
         this._webview = webview;
@@ -88,27 +88,27 @@ export class WebViewImplWeb extends WebViewImpl {
         webview.style.border = 'none';
         webview.style.width = '100%';
         webview.style.height = '100%';
-        warpper.appendChild(webview);
+        wrapper.appendChild(webview);
         this._bindDomEvent();
     }
 
     public removeWebView () {
-        const warpper = this._warpper;
-        if (contains(game.container, warpper)) {
-            game.container!.removeChild(warpper);
+        const wrapper = this._wrapper;
+        if (contains(game.container, wrapper)) {
+            game.container!.removeChild(wrapper);
         }
         this.reset();
     }
 
     public enable () {
-        if (this._warpper) {
-            this._warpper.style.visibility = 'visible';
+        if (this._wrapper) {
+            this._wrapper.style.visibility = 'visible';
         }
     }
 
     public disable () {
-        if (this._warpper) {
-            this._warpper.style.visibility = 'hidden';
+        if (this._wrapper) {
+            this._wrapper.style.visibility = 'hidden';
         }
     }
 
@@ -135,7 +135,7 @@ export class WebViewImplWeb extends WebViewImpl {
     }
 
     public syncMatrix () {
-        if (!this._warpper || !this._uiTrans || !this._component || this._warpper.style.visibility === 'hidden') return;
+        if (!this._wrapper || !this._uiTrans || !this._component || this._wrapper.style.visibility === 'hidden') return;
 
         const camera = this.UICamera;
         if (!camera) {
@@ -176,8 +176,8 @@ export class WebViewImplWeb extends WebViewImpl {
         const c = _mat4_temp.m04;
         const sy = _mat4_temp.m05 * scaleY;
 
-        this._warpper.style.width = `${width}px`;
-        this._warpper.style.height = `${height}px`;
+        this._wrapper.style.width = `${width}px`;
+        this._wrapper.style.height = `${height}px`;
         const w = this._w * scaleX;
         const h = this._h * scaleY;
 
@@ -190,8 +190,8 @@ export class WebViewImplWeb extends WebViewImpl {
         const ty = _mat4_temp.m13 * scaleY - appy + offsetY;
 
         const matrix = `matrix(${sx},${-b},${-c},${sy},${tx},${-ty})`;
-        this._warpper.style.transform = matrix;
-        this._warpper.style['-webkit-transform'] = matrix;
+        this._wrapper.style.transform = matrix;
+        this._wrapper.style['-webkit-transform'] = matrix;
         this._forceUpdate = false;
     }
 }
