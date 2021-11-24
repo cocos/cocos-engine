@@ -2009,7 +2009,7 @@ export const DESCRIPTOR_BUFFER_TYPE = DescriptorType.UNIFORM_BUFFER | Descriptor
                                       | DescriptorType.STORAGE_BUFFER | DescriptorType.DYNAMIC_STORAGE_BUFFER;
 
 export const DESCRIPTOR_SAMPLER_TYPE = DescriptorType.SAMPLER_TEXTURE | DescriptorType.SAMPLER | DescriptorType.TEXTURE
-                                       | DescriptorType.STORAGE_IMAGE | DescriptorType.INPUT_ATTACHMENT;
+                                       | DescriptorType.INPUT_ATTACHMENT;
 
 export const DESCRIPTOR_DYNAMIC_TYPE = DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER;
 
