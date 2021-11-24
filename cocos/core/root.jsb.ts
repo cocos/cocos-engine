@@ -138,6 +138,10 @@ rootProto._onBatch2DReset = function () {
     if (this._batcher) this._batcher.reset();
 };
 
+rootProto._onDirectorBeforeCommit = function () {
+    legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+};
+
 const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
     oldFrameMove.call(this, deltaTime, legacyCC.director.getTotalFrames());
