@@ -63,7 +63,6 @@ materialInstanceProto._ctor = function (info: IMaterialInstanceInfo) {
     this._parent = info.parent;
     this._owner = info.owner || null;
     this._subModelIdx = info.subModelIdx || 0;
-    this.copy(this._parent);
 };
 
 materialInstanceProto._onRebuildPSO = function () {
