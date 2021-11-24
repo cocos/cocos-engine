@@ -34,7 +34,7 @@ export class AnimationController extends Component {
     public getVariables () {
         const { _graphEval: graphEval } = this;
         assertIsNonNullable(graphEval);
-        return graphEval.variables();
+        return graphEval.getVariables();
     }
 
     public setValue (name: string, value: Value) {

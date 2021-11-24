@@ -65,7 +65,7 @@ export class AnimationGraphEval {
         graphDebugGroupEnd();
     }
 
-    public variables (): Iterable<Readonly<[string, Readonly<{ type: VariableType }>]>> {
+    public getVariables (): Iterable<Readonly<[string, Readonly<{ type: VariableType }>]>> {
         return Object.entries(this._varInstances);
     }
 
