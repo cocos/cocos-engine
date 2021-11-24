@@ -30,6 +30,7 @@ jobs:
       - name: rebase HEAD branch
         working-directory: ./engine
         run: |
+          git checkout .
           git remote add HEAD_REPO https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
           git pull --rebase HEAD_REPO ${{ github.head_ref }}
 
