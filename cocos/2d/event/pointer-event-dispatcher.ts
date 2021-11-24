@@ -82,7 +82,9 @@ class PointerEventDispatcher {
                 // @ts-expect-error access private method
                 && pointerEventProcessor._handleEventMouse(eventMouse)) {
                 shouldDispatchToSystemEvent = false;
-                break;
+                if (!eventMouse.preventSwallow) {
+                    break;
+                }
             }
         }
         const type = pointerEvent2SystemEvent[eventMouse.type];
@@ -110,7 +112,9 @@ class PointerEventDispatcher {
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
                         pointerEventProcessor.claimedTouchIdList.push(touch.getID());
                         shouldDispatchToSystemEvent = false;
-                        break;
+                        if (!eventTouch.preventSwallow) {
+                            break;
+                        }
                     }
                 } else if (pointerEventProcessor.claimedTouchIdList.length > 0) {
                     const index = pointerEventProcessor.claimedTouchIdList.indexOf(touch.getID());
@@ -121,7 +125,9 @@ class PointerEventDispatcher {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
                         }
                         shouldDispatchToSystemEvent = false;
-                        break;
+                        if (!eventTouch.preventSwallow) {
+                            break;
+                        }
                     }
                 }
             }

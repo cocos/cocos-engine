@@ -29,11 +29,11 @@
  */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
-import { sceneCulling } from './scene-culling';
+import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
-import { AccessType, Address, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
-    DepthStencilAttachment, DescriptorSet, Device, Feature, Filter, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
-    LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, SamplerInfo, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
+import { AccessType, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
+    DepthStencilAttachment, DescriptorSet, Device, Feature, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
+    LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
     TextureType, TextureUsageBit, Viewport } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
@@ -46,6 +46,7 @@ import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+import { decideProfilerCamera } from './pipeline-funcs';
 
 /**
  * @en Render pipeline information descriptor
@@ -57,6 +58,9 @@ export interface IRenderPipelineInfo {
 }
 
 export const MAX_BLOOM_FILTER_PASS_NUM = 6;
+
+const tmpRect = new Rect();
+const tmpViewport = new Viewport();
 
 export class BloomRenderData {
     renderPass: RenderPass = null!;
@@ -323,30 +327,36 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
      * @param camera the camera
      * @returns
      */
-    public generateRenderArea (camera: Camera, out?: Rect): Rect {
-        const res = out || new Rect();
+    public generateRenderArea (camera: Camera, out: Rect) {
         const vp = camera.viewport;
         const w = camera.window.width;
         const h = camera.window.height;
-        res.x = vp.x * w;
-        res.y = vp.y * h;
-        res.width = vp.width * w;
-        res.height = vp.height * h;
-        return res;
+        out.x = vp.x * w;
+        out.y = vp.y * h;
+        out.width = vp.width * w;
+        out.height = vp.height * h;
     }
 
     public generateViewport (camera: Camera, out?: Viewport): Viewport {
-        const rect = this.generateRenderArea(camera);
+        this.generateRenderArea(camera, tmpRect);
+        if (!out) out = tmpViewport;
         const shadingScale = this.pipelineSceneData.shadingScale;
-        const viewport = out || new Viewport(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
-        return viewport;
+        out.left = tmpRect.x * shadingScale;
+        out.top = tmpRect.y * shadingScale;
+        out.width = tmpRect.width * shadingScale;
+        out.height = tmpRect.height * shadingScale;
+        return out;
     }
 
     public generateScissor (camera: Camera, out?: Rect): Rect {
-        const rect = this.generateRenderArea(camera);
+        if (!out) out = tmpRect;
+        this.generateRenderArea(camera, out);
         const shadingScale = this.pipelineSceneData.shadingScale;
-        const scissor = out || new Rect(rect.x * shadingScale, rect.y * shadingScale, rect.width * shadingScale, rect.height * shadingScale);
-        return scissor;
+        out.x *= shadingScale;
+        out.y *= shadingScale;
+        out.width *= shadingScale;
+        out.height *= shadingScale;
+        return out;
     }
 
     /**
@@ -388,10 +398,13 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._commandBuffers[0].begin();
         this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
         this._ensureEnoughSize(cameras);
+        decideProfilerCamera(cameras);
+
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
                 this.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
+                validPunctualLightsCulling(this, camera);
                 sceneCulling(this, camera);
                 this._pipelineUBO.updateGlobalUBO(camera.window);
                 this._pipelineUBO.updateCameraUBO(camera);
@@ -439,7 +452,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
     protected _destroyBloomData () {
         const bloom = this._pipelineRenderData!.bloom;
-        if (bloom === null || this.bloomEnabled === false) return;
+        if (bloom === null) return;
 
         if (bloom.prefiterTex) bloom.prefiterTex.destroy();
         if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
@@ -528,7 +541,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
 
         const quadVB = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
             vbSize,
             vbStride,
         ));
@@ -577,16 +590,20 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     }
 
     public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
-        if (this._lastUsedRenderArea === renderArea) {
+        const cachedArea = this._lastUsedRenderArea;
+        if (cachedArea.x === renderArea.x
+            && cachedArea.y === renderArea.y
+            && cachedArea.width === renderArea.width
+            && cachedArea.height === renderArea.height) {
             return;
         }
 
-        this._lastUsedRenderArea = renderArea;
         const offData = this._genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOffscreen!.update(offData);
-
         const onData = this._genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOnscreen!.update(onData);
+
+        cachedArea.copy(renderArea);
     }
 
     /**
@@ -625,8 +642,8 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent {
         this._constantMacros = str;
     }
 
-    protected _generateBloomRenderData () {
-        if (this.bloomEnabled === false) return;
+    public generateBloomRenderData () {
+        if (this._pipelineRenderData!.bloom != null) return;
 
         const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
         const device = this.device;

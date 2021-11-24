@@ -2,8 +2,43 @@ import { Node, Scene } from "../../cocos/core/scene-graph"
 import { Vec3 } from "../../cocos/core/math"
 import { BaseNode, director } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
+import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
 
 describe(`Node`, () => {
+    test('mark-opacity-tree',() => {
+        let scene = new Scene('scene');
+        let rootNode = new Node('root');
+        let node_1 = new Node('node_1');
+        let node_2 = new Node('node_2');
+        let node_1_1 = new Node('node_1_1');
+        let node_1_2 = new Node('node_1_2');
+        let node_2_1 = new Node('node_2_1');
+        let node_2_2 = new Node('node_2_2');
+        let node_1_1_1 = new Node('node_1_1_1');
+        let node_1_2_1 = new Node('node_1_2_1');
+
+        rootNode.parent = scene;
+        node_1.parent = rootNode;
+        node_2.parent = rootNode;
+        node_1_1.parent = node_1;
+        node_1_2.parent = node_1;
+        node_2_1.parent = node_2;
+        node_2_2.parent = node_2;
+        node_1_1_1.parent = node_1_1;
+        node_1_2_1.parent = node_1_2;
+
+        // set all nodes alpha-dirty to false
+        NodeUIProperties.markOpacityTree(rootNode, false);
+        expect(node_2_1._uiProps.opacityDirty).toStrictEqual(false);
+
+        // modify node_1 and its subtree, node_2 and its subtree are not influenced
+        NodeUIProperties.markOpacityTree(node_1);
+        expect(node_1._uiProps.opacityDirty).toStrictEqual(true);
+        expect(node_1_1._uiProps.opacityDirty).toStrictEqual(true);
+        expect(node_1_2_1._uiProps.opacityDirty).toStrictEqual(true);
+        expect(node_2_2._uiProps.opacityDirty).toStrictEqual(false);
+    });
+
     test('@inverseTransformPoint', () => {
         let scene = new Scene('temp');
         let parentNode = new Node();

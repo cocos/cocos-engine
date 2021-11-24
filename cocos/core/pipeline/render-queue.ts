@@ -73,7 +73,7 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
-        this._passPool = new RecyclePool(() => ({
+        this._passPool = new RecyclePool<IRenderPass>(() => ({
             hash: 0,
             depth: 0,
             shaderId: 0,

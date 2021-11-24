@@ -53,7 +53,6 @@ export const letter = {
         }
 
         const node = comp.node;
-        comp._setCacheAlpha(node._uiProps.opacity);
         WHITE.a = node._uiProps.opacity * 255;
         fillMeshVertices3D(node, renderer, comp.renderData, WHITE);
     },

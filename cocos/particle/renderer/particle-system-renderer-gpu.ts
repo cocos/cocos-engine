@@ -205,6 +205,64 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleNum++;
     }
 
+    public updateRotation () {
+        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
+        if (!mat) {
+            return;
+        }
+        const pass = mat.passes[0];
+        this.doUpdateRotation(pass);
+    }
+
+    private doUpdateRotation (pass) {
+        if (this._alignSpace === AlignmentSpace.Local) {
+            this._particleSystem.node.getRotation(_node_rot);
+        } else if (this._alignSpace === AlignmentSpace.World) {
+            this._particleSystem.node.getWorldRotation(_node_rot);
+        } else if (this._alignSpace === AlignmentSpace.View) {
+            // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
+            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+            if (cameraLst !== undefined) {
+                for (let i = 0; i < cameraLst?.length; ++i) {
+                    const camera:Camera = cameraLst[i];
+                    // eslint-disable-next-line max-len
+                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                    if (checkCamera) {
+                        Quat.fromViewUp(_node_rot, camera.forward);
+                        break;
+                    }
+                }
+            }
+        } else {
+            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+        }
+        pass.setUniform(this._uNodeRotHandle, _node_rot);
+    }
+
+    public updateScale () {
+        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
+        if (!mat) {
+            return;
+        }
+        const pass = mat.passes[0];
+        this.doUpdateScale(pass);
+    }
+
+    private doUpdateScale (pass) {
+        switch (this._particleSystem.scaleSpace) {
+        case Space.Local:
+            this._particleSystem.node.getScale(this._node_scale);
+            break;
+        case Space.World:
+            this._particleSystem.node.getWorldScale(this._node_scale);
+            break;
+        default:
+            break;
+        }
+        pass.setUniform(pass.getHandle('scale'), this._node_scale);
+    }
+
     public updateParticles (dt: number) {
         if (EDITOR) {
             const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
@@ -256,29 +314,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._particleSystem.node.getWorldRotation(_world_rot);
         pass.setUniform(this._uRotHandle, _world_rot);
 
-        if (this._alignSpace === AlignmentSpace.Local) {
-            this._particleSystem.node.getRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.World) {
-            this._particleSystem.node.getWorldRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.View) {
-            // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
-            if (cameraLst !== undefined) {
-                for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
-                    // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
-                    if (checkCamera) {
-                        Quat.fromViewUp(_node_rot, camera.forward);
-                        break;
-                    }
-                }
-            }
-        } else {
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
-        }
-        pass.setUniform(this._uNodeRotHandle, _node_rot);
+        this.doUpdateRotation(pass);
     }
 
     public initShaderUniform (mat: Material) {
@@ -288,7 +324,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._uRotHandle = pass.getHandle('u_worldRot');
         this._uNodeRotHandle = pass.getHandle('nodeRotation');
 
-        pass.setUniform(pass.getHandle('scale'), this._node_scale);
+        this.doUpdateScale(pass);
         pass.setUniform(pass.getHandle('frameTile_velLenScale'), this._unifrom_velLenScale);
         _tempVec4.x = _sample_num;
         _tempVec4.y = _sample_interval;
@@ -318,7 +354,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
             if (this._velocityTexture) this._velocityTexture.destroy();
-            this._velocityTexture = packCurveRangeXYZW(_sample_num, velocityModule.x, velocityModule.y, velocityModule.z, velocityModule.speedModifier);
+            this._velocityTexture = packCurveRangeXYZW(_sample_num, velocityModule.x, velocityModule.y,
+                velocityModule.z, velocityModule.speedModifier);
             const handle = pass.getHandle('velocity_over_time_tex0');
             const binding = Pass.getBindingFromHandle(handle);
             pass.bindSampler(binding, this._velocityTexture.getGFXSampler()!);
@@ -462,16 +499,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
 
         ps.node.getWorldMatrix(_tempWorldTrans);
-        switch (ps.scaleSpace) {
-        case Space.Local:
-            ps.node.getScale(this._node_scale);
-            break;
-        case Space.World:
-            ps.node.getWorldScale(this._node_scale);
-            break;
-        default:
-            break;
-        }
 
         if (ps._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;

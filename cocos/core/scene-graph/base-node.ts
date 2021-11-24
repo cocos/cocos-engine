@@ -211,6 +211,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @en The event processor of the current node, it provides EventTarget ability.
      * @zh 当前节点的事件处理器，提供 EventTarget 能力。
      * @readonly
+     *
+     * @deprecated since v3.4.0
      */
     get eventProcessor () {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

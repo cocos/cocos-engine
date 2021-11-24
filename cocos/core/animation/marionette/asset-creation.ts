@@ -11,6 +11,6 @@ export { AnimationBlendDirect } from './animation-blend-direct';
 export { AnimationBlend1D } from './animation-blend-1d';
 export { AnimationBlend2D } from './animation-blend-2d';
 export { VariableType } from './parametric';
-export type { BindableNumber, BindableBoolean } from './parametric';
+export { BindableNumber, BindableBoolean } from './parametric';
 
 export { __getDemoGraphs } from './__tmp__/get-demo-graphs';

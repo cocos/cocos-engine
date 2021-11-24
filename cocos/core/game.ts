@@ -28,13 +28,14 @@
  * @module core
  */
 
-import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
+import { ConfigOrientation } from 'pal/screen-adapter';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event';
 import { input } from '../input';
 import * as debug from './platform/debug';
-import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
+import { Device, DeviceInfo, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
@@ -49,7 +50,6 @@ import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
 import { screen } from './platform/screen';
-import { Size } from './math';
 
 interface ISceneInfo {
     url: string;
@@ -172,6 +172,17 @@ export interface IGameConfig {
         container: HTMLDivElement,
         [x: string]: any,
     };
+
+    /**
+     * The orientation from the builder configuration.
+     * Available value can be 'auto', 'landscape', 'portrait'.
+     */
+    orientation?: ConfigOrientation;
+    /**
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     */
+    exactFitScreen: boolean,
 }
 
 /**
@@ -275,11 +286,15 @@ export class Game extends EventTarget {
     /**
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
+     *
+     * @deprecated since 3.4.0, frame is a concept on web standard, please manager screens via the `screen` module.
      */
     public frame: HTMLDivElement | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
+     *
+     * @deprecated since 3.4.0, container is a concept on web standard, please manager screens via the `screen` module.
      */
     public container: HTMLDivElement | null = null;
     /**
@@ -548,6 +563,14 @@ export class Game extends EventTarget {
      */
     public init (config: IGameConfig) {
         this._initConfig(config);
+        // TODO: unify the screen initialization workflow.
+        if (HTML5) {
+            // @ts-expect-error access private method.
+            screen._init({
+                configOrientation: config.orientation || 'auto',
+                exactFitScreen: config.exactFitScreen,
+            });
+        }
         // Init assetManager
         if (this.config.assetOptions) {
             legacyCC.assetManager.init(this.config.assetOptions);
@@ -594,8 +617,13 @@ export class Game extends EventTarget {
         garbageCollectionManager.init();
 
         return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
-            // @ts-expect-error access private method.
-            screen._init();
+            if (!HTML5) {
+                // @ts-expect-error access private method.
+                screen._init({
+                    configOrientation: 'auto',
+                    exactFitScreen: true,
+                });
+            }
         });
     }
 
@@ -832,7 +860,6 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Constructor<Device>[] = [];
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && window.gfx) {
@@ -845,18 +872,21 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
+
+                const deviceCtors: Constructor<Device>[] = [];
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    ctors.push(legacyCC.WebGL2Device);
+                    deviceCtors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    ctors.push(legacyCC.WebGLDevice);
+                    deviceCtors.push(legacyCC.WebGLDevice);
                 }
                 if (legacyCC.EmptyDevice) {
-                    ctors.push(legacyCC.EmptyDevice);
+                    deviceCtors.push(legacyCC.EmptyDevice);
                 }
 
-                for (let i = 0; i < ctors.length; i++) {
-                    this._gfxDevice = new ctors[i]();
+                Device.canvas = this.canvas!;
+                for (let i = 0; i < deviceCtors.length; i++) {
+                    this._gfxDevice = new deviceCtors[i]();
                     if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
             }

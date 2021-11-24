@@ -1,10 +1,52 @@
 import { EDITOR, TEST } from 'internal:constants';
-import { SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
+import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
-import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
+import legacyCC from '../../../predefine';
+
+interface ICachedStyle {
+    width: string;
+    height: string;
+}
+
+const EVENT_TIMEOUT = EDITOR ? 5 : 200;
+const orientationMap: Record<ConfigOrientation, Orientation> = {
+    auto: Orientation.AUTO,
+    landscape: Orientation.LANDSCAPE,
+    portrait: Orientation.PORTRAIT,
+};
+
+/**
+ * On Web platform, the game window may points to different type of window.
+ */
+enum WindowType {
+    /**
+     * Unknown window type.
+     */
+    Unknown,
+    /**
+     * A SubFrame in BrowserWindow.
+     * Need to set the frame size from an external editor option.
+     * Should only dispatch 'resize' event when the frame size changed.
+     * Setting window size is supported.
+     */
+    SubFrame,
+    /**
+     * The window size is determined by the size of BrowserWindow.
+     * Should dispatch 'resize' event when the BrowserWindow size changed.
+     * Setting window size is NOT supported.
+     */
+    BrowserWindow,
+    /**
+     * The window size is equal to the size of screen.
+     * Should dispatch 'resize' event when enter / exit fullscreen or screen resize.
+     * Setting window size is NOT supported.
+     */
+    Fullscreen,
+}
 
 interface IScreenFunctionName {
     requestFullscreen: string,
@@ -41,16 +83,17 @@ class ScreenAdapter extends EventTarget {
         return result;
     }
     public set windowSize (size: Size) {
-        if (systemInfo.isMobile || EDITOR) {
-            // We say that on web mobile, the window size equals to the browser inner size.
-            // The window size is readonly on web mobile.
+        if (this._windowType !== WindowType.SubFrame) {
+            warnID(9202);
             return;
         }
         this._resizeFrame(this._convertToSizeInCssPixels(size));
     }
 
     public get resolution () {
-        return this._resolution;
+        const windowSize = this.windowSize;
+        const resolutionScale = this.resolutionScale;
+        return new Size(windowSize.width * resolutionScale, windowSize.height * resolutionScale);
     }
     public get resolutionScale () {
         return this._resolutionScale;
@@ -60,7 +103,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._resolutionScale = v;
-        this._updateResolution();
+        this._cbToUpdateFrameBuffer?.();
     }
 
     public get orientation (): Orientation {
@@ -71,36 +114,7 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._orientation = value;
-        if (!this._gameFrame) {
-            return;
-        }
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        const isBrowserLandscape = width > height;
-        const needToRotateDocument = systemInfo.isMobile && systemInfo.os === OS.ANDROID
-            && ((isBrowserLandscape && value & Orientation.PORTRAIT) || (!isBrowserLandscape && value & Orientation.LANDSCAPE));
-        if (needToRotateDocument) {
-            this.isFrameRotated = true;
-            this._gameFrame.style['-webkit-transform'] = 'rotate(90deg)';
-            this._gameFrame.style.transform = 'rotate(90deg)';
-            this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
-            this._gameFrame.style.transformOrigin = '0px 0px 0px';
-            this._gameFrame.style.margin = `0 0 0 ${width}px`;
-            this._gameFrame.style.width = `${height}px`;
-            this._gameFrame.style.height = `${width}px`;
-            this._resizeFrame(new Size(height, width));
-        } else {
-            this.isFrameRotated = false;
-            this._gameFrame.style['-webkit-transform'] = 'rotate(0deg)';
-            this._gameFrame.style.transform = 'rotate(0deg)';
-            // TODO
-            // this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
-            // this._gameFrame.style.transformOrigin = '0px 0px 0px';
-            this._gameFrame.style.margin = '0px';
-            this._gameFrame.style.width = `${width}px`;
-            this._gameFrame.style.height = `${height}px`;
-            this._resizeFrame(new Size(width, height));
-        }
+        this._updateFrameState();
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
@@ -111,15 +125,32 @@ class ScreenAdapter extends EventTarget {
             right: 0,
         };
     }
+    public get isProportionalToFrame (): boolean {
+        return this._isProportionalToFrame;
+    }
+    public set isProportionalToFrame (v: boolean) {
+        if (this._isProportionalToFrame === v) {
+            return;
+        }
+        this._isProportionalToFrame = v;
+        this._updateContainer();
+    }
 
     private _gameFrame?: HTMLDivElement;
     private _gameContainer?: HTMLDivElement;
     private _gameCanvas?: HTMLCanvasElement;
+    private _isProportionalToFrame = false;
+    private _cachedFrameStyle: ICachedStyle = { width: '0px', height: '0px' };
+    private _cachedContainerStyle: ICachedStyle = { width: '0px', height: '0px' };
     private _cbToUpdateFrameBuffer?: () => void;
     private _supportFullScreen = false;
     private _touchEventName: string;
     private _onFullscreenChange?: () => void;
     private _onFullscreenError?: () => void;
+    // We need to set timeout to handle screen event.
+    private _orientationChangeTimeoutId = -1;
+    private _cachedFrameSize = new Size(0, 0); // cache before enter fullscreen.
+    private _exactFitScreen = false;
     private _fn = {} as IScreenFunctionName;
     // Function mapping for cross browser support
     private _fnGroup = [
@@ -165,20 +196,55 @@ class ScreenAdapter extends EventTarget {
         ],
     ];
     private get _windowSizeInCssPixels () {
-        if (systemInfo.isMobile || EDITOR || TEST) {
-            if (this.isFrameRotated) {
-                return new Size(window.innerHeight, window.innerWidth);
-            }
+        if (TEST) {
             return new Size(window.innerWidth, window.innerHeight);
-        } else {
+        }
+        if (this.isProportionalToFrame) {
+            if (!this._gameContainer) {
+                warnID(9201);
+                return new Size(0, 0);
+            }
+            return new Size(this._gameContainer.clientWidth, this._gameContainer.clientHeight);
+        }
+        let fullscreenTarget;
+        let width: number;
+        let height: number;
+        switch (this._windowType) {
+        case WindowType.SubFrame:
             if (!this._gameFrame) {
-                console.warn('Cannot access game frame');
+                warnID(9201);
                 return new Size(0, 0);
             }
             return new Size(this._gameFrame.clientWidth, this._gameFrame.clientHeight);
+        case WindowType.Fullscreen:
+            fullscreenTarget = this._getFullscreenTarget()!;
+            width = this.isFrameRotated ? fullscreenTarget.clientHeight : fullscreenTarget.clientWidth;
+            height = this.isFrameRotated ? fullscreenTarget.clientWidth : fullscreenTarget.clientHeight;
+            return new Size(width, height);
+        case WindowType.BrowserWindow:
+            width = this.isFrameRotated ? window.innerHeight : window.innerWidth;
+            height = this.isFrameRotated ? window.innerWidth : window.innerHeight;
+            return new Size(width, height);
+        case WindowType.Unknown:
+        default:
+            return new Size(0, 0);
         }
     }
-    private _resolution: Size = new Size(0, 0);
+    private get _windowType (): WindowType {
+        if (this.isFullScreen) {
+            return WindowType.Fullscreen;
+        }
+        if (!this._gameFrame) {
+            warnID(9201);
+            return WindowType.Unknown;
+        }
+        if (this._exactFitScreen) {
+            // Note: It doesn't work well to determine whether the frame exact fits the screen.
+            // Need to specify the attribute from Editor.
+            return WindowType.BrowserWindow;
+        }
+        return WindowType.SubFrame;
+    }
     private _resolutionScale = 1;
     private _orientation = Orientation.AUTO;
 
@@ -188,6 +254,13 @@ class ScreenAdapter extends EventTarget {
         this._gameFrame = document.getElementById('GameDiv') as HTMLDivElement;
         this._gameContainer = document.getElementById('Cocos3dGameContainer') as HTMLDivElement;
         this._gameCanvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+        // Compability with old preview or build template in Editor.
+        if (!TEST && !EDITOR && !this._gameContainer) {
+            this._gameContainer = document.createElement<'div'>('div');
+            this._gameContainer.setAttribute('id', 'Cocos3dGameContainer');
+            this._gameCanvas?.parentNode?.insertBefore(this._gameContainer, this._gameCanvas);
+            this._gameContainer.appendChild(this._gameCanvas);
+        }
 
         let fnList: Array<string>;
         const fnGroup = this._fnGroup;
@@ -207,13 +280,21 @@ class ScreenAdapter extends EventTarget {
         this._registerEvent();
     }
 
-    public init (cbToRebuildFrameBuffer: () => void) {
+    public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void) {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._resizeFrame(this._windowSizeInCssPixels);
+        this.orientation = orientationMap[options.configOrientation];
+        this._exactFitScreen = options.exactFitScreen;
+        this._resizeFrame();
+        this._cbToUpdateFrameBuffer();
     }
 
     public requestFullScreen (): Promise<void> {
         return new Promise((resolve, reject) => {
+            if (this.isFullScreen) {
+                resolve();
+                return;
+            }
+            this._cachedFrameSize = this.windowSize;
             this._doRequestFullScreen().then(() => {
                 resolve();
             }).catch(() => {
@@ -234,9 +315,13 @@ class ScreenAdapter extends EventTarget {
         return new Promise((resolve, reject) => {
             const requestPromise = document[this._fn.exitFullscreen]();
             if (window.Promise && requestPromise instanceof Promise) {
-                requestPromise.then(resolve).catch(reject);
+                requestPromise.then(() => {
+                    this.windowSize = this._cachedFrameSize;
+                    resolve();
+                }).catch(reject);
                 return;
             }
+            this.windowSize = this._cachedFrameSize;
             resolve();
         });
     }
@@ -250,7 +335,7 @@ class ScreenAdapter extends EventTarget {
             if (!this.handleResizeEvent) {
                 return;
             }
-            this._resizeFrame(this._windowSizeInCssPixels);
+            this._resizeFrame();
         });
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = () => {
@@ -264,14 +349,20 @@ class ScreenAdapter extends EventTarget {
             updateDPRChangeListener();
         }
         window.addEventListener('orientationchange', () => {
-            if (!this.handleResizeEvent) {
-                return;
+            if (this._orientationChangeTimeoutId !== -1) {
+                clearTimeout(this._orientationChangeTimeoutId);
             }
-            this._resizeFrame(this._windowSizeInCssPixels);
-            this.emit('orientation-change');
+            this._orientationChangeTimeoutId = setTimeout(() => {
+                if (!this.handleResizeEvent) {
+                    return;
+                }
+                this._updateFrameState();
+                this._resizeFrame();
+                this.emit('orientation-change');
+                this._orientationChangeTimeoutId = -1;
+            }, EVENT_TIMEOUT);
         });
         document.addEventListener(this._fn.fullscreenchange, () => {
-            this._resizeFrame(this._windowSizeInCssPixels);
             this._onFullscreenChange?.();
             this.emit('fullscreen-change');
         });
@@ -284,28 +375,61 @@ class ScreenAdapter extends EventTarget {
         return clonedSize;
     }
 
-    private _resizeFrame (sizeInCssPixels: Size) {
-        if (this._gameFrame) {
+    /**
+     * The frame size may be from screen size or an external editor options by setting screen.windowSize.
+     * @param sizeInCssPixels you need to specify this size when the windowType is SubFrame.
+     */
+    private _resizeFrame (sizeInCssPixels?: Size) {
+        if (!this._gameFrame) {
+            return;
+        }
+        // Center align the canvas
+        this._gameFrame.style.display = 'flex';
+        this._gameFrame.style['justify-content'] = 'center';
+        this._gameFrame.style['align-items'] = 'center';
+        if (this._windowType === WindowType.SubFrame) {
+            if (!sizeInCssPixels) {
+                this._updateContainer();
+                return;
+            }
             this._gameFrame.style.width = `${sizeInCssPixels.width}px`;
             this._gameFrame.style.height = `${sizeInCssPixels.height}px`;
-            this.emit('window-resize');
+        } else {
+            const winWidth = window.innerWidth; const winHeight = window.innerHeight;
+            if (this.isFrameRotated) {
+                this._gameFrame.style['-webkit-transform'] = 'rotate(90deg)';
+                this._gameFrame.style.transform = 'rotate(90deg)';
+                this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
+                this._gameFrame.style.transformOrigin = '0px 0px 0px';
+                this._gameFrame.style.margin = `0 0 0 ${winWidth}px`;
+                this._gameFrame.style.width = `${winHeight}px`;
+                this._gameFrame.style.height = `${winWidth}px`;
+            } else {
+                this._gameFrame.style['-webkit-transform'] = 'rotate(0deg)';
+                this._gameFrame.style.transform = 'rotate(0deg)';
+                // TODO
+                // this._gameFrame.style['-webkit-transform-origin'] = '0px 0px 0px';
+                // this._gameFrame.style.transformOrigin = '0px 0px 0px';
+                this._gameFrame.style.margin = '0px auto';
+                this._gameFrame.style.width = `${winWidth}px`;
+                this._gameFrame.style.height = `${winHeight}px`;
+            }
         }
-        this._updateResolution();
-    }
 
-    private _updateResolution () {
-        const windowSize = this.windowSize;
-        // update resolution
-        this._resolution.width = windowSize.width * this.resolutionScale;
-        this._resolution.height = windowSize.height * this.resolutionScale;
-        this._cbToUpdateFrameBuffer?.();
-        this.emit('resolution-change');
+        this._updateContainer();
     }
 
     private _getFullscreenTarget () {
+        const windowType = this._windowType;
+        if (windowType === WindowType.Fullscreen) {
+            return document[this._fn.fullscreenElement] as HTMLElement;
+        }
+        if (windowType === WindowType.SubFrame) {
+            return this._gameFrame;
+        }
         // On web mobile, the transform of game frame doesn't work when it's on fullscreen.
         // So we need to make the body fullscreen.
-        return systemInfo.isMobile ? document.body : this._gameFrame;
+        return document.body;
     }
     private _doRequestFullScreen (): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -328,6 +452,69 @@ class ScreenAdapter extends EventTarget {
                 this._onFullscreenError = reject;
             }
         });
+    }
+    private _updateFrameState () {
+        const orientation = this.orientation;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const isBrowserLandscape = width > height;
+        this.isFrameRotated = systemInfo.isMobile
+            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
+    }
+    private _updateContainer () {
+        if (!this._gameContainer) {
+            warnID(9201);
+            return;
+        }
+        if (this.isProportionalToFrame) {
+            if (!this._gameFrame) {
+                warnID(9201);
+                return;
+            }
+            // TODO: access designedResolution from Launcher module.
+            const designedResolution = legacyCC.view.getDesignResolutionSize() as Size;
+            const frame = this._gameFrame;
+            const frameW = frame.clientWidth;
+            const frameH = frame.clientHeight;
+            const designW = designedResolution.width;
+            const designH = designedResolution.height;
+            const scaleX = frameW / designW;
+            const scaleY = frameH / designH;
+            const containerStyle = this._gameContainer.style;
+            let containerW: number;
+            let containerH: number;
+
+            if (scaleX < scaleY) {
+                containerW = frameW;
+                containerH = designH * scaleX;
+            } else {
+                containerW = designW * scaleY;
+                containerH = frameH;
+            }
+            // Set window size on game container
+            containerStyle.width = `${containerW}px`;
+            containerStyle.height = `${containerH}px`;
+        } else {
+            const containerStyle = this._gameContainer.style;
+            // game container exact fit game frame.
+            containerStyle.width = '100%';
+            containerStyle.height = '100%';
+        }
+
+        // Cache Test
+        if (this._gameFrame
+            && (this._cachedFrameStyle.width !== this._gameFrame.style.width
+            || this._cachedFrameStyle.height !== this._gameFrame.style.height
+            || this._cachedContainerStyle.width !== this._gameContainer.style.width
+            || this._cachedContainerStyle.height !== this._gameContainer.style.height)) {
+            this.emit('window-resize');
+
+            // Update Cache
+            this._cachedFrameStyle.width = this._gameFrame.style.width;
+            this._cachedFrameStyle.height = this._gameFrame.style.height;
+            this._cachedContainerStyle.width = this._gameContainer.style.width;
+            this._cachedContainerStyle.height = this._gameContainer.style.height;
+        }
     }
 }
 

@@ -40,6 +40,7 @@ import { MacroRecord, MaterialProperty } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
 import { Vec4 } from '../math';
+import { SRGBToLinear } from '../pipeline/pipeline-funcs';
 
 const v4_1 = new Vec4();
 
@@ -378,10 +379,9 @@ export class Material extends Asset {
             const passInfo = tech.passes[k] as IPassInfoFull;
             const propIdx = passInfo.passIndex = k;
             const defines = passInfo.defines = this._defines[propIdx] || (this._defines[propIdx] = {});
-            const states = passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
+            passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
             if (passInfo.propertyIndex !== undefined) {
                 Object.assign(defines, this._defines[passInfo.propertyIndex]);
-                Object.assign(states, this._states[passInfo.propertyIndex]);
             }
             if (passInfo.embeddedMacros !== undefined) {
                 Object.assign(defines, passInfo.embeddedMacros);
@@ -426,7 +426,12 @@ export class Material extends Asset {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
-                if (pass.properties[name]?.linear) val = Vec4.multiply(v4_1, val as Vec4, val as Vec4);
+                if (pass.properties[name]?.linear) {
+                    const v4 = val as Vec4;
+                    SRGBToLinear(v4_1, v4);
+                    v4_1.w = v4.w;
+                    val = v4_1;
+                }
                 pass.setUniform(handle, val as MaterialProperty);
             } else {
                 pass.resetUniform(name);

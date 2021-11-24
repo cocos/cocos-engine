@@ -31,12 +31,12 @@
 import { ccclass } from 'cc.decorator';
 import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { ForwardFlowPriority } from '../common/enum';
+import { ForwardFlowPriority } from '../enum';
 import { ForwardStage } from './forward-stage';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
-import { PostProcessStage } from '../common/postprocess-stage';
-import { BloomStage } from '../common/bloom-stage';
+import { PostProcessStage } from '../deferred/postprocess-stage';
+import { BloomStage } from '../deferred/bloom-stage';
 
 /**
  * @en The forward flow in forward render pipeline
@@ -60,12 +60,6 @@ export class ForwardFlow extends RenderFlow {
             const forwardStage = new ForwardStage();
             forwardStage.initialize(ForwardStage.initInfo);
             this._stages.push(forwardStage);
-            const bloomStage = new BloomStage();
-            bloomStage.initialize(BloomStage.initInfo);
-            this._stages.push(bloomStage);
-            const postProcessStage = new PostProcessStage();
-            postProcessStage.initialize(PostProcessStage.initInfo);
-            this._stages.push(postProcessStage);
         }
         return true;
     }
