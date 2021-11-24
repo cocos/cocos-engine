@@ -1705,7 +1705,7 @@ addComponent: Cannot add any component to the scene.
 
 ### 3823
 
-The Node of component should not be null.
+The enabled component (id: %s, name: %s) doesn't have a valid node
 
 ### 3900
 

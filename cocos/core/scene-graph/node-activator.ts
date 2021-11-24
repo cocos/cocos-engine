@@ -37,6 +37,7 @@ import { legacyCC } from '../global-exports';
 import { assert, errorID, error, getError } from '../platform/debug';
 import { NodeEventType } from './node-event';
 import { assertIsTrue } from '../data/utils/asserts';
+import { Component } from '..';
 
 const MAX_POOL_SIZE = 4;
 
@@ -244,7 +245,9 @@ export default class NodeActivator {
             }
         }
         if (comp._enabled) {
-            assertIsTrue(!comp.node, getError(3823));
+            //if (comp instanceof Component) {
+            //assertIsTrue(comp.node, getError(3823, comp.uuid === undefined ? 'unknown id' : comp.uuid, comp.name === undefined ? 'unknown name' : comp.name));
+            //}
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
@@ -379,7 +382,9 @@ if (EDITOR) {
             }
         }
         if (comp._enabled) {
-            assertIsTrue(!comp.node, getError(3823));
+            //if (comp instanceof Component) {
+            //assertIsTrue(comp.node, getError(3823, comp.uuid === undefined ? 'unknown id' : comp.uuid, comp.name === undefined ? 'unknown name' : comp.name));
+            //}
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
