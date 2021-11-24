@@ -9,9 +9,9 @@ CCEffect %{
       rasterizerState:
         cullMode: front
       depthStencilState:
-        depthFunc: lessequal
+        depthFunc: less_equal
         depthTest: true
-        depthWrite: false   
+        depthWrite: true
       properties:
         lineWidth:     { value: 10, target: outlineParams.x }
         depthBias:     { value: 0,  target: outlineParams.y }

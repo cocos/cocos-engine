@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,18 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { containerManager } from './container-manager';
 
-export * from './ambient';
-export * from './octree';
-export * from './camera';
-export * from './deprecated';
-export * from './directional-light';
-export * from './light';
-export * from './model';
-export * from './shadows';
-export * from './render-scene';
-export * from './skybox';
-export * from './sphere-light';
-export * from './spot-light';
-export * from './submodel';
-export * from './native-scene';
+export abstract class ScalableContainer {
+    public _poolHandle = -1;
+    constructor () {
+        containerManager.addContainer(this);
+    }
+
+    abstract tryShrink (): void;
+
+    destroy () {
+        containerManager.removeContainer(this);
+    }
+}

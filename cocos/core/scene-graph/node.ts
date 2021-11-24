@@ -470,6 +470,10 @@ export class Node extends BaseNode implements CustomSerializable {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
         }
+        if (this._uiProps && this._uiProps.uiComp) {
+            this._uiProps.uiComp.setNodeDirty();
+            this._uiProps.uiComp.markForUpdateRenderData();
+        }
         this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
@@ -593,6 +597,12 @@ export class Node extends BaseNode implements CustomSerializable {
             this._eventProcessor.setEnabled(true);
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
+            // ALL Node renderData dirty flag will set on here
+            if (this._uiProps && this._uiProps.uiComp) {
+                this._uiProps.uiComp.setNodeDirty();
+                this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
+                this._uiProps.uiComp.markForUpdateRenderData();
+            }
         } else { // deactivated
             this._eventProcessor.setEnabled(false);
         }

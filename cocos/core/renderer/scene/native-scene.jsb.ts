@@ -14,6 +14,7 @@ export const NaitveSkybox = ns.Skybox;
 export const NativeFog = ns.Fog;
 export const NativeAmbient = ns.Ambient;
 export const NativeShadow = ns.Shadow;
+export const NativeOctree = ns.OctreeInfo;
 export const NativeCamera = ns.Camera;
 export const NativeRenderWindow = ns.RenderWindow;
 export const NativeRenderScene = ns.RenderScene;

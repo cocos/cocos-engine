@@ -85,6 +85,7 @@ export const simple: IAssembler = {
             if (renderData.uvDirty) {
                 this.updateUvs(sprite);
             }
+            renderData.updateRenderData(sprite, frame);
         }
     },
 

@@ -48,6 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
+import { containerManager } from './memop/container-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -714,6 +715,7 @@ export class Director extends EventTarget {
 
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
+            containerManager.update(dt);
             this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }

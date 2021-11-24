@@ -15,6 +15,9 @@ module.exports = {
         // - @cocos/dragonbones-js
         'node_modules/(?!(@cocos/dragonbones-js)/)',
     ],
+    setupFilesAfterEnv: [
+        "./tests/setup-after-env.ts",
+    ],
     setupFiles: [
         './tests/init.ts',
     ],

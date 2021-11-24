@@ -32,6 +32,7 @@ import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
 import { Skybox } from '../renderer/scene/skybox';
+import { Octree } from '../renderer/scene/octree';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
@@ -953,6 +954,79 @@ export class ShadowsInfo {
 legacyCC.ShadowsInfo = ShadowsInfo;
 
 /**
+ * @en Scene level octree related information
+ * @zh 场景八叉树相关信息
+ */
+
+export const DEFAULT_WORLD_MIN_POS = new Vec3(-1024.0, -1024.0, -1024.0);
+export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
+export const DEFAULT_OCTREE_DEPTH = 8;
+
+@ccclass('cc.OctreeInfo')
+export class OctreeInfo {
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _minPos = new Vec3(DEFAULT_WORLD_MIN_POS);
+    @serializable
+    protected _maxPos = new Vec3(DEFAULT_WORLD_MAX_POS);
+    @serializable
+    protected _depth = DEFAULT_OCTREE_DEPTH;
+
+    protected _resource: Octree | null = null;
+
+    /**
+     * @en Whether activate octree
+     * @zh 是否启用八叉树加速剔除？
+     */
+    @editable
+    set enabled (val: boolean) {
+        if (this._enabled === val) return;
+        this._enabled = val;
+        if (this._resource) {
+            this._resource.enabled = val;
+        }
+    }
+    get enabled () {
+        return this._enabled;
+    }
+
+    @editable
+    set minPos (val: Vec3) {
+        this._minPos = val;
+        if (this._resource) { this._resource.minPos = val; }
+    }
+    get minPos () {
+        return this._minPos;
+    }
+
+    @editable
+    set maxPos (val: Vec3) {
+        this._maxPos = val;
+        if (this._resource) { this._resource.maxPos = val; }
+    }
+    get maxPos () {
+        return this._maxPos;
+    }
+
+    @editable
+    @range([4, 12, 1])
+    @type(CCInteger)
+    set depth (val: number) {
+        this._depth = val;
+        if (this._resource) { this._resource.depth = val; }
+    }
+    get depth () {
+        return this._depth;
+    }
+
+    public activate (resource: Octree) {
+        this._resource = resource;
+        this._resource.initialize(this);
+    }
+}
+
+/**
  * @en All scene related global parameters, it affects all content in the corresponding scene
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
  */
@@ -991,6 +1065,14 @@ export class SceneGlobals {
         this._skybox = value;
     }
 
+    /**
+     * @en Octree related information
+     * @zh 八叉树相关信息
+     */
+    @editable
+    @serializable
+    public octree = new OctreeInfo();
+
     public activate () {
         const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
@@ -998,6 +1080,7 @@ export class SceneGlobals {
 
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
+        this.octree.activate(sceneData.octree);
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;
