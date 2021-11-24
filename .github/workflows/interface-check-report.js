@@ -8,13 +8,13 @@ if (reportContent.includes('@')) {
     reportContent = reportContent.split('\n').slice(3).join('\n');
     reportContent = `## Interface Check Report
 \`\`\`diff
-! WARNING this pull request has changed these public interface:
+! WARNING this pull request has changed these public interfaces:
 
 ${reportContent}
 \`\`\`
 `;
 } else {
     reportContent = `## Interface Check Report
-This pull request does not change any public interface !`;
+This pull request does not change any public interfaces !`;
 }
 fs.writeFileSync(interfaceDiffPath, reportContent, 'utf8');
