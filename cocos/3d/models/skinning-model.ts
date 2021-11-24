@@ -161,9 +161,6 @@ export class SkinningModel extends MorphModel {
     }
 
     public updateUBOs (stamp: number) {
-        if (JSB) {
-            (this as any).setCalledFromJS(true);
-        }
         super.updateUBOs(stamp);
         for (let i = 0; i < this._joints.length; i++) {
             const { indices, buffers, transform, bindpose } = this._joints[i];
@@ -187,9 +184,6 @@ export class SkinningModel extends MorphModel {
     }
 
     public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
-        if (JSB) {
-            (this as any).setCalledFromJS(true);
-        }
         const superMacroPatches = super.getMacroPatches(subModelIndex);
 
         if (superMacroPatches) {
