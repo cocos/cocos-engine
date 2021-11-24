@@ -27,7 +27,7 @@
 const NULL_PTR = BigInt(0);
 // @ts-check
 const isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
-let refMap = {}; // prevent arguments for GC
+let refMap = {}; // prevent arguments from GC
 const dataViews = [];
 
 function getDataView (idx) {
