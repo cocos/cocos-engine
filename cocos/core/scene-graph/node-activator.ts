@@ -245,9 +245,7 @@ export default class NodeActivator {
             }
         }
         if (comp._enabled) {
-            //if (comp instanceof Component) {
-            //assertIsTrue(comp.node, getError(3823, comp.uuid === undefined ? 'unknown id' : comp.uuid, comp.name === undefined ? 'unknown name' : comp.name));
-            //}
+            assertIsTrue(comp.node, getError(3823, !comp.uuid ? 'unknown id' : comp.uuid, !comp.node ? 'unknown name' : comp.name));
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
@@ -382,9 +380,7 @@ if (EDITOR) {
             }
         }
         if (comp._enabled) {
-            //if (comp instanceof Component) {
-            //assertIsTrue(comp.node, getError(3823, comp.uuid === undefined ? 'unknown id' : comp.uuid, comp.name === undefined ? 'unknown name' : comp.name));
-            //}
+            assertIsTrue(comp.node, getError(3823, !comp.uuid ? 'unknown id' : comp.uuid, !comp.name ? 'unknown name' : comp.name));
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
