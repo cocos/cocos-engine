@@ -254,6 +254,7 @@ export const NativeDrawCall: Constructor<{
 export type NativeDrawCall = InstanceType<typeof NativeDrawCall>;
 
 export const NativeRenderScene: Constructor<{
+    activate (): void;
     update(stamp: number): void;
     setMainLight (l: NativeLight | null): void;
     addSphereLight (l: NativeLight | null): void;
@@ -273,6 +274,14 @@ export const NativeRenderScene: Constructor<{
     removeBatches (): void;
 }> = null!;
 export type NativeRenderScene = InstanceType<typeof NativeRenderScene>;
+
+export const NativeOctree: Constructor<{
+    enabled: boolean;
+    minPos: Vec3;
+    maxPos: Vec3;
+    depth: number;
+}> = null!;
+export type NativeOctree = InstanceType<typeof NativeOctree>;
 
 export const NativeAmbient: Constructor<{
     enabled: boolean;
@@ -337,6 +346,7 @@ export const NativePipelineSharedSceneData: Constructor<{
     ambient: NativeAmbient;
     skybox: NaitveSkybox;
     shadow: NativeShadow;
+    octree: NativeOctree;
     occlusionQueryInputAssembler: InputAssembler | null;
     occlusionQueryPass: NativePass | null;
     occlusionQueryShader: Shader | null;
