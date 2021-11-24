@@ -231,24 +231,21 @@ void CCMTLDevice::present() {
         swapchain->release();
     }
 
-    // NSWindow-related(: drawable) should be udpated in main thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
+    // present drawable
+    {
         id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBufferWithUnretainedReferences];
-
         [cmdBuffer enqueue];
 
         for (auto drawable : releaseQ) {
             [cmdBuffer presentDrawable:drawable];
             [drawable release];
         }
-
         [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
             onPresentCompleted();
         }];
-
         [cmdBuffer commit];
-    });
-
+    }
+    
     if (_autoreleasePool) {
         //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
         [(NSAutoreleasePool *)_autoreleasePool drain];
