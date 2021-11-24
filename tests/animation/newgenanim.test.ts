@@ -954,6 +954,61 @@ describe('NewGen Anim', () => {
             expect(triggerStates).toStrictEqual(new Array(nTriggers).fill(false));
         });
 
+        test('Automatic triggers are reset once update ends', () => {
+            const triggerName = 't';
+            const helpVarName = 'b';
+
+            const condition = new TriggerCondition();
+            condition.trigger = triggerName;
+            const helpCondition = new UnaryCondition();
+            helpCondition.operator = UnaryCondition.Operator.TRUTHY;
+            helpCondition.operand.variable = helpVarName;
+            const animationGraph = new AnimationGraph();
+            const layer = animationGraph.addLayer();
+            const graph = layer.stateMachine;
+            const sourceState = graph.addMotion();
+            sourceState.name = 'Source';
+            const targetState = graph.addMotion();
+            targetState.name = 'Target';
+            graph.connect(graph.entryState, sourceState);
+            const transition = graph.connect(sourceState, targetState, [condition, helpCondition]);
+            transition.duration = 0.0;
+            transition.exitConditionEnabled = false;
+
+            animationGraph.addVariable(triggerName, VariableType.AUTO_TRIGGER);
+            animationGraph.addVariable(helpVarName, VariableType.BOOLEAN);
+
+            // Not set, no transition happened
+            const graphEval = createAnimationGraphEval(animationGraph, new Node());
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Source' },
+            });
+
+            // Triggered, but other conditions are not satisfied.
+            // Still reset since it's "automatic".
+            graphEval.setValue(triggerName, true);
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Source' },
+            });
+            expect(graphEval.getValue(triggerName)).toBe(false);
+            // Let's do verify again, and toggle another condition on.
+            graphEval.setValue(helpVarName, true);
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Source' },
+            });
+
+            // Triggered, and the transition happened.
+            graphEval.setValue(triggerName, true);
+            graphEval.update(0.0);
+            expectAnimationGraphEvalStatusLayer0(graphEval, {
+                currentNode: { __DEBUG_ID__: 'Target' },
+            });
+            expect(graphEval.getValue(triggerName)).toBe(false);
+        });
+
         describe(`Transition priority`, () => {
             test('Transitions to different nodes, use the first-connected and first-matched transition', () => {
                 const animationGraph = new AnimationGraph();

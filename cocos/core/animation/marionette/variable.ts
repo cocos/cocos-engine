@@ -8,6 +8,8 @@ export enum VariableType {
     TRIGGER,
 
     INTEGER,
+
+    AUTO_TRIGGER,
 }
 
 export class VarInstance {

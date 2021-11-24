@@ -155,3 +155,9 @@ export function validateVariableTypeNumeric (type: VariableType, name: string) {
         throw new VariableTypeMismatchedError(name, 'number or integer');
     }
 }
+
+export function validateVariableTypeTriggerLike (type: VariableType, name: string) {
+    if (type !== VariableType.TRIGGER && type !== VariableType.AUTO_TRIGGER) {
+        throw new VariableTypeMismatchedError(name, 'trigger');
+    }
+}

@@ -39,6 +39,9 @@ export class AnimationGraphEval {
 
         for (const [name, { type, value }] of graph.variables) {
             this._varInstances[name] = new VarInstance(type, value);
+            if (type === VariableType.AUTO_TRIGGER) {
+                this._hasAutoTrigger = true;
+            }
         }
 
         const context: LayerContext = {
@@ -84,6 +87,15 @@ export class AnimationGraphEval {
             const layerEval = layerEvaluations[iLayer];
             layerEval.update(deltaTime);
             blendBuffer.commitLayerChanges(iLayer, layerEval.weight);
+        }
+        if (this._hasAutoTrigger) {
+            const { _varInstances: varInstances } = this;
+            for (const varName in varInstances) {
+                const varInstance = varInstances[varName];
+                if (varInstance.type === VariableType.AUTO_TRIGGER && varInstance.value) {
+                    varInstance.value = false;
+                }
+            }
         }
         if (GRAPH_DEBUG_ENABLED) {
             graphDebug(`Weights: ${getWeightsStats()}`);
@@ -144,6 +156,7 @@ export class AnimationGraphEval {
     }
 
     private _varInstances: Record<string, VarInstance> = {};
+    private _hasAutoTrigger = false;
 }
 
 export interface TransitionStatus {
