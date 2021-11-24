@@ -203,7 +203,6 @@ export default class NodeActivator {
                 lastTask.onEnable.cancelInactive();
             }
         }
-        legacyCC.director.root!.batcher2D._reloadBatch();
         node.emit(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, node);
     }
 

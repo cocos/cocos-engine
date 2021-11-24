@@ -245,10 +245,16 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
+        const screens = this._screens;
+        for (let i = 0; i < screens.length; ++i) {
+            const screen = screens[i].node;
+            if (screen.hasChildrenHierarchyChanged()) {
+                this._reloadBatch();
+            }
+        }
         if (this._reloadBatchDirty) {
             this.resetWithReload();
         }
-        const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
             if (!screen.enabledInHierarchy) {

@@ -1244,7 +1244,6 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public _updateSiblingIndex () {
         let siblingChanged = false;
-        legacyCC.director.root!.batcher2D._reloadBatch();
         for (let i = 0; i < this._children.length; ++i) {
             const child = this._children[i];
             if (child._siblingIndex !== i) {
@@ -1372,6 +1371,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 if (parent.emit) {
                     parent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
+                parent._notifyChildrenHierarchyChanged();
             }
         }
 
