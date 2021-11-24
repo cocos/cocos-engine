@@ -1054,15 +1054,32 @@ exports.methods = {
     onWrapModeChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = Number(event.target.value);
-
+        const wrapMode = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = wrapMode;
+        Editor.Message.request(
+            'scene',
+            'execute-model-preview-animation-operation',
+            'setClipConfig',
+            {
+                wrapMode,
+            }
+        );
         Elements.editor.update.call(panel);
         panel.dispatch('change');
     },
     onSpeedChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = Number(event.target.value);
+        const speed = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = speed;
+        Editor.Message.request(
+            'scene',
+            'execute-model-preview-animation-operation',
+            'setClipConfig',
+            {
+                speed,
+            }
+        );
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');
