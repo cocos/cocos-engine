@@ -1453,4 +1453,9 @@ export class TiledLayer extends Renderable2D {
             this.node._static = true;
         }
     }
+
+    public markForUpdateRenderData (enable = true) {
+        super.markForUpdateRenderData(enable);
+        director.root!.batcher2D._reloadBatch();
+    }
 }

@@ -378,6 +378,7 @@ export class Mask extends Renderable2D {
         super.updateMaterial();
         this._updateGraphics();
         this._renderFlag = this._canRender();
+        director.root!.batcher2D._reloadBatch();
     }
 
     public onDisable () {

@@ -33,7 +33,7 @@ import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { Texture2D } from '../core';
+import { director, Texture2D } from '../core';
 import { RenderData } from '../2d/renderer/render-data';
 
 const _tangent = new Vec2();
@@ -183,6 +183,7 @@ export const MotionStreakAssembler: IAssembler = {
 
         renderData.vertexCount = verticesCount;
         renderData.indicesCount = indicesCount;
+        director.root!.batcher2D._reloadBatch();
     },
 
     updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {
@@ -226,6 +227,9 @@ export const MotionStreakAssembler: IAssembler = {
         const vertexCount = renderData.vertexCount;
         const indicesCount = renderData.indicesCount;
 
+        renderData.cacheBuffer = buffer;
+        renderData.bufferOffset = vertexOffset;
+
         for (let i = 0; i < vertexCount; i++) {
             const vert = dataList[i];
             vBuf[vertexOffset++] = vert.x;
@@ -246,6 +250,29 @@ export const MotionStreakAssembler: IAssembler = {
             iBuf[indicesOffset++] = start + 1;
             iBuf[indicesOffset++] = start + 2;
             iBuf[indicesOffset++] = start + 3;
+        }
+    },
+
+    updateBufferData (comp: MotionStreak) {
+        const renderData = comp.renderData!;
+        const dataList = renderData.data;
+
+        const buffer = renderData.cacheBuffer!;
+        let vertexOffset = renderData.bufferOffset;
+
+        // buffer data may be reallocated, need get reference after request.
+        const vBuf = buffer.vData!;
+        const vertexCount = renderData.vertexCount;
+
+        for (let i = 0; i < vertexCount; i++) {
+            const vert = dataList[i];
+            vBuf[vertexOffset++] = vert.x;
+            vBuf[vertexOffset++] = vert.y;
+            vBuf[vertexOffset++] = vert.z;
+            vBuf[vertexOffset++] = vert.u;
+            vBuf[vertexOffset++] = vert.v;
+            Color.toArray(vBuf, vert.color, vertexOffset);
+            vertexOffset += 4;
         }
     },
 };

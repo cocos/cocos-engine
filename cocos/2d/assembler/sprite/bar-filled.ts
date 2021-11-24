@@ -33,7 +33,7 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
-import { fillVerticesWithoutCalc3D } from '../utils';
+import { fillVerticesWithoutCalc3D, updateVerticesWithoutCalc3D } from '../utils';
 import { errorID } from '../../../core/platform/debug';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
@@ -264,6 +264,16 @@ export const barFilled: IAssembler = {
         tempColor.set(sprite.color);
         tempColor.a = node._uiProps.opacity * 255;
         fillVerticesWithoutCalc3D(node, renderer, sprite.renderData!, tempColor);
+    },
+
+    updateBufferData (sprite: Sprite) {
+        if (sprite.node.hasChangedFlags) {
+            this.updateWorldVertexData(sprite);
+        }
+        const node = sprite.node;
+        tempColor.set(sprite.color);
+        tempColor.a = node._uiProps.opacity * 255;
+        updateVerticesWithoutCalc3D(node, sprite.renderData!, tempColor);
     },
 
     updateColor (sprite: Sprite) {

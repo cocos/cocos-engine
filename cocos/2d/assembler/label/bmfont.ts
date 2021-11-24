@@ -34,7 +34,7 @@ import { Color, Rect } from '../../../core/math';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
-import { fillMeshVertices3D } from '../utils';
+import { fillMeshVertices3D, updateMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
 
 const tempColor = new Color(255, 255, 255, 255);
@@ -53,6 +53,13 @@ export const bmfont: IAssembler = {
         tempColor.set(comp.color);
         tempColor.a = node._uiProps.opacity * 255;
         fillMeshVertices3D(node, renderer, comp.renderData!, tempColor);
+    },
+
+    updateBufferData (comp: Label) {
+        const node = comp.node;
+        tempColor.set(comp.color);
+        tempColor.a = node._uiProps.opacity * 255;
+        updateMeshVertices3D(node, comp.renderData!, tempColor);
     },
 
     appendQuad (comp: Label, spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {

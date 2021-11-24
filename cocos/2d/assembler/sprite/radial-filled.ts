@@ -34,7 +34,7 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
-import { fillVertices3D } from '../utils';
+import { fillVertices3D, updateVertices3D } from '../utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const PI_2 = Math.PI * 2;
@@ -370,6 +370,14 @@ export const radialFilled: IAssembler = {
         tempColor.set(comp.color);
         tempColor.a = node._uiProps.opacity * 255;
         fillVertices3D(node, renderer, renderData, tempColor);
+    },
+
+    updateBufferData (comp: Sprite) {
+        const node = comp.node;
+        const renderData: RenderData = comp.renderData!;
+        tempColor.set(comp.color);
+        tempColor.a = node._uiProps.opacity * 255;
+        updateVertices3D(node, renderData, tempColor);
     },
 
     updateColor (sprite: Sprite) {

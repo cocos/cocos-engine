@@ -30,6 +30,7 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, editable, serializable } from 'cc.decorator';
 import { Component } from '../../core/components/component';
+import { director } from '../../core/director';
 import { clampf } from '../../core/utils/misc';
 
 /**

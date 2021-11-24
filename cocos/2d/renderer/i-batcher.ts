@@ -46,4 +46,5 @@ export interface IBatcher {
     flushMaterial (mat: Material);
 
     walk (node: Node, level?: number);
+    _reloadBatch ();
 }
