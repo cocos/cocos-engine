@@ -430,14 +430,15 @@ void PipelineUBO::updateShadowUBO(const scene::Camera *camera) {
             }
         }
     }
-    ds->update();
     PipelineUBO::updateShadowUBOView(_pipeline, &_shadowUBO, camera);
+    ds->update();
     cmdBuffer->updateBuffer(ds->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
 }
 
 void PipelineUBO::updateShadowUBOLight(gfx::DescriptorSet *globalDS, const scene::Light *light) {
     auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
     PipelineUBO::updateShadowUBOLightView(_pipeline, &_shadowUBO, light);
+    globalDS->update();
     cmdBuffer->updateBuffer(globalDS->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
 }
 
