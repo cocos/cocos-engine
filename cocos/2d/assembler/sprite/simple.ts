@@ -213,7 +213,9 @@ export const simple: IAssembler = {
             this.updateWorldVerts(sprite, vData);
         }
         const meshBuffer = renderData.cacheBuffer!;
-        meshBuffer.updateSubData(renderData.bufferOffset, vData);
+        const vBuf = meshBuffer.vData!;
+        vBuf.set(vData, renderData.bufferOffset);
+        meshBuffer.setDirty();
     },
 
     updateVertexData (sprite: Sprite) {

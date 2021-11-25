@@ -115,12 +115,6 @@ export class MeshBuffer extends ScalableContainer {
         // ----------
     }
 
-    public updateSubData (offset: number, vData: Float32Array) {
-        const vBuf = this.vData!;
-        vBuf.set(vData, offset);
-        this._dirty = true;
-    }
-
     public setDirty () {
         this._dirty = true;
     }

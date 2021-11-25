@@ -133,6 +133,7 @@ export const ttf: IAssembler = {
 
         const buffer = renderData.cacheBuffer!;
         const vertexOffset = renderData.bufferOffset;
+        const vBuf = buffer.vData!;
 
         const vData = renderData.vData!;
         const data0 = dataList[0];
@@ -165,7 +166,8 @@ export const ttf: IAssembler = {
         vData[27] = cx1 * bx + cx2 * by + x;
         vData[28] = cy1 * by + cy2 * bx + y;
 
-        buffer.updateSubData(vertexOffset, vData);
+        vBuf.set(vData, vertexOffset);
+        buffer.setDirty();
     },
 
     updateVertexData (comp: Label) {

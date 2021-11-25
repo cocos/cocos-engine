@@ -153,31 +153,6 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
     }
 }
 
-export function updateMeshVertices3D (node: Node, renderData: RenderData, color: Color) {
-    const dataList = renderData.data;
-    const buffer = renderData.cacheBuffer!;
-    let vertexOffset = renderData.bufferOffset;
-
-    const vertexCount = renderData.vertexCount;
-    // buffer data may be realloc, need get reference after request.
-    const vBuf = buffer.vData!;
-
-    node.getWorldMatrix(_worldMatrix);
-
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = dataList[i];
-        Vec3.set(vec3_temp, vert.x, vert.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
-        vBuf[vertexOffset++] = vec3_temp.x;
-        vBuf[vertexOffset++] = vec3_temp.y;
-        vBuf[vertexOffset++] = vec3_temp.z;
-        vBuf[vertexOffset++] = vert.u;
-        vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf, color, vertexOffset);
-        vertexOffset += 4;
-    }
-}
-
 export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
     let buffer = renderer.acquireBufferBatch()!;

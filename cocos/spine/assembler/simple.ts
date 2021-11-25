@@ -177,7 +177,7 @@ export const simple: IAssembler = {
     },
 
     fillBuffers (comp: Skeleton, renderer: IBatcher) {
-        if (!comp || !comp.meshRenderDataArray) return;
+        if (!comp || !comp.meshRenderDataArray || comp.meshRenderDataArray.length < 1) return;
         _comp = comp;
         const dataArray = comp.meshRenderDataArray;
         const node = comp.node;
@@ -229,7 +229,7 @@ export const simple: IAssembler = {
     },
 
     updateBufferData (comp: Skeleton) {
-        if (!comp || !comp.meshRenderDataArray) return;
+        if (!comp || !comp.meshRenderDataArray || comp.meshRenderDataArray.length < 1) return;
         _comp = comp;
         const dataArray = comp.meshRenderDataArray;
         const node = comp.node;
