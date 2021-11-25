@@ -135,8 +135,11 @@ imageAssetProto.reset = function (data: ImageSource) {
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);
     }
-    if (data instanceof HTMLImageElement) {
+    else if (data instanceof HTMLImageElement) {
         this.setData(data._data);
+    }
+    else {
+        this.setData(this._nativeData._data);
     }
 };
 
