@@ -287,6 +287,10 @@ export class Mesh extends Asset {
         super();
     }
 
+    public onLoaded () {
+        this.initialize();
+    }
+
     public initialize () {
         if (this._initialized) {
             return;
@@ -1011,10 +1015,6 @@ export class Mesh extends Asset {
             },
             data: globalEmptyMeshBuffer,
         });
-    }
-
-    public validate () {
-        return this.renderingSubMeshes.length > 0 && this.data.byteLength > 0;
     }
 }
 legacyCC.Mesh = Mesh;
