@@ -34,6 +34,7 @@ import { Mask, MaskType } from '../../components/mask';
 import { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { StencilManager } from '../../renderer/stencil-manager';
 import { simple } from '../sprite';
+import { legacyCC } from '../../../core/global-exports';
 
 const _stencilManager = StencilManager.sharedManager!;
 
@@ -46,6 +47,17 @@ function applyAreaMask (mask: Mask, renderer: IBatcher) {
     _stencilManager.enterLevel(mask);
     if (mask.type === MaskType.IMAGE_STENCIL) {
         simple.fillBuffers(mask, renderer);
+        const mat = mask.graphics!.getMaterialInstance(0)!;
+        renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
+    } else {
+        mask.graphics!.updateAssembler(renderer);
+    }
+}
+
+function updateMaskForCacheBuffer (mask: Mask, renderer: IBatcher) {
+    _stencilManager.enterLevel(mask);
+    if (mask.type === MaskType.IMAGE_STENCIL) {
+        simple.fillCacheBuffer(mask);
         const mat = mask.graphics!.getMaterialInstance(0)!;
         renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
     } else {
@@ -82,10 +94,27 @@ export const maskAssembler: IAssembler = {
             _stencilManager.enableMask();
         }
     },
+
+    fillCacheBuffer (mask: Mask) {
+        if (mask.type !== MaskType.IMAGE_STENCIL || mask.spriteFrame) {
+            const renderer = legacyCC.director.root!.batcher2D;
+            _stencilManager.pushMask(mask);
+
+            renderer.finishMergeBatches();
+            applyClearMask(mask, renderer);
+            updateMaskForCacheBuffer(mask, renderer);
+
+            _stencilManager.enableMask();
+        }
+    },
 };
 
 export const maskEndAssembler: IAssembler = {
     fillBuffers (mask: Mask, ui: IBatcher) {
+        _stencilManager.exitMask();
+    },
+
+    fillCacheBuffer (mask: Mask) {
         _stencilManager.exitMask();
     },
 };
