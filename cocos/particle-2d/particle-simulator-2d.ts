@@ -34,7 +34,6 @@ import { clampf, degreesToRadians, radiansToDegrees } from '../core/utils/misc';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
-import { director } from '../core';
 
 const ZERO_VEC2 = new Vec2(0, 0);
 const _pos = new Vec2();
@@ -471,8 +470,6 @@ export class Simulator {
             this.finished = true;
             psys._finishedSimulation();
         }
-
-        director.root!.batcher2D._reloadBatch();
     }
 
     requestData (vertexCount: number, indicesCount: number) {

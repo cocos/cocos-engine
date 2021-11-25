@@ -52,8 +52,6 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
         vertexId = 0;
     }
 
-    renderData.cacheBuffer = buffer;
-    renderData.bufferOffset = vertexOffset;
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
 
@@ -79,30 +77,6 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
     }
 }
 
-export function updateCachedVertices (node: Node, renderData: RenderData, color: Color) {
-    const dataList = renderData.data;
-    const buffer = renderData.cacheBuffer!;
-    let vertexOffset = renderData.bufferOffset;
-
-    const vertexCount = renderData.vertexCount;
-    const vBuf = buffer.vData!;
-
-    node.getWorldMatrix(_worldMatrix);
-
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = dataList[i];
-        Vec3.set(vec3_temp, vert.x, vert.y, 0);
-        Vec3.transformMat4(vec3_temp, vec3_temp, _worldMatrix);
-        vBuf[vertexOffset++] = vec3_temp.x;
-        vBuf[vertexOffset++] = vec3_temp.y;
-        vBuf[vertexOffset++] = vec3_temp.z;
-        vBuf[vertexOffset++] = vert.u;
-        vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf, color, vertexOffset);
-        vertexOffset += 4;
-    }
-}
-
 export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
     let buffer = renderer.acquireBufferBatch()!;
@@ -120,8 +94,6 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
         vertexId = 0;
     }
 
-    renderData.cacheBuffer = buffer;
-    renderData.bufferOffset = vertexOffset;
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
     const iBuf = buffer.iData!;
@@ -170,8 +142,6 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
         vertexId = 0;
     }
 
-    renderData.cacheBuffer = buffer;
-    renderData.bufferOffset = vertexOffset;
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
 
@@ -194,24 +164,4 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
     iBuf![indicesOffset++] = vertexId + 1;
     iBuf![indicesOffset++] = vertexId + 3;
     iBuf![indicesOffset++] = vertexId + 2;
-}
-
-export function updateCachedVerticesWithoutCalc3D (node: Node, renderData: RenderData, color: Color) {
-    const dataList = renderData.data;
-    const buffer = renderData.cacheBuffer!;
-    let vertexOffset = renderData.bufferOffset;
-    const vertexCount = renderData.vertexCount;
-
-    const vBuf = buffer.vData!;
-
-    for (let i = 0; i < vertexCount; i++) {
-        const vert = dataList[i];
-        vBuf[vertexOffset++] = vert.x;
-        vBuf[vertexOffset++] = vert.y;
-        vBuf[vertexOffset++] = vert.z;
-        vBuf[vertexOffset++] = vert.u;
-        vBuf[vertexOffset++] = vert.v;
-        Color.toArray(vBuf, color, vertexOffset);
-        vertexOffset += 4;
-    }
 }

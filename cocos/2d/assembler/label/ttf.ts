@@ -79,8 +79,6 @@ export const ttf: IAssembler = {
             vertexOffset = 0;
         }
 
-        renderData.cacheBuffer = buffer;
-        renderData.bufferOffset = vertexOffset;
         // buffer data may be reallocated, need get reference after request.
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
@@ -124,50 +122,6 @@ export const ttf: IAssembler = {
         iBuf[indicesOffset++] = vertexId + 2;
         iBuf[indicesOffset++] = vertexId + 1;
         iBuf[indicesOffset++] = vertexId + 3;
-    },
-
-    fillCacheBuffer (comp: Label) {
-        const renderData = comp.renderData!;
-        const dataList: IRenderData[] = renderData.data;
-        const node = comp.node;
-
-        const buffer = renderData.cacheBuffer!;
-        const vertexOffset = renderData.bufferOffset;
-        const vBuf = buffer.vData!;
-
-        const vData = renderData.vData!;
-        const data0 = dataList[0];
-        const data3 = dataList[3];
-        /* */
-        node.updateWorldTransform();
-        // @ts-expect-error private property access
-        const pos = node._pos; const rot = node._rot; const scale = node._scale;
-        const ax = data0.x * scale.x; const bx = data3.x * scale.x;
-        const ay = data0.y * scale.y; const by = data3.y * scale.y;
-        const qx = rot.x; const qy = rot.y; const qz = rot.z; const qw = rot.w;
-        const qxy = qx * qy; const qzw = qz * qw;
-        const qxy2 = qx * qx - qy * qy;
-        const qzw2 = qw * qw - qz * qz;
-        const cx1 = qzw2 + qxy2;
-        const cx2 = (qxy - qzw) * 2;
-        const cy1 = qzw2 - qxy2;
-        const cy2 = (qxy + qzw) * 2;
-        const x = pos.x; const y = pos.y;
-        // left bottom
-        vData[0] = cx1 * ax + cx2 * ay + x;
-        vData[1] = cy1 * ay + cy2 * ax + y;
-        // right bottom
-        vData[9] = cx1 * bx + cx2 * ay + x;
-        vData[10] = cy1 * ay + cy2 * bx + y;
-        // left top
-        vData[18] = cx1 * ax + cx2 * by + x;
-        vData[19] = cy1 * by + cy2 * ax + y;
-        // right top
-        vData[27] = cx1 * bx + cx2 * by + x;
-        vData[28] = cy1 * by + cy2 * bx + y;
-
-        vBuf.set(vData, vertexOffset);
-        buffer.setDirty();
     },
 
     updateVertexData (comp: Label) {

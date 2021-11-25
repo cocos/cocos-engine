@@ -273,7 +273,6 @@ export class Sprite extends Renderable2D {
         if (this._type !== value) {
             this._type = value;
             this._flushAssembler();
-            director.root!.batcher2D._reloadBatch();
         }
     }
 
@@ -576,14 +575,6 @@ export class Sprite extends Renderable2D {
         this.spriteFrame = sprite;
     }
 
-    public markForUpdateRenderData (enable = true) {
-        super.markForUpdateRenderData(enable);
-        // cause these type may change vertex count
-        if (this._type === SpriteType.TILED || (this._type === SpriteType.FILLED && this._fillType === FillType.RADIAL)) {
-            director.root!.batcher2D._reloadBatch();
-        }
-    }
-
     public changeMaterialForDefine () {
         let texture;
         const lastInstanceMaterialType = this._instanceMaterialType;
@@ -737,7 +728,7 @@ export class Sprite extends Renderable2D {
                 textureChanged = true;
             }
             if (textureChanged) {
-                this.setTextureDirty();
+                if (this._renderData) this._renderData.textureDirty = true;
                 this.changeMaterialForDefine();
             }
             this._applySpriteSize();

@@ -546,7 +546,6 @@ export class Graphics extends Renderable2D {
 
         this._isDrawing = true;
         this._isNeedUploadData = true;
-        director.root!.batcher2D._reloadBatch();
         (this._assembler as IAssembler).stroke!(this);
     }
 
@@ -564,7 +563,6 @@ export class Graphics extends Renderable2D {
 
         this._isDrawing = true;
         this._isNeedUploadData = true;
-        director.root!.batcher2D._reloadBatch();
         (this._assembler as IAssembler).fill!(this);
     }
 

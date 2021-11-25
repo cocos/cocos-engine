@@ -170,7 +170,7 @@ export class Renderable2D extends RenderableComponent {
             if (this._renderData) {
                 this._renderData.material = this._customMaterial;
                 this.markForUpdateRenderData();
-                this.setPassDirty();
+                this._renderData.passDirty = true;
             }
             this._blendHash = -1; // a flag to check merge
             if (UI_GPU_DRIVEN) {
@@ -315,8 +315,6 @@ export class Renderable2D extends RenderableComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
-    protected _renderFlagCache = true;
-    public _renderDataDirty = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = -1;
@@ -358,25 +356,18 @@ export class Renderable2D extends RenderableComponent {
         this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
-        this._renderFlagCache = this._renderFlag;
-        director.root!.batcher2D._reloadBatch();
     }
 
     // For Redo, Undo
     public onRestore () {
         this.updateMaterial();
         this._renderFlag = this._canRender();
-        this._renderFlagCache = this._renderFlag;
-        director.root!.batcher2D._reloadBatch();
     }
 
     public onDisable () {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
-        this.getRenderMaterial(0)!.off('setProperty', this._onPropertyChange);
         this._renderFlag = false;
-        this._renderFlagCache = this._renderFlag;
-        director.root!.batcher2D._reloadBatch();
     }
 
     public onDestroy () {
@@ -411,10 +402,6 @@ export class Renderable2D extends RenderableComponent {
             this._renderDataFlag = enable;
         } else if (!enable) {
             this._renderDataFlag = enable;
-        }
-        if (this._renderFlag !== this._renderFlagCache) {
-            director.root!.batcher2D._reloadBatch();
-            this._renderFlagCache = this._renderFlag;
         }
     }
 
@@ -480,7 +467,6 @@ export class Renderable2D extends RenderableComponent {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
-            this._renderDataDirty = true;
         }
     }
 
@@ -488,7 +474,8 @@ export class Renderable2D extends RenderableComponent {
         return this.isValid
                && this.getMaterial(0) !== null
                && this.enabled
-               && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
+               && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
+               && this.node._uiProps.opacity > 0;
     }
 
     protected _postCanRender () {}
@@ -496,15 +483,17 @@ export class Renderable2D extends RenderableComponent {
     protected _updateColor () {
         if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
             if (this._colorDirty) {
+                this._renderFlag = this._canRender();
                 this._colorDirty = false;
             }
             return;
         }
+        // Need update rendFlag when opacity changes from 0 to !0
         if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
+            this._renderFlag = this._canRender();
             this._colorDirty = false;
-            this._renderDataDirty = true;
         }
     }
 
@@ -524,7 +513,9 @@ export class Renderable2D extends RenderableComponent {
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
-            this.setPassDirty();
+            if (this.renderData) {
+                this.renderData.passDirty = true;
+            }
         }
         this.updateBlendHash();
     }
@@ -549,17 +540,11 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
-        if (this._customMaterial) {
-            this._customMaterial.off('setProperty', this._onPropertyChange);
-        }
         if (this._renderData) {
             this.markForUpdateRenderData();
-            this.setPassDirty();
+            this._renderData.passDirty = true;
         }
         super._onMaterialModified(idx, material);
-        if (this._customMaterial) {
-            this.getRenderMaterial(0)!.on('setProperty', this._onPropertyChange);
-        }
     }
 
     // macro.UI_GPU_DRIVEN
@@ -594,28 +579,15 @@ export class Renderable2D extends RenderableComponent {
     protected _flushAssembler? (): void;
 
     public setNodeDirty () {
-        director.root!.batcher2D._reloadBatch();
         if (this.renderData) {
             this.renderData.nodeDirty = true;
         }
     }
 
     public setTextureDirty () {
-        director.root!.batcher2D._reloadBatch();
         if (this.renderData) {
             this.renderData.textureDirty = true;
         }
-    }
-
-    public setPassDirty () {
-        director.root!.batcher2D._reloadBatch();
-        if (this.renderData) {
-            this.renderData.passDirty = true;
-        }
-    }
-
-    protected _onPropertyChange () {
-        director.root!.batcher2D._reloadBatch();
     }
 }
 
