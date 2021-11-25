@@ -74,7 +74,6 @@ class Component extends CCObject {
         if (this.node) {
             return `${this.node.name}<${className}>`;
         } else {
-            error(`id = ${this.uuid}, className = ${className}, component's node is null or undefined.`);
             return className;
         }
     }

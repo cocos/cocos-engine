@@ -246,9 +246,7 @@ export default class NodeActivator {
         }
         if (comp._enabled) {
             if (DEBUG) {
-                assertIsTrue(comp.node, getError(3823,
-                    !comp.uuid ? 'unknown id' : comp.uuid,
-                    !comp.name ? 'unknown name' : comp.name));
+                assertIsTrue(comp.node, getError(3823, comp.uuid, comp.name));
             }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
@@ -385,9 +383,7 @@ if (EDITOR) {
         }
         if (comp._enabled) {
             if (DEBUG) {
-                assertIsTrue(comp.node, getError(3823,
-                    !comp.uuid ? 'unknown id' : comp.uuid,
-                    !comp.name ? 'unknown name' : comp.name));
+                assertIsTrue(comp.node, getError(3823, comp.uuid, comp.name));
             }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
