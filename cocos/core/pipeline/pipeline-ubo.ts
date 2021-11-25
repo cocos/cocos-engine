@@ -400,8 +400,8 @@ export class PipelineUBO {
         if (mainLight && shadowFrameBufferMap.has(mainLight)) {
             ds.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
         }
-        ds.update();
         PipelineUBO.updateShadowUBOView(this._pipeline, this._shadowUBO, camera);
+        ds.update();
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
