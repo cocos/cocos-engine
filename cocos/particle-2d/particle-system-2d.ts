@@ -1169,11 +1169,11 @@ export class ParticleSystem2D extends Renderable2D {
 
     protected _render (render: IBatcher) {
         if (this._positionType === PositionType.RELATIVE) {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node.parent);
+            render.commitPlainComp(this, this._renderSpriteFrame, this._assembler!, this.node.parent);
         } else if (this.positionType === PositionType.GROUPED) {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node);
+            render.commitPlainComp(this, this._renderSpriteFrame, this._assembler!, this.node);
         } else {
-            render.commitComp(this, this._renderSpriteFrame, this._assembler!, null);
+            render.commitPlainComp(this, this._renderSpriteFrame, this._assembler!, null);
         }
     }
 }

@@ -332,6 +332,8 @@ export class BaseNode extends CCObject implements ISchedulable {
     // record scene's id when set this node as persist node
     public _originalSceneId = '';
 
+    private _childTreeVersion = 0;
+
     /**
      * Set `_scene` field of this node.
      * The derived `Scene` overrides this method to behavior differently.
@@ -438,6 +440,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 }
                 oldParent._children.splice(removeAt, 1);
                 oldParent._updateSiblingIndex();
+                oldParent._updateChildTreeVersion();
                 if (oldParent.emit) {
                     oldParent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
@@ -450,6 +453,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             newParent._children.push(this);
             this._siblingIndex = newParent._children.length - 1;
+            newParent._updateChildTreeVersion();
             if (newParent.emit) {
                 newParent.emit(NodeEventType.CHILD_ADDED, this);
             }
@@ -1239,10 +1243,15 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     public _updateSiblingIndex () {
+        let siblingChanged = false;
         for (let i = 0; i < this._children.length; ++i) {
-            this._children[i]._siblingIndex = i;
+            const child = this._children[i];
+            if (child._siblingIndex !== i) {
+                child._siblingIndex = i;
+                siblingChanged = true;
+            }
         }
-
+        if (siblingChanged) { this._updateChildTreeVersion(); }
         this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
     }
 
@@ -1362,6 +1371,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 if (parent.emit) {
                     parent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
+                parent._updateChildTreeVersion();
             }
         }
 
@@ -1387,6 +1397,19 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         return destroyByParent;
+    }
+
+    private _updateChildTreeVersion () {
+        let cur: BaseNode | null = this as BaseNode;
+        const totalFrames = legacyCC.director.getTotalFrames();
+        while (cur && cur._childTreeVersion !== totalFrames) {
+            cur._childTreeVersion = totalFrames;
+            cur = cur._parent;
+        }
+    }
+
+    public hasChildTreeUpdated () {
+        return this._childTreeVersion === legacyCC.director.getTotalFrames();
     }
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;

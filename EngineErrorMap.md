@@ -621,6 +621,7 @@ Invalid index in MultiplexLayer switchTo message
 cc.Layer.addLayer(): layer should be non-null
 
 ### 2104
+
 Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
 ### 2200
@@ -3176,3 +3177,7 @@ Graph update has been interrupted since too many transitions(greater than %s) oc
 ### 14100
 
 Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead
+
+### 14200
+
+Batcher2D.commitComp could not be used for components without render data, please use commitPlainComp instead
