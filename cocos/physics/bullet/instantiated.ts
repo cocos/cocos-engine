@@ -69,10 +69,10 @@ export function waitForAmmoInstantiation (dirRoot: string) {
     })();
     return Promise.resolve().then(() => {
         if (bulletType === 'fallback') {
-            return bulletModule(supported);
+            return (bulletModule as any)(supported) as string | typeof bulletModule;
         }
-        return bulletLibs as unknown;
-    }).then((module: any) => {
+        return bulletLibs as string | typeof bulletModule;
+    }).then((module) => {
         if (typeof module === 'string') {
             console.info('[Physics][Bullet]: Using wasm Bullet libs.');
             const infoReport = (msg: any) => { console.info(msg); };
