@@ -103,6 +103,7 @@ export const NativeLight: Constructor<{
     setUseColorTemperature (enable: boolean): void;
     setColorTemperatureRGB (color: Vec3): void;
     setNode (n: Node): void;
+    setBaked (baked: boolean): void;
 }> = null!;
 export type NativeLight = InstanceType<typeof NativeLight>;
 
