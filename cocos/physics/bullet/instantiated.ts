@@ -52,6 +52,7 @@ globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 
 export function waitForAmmoInstantiation (dirRoot: string) {
+    // refer https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
     const supported = (() => {
         try {
             if (typeof WebAssembly === 'object'
