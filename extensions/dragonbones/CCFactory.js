@@ -130,7 +130,7 @@ var CCFactory = dragonBones.CCFactory = cc.Class({
                 }
             }
             if (!inserted) {
-                sortedSlots.unshift(slot);
+                sortedSlots.splice(0, 0, slot);
             }
         }
         this._slots = sortedSlots;
