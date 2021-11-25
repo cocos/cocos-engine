@@ -64,6 +64,7 @@ const _descriptor2$d = _applyDecoratedDescriptor(_class2$j.prototype, '_height',
 });
 
 renderTextureProto._ctor = function () {
+    jsb.TextureBase.prototype._ctor.apply(this, arguments);
     // for deserialization
     // _initializerDefineProperty(_this, '_width', _descriptor$h, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, '_height', _descriptor2$d, _assertThisInitialized(_this));
