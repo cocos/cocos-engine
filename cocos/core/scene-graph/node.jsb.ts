@@ -85,7 +85,7 @@ export const TRANSFORM_ON = 1 << 0;
 const Destroying = CCObject.Flags.Destroying;
 
 // For optimize getPosition, getRotation, getScale
-const _tempFloatArray = new Float32Array([
+export const _tempFloatArray = new Float32Array([
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,

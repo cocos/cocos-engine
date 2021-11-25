@@ -22,9 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+import { Ray } from '../../geometry';
 import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
+import { _tempFloatArray } from '../../scene-graph/node.jsb';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -98,3 +99,24 @@ export interface ICameraInfo {
 export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
 
 export const Camera = jsb.Camera;
+const cameraProto: any = jsb.Camera.prototype;
+
+const oldScreenPointToRay = cameraProto.screenPointToRay;
+
+/**
+ * transform a screen position (in oriented space) to a world space ray
+ */
+cameraProto.screenPointToRay = function (out: Ray, x: number, y: number): Ray {
+    _tempFloatArray[0] = x;
+    _tempFloatArray[1] = y;
+    oldScreenPointToRay.call(this);
+
+    out.o.x = _tempFloatArray[0];
+    out.o.y = _tempFloatArray[1];
+    out.o.z = _tempFloatArray[2];
+    out.d.x = _tempFloatArray[3];
+    out.d.y = _tempFloatArray[4];
+    out.d.z = _tempFloatArray[5];
+
+    return out;
+}
