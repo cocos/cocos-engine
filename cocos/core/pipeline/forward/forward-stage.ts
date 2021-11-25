@@ -154,9 +154,9 @@ export class ForwardStage extends RenderStage {
         }
 
         this._renderQueues.forEach(renderQueueSortFunc);
-        pipeline.pipelineUBO.updateShadowUBO(camera);
 
         const cmdBuff = pipeline.commandBuffers[0];
+        pipeline.pipelineUBO.updateShadowUBO(camera);
 
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
