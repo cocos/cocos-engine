@@ -1582,6 +1582,9 @@ let NodeDefines = {
             get () {
                 return this._is3DNode;
             }, set (v) {
+                if (this._is3DNode === v) {
+                    return;
+                }
                 this._is3DNode = v;
                 this._update3DFunction();
             }
