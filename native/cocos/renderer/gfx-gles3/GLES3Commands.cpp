@@ -2754,6 +2754,21 @@ void cmdFuncGLES3MemoryBarrier(GLES3Device * /*device*/, GLbitfield barriers, GL
     if (barriersByRegion) GL_CHECK(glMemoryBarrierByRegion(barriersByRegion));
 }
 
+static void uploadBufferData(GLenum target, GLintptr offset, GLsizeiptr length, const void *buffer) {
+#if 0
+    GL_CHECK(glBufferSubData(target, offset, length, buffer));
+#else
+    void *dst{nullptr};
+    GL_CHECK(dst = glMapBufferRange(target, offset, length, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT));
+    if (!dst) {
+        GL_CHECK(glBufferSubData(target, offset, length, buffer));
+        return;
+    }
+    memcpy(dst, buffer, length);
+    GL_CHECK(glUnmapBuffer(target));
+#endif
+}
+
 void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, const void *buffer, uint32_t offset, uint32_t size) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
     if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
@@ -2772,7 +2787,7 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuBuffer->glBuffer));
                     device->stateCache()->glArrayBuffer = gpuBuffer->glBuffer;
                 }
-                GL_CHECK(glBufferSubData(GL_ARRAY_BUFFER, offset, size, buffer));
+                uploadBufferData(GL_ARRAY_BUFFER, offset, size, buffer);
                 break;
             }
             case GL_ELEMENT_ARRAY_BUFFER: {
@@ -2785,7 +2800,7 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                     GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuBuffer->glBuffer));
                     device->stateCache()->glElementArrayBuffer = gpuBuffer->glBuffer;
                 }
-                GL_CHECK(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, buffer));
+                uploadBufferData(GL_ELEMENT_ARRAY_BUFFER, offset, size, buffer);
                 break;
             }
             case GL_UNIFORM_BUFFER: {
@@ -2793,7 +2808,7 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                     GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, gpuBuffer->glBuffer));
                     device->stateCache()->glUniformBuffer = gpuBuffer->glBuffer;
                 }
-                GL_CHECK(glBufferSubData(GL_UNIFORM_BUFFER, offset, size, buffer));
+                uploadBufferData(GL_UNIFORM_BUFFER, offset, size, buffer);
                 break;
             }
             case GL_SHADER_STORAGE_BUFFER: {
@@ -2801,7 +2816,7 @@ void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, co
                     GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, gpuBuffer->glBuffer));
                     device->stateCache()->glShaderStorageBuffer = gpuBuffer->glBuffer;
                 }
-                GL_CHECK(glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, size, buffer));
+                uploadBufferData(GL_SHADER_STORAGE_BUFFER, offset, size, buffer);
                 break;
             }
             default:
