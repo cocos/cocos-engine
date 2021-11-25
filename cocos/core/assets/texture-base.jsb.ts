@@ -143,7 +143,7 @@ const _descriptor7$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_wrapR', 
         return WrapMode.REPEAT;
     },
 });
-const  _descriptor8$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_anisotropy', [serializable], {
+const _descriptor8$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_anisotropy', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,
@@ -152,6 +152,7 @@ const  _descriptor8$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_anisotr
     },
 });
 textureBaseProto._ctor = function () {
+    jsb.Asset.prototype._ctor.apply(this, arguments);
     // for deserialization
     // _initializerDefineProperty(_this, "_format", _descriptor$9, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_minFilter", _descriptor2$6, _assertThisInitialized(_this));
