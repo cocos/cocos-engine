@@ -29,7 +29,7 @@
  */
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import bulletModule from '@cocos/bullet';
+import bulletModule, { bulletType } from '@cocos/bullet';
 import { WECHAT } from 'internal:constants';
 import { physics } from '../../../exports/physics-framework';
 import { pageSize, pageCount, importFunc } from './bullet-env';
@@ -52,45 +52,66 @@ globalThis.Bullet = bt;
 bt.BODY_CACHE_NAME = 'body';
 
 export function waitForAmmoInstantiation (dirRoot: string) {
-    if (typeof bulletModule === 'string') {
-        console.info('[Physics][Bullet]: Using wasm Bullet libs.');
-        const infoReport = (msg: any) => { console.info(msg); };
-        const errorReport = (msg: any) => { console.error(msg); };
-        const memory = new WebAssembly.Memory({ initial: pageCount });
-        const importObject = {
-            cc: importFunc,
-            wasi_snapshot_preview1: { fd_close: infoReport, fd_seek: infoReport, fd_write: infoReport },
-            env: { memory },
-        };
-        return new Promise<void>((resolve, reject) => {
-            function instantiateWasm (buff: any) {
-                WebAssembly.instantiate(buff, importObject).then((results) => {
-                    const btInstance = results.instance.exports as unknown as Bullet.instance;
-                    Object.assign(bt, btInstance);
-                    resolve();
-                }, errorReport);
+    const supported = (() => {
+        try {
+            if (typeof WebAssembly === 'object'
+                && typeof WebAssembly.instantiate === 'function') {
+                const module = new WebAssembly.Module(new Uint8Array([0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
+                if (module instanceof WebAssembly.Module) {
+                    return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+                }
             }
-
-            if (WECHAT) {
-                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                const wasmFilePath = `${dirRoot}${bulletModule}` as any;
-                instantiateWasm(wasmFilePath);
-            } else {
-                fetch(bulletModule as any).then((response) => {
-                    response.arrayBuffer().then((buff) => {
-                        instantiateWasm(buff);
+        } catch (e) {
+            return false;
+        }
+        return false;
+    })();
+    return Promise.resolve().then(() => {
+        if (bulletType === 'fallback') {
+            return bulletModule(supported);
+        }
+        return bulletLibs as unknown;
+    }).then((module: any) => {
+        if (typeof module === 'string') {
+            console.info('[Physics][Bullet]: Using wasm Bullet libs.');
+            const infoReport = (msg: any) => { console.info(msg); };
+            const errorReport = (msg: any) => { console.error(msg); };
+            const memory = new WebAssembly.Memory({ initial: pageCount });
+            const importObject = {
+                cc: importFunc,
+                wasi_snapshot_preview1: { fd_close: infoReport, fd_seek: infoReport, fd_write: infoReport },
+                env: { memory },
+            };
+            return new Promise<void>((resolve, reject) => {
+                function instantiateWasm (buff: any) {
+                    WebAssembly.instantiate(buff, importObject).then((results) => {
+                        const btInstance = results.instance.exports as unknown as Bullet.instance;
+                        Object.assign(bt, btInstance);
+                        resolve();
                     }, errorReport);
-                }, errorReport);
-            }
-        });
-    } else {
-        console.info('[Physics][Bullet]: Using asmjs Bullet libs.');
-        const env: any = importFunc;
-        const wasmMemory: any = {};
-        wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
-        env.memory = wasmMemory;
-        const btInstance = bulletLibs(env, wasmMemory);
-        Object.assign(bt, btInstance);
-        return new Promise<void>((resolve, reject) => { resolve(); });
-    }
+                }
+
+                if (WECHAT) {
+                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                    const wasmFilePath = `${dirRoot}${module}` as any;
+                    instantiateWasm(wasmFilePath);
+                } else {
+                    fetch(module).then((response) => {
+                        response.arrayBuffer().then((buff) => {
+                            instantiateWasm(buff);
+                        }, errorReport);
+                    }, errorReport);
+                }
+            });
+        } else {
+            console.info('[Physics][Bullet]: Using asmjs Bullet libs.');
+            const env: any = importFunc;
+            const wasmMemory: any = {};
+            wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
+            env.memory = wasmMemory;
+            const btInstance = module(env, wasmMemory);
+            Object.assign(bt, btInstance);
+            return new Promise<void>((resolve, reject) => { resolve(); });
+        }
+    });
 }
