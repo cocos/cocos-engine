@@ -332,7 +332,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     // record scene's id when set this node as persist node
     public _originalSceneId = '';
 
-    private _childrenChanged = 0;
+    private _childTreeVersion = 0;
 
     /**
      * Set `_scene` field of this node.
@@ -440,7 +440,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 }
                 oldParent._children.splice(removeAt, 1);
                 oldParent._updateSiblingIndex();
-                oldParent._notifyChildrenHierarchyChanged();
+                oldParent._updateChildTreeVersion();
                 if (oldParent.emit) {
                     oldParent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
@@ -453,7 +453,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
             newParent._children.push(this);
             this._siblingIndex = newParent._children.length - 1;
-            newParent._notifyChildrenHierarchyChanged();
+            newParent._updateChildTreeVersion();
             if (newParent.emit) {
                 newParent.emit(NodeEventType.CHILD_ADDED, this);
             }
@@ -1251,7 +1251,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 siblingChanged = true;
             }
         }
-        if (siblingChanged) { this._notifyChildrenHierarchyChanged(); }
+        if (siblingChanged) { this._updateChildTreeVersion(); }
         this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
     }
 
@@ -1371,7 +1371,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 if (parent.emit) {
                     parent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
-                parent._notifyChildrenHierarchyChanged();
+                parent._updateChildTreeVersion();
             }
         }
 
@@ -1399,16 +1399,16 @@ export class BaseNode extends CCObject implements ISchedulable {
         return destroyByParent;
     }
 
-    private _notifyChildrenHierarchyChanged () {
+    private _updateChildTreeVersion () {
         let cur: BaseNode | null = this as BaseNode;
-        while (cur && cur._childrenChanged !== legacyCC.director.getTotalFrames()) {
-            cur._childrenChanged = legacyCC.director.getTotalFrames();
+        while (cur && cur._childTreeVersion !== legacyCC.director.getTotalFrames()) {
+            cur._childTreeVersion = legacyCC.director.getTotalFrames();
             cur = cur._parent;
         }
     }
 
-    public hasChildrenHierarchyChanged () {
-        return this._childrenChanged === legacyCC.director.getTotalFrames();
+    public hasChildTreeUpdated () {
+        return this._childTreeVersion === legacyCC.director.getTotalFrames();
     }
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;

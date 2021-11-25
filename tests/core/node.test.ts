@@ -1,6 +1,6 @@
 import { Node, Scene } from "../../cocos/core/scene-graph"
 import { Vec3 } from "../../cocos/core/math"
-import { director, game } from "../../cocos/core";
+import { CCObject, director, game } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
 import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
 import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
@@ -91,19 +91,19 @@ describe(`Node`, () => {
         const node = new Node();
         const childNode = new Node();
         node.addChild(childNode);
-        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node.hasChildTreeUpdated()).toBeTruthy();
 
         game.step();
-        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(node.hasChildTreeUpdated()).toBeFalsy();
 
         // scene -|
         //        |-node-|
         //               |-childNode
         // insert node, scene will be notify
         scene.addChild(node);
-        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node.hasChildTreeUpdated()).toBeFalsy();
+        expect(childNode.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
 
         game.step();
 
@@ -114,9 +114,9 @@ describe(`Node`, () => {
         //        |- node1
         // insert node1, scene will be notify
         scene.addChild(node1);
-        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node1.hasChildTreeUpdated()).toBeFalsy();
+        expect(node.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
 
         game.step();
 
@@ -126,9 +126,9 @@ describe(`Node`, () => {
         //                 |-childNode
         // change node sibling index, scene will be notify
         node.setSiblingIndex(1);
-        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node1.hasChildTreeUpdated()).toBeFalsy();
+        expect(node.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
 
         game.step();
 
@@ -140,9 +140,9 @@ describe(`Node`, () => {
         //                 |-childNode2
         // insert childNode2, node and scene will be notify
         node.addChild(childNode2);
-        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
-        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
+        expect(node.hasChildTreeUpdated()).toBeTruthy();
+        expect(node1.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
 
         game.step();
 
@@ -153,11 +153,11 @@ describe(`Node`, () => {
         //                 |-childNode
         // change childNode2 sibling, node and scene will be notify
         childNode2.setSiblingIndex(0);
-        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
-        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
-        expect(childNode2.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(node.hasChildTreeUpdated()).toBeTruthy();
+        expect(node1.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
+        expect(childNode2.hasChildTreeUpdated()).toBeFalsy();
+        expect(childNode.hasChildTreeUpdated()).toBeFalsy();
 
         game.step();
 
@@ -170,12 +170,12 @@ describe(`Node`, () => {
         //                 |-childNode3
         // insert childNode3, node and scene will be notify
         node.addChild(childNode3);
-        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
-        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
-        expect(childNode2.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(childNode3.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(node.hasChildTreeUpdated()).toBeTruthy();
+        expect(node1.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
+        expect(childNode2.hasChildTreeUpdated()).toBeFalsy();
+        expect(childNode.hasChildTreeUpdated()).toBeFalsy();
+        expect(childNode3.hasChildTreeUpdated()).toBeFalsy();
 
         game.step();
 
@@ -186,11 +186,25 @@ describe(`Node`, () => {
         //                 |-childNode
         // remove childNode3, node and scene will be notify
         childNode3.removeFromParent();
-        expect(node.hasChildrenHierarchyChanged()).toBeTruthy();
-        expect(node1.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(scene.hasChildrenHierarchyChanged()).toBeTruthy();
-        expect(childNode2.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(childNode.hasChildrenHierarchyChanged()).toBeFalsy();
-        expect(childNode3.hasChildrenHierarchyChanged()).toBeFalsy();
+        expect(node.hasChildTreeUpdated()).toBeTruthy();
+        expect(node1.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
+        expect(childNode2.hasChildTreeUpdated()).toBeFalsy();
+        expect(childNode.hasChildTreeUpdated()).toBeFalsy();
+        expect(childNode3.hasChildTreeUpdated()).toBeFalsy();
+
+        game.step();
+
+        // scene -|
+        //        |- node1
+        //        |- node -|
+        //                 |-childNode
+        // destroy childNode2, node and scene will be notify
+        childNode2.destroy();
+        CCObject._deferredDestroy();
+        expect(node.hasChildTreeUpdated()).toBeTruthy();
+        expect(node1.hasChildTreeUpdated()).toBeFalsy();
+        expect(scene.hasChildTreeUpdated()).toBeTruthy();
+        expect(childNode.hasChildTreeUpdated()).toBeFalsy();
     });
 });

@@ -248,7 +248,7 @@ export class Batcher2D implements IBatcher {
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i].node;
-            if (screen.hasChildrenHierarchyChanged()) {
+            if (screen.hasChildTreeUpdated()) {
                 this._reloadBatch();
             }
         }
