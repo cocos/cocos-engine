@@ -79,7 +79,7 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
     }
 }
 
-export function updateVertices3D (node: Node, renderData: RenderData, color: Color) {
+export function updateCachedVertices (node: Node, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
     const buffer = renderData.cacheBuffer!;
     let vertexOffset = renderData.bufferOffset;
@@ -196,7 +196,7 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
     iBuf![indicesOffset++] = vertexId + 2;
 }
 
-export function updateVerticesWithoutCalc3D (node: Node, renderData: RenderData, color: Color) {
+export function updateCachedVerticesWithoutCalc3D (node: Node, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
     const buffer = renderData.cacheBuffer!;
     let vertexOffset = renderData.bufferOffset;

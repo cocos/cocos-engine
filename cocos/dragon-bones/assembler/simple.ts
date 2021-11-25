@@ -176,7 +176,7 @@ export const simple: IAssembler = {
         }
     },
 
-    updateBufferData (comp: ArmatureDisplay) {
+    fillCacheBuffer (comp: ArmatureDisplay) {
         if (!comp || comp.meshRenderDataArray.length === 0) return;
 
         const dataArray = comp.meshRenderDataArray;

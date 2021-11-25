@@ -228,7 +228,7 @@ export const simple: IAssembler = {
         }
     },
 
-    updateBufferData (comp: Skeleton) {
+    fillCacheBuffer (comp: Skeleton) {
         if (!comp || !comp.meshRenderDataArray || comp.meshRenderDataArray.length < 1) return;
         _comp = comp;
         const dataArray = comp.meshRenderDataArray;

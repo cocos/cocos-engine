@@ -253,7 +253,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    updateBufferData (comp: MotionStreak) {
+    fillCacheBuffer (comp: MotionStreak) {
         const renderData = comp.renderData!;
         const dataList = renderData.data;
 

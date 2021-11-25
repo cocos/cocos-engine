@@ -84,7 +84,7 @@ export const ParticleAssembler: IAssembler = {
             iBuf[indicesOffset++] = iData[i] + vertexId;
         }
     },
-    updateBufferData (comp: ParticleSystem2D) {
+    fillCacheBuffer (comp: ParticleSystem2D) {
         if (comp === null) {
             return;
         }

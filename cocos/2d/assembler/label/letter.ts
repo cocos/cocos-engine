@@ -31,7 +31,7 @@
 import { addon } from '../../../core/utils/js';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
-import { fillMeshVertices3D, updateVertices3D } from '../utils';
+import { fillMeshVertices3D, updateCachedVertices } from '../utils';
 import { bmfont } from './bmfont';
 import { letterFont } from './letter-font';
 import { Color } from '../../../core/math/color';
@@ -57,14 +57,14 @@ export const letter = {
         fillMeshVertices3D(node, renderer, comp.renderData, WHITE);
     },
 
-    updateBufferData (comp: Label) {
+    fillCacheBuffer (comp: Label) {
         if (!comp.renderData) {
             return;
         }
 
         const node = comp.node;
         WHITE.a = node._uiProps.opacity * 255;
-        updateVertices3D(node, comp.renderData, WHITE);
+        updateCachedVertices(node, comp.renderData, WHITE);
     },
 
     appendQuad: bmfont.appendQuad,

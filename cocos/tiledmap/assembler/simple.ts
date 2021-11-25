@@ -199,7 +199,7 @@ export const simple: IAssembler = {
         }
     },
 
-    updateBufferData (layer: TiledLayer) {
+    fillCacheBuffer (layer: TiledLayer) {
         if (!layer || !layer.meshRenderDataArray) return;
 
         const dataArray = layer.meshRenderDataArray;

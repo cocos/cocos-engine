@@ -1401,8 +1401,9 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     private _updateChildTreeVersion () {
         let cur: BaseNode | null = this as BaseNode;
-        while (cur && cur._childTreeVersion !== legacyCC.director.getTotalFrames()) {
-            cur._childTreeVersion = legacyCC.director.getTotalFrames();
+        const totalFrames = legacyCC.director.getTotalFrames();
+        while (cur && cur._childTreeVersion !== totalFrames) {
+            cur._childTreeVersion = totalFrames;
             cur = cur._parent;
         }
     }

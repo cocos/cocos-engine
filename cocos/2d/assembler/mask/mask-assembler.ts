@@ -54,10 +54,10 @@ function applyAreaMask (mask: Mask, renderer: IBatcher) {
     }
 }
 
-function updateAreaMask (mask: Mask, renderer: IBatcher) {
+function updateMaskForCacheBuffer (mask: Mask, renderer: IBatcher) {
     _stencilManager.enterLevel(mask);
     if (mask.type === MaskType.IMAGE_STENCIL) {
-        simple.updateBufferData(mask);
+        simple.fillCacheBuffer(mask);
         const mat = mask.graphics!.getMaterialInstance(0)!;
         renderer.forceMergeBatches(mat, mask.spriteFrame, mask.graphics!);
     } else {
@@ -95,14 +95,14 @@ export const maskAssembler: IAssembler = {
         }
     },
 
-    updateBufferData (mask: Mask) {
+    fillCacheBuffer (mask: Mask) {
         if (mask.type !== MaskType.IMAGE_STENCIL || mask.spriteFrame) {
             const renderer = legacyCC.director.root!.batcher2D;
             _stencilManager.pushMask(mask);
 
             renderer.finishMergeBatches();
             applyClearMask(mask, renderer);
-            updateAreaMask(mask, renderer);
+            updateMaskForCacheBuffer(mask, renderer);
 
             _stencilManager.enableMask();
         }
@@ -114,7 +114,7 @@ export const maskEndAssembler: IAssembler = {
         _stencilManager.exitMask();
     },
 
-    updateBufferData (mask: Mask) {
+    fillCacheBuffer (mask: Mask) {
         _stencilManager.exitMask();
     },
 };

@@ -439,7 +439,7 @@ export class Mask extends Renderable2D {
     }
 
     protected _render (render: IBatcher) {
-        render.commitComp(this, null, this._assembler!, null);
+        render.commitPlainComp(this, null, this._assembler!, null);
     }
 
     protected _postRender (render: IBatcher) {
@@ -447,7 +447,7 @@ export class Mask extends Renderable2D {
             return;
         }
 
-        render.commitComp(this, null, this._postAssembler, null);
+        render.commitPlainComp(this, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {

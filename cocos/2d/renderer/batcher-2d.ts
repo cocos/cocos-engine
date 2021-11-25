@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @hidden
  */
-import { JSB } from 'internal:constants';
+import { DEBUG, JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
@@ -49,6 +49,7 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
+import { warnID } from '../../core';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -361,61 +362,41 @@ export class Batcher2D implements IBatcher {
      * @param assembler - 当前组件渲染数据组装器。
      */
     public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+        if (DEBUG) {
+            if (!comp.renderData) {
+                this.commitPlainComp(comp, frame, assembler, transform);
+                warnID(14200);
+            }
+        }
         if (this._reloadBatchDirty) {
             const renderComp = comp;
-            const renderData = comp.renderData;
-            let dataHash = 0;
-            let mat;
-            if (renderData) {
-                dataHash = renderData.dataHash;
-                mat = renderData.material;
-            }
+            const renderData = comp.renderData!;
+            const dataHash = renderData.dataHash;
+            const mat = renderData.material;
             renderComp.stencilStage = StencilManager.sharedManager!.stage;
             const depthStencilStateStage = renderComp.stencilStage;
 
-            if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
+            if (this._currHash !== dataHash || this._currMaterial !== mat
             || this._currDepthStencilStateStage !== depthStencilStateStage) {
                 this.autoMergeBatches(this._currComponent!);
-                if (renderData) {
-                    this._currHash = renderData.dataHash;
-                    this._currScene = renderData.renderScene;
-                    this._currComponent = renderComp;
-                    this._currTransform = transform;
-                    this._currMaterial = renderData.material!;
-                    this._currDepthStencilStateStage = depthStencilStateStage;
-                    this._currLayer = renderData.layer;
-                    const frame = renderData.frame;
-                    if (frame) {
-                        this._currTexture = frame.getGFXTexture();
-                        this._currSampler = frame.getGFXSampler();
-                        this._currTextureHash = renderData.textureHash;
-                        this._currSamplerHash = this._currSampler!.hash;
-                    } else {
-                        this._currTexture = null;
-                        this._currSampler = null;
-                        this._currTextureHash = 0;
-                        this._currSamplerHash = 0;
-                    }
+                this._currHash = renderData.dataHash;
+                this._currScene = renderData.renderScene;
+                this._currComponent = renderComp;
+                this._currTransform = transform;
+                this._currMaterial = renderData.material!;
+                this._currDepthStencilStateStage = depthStencilStateStage;
+                this._currLayer = renderData.layer;
+                const frame = renderData.frame;
+                if (frame) {
+                    this._currTexture = frame.getGFXTexture();
+                    this._currSampler = frame.getGFXSampler();
+                    this._currTextureHash = renderData.textureHash;
+                    this._currSamplerHash = this._currSampler!.hash;
                 } else {
-                // for Mask & spine
-                    this._currHash = dataHash;
-                    this._currScene = renderComp._getRenderScene();
-                    this._currComponent = renderComp;
-                    this._currTransform = transform;
-                    this._currMaterial = renderComp.getRenderMaterial(0)!;
-                    this._currDepthStencilStateStage = depthStencilStateStage;
-                    this._currLayer = renderComp.node.layer;
-                    if (frame) {
-                        this._currTexture = frame.getGFXTexture();
-                        this._currSampler = frame.getGFXSampler();
-                        this._currTextureHash = frame.getHash();
-                        this._currSamplerHash = this._currSampler.hash;
-                    } else {
-                        this._currTexture = null;
-                        this._currSampler = null;
-                        this._currTextureHash = 0;
-                        this._currSamplerHash = 0;
-                    }
+                    this._currTexture = null;
+                    this._currSampler = null;
+                    this._currTextureHash = 0;
+                    this._currSamplerHash = 0;
                 }
             }
 
@@ -424,7 +405,50 @@ export class Batcher2D implements IBatcher {
             }
         } else if (comp.node.hasChangedFlags || comp._renderDataDirty) {
             if (assembler) {
-                assembler.updateBufferData(comp, this);
+                assembler.fillCacheBuffer(comp, this);
+            }
+            comp._renderDataDirty = false;
+        }
+    }
+
+    public commitPlainComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
+        if (this._reloadBatchDirty) {
+            const renderComp = comp;
+            const dataHash = 0;
+            let mat;
+            renderComp.stencilStage = StencilManager.sharedManager!.stage;
+            const depthStencilStateStage = renderComp.stencilStage;
+
+            if (this._currHash !== dataHash || this._currMaterial !== mat
+            || this._currDepthStencilStateStage !== depthStencilStateStage) {
+                this.autoMergeBatches(this._currComponent!);
+                // for Mask & middleware & Particle2D
+                this._currHash = dataHash;
+                this._currScene = renderComp._getRenderScene();
+                this._currComponent = renderComp;
+                this._currTransform = transform;
+                this._currMaterial = renderComp.getRenderMaterial(0)!;
+                this._currDepthStencilStateStage = depthStencilStateStage;
+                this._currLayer = renderComp.node.layer;
+                if (frame) {
+                    this._currTexture = frame.getGFXTexture();
+                    this._currSampler = frame.getGFXSampler();
+                    this._currTextureHash = frame.getHash();
+                    this._currSamplerHash = this._currSampler.hash;
+                } else {
+                    this._currTexture = null;
+                    this._currSampler = null;
+                    this._currTextureHash = 0;
+                    this._currSamplerHash = 0;
+                }
+            }
+
+            if (assembler) {
+                assembler.fillBuffers(renderComp, this);
+            }
+        } else if (comp.node.hasChangedFlags || comp._renderDataDirty) {
+            if (assembler) {
+                assembler.fillCacheBuffer(comp, this);
             }
             comp._renderDataDirty = false;
         }

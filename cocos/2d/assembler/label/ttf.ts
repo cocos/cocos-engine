@@ -126,7 +126,7 @@ export const ttf: IAssembler = {
         iBuf[indicesOffset++] = vertexId + 3;
     },
 
-    updateBufferData (comp: Label) {
+    fillCacheBuffer (comp: Label) {
         const renderData = comp.renderData!;
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;

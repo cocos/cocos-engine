@@ -202,7 +202,7 @@ export const simple: IAssembler = {
         iBuf[indicesOffset++] = index3;
     },
 
-    updateBufferData (sprite: Sprite) {
+    fillCacheBuffer (sprite: Sprite) {
         if (sprite === null) {
             return;
         }

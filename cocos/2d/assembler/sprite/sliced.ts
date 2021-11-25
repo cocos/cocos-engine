@@ -180,7 +180,7 @@ export const sliced: IAssembler = {
         }
     },
 
-    updateBufferData (sprite: Sprite) {
+    fillCacheBuffer (sprite: Sprite) {
         if (sprite === null) {
             return;
         }

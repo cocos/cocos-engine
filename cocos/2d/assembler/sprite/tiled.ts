@@ -273,7 +273,7 @@ export const tiled: IAssembler = {
         }
     },
 
-    updateBufferData (sprite: Sprite) {
+    fillCacheBuffer (sprite: Sprite) {
         const node = sprite.node;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const contentWidth = Math.abs(uiTrans.width);
