@@ -3176,4 +3176,4 @@ Pool.destroy no longer take a function as parameter, Please specify destruct fun
 
 ### 14200
 
-Batcher2D.commitComp function had changed, please use commitPlainComp
+Batcher2D.commitComp could not be used for components without render data, please use commitPlainComp instead

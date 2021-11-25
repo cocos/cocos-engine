@@ -578,6 +578,7 @@ export class Sprite extends Renderable2D {
 
     public markForUpdateRenderData (enable = true) {
         super.markForUpdateRenderData(enable);
+        // cause this type may change vertex count
         if (this._type === SpriteType.TILED || (this._type === SpriteType.FILLED && this._fillType === FillType.RADIAL)) {
             director.root!.batcher2D._reloadBatch();
         }
