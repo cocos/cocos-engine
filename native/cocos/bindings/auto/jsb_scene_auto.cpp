@@ -221,6 +221,44 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
 se::Object* __jsb_cc_scene_Light_proto = nullptr;
 se::Class* __jsb_cc_scene_Light_class = nullptr;
 
+static bool js_scene_Light_getBaked(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Light_getBaked : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getBaked();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Light_getBaked : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Light_getBaked)
+
+static bool js_scene_Light_setBaked(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Light_setBaked : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Light_setBaked : Error processing arguments");
+        cobj->setBaked(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Light_setBaked)
+
 static bool js_scene_Light_setColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
@@ -337,6 +375,8 @@ bool js_register_scene_Light(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Light", obj, nullptr, nullptr);
 
+    cls->defineFunction("getBaked", _SE(js_scene_Light_getBaked));
+    cls->defineFunction("setBaked", _SE(js_scene_Light_setBaked));
     cls->defineFunction("setColor", _SE(js_scene_Light_setColor));
     cls->defineFunction("setColorTemperatureRGB", _SE(js_scene_Light_setColorTemperatureRGB));
     cls->defineFunction("setNode", _SE(js_scene_Light_setNode));
@@ -9253,37 +9293,37 @@ bool register_all_scene(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_scene_BaseNode(ns);
-    js_register_scene_Scene(ns);
-    js_register_scene_Node(ns);
+    js_register_scene_RenderScene(ns);
+    js_register_scene_Camera(ns);
+    js_register_scene_DrawCall(ns);
     js_register_scene_Light(ns);
     js_register_scene_DirectionalLight(ns);
-    js_register_scene_Plane(ns);
+    js_register_scene_Fog(ns);
+    js_register_scene_BaseNode(ns);
+    js_register_scene_Node(ns);
     js_register_scene_Frustum(ns);
-    js_register_scene_AABB(ns);
-    js_register_scene_SpotLight(ns);
+    js_register_scene_DrawBatch2D(ns);
     js_register_scene_SphereLight(ns);
     js_register_scene_Model(ns);
-    js_register_scene_Fog(ns);
-    js_register_scene_Shadow(ns);
-    js_register_scene_Skybox(ns);
-    js_register_scene_Ambient(ns);
-    js_register_scene_OctreeInfo(ns);
-    js_register_scene_PipelineSharedSceneData(ns);
-    js_register_scene_Root(ns);
-    js_register_scene_SubModel(ns);
-    js_register_scene_Pass(ns);
-    js_register_scene_BakedAnimInfo(ns);
-    js_register_scene_BakedJointInfo(ns);
     js_register_scene_BakedSkinningModel(ns);
-    js_register_scene_DrawCall(ns);
-    js_register_scene_DrawBatch2D(ns);
+    js_register_scene_Plane(ns);
     js_register_scene_JointTransform(ns);
-    js_register_scene_JointInfo(ns);
-    js_register_scene_SkinningModel(ns);
-    js_register_scene_RenderScene(ns);
     js_register_scene_RenderWindow(ns);
-    js_register_scene_Camera(ns);
+    js_register_scene_Shadow(ns);
+    js_register_scene_SubModel(ns);
+    js_register_scene_BakedJointInfo(ns);
+    js_register_scene_AABB(ns);
+    js_register_scene_Ambient(ns);
+    js_register_scene_SkinningModel(ns);
+    js_register_scene_OctreeInfo(ns);
+    js_register_scene_JointInfo(ns);
+    js_register_scene_Root(ns);
+    js_register_scene_Scene(ns);
+    js_register_scene_BakedAnimInfo(ns);
+    js_register_scene_Pass(ns);
+    js_register_scene_Skybox(ns);
+    js_register_scene_PipelineSharedSceneData(ns);
+    js_register_scene_SpotLight(ns);
     return true;
 }
 

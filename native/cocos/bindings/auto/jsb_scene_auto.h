@@ -58,6 +58,8 @@ bool js_register_cc_scene_Light(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Light);
+SE_DECLARE_FUNC(js_scene_Light_getBaked);
+SE_DECLARE_FUNC(js_scene_Light_setBaked);
 SE_DECLARE_FUNC(js_scene_Light_setColor);
 SE_DECLARE_FUNC(js_scene_Light_setColorTemperatureRGB);
 SE_DECLARE_FUNC(js_scene_Light_setNode);

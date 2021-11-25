@@ -151,6 +151,10 @@ void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera)
 
     scene::Sphere sphere;
     for (auto *light : scene->getSpotLights()) {
+        if (light->getBaked()) {
+            continue;
+        }
+
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
@@ -159,6 +163,10 @@ void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera)
     }
 
     for (auto *light : scene->getSphereLights()) {
+        if (light->getBaked()) {
+            continue;
+        }
+
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
