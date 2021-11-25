@@ -3,6 +3,9 @@ import { Vec3 } from "../../cocos/core/math"
 import { director, game } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/core/scene-graph/node-event";
 import { NodeUIProperties } from "../../cocos/core/scene-graph/node-ui-properties";
+import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
+
+director.root!._batcher = new Batcher2D(director.root);
 
 describe(`Node`, () => {
     test('mark-opacity-tree',() => {
@@ -95,7 +98,7 @@ describe(`Node`, () => {
 
         // scene -|
         //        |-node-|
-        //               |-childNode                    
+        //               |-childNode
         // insert node, scene will be notify
         scene.addChild(node);
         expect(node.hasChildrenHierarchyChanged()).toBeFalsy();
