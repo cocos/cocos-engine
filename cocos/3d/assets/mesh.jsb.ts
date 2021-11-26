@@ -78,27 +78,18 @@ meshAssetProto._ctor = function () {
     };
 };
 
-function defineStructPropertyGetter(mesh: Mesh) {
-    Object.defineProperty(mesh, 'struct', {
-        configurable: true,
-        enumerable: true,
-        get () {
-            return this.getStruct();
-        }
-    });
-}
+Object.defineProperty(meshAssetProto, 'struct', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this.getStruct();
+    }
+});
 
 meshAssetProto.onLoaded = function () {
     this.setStruct(this._struct);
-    defineStructPropertyGetter(this);
     // Set to null to release memory in JS
     this._struct = null;
-};
-
-const oldReset = meshAssetProto.reset;
-meshAssetProto.reset = function (info) {
-    oldReset(info);
-    defineStructPropertyGetter(this);
 };
 
 clsDecorator(Mesh);
