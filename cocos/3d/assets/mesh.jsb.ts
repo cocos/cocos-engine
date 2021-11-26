@@ -72,6 +72,33 @@ const  _descriptor2$y = _applyDecoratedDescriptor(_class2$V.prototype, '_hash', 
 meshAssetProto._ctor = function () {
     // _initializerDefineProperty(_this, "_struct", _descriptor$M, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_hash", _descriptor2$y, _assertThisInitialized(_this));
+    this._struct = {
+        vertexBundles: [],
+        primitives: [],
+    };
+};
+
+function defineStructPropertyGetter(mesh: Mesh) {
+    Object.defineProperty(mesh, 'struct', {
+        configurable: true,
+        enumerable: true,
+        get () {
+            return this.getStruct();
+        }
+    });
+}
+
+meshAssetProto.onLoaded = function () {
+    this.setStruct(this._struct);
+    defineStructPropertyGetter(this);
+    // Set to null to release memory in JS
+    this._struct = null;
+};
+
+const oldReset = meshAssetProto.reset;
+meshAssetProto.reset = function (info) {
+    oldReset(info);
+    defineStructPropertyGetter(this);
 };
 
 clsDecorator(Mesh);
