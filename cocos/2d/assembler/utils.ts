@@ -101,7 +101,6 @@ export function updateCachedVertices (node: Node, renderData: RenderData, color:
         Color.toArray(vBuf, color, vertexOffset);
         vertexOffset += 4;
     }
-    buffer.setDirty();
 }
 
 export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
@@ -215,5 +214,4 @@ export function updateCachedVerticesWithoutCalc3D (node: Node, renderData: Rende
         Color.toArray(vBuf, color, vertexOffset);
         vertexOffset += 4;
     }
-    buffer.setDirty();
 }
