@@ -99,60 +99,29 @@ export class EditBox extends Component {
         this._updateString(value);
     }
 
-    /**
-     * @en
-     * The display text of placeholder.
-     *
-     * @zh
-     * 输入框占位符的文本内容。
-     */
-    @displayOrder(2)
-    @tooltip('i18n:editbox.placeholder')
-    get placeholder () {
-        if (!this._placeholderLabel) {
-            return '';
-        }
-        return this._placeholderLabel.string;
-    }
+    // /**
+    //  * @en
+    //  * The display text of placeholder.
+    //  *
+    //  * @zh
+    //  * 输入框占位符的文本内容。
+    //  */
+    // @displayOrder(2)
+    // @tooltip('i18n:editbox.placeholder')
+    // get placeholder () {
+    //     if (!this._placeholderLabel) {
+    //         return '';
+    //     }
+    //     return this._placeholderLabel.string;
+    // }
 
-    set placeholder (value) {
-        if (!this._placeholderLabel) {
-            // If placeholderLabel doesn't exist, create one.
-            let node = this.node.getChildByName('PLACEHOLDER_LABEL');
-            if (!node) {
-                node = new Node('PLACEHOLDER_LABEL');
-            }
-            let placeholderLabel = node.getComponent(Label);
-            if (!placeholderLabel) {
-                placeholderLabel = node.addComponent(Label);
-            }
-            node.parent = this.node;
-
-            // set default placeholder attributes
-            placeholderLabel.color = color(187, 187, 187, 255);
-            placeholderLabel.fontSize = 20;
-            placeholderLabel.overflow = Label.Overflow.CLAMP;
-            placeholderLabel.horizontalAlign = HorizontalTextAlignment.LEFT;
-            if (this._inputMode === InputMode.ANY) {
-                placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
-            }
-            const trans = this.node._uiProps.uiTransformComp!;
-            const size = trans.contentSize;
-            const offX = -trans.anchorX * trans.width;
-            const offY = -trans.anchorY * trans.height;
-            placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
-            placeholderLabel.lineHeight = size.height;
-            placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
-            const transform = node._uiProps.uiTransformComp;
-            transform!.setAnchorPoint(0, 1);
-
-            this._placeholderLabel = placeholderLabel;
-        }
-
-        if (this._placeholderLabel) {
-            this._placeholderLabel.string = value;
-        }
-    }
+    // set placeholder (value) {
+    //     if (!this._placeholderLabel) {
+    //         this._addPlaceHolderLabel(value);
+    //     } else {
+    //         this._placeholderLabel.string = value;
+    //     }
+    // }
 
     /**
      * @en
@@ -395,19 +364,19 @@ export class EditBox extends Component {
     @serializable
     protected _placeholderLabel: Label | null = null;
     @serializable
-    protected  _returnType = KeyboardReturnType.DEFAULT;
+    protected _returnType = KeyboardReturnType.DEFAULT;
     @serializable
-    protected  _string = '';
+    protected _string = '';
     @serializable
-    protected  _tabIndex = 0;
+    protected _tabIndex = 0;
     @serializable
-    protected  _backgroundImage: SpriteFrame | null = null;
+    protected _backgroundImage: SpriteFrame | null = null;
     @serializable
-    protected  _inputFlag = InputFlag.DEFAULT;
+    protected _inputFlag = InputFlag.DEFAULT;
     @serializable
-    protected  _inputMode = InputMode.ANY;
+    protected _inputMode = InputMode.ANY;
     @serializable
-    protected  _maxLength = 20;
+    protected _maxLength = 20;
 
     private _isLabelVisible = false;
 
@@ -542,6 +511,9 @@ export class EditBox extends Component {
     }
 
     protected _init () {
+        if (!this._placeholderLabel) {
+            this._addPlaceHolderLabel('Enter text here...');
+        }
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
@@ -599,6 +571,40 @@ export class EditBox extends Component {
         textLabel.string = this._updateLabelStringStyle(this._string);
     }
 
+    protected _addPlaceHolderLabel (value: string) {
+        // If placeholderLabel doesn't exist, create one.
+        let node = this.node.getChildByName('PLACEHOLDER_LABEL');
+        if (!node) {
+            node = new Node('PLACEHOLDER_LABEL');
+            node.parent = this.node;
+        }
+        let placeholderLabel = node.getComponent(Label);
+        if (!placeholderLabel) {
+            placeholderLabel = node.addComponent(Label);
+        }
+
+        // set default placeholder attributes
+        placeholderLabel.string = value;
+        placeholderLabel.color = color(187, 187, 187, 255);
+        placeholderLabel.fontSize = 20;
+        placeholderLabel.overflow = Label.Overflow.CLAMP;
+        placeholderLabel.horizontalAlign = HorizontalTextAlignment.LEFT;
+        if (this._inputMode === InputMode.ANY) {
+            placeholderLabel.verticalAlign = VerticalTextAlignment.TOP;
+        }
+        const trans = this.node._uiProps.uiTransformComp!;
+        const size = trans.contentSize;
+        const offX = -trans.anchorX * trans.width;
+        const offY = -trans.anchorY * trans.height;
+        placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
+        placeholderLabel.lineHeight = size.height;
+        placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
+        const transform = node._uiProps.uiTransformComp;
+        transform!.setAnchorPoint(0, 1);
+
+        this._placeholderLabel = placeholderLabel;
+    }
+
     protected _updatePlaceholderLabel () {
         const placeholderLabel = this._placeholderLabel;
 
@@ -616,7 +622,7 @@ export class EditBox extends Component {
         } else {
             placeholderLabel.enableWrapText = false;
         }
-        placeholderLabel.string = this.placeholder;
+        //placeholderLabel.string = this.placeholder;
     }
 
     protected _syncSize () {

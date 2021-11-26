@@ -374,7 +374,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         } else if (inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
-            elem.addEventListener("wheel", () => false);
+            elem.addEventListener('wheel', () => false);
         } else if (inputMode === InputMode.URL) {
             type = 'url';
         } else {
@@ -442,8 +442,11 @@ export class EditBoxImpl extends EditBoxImplBase {
         const elem = this._edTxt;
         if (elem && delegate) {
             elem.value = delegate.string;
-            elem.placeholder = delegate.placeholder;
-
+            if (delegate.placeholderLabel) {
+                elem.placeholder = delegate.placeholderLabel.string;
+            } else {
+                elem.placeholder = '';
+            }
             this._updateTextLabel(delegate.textLabel);
             this._updatePlaceholderLabel(delegate.placeholderLabel);
         }
