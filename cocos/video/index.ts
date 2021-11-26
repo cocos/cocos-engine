@@ -28,7 +28,7 @@ THE SOFTWARE.
  * @hidden
  */
 
-import '../video-downloader';
+import './video-downloader';
 
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayer } from './video-player';
