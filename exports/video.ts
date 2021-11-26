@@ -26,9 +26,4 @@
 /**
  * @hidden
  */
-
-import '../cocos/video/video-downloader';
-
-export { VideoClip } from '../cocos/video/assets/video-clip';
-
 export * from '../cocos/video';
