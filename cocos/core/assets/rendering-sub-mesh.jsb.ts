@@ -59,13 +59,16 @@ renderingSubMeshProto._ctor = function (vertexBuffers: Buffer[], attributes: Att
     this._vertexBuffers = vertexBuffers;
     this._indexBuffer = indexBuffer;
     this._indirectBuffer = indirectBuffer;
-    this._primitiveMode = primitiveMode;
 };
 
 Object.defineProperty(renderingSubMeshProto, 'attributes', {
     configurable: true,
     enumerable: true,
     get () {
+        // TODO: should remove it when using shared_ptr.
+        if (!this._attributes) {
+            this._attributes = this.getAttributes();
+        }
         return this._attributes;
     }
 });
@@ -74,6 +77,10 @@ Object.defineProperty(renderingSubMeshProto, 'vertexBuffers', {
     configurable: true,
     enumerable: true,
     get () {
+        // TODO: should remove it when using shared_ptr.
+        if (!this._vertexBuffers) {
+            this._vertexBuffers = this.getVertexBuffers();
+        }
         return this._vertexBuffers;
     }
 });
@@ -82,6 +89,10 @@ Object.defineProperty(renderingSubMeshProto, 'indexBuffer', {
     configurable: true,
     enumerable: true,
     get () {
+        // TODO: should remove it when using shared_ptr.
+        if (!this._indexBuffer) {
+            this._indexBuffer = this.getIndexBuffer();
+        }
         return this._indexBuffer;
     }
 });
@@ -90,14 +101,10 @@ Object.defineProperty(renderingSubMeshProto, 'indirectBuffer', {
     configurable: true,
     enumerable: true,
     get () {
+        // TODO: should remove it when using shared_ptr.
+        if (!this._indirectBuffer) {
+            this._indirectBuffer = this.getIndexBuffer();
+        }
         return this._indirectBuffer;
-    }
-});
-
-Object.defineProperty(renderingSubMeshProto, 'primitiveMode', {
-    configurable: true,
-    enumerable: true,
-    get () {
-        return this._primitiveMode;
     }
 });
