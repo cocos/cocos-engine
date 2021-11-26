@@ -34,7 +34,7 @@ import { RenderableComponent } from '../../components';
 export const MaterialInstance = jsb.MaterialInstance;
 export type MaterialInstance = jsb.MaterialInstance;
 
-const materialInstanceProto:any = jsb.MaterialInstance.prototype;
+const materialInstanceProto: any = jsb.MaterialInstance.prototype;
 
 export interface IMaterialInstanceInfo {
     parent: Material;
@@ -59,6 +59,7 @@ Object.defineProperty(materialInstanceProto, 'owner', {
 });
 
 materialInstanceProto._ctor = function (info: IMaterialInstanceInfo) {
+    jsb.Material.prototype._ctor.apply(this, arguments);
     this._registerListeners();
     this._parent = info.parent;
     this._owner = info.owner || null;

@@ -50,6 +50,7 @@ const _descriptor$y = _applyDecoratedDescriptor(_class2$F.prototype, 'text', [se
 });
 
 textAssetProto._ctor = function () {
+    jsb.Asset.prototype._ctor.apply(this, arguments);
     // _initializerDefineProperty(_this, 'text', _descriptor$y, _assertThisInitialized(_this));
 };
 

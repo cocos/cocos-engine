@@ -63,6 +63,7 @@ const _descriptor2$7 = _applyDecoratedDescriptor(_class2$d.prototype, '_mipmaps'
 });
 
 textureCubeProto._ctor = function () {
+    jsb.SimpleTexture.prototype._ctor.apply(this, arguments);
     // for deserialization
     // _initializerDefineProperty(_this, 'isRGBE', _descriptor$b, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, '_mipmaps', _descriptor2$7, _assertThisInitialized(_this));

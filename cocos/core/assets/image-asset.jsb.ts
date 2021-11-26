@@ -69,6 +69,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 const imageAssetProto = ImageAsset.prototype;
 
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
+    jsb.Asset.prototype._ctor.apply(this, arguments);
     this._nativeData = {
         _data: null,
         width: 0,
@@ -177,10 +178,10 @@ imageAssetProto._deserialize = function (data: any) {
             } else if (tmpExt === '.pvr' && (!device || !device.hasFeature(Feature.FORMAT_PVRTC))) {
                 continue;
             } else if ((fmt === PixelFormat.RGB_ETC1 || fmt === PixelFormat.RGBA_ETC1)
-                    && (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
+                && (!device || !device.hasFeature(Feature.FORMAT_ETC1))) {
                 continue;
             } else if ((fmt === PixelFormat.RGB_ETC2 || fmt === PixelFormat.RGBA_ETC2)
-                    && (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
+                && (!device || !device.hasFeature(Feature.FORMAT_ETC2))) {
                 continue;
             } else if (tmpExt === '.webp' && !legacyCC.sys.capabilities.webp) {
                 continue;
