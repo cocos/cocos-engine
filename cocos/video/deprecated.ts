@@ -24,10 +24,15 @@
  */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
+import { replaceProperty } from '../core/utils/x-deprecated';
+import { VideoPlayer } from "./video-player";
 
-export { VideoClip } from '../cocos/video/assets/video-clip';
-import '../cocos/video/video-downloader';
-
-export * from '../cocos/video';
+replaceProperty(VideoPlayer.prototype, 'VideoPlayer.prototype', [
+    {
+        name: 'onPasued',
+        newName: 'onPaused',
+    }
+]);
