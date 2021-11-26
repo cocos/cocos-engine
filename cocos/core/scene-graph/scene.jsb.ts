@@ -92,7 +92,12 @@ sceneProto._ctor = function () {
 };
 
 sceneProto._onBatchCreated = function(dontSyncChildPrefab: boolean) {
-    Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
+    // Don't invoke Node.prototype._onBatchCreated because we refactor Node&BaseNode, BaseNode is empty just for
+    // instanceof check in ts engine. After ts engine removes BaseNode, we could remove BaseNode.h/.cpp too.
+    if (this._parent) {
+        this._siblingIndex = this._parent.children.indexOf(this);
+    }
+    //
     const len = this._children.length;
     for (let i = 0; i < len; ++i) {
         this.children[i]._siblingIndex = i;
