@@ -227,6 +227,7 @@ export const simple: IAssembler = {
             vBuf[pOffset + 1] = _vec3u_temp.y;
             vBuf[pOffset + 2] = _vec3u_temp.z;
         }
+        buffer.setDirty();
     },
 };
 
