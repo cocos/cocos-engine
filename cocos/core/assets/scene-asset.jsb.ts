@@ -42,12 +42,13 @@ const des_scene = _applyDecoratedDescriptor(sceneAssetProto, 'scene', [editable,
     configurable: true,
     enumerable: true,
     writable: true,
-    initializer: function initializer() {
+    initializer: function initializer () {
         return null;
     },
 });
 
 sceneAssetProto._ctor = function () {
+    jsb.Asset.prototype._ctor.apply(this, arguments);
     // _initializerDefineProperty(this, "scene", des_scene, _assertThisInitialized(this));
 };
 

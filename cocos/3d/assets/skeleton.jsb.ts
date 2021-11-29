@@ -86,6 +86,7 @@ const _descriptor3$1 = _applyDecoratedDescriptor(skeletonProto, '_hash', [serial
 });
 
 skeletonProto._ctor = function () {
+    jsb.Asset.prototype._ctor.apply(this, arguments);
     this._bindposes = [];
 };
 

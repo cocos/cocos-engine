@@ -60,7 +60,7 @@ const _descriptor$M = _applyDecoratedDescriptor(_class2$V.prototype, '_struct', 
         };
     },
 });
-const  _descriptor2$y = _applyDecoratedDescriptor(_class2$V.prototype, '_hash', [serializable], {
+const _descriptor2$y = _applyDecoratedDescriptor(_class2$V.prototype, '_hash', [serializable], {
     configurable: true,
     enumerable: true,
     writable: true,
@@ -70,6 +70,7 @@ const  _descriptor2$y = _applyDecoratedDescriptor(_class2$V.prototype, '_hash', 
 });
 
 meshAssetProto._ctor = function () {
+    jsb.Asset.prototype._ctor.apply(this, arguments);
     // _initializerDefineProperty(_this, "_struct", _descriptor$M, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_hash", _descriptor2$y, _assertThisInitialized(_this));
     this._struct = {
