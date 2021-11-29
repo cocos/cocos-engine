@@ -95,7 +95,7 @@ void CanvasRenderingContext2DDelegate::moveTo(float x, float y) {
 }
 
 void CanvasRenderingContext2DDelegate::lineTo(float x, float y) {
-    LineTo(_DC,  static_cast<int>(x),  static_cast<int>(-(y - _bufferHeight - _fontSize)));
+    LineTo(_DC, static_cast<int>(x), static_cast<int>(-(y - _bufferHeight - _fontSize)));
 }
 
 void CanvasRenderingContext2DDelegate::stroke() {
@@ -200,7 +200,7 @@ void CanvasRenderingContext2DDelegate::updateFont(const std::string &fontName,
             if (iter != fontInfoMap.end()) {
                 fontPath                = iter->second;
                 std::string tmpFontPath = fontPath;
-                size_t         nFindPos = tmpFontPath.rfind("/");
+                size_t      nFindPos    = tmpFontPath.rfind("/");
                 tmpFontPath             = &tmpFontPath[nFindPos + 1];
                 nFindPos                = tmpFontPath.rfind(".");
                 // IDEA: draw ttf failed if font file name not equal font face name

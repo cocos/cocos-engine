@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,6 +33,10 @@
     #include "platform/mac/modules/Vibrator.h"
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     #include "platform/ios/modules/Vibrator.h"
+#elif (CC_PLATFORM == CC_PLATFORM_LINUX)
+    #include "platform/linux/modules/Vibrate.h"
+#elif (CC_PLATFORM == CC_PLATFORM_QNX)
+    #include "platform/qnx/modules/Vibrate.h"
 #endif
 
 namespace cc {

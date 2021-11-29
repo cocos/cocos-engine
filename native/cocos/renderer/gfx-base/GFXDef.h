@@ -56,6 +56,13 @@ struct SwapchainTextureInfo {
     uint32_t   width{0};
     uint32_t   height{0};
 };
+ 
+struct Hasher final {
+template <typename T, typename Enable = std::enable_if_t<std::is_enum<T>::value>>
+    size_t operator()(const T& v) const {
+        return static_cast<size_t>(v);
+    }
+};
 
 constexpr TextureUsage TEXTURE_USAGE_TRANSIENT = static_cast<TextureUsage>(
     static_cast<uint32_t>(TextureUsageBit::COLOR_ATTACHMENT) |
@@ -87,6 +94,5 @@ extern const uint32_t   GFX_TYPE_SIZES[];
 extern uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t depth);
 
 extern uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
-
 } // namespace gfx
 } // namespace cc

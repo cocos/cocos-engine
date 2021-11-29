@@ -33,6 +33,7 @@
 
 #include <functional>
 #include <vector>
+#include <algorithm>
 
 namespace cc {
 

@@ -29,6 +29,8 @@
 #include <set>
 #include <curl/curl.h>
 #include <deque>
+#include <thread>
+#include <string.h>
 
 #include "base/Scheduler.h"
 #include "platform/FileUtils.h"

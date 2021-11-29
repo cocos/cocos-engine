@@ -31,6 +31,7 @@
 #include <functional>
 #include <math.h>
 #include <string>
+#include <string.h>
 
 MIDDLEWARE_BEGIN
 /**

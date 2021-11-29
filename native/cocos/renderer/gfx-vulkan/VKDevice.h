@@ -27,6 +27,7 @@
 
 #include "VKStd.h"
 #include "gfx-base/GFXDevice.h"
+#include <cstring>
 
 namespace cc {
 namespace gfx {

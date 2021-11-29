@@ -42,6 +42,8 @@
 #include "ValidationUtils.h"
 #include "gfx-base/GFXSwapchain.h"
 
+#include <cstring>
+
 namespace cc {
 namespace gfx {
 

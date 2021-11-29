@@ -46,7 +46,10 @@ CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
 }
 
 CCVKGPUDescriptorSetPool *CCVKGPUDevice::getDescriptorSetPool(uint32_t layoutID) {
-    return &_descriptorSetPools[layoutID];
+    if (_descriptorSetPools.find(layoutID) == _descriptorSetPools.end()) {
+        _descriptorSetPools[layoutID] = std::make_unique<CCVKGPUDescriptorSetPool>();
+    }
+    return _descriptorSetPools[layoutID].get();
 }
 
 void insertVkDynamicStates(vector<VkDynamicState> *out, const vector<DynamicStateFlagBit> &dynamicStates) {

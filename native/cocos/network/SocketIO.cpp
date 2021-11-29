@@ -372,7 +372,7 @@ void SIOClientImpl::handshake() {
     request->setUrl(pre.str());
     request->setRequestType(HttpRequest::Type::GET);
 
-    request->setResponseCallback([this](auto &&pH1, auto &&pH2) { handshakeResponse(std::forward<decltype(pH1)>(pH1), std::forward<decltype(pH2)>(pH2)); });
+    request->setResponseCallback([this](auto &&pH1, auto &&pH2) { this->handshakeResponse(std::forward<decltype(pH1)>(pH1), std::forward<decltype(pH2)>(pH2)); });
     request->setTag("handshake");
 
     CC_LOG_INFO("SIOClientImpl::handshake() waiting");
@@ -654,7 +654,7 @@ void SIOClientImpl::onOpen(WebSocket * /*ws*/) {
         _ws->send(s);
     }
 
-     CC_CURRENT_ENGINE()->getScheduler()->schedule([this](auto &&pH1) { heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
+     CC_CURRENT_ENGINE()->getScheduler()->schedule([this](auto &&pH1) { this->heartbeat(std::forward<decltype(pH1)>(pH1)); }, this, (static_cast<float>(_heartbeat) * .9F), false, "heartbeat");
 
     for (auto &client : _clients) {
         client.second->onOpen();

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -86,7 +86,7 @@ int32_t UniversalPlatform::init() {
 }
 
 int32_t UniversalPlatform::run(int argc, const char** argv) {
-    if(cocos_main(argc, argv) != 0){
+    if (cocos_main(argc, argv) != 0) {
         return -1;
     }
     return loop();

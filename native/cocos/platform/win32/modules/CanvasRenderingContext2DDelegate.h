@@ -103,10 +103,10 @@ private:
     float       _bufferHeight{0.0F};
 
     std::string        _fontName;
-    int                _fontSize;
+    int                _fontSize{0};
     Size               _textSize;
-    CanvasTextAlign    _textAlign;
-    CanvasTextBaseline _textBaseLine;
+    CanvasTextAlign    _textAlign{CanvasTextAlign::CENTER};
+    CanvasTextBaseline _textBaseLine{CanvasTextBaseline::TOP};
     Color4F            _fillStyle;
     Color4F            _strokeStyle;
 

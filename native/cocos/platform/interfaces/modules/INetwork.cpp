@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -33,6 +33,10 @@
     #include "platform/mac/modules/Network.h"
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     #include "platform/ios/modules/Network.h"
+#elif (CC_PLATFORM == CC_PLATFORM_LINUX)
+    #include "platform/linux/modules/Network.h"
+#elif (CC_PLATFORM == CC_PLATFORM_QNX)
+    #include "platform/qnx/modules/Network.h"
 #endif
 
 namespace cc {

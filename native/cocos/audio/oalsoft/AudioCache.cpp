@@ -33,6 +33,8 @@
 #include "audio/oalsoft/AudioDecoder.h"
 #include "audio/oalsoft/AudioDecoderManager.h"
 
+#include <string.h>
+
 #define VERY_VERY_VERBOSE_LOGGING
 #ifdef VERY_VERY_VERBOSE_LOGGING
     #define ALOGVV ALOGV

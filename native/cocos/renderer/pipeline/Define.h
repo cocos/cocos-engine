@@ -26,7 +26,7 @@
 #pragma once
 
 #include <functional>
-
+#include <cmath>
 #include "base/Object.h"
 #include "base/TypeDef.h"
 #include "base/Value.h"
@@ -48,7 +48,7 @@ class RenderFlow;
 constexpr int JOINT_UNIFORM_CAPACITY = 30;
 
 constexpr float SHADOW_CAMERA_MAX_FAR    = 2000.0F;
-const float     COEFFICIENT_OF_EXPANSION = 2.0F * std::sqrtf(3.0F);
+const float     COEFFICIENT_OF_EXPANSION = 2.0F * sqrtf(3.0F);
 
 struct CC_DLL RenderObject {
     float               depth = 0;

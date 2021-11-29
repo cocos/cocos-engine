@@ -36,6 +36,9 @@
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include "AL/alc.h"
     #include "AL/alext.h"
+#elif CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
+    #include "AL/alc.h"
+    #include "AL/alext.h"
 #endif
 #include "audio/include/AudioEngine.h"
 #include "audio/oalsoft/AudioDecoderManager.h"

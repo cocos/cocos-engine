@@ -298,7 +298,11 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
         #include <Endian.h>
     #else
+        #if !defined(__QNX__)
         #include <endian.h>
+        #else
+        #define CC_ENDIAN CC_ENDIAN_LITTLE
+        #endif
     #endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     #
     #if __BYTE_ORDER == __LITTLE_ENDIAN

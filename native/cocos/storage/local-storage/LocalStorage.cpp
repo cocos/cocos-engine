@@ -125,7 +125,7 @@ void localStorageInit(const std::string &fullpath /* = "" */) {
         ret |= sqlite3_prepare_v2(_db, sql_count, -1, &_stmt_count, nullptr);
 
         if (ret != SQLITE_OK) {
-            printf("Error initializing DB\n");
+            printf("Error initializing DB(%s)\n", fullpath.c_str());
             // report error
         }
         _initialized = 1;

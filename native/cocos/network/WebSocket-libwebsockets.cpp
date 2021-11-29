@@ -35,7 +35,7 @@
 #include "uv.h"
 // clang-format on
 
-#if __OHOS__
+#if __OHOS__ || __LINUX__ || __QNX__
     #include "libwebsockets.h"
 #else
     #include "websockets/libwebsockets.h"
@@ -141,7 +141,7 @@ static void wsLog(const char *format, ...) {
 }
 
 #else
-    #define WS_LOG printf
+    #define wsLog printf //NOLINT
 #endif
 
 #define DO_QUOTEME(x) #x

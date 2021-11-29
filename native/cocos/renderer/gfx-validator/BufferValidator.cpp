@@ -35,6 +35,8 @@
 #include "ValidationUtils.h"
 #include "gfx-base/GFXDef-common.h"
 
+#include <cstring>
+
 namespace cc {
 namespace gfx {
 

@@ -212,9 +212,10 @@ bool GLES3GPUContext::initialize(GLES3GPUStateCache *stateCache, GLES3GPUConstan
         eglAttributes.push_back(EGL_NONE);
 
         for (int m = 2; m >= 0; --m) {
-            eglAttributes[3] = m;
-            EGL_CHECK(eglDefaultContext = eglCreateContext(eglDisplay, eglConfig, nullptr, eglAttributes.data()));
-            if (eglDefaultContext) {
+            eglAttributes[3]  = m;
+            eglDefaultContext = eglCreateContext(eglDisplay, eglConfig, nullptr, eglAttributes.data());
+            EGLint err        = eglGetError(); // QNX throws egl errors on mismatch
+            if (eglDefaultContext && err == EGL_SUCCESS) {
                 _constantRegistry->glMinorVersion = m;
                 break;
             }
@@ -389,13 +390,13 @@ void GLES3GPUContext::resetStates() const {
         GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
         GL_CHECK(glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0));
         GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+        GL_CHECK(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
     }
 
     GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
     GL_CHECK(glBindTexture(GL_TEXTURE_3D, 0));
     GL_CHECK(glBindTexture(GL_TEXTURE_2D_ARRAY, 0));
     GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
-    GL_CHECK(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
 
     GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
     GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
