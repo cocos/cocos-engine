@@ -335,6 +335,8 @@ nodeProto._onRemovePersistRootNode = function () {
 };
 
 nodeProto._onDestroyComponents = function () {
+    // Destroy node event processor
+    this._eventProcessor.destroy();
     const comps = this._components;
     for (let i = 0; i < comps.length; ++i) {
         // destroy immediate so its _onPreDestroy can be called
