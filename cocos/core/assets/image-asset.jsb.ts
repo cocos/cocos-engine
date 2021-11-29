@@ -118,18 +118,17 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 };
 
 imageAssetProto.reset = function (data: ImageSource) {
-    if (isImageBitmap(data)) {
-        this._nativeData = data;
-    } else if (!(data instanceof HTMLElement)) {
-        // this._nativeData = Object.create(data);
-        this._nativeData = data;
+    this._nativeData = data;
+
+    if (!(data instanceof HTMLElement)) {
         // @ts-expect-error internal api usage
-        // this._format = data.format;
         this.format = data.format;
-    } else {
-        this._nativeData = data;
     }
-    // minggo: use one function?
+    this._syncDataToNative();
+};
+
+imageAssetProto._syncDataToNative = function () {
+    const data: any = this._nativeData;
     this.width = data.width;
     this.height = data.height;
     if (data instanceof HTMLCanvasElement) {

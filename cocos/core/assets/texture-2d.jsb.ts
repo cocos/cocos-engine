@@ -91,4 +91,31 @@ texture2DProto.onLoaded = function () {
     oldOnLoaded.call(this);
 };
 
+Object.defineProperty(texture2DProto, 'image', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this.getImage();
+    },
+    set (v) {
+        v._syncDataToNative();
+        this.setImage(v);
+    }
+});
+
+Object.defineProperty(texture2DProto, 'mipmaps', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this.getMipmaps();
+    },
+    set (arr) {
+        for (let i = 0, len = arr.length; i < len; ++i) {
+            const v = arr[i];
+            v._syncDataToNative();
+            this.setMipmaps(v);
+        }
+    }
+});
+
 legacyCC.Texture2D = jsb.Texture2D;
