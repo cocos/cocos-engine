@@ -22,8 +22,8 @@ import { b2Shape2D } from './shapes/shape-2d';
 import { PhysicsDebugDraw } from './platform/physics-debug-draw';
 
 const tempVec3 = new Vec3();
-const tempVec2_1 = new Vec2();
-const tempVec2_2 = new Vec2();
+const tempVec2_1 = new b2.Vec2();
+const tempVec2_2 = new b2.Vec2();
 
 const temoBodyDef = new b2.BodyDef();
 const tempB2AABB = new b2.AABB();
@@ -118,7 +118,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     setGravity (v: IVec2Like) {
-        this._world.SetGravity(v as b2.Vec2);
+        this._world.SetGravity(new b2.Vec2(v.x, v.y));
     }
 
     setAllowSleep (v: boolean) {
@@ -316,7 +316,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         tempB2AABB.upperBound.y = y + d;
 
         const callback = this._aabbQueryCallback;
-        callback.init(tempVec2_1);
+        callback.init(new Vec2(tempVec2_1.x, tempVec2_1.y));
         this._world.QueryAABB(callback, tempB2AABB);
 
         const fixtures = callback.getFixtures();

@@ -105,8 +105,8 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     init (b2contact: b2ContactExtends) {
-        this.colliderA = (b2contact.m_fixtureA.m_userData as b2Shape2D).collider;
-        this.colliderB = (b2contact.m_fixtureB.m_userData as b2Shape2D).collider;
+        this.colliderA = (b2contact.GetFixtureA().m_userData as b2Shape2D).collider;
+        this.colliderB = (b2contact.GetFixtureB().m_userData as b2Shape2D).collider;
         this.disabled = false;
         this.disabledOnce = false;
         this._impulse = null;
@@ -137,19 +137,34 @@ export class PhysicsContact implements IPhysics2DContact {
         const normal = worldmanifold.normal;
 
         this._b2contact!.GetWorldManifold(b2worldmanifold);
-        const b2points = b2worldmanifold.points;
-        const b2separations = b2worldmanifold.separations;
-
         const count = this._b2contact!.GetManifold().pointCount;
-        points.length = separations.length = count;
 
-        for (let i = 0; i < count; i++) {
-            const p = pointCache[i];
-            p.x = b2points[i].x * PHYSICS_2D_PTM_RATIO;
-            p.y = b2points[i].y * PHYSICS_2D_PTM_RATIO;
+        if (b2worldmanifold['get_separations']) {
+            for (let i = 0; i < count; i++) {
+                const p = pointCache[i];
+                const b2p = b2worldmanifold['get_points'](i);
+                const b2s = b2worldmanifold['get_separations'](i);
 
-            points[i] = p;
-            separations[i] = b2separations[i] * PHYSICS_2D_PTM_RATIO;
+                p.x = b2p.x * PHYSICS_2D_PTM_RATIO;
+                p.y = b2p.y * PHYSICS_2D_PTM_RATIO;
+
+                points[i] = p;
+                separations[i] = b2s * PHYSICS_2D_PTM_RATIO;
+            }
+        }
+        else {
+            const b2points = b2worldmanifold.points;
+            const b2separations = b2worldmanifold.separations;
+
+            points.length = separations.length = count;
+            for (let i = 0; i < count; i++) {
+                const p = pointCache[i];
+                p.x = b2points[i].x * PHYSICS_2D_PTM_RATIO;
+                p.y = b2points[i].y * PHYSICS_2D_PTM_RATIO;
+    
+                points[i] = p;
+                separations[i] = b2separations[i] * PHYSICS_2D_PTM_RATIO;
+            }
         }
 
         normal.x = b2worldmanifold.normal.x;

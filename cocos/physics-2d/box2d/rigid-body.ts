@@ -171,7 +171,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         const b2body = this._body;
         if (!b2body) return;
 
-        const temp = b2body.m_linearVelocity;
+        const temp = b2body.GetLinearVelocity();
         temp.Set(0, 0);
 
         b2body.SetLinearVelocity(temp);
@@ -212,7 +212,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         return this._body!.GetMass();
     }
     setLinearVelocity (v: IVec2Like) {
-        this._body!.SetLinearVelocity(v as b2.Vec2);
+        this._body!.SetLinearVelocity(new b2.Vec2(v.x, v.y));
     }
     getLinearVelocity<Out extends IVec2Like> (out: Out): Out {
         const velocity = this._body!.GetLinearVelocity();
@@ -237,34 +237,35 @@ export class b2RigidBody2D implements IRigidBody2D {
     getLocalVector<Out extends IVec2Like> (worldVector: IVec2Like, out: Out): Out {
         out = out || new Vec2();
         tempVec2_1.Set(worldVector.x / PHYSICS_2D_PTM_RATIO, worldVector.y / PHYSICS_2D_PTM_RATIO);
-        this._body!.GetLocalVector(tempVec2_1, out as any);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const tmp = this._body!.GetLocalVector(tempVec2_1, out as any);
+        out.x = tmp.x * PHYSICS_2D_PTM_RATIO;
+        out.y = tmp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
+    
     getWorldVector<Out extends IVec2Like> (localVector: IVec2Like, out: Out): Out {
         tempVec2_1.Set(localVector.x / PHYSICS_2D_PTM_RATIO, localVector.y / PHYSICS_2D_PTM_RATIO);
-        this._body!.GetWorldVector(tempVec2_1, out as any);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const tmp = this._body!.GetWorldVector(tempVec2_1, out as any);
+        out.x = tmp.x * PHYSICS_2D_PTM_RATIO;
+        out.y = tmp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
 
     getLocalPoint<Out extends IVec2Like> (worldPoint: IVec2Like, out: Out): Out {
         out = out || new Vec2();
         tempVec2_1.Set(worldPoint.x / PHYSICS_2D_PTM_RATIO, worldPoint.y / PHYSICS_2D_PTM_RATIO);
-        this._body!.GetLocalPoint(tempVec2_1, out as any);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const tmp = this._body!.GetLocalPoint(tempVec2_1, out as any);
+        out.x = tmp.x * PHYSICS_2D_PTM_RATIO;
+        out.y = tmp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
 
     getWorldPoint<Out extends IVec2Like> (localPoint: IVec2Like, out: Out): Out {
         out = out || new Vec2();
         tempVec2_1.Set(localPoint.x / PHYSICS_2D_PTM_RATIO, localPoint.y / PHYSICS_2D_PTM_RATIO);
-        this._body!.GetWorldPoint(tempVec2_1, out as any);
-        out.x *= PHYSICS_2D_PTM_RATIO;
-        out.y *= PHYSICS_2D_PTM_RATIO;
+        const tmp = this._body!.GetWorldPoint(tempVec2_1, out as any);
+        out.x = tmp.x * PHYSICS_2D_PTM_RATIO;
+        out.y = tmp.y * PHYSICS_2D_PTM_RATIO;
         return out;
     }
 
@@ -290,13 +291,13 @@ export class b2RigidBody2D implements IRigidBody2D {
     applyForce (force: IVec2Like, point: IVec2Like, wake: boolean) {
         if (this._body) {
             tempVec2_1.Set(point.x / PHYSICS_2D_PTM_RATIO, point.y / PHYSICS_2D_PTM_RATIO);
-            this._body.ApplyForce(force as b2.Vec2, tempVec2_1, wake);
+            this._body.ApplyForce(new b2.Vec2(force.x, force.y), tempVec2_1, wake);
         }
     }
 
     applyForceToCenter (force: IVec2Like, wake: boolean) {
         if (this._body) {
-            this._body.ApplyForceToCenter(force as b2.Vec2, wake);
+            this._body.ApplyForceToCenter(new b2.Vec2(force.x, force.y), wake);
         }
     }
 
@@ -309,13 +310,13 @@ export class b2RigidBody2D implements IRigidBody2D {
     applyLinearImpulse (impulse: IVec2Like, point: IVec2Like, wake: boolean) {
         if (this._body) {
             tempVec2_1.Set(point.x / PHYSICS_2D_PTM_RATIO, point.y / PHYSICS_2D_PTM_RATIO);
-            this._body.ApplyLinearImpulse(impulse as b2.Vec2, tempVec2_1, wake);
+            this._body.ApplyLinearImpulse(new b2.Vec2(impulse.x, impulse.y), tempVec2_1, wake);
         }
     }
 
     applyLinearImpulseToCenter (impulse: IVec2Like, wake: boolean) {
         if (this._body) {
-            this._body.ApplyLinearImpulse(impulse as b2.Vec2, this._body.GetPosition(), wake);
+            this._body.ApplyLinearImpulse(new b2.Vec2(impulse.x, impulse.y), this._body.GetPosition(), wake);
         }
     }
 

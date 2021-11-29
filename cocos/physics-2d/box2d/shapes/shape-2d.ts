@@ -131,15 +131,14 @@ export class b2Shape2D implements IBaseShape {
         for (let i = 0; i < shapes.length; i++) {
             const shape = shapes[i];
 
-            const fixDef: b2.IFixtureDef = {
-                density: comp.density,
-                isSensor: comp.sensor,
-                friction: comp.friction,
-                restitution: comp.restitution,
-                shape,
-
-                filter,
-            };
+            const fixDef = new b2.FixtureDef;
+            fixDef.density = comp.density;
+            fixDef.isSensor = comp.sensor;
+            fixDef.friction =  comp.friction;
+            fixDef.restitution = comp.restitution,
+            fixDef.shape = shape;
+            // @ts-ignore
+            fixDef.filter = filter;
 
             const fixture = innerBody.CreateFixture(fixDef);
             fixture.m_userData = this;

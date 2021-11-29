@@ -63,7 +63,8 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
                 }
 
                 if (vertices.length === b2.maxPolygonVertices) {
-                    shape.Set(vertices, vertices.length);
+                    // @ts-ignore
+                    shape.Set(b2.pointsToVec2Array(vertices)[0], vertices.length);
                     shapes.push(shape);
 
                     shape = null;
@@ -75,7 +76,8 @@ export class b2PolygonShape extends b2Shape2D implements IPolygonShape {
             }
 
             if (shape) {
-                shape.Set(vertices, vertices.length);
+                // @ts-ignore
+                shape.Set(b2.pointsToVec2Array(vertices)[0], vertices.length);
                 shapes.push(shape);
             }
         }
