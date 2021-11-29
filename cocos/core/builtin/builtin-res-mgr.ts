@@ -44,8 +44,8 @@ class BuiltinResMgr {
         const resources = this._resources;
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d')!;
-        const imgAsset = new ImageAsset(canvas);
         const l = canvas.width = canvas.height = 2;
+        const imgAsset = new ImageAsset(canvas);
 
         // ============================
         // builtin textures
