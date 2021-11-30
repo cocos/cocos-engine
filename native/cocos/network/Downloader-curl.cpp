@@ -29,10 +29,13 @@
 #include <set>
 #include <curl/curl.h>
 #include <deque>
+#include <thread>
+#include <string.h>
 
 #include "base/Scheduler.h"
 #include "platform/FileUtils.h"
-#include "platform/Application.h"
+#include "application/ApplicationManager.h"
+
 #include "network/Downloader.h"
 
 // **NOTE**
@@ -627,7 +630,7 @@ DownloaderCURL::DownloaderCURL(const DownloaderHints &hints)
   _currTask(nullptr) {
     DLLOG("Construct DownloaderCURL %p", this);
     _impl->hints = hints;
-    _scheduler = Application::getInstance()->getScheduler();
+    _scheduler   = CC_CURRENT_ENGINE()->getScheduler();
 
     _transferDataToBuffer = [this](void *buf, int64_t len) -> int64_t {
         DownloadTaskCURL &coTask = *_currTask;

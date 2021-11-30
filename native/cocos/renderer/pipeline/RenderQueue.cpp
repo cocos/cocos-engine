@@ -64,7 +64,14 @@ bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelI
 }
 
 void RenderQueue::sort() {
+#if CC_PLATFORM != CC_PLATFORM_LINUX && CC_PLATFORM != CC_PLATFORM_QNX
     std::sort(_queue.begin(), _queue.end(), _passDesc.sortFunc);
+#else
+    //cannot use std::function as comparator in algorithms https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65942#c11
+    std::sort(_queue.begin(), _queue.end(), [this](const RenderPass &a, const RenderPass &b) -> bool {
+        return _passDesc.sortFunc(a, b);
+    });
+#endif
 }
 
 void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, uint32_t subpassIndex) {

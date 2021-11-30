@@ -28,6 +28,7 @@
 #include "base/Log.h"
 #include "base/Macros.h"
 #include <functional>
+#include <cmath>
 
 #define POOL_DEBUG 0
 
@@ -104,7 +105,7 @@ void TypedArrayPool::dump() {
 }
 
 se::Object *TypedArrayPool::pop(arrayType type, std::size_t size) {
-    auto fitSize = static_cast<std::size_t>(ceil(size / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
+    auto fitSize = static_cast<std::size_t>(std::ceil(size / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
     objPool *objPoolPtr = getObjPool(type, fitSize);
 
     if (!objPoolPtr->empty()) {

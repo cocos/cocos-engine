@@ -18,10 +18,7 @@ set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/game.rc
 )
 list(APPEND PROJ_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.h
-    ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/main.h
-    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+
     ${CMAKE_CURRENT_LIST_DIR}/resource.h
     ${UI_RESOURCES}
 )

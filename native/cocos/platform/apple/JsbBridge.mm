@@ -25,7 +25,6 @@
 
 #import <Foundation/Foundation.h>
 #include <string>
-#include <Application.h>
 #include "JsbBridge.h"
 #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 

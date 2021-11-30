@@ -23,7 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+#import <Cocoa/Cocoa.h>
+#import "ConsoleWindowController.h"
 #include <sys/stat.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -40,10 +41,39 @@
 
 #include "ide-support/CodeIDESupport.h"
 #include "cocos/platform/mac/View.h"
-
+#include "cocos/application/ApplicationManager.h"
 #include "platform/mac/PlayerMac.h"
-#include "AppEvent.h"
+#include "platform/interfaces/modules/IScreen.h"
+#include "CustomAppEvent.h"
 #include "AppLang.h"
+
+
+@interface AppController : NSObject
+{
+    NSWindow *_window;
+    NSMenu *menu;
+    
+    Game *_app;
+    ProjectConfig _project;
+    int _debugLogFile;
+    std::string _entryPath;
+    
+    //log file
+    ConsoleWindowController *_consoleController;
+    NSFileHandle *_fileHandle;
+    
+    //console pipe
+    NSPipe *_pipe;
+    NSFileHandle *_pipeReadHandle;
+}
+
+@property (nonatomic, assign) IBOutlet NSMenu* menu;
+
+//-(BOOL)application:(NSApplication*)app openFile:(NSString*)path;
+-(IBAction)onFileClose:(id)sender;
+-(IBAction)onWindowAlwaysOnTop:(id)sender;
+@end
+
 
 using namespace cc;
 
@@ -69,12 +99,12 @@ std::string getCurAppName(void)
 
 -(void) dealloc
 {
-    delete _app;
-    _app = nullptr;
+    //delete _app;
+    //_app = nullptr;
     player::PlayerProtocol::getInstance()->purgeInstance();
     [super dealloc];
 }
-
+/*
 #pragma mark -
 #pragma delegates
 
@@ -104,26 +134,7 @@ std::string getCurAppName(void)
 
     return YES;
 }
-
--(void)applicationDidFinishLaunching:(NSNotification *)aNotification
-{
-    SIMULATOR = self;
-    player::PlayerMac::create();
-
-    _debugLogFile = 0;
-
-    [self parseCocosProjectConfig:&_project];
-    [self updateProjectFromCommandLineArgs:&_project];
-
-    if (_entryPath.length())
-    {
-        _project.setScriptFile(_entryPath);
-    }
-
-    [self createWindowAndView];
-    [self startup];
-}
-
+*/
 #pragma mark -
 #pragma mark functions
 
@@ -135,11 +146,6 @@ std::string getCurAppName(void)
 - (void) windowWillClose:(NSNotification *)notification
 {
     [[NSRunningApplication currentApplication] terminate];
-}
-
-- (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication
-{
-    return YES;
 }
 
 - (NSMutableArray*) makeCommandLineArgsFromProjectConfig
@@ -239,6 +245,25 @@ std::string getCurAppName(void)
         config->changeFrameOrientationToPortait();
     }
     config->setScriptFile(parser->getEntryFile());
+}
+
+-(void) run
+{
+    SIMULATOR = self;
+    player::PlayerMac::create();
+
+    _debugLogFile = 0;
+
+    [self parseCocosProjectConfig:&_project];
+    [self updateProjectFromCommandLineArgs:&_project];
+
+    if (_entryPath.length())
+    {
+        _project.setScriptFile(_entryPath);
+    }
+
+    [self createWindowAndView];
+    [self startup];
 }
 
 - (void) updateProjectFromCommandLineArgs:(ProjectConfig*)config
@@ -363,29 +388,13 @@ std::string getCurAppName(void)
     int frameHeight = (int) (_project.getFrameScale() * frameSize.height);
 
 
-    NSRect rect = NSMakeRect(200, 200, frameWidth, frameHeight);
-    _window = [[NSWindow alloc] initWithContentRect:rect
-                                          styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
-                                            backing:NSBackingStoreBuffered
-                                              defer:NO];
-    if (!_window) {
-        NSLog(@"Failed to allocated the window.");
-        return;
-    }
-    
-    _window.title = @"Cocos creator 3D Game";
-    
-    ViewController* viewController = [[ViewController alloc] initWithSize: rect];
-    _window.contentViewController = viewController;
-    _window.contentView = viewController.view;
-    [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
-    [_window makeKeyAndOrderFront:nil];
+    //NSRect rect = NSMakeRect(200, 200, frameWidth, frameHeight);
     
     NSApplication *thisApp = [NSApplication sharedApplication];
     [thisApp activateIgnoringOtherApps:YES];
 
     // create opengl view, and init app
-    _app = new Game(frameWidth, frameHeight);
+    //_app = new Game(frameWidth, frameHeight);
 
     if (pos.x != 0 && pos.y != 0)
     {
@@ -438,7 +447,7 @@ std::string getCurAppName(void)
 
     RuntimeEngine::getInstance()->setProjectConfig(_project);
 
-    _app->init();
+    //_app->init();
 }
 
 
@@ -523,7 +532,7 @@ std::string getCurAppName(void)
     ProjectConfig &project = _project;
 
     EventDispatcher::CustomEventListener listener = [self, &project, scaleMenuVector](const CustomEvent& event){
-        auto menuEvent = dynamic_cast<const AppEvent&>(event);
+        auto menuEvent = dynamic_cast<const CustomAppEvent&>(event);
         rapidjson::Document dArgParse;
         dArgParse.Parse<0>(menuEvent.getDataString().c_str());
 
@@ -590,8 +599,9 @@ std::string getCurAppName(void)
                     }
                     else if (data == "VIEW_SHOW_FPS")
                     {
-                        bool displayStats = !_app->isDisplayStats();
-                        _app->setDisplayStats(displayStats);
+                        IScreen* screenIntf = CC_GET_PLATFORM_INTERFACE(IScreen);
+                        bool displayStats = !screenIntf->isDisplayStats();
+                        screenIntf->setDisplayStats(displayStats);
                         menuItem->setTitle(displayStats ? tr("Hide FPS") : tr("Show FPS"));
                     }
 
@@ -672,6 +682,16 @@ std::string getCurAppName(void)
     return NO;
 }
 
+- (int) getHeight
+{
+    return _project.getFrameScale() *  _project.getFrameSize().height;
+}
+
+- (int) getWidth
+{
+    return _project.getFrameScale() *  _project.getFrameSize().width;
+}
+
 #pragma mark -
 
 -(IBAction)onFileClose:(id)sender
@@ -700,9 +720,38 @@ std::string getCurAppName(void)
     CC_SAFE_DELETE(_app);
 }
 
-- (NSWindow*)getWindow
-{
-    return _window;
+@end
+
+namespace  {
+AppController* app;
 }
 
-@end
+SimulatorApp::SimulatorApp() {
+    app = [[AppController alloc] init];
+}
+
+SimulatorApp::~SimulatorApp() {
+
+}
+
+int SimulatorApp::run() {
+    [app run];
+    return 0;
+}
+
+SimulatorApp* SimulatorApp::_instance = nullptr;
+
+SimulatorApp* SimulatorApp::getInstance() {
+    if (!_instance) {
+        _instance = new SimulatorApp();
+    }
+    return _instance;
+}
+
+int SimulatorApp::getWidth() const {
+    return [app getWidth];;
+}
+
+int SimulatorApp::getHegith() const {
+    return [app getHeight];;
+}

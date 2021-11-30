@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #pragma once
-
+#include <string>
 #include <unordered_map>
 
 namespace se {
 class Object;
 }
 
-bool register_platform_bindings(se::Object *obj);
+bool register_platform_bindings(se::Object *obj); // NOLINT[readability-identifier-naming]
 const std::unordered_map<std::string, std::string> &getFontFamilyNameMap();

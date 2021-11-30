@@ -25,37 +25,23 @@
  ****************************************************************************/
 
 
-#import <Cocoa/Cocoa.h>
-#import "ConsoleWindowController.h"
+//#import <Cocoa/Cocoa.h>
+//#import "ConsoleWindowController.h"
 
 #include <string>
 #include "ProjectConfig/ProjectConfig.h"
 #include "ProjectConfig/SimulatorConfig.h"
 #include "Game.h"
 
-@interface AppController : NSObject <NSApplicationDelegate, NSWindowDelegate, NSFileManagerDelegate>
-{
-    NSWindow *_window;
-    NSMenu *menu;
-    
-    Game *_app;
-    ProjectConfig _project;
-    int _debugLogFile;
-    std::string _entryPath;
-    
-    //log file
-    ConsoleWindowController *_consoleController;
-    NSFileHandle *_fileHandle;
-    
-    //console pipe
-    NSPipe *_pipe;
-    NSFileHandle *_pipeReadHandle;
-}
+class SimulatorApp {
+public:
+    static SimulatorApp *getInstance();
+    virtual ~SimulatorApp();
+    int run();
+    virtual int getWidth() const;
+    virtual int getHegith() const;
+protected:
+    SimulatorApp();
 
-@property (nonatomic, assign) IBOutlet NSMenu* menu;
-
--(BOOL)application:(NSApplication*)app openFile:(NSString*)path;
--(IBAction)onFileClose:(id)sender;
--(IBAction)onWindowAlwaysOnTop:(id)sender;
--(NSWindow*)getWindow;
-@end
+    static SimulatorApp *_instance;
+};

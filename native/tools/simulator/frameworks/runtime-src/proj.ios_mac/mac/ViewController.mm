@@ -1,3 +1,4 @@
+/*
 #import "ViewController.h"
 #import "platform/mac/View.h"
 
@@ -15,3 +16,4 @@
 }
 
 @end
+*/

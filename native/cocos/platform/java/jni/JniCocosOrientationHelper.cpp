@@ -23,14 +23,18 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include <jni.h>
-#include "platform/Application.h"
-#include "platform/Device.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 #include "platform/java/jni/JniHelper.h"
+#include "platform/java/jni/glue/JniNativeGlue.h"
+#include "platform/interfaces/modules/Device.h"
 
 extern "C" {
+
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrientationChanged(JNIEnv *env, jobject thiz, jint rotation) {
-    auto orientation = cc::Device::getDeviceOrientation();
-    cc::EventDispatcher::dispatchOrientationChangeEvent((int)orientation);
+    cc::DeviceEvent ev;
+    ev.type           = cc::DeviceEvent::Type::DEVICE_ORIENTATION;
+    ev.args[0].intVal = static_cast<int>(cc::Device::getDeviceOrientation());
+    JNI_NATIVE_GLUE()->dispatchEvent(ev);
 }
 }

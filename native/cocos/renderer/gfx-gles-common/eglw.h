@@ -26,6 +26,9 @@
 #pragma once
 
 #if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_QNX)
+#define EGL_NO_X11 1
+#endif
 
 #define EGL_EGL_PROTOTYPES 0
 #include <EGL/egl.h>

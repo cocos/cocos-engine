@@ -31,7 +31,7 @@
 #include <errno.h>
 #include <curl/curl.h>
 #include "platform/FileUtils.h"
-#include "platform/Application.h"
+#include "application/ApplicationManager.h"
 #include "platform/StdC.h"
 #include "base/Log.h"
 
@@ -363,7 +363,7 @@ HttpClient::HttpClient()
   _requestSentinel(new HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
     memset(_responseMessage, 0, RESPONSE_BUFFER_SIZE * sizeof(char));
-    _scheduler = Application::getInstance()->getScheduler();
+    _scheduler = CC_CURRENT_ENGINE()->getScheduler();
     increaseThreadCount();
 }
 

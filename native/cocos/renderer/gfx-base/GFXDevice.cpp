@@ -27,6 +27,7 @@
 
 #include "GFXDevice.h"
 #include "GFXObject.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace gfx {
@@ -81,6 +82,8 @@ void Device::destroy() {
     _bindingMappingInfo.samplerOffsets.clear();
 
     doDestroy();
+
+    CC_SAFE_DELETE(_onAcquire);
 }
 
 void Device::destroySurface(void *windowHandle) {

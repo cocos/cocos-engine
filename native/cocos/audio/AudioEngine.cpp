@@ -42,8 +42,8 @@
     #include "audio/oalsoft/AudioEngine-soft.h"
 #elif CC_PLATFORM == CC_PLATFORM_WINRT
     #include "audio/winrt/AudioEngine-winrt.h"
-#elif CC_PLATFORM == CC_PLATFORM_LINUX
-    #include "audio/linux/AudioEngine-linux.h"
+#elif CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
+    #include "audio/oalsoft/AudioEngine-soft.h"
 #elif CC_PLATFORM == CC_PLATFORM_TIZEN
     #include "audio/tizen/AudioEngine-tizen.h"
 #endif
@@ -84,13 +84,13 @@ AudioEngine::AudioInfo::AudioInfo()
   state(AudioState::INITIALIZING) {
 }
 
-AudioEngine::AudioInfo::~AudioInfo() = default;
-
 class AudioEngine::AudioEngineThreadPool {
 public:
     explicit AudioEngineThreadPool(int threads = 4) {
         for (int index = 0; index < threads; ++index) {
-            _workers.emplace_back(std::thread(std::bind(&AudioEngineThreadPool::threadFunc, this)));
+            _workers.emplace_back(std::thread([this](){
+              threadFunc();
+            }));
         }
     }
 
@@ -204,7 +204,7 @@ int AudioEngine::play2d(const std::string &filePath, bool loop, float volume, co
             break;
         }
 
-        auto profileHelper = sDefaultProfileHelper;
+        auto* profileHelper = sDefaultProfileHelper;
         if (profile && profile != &profileHelper->profile) {
             CC_ASSERT(!profile->name.empty());
             profileHelper          = &sAudioPathProfileHelperMap[profile->name];

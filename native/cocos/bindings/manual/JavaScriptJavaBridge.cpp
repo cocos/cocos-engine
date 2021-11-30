@@ -26,8 +26,7 @@
 #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
 #include "cocos/base/UTF8.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include <cocos/platform/Application.h>
-
+#include "cocos/application/ApplicationManager.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include <android/log.h>
@@ -211,7 +210,7 @@ Java_com_cocos_lib_JsbBridge_nativeSendToScript(JNIEnv *env, jclass clazz, jstri
     std::string cArg0{cc::JniHelper::jstring2string(arg0)};
     std::string cArg1{cc::JniHelper::jstring2string(arg1)};
 
-    cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread([=]() {
+    CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
         ScriptNativeBridge::bridgeCxxInstance->callByNative(cArg0, cArg1);
     });
 }

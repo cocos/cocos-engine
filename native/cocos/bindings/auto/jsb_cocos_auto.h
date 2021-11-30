@@ -4,8 +4,8 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/platform/FileUtils.h"
-#include "cocos/platform/CanvasRenderingContext2D.h"
-#include "cocos/platform/Device.h"
+#include "cocos/platform/interfaces/modules/canvas/ICanvasRenderingContext2D.h"
+#include "cocos/platform/interfaces/modules/Device.h"
 #include "cocos/platform/SAXParser.h"
 
 extern se::Object* __jsb_cc_FileUtils_proto;
@@ -58,7 +58,7 @@ extern se::Class* __jsb_cc_CanvasGradient_class;
 bool js_register_cc_CanvasGradient(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::CanvasGradient);
+JSB_REGISTER_OBJECT_TYPE(cc::ICanvasGradient);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_addColorStop);
 SE_DECLARE_FUNC(js_engine_CanvasGradient_CanvasGradient);
 
@@ -68,7 +68,7 @@ extern se::Class* __jsb_cc_CanvasRenderingContext2D_class;
 bool js_register_cc_CanvasRenderingContext2D(se::Object* obj);
 bool register_all_engine(se::Object* obj);
 
-JSB_REGISTER_OBJECT_TYPE(cc::CanvasRenderingContext2D);
+JSB_REGISTER_OBJECT_TYPE(cc::ICanvasRenderingContext2D);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_beginPath);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_clearRect);
 SE_DECLARE_FUNC(js_engine_CanvasRenderingContext2D_closePath);

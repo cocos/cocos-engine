@@ -28,24 +28,22 @@ THE SOFTWARE.
 
 namespace cc {
 
-AsyncTaskPool *AsyncTaskPool::s_asyncTaskPool = nullptr;
+AsyncTaskPool *AsyncTaskPool::sAsyncTaskPool = nullptr;
 
 AsyncTaskPool *AsyncTaskPool::getInstance() {
-    if (s_asyncTaskPool == nullptr) {
-        s_asyncTaskPool = new (std::nothrow) AsyncTaskPool();
+    if (sAsyncTaskPool == nullptr) {
+        sAsyncTaskPool = new (std::nothrow) AsyncTaskPool();
     }
-    return s_asyncTaskPool;
+    return sAsyncTaskPool;
 }
 
 void AsyncTaskPool::destroyInstance() {
-    delete s_asyncTaskPool;
-    s_asyncTaskPool = nullptr;
+    delete sAsyncTaskPool;
+    sAsyncTaskPool = nullptr;
 }
 
-AsyncTaskPool::AsyncTaskPool() {
-}
+AsyncTaskPool::AsyncTaskPool() = default;
 
-AsyncTaskPool::~AsyncTaskPool() {
-}
+AsyncTaskPool::~AsyncTaskPool() = default;
 
 } // namespace cc

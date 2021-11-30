@@ -27,7 +27,6 @@
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "platform/Application.h"
 #include "platform/java/jni/JniHelper.h"
 
 #ifndef JCLS_EDITBOX
@@ -47,7 +46,7 @@ void getTextInputCallback() {
         return;
     }
 
-    auto      global = se::ScriptEngine::getInstance()->getGlobalObject();
+    auto*      global = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value jsbVal;
     if (global->getProperty("jsb", &jsbVal) && jsbVal.isObject()) {
         jsbVal.toObject()->getProperty("onTextInput", &textInputCallback);

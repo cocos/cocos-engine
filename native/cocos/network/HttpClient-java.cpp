@@ -584,7 +584,7 @@ private: // NOLINT(readability-redundant-access-specifiers)
 
 // Process Response
 void HttpClient::processResponse(HttpResponse *response, char *responseMessage) {
-    auto*              request    = response->getHttpRequest();
+    auto *            request     = response->getHttpRequest();
     HttpRequest::Type requestType = request->getRequestType();
 
     if (HttpRequest::Type::GET != requestType &&
