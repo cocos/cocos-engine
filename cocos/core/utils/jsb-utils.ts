@@ -84,7 +84,7 @@ export function defineArrayProxy (options: IArrayProxy) {
     });
 }
 
-function syncNodeValue (node: Node) {
+export function syncNodeValues (node: Node) {
     const lpos = node._lpos;
     let x = lpos.x;
     let y = lpos.y;
@@ -128,7 +128,6 @@ export function updateChildrenForDeserialize (node: Node) {
         return;
     }
     node._setChildren(node._children);
-    syncNodeValue(node);
     for (let i = 0, len = node._children.length; i < len; ++i) {
         const child = node._children[i];
         jsb.registerNativeRef(node, child);
