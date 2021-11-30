@@ -70,6 +70,8 @@ const imageAssetProto = ImageAsset.prototype;
 
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
+    this._width = 0;
+    this._height = 0;
     this._nativeData = {
         _data: null,
         width: 0,
@@ -92,7 +94,7 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     set (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             // @ts-expect-error internal API usage
-            value.format = value.format || this._format;
+            value.format = value.format || this.format;
         }
         this.reset(value);
     },
@@ -120,6 +122,8 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 
 imageAssetProto.reset = function (data: ImageSource) {
     this._nativeData = data;
+    this._width = data.width;
+    this._height = data.height;
 
     if (!(data instanceof HTMLElement)) {
         // @ts-expect-error internal api usage
@@ -128,10 +132,28 @@ imageAssetProto.reset = function (data: ImageSource) {
     this._syncDataToNative();
 };
 
+Object.defineProperty(imageAssetProto, 'width', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._nativeData.width || this._width;
+    }
+});
+
+Object.defineProperty(imageAssetProto, 'height', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._nativeData.height || this._height;
+    }
+});
+
 imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
-    this.width = data.width;
-    this.height = data.height;
+
+    this.setWidth(this._width);
+    this.setHeight(this._height);
+
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);
     }
@@ -148,8 +170,8 @@ imageAssetProto._deserialize = function (data: any) {
     if (typeof data === 'string') {
         fmtStr = data;
     } else {
-        this.width = data.w;
-        this.height = data.h;
+        this._width = data.w;
+        this._height = data.h;
         fmtStr = data.fmt;
     }
     const device = legacyCC.director.root.device;

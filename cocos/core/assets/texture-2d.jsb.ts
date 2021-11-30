@@ -62,6 +62,7 @@ const _descriptor$a = _applyDecoratedDescriptor(_class2$c.prototype, '_mipmaps',
 
 texture2DProto._ctor = function () {
     SimpleTexture.prototype._ctor.apply(this, arguments);
+    this._mipmaps = [];
     // for deserialization
     // _initializerDefineProperty(_this, 'isRGBE', _descriptor$b, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, '_mipmaps', _descriptor2$7, _assertThisInitialized(_this));
@@ -95,11 +96,10 @@ Object.defineProperty(texture2DProto, 'image', {
     configurable: true,
     enumerable: true,
     get () {
-        return this.getImage();
+        return this._mipmaps.length === 0 ? null : this._mipmaps[0];
     },
-    set (v) {
-        v._syncDataToNative();
-        this.setImage(v);
+    set (value) {
+        this.mipmaps = value ? [value] : [];
     }
 });
 
@@ -107,14 +107,14 @@ Object.defineProperty(texture2DProto, 'mipmaps', {
     configurable: true,
     enumerable: true,
     get () {
-        return this.getMipmaps();
+        return this._mipmaps;
     },
     set (arr) {
         for (let i = 0, len = arr.length; i < len; ++i) {
-            const v = arr[i];
-            v._syncDataToNative();
-            this.setMipmaps(v);
+            arr[i]._syncDataToNative();
         }
+        this._mipmaps = arr;
+        this.setMipmaps(arr);
     }
 });
 
