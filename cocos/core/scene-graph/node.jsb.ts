@@ -47,6 +47,7 @@ import {
     generateTargetMap,
 } from '../utils/prefab/utils';
 import { getClassByName, isChildClassOf } from '../utils/js-typed';
+import { syncNodeValues } from "../utils/jsb-utils";
 
 export const Node = jsb.Node;
 export type Node = jsb.Node;
@@ -548,7 +549,6 @@ nodeProto.setPosition = function (val: Readonly<Vec3> | number, y?: number, z?: 
     }
     oldSetPosition.call(this);
 };
-nodeProto.setPositionForJS = nodeProto.setPosition;
 
 nodeProto.getRotation = function (out?: Quat): Quat {
     const r = oldGetRotation.call(this);
@@ -586,7 +586,6 @@ nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: num
     }
     oldSetScale.call(this);
 };
-nodeProto.setScaleForJS = nodeProto.setScale;
 
 nodeProto.getWorldPosition = function (out?: Vec3): Vec3 {
     const r = oldGetWorldPosition.call(this);
@@ -901,6 +900,8 @@ nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     if (!dontSyncChildPrefab && prefabInstance) {
         createNodeWithPrefab(this);
     }
+
+    syncNodeValues(this);
 
     this.hasChangedFlags = TransformBit.TRS;
     this._dirtyFlags |= TransformBit.TRS;
