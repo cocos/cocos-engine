@@ -235,6 +235,10 @@ export class Button extends Component {
         //         this.normalSprite = this._previousNormalSprite;
         //     }
         // }
+        if (this._interactable === value) {
+            return;
+        }
+
         this._interactable = value;
         this._updateState();
 

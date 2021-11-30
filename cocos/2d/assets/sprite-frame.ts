@@ -404,6 +404,11 @@ export class SpriteFrame extends Asset {
             return;
         }
 
+        if (value === this._texture) {
+            console.warn(`set same texture ${this._texture.name}`);
+            return;
+        }
+
         this.reset({ texture: value }, true);
     }
 
