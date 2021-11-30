@@ -70,6 +70,8 @@ const imageAssetProto = ImageAsset.prototype;
 
 imageAssetProto._ctor = function (nativeAsset?: ImageSource) {
     jsb.Asset.prototype._ctor.apply(this, arguments);
+    this._width = 0;
+    this._height = 0;
     this._nativeData = {
         _data: null,
         width: 0,
