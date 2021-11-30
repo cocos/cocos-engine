@@ -94,7 +94,7 @@ Object.defineProperty(imageAssetProto, '_nativeAsset', {
     set (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             // @ts-expect-error internal API usage
-            value.format = value.format || this._format;
+            value.format = value.format || this.format;
         }
         this.reset(value);
     },
