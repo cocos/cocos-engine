@@ -400,13 +400,9 @@ export class Batcher2D implements IBatcher {
                 }
             }
 
-            if (assembler) {
-                assembler.fillBuffers(renderComp, this);
-            }
+            assembler.fillBuffers(renderComp, this);
         } else if (comp.node.hasChangedFlags || comp._renderDataDirty) {
-            if (assembler) {
-                assembler.fillCacheBuffer(comp, this);
-            }
+            assembler.fillCacheBuffer(comp, this);
             comp._renderDataDirty = false;
         }
     }
@@ -443,13 +439,9 @@ export class Batcher2D implements IBatcher {
                 }
             }
 
-            if (assembler) {
-                assembler.fillBuffers(renderComp, this);
-            }
+            assembler.fillBuffers(renderComp, this);
         } else if (comp.node.hasChangedFlags || comp._renderDataDirty) {
-            if (assembler) {
-                assembler.fillCacheBuffer(comp, this);
-            }
+            assembler.fillCacheBuffer(comp, this);
             comp._renderDataDirty = false;
         }
     }
