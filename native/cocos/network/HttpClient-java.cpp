@@ -32,8 +32,7 @@
 #include <cstdio>
 #include <queue>
 #include <sstream>
-
-#include "platform/Application.h"
+#include "application/ApplicationManager.h"
 #include "platform/FileUtils.h"
 #include "platform/java/jni/JniHelper.h"
 
@@ -95,7 +94,7 @@ public:
         }
     }
 
-    void setRequestMethod(const char *method) {
+    void setRequestMethod(const char *method) { // NOLINT
         _requestmethod = method;
 
         JniMethodInfo methodInfo;
@@ -139,7 +138,7 @@ public:
         return true;
     }
 
-    int connect() {
+    int connect() { // NOLINT
         int           suc = 0;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
@@ -156,7 +155,7 @@ public:
         return suc;
     }
 
-    void disconnect() {
+    void disconnect() { // NOLINT
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -170,7 +169,7 @@ public:
         }
     }
 
-    int getResponseCode() {
+    int getResponseCode() { // NOLINT
         int           responseCode = 0;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
@@ -187,7 +186,7 @@ public:
         return responseCode;
     }
 
-    char *getResponseMessage() {
+    char *getResponseMessage() { // NOLINT
         char *        message = nullptr;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
@@ -208,7 +207,7 @@ public:
         return message;
     }
 
-    void sendRequest(HttpRequest *request) {
+    void sendRequest(HttpRequest *request) { // NOLINT
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
                                            JCLS_HTTPCLIENT,
@@ -227,7 +226,7 @@ public:
         }
     }
 
-    size_t saveResponseCookies(const char *responseCookies, size_t count) {
+    size_t saveResponseCookies(const char *responseCookies, size_t count) { // NOLINT
         if (nullptr == responseCookies || strlen(responseCookies) == 0 || count == 0) {
             return 0;
         }
@@ -249,7 +248,7 @@ public:
         return count;
     }
 
-    char *getResponseHeaders() {
+    char *getResponseHeaders() { // NOLINT
         char *        headers = nullptr;
         JniMethodInfo methodInfo;
         if (JniHelper::getStaticMethodInfo(methodInfo,
@@ -270,7 +269,7 @@ public:
         return headers;
     }
 
-    char *getResponseContent(HttpResponse *response) {
+    char *getResponseContent(HttpResponse *response) { // NOLINT
         if (nullptr == response) {
             return nullptr;
         }
@@ -573,6 +572,7 @@ private:
         return _responseCookies;
     }
 
+private: // NOLINT(readability-redundant-access-specifiers)
     HttpClient *_client;
     jobject     _httpURLConnection;
     std::string _requestmethod;
@@ -730,7 +730,7 @@ void HttpClient::networkThread() {
 
         _schedulerMutex.lock();
         if (auto sche = _scheduler.lock()) {
-            sche->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this)); //NOLINT
+            sche->performFunctionInCocosThread(CC_CALLBACK_0(HttpClient::dispatchResponseCallbacks, this)); // NOLINT
         }
         _schedulerMutex.unlock();
     }
@@ -832,7 +832,7 @@ HttpClient::HttpClient()
   _requestSentinel(new HttpRequest()) {
     CC_LOG_DEBUG("In the constructor of HttpClient!");
     increaseThreadCount();
-    _scheduler = Application::getInstance()->getScheduler();
+    _scheduler = CC_CURRENT_ENGINE()->getScheduler();
 }
 
 HttpClient::~HttpClient() {
@@ -846,7 +846,7 @@ bool HttpClient::lazyInitThreadSemaphore() {
         return true;
     }
 
-    auto t = std::thread(CC_CALLBACK_0(HttpClient::networkThread, this)); //NOLINT
+    auto t = std::thread(CC_CALLBACK_0(HttpClient::networkThread, this)); // NOLINT
     t.detach();
     _isInited = true;
 
