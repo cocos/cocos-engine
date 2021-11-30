@@ -134,7 +134,7 @@ p.setStateTime = function (state, time) {
         if (state) {
             state.setTime(time);
             state.sample();
-        }    
+        }
     }
     else {
         time = state;
@@ -172,7 +172,7 @@ p.onResume = function () {
     let array = this._anims.array;
     for (let i = 0; i < array.length; ++i) {
         let anim = array[i];
-        
+
         // rebind animator to anim
         anim.animator = this;
 
@@ -230,7 +230,7 @@ function initClipData (root, state) {
 
     let events = clip.events;
 
-    if (!CC_EDITOR && events) {
+    if (events) {
         let curve;
 
         for (let i = 0, l = events.length; i < l; i++) {

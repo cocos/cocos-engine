@@ -367,15 +367,15 @@ let VideoPlayer = cc.Class({
                 impl.seekTo(this.currentTime);
                 impl.setFullScreenEnabled(this._isFullscreen);
                 this.pause();
-
-                impl.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
-                impl.setEventListener(EventType.PAUSED, this.onPaused.bind(this));
-                impl.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
-                impl.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
-                impl.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
-                impl.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
-                impl.setEventListener(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
             }
+
+            impl.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
+            impl.setEventListener(EventType.PAUSED, this.onPaused.bind(this));
+            impl.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
+            impl.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
+            impl.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
+            impl.setEventListener(EventType.CLICKED, this.onClicked.bind(this));
+            impl.setEventListener(EventType.READY_TO_PLAY, this.onReadyToPlay.bind(this));
         }
     },
 
@@ -553,7 +553,7 @@ let VideoPlayer = cc.Class({
     play () {
         if (this._impl) {
             this._syncVolume();
-            this._impl.play();
+                this._impl.play();
         }
     },
 

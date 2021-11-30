@@ -318,7 +318,17 @@ let VideoPlayerImpl = cc.Class({
     play: function () {
         let video = this._video;
         if (!video || !this._visible || this._playing) return;
-        video.play();
+        const promise = video.play();
+        // the play API can only be initiated by user gesture.
+        if (window.Promise && promise instanceof Promise) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            promise.catch((error) => {
+                // Auto-play was prevented
+                // Show a UI element to let the user manually start playback
+            }).then(() => {
+                // calibration time
+            });
+        }
     },
 
     pause: function () {
