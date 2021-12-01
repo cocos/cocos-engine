@@ -469,6 +469,8 @@ NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
 const oldGetPosition = nodeProto.getPosition;
 const oldSetPosition = nodeProto.setPosition;
 const oldGetRotation = nodeProto.getRotation;
+const oldSetRotation = nodeProto.setRotation;
+const oldSetRotationFromEuler = nodeProto.setRotationFromEuler;
 const oldGetScale = nodeProto.getScale;
 const oldSetScale = nodeProto.setScale;
 const oldGetWorldPosition = nodeProto.getWorldPosition;
@@ -534,18 +536,18 @@ nodeProto.setPosition = function (val: Readonly<Vec3> | number, y?: number, z?: 
     if (y === undefined && z === undefined) {
         _tempFloatArray[0] = 3;
         const pos = val as Vec3;
-        _tempFloatArray[1] = pos.x;
-        _tempFloatArray[2] = pos.y;
-        _tempFloatArray[3] = pos.z;
+        this._lpos.x = _tempFloatArray[1] = pos.x;
+        this._lpos.y = _tempFloatArray[2] = pos.y;
+        this._lpos.z = _tempFloatArray[3] = pos.z;
     } else if (z === undefined) {
         _tempFloatArray[0] = 2;
-        _tempFloatArray[1] = val as number;
-        _tempFloatArray[2] = y;
+        this._lpos.x = _tempFloatArray[1] = val as number;
+        this._lpos.y = _tempFloatArray[2] = y;
     } else {
         _tempFloatArray[0] = 3;
-        _tempFloatArray[1] = val as number;
-        _tempFloatArray[2] = y as number;
-        _tempFloatArray[3] = z as number;
+        this._lpos.x = _tempFloatArray[1] = val as number;
+        this._lpos.y = _tempFloatArray[2] = y as number;
+        this._lpos.z = _tempFloatArray[3] = z as number;
     }
     oldSetPosition.call(this);
 };
@@ -558,6 +560,40 @@ nodeProto.getRotation = function (out?: Quat): Quat {
     return Quat.copy(this._rotationCache || (this._rotationCache = new Quat()), r);
 };
 
+nodeProto.setRotation = function (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
+    if (y === undefined || z === undefined || w === undefined) {
+        const rot = val as Readonly<Quat>;
+        this._lrot.x = _tempFloatArray[0] = rot.x;
+        this._lrot.y = _tempFloatArray[1] = rot.y;
+        this._lrot.z = _tempFloatArray[2] = rot.z;
+        this._lrot.w = _tempFloatArray[3] = rot.w;
+    } else {
+        this._lrot.x = _tempFloatArray[0] = val as number;
+        this._lrot.y = _tempFloatArray[1] = y;
+        this._lrot.z = _tempFloatArray[2] = z;
+        this._lrot.w = _tempFloatArray[3] = w;
+    }
+
+    oldSetRotation.call(this);
+};
+
+nodeProto.setRotationFromEuler = function (val: Vec3 | number, y?: number, zOpt?: number): void {
+    const z = zOpt === undefined ? this._euler.z : zOpt;
+
+    if (y === undefined) {
+        const euler = (val as Vec3);
+        this._euler.x = _tempFloatArray[0] = euler.x;
+        this._euler.y = _tempFloatArray[1] = euler.y;
+        this._euler.z = _tempFloatArray[2] = euler.z;
+    } else {
+        this._euler.x = _tempFloatArray[0] = val as number;
+        this._euler.y = _tempFloatArray[1] = y;
+        this._euler.z = _tempFloatArray[2] = z;
+    }
+
+    oldSetRotationFromEuler.call(this);
+};
+
 nodeProto.getScale = function (out?: Vec3): Vec3 {
     const r = oldGetScale.call(this);
     if (out) {
@@ -566,23 +602,22 @@ nodeProto.getScale = function (out?: Vec3): Vec3 {
     return Vec3.copy(this._scaleCache || (this._scaleCache = new Vec3()), r);
 };
 
-
 nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: number) {
     if (y === undefined && z === undefined) {
         _tempFloatArray[0] = 3;
         const scale = val as Vec3;
-        _tempFloatArray[1] = scale.x;
-        _tempFloatArray[2] = scale.y;
-        _tempFloatArray[3] = scale.z;
+        this._lscale.x = _tempFloatArray[1] = scale.x;
+        this._lscale.y = _tempFloatArray[2] = scale.y;
+        this._lscale.z = _tempFloatArray[3] = scale.z;
     } else if (z === undefined) {
         _tempFloatArray[0] = 2;
-        _tempFloatArray[1] = val as number;
-        _tempFloatArray[2] = y;
+        this._lscale.x = _tempFloatArray[1] = val as number;
+        this._lscale.y = _tempFloatArray[2] = y;
     } else {
         _tempFloatArray[0] = 3;
-        _tempFloatArray[1] = val as number;
-        _tempFloatArray[2] = y;
-        _tempFloatArray[3] = z;
+        this._lscale.x = _tempFloatArray[1] = val as number;
+        this._lscale.y = _tempFloatArray[2] = y;
+        this._lscale.z = _tempFloatArray[3] = z;
     }
     oldSetScale.call(this);
 };
@@ -901,8 +936,6 @@ nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
         createNodeWithPrefab(this);
     }
 
-    syncNodeValues(this);
-
     this.hasChangedFlags = TransformBit.TRS;
     this._dirtyFlags |= TransformBit.TRS;
     this._uiProps.uiTransformDirty = true;
@@ -926,6 +959,9 @@ nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     }
 
     applyTargetOverrides(this);
+
+    // Sync node _lpos, _lrot, _lscale to native
+    syncNodeValues(this);
 };
 
 nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
@@ -1125,7 +1161,6 @@ nodeProto._ctor = function (name?: string) {
     this._lpos = new Vec3();
     this._lrot = new Quat();
     this._lscale = new Vec3(1, 1, 1);
-    this._layer = null;// Layers.Enum.DEFAULT;
     this._euler = new Vec3();
     const lpos = this._lpos;
     lpos.x = lpos.y = lpos.z = null;
