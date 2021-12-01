@@ -40,6 +40,7 @@ import { legacyCC } from '../../../core/global-exports';
 import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { BlendFactor } from '../../../core/gfx';
+import { screenAdapter } from 'pal/screen-adapter';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -433,15 +434,22 @@ export const ttfUtils =  {
         _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
 
         let recreate = false;
-        if (_canvas!.width !== _canvasSize.width) {
-            _canvas!.width = _canvasSize.width;
+        const dpr = Math.ceil(screenAdapter.devicePixelRatio);
+        const w = _canvasSize.width * dpr;
+        const h = _canvasSize.height * dpr;
+
+        if (_canvas!.width !== w) {
+            _canvas!.style.width = `${_canvasSize.width}px`;
+            _canvas!.width = w;
             recreate = true;
         }
 
-        if (_canvas!.height !== _canvasSize.height) {
-            _canvas!.height = _canvasSize.height;
+        if (_canvas!.height !== h) {
+            _canvas!.height = h;
+            _canvas!.style.height = `${_canvasSize.height}px`;
             recreate = true;
         }
+        _context?.scale(dpr,dpr);
 
         if (recreate) _context!.font = _fontDesc;
         // align
