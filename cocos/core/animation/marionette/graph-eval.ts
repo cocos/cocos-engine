@@ -11,7 +11,7 @@ import { VariableNotDefinedError, VariableTypeMismatchedError } from './errors';
 import { MotionState } from './motion-state';
 import { AnimationMask } from './animation-mask';
 import { debug, warnID } from '../../platform/debug';
-import { BlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
+import { BlendStateBuffer, LayeredBlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { AnimationClip } from '../animation-clip';
 import type { AnimationController } from './animation-controller';
@@ -20,7 +20,7 @@ import { InteractiveState } from './state';
 
 export class AnimationGraphEval {
     private declare _layerEvaluations: LayerEval[];
-    private _blendBuffer = new BlendStateBuffer();
+    private _blendBuffer = new LayeredBlendStateBuffer();
     private _currentTransitionCache: TransitionStatus = {
         duration: 0.0,
         time: 0.0,
@@ -57,6 +57,7 @@ export class AnimationGraphEval {
         }
         for (const layerEval of this._layerEvaluations) {
             layerEval.update(deltaTime);
+            this._blendBuffer.commitLayerChanges(layerEval.weight);
         }
         if (GRAPH_DEBUG_ENABLED) {
             graphDebug(`Weights: ${getWeightsStats()}`);
@@ -168,10 +169,12 @@ interface LayerContext extends BindContext {
 class LayerEval {
     public declare name: string;
 
+    public declare weight: number;
+
     constructor (layer: Layer, context: LayerContext) {
         this.name = layer.name;
         this._controller = context.controller;
-        this._weight = layer.weight;
+        this.weight = layer.weight;
         const { entry, exit } = this._addStateMachine(layer.stateMachine, null, {
             ...context,
         }, layer.name);
@@ -251,7 +254,6 @@ class LayerEval {
     }
 
     private declare _controller: AnimationController;
-    private _weight: number;
     private _nodes: NodeEval[] = [];
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;
@@ -809,14 +811,8 @@ class LayerEval {
 
         const toNodeName = toNode?.name ?? '<Empty>';
 
-        const weight = this._weight;
-        graphDebugGroup(
-            `[SubStateMachine ${this.name}]: TransitionUpdate: ${fromNode.name} -> ${toNodeName}`
-            + `with ratio ${ratio} in base weight ${this._weight}.`,
-        );
-
-        this._fromWeight = weight * (1.0 - ratio);
-        this._toWeight = weight * ratio;
+        this._fromWeight = (1.0 - ratio);
+        this._toWeight = ratio;
 
         const shouldUpdatePorts = contrib !== 0;
         const hasFinished = ratio === 1.0;

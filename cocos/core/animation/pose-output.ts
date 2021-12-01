@@ -1,4 +1,4 @@
-import { BlendStateBuffer, BlendingProperty, BlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
+import { BlendStateBuffer, BlendingPropertyName, BlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import type { Node } from '../scene-graph';
 
 export type Pose = BlendStateBuffer;
@@ -17,7 +17,7 @@ export class PoseOutput {
         this._blendStateWriters.length = 0;
     }
 
-    public createPoseWriter (node: Node, property: BlendingProperty, constants: boolean) {
+    public createPoseWriter (node: Node, property: BlendingPropertyName, constants: boolean) {
         const writer = this._pose.createWriter(node, property, this, constants);
         this._blendStateWriters.push(writer);
         return writer;
