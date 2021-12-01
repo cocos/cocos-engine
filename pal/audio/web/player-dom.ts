@@ -26,6 +26,19 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
 
 export class OneShotAudioDOM {
     private _domAudio: HTMLAudioElement;
+    private _playbackRate = 1;
+
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._playbackRate = val;
+        if (this._domAudio) {
+            this._domAudio.playbackRate = this._playbackRate;
+        }
+    }
+
     private _onPlayCb?: () => void;
     get onPlay () {
         return this._onPlayCb;
@@ -66,6 +79,7 @@ export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
     private _state: AudioState = AudioState.INIT;
     private _onEnded: () => void;
+    private _playbackRate = 1;
 
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
@@ -187,6 +201,14 @@ export class AudioPlayerDOM implements OperationQueueable {
     }
     get duration (): number {
         return this._domAudio.duration;
+    }
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._playbackRate = val;
+        this._domAudio.playbackRate = this._playbackRate;
     }
     get currentTime (): number {
         return this._domAudio.currentTime;

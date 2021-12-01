@@ -14,6 +14,15 @@ export class OneShotAudio {
     private _id: number = INVALID_AUDIO_ID;
     private _url: string;
     private _volume: number;
+    private _playbackRate = 1;
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._playbackRate = val;
+    }
+
     private _onPlayCb?: () => void;
     get onPlay () {
         return this._onPlayCb;
@@ -64,6 +73,7 @@ export class AudioPlayer implements OperationQueueable {
         loop: false,
         currentTime: 0,
         volume: 1,
+        playbackRate: 1,
     }
 
     constructor (url: string) {
@@ -172,6 +182,13 @@ export class AudioPlayer implements OperationQueueable {
             return this._cachedState.duration;
         }
         return audioEngine.getDuration(this._id);
+    }
+    get playbackRate (): number {
+        return this._cachedState.playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._cachedState.playbackRate = val;
     }
     get currentTime (): number {
         if (!this._isValid) {

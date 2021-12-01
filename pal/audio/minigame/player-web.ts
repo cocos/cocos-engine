@@ -1,6 +1,6 @@
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
-import { clamp01 } from '../../../cocos/core';
+import { clamp01, clamp } from '../../../cocos/core';
 import { EventTarget } from '../../../cocos/core/event';
 import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
@@ -14,6 +14,18 @@ export class OneShotAudioWeb {
     private _bufferSourceNode: AudioBufferSourceNode;
     private _onPlayCb?: () => void;
     private _url: string;
+    private _playbackRate = 1;
+
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._playbackRate = val;
+        if (this._bufferSourceNode) {
+            this._bufferSourceNode.playbackRate.value = this._playbackRate;
+        }
+    }
 
     get onPlay () {
         return this._onPlayCb;
@@ -69,6 +81,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _state: AudioState = AudioState.INIT;
     private _audioTimer: AudioTimer;
     private _readyToHandleOnShow = false;
+    private _playbackRate = 1;
 
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
@@ -187,6 +200,17 @@ export class AudioPlayerWeb implements OperationQueueable {
     get duration (): number {
         return this._audioBuffer.duration;
     }
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._playbackRate = val;
+        if (this._sourceNode) {
+            this._sourceNode.playbackRate.value = this._playbackRate;
+        }
+    }
+
     get currentTime (): number {
         return this._audioTimer.currentTime;
     }
@@ -219,6 +243,7 @@ export class AudioPlayerWeb implements OperationQueueable {
             this._sourceNode = audioContext!.createBufferSource();
             this._sourceNode.buffer = this._audioBuffer;
             this._sourceNode.loop = this._loop;
+            this._sourceNode.playbackRate.value = this._playbackRate;
             this._sourceNode.connect(this._gainNode);
 
             this._sourceNode.start(0, this._audioTimer.currentTime);

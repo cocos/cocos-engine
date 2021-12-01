@@ -8,6 +8,13 @@ type AbstractAudioPlayer = AudioPlayerDOM | AudioPlayerWeb;
 
 export class OneShotAudio {
     private _audio:  AbstractOneShotAudio;
+    get playbackRate (): number {
+        return this._audio.playbackRate;
+    }
+    set playbackRate (val: number) {
+        this._audio.playbackRate = val;
+    }
+
     get onPlay () {
         return this._audio.onPlay;
     }
@@ -89,6 +96,8 @@ export class AudioPlayer {
     get volume (): number { return this._player.volume; }
     set volume (val: number) { this._player.volume = val; }
     get duration (): number { return this._player.duration; }
+    get playbackRate (): number { return this._player.playbackRate; }
+    set playbackRate (val: number) { this._player.playbackRate = val; }
     get currentTime (): number { return this._player.currentTime; }
     seek (time: number): Promise<void> { return this._player.seek(time); }
 

@@ -70,6 +70,8 @@ export class AudioSource extends Component {
     protected _playOnAwake = true;
     @serializable
     protected _volume = 1;
+    @serializable
+    protected _playbackRate = 1;
 
     private _cachedCurrentTime = 0;
 
@@ -197,6 +199,30 @@ export class AudioSource extends Component {
         return this._volume;
     }
 
+    /**
+     * @en
+     * The playback rate of this audio source (0.0 to 10.0).<br>
+     * Note: Playback rate may be ineffective on some platforms.
+     * @zh
+     * 此音频源的播放速率（0.0 到 10.0）。<br>
+     * 注意：播放速率在某些平台上可能无效。<br>
+     */
+    @range([0.0, 10.0])
+    @tooltip('i18n:audio.playbackrate')
+    set playbackRate (val: number) {
+        if (Number.isNaN(val)) { console.warn('illegal playback rate!'); return; }
+        val = clamp(val, 0, val);
+        if (this._player) {
+            this._player.playbackRate = val;
+            this._playbackRate = this._player.playbackRate;
+        } else {
+            this._playbackRate = val;
+        }
+    }
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+
     public onLoad () {
         this._syncPlayer();
     }
@@ -312,6 +338,7 @@ export class AudioSource extends Component {
             oneShotAudio.onEnd = () => {
                 audioManager.removePlaying(oneShotAudio);
             };
+            oneShotAudio.playbackRate = this.playbackRate;
             oneShotAudio.play();
         }).catch((e) => {});
     }

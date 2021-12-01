@@ -14,6 +14,12 @@ declare module 'pal/audio' {
         private constructor (nativeAudio: unknown, volume: number);
 
         /**
+         * get or set current playback rate of this player, ranged from 0 to N, default is 1.
+         */
+        get playbackRate (): number;
+        set playbackRate (val: number);
+
+        /**
          * Play the audio.
          */
         public play (): void;
@@ -116,6 +122,12 @@ declare module 'pal/audio' {
          * Note this field is immutable, if you want to set the current time, please call the seek() method instead.
          */
         get currentTime (): number;
+
+        /**
+         * get or set current playback rate of this player, ranged from 0 to N, default is 1.
+         */
+        get playbackRate (): number;
+        set playbackRate (val: number);
 
         /**
          * Asynchronously seeks the player's playing time onto specified location.

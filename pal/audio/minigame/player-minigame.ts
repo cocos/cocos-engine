@@ -8,6 +8,15 @@ import AudioTimer from '../audio-timer';
 
 export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
+    private _playbackRate = 1;
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._playbackRate = val;
+    }
+
     private _onPlayCb?: () => void;
     get onPlay () {
         return this._onPlayCb;
@@ -54,6 +63,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onEnded: () => void;
     private _audioTimer: AudioTimer;
     private _readyToHandleOnShow = false;
+    private _playbackRate = 1;
 
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
@@ -201,6 +211,13 @@ export class AudioPlayerMinigame implements OperationQueueable {
     }
     get duration (): number {
         return this._innerAudioContext.duration;
+    }
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, val);
+        this._playbackRate = val;
     }
     get currentTime (): number {
         // return this._innerAudioContext.currentTime;
