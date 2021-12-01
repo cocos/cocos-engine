@@ -161,7 +161,10 @@ export class RenderData extends BaseRenderData {
         if (this.nodeDirty) {
             this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
             this.layer = comp.node.layer;
-            this.nodeDirty = false;
+            // Hack for updateRenderData when node not add to scene
+            if (this.renderScene !== null) {
+                this.nodeDirty = false;
+            }
             this.hashDirty = true;
         }
         if (this.textureDirty) {
