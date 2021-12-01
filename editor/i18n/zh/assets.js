@@ -316,7 +316,7 @@ module.exports = {
             'illegal-inspector-url': "Inspector的路径不合法",
         },
         animationGraph: {
-            edit: '打开动画图面板进行编辑',
+            edit: '编辑',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
     },
