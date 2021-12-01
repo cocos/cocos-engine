@@ -152,11 +152,18 @@ export class SkinningModel extends MorphModel {
             Vec3.min(v3_min, v3_min, v3_1);
             Vec3.max(v3_max, v3_max, v3_2);
         }
-        const worldBounds = this._worldBounds;
-        if (this._modelBounds && worldBounds) {
-            AABB.fromPoints(this._modelBounds, v3_min, v3_max);
-            // @ts-expect-error TS2445
-            this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
+
+        // console.log(`v3_min: ${JSON.stringify(v3_min)}, v3_max: ${JSON.stringify(v3_max)}`);
+        if (JSB) {
+            // cjh TODO: Optimize
+            (this as any).updateWorldBoundsForJSSkinningModel(v3_min, v3_max);
+        } else {
+            const worldBounds = this._worldBounds;
+            if (this._modelBounds && worldBounds) {
+                AABB.fromPoints(this._modelBounds, v3_min, v3_max);
+                // @ts-expect-error TS2445
+                this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
+            }
         }
     }
 

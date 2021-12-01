@@ -124,6 +124,9 @@ export class BakedSkinningModel extends MorphModel {
             const node = this.transform;
             // @ts-expect-error TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+            if (JSB) {
+                (this as any).updateWorldBoundsForJSBakedSkinningModel(worldBounds);
+            }
         }
     }
 
