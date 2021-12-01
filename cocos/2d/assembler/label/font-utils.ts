@@ -36,6 +36,7 @@ import { BufferTextureCopy } from '../../../core/gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../core/director';
 import { macro, warnID } from '../../../core';
+import { screenAdapter } from 'pal/screen-adapter';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -58,9 +59,13 @@ export class CanvasPool {
         if (!data) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
+
+            context!.imageSmoothingEnabled = true ;
+            context!.imageSmoothingQuality = 'high';
+
             data = {
                 canvas,
-                context,
+                context, 
             };
         }
 
@@ -163,15 +168,20 @@ class LetterTexture {
             this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize + blank;
             this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) / 2;
         }
-
-        if (this.canvas.width !== this.width) {
-            this.canvas.width = this.width;
+        const dpr = Math.ceil(screenAdapter.devicePixelRatio);
+        const w = this.width * dpr;
+        const h = this.height * dpr;
+        if (this.canvas.width !== w) {
+            this.canvas.style.width = `${this.width}px`;
+            this.canvas.width = w;
         }
 
         if (this.canvas.height !== this.height) {
             this.canvas.height = this.height;
+            this.canvas.style.height = `${this.height}px`;
+            this.canvas.height = h;
         }
-
+        this.context?.scale(dpr, dpr);
         if (!this.image) {
             this.image = new ImageAsset();
         }
