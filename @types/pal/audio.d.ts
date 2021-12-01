@@ -108,7 +108,7 @@ declare module 'pal/audio' {
         set volume (val: number);
 
         /**
-         * OH NO
+         * get or set current playback rate of this player, ranged from 0 to 10, default is 1.
          */
         get playbackRate (): number;
         set playbackRate (val: number);

@@ -248,9 +248,11 @@ export class AudioSource extends Component {
     
     /**
      * @en
-     * OH NO
+     * The playback rate of this audio source (0.0 to 10.0).<br>
+     * Note: Playback rate may be ineffective on some platforms.
      * @zh
-     * 不好了！
+     * 此音频源的播放速率（0.0 到 10.0）。<br>
+     * 注意：播放速率在某些平台上可能无效。<br>
      */
     @range([0.0, 10.0])
     @tooltip('i18n:audio.playbackRate')

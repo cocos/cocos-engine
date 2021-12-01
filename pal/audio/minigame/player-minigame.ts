@@ -49,7 +49,7 @@ export class OneShotAudioMinigame {
         this._onEndCb = cb;
     }
 
-    private constructor (nativeAudio: InnerAudioContext, volume: number) {
+    private constructor (nativeAudio: InnerAudioContext, volume: number, playbackRate: number) {
         this._innerAudioContext = nativeAudio;
         nativeAudio.volume = volume;
         nativeAudio.onPlay(() => {
@@ -104,6 +104,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onSeeked: () => void;
     private _onEnded: () => void;
     private _readyToHandleOnShow = false;
+    
+    // note: has no effect, this only exists to make API consistent between all platforms
+    private _playbackRate = 1;
 
     private _resetSeekCache (): void {
         this._cacheTime = 0;
@@ -278,12 +281,12 @@ export class AudioPlayerMinigame implements OperationQueueable {
             innerAudioContext.src = url;
         });
     }
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioMinigame> {
+    static loadOneShotAudio (url: string, volume: number, playbackRate: number): Promise<OneShotAudioMinigame> {
         return new Promise((resolve, reject) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                resolve(new (OneShotAudioMinigame as any)(innerAudioContext, volume));
+                resolve(new (OneShotAudioMinigame as any)(innerAudioContext, volume, playbackRate));
             }).catch(reject);
         });
     }
@@ -303,6 +306,13 @@ export class AudioPlayerMinigame implements OperationQueueable {
     set volume (val: number) {
         val = clamp01(val);
         this._innerAudioContext.volume = val;
+    }
+    get playbackRate (): number {
+        return this._innerAudioContext.volume;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, 10);
+        this._playbackRate = val;
     }
     get duration (): number {
         // KNOWN ISSUES: duration doesn't work well
