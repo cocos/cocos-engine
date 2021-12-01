@@ -138,6 +138,7 @@ export class OneShotAudioWeb {
         this._bufferSourceNode = audioContextAgent!.createBufferSource(audioBuffer, false);
         const gainNode = audioContextAgent!.createGain(volume);
         this._bufferSourceNode.connect(gainNode);
+        this._bufferSourceNode.playbackRate.value = this._playbackRate;
         audioContextAgent!.connectContext(gainNode);
     }
 

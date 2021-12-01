@@ -349,6 +349,7 @@ export class AudioSource extends Component {
             if (this._player) {
                 this._player.loop = this._loop;
                 this._player.volume = this._volume;
+                this._player.playbackRate = this._playbackRate;
                 this._operationsBeforeLoading.forEach((opName) => { this[opName]?.(); });
                 this._operationsBeforeLoading.length = 0;
             }

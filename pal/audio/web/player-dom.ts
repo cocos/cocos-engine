@@ -87,6 +87,7 @@ export class AudioPlayerDOM implements OperationQueueable {
 
     constructor (nativeAudio: HTMLAudioElement) {
         this._domAudio = nativeAudio;
+        this._domAudio.playbackRate = this._playbackRate;
 
         // event
         systemInfo.on('hide', this._onHide, this);
