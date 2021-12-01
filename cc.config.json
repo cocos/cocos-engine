@@ -78,7 +78,7 @@
                 "cocos/core/assets/rendering-sub-mesh.ts": "cocos/core/assets/rendering-sub-mesh.jsb.ts",
                 "cocos/3d/assets/mesh.ts":"cocos/3d/assets/mesh.jsb.ts",
                 "cocos/3d/assets/skeleton.ts":"cocos/3d/assets/skeleton.jsb.ts",
-                "cocos/3d/models/MorphModel.ts":"cocos/3d/models/MorphModel.jsb.ts"
+                "cocos/3d/models/morph-model.ts":"cocos/3d/models/morph-model.jsb.ts"
             }
         },
         {
