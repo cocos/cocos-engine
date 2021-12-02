@@ -312,7 +312,7 @@ let VideoPlayer = cc.Class({
 
             if (!CC_EDITOR) {
                 impl.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
-                impl.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
+                impl.setEventListener(EventType.PAUSED, this.onPaused.bind(this));
                 impl.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
                 impl.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
                 impl.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
@@ -373,7 +373,7 @@ let VideoPlayer = cc.Class({
         this.node.emit('playing', this);
     },
 
-    onPasued () {
+    onPaused () {
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit('paused', this);
     },

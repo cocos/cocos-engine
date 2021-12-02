@@ -285,7 +285,6 @@ class ScreenAdapter extends EventTarget {
         this.orientation = orientationMap[options.configOrientation];
         this._exactFitScreen = options.exactFitScreen;
         this._resizeFrame();
-        this._cbToUpdateFrameBuffer();
     }
 
     public requestFullScreen (): Promise<void> {
