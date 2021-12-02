@@ -37,8 +37,8 @@ export class MouseInputSource {
     private _getLocation (mouseEvent: MouseEvent): Vec2 {
         const canvasRect = this._getCanvasRect();
         const dpr = screenAdapter.devicePixelRatio;
-        let x = this._pointLocked ? (this._preMousePos.x / dpr + mouseEvent.movementX) : (mouseEvent.clientX - canvasRect.x);
-        let y = this._pointLocked ? (this._preMousePos.y / dpr - mouseEvent.movementY) : (canvasRect.y + canvasRect.height - mouseEvent.clientY);
+        let x = this._pointLocked ? (this._preMousePos.x / dpr) : (mouseEvent.clientX - canvasRect.x);
+        let y = this._pointLocked ? (this._preMousePos.y / dpr) : (canvasRect.y + canvasRect.height - mouseEvent.clientY);
         x *= dpr;
         y *= dpr;
         return new Vec2(x, y);
