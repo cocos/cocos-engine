@@ -27,7 +27,7 @@
                 android:label="@string/app_name"
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                 android:launchMode="singleTask"
-                android:taskAffinity="" >
+                android:exported="true">
             <intent-filter android:order="1">
                 <action android:name="android.intent.action.VIEW" />
 
