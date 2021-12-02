@@ -28,8 +28,8 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global_init.h"
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #include "platform/win32/View-win32.h"
-extern std::shared_ptr<cc::View> cc_get_application_view();
+    #include "cocos/application/ApplicationManager.h"
+    #include "cocos/platform/interfaces/modules/ISystemWindow.h"
 #endif
 namespace {
 se::Value                 tickVal;
@@ -244,7 +244,7 @@ void EventDispatcher::dispatchTickEvent(float /*dt*/) {
     prevTime = std::chrono::steady_clock::now();
 
     se::ValueArray args;
-    int64_t      milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
+    int64_t        milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
     args.push_back(se::Value(static_cast<double>(milliSeconds)));
 
     tickVal.toObject()->call(args, nullptr);
@@ -293,7 +293,7 @@ void EventDispatcher::dispatchEnterBackgroundEvent() {
 }
 
 void EventDispatcher::dispatchEnterForegroundEvent() {
-    EventDispatcher::doDispatchEvent(EVENT_COME_TO_FOREGROUND, "onResume", se::EmptyValueArray); 
+    EventDispatcher::doDispatchEvent(EVENT_COME_TO_FOREGROUND, "onResume", se::EmptyValueArray);
 }
 
 void EventDispatcher::dispatchMemoryWarningEvent() {
@@ -316,7 +316,6 @@ void EventDispatcher::dispatchRecreateWindowEvent() {
     EventDispatcher::doDispatchEvent(EVENT_RECREATE_WINDOW, "", se::EmptyValueArray);
 }
 
-
 void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunctionName, const std::vector<se::Value> &args) {
     if (!se::ScriptEngine::getInstance()->isValid()) {
         return;
@@ -325,9 +324,10 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
     if (eventName) {
         CustomEvent event;
         event.name = eventName;
-        #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        event.args->ptrVal = cc_get_application_view()->getWindowHandler();
-        #endif
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+        CCASSERT(CC_GET_PLATFORM_INTERFACE(ISystemWindow) != nullptr, "System window interface does not exist");
+        event.args->ptrVal = reinterpret_cast<void *>(CC_GET_PLATFORM_INTERFACE(ISystemWindow)->getWindowHandler());
+#endif
         EventDispatcher::dispatchCustomEvent(event);
     }
 
