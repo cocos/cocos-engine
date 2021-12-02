@@ -122,8 +122,6 @@ imageAssetProto._setRawAsset = function (filename: string, inLibrary = true) {
 
 imageAssetProto.reset = function (data: ImageSource) {
     this._nativeData = data;
-    this._width = data.width;
-    this._height = data.height;
 
     if (!(data instanceof HTMLElement)) {
         // @ts-expect-error internal api usage
@@ -150,6 +148,8 @@ Object.defineProperty(imageAssetProto, 'height', {
 
 imageAssetProto._syncDataToNative = function () {
     const data: any = this._nativeData;
+    this._width = data.width;
+    this._height = data.height;
 
     this.setWidth(this._width);
     this.setHeight(this._height);
