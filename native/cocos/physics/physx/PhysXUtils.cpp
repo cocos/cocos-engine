@@ -44,13 +44,5 @@ void pxSetFromTwoVectors(physx::PxQuat &out, const physx::PxVec3 &a, const physx
     }
 }
 
-physx::PxRigidActor &getTempRigidActor() {
-    static physx::PxRigidActor *tempRigidActor = nullptr;
-    if (!tempRigidActor) {
-        tempRigidActor = PxGetPhysics().createRigidDynamic(physx::PxTransform{physx::PxIdentity});
-    }
-    return *tempRigidActor;
-}
-
 } // namespace physics
 } // namespace cc

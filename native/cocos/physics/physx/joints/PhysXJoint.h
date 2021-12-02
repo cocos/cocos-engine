@@ -49,6 +49,8 @@ public:
     void             setEnableCollision(bool v) override;
     virtual void     updateScale0() = 0;
     virtual void     updateScale1() = 0;
+    static physx::PxRigidActor &getTempRigidActor();
+    static void releaseTempRigidActor();
 
 protected:
     physx::PxJoint * _mJoint{nullptr};
@@ -56,6 +58,9 @@ protected:
     PhysXSharedBody *_mConnectedBody{nullptr};
     bool             _mEnableCollision{false};
     virtual void     onComponentSet() = 0;
+
+private:
+    static physx::PxRigidActor* tempRigidActor;
 };
 
 } // namespace physics
