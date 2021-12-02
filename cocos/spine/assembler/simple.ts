@@ -210,14 +210,6 @@ export const simple: IAssembler = {
         // copy all vertexData
         const strideFloat = renderData.floatStride;
         vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), floatOffset);
-        for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = floatOffset + i * strideFloat;
-            _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-            _vec3u_temp.transformMat4(matrix);
-            vBuf[pOffset] = _vec3u_temp.x;
-            vBuf[pOffset + 1] = _vec3u_temp.y;
-            vBuf[pOffset + 2] = _vec3u_temp.z;
-        }
 
         const srcIOffset = renderData.indicesStart;
         for (let i = 0; i < renderData.indicesCount; i += 1) {

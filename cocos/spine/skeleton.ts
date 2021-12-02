@@ -17,7 +17,7 @@ import { VertexEffectDelegate } from './vertex-effect-delegate';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { Graphics } from '../2d/components/graphics';
-import { MaterialInstance } from '../core/renderer';
+import { MacroRecord, MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
 import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
@@ -109,6 +109,8 @@ export class SpineSocket {
 
 js.setClassAlias(SpineSocket, 'sp.Skeleton.SpineSocket');
 
+const CC_USE_LOCAL = 'USE_LOCAL';
+const CC_TWO_COLORED = 'TWO_COLORED';
 /**
  * @en
  * The skeleton of Spine <br/>
@@ -554,6 +556,7 @@ export class Skeleton extends Renderable2D {
     protected _socketNodes: Map<number, Node> = new Map();
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
+    private _defines: MacroRecord;
     // CONSTRUCTOR
     constructor () {
         super();
@@ -570,6 +573,10 @@ export class Skeleton extends Renderable2D {
         this.attachUtil = new AttachUtil();
         setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
         setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        this._defines = {
+            CC_USE_LOCAL : true,
+            CC_TWO_COLORED : false,
+        };
     }
 
     // override base class disableRender to clear post render flag
@@ -1322,7 +1329,9 @@ export class Skeleton extends Renderable2D {
                 }],
             },
         });
-        inst.recompileShaders({ TWO_COLORED: useTwoColor });
+        this._defines[CC_TWO_COLORED] = useTwoColor;
+        this._defines[CC_USE_LOCAL] = true;
+        inst.recompileShaders(this._defines);
         return inst;
     }
 
@@ -1372,7 +1381,7 @@ export class Skeleton extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.texture, this._assembler, this.node);
                 }
                 this.material = mat;
             }
