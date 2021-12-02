@@ -644,6 +644,9 @@ export class Sprite extends Renderable2D {
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
+                if (this._assembler.createBuffer) {
+                    this._assembler.createBuffer(this, director.root!.batcher2D);
+                }
                 this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 this._colorDirty = true;

@@ -243,6 +243,7 @@ export class Batcher2D implements IBatcher {
     }
 
     public update () {
+        this.resetIndexBuffer();
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
@@ -296,6 +297,53 @@ export class Batcher2D implements IBatcher {
     }
 
     public reset () {
+        this._currHash = 0;
+        this._currLayer = 0;
+        this._currMaterial = this._emptyMaterial;
+        this._currTexture = null;
+        this._currSampler = null;
+        this._currComponent = null;
+        this._currTransform = null;
+        this._currScene = null;
+        this._currMeshBuffer = null;
+        StencilManager.sharedManager!.reset();
+        this._descriptorSetCache.reset();
+    }
+
+    private resetIndexBuffer () {
+        if (this._batches.length > 0) {
+            const buffers = this._meshBuffers;
+            buffers.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.resetIndex();
+                    bb.setDirty();
+                });
+            });
+        }
+        for (let i = 0; i < this._batches.length; ++i) {
+            const batch = this._batches.array[i];
+            if (batch.isStatic) {
+                continue;
+            }
+
+            DrawBatch2D.drawcallPool.freeArray(batch.drawCalls);
+            batch.clear();
+            this._drawBatchPool.free(batch);
+        }
+
+        this._batches.clear();
+    }
+
+    private resetWithReload () {
+        if (this._batches.length > 0) {
+            const buffers = this._meshBuffers;
+            buffers.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.reset();
+                });
+            });
+        }
+
         for (let i = 0; i < this._batches.length; ++i) {
             const batch = this._batches.array[i];
             if (batch.isStatic) {
@@ -489,7 +537,8 @@ export class Batcher2D implements IBatcher {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
-        const buffer = this.currBufferBatch;
+        // const buffer = this.currBufferBatch;
+        const buffer = this._currMeshBuffer;
         const ia = buffer?.recordBatch();
         const mat = this._currMaterial;
         if (!ia || !mat || !buffer) {
@@ -659,7 +708,7 @@ export class Batcher2D implements IBatcher {
     }
 
     private _recreateMeshBuffer (attributes, vertexCount, indexCount) {
-        this.autoMergeBatches();
+        // this.autoMergeBatches();
         this._requireBufferBatch(attributes, vertexCount, indexCount);
     }
 
