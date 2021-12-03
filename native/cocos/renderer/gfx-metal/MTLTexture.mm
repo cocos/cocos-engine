@@ -40,6 +40,10 @@
 namespace cc {
 namespace gfx {
 
+namespace {
+CCMTLTexture* defaultTexture = nullptr;
+}
+
 CCMTLTexture::CCMTLTexture() : Texture() {
     _typedID = generateObjectID<decltype(this)>();
 }
@@ -278,6 +282,21 @@ void CCMTLTexture::doResize(uint width, uint height, uint size) {
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
         CCMTLDevice::getInstance()->getMemoryStatus().textureSize -= oldSize;
     }
+}
+
+CCMTLTexture* CCMTLTexture::getDefaultTexture() {
+    if(!defaultTexture) {
+        TextureInfo info;
+        info.type = TextureType::TEX2D;
+        info.usage = TextureUsage::SAMPLED;
+        info.format = Format::BGRA8;
+        info.width = 2;
+        info.height = 2;
+        
+        defaultTexture = new CCMTLTexture();
+        defaultTexture->initialize(info);
+    }
+    return defaultTexture;
 }
 
 } // namespace gfx

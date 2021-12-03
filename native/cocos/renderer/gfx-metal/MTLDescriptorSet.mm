@@ -71,12 +71,19 @@ void CCMTLDescriptorSet::update() {
                     _gpuDescriptorSet->gpuDescriptors[i].buffer = static_cast<CCMTLBuffer *>(_buffers[i]);
                 }
             } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
-                if (_textures[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].texture = static_cast<CCMTLTexture *>(_textures[i]);
-                }
-                if (_samplers[i]) {
-                    _gpuDescriptorSet->gpuDescriptors[i].sampler = static_cast<CCMTLSampler *>(_samplers[i]);
-                }
+                if(!_textures[i] && !_samplers[i])
+                    continue;
+                    
+                Texture* tex = _textures[i];
+                if(!tex)
+                    tex = CCMTLTexture::getDefaultTexture();
+                _gpuDescriptorSet->gpuDescriptors[i].texture = static_cast<CCMTLTexture *>(tex);
+            
+                Sampler* sampler = _samplers[i];
+                if(!sampler)
+                    sampler = CCMTLSampler::getDefaultSampler();
+                _gpuDescriptorSet->gpuDescriptors[i].sampler = static_cast<CCMTLSampler *>(sampler);
+                
             }
         }
         _isDirty = false;

@@ -33,6 +33,9 @@
 
 namespace cc {
 namespace gfx {
+namespace {
+CCMTLSampler* defaultSampler = nullptr;
+};
 
 CCMTLSampler::CCMTLSampler(const SamplerInfo& info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
@@ -67,6 +70,14 @@ CCMTLSampler::~CCMTLSampler() {
         }
     };
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
+}
+
+CCMTLSampler* CCMTLSampler::getDefaultSampler() {
+    if(!defaultSampler) {
+        SamplerInfo info;
+        defaultSampler = new CCMTLSampler(info);
+    }
+    return defaultSampler;
 }
 
 } // namespace gfx

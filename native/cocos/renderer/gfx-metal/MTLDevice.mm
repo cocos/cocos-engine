@@ -189,6 +189,9 @@ void CCMTLDevice::doDestroy() {
     }
 
     cc::gfx::mu::clearUtilResource();
+    
+    CC_DESTROY(CCMTLTexture::getDefaultTexture());
+    CC_DELETE(CCMTLSampler::getDefaultSampler());
 
     CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
     CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
