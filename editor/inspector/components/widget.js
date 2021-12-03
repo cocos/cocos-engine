@@ -1188,7 +1188,7 @@ const computed = {
 exports.ready = function() {
     let requestAnimationFrameId = null;
     this.resizeObserver = new window.ResizeObserver(() => {
-        if (requestAnimationFrameId) { return; }
+        if (requestAnimationFrameId !== null) { return; }
         requestAnimationFrameId = window.requestAnimationFrame(() => {
             const rect = this.$this.getBoundingClientRect();
             if (rect.width > 300) {
