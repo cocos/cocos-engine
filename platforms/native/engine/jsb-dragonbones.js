@@ -794,7 +794,7 @@ const cacheManager = require('./jsb-cache-manager');
                 middleware.resetIndicesStart = false;
             }
 
-            ui.commitComp(this, realTexture, this._assembler, null);
+            ui.commitPlainComp(this, realTexture, this._assembler, null);
             this.material = mat;
         }
     }

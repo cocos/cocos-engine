@@ -306,6 +306,7 @@ export class Material extends Asset {
         if (!success) {
             console.warn(`illegal property name: ${name}.`);
         }
+        this.emit('setProperty');
     }
 
     /**

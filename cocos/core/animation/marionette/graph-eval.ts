@@ -65,6 +65,10 @@ export class AnimationGraphEval {
         graphDebugGroupEnd();
     }
 
+    public getVariables (): Iterable<Readonly<[string, Readonly<{ type: VariableType }>]>> {
+        return Object.entries(this._varInstances);
+    }
+
     public getCurrentStateStatus (layer: number): Readonly<MotionStateStatus> | null {
         return this._layerEvaluations[layer].getCurrentStateStatus();
     }

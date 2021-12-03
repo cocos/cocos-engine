@@ -191,6 +191,11 @@ export class RenderAdditiveLightQueue {
                 if (lightPassIdx < 0) { continue; }
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
+                // object has translucent base pass, prohibiting forward-add pass for multi light sources lighting
+                const isTransparent = subModel.passes[0].blendState.targets[0].blend;
+                if (isTransparent) {
+                    continue;
+                }
                 subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
                 subModel.descriptorSet.update();
 
