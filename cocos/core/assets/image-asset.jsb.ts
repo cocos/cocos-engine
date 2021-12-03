@@ -153,6 +153,7 @@ imageAssetProto._syncDataToNative = function () {
 
     this.setWidth(this._width);
     this.setHeight(this._height);
+    this.setUrl(this.nativeUrl);
 
     if (data instanceof HTMLCanvasElement) {
         this.setData(data._data.data);
