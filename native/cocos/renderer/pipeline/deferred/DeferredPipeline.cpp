@@ -34,7 +34,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
-
+#include "../helper/Utils.h"
 
 namespace cc {
 namespace pipeline {
@@ -91,15 +91,25 @@ bool DeferredPipeline::activate(gfx::Swapchain *swapchain) {
 }
 
 void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
+    auto *device               = gfx::Device::getInstance();
+    bool  enableOcclusionQuery = getOcclusionQueryEnabled();
+    if (enableOcclusionQuery) {
+        device->getQueryPoolResults(_queryPools[0]);
+    }
+
     _commandBuffers[0]->begin();
+
+    if (enableOcclusionQuery) {
+        _commandBuffers[0]->resetQueryPool(_queryPools[0]);
+    }
+
     _pipelineUBO->updateGlobalUBO(cameras[0]);
     _pipelineUBO->updateMultiCameraUBO(cameras);
     ensureEnoughSize(cameras);
+    decideProfilerCamera(cameras);
 
     for (auto *camera : cameras) {
         sceneCulling(this, camera);
-
-        _fg.reset();
 
         if (_clusterEnabled) {
             _clusterComp->clusterLightCulling(camera);
@@ -109,38 +119,33 @@ void DeferredPipeline::render(const vector<scene::Camera *> &cameras) {
             flow->render(camera);
         }
         _fg.compile();
-        // _fg.exportGraphViz("fg_vis.dot");
         _fg.execute();
+        _fg.reset();
 
         _pipelineUBO->incCameraUBOOffset();
+    }
+
+    if (enableOcclusionQuery) {
+        _commandBuffers[0]->completeQueryPool(_queryPools[0]);
     }
 
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);
+
+    RenderPipeline::framegraphGC();
 }
 
 bool DeferredPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
+    _queryPools.push_back(_device->getQueryPool());
     auto *const sharedData = _pipelineSceneData->getSharedData();
 
-    gfx::Sampler *const sampler = _device->getSampler({
-        gfx::Filter::POINT,
-        gfx::Filter::POINT,
-        gfx::Filter::NONE,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-    });
+    gfx::Sampler *const sampler = getGlobalDSManager()->getPointSampler();
 
     // Main light sampler binding
     _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
-    _descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
-
-    // Spot light sampler binding
     _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
-    _descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, getDefaultTexture());
-
     _descriptorSet->update();
 
     // update global defines when all states initialized.
@@ -182,6 +187,7 @@ void DeferredPipeline::destroy() {
     }
     _renderPasses.clear();
 
+    _queryPools.clear();
     _commandBuffers.clear();
 
     CC_SAFE_DELETE(_clusterComp);

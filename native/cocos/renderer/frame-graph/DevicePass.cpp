@@ -130,8 +130,14 @@ void DevicePass::append(const FrameGraph &graph, const PassNode *passNode, std::
 
 void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &attachment,
                         std::vector<RenderTargetAttachment> *attachments, gfx::SubpassInfo *subpass, const std::vector<Handle> &reads) {
-    auto it = std::find_if(attachments->begin(), attachments->end(), [&attachment](const RenderTargetAttachment &x) {
-        return attachment.desc.usage == x.desc.usage && attachment.desc.slot == x.desc.slot;
+    RenderTargetAttachment::Usage usage{attachment.desc.usage};
+    uint32_t                      slot{attachment.desc.slot};
+    if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
+        // should fetch actual color slot from current subpass
+        slot = subpass->colors.size() > attachment.desc.slot ? subpass->colors[attachment.desc.slot] : gfx::INVALID_BINDING;
+    }
+    auto it = std::find_if(attachments->begin(), attachments->end(), [usage, slot](const RenderTargetAttachment &x) {
+        return usage == x.desc.usage && slot == x.desc.slot;
     });
 
     RenderTargetAttachment *output{nullptr};
@@ -139,7 +145,18 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
     if (it == attachments->end()) {
         attachments->emplace_back(attachment);
         output = &(attachments->back());
-        _usedRenderTargetSlotMask |= 1 << attachment.desc.slot;
+        if (attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
+            for (uint8_t i = 0; i < RenderTargetAttachment::DEPTH_STENCIL_SLOT_START; ++i) {
+                if ((_usedRenderTargetSlotMask & (1 << i)) == 0) {
+                    attachments->back().desc.slot = i;
+                    _usedRenderTargetSlotMask |= 1 << i;
+                    break;
+                }
+            }
+        } else {
+            CC_ASSERT((_usedRenderTargetSlotMask & (1 << attachment.desc.slot)) == 0);
+            _usedRenderTargetSlotMask |= 1 << attachment.desc.slot;
+        }
     } else {
         const ResourceNode &resourceNodeA = graph.getResourceNode(it->textureHandle);
         const ResourceNode &resourceNodeB = graph.getResourceNode(attachment.textureHandle);
@@ -161,6 +178,7 @@ void DevicePass::append(const FrameGraph &graph, const RenderTargetAttachment &a
             for (uint8_t i = 0; i < RenderTargetAttachment::DEPTH_STENCIL_SLOT_START; ++i) {
                 if ((_usedRenderTargetSlotMask & (1 << i)) == 0) {
                     attachments->back().desc.slot = i;
+                    _usedRenderTargetSlotMask |= 1 << i;
                     break;
                 }
             }
@@ -185,15 +203,40 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
     uint32_t                       clearStencil = 0;
     static std::vector<gfx::Color> clearColors;
     clearColors.clear();
-    _viewport = {};
-    _scissor  = {0, 0, UINT_MAX, UINT_MAX};
+
+    bool hasDefaultViewport{false};
+    for (auto &subpass : _subpasses) {
+        for (auto &pass : subpass.logicPasses) {
+            if (!pass.customViewport) {
+                hasDefaultViewport = true;
+                break;
+            }
+        }
+    }
+
+    if (hasDefaultViewport) {
+        _viewport = {};
+        _scissor  = {0, 0, UINT_MAX, UINT_MAX};
+    } else { // if all passes use customize viewport
+        _scissor = {INT_MAX, INT_MAX, 0, 0};
+
+        for (auto &subpass : _subpasses) {
+            for (auto &pass : subpass.logicPasses) {
+                // calculate the union of all viewports as render area
+                _viewport.left = _scissor.x = std::min(_scissor.x, pass.viewport.left);
+                _viewport.top = _scissor.y = std::min(_scissor.y, pass.viewport.top);
+                _viewport.width = _scissor.width = std::max(_scissor.width, pass.viewport.width);
+                _viewport.height = _scissor.height = std::max(_scissor.height, pass.viewport.height);
+            }
+        }
+    }
 
     for (const auto &attachElem : _attachments) {
         gfx::Texture *attachment = attachElem.renderTarget;
         if (attachElem.attachment.desc.usage == RenderTargetAttachment::Usage::COLOR) {
             rpInfo.colorAttachments.emplace_back();
-            auto &attachmentInfo  = rpInfo.colorAttachments.back();
-            attachmentInfo.format = attachment->getFormat();
+            auto &attachmentInfo           = rpInfo.colorAttachments.back();
+            attachmentInfo.format          = attachment->getFormat();
             attachmentInfo.loadOp          = attachElem.attachment.desc.loadOp;
             attachmentInfo.storeOp         = attachElem.attachment.storeOp;
             attachmentInfo.beginAccesses   = attachElem.attachment.desc.beginAccesses;
@@ -215,8 +258,10 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
             clearDepth                     = attachElem.attachment.desc.clearDepth;
             clearStencil                   = attachElem.attachment.desc.clearStencil;
         }
-        _viewport.width = _scissor.width = std::min(_scissor.width, attachment->getWidth());
-        _viewport.height = _scissor.height = std::min(_scissor.height, attachment->getHeight());
+        if (hasDefaultViewport) {
+            _viewport.width = _scissor.width = std::min(_scissor.width, attachment->getWidth());
+            _viewport.height = _scissor.height = std::min(_scissor.height, attachment->getHeight());
+        }
     }
 
     for (auto &subpass : _subpasses) {

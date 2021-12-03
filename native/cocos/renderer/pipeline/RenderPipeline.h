@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <unordered_map>
 #include "Define.h"
 #include "GlobalDescriptorSetManager.h"
 #include "PipelineSceneData.h"
@@ -42,6 +43,9 @@ class CommandBuffer;
 class DescriptorSet;
 class DescriptorSetLayout;
 } // namespace gfx
+namespace scene {
+class SubModel;
+} // namespace scene
 namespace pipeline {
 class DefineMap;
 class GlobalDSManager;
@@ -59,6 +63,7 @@ public:
     static framegraph::StringHandle fgStrHandleOutColorTexture;
     static framegraph::StringHandle fgStrHandlePostprocessPass;
     static framegraph::StringHandle fgStrHandleBloomOutTexture;
+    static gfx::Rect                getRenderArea(scene::Camera *camera);
 
     RenderPipeline();
     ~RenderPipeline() override;
@@ -78,16 +83,20 @@ public:
     inline GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
     inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
     inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
-    inline gfx::Texture *                          getDefaultTexture() const { return _defaultTexture; }
     inline PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
     inline const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
+    inline const gfx::QueryPoolList &              getQueryPools() const { return _queryPools; }
     inline PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
     inline const String &                          getConstantMacros() const { return _constantMacros; }
     inline gfx::Device *                           getDevice() const { return _device; }
-    inline bool                                    getBloomEnable() const { return _bloomEnable; }
     RenderStage *                                  getRenderstageByName(const String &name) const;
+    bool                                           isOccluded(const scene::Camera *camera, const scene::SubModel *subModel);
+    bool                                           getOcclusionQueryEnabled() const { return _occlusionQueryEnabled && _device->getCapabilities().supportQuery; }
+    void                                           setOcclusionQueryEnabled(bool enable) { _occlusionQueryEnabled = enable; }
+    bool                                           isEnvmapEnabled() const;
 
-    gfx::Rect               getRenderArea(scene::Camera *camera);
+    gfx::Viewport           getViewport(scene::Camera *camera);
+    gfx::Rect               getScissor(scene::Camera *camera);
     void                    genQuadVertexData(const Vec4 &viewport, float *data);
     uint                    getWidth() const { return _width; }
     uint                    getHeight() const { return _height; }
@@ -104,13 +113,19 @@ public:
     inline bool getClusterEnabled() const { return _clusterEnabled; }
     inline void setClusterEnabled(bool enable) { _clusterEnabled = enable; }
 
+    inline bool getBloomEnabled() const { return _bloomEnabled; }
+    inline void setBloomEnabled(bool enable) { _bloomEnabled = enable; }
+
 protected:
     static RenderPipeline *instance;
 
     void generateConstantMacros();
     void destroyQuadInputAssembler();
 
+    static void framegraphGC();
+
     gfx::CommandBufferList           _commandBuffers;
+    gfx::QueryPoolList               _queryPools;
     RenderFlowList                   _flows;
     map<String, InternalBindingInst> _globalBindings;
     DefineMap                        _macros;
@@ -121,23 +136,23 @@ protected:
     GlobalDSManager *   _globalDSManager{nullptr};
     gfx::DescriptorSet *_descriptorSet{nullptr};
     PipelineUBO *       _pipelineUBO{nullptr};
-    PipelineSceneData * _pipelineSceneData{nullptr};
     scene::Model *      _profiler{nullptr};
+    PipelineSceneData * _pipelineSceneData{nullptr};
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
-    gfx::Texture *                                  _defaultTexture{nullptr};
-    uint                                            _width{0};
-    uint                                            _height{0};
-    gfx::Buffer *                                   _quadIB{nullptr};
-    std::vector<gfx::Buffer *>                      _quadVB;
-    std::unordered_map<uint, gfx::InputAssembler *> _quadIA;
+    uint                                                          _width{0};
+    uint                                                          _height{0};
+    gfx::Buffer *                                                 _quadIB{nullptr};
+    std::vector<gfx::Buffer *>                                    _quadVB;
+    std::unordered_map<Vec4, gfx::InputAssembler *, Hasher<Vec4>> _quadIA;
 
-    framegraph::FrameGraph                  _fg;
-    map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
+    framegraph::FrameGraph                            _fg;
+    unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
 
     // use cluster culling or not
     bool _clusterEnabled{false};
-    bool _bloomEnable{false};
+    bool _bloomEnabled{false};
+    bool _occlusionQueryEnabled{false};
 };
 
 } // namespace pipeline

@@ -532,6 +532,23 @@ static bool js_editor_support_MiddlewareManager_update(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_update)
 
+static bool js_editor_support_MiddlewareManager_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::middleware::MiddlewareManager* result = cc::middleware::MiddlewareManager::getInstance();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getInstance : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_editor_support_MiddlewareManager_getInstance)
+
 static bool js_editor_support_MiddlewareManager_destroyInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -561,23 +578,6 @@ static bool js_editor_support_MiddlewareManager_generateModuleID(se::State& s) /
     return false;
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_generateModuleID)
-
-static bool js_editor_support_MiddlewareManager_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cc::middleware::MiddlewareManager* result = cc::middleware::MiddlewareManager::getInstance();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_editor_support_MiddlewareManager_getInstance : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_editor_support_MiddlewareManager_getInstance)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_middleware_MiddlewareManager_finalize)
 
@@ -618,9 +618,9 @@ bool js_register_editor_support_MiddlewareManager(se::Object* obj) // NOLINT(rea
     cls->defineFunction("getVBTypedArrayLength", _SE(js_editor_support_MiddlewareManager_getVBTypedArrayLength));
     cls->defineFunction("render", _SE(js_editor_support_MiddlewareManager_render));
     cls->defineFunction("update", _SE(js_editor_support_MiddlewareManager_update));
+    cls->defineStaticFunction("getInstance", _SE(js_editor_support_MiddlewareManager_getInstance));
     cls->defineStaticFunction("destroyInstance", _SE(js_editor_support_MiddlewareManager_destroyInstance));
     cls->defineStaticFunction("generateModuleID", _SE(js_editor_support_MiddlewareManager_generateModuleID));
-    cls->defineStaticFunction("getInstance", _SE(js_editor_support_MiddlewareManager_getInstance));
     cls->defineFinalizeFunction(_SE(js_cc_middleware_MiddlewareManager_finalize));
     cls->install();
     JSBClassType::registerClass<cc::middleware::MiddlewareManager>(cls);
@@ -643,9 +643,9 @@ bool register_all_editor_support(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_editor_support_MiddlewareManager(ns);
-    js_register_editor_support_SharedBufferManager(ns);
     js_register_editor_support_Texture2D(ns);
+    js_register_editor_support_SharedBufferManager(ns);
+    js_register_editor_support_MiddlewareManager(ns);
     return true;
 }
 

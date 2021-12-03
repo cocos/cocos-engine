@@ -104,7 +104,7 @@ uint getBlockSize(Format format);
 uint getBytesPerRow(Format format, uint width);
 bool pixelFormatIsColorRenderable(Format format);
 bool isSamplerDescriptorCompareFunctionSupported(uint family);
-void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, uint stencil);
+void clearRenderArea(CCMTLDevice *device, id<MTLRenderCommandEncoder> renderEncoder, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, uint stencil);
 inline uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 void clearUtilResource();
 inline uint roundUp(uint dividend, uint divisor) { return (dividend - 1) / divisor + 1; }

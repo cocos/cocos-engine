@@ -27,11 +27,11 @@
 
 #include "gfx-base/GFXCommandBuffer.h"
 
-#include "MTLGPUObjects.h"
-#include "MTLRenderCommandEncoder.h"
-#include "MTLComputeCommandEncoder.h"
 #import <Metal/MTLCommandQueue.h>
 #import <MetalKit/MTKView.h>
+#include "MTLComputeCommandEncoder.h"
+#include "MTLGPUObjects.h"
+#include "MTLRenderCommandEncoder.h"
 
 namespace cc {
 namespace gfx {
@@ -48,63 +48,72 @@ public:
     explicit CCMTLCommandBuffer();
     ~CCMTLCommandBuffer();
     CCMTLCommandBuffer(const CCMTLCommandBuffer &) = delete;
-    CCMTLCommandBuffer(CCMTLCommandBuffer &&) = delete;
+    CCMTLCommandBuffer(CCMTLCommandBuffer &&)      = delete;
     CCMTLCommandBuffer &operator=(const CCMTLCommandBuffer &) = delete;
     CCMTLCommandBuffer &operator=(CCMTLCommandBuffer &&) = delete;
 
-    void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
-    void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
-    void endRenderPass() override;
-    void bindPipelineState(PipelineState *pso) override;
-    void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
-    void bindInputAssembler(InputAssembler *ia) override;
-    void setViewport(const Viewport &vp) override;
-    void setScissor(const Rect &rect) override;
-    void setLineWidth(float width) override;
-    void setDepthBias(float constant, float clamp, float slope) override;
-    void setBlendConstants(const Color &constants) override;
-    void setDepthBound(float minBounds, float maxBounds) override;
-    void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
-    void nextSubpass() override;
-    void draw(const DrawInfo &info) override;
-    void updateBuffer(Buffer *buff, const void *data, uint size) override;
-    void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
-    void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
-    void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
-    void dispatch(const DispatchInfo &info) override;
-    void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
-    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count);
-    inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
-    inline CCMTLGPUCommandBufferObject* gpuCommandBufferObj() const { return _gpuCommandBufferObj; }
-    
+    void                                begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
+    void                                end() override;
+    void                                beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void                                endRenderPass() override;
+    void                                bindPipelineState(PipelineState *pso) override;
+    void                                bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
+    void                                bindInputAssembler(InputAssembler *ia) override;
+    void                                setViewport(const Viewport &vp) override;
+    void                                setScissor(const Rect &rect) override;
+    void                                setLineWidth(float width) override;
+    void                                setDepthBias(float constant, float clamp, float slope) override;
+    void                                setBlendConstants(const Color &constants) override;
+    void                                setDepthBound(float minBounds, float maxBounds) override;
+    void                                setStencilWriteMask(StencilFace face, uint mask) override;
+    void                                setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
+    void                                nextSubpass() override;
+    void                                draw(const DrawInfo &info) override;
+    void                                updateBuffer(Buffer *buff, const void *data, uint size) override;
+    void                                copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
+    void                                blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
+    void                                execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+    void                                dispatch(const DispatchInfo &info) override;
+    void                                pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
+    void                                copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count);
+    void                                beginQuery(QueryPool *queryPool, uint32_t id) override;
+    void                                endQuery(QueryPool *queryPool, uint32_t id) override;
+    void                                resetQueryPool(QueryPool *queryPool) override;
+    void                                completeQueryPool(QueryPool *queryPool) override;
+    inline bool                         isCommandBufferBegan() const { return _commandBufferBegan; }
+    inline CCMTLGPUCommandBufferObject *gpuCommandBufferObj() const { return _gpuCommandBufferObj; }
+
     void reset();
-    
+
 protected:
     friend class CCMTLQueue;
 
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
-    void bindDescriptorSets();
-    void updateDepthStencilState(uint32_t subPassIndex, MTLRenderPassDescriptor* descriptor);
+    void        bindDescriptorSets();
+    void        updateDepthStencilState(uint32_t subPassIndex, MTLRenderPassDescriptor *descriptor);
     static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
+    
+    id<MTLCommandBuffer> getMTLCommandBuffer();
 
     vector<CCMTLGPUDescriptorSet *> _GPUDescriptorSets; // NOLINT(bugprone-reserved-identifier)
-    vector<vector<uint>> _dynamicOffsets;
-    uint _firstDirtyDescriptorSet = UINT_MAX;
+    vector<vector<uint>>            _dynamicOffsets;
+    uint                            _firstDirtyDescriptorSet = UINT_MAX;
 
-    bool _indirectDrawSuppotred = false;
-    bool _commandBufferBegan = false;
-    CCMTLDevice *_mtlDevice = nullptr;
-    id<MTLCommandQueue> _mtlCommandQueue = nil;
-    CCMTLRenderCommandEncoder _renderEncoder;
-    CCMTLComputeCommandEncoder _computeEncoder;
-    id<MTLParallelRenderCommandEncoder> _parallelEncoder = nil;
-    MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
+    bool                                _indirectDrawSuppotred = false;
+    bool                                _commandBufferBegan    = false;
+    bool                                _firstRenderPass       = true;
+    CCMTLDevice *                       _mtlDevice             = nullptr;
+    id<MTLCommandQueue>                 _mtlCommandQueue       = nil;
+    CCMTLRenderCommandEncoder           _renderEncoder;
+    CCMTLComputeCommandEncoder          _computeEncoder;
+    id<MTLParallelRenderCommandEncoder> _parallelEncoder  = nil;
+    MTLPrimitiveType                    _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
 
-    CCMTLGPUCommandBufferObject* _gpuCommandBufferObj = nullptr;
+    CCMTLGPUCommandBufferObject *_gpuCommandBufferObj = nullptr;
+    
+    CCMTLSemaphore* _texCopySemaphore = nullptr;
 };
 
 } // namespace gfx

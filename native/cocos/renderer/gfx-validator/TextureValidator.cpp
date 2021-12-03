@@ -27,16 +27,21 @@
 
 #include "DeviceValidator.h"
 #include "TextureValidator.h"
+#include "SwapchainValidator.h"
 #include "ValidationUtils.h"
-#include "base/Macros.h"
-#include "gfx-validator/SwapchainValidator.h"
-#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace gfx {
 
 namespace {
-unordered_map<Format, Feature, Hasher> featureCheckMap{
+struct EnumHasher final {
+    template <typename T, typename Enable = std::enable_if_t<std::is_enum<T>::value>>
+    size_t operator()(const T& v) const {
+        return static_cast<size_t>(v);
+    }
+};
+
+unordered_map<Format, Feature, EnumHasher> featureCheckMap{
     {Format::RGB8, Feature::FORMAT_RGB8},
     {Format::R11G11B10F, Feature::FORMAT_R11G11B10F},
 };
@@ -56,11 +61,8 @@ void TextureValidator::doInit(const TextureInfo &info) {
     CCASSERT(!isInited(), "initializing twice?");
     _inited = true;
 
+    CCASSERT(info.width && info.height && info.depth, "zero-sized texture?");
     CCASSERT(!featureCheckMap.count(_info.format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_info.format]), "unsupported format");
-
-    // Potentially inefficient
-    static const TextureUsageBit INEFFICIENT_MASK{TextureUsageBit::INPUT_ATTACHMENT | TextureUsageBit::SAMPLED};
-    CCASSERT((info.usage & INEFFICIENT_MASK) != INEFFICIENT_MASK, "Both SAMPLED and INPUT_ATTACHMENT are specified?");
 
     /////////// execute ///////////
 

@@ -23,6 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <boost/functional/hash.hpp>
+
 #include "base/CoreStd.h"
 
 #include "../GFXQueue.h"
@@ -32,27 +34,14 @@
 namespace cc {
 namespace gfx {
 
-TextureBarrier::TextureBarrier(const TextureBarrierInfo &info, uint32_t hash)
+TextureBarrier::TextureBarrier(const TextureBarrierInfo &info)
 : GFXObject(ObjectType::TEXTURE_BARRIER) {
     _info = info;
-    _hash = hash;
+    _hash = computeHash(info);
 }
 
-uint32_t TextureBarrier::computeHash(const TextureBarrierInfo &info) {
-    auto seed = utils::toUint(info.prevAccesses.size() + info.nextAccesses.size() + 3);
-
-    for (const AccessType type : info.prevAccesses) {
-        seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-    for (const AccessType type : info.nextAccesses) {
-        seed ^= toNumber(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-
-    seed ^= info.discardContents + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.srcQueue ? toNumber(info.srcQueue->getType()) : 0U) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (info.dstQueue ? toNumber(info.dstQueue->getType()) : 0U) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-
-    return seed;
+size_t TextureBarrier::computeHash(const TextureBarrierInfo &info) {
+    return Hasher<TextureBarrierInfo>()(info);
 }
 
 } // namespace gfx

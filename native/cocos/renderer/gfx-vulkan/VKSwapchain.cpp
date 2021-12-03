@@ -237,14 +237,8 @@ void CCVKSwapchain::doDestroy() {
     CC_SAFE_DELETE(_gpuSwapchain)
 }
 
-void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
-    checkSwapchainStatus(width, height);
-
-    // If these assertions are hit that almost always means something is wrong with the
-    // resize event dispatch logic instead of the resize implementation executed above.
-    if (ENABLE_PRE_ROTATION && toNumber(transform) & 1) std::swap(width, height);
-    CCASSERT(getWidth() == width && getHeight() == height, "Wrong input size");
-    CCASSERT(_transform == transform, "Wrong surface transformation");
+void CCVKSwapchain::doResize(uint32_t width, uint32_t height, SurfaceTransform /*transform*/) {
+    checkSwapchainStatus(width, height); // the orientation info from system event is not reliable
 }
 
 bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
@@ -358,10 +352,6 @@ bool CCVKSwapchain::checkSwapchainStatus(uint32_t width, uint32_t height) {
     colorGPUTexture->currentAccessTypes.assign(1, THSVS_ACCESS_PRESENT);
     depthStencilGPUTexture->currentAccessTypes.assign(1, THSVS_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ);
 
-    for (auto &it : _gpuSwapchain->vkSwapchainFramebufferListMap) {
-        cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), it.first);
-    }
-
     _gpuSwapchain->lastPresentResult = VK_SUCCESS;
 
     return true;
@@ -412,7 +402,7 @@ void CCVKSwapchain::createVkSurface() {
     VK_CHECK(vkCreateAndroidSurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
     VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
-    surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(0));
+    surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
     surfaceCreateInfo.hwnd      = reinterpret_cast<HWND>(_windowHandle);
     VK_CHECK(vkCreateWin32SurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #elif defined(VK_USE_PLATFORM_METAL_EXT)

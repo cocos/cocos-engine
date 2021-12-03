@@ -32,6 +32,7 @@
     #include "Class.h"
     #include "Object.h"
     #include "Utils.h"
+    #include "MissingSymbols.h"
     #include "platform/FileUtils.h"
 
     #include <sstream>
@@ -279,10 +280,8 @@ void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v
     v8::ScriptOrigin origin = message->GetScriptOrigin();
     Value            resouceNameVal;
     internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceName(), &resouceNameVal);
-    Value line;
-    internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceLineOffset(), &line);
-    Value column;
-    internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceColumnOffset(), &column);
+    Value line(origin.LineOffset());
+    Value column(origin.ColumnOffset());
 
     std::string location = resouceNameVal.toStringForce() + ":" + line.toStringForce() + ":" + column.toStringForce();
 
@@ -338,7 +337,8 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
 
     if (!value.IsEmpty()) {
         // prepend error object to stack message
-        v8::Local<v8::String> str = value->ToString(isolate->GetCurrentContext()).ToLocalChecked();
+        v8::MaybeLocal<v8::String> maybeStr = value->ToString(isolate->GetCurrentContext());
+        v8::Local<v8::String>      str      = maybeStr.IsEmpty() ? v8::String::NewFromUtf8(isolate, "[empty string]").ToLocalChecked() : maybeStr.ToLocalChecked();
         v8::String::Utf8Value valueUtf8(isolate, str);
         auto *                strp = *valueUtf8;
         if (strp == nullptr) {
@@ -762,7 +762,7 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
         return false;
     }
 
-    v8::ScriptOrigin           origin(originStr.ToLocalChecked());
+    v8::ScriptOrigin           origin(_isolate, originStr.ToLocalChecked());
     v8::MaybeLocal<v8::Script> maybeScript = v8::Script::Compile(_context.Get(_isolate), source.ToLocalChecked(), &origin);
 
     bool success = false;
@@ -852,7 +852,7 @@ bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string
     v8::Local<v8::String> code         = v8::String::NewFromUtf8(_isolate, scriptBuffer.c_str(), v8::NewStringType::kNormal, static_cast<int>(scriptBuffer.length())).ToLocalChecked();
     v8::Local<v8::Value>  scriptPath   = v8::String::NewFromUtf8(_isolate, path.data(), v8::NewStringType::kNormal).ToLocalChecked();
     // create unbound script
-    v8::ScriptOrigin             origin(scriptPath);
+    v8::ScriptOrigin             origin(_isolate, scriptPath);
     v8::ScriptCompiler::Source   source(code, origin);
     v8::Local<v8::Context>       parsingContext = v8::Local<v8::Context>::New(_isolate, _context);
     v8::Context::Scope           parsingScope(parsingContext);
@@ -893,12 +893,9 @@ bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nu
     }
 
     // setup ScriptOrigin
-    v8::Local<v8::Value>   scriptPath  = v8::String::NewFromUtf8(_isolate, pathBc.data(), v8::NewStringType::kNormal).ToLocalChecked();
-    v8::Local<v8::Integer> offset      = v8::Int32::New(_isolate, 0);
-    v8::Local<v8::Integer> column      = v8::Int32::New(_isolate, 0);
-    v8::Local<v8::Boolean> crossOrigin = v8::Boolean::New(_isolate, true);
-    ;
-    v8::ScriptOrigin origin(scriptPath, offset, column, crossOrigin);
+    v8::Local<v8::Value> scriptPath = v8::String::NewFromUtf8(_isolate, pathBc.data(), v8::NewStringType::kNormal).ToLocalChecked();
+
+    v8::ScriptOrigin origin(_isolate, scriptPath, 0, 0, true);
 
     // restore CacheData
     auto *                v8CacheData = new v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));

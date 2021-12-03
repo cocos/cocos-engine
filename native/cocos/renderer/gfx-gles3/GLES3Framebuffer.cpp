@@ -48,14 +48,15 @@ void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
 
     _gpuFBO->gpuColorTextures.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTexture = static_cast<GLES3Texture *>(_colorTextures[i]);
-        if (colorTexture) {
-            _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
-        }
+        auto *colorTexture           = static_cast<GLES3Texture *>(_colorTextures[i]);
+        _gpuFBO->gpuColorTextures[i] = colorTexture->gpuTexture();
+        GLES3Device::getInstance()->framebufferHub()->connect(colorTexture->gpuTexture(), _gpuFBO);
     }
 
     if (_depthStencilTexture) {
-        _gpuFBO->gpuDepthStencilTexture = static_cast<GLES3Texture *>(_depthStencilTexture)->gpuTexture();
+        auto *depthTexture              = static_cast<GLES3Texture *>(_depthStencilTexture);
+        _gpuFBO->gpuDepthStencilTexture = depthTexture->gpuTexture();
+        GLES3Device::getInstance()->framebufferHub()->connect(depthTexture->gpuTexture(), _gpuFBO);
     }
 
     cmdFuncGLES3CreateFramebuffer(GLES3Device::getInstance(), _gpuFBO);
@@ -64,6 +65,16 @@ void GLES3Framebuffer::doInit(const FramebufferInfo & /*info*/) {
 void GLES3Framebuffer::doDestroy() {
     if (_gpuFBO) {
         cmdFuncGLES3DestroyFramebuffer(GLES3Device::getInstance(), _gpuFBO);
+
+        for (auto &texture : _colorTextures) {
+            auto *colorTexture = static_cast<GLES3Texture *>(texture);
+            GLES3Device::getInstance()->framebufferHub()->disengage(colorTexture->gpuTexture(), _gpuFBO);
+        }
+        if (_depthStencilTexture) {
+            auto *depthTexture = static_cast<GLES3Texture *>(_depthStencilTexture);
+            GLES3Device::getInstance()->framebufferHub()->disengage(depthTexture->gpuTexture(), _gpuFBO);
+        }
+
         CC_DELETE(_gpuFBO);
         _gpuFBO = nullptr;
     }

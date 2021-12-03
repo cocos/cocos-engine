@@ -32,15 +32,12 @@
 #import "cocos/bindings/event/EventDispatcher.h"
 #import "platform/mac/AppDelegate.h"
 
-//#include "platform/Application.h"
-
 @implementation View {
     cc::MouseEvent    _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
     AppDelegate*      _delegate;
 }
 
-#ifdef CC_USE_METAL
 - (CALayer *)makeBackingLayer {
     CAMetalLayer *layer              = [CAMetalLayer layer];
     layer.delegate                   = self;
@@ -48,13 +45,11 @@
     layer.needsDisplayOnBoundsChange = true;
     return layer;
 }
-#endif
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
         _delegate = [[NSApplication sharedApplication] delegate];
-#ifdef CC_USE_METAL
         int    pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
         CGSize size       = CGSizeMake(frameRect.size.width * pixelRatio, frameRect.size.height * pixelRatio);
         // Create CAMetalLayer
@@ -67,12 +62,18 @@
         layer.autoresizingMask         = kCALayerWidthSizable | kCALayerHeightSizable;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
         self.layerContentsPlacement    = NSViewLayerContentsPlacementScaleProportionallyToFill;
-#endif
+        
+        // Add tracking area to receive mouse move events.
+        NSRect          rect         = {0, 0, size.width, size.height};
+        NSTrackingArea *trackingArea = [[[NSTrackingArea alloc] initWithRect:rect
+                                                                     options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect)
+                                                                       owner:self
+                                                                    userInfo:nil] autorelease];
+        [self addTrackingArea:trackingArea];
     }
     return self;
 }
 
-#ifdef CC_USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
     //cc::Application::getInstance()->tick();
 }
@@ -85,7 +86,6 @@
     [_delegate dispatchEvent:ev];
     //cc::EventDispatcher::dispatchResizeEvent(, );
 }
-#endif
 
 - (void)displayLayer:(CALayer *)layer {
     //cc::Application::getInstance()->tick();
@@ -99,13 +99,6 @@
     layer.drawableSize = nativeSize;
     [self viewDidChangeBackingProperties];
 
-    // Add tracking area to receive mouse move events.
-    NSRect          rect         = {0, 0, nativeSize.width, nativeSize.height};
-    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:rect
-                                                                options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow)
-                                                                  owner:self
-                                                               userInfo:nil];
-    [self addTrackingArea:[trackingArea autorelease]];
 
     if (cc::EventDispatcher::initialized()) {
         cc::WindowEvent ev;
@@ -120,6 +113,8 @@
     [super viewDidChangeBackingProperties];
     CAMetalLayer *layer = (CAMetalLayer *)self.layer;
     layer.contentsScale = self.window.backingScaleFactor;
+    if (cc::EventDispatcher::initialized())
+        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>([layer drawableSize].width), static_cast<int>([layer drawableSize].height));
 }
 
 - (void)keyDown:(NSEvent *)event {

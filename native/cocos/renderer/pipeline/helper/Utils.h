@@ -27,12 +27,13 @@
 
 #include "../PipelineStateManager.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "pipeline/Define.h"
 #include "scene/Model.h"
 #include "scene/SubModel.h"
-
+#include "scene/Camera.h"
 
 namespace cc {
 namespace pipeline {
@@ -49,18 +50,32 @@ inline void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
     out->z = std::sqrt(linear.z);
 }
 
-inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, gfx::Swapchain *swapchain) {
-    if (profiler && profiler->getEnabled() && swapchain) {
-        gfx::Viewport viewport{0, 0, swapchain->getWidth(), swapchain->getHeight()};
-        gfx::Rect     scissor{0, 0, swapchain->getWidth(), swapchain->getHeight()};
+extern const scene::Camera *profilerCamera;
 
+inline void decideProfilerCamera(const vector<scene::Camera *> &cameras) {
+    for (int i = static_cast<int>(cameras.size() - 1); i >= 0; --i) {
+        if (cameras[i]->window->swapchain) {
+            profilerCamera = cameras[i];
+            return;
+        }
+    }
+    profilerCamera = nullptr;
+}
+
+inline void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera) {
+    if (profiler && profiler->getEnabled() && camera == profilerCamera) {
         auto *submodel = profiler->getSubModels()[0];
         auto *pass     = submodel->getPass(0);
         auto *ia       = submodel->getInputAssembler();
         auto *pso      = PipelineStateManager::getOrCreatePipelineState(pass, submodel->getShader(0), ia, renderPass);
 
-        cmdBuff->setViewport(viewport);
-        cmdBuff->setScissor(scissor);
+        gfx::Viewport profilerViewport;
+        gfx::Rect     profilerScissor;
+        profilerViewport.width = profilerScissor.width = camera->window->getWidth();
+        profilerViewport.height = profilerScissor.height = camera->window->getHeight();
+        cmdBuff->setViewport(profilerViewport);
+        cmdBuff->setScissor(profilerScissor);
+
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         cmdBuff->bindDescriptorSet(localSet, submodel->getDescriptorSet());

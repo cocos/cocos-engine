@@ -77,35 +77,35 @@ void AABB::getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const {
 
 void AABB::merge(const AABB &aabb) {
     const cc::Vec3 minA = getCenter() - getHalfExtents();
-    const cc::Vec3  minB = aabb.getCenter() - aabb.getHalfExtents();
-    const cc::Vec3  maxA = getCenter() + getHalfExtents();
-    const cc::Vec3   maxB = aabb.getCenter() + aabb.getHalfExtents();
-    cc::Vec3 maxP;
-    cc::Vec3 minP;
+    const cc::Vec3 minB = aabb.getCenter() - aabb.getHalfExtents();
+    const cc::Vec3 maxA = getCenter() + getHalfExtents();
+    const cc::Vec3 maxB = aabb.getCenter() + aabb.getHalfExtents();
+    cc::Vec3       maxP;
+    cc::Vec3       minP;
     cc::Vec3::max(maxA, maxB, &maxP);
     cc::Vec3::min(minA, minB, &minP);
 
     const cc::Vec3 addP = maxP + minP;
-    const cc::Vec3  subP = maxP - minP;
+    const cc::Vec3 subP = maxP - minP;
     setCenter(addP * 0.5F);
     setHalfExtents(subP * 0.5F);
 }
 
-void AABB::merge(const cc::Vec3& point) {
+void AABB::merge(const cc::Vec3 &point) {
     cc::Vec3 minPos = getCenter() - getHalfExtents();
     cc::Vec3 maxPos = getCenter() + getHalfExtents();
     if (point.x < minPos.x) {
         minPos.x = point.x;
-    } 
+    }
     if (point.y < minPos.y) {
         minPos.y = point.y;
     }
     if (point.z < minPos.z) {
         minPos.z = point.z;
-    } 
+    }
     if (point.x > maxPos.x) {
         maxPos.x = point.x;
-    }  
+    }
     if (point.y > maxPos.y) {
         maxPos.y = point.y;
     }
@@ -118,7 +118,7 @@ void AABB::merge(const cc::Vec3& point) {
     setHalfExtents(maxPos.x - center.x, maxPos.y - center.y, maxPos.z - center.z);
 }
 
-void AABB::merge(const Frustum& frustum) {
+void AABB::merge(const Frustum &frustum) {
     const std::array<Vec3, 8> &vertices = frustum.vertices;
     for (uint i = 0; i < vertices.max_size(); ++i) {
         merge(vertices[i]);
@@ -134,6 +134,15 @@ void AABB::transform(const Mat4 &m, AABB *out) const {
     AABBLayout *layout = out->_aabbLayout;
     layout->center.transformMat4(getCenter(), m);
     transformExtentM4(&layout->halfExtents, getHalfExtents(), m);
+}
+
+bool AABB::contain(const cc::Vec3 &point) const {
+    cc::Vec3 minPos = getCenter() - getHalfExtents();
+    cc::Vec3 maxPos = getCenter() + getHalfExtents();
+
+    return !(point.x > maxPos.x || point.x < minPos.x ||
+             point.y > maxPos.y || point.y < minPos.y ||
+             point.z > maxPos.z || point.z < minPos.z);
 }
 
 void AABB::transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4) {

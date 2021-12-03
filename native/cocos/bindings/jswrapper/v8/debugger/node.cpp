@@ -2,9 +2,9 @@
 
 #if (SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8) && SE_ENABLE_INSPECTOR
 
-    #include "util.h"
     #include "env.h"
     #include "http_parser.h"
+    #include "util.h"
 
     #include <signal.h>
     #include <stdio.h>
@@ -367,14 +367,14 @@ namespace node {
 
 static bool v8_is_profiling = false;
 
-Local<Value> ErrnoException(Isolate *isolate,
-                            int errorno,
+Local<Value> ErrnoException(Isolate *   isolate,
+                            int         errorno,
                             const char *syscall,
                             const char *msg,
                             const char *path) {
     Environment *env = Environment::GetCurrent(isolate);
 
-    Local<Value> e;
+    Local<Value>  e;
     Local<String> estring = OneByteString(env->isolate(), errno_string(errorno));
     if (msg == nullptr || msg[0] == '\0') {
         msg = strerror(errorno);
@@ -426,16 +426,16 @@ static Local<String> StringFromPath(Isolate *isolate, const char *path) {
     return String::NewFromUtf8(isolate, path, v8::NewStringType::kNormal).ToLocalChecked();
 }
 
-Local<Value> UVException(Isolate *isolate,
-                         int errorno,
+Local<Value> UVException(Isolate *   isolate,
+                         int         errorno,
                          const char *syscall,
                          const char *msg,
                          const char *path) {
     return UVException(isolate, errorno, syscall, msg, path, nullptr);
 }
 
-Local<Value> UVException(Isolate *isolate,
-                         int errorno,
+Local<Value> UVException(Isolate *   isolate,
+                         int         errorno,
                          const char *syscall,
                          const char *msg,
                          const char *path,
@@ -445,16 +445,16 @@ Local<Value> UVException(Isolate *isolate,
     if (!msg || !msg[0])
         msg = uv_strerror(errorno);
 
-    Local<String> js_code = OneByteString(isolate, uv_err_name(errorno));
+    Local<String> js_code    = OneByteString(isolate, uv_err_name(errorno));
     Local<String> js_syscall = OneByteString(isolate, syscall);
     Local<String> js_path;
     Local<String> js_dest;
 
     Local<String> js_msg = js_code;
-    js_msg = String::Concat(isolate, js_msg, FIXED_ONE_BYTE_STRING(isolate, ": "));
-    js_msg = String::Concat(isolate, js_msg, OneByteString(isolate, msg));
-    js_msg = String::Concat(isolate, js_msg, FIXED_ONE_BYTE_STRING(isolate, ", "));
-    js_msg = String::Concat(isolate, js_msg, js_syscall);
+    js_msg               = String::Concat(isolate, js_msg, FIXED_ONE_BYTE_STRING(isolate, ": "));
+    js_msg               = String::Concat(isolate, js_msg, OneByteString(isolate, msg));
+    js_msg               = String::Concat(isolate, js_msg, FIXED_ONE_BYTE_STRING(isolate, ", "));
+    js_msg               = String::Concat(isolate, js_msg, js_syscall);
 
     if (path != nullptr) {
         js_path = StringFromPath(isolate, path);
@@ -485,12 +485,12 @@ Local<Value> UVException(Isolate *isolate,
     return e;
 }
 
-MaybeLocal<Value> MakeCallback(Environment *env,
-                               Local<Value> recv,
+MaybeLocal<Value> MakeCallback(Environment *         env,
+                               Local<Value>          recv,
                                const Local<Function> callback,
-                               int argc,
-                               Local<Value> argv[],
-                               async_context asyncContext) {
+                               int                   argc,
+                               Local<Value>          argv[],
+                               async_context         asyncContext) {
     // If you hit this assertion, you forgot to enter the v8::Context first.
     CHECK_EQ(env->context(), env->isolate()->GetCurrentContext());
 
@@ -571,11 +571,11 @@ MaybeLocal<Value> MakeCallback(Environment *env,
 
 // Public MakeCallback()s
 
-MaybeLocal<Value> MakeCallback(Isolate *isolate,
+MaybeLocal<Value> MakeCallback(Isolate *     isolate,
                                Local<Object> recv,
-                               const char *method,
-                               int argc,
-                               Local<Value> argv[],
+                               const char *  method,
+                               int           argc,
+                               Local<Value>  argv[],
                                async_context asyncContext) {
     Local<String> method_string =
         String::NewFromUtf8(isolate, method, v8::NewStringType::kNormal)
@@ -583,11 +583,11 @@ MaybeLocal<Value> MakeCallback(Isolate *isolate,
     return MakeCallback(isolate, recv, method_string, argc, argv, asyncContext);
 }
 
-MaybeLocal<Value> MakeCallback(Isolate *isolate,
+MaybeLocal<Value> MakeCallback(Isolate *     isolate,
                                Local<Object> recv,
                                Local<String> symbol,
-                               int argc,
-                               Local<Value> argv[],
+                               int           argc,
+                               Local<Value>  argv[],
                                async_context asyncContext) {
     Local<Value> callback_v = recv->Get(isolate->GetCurrentContext(), symbol).ToLocalChecked();
     if (callback_v.IsEmpty()) return Local<Value>();
@@ -596,12 +596,12 @@ MaybeLocal<Value> MakeCallback(Isolate *isolate,
     return MakeCallback(isolate, recv, callback, argc, argv, asyncContext);
 }
 
-MaybeLocal<Value> MakeCallback(Isolate *isolate,
-                               Local<Object> recv,
+MaybeLocal<Value> MakeCallback(Isolate *       isolate,
+                               Local<Object>   recv,
                                Local<Function> callback,
-                               int argc,
-                               Local<Value> argv[],
-                               async_context asyncContext) {
+                               int             argc,
+                               Local<Value>    argv[],
+                               async_context   asyncContext) {
     // Observe the following two subtleties:
     //
     // 1. The environment is retrieved from the callback function's context.
@@ -609,7 +609,7 @@ MaybeLocal<Value> MakeCallback(Isolate *isolate,
     //
     // Because of the AssignToContext() call in src/node_contextify.cc,
     // the two contexts need not be the same.
-    Environment *env = Environment::GetCurrent(callback->CreationContext());
+    Environment *  env = Environment::GetCurrent(callback->GetCreationContext().ToLocalChecked());
     Context::Scope context_scope(env->context());
     return MakeCallback(env, recv.As<Value>(), callback, argc, argv,
                         asyncContext);
@@ -617,10 +617,10 @@ MaybeLocal<Value> MakeCallback(Isolate *isolate,
 
 // Legacy MakeCallback()s
 
-Local<Value> MakeCallback(Isolate *isolate,
+Local<Value> MakeCallback(Isolate *     isolate,
                           Local<Object> recv,
-                          const char *method,
-                          int argc,
+                          const char *  method,
+                          int           argc,
                           Local<Value> *argv) {
     EscapableHandleScope handle_scope(isolate);
     return handle_scope.Escape(
@@ -628,10 +628,10 @@ Local<Value> MakeCallback(Isolate *isolate,
             .FromMaybe(Local<Value>()));
 }
 
-Local<Value> MakeCallback(Isolate *isolate,
+Local<Value> MakeCallback(Isolate *     isolate,
                           Local<Object> recv,
                           Local<String> symbol,
-                          int argc,
+                          int           argc,
                           Local<Value> *argv) {
     EscapableHandleScope handle_scope(isolate);
     return handle_scope.Escape(
@@ -639,11 +639,11 @@ Local<Value> MakeCallback(Isolate *isolate,
             .FromMaybe(Local<Value>()));
 }
 
-Local<Value> MakeCallback(Isolate *isolate,
-                          Local<Object> recv,
+Local<Value> MakeCallback(Isolate *       isolate,
+                          Local<Object>   recv,
                           Local<Function> callback,
-                          int argc,
-                          Local<Value> *argv) {
+                          int             argc,
+                          Local<Value> *  argv) {
     EscapableHandleScope handle_scope(isolate);
     return handle_scope.Escape(
         MakeCallback(isolate, recv, callback, argc, argv, {0, 0})
@@ -658,16 +658,16 @@ void FreeIsolateData(IsolateData *isolate_data) {
     delete isolate_data;
 }
 
-Environment *CreateEnvironment(IsolateData *isolate_data,
-                               Local<Context> context,
-                               int argc,
+Environment *CreateEnvironment(IsolateData *      isolate_data,
+                               Local<Context>     context,
+                               int                argc,
                                const char *const *argv,
-                               int exec_argc,
+                               int                exec_argc,
                                const char *const *exec_argv) {
-    Isolate *isolate = context->GetIsolate();
-    HandleScope handle_scope(isolate);
+    Isolate *      isolate = context->GetIsolate();
+    HandleScope    handle_scope(isolate);
     Context::Scope context_scope(context);
-    auto env = new Environment(isolate_data, context);
+    auto           env = new Environment(isolate_data, context);
     env->Start(argc, argv, exec_argc, exec_argv, v8_is_profiling);
     return env;
 }
@@ -684,11 +684,11 @@ NO_RETURN void Abort() {
 
 NO_RETURN void Assert(const char *const (*args)[4]) {
     auto filename = (*args)[0];
-    auto linenum = (*args)[1];
-    auto message = (*args)[2];
+    auto linenum  = (*args)[1];
+    auto message  = (*args)[2];
     auto function = (*args)[3];
 
-    char exepath[256];
+    char   exepath[256];
     size_t exepath_size = sizeof(exepath);
     if (uv_exepath(exepath, &exepath_size))
         snprintf(exepath, sizeof(exepath), "node");
@@ -728,25 +728,25 @@ static void Abort(const FunctionCallbackInfo<Value> &args) {
                 .FromJust();                                                         \
         } while (0)
 
-static void ProcessTitleGetter(Local<Name> property,
+static void ProcessTitleGetter(Local<Name>                        property,
                                const PropertyCallbackInfo<Value> &info) {
     char buffer[512];
     uv_get_process_title(buffer, sizeof(buffer));
     info.GetReturnValue().Set(String::NewFromUtf8(info.GetIsolate(), buffer, v8::NewStringType::kNormal).ToLocalChecked());
 }
 
-static void ProcessTitleSetter(Local<Name> property,
-                               Local<Value> value,
+static void ProcessTitleSetter(Local<Name>                       property,
+                               Local<Value>                      value,
                                const PropertyCallbackInfo<void> &info) {
     node::Utf8Value title(info.GetIsolate(), value);
     // REFINE(piscisaureus): protect with a lock
     uv_set_process_title(*title);
 }
 
-void SetupProcessObject(Environment *env,
-                        int argc,
+void SetupProcessObject(Environment *      env,
+                        int                argc,
                         const char *const *argv,
-                        int exec_argc,
+                        int                exec_argc,
                         const char *const *exec_argv) {
     HandleScope scope(env->isolate());
 

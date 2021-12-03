@@ -33,9 +33,10 @@
 #include "../RenderQueue.h"
 #include "../helper/Utils.h"
 #include "ForwardPipeline.h"
-#include "pipeline/common/UIPhase.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "pipeline/UIPhase.h"
+
 
 namespace cc {
 namespace pipeline {
@@ -67,10 +68,10 @@ void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
     for (const auto &descriptor : _renderQueueDescriptors) {
-        const uint                phase    = convertPhase(descriptor.stages);
-        const RenderQueueSortFunc sortFunc = convertQueueSortFunc(descriptor.sortMode);
-        RenderQueueCreateInfo     info     = {descriptor.isTransparent, phase, sortFunc};
-        _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
+        uint                  phase    = convertPhase(descriptor.stages);
+        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
+        _renderQueues.emplace_back(CC_NEW(RenderQueue(_pipeline, std::move(info), true)));
     }
 
     _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
@@ -140,45 +141,39 @@ void ForwardStage::render(scene::Camera *camera) {
     auto *const sceneData  = _pipeline->getPipelineSceneData();
     auto *const sharedData = sceneData->getSharedData();
 
-    _renderArea = pipeline->getRenderArea(camera);
+    float shadingScale{_pipeline->getPipelineSceneData()->getSharedData()->shadingScale};
+    _renderArea = RenderPipeline::getRenderArea(camera);
     // Command 'updateBuffer' must be recorded outside render passes, cannot put them in execute lambda
     dispenseRenderObject2Queues();
-    pipeline->getPipelineUBO()->updateShadowUBO(camera);
     auto *cmdBuff{pipeline->getCommandBuffers()[0]};
+    pipeline->getPipelineUBO()->updateShadowUBO(camera);
 
     _instancedQueue->uploadBuffers(cmdBuff);
     _batchedQueue->uploadBuffers(cmdBuff);
     _additiveLightQueue->gatherLightPasses(camera, cmdBuff);
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
-
     auto forwardSetup = [&](framegraph::PassNodeBuilder &builder, RenderData &data) {
         if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
-            if (sharedData->isHDR) {
-                srgbToLinear(&_clearColors[0], camera->clearColor);
-                auto scale{sharedData->fpScale / camera->exposure};
-                _clearColors[0].x *= scale;
-                _clearColors[0].y *= scale;
-                _clearColors[0].z *= scale;
-            } else {
-                _clearColors[0].x = camera->clearColor.x;
-                _clearColors[0].y = camera->clearColor.y;
-                _clearColors[0].z = camera->clearColor.z;
-            }
+            _clearColors[0].x = camera->clearColor.x;
+            _clearColors[0].y = camera->clearColor.y;
+            _clearColors[0].z = camera->clearColor.z;
         }
         _clearColors[0].w = camera->clearColor.w;
         // color
         framegraph::Texture::Descriptor colorTexInfo;
         colorTexInfo.format = sharedData->isHDR ? gfx::Format::RGBA16F : gfx::Format::RGBA8;
-        colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED;
-        colorTexInfo.width  = pipeline->getWidth();
-        colorTexInfo.height = pipeline->getHeight();
-        data.outputTex      = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+        colorTexInfo.usage  = gfx::TextureUsageBit::COLOR_ATTACHMENT;
+        colorTexInfo.width  = static_cast<uint>(pipeline->getWidth() * shadingScale);
+        colorTexInfo.height = static_cast<uint>(pipeline->getHeight() * shadingScale);
+        if (shadingScale != 1.F) {
+            colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
+        }
+        data.outputTex      = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
         colorAttachmentInfo.loadOp     = gfx::LoadOp::CLEAR;
-
-        auto clearFlags = static_cast<gfx::ClearFlagBit>(camera->clearFlag);
+        auto clearFlags                = static_cast<gfx::ClearFlagBit>(camera->clearFlag);
         if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
             if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
@@ -186,8 +181,7 @@ void ForwardStage::render(scene::Camera *camera) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
             }
         }
-        colorAttachmentInfo.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE};
+        colorAttachmentInfo.endAccesses   = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
         data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
         // depth
@@ -195,8 +189,8 @@ void ForwardStage::render(scene::Camera *camera) {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
             gfx::Format::DEPTH_STENCIL,
-            camera->window->getWidth(),
-            camera->window->getHeight(),
+            static_cast<uint>(pipeline->getWidth() * shadingScale),
+            static_cast<uint>(pipeline->getHeight() * shadingScale),
         };
 
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
@@ -206,33 +200,35 @@ void ForwardStage::render(scene::Camera *camera) {
         depthAttachmentInfo.clearStencil = camera->clearStencil;
         depthAttachmentInfo.endAccesses  = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
 
-        data.depth = builder.create<framegraph::Texture>(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
+        data.depth = builder.create(RenderPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutDepthTexture, data.depth);
-
-        builder.setViewport(_renderArea);
+        builder.setViewport(pipeline->getViewport(camera), pipeline->getScissor(camera));
     };
 
     auto offset      = _pipeline->getPipelineUBO()->getCurrentCameraUBOOffset();
     auto forwardExec = [this, camera, offset](const RenderData & /*data*/, const framegraph::DevicePassResourceTable &table) {
-        auto *                    renderPass    = table.getRenderPass();
-        auto *                    cmdBuff       = _pipeline->getCommandBuffers()[0];
+        auto *renderPass = table.getRenderPass();
+        auto *cmdBuff    = _pipeline->getCommandBuffers()[0];
         cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
         if (!_pipeline->getPipelineSceneData()->getRenderObjects().empty()) {
-            _renderQueues[0]->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _renderQueues[0]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
             _instancedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _batchedQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
 
-            _additiveLightQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _additiveLightQueue->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
 
             cmdBuff->bindDescriptorSet(globalSet, _pipeline->getDescriptorSet(), 1, &offset);
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
-            _renderQueues[1]->recordCommandBuffer(_device, renderPass, cmdBuff);
+            _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
+        _uiPhase->render(camera, renderPass);
+        renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
     };
 
     // add pass
     pipeline->getFrameGraph().addPass<RenderData>(static_cast<uint>(ForwardInsertPoint::IP_FORWARD), ForwardPipeline::fgStrHandleForwardPass, forwardSetup, forwardExec);
+    pipeline->getFrameGraph().presentFromBlackboard(RenderPipeline::fgStrHandleOutColorTexture, camera->window->frameBuffer->getColorTextures()[0], true);
 }
 
 } // namespace pipeline

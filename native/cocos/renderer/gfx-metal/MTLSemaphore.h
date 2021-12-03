@@ -48,6 +48,12 @@ public:
     void wait() const {
         dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
     }
+    
+    void trySyncAll(uint64_t nanoSec) {
+        for (uint i = 0; i < _semaphoreCount; i++) {
+            dispatch_semaphore_wait(_semaphore, nanoSec);
+        }
+    }
 
     void syncAll() {
         for (uint i = 0; i < _semaphoreCount; i++) {

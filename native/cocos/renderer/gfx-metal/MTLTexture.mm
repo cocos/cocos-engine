@@ -176,12 +176,17 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
     if(hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
+        // mac SDK mem_less unavailable before 11.0
+#if MAC_MEMORY_LESS_TEXTURE_SUPPORT || CC_PLATFORM == CC_PLATFORM_MAC_IOS
         //xcode OS version warning
         if (@available(macOS 11.0, *)) {
             descriptor.storageMode = MTLStorageModeMemoryless;
         } else {
             descriptor.storageMode = MTLStorageModePrivate;
         }
+#else
+        descriptor.storageMode = MTLStorageModePrivate;
+#endif
     } else if (hasFlag(_info.usage, TextureUsage::COLOR_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) || hasFlag(_info.usage, TextureUsage::INPUT_ATTACHMENT)) {
         descriptor.storageMode = MTLStorageModePrivate;
     }

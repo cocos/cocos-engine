@@ -56,8 +56,6 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
         return;
     }
 
-    auto *const pipelineUBO = _pipeline->getPipelineUBO();
-    pipelineUBO->updateShadowUBO(camera);
     const auto *scene         = camera->scene;
     const bool  shadowVisible = camera->visibility & static_cast<uint>(LayerList::DEFAULT);
 

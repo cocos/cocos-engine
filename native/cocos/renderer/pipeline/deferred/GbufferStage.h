@@ -29,6 +29,9 @@
 #include "pipeline/RenderStage.h"
 
 namespace cc {
+namespace scene {
+struct Camera;
+}
 namespace pipeline {
 
 class RenderFlow;
@@ -54,13 +57,12 @@ public:
 
 private:
     void dispenseRenderObject2Queues();
-    void recordCommands(DeferredPipeline *pipeline, gfx::RenderPass *renderPass);
+    void recordCommands(DeferredPipeline *pipeline, scene::Camera *camera, gfx::RenderPass *renderPass);
 
     static RenderStageInfo initInfo;
     PlanarShadowQueue *    _planarShadowQueue = nullptr;
     RenderBatchedQueue *   _batchedQueue      = nullptr;
     RenderInstancedQueue * _instancedQueue    = nullptr;
-    gfx::Rect              _renderArea;
     uint                   _phaseID = 0;
 };
 

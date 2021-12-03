@@ -20,8 +20,8 @@
 #include "cocos/renderer/pipeline/deferred/MainFlow.h"
 #include "cocos/renderer/pipeline/deferred/GbufferStage.h"
 #include "cocos/renderer/pipeline/deferred/LightingStage.h"
-#include "cocos/renderer/pipeline/common/BloomStage.h"
-#include "cocos/renderer/pipeline/common/PostProcessStage.h"
+#include "cocos/renderer/pipeline/deferred/BloomStage.h"
+#include "cocos/renderer/pipeline/deferred/PostProcessStage.h"
 
 extern se::Object* __jsb_cc_pipeline_RenderQueueDesc_proto;
 extern se::Class* __jsb_cc_pipeline_RenderQueueDesc_class;
@@ -74,23 +74,29 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_createQuadInputAssembler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_destroy);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_ensureEnoughSize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_genQuadVertexData);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getBloomEnable);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getClearcolor);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getDevice);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getFrameGraph);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getHeight);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getIAByRenderArea);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getOcclusionQueryEnabled);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getProfiler);
-SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getQueryPools);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderstageByName);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getScissor);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getViewport);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isEnvmapEnabled);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isOccluded);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setOcclusionQueryEnabled);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setProfiler);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setValue);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_updateQuadVertexData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getInstance);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getRenderArea);
 
 extern se::Object* __jsb_cc_pipeline_ForwardPipeline_proto;
 extern se::Class* __jsb_cc_pipeline_ForwardPipeline_class;
@@ -99,8 +105,6 @@ bool js_register_cc_pipeline_ForwardPipeline(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::ForwardPipeline);
-SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getHeight);
-SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_getWidth);
 SE_DECLARE_FUNC(js_pipeline_ForwardPipeline_ForwardPipeline);
 
 extern se::Object* __jsb_cc_pipeline_RenderFlowInfo_proto;
@@ -198,8 +202,8 @@ bool register_all_pipeline(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::InstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroy);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset);
-SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_get);
+SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_destroyInstancedBuffer);
 SE_DECLARE_FUNC(js_pipeline_InstancedBuffer_InstancedBuffer);
 
 extern se::Object* __jsb_cc_pipeline_DeferredPipeline_proto;
@@ -248,7 +252,9 @@ bool js_register_cc_pipeline_BloomStage(se::Object* obj);
 bool register_all_pipeline(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::BloomStage);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getCombineUBO);
 SE_DECLARE_FUNC(js_pipeline_BloomStage_getDownsampelUBO);
+SE_DECLARE_FUNC(js_pipeline_BloomStage_getPrefilterUBO);
 SE_DECLARE_FUNC(js_pipeline_BloomStage_getSampler);
 SE_DECLARE_FUNC(js_pipeline_BloomStage_getUpsampleUBO);
 SE_DECLARE_FUNC(js_pipeline_BloomStage_getInitializeInfo);

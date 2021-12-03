@@ -92,13 +92,6 @@ private:
     StringArray _extensions;
 };
 
-class GLES2GPUSwapchain final : public Object {
-public:
-    EGLSurface eglSurface{EGL_NO_SURFACE};
-    EGLint     eglSwapInterval{0};
-    GLuint     glFramebuffer{0};
-};
-
 class GLES2GPUBuffer final : public Object {
 public:
     BufferUsage  usage    = BufferUsage::NONE;
@@ -151,6 +144,14 @@ public:
 };
 
 using GLES2GPUTextureList = vector<GLES2GPUTexture *>;
+
+class GLES2GPUSwapchain final : public Object {
+public:
+    EGLSurface       eglSurface{EGL_NO_SURFACE};
+    EGLint           eglSwapInterval{0};
+    GLuint           glFramebuffer{0};
+    GLES2GPUTexture *gpuColorTexture{nullptr};
+};
 
 class GLES2GPUSampler final : public Object {
 public:
@@ -285,17 +286,31 @@ public:
     GLES2GPUTexture *   gpuDepthStencilTexture{nullptr};
     bool                usesFBF{false};
 
+    struct GLFramebufferInfo {
+        GLuint   glFramebuffer{0U};
+        uint32_t width{UINT_MAX};
+        uint32_t height{UINT_MAX};
+    };
+
     struct GLFramebuffer {
-        inline void   initialize(GLES2GPUSwapchain *sc) { swapchain = sc; }
-        inline void   initialize(GLuint framebuffer) { _glFramebuffer = framebuffer; }
-        inline GLuint getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
+        inline void initialize(GLES2GPUSwapchain *sc) { swapchain = sc; }
+        inline void initialize(const GLFramebufferInfo &info) {
+            _glFramebuffer = info.glFramebuffer;
+            _width         = info.width;
+            _height        = info.height;
+        }
+        inline GLuint   getFramebuffer() const { return swapchain ? swapchain->glFramebuffer : _glFramebuffer; }
+        inline uint32_t getWidth() const { return swapchain ? swapchain->gpuColorTexture->width : _width; }
+        inline uint32_t getHeight() const { return swapchain ? swapchain->gpuColorTexture->height : _height; }
 
         void destroy(GLES2GPUStateCache *cache, GLES2GPUFramebufferCacheMap *framebufferCacheMap);
 
         GLES2GPUSwapchain *swapchain{nullptr};
 
     private:
-        GLuint _glFramebuffer{0U};
+        GLuint   _glFramebuffer{0U};
+        uint32_t _width{0U};
+        uint32_t _height{0U};
     };
 
     struct Framebuffer {
@@ -565,6 +580,27 @@ private:
     using CacheMap = unordered_map<GLuint, FramebufferRecord>;
     CacheMap _renderbufferMap; // renderbuffer -> framebuffer
     CacheMap _textureMap;      // texture -> framebuffer
+};
+
+class GLES2GPUFramebufferHub final : public Object {
+public:
+    void connect(GLES2GPUTexture *texture, GLES2GPUFramebuffer *framebuffer) {
+        _framebuffers[texture].push_back(framebuffer);
+    }
+
+    void disengage(GLES2GPUTexture *texture) {
+        _framebuffers.erase(texture);
+    }
+
+    void disengage(GLES2GPUTexture *texture, GLES2GPUFramebuffer *framebuffer) {
+        auto &pool = _framebuffers[texture];
+        pool.erase(std::remove(pool.begin(), pool.end(), framebuffer), pool.end());
+    }
+
+    void update(GLES2GPUTexture *texture);
+
+private:
+    unordered_map<GLES2GPUTexture *, vector<GLES2GPUFramebuffer *>> _framebuffers;
 };
 
 } // namespace gfx

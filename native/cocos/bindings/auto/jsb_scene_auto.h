@@ -58,6 +58,8 @@ bool js_register_cc_scene_Light(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Light);
+SE_DECLARE_FUNC(js_scene_Light_getBaked);
+SE_DECLARE_FUNC(js_scene_Light_setBaked);
 SE_DECLARE_FUNC(js_scene_Light_setColor);
 SE_DECLARE_FUNC(js_scene_Light_setColorTemperatureRGB);
 SE_DECLARE_FUNC(js_scene_Light_setNode);
@@ -73,7 +75,8 @@ bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::DirectionalLight);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_setDirection);
-SE_DECLARE_FUNC(js_scene_DirectionalLight_setIlluminance);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setIlluminanceHDR);
+SE_DECLARE_FUNC(js_scene_DirectionalLight_setIlluminanceLDR);
 SE_DECLARE_FUNC(js_scene_DirectionalLight_DirectionalLight);
 
 extern se::Object* __jsb_cc_scene_Plane_proto;
@@ -110,6 +113,7 @@ bool js_register_cc_scene_AABB(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::AABB);
+SE_DECLARE_FUNC(js_scene_AABB_contain);
 SE_DECLARE_FUNC(js_scene_AABB_getLayout);
 SE_DECLARE_FUNC(js_scene_AABB_initWithData);
 SE_DECLARE_FUNC(js_scene_AABB_AABB);
@@ -126,7 +130,8 @@ SE_DECLARE_FUNC(js_scene_SpotLight_setAngle);
 SE_DECLARE_FUNC(js_scene_SpotLight_setAspect);
 SE_DECLARE_FUNC(js_scene_SpotLight_setDirection);
 SE_DECLARE_FUNC(js_scene_SpotLight_setFrustum);
-SE_DECLARE_FUNC(js_scene_SpotLight_setIlluminance);
+SE_DECLARE_FUNC(js_scene_SpotLight_setLuminanceHDR);
+SE_DECLARE_FUNC(js_scene_SpotLight_setLuminanceLDR);
 SE_DECLARE_FUNC(js_scene_SpotLight_setNeedUpdate);
 SE_DECLARE_FUNC(js_scene_SpotLight_setPosition);
 SE_DECLARE_FUNC(js_scene_SpotLight_setRange);
@@ -141,7 +146,8 @@ bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SphereLight);
 SE_DECLARE_FUNC(js_scene_SphereLight_setAABB);
-SE_DECLARE_FUNC(js_scene_SphereLight_setIlluminance);
+SE_DECLARE_FUNC(js_scene_SphereLight_setLuminanceHDR);
+SE_DECLARE_FUNC(js_scene_SphereLight_setLuminanceLDR);
 SE_DECLARE_FUNC(js_scene_SphereLight_setPosition);
 SE_DECLARE_FUNC(js_scene_SphereLight_setRange);
 SE_DECLARE_FUNC(js_scene_SphereLight_setSize);
@@ -169,6 +175,7 @@ SE_DECLARE_FUNC(js_scene_Model_getTransform);
 SE_DECLARE_FUNC(js_scene_Model_getTransformUpdated);
 SE_DECLARE_FUNC(js_scene_Model_getUpdatStamp);
 SE_DECLARE_FUNC(js_scene_Model_getVisFlags);
+SE_DECLARE_FUNC(js_scene_Model_getWorldBoundBuffer);
 SE_DECLARE_FUNC(js_scene_Model_seVisFlag);
 SE_DECLARE_FUNC(js_scene_Model_setBounds);
 SE_DECLARE_FUNC(js_scene_Model_setCastShadow);
@@ -179,8 +186,10 @@ SE_DECLARE_FUNC(js_scene_Model_setNode);
 SE_DECLARE_FUNC(js_scene_Model_setReceiveShadow);
 SE_DECLARE_FUNC(js_scene_Model_setSubModel);
 SE_DECLARE_FUNC(js_scene_Model_setTransform);
+SE_DECLARE_FUNC(js_scene_Model_setWorldBoundBuffer);
 SE_DECLARE_FUNC(js_scene_Model_updateTransform);
 SE_DECLARE_FUNC(js_scene_Model_updateUBOs);
+SE_DECLARE_FUNC(js_scene_Model_updateWorldBoundUBOs);
 SE_DECLARE_FUNC(js_scene_Model_Model);
 
 extern se::Object* __jsb_cc_scene_Fog_proto;
@@ -223,6 +232,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::scene::Ambient *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Ambient);
 
+extern se::Object* __jsb_cc_scene_OctreeInfo_proto;
+extern se::Class* __jsb_cc_scene_OctreeInfo_class;
+
+bool js_register_cc_scene_OctreeInfo(se::Object* obj);
+bool register_all_scene(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::scene::OctreeInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::scene::OctreeInfo);
+
 extern se::Object* __jsb_cc_scene_PipelineSharedSceneData_proto;
 extern se::Class* __jsb_cc_scene_PipelineSharedSceneData_class;
 
@@ -250,6 +269,8 @@ bool js_register_cc_scene_SubModel(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::SubModel);
+SE_DECLARE_FUNC(js_scene_SubModel_getId);
+SE_DECLARE_FUNC(js_scene_SubModel_getOwner);
 SE_DECLARE_FUNC(js_scene_SubModel_getPass);
 SE_DECLARE_FUNC(js_scene_SubModel_getPasses);
 SE_DECLARE_FUNC(js_scene_SubModel_getPlanarInstanceShader);
@@ -257,13 +278,16 @@ SE_DECLARE_FUNC(js_scene_SubModel_getPlanarShader);
 SE_DECLARE_FUNC(js_scene_SubModel_getPriority);
 SE_DECLARE_FUNC(js_scene_SubModel_getShader);
 SE_DECLARE_FUNC(js_scene_SubModel_getShaders);
+SE_DECLARE_FUNC(js_scene_SubModel_getWorldBoundDescriptorSet);
 SE_DECLARE_FUNC(js_scene_SubModel_setDescriptorSet);
 SE_DECLARE_FUNC(js_scene_SubModel_setInputAssembler);
+SE_DECLARE_FUNC(js_scene_SubModel_setOwner);
 SE_DECLARE_FUNC(js_scene_SubModel_setPasses);
 SE_DECLARE_FUNC(js_scene_SubModel_setPlanarInstanceShader);
 SE_DECLARE_FUNC(js_scene_SubModel_setPlanarShader);
 SE_DECLARE_FUNC(js_scene_SubModel_setPriority);
 SE_DECLARE_FUNC(js_scene_SubModel_setShaders);
+SE_DECLARE_FUNC(js_scene_SubModel_setWorldBoundDescriptorSet);
 SE_DECLARE_FUNC(js_scene_SubModel_update);
 SE_DECLARE_FUNC(js_scene_SubModel_SubModel);
 
@@ -399,6 +423,7 @@ bool js_register_cc_scene_RenderScene(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::RenderScene);
+SE_DECLARE_FUNC(js_scene_RenderScene_activate);
 SE_DECLARE_FUNC(js_scene_RenderScene_addBakedSkinningModel);
 SE_DECLARE_FUNC(js_scene_RenderScene_addBatch);
 SE_DECLARE_FUNC(js_scene_RenderScene_addModel);

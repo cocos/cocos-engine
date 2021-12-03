@@ -30,6 +30,7 @@
 #include "VKFramebuffer.h"
 #include "VKRenderPass.h"
 #include "VKTexture.h"
+#include "base/memory/Memory.h"
 
 namespace cc {
 namespace gfx {
@@ -48,14 +49,15 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
 
     _gpuFBO->gpuColorViews.resize(_colorTextures.size());
     for (size_t i = 0; i < _colorTextures.size(); ++i) {
-        auto *colorTex = static_cast<CCVKTexture *>(_colorTextures[i]);
-        if (colorTex) {
-            _gpuFBO->gpuColorViews[i] = colorTex->gpuTextureView();
-        }
+        auto *colorTex            = static_cast<CCVKTexture *>(_colorTextures[i]);
+        _gpuFBO->gpuColorViews[i] = colorTex->gpuTextureView();
+        CCVKDevice::getInstance()->gpuFramebufferHub()->connect(colorTex->gpuTexture(), _gpuFBO);
     }
 
     if (_depthStencilTexture) {
-        _gpuFBO->gpuDepthStencilView = static_cast<CCVKTexture *>(_depthStencilTexture)->gpuTextureView();
+        auto *depthTex               = static_cast<CCVKTexture *>(_depthStencilTexture);
+        _gpuFBO->gpuDepthStencilView = depthTex->gpuTextureView();
+        CCVKDevice::getInstance()->gpuFramebufferHub()->connect(depthTex->gpuTexture(), _gpuFBO);
     }
 
     cmdFuncCCVKCreateFramebuffer(CCVKDevice::getInstance(), _gpuFBO);
@@ -63,7 +65,18 @@ void CCVKFramebuffer::doInit(const FramebufferInfo & /*info*/) {
 
 void CCVKFramebuffer::doDestroy() {
     if (_gpuFBO) {
+        for (auto &colorTexture : _colorTextures) {
+            auto *colorTex = static_cast<CCVKTexture *>(colorTexture);
+            CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(colorTex->gpuTexture(), _gpuFBO);
+        }
+
+        if (_depthStencilTexture) {
+            auto *depthTex = static_cast<CCVKTexture *>(_depthStencilTexture);
+            CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(depthTex->gpuTexture(), _gpuFBO);
+        }
+
         CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuFBO);
+        CC_SAFE_DELETE(_gpuFBO);
         _gpuFBO = nullptr;
     }
 }

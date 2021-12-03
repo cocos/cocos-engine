@@ -35,8 +35,8 @@ public:
     Texture();
     ~Texture() override;
 
-    static uint32_t computeHash(const TextureInfo &info);
-    static uint32_t computeHash(const TextureViewInfo &info);
+    static size_t computeHash(const TextureInfo &info);
+    static size_t computeHash(const TextureViewInfo &info);
 
     void initialize(const TextureInfo &info);
     void initialize(const TextureViewInfo &info);
@@ -48,7 +48,7 @@ public:
 
     inline bool     isTextureView() const { return _isTextureView; }
     inline uint32_t getSize() const { return _size; }
-    inline uint32_t getHash() const { return _hash; }
+    inline size_t   getHash() const { return _hash; }
 
     // convenient getter for common usages
     inline Format   getFormat() const { return _info.format; }
@@ -63,9 +63,9 @@ protected:
     virtual void doDestroy()                                              = 0;
     virtual void doResize(uint32_t width, uint32_t height, uint32_t size) = 0;
 
-    static uint32_t computeHash(const Texture *texture);
-    static void     initialize(const SwapchainTextureInfo &info, Texture *out);
-    virtual void    doInit(const SwapchainTextureInfo &info) = 0;
+    static size_t computeHash(const Texture *texture);
+    static void   initialize(const SwapchainTextureInfo &info, Texture *out);
+    virtual void  doInit(const SwapchainTextureInfo &info) = 0;
 
     TextureInfo     _info;
     TextureViewInfo _viewInfo;
@@ -73,7 +73,7 @@ protected:
     Swapchain *_swapchain{nullptr};
     bool       _isTextureView{false};
     uint32_t   _size{0U};
-    uint32_t   _hash{0U};
+    size_t     _hash{0U};
 };
 
 } // namespace gfx

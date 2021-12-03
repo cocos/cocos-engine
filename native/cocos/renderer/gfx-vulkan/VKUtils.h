@@ -52,28 +52,30 @@ namespace gfx {
 
 class CCVKGPUDevice;
 
-extern VkFormat              mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice);
-extern VkAttachmentLoadOp    mapVkLoadOp(LoadOp loadOp);
-extern VkAttachmentStoreOp   mapVkStoreOp(StoreOp storeOp);
-extern VkBufferUsageFlagBits mapVkBufferUsageFlagBits(BufferUsage usage);
-extern VkImageType           mapVkImageType(TextureType type);
-extern VkFormatFeatureFlags  mapVkFormatFeatureFlags(TextureUsage usage);
-extern VkImageUsageFlagBits  mapVkImageUsageFlagBits(TextureUsage usage);
-extern VkImageAspectFlags    mapVkImageAspectFlags(Format format);
-extern VkImageCreateFlags    mapVkImageCreateFlags(TextureType type);
-extern VkImageViewType       mapVkImageViewType(TextureType viewType);
-extern VkCommandBufferLevel  mapVkCommandBufferLevel(CommandBufferType type);
-extern VkDescriptorType      mapVkDescriptorType(DescriptorType type);
-extern VkColorComponentFlags mapVkColorComponentFlags(ColorMask colorMask);
-extern VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage);
-extern VkShaderStageFlags    mapVkShaderStageFlags(ShaderStageFlagBit stages);
-extern SurfaceTransform      mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform);
-extern String                mapVendorName(uint32_t vendorID);
+VkQueryType           mapVkQueryType(QueryType type);
+VkFormat              mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice);
+VkAttachmentLoadOp    mapVkLoadOp(LoadOp loadOp);
+VkAttachmentStoreOp   mapVkStoreOp(StoreOp storeOp);
+VkBufferUsageFlagBits mapVkBufferUsageFlagBits(BufferUsage usage);
+VkImageType           mapVkImageType(TextureType type);
+VkFormatFeatureFlags  mapVkFormatFeatureFlags(TextureUsage usage);
+VkImageUsageFlagBits  mapVkImageUsageFlagBits(TextureUsage usage);
+VkImageAspectFlags    mapVkImageAspectFlags(Format format);
+VkImageCreateFlags    mapVkImageCreateFlags(TextureType type);
+VkImageViewType       mapVkImageViewType(TextureType viewType);
+VkCommandBufferLevel  mapVkCommandBufferLevel(CommandBufferType type);
+VkDescriptorType      mapVkDescriptorType(DescriptorType type);
+VkColorComponentFlags mapVkColorComponentFlags(ColorMask colorMask);
+VkShaderStageFlagBits mapVkShaderStageFlagBits(ShaderStageFlagBit stage);
+VkShaderStageFlags    mapVkShaderStageFlags(ShaderStageFlagBit stages);
+SurfaceTransform      mapSurfaceTransform(VkSurfaceTransformFlagBitsKHR transform);
+String                mapVendorName(uint32_t vendorID);
 
-extern void         fullPipelineBarrier(VkCommandBuffer cmdBuff);
-extern VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple);
-extern bool         isLayerSupported(const char *required, const vector<VkLayerProperties> &available);
-extern bool         isExtensionSupported(const char *required, const vector<VkExtensionProperties> &available);
+void         fullPipelineBarrier(VkCommandBuffer cmdBuff);
+VkDeviceSize roundUp(VkDeviceSize numToRound, uint32_t multiple);
+bool         isLayerSupported(const char *required, const vector<VkLayerProperties> &available);
+bool         isExtensionSupported(const char *required, const vector<VkExtensionProperties> &available);
+bool         isFormatSupported(VkPhysicalDevice device, VkFormat format);
 
 extern const VkSurfaceTransformFlagsKHR TRANSFORMS_THAT_REQUIRE_FLIPPING;
 extern const VkPrimitiveTopology        VK_PRIMITIVE_MODES[];

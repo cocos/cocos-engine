@@ -49,9 +49,6 @@ if(USE_PHYSICS_PHYSX)
     if (ANDROID AND CMAKE_ANDROID_ARCH_ABI MATCHES x86)
         set(USE_PHYSICS_PHYSX OFF)
         message(AUTHOR_WARNING "Native PhysX does not support Google Android X86")
-    elseif(MACOSX AND CMAKE_OSX_ARCHITECTURES MATCHES arm64)
-        set(USE_PHYSICS_PHYSX OFF)
-        message(AUTHOR_WARNING "Currently Native PhysX not support MacOS arm64")
     endif()
 endif()
 
@@ -954,6 +951,8 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXPipelineState.h
                  cocos/renderer/gfx-base/GFXQueue.cpp
                  cocos/renderer/gfx-base/GFXQueue.h
+                 cocos/renderer/gfx-base/GFXQueryPool.cpp
+                 cocos/renderer/gfx-base/GFXQueryPool.h
                  cocos/renderer/gfx-base/GFXRenderPass.cpp
                  cocos/renderer/gfx-base/GFXRenderPass.h
                  cocos/renderer/gfx-base/GFXShader.cpp
@@ -989,6 +988,8 @@ cocos_source_files(
                  cocos/renderer/gfx-agent/PipelineStateAgent.cpp
                  cocos/renderer/gfx-agent/QueueAgent.h
                  cocos/renderer/gfx-agent/QueueAgent.cpp
+                 cocos/renderer/gfx-agent/QueryPoolAgent.h
+                 cocos/renderer/gfx-agent/QueryPoolAgent.cpp
                  cocos/renderer/gfx-agent/RenderPassAgent.h
                  cocos/renderer/gfx-agent/RenderPassAgent.cpp
                  cocos/renderer/gfx-agent/SwapchainAgent.h
@@ -1018,6 +1019,8 @@ cocos_source_files(
                  cocos/renderer/gfx-validator/PipelineStateValidator.cpp
                  cocos/renderer/gfx-validator/QueueValidator.h
                  cocos/renderer/gfx-validator/QueueValidator.cpp
+                 cocos/renderer/gfx-validator/QueryPoolValidator.h
+                 cocos/renderer/gfx-validator/QueryPoolValidator.cpp
                  cocos/renderer/gfx-validator/RenderPassValidator.h
                  cocos/renderer/gfx-validator/RenderPassValidator.cpp
                  cocos/renderer/gfx-validator/ShaderValidator.h
@@ -1049,6 +1052,8 @@ cocos_source_files(
                  cocos/renderer/gfx-empty/EmptyPipelineState.cpp
                  cocos/renderer/gfx-empty/EmptyQueue.h
                  cocos/renderer/gfx-empty/EmptyQueue.cpp
+                 cocos/renderer/gfx-empty/EmptyQueryPool.h
+                 cocos/renderer/gfx-empty/EmptyQueryPool.cpp
                  cocos/renderer/gfx-empty/EmptyRenderPass.h
                  cocos/renderer/gfx-empty/EmptyRenderPass.cpp
                  cocos/renderer/gfx-empty/EmptyShader.h
@@ -1114,13 +1119,13 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowFlow.h
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp
                  cocos/renderer/pipeline/shadow/ShadowStage.h
-                 cocos/renderer/pipeline/common/Enum.h
-                 cocos/renderer/pipeline/common/BloomStage.cpp
-                 cocos/renderer/pipeline/common/BloomStage.h
-                 cocos/renderer/pipeline/common/PostProcessStage.cpp
-                 cocos/renderer/pipeline/common/PostProcessStage.h
-                 cocos/renderer/pipeline/common/UIPhase.cpp
-                 cocos/renderer/pipeline/common/UIPhase.h
+                 cocos/renderer/pipeline/Enum.h
+                 cocos/renderer/pipeline/deferred/BloomStage.cpp
+                 cocos/renderer/pipeline/deferred/BloomStage.h
+                 cocos/renderer/pipeline/deferred/PostProcessStage.cpp
+                 cocos/renderer/pipeline/deferred/PostProcessStage.h
+                 cocos/renderer/pipeline/UIPhase.cpp
+                 cocos/renderer/pipeline/UIPhase.h
 
                  cocos/renderer/pipeline/helper/DefineMap.h
                  cocos/renderer/pipeline/helper/DefineMap.cpp
@@ -1213,6 +1218,8 @@ if(CC_USE_GLES2)
                      cocos/renderer/gfx-gles2/GLES2PrimaryCommandBuffer.h
                      cocos/renderer/gfx-gles2/GLES2Queue.cpp
                      cocos/renderer/gfx-gles2/GLES2Queue.h
+                     cocos/renderer/gfx-gles2/GLES2QueryPool.cpp
+                     cocos/renderer/gfx-gles2/GLES2QueryPool.h
                      cocos/renderer/gfx-gles2/GLES2RenderPass.cpp
                      cocos/renderer/gfx-gles2/GLES2RenderPass.h
                      cocos/renderer/gfx-gles2/GLES2Shader.cpp
@@ -1259,6 +1266,8 @@ if(CC_USE_GLES3)
                      cocos/renderer/gfx-gles3/GLES3PrimaryCommandBuffer.h
                      cocos/renderer/gfx-gles3/GLES3Queue.cpp
                      cocos/renderer/gfx-gles3/GLES3Queue.h
+                     cocos/renderer/gfx-gles3/GLES3QueryPool.cpp
+                     cocos/renderer/gfx-gles3/GLES3QueryPool.h
                      cocos/renderer/gfx-gles3/GLES3RenderPass.cpp
                      cocos/renderer/gfx-gles3/GLES3RenderPass.h
                      cocos/renderer/gfx-gles3/GLES3Shader.cpp
@@ -1302,6 +1311,8 @@ if(CC_USE_METAL)
                      cocos/renderer/gfx-metal/MTLDescriptorSet.mm
                      cocos/renderer/gfx-metal/MTLQueue.h
                      cocos/renderer/gfx-metal/MTLQueue.mm
+                     cocos/renderer/gfx-metal/MTLQueryPool.h
+                     cocos/renderer/gfx-metal/MTLQueryPool.mm
                      cocos/renderer/gfx-metal/MTLRenderPass.h
                      cocos/renderer/gfx-metal/MTLRenderPass.mm
                      cocos/renderer/gfx-metal/MTLSampler.h
@@ -1353,6 +1364,8 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKPipelineState.h
                      cocos/renderer/gfx-vulkan/VKQueue.cpp
                      cocos/renderer/gfx-vulkan/VKQueue.h
+                     cocos/renderer/gfx-vulkan/VKQueryPool.cpp
+                     cocos/renderer/gfx-vulkan/VKQueryPool.h
                      cocos/renderer/gfx-vulkan/VKRenderPass.cpp
                      cocos/renderer/gfx-vulkan/VKRenderPass.h
                      cocos/renderer/gfx-vulkan/VKShader.cpp
@@ -1899,11 +1912,13 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/Object.h
                      cocos/bindings/jswrapper/v8/ObjectWrap.cpp
                      cocos/bindings/jswrapper/v8/ObjectWrap.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/ScriptEngine.cpp
+                     cocos/bindings/jswrapper/v8/ScriptEngine.cpp
                      cocos/bindings/jswrapper/v8/ScriptEngine.h
                      cocos/bindings/jswrapper/v8/SeApi.h
-                     cocos/bindings/jswrapper/v8/Utils.cpp
+        NO_WERROR    cocos/bindings/jswrapper/v8/Utils.cpp
                      cocos/bindings/jswrapper/v8/Utils.h
+                     cocos/bindings/jswrapper/v8/MissingSymbols.cpp
+                     cocos/bindings/jswrapper/v8/MissingSymbols.h
     )
     if(USE_V8_DEBUGGER)
     cocos_source_files(MODULE ccbindings
@@ -2391,6 +2406,7 @@ if(APPLE)
         "-lsqlite3"
         "-framework Security"
         "-framework SystemConfiguration"
+        "$(inherited)"
         ${CC_EXTERNAL_LIBS}
     )
     set_target_properties(cocos2d PROPERTIES
@@ -2461,5 +2477,5 @@ if(MSVC)
             ${CWD}/external/win64/libs/glslang/*.dll
         )
     endif()
-    target_compile_options(cocos2d PUBLIC /MP)
+    target_compile_options(cocos2d PUBLIC /MP /wd4309)
 endif()

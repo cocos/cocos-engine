@@ -30,7 +30,7 @@
 namespace cc {
 namespace gfx {
 
-GLES3Sampler::GLES3Sampler(const SamplerInfo &info, uint32_t hash) : Sampler(info, hash) {
+GLES3Sampler::GLES3Sampler(const SamplerInfo &info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
 
     _gpuSampler            = CC_NEW(GLES3GPUSampler);
@@ -41,12 +41,12 @@ GLES3Sampler::GLES3Sampler(const SamplerInfo &info, uint32_t hash) : Sampler(inf
     _gpuSampler->addressV  = _info.addressV;
     _gpuSampler->addressW  = _info.addressW;
 
-    cmdFuncGLES3CreateSampler(GLES3Device::getInstance(), _gpuSampler);
+    // GL is not thread-safe, so any actual gl invocations need to be deferred to device thread
+    cmdFuncGLES3PrepareSamplerInfo(GLES3Device::getInstance(), _gpuSampler);
 }
 
 GLES3Sampler::~GLES3Sampler() {
     if (_gpuSampler) {
-        cmdFuncGLES3DestroySampler(GLES3Device::getInstance(), _gpuSampler);
         CC_DELETE(_gpuSampler);
         _gpuSampler = nullptr;
     }

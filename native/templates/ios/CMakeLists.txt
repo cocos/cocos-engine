@@ -13,6 +13,11 @@ set(PROJ_COMMON_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.h
     ${CMAKE_CURRENT_LIST_DIR}/../common/Classes/Game.cpp
 )
+if (USE_PORTRAIT)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackgroundPortrait.png ${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackground.png COPYONLY)
+else()
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackgroundLandscape.png ${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackground.png COPYONLY)
+endif()
 
 set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/LaunchScreenBackground.png
@@ -21,7 +26,9 @@ set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/Base.lproj/LaunchScreen.storyboard
 )
 
-include_resources(${RES_DIR}/assets)
+if(NOT CUSTOM_COPY_RESOURCE_HOOK)
+    include_resources(${RES_DIR}/assets)
+endif()
 
 add_executable(${LIB_NAME} ${PROJ_SOURCES} ${ASSET_FILES} ${PROJ_COMMON_SOURCES})
 source_group(TREE ${RES_DIR}/assets PREFIX "Resources" FILES ${ASSET_FILES})
@@ -54,3 +61,9 @@ set_target_properties(${LIB_NAME} PROPERTIES
     XCODE_ATTRIBUTE_SKIP_INSTALL NO
     XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
 )
+
+if(CUSTOM_COPY_RESOURCE_HOOK)
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${RES_DIR}/assets $<TARGET_FILE_DIR:${LIB_NAME}>
+    )
+endif()

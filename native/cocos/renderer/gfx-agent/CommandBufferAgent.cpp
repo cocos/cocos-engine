@@ -30,6 +30,7 @@
 #include "FramebufferAgent.h"
 #include "InputAssemblerAgent.h"
 #include "PipelineStateAgent.h"
+#include "QueryPoolAgent.h"
 #include "QueueAgent.h"
 #include "RenderPassAgent.h"
 #include "TextureAgent.h"
@@ -98,6 +99,14 @@ void CommandBufferAgent::destroyMessageQueue() {
     _messageQueue = nullptr;
 
     DeviceAgent::getInstance()->_cmdBuffRefs.erase(this);
+}
+
+void CommandBufferAgent::initAgent() {
+    initMessageQueue();
+}
+
+void CommandBufferAgent::destroyAgent() {
+    destroyMessageQueue();
 }
 
 void CommandBufferAgent::doInit(const CommandBufferInfo &info) {
@@ -478,6 +487,56 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
         textureBarrierCount, textureBarrierCount,
         {
             actor->pipelineBarrier(barrier, textureBarriers, textures, textureBarrierCount);
+        });
+}
+
+void CommandBufferAgent::beginQuery(QueryPool *queryPool, uint32_t id) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
+    ENQUEUE_MESSAGE_3(
+        _messageQueue, CommandBufferBeginQuery,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        id, id,
+        {
+            actor->beginQuery(queryPool, id);
+        });
+}
+
+void CommandBufferAgent::endQuery(QueryPool *queryPool, uint32_t id) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
+    ENQUEUE_MESSAGE_3(
+        _messageQueue, CommandBufferEndQuery,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        id, id,
+        {
+            actor->endQuery(queryPool, id);
+        });
+}
+
+void CommandBufferAgent::resetQueryPool(QueryPool *queryPool) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
+    ENQUEUE_MESSAGE_2(
+        _messageQueue, CommandBufferResetQueryPool,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        {
+            actor->resetQueryPool(queryPool);
+        });
+}
+
+void CommandBufferAgent::completeQueryPool(QueryPool *queryPool) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
+    ENQUEUE_MESSAGE_2(
+        _messageQueue, CommandBufferCompleteQueryPool,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        {
+            actor->completeQueryPool(queryPool);
         });
 }
 

@@ -55,6 +55,7 @@ public:
         _node = node;
     }
     inline void setUseColorTemperature(bool value) { _useColorTemperature = value; }
+    inline void setBaked(bool value) { _baked = value; }
     inline void setType(LightType type) { _type = type; }
 
     inline const Vec3 &getColor() const { return _color; }
@@ -62,9 +63,11 @@ public:
     inline Node *      getNode() const { return _node; }
     inline LightType   getType() const { return _type; }
     inline bool        getUseColorTemperature() const { return _useColorTemperature; }
+    inline bool        getBaked() const { return _baked; }
 
 protected:
     bool      _useColorTemperature{false};
+    bool      _baked{false};
     Node *    _node{nullptr};
     LightType _type{LightType::UNKNOWN};
     Vec3      _color;

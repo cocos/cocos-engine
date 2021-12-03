@@ -27,15 +27,17 @@
 
 #include <utility>
 #include "PipelineStateManager.h"
+#include "RenderPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXShader.h"
 #include "scene/SubModel.h"
 
 namespace cc {
 namespace pipeline {
 
-RenderQueue::RenderQueue(RenderQueueCreateInfo desc)
-: _passDesc(std::move(desc)) {
+RenderQueue::RenderQueue(RenderPipeline *pipeline, RenderQueueCreateInfo desc, bool useOcclusionQuery)
+: _pipeline(pipeline), _passDesc(std::move(desc)), _useOcclusionQuery(useOcclusionQuery) {
 }
 
 void RenderQueue::clear() {
@@ -57,6 +59,7 @@ bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelI
     const auto hash          = (0 << 30) | (passPriority << 16) | (modelPriority << 8) | passIdx;
     RenderPass renderPass    = {hash, renderObj.depth, shaderId, passIdx, subModel};
     _queue.emplace_back(renderPass);
+
     return true;
 }
 
@@ -71,21 +74,45 @@ void RenderQueue::sort() {
 #endif
 }
 
-void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, uint32_t subpassIndex) {
+    PipelineSceneData *const              sceneData            = _pipeline->getPipelineSceneData();
+    const scene::PipelineSharedSceneData *sharedData           = sceneData->getSharedData();
+    bool                                  enableOcclusionQuery = _pipeline->getOcclusionQueryEnabled() && _useOcclusionQuery;
+    auto *                                queryPool            = _pipeline->getQueryPools()[0];
     for (auto &i : _queue) {
-        const auto *const subModel       = i.subModel;
-        const auto        passIdx        = i.passIndex;
-        auto *            inputAssembler = subModel->getInputAssembler();
+        const auto *subModel = i.subModel;
+        if (enableOcclusionQuery) {
+            cmdBuff->beginQuery(queryPool, subModel->getId());
+        }
 
-        const auto *pass   = subModel->getPass(passIdx);
-        auto *      shader = subModel->getShader(passIdx);
+        if (enableOcclusionQuery && _pipeline->isOccluded(camera, subModel)) {
+            auto *      inputAssembler = sharedData->occlusionQueryInputAssembler;
+            const auto *pass           = sharedData->occlusionQueryPass;
+            auto *      shader         = sharedData->occlusionQueryShader;
+            auto *      pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
 
-        auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
-        cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
-        cmdBuff->bindDescriptorSet(localSet, subModel->getDescriptorSet());
-        cmdBuff->bindInputAssembler(inputAssembler);
-        cmdBuff->draw(inputAssembler);
+            cmdBuff->bindPipelineState(pso);
+            cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+            cmdBuff->bindDescriptorSet(localSet, subModel->getWorldBoundDescriptorSet());
+            cmdBuff->bindInputAssembler(inputAssembler);
+            cmdBuff->draw(inputAssembler);
+        } else {
+            const auto  passIdx        = i.passIndex;
+            auto *      inputAssembler = subModel->getInputAssembler();
+            const auto *pass           = subModel->getPass(passIdx);
+            auto *      shader         = subModel->getShader(passIdx);
+            auto *      pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass, subpassIndex);
+
+            cmdBuff->bindPipelineState(pso);
+            cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+            cmdBuff->bindDescriptorSet(localSet, subModel->getDescriptorSet());
+            cmdBuff->bindInputAssembler(inputAssembler);
+            cmdBuff->draw(inputAssembler);
+        }
+
+        if (enableOcclusionQuery) {
+            cmdBuff->endQuery(queryPool, subModel->getId());
+        }
     }
 }
 

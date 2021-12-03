@@ -53,7 +53,7 @@ void Plane::define(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2) {
 // Define from a normal vector and a point on the plane.
 void Plane::define(const Vec3 &normal, const Vec3 &point) {
     n = normal.getNormalized();
-    d = normal.dot(point);
+    d = n.dot(point);
 }
 
 // Return signed distance to a point.

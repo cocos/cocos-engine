@@ -35,7 +35,7 @@ class CCVKGPUSampler;
 
 class CC_VULKAN_API CCVKSampler final : public Sampler {
 public:
-    explicit CCVKSampler(const SamplerInfo &info, uint32_t hash);
+    explicit CCVKSampler(const SamplerInfo &info);
     ~CCVKSampler() override;
 
     inline CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }

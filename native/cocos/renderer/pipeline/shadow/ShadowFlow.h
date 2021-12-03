@@ -49,6 +49,8 @@ public:
     void destroy() override;
 
 private:
+    void lightCollecting();
+
     void clearShadowMap(scene::Camera *camera);
 
     void resizeShadowMap(scene::Shadow **shadowInfo);
@@ -62,7 +64,7 @@ private:
     vector<const scene::Light *> _validLights;
     vector<gfx::Texture *>       _usedTextures;
 
-    static std::unordered_map<uint, cc::gfx::RenderPass*> renderPassHashMap;
+    static std::unordered_map<size_t, cc::gfx::RenderPass *> renderPassHashMap;
 };
 } // namespace pipeline
 } // namespace cc

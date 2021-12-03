@@ -21,49 +21,35 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
 #include "../RenderStage.h"
 #include "frame-graph/Handle.h"
-#include "Enum.h"
+#include "pipeline/Enum.h"
 
 namespace cc {
 namespace pipeline {
 
-struct CC_DLL UBOBloom : public Object {
-    static constexpr uint TEXTURE_SIZE_OFFSET = 0;
-    static constexpr uint COUNT               = UBOBloom::TEXTURE_SIZE_OFFSET + 4;
-    static constexpr uint SIZE                = UBOBloom::COUNT * 4;
-};
+class UIPhase;
 
-class CC_DLL BloomStage : public RenderStage {
+class CC_DLL PostProcessStage : public RenderStage {
 public:
-    BloomStage();
-    ~BloomStage() override = default;
+    PostProcessStage();
+    ~PostProcessStage() override = default;
 
-    static const int              MAX_SCALING_SAMPLE_PASS_NUM = 6;
     static const RenderStageInfo &getInitializeInfo();
-    bool                          initialize(const RenderStageInfo &info) override;
-    void                          activate(RenderPipeline *pipeline, RenderFlow *flow) override;
-    void                          destroy() override;
-    void                          render(scene::Camera *camera) override;
-
-    auto &        getDownsampelUBO() { return _downsampleUBO; }
-    auto &        getUpsampleUBO() { return _upsampleUBO; }
-    gfx::Sampler *getSampler() const { return _sampler; }
+    bool initialize(const RenderStageInfo &info) override;
+    void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
+    void destroy() override;
+    void render(scene::Camera *camera) override;
 
 private:
-    gfx::Rect _renderArea;
+    UIPhase * _uiPhase = nullptr;
     uint      _phaseID = 0;
 
     static RenderStageInfo initInfo;
-
-    gfx::Sampler *                                         _sampler = nullptr;
-    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _downsampleUBO;
-    std::array<gfx::Buffer *, MAX_SCALING_SAMPLE_PASS_NUM> _upsampleUBO;
-    framegraph::StringHandle                               _fgStrHandleBloomOut;
 };
 } // namespace pipeline
 } // namespace cc

@@ -277,6 +277,9 @@ public:
     static void dispatchMemoryWarningEvent();
     static void dispatchRestartVM();
     static void dispatchCloseEvent();
+    static void dispatchDestroyWindowEvent();
+    static void dispatchRecreateWindowEvent();
+
 
     using CustomEventListener = std::function<void(const CustomEvent &)>;
     static uint32_t addCustomEventListener(const std::string &eventName, const CustomEventListener &listener);

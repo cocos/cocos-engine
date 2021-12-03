@@ -35,7 +35,7 @@ public:
     Framebuffer();
     ~Framebuffer() override;
 
-    static uint32_t computeHash(const FramebufferInfo &info);
+    static size_t computeHash(const FramebufferInfo &info);
 
     void initialize(const FramebufferInfo &info);
     void destroy();

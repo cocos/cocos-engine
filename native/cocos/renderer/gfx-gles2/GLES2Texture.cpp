@@ -74,6 +74,7 @@ void GLES2Texture::doDestroy() {
             GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
         }
         cmdFuncGLES2DestroyTexture(GLES2Device::getInstance(), _gpuTexture);
+        GLES2Device::getInstance()->framebufferHub()->disengage(_gpuTexture);
         CC_DELETE(_gpuTexture);
         _gpuTexture = nullptr;
     }
@@ -87,6 +88,8 @@ void GLES2Texture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     _gpuTexture->height = height;
     _gpuTexture->size   = size;
     cmdFuncGLES2ResizeTexture(GLES2Device::getInstance(), _gpuTexture);
+
+    GLES2Device::getInstance()->framebufferHub()->update(_gpuTexture);
 
     if (!_gpuTexture->memoryless) {
         GLES2Device::getInstance()->getMemoryStatus().textureSize += size;

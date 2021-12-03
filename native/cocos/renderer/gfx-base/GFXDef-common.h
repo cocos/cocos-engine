@@ -44,6 +44,7 @@
  *   * @ts-nullable: declare the member optional
  *   * @ts-overrides `YAML declaration`: overrides any parsed results, use with caution
  * * each struct member have to be specified in a single line, including optional parser directives
+ * * members with a name starts with an underscore is automatically ignored
  */
 
 namespace cc {
@@ -67,12 +68,14 @@ class PipelineState;
 class DescriptorSet;
 class CommandBuffer;
 class Queue;
+class QueryPool;
 class Window;
 class Context;
 
 using TextureBarrierList = vector<TextureBarrier *>;
 using BufferDataList     = vector<const uint8_t *>;
 using CommandBufferList  = vector<CommandBuffer *>;
+using QueryPoolList      = vector<QueryPool *>;
 
 constexpr uint32_t MAX_ATTACHMENTS  = 4U;
 constexpr uint32_t INVALID_BINDING  = ~0U;
@@ -99,6 +102,7 @@ enum class ObjectType : uint32_t {
     INPUT_ASSEMBLER,
     COMMAND_BUFFER,
     QUEUE,
+    QUERY_POOL,
     GLOBAL_BARRIER,
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
@@ -164,7 +168,7 @@ enum class Feature : uint32_t {
     // for subpasses with exactly 4 inout attachments the output is automatically set
     // to the last attachment (taking advantage of 'inout' property), and a separate
     // blit operation (if needed) will be added for you afterwards to transfer the
-    // rendering result to the corrent subpass output texture. This is to ameliorate
+    // rendering result to the correct subpass output texture. This is to ameliorate
     // the max number of attachment limit(4) situation for many devices, and shader
     // sources inside this kind of subpass must match this behavior.
     INPUT_ATTACHMENT_BENEFIT,
@@ -737,6 +741,13 @@ enum class QueueType : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(QueueType);
 
+enum class QueryType : uint32_t {
+    OCCLUSION,
+    PIPELINE_STATISTICS,
+    TIMESTAMP,
+};
+CC_ENUM_CONVERSION_OPERATOR(QueryType);
+
 enum class CommandBufferType : uint32_t {
     PRIMARY,
     SECONDARY,
@@ -781,6 +792,8 @@ struct DeviceCaps {
     Size     maxComputeWorkGroupSize;
     Size     maxComputeWorkGroupCount;
 
+    bool supportQuery{false};
+
     float clipSpaceMinZ{-1.F};
     float screenSpaceSignY{1.F};
     float clipSpaceSignY{1.F};
@@ -797,17 +810,6 @@ struct Rect {
     int32_t  y{0};
     uint32_t width{0U};
     uint32_t height{0U};
-
-    bool operator==(const Rect &rs) const {
-        return x == rs.x &&
-               y == rs.y &&
-               width == rs.width &&
-               height == rs.height;
-    }
-
-    bool operator!=(const Rect &rs) const {
-        return !(*this == rs);
-    }
 };
 
 struct Extent {
@@ -863,19 +865,6 @@ struct Viewport {
     uint32_t height{0U};
     float    minDepth{0.F};
     float    maxDepth{1.F};
-
-    bool operator==(const Viewport &rs) const {
-        return (left == rs.left &&
-                top == rs.top &&
-                width == rs.width &&
-                height == rs.height &&
-                math::IsEqualF(minDepth, rs.minDepth) &&
-                math::IsEqualF(maxDepth, maxDepth));
-    }
-
-    bool operator!=(const Viewport &rs) const {
-        return !(*this == rs);
-    }
 };
 
 struct Color {
@@ -883,13 +872,6 @@ struct Color {
     float y{0.F};
     float z{0.F};
     float w{0.F};
-
-    bool operator==(const Color &rhs) const {
-        return (math::IsEqualF(x, rhs.x) &&
-                math::IsEqualF(y, rhs.y) &&
-                math::IsEqualF(z, rhs.z) &&
-                math::IsEqualF(w, rhs.w));
-    }
 };
 using ColorList = vector<Color>;
 
@@ -922,12 +904,13 @@ struct DeviceInfo {
     BindingMappingInfo bindingMappingInfo;
 };
 
-struct BufferInfo {
+struct ALIGNAS(8) BufferInfo {
     BufferUsage usage{BufferUsageBit::NONE};
     MemoryUsage memUsage{MemoryUsageBit::NONE};
     uint32_t    size{0U};
-    uint32_t    stride{0U}; // in bytes
+    uint32_t    stride{1U}; // in bytes
     BufferFlags flags{BufferFlagBit::NONE};
+    uint32_t    _padding{0U};
 };
 
 struct BufferViewInfo {
@@ -963,7 +946,7 @@ struct IndirectBuffer {
     DrawInfoList drawInfos;
 };
 
-struct TextureInfo {
+struct ALIGNAS(8) TextureInfo {
     TextureType  type{TextureType::TEX2D};
     TextureUsage usage{TextureUsageBit::NONE};
     Format       format{Format::UNKNOWN};
@@ -975,9 +958,12 @@ struct TextureInfo {
     SampleCount  samples{SampleCount::ONE};
     uint32_t     depth{1U};
     void *       externalRes{nullptr}; // CVPixelBuffer for Metal, EGLImage for GLES
+#if CC_CPU_ARCH == CC_CPU_ARCH_32
+    uint32_t _padding{0U};
+#endif
 };
 
-struct TextureViewInfo {
+struct ALIGNAS(8) TextureViewInfo {
     Texture *   texture{nullptr};
     TextureType type{TextureType::TEX2D};
     Format      format{Format::UNKNOWN};
@@ -985,9 +971,12 @@ struct TextureViewInfo {
     uint32_t    levelCount{1U};
     uint32_t    baseLayer{0U};
     uint32_t    layerCount{1U};
+#if CC_CPU_ARCH == CC_CPU_ARCH_32
+    uint32_t _padding{0U};
+#endif
 };
 
-struct SamplerInfo {
+struct ALIGNAS(8) SamplerInfo {
     Filter         minFilter{Filter::LINEAR};
     Filter         magFilter{Filter::LINEAR};
     Filter         mipFilter{Filter::NONE};
@@ -1297,6 +1286,15 @@ struct CommandBufferInfo {
 
 struct QueueInfo {
     QueueType type{QueueType::GRAPHICS};
+};
+
+// Although the standard is not limited, some devices do not support up to 65536 queries
+constexpr uint32_t DEFAULT_MAX_QUERY_OBJECTS = 32767U;
+
+struct QueryPoolInfo {
+    QueryType type{QueryType::OCCLUSION};
+    uint32_t  maxQueryObjects{DEFAULT_MAX_QUERY_OBJECTS};
+    bool      forceWait{true};
 };
 
 struct FormatInfo {

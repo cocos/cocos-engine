@@ -32,9 +32,11 @@
 #import "MTLDescriptorSetLayout.h"
 #import "MTLDevice.h"
 #import "MTLFramebuffer.h"
+#import "MTLGPUObjects.h"
 #import "MTLInputAssembler.h"
 #import "MTLPipelineLayout.h"
 #import "MTLPipelineState.h"
+#import "MTLQueryPool.h"
 #import "MTLQueue.h"
 #import "MTLRenderPass.h"
 #import "MTLSampler.h"
@@ -44,7 +46,6 @@
 #import "MTLTexture.h"
 #import "cocos/bindings/event/CustomEventTypes.h"
 #import "cocos/bindings/event/EventDispatcher.h"
-#import "MTLGPUObjects.h"
 
 namespace cc {
 namespace gfx {
@@ -56,12 +57,13 @@ CCMTLDevice *CCMTLDevice::getInstance() {
 }
 
 CCMTLDevice::CCMTLDevice() {
-    _api = API::METAL;
+    _api        = API::METAL;
     _deviceName = "Metal";
 
-    _caps.clipSpaceMinZ = 0.0f;
+    _caps.supportQuery     = true;
+    _caps.clipSpaceMinZ    = 0.0f;
     _caps.screenSpaceSignY = -1.0f;
-    _caps.clipSpaceSignY = 1.0f;
+    _caps.clipSpaceSignY   = 1.0f;
 
     CCMTLDevice::_instance = this;
 }
@@ -71,44 +73,36 @@ CCMTLDevice::~CCMTLDevice() {
 }
 
 bool CCMTLDevice::doInit(const DeviceInfo &info) {
-    _gpuDeviceObj = CC_NEW(CCMTLGPUDeviceObject);
+    _gpuDeviceObj      = CC_NEW(CCMTLGPUDeviceObject);
     _inFlightSemaphore = CC_NEW(CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT));
     _currentFrameIndex = 0;
 
     id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
-    _mtlDevice = mtlDevice;
+    _mtlDevice              = mtlDevice;
 
-    _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
-    const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
-    _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
+    _mtlFeatureSet            = mu::highestSupportedFeatureSet(mtlDevice);
+    const auto gpuFamily      = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
+    _indirectDrawSupported    = mu::isIndirectDrawSupported(gpuFamily);
     _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
     _caps.maxTextureUnits = _caps.maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
-    _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
-    _caps.maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
-    _caps.maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
-    _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
-    _caps.uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
-    _caps.maxComputeWorkGroupInvocations = mu::getMaxThreadsPerGroup(gpuFamily);
-    _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
-    _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
-    _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
-
-    QueueInfo queueInfo;
-    queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
-
-    CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
-    cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+    _maxSamplerUnits                                    = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
+    _caps.maxTextureSize                                = mu::getMaxTexture2DWidthHeight(gpuFamily);
+    _caps.maxCubeMapTextureSize                         = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
+    _caps.maxColorRenderTargets                         = mu::getMaxColorRenderTarget(gpuFamily);
+    _caps.uboOffsetAlignment                            = mu::getMinBufferOffsetAlignment(gpuFamily);
+    _caps.maxComputeWorkGroupInvocations                = mu::getMaxThreadsPerGroup(gpuFamily);
+    _caps.maxVertexUniformVectors                       = 255; //no explicit limit on vertex stage.
+    _maxBufferBindingIndex                              = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
+    _icbSuppored                                        = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
+    _isSamplerDescriptorCompareFunctionSupported        = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         _gpuStagingBufferPools[i] = CC_NEW(CCMTLGPUStagingBufferPool(mtlDevice));
     }
 
-    _features[toNumber(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
-    _features[toNumber(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
-    _features[toNumber(Feature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[toNumber(Feature::COLOR_FLOAT)]               = mu::isColorBufferFloatSupported(gpuFamily);
+    _features[toNumber(Feature::COLOR_HALF_FLOAT)]          = mu::isColorBufferHalfFloatSupported(gpuFamily);
+    _features[toNumber(Feature::TEXTURE_FLOAT_LINEAR)]      = mu::isLinearTextureSupported(gpuFamily);
     _features[toNumber(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
 
     String compressedFormats;
@@ -129,20 +123,32 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
         compressedFormats += "dxt ";
     }
 
-    _features[toNumber(Feature::TEXTURE_FLOAT)] = true;
-    _features[toNumber(Feature::TEXTURE_HALF_FLOAT)] = true;
-    _features[toNumber(Feature::FORMAT_R11G11B10F)] = true;
-    _features[toNumber(Feature::FORMAT_SRGB)] = true;
-    _features[toNumber(Feature::INSTANCED_ARRAYS)] = true;
-    _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
-    _features[toNumber(Feature::BLEND_MINMAX)] = true;
-    _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
-    _features[toNumber(Feature::COMPUTE_SHADER)] = true;
+    _features[toNumber(Feature::TEXTURE_FLOAT)]            = true;
+    _features[toNumber(Feature::TEXTURE_HALF_FLOAT)]       = true;
+    _features[toNumber(Feature::FORMAT_R11G11B10F)]        = true;
+    _features[toNumber(Feature::FORMAT_SRGB)]              = true;
+    _features[toNumber(Feature::INSTANCED_ARRAYS)]         = true;
+    _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)]  = true;
+    _features[toNumber(Feature::BLEND_MINMAX)]             = true;
+    _features[toNumber(Feature::ELEMENT_INDEX_UINT)]       = true;
+    _features[toNumber(Feature::COMPUTE_SHADER)]           = true;
     _features[toNumber(Feature::INPUT_ATTACHMENT_BENEFIT)] = true;
 
     _features[toNumber(Feature::FORMAT_RGB8)] = false;
 
-//    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
+
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
+    _queryPool = createQueryPool(queryPoolInfo);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+
+    //    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
     CCMTLGPUGarbageCollectionPool::getInstance()->initialize(std::bind(&CCMTLDevice::currentFrameIndex, this));
 
@@ -152,26 +158,29 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
 }
 
 void CCMTLDevice::doDestroy() {
-//    if (_memoryAlarmListenerId != 0) {
-//        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
-//        _memoryAlarmListenerId = 0;
-//    }
+    //    if (_memoryAlarmListenerId != 0) {
+    //        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
+    //        _memoryAlarmListenerId = 0;
+    //    }
 
     CC_DELETE(_gpuDeviceObj);
 
     if (_autoreleasePool) {
-        [(NSAutoreleasePool*)_autoreleasePool drain];
+        [(NSAutoreleasePool *)_autoreleasePool drain];
         _autoreleasePool = nullptr;
     }
+    
+    CC_SAFE_DESTROY(_queryPool)
+    CC_SAFE_DESTROY(_queue);
+    CC_SAFE_DESTROY(_cmdBuff);
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
 
     if (_inFlightSemaphore) {
-        _inFlightSemaphore->syncAll();
+        // has present ? syncSuccess : no need to wait;
+        _inFlightSemaphore->trySyncAll(1000);
     }
 
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
     CC_SAFE_DELETE(_inFlightSemaphore);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
@@ -190,16 +199,16 @@ void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 
     _inFlightSemaphore->wait();
 
-    for (CCMTLSwapchain* swapchain : _swapchains) {
+    for (CCMTLSwapchain *swapchain : _swapchains) {
         swapchain->acquire();
     }
 
     if (!_autoreleasePool) {
         _autoreleasePool = [[NSAutoreleasePool alloc] init];
-//        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
+        //        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
     }
     // Clear queue stats
-    CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
+    CCMTLQueue *queue                  = static_cast<CCMTLQueue *>(_queue);
     queue->gpuQueueObj()->numDrawCalls = 0;
     queue->gpuQueueObj()->numInstances = 0;
     queue->gpuQueueObj()->numTriangles = 0;
@@ -207,44 +216,41 @@ void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
 
 void CCMTLDevice::present() {
     CCMTLQueue *queue = (CCMTLQueue *)_queue;
-    _numDrawCalls = queue->gpuQueueObj()->numDrawCalls;
-    _numInstances = queue->gpuQueueObj()->numInstances;
-    _numTriangles = queue->gpuQueueObj()->numTriangles;
+    _numDrawCalls     = queue->gpuQueueObj()->numDrawCalls;
+    _numInstances     = queue->gpuQueueObj()->numInstances;
+    _numTriangles     = queue->gpuQueueObj()->numTriangles;
 
     //hold this pointer before update _currentFrameIndex
     _currentBufferPoolId = _currentFrameIndex;
-    _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
-    
+    _currentFrameIndex   = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+
     std::vector<id<CAMetalDrawable>> releaseQ;
-    for (auto* swapchain: _swapchains) {
+    for (auto *swapchain : _swapchains) {
         auto drawable = swapchain->currentDrawable();
-        if(drawable) {
+        if (drawable) {
             releaseQ.push_back([drawable retain]);
         }
         swapchain->release();
     }
 
-    // NSWindow-related(: drawable) should be udpated in main thread.
-    dispatch_async(dispatch_get_main_queue(), ^{
+    // present drawable
+    {
         id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBufferWithUnretainedReferences];
-
         [cmdBuffer enqueue];
 
-        for (auto drawable: releaseQ) {
+        for (auto drawable : releaseQ) {
             [cmdBuffer presentDrawable:drawable];
             [drawable release];
         }
-        
         [cmdBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
             onPresentCompleted();
         }];
-
         [cmdBuffer commit];
-    });
-
+    }
+    
     if (_autoreleasePool) {
-//        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
-        [(NSAutoreleasePool*)_autoreleasePool drain];
+        //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
+        [(NSAutoreleasePool *)_autoreleasePool drain];
         _autoreleasePool = nullptr;
     }
 }
@@ -262,6 +268,10 @@ void CCMTLDevice::onPresentCompleted() {
 
 Queue *CCMTLDevice::createQueue() {
     return CC_NEW(CCMTLQueue);
+}
+
+QueryPool *CCMTLDevice::createQueryPool() {
+    return CC_NEW(CCMTLQueryPool);
 }
 
 CommandBuffer *CCMTLDevice::createCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
@@ -308,16 +318,8 @@ PipelineState *CCMTLDevice::createPipelineState() {
     return CC_NEW(CCMTLPipelineState);
 }
 
-GlobalBarrier *CCMTLDevice::createGlobalBarrier(const GlobalBarrierInfo& info, uint32_t hash) {
-    return new GlobalBarrier(info, hash);
-}
-
-TextureBarrier *CCMTLDevice::createTextureBarrier(const TextureBarrierInfo& info, uint32_t hash) {
-    return new TextureBarrier(info, hash);
-}
-
-Sampler *CCMTLDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
-    return new CCMTLSampler(info, hash);
+Sampler *CCMTLDevice::createSampler(const SamplerInfo &info) {
+    return new CCMTLSampler(info);
 }
 
 Swapchain *CCMTLDevice::createSwapchain() {
@@ -330,13 +332,37 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
     // the wiggle room to leverage immediate update vs. copy-upload strategies without
     // breaking compatibilities. When we reached some conclusion on this subject,
     // getting rid of this interface all together may become a better option.
-    _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
 }
 
 void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
-    _cmdBuff->begin();
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
+}
+
+void CCMTLDevice::getQueryPoolResults(QueryPool *queryPool) {
+    auto *             mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
+    CCMTLGPUQueryPool *gpuQueryPool = mtlQueryPool->gpuQueryPool();
+    auto               queryCount   = static_cast<uint32_t>(mtlQueryPool->_ids.size());
+    CCASSERT(queryCount <= mtlQueryPool->getMaxQueryObjects(), "Too many query commands.");
+
+    gpuQueryPool->semaphore->wait();
+    uint64_t *results = queryCount > 0U ? static_cast<uint64_t *>(gpuQueryPool->visibilityResultBuffer.contents) : nullptr;
+
+    std::unordered_map<uint32_t, uint64_t> mapResults;
+    for (auto queryId = 0U; queryId < queryCount; queryId++) {
+        uint32_t id   = mtlQueryPool->_ids[queryId];
+        auto     iter = mapResults.find(id);
+        if (iter != mapResults.end()) {
+            iter->second += results[queryId];
+        } else {
+            mapResults[id] = results[queryId];
+        }
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(mtlQueryPool->_mutex);
+        mtlQueryPool->_results = std::move(mapResults);
+    }
 }
 
 void CCMTLDevice::onMemoryWarning() {

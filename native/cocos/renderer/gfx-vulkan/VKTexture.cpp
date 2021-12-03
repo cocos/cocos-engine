@@ -29,8 +29,7 @@
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKTexture.h"
-#include "gfx-base/GFXDef.h"
-#include "gfx-vulkan/VKSwapchain.h"
+#include "VKSwapchain.h"
 
 namespace cc {
 namespace gfx {
@@ -100,6 +99,7 @@ void CCVKTexture::doDestroy() {
             }
             CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuTexture);
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuTexture);
+            CCVKDevice::getInstance()->gpuFramebufferHub()->disengage(_gpuTexture);
             CC_DELETE(_gpuTexture);
         }
         _gpuTexture = nullptr;
@@ -126,6 +126,8 @@ void CCVKTexture::doResize(uint32_t width, uint32_t height, uint32_t size) {
     }
 
     cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
+
+    CCVKDevice::getInstance()->gpuFramebufferHub()->update(_gpuTexture);
 }
 
 ///////////////////////////// Swapchain Specific /////////////////////////////

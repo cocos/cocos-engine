@@ -63,7 +63,8 @@ void BufferValidator::doInit(const BufferInfo &info) {
 
     CCASSERT(info.usage != BufferUsageBit::NONE, "invalid buffer param");
     CCASSERT(info.memUsage != MemoryUsageBit::NONE, "invalid buffer param");
-    // CCASSERT(info.size, "zero-sized buffer?"); // be more lenient on this for now
+    CCASSERT(info.size, "zero-sized buffer?");
+    CCASSERT(info.size / info.stride * info.stride == info.size, "size is not multiple of stride?");
 
     _initStack = se::ScriptEngine::getInstance()->getCurrentStackTrace();
 
@@ -85,6 +86,10 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
 
     CCASSERT(info.buffer && static_cast<BufferValidator *>(info.buffer)->isInited(), "already destroyed?");
     CCASSERT(info.offset + info.range <= info.buffer->getSize(), "invalid range");
+    CCASSERT(info.range, "zero-sized buffer?");
+
+    uint32_t stride = info.buffer->getStride();
+    CCASSERT(info.offset / stride * stride == info.offset, "offset is not multiple of stride?");
 
     /////////// execute ///////////
 
@@ -146,7 +151,7 @@ void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     if (cur == _lastUpdateFrame) {
         // FIXME: minggo: as current implementation need to update some buffers more than once, so disable it.
         // Should enable it when it is fixed.
-        // CC_LOG_WARNING(utils::getStacktraceJS().c_str());
+        // CC_LOG_WARNING(se::ScriptEngine::getInstance()->getCurrentStackTrace().c_str());
         // CC_LOG_WARNING("performance warning: buffer updated more than once per frame");
     }
 

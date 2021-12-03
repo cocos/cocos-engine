@@ -24,14 +24,14 @@
 ****************************************************************************/
 
 #include "MessageQueue.h"
-#include <cassert>
 #include "AutoReleasePool.h"
+#include "base/Utils.h"
 
 namespace cc {
 
 namespace {
 uint32_t constexpr MEMORY_CHUNK_POOL_CAPACITY      = 64;
-uint32_t constexpr SWITCH_CHUNK_MEMORY_REQUIREMENT = sizeof(MemoryChunkSwitchMessage) + sizeof(DummyMessage);
+uint32_t constexpr SWITCH_CHUNK_MEMORY_REQUIREMENT = sizeof(MemoryChunkSwitchMessage) + utils::ALIGN_TO<sizeof(DummyMessage), 16>;
 } // namespace
 
 MessageQueue::MemoryAllocator &MessageQueue::MemoryAllocator::getInstance() noexcept {
@@ -168,11 +168,12 @@ void MessageQueue::freeChunksInFreeQueue(MessageQueue *const mainMessageQueue) n
 // NOLINTNEXTLINE(misc-no-recursion)
 uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const requestSize) noexcept {
     uint32_t const alignedSize = align(requestSize, 16);
-    assert(alignedSize + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE); // exceeds the block size
+    CCASSERT(alignedSize + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE, "block size exceeded");
 
     uint32_t const newOffset = _writer.offset + alignedSize;
 
-    if (newOffset + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE) {
+    // newOffset contains the DummyMessage
+    if (newOffset + sizeof(MemoryChunkSwitchMessage) <= MEMORY_CHUNK_SIZE) {
         uint8_t *const allocatedMemory = _writer.currentMemoryChunk + _writer.offset;
         _writer.offset                 = newOffset;
         return allocatedMemory;

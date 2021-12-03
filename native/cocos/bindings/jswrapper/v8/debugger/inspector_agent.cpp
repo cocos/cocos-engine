@@ -43,7 +43,7 @@ using v8_inspector::StringView;
 using v8_inspector::V8Inspector;
 using v8_inspector::V8InspectorClient;
 
-static uv_sem_t start_io_thread_semaphore;
+static uv_sem_t   start_io_thread_semaphore;
 static uv_async_t start_io_thread_async;
 
 class StartIoTask : public v8::Task {
@@ -58,7 +58,7 @@ private:
     Agent *agent;
 };
 
-std::unique_ptr<StringBuffer> ToProtocolString(Isolate *isolate,
+std::unique_ptr<StringBuffer> ToProtocolString(Isolate *    isolate,
                                                Local<Value> value) {
     TwoByteValue buffer(isolate, value);
     return StringBuffer::create(StringView(*buffer, buffer.length()));
@@ -143,9 +143,9 @@ static int GetDebugSignalHandlerMappingName(DWORD pid, wchar_t *buf,
 }
 
 static int StartDebugSignalHandler() {
-    wchar_t mapping_name[32];
-    HANDLE mapping_handle;
-    DWORD pid;
+    wchar_t                 mapping_name[32];
+    HANDLE                  mapping_handle;
+    DWORD                   pid;
     LPTHREAD_START_ROUTINE *handler;
 
     pid = GetCurrentProcessId();
@@ -187,9 +187,9 @@ static int StartDebugSignalHandler() {
 
 class JsBindingsSessionDelegate : public InspectorSessionDelegate {
 public:
-    JsBindingsSessionDelegate(Environment *env,
-                              Local<Object> session,
-                              Local<Object> receiver,
+    JsBindingsSessionDelegate(Environment *   env,
+                              Local<Object>   session,
+                              Local<Object>   receiver,
                               Local<Function> callback)
     : env_(env),
       session_(env->isolate(), session),
@@ -210,15 +210,15 @@ public:
     }
 
     void SendMessageToFrontend(const v8_inspector::StringView &message) override {
-        Isolate *isolate = env_->isolate();
-        v8::HandleScope handle_scope(isolate);
-        Context::Scope context_scope(env_->context());
+        Isolate *          isolate = env_->isolate();
+        v8::HandleScope    handle_scope(isolate);
+        Context::Scope     context_scope(env_->context());
         MaybeLocal<String> v8string =
             String::NewFromTwoByte(isolate, message.characters16(),
                                    NewStringType::kNormal, static_cast<int>(message.length()));
-        Local<Value> argument = v8string.ToLocalChecked().As<Value>();
+        Local<Value>    argument = v8string.ToLocalChecked().As<Value>();
         Local<Function> callback = callback_.Get(isolate);
-        Local<Object> receiver = receiver_.Get(isolate);
+        Local<Object>   receiver = receiver_.Get(isolate);
         callback->Call(env_->context(), receiver, 1, &argument)
             .FromMaybe(Local<Value>());
     }
@@ -243,9 +243,9 @@ private:
         delete delegate;
     }
 
-    Environment *env_;
-    Persistent<Object> session_;
-    Persistent<Object> receiver_;
+    Environment *        env_;
+    Persistent<Object>   session_;
+    Persistent<Object>   receiver_;
     Persistent<Function> callback_;
 };
 
@@ -258,8 +258,8 @@ void SetDelegate(Environment *env, Local<Object> inspector,
 
 Maybe<JsBindingsSessionDelegate *> GetDelegate(
     const FunctionCallbackInfo<Value> &info) {
-    Environment *env = Environment::GetCurrent(info);
-    Local<Value> delegate;
+    Environment *     env = Environment::GetCurrent(info);
+    Local<Value>      delegate;
     MaybeLocal<Value> maybe_delegate =
         info.This()->GetPrivate(env->context(),
                                 env->inspector_delegate_private_symbol());
@@ -290,7 +290,7 @@ void Dispatch(const FunctionCallbackInfo<Value> &info) {
 }
 
 void Disconnect(const FunctionCallbackInfo<Value> &info) {
-    Environment *env = Environment::GetCurrent(info);
+    Environment *                      env      = Environment::GetCurrent(info);
     Maybe<JsBindingsSessionDelegate *> delegate = GetDelegate(info);
     if (delegate.IsNothing()) {
         return;
@@ -324,8 +324,8 @@ void ConnectJSBindingsSession(const FunctionCallbackInfo<Value> &info) {
 }
 
 void InspectorConsoleCall(const v8::FunctionCallbackInfo<Value> &info) {
-    Isolate *isolate = info.GetIsolate();
-    HandleScope handle_scope(isolate);
+    Isolate *      isolate = info.GetIsolate();
+    HandleScope    handle_scope(isolate);
     Local<Context> context = isolate->GetCurrentContext();
     CHECK_LT(2, info.Length());
     std::vector<Local<Value>> call_args;
@@ -339,7 +339,7 @@ void InspectorConsoleCall(const v8::FunctionCallbackInfo<Value> &info) {
         Local<Value> config_value = info[2];
         CHECK(config_value->IsObject());
         Local<Object> config_object = config_value.As<Object>();
-        Local<String> in_call_key = FIXED_ONE_BYTE_STRING(isolate, "in_call");
+        Local<String> in_call_key   = FIXED_ONE_BYTE_STRING(isolate, "in_call");
         if (!config_object->Has(context, in_call_key).FromMaybe(false)) {
             CHECK(config_object->Set(context,
                                      in_call_key,
@@ -383,12 +383,12 @@ void CallAndPauseOnStart(
 }
 
 // Used in NodeInspectorClient::currentTimeMS() below.
-const int NANOS_PER_MSEC = 1000000;
+const int NANOS_PER_MSEC   = 1000000;
 const int CONTEXT_GROUP_ID = 1;
 
 class ChannelImpl final : public v8_inspector::V8Inspector::Channel {
 public:
-    explicit ChannelImpl(V8Inspector *inspector,
+    explicit ChannelImpl(V8Inspector *             inspector,
                          InspectorSessionDelegate *delegate)
     : delegate_(delegate) {
         session_ = inspector->connect(1, this, StringView());
@@ -415,7 +415,7 @@ public:
 
 private:
     void sendResponse(
-        int callId,
+        int                                         callId,
         std::unique_ptr<v8_inspector::StringBuffer> message) override {
         sendMessageToFrontend(message->string());
     }
@@ -431,16 +431,16 @@ private:
         delegate_->SendMessageToFrontend(message);
     }
 
-    InspectorSessionDelegate *const delegate_;
+    InspectorSessionDelegate *const                   delegate_;
     std::unique_ptr<v8_inspector::V8InspectorSession> session_;
 };
 
 class InspectorTimer {
 public:
-    InspectorTimer(uv_loop_t *loop,
-                   double interval_s,
+    InspectorTimer(uv_loop_t *                      loop,
+                   double                           interval_s,
                    V8InspectorClient::TimerCallback callback,
-                   void *data) : timer_(),
+                   void *                           data) : timer_(),
                                  callback_(callback),
                                  data_(data) {
         uv_timer_init(loop, &timer_);
@@ -470,9 +470,9 @@ private:
 
     ~InspectorTimer() {}
 
-    uv_timer_t timer_;
+    uv_timer_t                       timer_;
     V8InspectorClient::TimerCallback callback_;
-    void *data_;
+    void *                           data_;
 };
 
 class InspectorTimerHandle {
@@ -498,7 +498,7 @@ private:
 class NodeInspectorClient : public V8InspectorClient {
 public:
     NodeInspectorClient(node::Environment *env,
-                        v8::Platform *platform) : env_(env),
+                        v8::Platform *     platform) : env_(env),
                                                   platform_(platform),
                                                   terminated_(false),
                                                   running_nested_loop_(false) {
@@ -509,13 +509,13 @@ public:
         CHECK_NE(channel_, nullptr);
         if (running_nested_loop_)
             return;
-        terminated_ = false;
+        terminated_          = false;
         running_nested_loop_ = true;
         while (!terminated_ && channel_->waitForFrontendMessage()) {
             while (v8::platform::PumpMessageLoop(platform_, env_->isolate())) {
             }
         }
-        terminated_ = false;
+        terminated_          = false;
         running_nested_loop_ = false;
     }
 
@@ -525,7 +525,7 @@ public:
 
     void contextCreated(Local<Context> context, const std::string &name) {
         std::unique_ptr<StringBuffer> name_buffer = Utf8ToStringView(name);
-        v8_inspector::V8ContextInfo info(context, CONTEXT_GROUP_ID,
+        v8_inspector::V8ContextInfo   info(context, CONTEXT_GROUP_ID,
                                          name_buffer->string());
         client_->contextCreated(info);
     }
@@ -562,7 +562,7 @@ public:
     void FatalException(Local<Value> error, Local<v8::Message> message) {
         Local<Context> context = env_->context();
 
-        int script_id = static_cast<int>(message->GetScriptOrigin().ScriptID()->Value());
+        int script_id = message->GetScriptOrigin().ScriptId();
 
         Local<v8::StackTrace> stack_trace = message->GetStackTrace();
 
@@ -592,9 +592,9 @@ public:
         return channel_.get();
     }
 
-    void startRepeatingTimer(double interval_s,
+    void startRepeatingTimer(double        interval_s,
                              TimerCallback callback,
-                             void *data) override {
+                             void *        data) override {
         timers_.emplace(std::piecewise_construct, std::make_tuple(data),
                         std::make_tuple(env_->event_loop(), interval_s, callback,
                                         data));
@@ -605,12 +605,12 @@ public:
     }
 
 private:
-    node::Environment *env_;
-    v8::Platform *platform_;
-    bool terminated_;
-    bool running_nested_loop_;
-    std::unique_ptr<V8Inspector> client_;
-    std::unique_ptr<ChannelImpl> channel_;
+    node::Environment *                              env_;
+    v8::Platform *                                   platform_;
+    bool                                             terminated_;
+    bool                                             running_nested_loop_;
+    std::unique_ptr<V8Inspector>                     client_;
+    std::unique_ptr<ChannelImpl>                     channel_;
     std::unordered_map<void *, InspectorTimerHandle> timers_;
 };
 
@@ -626,7 +626,7 @@ Agent::~Agent() {
 
 bool Agent::Start(v8::Platform *platform, const char *path,
                   const DebugOptions &options) {
-    path_ = path == nullptr ? "" : path;
+    path_          = path == nullptr ? "" : path;
     debug_options_ = options;
     client_ =
         std::unique_ptr<NodeInspectorClient>(
@@ -655,7 +655,7 @@ bool Agent::StartIoThread(bool wait_for_connect) {
     CHECK_NE(client_, nullptr);
 
     enabled_ = true;
-    io_ = std::unique_ptr<InspectorIo>(
+    io_      = std::unique_ptr<InspectorIo>(
         new InspectorIo(parent_env_, platform_, path_, debug_options_,
                         wait_for_connect));
     if (!io_->Start()) {
@@ -666,9 +666,9 @@ bool Agent::StartIoThread(bool wait_for_connect) {
     v8::Isolate *isolate = parent_env_->isolate();
 
     // Send message to enable debug in workers
-    HandleScope handle_scope(isolate);
+    HandleScope   handle_scope(isolate);
     Local<Object> process_object = parent_env_->process_object();
-    Local<Value> emit_fn =
+    Local<Value>  emit_fn =
         process_object->Get(parent_env_->context(), FIXED_ONE_BYTE_STRING(isolate, "emit")).ToLocalChecked();
     // In case the thread started early during the startup
     if (!emit_fn->IsFunction())
@@ -749,9 +749,9 @@ void Agent::PauseOnNextJavascriptStatement(const std::string &reason) {
 }
 
 void Open(const FunctionCallbackInfo<Value> &args) {
-    Environment *env = Environment::GetCurrent(args);
-    inspector::Agent *agent = env->inspector_agent();
-    bool wait_for_connect = false;
+    Environment *     env              = Environment::GetCurrent(args);
+    inspector::Agent *agent            = env->inspector_agent();
+    bool              wait_for_connect = false;
 
     if (args.Length() > 0 && args[0]->IsUint32()) {
         uint32_t port = args[0]->Uint32Value(env->context()).ToChecked();
@@ -771,9 +771,9 @@ void Open(const FunctionCallbackInfo<Value> &args) {
 }
 
 void Url(const FunctionCallbackInfo<Value> &args) {
-    Environment *env = Environment::GetCurrent(args);
-    inspector::Agent *agent = env->inspector_agent();
-    inspector::InspectorIo *io = agent->io();
+    Environment *           env   = Environment::GetCurrent(args);
+    inspector::Agent *      agent = env->inspector_agent();
+    inspector::InspectorIo *io    = agent->io();
 
     if (!io) return;
 
@@ -788,8 +788,8 @@ void Url(const FunctionCallbackInfo<Value> &args) {
 // static
 void Agent::InitInspector(Local<Object> target, Local<Value> unused,
                           Local<Context> context, void *priv) {
-    Environment *env = Environment::GetCurrent(context);
-    Agent *agent = env->inspector_agent();
+    Environment *env   = Environment::GetCurrent(context);
+    Agent *      agent = env->inspector_agent();
     env->SetMethod(target, "consoleCall", InspectorConsoleCall);
     if (agent->debug_options_.wait_for_connect())
         env->SetMethod(target, "callAndPauseOnStart", CallAndPauseOnStart);

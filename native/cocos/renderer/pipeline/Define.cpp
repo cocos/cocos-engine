@@ -168,6 +168,25 @@ const gfx::UniformBlock UBOLocal::LAYOUT = {
     1,
 };
 
+const String                          UBOWorldBound::NAME       = "CCWorldBound";
+const gfx::DescriptorSetLayoutBinding UBOWorldBound::DESCRIPTOR = {
+    UBOWorldBound::BINDING,
+    gfx::DescriptorType::UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::COMPUTE,
+    {},
+};
+const gfx::UniformBlock UBOWorldBound::LAYOUT = {
+    localSet,
+    UBOWorldBound::BINDING,
+    UBOWorldBound::NAME,
+    {
+        {"cc_worldBoundCenter", gfx::Type::FLOAT4, 1},
+        {"cc_worldBoundHalfExtents", gfx::Type::FLOAT4, 1},
+    },
+    1,
+};
+
 const String                          UBOForwardLight::NAME       = "CCForwardLight";
 const gfx::DescriptorSetLayoutBinding UBOForwardLight::DESCRIPTOR = {
     UBOForwardLight::BINDING,
@@ -264,6 +283,23 @@ const gfx::UniformBlock UBOMorph::LAYOUT = {
     1,
 };
 
+const String                          UBOUILocal::NAME       = "CCMorph";
+const gfx::DescriptorSetLayoutBinding UBOUILocal::DESCRIPTOR = {
+    UBOUILocal::BINDING,
+    gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER,
+    1,
+    gfx::ShaderStageFlagBit::VERTEX,
+};
+const gfx::UniformBlock UBOUILocal::LAYOUT = {
+    localSet,
+    UBOUILocal::BINDING,
+    UBOUILocal::NAME,
+    {
+        {"cc_local_data", gfx::Type::FLOAT4, 1},
+    },
+    1,
+};
+
 const String                          SHADOWMAP::NAME       = "cc_shadowMap";
 const gfx::DescriptorSetLayoutBinding SHADOWMAP::DESCRIPTOR = {
     SHADOWMAP::BINDING,
@@ -309,6 +345,22 @@ const gfx::UniformSamplerTexture SPOTLIGHTINGMAP::LAYOUT = {
     SPOTLIGHTINGMAP::BINDING,
     SPOTLIGHTINGMAP::NAME,
     gfx::Type::SAMPLER2D,
+    1,
+};
+
+const String                          DIFFUSEMAP::NAME       = "cc_diffuseMap";
+const gfx::DescriptorSetLayoutBinding DIFFUSEMAP::DESCRIPTOR = {
+    DIFFUSEMAP::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture DIFFUSEMAP::LAYOUT = {
+    globalSet,
+    DIFFUSEMAP::BINDING,
+    DIFFUSEMAP::NAME,
+    gfx::Type::SAMPLER_CUBE,
     1,
 };
 
@@ -456,6 +508,12 @@ uint nextPow2(uint val) {
 bool supportsHalfFloatTexture(gfx::Device *device) {
     return device->hasFeature(gfx::Feature::COLOR_HALF_FLOAT) &&
            device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT) &&
+           device->getGfxAPI() != gfx::API::GLES2;
+}
+
+bool supportsFloatTexture(gfx::Device *device) {
+    return device->hasFeature(gfx::Feature::COLOR_FLOAT) &&
+           device->hasFeature(gfx::Feature::TEXTURE_FLOAT) &&
            device->getGfxAPI() != gfx::API::GLES2;
 }
 

@@ -32,16 +32,16 @@ namespace gfx {
 
 class CC_DLL GlobalBarrier : public GFXObject {
 public:
-    GlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash);
+    explicit GlobalBarrier(const GlobalBarrierInfo &info);
 
-    static uint32_t computeHash(const GlobalBarrierInfo &info);
+    static size_t computeHash(const GlobalBarrierInfo &info);
 
     inline const GlobalBarrierInfo &getInfo() const { return _info; }
-    inline const uint32_t &         getHash() const { return _hash; }
+    inline const size_t &           getHash() const { return _hash; }
 
 protected:
     GlobalBarrierInfo _info;
-    uint32_t          _hash{0U};
+    size_t            _hash{0U};
 };
 
 } // namespace gfx

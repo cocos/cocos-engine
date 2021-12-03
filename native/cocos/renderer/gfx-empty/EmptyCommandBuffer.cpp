@@ -103,5 +103,14 @@ void EmptyCommandBuffer::dispatch(const DispatchInfo &info) {
 void EmptyCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) {
 }
 
+void EmptyCommandBuffer::beginQuery(QueryPool *queryPool, uint32_t id) {
+}
+
+void EmptyCommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
+}
+
+void EmptyCommandBuffer::resetQueryPool(QueryPool *queryPool) {
+}
+
 } // namespace gfx
 } // namespace cc

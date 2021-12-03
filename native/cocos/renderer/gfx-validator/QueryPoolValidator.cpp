@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2021 Huawei Technologies Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,34 +23,45 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
+#include "base/CoreStd.h"
 
-#include "../RenderStage.h"
-#include "frame-graph/Handle.h"
-#include "Enum.h"
+#include "CommandBufferValidator.h"
+#include "DeviceValidator.h"
+#include "QueryPoolValidator.h"
+#include "ValidationUtils.h"
 
 namespace cc {
-namespace pipeline {
+namespace gfx {
 
-class UIPhase;
+QueryPoolValidator::QueryPoolValidator(QueryPool *actor)
+: Agent<QueryPool>(actor) {
+    _typedID         = actor->getTypedID();
+    _type            = actor->getType();
+    _maxQueryObjects = actor->getMaxQueryObjects();
+}
 
-class CC_DLL PostProcessStage : public RenderStage {
-public:
-    PostProcessStage();
-    ~PostProcessStage() override = default;
+QueryPoolValidator::~QueryPoolValidator() {
+    DeviceResourceTracker<QueryPool>::erase(this);
+    CC_SAFE_DELETE(_actor);
+}
 
-    static const RenderStageInfo &getInitializeInfo();
-    bool initialize(const RenderStageInfo &info) override;
-    void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
-    void destroy() override;
-    void render(scene::Camera *camera) override;
+void QueryPoolValidator::doInit(const QueryPoolInfo &info) {
+    CCASSERT(!isInited(), "initializing twice?");
+    _inited = true;
 
-private:
-    gfx::Rect _renderArea;
-    UIPhase * _uiPhase = nullptr;
-    uint      _phaseID = 0;
+    /////////// execute ///////////
 
-    static RenderStageInfo initInfo;
-};
-} // namespace pipeline
+    _actor->initialize(info);
+}
+
+void QueryPoolValidator::doDestroy() {
+    CCASSERT(isInited(), "destroying twice?");
+    _inited = false;
+
+    /////////// execute ///////////
+
+    _actor->destroy();
+}
+
+} // namespace gfx
 } // namespace cc

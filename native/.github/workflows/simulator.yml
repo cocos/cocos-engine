@@ -27,7 +27,7 @@ jobs:
           choco install vulkan-sdk
       - name: pip install
         run: |
-          python -m pip install PyYAML Cheetah3
+          python -m pip install PyYAML==5.4.1 Cheetah3
       - name: install android ndk
         shell: bash
         working-directory: ${{github.workspace}}

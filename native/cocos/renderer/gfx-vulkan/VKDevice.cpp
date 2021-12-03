@@ -34,6 +34,7 @@
 #include "VKInputAssembler.h"
 #include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
+#include "VKQueryPool.h"
 #include "VKQueue.h"
 #include "VKRenderPass.h"
 #include "VKShader.h"
@@ -41,6 +42,7 @@
 #include "VKTexture.h"
 #include "VKUtils.h"
 #include "gfx-base/SPIRVUtils.h"
+#include "gfx-vulkan/VKGPUObjects.h"
 #include "states/VKGlobalBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
@@ -74,6 +76,7 @@ CCVKDevice::CCVKDevice() {
     _api        = API::VULKAN;
     _deviceName = "Vulkan";
 
+    _caps.supportQuery     = true;
     _caps.clipSpaceMinZ    = 0.0F;
     _caps.screenSpaceSignY = -1.0F;
     _caps.clipSpaceSignY   = -1.0F;
@@ -219,8 +222,8 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     findPreferredDepthFormat(depthFormatPriorityList, 3, &_gpuDevice->depthFormat);
 
     VkFormat depthStencilFormatPriorityList[]{
-        VK_FORMAT_D32_SFLOAT_S8_UINT,
         VK_FORMAT_D24_UNORM_S8_UINT,
+        VK_FORMAT_D32_SFLOAT_S8_UINT,
         VK_FORMAT_D16_UNORM_S8_UINT,
     };
     findPreferredDepthFormat(depthStencilFormatPriorityList, 3, &_gpuDevice->depthStencilFormat);
@@ -251,19 +254,20 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         _gpuDevice->createRenderPass2 = vkCreateRenderPass2KHRFallback;
     }
 
-    VkFormatFeatureFlags requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
-    VkFormatProperties   formatProperties;
-    vkGetPhysicalDeviceFormatProperties(_gpuContext->physicalDevice, VK_FORMAT_R8G8B8_UNORM, &formatProperties);
-    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
+    if (isFormatSupported(_gpuContext->physicalDevice, VK_FORMAT_R8G8B8_UNORM)) {
         _features[toNumber(Feature::FORMAT_RGB8)] = true;
     }
 
     String compressedFmts;
-    if (deviceFeatures.textureCompressionETC2) {
+    if (isFormatSupported(_gpuContext->physicalDevice, VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK)) {
         _features[toNumber(Feature::FORMAT_ETC2)] = true;
         compressedFmts += "etc2 ";
     }
-    if (deviceFeatures.textureCompressionASTC_LDR) {
+    if (isFormatSupported(_gpuContext->physicalDevice, VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG)) {
+        _features[toNumber(Feature::FORMAT_PVRTC)] = true;
+        compressedFmts += "pvrtc ";
+    }
+    if (isFormatSupported(_gpuContext->physicalDevice, VK_FORMAT_ASTC_4x4_UNORM_BLOCK)) {
         _features[toNumber(Feature::FORMAT_ASTC)] = true;
         compressedFmts += "astc ";
     }
@@ -296,6 +300,9 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     QueueInfo queueInfo;
     queueInfo.type = QueueType::GRAPHICS;
     _queue         = createQueue(queueInfo);
+
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, false};
+    _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;
     cmdBuffInfo.type  = CommandBufferType::PRIMARY;
@@ -368,6 +375,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuDescriptorHub    = CC_NEW(CCVKGPUDescriptorHub(_gpuDevice));
     _gpuSemaphorePool    = CC_NEW(CCVKGPUSemaphorePool(_gpuDevice));
     _gpuBarrierManager   = CC_NEW(CCVKGPUBarrierManager(_gpuDevice));
+    _gpuFramebufferHub   = CC_NEW(CCVKGPUFramebufferHub);
     _gpuDescriptorSetHub = CC_NEW(CCVKGPUDescriptorSetHub(_gpuDevice));
 
     _gpuDescriptorHub->link(_gpuDescriptorSetHub);
@@ -399,7 +407,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
         },
         true);
 
-    _gpuDevice->defaultBuffer.usage    = BufferUsage::UNIFORM;
+    _gpuDevice->defaultBuffer.usage    = BufferUsage::UNIFORM | BufferUsage::STORAGE;
     _gpuDevice->defaultBuffer.memUsage = MemoryUsage::HOST | MemoryUsage::DEVICE;
     _gpuDevice->defaultBuffer.size = _gpuDevice->defaultBuffer.stride = 16U;
     _gpuDevice->defaultBuffer.count                                   = 1U;
@@ -456,6 +464,7 @@ void CCVKDevice::doDestroy() {
     }
     _depthStencilTextures.clear();
 
+    CC_SAFE_DESTROY(_queryPool)
     CC_SAFE_DESTROY(_queue)
     CC_SAFE_DESTROY(_cmdBuff)
 
@@ -464,6 +473,7 @@ void CCVKDevice::doDestroy() {
     CC_SAFE_DELETE(_gpuSemaphorePool)
     CC_SAFE_DELETE(_gpuDescriptorHub)
     CC_SAFE_DELETE(_gpuBarrierManager)
+    CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
     uint32_t backBufferCount = _gpuDevice->backBufferCount;
@@ -511,8 +521,7 @@ void CCVKDevice::doDestroy() {
             _gpuDevice->memoryAllocator = VK_NULL_HANDLE;
         }
 
-        for (CCVKGPUDevice::CommandBufferPools::iterator it = _gpuDevice->_commandBufferPools.begin();
-             it != _gpuDevice->_commandBufferPools.end(); ++it) {
+        for (auto it = _gpuDevice->_commandBufferPools.begin(); it != _gpuDevice->_commandBufferPools.end(); ++it) {
             CC_SAFE_DELETE(it->second)
         }
         _gpuDevice->_commandBufferPools.clear();
@@ -684,6 +693,10 @@ Queue *CCVKDevice::createQueue() {
     return CC_NEW(CCVKQueue);
 }
 
+QueryPool *CCVKDevice::createQueryPool() {
+    return CC_NEW(CCVKQueryPool);
+}
+
 Swapchain *CCVKDevice::createSwapchain() {
     return CC_NEW(CCVKSwapchain);
 }
@@ -728,16 +741,16 @@ PipelineState *CCVKDevice::createPipelineState() {
     return CC_NEW(CCVKPipelineState);
 }
 
-Sampler *CCVKDevice::createSampler(const SamplerInfo &info, uint32_t hash) {
-    return CC_NEW(CCVKSampler(info, hash));
+Sampler *CCVKDevice::createSampler(const SamplerInfo &info) {
+    return CC_NEW(CCVKSampler(info));
 }
 
-GlobalBarrier *CCVKDevice::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
-    return CC_NEW(CCVKGlobalBarrier(info, hash));
+GlobalBarrier *CCVKDevice::createGlobalBarrier(const GlobalBarrierInfo &info) {
+    return CC_NEW(CCVKGlobalBarrier(info));
 }
 
-TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
-    return CC_NEW(CCVKTextureBarrier(info, hash));
+TextureBarrier *CCVKDevice::createTextureBarrier(const TextureBarrierInfo &info) {
+    return CC_NEW(CCVKTextureBarrier(info));
 }
 
 void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
@@ -778,6 +791,50 @@ void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffe
         uint32_t regionSize                = 0;
         std::tie(regionOffset, regionSize) = regionOffsetSizes[i];
         memcpy(buffers[i], stagingBuffer.mappedData + regionOffset, regionSize);
+    }
+}
+
+void CCVKDevice::getQueryPoolResults(QueryPool *queryPool) {
+    auto *vkQueryPool = static_cast<CCVKQueryPool *>(queryPool);
+    auto  queryCount  = static_cast<uint32_t>(vkQueryPool->_ids.size());
+    CCASSERT(queryCount <= vkQueryPool->getMaxQueryObjects(), "Too many query commands.");
+
+    const bool            bWait  = queryPool->getForceWait();
+    uint32_t              width  = bWait ? 1U : 2U;
+    uint64_t              stride = sizeof(uint64_t) * width;
+    VkQueryResultFlagBits flag   = bWait ? VK_QUERY_RESULT_WAIT_BIT : VK_QUERY_RESULT_WITH_AVAILABILITY_BIT;
+    std::vector<uint64_t> results(queryCount * width, 0ULL);
+
+    if (queryCount > 0U) {
+        VkResult result = vkGetQueryPoolResults(
+            gpuDevice()->vkDevice,
+            vkQueryPool->_gpuQueryPool->vkPool,
+            0,
+            queryCount,
+            static_cast<size_t>(queryCount * stride),
+            results.data(),
+            stride,
+            VK_QUERY_RESULT_64_BIT | flag);
+        CCASSERT(result == VK_SUCCESS || result == VK_NOT_READY, "Unexpected error code.");
+    }
+
+    std::unordered_map<uint32_t, uint64_t> mapResults;
+    for (auto queryId = 0U; queryId < queryCount; queryId++) {
+        uint32_t offset = queryId * width;
+        if (bWait || results[offset + 1] > 0) {
+            uint32_t id   = vkQueryPool->_ids[queryId];
+            auto     iter = mapResults.find(id);
+            if (iter != mapResults.end()) {
+                iter->second += results[offset];
+            } else {
+                mapResults[id] = results[offset];
+            }
+        }
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(vkQueryPool->_mutex);
+        vkQueryPool->_results = std::move(mapResults);
     }
 }
 

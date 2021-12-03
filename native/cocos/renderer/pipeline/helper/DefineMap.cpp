@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "DefineMap.h"
+#include "scene/Camera.h"
+
 namespace cc {
 namespace pipeline {
 DefineMap::DefineMap() {
@@ -36,5 +38,8 @@ DefineMap::~DefineMap() {
     _jsbMacros->decRef();
     _jsbMacros->unroot();
 }
+
+const scene::Camera *profilerCamera = nullptr;
+
 } // namespace pipeline
 } // namespace cc

@@ -33,6 +33,7 @@
 #include "GLES3Framebuffer.h"
 #include "GLES3InputAssembler.h"
 #include "GLES3PipelineState.h"
+#include "GLES3QueryPool.h"
 #include "GLES3RenderPass.h"
 #include "GLES3Texture.h"
 #include "states/GLES3GlobalBarrier.h"
@@ -156,6 +157,9 @@ void GLES3CommandBuffer::bindDescriptorSet(uint32_t set, DescriptorSet *descript
     }
     if (dynamicOffsetCount) {
         _curDynamicOffsets[set].assign(dynamicOffsets, dynamicOffsets + dynamicOffsetCount);
+        _isStateInvalid = true;
+    } else if (!_curDynamicOffsets[set].empty()) {
+        _curDynamicOffsets[set].assign(_curDynamicOffsets[set].size(), 0);
         _isStateInvalid = true;
     }
 }
@@ -434,6 +438,50 @@ void GLES3CommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const Tex
     cmd->barriersByRegion = gpuBarrier->glBarriersByRegion;
     _curCmdPackage->barrierCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::BARRIER);
+}
+
+void GLES3CommandBuffer::beginQuery(QueryPool *queryPool, uint32_t id) {
+    auto *         gles3QueryPool = static_cast<GLES3QueryPool *>(queryPool);
+    GLES3CmdQuery *cmd            = _cmdAllocator->queryCmdPool.alloc();
+    cmd->queryPool                = gles3QueryPool;
+    cmd->type                     = GLES3QueryType::BEGIN;
+    cmd->id                       = id;
+
+    _curCmdPackage->queryCmds.push(cmd);
+    _curCmdPackage->cmds.push(GLESCmdType::QUERY);
+}
+
+void GLES3CommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
+    auto *         gles3QueryPool = static_cast<GLES3QueryPool *>(queryPool);
+    GLES3CmdQuery *cmd            = _cmdAllocator->queryCmdPool.alloc();
+    cmd->queryPool                = gles3QueryPool;
+    cmd->type                     = GLES3QueryType::END;
+    cmd->id                       = id;
+
+    _curCmdPackage->queryCmds.push(cmd);
+    _curCmdPackage->cmds.push(GLESCmdType::QUERY);
+}
+
+void GLES3CommandBuffer::resetQueryPool(QueryPool *queryPool) {
+    auto *         gles3QueryPool = static_cast<GLES3QueryPool *>(queryPool);
+    GLES3CmdQuery *cmd            = _cmdAllocator->queryCmdPool.alloc();
+    cmd->queryPool                = gles3QueryPool;
+    cmd->type                     = GLES3QueryType::RESET;
+    cmd->id                       = 0;
+
+    _curCmdPackage->queryCmds.push(cmd);
+    _curCmdPackage->cmds.push(GLESCmdType::QUERY);
+}
+
+void GLES3CommandBuffer::getQueryPoolResults(QueryPool *queryPool) {
+    auto *         gles3QueryPool = static_cast<GLES3QueryPool *>(queryPool);
+    GLES3CmdQuery *cmd            = _cmdAllocator->queryCmdPool.alloc();
+    cmd->queryPool                = gles3QueryPool;
+    cmd->type                     = GLES3QueryType::GET_RESULTS;
+    cmd->id                       = 0;
+
+    _curCmdPackage->queryCmds.push(cmd);
+    _curCmdPackage->cmds.push(GLESCmdType::QUERY);
 }
 
 } // namespace gfx

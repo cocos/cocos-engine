@@ -27,8 +27,6 @@
 #include "../SceneCulling.h"
 #include "ForwardPipeline.h"
 #include "ForwardStage.h"
-#include "../common/BloomStage.h"
-#include "../common/PostProcessStage.h"
 
 namespace cc {
 namespace pipeline {
@@ -49,21 +47,9 @@ bool ForwardFlow::initialize(const RenderFlowInfo &info) {
         auto *forwardStage = CC_NEW(ForwardStage);
         forwardStage->initialize(ForwardStage::getInitializeInfo());
         _stages.emplace_back(forwardStage);
-        auto *bloomStage       = CC_NEW(BloomStage);
-        bloomStage->initialize(BloomStage::getInitializeInfo());
-        _stages.emplace_back(bloomStage);
-        auto *postProcessStage = CC_NEW(PostProcessStage);
-        postProcessStage->initialize(PostProcessStage::getInitializeInfo());
-        _stages.emplace_back(postProcessStage);
     }
 
     return true;
-}
-
-void ForwardFlow::addBloomStage() {
-}
-
-void ForwardFlow::addPostStage() {
 }
 
 void ForwardFlow::activate(RenderPipeline *pipeline) {

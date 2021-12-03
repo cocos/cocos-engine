@@ -26,7 +26,9 @@
 #pragma once
 
 #include <algorithm>
+#include <unordered_map>
 #include "base/memory/Memory.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace framegraph {
@@ -34,96 +36,64 @@ namespace framegraph {
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 class ResourceAllocator final {
 public:
-    using DescriptorHash        = uint32_t;
     using DeviceResourceCreator = DeviceResourceCreatorType;
 
-    ResourceAllocator(const ResourceAllocator &) = delete;
-    ResourceAllocator(ResourceAllocator &&)      = delete;
+    ResourceAllocator(const ResourceAllocator &)     = delete;
+    ResourceAllocator(ResourceAllocator &&) noexcept = delete;
     ResourceAllocator &operator=(const ResourceAllocator &) = delete;
-    ResourceAllocator &operator=(ResourceAllocator &&) = delete;
+    ResourceAllocator &operator=(ResourceAllocator &&) noexcept = delete;
 
     static ResourceAllocator &getInstance() noexcept;
-    DeviceResourceType *      alloc(const DescriptorType &desc, DescriptorHash key) noexcept;
-    void                      free(const DescriptorType &desc, DescriptorHash key, DeviceResourceType *resource) noexcept;
+    DeviceResourceType *      alloc(const DescriptorType &desc) noexcept;
+    void                      free(DeviceResourceType *resource) noexcept;
     inline void               tick() noexcept;
     void                      gc(uint32_t unusedFrameCount) noexcept;
 
 private:
-    using DeviceResourcePtr = DeviceResourceType *;
-
-    struct Bucket {
-        explicit Bucket(DescriptorHash const key) noexcept : key(key) {}
-
-        using Pool = std::vector<DeviceResourcePtr>;
-        DescriptorHash key{0};
-        Pool           pool{};
-    };
-
-    struct BucketGC final : public Bucket {
-        using Bucket::Bucket;
-        std::vector<uint64_t> ages{};
-    };
+    using DeviceResourcePool = std::vector<DeviceResourceType *>;
 
     ResourceAllocator() noexcept = default;
     ~ResourceAllocator()         = default;
-    template <typename Cache>
-    typename Bucket::Pool *getPool(DescriptorHash key, Cache &from) noexcept;
-    BucketGC &             getBucketGC(DescriptorHash key) noexcept;
 
-    std::vector<BucketGC> _free{};
-    std::vector<Bucket>   _inUse{};
-    uint64_t              _age{0};
+    std::unordered_map<DescriptorType, DeviceResourcePool, gfx::Hasher<DescriptorType>> _pool{};
+    std::unordered_map<DeviceResourceType *, int64_t>                                   _ages{};
+    uint64_t                                                                            _age{0};
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
-ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType> &ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::getInstance() noexcept {
+ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType> &
+ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::getInstance() noexcept {
     static ResourceAllocator instance;
     return instance;
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
-DeviceResourceType *ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::alloc(const DescriptorType &desc, DescriptorHash const key) noexcept {
-    auto it = std::find_if(_free.begin(), _free.end(), [&key](const BucketGC &x) {
-        return key == x.key;
-    });
+DeviceResourceType *ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::alloc(const DescriptorType &desc) noexcept {
+    DeviceResourcePool &pool{_pool[desc]};
 
-    if (it == _free.end()) {
-        _free.emplace_back(key);
-        _inUse.emplace_back(key);
-        it = _free.end() - 1;
+    DeviceResourceType *resource{nullptr};
+    for (DeviceResourceType *res : pool) {
+        if (_ages[res] >= 0) {
+            resource = res;
+            break;
+        }
     }
-
-    DeviceResourcePtr resource = nullptr;
-
-    if (it->pool.empty()) {
+    if (!resource) {
         DeviceResourceCreator creator;
         resource = creator(desc);
-    } else {
-        resource = it->pool.back();
-        it->pool.pop_back();
-        it->ages.pop_back();
+        pool.push_back(resource);
     }
 
-    getPool(key, _inUse)->emplace_back(resource);
+    _ages[resource] = -1;
     return resource;
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
-void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::free(const DescriptorType & /*desc*/, DescriptorHash const key, DeviceResourceType *const resource) noexcept {
-    auto *pool = getPool(key, _inUse);
-    CC_ASSERT(!pool->empty());
-
-    auto it = std::find_if(pool->begin(), pool->end(), [&resource](DeviceResourcePtr x) {
-        return resource == x;
-    });
-    CC_ASSERT(it != pool->end());
-    pool->erase(it);
-
-    auto &freeBucket = getBucketGC(key);
-    freeBucket.pool.emplace_back(resource);
-    freeBucket.ages.emplace_back(_age);
+void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::free(DeviceResourceType *const resource) noexcept {
+    CC_ASSERT(_ages.count(resource) && _ages[resource] < 0);
+    _ages[resource] = _age;
 }
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
@@ -133,33 +103,36 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
 
 template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
 void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::gc(uint32_t const unusedFrameCount) noexcept {
-    std::for_each(_free.begin(), _free.end(), [&](BucketGC &bucket) {
-        const size_t count = bucket.ages.size();
+    for (auto &pair : _pool) {
+        DeviceResourcePool &pool = pair.second;
+
+        auto count = static_cast<int>(pool.size());
 
         if (!count) {
-            return;
+            continue;
         }
 
-        size_t destroyBegin = count - 1;
+        int destroyBegin = count - 1;
 
-        for (size_t i = 0; i < count; ++i) {
-            if (_age - bucket.ages[i] < unusedFrameCount) {
+        for (int i = 0; i < count; ++i) {
+            int64_t ageI = _ages[pool[i]];
+            if (ageI < 0 || _age - ageI < unusedFrameCount) {
                 continue;
             }
 
-            size_t j = destroyBegin;
+            int j = destroyBegin;
 
             for (; j > i; --j) {
-                if (_age - bucket.ages[j] < unusedFrameCount) {
-                    std::swap(bucket.ages[i], bucket.ages[j]);
-                    std::swap(bucket.pool[i], bucket.pool[j]);
-                    destroyBegin = j;
+                int64_t ageJ = _ages[pool[j]];
+                if (ageJ < 0 || _age - ageJ < unusedFrameCount) {
+                    std::swap(pool[i], pool[j]);
+                    destroyBegin = j - 1;
                     break;
                 }
             }
 
             if (i >= j) {
-                destroyBegin = i;
+                destroyBegin = i - 1;
             }
 
             if (i >= destroyBegin) {
@@ -167,35 +140,13 @@ void ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreator
             }
         }
 
-        while (++destroyBegin <= count) {
-            CC_SAFE_DESTROY(bucket.pool.back());
-            bucket.pool.pop_back();
-            bucket.ages.pop_back();
+        while (++destroyBegin < count) {
+            auto *resource = pool.back();
+            CC_DELETE(resource);
+            _ages.erase(resource);
+            pool.pop_back();
         }
-    });
-}
-
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
-template <typename Cache>
-typename ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::Bucket::Pool *
-ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::getPool(
-    DescriptorHash const key, Cache &from) noexcept {
-    auto it = std::find_if(from.begin(), from.end(), [&key](const Bucket &x) {
-        return key == x.key;
-    });
-
-    return it == from.end() ? nullptr : &it->pool;
-}
-
-template <typename DeviceResourceType, typename DescriptorType, typename DeviceResourceCreatorType>
-typename ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::BucketGC &
-ResourceAllocator<DeviceResourceType, DescriptorType, DeviceResourceCreatorType>::getBucketGC(DescriptorHash const key) noexcept {
-    auto it = std::find_if(_free.begin(), _free.end(), [&key](const BucketGC &x) {
-        return key == x.key;
-    });
-
-    CC_ASSERT(it != _free.end());
-    return *it;
+    }
 }
 
 } // namespace framegraph

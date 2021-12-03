@@ -34,6 +34,9 @@
 #include "scene/SpotLight.h"
 
 namespace cc {
+namespace scene {
+struct Camera;
+}
 namespace pipeline {
 struct RenderObject;
 class RenderPipeline;
@@ -55,27 +58,24 @@ public:
     explicit RenderAdditiveLightQueue(RenderPipeline *pipeline);
     ~RenderAdditiveLightQueue() override;
 
-    void recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
+    void recordCommandBuffer(gfx::Device *device, scene::Camera *camera, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer);
     void gatherLightPasses(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void destroy() const;
 
 private:
     static bool cullSphereLight(const scene::SphereLight *light, const scene::Model *model);
     static bool cullSpotLight(const scene::SpotLight *light, const scene::Model *model);
 
     void                clear();
-    void                gatherValidLights(const scene::Camera *camera);
     void                addRenderQueue(const scene::Pass *pass, const scene::SubModel *subModel, const scene::Model *model, uint lightPassIdx);
     void                updateUBOs(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void                updateLightDescriptorSet(const scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     bool                getLightPassIndex(const scene::Model *model, vector<uint> *lightPassIndices) const;
     void                lightCulling(const scene::Model *model);
-    gfx::DescriptorSet *getOrCreateDescriptorSet(const scene::Light *light);
 
     RenderPipeline *                  _pipeline = nullptr;
     vector<vector<scene::SubModel *>> _sortedSubModelsArray;
     vector<vector<uint>>              _sortedPSOCIArray;
-    vector<scene::Light *>            _validLights;
+    vector<const scene::Light *>      _validPunctualLights;
     vector<uint>                      _lightIndices;
     vector<AdditiveLightPass>         _lightPasses;
     vector<uint>                      _dynamicOffsets;

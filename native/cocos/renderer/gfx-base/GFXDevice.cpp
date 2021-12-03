@@ -56,6 +56,12 @@ bool Device::initialize(const DeviceInfo &info) {
         _bindingMappingInfo.samplerOffsets.push_back(0);
     }
 
+#if CC_CPU_ARCH == CC_CPU_ARCH_32
+    static_assert(sizeof(void*) == 4, "pointer size assumption broken");
+#else
+    static_assert(sizeof(void*) == 8, "pointer size assumption broken");
+#endif
+
     return doInit(info);
 }
 
@@ -96,6 +102,27 @@ void Device::createSurface(void *windowHandle) {
             break;
         }
     }
+}
+
+Sampler *Device::getSampler(const SamplerInfo &info) {
+    if (!_samplers.count(info)) {
+        _samplers[info] = createSampler(info);
+    }
+    return _samplers[info];
+}
+
+GlobalBarrier *Device::getGlobalBarrier(const GlobalBarrierInfo &info) {
+    if (!_globalBarriers.count(info)) {
+        _globalBarriers[info] = createGlobalBarrier(info);
+    }
+    return _globalBarriers[info];
+}
+
+TextureBarrier *Device::getTextureBarrier(const TextureBarrierInfo &info) {
+    if (!_textureBarriers.count(info)) {
+        _textureBarriers[info] = createTextureBarrier(info);
+    }
+    return _textureBarriers[info];
 }
 
 } // namespace gfx

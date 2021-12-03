@@ -29,6 +29,7 @@
 #include "ForwardFlow.h"
 #include "gfx-base/GFXDevice.h"
 #include "scene/RenderScene.h"
+#include "../helper/Utils.h"
 
 namespace cc {
 namespace pipeline {
@@ -81,49 +82,58 @@ bool ForwardPipeline::activate(gfx::Swapchain *swapchain) {
 }
 
 void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
+    auto *     device               = gfx::Device::getInstance();
+    const bool enableOcclusionQuery = getOcclusionQueryEnabled();
+    if (enableOcclusionQuery) {
+        device->getQueryPoolResults(_queryPools[0]);
+    }
+
     _commandBuffers[0]->begin();
+
+    if (enableOcclusionQuery) {
+        _commandBuffers[0]->resetQueryPool(_queryPools[0]);
+    }
+
     _pipelineUBO->updateGlobalUBO(cameras[0]);
     _pipelineUBO->updateMultiCameraUBO(cameras);
     ensureEnoughSize(cameras);
+    decideProfilerCamera(cameras);
 
     for (auto *camera : cameras) {
+        validPunctualLightsCulling(this, camera);
         sceneCulling(this, camera);
-        _fg.reset();
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
         _fg.compile();
         _fg.execute();
+        _fg.reset();
         _pipelineUBO->incCameraUBOOffset();
+    }
+
+    if (enableOcclusionQuery) {
+        _commandBuffers[0]->completeQueryPool(_queryPools[0]);
     }
 
     _commandBuffers[0]->end();
     _device->flushCommands(_commandBuffers);
     _device->getQueue()->submit(_commandBuffers);
+
+    RenderPipeline::framegraphGC();
 }
 
 bool ForwardPipeline::activeRenderer(gfx::Swapchain *swapchain) {
     _commandBuffers.push_back(_device->getCommandBuffer());
-    auto *const sharedData = _pipelineSceneData->getSharedData();
+    _queryPools.push_back(_device->getQueryPool());
+    const auto *sharedData = _pipelineSceneData->getSharedData();
 
-    gfx::Sampler *const shadowMapSampler = _device->getSampler({
-        gfx::Filter::POINT,
-        gfx::Filter::POINT,
-        gfx::Filter::NONE,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-    });
+    gfx::Sampler *const sampler = getGlobalDSManager()->getPointSampler();
 
     // Main light sampler binding
-    _descriptorSet->bindSampler(SHADOWMAP::BINDING, shadowMapSampler);
-    _descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
-
-    // Spot light sampler binding
-    _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, shadowMapSampler);
-    _descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, getDefaultTexture());
-
+    _descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);
+    _descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
     _descriptorSet->update();
+
     // update global defines when all states initialized.
     _macros.setValue("CC_USE_HDR", static_cast<bool>(sharedData->isHDR));
     _macros.setValue("CC_SUPPORT_FLOAT_TEXTURE", _device->hasFeature(gfx::Feature::TEXTURE_FLOAT));
@@ -155,6 +165,7 @@ void ForwardPipeline::destroy() {
     }
     _renderPasses.clear();
 
+    _queryPools.clear();
     _commandBuffers.clear();
 
     RenderPipeline::destroy();

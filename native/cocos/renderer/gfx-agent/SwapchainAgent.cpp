@@ -94,8 +94,10 @@ void SwapchainAgent::doDestroy() {
 }
 
 void SwapchainAgent::doResize(uint32_t width, uint32_t height, SurfaceTransform transform) {
+    auto *mq = DeviceAgent::getInstance()->getMessageQueue();
+
     ENQUEUE_MESSAGE_4(
-        DeviceAgent::getInstance()->getMessageQueue(), SwapchainResize,
+        mq, SwapchainResize,
         actor, getActor(),
         width, width,
         height, height,
@@ -103,6 +105,14 @@ void SwapchainAgent::doResize(uint32_t width, uint32_t height, SurfaceTransform 
         {
             actor->resize(width, height, transform);
         });
+
+    mq->kickAndWait();
+
+    auto *colorTexture        = static_cast<TextureAgent *>(_colorTexture);
+    auto *depthStencilTexture = static_cast<TextureAgent *>(_depthStencilTexture);
+    colorTexture->_info.width = depthStencilTexture->_info.width = _actor->getWidth();
+    colorTexture->_info.height = depthStencilTexture->_info.height = _actor->getHeight();
+    _transform = _actor->getSurfaceTransform();
 }
 
 void SwapchainAgent::doDestroySurface() {
@@ -112,6 +122,8 @@ void SwapchainAgent::doDestroySurface() {
         {
             actor->destroySurface();
         });
+
+    DeviceAgent::getInstance()->getMessageQueue()->kickAndWait();
 }
 
 void SwapchainAgent::doCreateSurface(void *windowHandle) {

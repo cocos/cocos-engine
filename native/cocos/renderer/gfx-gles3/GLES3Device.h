@@ -34,8 +34,10 @@ namespace gfx {
 class GLES3GPUContext;
 class GLES3GPUSwapchain;
 class GLES3GPUStateCache;
-class GLES3GPUFramebufferCacheMap;
+class GLES3GPUFramebufferHub;
+class GLES3GPUSamplerRegistry;
 class GLES3GPUConstantRegistry;
+class GLES3GPUFramebufferCacheMap;
 
 class CC_GLES3_API GLES3Device final : public Device {
 public:
@@ -53,6 +55,7 @@ public:
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
+    using Device::createQueryPool;
     using Device::createQueue;
     using Device::createRenderPass;
     using Device::createSampler;
@@ -66,6 +69,8 @@ public:
 
     inline GLES3GPUContext *            context() const { return _gpuContext; }
     inline GLES3GPUStateCache *         stateCache() const { return _gpuStateCache; }
+    inline GLES3GPUFramebufferHub *     framebufferHub() const { return _gpuFramebufferHub; }
+    inline GLES3GPUSamplerRegistry *    samplerRegistry() const { return _gpuSamplerRegistry; }
     inline GLES3GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
@@ -86,6 +91,7 @@ protected:
     void                 doDestroy() override;
     CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Queue *              createQueue() override;
+    QueryPool *          createQueryPool() override;
     Swapchain *          createSwapchain() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
@@ -98,17 +104,19 @@ protected:
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
 
-    Sampler *       createSampler(const SamplerInfo &info, uint32_t hash) override;
-    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
-    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) override;
+    Sampler *      createSampler(const SamplerInfo &info) override;
+    GlobalBarrier *createGlobalBarrier(const GlobalBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
+    void getQueryPoolResults(QueryPool *queryPool) override;
 
     void bindContext(bool bound) override;
 
-    GLES3GPUStateCache *         _gpuStateCache{nullptr};
     GLES3GPUContext *            _gpuContext{nullptr};
+    GLES3GPUStateCache *         _gpuStateCache{nullptr};
+    GLES3GPUFramebufferHub *     _gpuFramebufferHub{nullptr};
+    GLES3GPUSamplerRegistry *    _gpuSamplerRegistry{nullptr};
     GLES3GPUConstantRegistry *   _gpuConstantRegistry{nullptr};
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 

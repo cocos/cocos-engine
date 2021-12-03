@@ -23,23 +23,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
-#include "pipeline/RenderPipeline.h"
-#include "scene/Camera.h"
+#include "EmptyQueryPool.h"
 
 namespace cc {
-namespace pipeline {
+namespace gfx {
 
-class CC_DLL UIPhase {
-public:
-    UIPhase() = default;
-    void activate(RenderPipeline* pipeline);
-    void render(scene::Camera* camera, gfx::RenderPass* renderPass);
+void EmptyQueryPool::doInit(const QueryPoolInfo& info) {
+}
 
-protected:
-    RenderPipeline* _pipeline = nullptr;
-    uint            _phaseID  = 0;
-};
+void EmptyQueryPool::doDestroy() {
+}
 
-} // namespace pipeline
+} // namespace gfx
 } // namespace cc

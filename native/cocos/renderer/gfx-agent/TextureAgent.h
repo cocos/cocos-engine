@@ -39,6 +39,8 @@ public:
     inline void renounceOwnership() { _ownTheActor = false; }
 
 protected:
+    friend class SwapchainAgent;
+
     void doInit(const TextureInfo &info) override;
     void doInit(const TextureViewInfo &info) override;
     void doInit(const SwapchainTextureInfo &info) override;

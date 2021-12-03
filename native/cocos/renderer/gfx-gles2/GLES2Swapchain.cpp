@@ -98,6 +98,8 @@ void GLES2Swapchain::doInit(const SwapchainInfo& info) {
 
     textureInfo.format = Format::DEPTH_STENCIL;
     initTexture(textureInfo, _depthStencilTexture);
+
+    _gpuSwapchain->gpuColorTexture = static_cast<GLES2Texture*>(_colorTexture)->gpuTexture();
 }
 
 void GLES2Swapchain::doDestroy() {
@@ -121,6 +123,7 @@ void GLES2Swapchain::doDestroySurface() {
     if (_gpuSwapchain->eglSurface != EGL_NO_SURFACE) {
         auto* context = GLES2Device::getInstance()->context();
         eglDestroySurface(context->eglDisplay, _gpuSwapchain->eglSurface);
+        _gpuSwapchain->eglSurface = EGL_NO_SURFACE;
         context->bindContext(false);
     }
 }

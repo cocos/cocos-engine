@@ -25,10 +25,42 @@
 
 #pragma once
 
+#include <functional>
 #include "GFXDef-common.h"
 
 namespace cc {
 namespace gfx {
+
+template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
+struct Hasher final { size_t operator()(const T& info) const; };
+
+// make this boost::hash compatible
+template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
+size_t hash_value(const T& info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
+
+#define DEFINE_CMP_OP(type)                            \
+    bool operator==(const type& lhs, const type& rhs); \
+    inline bool operator!=(const type& lhs, const type& rhs) { return !(lhs == rhs); }
+
+DEFINE_CMP_OP(DepthStencilAttachment)
+DEFINE_CMP_OP(SubpassInfo)
+DEFINE_CMP_OP(SubpassDependency)
+DEFINE_CMP_OP(RenderPassInfo)
+DEFINE_CMP_OP(FramebufferInfo)
+DEFINE_CMP_OP(Viewport)
+DEFINE_CMP_OP(Rect)
+DEFINE_CMP_OP(Color)
+DEFINE_CMP_OP(Offset)
+DEFINE_CMP_OP(Extent)
+DEFINE_CMP_OP(Size)
+DEFINE_CMP_OP(TextureInfo)
+DEFINE_CMP_OP(TextureViewInfo)
+DEFINE_CMP_OP(BufferInfo)
+DEFINE_CMP_OP(SamplerInfo)
+DEFINE_CMP_OP(GlobalBarrierInfo)
+DEFINE_CMP_OP(TextureBarrierInfo)
+
+#undef DEFINE_CMP_OP
 
 class Executable {
 public:
@@ -50,18 +82,11 @@ private:
     ExecuteMethod _execute;
 };
 
-struct SwapchainTextureInfo {
+struct SwapchainTextureInfo final {
     Swapchain* swapchain{nullptr};
     Format     format{Format::UNKNOWN};
     uint32_t   width{0};
     uint32_t   height{0};
-};
- 
-struct Hasher final {
-template <typename T, typename Enable = std::enable_if_t<std::is_enum<T>::value>>
-    size_t operator()(const T& v) const {
-        return static_cast<size_t>(v);
-    }
 };
 
 constexpr TextureUsage TEXTURE_USAGE_TRANSIENT = static_cast<TextureUsage>(
@@ -86,13 +111,13 @@ constexpr DescriptorType DESCRIPTOR_DYNAMIC_TYPE = static_cast<DescriptorType>(
     static_cast<uint32_t>(DescriptorType::DYNAMIC_STORAGE_BUFFER) |
     static_cast<uint32_t>(DescriptorType::DYNAMIC_UNIFORM_BUFFER));
 
-constexpr uint32_t DRAW_INFO_SIZE = 28U;
-
 extern const FormatInfo GFX_FORMAT_INFOS[];
 extern const uint32_t   GFX_TYPE_SIZES[];
 
-extern uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t depth);
+std::pair<uint32_t, uint32_t> formatAlignment(Format format);
 
-extern uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
+uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t depth);
+
+uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
 } // namespace gfx
 } // namespace cc

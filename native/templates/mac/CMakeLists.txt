@@ -7,6 +7,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/../common/CMakeLists.txt)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET ${TARGET_OSX_VERSION})
 
+if("${TARGET_OSX_VERSION}" VERSION_GREATER_EQUAL "11.0")
+    add_definitions(-DMAC_MEMORY_LESS_TEXTURE_SUPPORT=1)
+endif()
+
 set(LIB_NAME ${APP_NAME}-desktop)
 
 set(UI_RESOURCES)
@@ -30,7 +34,9 @@ list(APPEND PROJ_SOURCES
     ${UI_RESOURCES}
 )
 
-include_resources(${RES_DIR}/assets)
+if(NOT CUSTOM_COPY_RESOURCE_HOOK)
+    include_resources(${RES_DIR}/assets)
+endif()
 
 add_executable(${LIB_NAME} ${PROJ_SOURCES} ${ASSET_FILES} ${PROJ_COMMON_SOURCES})
 source_group(TREE ${RES_DIR}/assets PREFIX "Resources" FILES ${ASSET_FILES})
@@ -57,9 +63,21 @@ set_target_properties(${LIB_NAME} PROPERTIES
     XCODE_ATTRIBUTE_SKIP_INSTALL NO
     XCODE_ATTRIBUTE_INSTALL_PATH "$(LOCAL_APPS_DIR)"
 )
-set_target_properties(${LIB_NAME} PROPERTIES
-    XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CMAKE_CURRENT_LIST_DIR}/entitlements.plist"
+
+option(ENABLE_SANDBOX "enable sandbox with entitlements.plist" ON)
+if(ENABLE_SANDBOX)
+    set_target_properties(${LIB_NAME} PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${CMAKE_CURRENT_LIST_DIR}/entitlements.plist"
+    )
+endif()
+
+if(CUSTOM_COPY_RESOURCE_HOOK)
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${LIB_NAME}>/../Resources
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${RES_DIR}/assets $<TARGET_FILE_DIR:${LIB_NAME}>/../Resources
 )
+endif()
+
 get_property(gles2_loc TARGET GLESv2 PROPERTY IMPORTED_LOCATION)
 get_property(egl_loc TARGET EGL PROPERTY IMPORTED_LOCATION)
 add_custom_command(TARGET ${LIB_NAME} POST_BUILD

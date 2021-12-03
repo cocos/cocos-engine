@@ -67,6 +67,9 @@ public:
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override {}
     void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override {}
+    void beginQuery(QueryPool *queryPool, uint32_t id) override {}
+    void endQuery(QueryPool *queryPool, uint32_t id) override {}
+    void resetQueryPool(QueryPool *queryPool) override {}
 
 protected:
     void doInit(const CommandBufferInfo &info) override;

@@ -346,4 +346,12 @@ public class CocosHelper {
         }
         return new float[]{0,0,0,0};
     }
+
+    public static void setKeepScreenOn(boolean keepScreenOn) {
+        if(keepScreenOn) {
+            sActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }else {
+            sActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
 }

@@ -32,7 +32,7 @@
 #include "gfx-base/GFXInputAssembler.h"
 #include "pipeline/ClusterLightCulling.h"
 #include "pipeline/RenderPipeline.h"
-#include "pipeline/common/Enum.h"
+#include "pipeline/Enum.h"
 #include "scene/RenderWindow.h"
 
 namespace cc {

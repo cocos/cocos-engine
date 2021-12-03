@@ -55,7 +55,8 @@ public:
     }
     inline void setDirection(const Vec3 &dir) { _dir = dir; }
     inline void setFrustum(Frustum frustum) { _frustum = std::move(frustum); }
-    inline void setIlluminance(float illu) { _illuminance = illu; }
+    inline void setLuminanceHDR(float illu) { _luminanceHDR = illu; }
+    inline void setLuminanceLDR(float illu) { _luminanceLDR = illu; }
     inline void setNeedUpdate(bool value) { _needUpdate = value; }
     inline void setRange(float range) {
         _range      = range;
@@ -70,7 +71,8 @@ public:
     inline float          getAspect() const { return _aspect; }
     inline const Vec3 &   getDirection() const { return _dir; }
     inline const Frustum &getFrustum() const { return _frustum; }
-    inline float          getIlluminance() const { return _illuminance; }
+    inline float          getLuminanceHDR() const { return _luminanceHDR; }
+    inline float          getLuminanceLDR() const { return _luminanceLDR; }
     inline bool           getNeedUpdate() const { return _needUpdate; }
     inline float          getRange() const { return _range; }
     inline const Vec3 &   getPosition() const { return _pos; }
@@ -78,7 +80,8 @@ public:
 
 private:
     bool    _needUpdate{false};
-    float   _illuminance{0.F};
+    float   _luminanceHDR{0.F};
+    float   _luminanceLDR{0.F};
     float   _range{0.F};
     float   _size{0.F};
     float   _angle{0.F};

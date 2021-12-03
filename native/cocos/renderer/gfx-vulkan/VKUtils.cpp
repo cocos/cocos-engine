@@ -29,6 +29,18 @@
 namespace cc {
 namespace gfx {
 
+VkQueryType mapVkQueryType(QueryType type) {
+    switch (type) {
+        case QueryType::OCCLUSION: return VK_QUERY_TYPE_OCCLUSION;
+        case QueryType::PIPELINE_STATISTICS: return VK_QUERY_TYPE_PIPELINE_STATISTICS;
+        case QueryType::TIMESTAMP: return VK_QUERY_TYPE_TIMESTAMP;
+        default: {
+            CCASSERT(false, "Unsupported query type, convert to VkQueryType failed.");
+            return VK_QUERY_TYPE_OCCLUSION;
+        }
+    }
+}
+
 VkFormat mapVkFormat(Format format, const CCVKGPUDevice *gpuDevice) {
     switch (format) {
         case Format::R8: return VK_FORMAT_R8_UNORM;
@@ -571,6 +583,12 @@ bool isExtensionSupported(const char *required, const vector<VkExtensionProperti
         }
     }
     return false;
+}
+
+bool isFormatSupported(VkPhysicalDevice device, VkFormat format) {
+	VkFormatProperties properties;
+	vkGetPhysicalDeviceFormatProperties(device, format, &properties);
+	return (properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != 0;
 }
 
 } // namespace gfx

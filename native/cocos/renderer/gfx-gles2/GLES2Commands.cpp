@@ -608,7 +608,31 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
         return;
     }
 
-    if (gpuTexture->glSamples <= 1) {
+    if (gpuTexture->glSamples > 1 || hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::DEPTH_STENCIL_ATTACHMENT, gpuTexture->usage)) {
+        gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
+        switch (gpuTexture->type) {
+            case TextureType::TEX2D: {
+                gpuTexture->glTarget = GL_RENDERBUFFER;
+                GL_CHECK(glGenRenderbuffers(1, &gpuTexture->glRenderbuffer));
+                if (gpuTexture->size > 0) {
+                    GLuint &glRenderbuffer = device->stateCache()->glRenderbuffer;
+                    if (gpuTexture->glRenderbuffer != glRenderbuffer) {
+                        GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, gpuTexture->glRenderbuffer));
+                        glRenderbuffer = gpuTexture->glRenderbuffer;
+                    }
+                    if (gpuTexture->glSamples > 1) {
+                        GL_CHECK(glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    } else {
+                        GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    }
+                }
+                break;
+            }
+            default:
+                CCASSERT(false, "Unsupported TextureType, create texture failed.");
+                break;
+        }
+    } else {
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS // PVRVFrame issue
         gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
 #endif
@@ -626,14 +650,18 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                     uint32_t h = gpuTexture->height;
                     if (!GFX_FORMAT_INFOS[static_cast<int>(gpuTexture->format)].isCompressed) {
                         for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, i, gpuTexture->glInternalFmt, w, h, 0, gpuTexture->glFormat, gpuTexture->glType, nullptr));
+                            GL_CHECK(glTexImage2D(GL_TEXTURE_2D, i, gpuTexture->glInternalFmt, w, h,
+                                                  0, gpuTexture->glFormat, gpuTexture->glType,
+                                                  nullptr));
                             w = std::max(1U, w >> 1);
                             h = std::max(1U, h >> 1);
                         }
                     } else {
                         for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
                             uint32_t imgSize = formatSize(gpuTexture->format, w, h, 1);
-                            GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, i, gpuTexture->glInternalFmt, w, h, 0, imgSize, nullptr));
+                            GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_2D, i,
+                                                            gpuTexture->glInternalFmt, w, h, 0,
+                                                            imgSize, nullptr));
                             w = std::max(1U, w >> 1);
                             h = std::max(1U, h >> 1);
                         }
@@ -655,7 +683,10 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                             uint32_t w = gpuTexture->width;
                             uint32_t h = gpuTexture->height;
                             for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
-                                GL_CHECK(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture->glInternalFmt, w, h, 0, gpuTexture->glFormat, gpuTexture->glType, nullptr));
+                                GL_CHECK(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i,
+                                                      gpuTexture->glInternalFmt, w, h, 0,
+                                                      gpuTexture->glFormat, gpuTexture->glType,
+                                                      nullptr));
                                 w = std::max(1U, w >> 1);
                                 h = std::max(1U, h >> 1);
                             }
@@ -666,32 +697,14 @@ void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                             uint32_t h = gpuTexture->height;
                             for (uint32_t i = 0; i < gpuTexture->mipLevel; ++i) {
                                 uint32_t imgSize = formatSize(gpuTexture->format, w, h, 1);
-                                GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture->glInternalFmt, w, h, 0, imgSize, nullptr));
+                                GL_CHECK(glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                                                                i, gpuTexture->glInternalFmt, w, h,
+                                                                0, imgSize, nullptr));
                                 w = std::max(1U, w >> 1);
                                 h = std::max(1U, h >> 1);
                             }
                         }
                     }
-                }
-                break;
-            }
-            default:
-                CCASSERT(false, "Unsupported TextureType, create texture failed.");
-                break;
-        }
-    } else {
-        gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
-        switch (gpuTexture->type) {
-            case TextureType::TEX2D: {
-                gpuTexture->glTarget = GL_RENDERBUFFER;
-                GL_CHECK(glGenRenderbuffers(1, &gpuTexture->glRenderbuffer));
-                if (gpuTexture->size > 0) {
-                    GLuint &glRenderbuffer = device->stateCache()->glRenderbuffer;
-                    if (gpuTexture->glRenderbuffer != glRenderbuffer) {
-                        GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, gpuTexture->glRenderbuffer));
-                        glRenderbuffer = gpuTexture->glRenderbuffer;
-                    }
-                    GL_CHECK(glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
                 }
                 break;
             }
@@ -805,7 +818,11 @@ void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture)
                         GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, gpuTexture->glRenderbuffer));
                         glRenderbuffer = gpuTexture->glRenderbuffer;
                     }
-                    GL_CHECK(glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    if (gpuTexture->glSamples > 1) {
+                        GL_CHECK(glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    } else {
+                        GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+                    }
                 }
                 break;
             }
@@ -1194,7 +1211,7 @@ void cmdFuncGLES2CreateRenderPass(GLES2Device * /*device*/, GLES2GPURenderPass *
         statistics.storeSubpass = index;
     };
     auto calculateLifeCycle = [&](GLES2GPURenderPass::AttachmentStatistics &statistics, uint32_t targetAttachment) {
-        for (size_t j = 0U; j < gpuRenderPass->subpasses.size(); ++j) {
+        for (uint32_t j = 0U; j < utils::toUint(gpuRenderPass->subpasses.size()); ++j) {
             auto &subpass = gpuRenderPass->subpasses[j];
             for (size_t k = 0U; k < subpass.colors.size(); ++k) {
                 if (subpass.colors[k] == targetAttachment) {
@@ -1220,7 +1237,7 @@ void cmdFuncGLES2CreateRenderPass(GLES2Device * /*device*/, GLES2GPURenderPass *
 
     bool hasDepth = gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN;
     gpuRenderPass->statistics.resize(gpuRenderPass->colorAttachments.size() + hasDepth);
-    for (size_t i = 0U; i < gpuRenderPass->statistics.size(); ++i) {
+    for (uint32_t i = 0U; i < utils::toUint(gpuRenderPass->statistics.size()); ++i) {
         calculateLifeCycle(gpuRenderPass->statistics[i], i);
         CC_ASSERT(gpuRenderPass->statistics[i].loadSubpass != SUBPASS_EXTERNAL &&
                   gpuRenderPass->statistics[i].storeSubpass != SUBPASS_EXTERNAL);
@@ -1282,20 +1299,20 @@ void cmdFuncGLES2DestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembl
     gpuInputAssembler->glVAOs.clear();
 }
 
-static GLuint doCreateFramebuffer(GLES2Device *                    device,
-                                  const vector<GLES2GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
-                                  const GLES2GPUTexture *depthStencil,
-                                  const uint32_t *       resolves            = nullptr,
-                                  const GLES2GPUTexture *depthStencilResolve = nullptr,
-                                  GLbitfield *           resolveMask         = nullptr) {
-    static vector<GLenum> drawBuffers;
-    GLuint                glFramebuffer{0U};
-    GLES2GPUStateCache *  cache = device->stateCache();
+static GLES2GPUFramebuffer::GLFramebufferInfo doCreateFramebuffer(GLES2Device *                    device,
+                                                                  const vector<GLES2GPUTexture *> &attachments, const uint32_t *colors, size_t colorCount,
+                                                                  const GLES2GPUTexture *depthStencil,
+                                                                  const uint32_t *       resolves            = nullptr,
+                                                                  const GLES2GPUTexture *depthStencilResolve = nullptr,
+                                                                  GLbitfield *           resolveMask         = nullptr) {
+    static vector<GLenum>                  drawBuffers;
+    GLES2GPUStateCache *                   cache = device->stateCache();
+    GLES2GPUFramebuffer::GLFramebufferInfo res;
 
-    GL_CHECK(glGenFramebuffers(1, &glFramebuffer));
-    if (cache->glFramebuffer != glFramebuffer) {
-        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, glFramebuffer));
-        cache->glFramebuffer = glFramebuffer;
+    GL_CHECK(glGenFramebuffers(1, &res.glFramebuffer));
+    if (cache->glFramebuffer != res.glFramebuffer) {
+        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, res.glFramebuffer));
+        cache->glFramebuffer = res.glFramebuffer;
     }
 
     drawBuffers.clear();
@@ -1324,6 +1341,8 @@ static GLuint doCreateFramebuffer(GLES2Device *                    device,
             GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, static_cast<GLenum>(GL_COLOR_ATTACHMENT0 + j),
                                                gpuColorTexture->glTarget, gpuColorTexture->glRenderbuffer));
         }
+        res.width  = std::min(res.width, gpuColorTexture->width);
+        res.height = std::min(res.height, gpuColorTexture->height);
     }
     if (depthStencil) {
         bool hasStencil = GFX_FORMAT_INFOS[static_cast<int>(depthStencil->format)].hasStencil;
@@ -1337,11 +1356,13 @@ static GLuint doCreateFramebuffer(GLES2Device *                    device,
 
         // fallback to blit-based manual resolve
         if (depthStencilResolve) *resolveMask |= hasStencil ? GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT;
+        res.width  = std::min(res.width, depthStencil->width);
+        res.height = std::min(res.height, depthStencil->height);
     }
 
     // register to framebuffer caches
-    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(glFramebuffer, attachments[colors[0]]);
-    if (depthStencil) device->framebufferCacheMap()->registerExternal(glFramebuffer, depthStencil);
+    if (colorCount == 1) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, attachments[colors[0]]);
+    if (depthStencil) device->framebufferCacheMap()->registerExternal(res.glFramebuffer, depthStencil);
 
     if (device->hasFeature(Feature::MULTIPLE_RENDER_TARGETS)) {
         GL_CHECK(glDrawBuffersEXT(utils::toUint(drawBuffers.size()), drawBuffers.data()));
@@ -1369,7 +1390,7 @@ static GLuint doCreateFramebuffer(GLES2Device *                    device,
         }
     }
 
-    return glFramebuffer;
+    return res;
 }
 
 static GLES2GPUSwapchain *getSwapchainIfExists(const vector<GLES2GPUTexture *> &textures, const uint32_t *indices, size_t count) {
@@ -1440,7 +1461,7 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
 
         gpuFBO->uberColorAttachmentIndices.clear();
         bool hasDepth{gpuFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN};
-        gpuFBO->uberDepthStencil = hasDepth ? gpuFBO->gpuColorTextures.size() : INVALID_BINDING;
+        gpuFBO->uberDepthStencil = hasDepth ? utils::toUint(gpuFBO->gpuColorTextures.size()) : INVALID_BINDING;
         for (uint32_t i = 0U; i < gpuFBO->gpuColorTextures.size(); ++i) {
             if (i == gpuFBO->uberFinalOutput) continue;
             const auto *gpuTexture = gpuFBO->gpuColorTextures[i];
@@ -1535,15 +1556,9 @@ void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx, GLES2
                 cache->viewport.height = renderArea->height;
             }
 
-            if (cache->scissor.x != renderArea->x ||
-                cache->scissor.y != renderArea->y ||
-                cache->scissor.width != renderArea->width ||
-                cache->scissor.height != renderArea->height) {
+            if (cache->scissor != *renderArea) {
                 GL_CHECK(glScissor(renderArea->x, renderArea->y, renderArea->width, renderArea->height));
-                cache->scissor.x      = renderArea->x;
-                cache->scissor.y      = renderArea->y;
-                cache->scissor.width  = renderArea->width;
-                cache->scissor.height = renderArea->height;
+                cache->scissor = *renderArea;
             }
         }
 
@@ -2045,8 +2060,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
             const GLES2GPUDescriptor &   gpuDescriptor    = gpuDescriptorSet->gpuDescriptors[descriptorIndex];
 
             if (!gpuDescriptor.gpuBuffer && !gpuDescriptor.gpuBufferView) {
-                CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
-                             glBlock.name.c_str(), glBlock.set, glBlock.binding);
+                //CC_LOG_ERROR("Buffer binding '%s' at set %d binding %d is not bounded",
+                //             glBlock.name.c_str(), glBlock.set, glBlock.binding);
                 continue;
             }
 
@@ -2168,9 +2183,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                 auto unit = static_cast<uint32_t>(glSamplerTexture.units[u]);
 
                 if (!gpuDescriptor->gpuTexture || !gpuDescriptor->gpuSampler) {
-                    CC_LOG_ERROR(
-                        "Sampler binding '%s' at set %d binding %d index %d is not bounded",
-                        glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
+                    //CC_LOG_ERROR("Sampler texture '%s' at set %d binding %d index %d is not bounded",
+                    //             glSamplerTexture.name.c_str(), glSamplerTexture.set, glSamplerTexture.binding, u);
                     continue;
                 }
 
@@ -2947,6 +2961,14 @@ void GLES2GPUBlitManager::draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *
         cmdFuncGLES2UpdateBuffer(device, &_gpuUniformBuffer, _uniformBuffer, 0, sizeof(_uniformBuffer));
         cmdFuncGLES2BindState(device, &_gpuPipelineState, &_gpuInputAssembler, &gpuDescriptorSet);
         cmdFuncGLES2Draw(device, _drawInfo);
+    }
+}
+
+void GLES2GPUFramebufferHub::update(GLES2GPUTexture *texture) {
+    auto &pool = _framebuffers[texture];
+    for (auto *framebuffer : pool) {
+        cmdFuncGLES2DestroyFramebuffer(GLES2Device::getInstance(), framebuffer);
+        cmdFuncGLES2CreateFramebuffer(GLES2Device::getInstance(), framebuffer);
     }
 }
 

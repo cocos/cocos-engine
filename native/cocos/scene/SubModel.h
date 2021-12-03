@@ -25,20 +25,23 @@
 
 #pragma once
 
+#include <cstdint>
 #include <vector>
 #include "renderer/gfx-base/GFXDescriptorSet.h"
 #include "renderer/gfx-base/GFXInputAssembler.h"
 #include "renderer/gfx-base/GFXShader.h"
 #include "scene/Define.h"
 
+
 namespace cc {
 namespace scene {
 
 class Pass;
+class Model;
 
 class SubModel final {
 public:
-    SubModel()                 = default;
+    SubModel();
     SubModel(const SubModel &) = delete;
     SubModel(SubModel &&)      = delete;
     ~SubModel();
@@ -53,10 +56,12 @@ public:
     inline void setShaders(const std::vector<gfx::Shader *> &shaders) { _shaders = shaders; }
     inline void setPasses(const std::vector<Pass *> &passes) { _passes = passes; }
     inline void setDescriptorSet(gfx::DescriptorSet *descriptorSet) { _descriptSet = descriptorSet; }
+    inline void setWorldBoundDescriptorSet(gfx::DescriptorSet *descriptorSet) { _worldBoundDescriptorSet = descriptorSet; }
     inline void setInputAssembler(gfx::InputAssembler *ia) { _ia = ia; }
     inline void setPlanarInstanceShader(gfx::Shader *shader) { _planarInstanceShader = shader; }
     inline void setPlanarShader(gfx::Shader *shader) { _planarShader = shader; }
     inline void setPriority(RenderPriority priority) { _priority = priority; }
+    inline void setOwner(Model *model) { _owner = model; }
     inline void setSubMeshBuffers(const std::vector<cc::scene::FlatBuffer> &flatBuffers) {
         if (!_subMesh) {
             _subMesh = new RenderingSubMesh();
@@ -65,6 +70,7 @@ public:
     }
 
     inline gfx::DescriptorSet *        getDescriptorSet() const { return _descriptSet; }
+    inline gfx::DescriptorSet *        getWorldBoundDescriptorSet() const { return _worldBoundDescriptorSet; }
     inline gfx::InputAssembler *       getInputAssembler() const { return _ia; }
     inline std::vector<gfx::Shader *> &getShaders() { return _shaders; }
     inline const std::vector<Pass *> & getPasses() const { return _passes; }
@@ -72,16 +78,26 @@ public:
     inline gfx::Shader *               getPlanarShader() const { return _planarShader; }
     inline RenderPriority              getPriority() const { return _priority; }
     inline RenderingSubMesh *          getSubMesh() const { return _subMesh; }
+    inline Model *                     getOwner() const { return _owner; }
+    inline uint32_t                    getId() const { return _id; }
 
 private:
+    static inline uint32_t generateId() {
+        static uint32_t generator = 0;
+        return generator++;
+    }
+
     RenderPriority             _priority{RenderPriority::DEFAULT};
     gfx::Shader *              _planarShader{nullptr};
     gfx::Shader *              _planarInstanceShader{nullptr};
     gfx::DescriptorSet *       _descriptSet{nullptr};
+    gfx::DescriptorSet *       _worldBoundDescriptorSet{nullptr};
     gfx::InputAssembler *      _ia{nullptr};
     RenderingSubMesh *         _subMesh{nullptr};
     std::vector<Pass *>        _passes;
     std::vector<gfx::Shader *> _shaders;
+    Model *                    _owner{nullptr};
+    uint32_t                   _id = -1;
 };
 
 } // namespace scene

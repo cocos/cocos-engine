@@ -34,7 +34,7 @@
 namespace cc {
 namespace gfx {
 
-CCMTLSampler::CCMTLSampler(const SamplerInfo& info, uint32_t hash) : Sampler(info, hash) {
+CCMTLSampler::CCMTLSampler(const SamplerInfo& info) : Sampler(info) {
     _typedID = generateObjectID<decltype(this)>();
     MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)

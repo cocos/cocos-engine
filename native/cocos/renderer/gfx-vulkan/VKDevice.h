@@ -42,6 +42,7 @@ class CCVKGPUTransportHub;
 class CCVKGPUDescriptorHub;
 class CCVKGPUSemaphorePool;
 class CCVKGPUBarrierManager;
+class CCVKGPUFramebufferHub;
 class CCVKGPUDescriptorSetHub;
 
 class CCVKGPUFencePool;
@@ -65,6 +66,7 @@ public:
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
+    using Device::createQueryPool;
     using Device::createQueue;
     using Device::createRenderPass;
     using Device::createSampler;
@@ -89,6 +91,7 @@ public:
     inline CCVKGPUDescriptorHub *   gpuDescriptorHub() { return _gpuDescriptorHub; }
     inline CCVKGPUSemaphorePool *   gpuSemaphorePool() { return _gpuSemaphorePool; }
     inline CCVKGPUBarrierManager *  gpuBarrierManager() { return _gpuBarrierManager; }
+    inline CCVKGPUFramebufferHub *  gpuFramebufferHub() { return _gpuFramebufferHub; }
     inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
 
     CCVKGPUFencePool *        gpuFencePool();
@@ -107,6 +110,7 @@ protected:
     void                 doDestroy() override;
     CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Queue *              createQueue() override;
+    QueryPool *          createQueryPool() override;
     Swapchain *          createSwapchain() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
@@ -119,12 +123,13 @@ protected:
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
 
-    Sampler *       createSampler(const SamplerInfo &info, uint32_t hash) override;
-    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
-    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) override;
+    Sampler *       createSampler(const SamplerInfo &info) override;
+    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info) override;
+    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
+    void getQueryPoolResults(QueryPool *queryPool) override;
 
     void destroySwapchain();
     bool checkSwapchainStatus();
@@ -137,12 +142,13 @@ protected:
     vector<CCVKGPURecycleBin *>        _gpuRecycleBins;
     vector<CCVKGPUStagingBufferPool *> _gpuStagingBufferPools;
 
-    CCVKGPUBufferHub *       _gpuBufferHub        = nullptr;
-    CCVKGPUTransportHub *    _gpuTransportHub     = nullptr;
-    CCVKGPUDescriptorHub *   _gpuDescriptorHub    = nullptr;
-    CCVKGPUSemaphorePool *   _gpuSemaphorePool    = nullptr;
-    CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub = nullptr;
-    CCVKGPUBarrierManager *  _gpuBarrierManager   = nullptr;
+    CCVKGPUBufferHub *       _gpuBufferHub{nullptr};
+    CCVKGPUTransportHub *    _gpuTransportHub{nullptr};
+    CCVKGPUDescriptorHub *   _gpuDescriptorHub{nullptr};
+    CCVKGPUSemaphorePool *   _gpuSemaphorePool{nullptr};
+    CCVKGPUBarrierManager *  _gpuBarrierManager{nullptr};
+    CCVKGPUFramebufferHub *  _gpuFramebufferHub{nullptr};
+    CCVKGPUDescriptorSetHub *_gpuDescriptorSetHub{nullptr};
 
     vector<const char *> _layers;
     vector<const char *> _extensions;

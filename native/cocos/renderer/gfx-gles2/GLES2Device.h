@@ -36,6 +36,7 @@ class GLES2GPUContext;
 class GLES2GPUSwapchain;
 class GLES2GPUStateCache;
 class GLES2GPUBlitManager;
+class GLES2GPUFramebufferHub;
 class GLES2GPUConstantRegistry;
 class GLES2GPUFramebufferCacheMap;
 
@@ -55,6 +56,7 @@ public:
     using Device::createInputAssembler;
     using Device::createPipelineLayout;
     using Device::createPipelineState;
+    using Device::createQueryPool;
     using Device::createQueue;
     using Device::createRenderPass;
     using Device::createSampler;
@@ -68,6 +70,7 @@ public:
     inline GLES2GPUContext *            context() const { return _gpuContext; }
     inline GLES2GPUStateCache *         stateCache() const { return _gpuStateCache; }
     inline GLES2GPUBlitManager *        blitManager() const { return _gpuBlitManager; }
+    inline GLES2GPUFramebufferHub *     framebufferHub() const { return _gpuFramebufferHub; }
     inline GLES2GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES2GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
@@ -88,6 +91,7 @@ protected:
     void                 doDestroy() override;
     CommandBuffer *      createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) override;
     Queue *              createQueue() override;
+    QueryPool *          createQueryPool() override;
     Swapchain *          createSwapchain() override;
     Buffer *             createBuffer() override;
     Texture *            createTexture() override;
@@ -100,12 +104,11 @@ protected:
     PipelineLayout *     createPipelineLayout() override;
     PipelineState *      createPipelineState() override;
 
-    Sampler *       createSampler(const SamplerInfo &info, uint32_t hash) override;
-    GlobalBarrier * createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) override;
-    TextureBarrier *createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) override;
+    Sampler *createSampler(const SamplerInfo &info) override;
 
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
+    void getQueryPoolResults(QueryPool *queryPool) override {}
 
     void bindContext(bool bound) override;
 
@@ -114,6 +117,7 @@ protected:
     GLES2GPUContext *            _gpuContext{nullptr};
     GLES2GPUStateCache *         _gpuStateCache{nullptr};
     GLES2GPUBlitManager *        _gpuBlitManager{nullptr};
+    GLES2GPUFramebufferHub *     _gpuFramebufferHub{nullptr};
     GLES2GPUConstantRegistry *   _gpuConstantRegistry{nullptr};
     GLES2GPUFramebufferCacheMap *_gpuFramebufferCacheMap{nullptr};
 

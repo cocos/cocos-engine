@@ -64,19 +64,22 @@ void CCMTLSwapchain::doInit(const SwapchainInfo &info) {
     layer.framebufferOnly = NO;
     //setDisplaySyncEnabled : physic device refresh rate.
     //setPresentsWithTransaction : Core Animation transactions update rate.
+    auto syncModeFunc = [&](BOOL sync, BOOL transaction) {
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+        [layer setDisplaySyncEnabled:sync];
+#endif
+        [layer setPresentsWithTransaction:transaction];
+    };
     switch (_vsyncMode) {
         case VsyncMode::OFF:
-            [layer setDisplaySyncEnabled:NO];
-            [layer setPresentsWithTransaction:NO];
+            syncModeFunc(NO, NO);
             break;
         case VsyncMode::ON:
-            [layer setDisplaySyncEnabled:YES];
-            [layer setPresentsWithTransaction:YES];
+            syncModeFunc(YES, YES);
         case VsyncMode::RELAXED:
         case VsyncMode::MAILBOX:
         case VsyncMode::HALF:
-            [layer setDisplaySyncEnabled:YES];
-            [layer setPresentsWithTransaction:NO];
+            syncModeFunc(YES, NO);
         default:
             break;
     }

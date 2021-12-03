@@ -37,11 +37,13 @@
 #include "GLES2PipelineLayout.h"
 #include "GLES2PipelineState.h"
 #include "GLES2PrimaryCommandBuffer.h"
+#include "GLES2QueryPool.h"
 #include "GLES2Queue.h"
 #include "GLES2RenderPass.h"
 #include "GLES2Shader.h"
 #include "GLES2Swapchain.h"
 #include "GLES2Texture.h"
+#include "base/memory/Memory.h"
 #include "states/GLES2Sampler.h"
 
 // when capturing GLES commands (RENDERDOC_HOOK_EGL=1, default value)
@@ -72,6 +74,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     _gpuContext             = CC_NEW(GLES2GPUContext);
     _gpuStateCache          = CC_NEW(GLES2GPUStateCache);
     _gpuBlitManager         = CC_NEW(GLES2GPUBlitManager);
+    _gpuFramebufferHub      = CC_NEW(GLES2GPUFramebufferHub);
     _gpuConstantRegistry    = CC_NEW(GLES2GPUConstantRegistry);
     _gpuFramebufferCacheMap = CC_NEW(GLES2GPUFramebufferCacheMap(_gpuStateCache));
 
@@ -79,15 +82,6 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         destroy();
         return false;
     };
-
-    QueueInfo queueInfo;
-    queueInfo.type = QueueType::GRAPHICS;
-    _queue         = createQueue(queueInfo);
-
-    CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
-    cmdBuffInfo.queue = _queue;
-    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
@@ -98,18 +92,18 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
         _features[toNumber(Feature::FORMAT_SRGB)] = true;
     }
 
-    if (checkExtension("GL_OES_texture_float")) {
+    _features[toNumber(Feature::FORMAT_R11G11B10F)] = true;
+
+    if (checkExtension("element_index_uint")) {
+        _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
+    }
+
+    if (checkExtension("texture_float")) {
         _features[toNumber(Feature::TEXTURE_FLOAT)] = true;
     }
 
-    if (checkExtension("GL_OES_texture_half_float")) {
+    if (checkExtension("texture_half_float")) {
         _features[toNumber(Feature::TEXTURE_HALF_FLOAT)] = true;
-    }
-
-    _features[toNumber(Feature::FORMAT_R11G11B10F)] = true;
-
-    if (checkExtension("GL_OES_element_index_uint")) {
-        _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
     }
 
     if (checkExtension("color_buffer_float")) {
@@ -217,6 +211,18 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
 
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
+
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
+    _queryPool = createQueryPool(queryPoolInfo);
+
+    CommandBufferInfo cmdBuffInfo;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
+    cmdBuffInfo.queue = _queue;
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
+
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
     _gpuBlitManager->initialize();
 
@@ -236,6 +242,7 @@ void GLES2Device::doDestroy() {
 
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
     CC_SAFE_DELETE(_gpuConstantRegistry)
+    CC_SAFE_DELETE(_gpuFramebufferHub)
     CC_SAFE_DELETE(_gpuBlitManager)
     CC_SAFE_DELETE(_gpuStateCache)
 
@@ -243,6 +250,7 @@ void GLES2Device::doDestroy() {
     CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 
     CC_SAFE_DESTROY(_cmdBuff)
+    CC_SAFE_DESTROY(_queryPool)
     CC_SAFE_DESTROY(_queue)
     CC_SAFE_DESTROY(_gpuContext)
 }
@@ -283,6 +291,10 @@ CommandBuffer *GLES2Device::createCommandBuffer(const CommandBufferInfo &info, b
 
 Queue *GLES2Device::createQueue() {
     return CC_NEW(GLES2Queue);
+}
+
+QueryPool *GLES2Device::createQueryPool() {
+    return CC_NEW(GLES2QueryPool);
 }
 
 Swapchain *GLES2Device::createSwapchain() {
@@ -329,16 +341,8 @@ PipelineState *GLES2Device::createPipelineState() {
     return CC_NEW(GLES2PipelineState);
 }
 
-Sampler *GLES2Device::createSampler(const SamplerInfo &info, uint32_t hash) {
-    return CC_NEW(GLES2Sampler(info, hash));
-}
-
-GlobalBarrier *GLES2Device::createGlobalBarrier(const GlobalBarrierInfo &info, uint32_t hash) {
-    return CC_NEW(GlobalBarrier(info, hash));
-}
-
-TextureBarrier *GLES2Device::createTextureBarrier(const TextureBarrierInfo &info, uint32_t hash) {
-    return CC_NEW(TextureBarrier(info, hash));
+Sampler *GLES2Device::createSampler(const SamplerInfo &info) {
+    return CC_NEW(GLES2Sampler(info));
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

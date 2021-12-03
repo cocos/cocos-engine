@@ -58,6 +58,8 @@ add_definitions(-DCC_PLATFORM_LINUX=${CC_PLATFORM_LINUX})
 add_definitions(-DCC_PLATFORM_QNX=${CC_PLATFORM_QNX})
 add_definitions(-DCC_PLATFORM=${CC_PLATFORM})
 
+include_directories(${CMAKE_CURRENT_LIST_DIR}/../external/sources)
+
 # simplify generator condition, please use them everywhere
 if(CMAKE_GENERATOR STREQUAL Xcode)
     set(XCODE TRUE)
@@ -113,7 +115,7 @@ macro(cocos_source_files)
     set(ACCEPT_MN OFF)
     set(MODULE_NAME "COCOS2D")
     foreach(src IN LISTS list_var)
-        if(ACCEPT_MN) 
+        if(ACCEPT_MN)
             set(MODULE_NAME "${src}")
             set(ACCEPT_MN OFF)
         elseif("NO_WERROR" STREQUAL "${src}")
