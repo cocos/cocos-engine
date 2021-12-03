@@ -37,7 +37,6 @@ export interface IBatcher {
     reset ();
 
     commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
-    commitPlainComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
     commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null);
     commitStaticBatch (comp: UIStaticBatch);
 
@@ -47,5 +46,4 @@ export interface IBatcher {
     flushMaterial (mat: Material);
 
     walk (node: Node, level?: number);
-    _reloadBatch ();
 }

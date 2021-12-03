@@ -186,9 +186,6 @@ export const simple: IAssembler = {
         const iBuf = buffer.iData!;
 
         vBuf.set(vData, vertexOffset);
-        const renderData = sprite.renderData!;
-        renderData.cacheBuffer = buffer;
-        renderData.bufferOffset = vertexOffset;
 
         const index0 = vertexId; const index1 = vertexId + 1;
         const index2 = vertexId + 2; const index3 = vertexId + 3;
@@ -200,22 +197,6 @@ export const simple: IAssembler = {
         iBuf[indicesOffset++] = index2;
         iBuf[indicesOffset++] = index1;
         iBuf[indicesOffset++] = index3;
-    },
-
-    fillCacheBuffer (sprite: Sprite) {
-        if (sprite === null) {
-            return;
-        }
-
-        const renderData = sprite.renderData!;
-        const vData = renderData.vData!;
-        if (sprite.node.hasChangedFlags) {
-            this.updateWorldVerts(sprite, vData);
-        }
-        const meshBuffer = renderData.cacheBuffer!;
-        const vBuf = meshBuffer.vData!;
-        vBuf.set(vData, renderData.bufferOffset);
-        meshBuffer.setDirty();
     },
 
     updateVertexData (sprite: Sprite) {

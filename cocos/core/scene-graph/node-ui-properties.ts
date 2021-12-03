@@ -32,7 +32,6 @@ import { UIComponent } from '../../2d/framework/ui-component';
 import { Renderable2D } from '../../2d/framework/renderable-2d';
 import { UITransform } from '../../2d/framework/ui-transform';
 import { warnID } from '../platform/debug';
-import { legacyCC } from '../global-exports';
 
 /**
  * @en Node's UI properties abstraction
@@ -106,8 +105,6 @@ export class NodeUIProperties {
      * @zh 为结点树的透明度状态设置脏标签
      */
     public static markOpacityTree (node, isDirty = true) {
-        // cause label opacity change need reload
-        legacyCC.director.root!.batcher2D._reloadBatch();
         node._uiProps.opacityDirty = isDirty;
         for (let i = 0, l = node.children.length; i < l; i++) {
             const c = node.children[i];

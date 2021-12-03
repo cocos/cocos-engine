@@ -172,9 +172,6 @@ export const simple: IAssembler = {
         const srcVBuf = renderData.vData;
         const srcVIdx = renderData.vertexStart;
 
-        renderData.cacheBuffer = buffer;
-        renderData.bufferOffset = vertexOffset;
-
         // copy all vertexData
         vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * 9), vertexOffset);
         for (let i = 0; i < renderData.vertexCount; i++) {
@@ -196,36 +193,6 @@ export const simple: IAssembler = {
             iBuf[indicesOffset + 5] = vertexId + 3;
             indicesOffset += 6;
             vertexId += 4;
-        }
-    },
-
-    fillCacheBuffer (layer: TiledLayer) {
-        if (!layer || !layer.meshRenderDataArray) return;
-
-        const dataArray = layer.meshRenderDataArray;
-        const node = layer.node;
-
-        const data = dataArray[layer._meshRenderDataArrayIdx] as TiledMeshData;
-        const renderData = data.renderData;
-
-        const buffer = renderData.cacheBuffer!;
-        const vertexOffset = renderData.bufferOffset;
-
-        const vBuf = buffer.vData!;
-        const matrix = node.worldMatrix;
-
-        const srcVBuf = renderData.vData;
-        const srcVIdx = renderData.vertexStart;
-
-        // copy all vertexData
-        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * 9), vertexOffset);
-        for (let i = 0; i < renderData.vertexCount; i++) {
-            const pOffset = vertexOffset + i * 9;
-            _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-            _vec3u_temp.transformMat4(matrix);
-            vBuf[pOffset] = _vec3u_temp.x;
-            vBuf[pOffset + 1] = _vec3u_temp.y;
-            vBuf[pOffset + 2] = _vec3u_temp.z;
         }
     },
 };
