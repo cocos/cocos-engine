@@ -1186,14 +1186,17 @@ const computed = {
     },
 };
 exports.ready = function() {
+    let requestAnimationFrameId = null;
     this.resizeObserver = new window.ResizeObserver(() => {
-        window.requestAnimationFrame(() => {
+        if (requestAnimationFrameId) { return; }
+        requestAnimationFrameId = window.requestAnimationFrame(() => {
             const rect = this.$this.getBoundingClientRect();
             if (rect.width > 300) {
                 this.layout = 'horizontal';
             } else {
                 this.layout = 'vertical';
             }
+            requestAnimationFrameId = null;
         });
     });
 
