@@ -61,8 +61,8 @@ void Application::restartVM() {
     scriptEngine->cleanup();
     cc::gfx::DeviceManager::destroy();
     cc::EventDispatcher::destroy();
-    init();
     cc::EventDispatcher::init();
+    init();
 }
 
 void Application::close() { // NOLINT
