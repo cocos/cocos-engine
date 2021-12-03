@@ -1,18 +1,14 @@
 import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
 import { Sprite } from "../../cocos/2d/components/sprite";
-import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
 import { assetManager, loader } from "../../cocos/core/asset-manager";
 import releaseManager from "../../cocos/core/asset-manager/release-manager";
 import { Texture2D } from "../../cocos/core/assets/texture-2d";
 import { isValid } from "../../cocos/core/data/object";
-import { director } from "../../cocos/core/director";
 import { Scene, Node } from "../../cocos/core/scene-graph";
-
-director.root!._batcher = new Batcher2D(director.root);
 
 describe('releaseManager', () => {
 
-    const libPath = './tests/fixtures/library';
+    const libPath = './tests/fixtures/library';      
     assetManager.init({importBase: libPath, nativeBase: libPath});
 
     test('reference', function () {
@@ -186,7 +182,7 @@ describe('releaseManager', () => {
         assetManager.dependUtil._depends.add('DDD', {deps: ['AAA']});
         // @ts-ignore
         releaseManager._free(texA);
-
+        
         expect(assetManager.assets.count).toBe(0);
         assetManager.releaseAll();
     });
