@@ -274,7 +274,6 @@ export const MotionStreakAssembler: IAssembler = {
             Color.toArray(vBuf, vert.color, vertexOffset);
             vertexOffset += 4;
         }
-        buffer.setDirty();
     },
 };
 

@@ -106,7 +106,6 @@ export const ParticleAssembler: IAssembler = {
         for (let i = 0; i < vLen; i++) {
             vBuf[vertexOffset++] = vData[i];
         }
-        buffer.setDirty();
     },
 };
 
