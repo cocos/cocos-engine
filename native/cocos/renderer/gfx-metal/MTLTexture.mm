@@ -34,6 +34,9 @@
 #import <CoreVideo/CVMetalTexture.h>
 #import <CoreVideo/CVMetalTextureCache.h>
 
+// deferred testcase 'camera'
+#define MEMLESS_ON 0
+
 namespace cc {
 namespace gfx {
 
@@ -176,6 +179,7 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
     if(hasAllFlags(TextureUsage::COLOR_ATTACHMENT | TextureUsage::INPUT_ATTACHMENT, _info.usage) && mu::isImageBlockSupported()) {
+#if MEMLESS_ON
         // mac SDK mem_less unavailable before 11.0
 #if MAC_MEMORY_LESS_TEXTURE_SUPPORT || CC_PLATFORM == CC_PLATFORM_MAC_IOS
         //xcode OS version warning
@@ -184,6 +188,9 @@ bool CCMTLTexture::createMTLTexture() {
         } else {
             descriptor.storageMode = MTLStorageModePrivate;
         }
+#else
+        descriptor.storageMode = MTLStorageModePrivate;
+#endif
 #else
         descriptor.storageMode = MTLStorageModePrivate;
 #endif

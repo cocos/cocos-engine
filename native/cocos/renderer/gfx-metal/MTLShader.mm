@@ -75,14 +75,18 @@ void CCMTLShader::doDestroy() {
     id<MTLFunction> cmptFunc = _cmptFunction;
     _cmptFunction      = nil;
     
-    [_gpuShader->shaderSrc release];
+    if(_gpuShader) {
+        [_gpuShader->shaderSrc release];
+        CC_SAFE_DELETE(_gpuShader);
+    }
     
     // [_specializedFragFuncs release];
-    const auto specFragFuncs = [_specializedFragFuncs retain];
-    [_specializedFragFuncs release];
-
-    CC_SAFE_DELETE(_gpuShader);
-
+    NSMutableDictionary<NSString*, id<MTLFunction>>* specFragFuncs = nil;
+    if(_specializedFragFuncs) {
+        specFragFuncs = _specializedFragFuncs;
+        _specializedFragFuncs = nil;
+    }
+    
     std::function<void(void)> destroyFunc = [=]() {
         if([specFragFuncs count] > 0) {
             for (NSString* key in [specFragFuncs allKeys]) {

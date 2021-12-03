@@ -93,7 +93,7 @@ protected:
 
     void        bindDescriptorSets();
     void        updateDepthStencilState(uint32_t subPassIndex, MTLRenderPassDescriptor *descriptor);
-    static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
+    static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLFramebuffer *renderPass);
     
     id<MTLCommandBuffer> getMTLCommandBuffer();
 

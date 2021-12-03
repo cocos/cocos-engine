@@ -364,56 +364,12 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
         return ccMtlPiplineState->getGPUPipelineState();
     }
 
-    RenderPass* renderPass = nullptr;
-    const auto rpIter = renderPassMap.find(rpHash);
-    if(rpIter != renderPassMap.end()) {
-        renderPass = rpIter->second;
-    } else {
-        const ColorAttachmentList& originAttachments = curPass->getColorAttachments();
-        const SubpassInfoList& subpasses = curPass->getSubpasses();
-        uint32_t curSubpassIndex = static_cast<CCMTLRenderPass*>(curPass)->getCurrentSubpassIndex();
-        if(!subpasses.empty()) {
-            gfx::ColorAttachmentList colorAttachments;
-            gfx::DepthStencilAttachment depthStencilAttachment;
-            for (size_t i = 0; i < subpasses[curSubpassIndex].colors.size(); i++) {
-                uint32_t color = subpasses[curSubpassIndex].colors[i];
-                colorAttachments.push_back(originAttachments[color]);
-            }
-
-            uint32_t depthStencil = subpasses[curSubpassIndex].depthStencil;
-            if(depthStencil >= subpasses[curSubpassIndex].colors.size()) {
-                depthStencilAttachment = curPass->getDepthStencilAttachment();
-            } else {
-                const ColorAttachment& dsa = originAttachments[depthStencil];
-                depthStencilAttachment.depthLoadOp = dsa.loadOp;
-                depthStencilAttachment.depthStoreOp = dsa.storeOp;
-                depthStencilAttachment.stencilLoadOp = dsa.loadOp;
-                depthStencilAttachment.stencilStoreOp = dsa.storeOp;
-                depthStencilAttachment.beginAccesses = dsa.beginAccesses;
-                depthStencilAttachment.endAccesses = dsa.endAccesses;
-                depthStencilAttachment.format = dsa.format;
-                depthStencilAttachment.sampleCount = dsa.sampleCount;
-            }
-            renderPass = device->createRenderPass({
-                colorAttachments,
-                depthStencilAttachment,
-                {},
-            });
-        } else {
-            renderPass = device->createRenderPass({
-                originAttachments,
-                curPass->getDepthStencilAttachment(),
-                {},
-            });
-        }
-    }
-
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
     pipelineInfo.shader = createShader(device);
     pipelineInfo.inputState = {{position}};
-    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.renderPass = curPass;
     
     DepthStencilState dsState;
     dsState.depthWrite  = 0;
@@ -422,10 +378,9 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.depthStencilState = dsState;
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
-    CC_DELETE(pipelineInfo.shader);
     pipelineMap.emplace(std::make_pair(curPass->getHash(), pipelineState));
-    renderPassMap.emplace(std::make_pair(curPass->getHash(), renderPass));
     ((CCMTLPipelineState*)pipelineState)->check();
+    CC_DELETE(pipelineInfo.shader);
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
 }
