@@ -1187,12 +1187,14 @@ const computed = {
 };
 exports.ready = function() {
     this.resizeObserver = new window.ResizeObserver(() => {
-        const rect = this.$this.getBoundingClientRect();
-        if (rect.width > 300) {
-            this.layout = 'horizontal';
-        } else {
-            this.layout = 'vertical';
-        }
+        window.requestAnimationFrame(() => {
+            const rect = this.$this.getBoundingClientRect();
+            if (rect.width > 300) {
+                this.layout = 'horizontal';
+            } else {
+                this.layout = 'vertical';
+            }
+        });
     });
 
     this.resizeObserver.observe(this.$this);
