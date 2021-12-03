@@ -88,7 +88,7 @@ texture2DProto._deserialize = function (serializedData: any, handle: any) {
 
 const oldOnLoaded = texture2DProto.onLoaded;
 texture2DProto.onLoaded = function () {
-    this.setMipmaps(this._mipmaps);
+    this.syncMipmapsForJS(this._mipmaps);
     oldOnLoaded.call(this);
 };
 
