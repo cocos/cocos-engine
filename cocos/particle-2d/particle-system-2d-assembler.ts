@@ -41,6 +41,9 @@ export const ParticleAssembler: IAssembler = {
     createData (comp: ParticleSystem2D) {
         return MeshRenderData.add();
     },
+    removeData (data) {
+        MeshRenderData.remove(data);
+    },
     updateRenderData () {
     },
     fillBuffers (comp: ParticleSystem2D, renderer: IBatcher) {
