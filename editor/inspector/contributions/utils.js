@@ -1,5 +1,4 @@
 'use strict';
-exports.translationDump = void 0;
 function translate(dump, path, dumps, assets) {
     const type = typeof dump;
     if (!dump || type !== 'object') {

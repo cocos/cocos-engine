@@ -1,12 +1,11 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.beforeClose = exports.close = exports.ready = exports.update = exports.methods = exports.$ = exports.style = exports.template = exports.listeners = void 0;
-const fs_1 = require("fs");
-const path_1 = require("path");
-const utils_1 = require("./utils");
+const fs = require("fs");
+const path = require("path");
+const utils = require("./utils");
+
 exports.listeners = {
     async 'change-dump'(event) {
-        // @ts-ignore
+
         const panel = this;
         const target = event.target;
         if (!target) {
@@ -16,7 +15,7 @@ exports.listeners = {
             Editor.Message.send('scene', 'snapshot');
             panel.snapshotLock = true;
         }
-        // @ts-ignore
+
         const dump = event.target.dump;
         if (!dump || panel.isDialoging) {
             return;
@@ -87,19 +86,19 @@ exports.listeners = {
         }
     },
     'confirm-dump'(event) {
-        // @ts-ignore
+
         const panel = this;
         panel.snapshotLock = false;
     },
     'reset-dump'(event) {
-        // @ts-ignore
+
         const panel = this;
         const target = event.target;
         if (!target) {
             return;
         }
         Editor.Message.send('scene', 'snapshot');
-        // @ts-ignore
+
         const dump = event.target.dump;
         try {
             for (let i = 0; i < panel.uuidList.length; i++) {
@@ -190,7 +189,7 @@ exports.template = `
     <section class="section-asset"></section>
 </ui-drag-area>
 `;
-exports.style = fs_1.readFileSync(path_1.join(__dirname, './node.css'), 'utf8');
+exports.style = fs.readFileSync(path.join(__dirname, './node.css'), 'utf8');
 exports.$ = {
     container: '.container',
     prefab: '.prefab',
@@ -231,7 +230,7 @@ exports.$ = {
 const Elements = {
     panel: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             let animationId;
             panel.__nodeChanged__ = (uuid) => {
@@ -307,7 +306,7 @@ const Elements = {
             });
         },
         async update() {
-            // @ts-ignore
+
             const panel = this;
             let dumps = [];
             try {
@@ -336,14 +335,14 @@ const Elements = {
                     }
                 });
                 // 补充缺失的 dump 数据，如 path values 等，收集节点内的资源
-                utils_1.translationDump(panel.dump, panel.dumps.length > 1 ? panel.dumps : undefined, panel.assets);
+                utils.translationDump(panel.dump, panel.dumps.length > 1 ? panel.dumps : undefined, panel.assets);
             }
             else {
                 panel.$.container.style.display = 'none';
             }
         },
         close() {
-            // @ts-ignore
+
             const panel = this;
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
@@ -351,12 +350,11 @@ const Elements = {
     },
     prefab: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             panel.$.prefab.addEventListener('confirm', (event) => {
-                var _a;
                 const button = event.target;
-                if (!panel.dump || !panel.dump.__prefab__ || !button || !((_a = panel.dumps) === null || _a === void 0 ? void 0 : _a.length)) {
+                if (!panel.dump || !panel.dump.__prefab__ || !button || !panel.dumps?.length) {
                     return;
                 }
                 const role = button.getAttribute('role');
@@ -385,8 +383,7 @@ const Elements = {
                 });
             });
             panel.$.prefabEditor.addEventListener('click', () => {
-                var _a, _b, _c;
-                const assetId = (_c = (_b = (_a = panel.dump) === null || _a === void 0 ? void 0 : _a.__prefab__) === null || _b === void 0 ? void 0 : _b.prefabStateInfo) === null || _c === void 0 ? void 0 : _c.assetUuid;
+                const assetId = panel.dump?.__prefab__?.prefabStateInfo?.assetUuid;
                 if (!assetId) {
                     return;
                 }
@@ -394,8 +391,7 @@ const Elements = {
             }, false);
         },
         async update() {
-            var _a;
-            // @ts-ignore
+
             const panel = this;
             if (!panel.dump || !panel.dump.__prefab__) {
                 panel.$.prefab.setAttribute('hidden', '');
@@ -403,7 +399,7 @@ const Elements = {
             }
             panel.$.prefab.removeAttribute('hidden');
             // 编辑器按钮的显示隐藏
-            panel.$.prefabEditor.style.visibility = ((_a = panel.dumps) === null || _a === void 0 ? void 0 : _a.length) === 1 ? 'visible' : 'hidden';
+            panel.$.prefabEditor.style.visibility = panel.dumps?.length === 1 ? 'visible' : 'hidden';
             const prefab = panel.dump.__prefab__;
             const prefabStateInfo = prefab.prefabStateInfo;
             if (prefabStateInfo.isUnwrappable) {
@@ -438,7 +434,7 @@ const Elements = {
     },
     header: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             panel.$.active.addEventListener('change', (event) => {
                 const value = event.target.value;
@@ -464,7 +460,7 @@ const Elements = {
             });
         },
         update() {
-            // @ts-ignore
+
             const panel = this;
             if (!panel.dump) {
                 return;
@@ -499,11 +495,11 @@ const Elements = {
     },
     scene: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
         },
         update() {
-            // @ts-ignore
+
             const panel = this;
             if (!panel.dump || !panel.dump.isScene) {
                 return;
@@ -536,7 +532,7 @@ const Elements = {
             });
         },
         async updateDiffuseMap() {
-            // @ts-ignore
+
             const panel = this;
             const dump = panel.dump._globals.skybox.value;
             if (!dump.envmap.value) {
@@ -566,7 +562,7 @@ const Elements = {
     },
     node: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
             panel.$.nodeMenu.addEventListener('click', (event) => {
@@ -578,7 +574,7 @@ const Elements = {
             });
         },
         update() {
-            // @ts-ignore
+
             const panel = this;
             if (!panel.dump || panel.dump.isScene) {
                 return;
@@ -604,9 +600,8 @@ const Elements = {
             const isSameLength = isNotEmpty && sectionBody.__sections__.length === componentList.length;
             const isAllSameType = isSameLength &&
                 componentList.every((comp, i) => {
-                    var _a;
                     return (comp.type === sectionBody.__sections__[i].__type__) &&
-                        (comp.mountedRoot === ((_a = sectionBody.__sections__[i].dump) === null || _a === void 0 ? void 0 : _a.mountedRoot));
+                        (comp.mountedRoot === sectionBody.__sections__[i].dump?.mountedRoot);
                 });
             // 如果元素长度、类型一致，则直接更新现有的界面
             if (isAllSameType) {
@@ -712,15 +707,15 @@ const Elements = {
                             ui-section > ui-prop[slot="header"],
                             ui-prop [slot="content"] ui-prop { margin-top: 0; }
                         `);
-                        // @ts-ignore
+
                         $panel.shadowRoot.addEventListener('change-dump', (event) => {
                             exports.listeners['change-dump'].call(panel, event);
                         });
-                        // @ts-ignore
+
                         $panel.shadowRoot.addEventListener('confirm-dump', (event) => {
                             exports.listeners['confirm-dump'].call(panel, event);
                         });
-                        // @ts-ignore
+
                         $panel.shadowRoot.addEventListener('reset-dump', (event) => {
                             exports.listeners['reset-dump'].call(panel, event);
                         });
@@ -757,7 +752,7 @@ const Elements = {
     },
     missingComponent: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             const sectionMissing = panel.$.sectionMissing;
             sectionMissing.addEventListener('click', (event) => {
@@ -787,7 +782,7 @@ const Elements = {
             });
         },
         update() {
-            // @ts-ignore
+
             const panel = this;
             if (!panel.dump || panel.dump.isScene) {
                 return;
@@ -819,7 +814,7 @@ const Elements = {
     },
     layer: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             panel.$.nodeLayerButton.addEventListener('change', (event) => {
                 event.stopPropagation();
@@ -827,7 +822,7 @@ const Elements = {
             });
         },
         async update() {
-            // @ts-ignore
+
             const panel = this;
             if (!panel.dump || panel.dump.isScene) {
                 return;
@@ -860,7 +855,7 @@ const Elements = {
     },
     footer: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             panel.$.componentAdd.addEventListener('click', () => {
                 const rawTimestamp = Date.now();
@@ -887,7 +882,7 @@ const Elements = {
     },
     materials: {
         async update() {
-            // @ts-ignore
+
             const panel = this;
             const materialPanels = [];
             const materialPanelType = 'asset';
@@ -929,17 +924,17 @@ const Elements = {
             }
         },
         async beforeClose() {
-            // @ts-ignore
+
             const panel = this;
             const children = Array.from(panel.$.sectionAsset.children);
             for (const materialPanel of children) {
-                // @ts-ignore
+
                 const next = await materialPanel.panel.beforeClose.call(materialPanel.panelObject);
                 if (next === false) {
                     return false;
                 }
                 else {
-                    // @ts-ignore
+
                     materialPanel.remove();
                 }
             }
@@ -1265,7 +1260,7 @@ exports.methods = {
     },
 };
 async function update(uuidList, renderMap, typeManager, renderManager) {
-    // @ts-ignore
+
     const panel = this;
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
@@ -1280,7 +1275,7 @@ async function update(uuidList, renderMap, typeManager, renderManager) {
 }
 exports.update = update;
 async function ready() {
-    // @ts-ignore
+
     const panel = this;
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
@@ -1293,7 +1288,7 @@ async function ready() {
 }
 exports.ready = ready;
 async function close() {
-    // @ts-ignore
+
     const panel = this;
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -1304,7 +1299,7 @@ async function close() {
 }
 exports.close = close;
 async function beforeClose() {
-    // @ts-ignore
+
     const panel = this;
     for (const prop in Elements) {
         const element = Elements[prop];

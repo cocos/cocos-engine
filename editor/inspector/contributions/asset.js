@@ -1,11 +1,9 @@
 'use strict';
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.close = exports.beforeClose = exports.ready = exports.update = exports.methods = exports.$ = exports.template = exports.style = exports.listeners = void 0;
-const fs_1 = require("fs");
-const path_1 = require("path");
+const fs = require("fs");
+const path = require("path");
 const showImage = ['cc.ImageAsset', 'cc.SpriteFrame', 'cc.Texture2D'];
 exports.listeners = {};
-exports.style = fs_1.readFileSync(path_1.join(__dirname, './asset.css'), 'utf8');
+exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 exports.template = `
 <ui-section whole class="container">
     <header class="header" slot="header">
@@ -44,7 +42,7 @@ exports.$ = {
 const Elements = {
     panel: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             let animationId;
             panel.__assetChanged__ = (uuid) => {
@@ -58,7 +56,7 @@ const Elements = {
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
         },
         async update() {
-            // @ts-ignore
+
             const panel = this;
             let assetList = [];
             try {
@@ -119,14 +117,14 @@ const Elements = {
             });
         },
         close() {
-            // @ts-ignore
+
             const panel = this;
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
         },
     },
     header: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             // save
             panel.$.save.addEventListener('click', (event) => {
@@ -147,7 +145,7 @@ const Elements = {
             });
         },
         update() {
-            // @ts-ignore
+
             const panel = this;
             if (!panel.asset) {
                 return;
@@ -169,7 +167,7 @@ const Elements = {
             }
         },
         async isDirty() {
-            // @ts-ignore
+
             const panel = this;
             const isDirty = await panel.isDirty();
             if (isDirty) {
@@ -182,12 +180,12 @@ const Elements = {
     },
     content: {
         ready() {
-            // @ts-ignore
+
             const panel = this;
             panel.contentRenders = {};
         },
         update() {
-            // @ts-ignore
+
             const panel = this;
             // 重置渲染对象
             panel.contentRenders = {
@@ -221,7 +219,7 @@ const Elements = {
                             Elements.header.isDirty.call(panel);
                         });
                         contentRender.appendChild(contentRender.__panels__[i]);
-                        contentRender.__panels__[i] = contentRender.__panels__[i];
+                        // contentRender.__panels__[i] = contentRender.__panels__[i];
                     }
                     contentRender.__panels__[i].setAttribute('src', file);
                 }
@@ -240,7 +238,7 @@ const Elements = {
 };
 exports.methods = {
     async isDirty() {
-        // @ts-ignore
+
         const panel = this;
         let isDirty = false;
         // 1/2 满足大部分资源的情况，因为大部分资源只修改 meta 数据
@@ -268,7 +266,7 @@ exports.methods = {
         return isDirty;
     },
     async save() {
-        // @ts-ignore
+
         const panel = this;
         // 首先调用所有 panel 里的 methods.canApply 检查是否允许保存
         const tasks = [];
@@ -326,7 +324,7 @@ exports.methods = {
         });
     },
     async reset() {
-        // @ts-ignore
+
         const panel = this;
         panel.$.header.removeAttribute('dirty');
         for (const renderName in panel.contentRenders) {
@@ -339,7 +337,7 @@ exports.methods = {
     },
 };
 async function update(uuidList, renderMap) {
-    // @ts-ignore
+
     const panel = this;
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
@@ -352,7 +350,7 @@ async function update(uuidList, renderMap) {
 }
 exports.update = update;
 function ready() {
-    // @ts-ignore
+
     const panel = this;
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -363,7 +361,7 @@ function ready() {
 }
 exports.ready = ready;
 async function beforeClose() {
-    // @ts-ignore
+
     const panel = this;
     if (panel.isDialoging) {
         return false;
@@ -413,7 +411,7 @@ async function beforeClose() {
 }
 exports.beforeClose = beforeClose;
 async function close() {
-    // @ts-ignore
+
     const panel = this;
     for (const prop in Elements) {
         const element = Elements[prop];
