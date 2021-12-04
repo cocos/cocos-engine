@@ -72,10 +72,11 @@ export class RenderableComponent extends Component {
     }
 
     set sharedMaterials (val) {
-        for (let i = 0; i < val.length; i++) {
-            if (val[i] !== this._materials[i]) {
-                this.setMaterial(val[i], i);
+        for (let i = 0; i <= val.length; i++) {
+            if (val[i] && val[i] === this._materials[i]) {
+                continue;
             }
+            this.setMaterial(val[i], i);
         }
         if (val.length < this._materials.length) {
             for (let i = val.length; i < this._materials.length; i++) {
