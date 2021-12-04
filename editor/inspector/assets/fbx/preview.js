@@ -748,8 +748,8 @@ exports.methods = {
                 'execute-model-preview-animation-operation',
                 'setClipConfig',
                 {
-                    wrapMode: clipInfo.userData.wrapMode,
-                    speed: clipInfo.userData.speed,
+                    wrapMode: clipInfo.wrapMode,
+                    speed: clipInfo.speed,
                 }
             );
 
