@@ -34,6 +34,7 @@ import { getComponentPerVertex } from './vertex-format';
 
 export class MeshBuffer extends ScalableContainer {
     public static OPACITY_OFFSET = 8;
+    public static id = 0;
 
     get attributes () { return this._attributes; }
     get vertexBuffers () { return this._vertexBuffers; }
@@ -49,6 +50,7 @@ export class MeshBuffer extends ScalableContainer {
     public vertexStart = 0;
     public vertexOffset = 0;
     public lastByteOffset = 1;
+    public bufferId = 0;
 
     private _attributes: Attribute[] = null!;
     private _vertexBuffers: Buffer[] = [];
@@ -72,6 +74,7 @@ export class MeshBuffer extends ScalableContainer {
     constructor (batcher: IBatcher) {
         super();
         this._batcher = batcher;
+        this.bufferId = MeshBuffer.id++;
     }
 
     get vertexFormatBytes (): number {
@@ -115,6 +118,10 @@ export class MeshBuffer extends ScalableContainer {
         // ----------
     }
 
+    public setDirty () {
+        this._dirty = true;
+    }
+
     public request (vertexCount = 4, indicesCount = 6) {
         this.lastByteOffset = this.byteOffset;
         const byteOffset = this.byteOffset + vertexCount * this._vertexFormatBytes;
@@ -142,7 +149,6 @@ export class MeshBuffer extends ScalableContainer {
         }
 
         this.vertexOffset += vertexCount;
-        this.indicesOffset += indicesCount;
         this.byteOffset = byteOffset;
 
         this._dirty = true;
@@ -157,6 +163,15 @@ export class MeshBuffer extends ScalableContainer {
         this.vertexStart = 0;
         this.vertexOffset = 0;
         this.lastByteOffset = 0;
+        this._nextFreeIAHandle = 0;
+
+        this._dirty = false;
+    }
+
+    public resetIndex () {
+        this.byteStart = 0;
+        this.indicesStart = 0;
+        this.indicesOffset = 0;
         this._nextFreeIAHandle = 0;
 
         this._dirty = false;

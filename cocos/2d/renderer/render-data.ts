@@ -36,6 +36,7 @@ import { RenderScene } from '../../core/renderer/scene';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
+import { MeshBuffer } from './mesh-buffer';
 
 export interface IRenderData {
     x: number;
@@ -116,8 +117,14 @@ export class RenderData extends BaseRenderData {
     public textureHash = 0;
     public textureDirty = true;
 
+    public meshBufferDirty = true;
+    public bufferHash = 0;
+
     public hashDirty = true;
     public dataHash = 0;
+
+    public cacheBuffer: MeshBuffer | null = null;
+    public bufferOffset = 0;
 
     public updateNode (comp: Renderable2D) {
         this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
@@ -168,8 +175,13 @@ export class RenderData extends BaseRenderData {
             this.textureDirty = false;
             this.hashDirty = true;
         }
+        if (this.meshBufferDirty) {
+            this.bufferHash = this.cacheBuffer?.bufferId || 0;
+            this.meshBufferDirty = false;
+            this.hashDirty = true;
+        }
         if (this.hashDirty) {
-            const hashString = ` ${this.layer} ${this.blendHash} ${this.textureHash}`;
+            const hashString = ` ${this.layer} ${this.blendHash} ${this.textureHash} ${this.bufferHash}`;
             this.dataHash = murmurhash2_32_gc(hashString, 666);
             this.hashDirty = false;
         }
@@ -231,6 +243,9 @@ export class MeshRenderData extends BaseRenderData {
     // only for graphics
     public lastFilledIndices = 0;
     public lastFilledVertex = 0;
+
+    public cacheBuffer: MeshBuffer | null = null;
+    public bufferOffset = 0;
 
     private _formatByte:number;
 
