@@ -742,7 +742,7 @@ exports.methods = {
             from,
             to,
             wrapMode: splitInfo.wrapMode,
-            speed: splitInfo.speed,
+            speed: splitInfo.speed || 1,
         };
     },
     getRightName(name) {
