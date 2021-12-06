@@ -24,7 +24,7 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
@@ -980,6 +980,7 @@ export class OctreeInfo {
      * @zh 是否启用八叉树加速剔除？
      */
     @editable
+    @tooltip('i18n:octree_culling.enabled')
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
@@ -992,6 +993,8 @@ export class OctreeInfo {
     }
 
     @editable
+    @tooltip('i18n:octree_culling.minPos')
+    @displayName('World MinPos')
     set minPos (val: Vec3) {
         this._minPos = val;
         if (this._resource) { this._resource.minPos = val; }
@@ -1001,6 +1004,8 @@ export class OctreeInfo {
     }
 
     @editable
+    @tooltip('i18n:octree_culling.maxPos')
+    @displayName('World MaxPos')
     set maxPos (val: Vec3) {
         this._maxPos = val;
         if (this._resource) { this._resource.maxPos = val; }
@@ -1012,6 +1017,7 @@ export class OctreeInfo {
     @editable
     @range([4, 12, 1])
     @type(CCInteger)
+    @tooltip('i18n:octree_culling.depth')
     set depth (val: number) {
         this._depth = val;
         if (this._resource) { this._resource.depth = val; }
