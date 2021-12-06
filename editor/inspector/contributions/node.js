@@ -5,7 +5,6 @@ const utils = require("./utils");
 
 exports.listeners = {
     async 'change-dump'(event) {
-
         const panel = this;
         const target = event.target;
         if (!target) {
@@ -85,13 +84,11 @@ exports.listeners = {
             console.error(error);
         }
     },
-    'confirm-dump'(event) {
-
+    'confirm-dump'() {
         const panel = this;
         panel.snapshotLock = false;
     },
     'reset-dump'(event) {
-
         const panel = this;
         const target = event.target;
         if (!target) {
@@ -230,7 +227,6 @@ exports.$ = {
 const Elements = {
     panel: {
         ready() {
-
             const panel = this;
             let animationId;
             panel.__nodeChanged__ = (uuid) => {
@@ -306,7 +302,6 @@ const Elements = {
             });
         },
         async update() {
-
             const panel = this;
             let dumps = [];
             try {
@@ -350,7 +345,6 @@ const Elements = {
     },
     prefab: {
         ready() {
-
             const panel = this;
             panel.$.prefab.addEventListener('confirm', (event) => {
                 const button = event.target;
@@ -391,7 +385,6 @@ const Elements = {
             }, false);
         },
         async update() {
-
             const panel = this;
             if (!panel.dump || !panel.dump.__prefab__) {
                 panel.$.prefab.setAttribute('hidden', '');
@@ -434,7 +427,6 @@ const Elements = {
     },
     header: {
         ready() {
-
             const panel = this;
             panel.$.active.addEventListener('change', (event) => {
                 const value = event.target.value;
@@ -460,7 +452,6 @@ const Elements = {
             });
         },
         update() {
-
             const panel = this;
             if (!panel.dump) {
                 return;
@@ -495,11 +486,8 @@ const Elements = {
     },
     scene: {
         ready() {
-
-            const panel = this;
         },
         update() {
-
             const panel = this;
             if (!panel.dump || !panel.dump.isScene) {
                 return;
@@ -532,7 +520,6 @@ const Elements = {
             });
         },
         async updateDiffuseMap() {
-
             const panel = this;
             const dump = panel.dump._globals.skybox.value;
             if (!dump.envmap.value) {
@@ -562,7 +549,6 @@ const Elements = {
     },
     node: {
         ready() {
-
             const panel = this;
             panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
             panel.$.nodeMenu.addEventListener('click', (event) => {
@@ -574,7 +560,6 @@ const Elements = {
             });
         },
         update() {
-
             const panel = this;
             if (!panel.dump || panel.dump.isScene) {
                 return;
@@ -752,7 +737,6 @@ const Elements = {
     },
     missingComponent: {
         ready() {
-
             const panel = this;
             const sectionMissing = panel.$.sectionMissing;
             sectionMissing.addEventListener('click', (event) => {
@@ -782,7 +766,6 @@ const Elements = {
             });
         },
         update() {
-
             const panel = this;
             if (!panel.dump || panel.dump.isScene) {
                 return;
@@ -814,7 +797,6 @@ const Elements = {
     },
     layer: {
         ready() {
-
             const panel = this;
             panel.$.nodeLayerButton.addEventListener('change', (event) => {
                 event.stopPropagation();
@@ -822,7 +804,6 @@ const Elements = {
             });
         },
         async update() {
-
             const panel = this;
             if (!panel.dump || panel.dump.isScene) {
                 return;
@@ -855,7 +836,6 @@ const Elements = {
     },
     footer: {
         ready() {
-
             const panel = this;
             panel.$.componentAdd.addEventListener('click', () => {
                 const rawTimestamp = Date.now();
@@ -882,7 +862,6 @@ const Elements = {
     },
     materials: {
         async update() {
-
             const panel = this;
             const materialPanels = [];
             const materialPanelType = 'asset';
@@ -924,7 +903,6 @@ const Elements = {
             }
         },
         async beforeClose() {
-
             const panel = this;
             const children = Array.from(panel.$.sectionAsset.children);
             for (const materialPanel of children) {
@@ -1260,7 +1238,6 @@ exports.methods = {
     },
 };
 async function update(uuidList, renderMap, typeManager, renderManager) {
-
     const panel = this;
     panel.uuidList = uuidList || [];
     panel.renderMap = renderMap;
@@ -1275,7 +1252,6 @@ async function update(uuidList, renderMap, typeManager, renderManager) {
 }
 exports.update = update;
 async function ready() {
-
     const panel = this;
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
@@ -1288,7 +1264,6 @@ async function ready() {
 }
 exports.ready = ready;
 async function close() {
-
     const panel = this;
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -1299,7 +1274,6 @@ async function close() {
 }
 exports.close = close;
 async function beforeClose() {
-
     const panel = this;
     for (const prop in Elements) {
         const element = Elements[prop];
