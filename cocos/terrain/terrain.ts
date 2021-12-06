@@ -41,7 +41,7 @@ import { director } from '../core/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
-import { scene } from '../core/renderer';
+import { Pass, scene } from '../core/renderer';
 import { Camera } from '../core/renderer/scene/camera';
 import { Root } from '../core/root';
 import { HeightField } from './height-field';
@@ -182,6 +182,7 @@ class TerrainRenderable extends RenderableComponent {
     public _model: scene.Model | null = null;
     public _meshData: RenderingSubMesh | null = null;
 
+    public _brushPass: Pass | null = null;
     public _brushMaterial: Material | null = null;
     public _currentMaterial: Material | null = null;
     public _currentMaterialLayers = 0;
@@ -209,18 +210,9 @@ class TerrainRenderable extends RenderableComponent {
             return;
         }
 
-        if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
-            const passes = this._currentMaterial.passes;
-            for (let i = 0; i < passes.length; ++i) {
-                if (passes[i] === this._brushMaterial.passes[0]) {
-                    passes.pop();
-                    break;
-                }
-            }
-        }
-
         this._clearMaterials();
 
+        this._brushPass = null;
         this._currentMaterial = null;
         if (this._model != null) {
             this._model.enabled = false;
@@ -241,9 +233,18 @@ class TerrainRenderable extends RenderableComponent {
                 defines: block._getMaterialDefines(nLayers),
             });
 
-            if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
-                const passes = this._currentMaterial.passes;
-                passes.push(this._brushMaterial.passes[0]);
+            if (this._brushMaterial !== null) {
+                // 创建画刷材质实例，避免材质GC直接删除插入的画刷pass
+                const brushMaterialInstance = new Material();
+                brushMaterialInstance.copy(this._brushMaterial);
+
+                this._brushPass = null;
+                if (brushMaterialInstance.passes !== null && brushMaterialInstance.passes.length > 0) {
+                    this._brushPass = brushMaterialInstance.passes[0];
+                    const passes = this._currentMaterial.passes;
+                    passes.push(this._brushPass);
+                    brushMaterialInstance.passes.pop();
+                }
             }
 
             if (init) {
@@ -610,6 +611,14 @@ export class TerrainBlock {
         }
     }
 
+    public _getBrushMaterial () {
+        return this._renderable ? this._renderable._brushMaterial : null;
+    }
+
+    public _getBrushPass () {
+        return this._renderable ? this._renderable._brushPass : null;
+    }
+
     /**
      * @en valid
      * @zh 是否有效
@@ -627,6 +636,14 @@ export class TerrainBlock {
         }
 
         return false;
+    }
+
+    /**
+     * @en get current material
+     * @zh 获得当前的材质
+     */
+    get material () {
+        return this._renderable ? this._renderable._currentMaterial : null;
     }
 
     /**
@@ -1101,6 +1118,7 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _lodBias = 0;
 
+    // when the terrain undo, __asset is changed by serialize, but the internal block is created by last asset, here saved last asset
     protected _buitinAsset : TerrainAsset|null = null;
     protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
@@ -1152,9 +1170,14 @@ export class Terrain extends Component {
                 this._heights = new Uint16Array();
                 this._weights = new Uint8Array();
                 this._normals = [];
-                this._layerList = [];
                 this._layerBuffer = [];
                 this._blocks = [];
+
+                // initialize layers
+                this._layerList = [];
+                for (let i = 0; i < TERRAIN_MAX_LAYER_COUNT; ++i) {
+                    this._layerList.push(null);
+                }
             }
 
             // Ensure device is created
@@ -2116,6 +2139,10 @@ export class Terrain extends Component {
         }
 
         const terrainAsset = this.__asset;
+        if (this._buitinAsset != terrainAsset) {
+            this._buitinAsset = terrainAsset;
+        }
+
         if (!restore && terrainAsset !== null) {
             this._tileSize = terrainAsset.tileSize;
             this._blockCount = terrainAsset.blockCount;
