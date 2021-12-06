@@ -302,7 +302,9 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
     CCMTLRenderPass *      curRenderPass = _gpuCommandBufferObj->renderPass;
     CCMTLFramebuffer *     curFBO        = _gpuCommandBufferObj->fbo;
     const SubpassInfoList &subpasses     = curRenderPass->getSubpasses();
-    const SubpassInfo      subpass       = subpasses[index];
+    
+    const DepthStencilAttachment& dsAttachment  = curRenderPass->getDepthStencilAttachment();
+    const SubpassInfo&      subpass             = subpasses[index];
     if (subpass.depthStencil != INVALID_BINDING) {
         const TextureList &colorTextures = curFBO->getColorTextures();
         if (subpass.depthStencil >= colorTextures.size()) {
@@ -316,6 +318,25 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
             if (ccMTLTexture->getFormat() == Format::DEPTH_STENCIL)
                 descriptor.stencilAttachment.texture = ccMTLTexture->getMTLTexture();
         }
+
+        //the first and last time using depth buffer are affected respectively by load and store op.
+        //loadop
+        if(index == 0) {
+            descriptor.depthAttachment.loadAction   = dsAttachment.depthLoadOp == LoadOp::LOAD ? MTLLoadActionLoad : MTLLoadActionClear;
+            descriptor.stencilAttachment.loadAction = dsAttachment.stencilLoadOp == LoadOp::LOAD ? MTLLoadActionLoad : MTLLoadActionClear;
+        } else {
+            descriptor.depthAttachment.loadAction   = MTLLoadActionLoad;
+            descriptor.stencilAttachment.loadAction = MTLLoadActionLoad;
+        }
+        //storeop
+        if(index == subpasses.size() - 1) {
+            descriptor.depthAttachment.storeAction   = dsAttachment.depthStoreOp == StoreOp::STORE ? MTLStoreActionStore : MTLStoreActionDontCare;
+            descriptor.stencilAttachment.storeAction = dsAttachment.stencilStoreOp == StoreOp::STORE ? MTLStoreActionStore : MTLStoreActionDontCare;
+        } else {
+            descriptor.depthAttachment.storeAction   = MTLStoreActionStore;
+            descriptor.stencilAttachment.storeAction = MTLStoreActionStore;
+        }
+
         if (subpass.depthStencilResolve != INVALID_BINDING) {
             const CCMTLTexture *dsResolveTex = nullptr;
             if (subpass.depthStencilResolve >= colorTextures.size()) {
@@ -339,6 +360,15 @@ void CCMTLCommandBuffer::updateDepthStencilState(uint32_t index, MTLRenderPassDe
             if (@available(iOS 12.0, *)) {
                 descriptor.stencilAttachment.stencilResolveFilter = mu::toMTLStencilResolveMode(subpass.stencilResolveMode);
             }
+            
+            if(index == subpasses.size() - 1) {
+                descriptor.depthAttachment.storeAction   = dsAttachment.depthStoreOp == StoreOp::STORE ? MTLStoreActionStoreAndMultisampleResolve : MTLStoreActionMultisampleResolve;
+                descriptor.stencilAttachment.storeAction = dsAttachment.stencilStoreOp == StoreOp::STORE ? MTLStoreActionStoreAndMultisampleResolve : MTLStoreActionMultisampleResolve;
+            } else {
+                descriptor.depthAttachment.storeAction   = MTLStoreActionStoreAndMultisampleResolve;
+                descriptor.stencilAttachment.storeAction = MTLStoreActionStoreAndMultisampleResolve;
+            }
+
         }
     }
 }
@@ -444,14 +474,14 @@ void CCMTLCommandBuffer::nextSubpass() {
             auto *      mtlRenderPassDescriptor = ccRenderpass->getMTLRenderPassDescriptor();
             const auto &colorAttachments        = curRenderPass->getColorAttachments();
             const auto  colorAttachmentCount    = colorAttachments.size();
+            const SubpassInfoList &subpasses     = curRenderPass->getSubpasses();
             for (size_t slot = 0U; slot < colorAttachmentCount; slot++) {
                 mtlRenderPassDescriptor.colorAttachments[slot].loadAction  = MTLLoadActionLoad; // mu::toMTLLoadAction(colorAttachments[slot].loadOp);
-                mtlRenderPassDescriptor.colorAttachments[slot].storeAction = mu::toMTLStoreAction(colorAttachments[slot].storeOp);
+                mtlRenderPassDescriptor.colorAttachments[slot].storeAction = curSubpassIndex == subpasses.size() - 1 ? mu::toMTLStoreAction(colorAttachments[slot].storeOp) : MTLStoreActionStore;
             }
             updateDepthStencilState(curSubpassIndex, mtlRenderPassDescriptor);
             _renderEncoder.initialize(getMTLCommandBuffer(), ccRenderpass->getMTLRenderPassDescriptor());
             const TextureList &    colorTextures = _gpuCommandBufferObj->fbo->getColorTextures();
-            const SubpassInfoList &subpasses     = curRenderPass->getSubpasses();
             if (!subpasses.empty()) {
                 const auto &inputs = subpasses[curSubpassIndex].inputs;
                 for (size_t i = 0; i < inputs.size(); i++) {
