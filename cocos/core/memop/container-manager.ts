@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { js } from '../utils/js';
+import { fastRemoveAt } from '../utils/array';
 import { ScalableContainer } from './scalable-container';
 
 class ContainerManager {
@@ -39,7 +39,7 @@ class ContainerManager {
     removeContainer (pool: ScalableContainer) {
         if (pool._poolHandle === -1) return;
         this._pools[this._pools.length - 1]._poolHandle = pool._poolHandle;
-        js.array.fastRemoveAt(this._pools, pool._poolHandle);
+        fastRemoveAt(this._pools, pool._poolHandle);
         pool._poolHandle = -1;
     }
 
