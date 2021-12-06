@@ -408,6 +408,7 @@ export class Batcher2D implements IBatcher {
                 this._currBlendTargetHash = renderData.blendHash;
                 this._currDepthStencilStateStage = depthStencilStateStage;
                 this._currLayer = renderData.layer;
+                this._currMeshBuffer = renderData.cacheBuffer;
                 const frame = renderData.frame;
                 if (frame) {
                     this._currTexture = frame.getGFXTexture();
@@ -444,8 +445,11 @@ export class Batcher2D implements IBatcher {
             }
         }
 
-        if (assembler) {
+        if (comp.node.hasChangedFlags || comp._renderDataDirty) {
             assembler.fillBuffers(renderComp, this);
+            comp._renderDataDirty = false;
+        } else {
+            assembler.fillIndex(renderComp, this);
         }
     }
 
@@ -644,7 +648,6 @@ export class Batcher2D implements IBatcher {
     }
 
     public walk (node: Node, level = 0) {
-
         const len = node.children.length;
         this._preProcess(node);
         if (len > 0 && !node._static) {
