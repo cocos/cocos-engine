@@ -478,6 +478,7 @@ void LightingStage::fgTransparent(scene::Camera *camera) {
                 static_cast<uint>(pipeline->getHeight() * shadingScale),
             };
             data.depth = builder.create(DeferredPipeline::fgStrHandleOutDepthTexture, depthTexInfo);
+            depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;
         }
         data.depth = builder.write(data.depth, depthAttachmentInfo);
         builder.writeToBlackboard(DeferredPipeline::fgStrHandleOutDepthTexture, data.depth);
