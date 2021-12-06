@@ -884,8 +884,8 @@ module.exports = {
     },
     octree_culling: {
         enabled: '八叉树剔除开关，仅在原生平台中生效',
-        minPos: '世界包围盒最小点',
-        maxPos: '世界包围盒最大点',
+        minPos: '世界包围盒最小顶点的坐标',
+        maxPos: '世界包围盒最大顶点的坐标',
         depth: '八叉树深度',
     },
 };
