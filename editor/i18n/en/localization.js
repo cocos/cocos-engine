@@ -64,6 +64,7 @@ module.exports = {
             Terrain: `${url}/${version}/manual/en/editor/terrain/`,
             TiledMap: ``,
             Spine: ``,
+            OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
         },
     },
     animation: {
@@ -899,5 +900,11 @@ module.exports = {
             torque: 'The torque applied to the rigid body in the world coordinate system',
             localTorque: 'The torque applied to the rigid body in the local coordinate system',
         },
+    },
+    octree_culling: {
+        enabled: 'The switch of octree culling, only available for native platform.',
+        minPos: 'The minimum position of the world bounding box.',
+        maxPos: 'The maximum position of the world bounding box.',
+        depth: 'The depth of octree.',
     },
 };

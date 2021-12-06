@@ -64,6 +64,7 @@ module.exports = {
             Terrain: `${url}/${version}/manual/zh/editor/terrain/`,
             TiledMap: ``,
             Spine: ``,
+            OctreeCulling: `${url}/${version}/manual/zh/advanced-topics/native-scene-culling.html`,
         },
     },
     animation: {
@@ -880,5 +881,11 @@ module.exports = {
             torque: '在世界坐标系中，对刚体施加的扭转力',
             localTorque: '在本地坐标系中，对刚体施加的扭转力',
         },
+    },
+    octree_culling: {
+        enabled: '八叉树剔除开关，仅在原生平台中生效',
+        minPos: '世界包围盒最小顶点的坐标',
+        maxPos: '世界包围盒最大顶点的坐标',
+        depth: '八叉树深度',
     },
 };
