@@ -902,7 +902,7 @@ module.exports = {
         },
     },
     octree_culling: {
-        enabled: 'The switch of octree culling, only available for native-engine.',
+        enabled: 'The switch of octree culling, only available for native platform.',
         minPos: 'The minimum position of the world bounding box.',
         maxPos: 'The maximum position of the world bounding box.',
         depth: 'The depth of octree.',
