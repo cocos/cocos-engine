@@ -1,5 +1,4 @@
 'use strict';
-exports.close = exports.ready = exports.update = exports.methods = exports.style = exports.$ = exports.template = void 0;
 exports.template = `
 <section></section>
 `;
@@ -86,7 +85,6 @@ exports.methods = {
  * @param dumps
  */
 async function update(dump) {
-    // @ts-ignore
     const $panel = this;
     const $section = $panel.$.section;
     const oldPropList = Object.keys($panel.$propList);
@@ -146,14 +144,12 @@ async function update(dump) {
 }
 exports.update = update;
 async function ready() {
-    // @ts-ignore
     const $panel = this;
     $panel.$propList = {};
     $panel.$groups = {};
 }
 exports.ready = ready;
 async function close() {
-    // @ts-ignore
     const $panel = this;
     for (const key in $panel.$groups) {
         $panel.$groups[key].remove();
