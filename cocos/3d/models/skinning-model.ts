@@ -42,7 +42,6 @@ import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils'
 import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
 import { IMacroPatch } from '../../core/renderer';
-import { JSB } from '../../core/default-constants';
 
 const myPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -94,9 +93,6 @@ export class SkinningModel extends MorphModel {
     constructor () {
         super();
         this.type = ModelType.SKINNING;
-        if (JSB) {
-            (this as any)._registerListeners();
-        }
     }
 
     public destroy () {
@@ -154,16 +150,11 @@ export class SkinningModel extends MorphModel {
         }
 
         // console.log(`v3_min: ${JSON.stringify(v3_min)}, v3_max: ${JSON.stringify(v3_max)}`);
-        if (JSB) {
-            // cjh TODO: Optimize
-            (this as any).updateWorldBoundsForJSSkinningModel(v3_min, v3_max);
-        } else {
-            const worldBounds = this._worldBounds;
-            if (this._modelBounds && worldBounds) {
-                AABB.fromPoints(this._modelBounds, v3_min, v3_max);
-                // @ts-expect-error TS2445
-                this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
-            }
+        const worldBounds = this._worldBounds;
+        if (this._modelBounds && worldBounds) {
+            AABB.fromPoints(this._modelBounds, v3_min, v3_max);
+            // @ts-expect-error TS2445
+            this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
         }
     }
 

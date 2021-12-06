@@ -458,6 +458,7 @@ export interface IAnimInfo {
     buffer: Buffer;
     data: Float32Array;
     dirty: boolean;
+    dirtyForJSB: Uint8Array;
 }
 
 export class JointAnimationInfo {
@@ -480,7 +481,7 @@ export class JointAnimationInfo {
         ));
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
-        const info = { buffer, data, dirty: false };
+        const info = { buffer, data, dirty: false, dirtyForJSB: new Uint8Array([0]) };
 
         this._pool.set(nodeID, info);
         return info;
@@ -497,6 +498,7 @@ export class JointAnimationInfo {
         info.data[0] = 0;
         info.buffer.update(info.data);
         info.dirty = false;
+        info.dirtyForJSB[0] = 0;
         return info;
     }
 
