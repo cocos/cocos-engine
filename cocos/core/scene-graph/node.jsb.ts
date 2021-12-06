@@ -779,7 +779,15 @@ Object.defineProperty(nodeProto, 'eulerAngles', {
 Object.defineProperty(nodeProto, 'worldMatrix', {
     configurable: true,
     enumerable: true,
-    get (): Readonly<Vec3> {
+    get (): Readonly<Mat4> {
+        return this.getWorldMatrix();
+    },
+});
+
+Object.defineProperty(nodeProto, '_mat', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Mat4> {
         return this.getWorldMatrix();
     },
 });
