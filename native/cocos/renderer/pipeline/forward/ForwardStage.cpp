@@ -179,6 +179,7 @@ void ForwardStage::render(scene::Camera *camera) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
             } else {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
+                colorAttachmentInfo.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
             }
         }
         colorAttachmentInfo.endAccesses   = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};

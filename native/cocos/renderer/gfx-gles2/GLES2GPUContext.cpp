@@ -234,8 +234,7 @@ bool GLES2GPUContext::initialize(GLES2GPUStateCache *stateCache, GLES2GPUConstan
     size_t threadID{std::hash<std::thread::id>{}(std::this_thread::get_id())};
     _sharedContexts[threadID] = eglDefaultContext;
 
-    makeCurrent(eglDefaultSurface, eglDefaultSurface, eglDefaultContext);
-    resetStates();
+    bindContext(true);
 
     return true;
 }
@@ -270,7 +269,7 @@ void GLES2GPUContext::destroy() {
 
 void GLES2GPUContext::bindContext(bool bound) {
     if (bound) {
-        makeCurrent(_eglCurrentDrawSurface, _eglCurrentReadSurface, eglDefaultContext);
+        makeCurrent(eglDefaultSurface, eglDefaultSurface, eglDefaultContext);
         resetStates();
     } else {
         makeCurrent(EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT, false);

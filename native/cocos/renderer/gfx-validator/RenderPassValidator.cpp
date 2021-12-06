@@ -55,6 +55,15 @@ void RenderPassValidator::doInit(const RenderPassInfo &info) {
         }
     }
 
+    for (auto & attachment : _colorAttachments) {
+        if (attachment.loadOp == LoadOp::LOAD && attachment.beginAccesses.empty()) {
+            CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
+        }
+    }
+    if ((_depthStencilAttachment.depthLoadOp == LoadOp::LOAD || _depthStencilAttachment.stencilLoadOp == LoadOp::LOAD) && _depthStencilAttachment.beginAccesses.empty()) {
+        CCASSERT(false, "Attachment missing beginAccesses for LoadOp::LOAD");
+    }
+
     /////////// execute ///////////
 
     _actor->initialize(info);
