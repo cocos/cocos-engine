@@ -238,7 +238,8 @@ void CCMTLTexture::doDestroy() {
 
     std::function<void(void)> destroyFunc = [mtlTexure]() {
         if (mtlTexure) {
-            [mtlTexure setPurgeableState:MTLPurgeableStateEmpty];
+            //TODO_Zeqiang: [mac12 | ios15, ...) validate here
+//            [mtlTexure setPurgeableState:MTLPurgeableStateEmpty];
             [mtlTexure release];
         }
     };
@@ -274,7 +275,8 @@ void CCMTLTexture::doResize(uint width, uint height, uint size) {
     if (oldMTLTexture) {
         std::function<void(void)> destroyFunc = [=]() {
             if (oldMTLTexture) {
-                [oldMTLTexture setPurgeableState:MTLPurgeableStateEmpty];
+                //TODO_Zeqiang: [mac12 | ios15, ...) validate here
+//                [oldMTLTexture setPurgeableState:MTLPurgeableStateEmpty];
                 [oldMTLTexture release];
             }
         };

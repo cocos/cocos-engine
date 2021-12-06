@@ -107,7 +107,8 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
 
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
-                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
+                //TODO_Zeqiang: [mac12 | ios15, ...) validate here
+//                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
                 [mtlBuffer release];
             }
         };
@@ -148,7 +149,8 @@ void CCMTLBuffer::doDestroy() {
 
         std::function<void(void)> destroyFunc = [=]() {
             if (mtlBuffer) {
-                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
+                //TODO_Zeqiang: [mac12 | ios15, ...) validate here
+//                [mtlBuffer setPurgeableState:MTLPurgeableStateEmpty];
                 [mtlBuffer release];
             }
         };
