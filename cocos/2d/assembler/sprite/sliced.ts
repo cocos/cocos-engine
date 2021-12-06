@@ -57,6 +57,26 @@ export const sliced: IAssembler = {
         return renderData;
     },
 
+    createBuffer (sprite: Sprite, renderer: IBatcher) {
+        let buffer = renderer.acquireBufferBatch()!;
+        let vertexOffset = buffer.byteOffset >> 2;
+        let indicesOffset = buffer.indicesOffset;
+        let vertexId = buffer.vertexOffset;
+        const renderData = sprite.renderData!;
+
+        const bufferUnchanged = buffer.request(renderData.vertexCount, renderData.indicesCount);
+        if (!bufferUnchanged) {
+            buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
+            indicesOffset = 0;
+            vertexId = 0;
+        }
+
+        renderData.cacheBuffer = buffer;
+        renderData.bufferOffset = vertexOffset;
+        renderData.meshBufferDirty = true;
+    },
+
     updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
@@ -124,26 +144,19 @@ export const sliced: IAssembler = {
             this.updateWorldVertexData(sprite);
         }
 
-        let buffer = renderer.acquireBufferBatch()!;
-        const renderData: RenderData|null = sprite.renderData;
+        const renderData: RenderData = sprite.renderData!;
+        const buffer = renderData.cacheBuffer!;
+
         // const node: Node = sprite.node;
         // const color: Color = sprite.color;
-        const dataList: IRenderData[] = renderData!.data;
+        const dataList: IRenderData[] = renderData.data;
 
-        let vertexOffset = buffer.byteOffset >> 2;
-        const vertexCount = renderData!.vertexCount;
+        let vertexOffset = renderData.bufferOffset;
+        const vertexCount = renderData.vertexCount;
         let indicesOffset: number = buffer.indicesOffset;
-        let vertexId: number = buffer.vertexOffset;
+        const vertexId: number = vertexOffset / buffer.vertexFormatBytes * renderData.vertexCount;
 
         const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
-
-        const isRecreate = buffer.request(vertexCount, renderData!.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
 
         // buffer data may be realloc, need get reference after request.
         const vBuf: Float32Array|null = buffer.vData;
@@ -175,6 +188,63 @@ export const sliced: IAssembler = {
                 iBuf![indicesOffset++] = start + 4;
             }
         }
+
+        buffer.indicesOffset += renderData.indicesCount;
+    },
+
+    fillIndex (sprite: Sprite) {
+        const renderData: RenderData = sprite.renderData!;
+        const buffer = renderData.cacheBuffer!;
+
+        const vertexOffset = renderData.bufferOffset;
+        let indicesOffset: number = buffer.indicesOffset;
+        const vertexId: number = vertexOffset / buffer.vertexFormatBytes * renderData.vertexCount;
+
+        // const  uintbuf = buffer._uintVData,
+        const iBuf: Uint16Array|null = buffer.iData;
+
+        for (let r = 0; r < 3; ++r) {
+            for (let c = 0; c < 3; ++c) {
+                const start = vertexId + r * 4 + c;
+                iBuf![indicesOffset++] = start;
+                iBuf![indicesOffset++] = start + 1;
+                iBuf![indicesOffset++] = start + 4;
+                iBuf![indicesOffset++] = start + 1;
+                iBuf![indicesOffset++] = start + 5;
+                iBuf![indicesOffset++] = start + 4;
+            }
+        }
+
+        buffer.indicesOffset += renderData.indicesCount;
+    },
+
+    fillCacheBuffer (sprite: Sprite) {
+        if (sprite === null) {
+            return;
+        }
+        if (sprite.node.hasChangedFlags) {
+            this.updateWorldVertexData(sprite);
+        }
+        const renderData = sprite.renderData!;
+        const dataList: IRenderData[] = renderData.data;
+        const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
+        const meshBuffer = renderData.cacheBuffer!;
+        const vBuf: Float32Array|null = meshBuffer.vData;
+        let vertexOffset = renderData.bufferOffset;
+        for (let i = 4; i < 20; ++i) {
+            const vert = dataList[i];
+            const uvs = uvSliced[i - 4];
+
+            vBuf![vertexOffset++] = vert.x;
+            vBuf![vertexOffset++] = vert.y;
+            vBuf![vertexOffset++] = vert.z;
+            vBuf![vertexOffset++] = uvs.u;
+            vBuf![vertexOffset++] = uvs.v;
+            Color.toArray(vBuf!, dataList[i].color, vertexOffset);
+            vertexOffset += 4;
+            // uintbuf[vertexOffset++] = color;
+        }
+        meshBuffer.setDirty();
     },
 
     updateWorldVertexData (sprite: Sprite) {

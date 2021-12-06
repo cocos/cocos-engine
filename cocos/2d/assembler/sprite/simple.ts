@@ -219,7 +219,7 @@ export const simple: IAssembler = {
         const buffer = renderData.cacheBuffer!;
 
         let indicesOffset = buffer.indicesOffset;
-        const vertexId = renderData.bufferOffset / buffer.vertexFormatBytes * 4;
+        const vertexId = renderData.bufferOffset / buffer.vertexFormatBytes * renderData.vertexCount;
         const iBuf = buffer.iData!;
         const index0 = vertexId; const index1 = vertexId + 1;
         const index2 = vertexId + 2; const index3 = vertexId + 3;
@@ -231,7 +231,7 @@ export const simple: IAssembler = {
         iBuf[indicesOffset++] = index1;
         iBuf[indicesOffset++] = index3;
 
-        buffer.indicesOffset += 6;
+        buffer.indicesOffset += renderData.indicesCount;
     },
 
     updateVertexData (sprite: Sprite) {
