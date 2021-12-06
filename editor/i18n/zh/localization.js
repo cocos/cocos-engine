@@ -883,7 +883,7 @@ module.exports = {
         },
     },
     octree_culling: {
-        enabled: '八叉树剔除开关，仅在原生引擎中生效',
+        enabled: '八叉树剔除开关，仅在原生平台中生效',
         minPos: '世界包围盒最小点',
         maxPos: '世界包围盒最大点',
         depth: '八叉树深度',
