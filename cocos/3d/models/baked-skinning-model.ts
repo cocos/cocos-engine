@@ -42,7 +42,6 @@ import { ModelType } from '../../core/renderer/scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
-import { JSB } from '../../core/default-constants';
 
 interface IJointsInfo {
     buffer: Buffer | null;
@@ -80,9 +79,6 @@ export class BakedSkinningModel extends MorphModel {
         const jointTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
-        if (JSB) {
-            (this as any)._registerListeners();
-        }
     }
 
     public destroy () {
@@ -124,9 +120,6 @@ export class BakedSkinningModel extends MorphModel {
             const node = this.transform;
             // @ts-expect-error TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-            if (JSB) {
-                (this as any).updateWorldBoundsForJSBakedSkinningModel(worldBounds);
-            }
         }
     }
 
@@ -137,12 +130,8 @@ export class BakedSkinningModel extends MorphModel {
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
-            if (JSB) {
-                (this as any)._setInstancedAttributesViewData(idx, 0, info.data[0]);
-            } else {
-                const view = this.instancedAttributes.views[idx];
-                view[0] = info.data[0];
-            }
+            const view = this.instancedAttributes.views[idx];
+            view[0] = info.data[0];
         } else if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
@@ -218,16 +207,10 @@ export class BakedSkinningModel extends MorphModel {
         const { jointTextureInfo, animInfo } = this._jointsMedium;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
-            if (JSB) {
-                (this as any)._setInstancedAttributesViewData(idx, 0, animInfo.data[0]);
-                (this as any)._setInstancedAttributesViewData(idx, 1, jointTextureInfo[1]);
-                (this as any)._setInstancedAttributesViewData(idx, 2, jointTextureInfo[2]);
-            } else {
-                const view = this.instancedAttributes.views[idx];
-                view[0] = animInfo.data[0];
-                view[1] = jointTextureInfo[1];
-                view[2] = jointTextureInfo[2];
-            }
+            const view = this.instancedAttributes.views[idx];
+            view[0] = animInfo.data[0];
+            view[1] = jointTextureInfo[1];
+            view[2] = jointTextureInfo[2];
         }
     }
 }
