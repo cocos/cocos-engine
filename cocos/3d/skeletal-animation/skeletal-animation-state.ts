@@ -37,6 +37,7 @@ import { AnimationState } from '../../core/animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { legacyCC } from '../../core/global-exports';
+import { JSB } from '../../core/default-constants';
 
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
@@ -173,7 +174,9 @@ export class SkeletalAnimationState extends AnimationState {
         if (curFrame === info.data[0]) { return; }
         info.data[0] = curFrame;
         info.dirty = true;
-        info.dirtyForJSB[0] = 1;
+        if (JSB) {
+            info.dirtyForJSB[0] = 1;
+        }
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
             const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]

@@ -297,9 +297,9 @@ export default class NodeActivator {
             }
         }
 
-        if (JSB) {
-            updateChildren(node);
-        }
+        // if (JSB) {
+        //     updateChildren(node);
+        // }
         // activate children  recursively
         const children = node._children;
         for (let i = 0, len = children.length; i < len; ++i) {

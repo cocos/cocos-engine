@@ -225,35 +225,58 @@ nodeProto.removeComponent = function (component) {
     }
 };
 
-nodeProto.on = function (type, callback, target, useCapture) {
+const REGISTERED_EVENT_MASK_TRANSFORM_CHANGED = (1 << 0);
+const REGISTERED_EVENT_MASK_PARENT_CHANGED = (1 << 1);
+const REGISTERED_EVENT_MASK_LAYER_CHANGED = (1 << 2);
+const REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED = (1 << 3);
+const REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED = (1 << 4);
+const REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED = (1 << 5);
+
+nodeProto.on = function (type, callback, target, useCapture: any = false) {
     switch (type) {
         case NodeEventType.TRANSFORM_CHANGED:
+
             // this._eventMask |= TRANSFORM_ON;
             this.setEventMask(this.getEventMask() | ~TRANSFORM_ON);
-
-            this._registerOnTransformChanged();
-            this._eventProcessor.on(type, callback, target, useCapture);
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_TRANSFORM_CHANGED)) {
+                this._registerOnTransformChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_TRANSFORM_CHANGED;
+            }
             break;
         case NodeEventType.PARENT_CHANGED:
-            this._registerOnParentChanged();
-            this._eventProcessor.on(type, callback, target, useCapture);
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_PARENT_CHANGED)) {
+                this._registerOnParentChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_PARENT_CHANGED;
+            }
             break;
         case NodeEventType.LAYER_CHANGED:
-            this._registerOnLayerChanged();
-            this._eventProcessor.on(type, callback, target, useCapture);
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_LAYER_CHANGED)) {
+                this._registerOnLayerChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_LAYER_CHANGED;
+            }
             break;
         case NodeEventType.CHILD_REMOVED:
-            this._registerOnChildRemoved();
-            this._eventProcessor.on(type, callback, target, useCapture);
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED)) {
+                this._registerOnChildRemoved();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_CHILD_REMOVED_CHANGED;
+            }
             break;
         case NodeEventType.CHILD_ADDED:
-            this._registerOnChildAdded();
-            this._eventProcessor.on(type, callback, target, useCapture);
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED)) {
+                this._registerOnChildAdded();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_CHILD_ADDED_CHANGED;
+            }
+            break;
+        case NodeEventType.SIBLING_ORDER_CHANGED:
+            if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED)) {
+                this._registerOnSiblingOrderChanged();
+                this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED_CHANGED;
+            }
             break;
         default:
-            this._eventProcessor.on(type, callback, target, useCapture);
             break;
     }
+    this._eventProcessor.on(type, callback, target, useCapture);
 };
 
 nodeProto.off = function (type: string, callback?, target?, useCapture = false) {
@@ -851,7 +874,7 @@ Object.defineProperty(nodeProto, '_parent', {
         return this._parentInternal;
     },
     set (v) {
-        jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
+        // jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
         this._parentInternal = v;
     },
 });
@@ -863,7 +886,7 @@ Object.defineProperty(nodeProto, 'parent', {
         return this.getParent();
     },
     set (v) {
-        jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
+        // jsb.registerNativeRef(v, this); // Root JSB object to avoid child node being garbage collected
         this.setParent(v);
     },
 });
@@ -893,40 +916,40 @@ nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
     this.rotateForJS();
 };
 
-nodeProto.addChild = function (child: Node): void {
-    jsb.registerNativeRef(this, child); // Root JSB object to avoid child node being garbage collected
-    child.setParent(this);
-};
+// nodeProto.addChild = function (child: Node): void {
+//     jsb.registerNativeRef(this, child); // Root JSB object to avoid child node being garbage collected
+//     child.setParent(this);
+// };
+//
+// nodeProto.insertChild = function (child: Node, siblingIndex: number) {
+//     child.parent = this;
+//     child.setSiblingIndex(siblingIndex);
+// };
+//
+// nodeProto.removeFromParent = function () {
+//     if (this._parent) {
+//         this._parent.removeChild(this);
+//     }
+// };
+//
+// const oldRemoveChild = nodeProto.removeChild;
+// nodeProto.removeChild = function (child: Node) {
+//     oldRemoveChild.call(this, child);
+//     jsb.unregisterNativeRef(this, child);
+// };
 
-nodeProto.insertChild = function (child: Node, siblingIndex: number) {
-    child.parent = this;
-    child.setSiblingIndex(siblingIndex);
-};
-
-nodeProto.removeFromParent = function () {
-    if (this._parent) {
-        this._parent.removeChild(this);
-    }
-};
-
-const oldRemoveChild = nodeProto.removeChild;
-nodeProto.removeChild = function (child: Node) {
-    oldRemoveChild.call(this, child);
-    jsb.unregisterNativeRef(this, child);
-};
-
-const oldRemoveAllChildren = nodeProto.removeAllChildren;
-nodeProto.removeAllChildren = function () {
-    oldRemoveAllChildren.call(this);
-    // cjh TODO: need to improve performance
-    const children = this.getChildren();
-    for (let i = children.length - 1; i >= 0; i--) {
-        const node = children[i];
-        if (node) {
-            jsb.unregisterNativeRef(this, node);
-        }
-    }
-};
+// const oldRemoveAllChildren = nodeProto.removeAllChildren;
+// nodeProto.removeAllChildren = function () {
+//     oldRemoveAllChildren.call(this);
+//     // cjh TODO: need to improve performance
+//     const children = this.getChildren();
+//     for (let i = children.length - 1; i >= 0; i--) {
+//         const node = children[i];
+//         if (node) {
+//             jsb.unregisterNativeRef(this, node);
+//         }
+//     }
+// };
 
 nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, context: SerializationContext) {
     if (!EDITOR) {
@@ -1192,6 +1215,36 @@ nodeProto._ctor = function (name?: string) {
     this._upCache = new Vec3();
     this._rightCache = new Vec3();
     this._worldRTCache = new Mat4();
+    //
+
+    this._registeredNodeEventTypeMask = 0;
+
+    this.on(NodeEventType.CHILD_ADDED, (child)=>{
+        this._children.push(child);
+    });
+
+    this.on(NodeEventType.CHILD_REMOVED, (child)=>{
+        const removeAt = this._children.indexOf(child);
+        if (removeAt < 0) {
+            errorID(1633);
+            return;
+        }
+        this._children.splice(removeAt, 1);
+    });
+
+    this._onSiblingIndexChanged = function (index) {
+        const siblings = this._parent._children;
+        index = index !== -1 ? index : siblings.length - 1;
+        const oldIndex = siblings.indexOf(this);
+        if (index !== oldIndex) {
+            siblings.splice(oldIndex, 1);
+            if (index < siblings.length) {
+                siblings.splice(index, 0, this);
+            } else {
+                siblings.push(this);
+            }
+        }
+    }
 };
 //
 clsDecorator(Node);
