@@ -49,6 +49,7 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
+import { LinearBufferAccessor } from './linear-buffer-accessor';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -75,32 +76,22 @@ export class Batcher2D implements IBatcher {
         return this._batches;
     }
 
-    /**
-     * Acquire a new mesh buffer if the vertex layout differs from the current one.
-     * @param attributes
-     */
-    public acquireBufferBatch (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
-        const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
-        if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes) !== strideBytes) {
-            this._requireBufferBatch(attributes);
-            return this._currMeshBuffer;
-        }
-        return this._currMeshBuffer;
-    }
-
     public registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) {
-        let batch: MeshBuffer;
+        let meshBuffer: MeshBuffer;
         if (attributes instanceof MeshBuffer) {
-            batch = attributes;
+            meshBuffer = attributes;
         } else {
-            batch = this._bufferBatchPool.add();
-            batch.initialize(attributes, callback || this._recreateMeshBuffer.bind(this, attributes));
+            meshBuffer = this._bufferBatchPool.add();
+            meshBuffer.initialize(this.device, attributes, callback || this._recreateMeshBuffer.bind(this, attributes));
+            if (!meshBuffer.accessor) {
+                meshBuffer.setAccessor(new LinearBufferAccessor());
+            }
         }
-        const strideBytes = batch.vertexFormatBytes;
+        const strideBytes = meshBuffer.vertexFormatBytes;
         let buffers = this._customMeshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._customMeshBuffers.set(strideBytes, buffers); }
-        buffers.push(batch);
-        return batch;
+        buffers.push(meshBuffer);
+        return meshBuffer;
     }
 
     public unRegisterCustomBuffer (buffer: MeshBuffer) {
@@ -133,7 +124,7 @@ export class Batcher2D implements IBatcher {
 
     public device: Device;
     private _screens: RenderRoot2D[] = [];
-    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(this), 128, (obj) => obj.destroy());
+    private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(), 128, (obj) => obj.destroy());
     private _drawBatchPool: Pool<DrawBatch2D>;
     private _meshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
@@ -308,6 +299,19 @@ export class Batcher2D implements IBatcher {
         this._currMeshBuffer = null;
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
+    }
+
+    /**
+     * Acquire a new mesh buffer if the vertex layout differs from the current one.
+     * @param attributes
+     */
+    public acquireBufferBatch (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
+        const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
+        if (!this._currMeshBuffer || (this._currMeshBuffer.vertexFormatBytes) !== strideBytes) {
+            this._requireBufferBatch(attributes);
+            return this._currMeshBuffer;
+        }
+        return this._currMeshBuffer;
     }
 
     private resetIndexBuffer () {
@@ -543,7 +547,8 @@ export class Batcher2D implements IBatcher {
     public autoMergeBatches (renderComp?: Renderable2D) {
         // const buffer = this.currBufferBatch;
         const buffer = this._currMeshBuffer;
-        const ia = buffer?.recordBatch();
+        const accessor = buffer?.accessor as LinearBufferAccessor;
+        const ia = accessor.recordBatch(this.device);
         const mat = this._currMaterial;
         if (!ia || !mat || !buffer) {
             return;
@@ -578,9 +583,10 @@ export class Batcher2D implements IBatcher {
 
         this._batches.push(curDrawBatch);
 
-        buffer.vertexStart = buffer.vertexOffset;
-        buffer.indicesStart = buffer.indicesOffset;
-        buffer.byteStart = buffer.byteOffset;
+        // TODO: Remove it later
+        accessor.vertexStart = buffer.vertexOffset;
+        accessor.indexStart = buffer.indexOffset;
+        accessor.byteStart = buffer.byteOffset;
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
@@ -701,13 +707,16 @@ export class Batcher2D implements IBatcher {
     }
 
     private _createMeshBuffer (attributes: Attribute[]): MeshBuffer {
-        const batch = this._bufferBatchPool.add();
-        batch.initialize(attributes, this._recreateMeshBuffer.bind(this, attributes));
+        const meshBuffer = this._bufferBatchPool.add();
+        meshBuffer.initialize(this.device, attributes, this._recreateMeshBuffer.bind(this, attributes));
+        if (!meshBuffer.accessor) {
+            meshBuffer.setAccessor(new LinearBufferAccessor());
+        }
         const strideBytes = VertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
-        buffers.push(batch);
-        return batch;
+        buffers.push(meshBuffer);
+        return meshBuffer;
     }
 
     private _recreateMeshBuffer (attributes, vertexCount, indexCount) {

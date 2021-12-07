@@ -4,7 +4,6 @@ import { Device } from '../../core/gfx';
 import { Attribute } from '../../core/gfx/base/define';
 import { Camera } from '../../core/renderer/scene/camera';
 import { Model } from '../../core/renderer/scene/model';
-import { Root } from '../../core/root';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
 import { Renderable2D, RenderRoot2D, UIComponent } from '../framework';

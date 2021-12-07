@@ -3051,6 +3051,14 @@ Stencil manager does not support level bigger than %d in this device.
 
 Stencil manager is already empty, cannot pop any mask
 
+### 9002
+
+Failed to set accessor for mesh buffer with an existing accessor, please check
+
+### 9003
+
+Failed to request any buffer from a mesh buffer without accessor
+
 ### 9100
 
 texture size exceeds current device limits %d/%d

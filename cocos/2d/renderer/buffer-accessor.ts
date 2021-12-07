@@ -21,40 +21,23 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
+*/
+
+/**
+ * @packageDocumentation
+ * @module ui
  */
 
-import * as VertexFormat from './vertex-format';
-import { Batcher2D } from './batcher-2d';
-import { DrawBatch2D } from './draw-batch';
-import { markAsWarning, replaceProperty } from '../../core/utils/x-deprecated';
-import { MeshBuffer } from './mesh-buffer';
+import type { Device } from '../../core/gfx/base/device';
+import type { MeshBuffer } from './mesh-buffer';
 
-export { VertexFormat as UIVertexFormat };
+export class BufferAccessor {
+    public buffer: MeshBuffer = null!;
 
-export { Batcher2D as UI };
+    protected _device: Device = null!;
 
-export { DrawBatch2D as UIDrawBatch };
-
-markAsWarning(MeshBuffer.prototype, 'MeshBuffer', 
-    [
-        'byteStart',
-        'vertexStart',
-        'indicesStart',
-        'request',
-    ].map((item) => ({
-        name: item,
-        suggest: `please use meshBuffer.accessor.${item} instead`,
-    })));
-markAsWarning(MeshBuffer.prototype, 'MeshBuffer', [
-    {
-        name: 'vertexBuffers',
-        suggest: 'please use meshBuffer.vertexBuffer instead',
-    }
-]);
-
-replaceProperty(MeshBuffer.prototype, 'MeshBuffer', [
-    {
-        name: 'indicesOffset',
-        newName: 'indexOffset',
-    },
-]);
+    public initialize () {}
+    public reset () {}
+    public request (vertexCount = 4, indicesCount = 6) {}
+    public destroy() {}
+}
