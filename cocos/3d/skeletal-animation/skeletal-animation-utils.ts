@@ -42,6 +42,7 @@ import { UBOSkinningAnimation } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph';
 import { genSamplerHash } from '../../core/renderer/core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../../core/renderer/core/texture-buffer-pool';
+import { JSB } from '../../core/default-constants';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
@@ -498,7 +499,9 @@ export class JointAnimationInfo {
         info.data[0] = 0;
         info.buffer.update(info.data);
         info.dirty = false;
-        info.dirtyForJSB[0] = 0;
+        if (JSB) {
+            info.dirtyForJSB[0] = 0;
+        }
         return info;
     }
 
