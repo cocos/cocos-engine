@@ -153,6 +153,11 @@ const _descriptor8$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_anisotro
 });
 textureBaseProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
+    this._gfxSampler = null;
+    this._samplerHash = 0;
+    this._textureHash = 0;
+
+    this._registerGFXSamplerUpdatedListener();
     // for deserialization
     // _initializerDefineProperty(_this, "_format", _descriptor$9, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_minFilter", _descriptor2$6, _assertThisInitialized(_this));
@@ -162,6 +167,35 @@ textureBaseProto._ctor = function () {
     // _initializerDefineProperty(_this, "_wrapT", _descriptor6$1, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_wrapR", _descriptor7$1, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_anisotropy", _descriptor8$1, _assertThisInitialized(_this));
+};
+
+const oldGetGFXSampler = textureBaseProto.getGFXSampler;
+textureBaseProto.getGFXSampler = function () {
+    if (!this._gfxSampler) {
+        this._gfxSampler = oldGetGFXSampler.call(this);
+    }
+    return this._gfxSampler;
+};
+
+const oldGetHash = textureBaseProto.getHash;
+textureBaseProto.getHash = function () {
+    if (this._textureHash === 0) {
+        this._textureHash = oldGetHash.call(this);
+    }
+    return this._textureHash;
+};
+
+const oldGetSamplerHash = textureBaseProto.getSamplerHash;
+textureBaseProto.getSamplerHash = function () {
+    if (this._samplerHash === 0) {
+        this._samplerHash = oldGetSamplerHash.call(this);
+    }
+    return this._samplerHash;
+};
+
+textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerHash) {
+    this._gfxSampler = gfxSampler;
+    this._samplerHash = samplerHash;
 };
 
 clsDecorator(TextureBase);
