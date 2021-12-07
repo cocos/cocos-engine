@@ -186,6 +186,7 @@ export class ForwardStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._renderQueues[1].recordCommandBuffer(device, renderPass, cmdBuff);
+        this._pipeline.geometryRenderer.render(renderPass, cmdBuff);
         this._uiPhase.render(camera, renderPass);
         renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, camera);
         cmdBuff.endRenderPass();
