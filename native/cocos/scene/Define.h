@@ -117,28 +117,30 @@ struct OctreeInfo {
 };
 
 struct PipelineSharedSceneData {
-    bool                 isHDR{true};
-    float                shadingScale{1.0F};
-    Ambient *            ambient{nullptr};
-    Shadow *             shadow{nullptr};
-    Skybox *             skybox{nullptr};
-    Fog *                fog{nullptr};
-    OctreeInfo *         octree{nullptr};
-    gfx::InputAssembler *occlusionQueryInputAssembler{nullptr};
-    Pass *               occlusionQueryPass{nullptr};
-    gfx::Shader *        occlusionQueryShader{nullptr};
-    Pass *               deferredLightPass{nullptr};
-    gfx::Shader *        deferredLightPassShader{nullptr};
-    Pass *               bloomPrefilterPass{nullptr};
-    gfx::Shader *        bloomPrefilterPassShader{nullptr};
-    std::vector<Pass *>  bloomDownsamplePass;
-    gfx::Shader *        bloomDownsamplePassShader{nullptr};
-    std::vector<Pass *>  bloomUpsamplePass;
-    gfx::Shader *        bloomUpsamplePassShader{nullptr};
-    Pass *               bloomCombinePass{nullptr};
-    gfx::Shader *        bloomCombinePassShader{nullptr};
-    Pass *               pipelinePostPass{nullptr};
-    gfx::Shader *        pipelinePostPassShader{nullptr};
+    bool                       isHDR{true};
+    float                      shadingScale{1.0F};
+    Ambient *                  ambient{nullptr};
+    Shadow *                   shadow{nullptr};
+    Skybox *                   skybox{nullptr};
+    Fog *                      fog{nullptr};
+    OctreeInfo *               octree{nullptr};
+    std::vector<Pass *>        geometryRendererPasses;
+    std::vector<gfx::Shader *> geometryRendererShaders;
+    gfx::InputAssembler *      occlusionQueryInputAssembler{nullptr};
+    Pass *                     occlusionQueryPass{nullptr};
+    gfx::Shader *              occlusionQueryShader{nullptr};
+    Pass *                     deferredLightPass{nullptr};
+    gfx::Shader *              deferredLightPassShader{nullptr};
+    Pass *                     bloomPrefilterPass{nullptr};
+    gfx::Shader *              bloomPrefilterPassShader{nullptr};
+    std::vector<Pass *>        bloomDownsamplePass;
+    gfx::Shader *              bloomDownsamplePassShader{nullptr};
+    std::vector<Pass *>        bloomUpsamplePass;
+    gfx::Shader *              bloomUpsamplePassShader{nullptr};
+    Pass *                     bloomCombinePass{nullptr};
+    gfx::Shader *              bloomCombinePassShader{nullptr};
+    Pass *                     pipelinePostPass{nullptr};
+    gfx::Shader *              pipelinePostPassShader{nullptr};
 };
 
 struct FlatBuffer {

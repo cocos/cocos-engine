@@ -25,6 +25,7 @@
 
 #include "ForwardStage.h"
 #include "../BatchedBuffer.h"
+#include "../GeometryRenderer.h"
 #include "../InstancedBuffer.h"
 #include "../PlanarShadowQueue.h"
 #include "../RenderAdditiveLightQueue.h"
@@ -36,7 +37,6 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "pipeline/UIPhase.h"
-
 
 namespace cc {
 namespace pipeline {
@@ -168,7 +168,7 @@ void ForwardStage::render(scene::Camera *camera) {
         if (shadingScale != 1.F) {
             colorTexInfo.usage |= gfx::TextureUsageBit::TRANSFER_SRC;
         }
-        data.outputTex      = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
+        data.outputTex = builder.create(RenderPipeline::fgStrHandleOutColorTexture, colorTexInfo);
         framegraph::RenderTargetAttachment::Descriptor colorAttachmentInfo;
         colorAttachmentInfo.usage      = framegraph::RenderTargetAttachment::Usage::COLOR;
         colorAttachmentInfo.clearColor = _clearColors[0];
@@ -178,12 +178,12 @@ void ForwardStage::render(scene::Camera *camera) {
             if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
                 colorAttachmentInfo.loadOp = gfx::LoadOp::DISCARD;
             } else {
-                colorAttachmentInfo.loadOp = gfx::LoadOp::LOAD;
+                colorAttachmentInfo.loadOp        = gfx::LoadOp::LOAD;
                 colorAttachmentInfo.beginAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
             }
         }
-        colorAttachmentInfo.endAccesses   = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
-        data.outputTex                    = builder.write(data.outputTex, colorAttachmentInfo);
+        colorAttachmentInfo.endAccesses = {gfx::AccessType::COLOR_ATTACHMENT_WRITE};
+        data.outputTex                  = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
         // depth
         gfx::TextureInfo depthTexInfo{
@@ -223,6 +223,7 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
+        _pipeline->getGeometryRenderer()->render(renderPass, cmdBuff);
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
     };
