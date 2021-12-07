@@ -1,5 +1,6 @@
 // scene
 declare const ns: any;
+declare const nr: any;
 
 export const NativeNode = ns.Node;
 export const NativeScene = ns.Scene;
@@ -25,3 +26,4 @@ export const NativeSubModel = ns.SubModel;
 export const NativeRoot = ns.Root;
 export const NativePipelineSharedSceneData = ns.PipelineSharedSceneData;
 export const NativeAABB = ns.AABB;
+export const NativeGeometryRenderer = nr.GeometryRenderer;

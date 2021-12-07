@@ -1,6 +1,7 @@
 import { DrawCall } from '../../../2d/renderer/draw-batch';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
-import { Frustum } from '../../geometry';
+import { AABB } from '../../geometry/aabb';
+import { Frustum } from '../../geometry/frustum';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
     DescriptorSet, DrawInfo, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
 import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
@@ -348,6 +349,8 @@ export const NativePipelineSharedSceneData: Constructor<{
     skybox: NaitveSkybox;
     shadow: NativeShadow;
     octree: NativeOctree;
+    geometryRendererPasses: NativePass[];
+    geometryRendererShaders: Shader[];
     occlusionQueryInputAssembler: InputAssembler | null;
     occlusionQueryPass: NativePass | null;
     occlusionQueryShader: Shader | null;
@@ -366,3 +369,9 @@ export const NativePipelineSharedSceneData: Constructor<{
 }> = null!;
 
 export type NativePipelineSharedSceneData = InstanceType<typeof NativePipelineSharedSceneData>;
+
+export const NativeGeometryRenderer: Constructor<{
+    flushFromJSB (type: number, index: number, buffer: BufferSource, vertexCount: number): void;
+}> = null!;
+
+export type NativeGeometryRenderer = InstanceType<typeof NativeGeometryRenderer>;
