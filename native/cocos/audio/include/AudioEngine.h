@@ -337,7 +337,7 @@ protected:
         AudioState state;
 
         AudioInfo();
-        ~AudioInfo();
+        ~AudioInfo() = default;
 
     private:
         AudioInfo(const AudioInfo &info);

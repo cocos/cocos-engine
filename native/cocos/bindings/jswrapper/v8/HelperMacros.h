@@ -32,6 +32,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <type_traits>
+#include <typeinfo>
 #include "../config.h"
 #include "base/Log.h"
 

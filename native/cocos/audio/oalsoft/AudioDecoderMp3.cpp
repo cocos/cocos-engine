@@ -27,7 +27,7 @@
 #include "audio/oalsoft/AudioMacros.h"
 #include "platform/FileUtils.h"
 
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_LINUX || CC_PLATFORM == CC_PLATFORM_QNX
     #include "mpg123/mpg123.h"
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include "cocos/platform/ohos/FileUtils-ohos.h"

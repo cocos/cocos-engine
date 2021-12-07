@@ -24,19 +24,16 @@
 ****************************************************************************/
 
 #include "JniImp.h"
-#if ANDROID
-    #include <android/log.h>
-#else
-    #include <hilog/log.h>
-#endif
+
 #include <jni.h>
 #include "JniHelper.h"
 
-#define JNI_IMP_LOG_TAG "JniImp"
-#define LOGD(...)       __android_log_print(ANDROID_LOG_DEBUG, JNI_IMP_LOG_TAG, __VA_ARGS__)
-
 #ifndef JCLS_HELPER
     #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+#endif
+
+#ifndef JCLS_SENSOR
+    #define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
 #endif
 
 using namespace cc; //NOLINT
@@ -55,7 +52,7 @@ int getObbAssetFileDescriptorJNI(const std::string &path, int64_t *startOffset, 
 
     if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "getObbAssetFileDescriptor", "(Ljava/lang/String;)[J")) {
         jstring stringArg   = methodInfo.env->NewStringUTF(path.c_str());
-        auto    newArray    = static_cast<jlongArray>(methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg));
+        auto *  newArray    = static_cast<jlongArray>(methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, stringArg));
         jsize   theArrayLen = methodInfo.env->GetArrayLength(newArray);
 
         if (3 == theArrayLen) {
@@ -92,4 +89,49 @@ bool openURLJNI(const std::string &url) {
 
 void copyTextToClipboardJNI(const std::string &text) {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "copyTextToClipboard", text);
+}
+
+std::string getDeviceModelJNI() {
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getDeviceModel");
+}
+
+int getDPIJNI() {
+    return JniHelper::callStaticIntMethod(JCLS_HELPER, "getDPI");
+}
+
+void setVibrateJNI(float duration) {
+    JniHelper::callStaticVoidMethod(JCLS_HELPER, "vibrate", duration);
+}
+
+int getNetworkTypeJNI() {
+    return JniHelper::callStaticIntMethod(JCLS_HELPER, "getNetworkType");
+}
+
+float *getSafeAreaEdgeJNI() {
+    return JniHelper::callStaticFloatArrayMethod(JCLS_HELPER, "getSafeArea");
+}
+
+int getDeviceRotationJNI() {
+    return JniHelper::callStaticIntMethod(JCLS_HELPER, "getDeviceRotation");
+}
+
+float getBatteryLevelJNI() {
+    return JniHelper::callStaticFloatMethod(JCLS_HELPER, "getBatteryLevel");
+}
+
+void flushTasksOnGameThreadJNI() {
+    cc::JniHelper::callStaticVoidMethod(JCLS_HELPER,
+                                        "flushTasksOnGameThread");
+}
+
+void setAccelerometerEnabledJNI(bool isEnabled) {
+    JniHelper::callStaticVoidMethod(JCLS_SENSOR, "setAccelerometerEnabled", isEnabled);
+}
+
+void setAccelerometerIntervalJNI(float interval) {
+    JniHelper::callStaticVoidMethod(JCLS_SENSOR, "setAccelerometerInterval", interval);
+}
+
+float *getDeviceMotionValueJNI() {
+    return JniHelper::callStaticFloatArrayMethod(JCLS_SENSOR, "getDeviceMotionValue");
 }

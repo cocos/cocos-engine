@@ -29,8 +29,7 @@
 #include "network/Downloader.h"
 #include "platform/java/jni/JniHelper.h"
 #include "platform/java/jni/JniImp.h"
-
-#include <platform/Application.h>
+#include "application/ApplicationManager.h"
 #include <mutex>
 
 #ifndef JCLS_DOWNLOADER
@@ -252,7 +251,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv * /*env*/, jclass
         }
         downloader->onProcessImpl((int)taskId, (int64_t)dl, (int64_t)dlnow, (int64_t)dltotal);
     };
-    cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+    CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*clazz*/, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data) {
@@ -286,7 +285,7 @@ JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass /*claz
         // success
         downloader->onFinishImpl((int)taskId, (int)errCode, nullptr, dataTmp);
     };
-    cc::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+    CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 } // extern "C" {

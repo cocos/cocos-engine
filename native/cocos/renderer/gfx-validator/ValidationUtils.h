@@ -26,6 +26,7 @@
 #pragma once
 
 #include <array>
+#include <algorithm>
 #include "base/Utils.h"
 #include "gfx-base/GFXDef.h"
 

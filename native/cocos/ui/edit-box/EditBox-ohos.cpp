@@ -26,7 +26,7 @@
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "platform/Application.h"
+//#include "platform/Application.h"
 #include "platform/java/jni/JniHelper.h"
 
 #ifndef JCLS_EDITBOX

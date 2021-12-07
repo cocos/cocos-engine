@@ -83,7 +83,7 @@ public:
         _modelBounds.set(_worldBounds->getCenter(), _worldBounds->getHalfExtents());
     }
     inline void setInstancedAttrBlock(uint8_t *buffer, uint32_t size, InstancedAttributeBlock &&block, const std::vector<gfx::Attribute> &attributes) {
-        _instancedBuffer        = {buffer, size};
+        _instancedBuffer        = std::make_tuple(buffer, size);
         _instanceAttributeBlock = std::move(block);
         _instanceAttributes     = attributes;
         _transformUpdated       = true;

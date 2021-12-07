@@ -104,7 +104,7 @@ void Mat4::createPerspective(float fieldOfView, float aspectRatio,
     const float minClipZ        = -1.0F;
     const float projectionSignY = 1.0F;
 
-    const float f  = 1.0F / std::tanf(fieldOfView / 2.0F);
+    const float f  = 1.0F / tanf(fieldOfView / 2.0F);
     const float nf = 1.0F / (zNearPlane - zFarPlane);
 
     const float x = f / aspectRatio;

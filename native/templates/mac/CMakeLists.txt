@@ -26,11 +26,11 @@ set(UI_RESOURCES
     ${CMAKE_CURRENT_LIST_DIR}/Icon.icns
 )
 list(APPEND PROJ_SOURCES
-    ${CMAKE_CURRENT_LIST_DIR}/main.m
-    ${CMAKE_CURRENT_LIST_DIR}/ViewController.mm
-    ${CMAKE_CURRENT_LIST_DIR}/ViewController.h
-    ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.mm
-    ${CMAKE_CURRENT_LIST_DIR}/AppDelegate.h
+    #${CMAKE_CURRENT_LIST_DIR}/main.m
+    #${CMAKE_CURRENT_LIST_DIR}/ViewController.mm
+    #${CMAKE_CURRENT_LIST_DIR}/ViewController.h
+    #${CMAKE_CURRENT_LIST_DIR}/AppDelegate.mm
+    #${CMAKE_CURRENT_LIST_DIR}/AppDelegate.h
     ${UI_RESOURCES}
 )
 

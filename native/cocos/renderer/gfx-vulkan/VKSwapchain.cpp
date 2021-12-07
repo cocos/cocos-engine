@@ -417,7 +417,7 @@ void CCVKSwapchain::createVkSurface() {
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
     VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
     surfaceCreateInfo.connection = nullptr; // TODO
-    surfaceCreateInfo.window     = static_cast<xcb_window_t>(_windowHandle);
+    surfaceCreateInfo.window     = reinterpret_cast<uint64_t>(_windowHandle);
     VK_CHECK(vkCreateXcbSurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #else
     #pragma error Platform not supported

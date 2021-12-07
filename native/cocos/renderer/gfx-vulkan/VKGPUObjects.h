@@ -410,7 +410,7 @@ private:
     using CommandBufferPools = tbb::concurrent_unordered_map<size_t, CCVKGPUCommandBufferPool *, std::hash<size_t>>;
     CommandBufferPools _commandBufferPools;
 
-    unordered_map<uint32_t, CCVKGPUDescriptorSetPool> _descriptorSetPools;
+    unordered_map<uint32_t, std::unique_ptr<CCVKGPUDescriptorSetPool>> _descriptorSetPools;
 };
 
 /**

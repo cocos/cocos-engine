@@ -26,6 +26,7 @@
 #include "audio/oalsoft/AudioDecoder.h"
 #include "audio/oalsoft/AudioMacros.h"
 #include "platform/FileUtils.h"
+#include <string.h>
 
 #ifdef LOG_TAG
     #undef LOG_TAG
