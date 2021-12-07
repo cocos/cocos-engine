@@ -56,6 +56,20 @@ const clsDecorator = ccclass('cc.SimpleTexture');
 
 simpleTextureProto._ctor = function () {
     jsb.TextureBase.prototype._ctor.apply(this, arguments);
+    this._gfxTexture = null;
+    this._registerGFXTextureUpdatedListener();
+};
+
+const oldGetGFXTexture = simpleTextureProto.getGFXTexture;
+simpleTextureProto.getGFXTexture = function () {
+    if (!this._gfxTexture) {
+        this._gfxTexture = oldGetGFXTexture();
+    }
+    return this._gfxTexture;
+};
+
+simpleTextureProto._onGFXTextureUpdated = function (gfxTexture) {
+    this._gfxTexture = gfxTexture;
 };
 
 clsDecorator(SimpleTexture);
