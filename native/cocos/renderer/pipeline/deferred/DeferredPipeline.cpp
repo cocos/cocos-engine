@@ -34,7 +34,6 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSwapchain.h"
 #include "gfx-base/states/GFXTextureBarrier.h"
-#include "platform/Application.h"
 #include "../helper/Utils.h"
 
 namespace cc {

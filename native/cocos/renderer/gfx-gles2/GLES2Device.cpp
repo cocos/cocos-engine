@@ -256,6 +256,8 @@ void GLES2Device::doDestroy() {
 }
 
 void GLES2Device::acquire(Swapchain *const *swapchains, uint32_t count) {
+    if (_onAcquire) _onAcquire->execute();
+
     _swapchains.clear();
     for (uint32_t i = 0; i < count; ++i) {
         _swapchains.push_back(static_cast<GLES2Swapchain *>(swapchains[i])->gpuSwapchain());

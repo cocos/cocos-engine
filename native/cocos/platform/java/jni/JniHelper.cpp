@@ -89,8 +89,8 @@ jclass _getClassID(const char *className) { // NOLINT
     jstring jstrClassName = env->NewStringUTF(className);
 
     auto *klassObj = static_cast<jclass>(env->CallObjectMethod(cc::JniHelper::classloader,
-                                                              cc::JniHelper::loadclassMethodMethodId,
-                                                              jstrClassName));
+                                                               cc::JniHelper::loadclassMethodMethodId,
+                                                               jstrClassName));
 
     if (nullptr == klassObj || env->ExceptionCheck()) {
         LOGE("Classloader failed to find class of %s", className);

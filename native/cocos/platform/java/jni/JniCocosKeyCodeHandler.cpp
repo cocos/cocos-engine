@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include "platform/Application.h"
 #include "platform/java/jni/JniHelper.h"
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include <android/keycodes.h>
@@ -30,7 +29,10 @@
 #elif CC_PLATFORM == CC_PLATFORM_OHOS
     #include <hilog/log.h>
 #endif
+
 #include <jni.h>
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "platform/java/jni/glue/JniNativeGlue.h"
 
 namespace {
 struct cc::KeyboardEvent keyboardEvent;
@@ -57,15 +59,17 @@ void dispatchKeyCodeEvent(int keyCode, cc::KeyboardEvent &event) {
         keyCode = 0;
     }
     event.key = keyCode;
-    cc::EventDispatcher::dispatchKeyboardEvent(event);
+    JNI_NATIVE_GLUE()->dispatchEvent(event);
 }
 } // namespace
+
 extern "C" {
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosKeyCodeHandler_handleKeyDown(JNIEnv *env, jobject obj, jint keyCode) {
     keyboardEvent.action = cc::KeyboardEvent::Action::PRESS;
     dispatchKeyCodeEvent(keyCode, keyboardEvent);
 }
+
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosKeyCodeHandler_handleKeyUp(JNIEnv *env, jobject obj, jint keyCode) {
     keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;

@@ -34,7 +34,14 @@ namespace cc {
 namespace gfx {
 
 namespace {
-unordered_map<Format, Feature> featureCheckMap{
+struct EnumHasher final {
+    template <typename T, typename Enable = std::enable_if_t<std::is_enum<T>::value>>
+    size_t operator()(const T& v) const {
+        return static_cast<size_t>(v);
+    }
+};
+
+unordered_map<Format, Feature, EnumHasher> featureCheckMap{
     {Format::RGB8, Feature::FORMAT_RGB8},
     {Format::R11G11B10F, Feature::FORMAT_R11G11B10F},
 };

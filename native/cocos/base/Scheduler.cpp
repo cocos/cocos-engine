@@ -34,6 +34,7 @@
 
 #include "base/Macros.h"
 #include "base/Log.h"
+#include <climits>
 
 namespace {
 constexpr unsigned CC_REPEAT_FOREVER{UINT_MAX - 1};

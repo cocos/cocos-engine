@@ -26,8 +26,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CCHTTPCLIENT_H__
-#define __CCHTTPCLIENT_H__
+#pragma once
 
 #include <thread>
 #include <condition_variable>
@@ -35,7 +34,6 @@
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
 #include "network/HttpCookie.h"
-#include "base/Scheduler.h"
 
 /**
  * @addtogroup network
@@ -43,7 +41,7 @@
  */
 
 namespace cc {
-
+class Scheduler;
 namespace network {
 
 /** Singleton that handles asynchronous http requests.
@@ -172,7 +170,7 @@ private:
     void increaseThreadCount();
     void decreaseThreadCountAndMayDeleteThis();
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
     bool _isInited;
 
     int _timeoutForConnect;
@@ -214,5 +212,3 @@ private:
 
 // end group
 /// @}
-
-#endif //__CCHTTPCLIENT_H__

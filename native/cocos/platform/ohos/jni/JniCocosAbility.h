@@ -30,28 +30,27 @@ THE SOFTWARE.
 #include <mutex>
 #include <string>
 
-
 #include <future>
 
 namespace cc {
 
-struct CocosApp {
-    ResourceManager *resourceManager = nullptr;
-    // NativeLayer *window = nullptr;
-    int sdkVersion = 0;
+// struct CocosApp {
+//     ResourceManager *resourceManager = nullptr;
+//     // NativeLayer *window = nullptr;
+//     int sdkVersion = 0;
 
-    std::promise<void> glThreadPromise;
+//     std::promise<void> glThreadPromise;
 
-    NativeLayer *pendingWindow    = nullptr;
-    bool         destroyRequested = false;
-    bool         animating        = true;
-    bool         running          = false;
-    bool         surfaceInited    = false;
+//     NativeLayer *pendingWindow    = nullptr;
+//     bool         destroyRequested = false;
+//     bool         animating        = true;
+//     bool         running          = false;
+//     bool         surfaceInited    = false;
 
-    // Current state of the app's activity.  May be either APP_CMD_RESUME, APP_CMD_PAUSE.
-    int activityState = 0;
-};
+//     // Current state of the app's activity.  May be either APP_CMD_RESUME, APP_CMD_PAUSE.
+//     int activityState = 0;
+// };
 
-extern CocosApp cocosApp;
+// extern CocosApp cocosApp;
 
 } // namespace cc

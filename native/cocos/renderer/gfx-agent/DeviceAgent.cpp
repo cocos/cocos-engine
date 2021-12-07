@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include <cstddef>
+#include <cstring>
 #include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 
@@ -130,12 +131,14 @@ void DeviceAgent::acquire(Swapchain *const *swapchains, uint32_t count) {
         actorSwapchains[i] = static_cast<SwapchainAgent *>(swapchains[i])->getActor();
     }
 
-    ENQUEUE_MESSAGE_3(
+    ENQUEUE_MESSAGE_4(
         _mainMessageQueue, DevicePresent,
+        device, this,
         actor, _actor,
         swapchains, actorSwapchains,
         count, count,
         {
+            if (device->_onAcquire) device->_onAcquire->execute();
             actor->acquire(swapchains, count);
         });
 }

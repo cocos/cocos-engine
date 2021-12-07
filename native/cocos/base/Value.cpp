@@ -32,14 +32,15 @@
 #include <iomanip>
 #include <memory.h>
 #include <sstream>
+#include <algorithm>
 
 #include "base/Utils.h"
 
 namespace cc {
 
 const ValueVector    VALUE_VECTOR_NULL;
-const ValueMap       VALUE_MAP_NULL;
-const ValueMapIntKey VALUE_MAP_INT_KEY_NULL;
+const ValueMap       VALUE_MAP_NULL = {};
+const ValueMapIntKey VALUE_MAP_INT_KEY_NULL = {};
 
 const Value Value::VALUE_NULL;
 
@@ -128,7 +129,7 @@ Value::Value(ValueMapIntKey &&v)
     *_field.intKeyMapVal = std::move(v);
 }
 
-Value::Value(const Value &other)
+Value::Value(const Value &other) //NOLINT(misc-no-recursion)
 : _type(Type::NONE) {
     *this = other;
 }
@@ -142,7 +143,7 @@ Value::~Value() {
     clear();
 }
 
-Value &Value::operator=(const Value &other) {
+Value &Value::operator=(const Value &other) { //NOLINT(misc-no-recursion)
     if (this != &other) {
         reset(other._type);
 
@@ -329,7 +330,7 @@ Value &Value::operator=(ValueMapIntKey &&v) {
 bool Value::operator!=(const Value &v) {
     return !(*this == v);
 }
-bool Value::operator!=(const Value &v) const {
+bool Value::operator!=(const Value &v) const { //NOLINT(misc-no-recursion)
     return !(*this == v);
 }
 
@@ -337,7 +338,7 @@ bool Value::operator==(const Value &v) {
     const auto &t = *this;
     return t == v;
 }
-bool Value::operator==(const Value &v) const {
+bool Value::operator==(const Value &v) const { //NOLINT(misc-no-recursion)
     if (this == &v) {
         return true;
     }
@@ -375,7 +376,7 @@ bool Value::operator==(const Value &v) const {
         case Type::MAP: {
             const auto &map1 = *(this->_field.mapVal);
             const auto &map2 = *(v._field.mapVal);
-            for (const auto &kvp : map1) {
+            for (const auto &kvp : map1) { //NOLINT
                 auto it = map2.find(kvp.first);
                 if (it == map2.end() || it->second != kvp.second) {
                     return false;
@@ -386,7 +387,7 @@ bool Value::operator==(const Value &v) const {
         case Type::INT_KEY_MAP: {
             const auto &map1 = *(this->_field.intKeyMapVal);
             const auto &map2 = *(v._field.intKeyMapVal);
-            for (const auto &kvp : map1) {
+            for (const auto &kvp : map1) { //NOLINT
                 auto it = map2.find(kvp.first);
                 if (it == map2.end() || it->second != kvp.second) {
                     return false;
@@ -444,7 +445,7 @@ int Value::asInt() const {
 
     if (_type == Type::UNSIGNED) {
         CCASSERT(_field.unsignedVal < INT_MAX, "Can only convert values < INT_MAX");
-        return (int)_field.unsignedVal;
+        return static_cast<int>(_field.unsignedVal);
     }
 
     if (_type == Type::BYTE) {
@@ -499,10 +500,10 @@ unsigned int Value::asUnsignedInt() const {
     }
 
     if (_type == Type::BOOLEAN) {
-        return _field.boolVal ? 1u : 0u;
+        return _field.boolVal ? 1U : 0U;
     }
 
-    return 0u;
+    return 0U;
 }
 
 float Value::asFloat() const {
@@ -532,10 +533,10 @@ float Value::asFloat() const {
     }
 
     if (_type == Type::BOOLEAN) {
-        return _field.boolVal ? 1.0f : 0.0f;
+        return _field.boolVal ? 1.0F : 0.0F;
     }
 
-    return 0.0f;
+    return 0.0F;
 }
 
 double Value::asDouble() const {
@@ -594,7 +595,7 @@ bool Value::asBool() const {
     }
 
     if (_type == Type::FLOAT) {
-        return _field.floatVal != 0.0f;
+        return _field.floatVal != 0.0F;
     }
 
     if (_type == Type::DOUBLE) {
@@ -680,7 +681,7 @@ static std::string getTabs(int depth) {
 
 static std::string visit(const Value &v, int depth);
 
-static std::string visitVector(const ValueVector &v, int depth) {
+static std::string visitVector(const ValueVector &v, int depth) { //NOLINT[misc-no-recursion]
     std::stringstream ret;
 
     if (depth > 0) {
@@ -701,7 +702,7 @@ static std::string visitVector(const ValueVector &v, int depth) {
 }
 
 template <class T>
-static std::string visitMap(const T &v, int depth) {
+static std::string visitMap(const T &v, int depth) { //NOLINT[misc-no-recursion]
     std::stringstream ret;
 
     if (depth > 0) {
@@ -720,7 +721,7 @@ static std::string visitMap(const T &v, int depth) {
     return ret.str();
 }
 
-static std::string visit(const Value &v, int depth) {
+static std::string visit(const Value &v, int depth) { //NOLINT[misc-no-recursion]
     std::stringstream ret;
 
     switch (v.getType()) {
@@ -767,10 +768,10 @@ void Value::clear() {
             _field.intVal = 0;
             break;
         case Type::UNSIGNED:
-            _field.unsignedVal = 0u;
+            _field.unsignedVal = 0U;
             break;
         case Type::FLOAT:
-            _field.floatVal = 0.0f;
+            _field.floatVal = 0.0F;
             break;
         case Type::DOUBLE:
             _field.doubleVal = 0.0;

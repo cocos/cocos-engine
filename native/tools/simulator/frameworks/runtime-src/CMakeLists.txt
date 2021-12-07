@@ -87,8 +87,8 @@ if(WINDOWS)
         proj.win32/main.cpp
         proj.win32/main.h
         proj.win32/resource.h
-        proj.win32/SimulatorWin.cpp
-        proj.win32/SimulatorWin.h
+        proj.win32/SimulatorApp.cpp
+        proj.win32/SimulatorApp.h
         # proj.win32/stdafx.cpp
         # proj.win32/stdafx.h
         # proj.win32/targetver.h
@@ -105,13 +105,13 @@ elseif(MACOSX)
         proj.ios_mac/mac/zh-Hans.lproj/MainMenu.xib
     )
     list(APPEND PROJ_SOURCES
-        proj.ios_mac/mac/main.mm
+       # proj.ios_mac/mac/main.mm
         proj.ios_mac/mac/SimulatorApp.h
         proj.ios_mac/mac/SimulatorApp.mm
        # proj.ios_mac/mac/AppDelegate.h
        # proj.ios_mac/mac/AppDelegate.mm
-        proj.ios_mac/mac/ViewController.h
-        proj.ios_mac/mac/ViewController.mm
+       # proj.ios_mac/mac/ViewController.h
+       # proj.ios_mac/mac/ViewController.mm
         proj.ios_mac/mac/ConsoleWindowController.h
         proj.ios_mac/mac/ConsoleWindowController.m
         ${UI_RESOURCES}

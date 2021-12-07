@@ -25,15 +25,19 @@
 #include <android/keycodes.h>
 #include <android/log.h>
 #include <jni.h>
-#include "platform/Application.h"
-#include "platform/java/jni/JniHelper.h"
+#include "platform/BasePlatform.h"
+#include "platform/java/jni/glue/JniNativeGlue.h"
 
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "JniCocosSurfaceView JNI", __VA_ARGS__)
+//#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, "JniCocosSurfaceView JNI", __VA_ARGS__)
 
 extern "C" {
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosSurfaceView_nativeOnSizeChanged(JNIEnv *env, jobject thiz, jint width,
                                                                                jint height) {
-    cc::EventDispatcher::dispatchResizeEvent(width, height);
+    cc::WindowEvent ev;
+    ev.type   = cc::WindowEvent::Type::SIZE_CHANGED;
+    ev.width  = width;
+    ev.height = height;
+    JNI_NATIVE_GLUE()->dispatchEvent(ev);
 }
 }

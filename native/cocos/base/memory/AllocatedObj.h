@@ -27,6 +27,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "../Macros.h"
+#include <cstddef>
 
 // Anything that has done a #define new <blah> will screw operator new definitions up
 // so undefine

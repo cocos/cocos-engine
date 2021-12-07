@@ -134,7 +134,7 @@ struct InputAssemblerInfo;
 #endif
 
 #if __clang__
-    #if defined(__has_feature) && __has_feature(cxx_static_assert) && __has_feature(cxx_relaxed_constexpr)
+    #if defined(__has_feature) && __has_feature(cxx_static_assert) && __has_feature(cxx_relaxed_constexpr) && (__cplusplus > 201402L)
         #define HAS_CONSTEXPR 1
     #else
         #define HAS_CONSTEXPR 0
@@ -150,10 +150,11 @@ struct InputAssemblerInfo;
     #define CC_CONSTEXPR     constexpr
 #else
     #define CC_CONSTEXPR
-    #define CC_STATIC_ASSERT(cond, msg) assert(cond)
+    #define CC_STATIC_ASSERT(cond, ...) assert(cond)
 #endif
 
-#if __clang__
+#if __clang__ && (__cplusplus > 201402L)
+    #define HAS_PUSH_DIAGNOSTI
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wc++17-extensions"
 #endif
@@ -1578,7 +1579,7 @@ inline bool nativevalue_to_se(const cc::network::DownloadTask &from, se::Value &
     return DownloadTask_to_seval(from, &to);
 }
 
-#if __clang__
+#if __clang__ && defined(HAS_PUSH_DIAGNOSTI)
     #pragma clang diagnostic pop
 #endif
 
