@@ -47,9 +47,25 @@ const des_scene = _applyDecoratedDescriptor(sceneAssetProto, 'scene', [editable,
     },
 });
 
+Object.defineProperty(sceneAssetProto, 'scene', {
+    enumerable: true,
+    configurable: true,
+    get () {
+        if (!this._scene) {
+            this._scene = this.getScene();
+        }
+        return this._scene;
+    },
+    set (v) {
+        this._scene = v;
+        this.setScene(v);
+    }
+});
+
 sceneAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     // _initializerDefineProperty(this, "scene", des_scene, _assertThisInitialized(this));
+    this._scene = null;
 };
 
 sceneAssetDecorator(SceneAsset);
