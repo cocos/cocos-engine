@@ -204,8 +204,8 @@ SE_DECLARE_FUNC(js_spine_Bone_setX);
 SE_DECLARE_FUNC(js_spine_Bone_setY);
 SE_DECLARE_FUNC(js_spine_Bone_update);
 SE_DECLARE_FUNC(js_spine_Bone_updateWorldTransform);
-SE_DECLARE_FUNC(js_spine_Bone_isYDown);
 SE_DECLARE_FUNC(js_spine_Bone_setYDown);
+SE_DECLARE_FUNC(js_spine_Bone_isYDown);
 
 extern se::Object* __jsb_spine_BoneData_proto;
 extern se::Class* __jsb_spine_BoneData_class;
@@ -1080,9 +1080,9 @@ SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setTrackEndListener);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setTrackEventListener);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setTrackInterruptListener);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setTrackStartListener);
-SE_DECLARE_FUNC(js_spine_SkeletonAnimation_createWithBinaryFile);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_create);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_createWithJsonFile);
+SE_DECLARE_FUNC(js_spine_SkeletonAnimation_createWithBinaryFile);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_setGlobalTimeScale);
 SE_DECLARE_FUNC(js_spine_SkeletonAnimation_SkeletonAnimation);
 
@@ -1137,8 +1137,8 @@ bool register_all_spine(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(spine::SkeletonCacheMgr);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_buildSkeletonCache);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_removeSkeletonCache);
-SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_destroyInstance);
 SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_getInstance);
+SE_DECLARE_FUNC(js_spine_SkeletonCacheMgr_destroyInstance);
 
 extern se::Object* __jsb_spine_SkeletonDataMgr_proto;
 extern se::Class* __jsb_spine_SkeletonDataMgr_class;
