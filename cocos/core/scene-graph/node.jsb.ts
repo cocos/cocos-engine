@@ -837,6 +837,29 @@ Object.defineProperty(nodeProto, '_activeInHierarchy', {
     },
 });
 
+Object.defineProperty(nodeProto, 'layer', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._layerArr[0];
+    },
+    set (v) {
+        this._layerArr[0] = v;
+        this.emit(NodeEventType.LAYER_CHANGED, v);
+    },
+});
+
+Object.defineProperty(nodeProto, '_layer', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._layerArr[0];
+    },
+    set (v) {
+        this._layerArr[0] = v;
+    },
+});
+
 Object.defineProperty(nodeProto, 'forward', {
     configurable: true,
     enumerable: true,
@@ -913,6 +936,14 @@ Object.defineProperty(nodeProto, 'children', {
     set (v) {
         this._children = v;
     },
+});
+
+Object.defineProperty(nodeProto, 'scene', {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return this._scene;
+    }
 });
 
 nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
@@ -1006,6 +1037,10 @@ nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
 
     // Sync node _lpos, _lrot, _lscale to native
     syncNodeValues(this);
+};
+
+nodeProto._onSceneUpdated = function (scene) {
+    this._scene = scene;
 };
 
 nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
@@ -1163,6 +1198,8 @@ nodeProto._ctor = function (name?: string) {
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
     this._activeInHierarchyArr = new Uint8Array([0]);
+    this._layerArr = new Uint32Array([Layers.Enum.DEFAULT]);
+    this._scene = null;
     this._prefab = null;
 
     this._registerListeners();
