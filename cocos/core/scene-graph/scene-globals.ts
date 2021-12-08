@@ -997,6 +997,7 @@ export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
 export const DEFAULT_OCTREE_DEPTH = 8;
 
 @ccclass('cc.OctreeInfo')
+@help('i18n:cc.OctreeCulling')
 export class OctreeInfo {
     @serializable
     protected _enabled = false;
