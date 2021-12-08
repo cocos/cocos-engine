@@ -819,8 +819,21 @@ Object.defineProperty(nodeProto, 'activeInHierarchy', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Boolean> {
-        this.isActiveInHierarchy();
-        return _tempFloatArray[0] == 1;
+        return this._activeInHierarchyArr[0] != 0;
+    },
+    set (v) {
+        this._activeInHierarchyArr[0] = (v ? 1 : 0);
+    },
+});
+
+Object.defineProperty(nodeProto, '_activeInHierarchy', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Boolean> {
+        return this._activeInHierarchyArr[0] != 0;
+    },
+    set (v) {
+        this._activeInHierarchyArr[0] = (v ? 1 : 0);
     },
 });
 
@@ -1149,6 +1162,7 @@ nodeProto._ctor = function (name?: string) {
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
+    this._activeInHierarchyArr = new Uint8Array([0]);
     this._prefab = null;
 
     this._registerListeners();
