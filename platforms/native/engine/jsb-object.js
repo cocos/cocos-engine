@@ -4,7 +4,6 @@
 const oldDestroy = jsb.CCObject.prototype.destroy;
 const oldDestroyImmediate = jsb.CCObject.prototype._destroyImmediate;
 const deferredDestroyObjects = [];
-let deferredArrayIndex = 0;
 
 jsb.CCObject.prototype.destroy = function() {
     deferredDestroyObjects.push(this);
