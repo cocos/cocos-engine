@@ -2921,23 +2921,6 @@ static bool js_spine_Bone_updateWorldTransform(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_spine_Bone_updateWorldTransform)
 
-static bool js_spine_Bone_setYDown(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<bool, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        SE_PRECONDITION2(ok, false, "js_spine_Bone_setYDown : Error processing arguments");
-        spine::Bone::setYDown(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_spine_Bone_setYDown)
-
 static bool js_spine_Bone_isYDown(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -2954,6 +2937,23 @@ static bool js_spine_Bone_isYDown(se::State& s) // NOLINT(readability-identifier
     return false;
 }
 SE_BIND_FUNC(js_spine_Bone_isYDown)
+
+static bool js_spine_Bone_setYDown(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<bool, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        SE_PRECONDITION2(ok, false, "js_spine_Bone_setYDown : Error processing arguments");
+        spine::Bone::setYDown(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_spine_Bone_setYDown)
 
 
 
@@ -3019,8 +3019,8 @@ bool js_register_spine_Bone(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("setY", _SE(js_spine_Bone_setY));
     cls->defineFunction("update", _SE(js_spine_Bone_update));
     cls->defineFunction("updateWorldTransform", _SE(js_spine_Bone_updateWorldTransform));
-    cls->defineStaticFunction("setYDown", _SE(js_spine_Bone_setYDown));
     cls->defineStaticFunction("isYDown", _SE(js_spine_Bone_isYDown));
+    cls->defineStaticFunction("setYDown", _SE(js_spine_Bone_setYDown));
     cls->install();
     JSBClassType::registerClass<spine::Bone>(cls);
 
@@ -13961,7 +13961,7 @@ SE_BIND_FINALIZE_FUNC(js_spine_SkeletonRenderer_finalize)
 
 bool js_register_spine_SkeletonRenderer(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("Skeleton", obj, nullptr, _SE(js_spine_SkeletonRenderer_constructor));
+    auto* cls = se::Class::create("SkeletonRenderer", obj, nullptr, _SE(js_spine_SkeletonRenderer_constructor));
 
     cls->defineFunction("beginSchedule", _SE(js_spine_SkeletonRenderer_beginSchedule));
     cls->defineFunction("findBone", _SE(js_spine_SkeletonRenderer_findBone));
@@ -14902,6 +14902,44 @@ static bool js_spine_SkeletonAnimation_setTrackStartListener(se::State& s) // NO
 }
 SE_BIND_FUNC(js_spine_SkeletonAnimation_setTrackStartListener)
 
+static bool js_spine_SkeletonAnimation_createWithBinaryFile(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<std::string, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
+        auto result = spine::SkeletonAnimation::createWithBinaryFile(arg0.value(), arg1.value());
+        result->retain();
+        auto obj = se::Object::createObjectWithClass(__jsb_spine_SkeletonAnimation_class);
+        obj->setPrivateData(result);
+        s.rval().setObject(obj);
+        return true;
+    }
+    if (argc == 3) {
+        HolderType<std::string, true> arg0 = {};
+        HolderType<std::string, true> arg1 = {};
+        HolderType<float, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, nullptr);
+        ok &= sevalue_to_native(args[1], &arg1, nullptr);
+        ok &= sevalue_to_native(args[2], &arg2, nullptr);
+        SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
+        auto result = spine::SkeletonAnimation::createWithBinaryFile(arg0.value(), arg1.value(), arg2.value());
+        result->retain();
+        auto obj = se::Object::createObjectWithClass(__jsb_spine_SkeletonAnimation_class);
+        obj->setPrivateData(result);
+        s.rval().setObject(obj);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_spine_SkeletonAnimation_createWithBinaryFile)
+
 static bool js_spine_SkeletonAnimation_create(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -14957,44 +14995,6 @@ static bool js_spine_SkeletonAnimation_createWithJsonFile(se::State& s) // NOLIN
     return false;
 }
 SE_BIND_FUNC(js_spine_SkeletonAnimation_createWithJsonFile)
-
-static bool js_spine_SkeletonAnimation_createWithBinaryFile(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        HolderType<std::string, true> arg0 = {};
-        HolderType<std::string, true> arg1 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
-        auto result = spine::SkeletonAnimation::createWithBinaryFile(arg0.value(), arg1.value());
-        result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_spine_SkeletonAnimation_class);
-        obj->setPrivateData(result);
-        s.rval().setObject(obj);
-        return true;
-    }
-    if (argc == 3) {
-        HolderType<std::string, true> arg0 = {};
-        HolderType<std::string, true> arg1 = {};
-        HolderType<float, false> arg2 = {};
-        ok &= sevalue_to_native(args[0], &arg0, nullptr);
-        ok &= sevalue_to_native(args[1], &arg1, nullptr);
-        ok &= sevalue_to_native(args[2], &arg2, nullptr);
-        SE_PRECONDITION2(ok, false, "js_spine_SkeletonAnimation_createWithBinaryFile : Error processing arguments");
-        auto result = spine::SkeletonAnimation::createWithBinaryFile(arg0.value(), arg1.value(), arg2.value());
-        result->retain();
-        auto obj = se::Object::createObjectWithClass(__jsb_spine_SkeletonAnimation_class);
-        obj->setPrivateData(result);
-        s.rval().setObject(obj);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_spine_SkeletonAnimation_createWithBinaryFile)
 
 static bool js_spine_SkeletonAnimation_setGlobalTimeScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -15071,9 +15071,9 @@ bool js_register_spine_SkeletonAnimation(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("setTrackInterruptListener", _SE(js_spine_SkeletonAnimation_setTrackInterruptListener));
     cls->defineFunction("setTrackStartListener", _SE(js_spine_SkeletonAnimation_setTrackStartListener));
     cls->defineFunction("ctor", _SE(js_spine_SkeletonAnimation_ctor));
+    cls->defineStaticFunction("createWithBinaryFile", _SE(js_spine_SkeletonAnimation_createWithBinaryFile));
     cls->defineStaticFunction("create", _SE(js_spine_SkeletonAnimation_create));
     cls->defineStaticFunction("createWithJsonFile", _SE(js_spine_SkeletonAnimation_createWithJsonFile));
-    cls->defineStaticFunction("createWithBinaryFile", _SE(js_spine_SkeletonAnimation_createWithBinaryFile));
     cls->defineStaticFunction("setGlobalTimeScale", _SE(js_spine_SkeletonAnimation_setGlobalTimeScale));
     cls->defineFinalizeFunction(_SE(js_spine_SkeletonAnimation_finalize));
     cls->install();
@@ -15966,6 +15966,19 @@ static bool js_spine_SkeletonCacheMgr_removeSkeletonCache(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_spine_SkeletonCacheMgr_removeSkeletonCache)
 
+static bool js_spine_SkeletonCacheMgr_destroyInstance(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        spine::SkeletonCacheMgr::destroyInstance();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_spine_SkeletonCacheMgr_destroyInstance)
+
 static bool js_spine_SkeletonCacheMgr_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
@@ -15982,19 +15995,6 @@ static bool js_spine_SkeletonCacheMgr_getInstance(se::State& s) // NOLINT(readab
     return false;
 }
 SE_BIND_FUNC(js_spine_SkeletonCacheMgr_getInstance)
-
-static bool js_spine_SkeletonCacheMgr_destroyInstance(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        spine::SkeletonCacheMgr::destroyInstance();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_spine_SkeletonCacheMgr_destroyInstance)
 
 
 static bool js_spine_SkeletonCacheMgr_finalize(se::State& s) // NOLINT(readability-identifier-naming)
@@ -16016,8 +16016,8 @@ bool js_register_spine_SkeletonCacheMgr(se::Object* obj) // NOLINT(readability-i
 
     cls->defineFunction("buildSkeletonCache", _SE(js_spine_SkeletonCacheMgr_buildSkeletonCache));
     cls->defineFunction("removeSkeletonCache", _SE(js_spine_SkeletonCacheMgr_removeSkeletonCache));
-    cls->defineStaticFunction("getInstance", _SE(js_spine_SkeletonCacheMgr_getInstance));
     cls->defineStaticFunction("destroyInstance", _SE(js_spine_SkeletonCacheMgr_destroyInstance));
+    cls->defineStaticFunction("getInstance", _SE(js_spine_SkeletonCacheMgr_getInstance));
     cls->defineFinalizeFunction(_SE(js_spine_SkeletonCacheMgr_finalize));
     cls->install();
     JSBClassType::registerClass<spine::SkeletonCacheMgr>(cls);
@@ -16150,63 +16150,63 @@ bool register_all_spine(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_spine_Animation(ns);
-    js_register_spine_TrackEntry(ns);
-    js_register_spine_AnimationState(ns);
-    js_register_spine_AnimationStateData(ns);
-    js_register_spine_Attachment(ns);
-    js_register_spine_Timeline(ns);
-    js_register_spine_AttachmentTimeline(ns);
-    js_register_spine_Bone(ns);
-    js_register_spine_BoneData(ns);
-    js_register_spine_VertexAttachment(ns);
-    js_register_spine_BoundingBoxAttachment(ns);
-    js_register_spine_ClippingAttachment(ns);
-    js_register_spine_Color(ns);
-    js_register_spine_CurveTimeline(ns);
-    js_register_spine_ColorTimeline(ns);
+    js_register_spine_Slot(ns);
     js_register_spine_ConstraintData(ns);
-    js_register_spine_DeformTimeline(ns);
-    js_register_spine_DrawOrderTimeline(ns);
-    js_register_spine_Event(ns);
-    js_register_spine_EventData(ns);
-    js_register_spine_EventTimeline(ns);
-    js_register_spine_IkConstraint(ns);
-    js_register_spine_IkConstraintData(ns);
+    js_register_spine_Polygon(ns);
+    js_register_spine_SkeletonCacheAnimation(ns);
+    js_register_spine_Attachment(ns);
+    js_register_spine_VertexAttachment(ns);
+    js_register_spine_SkeletonDataMgr(ns);
+    js_register_spine_VertexEffect(ns);
+    js_register_spine_JitterVertexEffect(ns);
+    js_register_spine_SkeletonCacheMgr(ns);
+    js_register_spine_Timeline(ns);
+    js_register_spine_CurveTimeline(ns);
     js_register_spine_IkConstraintTimeline(ns);
+    js_register_spine_SkeletonRenderer(ns);
+    js_register_spine_Animation(ns);
     js_register_spine_MeshAttachment(ns);
-    js_register_spine_PathAttachment(ns);
-    js_register_spine_PathConstraint(ns);
-    js_register_spine_PathConstraintData(ns);
+    js_register_spine_TranslateTimeline(ns);
+    js_register_spine_ShearTimeline(ns);
+    js_register_spine_AttachmentTimeline(ns);
     js_register_spine_PathConstraintMixTimeline(ns);
     js_register_spine_PathConstraintPositionTimeline(ns);
     js_register_spine_PathConstraintSpacingTimeline(ns);
-    js_register_spine_PointAttachment(ns);
-    js_register_spine_RegionAttachment(ns);
-    js_register_spine_RotateTimeline(ns);
-    js_register_spine_TranslateTimeline(ns);
-    js_register_spine_ScaleTimeline(ns);
-    js_register_spine_ShearTimeline(ns);
-    js_register_spine_Skeleton(ns);
-    js_register_spine_SkeletonBounds(ns);
-    js_register_spine_Polygon(ns);
-    js_register_spine_SkeletonData(ns);
-    js_register_spine_Skin(ns);
-    js_register_spine_Slot(ns);
-    js_register_spine_SlotData(ns);
-    js_register_spine_TransformConstraint(ns);
-    js_register_spine_TransformConstraintData(ns);
-    js_register_spine_TransformConstraintTimeline(ns);
-    js_register_spine_TwoColorTimeline(ns);
-    js_register_spine_VertexEffect(ns);
-    js_register_spine_JitterVertexEffect(ns);
-    js_register_spine_SwirlVertexEffect(ns);
-    js_register_spine_VertexEffectDelegate(ns);
-    js_register_spine_SkeletonRenderer(ns);
     js_register_spine_SkeletonAnimation(ns);
-    js_register_spine_SkeletonCacheAnimation(ns);
-    js_register_spine_SkeletonCacheMgr(ns);
-    js_register_spine_SkeletonDataMgr(ns);
+    js_register_spine_IkConstraintData(ns);
+    js_register_spine_SwirlVertexEffect(ns);
+    js_register_spine_AnimationStateData(ns);
+    js_register_spine_PointAttachment(ns);
+    js_register_spine_AnimationState(ns);
+    js_register_spine_TrackEntry(ns);
+    js_register_spine_BoneData(ns);
+    js_register_spine_ScaleTimeline(ns);
+    js_register_spine_SkeletonData(ns);
+    js_register_spine_PathAttachment(ns);
+    js_register_spine_TransformConstraint(ns);
+    js_register_spine_BoundingBoxAttachment(ns);
+    js_register_spine_ClippingAttachment(ns);
+    js_register_spine_DeformTimeline(ns);
+    js_register_spine_SkeletonBounds(ns);
+    js_register_spine_TransformConstraintData(ns);
+    js_register_spine_ColorTimeline(ns);
+    js_register_spine_PathConstraint(ns);
+    js_register_spine_TransformConstraintTimeline(ns);
+    js_register_spine_Bone(ns);
+    js_register_spine_EventTimeline(ns);
+    js_register_spine_Skeleton(ns);
+    js_register_spine_TwoColorTimeline(ns);
+    js_register_spine_Color(ns);
+    js_register_spine_DrawOrderTimeline(ns);
+    js_register_spine_RegionAttachment(ns);
+    js_register_spine_IkConstraint(ns);
+    js_register_spine_RotateTimeline(ns);
+    js_register_spine_SlotData(ns);
+    js_register_spine_Skin(ns);
+    js_register_spine_VertexEffectDelegate(ns);
+    js_register_spine_EventData(ns);
+    js_register_spine_Event(ns);
+    js_register_spine_PathConstraintData(ns);
     return true;
 }
 
