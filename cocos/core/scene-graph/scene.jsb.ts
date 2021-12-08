@@ -61,6 +61,28 @@ Object.defineProperty(sceneProto, 'globals', {
     },
 });
 
+Object.defineProperty(sceneProto, '_renderScene', {
+    enumerable: true,
+    configurable: true,
+    get () {
+        if (!this._renderSceneInternal) {
+            this._renderSceneInternal = this.getRenderScene();
+        }
+        return this._renderSceneInternal;
+    }
+});
+
+Object.defineProperty(sceneProto, 'renderScene', {
+    enumerable: true,
+    configurable: true,
+    get () {
+        if (!this._renderSceneInternal) {
+            this._renderSceneInternal = this.getRenderScene();
+        }
+        return this._renderSceneInternal;
+    }
+});
+
 _applyDecoratedDescriptor(_class2$x.prototype, 'globals', [editable], Object.getOwnPropertyDescriptor(_class2$x.prototype, 'globals'), _class2$x.prototype);
 const _descriptor$r = _applyDecoratedDescriptor(_class2$x.prototype, 'autoReleaseAssets', [serializable, editable], {
     configurable: true,
@@ -83,6 +105,7 @@ const _descriptor2$k = _applyDecoratedDescriptor(_class2$x.prototype, '_globals'
 sceneProto._ctor = function () {
     Node.prototype._ctor.apply(this, arguments);
     this._inited = false;
+    this._renderSceneInternal = null;
     this._globalRef = null;
     this._prefabSyncedInLiveReload = false;
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -109,6 +132,7 @@ sceneProto._onBatchCreated = function(dontSyncChildPrefab: boolean) {
 
 const oldLoad = sceneProto._load;
 sceneProto._load = function () {
+    this._scene = this;
     if (!this._inited) {
         if (TEST) {
             assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
