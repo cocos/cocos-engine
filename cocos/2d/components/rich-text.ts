@@ -791,6 +791,9 @@ export class RichText extends UIComponent {
                 break;
             }
 
+            if (style.imageOffset) {
+                segment.imageOffset = style.imageOffset;
+            }
             segment.node.layer = this.node.layer;
             this.node.addChild(segment.node);
             this._segments.push(segment);
