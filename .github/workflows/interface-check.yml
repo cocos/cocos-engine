@@ -17,7 +17,7 @@ jobs:
         working-directory: ./engine
         run: |
           git fetch origin ${{ github.base_ref }}
-          git checkout -b ${{ github.base_ref }} remotes/origin/${{ github.base_ref }}
+          git checkout -b ${{ github.base_ref }}_BASE remotes/origin/${{ github.base_ref }}
           git branch
 
       - name: npm install BASE branch
@@ -44,12 +44,13 @@ jobs:
         run: |
           git remote add HEAD_REPO https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
           git fetch HEAD_REPO ${{ github.head_ref }}
-          git checkout -b ${{ github.head_ref }} remotes/HEAD_REPO/${{ github.head_ref }}
+          git checkout -b ${{ github.head_ref }}_HEAD remotes/HEAD_REPO/${{ github.head_ref }}
           git branch
 
       - name: rebase BASE branch
         working-directory: ./engine
         run: |
+          git checkout .
           git pull --rebase origin ${{ github.base_ref }}
 
       - name: npm install HEAD branch
