@@ -13961,7 +13961,7 @@ SE_BIND_FINALIZE_FUNC(js_spine_SkeletonRenderer_finalize)
 
 bool js_register_spine_SkeletonRenderer(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("Skeleton", obj, nullptr, _SE(js_spine_SkeletonRenderer_constructor));
+    auto* cls = se::Class::create("SkeletonRenderer", obj, nullptr, _SE(js_spine_SkeletonRenderer_constructor));
 
     cls->defineFunction("beginSchedule", _SE(js_spine_SkeletonRenderer_beginSchedule));
     cls->defineFunction("findBone", _SE(js_spine_SkeletonRenderer_findBone));

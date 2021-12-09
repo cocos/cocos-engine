@@ -675,7 +675,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage    = gfx::BufferUsageBit::STORAGE;
-            bufferInfo.memUsage = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE;
+            bufferInfo.memUsage = gfx::MemoryUsageBit::DEVICE;
             bufferInfo.size     = clusterBufferSize;
             bufferInfo.stride   = clusterBufferSize;
             bufferInfo.flags    = gfx::BufferFlagBit::NONE;
@@ -694,7 +694,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage       = gfx::BufferUsageBit::STORAGE;
-            bufferInfo.memUsage    = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE;
+            bufferInfo.memUsage    = gfx::MemoryUsageBit::DEVICE;
             bufferInfo.size        = atomicIndexBufferSize;
             bufferInfo.stride      = atomicIndexBufferSize;
             bufferInfo.flags       = gfx::BufferFlagBit::NONE;
@@ -758,7 +758,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage      = gfx::BufferUsageBit::STORAGE;
-            bufferInfo.memUsage   = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE;
+            bufferInfo.memUsage   = gfx::MemoryUsageBit::DEVICE;
             bufferInfo.size       = lightIndicesBufferSize;
             bufferInfo.stride     = lightIndicesBufferSize;
             bufferInfo.flags      = gfx::BufferFlagBit::NONE;
@@ -775,7 +775,7 @@ void ClusterLightCulling::clusterLightCulling(scene::Camera* camera) {
 
             framegraph::Buffer::Descriptor bufferInfo;
             bufferInfo.usage     = gfx::BufferUsageBit::STORAGE;
-            bufferInfo.memUsage  = gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE;
+            bufferInfo.memUsage  = gfx::MemoryUsageBit::DEVICE;
             bufferInfo.size      = lightGridBufferSize;
             bufferInfo.stride    = lightGridBufferSize;
             bufferInfo.flags     = gfx::BufferFlagBit::NONE;

@@ -379,7 +379,7 @@ public class CocosEditBoxActivity extends Activity {
         } else {
             int buttonTextPadding = mEditText.getPaddingBottom() / 2;
             mButton.setPadding(editPadding, buttonTextPadding, editPadding, buttonTextPadding);
-            mButtonParams.setMargins(0, buttonTextPadding, 2, 0);
+            mButtonParams.setMargins(0, buttonTextPadding, 0, 0);
             mButtonLayout.setVisibility(View.VISIBLE);
         }
 
