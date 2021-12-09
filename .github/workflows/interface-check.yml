@@ -36,6 +36,7 @@ jobs:
         run: |
           git checkout .
           rm -r ./node_modules
+          rm ./package-lock.json
           ls -la
 
       - name: checkout HEAD branch
