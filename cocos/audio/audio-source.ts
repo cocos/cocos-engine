@@ -78,24 +78,6 @@ export class AudioSource extends Component {
     private _isLoaded = false;
 
     private _lastSetClip?: AudioClip;
-    /**
-     * @en
-     * The default AudioClip to be played for this audio source.
-     * @zh
-     * 设定要播放的音频。
-     */
-    @type(AudioClip)
-    @tooltip('i18n:audio.clip')
-    set clip (val) {
-        if (val === this._clip) {
-            return;
-        }
-        this._clip = val;
-        this._syncPlayer();
-    }
-    get clip () {
-        return this._clip;
-    }
     private _syncPlayer () {
         const clip = this._clip;
         this._isLoaded = false;
