@@ -293,6 +293,9 @@ const _descriptor5$4 = _applyDecoratedDescriptor(_class2$f.prototype, '_props', 
 materialProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._props = [];
+    this._passes = [];
+
+    this._registerPassesUpdatedListener();
     // _initializerDefineProperty(_this, "_effectAsset", _descriptor$d, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_techIdx", _descriptor2$9, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, "_defines", _descriptor3$7, _assertThisInitialized(_this));
@@ -305,5 +308,17 @@ materialProto.onLoaded = function () {
     this._propsInternal = this._props;
     oldOnLoaded.call(this);
 };
+
+materialProto._onPassesUpdated = function () {
+    this._passes = this.getPasses();
+};
+
+Object.defineProperty(materialProto, 'passes', {
+    enumerable: true,
+    configurable: true,
+    get () {
+        return this._passes;
+    },
+});
 
 clsDecorator(Material);

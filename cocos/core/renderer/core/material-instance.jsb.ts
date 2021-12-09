@@ -64,6 +64,10 @@ materialInstanceProto._ctor = function (info: IMaterialInstanceInfo) {
     this._parent = info.parent;
     this._owner = info.owner || null;
     this._subModelIdx = info.subModelIdx || 0;
+    // CPP MaterialInstance invokes 'copy' method in constructor, 'copy' will invoke update method
+    // which triggers passes being created, 'this._passes' property will lost data, so fetch the data here
+    // by calling the method 'this.getPasses()'
+    this._passes = this.getPasses();
 };
 
 materialInstanceProto._onRebuildPSO = function () {
