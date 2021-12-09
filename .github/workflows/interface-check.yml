@@ -50,6 +50,7 @@ jobs:
       - name: rebase BASE branch
         working-directory: ./engine
         run: |
+          git checkout .
           git pull --rebase origin ${{ github.base_ref }}
 
       - name: npm install HEAD branch
