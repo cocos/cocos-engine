@@ -303,6 +303,12 @@ export class Camera {
             this._matProj = camera.matProj;
             this._matProjInv = camera.matProjInv;
             this._matViewProj = camera.matViewProj;
+            if (JSB) {
+                this._nativeObj!.matProj = this._matProj;
+                this._nativeObj!.matProjInv = this._matProjInv;
+                this._nativeObj!.matView = this._matView;
+                this._nativeObj!.matViewProj = this._matViewProj;
+            }
         }
     }
 
