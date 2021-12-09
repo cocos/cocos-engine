@@ -195,7 +195,7 @@ export class WebGL2Swapchain extends Swapchain {
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.GEN_MIPMAP,
+            TextureFlagBit.NONE,
         )) as WebGL2Texture;
 
         this.nullTexCube = WebGL2DeviceManager.instance.createTexture(new TextureInfo(
@@ -204,7 +204,7 @@ export class WebGL2Swapchain extends Swapchain {
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.GEN_MIPMAP,
+            TextureFlagBit.NONE,
             6,
         )) as WebGL2Texture;
 
