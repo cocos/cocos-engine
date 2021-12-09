@@ -276,6 +276,14 @@ export class SkeletalAnimation extends Animation {
         this._users.delete(user);
     }
 
+    /**
+     * Get all users.
+     * @internal This method only friends to the skeleton animation state.
+     */
+    public getUsers () {
+        return this._users;
+    }
+
     protected _createState (clip: AnimationClip, name?: string) {
         return new SkeletalAnimationState(clip, name);
     }
