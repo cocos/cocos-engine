@@ -72,8 +72,8 @@ module.exports = {
         },
     },
     ambient: {
-        skyLightingColor: 'Hemisphere lighting -- upper sphere lighting source.',
-        groundLightingColor: 'Hemisphere lighting -- lower sphere lighting source.',
+        skyLightingColor: 'Sky Color (Upper sphere lighting source).',
+        groundLightingColor: 'Ground Color (Lower sphere lighting source).',
         skyIllum: 'Ambient lighting intensity.',
     },
     skybox: {

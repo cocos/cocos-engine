@@ -72,8 +72,8 @@ module.exports = {
         },
     },
     ambient: {
-        skyLightingColor: '半球光照--上半球颜色',
-        groundLightingColor: '半球光照--下半球颜色',
+        skyLightingColor: '天空颜色（上半球光照）',
+        groundLightingColor: '地面颜色（下半球光照）',
         skyIllum: '环境光强度',
     },
     skybox: {
