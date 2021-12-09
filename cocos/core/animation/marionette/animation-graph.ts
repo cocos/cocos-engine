@@ -206,10 +206,10 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
-     * Gets the transition between specified states.
+     * Gets the transitions between specified states.
      * @param from Transition source.
      * @param to Transition target.
-     * @returns The transition, if one existed.
+     * @returns Iterator to the transitions
      */
     public getTransitionsBetween (from: State, to: State): Iterable<Transition> {
         assertsOwnedBy(from, this);
