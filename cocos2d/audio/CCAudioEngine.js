@@ -297,7 +297,7 @@ var audioEngine = {
      * cc.audioEngine.isPlaying(audioID);
      */
     isPlaying: function(audioID) {
-        return this.getState(audioID) === this.AudioState.PLAYING
+        return this.getState(audioID) === this.AudioState.PLAYING;
     },
 
     /**
