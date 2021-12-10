@@ -52,7 +52,7 @@ struct Camera final {
     float         aspect{0.0F};
     Vec4          viewPort;
     uint32_t      clearStencil{0};
-    uint32_t      visibility{0};
+    int32_t       visibility{0};
     Node *        node{nullptr};
     RenderScene * scene{nullptr};
     RenderWindow *window{nullptr};
