@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { BAIDU } from 'internal:constants';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -149,6 +150,10 @@ export class WebGL2Device extends Device {
         this._features[Feature.INSTANCED_ARRAYS] = true;
         this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
         this._features[Feature.BLEND_MINMAX] = true;
+
+        if (BAIDU) {
+            this._features[Feature.TEXTURE_FLOAT] = false;
+        }
 
         if (exts.EXT_color_buffer_float) {
             this._features[Feature.COLOR_FLOAT] = true;
