@@ -137,7 +137,7 @@ nodeProto.getComponentsInChildren = function (typeOrClassName) {
     const components = [];
     if (constructor) {
         NodeCls._findComponents(this, constructor, components);
-        NodeCls._findChildComponents(this.getChildren(), constructor, components);
+        NodeCls._findChildComponents(this.children, constructor, components);
     }
     return components;
 };
@@ -458,7 +458,7 @@ NodeCls._findChildComponent = function (children, constructor) {
             return comp;
         }
 
-        const childChildren = node.getChildren();
+        const childChildren = node.children;
         if (childChildren.length > 0) {
             comp = NodeCls._findChildComponent(childChildren, constructor);
             if (comp) {
@@ -474,7 +474,7 @@ NodeCls._findChildComponents = function (children, constructor, components) {
         const node = children[i];
         NodeCls._findComponents(node, constructor, components);
 
-        const childChildren = node.getChildren();
+        const childChildren = node.children;
         if (childChildren.length > 0) {
             NodeCls._findChildComponents(childChildren, constructor, components);
         }
@@ -986,7 +986,7 @@ nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
 // nodeProto.removeAllChildren = function () {
 //     oldRemoveAllChildren.call(this);
 //     // cjh TODO: need to improve performance
-//     const children = this.getChildren();
+//     const children = this.children;
 //     for (let i = children.length - 1; i >= 0; i--) {
 //         const node = children[i];
 //         if (node) {
