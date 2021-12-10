@@ -510,7 +510,7 @@ export const bmfontUtils = {
                     continue;
                 }
 
-                const px = letterInfo.x + letterDef.w / 2 * _bmfontScale;
+                const px = letterInfo.x + letterDef.w * _bmfontScale;
                 const lineIndex = letterInfo.line;
                 if (_labelWidth > 0) {
                     if (!_isWrapText) {
