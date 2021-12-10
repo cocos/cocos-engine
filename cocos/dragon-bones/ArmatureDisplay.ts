@@ -7,7 +7,7 @@ import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject, director } from '../core';
+import { Node, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject } from '../core';
 import { EventTarget } from '../core/event';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
@@ -569,7 +569,7 @@ export class ArmatureDisplay extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitPlainComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.texture, this._assembler, null);
                 }
                 this.material = mat;
             }
@@ -1302,11 +1302,6 @@ export class ArmatureDisplay extends Renderable2D {
                 }
             }
         }
-    }
-
-    public markForUpdateRenderData (enable = true) {
-        super.markForUpdateRenderData(enable);
-        director.root!.batcher2D._reloadBatch();
     }
 }
 

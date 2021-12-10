@@ -10,7 +10,7 @@ import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache'
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, director } from '../core';
+import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
@@ -1372,7 +1372,7 @@ export class Skeleton extends Renderable2D {
                     this.material = m.renderData.material;
                 }
                 if (m.texture) {
-                    ui.commitPlainComp(this, m.texture, this._assembler, null);
+                    ui.commitComp(this, m.texture, this._assembler, null);
                 }
                 this.material = mat;
             }
@@ -1664,11 +1664,6 @@ export class Skeleton extends Renderable2D {
             this._materialCache[val].destroy();
         }
         this._materialCache = {};
-    }
-
-    public markForUpdateRenderData (enable = true) {
-        super.markForUpdateRenderData(enable);
-        director.root!.batcher2D._reloadBatch();
     }
 }
 

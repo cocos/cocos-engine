@@ -115,10 +115,6 @@ export class MeshBuffer extends ScalableContainer {
         // ----------
     }
 
-    public setDirty () {
-        this._dirty = true;
-    }
-
     public request (vertexCount = 4, indicesCount = 6) {
         this.lastByteOffset = this.byteOffset;
         const byteOffset = this.byteOffset + vertexCount * this._vertexFormatBytes;

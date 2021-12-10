@@ -352,7 +352,9 @@ export const ttfUtils =  {
                     _texture.rect = new Rect(0, 0, _canvas.width, _canvas.height);
                     _texture._calculateUV();
                 }
-                comp.setTextureDirty();
+                if (comp.renderData) {
+                    comp.renderData.textureDirty = true;
+                }
                 if (legacyCC.director.root && legacyCC.director.root.batcher2D) {
                     legacyCC.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
                 }

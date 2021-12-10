@@ -378,7 +378,6 @@ export class Mask extends Renderable2D {
         super.updateMaterial();
         this._updateGraphics();
         this._renderFlag = this._canRender();
-        director.root!.batcher2D._reloadBatch();
     }
 
     public onDisable () {
@@ -439,7 +438,7 @@ export class Mask extends Renderable2D {
     }
 
     protected _render (render: IBatcher) {
-        render.commitPlainComp(this, null, this._assembler!, null);
+        render.commitComp(this, null, this._assembler!, null);
     }
 
     protected _postRender (render: IBatcher) {
@@ -447,7 +446,7 @@ export class Mask extends Renderable2D {
             return;
         }
 
-        render.commitPlainComp(this, null, this._postAssembler, null);
+        render.commitComp(this, null, this._postAssembler, null);
     }
 
     protected _nodeStateChange (type: TransformBit) {
