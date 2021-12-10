@@ -130,6 +130,8 @@ sp.Skeleton = cc.Class({
             default: null,
             type: sp.SkeletonData,
             notify () {
+                this._resetDefaultAnim();
+                this._resetDefaultSkin();
                 if (CC_EDITOR) {
                     this._refreshInspector();
                 }
@@ -1279,14 +1281,29 @@ sp.Skeleton = cc.Class({
         return this._state;
     },
 
+    _resetDefaultAnim () {
+        if (this.skeletonData) {
+            let animEnum = this.skeletonData.getAnimsEnum();
+            if (!animEnum.hasOwnProperty(this.defaultAnimation)) {
+                this.defaultAnimation = '';
+            }
+        }
+    },
+
+    _resetDefaultSkin () {
+        if (this.skeletonData) {
+            let skinEnum = this.skeletonData.getSkinsEnum();
+            if(!skinEnum.hasOwnProperty(this.defaultSkin)) {
+                this.defaultSkin = '';
+            }
+        }
+    },
+
     // update animation list for editor
     _updateAnimEnum: CC_EDITOR && function () {
         var animEnum;
         if (this.skeletonData) {
             animEnum = this.skeletonData.getAnimsEnum();
-            if (!animEnum.hasOwnProperty(this.defaultAnimation)) {
-                this.defaultAnimation = '';
-            }
         }
         // change enum
         setEnumAttr(this, '_animationIndex', animEnum || DefaultAnimsEnum);
@@ -1296,9 +1313,6 @@ sp.Skeleton = cc.Class({
         var skinEnum;
         if (this.skeletonData) {
             skinEnum = this.skeletonData.getSkinsEnum();
-            if(!skinEnum.hasOwnProperty(this.defaultSkin)) {
-                this.defaultSkin = '';
-            }
         }
         // change enum
         setEnumAttr(this, '_defaultSkinIndex', skinEnum || DefaultSkinsEnum);
