@@ -40,7 +40,6 @@ import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
-import { director } from '../../core/director';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -766,11 +765,6 @@ export class Label extends Renderable2D {
         }
     }
 
-    public markForUpdateRenderData (enable = true) {
-        super.markForUpdateRenderData(enable);
-        director.root!.batcher2D._reloadBatch();
-    }
-
     protected _render (render: IBatcher) {
         render.commitComp(this, this._texture, this._assembler!, null);
     }
@@ -826,7 +820,9 @@ export class Label extends Renderable2D {
             const spriteFrame = font.spriteFrame;
             if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
-                this.setTextureDirty();
+                if (this.renderData) {
+                    this.renderData.textureDirty = true;
+                }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
                     this._assembler.updateRenderData(this);

@@ -24,10 +24,10 @@ float CCGetViewSpaceDepth(float depthHS)
 
 #if CC_RECEIVE_SHADOW
   #pragma builtin(global)
-  layout(set = 0, binding = 3) uniform sampler2D cc_shadowMap;
+  layout(set = 0, binding = 3) uniform highp sampler2D cc_shadowMap;
 
   #pragma builtin(global)
-  layout(set = 0, binding = 5) uniform sampler2D cc_spotLightingMap;
+  layout(set = 0, binding = 5) uniform highp sampler2D cc_spotLightingMap;
 
   vec4 ApplyShadowDepthBias_FaceNormal(vec4 shadowPos, vec3 worldNormal)
   {

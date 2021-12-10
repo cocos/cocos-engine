@@ -696,7 +696,7 @@ export class Pass {
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
             this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
                 size / Float32Array.BYTES_PER_ELEMENT);
-            this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer);
+            this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
         // store handles

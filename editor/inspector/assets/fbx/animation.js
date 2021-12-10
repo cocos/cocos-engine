@@ -741,6 +741,8 @@ exports.methods = {
             fps,
             from,
             to,
+            wrapMode: splitInfo.wrapMode,
+            speed: splitInfo.speed || 1,
         };
     },
     getRightName(name) {
