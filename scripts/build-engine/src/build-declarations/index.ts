@@ -219,8 +219,7 @@ export async function build (options: {
 
         interfaceFilter.cullInterface({
             inputDts: indexOutputPath,
-            outputDts: join(dirname(indexOutputPath), 'output.cc.d.ts'),
-        })
+        });
     } catch (error) {
         console.error(error);
         return false;
