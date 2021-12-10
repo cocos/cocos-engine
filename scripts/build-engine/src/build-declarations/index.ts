@@ -1,8 +1,9 @@
-import ps from 'path';
+import ps, { dirname, join } from 'path';
 import fs from 'fs-extra';
 import ts from 'typescript';
 import * as gift from 'tfig';
 import { StatsQuery } from '../stats-query';
+import { interfaceFilter } from './interface-filter';
 
 const DEBUG = false;
 const REMOVE_TMP = true;
@@ -215,6 +216,11 @@ export async function build (options: {
                 { encoding: 'utf8' },
             );
         }
+
+        interfaceFilter.cullInterface({
+            inputDts: indexOutputPath,
+            outputDts: join(dirname(indexOutputPath), 'output.cc.d.ts'),
+        })
     } catch (error) {
         console.error(error);
         return false;
