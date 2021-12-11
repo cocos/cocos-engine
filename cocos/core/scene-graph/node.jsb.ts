@@ -686,25 +686,15 @@ nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
     return Vec3.copy(this._worldScaleCache, r);
 };
 
-nodeProto.getWorldMatrix = function (out?: Mat4): Mat4 {
+nodeProto.getWorldMatrix = function getWorldMatrix(out?: Mat4): Mat4 {
     oldGetWorldMatrix.call(this);
     const target = out || this._worldMatrixCache;
-    target.m00 = _tempFloatArray[0];
-    target.m01 = _tempFloatArray[1];
-    target.m02 = _tempFloatArray[2];
-    target.m03 = _tempFloatArray[3];
-    target.m04 = _tempFloatArray[4];
-    target.m05 = _tempFloatArray[5];
-    target.m06 = _tempFloatArray[6];
-    target.m07 = _tempFloatArray[7];
-    target.m08 = _tempFloatArray[8];
-    target.m09 = _tempFloatArray[9];
-    target.m10 = _tempFloatArray[10];
-    target.m11 = _tempFloatArray[11];
-    target.m12 = _tempFloatArray[12];
-    target.m13 = _tempFloatArray[13];
-    target.m14 = _tempFloatArray[14];
-    target.m15 = _tempFloatArray[15];
+    target.set(
+        _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3],
+        _tempFloatArray[4], _tempFloatArray[5], _tempFloatArray[6], _tempFloatArray[7],
+        _tempFloatArray[8], _tempFloatArray[9], _tempFloatArray[10], _tempFloatArray[11],
+        _tempFloatArray[12], _tempFloatArray[13], _tempFloatArray[14], _tempFloatArray[15],
+    );
     return target;
 };
 
