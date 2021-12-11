@@ -40,6 +40,7 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * simple 组装器
@@ -55,26 +56,6 @@ export const simple: IAssembler = {
         renderData.vData = new Float32Array(4 * 9);
 
         return renderData;
-    },
-
-    createBuffer (sprite: Sprite, renderer: IBatcher) {
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-
-        const bufferUnchanged = buffer.request();
-        if (!bufferUnchanged) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
-
-        const renderData = sprite.renderData!;
-        renderData.cacheBuffer = buffer;
-        renderData.bufferOffset = vertexOffset;
-        renderData.meshBufferDirty = true;
     },
 
     updateRenderData (sprite: Sprite) {
@@ -181,57 +162,8 @@ export const simple: IAssembler = {
             this.updateWorldVerts(sprite, vData);
         }
 
-        // const buffer: MeshBuffer = renderer.createBuffer(
-        //     sprite.renderData!.vertexCount,
-        //     sprite.renderData!.indicesCount,
-        // );
-        // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
-
-        const renderData = sprite.renderData!;
-        const buffer = renderData.cacheBuffer!;
-
-        const vertexOffset = renderData.bufferOffset;
-        const vertexId = vertexOffset / buffer.vertexFormatBytes * renderData.vertexCount;
-        let indicesOffset = buffer.indicesOffset;
-
-        // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-
-        vBuf.set(vData, vertexOffset);
-
-        const index0 = vertexId; const index1 = vertexId + 1;
-        const index2 = vertexId + 2; const index3 = vertexId + 3;
-
-        // fill index data
-        iBuf[indicesOffset++] = index0;
-        iBuf[indicesOffset++] = index1;
-        iBuf[indicesOffset++] = index2;
-        iBuf[indicesOffset++] = index2;
-        iBuf[indicesOffset++] = index1;
-        iBuf[indicesOffset++] = index3;
-
-        buffer.indicesOffset += renderData.indicesCount;
-    },
-
-    fillIndex (sprite: Sprite) {
-        const renderData = sprite.renderData!;
-        const buffer = renderData.cacheBuffer!;
-
-        let indicesOffset = buffer.indicesOffset;
-        const vertexId = renderData.bufferOffset / buffer.vertexFormatBytes * renderData.vertexCount;
-        const iBuf = buffer.iData!;
-        const index0 = vertexId; const index1 = vertexId + 1;
-        const index2 = vertexId + 2; const index3 = vertexId + 3;
-        // fill index data
-        iBuf[indicesOffset++] = index0;
-        iBuf[indicesOffset++] = index1;
-        iBuf[indicesOffset++] = index2;
-        iBuf[indicesOffset++] = index2;
-        iBuf[indicesOffset++] = index1;
-        iBuf[indicesOffset++] = index3;
-
-        buffer.indicesOffset += renderData.indicesCount;
+        const buffer = renderer.switchBufferAccessor();
+        buffer.appendBuffers(vData, QUAD_INDICES);
     },
 
     updateVertexData (sprite: Sprite) {

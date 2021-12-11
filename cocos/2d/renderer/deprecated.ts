@@ -35,7 +35,7 @@ export { Batcher2D as UI };
 
 export { DrawBatch2D as UIDrawBatch };
 
-markAsWarning(MeshBuffer.prototype, 'MeshBuffer', 
+markAsWarning(MeshBuffer.prototype, 'MeshBuffer',
     [
         'byteStart',
         'vertexStart',
@@ -49,12 +49,23 @@ markAsWarning(MeshBuffer.prototype, 'MeshBuffer', [
     {
         name: 'vertexBuffers',
         suggest: 'please use meshBuffer.vertexBuffer instead',
-    }
+    },
 ]);
 
 replaceProperty(MeshBuffer.prototype, 'MeshBuffer', [
     {
         name: 'indicesOffset',
         newName: 'indexOffset',
+    },
+]);
+
+replaceProperty(Batcher2D.prototype, 'Batcher2D', [
+    {
+        name: 'currBufferBatch',
+        newName: 'currBufferAccessor',
+    },
+    {
+        name: 'acquireBufferBatch',
+        newName: 'switchBufferAccessor',
     },
 ]);

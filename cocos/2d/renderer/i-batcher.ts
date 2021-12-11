@@ -9,12 +9,10 @@ import { UIStaticBatch } from '../components/ui-static-batch';
 import { Renderable2D, RenderRoot2D, UIComponent } from '../framework';
 import { BufferAccessor } from './buffer-accessor';
 import { DrawBatch2D } from './draw-batch';
-import { MeshBuffer } from './mesh-buffer';
 
 export interface IBatcher {
-    currBufferBatch: BufferAccessor;
+    currBufferAccessor: BufferAccessor;
     readonly batches: CachedArray<DrawBatch2D>;
-    acquireBufferBatch (attributes?: Attribute[]): BufferAccessor;
     // registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
     // unRegisterCustomBuffer (buffer: MeshBuffer);
 
@@ -36,8 +34,13 @@ export interface IBatcher {
     uploadBuffers ();
     reset ();
 
+    switchBufferAccessor (attributes?: Attribute[]): BufferAccessor;
+
     commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
     commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null);
+
+    setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: BufferAccessor);
+    endStaticBatch ();
     commitStaticBatch (comp: UIStaticBatch);
 
     autoMergeBatches (renderComp?: Renderable2D);

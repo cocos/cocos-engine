@@ -40,7 +40,6 @@ export class LinearBufferAccessor extends BufferAccessor {
     public indexStart = 0;
     public vertexStart = 0;
 
-    private _currentId = -1;
     // InputAssembler pools for each mesh buffer, array offset correspondent
     private _iaPools: InputAssembler[][] = [];
     private _iaInfos: InputAssemblerInfo[] = [];
@@ -82,30 +81,27 @@ export class LinearBufferAccessor extends BufferAccessor {
     }
 
     public request (vertexCount = 4, indexCount = 6) {
-        let switchedBuffer = false;
-        let buf = this._buffers[this._currentId];
-        const byteIncrement = vertexCount * buf.vertexFormatBytes;
-        const byteOffset = buf.byteOffset + byteIncrement;
-        const indexOffset = buf.indexOffset + indexCount;
-
-        const byteLength = buf.vData!.byteLength;
-        const indicesLength = buf.iData!.length;
-        if (byteOffset > byteLength || indexOffset > indicesLength) {
-            const success = buf.ensureCapacity(vertexCount, indexCount);
-            // No enough space in the current mesh buffer
-            if (!success) {
-                this._allocateBuffer();
-                buf = this._buffers[this._currentId];
-                switchedBuffer = true;
-            }
-        }
+        const buf = this._buffers[this._currentId];
+        const switchedBuffer = this._allocateChunk(vertexCount, indexCount);
 
         // Mesh buffer might be switched, can't use initial offsets
         buf.vertexOffset += vertexCount;
         buf.indexOffset += indexCount;
-        buf.byteOffset += byteIncrement;
+        buf.byteOffset += vertexCount * buf.vertexFormatBytes;
         buf.setDirty();
         return switchedBuffer;
+    }
+
+    public appendBuffers (vertices: Float32Array, indices: Uint16Array) {
+        const vertexCount = vertices.length / this._floatsPerVertex;
+        this._allocateChunk(vertexCount, indices.length);
+        const buf = this._buffers[this._currentId];
+        buf.vData!.set(vertices, buf.vertexOffset);
+        buf.iData!.set(indices, buf.indexOffset);
+
+        buf.vertexOffset += vertexCount;
+        buf.indexOffset += indices.length;
+        buf.byteOffset += vertices.byteLength;
     }
 
     public recordBatch (): InputAssembler | null {
@@ -136,6 +132,24 @@ export class LinearBufferAccessor extends BufferAccessor {
         for (let i = 0; i <= this._currentId; ++i) {
             this._buffers[i].uploadBuffers();
         }
+    }
+
+    private _allocateChunk (vertexCount: number, indexCount: number) {
+        let switchedBuffer = false;
+        const buf = this._buffers[this._currentId];
+        const byteOffset = buf.byteOffset + vertexCount * buf.vertexFormatBytes;
+        const indexOffset = buf.indexOffset + indexCount;
+        const byteLength = buf.vData!.byteLength;
+        const indicesLength = buf.iData!.length;
+        if (byteOffset > byteLength || indexOffset > indicesLength) {
+            const success = buf.ensureCapacity(vertexCount, indexCount);
+            // No enough space in the current mesh buffer
+            if (!success) {
+                this._allocateBuffer();
+                switchedBuffer = true;
+            }
+        }
+        return switchedBuffer;
     }
 
     private _allocateBuffer () {

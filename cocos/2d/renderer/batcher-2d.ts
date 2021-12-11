@@ -28,17 +28,16 @@
  */
 import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
-import { UIStaticBatch } from '../components';
+import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../core/gfx';
-import { Pool, RecyclePool } from '../../core/memop';
+import { Pool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
-import { MeshBuffer } from './mesh-buffer';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D, DrawCall } from './draw-batch';
 import * as VertexFormat from './vertex-format';
@@ -60,17 +59,11 @@ const m4_1 = new Mat4();
  * UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
-    get currBufferBatch () {
+    get currBufferAccessor () {
         if (this._linearBuffer) return this._linearBuffer;
         // create if not set
-        this._linearBuffer = this.acquireBufferBatch()!;
+        this._linearBuffer = this.switchBufferAccessor();
         return this._linearBuffer;
-    }
-
-    set currBufferBatch (buffer: BufferAccessor) {
-        if (buffer) {
-            this._linearBuffer = buffer;
-        }
     }
 
     get batches () {
@@ -320,8 +313,9 @@ export class Batcher2D implements IBatcher {
      * Acquire a new mesh buffer if the vertex layout differs from the current one.
      * @param attributes
      */
-    public acquireBufferBatch (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
+    public switchBufferAccessor (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
         const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
+        // If current accessor not compatible with the requested attributes
         if (!this._linearBuffer || (this._linearBuffer.vertexFormatBytes) !== strideBytes) {
             let accessor = this._bufferAccessors.get(strideBytes);
             if (!accessor) {
@@ -488,6 +482,20 @@ export class Batcher2D implements IBatcher {
         this._currLayer = 0;
     }
 
+    public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: BufferAccessor) {
+        this.finishMergeBatches();
+        this._linearBuffer = bufferAccessor;
+        this.currStaticRoot = staticComp;
+    }
+
+    public endStaticBatch () {
+        this.finishMergeBatches();
+        this.currStaticRoot = null;
+        // Clear linear buffer to switch to the correct internal accessor
+        this._linearBuffer = null;
+        this.switchBufferAccessor();
+    }
+
     /**
      * @en
      * Submit separate render data.
@@ -510,7 +518,7 @@ export class Batcher2D implements IBatcher {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
-        const accessor = this.currBufferBatch as LinearBufferAccessor;
+        const accessor = this.currBufferAccessor as LinearBufferAccessor;
         if (!accessor) {
             return;
         }
@@ -801,7 +809,6 @@ class DescriptorSetCache {
             if (this._descriptorSetCache.has(hash)) {
                 return this._descriptorSetCache.get(hash)!;
             } else {
-                const device = legacyCC.director.root.device;
                 _dsInfo.layout = batch.passes[0].localSetLayout;
                 const descriptorSet = root.device.createDescriptorSet(_dsInfo) as DescriptorSet;
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
