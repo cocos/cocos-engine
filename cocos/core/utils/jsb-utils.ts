@@ -161,7 +161,7 @@ export function updateChildrenForDeserialize (node: Node) {
     //         this._setChildren(v);
     //     },
     // });
-    node._isChildrenRedefined = true;
+    // node._isChildrenRedefined = true;
 }
 
 // export function updateChildren (node: Node) {

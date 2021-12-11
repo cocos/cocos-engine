@@ -1320,7 +1320,7 @@ nodeProto._ctor = function (name?: string) {
     // });
 
     this._children = [];
-    this._isChildrenRedefined = false;
+    // this._isChildrenRedefined = false;
 
     this._lpos = new Vec3();
     this._lrot = new Quat();
