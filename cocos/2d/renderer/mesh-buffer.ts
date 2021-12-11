@@ -36,45 +36,37 @@ import { warnID } from '../../core/platform/debug';
 
 export class MeshBuffer extends ScalableContainer {
     public static OPACITY_OFFSET = 8;
-    public static id = 0;
 
     get accessor () { return this._accessor; }
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
-    get vertexBuffer () { return this._vertexBuffer; }
+    get vertexBuffers (): Readonly<Buffer[]> { return this._vertexBuffers; }
     get indexBuffer () { return this._indexBuffer; }
-
-    /**
-     * @deprecated since v3.4.0 please use vertexBuffer instead
-     * @see [[vertexBuffer]]
-     */
-    get vertexBuffers () { return [this._vertexBuffer]; }
 
     /**
      * @deprecated since v3.4.0 please use LinearBufferAccessor.byteStart instead
      * @see [[LinearBufferAccessor.byteStart]]
      */
     get byteStart () { return this._accessor ? (this._accessor as LinearBufferAccessor).byteStart : 0; }
-    set byteStart (start: number) { if (this._accessor) {(this._accessor as LinearBufferAccessor).byteStart = start;} }
+    set byteStart (start: number) { if (this._accessor) { (this._accessor as LinearBufferAccessor).byteStart = start; } }
 
     /**
      * @deprecated since v3.4.0 please use LinearBufferAccessor.indexStart instead
      * @see [[LinearBufferAccessor.indexStart]]
      */
     get indicesStart () { return this._accessor ? (this._accessor as LinearBufferAccessor).indexStart : 0; }
-    set indicesStart (start: number) { if (this._accessor) {(this._accessor as LinearBufferAccessor).indexStart = start;} }
+    set indicesStart (start: number) { if (this._accessor) { (this._accessor as LinearBufferAccessor).indexStart = start; } }
 
     /**
      * @deprecated since v3.4.0 please use LinearBufferAccessor.vertexStart instead
      * @see [[LinearBufferAccessor.vertexStart]]
      */
     get vertexStart () { return this._accessor ? (this._accessor as LinearBufferAccessor).vertexStart : 0; }
-    set vertexStart (start: number) { if (this._accessor) {(this._accessor as LinearBufferAccessor).vertexStart = start;} }
+    set vertexStart (start: number) { if (this._accessor) { (this._accessor as LinearBufferAccessor).vertexStart = start; } }
 
     public byteOffset = 0;
     public vertexOffset = 0;
     public indexOffset = 0;
-    public bufferId = 0;
     public vData: Float32Array | null = null;
     public iData: Uint16Array | null = null;
 
@@ -86,24 +78,17 @@ export class MeshBuffer extends ScalableContainer {
     private _lastUsedIDataSize = 0;
     private _attributes: Attribute[] = null!;
     private _accessor: BufferAccessor | null = null;
-    private _vertexBuffer: Buffer = null!;
+    private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
-    private _outOfBoundCB: ((...args: number[]) => void) | null = null;
 
-    constructor () {
-        super();
-        this.bufferId = MeshBuffer.id++;
-    }
-
-    public initialize (device: Device, attrs: Attribute[], outOfBoundCallback: ((...args: number[]) => void) | null) {
-        this._outOfBoundCB = outOfBoundCallback;
+    public initialize (device: Device, attrs: Attribute[]) {
         const floatCount = getComponentPerVertex(attrs);
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         this._initVDataCount = 256 * this._vertexFormatBytes;
         this._attributes = attrs;
 
-        this._vertexBuffer = device.createBuffer(new BufferInfo(
+        this._vertexBuffers[0] = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             vbStride,
@@ -124,9 +109,6 @@ export class MeshBuffer extends ScalableContainer {
     }
 
     public reset () {
-        if (this._accessor) {
-            this._accessor.reset();
-        }
         this.byteOffset = 0;
         this.indexOffset = 0;
         this.vertexOffset = 0;
@@ -136,31 +118,17 @@ export class MeshBuffer extends ScalableContainer {
     public destroy () {
         this._attributes = null!;
 
-        if (this._vertexBuffer) {
-            this._vertexBuffer.destroy();
+        if (this._vertexBuffers[0]) {
+            this._vertexBuffers[0].destroy();
         }
-        this._vertexBuffer = null!;
+        this._vertexBuffers.length = 0;
 
         if (this._indexBuffer) {
             this._indexBuffer.destroy();
         }
         this._indexBuffer = null!;
 
-        if (this._accessor) {
-            this._accessor.destroy();
-        }
         super.destroy();
-    }
-
-    public setAccessor (accessor: BufferAccessor) {
-        if (!this._accessor) {
-            accessor.buffer = this;
-            accessor.initialize();
-            this._accessor = accessor;
-        }
-        else {
-            warnID(9002);
-        }
     }
 
     public setDirty () {
@@ -181,14 +149,11 @@ export class MeshBuffer extends ScalableContainer {
 
     public ensureCapacity (vertexCount: number, indexCount: number) {
         const maxVertex = this.vertexOffset + vertexCount;
-        const maxIndex = this.indexOffset + indexCount; 
+        const maxIndex = this.indexOffset + indexCount;
         if (maxVertex > 65535) {
-            if (this._outOfBoundCB) {
-                this._outOfBoundCB(vertexCount, indexCount);
-            }
             return false;
         }
-        let maxByte = maxVertex * this.vertexFormatBytes;
+        const maxByte = maxVertex * this.vertexFormatBytes;
         let byteLength = this.vData!.byteLength;
         let indicesLength = this.iData!.length;
         while (byteLength < maxByte || indicesLength < maxIndex) {
@@ -200,6 +165,7 @@ export class MeshBuffer extends ScalableContainer {
         }
 
         this._reallocBuffer();
+        return true;
     }
 
     public tryShrink () {
@@ -223,10 +189,11 @@ export class MeshBuffer extends ScalableContainer {
         const verticesData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
         const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indexOffset);
 
-        if (this.byteOffset > this.vertexBuffers[0].size) {
-            this.vertexBuffers[0].resize(this.byteOffset);
+        const vertexBuffer = this._vertexBuffers[0];
+        if (this.byteOffset > vertexBuffer.size) {
+            vertexBuffer.resize(this.byteOffset);
         }
-        this.vertexBuffers[0].update(verticesData);
+        vertexBuffer.update(verticesData);
 
         if (this.indexOffset * 2 > this.indexBuffer.size) {
             this.indexBuffer.resize(this.indexOffset * 2);

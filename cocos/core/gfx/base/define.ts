@@ -1420,9 +1420,9 @@ export class InputAssemblerInfo {
 
     constructor (
         public attributes: Attribute[] = [],
-        public vertexBuffers: Buffer[] = [],
-        public indexBuffer: Buffer | null = null,
-        public indirectBuffer: Buffer | null = null,
+        public vertexBuffers: Readonly<Buffer[]> = [],
+        public indexBuffer: Readonly<Buffer> | null = null,
+        public indirectBuffer: Readonly<Buffer> | null = null,
     ) {}
 
     public copy (info: Readonly<InputAssemblerInfo>) {

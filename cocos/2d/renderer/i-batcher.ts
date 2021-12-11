@@ -7,15 +7,16 @@ import { Model } from '../../core/renderer/scene/model';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIStaticBatch } from '../components/ui-static-batch';
 import { Renderable2D, RenderRoot2D, UIComponent } from '../framework';
+import { BufferAccessor } from './buffer-accessor';
 import { DrawBatch2D } from './draw-batch';
 import { MeshBuffer } from './mesh-buffer';
 
 export interface IBatcher {
-    currBufferBatch: MeshBuffer | null;
+    currBufferBatch: BufferAccessor;
     readonly batches: CachedArray<DrawBatch2D>;
-    acquireBufferBatch (attributes?: Attribute[]): MeshBuffer | null;
-    registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
-    unRegisterCustomBuffer (buffer: MeshBuffer);
+    acquireBufferBatch (attributes?: Attribute[]): BufferAccessor;
+    // registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
+    // unRegisterCustomBuffer (buffer: MeshBuffer);
 
     currStaticRoot: UIStaticBatch | null;
     currIsStatic: boolean;

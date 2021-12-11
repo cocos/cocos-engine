@@ -621,6 +621,7 @@ Invalid index in MultiplexLayer switchTo message
 cc.Layer.addLayer(): layer should be non-null
 
 ### 2104
+
 Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
 ### 2200
@@ -3053,11 +3054,11 @@ Stencil manager is already empty, cannot pop any mask
 
 ### 9002
 
-Failed to set accessor for mesh buffer with an existing accessor, please check
+Failed to request any buffer from a mesh buffer without accessor
 
 ### 9003
 
-Failed to request any buffer from a mesh buffer without accessor
+The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason
 
 ### 9100
 
