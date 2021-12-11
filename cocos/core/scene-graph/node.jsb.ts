@@ -1276,6 +1276,11 @@ _applyDecoratedDescriptor(_class2$v.prototype, 'layer', [editable], Object.getOw
 
 //
 nodeProto._ctor = function (name?: string) {
+    this.__nativeRefs = {};
+    this.__jsb_ref_id = undefined;
+    this._iN$t = null;
+    this.__editorExtras__ = { editorOnly: true };
+
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
@@ -1283,6 +1288,8 @@ nodeProto._ctor = function (name?: string) {
     this._layerArr = new Uint32Array([Layers.Enum.DEFAULT]);
     this._scene = null;
     this._prefab = null;
+    // record scene's id when set this node as persist node
+    this._originalSceneId = '';
 
     this._registerListeners();
     // // for deserialization
