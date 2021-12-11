@@ -165,17 +165,6 @@ exports.ready = function() {
 };
 
 exports.methods = {
-    async apply() {
-        if (this.$.panelSection.style.display === 'none') {
-            return;
-        }
-
-        const metaList = this.$.panel.panelObject.metaList;
-
-        for (const meta of metaList) {
-            await Editor.Message.request('asset-db', 'save-asset-meta', meta.uuid, JSON.stringify(meta));
-        }
-    },
     /**
      * Update whether a data is editable in multi-select state
      */
