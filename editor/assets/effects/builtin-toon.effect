@@ -12,6 +12,13 @@ CCEffect %{
         depthFunc: less_equal
         depthTest: true
         depthWrite: true
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: zero
+          blendSrcAlpha: one
+          blendDstAlpha: zero
       properties:
         lineWidth:     { value: 10, target: outlineParams.x }
         depthBias:     { value: 0,  target: outlineParams.y }
@@ -19,6 +26,13 @@ CCEffect %{
         baseColorMap:  { value: grey }
     - vert: toon-vs:vert
       frag: toon-fs:frag
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: zero
+          blendSrcAlpha: one
+          blendDstAlpha: zero
       properties: &props
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, linear: true, editor: { displayName: BaseColor, type: color } }
