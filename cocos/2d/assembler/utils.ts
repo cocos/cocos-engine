@@ -38,19 +38,13 @@ const _worldMatrix = new Mat4();
 
 export function fillVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    let buffer = renderer.acquireBufferBatch()!;
-    let vertexOffset = buffer.byteOffset >> 2;
-
+    const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    let indicesOffset = buffer.indicesOffset;
-    let vertexId = buffer.vertexOffset;
-    const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
-    if (!isRecreate) {
-        buffer = renderer.currBufferBatch!;
-        vertexOffset = 0;
-        indicesOffset = 0;
-        vertexId = 0;
-    }
+    accessor.request(vertexCount, renderData.indicesCount);
+    const buffer = accessor.currentBuffer;
+    let vertexOffset = accessor.byteOffset >> 2;
+    const indicesOffset = accessor.indexOffset;
+    const vertexId = accessor.vertexOffset;
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
@@ -71,28 +65,22 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
     }
 
     // buffer data may be realloc, need get reference after request.
-    const iBuf = buffer.iData;
+    const iBuf = buffer.iData!;
     for (let i = 0; i < renderData.dataLength; i++) {
-        iBuf![indicesOffset + i] = vertexId + i;
+        iBuf[indicesOffset + i] = vertexId + i;
     }
 }
 
 export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    let buffer = renderer.acquireBufferBatch()!;
-    let vertexOffset = buffer.byteOffset >> 2;
-
+    const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    let indicesOffset = buffer.indicesOffset;
-    let vertexId = buffer.vertexOffset;
 
-    const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
-    if (!isRecreate) {
-        buffer = renderer.currBufferBatch!;
-        vertexOffset = 0;
-        indicesOffset = 0;
-        vertexId = 0;
-    }
+    accessor.request(vertexCount, renderData.indicesCount);
+    const buffer = accessor.currentBuffer;
+    let vertexOffset = accessor.byteOffset >> 2;
+    let indicesOffset = accessor.indexOffset;
+    const vertexId = accessor.vertexOffset;
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
@@ -127,20 +115,13 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
 
 export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    let buffer = renderer.acquireBufferBatch()!;
-    let vertexOffset = buffer.byteOffset >> 2;
-
-    // buffer
+    const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    let indicesOffset: number = buffer.indicesOffset;
-    let vertexId: number = buffer.vertexOffset;
-    const isRecreate = buffer.request(vertexCount, renderData.indicesCount);
-    if (!isRecreate) {
-        buffer = renderer.currBufferBatch!;
-        vertexOffset = 0;
-        indicesOffset = 0;
-        vertexId = 0;
-    }
+    accessor.request(vertexCount, renderData.indicesCount);
+    const buffer = accessor.currentBuffer;
+    let vertexOffset = accessor.byteOffset >> 2;
+    let indicesOffset = accessor.indexOffset;
+    const vertexId = accessor.vertexOffset;
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
@@ -157,11 +138,11 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
     }
 
     // buffer data may be realloc, need get reference after request.
-    const iBuf = buffer.iData;
-    iBuf![indicesOffset++] = vertexId;
-    iBuf![indicesOffset++] = vertexId + 1;
-    iBuf![indicesOffset++] = vertexId + 2;
-    iBuf![indicesOffset++] = vertexId + 1;
-    iBuf![indicesOffset++] = vertexId + 3;
-    iBuf![indicesOffset++] = vertexId + 2;
+    const iBuf = buffer.iData!;
+    iBuf[indicesOffset++] = vertexId;
+    iBuf[indicesOffset++] = vertexId + 1;
+    iBuf[indicesOffset++] = vertexId + 2;
+    iBuf[indicesOffset++] = vertexId + 1;
+    iBuf[indicesOffset++] = vertexId + 3;
+    iBuf[indicesOffset++] = vertexId + 2;
 }

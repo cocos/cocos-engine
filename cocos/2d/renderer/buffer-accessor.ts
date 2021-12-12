@@ -38,6 +38,7 @@ export class BufferAccessor {
     public get byteOffset () { return this._buffers[this._currentId].byteOffset; }
     public get vertexOffset () { return this._buffers[this._currentId].vertexOffset; }
     public get indexOffset () { return this._buffers[this._currentId].indexOffset; }
+    public get currentBuffer (): Readonly<MeshBuffer> { return this._buffers[this._currentId]; }
 
     protected _device: Device = null!
     protected _attributes: Attribute[] = null!;
@@ -55,9 +56,7 @@ export class BufferAccessor {
 
     public initialize () {}
     public reset () {}
-    public request (vertexCount = 4, indicesCount = 6): boolean {
-        return false;
-    }
+    public request (vertexCount = 4, indicesCount = 6) {}
     public appendBuffers (vertices: Float32Array, indices: Uint16Array) {}
     public uploadBuffers () {}
     public destroy () {

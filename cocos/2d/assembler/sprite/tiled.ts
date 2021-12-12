@@ -104,23 +104,17 @@ export const tiled: IAssembler = {
         const renderData = sprite.renderData!;
 
         // buffer
-        let buffer = renderer.acquireBufferBatch()!;
-        // buffer data may be realloc, need get reference after request.
-        let indicesOffset = buffer.indicesOffset;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let vertexId = buffer.vertexOffset;
+        const accessor = renderer.switchBufferAccessor();
         const vertexCount = renderData.vertexCount;
         const indicesCount = renderData.indicesCount;
+        accessor.request(vertexCount, indicesCount);
+        // buffer data may be realloc, need get reference after request.
+        let indicesOffset = accessor.indexOffset;
+        let vertexOffset = accessor.byteOffset >> 2;
+        let vertexId = accessor.vertexOffset;
+        const buffer = accessor.currentBuffer;
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
-
-        const isRecreate = buffer.request(vertexCount, indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
 
         const frame = sprite.spriteFrame!;
         const rotated = frame.isRotated();

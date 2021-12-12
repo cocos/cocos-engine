@@ -120,9 +120,6 @@ export class RenderData extends BaseRenderData {
     public hashDirty = true;
     public dataHash = 0;
 
-    public cacheBuffer: MeshBuffer | null = null;
-    public bufferOffset = 0;
-
     public updateNode (comp: Renderable2D) {
         this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
         this.layer = comp.node.layer;
@@ -235,9 +232,6 @@ export class MeshRenderData extends BaseRenderData {
     // only for graphics
     public lastFilledIndices = 0;
     public lastFilledVertex = 0;
-
-    public cacheBuffer: MeshBuffer | null = null;
-    public bufferOffset = 0;
 
     private _formatByte:number;
 

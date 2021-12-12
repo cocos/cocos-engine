@@ -82,14 +82,13 @@ export class LinearBufferAccessor extends BufferAccessor {
 
     public request (vertexCount = 4, indexCount = 6) {
         const buf = this._buffers[this._currentId];
-        const switchedBuffer = this._allocateChunk(vertexCount, indexCount);
+        this._allocateChunk(vertexCount, indexCount);
 
         // Mesh buffer might be switched, can't use initial offsets
         buf.vertexOffset += vertexCount;
         buf.indexOffset += indexCount;
         buf.byteOffset += vertexCount * buf.vertexFormatBytes;
         buf.setDirty();
-        return switchedBuffer;
     }
 
     public appendBuffers (vertices: Float32Array, indices: Uint16Array) {

@@ -29,7 +29,7 @@
  */
 
 import * as js from '../../../core/utils/js';
-import { Color, Vec3 } from '../../../core/math';
+import { Color } from '../../../core/math';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
@@ -67,17 +67,12 @@ export const ttf: IAssembler = {
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
 
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-        const isRecreate = buffer.request();
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            indicesOffset = 0;
-            vertexId = 0;
-            vertexOffset = 0;
-        }
+        const accessor = renderer.switchBufferAccessor();
+        accessor.request();
+        const buffer = accessor.currentBuffer;
+        const vertexOffset = accessor.byteOffset >> 2;
+        let indicesOffset = accessor.indexOffset;
+        const vertexId = accessor.vertexOffset;
 
         // buffer data may be reallocated, need get reference after request.
         const vBuf = buffer.vData!;
