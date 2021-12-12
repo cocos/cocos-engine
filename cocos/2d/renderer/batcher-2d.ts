@@ -164,10 +164,9 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        for (const strideBytes in this._bufferAccessors) {
-            const accessor = this._bufferAccessors[strideBytes];
+        this._bufferAccessors.forEach((accessor: BufferAccessor) => {
             accessor.destroy();
-        }
+        });
         this._bufferAccessors.clear();
 
         if (this._drawBatchPool) {
@@ -259,11 +258,10 @@ export class Batcher2D implements IBatcher {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
-            const accessors = this._bufferAccessors;
-            for (const strideBytes in accessors) {
-                accessors[strideBytes].uploadBuffers();
-                accessors[strideBytes].reset();
-            }
+            this._bufferAccessors.forEach((accessor: BufferAccessor) => {
+                accessor.uploadBuffers();
+                accessor.reset();
+            });
 
             // const customs = this._customMeshBuffers;
             // customs.forEach((value, key) => {
@@ -290,9 +288,9 @@ export class Batcher2D implements IBatcher {
             this._drawBatchPool.free(batch);
         }
         // Reset buffer accessors
-        for (const strideBytes in this._bufferAccessors) {
-            this._bufferAccessors[strideBytes].reset();
-        }
+        this._bufferAccessors.forEach((accessor: BufferAccessor) => {
+            accessor.reset();
+        });
         this._linearBuffer = null;
 
         this._currHash = 0;
@@ -322,13 +320,13 @@ export class Batcher2D implements IBatcher {
                 accessor = new LinearBufferAccessor(this.device, attributes);
                 this._bufferAccessors.set(strideBytes, accessor);
             }
-            let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
-            // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
-            if (vertexCount && indexCount || sys.__isWebIOS14OrIPadOS14Env) {
-                // useCount++ when _recreateMeshBuffer
-                meshBufferUseCount++;
-            }
-            this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
+            // let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
+            // // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
+            // if (vertexCount && indexCount || sys.__isWebIOS14OrIPadOS14Env) {
+            //     // useCount++ when _recreateMeshBuffer
+            //     meshBufferUseCount++;
+            // }
+            // this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
 
             this._linearBuffer = accessor;
         }
@@ -409,11 +407,9 @@ export class Batcher2D implements IBatcher {
             }
         }
 
-        if (comp.node.hasChangedFlags || comp._renderDataDirty) {
+        if (comp.node.hasChangedFlags) {
             assembler.fillBuffers(renderComp, this);
-            comp._renderDataDirty = false;
-        } else {
-            assembler.fillIndex(renderComp, this);
+            // comp._renderDataDirty = false;
         }
     }
 

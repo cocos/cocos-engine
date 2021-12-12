@@ -45,12 +45,6 @@ markAsWarning(MeshBuffer.prototype, 'MeshBuffer',
         name: item,
         suggest: `please use meshBuffer.accessor.${item} instead`,
     })));
-markAsWarning(MeshBuffer.prototype, 'MeshBuffer', [
-    {
-        name: 'vertexBuffers',
-        suggest: 'please use meshBuffer.vertexBuffer instead',
-    },
-]);
 
 replaceProperty(MeshBuffer.prototype, 'MeshBuffer', [
     {

@@ -41,7 +41,7 @@ export class LinearBufferAccessor extends BufferAccessor {
     public vertexStart = 0;
 
     // InputAssembler pools for each mesh buffer, array offset correspondent
-    private _iaPools: InputAssembler[][] = [];
+    private _iaPools: InputAssembler[][] = [[]];
     private _iaInfos: InputAssemblerInfo[] = [];
     private _nextFreeIAHandle = 0;
 

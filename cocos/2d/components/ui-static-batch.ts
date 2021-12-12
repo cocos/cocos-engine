@@ -177,12 +177,4 @@ export class UIStaticBatch extends Renderable2D {
         warnID(9301);
         return null;
     }
-
-    protected _arrivalMaxBuffer () {
-        const ui = this._getBatcher();
-        if (ui) {
-            ui.autoMergeBatches();
-        }
-        warnID(9300);
-    }
 }
