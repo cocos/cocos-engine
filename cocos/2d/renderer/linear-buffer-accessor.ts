@@ -97,11 +97,18 @@ export class LinearBufferAccessor extends BufferAccessor {
         this._allocateChunk(vertexCount, indices.length);
         const buf = this._buffers[this._currentId];
         buf.vData!.set(vertices, buf.vertexOffset);
-        buf.iData!.set(indices, buf.indexOffset);
+
+        const iData = buf.iData!;
+        const vertexId = buf.vertexOffset;
+        let indexOffset = buf.indexOffset;
+        for (let i = 0; i < indices.length; ++i, ++indexOffset) {
+            iData[indexOffset] = vertexId + indices[i];
+        }
 
         buf.vertexOffset += vertexCount;
         buf.indexOffset += indices.length;
         buf.byteOffset += vertices.byteLength;
+        buf.setDirty();
     }
 
     public recordBatch (): InputAssembler | null {
@@ -166,7 +173,10 @@ export class LinearBufferAccessor extends BufferAccessor {
             this._iaInfos.push(iaInfo);
             this._iaPools.push([]);
         }
-        this._currentId = id;
+        this.byteStart = 0;
+        this.indexStart = 0;
+        this.vertexStart = 0;
         this._nextFreeIAHandle = 0;
+        this._currentId = id;
     }
 }

@@ -407,10 +407,8 @@ export class Batcher2D implements IBatcher {
             }
         }
 
-        if (comp.node.hasChangedFlags) {
-            assembler.fillBuffers(renderComp, this);
-            // comp._renderDataDirty = false;
-        }
+        assembler.fillBuffers(renderComp, this);
+        // comp._renderDataDirty = false;
     }
 
     /**
