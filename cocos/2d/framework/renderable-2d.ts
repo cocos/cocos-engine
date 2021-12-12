@@ -315,7 +315,6 @@ export class Renderable2D extends RenderableComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
-    public _renderDataDirty = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
     protected _instanceMaterialType = -1;
@@ -468,7 +467,6 @@ export class Renderable2D extends RenderableComponent {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
-            this._renderDataDirty = true;
         }
     }
 
@@ -496,7 +494,6 @@ export class Renderable2D extends RenderableComponent {
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
             this._renderFlag = this._canRender();
             this._colorDirty = false;
-            this._renderDataDirty = true;
         }
     }
 

@@ -36,7 +36,6 @@ import { RenderScene } from '../../core/renderer/scene';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
-import { MeshBuffer } from './mesh-buffer';
 
 export interface IRenderData {
     x: number;
