@@ -493,7 +493,6 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @private_cc
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public getPropertyCurves () {
@@ -514,7 +513,6 @@ export class AnimationClip extends Asset {
      * @en
      * Commit event data update.
      * You should call this function after you changed the `events` data to take effect.
-     * @private_cc
      * @deprecated Since V3.3. Please Assign to `this.events`.
      */
     public updateEventDatas () {
@@ -532,7 +530,7 @@ export class AnimationClip extends Asset {
 
     /**
      * Migrates legacy data into tracks.
-     * @private_cc This method tend to be used as internal purpose or patch.
+     * NOTE: This method tend to be used as internal purpose or patch.
      * DO NOT use it in your code since it might be removed for the future at any time.
      * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
