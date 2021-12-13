@@ -45,6 +45,7 @@ public:
     inline id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }
     
     static CCMTLSampler* getDefaultSampler();
+    static void deleteDefaultSampler();
 
 protected:
 

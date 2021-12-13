@@ -301,5 +301,13 @@ CCMTLTexture* CCMTLTexture::getDefaultTexture() {
     return defaultTexture;
 }
 
+void CCMTLTexture::deleteDefaultTexture(){
+    if (defaultTexture) {
+        delete defaultTexture;
+        defaultTexture = nullptr;
+    }
+}
+
+
 } // namespace gfx
 } // namespace cc
