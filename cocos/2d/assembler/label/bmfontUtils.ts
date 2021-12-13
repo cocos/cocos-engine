@@ -397,7 +397,7 @@ export const bmfontUtils = {
         }
 
         _lettersInfo[letterIndex].char = char;
-        _lettersInfo[letterIndex].hash = char.charCodeAt(0) + shareLabelInfo.hash;
+        _lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
         _lettersInfo[letterIndex].valid = false;
     },
 
@@ -408,7 +408,7 @@ export const bmfontUtils = {
         }
 
         const char = character.charCodeAt(0);
-        const key = char + shareLabelInfo.hash;
+        const key = `${char}${shareLabelInfo.hash}`;
 
         _lettersInfo[letterIndex].line = lineIndex;
         _lettersInfo[letterIndex].char = character;
