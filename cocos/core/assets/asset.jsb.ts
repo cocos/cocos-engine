@@ -46,6 +46,11 @@ applyMixins(jsb.Asset, [CallbacksInvoker]);
 const assetProto: any = jsb.Asset.prototype;
 
 assetProto._ctor = function () {
+    this.__nativeRefs = {};
+    this.__jsb_ref_id = undefined;
+    this._iN$t = null;
+    this.__editorExtras__ = { editorOnly: true };
+
     this._callbackTable = createMap(true);
     this._file = null;
     // for deserialization

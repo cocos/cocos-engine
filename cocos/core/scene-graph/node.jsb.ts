@@ -520,6 +520,7 @@ nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
         _tempFloatArray[2] = val.y;
         _tempFloatArray[3] = val.z;
         _tempFloatArray[4] = val.w;
+        this._lrot.set(val.x, val.y, val.z, val.w);
     } else {
         _tempFloatArray[0] = 0;
     }
@@ -529,6 +530,7 @@ nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
         _tempFloatArray[6] = pos.x;
         _tempFloatArray[7] = pos.y;
         _tempFloatArray[8] = pos.z;
+        this._lpos.set(pos.x, pos.y, pos.z);
     } else {
         _tempFloatArray[5] = 0;
     }
@@ -537,6 +539,7 @@ nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
         _tempFloatArray[10] = scale.x;
         _tempFloatArray[11] = scale.y;
         _tempFloatArray[12] = scale.z;
+        this._lscale.set(scale.x, scale.y, scale.z);
     } else {
         _tempFloatArray[9] = 0;
     }
@@ -544,18 +547,22 @@ nodeProto.setRTS = function (rot?: Quat | Vec3, pos?: Vec3, scale?: Vec3) {
 };
 
 nodeProto.getPosition = function (out?: Vec3): Vec3 {
-    oldGetPosition.call(this);
+    // oldGetPosition.call(this);
+    // if (out) {
+    //     return Vec3.set(out, _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
+    // }
+    // const pos = this._positionCache;
+    // pos.x = _tempFloatArray[0];
+    // pos.y = _tempFloatArray[1];
+    // pos.z = _tempFloatArray[2];
+    // return pos;
     if (out) {
-        return Vec3.set(out, _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
+        return Vec3.set(out, this._lpos.x, this._lpos.y, this._lpos.z);
     }
-    const pos = this._positionCache;
-    pos.x = _tempFloatArray[0];
-    pos.y = _tempFloatArray[1];
-    pos.z = _tempFloatArray[2];
-    return pos;
+    return Vec3.copy(this._positionCache, this._lpos);
 };
 
-nodeProto.setPosition = function (val: Readonly<Vec3> | number, y?: number, z?: number) {
+nodeProto.setPosition = function setPosition (val: Readonly<Vec3> | number, y?: number, z?: number) {
     if (y === undefined && z === undefined) {
         _tempFloatArray[0] = 3;
         const pos = val as Vec3;
@@ -565,7 +572,7 @@ nodeProto.setPosition = function (val: Readonly<Vec3> | number, y?: number, z?: 
     } else if (z === undefined) {
         _tempFloatArray[0] = 2;
         this._lpos.x = _tempFloatArray[1] = val as number;
-        this._lpos.y = _tempFloatArray[2] = y;
+        this._lpos.y = _tempFloatArray[2] = y as number;
     } else {
         _tempFloatArray[0] = 3;
         this._lpos.x = _tempFloatArray[1] = val as number;
@@ -576,11 +583,16 @@ nodeProto.setPosition = function (val: Readonly<Vec3> | number, y?: number, z?: 
 };
 
 nodeProto.getRotation = function (out?: Quat): Quat {
-    const r = oldGetRotation.call(this);
+    // const r = oldGetRotation.call(this);
+    // if (out) {
+    //     return Quat.set(out, r.x, r.y, r.z, r.w);
+    // }
+    // return Quat.copy(this._rotationCache || (this._rotationCache = new Quat()), r);
+
     if (out) {
-        return Quat.set(out, r.x, r.y, r.z, r.w);
+        return Quat.set(out, this._lrot.x, this._lrot.y, this._lrot.z, this._lrot.w);
     }
-    return Quat.copy(this._rotationCache || (this._rotationCache = new Quat()), r);
+    return Quat.copy(this._rotationCache, this._lrot);
 };
 
 nodeProto.setRotation = function (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
@@ -618,11 +630,16 @@ nodeProto.setRotationFromEuler = function (val: Vec3 | number, y?: number, zOpt?
 };
 
 nodeProto.getScale = function (out?: Vec3): Vec3 {
-    const r = oldGetScale.call(this);
+    // const r = oldGetScale.call(this);
+    // if (out) {
+    //     return Vec3.set(out, r.x, r.y, r.z);
+    // }
+    // return Vec3.copy(this._scaleCache || (this._scaleCache = new Vec3()), r);
+
     if (out) {
-        return Vec3.set(out, r.x, r.y, r.z);
+        return Vec3.set(out, this._lscale.x, this._lscale.y, this._lscale.z);
     }
-    return Vec3.copy(this._scaleCache || (this._scaleCache = new Vec3()), r);
+    return Vec3.copy(this._scaleCache, this._lscale);
 };
 
 nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: number) {
@@ -635,11 +652,11 @@ nodeProto.setScale = function (val: Readonly<Vec3> | number, y?: number, z?: num
     } else if (z === undefined) {
         _tempFloatArray[0] = 2;
         this._lscale.x = _tempFloatArray[1] = val as number;
-        this._lscale.y = _tempFloatArray[2] = y;
+        this._lscale.y = _tempFloatArray[2] = y as number;
     } else {
         _tempFloatArray[0] = 3;
         this._lscale.x = _tempFloatArray[1] = val as number;
-        this._lscale.y = _tempFloatArray[2] = y;
+        this._lscale.y = _tempFloatArray[2] = y as number;
         this._lscale.z = _tempFloatArray[3] = z;
     }
     oldSetScale.call(this);
@@ -650,7 +667,7 @@ nodeProto.getWorldPosition = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._worldPositionCache || (this._worldPositionCache = new Vec3()), r);
+    return Vec3.copy(this._worldPositionCache, r);
 };
 
 nodeProto.getWorldRotation = function (out?: Quat): Quat {
@@ -658,7 +675,7 @@ nodeProto.getWorldRotation = function (out?: Quat): Quat {
     if (out) {
         return Quat.copy(out, r);
     }
-    return Quat.copy(this._worldRotationCache || (this._worldRotationCache = new Quat()), r);
+    return Quat.copy(this._worldRotationCache, r);
 };
 
 nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
@@ -666,28 +683,18 @@ nodeProto.getWorldScale = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._worldScaleCache || (this._worldScaleCache = new Vec3()), r);
+    return Vec3.copy(this._worldScaleCache, r);
 };
 
-nodeProto.getWorldMatrix = function (out?: Mat4): Mat4 {
+nodeProto.getWorldMatrix = function getWorldMatrix(out?: Mat4): Mat4 {
     oldGetWorldMatrix.call(this);
     const target = out || this._worldMatrixCache;
-    target.m00 = _tempFloatArray[0];
-    target.m01 = _tempFloatArray[1];
-    target.m02 = _tempFloatArray[2];
-    target.m03 = _tempFloatArray[3];
-    target.m04 = _tempFloatArray[4];
-    target.m05 = _tempFloatArray[5];
-    target.m06 = _tempFloatArray[6];
-    target.m07 = _tempFloatArray[7];
-    target.m08 = _tempFloatArray[8];
-    target.m09 = _tempFloatArray[9];
-    target.m10 = _tempFloatArray[10];
-    target.m11 = _tempFloatArray[11];
-    target.m12 = _tempFloatArray[12];
-    target.m13 = _tempFloatArray[13];
-    target.m14 = _tempFloatArray[14];
-    target.m15 = _tempFloatArray[15];
+    target.set(
+        _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3],
+        _tempFloatArray[4], _tempFloatArray[5], _tempFloatArray[6], _tempFloatArray[7],
+        _tempFloatArray[8], _tempFloatArray[9], _tempFloatArray[10], _tempFloatArray[11],
+        _tempFloatArray[12], _tempFloatArray[13], _tempFloatArray[14], _tempFloatArray[15],
+    );
     return target;
 };
 
@@ -696,7 +703,7 @@ nodeProto.getEulerAngles = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._eulerAnglesCache || (this._eulerAnglesCache = new Vec3()), r);
+    return Vec3.copy(this._eulerAnglesCache, r);
 };
 
 nodeProto.getForward = function (out?: Vec3): Vec3 {
@@ -704,7 +711,7 @@ nodeProto.getForward = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._forwardCache || (this._forwardCache = new Vec3()), r);
+    return Vec3.copy(this._forwardCache, r);
 };
 
 nodeProto.getUp = function (out?: Vec3): Vec3 {
@@ -712,7 +719,7 @@ nodeProto.getUp = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._upCache || (this._upCache = new Vec3()), r);
+    return Vec3.copy(this._upCache, r);
 };
 
 nodeProto.getRight = function (out?: Vec3): Vec3 {
@@ -720,13 +727,14 @@ nodeProto.getRight = function (out?: Vec3): Vec3 {
     if (out) {
         return Vec3.copy(out, r);
     }
-    return Vec3.copy(this._rightCache || (this._rightCache = new Vec3()), r);
+    return Vec3.copy(this._rightCache, r);
 };
+
 Object.defineProperty(nodeProto, 'position', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Vec3> {
-        return this.getPosition();
+        return this._lpos;
     },
     set (v: Readonly<Vec3>) {
         this.setPosition(v as Vec3);
@@ -737,7 +745,7 @@ Object.defineProperty(nodeProto, 'rotation', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Quat> {
-        return this.getRotation();
+        return this._lrot;
     },
     set (v: Readonly<Quat>) {
         this.setRotation(v as Quat);
@@ -748,7 +756,7 @@ Object.defineProperty(nodeProto, 'scale', {
     configurable: true,
     enumerable: true,
     get (): Readonly<Vec3> {
-        return this.getScale();
+        return this._lscale;
     },
     set (v: Readonly<Vec3>) {
         this.setScale(v as Vec3);
@@ -786,6 +794,30 @@ Object.defineProperty(nodeProto, 'worldScale', {
     set (v: Readonly<Vec3>) {
         this.setWorldScale(v as Vec3);
     },
+});
+
+Object.defineProperty(nodeProto, '_pos', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Vec3> {
+        return this.getWorldPosition();
+    }
+});
+
+Object.defineProperty(nodeProto, '_rot', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Quat> {
+        return this.getWorldRotation();
+    }
+});
+
+Object.defineProperty(nodeProto, '_scale', {
+    configurable: true,
+    enumerable: true,
+    get (): Readonly<Vec3> {
+        return this.getWorldScale();
+    }
 });
 
 Object.defineProperty(nodeProto, 'eulerAngles', {
@@ -1043,6 +1075,46 @@ nodeProto._onSceneUpdated = function (scene) {
     this._scene = scene;
 };
 
+nodeProto._onLocalPositionUpdated = function (x, y, z) {
+    const lpos = this._lpos;
+    lpos.x = x;
+    lpos.y = y;
+    lpos.z = z;
+};
+
+nodeProto._onLocalRotationUpdated = function (x, y, z, w) {
+    const lrot = this._lrot;
+    lrot.x = x;
+    lrot.y = y;
+    lrot.z = z;
+    lrot.w = w;
+};
+
+nodeProto._onLocalScaleUpdated = function (x, y, z) {
+    const lscale = this._lscale;
+    lscale.x = x;
+    lscale.y = y;
+    lscale.z = z;
+};
+
+nodeProto._onLocalPositionRotationScaleUpdated = function (px, py, pz, rx, ry, rz, rw, sx, sy, sz) {
+    const lpos = this._lpos;
+    lpos.x = px;
+    lpos.y = py;
+    lpos.z = pz;
+
+    const lrot = this._lrot;
+    lrot.x = rx;
+    lrot.y = ry;
+    lrot.z = rz;
+    lrot.w = rw;
+
+    const lscale = this._lscale;
+    lscale.x = sx;
+    lscale.y = sy;
+    lscale.z = sz;
+};
+
 nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     if (!cloned) {
         cloned = legacyCC.instantiate._clone(this, this);
@@ -1194,6 +1266,11 @@ _applyDecoratedDescriptor(_class2$v.prototype, 'layer', [editable], Object.getOw
 
 //
 nodeProto._ctor = function (name?: string) {
+    this.__nativeRefs = {};
+    this.__jsb_ref_id = undefined;
+    this._iN$t = null;
+    this.__editorExtras__ = { editorOnly: true };
+
     this._components = [];
     this._eventProcessor = new legacyCC.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
@@ -1201,6 +1278,8 @@ nodeProto._ctor = function (name?: string) {
     this._layerArr = new Uint32Array([Layers.Enum.DEFAULT]);
     this._scene = null;
     this._prefab = null;
+    // record scene's id when set this node as persist node
+    this._originalSceneId = '';
 
     this._registerListeners();
     // // for deserialization
@@ -1238,7 +1317,7 @@ nodeProto._ctor = function (name?: string) {
     // });
 
     this._children = [];
-    this._isChildrenRedefined = false;
+    // this._isChildrenRedefined = false;
 
     this._lpos = new Vec3();
     this._lrot = new Quat();
@@ -1257,7 +1336,8 @@ nodeProto._ctor = function (name?: string) {
     this._positionCache = new Vec3();
     this._rotationCache = new Quat();
     this._scaleCache = new Vec3();
-    this._worldPosition = new Vec3();
+
+    this._worldPositionCache = new Vec3();
     this._worldRotationCache = new Quat();
     this._worldScaleCache = new Vec3();
     this._worldMatrixCache = new Mat4();
@@ -1303,7 +1383,7 @@ clsDecorator(Node);
 const oldGetWorldRT = nodeProto.getWorldRT;
 nodeProto.getWorldRT = function (out?: Mat4) {
     const worldRT = oldGetWorldRT.call(this);
-    const target = out || this._worldRTCache || (this._worldRTCache = new Mat4());
+    const target = out || this._worldRTCache;
     Mat4.copy(target, worldRT);
     return target;
 };

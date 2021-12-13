@@ -108,7 +108,7 @@ export function syncNodeValues (node: Node) {
         lscale.z = z = z || 1;
         node.setScaleForJS(x, y, z);
     } else {
-        lscale.x = lscale.y = lscale.z = 0;
+        lscale.x = lscale.y = lscale.z = 1;
     }
 
     const lrot = node._lrot;
@@ -123,7 +123,8 @@ export function syncNodeValues (node: Node) {
         lrot.w = w = w || 1;
         node.setRotationForJS(x, y, z, w);
     } else {
-        lrot.x = lrot.y = lrot.z = lrot.w = 0;
+        lrot.x = lrot.y = lrot.z = 0;
+        lrot.w = 1;
     }
 
     const euler = node._euler;
@@ -160,7 +161,7 @@ export function updateChildrenForDeserialize (node: Node) {
     //         this._setChildren(v);
     //     },
     // });
-    node._isChildrenRedefined = true;
+    // node._isChildrenRedefined = true;
 }
 
 // export function updateChildren (node: Node) {

@@ -78,6 +78,7 @@ const _descriptor_hideInEditor = _applyDecoratedDescriptor(effectAssetProto, 'hi
 
 effectAssetProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
+    this.hideInEditor = false;
     // _initializerDefineProperty(this, 'techniques', _descriptor_techniques, _assertThisInitialized(this));
     // _initializerDefineProperty(this, 'shaders', _descriptor_shaders, _assertThisInitialized(this));
     // _initializerDefineProperty(this, 'combinations', _descriptor_combinations, _assertThisInitialized(this));

@@ -13,11 +13,14 @@ const MorphModel = jsb.MorphModel;
 const bakedSkinningModelProto: any = BakedSkinningModel.prototype;
 
 bakedSkinningModelProto._ctor = function () {
+    jsb.Model.prototype._ctor.call(this);
     this.uploadedAnim = undefined;
     this._dataPoolManager = legacyCC.director.root.dataPoolManager;
     const jointTextureInfo = new Float32Array(4);
     const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
     this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
+    this._skeleton = null;
+    this._mesh = null;
 };
 
 const oldDestroy = bakedSkinningModelProto.destroy;
