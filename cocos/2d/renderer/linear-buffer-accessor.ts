@@ -95,7 +95,8 @@ export class LinearBufferAccessor extends BufferAccessor {
         const vertexCount = vertices.length / this._floatsPerVertex;
         this._allocateChunk(vertexCount, indices.length);
         const buf = this._buffers[this._currentId];
-        buf.vData!.set(vertices, buf.vertexOffset);
+        // Float offset calculation only valid for Float32 vertex buffer
+        buf.vData!.set(vertices, buf.byteOffset >> 2);
 
         const iData = buf.iData!;
         const vertexId = buf.vertexOffset;

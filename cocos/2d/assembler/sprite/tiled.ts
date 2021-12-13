@@ -109,18 +109,18 @@ export const tiled: IAssembler = {
         const indicesCount = renderData.indicesCount;
         accessor.request(vertexCount, indicesCount);
         // buffer data may be realloc, need get reference after request.
-        let indicesOffset = accessor.indexOffset;
-        let vertexOffset = accessor.byteOffset >> 2;
-        let vertexId = accessor.vertexOffset;
         const buffer = accessor.currentBuffer;
+        let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+        let indicesOffset = accessor.indexOffset - indicesCount;
+        let vertexId = accessor.vertexOffset - vertexCount;
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
 
         const frame = sprite.spriteFrame!;
-        const rotated = frame.isRotated();
+        const rotated = frame.rotated;
         const uv = frame.uv;
         const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
-        const rect = frame.getRect();
+        const rect = frame.rect;
         const leftWidth = frame.insetLeft;
         const rightWidth = frame.insetRight;
         const centerWidth = rect.width - leftWidth - rightWidth;
@@ -298,7 +298,7 @@ export const tiled: IAssembler = {
         const data: IRenderData[] = renderData!.data;
         const frame = sprite.spriteFrame!;
 
-        const rect = frame.getRect();
+        const rect = frame.rect;
         const contentWidth = Math.abs(uiTrans.width);
         const contentHeight = Math.abs(uiTrans.height);
         const appx = uiTrans.anchorX * contentWidth;

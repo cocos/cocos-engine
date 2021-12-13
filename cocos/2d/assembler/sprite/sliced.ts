@@ -132,12 +132,13 @@ export const sliced: IAssembler = {
         const dataList: IRenderData[] = renderData.data;
 
         const vertexCount = renderData.vertexCount;
+        const indexCount = renderData.indicesCount;
         const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
 
-        accessor.request(vertexCount, renderData.indicesCount);
-        let vertexOffset = accessor.byteOffset >> 2;
-        let indexOffset = accessor.indexOffset;
-        const vertexId = accessor.vertexOffset;
+        accessor.request(vertexCount, indexCount);
+        let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+        let indexOffset = accessor.indexOffset - indexCount;
+        const vertexId = accessor.vertexOffset - vertexCount;
         const buffer = accessor.currentBuffer;
 
         const vBuf: Float32Array|null = buffer.vData;

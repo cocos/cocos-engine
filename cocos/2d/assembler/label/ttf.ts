@@ -37,6 +37,7 @@ import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../renderer/render-data';
 
 const WHITE = Color.WHITE.clone();
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * ttf 组装器
@@ -67,16 +68,6 @@ export const ttf: IAssembler = {
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
 
-        const accessor = renderer.switchBufferAccessor();
-        accessor.request();
-        const buffer = accessor.currentBuffer;
-        const vertexOffset = accessor.byteOffset >> 2;
-        let indicesOffset = accessor.indexOffset;
-        const vertexId = accessor.vertexOffset;
-
-        // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
         const vData = renderData.vData!;
         const data0 = dataList[0];
         const data3 = dataList[3];
@@ -108,15 +99,8 @@ export const ttf: IAssembler = {
         vData[27] = cx1 * bx + cx2 * by + x;
         vData[28] = cy1 * by + cy2 * bx + y;
 
-        vBuf.set(vData, vertexOffset);
-
-        // fill index data
-        iBuf[indicesOffset++] = vertexId;
-        iBuf[indicesOffset++] = vertexId + 1;
-        iBuf[indicesOffset++] = vertexId + 2;
-        iBuf[indicesOffset++] = vertexId + 2;
-        iBuf[indicesOffset++] = vertexId + 1;
-        iBuf[indicesOffset++] = vertexId + 3;
+        const accessor = renderer.switchBufferAccessor();
+        accessor.appendBuffers(vData, QUAD_INDICES);
     },
 
     updateVertexData (comp: Label) {

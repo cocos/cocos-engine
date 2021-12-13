@@ -40,11 +40,12 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
     const dataList = renderData.data;
     const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    accessor.request(vertexCount, renderData.indicesCount);
+    const indexCount = renderData.indicesCount;
+    accessor.request(vertexCount, indexCount);
     const buffer = accessor.currentBuffer;
-    let vertexOffset = accessor.byteOffset >> 2;
-    const indicesOffset = accessor.indexOffset;
-    const vertexId = accessor.vertexOffset;
+    let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+    const indicesOffset = accessor.indexOffset - indexCount;
+    const vertexId = accessor.vertexOffset - vertexCount;
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
@@ -75,12 +76,12 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
     const dataList = renderData.data;
     const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
-
-    accessor.request(vertexCount, renderData.indicesCount);
+    const indexCount = renderData.indicesCount;
+    accessor.request(vertexCount, indexCount);
     const buffer = accessor.currentBuffer;
-    let vertexOffset = accessor.byteOffset >> 2;
-    let indicesOffset = accessor.indexOffset;
-    const vertexId = accessor.vertexOffset;
+    let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+    let indicesOffset = accessor.indexOffset - indexCount;
+    const vertexId = accessor.vertexOffset - vertexCount;
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
@@ -117,11 +118,12 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
     const dataList = renderData.data;
     const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    accessor.request(vertexCount, renderData.indicesCount);
+    const indexCount = renderData.indicesCount;
+    accessor.request(vertexCount, indexCount);
     const buffer = accessor.currentBuffer;
-    let vertexOffset = accessor.byteOffset >> 2;
-    let indicesOffset = accessor.indexOffset;
-    const vertexId = accessor.vertexOffset;
+    let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+    let indicesOffset = accessor.indexOffset - indexCount;
+    const vertexId = accessor.vertexOffset - vertexCount;
 
     // buffer data may be realloc, need get reference after request.
     const vBuf = buffer.vData!;
