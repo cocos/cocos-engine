@@ -818,9 +818,6 @@ interface RootMotionOptions {
 type ExoticAnimationEvaluator = ReturnType<ExoticAnimation['createEvaluator']>;
 
 class AnimationClipEvaluation {
-    /**
-     * @internal
-     */
     constructor (
         trackEvalStatuses: TrackEvalStatus[],
         exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
