@@ -35,9 +35,19 @@ export namespace interfaceFilter {
         ) => {
             return (rootNode) => {
                 function visit(node: ts.Node): ts.Node | undefined {
-                    // @ts-ignore
-                    // console.log(syntaxToKind(node.kind) + ' ' + node.text);
-                    if (node.kind === ts.SyntaxKind.MethodDeclaration || node.kind === ts.SyntaxKind.PropertyDeclaration) {
+                    const SyntaxKind = ts.SyntaxKind;
+                    const kind = node.kind;
+                    if (kind === SyntaxKind.ClassDeclaration ||
+                        kind === SyntaxKind.PropertyDeclaration ||
+                        kind === SyntaxKind.GetAccessor ||
+                        kind === SyntaxKind.SetAccessor ||
+                        kind === SyntaxKind.MethodDeclaration ||
+
+                        kind === SyntaxKind.InterfaceDeclaration ||
+                        kind === SyntaxKind.PropertySignature ||
+                        kind === SyntaxKind.MethodSignature ||
+
+                        kind === SyntaxKind.EnumDeclaration) {
                         // @ts-ignore
                         const symbol = checker.getSymbolAtLocation(node.name);
                         const tags = symbol?.getJsDocTags();
@@ -47,6 +57,21 @@ export namespace interfaceFilter {
                                 if (tag.name === 'internal') {
                                     // delete interface
                                     return undefined;
+                                }
+                            }
+                        }
+                    } else if (kind === SyntaxKind.VariableStatement) {
+                        // @ts-ignore VariableStatement can't use TypeChecker
+                        const jsDocs = node.jsDoc;
+                        if (jsDocs) {
+                            for (let jsDoc of jsDocs) {
+                                const tags = jsDoc.tags;
+                                if (tags) {
+                                    for (let tag of tags) {
+                                        if (tag.tagName.escapedText === 'internal') {
+                                            return undefined;
+                                        }
+                                    }
                                 }
                             }
                         }
