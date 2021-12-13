@@ -3133,7 +3133,10 @@ let NodeDefines = {
     setWorldScale (scale) {
         if (this._parent) {
             this._parent.getWorldScale(_swsVec3);
-            Vec3.div(_swsVec3, scale, _swsVec3);
+            // Element-wise vector division, the divisor cannot be 0.
+            _swsVec3.x = scale.x / (_swsVec3.x || 1);
+            _swsVec3.y = scale.y / (_swsVec3.y || 1);
+            _swsVec3.z = scale.z / (_swsVec3.z || 1);
         }
         else {
             Vec3.copy(_swsVec3, scale);
