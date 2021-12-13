@@ -12,11 +12,15 @@ export namespace interfaceFilter {
          * It is set to inputDts by default.
          */
         outputDts?: string;
+        /**
+         * Taget jsDoc tag to cull.
+         * this tag is `internal` by default.
+         */
+        targetTag?: string;
     }
     
     /**
      * Culling interface.
-     * Now we only cull the interface with `@internal` JSDoc tag.
      * @param cullingOptions 
      */
     export function cullInterface(cullingOptions: CullingOptions) {
@@ -24,6 +28,7 @@ export namespace interfaceFilter {
         const {
             inputDts,
             outputDts = inputDts,
+            targetTag = 'internal',
         } = cullingOptions;
 
         
@@ -54,7 +59,7 @@ export namespace interfaceFilter {
                         if (tags) {
                             for (let i = 0; i < tags.length; ++i) {
                                 let tag = tags[i];
-                                if (tag.name === 'internal') {
+                                if (tag.name === targetTag) {
                                     // delete interface
                                     return undefined;
                                 }
@@ -68,7 +73,7 @@ export namespace interfaceFilter {
                                 const tags = jsDoc.tags;
                                 if (tags) {
                                     for (let tag of tags) {
-                                        if (tag.tagName.escapedText === 'internal') {
+                                        if (tag.tagName.escapedText === targetTag) {
                                             return undefined;
                                         }
                                     }

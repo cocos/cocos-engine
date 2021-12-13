@@ -219,6 +219,7 @@ export async function build (options: {
 
         interfaceFilter.cullInterface({
             inputDts: indexOutputPath,
+            targetTag: 'private_cc',
         });
     } catch (error) {
         console.error(error);
