@@ -200,7 +200,7 @@ export const bmfontUtils = {
         }
     },
 
-    _multilineTextWrap (nextTokenFunc: Function) {
+    _multilineTextWrap (nextTokenFunc: (arg0: string, arg1: number, arg2: number) => number) {
         const textLen = _string.length;
 
         let lineIndex = 0;
@@ -457,7 +457,7 @@ export const bmfontUtils = {
         }
     },
 
-    _shrinkLabelToContentSize (lambda: Function) {
+    _shrinkLabelToContentSize (lambda: () => boolean) {
         const fontSize = _fontSize;
 
         let left = 0;
