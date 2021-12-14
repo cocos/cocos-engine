@@ -19,7 +19,7 @@
 #include "renderer/pipeline/deferred/BloomStage.h"
 #include "renderer/pipeline/deferred/PostProcessStage.h"
 #include "renderer/pipeline/GeometryRenderer.h"
-#include "cocos/renderer/gfx-base/GFXBase.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
