@@ -265,6 +265,12 @@ export class AABB {
         Vec3.add(maxPos, this.center, this.halfExtents);
     }
 
+    public destroy () {
+        if (JSB) {
+            AABBPool.free(this._aabbHandle);
+        }
+    }
+
     /**
       * @en
       * Transform this shape

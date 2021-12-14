@@ -274,6 +274,9 @@ export class Model {
             this._localBuffer.destroy();
             this._localBuffer = null;
         }
+        this._worldBounds?.destroy();
+        this._modelBounds?.destroy();
+
         this._worldBounds = null;
         this._modelBounds = null;
         this._subModels.length = 0;
