@@ -194,6 +194,9 @@ class CCObject implements EditorExtendableObject {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public declare [editorExtrasTag]: unknown;
 
     /**
