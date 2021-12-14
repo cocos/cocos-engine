@@ -366,7 +366,7 @@ export class SplashScreen {
 
         if (JSB) {
             // @ts-expect-error: prevent Pso from GC
-            cmdBuff.__logoPso__ = logoPso;
+            cmdBuff.__logoPso__ = logoPso; // TODO(PatriceJiang): remove this line after applying smart pointer on the GFX layer
         }
 
         cmdBuff.bindPipelineState(logoPso);
