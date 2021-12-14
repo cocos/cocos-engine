@@ -25,8 +25,8 @@ list(APPEND PROJ_SOURCES
 
 include_resources(${RES_DIR}/assets)
 
-add_executable(${LIB_NAME} 
-    ${PROJ_SOURCES} 
+add_executable(${LIB_NAME}
+    ${PROJ_SOURCES}
     ${PROJ_COMMON_SOURCES}
     ${ASSET_FILES}
 )

@@ -140,6 +140,8 @@ void GLES2Swapchain::doCreateSurface(void* windowHandle) {
 
     auto width  = static_cast<int>(_colorTexture->getWidth());
     auto height = static_cast<int>(_colorTexture->getHeight());
+    CC_UNUSED_PARAM(width);
+    CC_UNUSED_PARAM(height);
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
 #elif CC_PLATFORM == CC_PLATFORM_OHOS

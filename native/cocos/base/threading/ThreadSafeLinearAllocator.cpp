@@ -29,14 +29,14 @@
 
 namespace cc {
 
-ThreadSafeLinearAllocator::ThreadSafeLinearAllocator(uint32_t size) noexcept
+ThreadSafeLinearAllocator::ThreadSafeLinearAllocator(size_t size, size_t alignment) noexcept
 : _capacity(size) {
-    _buffer = malloc(size);
+    _buffer = _CC_MALLOC_ALIGN(size, alignment);
     CCASSERT(_buffer, "Out of memory");
 }
 
 ThreadSafeLinearAllocator::~ThreadSafeLinearAllocator() {
-    free(_buffer);
+    _CC_FREE_ALIGN(_buffer);
 }
 
 void *ThreadSafeLinearAllocator::doAllocate(size_t size, size_t alignment) noexcept {
@@ -45,8 +45,8 @@ void *ThreadSafeLinearAllocator::doAllocate(size_t size, size_t alignment) noexc
     }
 
     void *   allocatedMemory = nullptr;
-    uint32_t oldUsedSize     = 0;
-    uint64_t newUsedSize     = 0; // using 64-bit integer to correctly detect overflows
+    size_t   oldUsedSize     = 0;
+    uint64_t newUsedSize     = 0; // force 64-bit here to correctly detect overflows
 
     do {
         oldUsedSize     = getUsedSize();
@@ -56,7 +56,7 @@ void *ThreadSafeLinearAllocator::doAllocate(size_t size, size_t alignment) noexc
         if (newUsedSize > _capacity) {
             return nullptr; // overflows
         }
-    } while (!_usedSize.compare_exchange_weak(oldUsedSize, static_cast<uint32_t>(newUsedSize), std::memory_order_relaxed, std::memory_order_relaxed)); // no ABA possible
+    } while (!_usedSize.compare_exchange_weak(oldUsedSize, static_cast<size_t>(newUsedSize), std::memory_order_relaxed, std::memory_order_relaxed)); // no ABA possible
 
     return allocatedMemory;
 }

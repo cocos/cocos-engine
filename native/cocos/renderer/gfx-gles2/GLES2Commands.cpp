@@ -279,6 +279,7 @@ GLenum formatToGLType(Format format) {
 
         case Format::ETC_RGB8:
         case Format::ETC2_RGB8:
+        case Format::ETC2_RGBA8:
         case Format::ETC2_SRGB8:
         case Format::ETC2_RGB8_A1:
         case Format::ETC2_SRGB8_A1:
@@ -2711,7 +2712,7 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
     }
 }
 
-CC_GLES2_API void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *device, GLES2GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
+void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *device, GLES2GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     GLuint framebuffer = device->framebufferCacheMap()->getFramebufferFromTexture(gpuTexture);
     auto   glFormat    = gpuTexture->glFormat;
     auto   glType      = gpuTexture->glType;

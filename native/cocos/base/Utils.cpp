@@ -72,10 +72,6 @@ uint nextPOT(uint x) {
     return x + 1;
 }
 
-uint alignTo(uint size, uint alignment) {
-    return ((size - 1) / alignment + 1) * alignment;
-}
-
 // painfully slow to execute, use with caution
 std::string getStacktrace(uint skip, uint maxDepth) {
     return boost::stacktrace::to_string(boost::stacktrace::stacktrace(skip, maxDepth));

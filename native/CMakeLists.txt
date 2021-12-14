@@ -28,20 +28,18 @@ cc_set_if_undefined(USE_MODULES              OFF)
 
 add_definitions()
 
-if(ANDROID OR WINDOWS)
+if(NX)
+    cc_set_if_undefined(CC_USE_VULKAN ON)
+    cc_set_if_undefined(CC_USE_GLES3 OFF)
+    cc_set_if_undefined(CC_USE_GLES2 OFF)
+elseif(ANDROID OR WINDOWS OR OHOS)
     cc_set_if_undefined(CC_USE_GLES3 ON)
     cc_set_if_undefined(CC_USE_VULKAN OFF)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
-    cc_set_if_undefined(CC_USE_METAL OFF)
 elseif(MACOSX OR IOS)
     cc_set_if_undefined(CC_USE_METAL ON)
     cc_set_if_undefined(CC_USE_VULKAN OFF)
     cc_set_if_undefined(CC_USE_GLES3 OFF)
-    cc_set_if_undefined(CC_USE_GLES2 OFF)
-elseif(OHOS)
-    cc_set_if_undefined(CC_USE_METAL OFF)
-    cc_set_if_undefined(CC_USE_VULKAN OFF)
-    cc_set_if_undefined(CC_USE_GLES3 ON)
     cc_set_if_undefined(CC_USE_GLES2 OFF)
 endif()
 
@@ -478,6 +476,7 @@ elseif(LINUX)
 endif()
 
 ############ platform : Interface implementation of windows
+
 if(WINDOWS)
     cocos_source_files(
         cocos/platform/win32/modules/Accelerometer.cpp
@@ -927,7 +926,6 @@ cocos_source_files(
                  cocos/renderer/gfx-base/SPIRVUtils.cpp
                  cocos/renderer/gfx-base/GFXObject.h
                  cocos/renderer/gfx-base/GFXObject.cpp
-                 cocos/renderer/gfx-base/GFXBase.h
                  cocos/renderer/gfx-base/GFXBuffer.cpp
                  cocos/renderer/gfx-base/GFXBuffer.h
                  cocos/renderer/gfx-base/GFXCommandBuffer.cpp
@@ -1193,7 +1191,6 @@ endif()
 
 if(CC_USE_GLES2)
     cocos_source_files(
-                     cocos/renderer/gfx-gles2/GFXGLES2.h
                      cocos/renderer/gfx-gles2/GLES2Buffer.cpp
                      cocos/renderer/gfx-gles2/GLES2Buffer.h
                      cocos/renderer/gfx-gles2/GLES2CommandBuffer.cpp
@@ -1241,7 +1238,6 @@ endif()
 
 if(CC_USE_GLES3)
     cocos_source_files(
-                     cocos/renderer/gfx-gles3/GFXGLES3.h
                      cocos/renderer/gfx-gles3/GLES3Buffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Buffer.h
                      cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp
@@ -1291,7 +1287,6 @@ endif()
 
 if(CC_USE_METAL)
     cocos_source_files(
-                     cocos/renderer/gfx-metal/GFXMTL.h
                      cocos/renderer/gfx-metal/MTLBuffer.h
                      cocos/renderer/gfx-metal/MTLBuffer.mm
                      cocos/renderer/gfx-metal/MTLCommandBuffer.h
@@ -1340,7 +1335,6 @@ endif()
 if(CC_USE_VULKAN)
 
     cocos_source_files(
-                     cocos/renderer/gfx-vulkan/GFXVulkan.h
                      cocos/renderer/gfx-vulkan/vk_mem_alloc.h
                      cocos/renderer/gfx-vulkan/VKBuffer.cpp
                      cocos/renderer/gfx-vulkan/VKBuffer.h
@@ -1398,6 +1392,10 @@ if(CC_USE_VULKAN)
                 COMPILE_FLAGS -Wno-nullability-completeness
         )
     endif()
+endif()
+
+if(NX)
+    include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/source.cmake)
 endif()
 
 cocos_source_files(
@@ -2276,6 +2274,23 @@ if(USE_MODULES)
     cc_apply_definations(ccutils)
 endif()
 
+if(MSVC)
+    if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
+        file(GLOB_RECURSE WIN32_DLLS
+            ${CWD}/external/win32/libs/*.dll
+            ${CWD}/external/win32/libs/Debug/*.dll
+            ${CWD}/external/win32/libs/glslang/*.dll
+        )
+    else()
+        file(GLOB_RECURSE WIN32_DLLS
+            ${CWD}/external/win64/libs/*.dll
+            ${CWD}/external/win64/libs/Debug/*.dll
+            ${CWD}/external/win64/libs/glslang/*.dll
+        )
+    endif()
+    target_compile_options(cocos2d PUBLIC /MP /wd4309)
+endif()
+
 if(CC_USE_VULKAN)
 
     target_compile_definitions(cocos2d PUBLIC VK_NO_PROTOTYPES)
@@ -2283,6 +2298,8 @@ if(CC_USE_VULKAN)
 
     if(WIN32)
         target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_WIN32_KHR)
+    elseif(NX)
+        target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_VI_NN)
     elseif(ANDROID)
         target_compile_definitions(cocos2d PUBLIC VK_USE_PLATFORM_ANDROID_KHR)
     elseif(IOS)
@@ -2329,8 +2346,9 @@ target_include_directories(cocos2d PUBLIC
     ${CWD}/external/sources/khronos
 )
 
-
-if(WIN32)
+if(NX)
+    include(${CMAKE_CURRENT_LIST_DIR}/platform-nx/setup.cmake)
+elseif(WINDOWS)
     target_link_libraries(cocos2d PUBLIC
         ws2_32 userenv psapi winmm Iphlpapi
         ${CC_EXTERNAL_LIBS}
@@ -2352,8 +2370,6 @@ if(WIN32)
             ws2_32
         )
     endif()
-
-
 endif()
 
 if(ANDROID)
@@ -2463,21 +2479,3 @@ elseif(LINUX)
 endif()
 
 source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
-
-
-if(MSVC)
-    if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
-        file(GLOB_RECURSE WIN32_DLLS
-            ${CWD}/external/win32/libs/*.dll
-            ${CWD}/external/win32/libs/Debug/*.dll
-            ${CWD}/external/win32/libs/glslang/*.dll
-        )
-    else()
-        file(GLOB_RECURSE WIN32_DLLS
-            ${CWD}/external/win64/libs/*.dll
-            ${CWD}/external/win64/libs/Debug/*.dll
-            ${CWD}/external/win64/libs/glslang/*.dll
-        )
-    endif()
-    target_compile_options(cocos2d PUBLIC /MP /wd4309)
-endif()

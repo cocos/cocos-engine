@@ -23,12 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKPipelineLayout.h"
 #include "VKCommands.h"
 #include "VKDescriptorSetLayout.h"
 #include "VKDevice.h"
-#include "VKPipelineLayout.h"
 
 namespace cc {
 namespace gfx {

@@ -23,14 +23,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKFramebuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "VKFramebuffer.h"
 #include "VKRenderPass.h"
 #include "VKTexture.h"
-#include "base/memory/Memory.h"
 
 namespace cc {
 namespace gfx {

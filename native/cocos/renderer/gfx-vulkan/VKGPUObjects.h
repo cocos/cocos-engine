@@ -27,9 +27,6 @@
 
 #include "VKStd.h"
 #include "VKUtils.h"
-#include "gfx-base/GFXDef-common.h"
-#include "gfx-vulkan/VKGPUObjects.h"
-#include "vulkan/vulkan_core.h"
 
 #define TBB_USE_EXCEPTIONS 0 // no-rtti for now
 #include "tbb/concurrent_unordered_map.h"
@@ -1141,7 +1138,7 @@ public:
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPURenderPass, RecycledType::RENDER_PASS, res.gpuRenderPass = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUSampler, RecycledType::SAMPLER, res.gpuSampler = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUShader, RecycledType::SHADER, res.gpuShader = gpuRes)
-    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUQueryPool, RecycledType::QUERY, res.gpuQueryPool = gpuRes)
+    DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUQueryPool, RecycledType::QUERY_POOL, res.gpuQueryPool = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUDescriptorSetLayout, RecycledType::DESCRIPTOR_SET_LAYOUT, res.gpuDescriptorSetLayout = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineLayout, RecycledType::PIPELINE_LAYOUT, res.gpuPipelineLayout = gpuRes)
     DEFINE_RECYCLE_BIN_COLLECT_FN(CCVKGPUPipelineState, RecycledType::PIPELINE_STATE, res.gpuPipelineState = gpuRes)
@@ -1155,7 +1152,7 @@ private:
         TEXTURE,
         TEXTURE_VIEW,
         FRAMEBUFFER,
-        QUERY,
+        QUERY_POOL,
         RENDER_PASS,
         SAMPLER,
         SHADER,

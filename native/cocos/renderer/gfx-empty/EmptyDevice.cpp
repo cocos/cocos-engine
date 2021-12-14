@@ -91,59 +91,59 @@ void EmptyDevice::present() {
 }
 
 CommandBuffer *EmptyDevice::createCommandBuffer(const CommandBufferInfo & /*info*/, bool /*hasAgent*/) {
-    return CC_NEW(EmptyCommandBuffer());
+    return CC_NEW(EmptyCommandBuffer);
 }
 
 Queue *EmptyDevice::createQueue() {
-    return CC_NEW(EmptyQueue());
+    return CC_NEW(EmptyQueue);
 }
 
 QueryPool *EmptyDevice::createQueryPool() {
-    return CC_NEW(EmptyQueryPool());
+    return CC_NEW(EmptyQueryPool);
 }
 
 Swapchain *EmptyDevice::createSwapchain() {
-    return CC_NEW(EmptySwapchain());
+    return CC_NEW(EmptySwapchain);
 }
 
 Buffer *EmptyDevice::createBuffer() {
-    return CC_NEW(EmptyBuffer());
+    return CC_NEW(EmptyBuffer);
 }
 
 Texture *EmptyDevice::createTexture() {
-    return CC_NEW(EmptyTexture());
+    return CC_NEW(EmptyTexture);
 }
 
 Shader *EmptyDevice::createShader() {
-    return CC_NEW(EmptyShader());
+    return CC_NEW(EmptyShader);
 }
 
 InputAssembler *EmptyDevice::createInputAssembler() {
-    return CC_NEW(EmptyInputAssembler());
+    return CC_NEW(EmptyInputAssembler);
 }
 
 RenderPass *EmptyDevice::createRenderPass() {
-    return CC_NEW(EmptyRenderPass());
+    return CC_NEW(EmptyRenderPass);
 }
 
 Framebuffer *EmptyDevice::createFramebuffer() {
-    return CC_NEW(EmptyFramebuffer());
+    return CC_NEW(EmptyFramebuffer);
 }
 
 DescriptorSet *EmptyDevice::createDescriptorSet() {
-    return CC_NEW(EmptyDescriptorSet());
+    return CC_NEW(EmptyDescriptorSet);
 }
 
 DescriptorSetLayout *EmptyDevice::createDescriptorSetLayout() {
-    return CC_NEW(EmptyDescriptorSetLayout());
+    return CC_NEW(EmptyDescriptorSetLayout);
 }
 
 PipelineLayout *EmptyDevice::createPipelineLayout() {
-    return CC_NEW(EmptyPipelineLayout());
+    return CC_NEW(EmptyPipelineLayout);
 }
 
 PipelineState *EmptyDevice::createPipelineState() {
-    return CC_NEW(EmptyPipelineState());
+    return CC_NEW(EmptyPipelineState);
 }
 
 void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {

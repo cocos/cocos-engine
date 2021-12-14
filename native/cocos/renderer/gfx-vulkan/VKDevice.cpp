@@ -23,14 +23,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKDevice.h"
 #include "VKBuffer.h"
 #include "VKCommandBuffer.h"
 #include "VKDescriptorSet.h"
 #include "VKDescriptorSetLayout.h"
-#include "VKDevice.h"
 #include "VKFramebuffer.h"
+#include "VKGPUObjects.h"
 #include "VKInputAssembler.h"
 #include "VKPipelineLayout.h"
 #include "VKPipelineState.h"
@@ -41,11 +40,11 @@
 #include "VKSwapchain.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
-#include "gfx-base/SPIRVUtils.h"
-#include "gfx-vulkan/VKGPUObjects.h"
 #include "states/VKGlobalBarrier.h"
 #include "states/VKSampler.h"
 #include "states/VKTextureBarrier.h"
+
+#include "gfx-base/SPIRVUtils.h"
 
 CC_DISABLE_WARNINGS()
 #define VMA_IMPLEMENTATION
@@ -555,7 +554,7 @@ VkImageMemoryBarrier acquireBarrier{
     VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
     VK_QUEUE_FAMILY_IGNORED,
     VK_QUEUE_FAMILY_IGNORED,
-    0,
+    0, // NOLINT(modernize-use-nullptr) platform dependent type
     {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1},
 };
 VkImageMemoryBarrier presentBarrier{
@@ -567,7 +566,7 @@ VkImageMemoryBarrier presentBarrier{
     VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
     VK_QUEUE_FAMILY_IGNORED,
     VK_QUEUE_FAMILY_IGNORED,
-    0,
+    0, // NOLINT(modernize-use-nullptr) platform dependent type
     {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1},
 };
 } // namespace

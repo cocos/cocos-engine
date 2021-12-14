@@ -242,75 +242,75 @@ public:
     }
 };
 
-CC_GLES3_API void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
-CC_GLES3_API void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
-CC_GLES3_API void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
-CC_GLES3_API void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
-CC_GLES3_API void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
-CC_GLES3_API void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
-CC_GLES3_API void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader);
-CC_GLES3_API void cmdFuncGLES3DestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader);
-CC_GLES3_API void cmdFuncGLES3CreateRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
-CC_GLES3_API void cmdFuncGLES3DestroyRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
-CC_GLES3_API void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler);
-CC_GLES3_API void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler);
-CC_GLES3_API void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
-CC_GLES3_API void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
-CC_GLES3_API void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier);
-CC_GLES3_API void cmdFuncGLES3CreateQuery(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
-CC_GLES3_API void cmdFuncGLES3DestroyQuery(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
-CC_GLES3_API void cmdFuncGLES3PrepareSamplerInfo(GLES3Device *device, GLES3GPUSampler *gpuSampler);
+void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
+void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
+void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer);
+void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
+void cmdFuncGLES3DestroyTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
+void cmdFuncGLES3ResizeTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture);
+void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader);
+void cmdFuncGLES3DestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader);
+void cmdFuncGLES3CreateRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
+void cmdFuncGLES3DestroyRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass);
+void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler);
+void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler);
+void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
+void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
+void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses, const std::vector<AccessType> &nextAccesses, GLES3GPUGlobalBarrier *barrier);
+void cmdFuncGLES3CreateQueryPool(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
+void cmdFuncGLES3DestroyQueryPool(GLES3Device *device, GLES3GPUQueryPool *gpuQueryPool);
+void cmdFuncGLES3PrepareSamplerInfo(GLES3Device *device, GLES3GPUSampler *gpuSampler);
 
-CC_GLES3_API void cmdFuncGLES3Query(GLES3Device *device, GLES3QueryPool *query, GLES3QueryType type, uint32_t id);
+void cmdFuncGLES3Query(GLES3Device *device, GLES3QueryPool *query, GLES3QueryType type, uint32_t id);
 
-CC_GLES3_API void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx,
-                                              GLES3GPURenderPass * gpuRenderPass  = nullptr,
-                                              GLES3GPUFramebuffer *gpuFramebuffer = nullptr,
-                                              const Rect *         renderArea     = nullptr,
-                                              const Color *        clearColors    = nullptr,
-                                              float                clearDepth     = 1.F,
-                                              uint32_t             clearStencil   = 0);
+void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint32_t subpassIdx,
+                                 GLES3GPURenderPass * gpuRenderPass  = nullptr,
+                                 GLES3GPUFramebuffer *gpuFramebuffer = nullptr,
+                                 const Rect *         renderArea     = nullptr,
+                                 const Color *        clearColors    = nullptr,
+                                 float                clearDepth     = 1.F,
+                                 uint32_t             clearStencil   = 0);
 
-CC_GLES3_API void cmdFuncGLES3EndRenderPass(GLES3Device *device);
+void cmdFuncGLES3EndRenderPass(GLES3Device *device);
 
-CC_GLES3_API void cmdFuncGLES3BindState(GLES3Device *                       device,
-                                        GLES3GPUPipelineState *             gpuPipelineState,
-                                        GLES3GPUInputAssembler *            gpuInputAssembler,
-                                        const GLES3GPUDescriptorSet *const *gpuDescriptorSets,
-                                        const uint32_t *                    dynamicOffsets = nullptr,
-                                        const DynamicStates *               dynamicStates  = nullptr);
+void cmdFuncGLES3BindState(GLES3Device *                       device,
+                           GLES3GPUPipelineState *             gpuPipelineState,
+                           GLES3GPUInputAssembler *            gpuInputAssembler,
+                           const GLES3GPUDescriptorSet *const *gpuDescriptorSets,
+                           const uint32_t *                    dynamicOffsets = nullptr,
+                           const DynamicStates *               dynamicStates  = nullptr);
 
-CC_GLES3_API void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo);
+void cmdFuncGLES3Draw(GLES3Device *device, const DrawInfo &drawInfo);
 
-CC_GLES3_API void cmdFuncGLES3UpdateBuffer(GLES3Device *   device,
-                                           GLES3GPUBuffer *gpuBuffer,
-                                           const void *    buffer,
-                                           uint32_t        offset,
-                                           uint32_t        size);
+void cmdFuncGLES3UpdateBuffer(GLES3Device *   device,
+                              GLES3GPUBuffer *gpuBuffer,
+                              const void *    buffer,
+                              uint32_t        offset,
+                              uint32_t        size);
 
-CC_GLES3_API void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *            device,
-                                                   const uint8_t *const *   buffers,
-                                                   GLES3GPUTexture *        gpuTexture,
-                                                   const BufferTextureCopy *regions,
-                                                   uint32_t                 count);
-CC_GLES3_API void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *            device,
-                                                   GLES3GPUTexture *        gpuTexture,
-                                                   uint8_t *const *         buffers,
-                                                   const BufferTextureCopy *regions,
-                                                   uint32_t                 count);
+void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *            device,
+                                      const uint8_t *const *   buffers,
+                                      GLES3GPUTexture *        gpuTexture,
+                                      const BufferTextureCopy *regions,
+                                      uint32_t                 count);
+void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *            device,
+                                      GLES3GPUTexture *        gpuTexture,
+                                      uint8_t *const *         buffers,
+                                      const BufferTextureCopy *regions,
+                                      uint32_t                 count);
 
-CC_GLES3_API void cmdFuncGLES3BlitTexture(GLES3Device *      device,
-                                          GLES3GPUTexture *  gpuTextureSrc,
-                                          GLES3GPUTexture *  gpuTextureDst,
-                                          const TextureBlit *regions,
-                                          uint32_t           count,
-                                          Filter             filter);
+void cmdFuncGLES3BlitTexture(GLES3Device *      device,
+                             GLES3GPUTexture *  gpuTextureSrc,
+                             GLES3GPUTexture *  gpuTextureDst,
+                             const TextureBlit *regions,
+                             uint32_t           count,
+                             Filter             filter);
 
-CC_GLES3_API void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
+void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage);
 
-CC_GLES3_API void cmdFuncGLES3Dispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);
+void cmdFuncGLES3Dispatch(GLES3Device *device, const GLES3GPUDispatchInfo &info);
 
-CC_GLES3_API void cmdFuncGLES3MemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);
+void cmdFuncGLES3MemoryBarrier(GLES3Device *device, GLbitfield barriers, GLbitfield barriersByRegion);
 
 } // namespace gfx
 } // namespace cc

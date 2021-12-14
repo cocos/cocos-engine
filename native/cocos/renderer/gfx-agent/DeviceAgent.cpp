@@ -276,7 +276,8 @@ TextureBarrier *DeviceAgent::getTextureBarrier(const TextureBarrierInfo &info) {
     return _actor->getTextureBarrier(info);
 }
 
-void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
+template<typename T>
+void doBufferTextureCopy(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count, MessageQueue *mq, T *actor) {
     uint32_t bufferCount = 0U;
     for (uint32_t i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
@@ -285,12 +286,12 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     for (uint32_t i = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
 
-        uint32_t size = formatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         totalSize += size * region.texSubres.layerCount;
     }
 
     //TODO(PatriceJiang): in C++17 replace with:*allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
-    auto *allocator = _CC_NEW_T_ALIGN_ARGS(ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator), totalSize);
+    auto *allocator = _CC_NEW_T_ALIGN(ThreadSafeLinearAllocator(totalSize), alignof(ThreadSafeLinearAllocator));
 
     auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
@@ -299,7 +300,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     for (uint32_t i = 0U, n = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
 
-        uint32_t size = formatSize(dst->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint32_t l = 0; l < region.texSubres.layerCount; l++) {
             auto *buffer = allocator->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
@@ -308,19 +309,26 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     }
 
     ENQUEUE_MESSAGE_6(
-        _mainMessageQueue, DeviceCopyBuffersToTexture,
-        actor, _actor,
+        mq, DeviceCopyBuffersToTexture,
+        actor, actor,
         buffers, actorBuffers,
-        dst, static_cast<TextureAgent *>(dst)->getActor(),
+        dst, static_cast<TextureAgent *>(texture)->getActor(),
         regions, actorRegions,
         count, count,
         allocator, allocator,
         {
             actor->copyBuffersToTexture(buffers, dst, regions, count);
             // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
-            _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
-            allocator = nullptr;
+            if (allocator) _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
         });
+}
+
+void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) {
+    doBufferTextureCopy(buffers, dst, regions, count, _mainMessageQueue, _actor);
+}
+
+void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
+    doBufferTextureCopy(buffers, texture, regions, count, _messageQueue, _actor);
 }
 
 void DeviceAgent::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {

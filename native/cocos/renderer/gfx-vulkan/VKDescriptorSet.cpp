@@ -23,11 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKDescriptorSet.h"
 #include "VKBuffer.h"
 #include "VKCommands.h"
-#include "VKDescriptorSet.h"
 #include "VKDescriptorSetLayout.h"
 #include "VKDevice.h"
 #include "VKPipelineLayout.h"

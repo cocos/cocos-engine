@@ -23,11 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKRenderPass.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "VKRenderPass.h"
 
 namespace cc {
 namespace gfx {

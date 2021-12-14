@@ -240,7 +240,7 @@ void LightingStage::initLightingBuffer() {
     auto *const device = _pipeline->getDevice();
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
-    uint stride    = utils::alignTo(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
+    uint stride    = utils::alignTo<uint32_t>(sizeof(Vec4) * 4, device->getCapabilities().uboOffsetAlignment);
     uint totalSize = stride * _maxDeferredLights;
 
     // create lighting buffer and view

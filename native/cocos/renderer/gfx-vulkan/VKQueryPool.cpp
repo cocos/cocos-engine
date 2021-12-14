@@ -23,12 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKQueryPool.h"
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "VKQueryPool.h"
 #include "vulkan/vulkan_core.h"
 
 namespace cc {
@@ -48,7 +46,7 @@ void CCVKQueryPool::doInit(const QueryPoolInfo& /*info*/) {
     _gpuQueryPool->type            = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
     _gpuQueryPool->forceWait       = _forceWait;
-    cmdFuncCCVKCreateQuery(device, _gpuQueryPool);
+    cmdFuncCCVKCreateQueryPool(device, _gpuQueryPool);
 }
 
 void CCVKQueryPool::doDestroy() {
