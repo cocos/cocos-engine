@@ -964,6 +964,9 @@ enum NodeKind {
 }
 
 export class StateEval {
+    /**
+     * @private_cc
+     */
     public declare __DEBUG_ID__?: string;
 
     public declare stateMachine: StateMachineInfo;

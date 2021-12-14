@@ -84,6 +84,9 @@ export class Asset extends Eventify(GCObject) {
      */
     public loaded = true;
 
+    /**
+     * @private_cc
+     */
     public declare _uuid: string;
 
     public declare isDefault: boolean;
