@@ -219,7 +219,7 @@ export class Asset extends Eventify(GCObject) {
      *
      * @param filename
      * @param inLibrary
-     * @private
+     * @private_cc
      */
     public _setRawAsset (filename: string, inLibrary = true) {
         if (inLibrary !== false) {
