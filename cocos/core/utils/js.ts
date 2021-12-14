@@ -93,7 +93,7 @@ export const js = {
     /**
      * @en All classes registered in the engine, indexed by name.
      * @zh 引擎中已注册的所有类型，通过名称进行索引。
-     * @private
+     * @private_cc
      * @example
      * ```
      * import { js } from 'cc';
@@ -119,7 +119,6 @@ export const js = {
     /**
      * @en All classes registered in the engine, indexed by ID.
      * @zh 引擎中已注册的所有类型，通过 ID 进行索引。
-     * @private
      * @example
      * ```
      * import { js } from 'cc';
@@ -142,8 +141,17 @@ export const js = {
         clear(_idToClass);
         Object.assign(_idToClass, value);
     },
+    /**
+     * @private_cc
+     */
     _getClassId,
+    /**
+     * @private_cc
+     */
     _setClassId,
+    /**
+     * @private_cc
+     */
     _getClassById,
     obsolete,
     obsoletes,
