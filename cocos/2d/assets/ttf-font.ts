@@ -40,6 +40,9 @@ import { legacyCC } from '../../core/global-exports';
  */
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
+    /**
+     * @private_cc
+     */
     @serializable
     public _fontFamily: string | null = null;
 

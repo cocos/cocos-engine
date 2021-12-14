@@ -405,10 +405,16 @@ export class TerrainAsset extends Asset {
         return this._blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY + 1;
     }
 
+    /**
+     * @private_cc
+     */
     public _setNativeData (_nativeData: Uint8Array) {
         this._data = _nativeData;
     }
 
+    /**
+     * @private_cc
+     */
     public _loadNativeData (_nativeData: Uint8Array) {
         if (!_nativeData || _nativeData.length === 0) {
             return false;
@@ -480,6 +486,9 @@ export class TerrainAsset extends Asset {
         return true;
     }
 
+    /**
+     * @private_cc
+     */
     public _exportNativeData (): Uint8Array {
         const stream = new TerrainBuffer();
 
@@ -539,6 +548,9 @@ export class TerrainAsset extends Asset {
         return stream.buffer;
     }
 
+    /**
+     * @private_cc
+     */
     public _exportDefaultNativeData (): Uint8Array {
         const stream = new TerrainBuffer();
         stream.writeInt32(TERRAIN_DATA_VERSION_DEFAULT);

@@ -389,12 +389,27 @@ export class Game extends EventTarget {
     public collisionMatrix = [];
     public groupList: any[] = [];
 
+    /**
+     * @private_cc
+     */
     public _persistRootNodes = {};
 
+    /**
+     * @private_cc
+     */
     public _gfxDevice: Device | null = null;
+    /**
+     * @private_cc
+     */
     public _swapchain: Swapchain | null = null;
     // states
+    /**
+     * @private_cc
+     */
     public _configLoaded = false; // whether config loaded
+    /**
+     * @private_cc
+     */
     public _isCloning = false;    // deserializing or instantiating
     private _inited = false;
     private _engineInited = false; // whether the engine has inited

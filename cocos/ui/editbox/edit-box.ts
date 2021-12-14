@@ -355,7 +355,13 @@ export class EditBox extends Component {
     @tooltip('i18n:editbox.editing_return')
     public editingReturn: ComponentEventHandler[] = [];
 
+    /**
+     * @private_cc
+     */
     public _impl: EditBoxImplBase | null = null;
+    /**
+     * @private_cc
+     */
     public _background: Sprite | null = null;
 
     @serializable
@@ -457,16 +463,25 @@ export class EditBox extends Component {
         return false;
     }
 
+    /**
+     * @private_cc
+     */
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit(EventType.EDITING_DID_BEGAN, this);
     }
 
+    /**
+     * @private_cc
+     */
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit(EventType.EDITING_DID_ENDED, this);
     }
 
+    /**
+     * @private_cc
+     */
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
@@ -474,16 +489,25 @@ export class EditBox extends Component {
         this.node.emit(EventType.TEXT_CHANGED, this);
     }
 
+    /**
+     * @private_cc
+     */
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
         this.node.emit(EventType.EDITING_RETURN, this);
     }
 
+    /**
+     * @private_cc
+     */
     public _showLabels () {
         this._isLabelVisible = true;
         this._updateLabels();
     }
 
+    /**
+     * @private_cc
+     */
     public _hideLabels () {
         this._isLabelVisible = false;
         if (this._textLabel) {

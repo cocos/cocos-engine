@@ -181,6 +181,9 @@ export class PageViewIndicator extends Component {
         this._refresh();
     }
 
+    /**
+     * @private_cc
+     */
     public _updateLayout () {
         this._layout = this.getComponent(Layout);
         if (!this._layout) {
@@ -198,6 +201,9 @@ export class PageViewIndicator extends Component {
         layout.resizeMode = Layout.ResizeMode.CONTAINER;
     }
 
+    /**
+     * @private_cc
+     */
     public _createIndicator () {
         const node = new Node();
         node.layer = this.node.layer;
@@ -209,6 +215,9 @@ export class PageViewIndicator extends Component {
         return node;
     }
 
+    /**
+     * @private_cc
+     */
     public _changedState () {
         const indicators = this._indicators;
         if (indicators.length === 0 || !this._pageView) { return; }
@@ -234,6 +243,9 @@ export class PageViewIndicator extends Component {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _refresh () {
         if (!this._pageView) { return; }
         const indicators = this._indicators;

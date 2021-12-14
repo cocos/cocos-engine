@@ -179,12 +179,29 @@ export class TerrainLayer {
  * @zh 地形渲染组件
  */
 class TerrainRenderable extends RenderableComponent {
+    /**
+     * @private_cc
+     */
     public _model: scene.Model | null = null;
+    /**
+     * @private_cc
+     */
     public _meshData: RenderingSubMesh | null = null;
-
+    /**
+     * @private_cc
+     */
     public _brushPass: Pass | null = null;
+    /**
+     * @private_cc
+     */
     public _brushMaterial: Material | null = null;
+    /**
+     * @private_cc
+     */
     public _currentMaterial: Material | null = null;
+    /**
+     * @private_cc
+     */
     public _currentMaterialLayers = 0;
 
     public destroy () {
@@ -197,6 +214,9 @@ class TerrainRenderable extends RenderableComponent {
         return super.destroy();
     }
 
+    /**
+     * @private_cc
+     */
     public _destroyModel () {
         // this._invalidMaterial();
         if (this._model != null) {
@@ -205,6 +225,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _invalidMaterial () {
         if (this._currentMaterial == null) {
             return;
@@ -219,6 +242,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _updateMaterial (block: TerrainBlock, init: boolean) {
         if (this._meshData == null || this._model == null) {
             return;
@@ -259,6 +285,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _onMaterialModified (idx: number, mtl: Material|null) {
         if (this._model == null) {
             return;
@@ -875,11 +904,17 @@ export class TerrainBlock {
         this._weightMap.uploadData(weightData);
     }
 
+    /**
+     * @private_cc
+     */
     public _updateLightmap (info: TerrainBlockLightmapInfo) {
         this._lightmapInfo = info;
         this._invalidMaterial();
     }
 
+    /**
+     * @private_cc
+     */
     public _updateLod () {
         const key = new TerrainLodKey();
         key.level = this._lodLevel;
@@ -928,6 +963,9 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
+    /**
+     * @private_cc
+     */
     public _resetLod () {
         const key = new TerrainLodKey();
         key.level = 0;
@@ -944,6 +982,9 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
+    /**
+     * @private_cc
+     */
     public _updateIndexBuffer () {
         if (this._renderable._meshData === null) {
             return;
@@ -1734,6 +1775,9 @@ export class Terrain extends Component {
         return h;
     }
 
+    /**
+     * @private_cc
+     */
     public _setNormal (i: number, j: number, n: Vec3) {
         const index = j * this.vertexCount[0] + i;
 
@@ -2044,6 +2088,9 @@ export class Terrain extends Component {
         return position;
     }
 
+    /**
+     * @private_cc
+     */
     public _getSharedIndexBuffer () {
         if (this._sharedIndexBuffer == null) {
             // initialize shared index buffer
@@ -2060,10 +2107,16 @@ export class Terrain extends Component {
         return this._sharedIndexBuffer;
     }
 
+    /**
+     * @private_cc
+     */
     public _getIndexData (key: TerrainLodKey) {
         return this._lod.getIndexData(key);
     }
 
+    /**
+     * @private_cc
+     */
     public _resetLightmap (enble: boolean) {
         this._lightmapInfos.length = 0;
         if (enble) {
@@ -2073,6 +2126,9 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this._lightmapInfos[blockId].texture = tex;
         this._lightmapInfos[blockId].UOff = uOff;
@@ -2082,11 +2138,17 @@ export class Terrain extends Component {
         this._blocks[blockId]._updateLightmap(this._lightmapInfos[blockId]);
     }
 
+    /**
+     * @private_cc
+     */
     public _getLightmapInfo (i: number, j: number) {
         const index = j * this._blockCount[0] + i;
         return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
     }
 
+    /**
+     * @private_cc
+     */
     public _calcNormal (x: number, z: number) {
         let flip = 1;
         const here = this.getPosition(x, z);
@@ -2119,6 +2181,9 @@ export class Terrain extends Component {
         return normal;
     }
 
+    /**
+     * @private_cc
+     */
     public _buildNormals () {
         let index = 0;
         for (let y = 0; y < this.vertexCount[1]; ++y) {

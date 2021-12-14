@@ -67,8 +67,13 @@ export class AudioPlayerDOM implements OperationQueueable {
     private _state: AudioState = AudioState.INIT;
     private _onEnded: () => void;
 
-    // NOTE: the implemented interface properties need to be public access
+    /**
+     * @private_cc
+     */
     public _eventTarget: EventTarget = new EventTarget();
+    /**
+     * @private_cc
+     */
     public _operationQueue: OperationInfo[] = [];
 
     constructor (nativeAudio: HTMLAudioElement) {

@@ -75,6 +75,8 @@ export class Scene extends BaseNode {
     /**
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
+     *
+     * @private_cc
      */
     @serializable
     public _globals = new SceneGlobals();
@@ -162,8 +164,14 @@ export class Scene extends BaseNode {
         throw new Error(getError(3822));
     }
 
+    /**
+     * @private_cc
+     */
     public _onHierarchyChanged () { }
 
+    /**
+     * @private_cc
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;

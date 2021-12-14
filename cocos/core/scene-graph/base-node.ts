@@ -331,7 +331,10 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _siblingIndex = 0;
 
-    // record scene's id when set this node as persist node
+    /**
+     * record scene's id when set this node as persist node
+     * @private_cc
+     */
     public _originalSceneId = '';
 
     /**
@@ -1220,7 +1223,10 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
     }
 
-    // Do remove component, only used internally.
+    /**
+     * Do remove component, only used internally.
+     * @private_cc
+     */
     public _removeComponent (component: Component) {
         if (!component) {
             errorID(3814);
@@ -1240,6 +1246,9 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _updateSiblingIndex () {
         for (let i = 0; i < this._children.length; ++i) {
             this._children[i]._siblingIndex = i;

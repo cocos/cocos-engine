@@ -114,6 +114,9 @@ export class EventHandler {
     @tooltip('i18n:button.click_event.component')
     public component = '';
 
+    /**
+     * @private_cc
+     */
     @serializable
     public _componentId = '';
 

@@ -94,9 +94,14 @@ export class Asset extends Eventify(GCObject) {
      * @zh
      * 用于本机资产的可序列化URL。供内部使用。
      * @default ""
+     *
+     * @private_cc
      */
     @serializable
     public _native = '';
+    /**
+     * @private_cc
+     */
     public _nativeUrl = '';
 
     private _file: any = null;

@@ -215,6 +215,9 @@ export class ImageAsset extends Asset {
 
     // SERIALIZATION
 
+    /**
+     * @private_cc
+     */
     // eslint-disable-next-line consistent-return
     public _serialize () {
         if (EDITOR || TEST) {
@@ -241,6 +244,9 @@ export class ImageAsset extends Asset {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _deserialize (data: any) {
         let fmtStr = '';
         if (typeof data === 'string') {

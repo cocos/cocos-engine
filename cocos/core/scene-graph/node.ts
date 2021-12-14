@@ -162,9 +162,8 @@ export class Node extends BaseNode implements CustomSerializable {
      */
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
-    // UI 部分的脏数据
     /**
-     * @private
+     * @private_cc
      */
     public _uiProps = new NodeUIProperties(this);
 
@@ -175,6 +174,9 @@ export class Node extends BaseNode implements CustomSerializable {
     private static ClearFrame = 0;
     private static ClearRound = 1000;
 
+    /**
+     * @private_cc
+     */
     public _static = false;
 
     // world transform, don't access this directly
@@ -549,6 +551,9 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
         if (keepWorldTransform) {
@@ -573,6 +578,9 @@ export class Node extends BaseNode implements CustomSerializable {
         super._onHierarchyChangedBase(oldParent);
     }
 
+    /**
+     * @private_cc
+     */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
@@ -587,11 +595,17 @@ export class Node extends BaseNode implements CustomSerializable {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _onBeforeSerialize () {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
+    /**
+     * @private_cc
+     */
     public _onPostActivated (active: boolean) {
         if (active) { // activated
             this._eventProcessor.setEnabled(true);

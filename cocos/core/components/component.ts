@@ -171,32 +171,32 @@ class Component extends CCObject {
     public node: Node = NullNode;
 
     /**
-     * @private
+     * @private_cc
      */
     @serializable
     public _enabled = true;
 
     /**
-     * @private
+     * @private_cc
      */
     @serializable
     public __prefab: CompPrefabInfo | null = null;
 
     /**
-     * @private
+     * @private_cc
      */
     public _sceneGetter: null | (() => RenderScene) = null;
 
     /**
      * For internal usage.
-     * @private
+     * @private_cc
      */
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
 
     /**
-     * @private
+     * @private_cc
      */
     public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
@@ -373,6 +373,9 @@ class Component extends CCObject {
         return false;
     }
 
+    /**
+     * @private_cc
+     */
     public _onPreDestroy () {
         // Schedules
         this.unscheduleAllCallbacks();
@@ -390,6 +393,9 @@ class Component extends CCObject {
         this.node._removeComponent(this);
     }
 
+    /**
+     * @private_cc
+     */
     public _instantiate (cloned?: Component) {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);

@@ -20,6 +20,9 @@ import { legacyCC } from '../core/global-exports';
  */
 @ccclass('sp.SkeletonData')
 export class SkeletonData extends Asset {
+    /**
+     * @private_cc
+     */
     @serializable
     public _skeletonJson: spine.SkeletonJson | null = null;
 

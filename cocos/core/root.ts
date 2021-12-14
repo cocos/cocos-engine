@@ -221,7 +221,13 @@ export class Root {
         return this._useDeferredPipeline;
     }
 
+    /**
+     * @private_cc
+     */
     public _createSceneFun: (root: Root) => RenderScene = null!;
+    /**
+     * @private_cc
+     */
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
     private _device: Device;

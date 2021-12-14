@@ -25,6 +25,9 @@
 import { containerManager } from './container-manager';
 
 export abstract class ScalableContainer {
+    /**
+     * @private_cc
+     */
     public _poolHandle = -1;
     constructor () {
         containerManager.addContainer(this);

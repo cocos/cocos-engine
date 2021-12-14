@@ -897,7 +897,9 @@ export class ParticleSystem2D extends Renderable2D {
         return (this.particleCount >= this.totalParticles);
     }
 
-    // PRIVATE METHODS
+    /**
+     * @private_cc
+     */
     public _applyFile () {
         const file = this._file;
         if (file) {
@@ -927,6 +929,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _initTextureWithDictionary (dict: any) {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
@@ -1008,7 +1013,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
-    // parsing process
+    /**
+     * @private_cc
+     */
     public _initWithDictionary (dict: any) {
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
@@ -1121,6 +1128,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
+    /**
+     * @private_cc
+     */
     public _syncAspect () {
         if (this._renderSpriteFrame) {
             const frameRect = this._renderSpriteFrame.rect;
@@ -1128,6 +1138,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _applySpriteFrame () {
         this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
@@ -1143,15 +1156,24 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public _getTexture () {
         return (this._renderSpriteFrame && this._renderSpriteFrame.texture);
     }
 
+    /**
+     * @private_cc
+     */
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
     }
 
+    /**
+     * @private_cc
+     */
     public _finishedSimulation () {
         if (EDITOR) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {

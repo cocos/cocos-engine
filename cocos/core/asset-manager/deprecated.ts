@@ -106,6 +106,9 @@ export class CCLoader {
         setDefaultProgressCallback(val);
     }
 
+    /**
+     * @private_cc
+     */
     public _autoReleaseSetting: Record<string, boolean> = Object.create(null);
     private _parseLoadResArgs = parseLoadResArgs;
 
