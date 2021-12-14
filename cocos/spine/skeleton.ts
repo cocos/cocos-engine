@@ -216,6 +216,9 @@ export class Skeleton extends Renderable2D {
         }
     }
 
+    /**
+     * @private_cc
+     */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
     @tooltip('i18n:COMPONENT.skeleton.default_skin')
@@ -264,6 +267,9 @@ export class Skeleton extends Renderable2D {
 
     // value of 0 represents no animation
 
+    /**
+     * @private_cc
+     */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')

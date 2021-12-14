@@ -143,7 +143,7 @@ export class Asset extends Eventify(GCObject) {
      * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
      * 如果`_native`可用，则此属性将由加载器初始化。
      * @default null
-     * @private
+     * @private_cc
      */
     @property
     get _nativeAsset () {
@@ -236,6 +236,9 @@ export class Asset extends Eventify(GCObject) {
      */
     public createNode? (callback: CreateNodeCallback): void;
 
+    /**
+     * @private_cc
+     */
     public get _nativeDep () {
         if (this._native) {
             return { __isNative__: true, uuid: this._uuid, ext: this._native };

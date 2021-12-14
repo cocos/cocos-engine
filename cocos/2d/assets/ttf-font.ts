@@ -46,6 +46,9 @@ export class TTFFont extends Font {
     @serializable
     public _fontFamily: string | null = null;
 
+    /**
+     * @private_cc
+     */
     @override
     @string
     get _nativeAsset () {
@@ -55,6 +58,9 @@ export class TTFFont extends Font {
         this._fontFamily = value || 'Arial';
     }
 
+    /**
+     * @private_cc
+     */
     @override
     get _nativeDep () {
         return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };

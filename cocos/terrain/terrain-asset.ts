@@ -250,10 +250,12 @@ export class TerrainAsset extends Asset {
         super();
     }
 
+    /**
+     * @private_cc
+     */
     get _nativeAsset (): ArrayBuffer {
         return this._data!.buffer;
     }
-
     set _nativeAsset (value: ArrayBuffer) {
         if (this._data && this._data.byteLength === value.byteLength) {
             this._data.set(new Uint8Array(value));

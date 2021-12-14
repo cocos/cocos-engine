@@ -82,12 +82,14 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
+    /**
+     * @private_cc
+     */
     @override
     get _nativeAsset () {
         // Maybe returned to pool in webgl.
         return this._nativeData;
     }
-
     set _nativeAsset (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             // @ts-expect-error internal API usage

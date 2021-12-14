@@ -106,6 +106,8 @@ export const js = {
      * js._registeredClassIds = builtinClassIds;
      * js._registeredClassNames = builtinClassNames;
      * ```
+     *
+     * @private_cc
      */
     get _registeredClassNames (): typeof _nameToClass {
         return { ..._nameToClass };
@@ -130,6 +132,8 @@ export const js = {
      * js._registeredClassIds = builtinClassIds;
      * js._registeredClassNames = builtinClassNames;
      * ```
+     *
+     * @private_cc
      */
     get _registeredClassIds (): typeof _idToClass {
         return { ..._idToClass };

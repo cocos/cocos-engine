@@ -103,6 +103,9 @@ export class Toggle extends Button {
         }
     }
 
+    /**
+     * @private_cc
+     */
     get _toggleContainer () {
         const parent = this.node.parent!;
         if (legacyCC.Node.isNode(parent)) {

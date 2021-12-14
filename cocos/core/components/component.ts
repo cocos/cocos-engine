@@ -95,6 +95,9 @@ class Component extends CCObject {
         return this._id;
     }
 
+    /**
+     * @private_cc
+     */
     @displayName('Script')
     @type(Script)
     @tooltip('i18n:INSPECTOR.component.script')
@@ -152,6 +155,8 @@ class Component extends CCObject {
      * import { log } from 'cc';
      * log(this._isOnLoadCalled > 0);
      * ```
+     *
+     * @private_cc
      */
     get _isOnLoadCalled () {
         return this._objFlags & IsOnLoadCalled;

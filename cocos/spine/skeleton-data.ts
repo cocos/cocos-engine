@@ -97,6 +97,9 @@ export class SkeletonData extends Asset {
     @serializable
     public scale = 1;
 
+    /**
+     * @private_cc
+     */
     get _nativeAsset (): ArrayBuffer {
         return this._buffer!;
     }

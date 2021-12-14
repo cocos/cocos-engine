@@ -1229,6 +1229,9 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @private_cc
+     */
     public get _asset () {
         return this.__asset;
     }

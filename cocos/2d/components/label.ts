@@ -636,6 +636,9 @@ export class Label extends Renderable2D {
         this._fontAtlas = value;
     }
 
+    /**
+     * @private_cc
+     */
     get _bmFontOriginalSize () {
         if (this._font instanceof BitmapFont) {
             return this._font.fontSize;
