@@ -46,6 +46,7 @@ import { warnID } from '../core/platform/debug';
 import { ccclass } from '../core/data/class-decorator';
 import { js } from '../core/utils/js';
 import { legacyCC } from '../core/global-exports';
+import { markAsWarning } from '../core';
 
 /**
  * @deprecated Since v1.2
@@ -72,6 +73,14 @@ js.setClassAlias(Button, 'cc.ButtonComponent');
 export { EditBox as EditBoxComponent };
 legacyCC.EditBoxComponent = EditBox;
 js.setClassAlias(EditBox, 'cc.EditBoxComponent');
+
+markAsWarning(EditBox.prototype, 'EditBox.prototype', [
+    {
+        name: 'placeholder',
+        suggest: `Please use placeholderLabel.string to get the content of the placeholder label.`,
+    },
+]);
+
 /**
  * Alias of [[Layout]]
  * @deprecated Since v1.2

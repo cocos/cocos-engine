@@ -99,29 +99,30 @@ export class EditBox extends Component {
         this._updateString(value);
     }
 
-    // /**
-    //  * @en
-    //  * The display text of placeholder.
-    //  *
-    //  * @zh
-    //  * 输入框占位符的文本内容。
-    //  */
-    // @displayOrder(2)
-    // @tooltip('i18n:editbox.placeholder')
-    // get placeholder () {
-    //     if (!this._placeholderLabel) {
-    //         return '';
-    //     }
-    //     return this._placeholderLabel.string;
-    // }
+    /**
+     * @en
+     * The display text of placeholder.
+     *
+     * @zh
+     * 输入框占位符的文本内容。
+     * @deprecated
+     */
+    @displayOrder(2)
+    @tooltip('i18n:editbox.placeholder')
+    get placeholder () {
+        if (!this._placeholderLabel) {
+            return '';
+        }
+        return this._placeholderLabel.string;
+    }
 
-    // set placeholder (value) {
-    //     if (!this._placeholderLabel) {
-    //         this._addPlaceHolderLabel(value);
-    //     } else {
-    //         this._placeholderLabel.string = value;
-    //     }
-    // }
+    set placeholder (value) {
+        if (!this._placeholderLabel) {
+            this._addPlaceHolderLabel(value);
+        } else {
+            this._placeholderLabel.string = value;
+        }
+    }
 
     /**
      * @en
@@ -571,7 +572,7 @@ export class EditBox extends Component {
         textLabel.string = this._updateLabelStringStyle(this._string);
     }
 
-    protected _addPlaceHolderLabel (value: string) {
+    private _addPlaceHolderLabel (value: string) {
         // If placeholderLabel doesn't exist, create one.
         let node = this.node.getChildByName('PLACEHOLDER_LABEL');
         if (!node) {
