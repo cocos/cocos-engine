@@ -52,6 +52,7 @@ export namespace interfaceFilter {
                         kind === SyntaxKind.PropertySignature ||
                         kind === SyntaxKind.MethodSignature ||
 
+                        kind === SyntaxKind.FunctionDeclaration ||
                         kind === SyntaxKind.EnumDeclaration) {
                         // @ts-ignore
                         const symbol = checker.getSymbolAtLocation(node.name);
