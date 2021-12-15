@@ -880,7 +880,9 @@ const cacheManager = require('./jsb-cache-manager');
             if (middleware.indicesStart != _tempIndicesOffset ||
                 middleware.preRenderBufferIndex != _tempBufferIndex ||
                 middleware.preRenderBufferType != _tempVfmt) {
-                ui.autoMergeBatches(middleware.preRenderComponent);
+                if(middleware.preRenderComponent) {
+                    ui.autoMergeBatches(middleware.preRenderComponent);
+                }
                 middleware.resetIndicesStart = true;
             } else {
                 middleware.resetIndicesStart = false;
