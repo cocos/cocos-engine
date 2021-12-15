@@ -10,6 +10,9 @@ exports.template = `
         <ui-icon class="icon" color tooltip="i18n:inspector.locate_asset"></ui-icon>
         <ui-image class="image" tooltip="i18n:inspector.locate_asset"></ui-image>
         <span class="name"></span>
+        <ui-link style="display: none;" value="" class="document" tooltip="i18n:inspector.menu.help_url">
+            <ui-icon value="help"></ui-icon>
+        </ui-link>
         <ui-button class="save tiny green transparent" tooltip="i18n:inspector.asset.save">
             <ui-icon value="check"></ui-icon>
         </ui-button>
@@ -38,6 +41,7 @@ exports.$ = {
     contentHeader: '.content-header',
     contentSection: '.content-section',
     contentFooter: '.content-footer',
+    document: '.document',
 };
 const Elements = {
     panel: {
@@ -113,6 +117,7 @@ const Elements = {
             panel.metaListOrigin = panel.metaList.map((meta) => {
                 return JSON.stringify(meta);
             });
+            panel.toggleShowDocumentLink(Editor.I18n.t(`ENGINE.help.assets.${panel.type}`));
         },
         close() {
             const panel = this;
@@ -323,6 +328,15 @@ exports.methods = {
             }
         }
         panel.$this.update(panel.uuidList, panel.renderMap);
+    },
+    toggleShowDocumentLink(link) {
+        const panel = this;
+        if (link) {
+            panel.$.document.value = link;
+            panel.$.document.style.display = 'block';
+        } else {
+            panel.$.document.style.display = 'none';
+        }
     },
 };
 async function update(uuidList, renderMap) {
