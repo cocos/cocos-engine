@@ -116,7 +116,6 @@ protected:
 
     void onMemoryWarning();
 
-    void *                     _autoreleasePool                             = nullptr;
     void *                     _mtlCommandQueue                             = nullptr;
     void *                     _mtlDevice                                   = nullptr;
     void *                     _activeDrawable                              = nullptr;

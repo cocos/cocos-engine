@@ -164,11 +164,6 @@ void CCMTLDevice::doDestroy() {
     //    }
 
     CC_DELETE(_gpuDeviceObj);
-
-    if (_autoreleasePool) {
-        [(NSAutoreleasePool *)_autoreleasePool drain];
-        _autoreleasePool = nullptr;
-    }
     
     CC_SAFE_DESTROY(_queryPool)
     CC_SAFE_DESTROY(_queue);
@@ -206,10 +201,6 @@ void CCMTLDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
         swapchain->acquire();
     }
 
-    if (!_autoreleasePool) {
-        _autoreleasePool = [[NSAutoreleasePool alloc] init];
-        //        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
-    }
     // Clear queue stats
     CCMTLQueue *queue                  = static_cast<CCMTLQueue *>(_queue);
     queue->gpuQueueObj()->numDrawCalls = 0;
@@ -238,7 +229,7 @@ void CCMTLDevice::present() {
 
     // present drawable
     {
-        id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBufferWithUnretainedReferences];
+        id<MTLCommandBuffer> cmdBuffer = [queue->gpuQueueObj()->mtlCommandQueue commandBuffer];
         [cmdBuffer enqueue];
 
         for (auto drawable : releaseQ) {
@@ -249,12 +240,6 @@ void CCMTLDevice::present() {
             onPresentCompleted();
         }];
         [cmdBuffer commit];
-    }
-    
-    if (_autoreleasePool) {
-        //        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
-        [(NSAutoreleasePool *)_autoreleasePool drain];
-        _autoreleasePool = nullptr;
     }
 }
 

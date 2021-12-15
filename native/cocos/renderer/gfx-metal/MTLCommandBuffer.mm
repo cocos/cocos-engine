@@ -75,7 +75,6 @@ void CCMTLCommandBuffer::doDestroy() {
     if(_commandBufferBegan) {
         if(_gpuCommandBufferObj && _gpuCommandBufferObj->mtlCommandBuffer) {
             [_gpuCommandBufferObj->mtlCommandBuffer commit];
-            [_gpuCommandBufferObj->mtlCommandBuffer release];
         }
         _commandBufferBegan = false;
     }
@@ -105,7 +104,7 @@ bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTL
 id<MTLCommandBuffer> CCMTLCommandBuffer::getMTLCommandBuffer() {
     if(!_gpuCommandBufferObj->mtlCommandBuffer) {
         auto *mtlQueue = static_cast<CCMTLQueue *>(_queue)->gpuQueueObj()->mtlCommandQueue;
-        _gpuCommandBufferObj->mtlCommandBuffer = [[mtlQueue commandBuffer] retain];
+        _gpuCommandBufferObj->mtlCommandBuffer = [mtlQueue commandBuffer];
         [_gpuCommandBufferObj->mtlCommandBuffer enqueue];
     }
     return _gpuCommandBufferObj->mtlCommandBuffer;
@@ -933,7 +932,6 @@ void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buff
             for(size_t i = 0; i < count; ++i) {
                 memcpy(buffers[i], stagingAddrs[i].first, stagingAddrs[i].second);
             }
-            [commandBuffer release];
             _texCopySemaphore->signal();
         }];
         [mtlCommandBuffer commit];
