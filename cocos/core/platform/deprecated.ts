@@ -71,7 +71,7 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'getDevicePixelRatio',
-        suggest: 'devicePixelRatio is a concept on web standard, please use screen.resolutionScale instead',
+        suggest: 'devicePixelRatio is a concept on web standard',
     },
     {
         name: 'convertToLocationInView',

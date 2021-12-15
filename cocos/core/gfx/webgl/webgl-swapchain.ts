@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR } from 'internal:constants';
-import { systemInfo } from 'pal/system-info';
-import { warnID, warn, debug } from '../../platform/debug';
-import { macro } from '../../platform/macro';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO } from 'internal:constants';
+import { macro, warnID, warn, debug } from '../../platform';
+import { sys } from '../../platform/sys';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
@@ -156,13 +155,8 @@ export function getExtensions (gl: WebGLRenderingContext) {
             res.destroyShadersImmediately = false;
         }
 
-        // compressedTexSubImage2D has always been problematic because the
-        // parameters differs slightly from GLES, and many platforms get it wrong
-        if (WECHAT) {
-            res.noCompressedTexSubImage2D = true;
-        }
-
-        // getUniformLocation too [eyerolling]
+        // getUniformLocation has always been problematic because the
+        // paradigm differs from GLES, and many platforms get it wrong [eyerolling]
         if (WECHAT) {
             // wEcHaT just returns { id: -1 } for inactive names
             res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && (glLoc as { id: number }).id !== -1;
@@ -170,6 +164,11 @@ export function getExtensions (gl: WebGLRenderingContext) {
         if (ALIPAY) {
             // aLiPaY just returns the location number directly on actual devices, and WebGLUniformLocation objects in simulators
             res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && glLoc !== -1 || glLoc === 0;
+        }
+
+        // compressedTexSubImage2D too
+        if (WECHAT) {
+            res.noCompressedTexSubImage2D = true;
         }
     }
 
@@ -180,11 +179,29 @@ export function getExtensions (gl: WebGLRenderingContext) {
     return res;
 }
 
-export class WebGLSwapchain extends Swapchain {
-    get gl () {
-        return this._webGLRC as WebGLRenderingContext;
+export function getContext (canvas: HTMLCanvasElement): WebGLRenderingContext | null {
+    let context: WebGLRenderingContext | null = null;
+    try {
+        const webGLCtxAttribs: WebGLContextAttributes = {
+            alpha: macro.ENABLE_TRANSPARENT_CANVAS,
+            antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+            depth: true,
+            stencil: true,
+            premultipliedAlpha: false,
+            preserveDrawingBuffer: false,
+            powerPreference: 'default',
+            failIfMajorPerformanceCaveat: false,
+        };
+
+        context = canvas.getContext('webgl', webGLCtxAttribs);
+    } catch (err) {
+        return null;
     }
 
+    return context;
+}
+
+export class WebGLSwapchain extends Swapchain {
     get extensions () {
         return this._extensions as IWebGLExtensions;
     }
@@ -195,38 +212,16 @@ export class WebGLSwapchain extends Swapchain {
     public nullTexCube: WebGLTexture = null!;
 
     private _canvas: HTMLCanvasElement | null = null;
-    private _webGLRC: WebGLRenderingContext | null = null;
     private _webGLContextLostHandler: ((event: Event) => void) | null = null;
     private _extensions: IWebGLExtensions | null = null;
 
     public initialize (info: SwapchainInfo) {
         this._canvas = info.windowHandle;
 
-        try {
-            const webGLCtxAttribs: WebGLContextAttributes = {
-                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                depth: true,
-                stencil: true,
-                premultipliedAlpha: false,
-                preserveDrawingBuffer: false,
-                powerPreference: 'default',
-                failIfMajorPerformanceCaveat: false,
-            };
-
-            this._webGLRC = this._canvas.getContext('webgl', webGLCtxAttribs);
-        } catch (err) {
-            return;
-        }
-
-        if (!this._webGLRC) {
-            return;
-        }
-
         this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
         this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
 
-        const gl = this.gl;
+        const gl = WebGLDeviceManager.instance.gl;
 
         this.stateCache.initialize(
             WebGLDeviceManager.instance.capabilities.maxTextureUnits,
@@ -321,7 +316,6 @@ export class WebGLSwapchain extends Swapchain {
         }
 
         this._extensions = null;
-        this._webGLRC = null;
         this._canvas = null;
     }
 

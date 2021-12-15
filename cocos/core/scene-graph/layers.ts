@@ -32,6 +32,8 @@ import { BitMask, Enum } from '../value-types';
 import { legacyCC } from '../global-exports';
 import { log2 } from '../math/bits';
 import { js } from '../utils/js';
+import { assertIsTrue } from '../data/utils/asserts';
+import { getError } from '../platform/debug';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -111,10 +113,12 @@ export class Layers {
             console.warn('maximum layers reached.');
             return;
         }
-        Layers.Enum[name] = 1 << bitNum;
-        js.value(Layers.Enum, String(bitNum), name);
-        Layers.BitMask[name] = 1 << bitNum;
-        js.value(Layers.BitMask, String(bitNum), name);
+        const val = 1 << bitNum;
+        assertIsTrue(!Layers.Enum[name], getError(2104, name));
+        Layers.Enum[name] = val;
+        js.value(Layers.Enum, String(val), name);
+        Layers.BitMask[name] = val;
+        js.value(Layers.BitMask, String(val), name);
     }
 
     /**
@@ -127,10 +131,11 @@ export class Layers {
             console.warn('do not change buildin layers.');
             return;
         }
-        delete Layers.Enum[Layers.Enum[bitNum]];
-        delete Layers.Enum[bitNum];
-        delete Layers.BitMask[Layers.BitMask[bitNum]];
-        delete Layers.BitMask[bitNum];
+        const val = 1 << bitNum;
+        delete Layers.Enum[Layers.Enum[val]];
+        delete Layers.Enum[val];
+        delete Layers.BitMask[Layers.BitMask[val]];
+        delete Layers.BitMask[val];
     }
 
     /**
@@ -158,7 +163,7 @@ export class Layers {
             return '';
         }
 
-        return Layers.Enum[bitNum] as string;
+        return Layers.Enum[1 << bitNum] as string;
     }
 }
 export declare namespace Layers {

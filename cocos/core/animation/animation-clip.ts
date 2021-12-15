@@ -600,6 +600,9 @@ export class AnimationClip extends Asset {
             if (rootMotionTrackExcludes.includes(track)) {
                 continue;
             }
+            if (Array.from(track.channels()).every(({ curve }) => curve.keyFramesCount === 0)) {
+                continue;
+            }
             const trackTarget = binder(track[trackBindingTag]);
             if (!trackTarget) {
                 continue;
@@ -776,6 +779,12 @@ export class AnimationClip extends Asset {
 
         return Array.from(joints);
     }
+}
+
+type WrapMode_ = WrapMode;
+
+export declare namespace AnimationClip {
+    export type WrapMode = WrapMode_;
 }
 
 legacyCC.AnimationClip = AnimationClip;

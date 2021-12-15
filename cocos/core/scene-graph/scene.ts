@@ -79,9 +79,9 @@ export class Scene extends BaseNode {
     @serializable
     public _globals = new SceneGlobals();
 
-    public _renderScene: RenderScene | null = null;
-
     public dependAssets = null; // cache all depend assets for auto release
+
+    protected _renderScene: RenderScene | null = null;
 
     protected _inited: boolean;
 
@@ -292,7 +292,12 @@ export class Scene extends BaseNode {
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
-        if (!TEST) this._globals.activate();
+        if (!TEST) {
+            this._globals.activate();
+            if (this._renderScene) {
+                this._renderScene.activate();
+            }
+        }
     }
 }
 

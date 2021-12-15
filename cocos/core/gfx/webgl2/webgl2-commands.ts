@@ -122,7 +122,7 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGL2RenderingContext
     case Format.RGB9E5: return gl.FLOAT;
 
     case Format.DEPTH: return gl.FLOAT;
-    case Format.DEPTH_STENCIL: return gl.FLOAT_32_UNSIGNED_INT_24_8_REV;
+    case Format.DEPTH_STENCIL: return gl.UNSIGNED_INT_24_8;
 
     case Format.BC1: return gl.UNSIGNED_BYTE;
     case Format.BC1_SRGB: return gl.UNSIGNED_BYTE;
@@ -247,7 +247,7 @@ export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGL2Render
     case Format.RGB10A2UI: return gl.RGB10_A2UI;
     case Format.R11G11B10F: return gl.R11F_G11F_B10F;
     case Format.DEPTH: return gl.DEPTH_COMPONENT32F;
-    case Format.DEPTH_STENCIL: return gl.DEPTH32F_STENCIL8;
+    case Format.DEPTH_STENCIL: return gl.DEPTH24_STENCIL8;
 
     case Format.BC1: return WebGL2EXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
     case Format.BC1_ALPHA: return WebGL2EXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -1750,16 +1750,16 @@ export function WebGL2CmdFuncBeginRenderPass (
             cache.viewport.height = renderArea.height;
         }
 
-        if (cache.scissorRect.x !== 0
-            || cache.scissorRect.y !== 0
-            || cache.scissorRect.width !== gpuFramebuffer.width
-            || cache.scissorRect.height !== gpuFramebuffer.height) {
-            gl.scissor(0, 0, gpuFramebuffer.width, gpuFramebuffer.height);
+        if (cache.scissorRect.x !== renderArea.x
+            || cache.scissorRect.y !== renderArea.y
+            || cache.scissorRect.width !== renderArea.width
+            || cache.scissorRect.height !== renderArea.height) {
+            gl.scissor(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
 
-            cache.scissorRect.x = 0;
-            cache.scissorRect.y = 0;
-            cache.scissorRect.width = gpuFramebuffer.width;
-            cache.scissorRect.height = gpuFramebuffer.height;
+            cache.scissorRect.x = renderArea.x;
+            cache.scissorRect.y = renderArea.y;
+            cache.scissorRect.width = renderArea.width;
+            cache.scissorRect.height = renderArea.height;
         }
 
         gfxStateCache.invalidateAttachments.length = 0;
@@ -2435,7 +2435,7 @@ export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
                     }
                 } else {
                     for (let j = 0; j < indirects.drawCount; j++) {
-                        if (indirects.instances[j] > 1) {
+                        if (indirects.instances[j]) {
                             gl.drawElementsInstanced(glPrimitive, indirects.counts[j],
                                 gpuInputAssembler.glIndexType, indirects.byteOffsets[j], indirects.instances[j]);
                         } else {
@@ -2458,7 +2458,7 @@ export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
                 }
             } else {
                 for (let j = 0; j < indirects.drawCount; j++) {
-                    if (indirects.instances[j] > 1) {
+                    if (indirects.instances[j]) {
                         gl.drawArraysInstanced(glPrimitive, indirects.offsets[j], indirects.counts[j], indirects.instances[j]);
                     } else {
                         gl.drawArrays(glPrimitive, indirects.offsets[j], indirects.counts[j]);

@@ -40,7 +40,7 @@ import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
-import { errorID, warnID, assertID } from '../platform/debug';
+import { errorID, warnID, assertID, error } from '../platform/debug';
 import { CompPrefabInfo } from '../utils/prefab/prefab-info';
 
 const idGenerator = new IDGenerator('Comp');
@@ -70,7 +70,12 @@ class Component extends CCObject {
         if (trimLeft >= 0) {
             className = className.slice(trimLeft + 1);
         }
-        return `${this.node.name}<${className}>`;
+
+        if (this.node) {
+            return `${this.node.name}<${className}>`;
+        } else {
+            return className;
+        }
     }
     set name (value) {
         this._name = value;
@@ -197,7 +202,7 @@ class Component extends CCObject {
         if (this._sceneGetter) {
             return this._sceneGetter();
         }
-        return this.node.scene._renderScene!;
+        return this.node.scene.renderScene!;
     }
 
     // PUBLIC
@@ -401,10 +406,10 @@ class Component extends CCObject {
 
     /**
      * @en
-     * Schedules a custom task.<br/>
+     * Use Scheduler system to schedule a custom task.<br/>
      * If the task is already scheduled, then the interval parameter will be updated without scheduling it again.
      * @zh
-     * 调度一个自定义的回调任务。<br/>
+     * 使用定时器系统调度一个自定义的回调任务。<br/>
      * 如果回调任务已调度，那么将不会重复调度它，只会更新时间间隔参数。
      * @param callback  The callback function of the task
      * @param interval  The time interval between each invocation
@@ -437,8 +442,8 @@ class Component extends CCObject {
     }
 
     /**
-     * @en Schedules a task that runs only once, with a delay of 0 or larger.
-     * @zh 调度一个只运行一次的回调任务，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
+     * @en Use Scheduler system to schedule a task that runs only once, with a delay of 0 or larger.
+     * @zh 使用定时器系统调度一个只运行一次的回调任务，可以指定 0 让回调函数在下一帧立即执行或者在一定的延时之后执行。
      * @method scheduleOnce
      * @see [[schedule]]
      * @param callback  The callback function of the task

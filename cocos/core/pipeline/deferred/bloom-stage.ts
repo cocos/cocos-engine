@@ -33,14 +33,14 @@ import { SetIndex } from '../define';
 import { RenderFlow, RenderPipeline } from '..';
 import { Material } from '../../assets/material';
 import { BufferInfo, BufferUsageBit, ClearFlagBit, Color, MemoryUsageBit, PipelineState, Rect } from '../../gfx';
-import { Pass } from '../../renderer';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { CommonStagePriority } from './enum';
-import { BLOOM_COMBINEPASS_INDEX, BLOOM_DOWNSAMPLEPASS_INDEX, BLOOM_PREFILTERPASS_INDEX, BLOOM_UPSAMPLEPASS_INDEX, CommonPipelineSceneData }
-    from './common-pipeline-scene-data';
+import { CommonStagePriority } from '../enum';
 import { gfx } from '../..';
 import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
+import { BLOOM_COMBINEPASS_INDEX, BLOOM_DOWNSAMPLEPASS_INDEX, BLOOM_PREFILTERPASS_INDEX,
+    BLOOM_UPSAMPLEPASS_INDEX,
+    DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -88,18 +88,8 @@ export class BloomStage extends RenderStage {
 
     public activate (pipeline: RenderPipeline, flow: RenderFlow) {
         super.activate(pipeline, flow);
-        if (!pipeline.bloomEnabled) return;
-        if (this._bloomMaterial) { (pipeline.pipelineSceneData as CommonPipelineSceneData).bloomMaterial = this._bloomMaterial; }
 
-        const passNumber = MAX_BLOOM_FILTER_PASS_NUM * 2 + 2;
-        for (let i = 0; i < passNumber; ++i) {
-            this._bloomUBO[i] = pipeline.device.createBuffer(new BufferInfo(
-                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                UBOBloom.SIZE,
-                UBOBloom.SIZE,
-            ));
-        }
+        if (this._bloomMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).bloomMaterial = this._bloomMaterial; }
     }
 
     public destroy () {
@@ -107,14 +97,23 @@ export class BloomStage extends RenderStage {
 
     public render (camera: Camera) {
         const pipeline = this._pipeline;
+        pipeline.generateBloomRenderData();
         if (!camera.window?.swapchain && !pipeline.macros.CC_PIPELINE_TYPE) {
             return;
         }
-        if (!pipeline.bloomEnabled || camera.scene!.batches.length > 0) return;
+        if (!pipeline.bloomEnabled || pipeline.pipelineSceneData.renderObjects.length === 0) return;
 
-        const device = pipeline.device;
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        if (this._bloomUBO.length === 0) {
+            const passNumber = MAX_BLOOM_FILTER_PASS_NUM * 2 + 2;
+            for (let i = 0; i < passNumber; ++i) {
+                this._bloomUBO[i] = pipeline.device.createBuffer(new BufferInfo(
+                    BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                    UBOBloom.SIZE,
+                    UBOBloom.SIZE,
+                ));
+            }
+        }
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
@@ -130,13 +129,13 @@ export class BloomStage extends RenderStage {
     }
 
     private _prefilterPass (camera: Camera, pipeline: RenderPipeline) {
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= 1;
         this._renderArea.height >>= 1;
         const cmdBuff = pipeline.commandBuffers[0];
 
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const pass = builtinBloomProcess.passes[BLOOM_PREFILTERPASS_INDEX];
         const renderData = pipeline.getPipelineRenderData();
         const bloomData = renderData.bloom!;
@@ -153,7 +152,7 @@ export class BloomStage extends RenderStage {
         pass.descriptorSet.update();
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-        const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
+        const inputAssembler = camera.window.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
         let pso: PipelineState | null = null;
 
         const shader = pass.getShaderVariant();
@@ -171,12 +170,12 @@ export class BloomStage extends RenderStage {
     }
 
     private _downsamplePass (camera: Camera, pipeline: RenderPipeline) {
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= 1;
         this._renderArea.height >>= 1;
         const cmdBuff = pipeline.commandBuffers[0];
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const bloomData = pipeline.getPipelineRenderData().bloom!;
         const textureSize = new Float32Array(UBOBloom.COUNT);
 
@@ -201,7 +200,7 @@ export class BloomStage extends RenderStage {
             pass.descriptorSet.update();
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-            const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
+            const inputAssembler = camera.window.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
             let pso: PipelineState | null = null;
 
             if (pass != null && shader != null && inputAssembler != null) {
@@ -220,12 +219,12 @@ export class BloomStage extends RenderStage {
 
     private _upsamplePass (camera: Camera, pipeline: RenderPipeline) {
         const bloomData = pipeline.getPipelineRenderData().bloom!;
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
         this._renderArea.width >>= this.iterations + 1;
         this._renderArea.height >>= this.iterations + 1;
         const cmdBuff = pipeline.commandBuffers[0];
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData  as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const textureSize = new Float32Array(UBOBloom.COUNT);
 
         for (let i = 0; i < this.iterations; ++i) {
@@ -250,7 +249,7 @@ export class BloomStage extends RenderStage {
             pass.descriptorSet.update();
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-            const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
+            const inputAssembler = camera.window.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
             let pso: PipelineState | null = null;
 
             if (pass != null && shader != null && inputAssembler != null) {
@@ -268,11 +267,11 @@ export class BloomStage extends RenderStage {
     }
 
     private _combinePass (camera: Camera, pipeline: RenderPipeline) {
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
 
         const cmdBuff = pipeline.commandBuffers[0];
-        const sceneData = pipeline.pipelineSceneData;
-        const builtinBloomProcess = (sceneData as CommonPipelineSceneData).bloomMaterial;
+        const sceneData = pipeline.pipelineSceneData as DeferredPipelineSceneData;
+        const builtinBloomProcess = sceneData.bloomMaterial;
         const deferredData = pipeline.getPipelineRenderData();
         const bloomData = deferredData.bloom!;
         const uboIndex = MAX_BLOOM_FILTER_PASS_NUM * 2 + 1;
@@ -291,7 +290,7 @@ export class BloomStage extends RenderStage {
         pass.descriptorSet.update();
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-        const inputAssembler = camera.window!.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
+        const inputAssembler = camera.window.swapchain ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
         let pso: PipelineState | null = null;
 
         const shader = pass.getShaderVariant();

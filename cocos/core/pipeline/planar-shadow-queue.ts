@@ -55,8 +55,6 @@ export class PlanarShadowQueue {
         this._castModels.length = 0;
         if (!shadows.enabled || shadows.type !== ShadowType.Planar) { return; }
 
-        pipelineUBO.updateShadowUBO(camera);
-
         const scene = camera.scene!;
         const frustum = camera.frustum;
         const shadowVisible =  (camera.visibility & Layers.BitMask.DEFAULT) !== 0;
@@ -67,7 +65,7 @@ export class PlanarShadowQueue {
             const model = models[i];
             if (model.enabled && model.node && model.castShadow) { this._castModels.push(model); }
         }
-        const instancedBuffer = InstancedBuffer.get(shadows.instancingMaterial.passes[0]);
+        const instancedBuffer = shadows.instancingMaterial.passes[0].getInstancedBuffer();
         this._instancedQueue.queue.add(instancedBuffer);
 
         for (let i = 0; i < this._castModels.length; i++) {

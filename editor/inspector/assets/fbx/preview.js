@@ -742,6 +742,17 @@ exports.methods = {
                 clipInfo.from,
                 clipInfo.to,
             );
+
+            await Editor.Message.request(
+                'scene',
+                'execute-model-preview-animation-operation',
+                'setClipConfig',
+                {
+                    wrapMode: clipInfo.wrapMode,
+                    speed: clipInfo.speed,
+                }
+            );
+
             await this.stopAnimation();
         }
     },

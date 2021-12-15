@@ -34,18 +34,17 @@ layout(location = 5) in vec4 a_weights;
    * be reduced to a single MAD). The enlarged numerical range could require
    * more precision than what's actually provided on some devices.
    */
-  void CCGetJointTextureCoords(float pixelsPerJoint, float jointIdx, out highp float x, out highp float y, out highp float invSize)
-  {
-    #if USE_INSTANCING
-      highp float temp = pixelsPerJoint * (a_jointAnimInfo.x * a_jointAnimInfo.y + jointIdx) + a_jointAnimInfo.z;
-    #else
-      highp float temp = pixelsPerJoint * (cc_jointAnimInfo.x * cc_jointTextureInfo.y + jointIdx) + cc_jointTextureInfo.z;
-    #endif
-    invSize = cc_jointTextureInfo.w;
-    highp float tempY = floor(temp * invSize);
-    x = floor(temp - tempY * cc_jointTextureInfo.x);
-    y = (tempY + 0.5) * invSize;
-  }
+  #define CCGetJointTextureCoords(pixelsPerJoint, jointIdx, temp, x, y, invSize) \
+    #if USE_INSTANCING                                                           \
+      highp float temp = pixelsPerJoint * (a_jointAnimInfo.x * a_jointAnimInfo.y + jointIdx) + a_jointAnimInfo.z; \
+    #else                                                                        \
+      highp float temp = pixelsPerJoint * (cc_jointAnimInfo.x * cc_jointTextureInfo.y + jointIdx) + cc_jointTextureInfo.z; \
+    #endif                                                                       \
+    highp float invSize = cc_jointTextureInfo.w;                                 \
+    highp float y = floor(temp * invSize);                                       \
+    highp float x = floor(temp - y * cc_jointTextureInfo.x);                     \
+    y = (y + 0.5) * invSize;                                                     \
+  #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time
 #else
   #define JOINT_UNIFORM_CAPACITY 30
   #pragma builtin(local)

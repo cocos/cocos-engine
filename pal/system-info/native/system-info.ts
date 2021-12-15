@@ -1,5 +1,7 @@
 import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
+import { SplashScreen } from '../../../cocos/core/splash-screen';
+import legacyCC from '../../../predefine';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 const networkTypeMap: Record<string, NetworkType> = {
@@ -93,9 +95,11 @@ class SystemInfo extends EventTarget {
     private _registerEvent () {
         jsb.onPause = () => {
             this.emit('hide');
+            legacyCC.internal.SplashScreen.instance.pauseRendering();
         };
         jsb.onResume = () => {
             this.emit('show');
+            legacyCC.internal.SplashScreen.instance.resumeRendering();
         };
         jsb.onClose = () => {
             this.emit('close');

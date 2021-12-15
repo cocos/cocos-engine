@@ -41,7 +41,7 @@ import { director } from '../core/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
-import { scene } from '../core/renderer';
+import { Pass, scene } from '../core/renderer';
 import { Camera } from '../core/renderer/scene/camera';
 import { Root } from '../core/root';
 import { HeightField } from './height-field';
@@ -182,6 +182,7 @@ class TerrainRenderable extends RenderableComponent {
     public _model: scene.Model | null = null;
     public _meshData: RenderingSubMesh | null = null;
 
+    public _brushPass: Pass | null = null;
     public _brushMaterial: Material | null = null;
     public _currentMaterial: Material | null = null;
     public _currentMaterialLayers = 0;
@@ -209,18 +210,9 @@ class TerrainRenderable extends RenderableComponent {
             return;
         }
 
-        if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
-            const passes = this._currentMaterial.passes;
-            for (let i = 0; i < passes.length; ++i) {
-                if (passes[i] === this._brushMaterial.passes[0]) {
-                    passes.pop();
-                    break;
-                }
-            }
-        }
-
         this._clearMaterials();
 
+        this._brushPass = null;
         this._currentMaterial = null;
         if (this._model != null) {
             this._model.enabled = false;
@@ -241,9 +233,18 @@ class TerrainRenderable extends RenderableComponent {
                 defines: block._getMaterialDefines(nLayers),
             });
 
-            if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
-                const passes = this._currentMaterial.passes;
-                passes.push(this._brushMaterial.passes[0]);
+            if (this._brushMaterial !== null) {
+                // 创建画刷材质实例，避免材质GC直接删除插入的画刷pass
+                const brushMaterialInstance = new Material();
+                brushMaterialInstance.copy(this._brushMaterial);
+
+                this._brushPass = null;
+                if (brushMaterialInstance.passes !== null && brushMaterialInstance.passes.length > 0) {
+                    this._brushPass = brushMaterialInstance.passes[0];
+                    const passes = this._currentMaterial.passes;
+                    passes.push(this._brushPass);
+                    brushMaterialInstance.passes.pop();
+                }
             }
 
             if (init) {
@@ -331,10 +332,9 @@ export class TerrainBlock {
         this._index[1] = j;
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
-        this._node = new Node();
+        this._node = new Node('TerrainBlock');
         this._node.setParent(this._terrain.node);
         this._node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-
         this._node.layer = this._terrain.node.layer;
 
         this._renderable = this._node.addComponent(TerrainRenderable);
@@ -386,11 +386,13 @@ export class TerrainBlock {
 
         this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
             PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
-
-        const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
-        model.createBoundingShape(this._bbMin, this._bbMax);
-        model.node = model.transform = this._node;
-        this._renderable._getRenderScene().addModel(model);
+        this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
+        this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
+        this._renderable._model.node = this._renderable._model.transform = this._node;
+        // ensure the terrain node is in the scene
+        if (this._renderable.node.scene != null) {
+            this.visible = true;
+        }
 
         // reset weightmap
         this._updateWeightMap();
@@ -414,9 +416,10 @@ export class TerrainBlock {
     }
 
     public destroy () {
+        this.visible = false;
         this._renderable._destroyModel();
 
-        if (this._node != null) {
+        if (this._node != null && this._node.isValid) {
             this._node.destroy();
         }
         if (this._weightMap != null) {
@@ -608,6 +611,14 @@ export class TerrainBlock {
         }
     }
 
+    public _getBrushMaterial () {
+        return this._renderable ? this._renderable._brushMaterial : null;
+    }
+
+    public _getBrushPass () {
+        return this._renderable ? this._renderable._brushPass : null;
+    }
+
     /**
      * @en valid
      * @zh 是否有效
@@ -625,6 +636,14 @@ export class TerrainBlock {
         }
 
         return false;
+    }
+
+    /**
+     * @en get current material
+     * @zh 获得当前的材质
+     */
+    get material () {
+        return this._renderable ? this._renderable._currentMaterial : null;
     }
 
     /**
@@ -670,8 +689,11 @@ export class TerrainBlock {
     set visible (val) {
         if (this._renderable._model !== null) {
             if (val) {
-                if (this._renderable._model.scene == null) {
-                    this._terrain._getRenderScene().addModel(this._renderable._model);
+                if (this._terrain.node != null
+                    && this._terrain.node.scene != null
+                    && this._terrain.node.scene.renderScene != null
+                    && this._renderable._model.scene == null) {
+                    this._terrain.node.scene.renderScene.addModel(this._renderable._model);
                 }
             } else if (this._renderable._model.scene !== null) {
                 this._renderable._model.scene.removeModel(this._renderable._model);
@@ -898,7 +920,23 @@ export class TerrainBlock {
             }
         }
 
-        if (this._lodKey.compare(key)) {
+        if (this._lodKey.equals(key)) {
+            return;
+        }
+
+        this._lodKey = key;
+        this._updateIndexBuffer();
+    }
+
+    public _resetLod () {
+        const key = new TerrainLodKey();
+        key.level = 0;
+        key.north = 0;
+        key.south = 0;
+        key.west = 0;
+        key.east = 0;
+
+        if (this._lodKey.equals(key)) {
             return;
         }
 
@@ -1080,6 +1118,8 @@ export class Terrain extends Component {
     @disallowAnimation
     protected _lodBias = 0;
 
+    // when the terrain undo, __asset is changed by serialize, but the internal block is created by last asset, here saved last asset
+    protected _buitinAsset : TerrainAsset|null = null;
     protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize = 128;
@@ -1105,8 +1145,10 @@ export class Terrain extends Component {
     @type(TerrainAsset)
     @visible(true)
     public set _asset (value: TerrainAsset|null) {
-        if (this.__asset !== value) {
-            this.__asset = value;
+        this.__asset = value;
+
+        if (this._buitinAsset !== this.__asset) {
+            this._buitinAsset = this.__asset;
 
             // destroy all block
             for (let i = 0; i < this._blocks.length; ++i) {
@@ -1128,13 +1170,21 @@ export class Terrain extends Component {
                 this._heights = new Uint16Array();
                 this._weights = new Uint8Array();
                 this._normals = [];
-                this._layerList = [];
                 this._layerBuffer = [];
                 this._blocks = [];
+
+                // initialize layers
+                this._layerList = [];
+                for (let i = 0; i < TERRAIN_MAX_LAYER_COUNT; ++i) {
+                    this._layerList.push(null);
+                }
             }
 
-            // rebuild
-            this._buildImp();
+            // Ensure device is created
+            if (legacyCC.director.root.device) {
+                // rebuild
+                this._buildImp();
+            }
         }
     }
 
@@ -1216,12 +1266,17 @@ export class Terrain extends Component {
      * @zh 是否允许lod
      */
     @editable
-    get LodEnable () {
+    get lodEnable () {
         return this._lodEnable;
     }
 
-    set LodEnable (val) {
+    set lodEnable (val) {
         this._lodEnable = val;
+        if (!this._lodEnable) {
+            for (let i = 0; i < this._blocks.length; i++) {
+                this._blocks[i]._resetLod();
+            }
+        }
     }
 
     /**
@@ -1485,19 +1540,6 @@ export class Terrain extends Component {
         return this._effectAsset;
     }
 
-    public onLoad () {
-        const gfxDevice = legacyCC.director.root.device as Device;
-
-        // initialize shared index buffer
-        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
-            Uint16Array.BYTES_PER_ELEMENT,
-        ));
-        this._sharedIndexBuffer.update(this._lod._indexBuffer);
-    }
-
     public onEnable () {
         if (this._blocks.length === 0) {
             this._buildImp();
@@ -1534,8 +1576,7 @@ export class Terrain extends Component {
     }
 
     public onRestore () {
-        this.onDisable();
-        this.onLoad();
+        this.onEnable();
         this._buildImp(true);
     }
 
@@ -1546,7 +1587,7 @@ export class Terrain extends Component {
     }
 
     public onUpdateFromCamera (cam: Camera): void {
-        if (!this.LodEnable) {
+        if (!this.lodEnable) {
             return;
         }
         if (cam.scene !== this._getRenderScene()) {
@@ -2004,6 +2045,18 @@ export class Terrain extends Component {
     }
 
     public _getSharedIndexBuffer () {
+        if (this._sharedIndexBuffer == null) {
+            // initialize shared index buffer
+            const gfxDevice = legacyCC.director.root.device as Device;
+            this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+                BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.DEVICE,
+                Uint16Array.BYTES_PER_ELEMENT * this._lod._indexBuffer.length,
+                Uint16Array.BYTES_PER_ELEMENT,
+            ));
+            this._sharedIndexBuffer.update(this._lod._indexBuffer);
+        }
+
         return this._sharedIndexBuffer;
     }
 
@@ -2086,6 +2139,10 @@ export class Terrain extends Component {
         }
 
         const terrainAsset = this.__asset;
+        if (this._buitinAsset != terrainAsset) {
+            this._buitinAsset = terrainAsset;
+        }
+
         if (!restore && terrainAsset !== null) {
             this._tileSize = terrainAsset.tileSize;
             this._blockCount = terrainAsset.blockCount;

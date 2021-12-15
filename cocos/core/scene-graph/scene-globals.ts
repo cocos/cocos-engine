@@ -24,7 +24,7 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
@@ -32,6 +32,7 @@ import { Color, Quat, Vec3, Vec2, Vec4 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType, ShadowSize } from '../renderer/scene/shadows';
 import { Skybox } from '../renderer/scene/skybox';
+import { Octree } from '../renderer/scene/octree';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
@@ -39,6 +40,8 @@ import { Root } from '../root';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
+const _v4 = new Vec4();
+const _col = new Color();
 const _qt = new Quat();
 
 // Normalize HDR color
@@ -114,31 +117,28 @@ export class AmbientInfo {
     })
     @editable
     set skyLightingColor (val: Color) {
-        let result;
-        const color = new Vec4(val.x, val.y, val.z, val.w);
+        _v4.set(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._skyColorHDR = color;
-            (result as Vec4) = this._skyColorHDR;
+            this._skyColorHDR.set(_v4);
         } else {
-            this._skyColorLDR = color;
-            (result as Vec4) = this._skyColorLDR;
+            this._skyColorLDR.set(_v4);
         }
-        if (this._resource) { this._resource.skyColor = _v3.set(color.x, color.y, color.z); }
+        if (this._resource) { this._resource.skyColor.set(_v4); }
     }
     get skyLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const color = isHDR ? this._skyColorHDR.clone() : this._skyColorLDR.clone();
-        normalizeHDRColor(color);
-        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
+        _v4.set(isHDR ? this._skyColorHDR : this._skyColorLDR);
+        normalizeHDRColor(_v4);
+        return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
     set skyColor (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._skyColorHDR = val;
+            this._skyColorHDR.set(val);
         } else {
-            this._skyColorLDR = val;
+            this._skyColorLDR.set(val);
         }
-        if (this._resource) { this._resource.skyColor = val; }
+        if (this._resource) { this._resource.skyColor.set(val); }
     }
 
     /**
@@ -179,31 +179,28 @@ export class AmbientInfo {
     })
     @editable
     set groundLightingColor (val: Color) {
-        let result;
-        const color = new Vec4(val.x, val.y, val.z, val.w);
+        _v4.set(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._groundAlbedoHDR = color;
-            (result as Vec4) = this._groundAlbedoHDR;
+            this._groundAlbedoHDR.set(_v4);
         } else {
-            this._groundAlbedoLDR = color;
-            (result as Vec4) = this._groundAlbedoLDR;
+            this._groundAlbedoLDR.set(_v4);
         }
-        if (this._resource) { this._resource.groundAlbedo = _v3.set(color.x, color.y, color.z); }
+        if (this._resource) { this._resource.groundAlbedo.set(_v4); }
     }
     get groundLightingColor () {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
-        const color = isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR;
-        normalizeHDRColor(color);
-        return new Color(color.x * 255, color.y * 255, color.z * 255, 255);
+        _v4.set(isHDR ? this._groundAlbedoHDR : this._groundAlbedoLDR);
+        normalizeHDRColor(_v4);
+        return _col.set(_v4.x * 255, _v4.y * 255, _v4.z * 255, 255);
     }
 
     set groundAlbedo (val: Vec4) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
-            this._groundAlbedoHDR = val;
+            this._groundAlbedoHDR.set(val);
         } else {
-            this._groundAlbedoLDR = val;
+            this._groundAlbedoLDR.set(val);
         }
-        if (this._resource) { this._resource.groundAlbedo = val; }
+        if (this._resource) { this._resource.groundAlbedo.set(val); }
     }
 
     public activate (resource: Ambient) {
@@ -957,6 +954,85 @@ export class ShadowsInfo {
 legacyCC.ShadowsInfo = ShadowsInfo;
 
 /**
+ * @en Scene level octree related information
+ * @zh 场景八叉树相关信息
+ */
+
+export const DEFAULT_WORLD_MIN_POS = new Vec3(-1024.0, -1024.0, -1024.0);
+export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
+export const DEFAULT_OCTREE_DEPTH = 8;
+
+@ccclass('cc.OctreeInfo')
+export class OctreeInfo {
+    @serializable
+    protected _enabled = false;
+    @serializable
+    protected _minPos = new Vec3(DEFAULT_WORLD_MIN_POS);
+    @serializable
+    protected _maxPos = new Vec3(DEFAULT_WORLD_MAX_POS);
+    @serializable
+    protected _depth = DEFAULT_OCTREE_DEPTH;
+
+    protected _resource: Octree | null = null;
+
+    /**
+     * @en Whether activate octree
+     * @zh 是否启用八叉树加速剔除？
+     */
+    @editable
+    @tooltip('i18n:octree_culling.enabled')
+    set enabled (val: boolean) {
+        if (this._enabled === val) return;
+        this._enabled = val;
+        if (this._resource) {
+            this._resource.enabled = val;
+        }
+    }
+    get enabled () {
+        return this._enabled;
+    }
+
+    @editable
+    @tooltip('i18n:octree_culling.minPos')
+    @displayName('World MinPos')
+    set minPos (val: Vec3) {
+        this._minPos = val;
+        if (this._resource) { this._resource.minPos = val; }
+    }
+    get minPos () {
+        return this._minPos;
+    }
+
+    @editable
+    @tooltip('i18n:octree_culling.maxPos')
+    @displayName('World MaxPos')
+    set maxPos (val: Vec3) {
+        this._maxPos = val;
+        if (this._resource) { this._resource.maxPos = val; }
+    }
+    get maxPos () {
+        return this._maxPos;
+    }
+
+    @editable
+    @range([4, 12, 1])
+    @type(CCInteger)
+    @tooltip('i18n:octree_culling.depth')
+    set depth (val: number) {
+        this._depth = val;
+        if (this._resource) { this._resource.depth = val; }
+    }
+    get depth () {
+        return this._depth;
+    }
+
+    public activate (resource: Octree) {
+        this._resource = resource;
+        this._resource.initialize(this);
+    }
+}
+
+/**
  * @en All scene related global parameters, it affects all content in the corresponding scene
  * @zh 各类场景级别的渲染参数，将影响全场景的所有物体
  */
@@ -995,6 +1071,14 @@ export class SceneGlobals {
         this._skybox = value;
     }
 
+    /**
+     * @en Octree related information
+     * @zh 八叉树相关信息
+     */
+    @editable
+    @serializable
+    public octree = new OctreeInfo();
+
     public activate () {
         const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
         this.skybox.activate(sceneData.skybox);
@@ -1002,6 +1086,7 @@ export class SceneGlobals {
 
         this.shadows.activate(sceneData.shadows);
         this.fog.activate(sceneData.fog);
+        this.octree.activate(sceneData.octree);
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;
