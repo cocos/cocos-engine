@@ -37,32 +37,10 @@ import { warnID } from '../../core/platform/debug';
 export class MeshBuffer extends ScalableContainer {
     public static OPACITY_OFFSET = 8;
 
-    get accessor () { return this._accessor; }
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
     get vertexBuffers (): Readonly<Buffer[]> { return this._vertexBuffers; }
     get indexBuffer () { return this._indexBuffer; }
-
-    /**
-     * @deprecated since v3.4.0 please use LinearBufferAccessor.byteStart instead
-     * @see [[LinearBufferAccessor.byteStart]]
-     */
-    get byteStart () { return this._accessor ? (this._accessor as LinearBufferAccessor).byteStart : 0; }
-    set byteStart (start: number) { if (this._accessor) { (this._accessor as LinearBufferAccessor).byteStart = start; } }
-
-    /**
-     * @deprecated since v3.4.0 please use LinearBufferAccessor.indexStart instead
-     * @see [[LinearBufferAccessor.indexStart]]
-     */
-    get indicesStart () { return this._accessor ? (this._accessor as LinearBufferAccessor).indexStart : 0; }
-    set indicesStart (start: number) { if (this._accessor) { (this._accessor as LinearBufferAccessor).indexStart = start; } }
-
-    /**
-     * @deprecated since v3.4.0 please use LinearBufferAccessor.vertexStart instead
-     * @see [[LinearBufferAccessor.vertexStart]]
-     */
-    get vertexStart () { return this._accessor ? (this._accessor as LinearBufferAccessor).vertexStart : 0; }
-    set vertexStart (start: number) { if (this._accessor) { (this._accessor as LinearBufferAccessor).vertexStart = start; } }
 
     public byteOffset = 0;
     public vertexOffset = 0;
@@ -77,7 +55,6 @@ export class MeshBuffer extends ScalableContainer {
     private _lastUsedVDataSize = 0;
     private _lastUsedIDataSize = 0;
     private _attributes: Attribute[] = null!;
-    private _accessor: BufferAccessor | null = null;
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
 
@@ -136,15 +113,12 @@ export class MeshBuffer extends ScalableContainer {
     }
 
     /**
-     * @deprecated since v3.4.0, please use meshBuffer.accessor.request
+     * @deprecated since v3.4.0, please use BufferAccessor's request
      * @see [[BufferAccessor.request]]
      */
     public request (vertexCount: number, indexCount: number) {
-        if (!this._accessor) {
-            warnID(9003);
-            return false;
-        }
-        return this._accessor.request(vertexCount, indexCount);
+        warnID(9003);
+        return false;
     }
 
     public ensureCapacity (vertexCount: number, indexCount: number) {
