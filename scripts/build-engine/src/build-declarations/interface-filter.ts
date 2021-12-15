@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import * as fs from 'fs-extra';
 
 export namespace interfaceFilter {
-    export interface CullingOptions {
+    export interface InterfaceOptions {
         /**
          * The path of input declaration file.
          */
@@ -13,23 +13,35 @@ export namespace interfaceFilter {
          */
         outputDts?: string;
         /**
-         * Taget jsDoc tag to cull.
-         * this tag is `internal` by default.
+         * Taget jsDoc tag to REMOVE.
+         * this tag is `custom_private` by default.
          */
-        targetTag?: string;
+        privateTag?: string;
+        /**
+         * Taget jsDoc tag to DEPRECATE.
+         * this tag is `custom_deprecated` by default.
+         */
+        deprecateTag?: string;
+        /**
+         * Deprecate tip for the custom deprecated interface.
+         * this is an empty string by default.
+         */
+        deprecateTip?: string;
     }
     
     /**
      * Culling interface.
-     * @param cullingOptions 
+     * @param interfaceOptions 
      */
-    export function cullInterface(cullingOptions: CullingOptions) {
+    export function cullInterface(interfaceOptions: InterfaceOptions) {
         console.time('Culling interface');
         const {
             inputDts,
             outputDts = inputDts,
-            targetTag = 'internal',
-        } = cullingOptions;
+            privateTag = 'custom_private',
+            deprecateTag = 'custom_deprecated',
+            deprecateTip = '',
+        } = interfaceOptions;
 
         
         const program = ts.createProgram([inputDts], {});
@@ -60,9 +72,17 @@ export namespace interfaceFilter {
                         if (tags) {
                             for (let i = 0; i < tags.length; ++i) {
                                 let tag = tags[i];
-                                if (tag.name === targetTag) {
+                                if (tag.name === privateTag) {
                                     // delete interface
                                     return undefined;
+                                } else if (tag.name === deprecateTag) {
+                                    if (tag.text?.[0]?.text) {
+                                        // use custom deprecateTip
+                                        return context.factory.createIdentifier(
+                                            `/** @deprecated ${tag.text[0].text} */` + node.getText());
+                                    }
+                                    return context.factory.createIdentifier(
+                                        `/** @deprecated ${deprecateTip} */` + node.getText());
                                 }
                             }
                         }
@@ -74,8 +94,17 @@ export namespace interfaceFilter {
                                 const tags = jsDoc.tags;
                                 if (tags) {
                                     for (let tag of tags) {
-                                        if (tag.tagName.escapedText === targetTag) {
+                                        if (tag.tagName.escapedText === privateTag) {
+                                            // delete interface
                                             return undefined;
+                                        } else if (tag.tagName.escapedText === deprecateTag) {
+                                            // use custom deprecateTip
+                                            if (tag.comment) {
+                                                return context.factory.createIdentifier(
+                                                    `/** @deprecated ${tag.comment} */` + node.getText());
+                                            }
+                                            return context.factory.createIdentifier(
+                                                `/** @deprecated ${deprecateTip} */` + node.getText());
                                         }
                                     }
                                 }
@@ -85,6 +114,7 @@ export namespace interfaceFilter {
                     node = ts.visitEachChild(node, visit, context);
                     return node;
                 }
+
                 return ts.visitNode(rootNode, visit);
             };
         };

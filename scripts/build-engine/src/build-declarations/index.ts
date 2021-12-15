@@ -219,7 +219,9 @@ export async function build (options: {
 
         interfaceFilter.cullInterface({
             inputDts: indexOutputPath,
-            targetTag: 'private_cc',
+            privateTag: 'private_cc',
+            deprecateTag: 'deprecated_to_user',
+            deprecateTip: 'since v3.5.0, this is an engine private interface that will be removed in the future.',
         });
     } catch (error) {
         console.error(error);
