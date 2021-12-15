@@ -1201,7 +1201,7 @@ Error Texture in %s.
 
 ### 3123
 
-set same texture %s.
+Set same texture %s.
 
 ### 3200
 
