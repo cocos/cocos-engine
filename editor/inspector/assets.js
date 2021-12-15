@@ -28,4 +28,5 @@ module.exports = {
     texture: join(__dirname, './assets/texture/index.js'),
     typescript: join(__dirname, './assets/typescript.js'),
     unknown: join(__dirname, './assets/unknown.js'),
+    markdown: join(__dirname, './assets/markdown.js'),
 };
