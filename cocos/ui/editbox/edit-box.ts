@@ -105,10 +105,8 @@ export class EditBox extends Component {
      *
      * @zh
      * 输入框占位符的文本内容。
-     * @deprecated
+     * @deprecated  since 3.5.0, please use placeholderLabel.string to get the content of the placeholder label.
      */
-    @displayOrder(2)
-    @tooltip('i18n:editbox.placeholder')
     get placeholder () {
         if (!this._placeholderLabel) {
             return '';
