@@ -217,7 +217,7 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -268,7 +268,7 @@ export class Skeleton extends Renderable2D {
     // value of 0 represents no animation
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
@@ -473,45 +473,45 @@ export class Skeleton extends Renderable2D {
 
     public enableBatch = false;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _frameCache: AnimationCache | null = null;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _curFrame: AnimationFrame | null = null;
 
     // protected _materialCache = {};
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _effectDelegate: VertexEffectDelegate | null | undefined = null;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _skeleton: spine.Skeleton | null;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _clipper?: spine.SkeletonClipping;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _debugRenderer: Graphics | null;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _startSlotIndex;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _endSlotIndex;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _startEntry;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _endEntry;
     public attachUtil: AttachUtil;
@@ -1395,7 +1395,7 @@ export class Skeleton extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {

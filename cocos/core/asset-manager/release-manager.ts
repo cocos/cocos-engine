@@ -129,7 +129,7 @@ class ReleaseManager {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _addPersistNodeRef (node: Node) {
         const deps = [];
@@ -144,7 +144,7 @@ class ReleaseManager {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _removePersistNodeRef (node: Node) {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
@@ -161,7 +161,7 @@ class ReleaseManager {
 
     // do auto release
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
         if (oldScene) {

@@ -55,11 +55,11 @@ export class AudioPlayer implements OperationQueueable {
     private _state: AudioState = AudioState.INIT;
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _operationQueue: OperationInfo[] = [];
 

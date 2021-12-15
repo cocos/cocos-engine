@@ -532,7 +532,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _createCamera () {
         if (!this._camera) {

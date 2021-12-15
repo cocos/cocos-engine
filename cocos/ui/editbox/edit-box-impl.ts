@@ -65,35 +65,35 @@ let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _delegate: EditBox | null = null;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _inputMode: InputMode = -1;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _inputFlag: InputFlag = -1;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _returnType: KeyboardReturnType = -1;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public __eventListeners: any = {};
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public __autoResize = false;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public __orientationChanged: any;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
     private _isTextArea = false;

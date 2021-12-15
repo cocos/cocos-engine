@@ -104,7 +104,7 @@ export class Toggle extends Button {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     get _toggleContainer () {
         const parent = this.node.parent!;

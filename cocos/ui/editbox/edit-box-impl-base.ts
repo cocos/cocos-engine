@@ -35,11 +35,11 @@ import { EditBox } from './edit-box';
 
 export class EditBoxImplBase {
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _editing = false;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _delegate: EditBox | null = null;
 

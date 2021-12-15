@@ -195,12 +195,12 @@ class CCObject implements EditorExtendableObject {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public declare [editorExtrasTag]: unknown;
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _objFlags: number;
     protected _name: string;
@@ -345,7 +345,7 @@ class CCObject implements EditorExtendableObject {
      *           }
      *       }
      *
-     * @private_cc
+     * @deprecated_to_user
      */
     public _destruct () {
         const ctor: any = this.constructor;
@@ -358,7 +358,7 @@ class CCObject implements EditorExtendableObject {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _destroyImmediate () {
         if (this._objFlags & Destroyed) {

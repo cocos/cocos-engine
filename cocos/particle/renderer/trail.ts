@@ -200,7 +200,7 @@ export default class TrailModule {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @serializable
     public _enable = false;
@@ -225,7 +225,7 @@ export default class TrailModule {
     public lifeTime = new CurveRange();
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @serializable
     public _minParticleDistance = 0.1;
@@ -380,7 +380,7 @@ export default class TrailModule {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _attachToScene () {
         if (this._trailModel) {
@@ -392,7 +392,7 @@ export default class TrailModule {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _detachFromScene () {
         if (this._trailModel && this._trailModel.scene) {

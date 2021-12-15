@@ -48,7 +48,7 @@ export class VideoClip extends Asset {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     set _nativeAsset (clip: HTMLVideoElement | null) {
         this._video = clip;

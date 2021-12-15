@@ -43,7 +43,6 @@ import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
 import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
-
 export class DrawBatch2D {
     public get native (): NativeDrawBatch2D {
         return this._nativeObj!;

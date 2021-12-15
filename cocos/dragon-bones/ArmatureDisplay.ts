@@ -224,7 +224,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @displayName('Armature')
     @editable
@@ -259,7 +259,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @editable
     @type(DefaultAnimsEnum)
@@ -295,7 +295,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @editable
     @displayName('Animation Cache Mode')
@@ -446,7 +446,7 @@ export class ArmatureDisplay extends Renderable2D {
     /* protected */ _debugDraw: Graphics | null = null;
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     @serializable
     public _enableBatch = false;
@@ -570,7 +570,7 @@ export class ArmatureDisplay extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {

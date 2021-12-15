@@ -369,7 +369,7 @@ export class ComponentScheduler {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _onEnabled (comp) {
         legacyCC.director.getScheduler().resumeTarget(comp);
@@ -384,7 +384,7 @@ export class ComponentScheduler {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _onDisabled (comp) {
         legacyCC.director.getScheduler().pauseTarget(comp);

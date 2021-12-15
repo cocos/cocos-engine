@@ -695,11 +695,11 @@ export class ParticleSystem2D extends Renderable2D {
     public aspectRatio = 1;
     /**
      * The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
-     * @private_cc
+     * @deprecated_to_user
      */
     public declare _renderSpriteFrame: SpriteFrame | null;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public declare _simulator: Simulator;
 
@@ -904,7 +904,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _applyFile () {
         const file = this._file;
@@ -936,7 +936,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _initTextureWithDictionary (dict: any) {
         if (dict.spriteFrameUuid) {
@@ -1020,7 +1020,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _initWithDictionary (dict: any) {
         this.totalParticles = parseInt(dict.maxParticles || 0);
@@ -1135,7 +1135,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _syncAspect () {
         if (this._renderSpriteFrame) {
@@ -1145,7 +1145,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _applySpriteFrame () {
         this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
@@ -1163,14 +1163,14 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _getTexture () {
         return (this._renderSpriteFrame && this._renderSpriteFrame.texture);
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
@@ -1178,7 +1178,7 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _finishedSimulation () {
         if (EDITOR) {

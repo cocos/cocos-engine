@@ -72,7 +72,7 @@ const orientationMap = {
 export class View extends EventTarget {
     public static instance: View;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _designResolutionSize: Size;
 
@@ -718,7 +718,7 @@ class ContentStrategy {
     }
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY): AdaptResult {
         // Makes content fit better the canvas

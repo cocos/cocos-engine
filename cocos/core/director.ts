@@ -202,11 +202,11 @@ export class Director extends EventTarget {
     public static instance: Director;
 
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _compScheduler: ComponentScheduler;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _nodeActivator: NodeActivator;
     private _invalid: boolean;

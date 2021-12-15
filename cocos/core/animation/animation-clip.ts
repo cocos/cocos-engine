@@ -139,7 +139,7 @@ export class AnimationClip extends Asset {
     /**
      * Sets if node TRS curves in this animation can be blended.
      * Normally this flag is enabled for model animation and disabled for other case.
-     * @private_cc This is an internal slot. Never use it in your code.
+     * @deprecated_to_user This is an internal slot. Never use it in your code.
      */
     @serializable
     public enableTrsBlending = false;
@@ -286,7 +286,7 @@ export class AnimationClip extends Asset {
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
      * @returns
-     * @private_cc Do not use this in your code.
+     * @deprecated_to_user Do not use this in your code.
      */
     public createEventEvaluator (targetNode: Node) {
         return new EventEvaluator(
@@ -301,7 +301,7 @@ export class AnimationClip extends Asset {
      * Creates an evaluator for this animation.
      * @param context The context.
      * @returns The evaluator.
-     * @private_cc Do not use this in your code.
+     * @deprecated_to_user Do not use this in your code.
      */
     public createEvaluator (context: AnimationClipEvalContext) {
         const {
@@ -407,7 +407,7 @@ export class AnimationClip extends Asset {
     /**
      * Convert all untyped tracks into typed ones and delete the original.
      * @param refine How to decide the type on specified path.
-     * @private_cc DO NOT USE THIS IN YOUR CODE.
+     * @deprecated_to_user DO NOT USE THIS IN YOUR CODE.
      */
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];

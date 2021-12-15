@@ -73,27 +73,27 @@ enum GeometryType {
 
 class GeometryVertexBuffer {
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _maxVertices = 0;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _vertexCount = 0;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _stride = 0;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _vertices!: Float32Array;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _buffer!: Buffer;
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _inputAssembler!: InputAssembler;
 

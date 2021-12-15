@@ -26,7 +26,7 @@ import { CCObject } from './object';
 @ccclass('cc.GCObject')
 export class GCObject extends CCObject {
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public declare _finalizationToken: any;
 

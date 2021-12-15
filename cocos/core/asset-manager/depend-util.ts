@@ -54,7 +54,7 @@ export interface IDependencies {
  */
 export class DependUtil {
     /**
-     * @private_cc
+     * @deprecated_to_user
      */
     public _depends: Cache<IDependencies> = new Cache<IDependencies>();
 
