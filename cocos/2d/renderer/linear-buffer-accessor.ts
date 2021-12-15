@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { InputAssemblerInfo, InputAssembler, Device, Attribute } from '../../core/gfx';
+import { InputAssembler, Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
 import { assertID } from '../../core/platform/debug';
@@ -40,11 +40,6 @@ export class LinearBufferAccessor extends BufferAccessor {
     public indexStart = 0;
     public vertexStart = 0;
 
-    // InputAssembler pools for each mesh buffer, array offset correspondent
-    private _iaPools: InputAssembler[][] = [[]];
-    private _iaInfos: InputAssemblerInfo[] = [];
-    private _nextFreeIAHandle = 0;
-
     public constructor (device: Device, attributes: Attribute[]) {
         super(device, attributes);
         // Initialize first mesh buffer
@@ -52,14 +47,6 @@ export class LinearBufferAccessor extends BufferAccessor {
     }
 
     public destroy () {
-        // Destroy InputAssemblers
-        for (let i = 0; i < this._iaPools.length; ++i) {
-            const iaPool = this._iaPools[i];
-            for (let j = 0; j < iaPool.length; ++j) {
-                iaPool[j].destroy();
-            }
-        }
-        this._iaPools.length = 0;
         // Destroy mesh buffers
         for (let i = 0; i < this._buffers.length; ++i) {
             this._buffers[i].destroy();
@@ -72,7 +59,6 @@ export class LinearBufferAccessor extends BufferAccessor {
         this.byteStart = 0;
         this.indexStart = 0;
         this.vertexStart = 0;
-        this._nextFreeIAHandle = 0;
 
         for (let i = 0; i <= this._currentId; ++i) {
             this._buffers[i].reset();
@@ -118,12 +104,7 @@ export class LinearBufferAccessor extends BufferAccessor {
             return null;
         }
 
-        const iaPool = this._iaPools[this._currentId];
-        if (iaPool.length <= this._nextFreeIAHandle) {
-            iaPool.push(this._device.createInputAssembler(this._iaInfos[this._currentId]));
-        }
-
-        const ia = iaPool[this._nextFreeIAHandle++];
+        const ia = buf.requireFreeIA(this._device);
         ia.firstIndex = this.indexStart;
         ia.indexCount = vCount;
 
@@ -162,21 +143,17 @@ export class LinearBufferAccessor extends BufferAccessor {
     private _allocateBuffer () {
         const id = this._currentId + 1;
         const l = this._buffers.length;
-        // Validate length of related arrays
-        assertID(this._iaPools[id].length === l && this._iaInfos.length === l && id <= l, 9004);
+        // Validate length of buffer array
+        assertID(id <= l, 9004);
         // Out of bound, new mesh buffer required
         if (id === l) {
             const buffer = new MeshBuffer();
             buffer.initialize(this._device, this._attributes);
             this._buffers.push(buffer);
-            const iaInfo = new InputAssemblerInfo(this._attributes, buffer.vertexBuffers, buffer.indexBuffer);
-            this._iaInfos.push(iaInfo);
-            this._iaPools.push([]);
         }
         this.byteStart = 0;
         this.indexStart = 0;
         this.vertexStart = 0;
-        this._nextFreeIAHandle = 0;
         this._currentId = id;
     }
 }

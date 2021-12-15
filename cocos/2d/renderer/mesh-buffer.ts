@@ -27,10 +27,8 @@
  * @packageDocumentation
  * @module ui
  */
-import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo } from '../../core/gfx';
+import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
 import { ScalableContainer } from '../../core/memop/scalable-container';
-import { BufferAccessor } from './buffer-accessor';
-import type { LinearBufferAccessor } from './linear-buffer-accessor';
 import { getComponentPerVertex } from './vertex-format';
 import { warnID } from '../../core/platform/debug';
 
@@ -58,6 +56,11 @@ export class MeshBuffer extends ScalableContainer {
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
 
+    // InputAssembler pools for each mesh buffer, array offset correspondent
+    private _iaPool: InputAssembler[] = [];
+    private _iaInfo: InputAssemblerInfo = null!;
+    private _nextFreeIAHandle = 0;
+
     public initialize (device: Device, attrs: Attribute[]) {
         const floatCount = getComponentPerVertex(attrs);
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
@@ -83,16 +86,20 @@ export class MeshBuffer extends ScalableContainer {
             this._reallocBuffer();
         }
         // ----------
+
+        this._iaInfo = new InputAssemblerInfo(this._attributes, this._vertexBuffers, this.indexBuffer);
     }
 
     public reset () {
         this.byteOffset = 0;
         this.indexOffset = 0;
         this.vertexOffset = 0;
+        this._nextFreeIAHandle = 0;
         this._dirty = false;
     }
 
     public destroy () {
+        this.reset();
         this._attributes = null!;
 
         if (this._vertexBuffers[0]) {
@@ -104,6 +111,12 @@ export class MeshBuffer extends ScalableContainer {
             this._indexBuffer.destroy();
         }
         this._indexBuffer = null!;
+
+        // Destroy InputAssemblers
+        for (let i = 0; i < this._iaPool.length; ++i) {
+            this._iaPool[i].destroy();
+        }
+        this._iaPool.length = 0;
 
         super.destroy();
     }
@@ -119,6 +132,24 @@ export class MeshBuffer extends ScalableContainer {
     public request (vertexCount: number, indexCount: number) {
         warnID(9003);
         return false;
+    }
+
+    public requireFreeIA (device: Device) {
+        if (this._iaPool.length <= this._nextFreeIAHandle) {
+            this._iaPool.push(device.createInputAssembler(this._iaInfo));
+        }
+        const ia = this._iaPool[this._nextFreeIAHandle++];
+        return ia;
+    }
+
+    public recycleIA (ia: InputAssembler) {
+        const pool = this._iaPool;
+        const id = pool.indexOf(ia);
+        if (id >= 0 && id < this._nextFreeIAHandle) {
+            // Swap to recycle the ia
+            pool[id] = pool[--this._nextFreeIAHandle];
+            pool[this._nextFreeIAHandle] = ia;
+        }
     }
 
     public ensureCapacity (vertexCount: number, indexCount: number) {
