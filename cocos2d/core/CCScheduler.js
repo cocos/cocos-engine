@@ -488,7 +488,7 @@ cc.Scheduler.prototype = {
      *   If 'interval' is 0, it will be called every frame, but if so, it recommended to use 'scheduleUpdateForTarget:' instead.<br/>
      *   If the callback function is already scheduled, then only the interval parameter will be updated without re-scheduling it again.<br/>
      *   repeat let the action be repeated repeat + 1 times, use cc.macro.REPEAT_FOREVER to let the action run continuously<br/>
-     *   delay is the amount of time the action will wait before it'll start<br/>
+     *   delay is the amount of time the action will wait before it'll start. Unit: s.<br/>
      * </p>
      * !#zh
      * 指定回调函数，调用对象等信息来添加一个新的定时器。<br/>
@@ -499,7 +499,7 @@ cc.Scheduler.prototype = {
      * 如果回调函数已经被定时器使用，那么只会更新之前定时器的时间间隔参数，不会设置新的定时器。<br/>
      * repeat 值可以让定时器触发 repeat + 1 次，使用 cc.macro.REPEAT_FOREVER
      * 可以让定时器一直循环触发。<br/>
-     * delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时。
+     * delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时，单位: 秒。
      * @method schedule
      * @param {Function} callback
      * @param {Object} target
