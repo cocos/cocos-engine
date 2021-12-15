@@ -45,6 +45,7 @@ import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { Layers } from '../../core';
 
 const LEFT_PADDING = 2;
 
@@ -576,6 +577,7 @@ export class EditBox extends Component {
         if (!node) {
             node = new Node('PLACEHOLDER_LABEL');
             node.parent = this.node;
+            node.layer = Layers.Enum.UI_2D;
         }
         let placeholderLabel = node.getComponent(Label);
         if (!placeholderLabel) {
