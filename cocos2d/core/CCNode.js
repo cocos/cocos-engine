@@ -1761,8 +1761,7 @@ let NodeDefines = {
         if (this._parent) {
             this._parent._delaySort();
         }
-        this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
-        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
+        this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM | RenderFlow.FLAG_OPACITY_COLOR;
         this._onHierarchyChangedBase(oldParent);
         if (cc._widgetManager) {
             cc._widgetManager._nodesOrderDirty = true;
