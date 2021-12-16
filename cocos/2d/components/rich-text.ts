@@ -549,7 +549,6 @@ export class RichText extends UIComponent {
     protected splitLongStringIntoSeveralShortString (styleIndex: number, s: string) {
         const splitLongStrArr: string[] = [];
 
-        //这里输入的字符串还没有解析用户的'\n'
         const userMultilineString: string[] = s.split('\n');
         for (let i = 0; i < userMultilineString.length; i++) {
             const labelSize = this._calculateSize(styleIndex, userMultilineString[i]);
@@ -585,17 +584,6 @@ export class RichText extends UIComponent {
 
     protected _measureText (styleIndex: number, string?: string) {
         const func = (s: string) => {
-            // let label: ISegment;
-            // if (this._labelSegmentsCache.length === 0) {
-            //     label = this._createFontLabel(s);
-            //     this._labelSegmentsCache.push(label);
-            // } else {
-            //     label = this._labelSegmentsCache[0];
-            //     label.node.getComponent(Label)!.string = s;
-            // }
-            // label.styleIndex = styleIndex;
-            // this._applyTextAttribute(label);
-            // const labelSize = label.node._uiProps.uiTransformComp!.contentSize;
             const labelSize = this._calculateSize(styleIndex, s);
             return labelSize.width;
         };
@@ -977,7 +965,7 @@ export class RichText extends UIComponent {
         if (this._maxWidth > 0) {
             this._labelWidth = this._maxWidth;
         }
-        this._labelHeight = (this._lineCount /*+ BASELINE_RATIO*/) * this._lineHeight;
+        this._labelHeight = this._lineCount * this._lineHeight;
 
         // trigger "size-changed" event
         this.node._uiProps.uiTransformComp!.setContentSize(this._labelWidth, this._labelHeight);
