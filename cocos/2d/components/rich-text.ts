@@ -921,7 +921,7 @@ export class RichText extends Component {
         if (this._maxWidth > 0) {
             this._labelWidth = this._maxWidth;
         }
-        this._labelHeight = (this._lineCount /*+ BASELINE_RATIO*/) * this._lineHeight;
+        this._labelHeight = this._lineCount * this._lineHeight;
 
         // trigger "size-changed" event
         this.node._uiProps.uiTransformComp!.setContentSize(this._labelWidth, this._labelHeight);

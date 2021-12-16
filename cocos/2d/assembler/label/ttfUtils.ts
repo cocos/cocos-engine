@@ -251,7 +251,7 @@ export const ttfUtils =  {
             let blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
             if (_vAlign === VerticalTextAlignment.BOTTOM) {
                 // Unlike BMFont, needs to reserve space below.
-                blank += 0;// BASELINE_RATIO / 2 * _fontSize;
+                blank += 0;
                 // BOTTOM
                 firstLinelabelY -= blank;
             } else {
@@ -588,7 +588,7 @@ export const ttfUtils =  {
                 const paraLength = safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = (_splitStrings.length /*+ BASELINE_RATIO*/) * this._getLineHeight();
+            canvasSizeY = (_splitStrings.length) * this._getLineHeight();
             const rawWidth = parseFloat(canvasSizeX.toFixed(2));
             const rawHeight = parseFloat(canvasSizeY.toFixed(2));
             _canvasSize.width = rawWidth + _canvasPadding.width;
@@ -608,7 +608,7 @@ export const ttfUtils =  {
         }
         case Overflow.RESIZE_HEIGHT: {
             this._calculateWrapText(paragraphedStrings);
-            const rawHeight = (_splitStrings.length /*+ BASELINE_RATIO*/) * this._getLineHeight();
+            const rawHeight = (_splitStrings.length) * this._getLineHeight();
             _canvasSize.height = rawHeight + _canvasPadding.height;
             // set node height
             _nodeContentSize.height = rawHeight + _contentSizeExtend.height;

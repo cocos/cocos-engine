@@ -107,7 +107,7 @@ interface ILabelInfo {
 
 const WHITE = Color.WHITE.clone();
 const space = 0;
-const bleed = 0;// 2;
+const bleed = 0;
 
 class FontLetterDefinition {
     public u = 0;
@@ -161,7 +161,7 @@ class LetterTexture {
             const blank = this.labelInfo.margin * 2 + bleed;
             this.width = parseFloat(width.toFixed(2)) + blank;
             this.height = this.labelInfo.fontSize + blank;
-            this.offsetY = 0;// -(this.labelInfo.fontSize * BASELINE_RATIO) / 2;
+            this.offsetY = 0;
         }
 
         if (this.canvas.width !== this.width) {
