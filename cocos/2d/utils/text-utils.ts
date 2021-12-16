@@ -258,7 +258,9 @@ export function fragmentText (stringToken: string, allWidth: number, maxWidth: n
         checkWhile = 0;
 
         // Find the truncation point
-        while (width <= maxWidth && checkWhile++ < checkCount) {
+        // if the 'tempText' which is truncated from the next line content equals to '',
+        // we should break this loop because there is no available character in the next line.
+        while (tmpText && width <= maxWidth && checkWhile++ < checkCount) {
             if (tmpText) {
                 const exec = WORD_REG.exec(tmpText);
                 pushNum = exec ? exec[0].length : 1;
