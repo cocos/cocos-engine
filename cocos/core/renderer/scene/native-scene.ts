@@ -1,7 +1,7 @@
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
-    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
+    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Sampler, Shader, Swapchain, Texture } from '../../gfx';
 import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -36,6 +36,10 @@ export const NativeModel: Constructor<{
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
+    setLightmapUVParam (val: Vec4): void;
+    setLightmap(val: Texture): void;
+    setSampler(val: Sampler): void;
+    updateLightingmap(): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -57,6 +61,10 @@ export const NativeSkinningModel: Constructor<{
     setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
+    setLightmapUVParam (val: Vec4): void;
+    setLightmap(val: Texture): void;
+    setSampler(val: Sampler): void;
+    updateLightingmap(): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -93,6 +101,10 @@ export const NativeBakedSkinningModel: Constructor<{
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
     setAnimInfoIdx(idx: number): void;
     updateModelBounds(val: NativeAABB | null): void;
+    setLightmapUVParam (val: Vec4): void;
+    setLightmap(val: Texture): void;
+    setSampler(val: Sampler): void;
+    updateLightingmap(): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 

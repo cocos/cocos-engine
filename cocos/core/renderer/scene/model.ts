@@ -455,6 +455,9 @@ export class Model {
         this._localDataUpdated = true;
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
+        if (JSB) {
+            this._nativeObj!.setLightmapUVParam(uvParam);
+        }
 
         if (texture === null) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
@@ -471,6 +474,12 @@ export class Model {
                 descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
                 descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
+            }
+
+            if (JSB) {
+                this._nativeObj!.setSampler(sampler);
+                this._nativeObj!.setLightmap(gfxTexture);
+                this._nativeObj?.updateLightingmap();
             }
         }
     }
