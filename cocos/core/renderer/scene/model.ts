@@ -479,7 +479,7 @@ export class Model {
             if (JSB) {
                 this._nativeObj!.setSampler(sampler);
                 this._nativeObj!.setLightmap(gfxTexture);
-                this._nativeObj?.updateLightingmap();
+                this._nativeObj!.updateLightingmap();
             }
         }
     }
