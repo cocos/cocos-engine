@@ -49,16 +49,13 @@ void UIPhase::render(scene::Camera *camera, gfx::RenderPass *renderPass) {
             if (pass->getPhase() != _phaseID) continue;
             auto *shader         = batch->shaders[i];
             auto *inputAssembler = batch->inputAssembler;
-            // auto *ds             = batch->descriptorSet;
+            auto *ds             = batch->descriptorSet;
             auto *pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             cmdBuff->bindInputAssembler(inputAssembler);
-            for (auto *drawCall : batch->drawCalls) {
-                auto *ds = drawCall->descriptorSet;
-                cmdBuff->bindDescriptorSet(localSet, ds, drawCall->dynamicOffsets);
-                cmdBuff->draw(*drawCall->drawInfo);
-            }
+            cmdBuff->bindDescriptorSet(localSet, ds);
+            cmdBuff->draw(inputAssembler);
         }
     }
 }
