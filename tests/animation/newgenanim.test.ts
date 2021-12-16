@@ -90,24 +90,26 @@ describe('NewGen Anim', () => {
     });
 
     describe('Asset transition API', () => {
-        const graph = new AnimationGraph();
-        const layer = graph.addLayer();
-        const layerGraph = layer.stateMachine;
-        const n1 = layerGraph.addMotion();
-        const n2 = layerGraph.addMotion();
-        const trans1 = layerGraph.connect(n1, n2);
-        expect([...layerGraph.getOutgoings(n1)].map((t) => t.to)).toContain(n2);
-        expect([...layerGraph.getIncomings(n2)].map((t) => t.from)).toContain(n1);
-
-        // There may be multiple transitions between two nodes.
-        const trans2 = layerGraph.connect(n1, n2);
-        expect(trans2).not.toBe(trans1);
-        expect([...layerGraph.getTransition(n1, n2)]).toEqual(expect.arrayContaining([trans1, trans2]));
-
-        // Self transitions are also allowed.
-        const n3 = layerGraph.addMotion();
-        const selfTransition = layerGraph.connect(n3, n3);
-        expect([...layerGraph.getTransition(n3, n3)]).toMatchObject([selfTransition]);
+        test('Connect', () => {
+            const graph = new AnimationGraph();
+            const layer = graph.addLayer();
+            const layerGraph = layer.stateMachine;
+            const n1 = layerGraph.addMotion();
+            const n2 = layerGraph.addMotion();
+            const trans1 = layerGraph.connect(n1, n2);
+            expect([...layerGraph.getOutgoings(n1)].map((t) => t.to)).toContain(n2);
+            expect([...layerGraph.getIncomings(n2)].map((t) => t.from)).toContain(n1);
+    
+            // There may be multiple transitions between two nodes.
+            const trans2 = layerGraph.connect(n1, n2);
+            expect(trans2).not.toBe(trans1);
+            expect([...layerGraph.getTransitionsBetween(n1, n2)]).toEqual(expect.arrayContaining([trans1, trans2]));
+    
+            // Self transitions are also allowed.
+            const n3 = layerGraph.addMotion();
+            const selfTransition = layerGraph.connect(n3, n3);
+            expect([...layerGraph.getTransitionsBetween(n3, n3)]).toMatchObject([selfTransition]);
+        });
 
         test('Remove transition by transition object', () => {
             const graph = new AnimationGraph();
@@ -125,7 +127,7 @@ describe('NewGen Anim', () => {
 
             layerGraph.removeTransition(trans2);
             {
-                const transitions = Array.from(layerGraph.getTransition(n1, n2));
+                const transitions = Array.from(layerGraph.getTransitionsBetween(n1, n2));
                 expect(transitions).toHaveLength(2);
                 expect(transitions[0]).toBe(trans1);
                 expect(transitions[1]).toBe(trans3);
@@ -133,16 +135,46 @@ describe('NewGen Anim', () => {
 
             layerGraph.removeTransition(trans1);
             {
-                const transitions = Array.from(layerGraph.getTransition(n1, n2));
+                const transitions = Array.from(layerGraph.getTransitionsBetween(n1, n2));
                 expect(transitions).toHaveLength(1);
                 expect(transitions[0]).toBe(trans3);
             }
 
             layerGraph.removeTransition(trans3);
             {
-                const transitions = Array.from(layerGraph.getTransition(n1, n2));
+                const transitions = Array.from(layerGraph.getTransitionsBetween(n1, n2));
                 expect(transitions).toHaveLength(0);
             }
+        });
+
+        test('disconnect()', () => {
+            const graph = new AnimationGraph();
+            const layer = graph.addLayer();
+            const layerGraph = layer.stateMachine;
+            const n1 = layerGraph.addMotion();
+            const n2 = layerGraph.addMotion();
+            const n3 = layerGraph.addMotion();
+            const n4 = layerGraph.addMotion();
+
+            layerGraph.connect(n1, n1);
+            layerGraph.disconnect(n1, n1);
+            expect(Array.from(layerGraph.getTransitionsBetween(n1, n1))).toBeArrayOfSize(0);
+            layerGraph.connect(n1, n1);
+            layerGraph.connect(n1, n1);
+            layerGraph.disconnect(n1, n1);
+            expect(Array.from(layerGraph.getTransitionsBetween(n1, n1))).toBeArrayOfSize(0);
+
+            layerGraph.connect(n1, n2);
+            layerGraph.disconnect(n1, n2);
+            expect(Array.from(layerGraph.getTransitionsBetween(n1, n2))).toBeArrayOfSize(0);
+
+            layerGraph.connect(n1, n3);
+            layerGraph.connect(n1, n3);
+            layerGraph.connect(n1, n3);
+            layerGraph.disconnect(n1, n3);
+            expect(Array.from(layerGraph.getTransitionsBetween(n1, n3))).toBeArrayOfSize(0);
+
+            layerGraph.disconnect(n1, n4);
         });
     });
 

@@ -24,7 +24,7 @@
  * @module scene-graph
  */
 
-import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName, help } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { TextureCube } from '../assets/texture-cube';
 import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
@@ -58,6 +58,7 @@ const normalizeHDRColor = (color : Vec4) => {
  * @zh 场景的环境光照相关信息
  */
 @ccclass('cc.AmbientInfo')
+@help('i18n:cc.Ambient')
 export class AmbientInfo {
     @serializable
     @formerlySerializedAs('_skyColor')
@@ -116,6 +117,7 @@ export class AmbientInfo {
         }
     })
     @editable
+    @tooltip('i18n:ambient.skyLightingColor')
     set skyLightingColor (val: Color) {
         _v4.set(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
@@ -147,6 +149,7 @@ export class AmbientInfo {
      */
     @editable
     @type(CCFloat)
+    @tooltip('i18n:ambient.skyIllum')
     set skyIllum (val: number) {
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
             this._skyIllumHDR = val;
@@ -178,6 +181,7 @@ export class AmbientInfo {
         }
     })
     @editable
+    @tooltip('i18n:ambient.groundLightingColor')
     set groundLightingColor (val: Color) {
         _v4.set(val.x, val.y, val.z, val.w);
         if ((legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR) {
@@ -215,6 +219,7 @@ legacyCC.AmbientInfo = AmbientInfo;
  * @zh 天空盒相关信息
  */
 @ccclass('cc.SkyboxInfo')
+@help('i18n:cc.Skybox')
 export class SkyboxInfo {
     @serializable
     protected _applyDiffuseMap = false;
@@ -251,6 +256,7 @@ export class SkyboxInfo {
         return false;
     })
     @editable
+    @tooltip('i18n:skybox.applyDiffuseMap')
     set applyDiffuseMap (val) {
         this._applyDiffuseMap = val;
 
@@ -267,6 +273,7 @@ export class SkyboxInfo {
      * @zh 是否启用天空盒？
      */
     @editable
+    @tooltip('i18n:skybox.enabled')
     set enabled (val) {
         if (this._enabled === val) return;
         this._enabled = val;
@@ -284,6 +291,7 @@ export class SkyboxInfo {
      * @zh 是否启用环境光照？
      */
     @editable
+    @tooltip('i18n:skybox.useIBL')
     set useIBL (val) {
         this._useIBL = val;
 
@@ -300,6 +308,7 @@ export class SkyboxInfo {
      * @zh 是否启用HDR？
      */
     @editable
+    @tooltip('i18n:skybox.useHDR')
     set useHDR (val) {
         (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = val;
         this._useHDR = val;
@@ -327,6 +336,7 @@ export class SkyboxInfo {
      */
     @editable
     @type(TextureCube)
+    @tooltip('i18n:skybox.envmap')
     set envmap (val) {
         const isHDR = (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
@@ -406,6 +416,7 @@ legacyCC.SkyboxInfo = SkyboxInfo;
  * @en Global fog info
  */
 @ccclass('cc.FogInfo')
+@help('i18n:cc.Fog')
 export class FogInfo {
     public static FogType = FogType;
     @serializable
@@ -434,6 +445,7 @@ export class FogInfo {
      * @en Enable global fog
      */
     @editable
+    @tooltip('i18n:fog.enabled')
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
@@ -454,6 +466,7 @@ export class FogInfo {
      * @en Enable accurate fog (pixel fog)
      */
     @editable
+    @tooltip('i18n:fog.accurate')
     set accurate (val: boolean) {
         if (this._accurate === val) return;
         this._accurate = val;
@@ -474,6 +487,7 @@ export class FogInfo {
      * @en Global fog color
      */
     @editable
+    @tooltip('i18n:fog.fogColor')
     set fogColor (val: Color) {
         this._fogColor.set(val);
         if (this._resource) { this._resource.fogColor = this._fogColor; }
@@ -489,6 +503,7 @@ export class FogInfo {
      */
     @editable
     @type(FogType)
+    @tooltip('i18n:fog.type')
     get type () {
         return this._type;
     }
@@ -510,6 +525,7 @@ export class FogInfo {
     @rangeStep(0.01)
     @slide
     @displayOrder(3)
+    @tooltip('i18n:fog.fogDensity')
     get fogDensity () {
         return this._fogDensity;
     }
@@ -527,6 +543,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @displayOrder(4)
+    @tooltip('i18n:fog.fogStart')
     get fogStart () {
         return this._fogStart;
     }
@@ -544,6 +561,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @displayOrder(5)
+    @tooltip('i18n:fog.fogEnd')
     get fogEnd () {
         return this._fogEnd;
     }
@@ -562,6 +580,7 @@ export class FogInfo {
     @rangeMin(0.01)
     @rangeStep(0.01)
     @displayOrder(6)
+    @tooltip('i18n:fog.fogAtten')
     get fogAtten () {
         return this._fogAtten;
     }
@@ -579,6 +598,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @displayOrder(7)
+    @tooltip('i18n:fog.fogTop')
     get fogTop () {
         return this._fogTop;
     }
@@ -596,6 +616,7 @@ export class FogInfo {
     @type(CCFloat)
     @rangeStep(0.01)
     @displayOrder(8)
+    @tooltip('i18n:fog.fogRange')
     get fogRange () {
         return this._fogRange;
     }
@@ -617,6 +638,7 @@ export class FogInfo {
  * @zh 平面阴影相关信息
  */
 @ccclass('cc.ShadowsInfo')
+@help('i18n:cc.Shadow')
 export class ShadowsInfo {
     @serializable
     protected _type = ShadowType.Planar;
@@ -662,6 +684,7 @@ export class ShadowsInfo {
      * @zh 是否启用平面阴影？
      */
     @editable
+    @tooltip('i18n:shadow.enabled')
     set enabled (val: boolean) {
         if (this._enabled === val) return;
         this._enabled = val;
@@ -704,6 +727,7 @@ export class ShadowsInfo {
      * @zh 阴影接收平面的法线
      */
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
+    @tooltip('i18n:shadow.normal')
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
         if (this._resource) { this._resource.normal = val; }
@@ -717,6 +741,7 @@ export class ShadowsInfo {
      * @zh 阴影接收平面与原点的距离
      */
     @type(CCFloat)
+    @tooltip('i18n:shadow.distance')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     set distance (val: number) {
         this._distance = val;
@@ -734,6 +759,7 @@ export class ShadowsInfo {
     @range([0.0, 1.0, 0.01])
     @slide
     @type(CCFloat)
+    @tooltip('i18n:shadow.saturation')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set saturation (val: number) {
         if (val > 1.0) {
@@ -753,6 +779,7 @@ export class ShadowsInfo {
      * @zh 阴影接收平面的法线
      */
     @type(PCFType)
+    @tooltip('i18n:shadow.pcf')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set pcf (val) {
         this._pcf = val;
@@ -781,6 +808,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影纹理偏移值
      */
     @type(CCFloat)
+    @tooltip('i18n:shadow.bias')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set bias (val: number) {
         this._bias = val;
@@ -795,6 +823,7 @@ export class ShadowsInfo {
      * @zh 打开或者关闭自阴影。
      */
     @type(CCFloat)
+    @tooltip('i18n:shadow.normalBias')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set normalBias (val: number) {
         this._normalBias = val;
@@ -809,6 +838,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影纹理大小
      */
     @type(ShadowSize)
+    @tooltip('i18n:shadow.shadowMapSize')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set shadowMapSize (value: number) {
         this._size.set(value, value);
@@ -829,6 +859,7 @@ export class ShadowsInfo {
      * @zh 是否是固定区域阴影
      */
     @type(CCBoolean)
+    @tooltip('i18n:shadow.fixedArea')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set fixedArea (val) {
         this._fixedArea = val;
@@ -843,6 +874,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
+    @tooltip('i18n:shadow.near')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set near (val: number) {
         this._near = val;
@@ -857,6 +889,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
+    @tooltip('i18n:shadow.far')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set far (val: number) {
         this._far = Math.min(val, Shadows.MAX_FAR);
@@ -871,10 +904,10 @@ export class ShadowsInfo {
      * @zh 获取或者设置潜在阴影产生的范围
      */
     @editable
-    @tooltip('if shadow has been culled, increase this value to fix it')
     @range([0.0, 2000.0, 0.1])
     @slide
     @type(CCFloat)
+    @tooltip('i18n:shadow.invisibleOcclusionRange')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
     set invisibleOcclusionRange (val: number) {
         this._invisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
@@ -891,10 +924,10 @@ export class ShadowsInfo {
      * @zh 获取或者设置潜在阴影产生的范围
      */
     @editable
-    @tooltip('shadow visible distance: shadow quality is inversely proportional of the magnitude of this value')
     @range([0.0, 2000.0, 0.1])
     @slide
     @type(CCFloat)
+    @tooltip('i18n:shadow.shadowDistance')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
     set shadowDistance (val: number) {
         this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
@@ -911,6 +944,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
+    @tooltip('i18n:shadow.orthoSize')
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === true; })
     set orthoSize (val: number) {
         this._orthoSize = val;
@@ -963,6 +997,7 @@ export const DEFAULT_WORLD_MAX_POS = new Vec3(1024.0, 1024.0, 1024.0);
 export const DEFAULT_OCTREE_DEPTH = 8;
 
 @ccclass('cc.OctreeInfo')
+@help('i18n:cc.OctreeCulling')
 export class OctreeInfo {
     @serializable
     protected _enabled = false;
