@@ -46,7 +46,7 @@ import { UIComponent, UITransform } from '../framework';
 import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
-import { CCObject, CubicSplineNumberValue } from '../../core';
+import { CCObject, CubicSplineNumberValue, math } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const _htmlTextParser = new HtmlTextParser();
@@ -580,6 +580,35 @@ export class RichText extends UIComponent {
         }
 
         return splitLongStrArr;
+    }
+
+    protected CalculateOneLineCharCountApproximatelyInThresholdWithInError (text: string, styleIndex: number, threshold: number, error: number) {
+        const labelSize = this._calculateSize(styleIndex, text);
+        if (labelSize.x < 2048) {
+            return text.length;
+        } else {
+            const longStr = text;
+            let tempString = longStr.substring(0, longStr.length / 2);
+            let tempSize = this._calculateSize(styleIndex, tempString);
+            let tempLength = tempString.length;
+            while (tempSize.x >= 2048) {
+                tempString = tempString.substring(0, tempString.length / 2);
+                tempSize = this._calculateSize(styleIndex, tempString);
+                tempLength = tempString.length;
+            }
+
+            // 误差范围外
+            //while (tempSize.x + Math.abs(error) < 2048)
+
+            // let tempIndex = 0;
+            // while (tempIndex < longStr.length) {
+            //     const thisLength = Math.min(tempLength, longStr.length - tempIndex);
+            //     //substring return characters from indexA to indexB(not contain indexB)
+            //     splitLongStrArr.push(longStr.substring(tempIndex, tempIndex + thisLength));
+            //     tempIndex += thisLength;
+            // }
+            return 0;
+        }
     }
 
     protected _measureText (styleIndex: number, string?: string) {
