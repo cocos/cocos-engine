@@ -230,6 +230,10 @@ CCProgram toon-fs %{
     s.baseFeather = shadeParams.y;
     s.shadeStep = shadeParams.z;
     s.shadeFeather = shadeParams.w;
+    s.forceBackLightFaceShadow = 0.0;
+#if FORCE_BACKFACE_SHADOW
+    s.forceBackLightFaceShadow = 1.0;
+#endif
   }
 
   vec4 frag () {
