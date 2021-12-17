@@ -60,6 +60,7 @@ export class WebGPUInputAssembler extends InputAssembler {
         }
 
         this._nativeInputAssembler = nativeDevice.createInputAssembler(inputAssemblerInfo);
+        this._attributesHash = this.computeAttributesHash();
         return true;
     }
 

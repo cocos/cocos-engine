@@ -126,6 +126,7 @@ export class WebGPURenderPass extends RenderPass {
 
         const nativeDevice = nativeLib.nativeDevice;
         this._nativeRenderPass = nativeDevice?.createRenderPass(renderPassInfo);
+        this._hash = this.computeHash();
         return true;
     }
 
