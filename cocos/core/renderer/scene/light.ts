@@ -98,6 +98,9 @@ export class Light {
 
     set baked (val) {
         this._baked = val;
+        if (JSB) {
+            this._nativeObj!.setBaked(val);
+        }
     }
 
     set color (color: Vec3) {

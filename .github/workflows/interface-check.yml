@@ -17,8 +17,12 @@ jobs:
         working-directory: ./engine
         run: |
           git fetch origin ${{ github.base_ref }}
-          git checkout -b ${{ github.base_ref }} remotes/origin/${{ github.base_ref }}
+          git checkout -b ${{ github.base_ref }}_BASE remotes/origin/${{ github.base_ref }}
           git branch
+
+      - name: npm install BASE branch
+        working-directory: ./engine
+        run: |
           npm install --ignore-scripts
 
       - name: build BASE declaration
@@ -27,11 +31,32 @@ jobs:
           npm run build-declaration
           cp ./bin/.declarations/cc.d.ts ./bin/cc_base.d.ts
 
-      - name: rebase HEAD branch
+      - name: clear dependencies
+        working-directory: ./engine
+        run: |
+          git checkout .
+          rm -r ./node_modules
+          rm ./package-lock.json
+          ls -la
+
+      - name: checkout HEAD branch
         working-directory: ./engine
         run: |
           git remote add HEAD_REPO https://github.com/${{ github.event.pull_request.head.repo.full_name }}.git
-          git pull --rebase HEAD_REPO ${{ github.head_ref }}
+          git fetch HEAD_REPO ${{ github.head_ref }}
+          git checkout -b ${{ github.head_ref }}_HEAD remotes/HEAD_REPO/${{ github.head_ref }}
+          git branch
+
+      - name: rebase BASE branch
+        working-directory: ./engine
+        run: |
+          git checkout .
+          git pull --rebase origin ${{ github.base_ref }}
+
+      - name: npm install HEAD branch
+        working-directory: ./engine
+        run: |
+          npm install --ignore-scripts
 
       - name: build HEAD declaration
         working-directory: ./engine

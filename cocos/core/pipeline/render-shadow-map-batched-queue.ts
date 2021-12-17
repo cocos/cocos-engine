@@ -97,8 +97,6 @@ export class RenderShadowMapBatchedQueue {
         const dirShadowObjects = pipelineSceneData.dirShadowObjects;
         const castShadowObjects = pipelineSceneData.castShadowObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            this._pipeline.pipelineUBO.updateShadowUBOLight(globalDS, light);
-
             switch (light.type) {
             case LightType.DIRECTIONAL:
                 for (let i = 0; i < dirShadowObjects.length; i++) {

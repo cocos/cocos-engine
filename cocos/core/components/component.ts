@@ -40,7 +40,7 @@ import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
-import { errorID, warnID, assertID } from '../platform/debug';
+import { errorID, warnID, assertID, error } from '../platform/debug';
 import { CompPrefabInfo } from '../utils/prefab/prefab-info';
 
 const idGenerator = new IDGenerator('Comp');
@@ -70,7 +70,12 @@ class Component extends CCObject {
         if (trimLeft >= 0) {
             className = className.slice(trimLeft + 1);
         }
-        return `${this.node.name}<${className}>`;
+
+        if (this.node) {
+            return `${this.node.name}<${className}>`;
+        } else {
+            return className;
+        }
     }
     set name (value) {
         this._name = value;

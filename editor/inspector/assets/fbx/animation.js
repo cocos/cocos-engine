@@ -427,11 +427,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
+                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
+                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(timeEnd);
                 });
 
@@ -741,6 +741,8 @@ exports.methods = {
             fps,
             from,
             to,
+            wrapMode: splitInfo.wrapMode,
+            speed: splitInfo.speed || 1,
         };
     },
     getRightName(name) {
@@ -818,12 +820,17 @@ exports.methods = {
         panel.$.clipFrames.innerText = maxFrames;
         panel.$.clipFPS.value = fps;
 
-        panel.$.clipFrom.setAttribute('max', endFrames);
-        panel.$.clipFrom.value = startFrames;
+        // TODO: hack for bug at 3d-tasks#10113. Because the new value would be limited in min and max, should firstly remove min and max.
+        panel.$.clipFrom.max = null;
+        panel.$.clipTo.min = null;
+        panel.$.clipTo.max = null;
 
+        panel.$.clipFrom.value = startFrames;
+        panel.$.clipFrom.setAttribute('max', endFrames);
+
+        panel.$.clipTo.value = endFrames;
         panel.$.clipTo.setAttribute('min', startFrames);
         panel.$.clipTo.setAttribute('max', maxFrames);
-        panel.$.clipTo.value = endFrames;
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
         panel.$.speed.value = panel.currentClipInfo.speed || 1;
@@ -1049,15 +1056,32 @@ exports.methods = {
     onWrapModeChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = Number(event.target.value);
-
+        const wrapMode = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = wrapMode;
+        Editor.Message.request(
+            'scene',
+            'execute-model-preview-animation-operation',
+            'setClipConfig',
+            {
+                wrapMode,
+            }
+        );
         Elements.editor.update.call(panel);
         panel.dispatch('change');
     },
     onSpeedChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = Number(event.target.value);
+        const speed = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = speed;
+        Editor.Message.request(
+            'scene',
+            'execute-model-preview-animation-operation',
+            'setClipConfig',
+            {
+                speed,
+            }
+        );
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');

@@ -251,7 +251,7 @@ export class SplashScreen {
             this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
             this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
             this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
-            this.logoMat.setProperty('precent', u_p);
+            this.logoMat.setProperty('percent', u_p);
             this.logoMat.setProperty('u_projection', this.projection);
             this.logoMat.passes[0].update();
 
@@ -269,7 +269,7 @@ export class SplashScreen {
                 this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
                 this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
                 this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
-                this.watermarkMat.setProperty('precent', u_p);
+                this.watermarkMat.setProperty('percent', u_p);
                 this.watermarkMat.setProperty('u_projection', this.projection);
                 this.watermarkMat.passes[0].update();
             }

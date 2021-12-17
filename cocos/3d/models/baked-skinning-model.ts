@@ -146,7 +146,7 @@ export class BakedSkinningModel extends MorphModel {
     }
 
     private _applyNativeJointMedium () {
-        if (JSB) {
+        if (JSB && this._nativeObj) {
             const boundsInfo: NativeAABB[] = [];
             if (this._jointsMedium.boundsInfo) {
                 this._jointsMedium.boundsInfo.forEach((bound: AABB) => {
@@ -154,7 +154,7 @@ export class BakedSkinningModel extends MorphModel {
                 });
             }
             const animInfoKey = 'nativeDirty';
-            (this._nativeObj! as NativeBakedSkinningModel).setJointMedium(!!this.uploadedAnim, {
+            (this._nativeObj as NativeBakedSkinningModel).setJointMedium(!!this.uploadedAnim, {
                 boundsInfo,
                 jointTextureInfo: this._jointsMedium.jointTextureInfo.buffer,
                 animInfo: {

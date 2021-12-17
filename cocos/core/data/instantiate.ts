@@ -203,7 +203,8 @@ function enumerateObject (obj, clone, parent) {
         for (const key in obj) {
             if (!obj.hasOwnProperty(key)
                 || (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95   // starts with "__"
-                 && key !== '__type__')
+                 && key !== '__type__'
+                 && key !== '__prefab')
             ) {
                 continue;
             }
