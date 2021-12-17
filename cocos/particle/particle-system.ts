@@ -894,6 +894,10 @@ export class ParticleSystem extends RenderableComponent {
 
         // if stop emit modify the refresh flag to true
         this._needRefresh = true;
+
+        for (const burst of this.bursts) {
+            burst.reset();
+        }
     }
 
     // remove all particles from current particle system.
