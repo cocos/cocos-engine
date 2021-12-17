@@ -505,6 +505,7 @@ export class Game extends EventTarget {
             legacyCC.Object._deferredDestroy();
 
             legacyCC.director.reset();
+            legacyCC.profiler.reset();
             this.pause();
             return this._setRenderPipelineNShowSplash().then(() => {
                 this.resume();

@@ -63,6 +63,7 @@ export const ParticleAssembler: IAssembler = {
         const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
             indicesOffset = 0;
             vertexId = 0;
         }

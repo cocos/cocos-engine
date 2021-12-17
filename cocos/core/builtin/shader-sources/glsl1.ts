@@ -136,8 +136,8 @@ export const glsl1 = [
   ],
   [
     {
-      "vert": "\nprecision mediump float;\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nvarying float v_percent;\nuniform vec4 u_buffer0;\nuniform vec4 u_buffer1;\nuniform mat4 u_projection;\nvec4 vert () {\nvec2 worldPos = a_position * u_buffer1.xy + u_buffer1.zw;\nvec2 clipSpace = worldPos / u_buffer0.xy * 2.0 - 1.0;\nvec4 screenPos = u_projection * vec4(clipSpace, 0.0, 1.0);\nv_uv = a_texCoord;\nv_percent = u_buffer0.z;\nreturn screenPos;\n}\nvoid main() { gl_Position = vert(); }",
-      "frag": "\nprecision mediump float;\nvarying vec2 v_uv;\nvarying float v_percent;\nuniform sampler2D mainTexture;\nvec4 frag () {\nvec4 color = texture2D(mainTexture, v_uv);\nfloat precent = clamp(v_percent, 0.0, 1.0);\ncolor.xyz *= precent;\nreturn color;\n}\nvoid main() { gl_FragColor = frag(); }",
+      "vert": "\nprecision mediump float;\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nuniform vec4 u_buffer0;\nuniform vec4 u_buffer1;\nuniform mat4 u_projection;\nvec4 vert () {\nvec2 worldPos = a_position * u_buffer1.xy + u_buffer1.zw;\nvec2 clipSpace = worldPos / u_buffer0.xy * 2.0 - 1.0;\nvec4 screenPos = u_projection * vec4(clipSpace, 0.0, 1.0);\nv_uv = a_texCoord;\nreturn screenPos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvarying vec2 v_uv;\nuniform float u_percent;\nuniform sampler2D mainTexture;\nvec4 frag () {\nvec4 color = texture2D(mainTexture, v_uv);\nfloat percent = clamp(u_percent, 0.0, 1.0);\ncolor.xyz *= percent;\nreturn color;\n}\nvoid main() { gl_FragColor = frag(); }",
     }
   ]
 ];
