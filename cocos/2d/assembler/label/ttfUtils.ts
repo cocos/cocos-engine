@@ -436,7 +436,7 @@ export const ttfUtils =  {
         _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
 
         let recreate = false;
-        const dpr = Math.ceil(screenAdapter.devicePixelRatio);
+        const dpr = Math.floor(screenAdapter.devicePixelRatio);
         const w = _canvasSize.width * dpr;
         const h = _canvasSize.height * dpr;
 
