@@ -27,7 +27,7 @@ export class WebGPUShader extends Shader {
             const shaderStage = new nativeLib.SPVShaderStageInstance();
             const stageName = ShaderStageFlagBit[info.stages[i].stage];
             shaderStage.setStage(nativeLib.ShaderStageFlags[stageName]);
-            const source = removeCombinedSamplerTexture0(info.stages[i].source);
+            const source = removeCombinedSamplerTexture(info.stages[i].source);
 
             const stageStr = info.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : info.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
