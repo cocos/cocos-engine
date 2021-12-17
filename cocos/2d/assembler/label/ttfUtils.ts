@@ -41,7 +41,6 @@ import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { BlendFactor } from '../../../core/gfx';
 
-
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
@@ -451,7 +450,7 @@ export const ttfUtils =  {
             _canvas!.style.height = `${_canvasSize.height}px`;
             recreate = true;
         }
-        _context?.scale(dpr,dpr);
+        _context?.scale(dpr, dpr);
 
         if (recreate) _context!.font = _fontDesc;
         // align

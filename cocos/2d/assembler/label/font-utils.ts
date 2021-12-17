@@ -37,7 +37,6 @@ import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from
 import { director, Director } from '../../../core/director';
 import { macro, warnID } from '../../../core';
 
-
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D | null;
@@ -59,10 +58,8 @@ export class CanvasPool {
         if (!data) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-
-            context!.imageSmoothingEnabled = true ;
+            context!.imageSmoothingEnabled = true;
             context!.imageSmoothingQuality = 'high';
-
             data = {
                 canvas,
                 context,
@@ -308,19 +305,15 @@ export class LetterAtlas {
         if (!texture || !this.fontDefDictionary || !device) {
             return null;
         }
-
         const width = texture.width;
         const height = texture.height;
-
         if ((this._x + width + space) > this._width) {
             this._x = space;
             this._y = this._nextY;
         }
-
         if ((this._y + height) > this._nextY) {
             this._nextY = this._y + height + space;
         }
-
         if (this._nextY > this._height) {
             warnID(12100);
             return null;
