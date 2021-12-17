@@ -455,9 +455,6 @@ export class Model {
         this._localDataUpdated = true;
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
-        if (JSB) {
-            this._nativeObj!.setLightmapUVParam(uvParam);
-        }
 
         if (texture === null) {
             texture = builtinResMgr.get<Texture2D>('empty-texture');
@@ -477,9 +474,7 @@ export class Model {
             }
 
             if (JSB) {
-                this._nativeObj!.setSampler(sampler);
-                this._nativeObj!.setLightmap(gfxTexture);
-                this._nativeObj!.updateLightingmap();
+                this._nativeObj!.updateLightingmap(uvParam, sampler, gfxTexture);
             }
         }
     }

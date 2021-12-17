@@ -36,10 +36,7 @@ export const NativeModel: Constructor<{
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
-    setLightmapUVParam (val: Vec4): void;
-    setLightmap(val: Texture): void;
-    setSampler(val: Sampler): void;
-    updateLightingmap(): void;
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -61,10 +58,7 @@ export const NativeSkinningModel: Constructor<{
     setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
-    setLightmapUVParam (val: Vec4): void;
-    setLightmap(val: Texture): void;
-    setSampler(val: Sampler): void;
-    updateLightingmap(): void;
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -101,10 +95,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
     setAnimInfoIdx(idx: number): void;
     updateModelBounds(val: NativeAABB | null): void;
-    setLightmapUVParam (val: Vec4): void;
-    setLightmap(val: Texture): void;
-    setSampler(val: Sampler): void;
-    updateLightingmap(): void;
+    updateLightingmap(val: Vec4, sampler: Sampler, texture: Texture): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 
