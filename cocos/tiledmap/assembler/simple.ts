@@ -148,22 +148,20 @@ export const simple: IAssembler = {
         const dataArray = layer.meshRenderDataArray;
         const node = layer.node;
 
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
+        const accessor = renderer.switchBufferAccessor();
 
         // 当前渲染的数据
         const data = dataArray[layer._meshRenderDataArrayIdx] as TiledMeshData;
         const renderData = data.renderData;
 
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
+        const vertexCount = renderData.vertexCount;
+        const indexCount = renderData.indicesCount;
+        accessor.request(vertexCount, indexCount);
+
+        const vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+        let indexOffset = accessor.indexOffset - indexCount;
+        let vertexId = accessor.vertexOffset - vertexCount;
+        const buffer = accessor.currentBuffer;
 
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
@@ -185,13 +183,13 @@ export const simple: IAssembler = {
 
         const quadCount = renderData.vertexCount / 4;
         for (let i = 0; i < quadCount; i += 1) {
-            iBuf[indicesOffset] = vertexId;
-            iBuf[indicesOffset + 1] = vertexId + 1;
-            iBuf[indicesOffset + 2] = vertexId + 2;
-            iBuf[indicesOffset + 3] = vertexId + 2;
-            iBuf[indicesOffset + 4] = vertexId + 1;
-            iBuf[indicesOffset + 5] = vertexId + 3;
-            indicesOffset += 6;
+            iBuf[indexOffset] = vertexId;
+            iBuf[indexOffset + 1] = vertexId + 1;
+            iBuf[indexOffset + 2] = vertexId + 2;
+            iBuf[indexOffset + 3] = vertexId + 2;
+            iBuf[indexOffset + 4] = vertexId + 1;
+            iBuf[indexOffset + 5] = vertexId + 3;
+            indexOffset += 6;
             vertexId += 4;
         }
     },

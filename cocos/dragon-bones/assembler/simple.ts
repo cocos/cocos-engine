@@ -129,22 +129,20 @@ export const simple: IAssembler = {
         const dataArray = comp.meshRenderDataArray;
         const node = comp.node;
 
-        let buffer = renderer.acquireBufferBatch()!;
-        let floatOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexOffset = buffer.vertexOffset;
+        const accessor = renderer.switchBufferAccessor();
 
         // 当前渲染的数据
         const data = dataArray[comp._meshRenderDataArrayIdx];
         const renderData = data.renderData;
 
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            floatOffset = 0;
-            indicesOffset = 0;
-            vertexOffset = 0;
-        }
+        const vertexCount = renderData.vertexCount;
+        const indexCount = renderData.indicesCount;
+        accessor.request(vertexCount, indexCount);
+
+        const vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+        const indexOffset = accessor.indexOffset - indexCount;
+        const vertexId = accessor.vertexOffset - vertexCount;
+        const buffer = accessor.currentBuffer;
 
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
@@ -155,10 +153,10 @@ export const simple: IAssembler = {
         const srcIBuf = renderData.iData;
 
         // copy all vertexData
-        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * STRIDE_FLOAT), floatOffset);
+        vBuf.set(srcVBuf.slice(srcVIdx, srcVIdx + renderData.vertexCount * STRIDE_FLOAT), vertexOffset);
         if (!comp._enableBatch) {
             for (let i = 0; i < renderData.vertexCount; i++) {
-                const pOffset = floatOffset + i * STRIDE_FLOAT;
+                const pOffset = vertexOffset + i * STRIDE_FLOAT;
                 _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
                 _vec3u_temp.transformMat4(matrix);
                 vBuf[pOffset] = _vec3u_temp.x;
@@ -169,7 +167,7 @@ export const simple: IAssembler = {
 
         const srcIOffset = renderData.indicesStart;
         for (let i = 0; i < renderData.indicesCount; i += 1) {
-            iBuf[i + indicesOffset] = srcIBuf[i + srcIOffset] + vertexOffset;
+            iBuf[i + indexOffset] = srcIBuf[i + srcIOffset] + vertexId;
         }
     },
 };

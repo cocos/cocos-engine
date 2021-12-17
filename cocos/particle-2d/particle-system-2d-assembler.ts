@@ -55,17 +55,16 @@ export const ParticleAssembler: IAssembler = {
         if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
             return;
         }
+        const accessor = renderer.switchBufferAccessor();
 
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
+        const vertexCount = renderData.vertexCount;
+        const indexCount = renderData.indicesCount;
+
+        accessor.request(vertexCount, indexCount);
+        let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+        let indexOffset = accessor.indexOffset - indexCount;
+        const vertexId = accessor.vertexOffset - vertexCount;
+        const buffer = accessor.currentBuffer;
 
         // buffer data may be realloc, need get reference after request.
         const vBuf = buffer.vData!;
@@ -81,7 +80,7 @@ export const ParticleAssembler: IAssembler = {
 
         const iLen = renderData.indicesCount;
         for (let i = 0; i < iLen; i++) {
-            iBuf[indicesOffset++] = iData[i] + vertexId;
+            iBuf[indexOffset++] = iData[i] + vertexId;
         }
     },
 };

@@ -209,22 +209,20 @@ export const MotionStreakAssembler: IAssembler = {
         const dataList = renderData.data;
         const node = comp.node;
 
-        let buffer = renderer.acquireBufferBatch()!;
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
+        const accessor = renderer.switchBufferAccessor();
+
+        const vertexCount = renderData.vertexCount;
+        const indexCount = renderData.indicesCount;
+
+        accessor.request(vertexCount, indexCount);
+        let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
+        let indexOffset = accessor.indexOffset - indexCount;
+        const vertexId = accessor.vertexOffset - vertexCount;
+        const buffer = accessor.currentBuffer;
 
         // buffer data may be reallocated, need get reference after request.
         const vBuf = buffer.vData!;
         const iBuf = buffer.iData!;
-        const vertexCount = renderData.vertexCount;
-        const indicesCount = renderData.indicesCount;
 
         for (let i = 0; i < vertexCount; i++) {
             const vert = dataList[i];
@@ -238,14 +236,14 @@ export const MotionStreakAssembler: IAssembler = {
         }
 
         // fill index data
-        for (let i = 0, l = indicesCount; i < l; i += 2) {
+        for (let i = 0, l = indexCount; i < l; i += 2) {
             const start = vertexId + i;
-            iBuf[indicesOffset++] = start;
-            iBuf[indicesOffset++] = start + 2;
-            iBuf[indicesOffset++] = start + 1;
-            iBuf[indicesOffset++] = start + 1;
-            iBuf[indicesOffset++] = start + 2;
-            iBuf[indicesOffset++] = start + 3;
+            iBuf[indexOffset++] = start;
+            iBuf[indexOffset++] = start + 2;
+            iBuf[indexOffset++] = start + 1;
+            iBuf[indexOffset++] = start + 1;
+            iBuf[indexOffset++] = start + 2;
+            iBuf[indexOffset++] = start + 3;
         }
     },
 };
