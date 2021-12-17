@@ -68,14 +68,14 @@ class ListEntry {
         return result;
     }
 
-    public static put = (entry) => {
+    public static put = (entry: ListEntry | any) => {
         if (ListEntry._listEntries.length < MAX_POOL_SIZE) {
             entry.target = null;
             ListEntry._listEntries.push(entry);
         }
     }
 
-    private static _listEntries: any = [];
+    private static _listEntries: ListEntry[] = [];
 
     public target: ISchedulable;
     public priority: number;
@@ -113,14 +113,14 @@ class HashUpdateEntry {
         return result;
     }
 
-    public static put = (entry) => {
+    public static put = (entry: HashUpdateEntry | any) => {
         if (HashUpdateEntry._hashUpdateEntries.length < MAX_POOL_SIZE) {
             entry.list = entry.entry = entry.target = entry.callback = null;
             HashUpdateEntry._hashUpdateEntries.push(entry);
         }
     }
 
-    private static _hashUpdateEntries: any = [];
+    private static _hashUpdateEntries: HashUpdateEntry[] = [];
 
     public list: any;
     public entry: ListEntry;
@@ -162,14 +162,14 @@ class HashTimerEntry {
         return result;
     }
 
-    public static put = (entry) => {
+    public static put = (entry: HashTimerEntry | any) => {
         if (HashTimerEntry._hashTimerEntries.length < MAX_POOL_SIZE) {
             entry.timers = entry.target = entry.currentTimer = null;
             HashTimerEntry._hashTimerEntries.push(entry);
         }
     }
 
-    private static _hashTimerEntries: any = [];
+    private static _hashTimerEntries: HashTimerEntry[] = [];
 
     public timers: any;
     public target: ISchedulable;
@@ -192,9 +192,9 @@ class HashTimerEntry {
  * Light weight timer
  */
 class CallbackTimer {
-    public static _timers: any = [];
+    public static _timers: CallbackTimer[] = [];
     public static get = () => CallbackTimer._timers.pop() || new CallbackTimer()
-    public static put = (timer) => {
+    public static put = (timer: CallbackTimer | any) => {
         if (CallbackTimer._timers.length < MAX_POOL_SIZE && !timer._lock) {
             timer._scheduler = timer._target = timer._callback = null;
             CallbackTimer._timers.push(timer);
@@ -211,7 +211,7 @@ class CallbackTimer {
     private _delay: number;
     private  _interval: number;
     private _target: ISchedulable | null;
-    private _callback: any;
+    private _callback: (dt?: number) => void | null;
 
     constructor () {
         this._lock = false;
@@ -225,7 +225,7 @@ class CallbackTimer {
         this._interval = 0;
 
         this._target = null;
-        this._callback = null;
+        this._callback = null!;
     }
 
     public initWithCallback (scheduler: any, callback: any, target: ISchedulable, seconds: number, repeat: number, delay: number) {
@@ -288,7 +288,7 @@ class CallbackTimer {
                     this._timesExecuted += 1;
                 }
 
-                if (this._callback && !this._runForever && this._timesExecuted > this._repeat) {
+                if (this._callback !== null && !this._runForever && this._timesExecuted > this._repeat) {
                     this.cancel();
                 }
             }
@@ -346,7 +346,7 @@ export class Scheduler extends System {
     private _currentTarget: any;
     private _currentTargetSalvaged: boolean;
     private _updateHashLocked: boolean;
-    private _arrayForTimers;
+    private _arrayForTimers: any;
 
     /**
      * @en This method should be called for any target which needs to schedule tasks, and this method should be called before any scheduler API usage.<bg>
@@ -363,7 +363,7 @@ export class Scheduler extends System {
             found = true;
         }
         if (!found) {
-            // @ts-expect-error
+            // @ts-expect-error Notes written for over eslint
             if (target.__instanceId) {
                 warnID(1513);
             } else {
@@ -458,7 +458,7 @@ export class Scheduler extends System {
         let elt;
         const arr = this._arrayForTimers;
         for (i = 0; i < arr.length; i++) {
-            elt = arr[i];
+            elt = <HashTimerEntry>arr[i];
             this._currentTarget = elt;
             this._currentTargetSalvaged = false;
 
@@ -540,10 +540,10 @@ export class Scheduler extends System {
      * @param [delay=0]
      * @param [paused=fasle]
      */
-    public schedule (callback: Function, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
+    public schedule (callback: () => void, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
         if (typeof callback !== 'function') {
             const tmp = callback;
-            // @ts-expect-error
+            // @ts-expect-error Notes written for over eslint
             callback = target;
             target = tmp;
         }
@@ -562,7 +562,7 @@ export class Scheduler extends System {
             errorID(1510);
             return;
         }
-        let element = this._hashForTimers[targetId];
+        let element = <HashTimerEntry>this._hashForTimers[targetId];
         if (!element) {
             // Is this the 1st element ? Then set the pause level to all the callback_fns of this target
             element = HashTimerEntry.get(null, target, 0, null, null, paused);
@@ -798,7 +798,7 @@ export class Scheduler extends System {
         let element;
         const arr = this._arrayForTimers;
         for (i = arr.length - 1; i >= 0; i--) {
-            element = arr[i];
+            element = <HashTimerEntry>arr[i];
             this.unscheduleAllForTarget(element.target);
         }
 
@@ -904,9 +904,9 @@ export class Scheduler extends System {
      * @param minPriority
      */
     public pauseAllTargetsWithMinPriority (minPriority: number) {
-        const idsWithSelectors: any = [];
+        const idsWithSelectors: ISchedulable[] = [];
 
-        let element;
+        let element: HashTimerEntry;
         const locArrayForTimers = this._arrayForTimers;
         let i;
         let li;
@@ -1052,13 +1052,13 @@ export class Scheduler extends System {
         }
 
         // Custom selectors
-        const element = this._hashForTimers[targetId];
+        const element = <HashTimerEntry>this._hashForTimers[targetId];
         if (element) {
-            return element.paused;
+            return <boolean>element.paused;
         }
         const elementUpdate = this._hashForUpdates[targetId];
         if (elementUpdate) {
-            return elementUpdate.entry.paused;
+            return <boolean>elementUpdate.entry.paused;
         }
         return false;
     }
