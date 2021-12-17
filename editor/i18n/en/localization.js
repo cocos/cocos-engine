@@ -70,6 +70,9 @@ module.exports = {
             Spine: ``,
             OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
         },
+        assets: {
+            javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
+        },
     },
     ambient: {
         skyLightingColor: 'Sky Color (Upper sphere lighting source).',
