@@ -16,7 +16,7 @@ struct ToonSurface {
   float baseFeather;
   float shadeStep;
   float shadeFeather;
-  float forceBackLightFaceShadow;
+  float shadowCover;
 };
 
 // Inspired by UTS2, (C)UTJ/UCL
@@ -76,9 +76,8 @@ struct ToonSurface {
     float NH = 0.5 * dot(normalize(V + L), N) + 0.5;
     vec3 lightColor = cc_mainLitColor.rgb * cc_mainLitColor.w * s.baseStep;
 
-    float stepLighting = (s.shadeStep - s.shadeFeather - NL) / s.shadeFeather;
     vec3 diffuse = mix(s.shade1, s.shade2,
-      clamp(1.0 + stepLighting, 0.0, 1.0));
+      clamp(1.0 + (s.shadeStep - s.shadeFeather - NL) / s.shadeFeather, 0.0, 1.0));
 
     diffuse = mix(s.baseColor.rgb, diffuse,
       clamp(1.0 + (s.baseStep - s.baseFeather - NL) / s.baseFeather, 0.0, 1.0));
@@ -91,9 +90,7 @@ struct ToonSurface {
 
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
-    // Shadows should not affect back-lighting faces
-    float stepRef = (s.shadeStep - s.shadeFeather - 0.5) / s.shadeFeather;
-    if(stepLighting < stepRef || s.forceBackLightFaceShadow > 0.0) {
+    if(s.shadowCover < NL) {
         CC_SHADOW_FACTOR(shadow, N, NL);
     }
     #endif
