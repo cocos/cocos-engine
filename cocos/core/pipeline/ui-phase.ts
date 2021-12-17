@@ -62,12 +62,10 @@ export class UIPhase {
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+                const ds = batch.descriptorSet!;
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds);
                 cmdBuff.bindInputAssembler(inputAssembler);
-                for (let i = 0; i < batch.drawCalls.length; i++) {
-                    const ds = batch.drawCalls[i].descriptorSet!;
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds, batch.drawCalls[i].dynamicOffsets);
-                    cmdBuff.draw(batch.drawCalls[i].drawInfo!);
-                }
+                cmdBuff.draw(inputAssembler);
             }
         }
     }

@@ -20,7 +20,6 @@ export const NativeCamera = ns.Camera;
 export const NativeRenderWindow = ns.RenderWindow;
 export const NativeRenderScene = ns.RenderScene;
 export const NativeDrawBatch2D = ns.DrawBatch2D;
-export const NativeDrawCall = ns.DrawCall;
 export const NativePass = ns.Pass;
 export const NativeSubModel = ns.SubModel;
 export const NativeRoot = ns.Root;
