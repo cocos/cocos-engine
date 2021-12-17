@@ -765,6 +765,10 @@ export class ParticleSystem2D extends Renderable2D {
 
         // reset uv data so next time simulator will refill buffer uv info when exit edit mode from prefab.
         this._simulator.uvFilled = 0;
+
+        if (this._simulator.renderData && this._assembler) {
+            this._assembler.removeData(this._simulator.renderData);
+        }
     }
 
     private initProperties () {

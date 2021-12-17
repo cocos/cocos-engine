@@ -659,8 +659,8 @@ export class RichText extends UIComponent {
         labelSegment.lineCount = this._lineCount;
         labelSegment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
         labelSegment.node.layer = this.node.layer;
-        this._applyTextAttribute(labelSegment);
         this.node.addChild(labelSegment.node);
+        this._applyTextAttribute(labelSegment);
         this._segments.push(labelSegment);
 
         return labelSegment;
@@ -781,16 +781,19 @@ export class RichText extends UIComponent {
             const sprite = segment.comp;
             switch (style.imageAlign) {
             case 'top':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 1);
                 break;
             case 'center':
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0.5);
                 break;
             default:
-                    segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
+                segment.node._uiProps.uiTransformComp!.setAnchorPoint(0, 0);
                 break;
             }
 
+            if (style.imageOffset) {
+                segment.imageOffset = style.imageOffset;
+            }
             segment.node.layer = this.node.layer;
             this.node.addChild(segment.node);
             this._segments.push(segment);

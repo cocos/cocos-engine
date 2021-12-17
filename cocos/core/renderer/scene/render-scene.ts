@@ -109,8 +109,13 @@ export class RenderScene {
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._createNativeObject();
         return true;
+    }
+
+    public activate () {
+        if (JSB) {
+            this._nativeObj!.activate();
+        }
     }
 
     public update (stamp: number) {
@@ -361,7 +366,7 @@ export class RenderScene {
     }
 
     private _createNativeObject () {
-        if (JSB) {
+        if (JSB && !this._nativeObj) {
             this._nativeObj = new NativeRenderScene();
         }
     }

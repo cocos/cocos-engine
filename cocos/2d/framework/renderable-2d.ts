@@ -48,6 +48,7 @@ import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
 import { director } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { NodeUIProperties } from '../../core/scene-graph/node-ui-properties';
 
 // hack
 ccenum(BlendFactor);
@@ -166,6 +167,11 @@ export class Renderable2D extends RenderableComponent {
     protected updateMaterial () {
         if (this._customMaterial) {
             this.setMaterial(this._customMaterial, 0);
+            if (this._renderData) {
+                this._renderData.material = this._customMaterial;
+                this.markForUpdateRenderData();
+                this._renderData.passDirty = true;
+            }
             this._blendHash = -1; // a flag to check merge
             if (UI_GPU_DRIVEN) {
                 this._canDrawByFourVertex = false;
@@ -174,6 +180,10 @@ export class Renderable2D extends RenderableComponent {
         }
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
+        if (this._renderData) {
+            this._renderData.material = mat;
+            this.markForUpdateRenderData();
+        }
         this._updateBlendFunc();
     }
 
@@ -249,8 +259,11 @@ export class Renderable2D extends RenderableComponent {
         if (this._color.equals(value)) {
             return;
         }
-
+        const oldAlpha = this._color.a;
         this._color.set(value);
+        if (oldAlpha !== this.color.a) {
+            NodeUIProperties.markOpacityTree(this.node);
+        }
         this._colorDirty = true;
         if (EDITOR) {
             const clone = value.clone();
@@ -309,7 +322,6 @@ export class Renderable2D extends RenderableComponent {
     protected _blendHash = 0;
 
     protected _colorDirty = true;
-    protected _cacheAlpha = 1;
 
     // macro.UI_GPU_DRIVEN
     protected declare _canDrawByFourVertex: boolean;
@@ -337,6 +349,7 @@ export class Renderable2D extends RenderableComponent {
         if (this._flushAssembler) {
             this._flushAssembler();
         }
+        NodeUIProperties.markOpacityTree(this.node);
     }
 
     public onEnable () {
@@ -470,36 +483,23 @@ export class Renderable2D extends RenderableComponent {
 
     protected _updateColor () {
         if (UI_GPU_DRIVEN && this._canDrawByFourVertex) {
-            const opacityZero = this._cacheAlpha <= 0;
-            this._updateWorldAlpha();
             if (this._colorDirty) {
-                if (opacityZero || this._cacheAlpha <= 0) {
-                    this._renderFlag = this._canRender();
-                }
+                this._renderFlag = this._canRender();
                 this._colorDirty = false;
             }
             return;
         }
         // Need update rendFlag when opacity changes from 0 to !0
-        const opacityZero = this._cacheAlpha <= 0;
-        this._updateWorldAlpha();
         if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
             // Need update rendFlag when opacity changes from 0 to !0 or 0 to !0
-            if (opacityZero || this._cacheAlpha <= 0) {
-                this._renderFlag = this._canRender();
-            }
+            this._renderFlag = this._canRender();
             this._colorDirty = false;
         }
     }
 
-    protected _updateWorldAlpha () {
-        let localAlpha = this.color.a / 255;
-        if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
-        const alpha = this.node._uiProps.opacity * localAlpha;
-        this.node._uiProps.opacity = alpha;
-        this._colorDirty = this._colorDirty || alpha !== this._cacheAlpha;
-        this._cacheAlpha = alpha;
+    public markColorDirty () {
+        this._colorDirty = true;
     }
 
     public _updateBlendFunc () {
@@ -514,6 +514,9 @@ export class Renderable2D extends RenderableComponent {
             target.blendDstAlpha = BlendFactor.ONE_MINUS_SRC_ALPHA;
             target.blendDst = this._dstBlendFactor;
             target.blendSrc = this._srcBlendFactor;
+            if (this.renderData) {
+                this.renderData.passDirty = true;
+            }
         }
         this.updateBlendHash();
     }
@@ -535,6 +538,14 @@ export class Renderable2D extends RenderableComponent {
                 renderComp.markForUpdateRenderData();
             }
         }
+    }
+
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        if (this._renderData) {
+            this.markForUpdateRenderData();
+            this._renderData.passDirty = true;
+        }
+        super._onMaterialModified(idx, material);
     }
 
     // macro.UI_GPU_DRIVEN
@@ -568,8 +579,16 @@ export class Renderable2D extends RenderableComponent {
 
     protected _flushAssembler? (): void;
 
-    public _setCacheAlpha (value) {
-        this._cacheAlpha = value;
+    public setNodeDirty () {
+        if (this.renderData) {
+            this.renderData.nodeDirty = true;
+        }
+    }
+
+    public setTextureDirty () {
+        if (this.renderData) {
+            this.renderData.textureDirty = true;
+        }
     }
 }
 

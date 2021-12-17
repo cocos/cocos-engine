@@ -50,7 +50,6 @@ export const bmfont: IAssembler = {
 
     fillBuffers (comp: Label, renderer: IBatcher) {
         const node = comp.node;
-        comp._setCacheAlpha(node._uiProps.opacity);
         tempColor.set(comp.color);
         tempColor.a = node._uiProps.opacity * 255;
         fillMeshVertices3D(node, renderer, comp.renderData!, tempColor);

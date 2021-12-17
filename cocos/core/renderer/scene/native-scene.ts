@@ -1,8 +1,7 @@
-import { DrawCall } from '../../../2d/renderer/draw-batch';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
 import { Attribute, BlendState, Buffer, ClearFlags, Color as GFXColor, DepthStencilState,
-    DescriptorSet, DrawInfo, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
+    DescriptorSet, Framebuffer, InputAssembler, RasterizerState, Shader, Swapchain } from '../../gfx';
 import { Color, Mat4, Rect, Vec2, Vec3, Vec4 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -103,6 +102,7 @@ export const NativeLight: Constructor<{
     setUseColorTemperature (enable: boolean): void;
     setColorTemperatureRGB (color: Vec3): void;
     setNode (n: Node): void;
+    setBaked (baked: boolean): void;
 }> = null!;
 export type NativeLight = InstanceType<typeof NativeLight>;
 
@@ -238,22 +238,11 @@ export const NativeDrawBatch2D: Constructor<{
     descriptorSet: DescriptorSet | null;
     passes: NativePass[];
     shaders: Shader[];
-    drawCalls: NativeDrawCall[];
-    pushDrawCall(dc: NativeDrawCall);
-    clearDrawCalls();
 }> = null!;
 export type NativeDrawBatch2D = InstanceType<typeof NativeDrawBatch2D>;
 
-export const NativeDrawCall: Constructor<{
-    bufferView: Buffer | null;
-    descriptorSet: DescriptorSet | null;
-    dynamicOffsets: number[];
-    drawInfo: DrawInfo | null;
-    setDynamicOffsets(value: number);
-}> = null!;
-export type NativeDrawCall = InstanceType<typeof NativeDrawCall>;
-
 export const NativeRenderScene: Constructor<{
+    activate (): void;
     update(stamp: number): void;
     setMainLight (l: NativeLight | null): void;
     addSphereLight (l: NativeLight | null): void;
@@ -273,6 +262,14 @@ export const NativeRenderScene: Constructor<{
     removeBatches (): void;
 }> = null!;
 export type NativeRenderScene = InstanceType<typeof NativeRenderScene>;
+
+export const NativeOctree: Constructor<{
+    enabled: boolean;
+    minPos: Vec3;
+    maxPos: Vec3;
+    depth: number;
+}> = null!;
+export type NativeOctree = InstanceType<typeof NativeOctree>;
 
 export const NativeAmbient: Constructor<{
     enabled: boolean;
@@ -337,6 +334,7 @@ export const NativePipelineSharedSceneData: Constructor<{
     ambient: NativeAmbient;
     skybox: NaitveSkybox;
     shadow: NativeShadow;
+    octree: NativeOctree;
     occlusionQueryInputAssembler: InputAssembler | null;
     occlusionQueryPass: NativePass | null;
     occlusionQueryShader: Shader | null;

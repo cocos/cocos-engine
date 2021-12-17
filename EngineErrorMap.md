@@ -620,6 +620,9 @@ Invalid index in MultiplexLayer switchTo message
 <!-- DEPRECATED -->
 cc.Layer.addLayer(): layer should be non-null
 
+### 2104
+Layer collision. The name of layer (%s) is collided with the name or value of some layer
+
 ### 2200
 
 Design resolution not valid
@@ -1699,6 +1702,10 @@ Cannot change hierarchy while activating or deactivating the parent.
 ### 3822
 
 addComponent: Cannot add any component to the scene.
+
+### 3823
+
+The enabled component (id: %s, name: %s) doesn't have a valid node
 
 ### 3900
 
@@ -3165,3 +3172,7 @@ Can not decode CCON binary: lack of text decoder.
 ### 14000
 
 Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.
+
+### 14100
+
+Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead

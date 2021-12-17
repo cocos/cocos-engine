@@ -65,7 +65,11 @@ export class AnimationGraphEval {
         graphDebugGroupEnd();
     }
 
-    public getCurrentStateStatus (layer: number): Readonly<StateStatus> | null {
+    public getVariables (): Iterable<Readonly<[string, Readonly<{ type: VariableType }>]>> {
+        return Object.entries(this._varInstances);
+    }
+
+    public getCurrentStateStatus (layer: number): Readonly<MotionStateStatus> | null {
         return this._layerEvaluations[layer].getCurrentStateStatus();
     }
 
@@ -82,7 +86,7 @@ export class AnimationGraphEval {
         return isInTransition ? currentTransition : null;
     }
 
-    public getNextStateStatus (layer: number): Readonly<StateStatus> | null {
+    public getNextStateStatus (layer: number): Readonly<MotionStateStatus> | null {
         return this._layerEvaluations[layer].getNextStateStatus();
     }
 
@@ -121,7 +125,7 @@ export interface ClipStatus {
     weight: number;
 }
 
-export interface StateStatus {
+export interface MotionStateStatus {
     /**
      * For testing.
      * TODO: remove it.
@@ -193,7 +197,7 @@ class LayerEval {
         }
     }
 
-    public getCurrentStateStatus (): Readonly<StateStatus> | null {
+    public getCurrentStateStatus (): Readonly<MotionStateStatus> | null {
         const { _currentNode: currentNode } = this;
         if (currentNode.kind === NodeKind.animation) {
             return currentNode.getFromPortStatus();
@@ -232,7 +236,7 @@ class LayerEval {
         }
     }
 
-    public getNextStateStatus (): Readonly<StateStatus> | null {
+    public getNextStateStatus (): Readonly<MotionStateStatus> | null {
         assertIsTrue(this._currentTransitionToNode, 'There is no transition currently in layer.');
         return this._currentTransitionToNode.getToPortStatus();
     }
@@ -904,7 +908,7 @@ class LayerEval {
     }
 }
 
-function createStateStatusCache (): StateStatus {
+function createStateStatusCache (): MotionStateStatus {
     return {
         progress: 0.0,
     };
@@ -988,15 +992,15 @@ class InstantiatedComponents {
         this._components = node.instantiateComponents();
     }
 
-    public callMotionStateEnterMethods (controller: AnimationController, status: Readonly<StateStatus>) {
+    public callMotionStateEnterMethods (controller: AnimationController, status: Readonly<MotionStateStatus>) {
         this._callMotionStateCallbackIfNonDefault('onMotionStateEnter', controller, status);
     }
 
-    public callMotionStateUpdateMethods (controller: AnimationController, status: Readonly<StateStatus>) {
+    public callMotionStateUpdateMethods (controller: AnimationController, status: Readonly<MotionStateStatus>) {
         this._callMotionStateCallbackIfNonDefault('onMotionStateUpdate', controller, status);
     }
 
-    public callMotionStateExitMethods (controller: AnimationController, status: Readonly<StateStatus>) {
+    public callMotionStateExitMethods (controller: AnimationController, status: Readonly<MotionStateStatus>) {
         this._callMotionStateCallbackIfNonDefault('onMotionStateExit', controller, status);
     }
 
@@ -1015,7 +1019,7 @@ class InstantiatedComponents {
     > (
         methodName: TMethodName,
         controller: AnimationController,
-        status: StateStatus,
+        status: MotionStateStatus,
     ) {
         const { _components: components } = this;
         const nComponents = components.length;
@@ -1110,7 +1114,7 @@ export class MotionStateEval extends StateEval {
         this.components.callMotionStateUpdateMethods(controller, this.getToPortStatus());
     }
 
-    public getFromPortStatus (): Readonly<StateStatus> {
+    public getFromPortStatus (): Readonly<MotionStateStatus> {
         const { statusCache: stateStatus } = this._fromPort;
         if (DEBUG) {
             stateStatus.__DEBUG_ID__ = this.name;
@@ -1119,7 +1123,7 @@ export class MotionStateEval extends StateEval {
         return stateStatus;
     }
 
-    public getToPortStatus (): Readonly<StateStatus> {
+    public getToPortStatus (): Readonly<MotionStateStatus> {
         const { statusCache: stateStatus } = this._toPort;
         if (DEBUG) {
             stateStatus.__DEBUG_ID__ = this.name;
@@ -1186,7 +1190,7 @@ function normalizeProgress (progress: number) {
 
 interface MotionEvalPort {
     progress: number;
-    statusCache: StateStatus;
+    statusCache: MotionStateStatus;
 }
 
 export class SpecialStateEval extends StateEval {

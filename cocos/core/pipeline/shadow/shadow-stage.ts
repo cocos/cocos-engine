@@ -104,6 +104,7 @@ export class ShadowStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
 
         if (!this._light || !this._shadowFrameBuffer) { return; }
+        this._pipeline.pipelineUBO.updateShadowUBOLight(descriptorSet, this._light);
         this._additiveShadowQueue.gatherLightPasses(descriptorSet, camera, this._light, cmdBuff);
 
         const vp = camera.viewport;

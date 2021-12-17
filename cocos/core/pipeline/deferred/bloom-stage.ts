@@ -97,12 +97,11 @@ export class BloomStage extends RenderStage {
 
     public render (camera: Camera) {
         const pipeline = this._pipeline;
+        pipeline.generateBloomRenderData();
         if (!camera.window?.swapchain && !pipeline.macros.CC_PIPELINE_TYPE) {
             return;
         }
-        if (!pipeline.bloomEnabled || camera.scene!.batches.length > 0) return;
-
-        pipeline.generateBloomRenderData();
+        if (!pipeline.bloomEnabled || pipeline.pipelineSceneData.renderObjects.length === 0) return;
 
         if (this._bloomUBO.length === 0) {
             const passNumber = MAX_BLOOM_FILTER_PASS_NUM * 2 + 2;
