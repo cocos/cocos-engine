@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @hidden
  */
-
+import { screenAdapter } from 'pal/screen-adapter';
 import { FontAtlas } from '../../assets/bitmap-font';
 import { Color } from '../../../core/math';
 import { ImageAsset, Texture2D } from '../../../core/assets';
@@ -36,7 +36,7 @@ import { BufferTextureCopy } from '../../../core/gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../core/director';
 import { macro, warnID } from '../../../core';
-import { screenAdapter } from 'pal/screen-adapter';
+
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -65,7 +65,7 @@ export class CanvasPool {
 
             data = {
                 canvas,
-                context, 
+                context,
             };
         }
 
@@ -168,7 +168,7 @@ class LetterTexture {
             this.height = (1 + BASELINE_RATIO) * this.labelInfo.fontSize + blank;
             this.offsetY = -(this.labelInfo.fontSize * BASELINE_RATIO) / 2;
         }
-        const dpr = Math.ceil(screenAdapter.devicePixelRatio);
+        const dpr = Math.floor(screenAdapter.devicePixelRatio);
         const w = this.width * dpr;
         const h = this.height * dpr;
         if (this.canvas.width !== w) {

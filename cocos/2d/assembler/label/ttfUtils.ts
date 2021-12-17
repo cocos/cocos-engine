@@ -27,7 +27,7 @@
  * @packageDocumentation
  * @hidden
  */
-
+import { screenAdapter } from 'pal/screen-adapter';
 import { SpriteFrame } from '../../assets';
 import { Texture2D } from '../../../core/assets';
 import { fragmentText, safeMeasureText, getBaselineOffset, BASELINE_RATIO } from '../../utils/text-utils';
@@ -40,7 +40,7 @@ import { legacyCC } from '../../../core/global-exports';
 import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { BlendFactor } from '../../../core/gfx';
-import { screenAdapter } from 'pal/screen-adapter';
+
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
