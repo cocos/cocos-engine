@@ -458,7 +458,7 @@ export class Scheduler extends System {
         let elt;
         const arr = this._arrayForTimers;
         for (i = 0; i < arr.length; i++) {
-            elt = <HashTimerEntry>arr[i];
+            elt = <HashTimerEntry> arr[i];
             this._currentTarget = elt;
             this._currentTargetSalvaged = false;
 
@@ -562,7 +562,7 @@ export class Scheduler extends System {
             errorID(1510);
             return;
         }
-        let element = <HashTimerEntry>this._hashForTimers[targetId];
+        let element = <HashTimerEntry> this._hashForTimers[targetId];
         if (!element) {
             // Is this the 1st element ? Then set the pause level to all the callback_fns of this target
             element = HashTimerEntry.get(null, target, 0, null, null, paused);
@@ -798,7 +798,7 @@ export class Scheduler extends System {
         let element;
         const arr = this._arrayForTimers;
         for (i = arr.length - 1; i >= 0; i--) {
-            element = <HashTimerEntry>arr[i];
+            element = <HashTimerEntry> arr[i];
             this.unscheduleAllForTarget(element.target);
         }
 
@@ -1052,7 +1052,7 @@ export class Scheduler extends System {
         }
 
         // Custom selectors
-        const element = <HashTimerEntry>this._hashForTimers[targetId];
+        const element = <HashTimerEntry> this._hashForTimers[targetId];
         if (element) {
             return <boolean>element.paused;
         }
