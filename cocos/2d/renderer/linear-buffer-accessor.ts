@@ -40,6 +40,13 @@ export class LinearBufferAccessor extends BufferAccessor {
     public indexStart = 0;
     public vertexStart = 0;
 
+    public get byteOffset () { return this._buffers[this._currentId].byteOffset; }
+    public get vertexOffset () { return this._buffers[this._currentId].vertexOffset; }
+    public get indexOffset () { return this._buffers[this._currentId].indexOffset; }
+    public get currentBuffer (): Readonly<MeshBuffer> { return this._buffers[this._currentId]; }
+
+    private _currentId = -1;
+
     public constructor (device: Device, attributes: Attribute[]) {
         super(device, attributes);
         // Initialize first mesh buffer
@@ -73,7 +80,7 @@ export class LinearBufferAccessor extends BufferAccessor {
         // Mesh buffer might be switched, can't use initial offsets
         buf.vertexOffset += vertexCount;
         buf.indexOffset += indexCount;
-        buf.byteOffset += vertexCount * buf.vertexFormatBytes;
+        buf.byteOffset += vertexCount * this.vertexFormatBytes;
         buf.setDirty();
     }
 
@@ -125,7 +132,7 @@ export class LinearBufferAccessor extends BufferAccessor {
     private _allocateChunk (vertexCount: number, indexCount: number) {
         let switchedBuffer = false;
         const buf = this._buffers[this._currentId];
-        const byteOffset = buf.byteOffset + vertexCount * buf.vertexFormatBytes;
+        const byteOffset = buf.byteOffset + vertexCount * this.vertexFormatBytes;
         const indexOffset = buf.indexOffset + indexCount;
         const byteLength = buf.vData!.byteLength;
         const indicesLength = buf.iData!.length;
@@ -144,7 +151,7 @@ export class LinearBufferAccessor extends BufferAccessor {
         const id = this._currentId + 1;
         const l = this._buffers.length;
         // Validate length of buffer array
-        assertID(id <= l, 9004);
+        assertID(id <= l, 9003);
         // Out of bound, new mesh buffer required
         if (id === l) {
             const buffer = new MeshBuffer();

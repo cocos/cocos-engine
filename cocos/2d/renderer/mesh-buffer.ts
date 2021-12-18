@@ -130,7 +130,7 @@ export class MeshBuffer extends ScalableContainer {
      * @see [[BufferAccessor.request]]
      */
     public request (vertexCount: number, indexCount: number) {
-        warnID(9003);
+        warnID(9002);
         return false;
     }
 

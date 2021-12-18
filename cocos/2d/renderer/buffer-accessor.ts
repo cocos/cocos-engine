@@ -35,16 +35,11 @@ import { getComponentPerVertex } from './vertex-format';
 export class BufferAccessor {
     public get attributes (): Readonly<Attribute[]> { return this._attributes; }
     public get vertexFormatBytes () { return this._vertexFormatBytes; }
-    public get byteOffset () { return this._buffers[this._currentId].byteOffset; }
-    public get vertexOffset () { return this._buffers[this._currentId].vertexOffset; }
-    public get indexOffset () { return this._buffers[this._currentId].indexOffset; }
-    public get currentBuffer (): Readonly<MeshBuffer> { return this._buffers[this._currentId]; }
 
     protected _device: Device = null!
     protected _attributes: Attribute[] = null!;
     protected _vertexFormatBytes: number;
     protected _floatsPerVertex: number;
-    protected _currentId = -1;
     protected _buffers: MeshBuffer[] = [];
 
     constructor (device: Device, attributes: Attribute[]) {
