@@ -292,6 +292,10 @@ exports.$ = {
     timeCtrl: "#timeCtrl",
 };
 
+async function callModelPreviewFunction(funcName, ...args) {
+    return await Editor.Message.request('scene', 'call-preview-function', 'scene:model-preview', funcName, ...args);
+}
+
 const Elements = {
     container: {
         ready() {
@@ -326,7 +330,7 @@ const Elements = {
                 if (!values.length) {
                     return;
                 }
-                const info = await Editor.Message.request('scene', 'set-model-preview-model', values[0]);
+                const info = await callModelPreviewFunction('setModel', values[0]);
                 panel.infoUpdate(info);
             });
 
@@ -340,10 +344,10 @@ const Elements = {
         ready() {
             const panel = this;
             panel.$.canvas.addEventListener('mousedown', async (event) => {
-                await Editor.Message.request('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
+                await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y });
 
                 async function mousemove(event) {
-                    await Editor.Message.request('scene', 'on-model-preview-mouse-move', {
+                    await callModelPreviewFunction('onMouseMove', {
                         movementX: event.movementX,
                         movementY: event.movementY,
                     });
@@ -352,7 +356,7 @@ const Elements = {
                 }
 
                 async function mouseup(event) {
-                    await Editor.Message.request('scene', 'on-model-preview-mouse-up', {
+                    await callModelPreviewFunction('onMouseUp', {
                         x: event.x,
                         y: event.y,
                     });
@@ -381,7 +385,7 @@ const Elements = {
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             if (panel.asset.redirect) {
-                const info = await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
+                const info = await callModelPreviewFunction('setModel', panel.asset.redirect.uuid);
                 panel.infoUpdate(info);
             } else {
                 this.updatePanelHidden(false);
@@ -404,7 +408,7 @@ const Elements = {
             this.updatePanelHidden(true);
         },
         close() {
-            Editor.Message.send('scene', 'hide-model-preview');
+            callModelPreviewFunction('hide');
         },
     },
     animationTime: {
@@ -472,7 +476,7 @@ exports.ready = function() {
 
     this.onEditClipInfoChanged = async (clipInfo) => {
         if (clipInfo) {
-            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
+            await callModelPreviewFunction('setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
             await this.setCurEditClipInfo(clipInfo);
         }
     };
@@ -643,7 +647,7 @@ exports.methods = {
             return;
         }
 
-        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'stop');
+        await callModelPreviewFunction('stop');
     },
     async onPlayButtonClick() {
         if (!this.curEditClipInfo) {
@@ -651,13 +655,13 @@ exports.methods = {
         }
         switch (this.curPlayState) {
             case PLAY_STATE.PAUSE:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'resume');
+                await callModelPreviewFunction('resume');
                 break;
             case PLAY_STATE.PLAYING:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'pause');
+                await callModelPreviewFunction('pause');
                 break;
             case PLAY_STATE.STOP:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'play', this.curEditClipInfo.rawClipUUID);
+                await callModelPreviewFunction('play', this.curEditClipInfo.rawClipUUID);
                 break;
             default:
                 break;
@@ -680,7 +684,7 @@ exports.methods = {
         frame = Editor.Utils.Math.clamp(frame, 0, this.curTotalFrames);
 
         const curTime = frame / this.curEditClipInfo.fps + this.curEditClipInfo.from;
-        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setCurEditTime', curTime);
+        await callModelPreviewFunction('setCurEditTime', curTime);
     },
 
     onModelAnimationUpdate(time) {
@@ -735,9 +739,7 @@ exports.methods = {
             if (this.$.animationTimeSlider) {
                 this.$.animationTimeSlider.max = this.curTotalFrames;
             }
-            await Editor.Message.request(
-                'scene',
-                'execute-model-preview-animation-operation',
+            await callModelPreviewFunction(
                 'setPlaybackRange',
                 clipInfo.from,
                 clipInfo.to,
