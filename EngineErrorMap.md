@@ -3060,6 +3060,10 @@ Failed to request any buffer from a mesh buffer without accessor
 
 The internal state of LinearBufferAccessor have severe issue and irreversible, please check the reason
 
+### 9004
+
+Failed to allocate chunk in StaticVBAccessor, the requested buffer might be too large: %d bytes
+
 ### 9100
 
 texture size exceeds current device limits %d/%d

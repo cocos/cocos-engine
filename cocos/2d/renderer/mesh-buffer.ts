@@ -65,7 +65,7 @@ export class MeshBuffer extends ScalableContainer {
         const floatCount = getComponentPerVertex(attrs);
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = 256 * this._vertexFormatBytes;
+        this._initVDataCount = 256 * floatCount;
         this._attributes = attrs;
 
         this._vertexBuffers[0] = device.createBuffer(new BufferInfo(
@@ -160,13 +160,16 @@ export class MeshBuffer extends ScalableContainer {
         }
         const maxByte = maxVertex * this.vertexFormatBytes;
         let byteLength = this.vData!.byteLength;
-        let indicesLength = this.iData!.length;
-        while (byteLength < maxByte || indicesLength < maxIndex) {
+        let indexLength = this.iData!.length;
+        if (byteLength >= maxByte && indexLength >= maxIndex) {
+            return true;
+        }
+        while (byteLength < maxByte || indexLength < maxIndex) {
             this._initVDataCount *= 2;
             this._initIDataCount *= 2;
 
             byteLength = this._initVDataCount * 4;
-            indicesLength = this._initIDataCount;
+            indexLength = this._initIDataCount;
         }
 
         this._reallocBuffer();
@@ -224,9 +227,7 @@ export class MeshBuffer extends ScalableContainer {
 
         if (oldVData && copyOldData) {
             const newData = new Uint8Array(this.vData.buffer);
-            for (let i = 0, l = oldVData.length; i < l; i++) {
-                newData[i] = oldVData[i];
-            }
+            newData.set(oldVData);
         }
     }
 
@@ -237,9 +238,7 @@ export class MeshBuffer extends ScalableContainer {
 
         if (oldIData && copyOldData) {
             const iData = this.iData;
-            for (let i = 0, l = oldIData.length; i < l; i++) {
-                iData[i] = oldIData[i];
-            }
+            iData.set(oldIData);
         }
     }
 }

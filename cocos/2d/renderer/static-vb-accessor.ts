@@ -31,8 +31,8 @@
 import { InputAssembler, Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { assertID } from '../../core/platform/debug';
-import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
+import { assertID, warnID } from '../../core/platform/debug';
+import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Pool } from '../../core/memop/pool';
 
 interface IFreeEntry {
@@ -46,6 +46,25 @@ const _entryPool = new Pool<IFreeEntry>(() => {
         length: 0,
     }
 }, 32);
+
+export class StaticVBChunk {
+    public ib: Uint16Array;
+    constructor (
+        public bufferId: number,
+        public vb: Float32Array,
+        public vertexOffset: number,
+        public vertexCount: number,
+    ) {
+    }
+    setIndexBuffer (indices: ArrayLike<number>) {
+        this.ib = new Uint16Array(indices.length);
+        for (let i = 0; i < indices.length; ++i) {
+            let vid = indices[i];
+            assertIsTrue(vid < this.vertexCount);
+            this.ib[i] = this.vertexOffset + vid;
+        }
+    }
+}
 
 export class StaticVBAccessor extends BufferAccessor {
     private _freeLists: IFreeEntry[][] = [];
@@ -89,37 +108,84 @@ export class StaticVBAccessor extends BufferAccessor {
     }
 
     public uploadBuffers () {
-        // TODO recognize active buffers
         for (let i = 0; i <= this._buffers.length; ++i) {
-            this._buffers[i].uploadBuffers();
+            let entry = this._freeLists[i][0];
+            let buffer = this._buffers[i];
+            // Recognize active buffers
+            if (entry && entry.length < buffer.vData.byteLength) {
+                buffer.uploadBuffers();
+            }
         }
     }
 
-    public allocateChunk (vertexCount: number) {
-        const byteLength = vertexCount * this.vertexFormatBytes;
-        let buf;
-        // Ensure capacity
-        // TODO 
+    public recordBatch (vbChunk: StaticVBChunk): InputAssembler | null {
+        const buf = this._buffers[vbChunk.bufferId];
+        // Vertex format check
+        assertIsTrue(vbChunk.vb.byteLength / vbChunk.vertexCount === this.vertexFormatBytes);
+        const vCount = vbChunk.ib.length;
+        if (!vCount) {
+            return null;
+        }
 
+        // Fill index buffer
+        buf.iData.set(vbChunk.ib, buf.indexOffset);
+
+        // Request ia
+        const ia = buf.requireFreeIA(this._device);
+        ia.firstIndex = buf.indexOffset;
+        ia.indexCount = vCount;
+        return ia;
+    }
+
+    public allocateChunk (vertexCount: number, indexCount: number) {
+        const byteLength = vertexCount * this.vertexFormatBytes;
+        let buf: MeshBuffer, freeList: IFreeEntry[];
+        let bid: number, eid: number, entry: IFreeEntry | null = null;
         // Loop buffers
-        for (let i = 0; i < this._freeLists.length; ++i) {
-            const freeList = this._freeLists[i];
+        for (let i = 0; i < this._buffers.length; ++i) {
+            buf = this._buffers[i];
+            freeList = this._freeLists[i];
             // Loop entries
             for (let e = 0; e < freeList.length; ++e) {
-                const entry = freeList[e];
                 // Found suitable free entry
-                if (entry.length >= byteLength) {
-                    this._allocateChunkFromEntry(i, e, entry, byteLength);
+                if (freeList[e].length >= byteLength) {
+                    entry = freeList[e];
+                    bid = i;
+                    eid = e;
+                }
+            }
+            // Try to increase capacity
+            if (!entry) {
+                entry = this._increaseBufferCapacity(i, vertexCount, indexCount);
+                if (entry) {
+                    bid = i;
+                    eid = freeList.length - 1;
                 }
             }
         }
         // Allocation fail
-        if (!buf) {
-            this._allocateBuffer();
-            // TODO Allocate
+        if (!entry) {
+            const bid = this._allocateBuffer();
+            buf = this._buffers[bid];
+            if (buf && buf.ensureCapacity(vertexCount, indexCount)) {
+                eid = 0;
+                entry = this._freeLists[bid][eid];
+                // Update entry with new capacity
+                entry.length = buf.vData.byteLength;
+            }
         }
-        
-        buf.setDirty();
+        // Allocation succeed
+        if (entry) {
+            const vertexOffset = entry.offset / this.vertexFormatBytes;
+            assertIsTrue(Number.isInteger(vertexOffset));
+            const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength);
+            this._allocateChunkFromEntry(bid, eid, entry, byteLength);
+            return new StaticVBChunk(bid, vb, vertexOffset, vertexCount);
+        }
+        else {
+            warnID(9004, byteLength);
+            return null;
+        }
     }
 
     public recycleBuffer (bid: number, offset: number, bytes: number) {
@@ -183,6 +249,32 @@ export class StaticVBAccessor extends BufferAccessor {
         }
     }
 
+    private _increaseBufferCapacity (bid: number, vertexCount: number, indexCount: number) {
+        const buf = this._buffers[bid];
+        const freeList = this._freeLists[bid];
+        assertIsTrue(buf && freeList);
+        const byteLength = buf.vData.byteLength;
+        buf.vertexOffset = byteLength / buf.vertexFormatBytes;
+        buf.indexOffset = buf.iData.length;
+        buf.byteOffset = byteLength;
+        if (buf.ensureCapacity(vertexCount, indexCount)) {
+            let entry = freeList[freeList.length - 1];
+            // Can be merge with last entry
+            if (entry && (entry.offset + entry.length === byteLength)) {
+                entry.length += buf.vData.byteLength - byteLength;
+            }
+            // Need a new entry
+            else {
+                entry = _entryPool.alloc();
+                entry.offset = byteLength;
+                entry.length = buf.vData.byteLength - byteLength;
+                freeList.push(entry);
+            }
+            return entry;
+        }
+        return null;
+    }
+
     private _allocateChunkFromEntry (bid: number, eid: number, entry: IFreeEntry, bytes: number) {
         const remaining = entry.length - bytes;
         assertID(remaining >= 0, 9004, bid, entry.offset, entry.length);
@@ -208,5 +300,6 @@ export class StaticVBAccessor extends BufferAccessor {
         entry.length = buffer.vData.byteLength;
         const freeList = [entry];
         this._freeLists.push(freeList);
+        return this._buffers.length - 1;
     }
 }

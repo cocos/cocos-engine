@@ -49,7 +49,6 @@ import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
 import { LinearBufferAccessor } from './linear-buffer-accessor';
-import { BufferAccessor } from './buffer-accessor';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -118,7 +117,7 @@ export class Batcher2D implements IBatcher {
 
     public device: Device;
     private _screens: RenderRoot2D[] = [];
-    private _linearBuffer: BufferAccessor | null = null;
+    private _linearBuffer: LinearBufferAccessor | null = null;
     private _bufferAccessors: Map<number, LinearBufferAccessor> = new Map();
     // private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(), 128, (obj) => obj.destroy());
     // private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
@@ -164,7 +163,7 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        this._bufferAccessors.forEach((accessor: BufferAccessor) => {
+        this._bufferAccessors.forEach((accessor: LinearBufferAccessor) => {
             accessor.destroy();
         });
         this._bufferAccessors.clear();
@@ -258,7 +257,7 @@ export class Batcher2D implements IBatcher {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
-            this._bufferAccessors.forEach((accessor: BufferAccessor) => {
+            this._bufferAccessors.forEach((accessor: LinearBufferAccessor) => {
                 accessor.uploadBuffers();
                 accessor.reset();
             });
@@ -288,7 +287,7 @@ export class Batcher2D implements IBatcher {
             this._drawBatchPool.free(batch);
         }
         // Reset buffer accessors
-        this._bufferAccessors.forEach((accessor: BufferAccessor) => {
+        this._bufferAccessors.forEach((accessor: LinearBufferAccessor) => {
             accessor.reset();
         });
         this._linearBuffer = null;
@@ -476,7 +475,7 @@ export class Batcher2D implements IBatcher {
         this._currLayer = 0;
     }
 
-    public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: BufferAccessor) {
+    public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: LinearBufferAccessor) {
         this.finishMergeBatches();
         this._linearBuffer = bufferAccessor;
         this.currStaticRoot = staticComp;
@@ -512,7 +511,7 @@ export class Batcher2D implements IBatcher {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
-        const accessor = this.currBufferAccessor as LinearBufferAccessor;
+        const accessor = this.currBufferAccessor;
         if (!accessor) {
             return;
         }
