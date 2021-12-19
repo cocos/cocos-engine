@@ -47,16 +47,16 @@ class BuiltinResMgr {
         const resources = this._resources;
 
         const l = 2;
-        const pixelBytes = 16;
+        const pixelBytes = 4;
         const arrayBuffer = new ArrayBuffer(l * l * pixelBytes);
-        const blackValueView = new Float32Array(arrayBuffer);
-        const emptyValueView = new Float32Array(arrayBuffer);
-        const greyValueView = new Float32Array(arrayBuffer);
-        const whiteValueView = new Float32Array(arrayBuffer);
-        const normalValueView = new Float32Array(arrayBuffer);
+        const blackValueView = new Uint8Array(arrayBuffer);
+        const emptyValueView = new Uint8Array(arrayBuffer);
+        const greyValueView = new Uint8Array(arrayBuffer);
+        const whiteValueView = new Uint8Array(arrayBuffer);
+        const normalValueView = new Uint8Array(arrayBuffer);
 
         const defaultArrayBuffer = new ArrayBuffer(16 * 16 * pixelBytes);
-        const defaultValueView = new Float32Array(defaultArrayBuffer);
+        const defaultValueView = new Uint8Array(defaultArrayBuffer);
 
         const normalColor = new Color('7f7fff');
         const defaultColorTop = new Color('ddd');
@@ -69,19 +69,19 @@ class BuiltinResMgr {
             Color.toArray(greyValueView, Color.GRAY, offset);
             Color.toArray(whiteValueView, Color.WHITE, offset);
             Color.toArray(normalValueView, normalColor, offset);
-            offset += 16;
+            offset += pixelBytes;
         }
         offset = 0;
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 16; ++j) {
                 Color.toArray(defaultValueView, defaultColorTop, offset);
-                offset += 16;
+                offset += pixelBytes;
             }
         }
         for (let i = 8; i < 16; i++) {
             for (let j = 0; j < 16; ++j) {
                 Color.toArray(defaultValueView, defaultColorBottom, offset);
-                offset += 16;
+                offset += pixelBytes;
             }
         }
 
@@ -90,7 +90,7 @@ class BuiltinResMgr {
             height: l,
             _data: blackValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA32F,
+            format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const emptyMemImageSource: ImageSource = {
@@ -98,7 +98,7 @@ class BuiltinResMgr {
             height: l,
             _data: emptyValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA32F,
+            format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const greyMemImageSource: ImageSource = {
@@ -106,7 +106,7 @@ class BuiltinResMgr {
             height: l,
             _data: greyValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA32F,
+            format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const whiteMemImageSource: ImageSource = {
@@ -114,7 +114,7 @@ class BuiltinResMgr {
             height: l,
             _data: whiteValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA32F,
+            format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const normalMemImageSource: ImageSource = {
@@ -122,7 +122,7 @@ class BuiltinResMgr {
             height: l,
             _data: normalValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA32F,
+            format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const defaultMemImageSource: ImageSource = {
@@ -130,7 +130,7 @@ class BuiltinResMgr {
             height: 16,
             _data: defaultValueView,
             _compressed: false,
-            format: Texture2D.PixelFormat.RGBA32F,
+            format: Texture2D.PixelFormat.RGBA8888,
         };
 
         // ============================
