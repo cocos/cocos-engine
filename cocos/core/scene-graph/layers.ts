@@ -47,7 +47,8 @@ const layerList = {
 
     PROFILER: (1 << 28),
     DEFAULT: (1 << 30),
-    ALL: 0xffffffff,
+    // Preserve the 31 bit to avoid converting to signed value (e.g. converting to other environment)
+    ALL: 0x7fffffff,
 };
 
 /**

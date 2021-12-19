@@ -609,7 +609,7 @@ export class Camera {
     }
 
     set visibility (vis: number) {
-        this._visibility = vis;
+        this._visibility = (vis >>> 0);
         if (JSB) {
             this._nativeObj!.visibility = this._visibility;
         }
