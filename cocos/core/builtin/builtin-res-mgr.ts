@@ -25,7 +25,7 @@
 
 import { UI_GPU_DRIVEN, TEST } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { ImageAsset } from '../assets/image-asset';
+import { ImageAsset, ImageSource } from '../assets/image-asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
@@ -34,6 +34,7 @@ import { effects } from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
+import { Color } from '../math';
 
 class BuiltinResMgr {
     protected _device: Device | null = null;
@@ -41,32 +42,113 @@ class BuiltinResMgr {
 
     // this should be called after renderer initialized
     public initBuiltinRes (device: Device): Promise<void> {
-        if (TEST) return Promise.resolve();
+        // if (TEST) return Promise.resolve();
         this._device = device;
         const resources = this._resources;
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d')!;
-        const imgAsset = new ImageAsset(canvas);
-        const l = canvas.width = canvas.height = 2;
+
+        const l = 2;
+        const pixelBytes = 16;
+        const arrayBuffer = new ArrayBuffer(l * l * pixelBytes);
+        const blackValueView = new Float32Array(arrayBuffer);
+        const emptyValueView = new Float32Array(arrayBuffer);
+        const greyValueView = new Float32Array(arrayBuffer);
+        const whiteValueView = new Float32Array(arrayBuffer);
+        const normalValueView = new Float32Array(arrayBuffer);
+
+        const defaultArrayBuffer = new ArrayBuffer(16 * 16 * pixelBytes);
+        const defaultValueView = new Float32Array(defaultArrayBuffer);
+
+        const normalColor = new Color('7f7fff');
+        const defaultColorTop = new Color('ddd');
+        const defaultColorBottom = new Color('555');
+
+        let offset = 0;
+        for (let i = 0; i < l * l; i++) {
+            Color.toArray(blackValueView, Color.BLACK, offset);
+            Color.toArray(emptyValueView, Color.TRANSPARENT, offset);
+            Color.toArray(greyValueView, Color.GRAY, offset);
+            Color.toArray(whiteValueView, Color.WHITE, offset);
+            Color.toArray(normalValueView, normalColor, offset);
+            offset += 16;
+        }
+        offset = 0;
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 16; ++j) {
+                Color.toArray(defaultValueView, defaultColorTop, offset);
+                offset += 16;
+            }
+        }
+        for (let i = 8; i < 16; i++) {
+            for (let j = 0; j < 16; ++j) {
+                Color.toArray(defaultValueView, defaultColorBottom, offset);
+                offset += 16;
+            }
+        }
+
+        const blackMemImageSource: ImageSource = {
+            width: l,
+            height: l,
+            _data: blackValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA32F,
+        };
+
+        const emptyMemImageSource: ImageSource = {
+            width: l,
+            height: l,
+            _data: emptyValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA32F,
+        };
+
+        const greyMemImageSource: ImageSource = {
+            width: l,
+            height: l,
+            _data: greyValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA32F,
+        };
+
+        const whiteMemImageSource: ImageSource = {
+            width: l,
+            height: l,
+            _data: whiteValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA32F,
+        };
+
+        const normalMemImageSource: ImageSource = {
+            width: l,
+            height: l,
+            _data: normalValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA32F,
+        };
+
+        const defaultMemImageSource: ImageSource = {
+            width: 16,
+            height: 16,
+            _data: defaultValueView,
+            _compressed: false,
+            format: Texture2D.PixelFormat.RGBA32F,
+        };
 
         // ============================
         // builtin textures
         // ============================
 
         // black texture
-        context.fillStyle = '#000';
-        context.fillRect(0, 0, l, l);
+        const imgAsset = new ImageAsset(blackMemImageSource);
         const blackTexture = new Texture2D();
         blackTexture._uuid = 'black-texture';
         blackTexture.image = imgAsset;
         resources[blackTexture._uuid] = blackTexture;
 
         // empty texture
-        context.fillStyle = 'rgba(0,0,0,0)';
-        context.fillRect(0, 0, l, l);
+        const emptyImgAsset = new ImageAsset(emptyMemImageSource);
         const emptyTexture = new Texture2D();
         emptyTexture._uuid = 'empty-texture';
-        emptyTexture.image = imgAsset;
+        emptyTexture.image = emptyImgAsset;
         resources[emptyTexture._uuid] = emptyTexture;
 
         // black texture
@@ -74,29 +156,27 @@ class BuiltinResMgr {
         blackCubeTexture._uuid = 'black-cube-texture';
         blackCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         blackCubeTexture.image = {
-            front: new ImageAsset(canvas),
-            back: new ImageAsset(canvas),
-            left: new ImageAsset(canvas),
-            right: new ImageAsset(canvas),
-            top: new ImageAsset(canvas),
-            bottom: new ImageAsset(canvas),
+            front: new ImageAsset(blackMemImageSource),
+            back: new ImageAsset(blackMemImageSource),
+            left: new ImageAsset(blackMemImageSource),
+            right: new ImageAsset(blackMemImageSource),
+            top: new ImageAsset(blackMemImageSource),
+            bottom: new ImageAsset(blackMemImageSource),
         };
         resources[blackCubeTexture._uuid] = blackCubeTexture;
 
         // grey texture
-        context.fillStyle = '#777';
-        context.fillRect(0, 0, l, l);
+        const greyImgAsset = new ImageAsset(greyMemImageSource);
         const greyTexture = new Texture2D();
         greyTexture._uuid = 'grey-texture';
-        greyTexture.image = imgAsset;
+        greyTexture.image = greyImgAsset;
         resources[greyTexture._uuid] = greyTexture;
 
         // white texture
-        context.fillStyle = '#fff';
-        context.fillRect(0, 0, l, l);
+        const whiteImgAsset = new ImageAsset(whiteMemImageSource);
         const whiteTexture = new Texture2D();
         whiteTexture._uuid = 'white-texture';
-        whiteTexture.image = imgAsset;
+        whiteTexture.image = whiteImgAsset;
         resources[whiteTexture._uuid] = whiteTexture;
 
         // white cube texture
@@ -104,34 +184,27 @@ class BuiltinResMgr {
         whiteCubeTexture._uuid = 'white-cube-texture';
         whiteCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         whiteCubeTexture.image = {
-            front: new ImageAsset(canvas),
-            back: new ImageAsset(canvas),
-            left: new ImageAsset(canvas),
-            right: new ImageAsset(canvas),
-            top: new ImageAsset(canvas),
-            bottom: new ImageAsset(canvas),
+            front: new ImageAsset(whiteMemImageSource),
+            back: new ImageAsset(whiteMemImageSource),
+            left: new ImageAsset(whiteMemImageSource),
+            right: new ImageAsset(whiteMemImageSource),
+            top: new ImageAsset(whiteMemImageSource),
+            bottom: new ImageAsset(whiteMemImageSource),
         };
         resources[whiteCubeTexture._uuid] = whiteCubeTexture;
 
         // normal texture
-        context.fillStyle = '#7f7fff';
-        context.fillRect(0, 0, l, l);
+        const normalImgAsset = new ImageAsset(normalMemImageSource);
         const normalTexture = new Texture2D();
         normalTexture._uuid = 'normal-texture';
-        normalTexture.image = imgAsset;
+        normalTexture.image = normalImgAsset;
         resources[normalTexture._uuid] = normalTexture;
 
         // default texture
-        canvas.width = canvas.height = 16;
-        context.fillStyle = '#ddd';
-        context.fillRect(0, 0, 16, 16);
-        context.fillStyle = '#555';
-        context.fillRect(0, 0, 8, 8);
-        context.fillStyle = '#555';
-        context.fillRect(8, 8, 8, 8);
+        const defaultImgAsset = new ImageAsset(defaultMemImageSource);
         const defaultTexture = new Texture2D();
         defaultTexture._uuid = 'default-texture';
-        defaultTexture.image = imgAsset;
+        defaultTexture.image = defaultImgAsset;
         resources[defaultTexture._uuid] = defaultTexture;
 
         // default cube texture
@@ -139,12 +212,12 @@ class BuiltinResMgr {
         defaultCubeTexture.setMipFilter(TextureCube.Filter.NEAREST);
         defaultCubeTexture._uuid = 'default-cube-texture';
         defaultCubeTexture.image = {
-            front: new ImageAsset(canvas),
-            back: new ImageAsset(canvas),
-            left: new ImageAsset(canvas),
-            right: new ImageAsset(canvas),
-            top: new ImageAsset(canvas),
-            bottom: new ImageAsset(canvas),
+            front: new ImageAsset(defaultMemImageSource),
+            back: new ImageAsset(defaultMemImageSource),
+            left: new ImageAsset(defaultMemImageSource),
+            right: new ImageAsset(defaultMemImageSource),
+            top: new ImageAsset(defaultMemImageSource),
+            bottom: new ImageAsset(defaultMemImageSource),
         };
         resources[defaultCubeTexture._uuid] = defaultCubeTexture;
 
@@ -359,11 +432,13 @@ class BuiltinResMgr {
         materialsToBeCompiled.push(defaultParticleMtl);
 
         // default particle gpu material
-        const defaultParticleGPUMtl = new legacyCC.Material();
-        defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
-        defaultParticleGPUMtl.initialize({ effectName: 'particle-gpu' });
-        resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
-        materialsToBeCompiled.push(defaultParticleGPUMtl);
+        if (!TEST) {
+            const defaultParticleGPUMtl = new legacyCC.Material();
+            defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
+            defaultParticleGPUMtl.initialize({ effectName: 'particle-gpu' });
+            resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
+            materialsToBeCompiled.push(defaultParticleGPUMtl);
+        }
 
         // default particle material
         const defaultTrailMtl = new legacyCC.Material();

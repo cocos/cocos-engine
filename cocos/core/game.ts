@@ -938,19 +938,19 @@ export class Game extends EventTarget {
 
     private _setRenderPipelineNShowSplash () {
         // The test environment does not currently support the renderer
-        if (TEST) {
-            return Promise.resolve((() => {
-                this._rendererInitialized = true;
-                this._safeEmit(Game.EVENT_RENDERER_INITED);
-                this._inited = true;
-                this._setAnimFrame();
-                this._runMainLoop();
-                this._safeEmit(Game.EVENT_GAME_INITED);
-                if (this.onStart) {
-                    this.onStart();
-                }
-            })());
-        }
+        // if (TEST) {
+        //     return Promise.resolve((() => {
+        //         this._rendererInitialized = true;
+        //         this._safeEmit(Game.EVENT_RENDERER_INITED);
+        //         this._inited = true;
+        //         this._setAnimFrame();
+        //         this._runMainLoop();
+        //         this._safeEmit(Game.EVENT_GAME_INITED);
+        //         if (this.onStart) {
+        //             this.onStart();
+        //         }
+        //     })());
+        // }
         return Promise.resolve(this._setupRenderPipeline()).then(
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {
