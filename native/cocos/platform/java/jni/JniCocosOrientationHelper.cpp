@@ -28,9 +28,19 @@
 #include "platform/java/jni/JniHelper.h"
 
 extern "C" {
-//NOLINTNEXTLINE
+// NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrientationChanged(JNIEnv *env, jobject thiz, jint rotation) {
-    auto orientation = cc::Device::getDeviceOrientation();
-    cc::EventDispatcher::dispatchOrientationChangeEvent((int)orientation);
+    int orientation;
+    switch (rotation) {
+        case 0://ROTATION_0
+            orientation = (int)cc::Device::Orientation::PORTRAIT;
+        case 1://ROTATION_90
+            orientation = (int)cc::Device::Orientation::LANDSCAPE_RIGHT;
+        case 2://ROTATION_180
+            orientation = (int)cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
+        case 3://ROTATION_270
+            orientation = (int)cc::Device::Orientation::LANDSCAPE_LEFT;
+    }
+    cc::EventDispatcher::dispatchOrientationChangeEvent(orientation);
 }
 }
