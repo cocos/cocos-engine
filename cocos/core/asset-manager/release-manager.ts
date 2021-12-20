@@ -129,7 +129,7 @@ class ReleaseManager {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _addPersistNodeRef (node: Node) {
         const deps = [];
@@ -144,7 +144,7 @@ class ReleaseManager {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _removePersistNodeRef (node: Node) {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
@@ -161,7 +161,7 @@ class ReleaseManager {
 
     // do auto release
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
         if (oldScene) {

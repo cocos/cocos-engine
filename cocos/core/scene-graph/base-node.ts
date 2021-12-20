@@ -95,7 +95,7 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @zh 如果为true，则该节点是一个常驻节点，不会在场景转换期间被销毁。
      * 如果为false，节点将在加载新场景时自动销毁。默认为 false。
      * @default false
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @property
     get _persistNode (): boolean {
@@ -333,7 +333,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     /**
      * record scene's id when set this node as persist node
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _originalSceneId = '';
 
@@ -1225,7 +1225,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     /**
      * Do remove component, only used internally.
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _removeComponent (component: Component) {
         if (!component) {
@@ -1247,7 +1247,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _updateSiblingIndex () {
         for (let i = 0; i < this._children.length; ++i) {

@@ -801,7 +801,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV for sliced
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _calculateSlicedUV () {
         if (UI_GPU_DRIVEN) {
@@ -866,7 +866,7 @@ export class SpriteFrame extends Asset {
 
     /**
      * Calculate UV
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _calculateUV () {
         const rect = this._rect;
@@ -1109,7 +1109,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _setDynamicAtlasFrame (frame) {
         if (!frame) return;
@@ -1127,7 +1127,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _resetDynamicAtlasFrame () {
         if (!this._original) return;
@@ -1139,7 +1139,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _checkPackable () {
         const dynamicAtlas = dynamicAtlasManager;
@@ -1165,7 +1165,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -1211,7 +1211,7 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;

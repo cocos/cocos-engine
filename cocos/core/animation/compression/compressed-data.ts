@@ -175,7 +175,7 @@ export class CompressedData {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _addQuatCurve (curve: QuatCurve): CompressedQuatCurvePointer {
         const times = Array.from(curve.times());

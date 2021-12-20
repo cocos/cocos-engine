@@ -390,25 +390,25 @@ export class Game extends EventTarget {
     public groupList: any[] = [];
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _persistRootNodes = {};
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _gfxDevice: Device | null = null;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _swapchain: Swapchain | null = null;
     // states
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _configLoaded = false; // whether config loaded
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _isCloning = false;    // deserializing or instantiating
     private _inited = false;

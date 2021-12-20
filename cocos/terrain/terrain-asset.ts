@@ -251,7 +251,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     get _nativeAsset (): ArrayBuffer {
         return this._data!.buffer;
@@ -408,14 +408,14 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _setNativeData (_nativeData: Uint8Array) {
         this._data = _nativeData;
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _loadNativeData (_nativeData: Uint8Array) {
         if (!_nativeData || _nativeData.length === 0) {
@@ -489,7 +489,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _exportNativeData (): Uint8Array {
         const stream = new TerrainBuffer();
@@ -551,7 +551,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _exportDefaultNativeData (): Uint8Array {
         const stream = new TerrainBuffer();

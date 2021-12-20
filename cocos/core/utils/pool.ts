@@ -139,7 +139,7 @@ export default class Pool<T> {
      * @zh
      * 获取对象池中的对象，如果对象池没有可用对象，则返回空。
      *
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _get () {
         if (this.count > 0) {

@@ -93,7 +93,7 @@ const _constants = {
 
 export class Profiler {
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';

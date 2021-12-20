@@ -107,13 +107,13 @@ export class CCLoader {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _autoReleaseSetting: Record<string, boolean> = Object.create(null);
     private _parseLoadResArgs = parseLoadResArgs;
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {

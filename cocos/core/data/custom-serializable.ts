@@ -2,13 +2,13 @@ import { assertIsNonNullable, assertIsTrue } from './utils/asserts';
 
 /**
  * Tag to define the custom serialization method.
- * @deprecated_to_user
+ * @marked_as_engine_private
  */
 export const serializeTag = Symbol('[[Serialize]]');
 
 /**
  * Tag to define the custom deserialization method.
- * @deprecated_to_user
+ * @marked_as_engine_private
  */
 export const deserializeTag = Symbol('[[Deserialize]]');
 
@@ -82,7 +82,7 @@ export interface CustomSerializable {
 
 /**
  * Enables the custom serialize/deserialize method only if the (de)serialize procedure is targeting CCON.
- * @deprecated_to_user
+ * @marked_as_engine_private
  */
 export const enableIfCCON: MethodDecorator = <T>(
     // eslint-disable-next-line @typescript-eslint/ban-types

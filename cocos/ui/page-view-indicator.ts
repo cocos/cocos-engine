@@ -182,7 +182,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _updateLayout () {
         this._layout = this.getComponent(Layout);
@@ -202,7 +202,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _createIndicator () {
         const node = new Node();
@@ -216,7 +216,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _changedState () {
         const indicators = this._indicators;
@@ -244,7 +244,7 @@ export class PageViewIndicator extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _refresh () {
         if (!this._pageView) { return; }

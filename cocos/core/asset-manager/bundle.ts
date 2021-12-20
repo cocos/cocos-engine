@@ -596,7 +596,7 @@ export default class Bundle {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _destroy () {
         this._config.destroy();

@@ -256,15 +256,15 @@ export class UITransform extends Component {
 
     // macro.UI_GPU_DRIVEN
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     declare public _rectDirty: boolean;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     declare public _rectWithScale: Vec3;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     declare public _anchorCache: Vec3;
 

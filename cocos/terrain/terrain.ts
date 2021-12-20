@@ -180,27 +180,27 @@ export class TerrainLayer {
  */
 class TerrainRenderable extends RenderableComponent {
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _model: scene.Model | null = null;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _meshData: RenderingSubMesh | null = null;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _brushPass: Pass | null = null;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _brushMaterial: Material | null = null;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _currentMaterial: Material | null = null;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _currentMaterialLayers = 0;
 
@@ -215,7 +215,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _destroyModel () {
         // this._invalidMaterial();
@@ -226,7 +226,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _invalidMaterial () {
         if (this._currentMaterial == null) {
@@ -243,7 +243,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _updateMaterial (block: TerrainBlock, init: boolean) {
         if (this._meshData == null || this._model == null) {
@@ -286,7 +286,7 @@ class TerrainRenderable extends RenderableComponent {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _onMaterialModified (idx: number, mtl: Material|null) {
         if (this._model == null) {
@@ -905,7 +905,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _updateLightmap (info: TerrainBlockLightmapInfo) {
         this._lightmapInfo = info;
@@ -913,7 +913,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _updateLod () {
         const key = new TerrainLodKey();
@@ -964,7 +964,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _resetLod () {
         const key = new TerrainLodKey();
@@ -983,7 +983,7 @@ export class TerrainBlock {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _updateIndexBuffer () {
         if (this._renderable._meshData === null) {
@@ -1230,7 +1230,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public get _asset () {
         return this.__asset;
@@ -1779,7 +1779,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _setNormal (i: number, j: number, n: Vec3) {
         const index = j * this.vertexCount[0] + i;
@@ -2092,7 +2092,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _getSharedIndexBuffer () {
         if (this._sharedIndexBuffer == null) {
@@ -2111,14 +2111,14 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _getIndexData (key: TerrainLodKey) {
         return this._lod.getIndexData(key);
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _resetLightmap (enble: boolean) {
         this._lightmapInfos.length = 0;
@@ -2130,7 +2130,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this._lightmapInfos[blockId].texture = tex;
@@ -2142,7 +2142,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _getLightmapInfo (i: number, j: number) {
         const index = j * this._blockCount[0] + i;
@@ -2150,7 +2150,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _calcNormal (x: number, z: number) {
         let flip = 1;
@@ -2185,7 +2185,7 @@ export class Terrain extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _buildNormals () {
         let index = 0;

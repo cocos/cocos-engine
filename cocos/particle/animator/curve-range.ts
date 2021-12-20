@@ -178,7 +178,7 @@ export default class CurveRange  {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

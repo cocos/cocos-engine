@@ -184,7 +184,7 @@ const globalEmptyMeshBuffer = new Uint8Array();
 @ccclass('cc.Mesh')
 export class Mesh extends Asset {
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     get _nativeAsset (): ArrayBuffer {
         return this._data.buffer;

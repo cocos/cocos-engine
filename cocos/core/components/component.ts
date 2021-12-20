@@ -96,7 +96,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @displayName('Script')
     @type(Script)
@@ -156,7 +156,7 @@ class Component extends CCObject {
      * log(this._isOnLoadCalled > 0);
      * ```
      *
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     get _isOnLoadCalled () {
         return this._objFlags & IsOnLoadCalled;
@@ -176,32 +176,32 @@ class Component extends CCObject {
     public node: Node = NullNode;
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @serializable
     public _enabled = true;
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @serializable
     public __prefab: CompPrefabInfo | null = null;
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _sceneGetter: null | (() => RenderScene) = null;
 
     /**
      * For internal usage.
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _getRenderScene (): RenderScene {
         if (this._sceneGetter) {
@@ -379,7 +379,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _onPreDestroy () {
         // Schedules
@@ -399,7 +399,7 @@ class Component extends CCObject {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _instantiate (cloned?: Component) {
         if (!cloned) {

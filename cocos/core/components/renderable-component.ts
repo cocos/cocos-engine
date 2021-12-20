@@ -225,7 +225,7 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _collectModels (): scene.Model[] {
         return this._models;

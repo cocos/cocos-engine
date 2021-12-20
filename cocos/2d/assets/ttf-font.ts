@@ -41,13 +41,13 @@ import { legacyCC } from '../../core/global-exports';
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @serializable
     public _fontFamily: string | null = null;
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @override
     @string
@@ -59,7 +59,7 @@ export class TTFFont extends Font {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @override
     get _nativeDep () {

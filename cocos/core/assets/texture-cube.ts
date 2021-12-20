@@ -169,7 +169,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     @serializable
     public _mipmaps: ITextureCubeMipmap[] = [];
@@ -229,7 +229,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
@@ -257,7 +257,7 @@ export class TextureCube extends SimpleTexture {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
         const data = serializedData;

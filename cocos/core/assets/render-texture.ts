@@ -114,7 +114,7 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -124,7 +124,7 @@ export class RenderTexture extends TextureBase {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData;

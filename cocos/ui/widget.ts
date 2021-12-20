@@ -727,19 +727,19 @@ export class Widget extends Component {
     public static AlignMode = AlignMode;
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _lastPos = new Vec3();
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _lastSize = new Size();
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _dirty = true;
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _hadAlignOnce = false;
 
@@ -805,7 +805,7 @@ export class Widget extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _validateTargetInDEV () {
         if (!DEV) {
@@ -846,23 +846,23 @@ export class Widget extends Component {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit) {}
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _adjustWidgetToAllowResizingInEditor () {}
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _adjustWidgetToAnchorChanged () {
         this.setDirty();
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _adjustTargetToParentChanged (oldParent: Node) {
         if (oldParent) {

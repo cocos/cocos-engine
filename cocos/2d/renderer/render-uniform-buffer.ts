@@ -178,7 +178,7 @@ interface ILocalBuffers {
 
 export class UILocalUBOManger {
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public _localBuffers: ILocalBuffers[] = []; // UIPerUBO -> buffer[]
     private _device: Device;

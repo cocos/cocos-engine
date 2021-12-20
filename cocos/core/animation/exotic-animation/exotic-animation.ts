@@ -50,7 +50,7 @@ export class ExoticAnimation {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public toHashString () {
         return this._nodeAnimations.map((nodeAnimation) => nodeAnimation.toHashString()).join('\n');
@@ -116,7 +116,7 @@ class ExoticNodeAnimation {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public toHashString (): string {
         return `${this._path}\n${
@@ -183,7 +183,7 @@ class ExoticVectorLikeTrackValues {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public toHashString (): string {
         const { _isQuantized: isQuantized, _values: values } = this;
@@ -305,7 +305,7 @@ class ExoticTrack<TTrackValues extends { toHashString(): string; }> {
     public values!: TTrackValues;
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public toHashString (): string {
         const { times, values } = this;
@@ -802,7 +802,7 @@ class QuantizedFloatArray {
     }
 
     /**
-     * @deprecated_to_user
+     * @marked_as_engine_private
      */
     public toHashString (): string {
         const { originalPrecision, min, extent, values } = this;
