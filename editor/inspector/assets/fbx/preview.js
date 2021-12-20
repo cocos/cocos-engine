@@ -745,9 +745,7 @@ exports.methods = {
                 clipInfo.to,
             );
 
-            await Editor.Message.request(
-                'scene',
-                'execute-model-preview-animation-operation',
+            await callModelPreviewFunction(
                 'setClipConfig',
                 {
                     wrapMode: clipInfo.wrapMode,
