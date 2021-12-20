@@ -583,6 +583,7 @@ export class RichText extends UIComponent {
         return splitLongStrArr;
     }
 
+    // error means toleration of difference of current splitted string size and the target single line size.
     protected CalculateOneLineCharCountApproximatelyInThresholdWithInError (text: string, styleIndex: number, error: number) {
         const labelSize = this._calculateSize(styleIndex, text);
         const partStringArr: string[] = [];
@@ -596,45 +597,55 @@ export class RichText extends UIComponent {
             let curEnd = longStr.length / 2;
             let curString = longStr.substring(curStart, curEnd);
             let curStringSize = this._calculateSize(styleIndex, curString);
-            //let  tempLength = tempString.length;
-            let leftLength = curString.length;
 
-            //求一个最接近但不超过2048的maxwidth倍数的阈值
+            // calculate a threshold that is n times of this.maxWidth and less than 2048
             const lineCountFor2048 = 2048 / this.maxWidth;
             const lineCountForOnePart = Math.floor(lineCountFor2048);
             const sizeForOnePart = lineCountForOnePart * this.maxWidth;
 
-            //二分法将字符串缩入阈值
+            // divide text into some pieces of which the size is less than sizeForOnePart
             while (curStringSize.x > sizeForOnePart) {
                 curEnd /= 2;
 
                 curString = curString.substring(curStart, curEnd);
                 curStringSize = this._calculateSize(styleIndex, curString);
-                leftLength = curString.length;
             }
 
-            //逼近整倍maxwidth长度
+            // approach target(sizeForOnePart - error)
             const avgOneCharSize = curStringSize.x / (curEnd - curStart);
-            const needMoreCharCountApproximately = (sizeForOnePart - curStringSize.x) / avgOneCharSize;
-            curEnd += needMoreCharCountApproximately;
-            curString = longStr.substring(curStart, curEnd);
-            curStringSize = this._calculateSize(styleIndex, curString);
-
-            //判断新增后的是否处于误差区间，不足或超过则略微调整
-            while (curStart < text.length) {
-                console.error(`curStart = ${curStart}`);
-                console.error(`curLength = ${curEnd}`);
+            // avoid endless loop
+            let tryCount = 100;
+            let isLastPart = curEnd >= text.length;
+            while (tryCount && curStart < text.length) {
+                const unitCloseToTargetSize = Math.abs(curStringSize.x - sizeForOnePart) < error
+                    ? 1 : Math.abs(curStringSize.x - sizeForOnePart) / avgOneCharSize;
                 if (curStringSize.x > sizeForOnePart) {
-                    curEnd -= Math.abs(curStringSize.x - sizeForOnePart) / avgOneCharSize;
+                    curEnd -= unitCloseToTargetSize;
                 } else if (curStringSize.x + error < sizeForOnePart) {
-                    curEnd += Math.abs(curStringSize.x - sizeForOnePart) / avgOneCharSize;
+                    if (isLastPart) {
+                        partStringArr.push(curString);
+                        const step = curEnd - curStart;
+                        curStart = curEnd;
+                        curEnd += step;
+                    } else {
+                        curEnd += unitCloseToTargetSize;
+                    }
                 } else {
                     partStringArr.push(curString);
-                    curStart += curEnd;
-                    curEnd += curEnd;
+                    const step = curEnd - curStart;
+                    curStart = curEnd;
+                    curEnd += step;
                 }
+
+                if (curEnd >= text.length) {
+                    curEnd = text.length;
+                }
+                isLastPart = curEnd >= text.length;
+
                 curString = longStr.substring(curStart, curEnd);
                 curStringSize = this._calculateSize(styleIndex, curString);
+
+                tryCount--;
             }
 
             return partStringArr;
@@ -979,8 +990,8 @@ export class RichText extends UIComponent {
             }
 
             //test code
-            const splitArr: string[] = this.splitLongStringIntoSeveralShortString(i, text);
-            //const splitArr: string[] = this.CalculateOneLineCharCountApproximatelyInThresholdWithInError(text, i, 10);
+            //const splitArr: string[] = this.splitLongStringIntoSeveralShortString(i, text);
+            const splitArr: string[] = this.CalculateOneLineCharCountApproximatelyInThresholdWithInError(text, i, this.fontSize);
             text = splitArr.join('\n');
 
             const multilineTexts = text.split('\n');
