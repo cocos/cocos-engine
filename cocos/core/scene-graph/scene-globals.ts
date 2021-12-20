@@ -315,6 +315,7 @@ export class SkyboxInfo {
 
         // Switch UI to and from LDR/HDR textures depends on HDR state
         if (this._resource) {
+            this._resource.useHDR = this._useHDR;
             this.envmap = this._resource.envmap;
             this.diffuseMap = this._resource.diffuseMap;
 
@@ -323,7 +324,7 @@ export class SkyboxInfo {
             }
         }
 
-        if (this._resource) { this._resource.useHDR = this._useHDR; }
+        //if (this._resource) { this._resource.useHDR = this._useHDR; }
     }
     get useHDR () {
         (legacyCC.director.root as Root).pipeline.pipelineSceneData.isHDR = this._useHDR;
