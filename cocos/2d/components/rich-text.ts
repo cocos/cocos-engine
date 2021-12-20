@@ -48,6 +48,7 @@ import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
 import { CCObject, CubicSplineNumberValue, math } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { CylinderColliderComponent } from '../../physics/framework/deprecated';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -582,32 +583,61 @@ export class RichText extends UIComponent {
         return splitLongStrArr;
     }
 
-    protected CalculateOneLineCharCountApproximatelyInThresholdWithInError (text: string, styleIndex: number, threshold: number, error: number) {
+    protected CalculateOneLineCharCountApproximatelyInThresholdWithInError (text: string, styleIndex: number, error: number) {
         const labelSize = this._calculateSize(styleIndex, text);
+        const partStringArr: string[] = [];
         if (labelSize.x < 2048) {
-            return text.length;
+            partStringArr.push(text);
+            return partStringArr;
         } else {
             const longStr = text;
-            let tempString = longStr.substring(0, longStr.length / 2);
-            let tempSize = this._calculateSize(styleIndex, tempString);
-            let tempLength = tempString.length;
-            while (tempSize.x >= 2048) {
-                tempString = tempString.substring(0, tempString.length / 2);
-                tempSize = this._calculateSize(styleIndex, tempString);
-                tempLength = tempString.length;
+
+            let curStart = 0;
+            let curEnd = longStr.length / 2;
+            let curString = longStr.substring(curStart, curEnd);
+            let curStringSize = this._calculateSize(styleIndex, curString);
+            //let  tempLength = tempString.length;
+            let leftLength = curString.length;
+
+            //求一个最接近但不超过2048的maxwidth倍数的阈值
+            const lineCountFor2048 = 2048 / this.maxWidth;
+            const lineCountForOnePart = Math.floor(lineCountFor2048);
+            const sizeForOnePart = lineCountForOnePart * this.maxWidth;
+
+            //二分法将字符串缩入阈值
+            while (curStringSize.x > sizeForOnePart) {
+                curEnd /= 2;
+
+                curString = curString.substring(curStart, curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+                leftLength = curString.length;
             }
 
-            // 误差范围外
-            //while (tempSize.x + Math.abs(error) < 2048)
+            //逼近整倍maxwidth长度
+            const avgOneCharSize = curStringSize.x / (curEnd - curStart);
+            const needMoreCharCountApproximately = (sizeForOnePart - curStringSize.x) / avgOneCharSize;
+            curEnd += needMoreCharCountApproximately;
+            curString = longStr.substring(curStart, curEnd);
+            curStringSize = this._calculateSize(styleIndex, curString);
 
-            // let tempIndex = 0;
-            // while (tempIndex < longStr.length) {
-            //     const thisLength = Math.min(tempLength, longStr.length - tempIndex);
-            //     //substring return characters from indexA to indexB(not contain indexB)
-            //     splitLongStrArr.push(longStr.substring(tempIndex, tempIndex + thisLength));
-            //     tempIndex += thisLength;
-            // }
-            return 0;
+            //判断新增后的是否处于误差区间，不足或超过则略微调整
+            while (curStart < text.length) {
+                console.error(`curStart = ${curStart}`);
+                console.error(`curLength = ${curEnd}`);
+                if (curStringSize.x > sizeForOnePart) {
+                    curEnd -= Math.abs(curStringSize.x - sizeForOnePart) / avgOneCharSize;
+                } else if (curStringSize.x + error < sizeForOnePart) {
+                    curEnd += Math.abs(curStringSize.x - sizeForOnePart) / avgOneCharSize;
+                } else {
+                    partStringArr.push(curString);
+                    curStart += curEnd;
+                    curEnd += curEnd;
+                }
+                curString = longStr.substring(curStart, curEnd);
+                curStringSize = this._calculateSize(styleIndex, curString);
+            }
+
+            return partStringArr;
         }
     }
 
@@ -948,7 +978,9 @@ export class RichText extends UIComponent {
                 }
             }
 
+            //test code
             const splitArr: string[] = this.splitLongStringIntoSeveralShortString(i, text);
+            //const splitArr: string[] = this.CalculateOneLineCharCountApproximatelyInThresholdWithInError(text, i, 10);
             text = splitArr.join('\n');
 
             const multilineTexts = text.split('\n');
