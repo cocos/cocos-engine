@@ -223,9 +223,6 @@ export class ArmatureDisplay extends Renderable2D {
         this._animationName = value;
     }
 
-    /**
-     * @deprecated_to_user
-     */
     @displayName('Armature')
     @editable
     @type(DefaultArmaturesEnum)
@@ -258,9 +255,6 @@ export class ArmatureDisplay extends Renderable2D {
         this.markForUpdateRenderData();
     }
 
-    /**
-     * @deprecated_to_user
-     */
     @editable
     @type(DefaultAnimsEnum)
     @displayName('Animation')
@@ -294,9 +288,6 @@ export class ArmatureDisplay extends Renderable2D {
         }
     }
 
-    /**
-     * @deprecated_to_user
-     */
     @editable
     @displayName('Animation Cache Mode')
     @tooltip('i18n:COMPONENT.dragon_bones.animation_cache_mode')
