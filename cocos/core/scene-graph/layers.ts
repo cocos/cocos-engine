@@ -84,7 +84,7 @@ export class Layers {
         for (const inc of includes) {
             mask |= inc;
         }
-        return mask;
+        return mask >>> 0;
     }
 
     /**
@@ -96,7 +96,7 @@ export class Layers {
      * @return A filter which can detect for excluded layers
      */
     public static makeMaskExclude (excludes: number[]): number {
-        return ~Layers.makeMaskInclude(excludes);
+        return (layerList.ALL ^ Layers.makeMaskInclude(excludes)) >>> 0;
     }
 
     /**
