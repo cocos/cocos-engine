@@ -1,5 +1,6 @@
 import { TouchInputEvent, MouseInputEvent, KeyboardInputEvent, AccelerometerInputEvent } from 'pal/input';
 import { js } from '../../../cocos/core/utils/js';
+import legacyCC from '../../../predefine';
 import { AccelerometerInputSource } from './accelerometer';
 import { InputBox } from './input-box';
 import { KeyboardInputSource } from './keyboard';
@@ -24,11 +25,10 @@ export class Input {
 
     private _registerEvent () {
         if (this._touch.support) {
-            const touchEvents = this._touchEvents;
-            this._touch.onStart((event) => { touchEvents.push(event); });
-            this._touch.onMove((event) => { touchEvents.push(event); });
-            this._touch.onEnd((event) => { touchEvents.push(event); });
-            this._touch.onCancel((event) => { touchEvents.push(event); });
+            this._touch.onStart((event) => { legacyCC.internal.inputManager._dispatchTouchEvent(event); });
+            this._touch.onMove((event) => { legacyCC.internal.inputManager._dispatchTouchEvent(event); });
+            this._touch.onEnd((event) => { legacyCC.internal.inputManager._dispatchTouchEvent(event); });
+            this._touch.onCancel((event) => { legacyCC.internal.inputManager._dispatchTouchEvent(event); });
         }
 
         if (this._mouse.support) {
