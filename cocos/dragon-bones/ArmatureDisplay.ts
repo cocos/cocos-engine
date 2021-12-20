@@ -157,8 +157,8 @@ export class ArmatureDisplay extends Renderable2D {
         this._dragonAsset = value;
         this._refresh();
         if (EDITOR) {
-            this._defaultArmatureIndex = 0;
-            this._animationIndex = 0;
+            this.defaultArmatureIndex = 0;
+            this.animationIndex = 0;
         }
     }
 
@@ -227,10 +227,10 @@ export class ArmatureDisplay extends Renderable2D {
     @editable
     @type(DefaultArmaturesEnum)
     @tooltip('i18n:COMPONENT.dragon_bones.armature_name')
-    get _defaultArmatureIndex () {
+    get defaultArmatureIndex () {
         return this._defaultArmatureIndexValue;
     }
-    set _defaultArmatureIndex (value) {
+    set defaultArmatureIndex (value) {
         this._defaultArmatureIndexValue = value;
         let armatureName = '';
         if (this.dragonAsset) {
@@ -243,7 +243,7 @@ export class ArmatureDisplay extends Renderable2D {
                 return;
             }
 
-            armatureName = armaturesEnum[this._defaultArmatureIndex];
+            armatureName = armaturesEnum[this.defaultArmatureIndex];
         }
 
         if (armatureName !== undefined) {
@@ -259,14 +259,14 @@ export class ArmatureDisplay extends Renderable2D {
     @type(DefaultAnimsEnum)
     @displayName('Animation')
     @tooltip('i18n:COMPONENT.dragon_bones.animation_name')
-    get _animationIndex () {
+    get animationIndex () {
         return this._animationIndexValue;
     }
 
-    set _animationIndex (value) {
+    set animationIndex (value) {
         this._animationIndexValue = value;
 
-        if (this._animationIndex === 0) {
+        if (this.animationIndex === 0) {
             this.animationName = '';
             return;
         }
@@ -280,7 +280,7 @@ export class ArmatureDisplay extends Renderable2D {
             return;
         }
 
-        const animName = animsEnum[this._animationIndex];
+        const animName = animsEnum[this.animationIndex];
         if (animName !== undefined) {
             this.playAnimation(animName, this.playTimes);
         } else {
@@ -291,18 +291,18 @@ export class ArmatureDisplay extends Renderable2D {
     @editable
     @displayName('Animation Cache Mode')
     @tooltip('i18n:COMPONENT.dragon_bones.animation_cache_mode')
-    get _defaultCacheMode () { return this._defaultCacheModeValue; }
-    set _defaultCacheMode (value) {
+    get defaultCacheMode () { return this._defaultCacheModeValue; }
+    set defaultCacheMode (value) {
         this._defaultCacheModeValue = value;
 
-        if (this._defaultCacheMode !== AnimationCacheMode.REALTIME) {
+        if (this.defaultCacheMode !== AnimationCacheMode.REALTIME) {
             if (this._armature && !ArmatureCache.canCache(this._armature)) {
-                this._defaultCacheMode = AnimationCacheMode.REALTIME;
+                this.defaultCacheMode = AnimationCacheMode.REALTIME;
                 console.warn('Animation cache mode doesn\'t support skeletal nesting');
                 return;
             }
         }
-        this.setAnimationCacheMode(this._defaultCacheMode);
+        this.setAnimationCacheMode(this.defaultCacheMode);
     }
     /**
      * @en The time scale of this armature.
@@ -635,7 +635,7 @@ export class ArmatureDisplay extends Renderable2D {
             // this._refreshInspector();
         }
 
-        this._cacheMode = this._defaultCacheMode;
+        this._cacheMode = this.defaultCacheMode;
 
         if (this._inited) return;
         this._inited = true;

@@ -219,14 +219,14 @@ export class Skeleton extends Renderable2D {
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
     @tooltip('i18n:COMPONENT.skeleton.default_skin')
-    get _defaultSkinIndex (): number {
+    get defaultSkinIndex (): number {
         if (this.skeletonData) {
             const skinsEnum = this.skeletonData.getSkinsEnum();
             if (skinsEnum) {
                 if (this.defaultSkin === '') {
                     // eslint-disable-next-line no-prototype-builtins
                     if (skinsEnum.hasOwnProperty(0)) {
-                        this._defaultSkinIndex = 0;
+                        this.defaultSkinIndex = 0;
                         return 0;
                     }
                 } else {
@@ -239,7 +239,7 @@ export class Skeleton extends Renderable2D {
         }
         return 0;
     }
-    set _defaultSkinIndex (value: number) {
+    set defaultSkinIndex (value: number) {
         let skinsEnum;
         if (this.skeletonData) {
             skinsEnum = this.skeletonData.getSkinsEnum();
@@ -267,7 +267,7 @@ export class Skeleton extends Renderable2D {
     @displayName('Animation')
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
-    get _animationIndex () {
+    get animationIndex () {
         const animationName = EDITOR ? this.defaultAnimation : this.animation;
         if (this.skeletonData) {
             if (animationName) {
@@ -284,7 +284,7 @@ export class Skeleton extends Renderable2D {
         }
         return 0;
     }
-    set _animationIndex (value: number) {
+    set animationIndex (value: number) {
         // if (value === 0) {
         //     this.animation = '';
         //     return;
