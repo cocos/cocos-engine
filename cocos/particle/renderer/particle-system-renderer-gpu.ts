@@ -28,7 +28,7 @@ import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { AttributeName, Format, Attribute } from '../../core/gfx';
+import { AttributeName, Format, Attribute, API } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat, Vec3 } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
@@ -39,6 +39,7 @@ import { Pass } from '../../core/renderer/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Camera } from '../../core/renderer/scene/camera';
+import { legacyCC } from '../../core/global-exports';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -436,6 +437,8 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             _tempVec4.z = textureModule.cycleCount;
             pass.setUniform(infoHandle, _tempVec4);
         }
+
+        this._defines['USE_VK_SHADER'] = legacyCC.game._gfxDevice.gfxAPI === API.VULKAN;
     }
 
     public getParticleCount (): number {
