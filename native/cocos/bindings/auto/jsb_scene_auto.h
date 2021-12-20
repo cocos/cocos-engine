@@ -187,6 +187,7 @@ SE_DECLARE_FUNC(js_scene_Model_setReceiveShadow);
 SE_DECLARE_FUNC(js_scene_Model_setSubModel);
 SE_DECLARE_FUNC(js_scene_Model_setTransform);
 SE_DECLARE_FUNC(js_scene_Model_setWorldBoundBuffer);
+SE_DECLARE_FUNC(js_scene_Model_updateLightingmap);
 SE_DECLARE_FUNC(js_scene_Model_updateTransform);
 SE_DECLARE_FUNC(js_scene_Model_updateUBOs);
 SE_DECLARE_FUNC(js_scene_Model_updateWorldBoundUBOs);

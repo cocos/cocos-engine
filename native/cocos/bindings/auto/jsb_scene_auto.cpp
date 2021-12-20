@@ -2067,6 +2067,29 @@ static bool js_scene_Model_setWorldBoundBuffer(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_Model_setWorldBoundBuffer)
 
+static bool js_scene_Model_updateLightingmap(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_updateLightingmap : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<cc::Vec4, true> arg0 = {};
+        HolderType<cc::gfx::Sampler*, false> arg1 = {};
+        HolderType<cc::gfx::Texture*, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Model_updateLightingmap : Error processing arguments");
+        cobj->updateLightingmap(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_updateLightingmap)
+
 static bool js_scene_Model_updateTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -2177,6 +2200,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("setSubModel", _SE(js_scene_Model_setSubModel));
     cls->defineFunction("setTransform", _SE(js_scene_Model_setTransform));
     cls->defineFunction("setWorldBoundBuffer", _SE(js_scene_Model_setWorldBoundBuffer));
+    cls->defineFunction("updateLightingmap", _SE(js_scene_Model_updateLightingmap));
     cls->defineFunction("updateTransform", _SE(js_scene_Model_updateTransform));
     cls->defineFunction("updateUBOs", _SE(js_scene_Model_updateUBOs));
     cls->defineFunction("updateWorldBoundUBOs", _SE(js_scene_Model_updateWorldBoundUBOs));
