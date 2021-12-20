@@ -161,18 +161,20 @@ export class MeshBuffer extends ScalableContainer {
         const maxByte = maxVertex * this.vertexFormatBytes;
         let byteLength = this.vData!.byteLength;
         let indexLength = this.iData!.length;
-        if (byteLength >= maxByte && indexLength >= maxIndex) {
-            return true;
-        }
-        while (byteLength < maxByte || indexLength < maxIndex) {
+        let realloc = false;
+        while (byteLength < maxByte) {
             this._initVDataCount *= 2;
-            this._initIDataCount *= 2;
-
             byteLength = this._initVDataCount * 4;
-            indexLength = this._initIDataCount;
+            realloc = true;
         }
-
-        this._reallocBuffer();
+        while (indexLength < maxIndex) {
+            this._initIDataCount *= 2;
+            indexLength = this._initIDataCount;
+            realloc = true;
+        }
+        if (realloc) {
+            this._reallocBuffer();
+        }
         return true;
     }
 
