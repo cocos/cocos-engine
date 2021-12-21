@@ -100,29 +100,18 @@ export class StaticVBAccessor extends BufferAccessor {
         this._indexStart = 0;
         for (let i = 0; i < this._buffers.length; ++i) {
             const buffer = this._buffers[i];
-            const freeList = this._freeLists[i];
-            let entry = freeList[0];
             // Reset index buffer
             buffer.indexOffset = 0;
             buffer.reset();
-            // Reset free entry for the entire buffer
-            for (let j = 1; j < freeList.length; ++j) {
-                _entryPool.free(freeList[j]);
-            }
-            if (!entry) {
-                entry = freeList[0] = _entryPool.alloc();
-            }
-            entry.offset = 0;
-            entry.length = buffer.vData.byteLength;
         }
     }
 
     public uploadBuffers () {
         for (let i = 0; i <= this._buffers.length; ++i) {
-            let entry = this._freeLists[i][0];
+            let firstEntry = this._freeLists[i][0];
             let buffer = this._buffers[i];
             // Recognize active buffers
-            if (entry && entry.length < buffer.vData.byteLength) {
+            if (firstEntry && firstEntry.length < buffer.vData.byteLength) {
                 buffer.uploadBuffers();
             }
         }
