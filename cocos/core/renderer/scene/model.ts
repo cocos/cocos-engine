@@ -222,8 +222,7 @@ export class Model {
     public destroy () {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
-            const subModel = this._subModels[i];
-            subModel.destroy();
+            this._subModels[i].destroy();
         }
         if (this._localBuffer) {
             this._localBuffer.destroy();

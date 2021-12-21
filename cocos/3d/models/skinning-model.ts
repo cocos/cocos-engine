@@ -151,7 +151,6 @@ export class SkinningModel extends MorphModel {
             Vec3.max(v3_max, v3_max, v3_2);
         }
 
-        // console.log(`v3_min: ${JSON.stringify(v3_min)}, v3_max: ${JSON.stringify(v3_max)}`);
         const worldBounds = this._worldBounds;
         if (this._modelBounds && worldBounds) {
             AABB.fromPoints(this._modelBounds, v3_min, v3_max);

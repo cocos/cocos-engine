@@ -37,8 +37,6 @@ import { clamp, EPSILON, random } from './utils';
 
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
-import { mixin } from '../utils/js-typed';
-import { JSB } from '../default-constants';
 
 /**
  * @en Representation of 2D vectors and points.
@@ -848,7 +846,3 @@ export function v2 (x?: number | Vec2, y?: number) {
 }
 
 legacyCC.v2 = v2;
-
-if (JSB) {
-    mixin(jsb.Vec2.prototype, Vec2.prototype);
-}

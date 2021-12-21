@@ -44,11 +44,6 @@ import { IBatcher } from './i-batcher';
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
 export class DrawBatch2D {
-    public get native (): any {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return this._nativeObj;
-    }
-
     public get inputAssembler () {
         return this._inputAssembler;
     }

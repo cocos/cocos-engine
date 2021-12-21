@@ -28,7 +28,6 @@ import { RenderPipeline, MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../platform/macro';
-import { NativePass } from '../../renderer/scene';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -96,8 +95,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         prefilterPass.tryCompile();
         prefilterPass.endChangeStatesSilently();
 
-        const downsamplePasses : NativePass[] = [];
-        const upsamplePasses : NativePass[] = [];
         for (let i = 0; i < MAX_BLOOM_FILTER_PASS_NUM; ++i) {
             const downsamplePass = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX + i];
             downsamplePass.beginChangeStatesSilently();
@@ -108,26 +105,12 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
             upsamplePass.beginChangeStatesSilently();
             upsamplePass.tryCompile();
             upsamplePass.endChangeStatesSilently();
-
-            downsamplePasses.push(downsamplePass.native);
-            upsamplePasses.push(upsamplePass.native);
         }
 
         const combinePass = this._bloomMaterial.passes[BLOOM_COMBINEPASS_INDEX];
         combinePass.beginChangeStatesSilently();
         combinePass.tryCompile();
         combinePass.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.bloomPrefilterPassShader = prefilterPass.getShaderVariant();
-            this._nativeObj!.bloomPrefilterPass = prefilterPass.native;
-            this._nativeObj!.bloomDownsamplePassShader = this._bloomMaterial.passes[BLOOM_DOWNSAMPLEPASS_INDEX].getShaderVariant();
-            this._nativeObj!.bloomDownsamplePass = downsamplePasses;
-            this._nativeObj!.bloomUpsamplePassShader = this._bloomMaterial.passes[BLOOM_UPSAMPLEPASS_INDEX].getShaderVariant();
-            this._nativeObj!.bloomUpsamplePass = upsamplePasses;
-            this._nativeObj!.bloomCombinePassShader = combinePass.getShaderVariant();
-            this._nativeObj!.bloomCombinePass = combinePass.native;
-        }
     }
 
     private updatePostProcessPass () {
@@ -137,11 +120,6 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         passPost.beginChangeStatesSilently();
         passPost.tryCompile();
         passPost.endChangeStatesSilently();
-
-        if (JSB) {
-            this._nativeObj!.pipelinePostPassShader = passPost.getShaderVariant();
-            this._nativeObj!.pipelinePostPass = passPost.native;
-        }
     }
 
     public initPipelinePassInfo () {
@@ -223,16 +201,4 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         passLit.tryCompile();
         passLit.endChangeStatesSilently();
     }
-<<<<<<< HEAD
-
-    private updateDeferredPostPass () {
-        if (!this.deferredPostMaterial) return;
-
-        const passPost = this.deferredPostMaterial.passes[0];
-        passPost.beginChangeStatesSilently();
-        passPost.tryCompile();
-        passPost.endChangeStatesSilently();
-    }
-=======
->>>>>>> v3.4.0
 }

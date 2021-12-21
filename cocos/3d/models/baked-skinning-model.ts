@@ -138,10 +138,6 @@ export class BakedSkinningModel extends MorphModel {
         return true;
     }
 
-    protected _updateModelBounds (aabb: AABB | null) {
-        this._modelBounds = aabb;
-    }
-
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;

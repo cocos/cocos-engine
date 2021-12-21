@@ -399,7 +399,7 @@ export class Profiler {
                 this.offsetData[3] = surfaceTransform;
             }
 
-            this.pass._setRootBufferDirty(true);
+            this.pass._rootBufferDirty = true;
         }
 
         if (this._meshRenderer.model) this._pipeline.profiler = this._meshRenderer.model;
