@@ -37,6 +37,9 @@ import { Root } from './root';
 import { game } from './game';
 import System from './components/system';
 import { Director } from './director';
+import { ArmatureDisplay } from '../dragon-bones';
+import { Skeleton } from '../spine';
+import { errorID } from '.';
 
 // VMATH
 
@@ -244,6 +247,42 @@ removeProperty(SubModel.prototype, 'SubModel.prototype', [
     {
         name: 'subModelNum',
         suggest: 'Use `subModels.length` instead',
+    },
+]);
+
+replaceProperty(ArmatureDisplay.prototype, 'ArmatureDisplay.prototype', [
+    {
+        name: '_defaultArmatureIndex',
+        newName: 'defaultArmatureIndex',
+        target: ArmatureDisplay,
+        targetName: 'ArmatureDisplay',
+    },
+    {
+        name: '_animationIndex',
+        newName: 'animationIndex',
+        target: ArmatureDisplay,
+        targetName: 'ArmatureDisplay',
+    },
+    {
+        name: '_defaultCacheMode',
+        newName: 'defaultCacheMode',
+        target: ArmatureDisplay,
+        targetName: 'ArmatureDisplay',
+    },
+]);
+
+replaceProperty(Skeleton.prototype, 'Skeleton.prototype', [
+    {
+        name: '_defaultSkinIndex',
+        newName: 'defaultSkinIndex',
+        target: Skeleton,
+        targetName: 'Skeleton',
+    },
+    {
+        name: '_animationIndex',
+        newName: 'animationIndex',
+        target: Skeleton,
+        targetName: 'Skeleton',
     },
 ]);
 

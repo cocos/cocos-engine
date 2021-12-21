@@ -223,6 +223,19 @@ export class ArmatureDisplay extends Renderable2D {
         this._animationName = value;
     }
 
+    /**
+     * @deprecated since v3.5, use defaultArmatureIndex instead
+     */
+    get _defaultArmatureIndex () {
+        return this.defaultArmatureIndex;
+    }
+    /**
+     * @deprecated since v3.5, use defaultArmatureIndex instead
+     */
+    set _defaultArmatureIndex (value) {
+        this.defaultArmatureIndex = value;
+    }
+
     @displayName('Armature')
     @editable
     @type(DefaultArmaturesEnum)
@@ -253,6 +266,19 @@ export class ArmatureDisplay extends Renderable2D {
         }
         this.resetRenderData();
         this.markForUpdateRenderData();
+    }
+
+    /**
+     *  @deprecated since v3.5, use animationIndex instead
+     */
+    get _animationIndex () {
+        return this.animationIndex;
+    }
+    /**
+     *  @deprecated since v3.5, use animationIndex instead
+     */
+    set _animationIndex (value) {
+        this.animationIndex = value;
     }
 
     @editable
@@ -288,10 +314,25 @@ export class ArmatureDisplay extends Renderable2D {
         }
     }
 
+    /**
+     * @deprecated since v3.5, use defaultCacheMode instead
+     */
+    get _defaultCacheMode () {
+        return this.defaultCacheMode;
+    }
+    /**
+     * @deprecated since v3.5, use defaultCacheMode instead
+     */
+    set _defaultCacheMode (value) {
+        this.defaultCacheMode = value;
+    }
+
     @editable
     @displayName('Animation Cache Mode')
     @tooltip('i18n:COMPONENT.dragon_bones.animation_cache_mode')
-    get defaultCacheMode () { return this._defaultCacheModeValue; }
+    get defaultCacheMode () {
+        return this._defaultCacheModeValue;
+    }
     set defaultCacheMode (value) {
         this._defaultCacheModeValue = value;
 

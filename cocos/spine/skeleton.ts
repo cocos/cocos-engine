@@ -216,6 +216,18 @@ export class Skeleton extends Renderable2D {
         }
     }
 
+    /**
+     * @deprecated since v3.5, use defaultSkinIndex instead
+     */
+    get _defaultSkinIndex (): number {
+        return this.defaultSkinIndex;
+    }
+    /**
+     * @deprecated since v3.5, use defaultSkinIndex instead
+     */
+    set _defaultSkinIndex (value: number) {
+        this.defaultSkinIndex = value;
+    }
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
     @tooltip('i18n:COMPONENT.skeleton.default_skin')
@@ -262,8 +274,20 @@ export class Skeleton extends Renderable2D {
         }
     }
 
-    // value of 0 represents no animation
+    /**
+     * @deprecated since v3.5, use animationIndex instead
+     */
+    get _animationIndex () {
+        return this.animationIndex;
+    }
+    /**
+     * @deprecated since v3.5, use animationIndex instead
+     */
+    set _animationIndex (value: number) {
+        this.animationIndex = value;
+    }
 
+    // value of 0 represents no animation
     @displayName('Animation')
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
