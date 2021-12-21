@@ -65,6 +65,7 @@ const SIZE_OVER_TIME_MODULE_ENABLE = 'SIZE_OVER_TIME_MODULE_ENABLE';
 const VELOCITY_OVER_TIME_MODULE_ENABLE = 'VELOCITY_OVER_TIME_MODULE_ENABLE';
 const FORCE_OVER_TIME_MODULE_ENABLE = 'FORCE_OVER_TIME_MODULE_ENABLE';
 const TEXTURE_ANIMATION_MODULE_ENABLE = 'TEXTURE_ANIMATION_MODULE_ENABLE';
+const USE_VK_SHADER = 'USE_VK_SHADER';
 
 const _vert_attr_name = {
     POSITION_STARTTIME: 'a_position_starttime',
@@ -438,7 +439,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             pass.setUniform(infoHandle, _tempVec4);
         }
 
-        this._defines['USE_VK_SHADER'] = legacyCC.game._gfxDevice.gfxAPI === API.VULKAN;
+        this._defines[USE_VK_SHADER] = legacyCC.game._gfxDevice.gfxAPI === API.VULKAN;
     }
 
     public getParticleCount (): number {
