@@ -405,7 +405,6 @@ export class SpriteFrame extends Asset {
         }
 
         if (value === this._texture) {
-            warnID(3123, this._texture.name);
             return;
         }
 
