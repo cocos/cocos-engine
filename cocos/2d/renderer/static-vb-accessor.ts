@@ -182,7 +182,7 @@ export class StaticVBAccessor extends BufferAccessor {
         if (entry) {
             const vertexOffset = entry.offset / this.vertexFormatBytes;
             assertIsTrue(Number.isInteger(vertexOffset));
-            const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength);
+            const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength / 4);
             this._allocateChunkFromEntry(bid, eid, entry, byteLength);
             return new StaticVBChunk(bid, vb, vertexOffset, vertexCount, indexCount);
         }
@@ -194,6 +194,7 @@ export class StaticVBAccessor extends BufferAccessor {
 
     public recycleChunk (chunk: StaticVBChunk) {
         const freeList = this._freeLists[chunk.bufferId];
+        const buf = this._buffers[chunk.bufferId];
         let offset = chunk.vertexOffset * this.vertexFormatBytes;
         let bytes = chunk.vb.byteLength;
         let recycled = false;
@@ -246,8 +247,14 @@ export class StaticVBAccessor extends BufferAccessor {
                 freeList.splice(i, 0, newEntry);
             }
         }
+        if (recycled) {
+            // If the last chunk is recycled, ensure correct mesh buffer byte offset
+            if (offset + bytes === buf.byteOffset) {
+                buf.byteOffset = offset;
+            }
+        }
         // Haven't found any entry or any entry after the buffer chunk
-        if (!recycled) {
+        else {
             const newEntry = _entryPool.alloc();
             newEntry.offset = offset;
             newEntry.length = bytes;
@@ -283,6 +290,12 @@ export class StaticVBAccessor extends BufferAccessor {
 
     private _allocateChunkFromEntry (bid: number, eid: number, entry: IFreeEntry, bytes: number) {
         const remaining = entry.length - bytes;
+        const offset = entry.offset + bytes;
+        const buf = this._buffers[bid];
+        if (buf.byteOffset < offset) {
+            // Ensure buffer length covers all buffer chunks
+            buf.byteOffset = offset;
+        }
         assertID(remaining >= 0, 9004, bid, entry.offset, entry.length);
         if (remaining === 0) {
             this._freeLists[bid].splice(eid, 1);
