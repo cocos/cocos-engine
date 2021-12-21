@@ -67,6 +67,28 @@ int readCommand(int8_t &cmd) {
     return read(pipeRead, &cmd, sizeof(cmd));
 }
 
+int readCommandWithTimeout(int8_t &cmd, int delayMS) {
+    if (delayMS > 0) {
+        static fd_set  fdSet;
+        static timeval timeout;
+
+        timeout = {delayMS / 1000, (delayMS % 1000) * 1000};
+        FD_ZERO(&fdSet);
+        FD_SET(pipeRead, &fdSet);
+
+        auto ret = select(pipeRead + 1, &fdSet, nullptr, nullptr, &timeout);
+        if (ret < 0) {
+            LOGV("failed to run select(..): %s\n", strerror(errno));
+            return ret;
+        }
+
+        if (ret == 0) {
+            return 0;
+        }
+    }
+    return read(pipeRead, &cmd, sizeof(cmd));
+}
+
 void handlePauseResume(int8_t cmd) {
     LOGV("appState=%d", cmd);
     std::unique_lock<std::mutex> lk(cc::cocosApp.mutex);
@@ -130,19 +152,20 @@ void glThreadEntry() {
     lk.unlock();
     cc::cocosApp.cond.notify_all();
 
-    int8_t cmd = 0;
+    int8_t cmd        = 0;
+    bool   runInLowRate = false;
     while (true) {
-        if (readCommand(cmd) > 0) {
+
+        runInLowRate = !cc::cocosApp.animating || APP_CMD_PAUSE == cc::cocosApp.appState;
+
+        if (readCommandWithTimeout(cmd, runInLowRate ? 100 : 0) > 0) {
             preExecCmd(cmd);
             cc::View::engineHandleCmd(cmd);
             postExecCmd(cmd);
         }
 
-        if (!cc::cocosApp.animating || APP_CMD_PAUSE == cc::cocosApp.appState) {
-            std::this_thread::yield();
-        }
 
-        if (game && cc::cocosApp.animating) {
+        if (game) {
             // Handle java events send by UI thread. Input events are handled here too.
             cc::JniHelper::callStaticVoidMethod("com.cocos.lib.CocosHelper",
                                                 "flushTasksOnGameThread");
