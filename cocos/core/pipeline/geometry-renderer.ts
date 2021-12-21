@@ -106,8 +106,13 @@ class GeometryVertexBuffer {
     }
 
     public destroy () {
-        this._inputAssembler.destroy();
-        this._buffer.destroy();
+        if (this._inputAssembler) {
+            this._inputAssembler.destroy();
+        }
+
+        if (this._buffer) {
+            this._buffer.destroy();
+        }
     }
 }
 
