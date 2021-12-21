@@ -96,6 +96,10 @@ export class EditBox extends Component {
             value = value.slice(0, this._maxLength);
         }
 
+        if (this._string === value) {
+            return;
+        }
+
         this._string = value;
         this._updateString(value);
     }
@@ -209,6 +213,10 @@ export class EditBox extends Component {
     }
 
     set inputFlag (value) {
+        if (this._inputFlag === value) {
+            return;
+        }
+
         this._inputFlag = value;
         this._updateString(this._string);
     }

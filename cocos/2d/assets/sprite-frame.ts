@@ -40,7 +40,7 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { legacyCC } from '../../core/global-exports';
 import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
 import { Texture2D } from '../../core/assets/texture-2d';
-import { errorID } from '../../core/platform/debug';
+import { errorID, warnID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
 
@@ -400,7 +400,11 @@ export class SpriteFrame extends Asset {
 
     set texture (value) {
         if (!value) {
-            console.warn(`Error Texture in ${this.name}`);
+            warnID(3122, this.name);
+            return;
+        }
+
+        if (value === this._texture) {
             return;
         }
 
