@@ -34,28 +34,27 @@ import { TextureBase } from '../../assets/texture-base';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { samplerLib } from './sampler-lib';
-import {
-    BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
+import { BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, DynamicStates,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout,
 } from '../../gfx';
-import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
+import { EffectAsset } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
-import {
-    MacroRecord, MaterialProperty, PropertyType, customizeType,
-    getBindingFromHandle, getDefaultFromType, getOffsetFromHandle, getPropertyTypeFromHandle, getTypeFromHandle, type2reader, type2writer,
+import { MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType,
+    getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { errorID } from '../../platform/debug';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+import { BatchedBuffer } from '../../pipeline/batched-buffer';
 
-export interface IPassInfoFull extends IPassInfo {
+export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
     passIndex: number;
     defines: MacroRecord;
     stateOverrides?: PassOverrides;
 }
-export type PassOverrides = RecursivePartial<IPassStates>;
+export type PassOverrides = RecursivePartial<EffectAsset.IPassStates>;
 
 export interface IMacroPatch {
     name: string;
@@ -71,7 +70,7 @@ interface IPassDynamics {
 
 const _bufferInfo = new BufferInfo(
     BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+    MemoryUsageBit.DEVICE,
 );
 
 const _bufferViewInfo = new BufferViewInfo(null!);
@@ -85,13 +84,11 @@ export enum BatchingSchemes {
 }
 
 export declare namespace Pass {
-    export type getPropertyTypeFromHandle = typeof getPropertyTypeFromHandle;
-    export type getTypeFromHandle = typeof getTypeFromHandle;
-    export type getBindingFromHandle = typeof getBindingFromHandle;
+    export type getTypeFromHandle = typeof Pass.getTypeFromHandle;
+    export type getBindingFromHandle = typeof Pass.getBindingFromHandle;
     export type fillPipelineInfo = typeof Pass.fillPipelineInfo;
     export type getPassHash = typeof Pass.getPassHash;
-    export type getOffsetFromHandle = typeof getOffsetFromHandle;
-    export type PropertyType = typeof PropertyType;
+    export type getCountFromHandle = typeof Pass.getCountFromHandle;
 }
 
 /**
@@ -100,28 +97,22 @@ export declare namespace Pass {
  */
 export class Pass {
     /**
-     * @en The binding type enums of the property
-     * @zh Uniform 的绑定类型（UBO 或贴图等）
-     */
-    public static PropertyType = PropertyType;
-
-    /**
-     * @en Gets the binding type of the property with handle
-     * @zh 根据 handle 获取 uniform 的绑定类型（UBO 或贴图等）。
-     */
-    public static getPropertyTypeFromHandle = getPropertyTypeFromHandle;
-
-    /**
-     * @en Gets the type of member in uniform buffer object with the handle
-     * @zh 根据 handle 获取 UBO member 的具体类型。
+     * @en Get the type of member in uniform buffer object with the handle
+     * @zh 根据 handle 获取 uniform 的具体类型。
      */
     public static getTypeFromHandle = getTypeFromHandle;
 
     /**
-     * @en Gets the binding with handle
+     * @en Get the binding with handle
      * @zh 根据 handle 获取 binding。
      */
     public static getBindingFromHandle = getBindingFromHandle;
+
+    /**
+     * @en Get the array length with handle
+     * @zh 根据 handle 获取数组长度。
+     */
+    public static getCountFromHandle = getCountFromHandle;
 
     protected static getOffsetFromHandle = getOffsetFromHandle;
 
@@ -183,10 +174,11 @@ export class Pass {
     protected _dynamics: IPassDynamics = {};
     protected _propertyHandleMap: Record<string, number> = {};
     protected _rootBlock: ArrayBuffer | null = null;
+    protected _blocksInt: Int32Array[] = [];
     protected _blocks: Float32Array[] = [];
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: MacroRecord = {};
-    protected _properties: Record<string, IPropertyInfo> = {};
+    protected _properties: Record<string, EffectAsset.IPropertyInfo> = {};
     protected _shader: Shader | null = null
     protected _bs: BlendState = new BlendState();
     protected _dss: DepthStencilState = new DepthStencilState();
@@ -197,6 +189,8 @@ export class Pass {
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
+    protected _instancedBuffers: Record<number, InstancedBuffer> = {};
+    protected _batchedBuffers: Record<number, BatchedBuffer> = {};
     protected _hash = 0;
     // external references
     protected _root: Root;
@@ -269,7 +263,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
-        const block = this._blocks[binding];
+        const block = this._getBlockView(type, binding);
         type2writer[type](block, value, ofs);
         this._rootBufferDirty = true;
     }
@@ -284,7 +278,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
-        const block = this._blocks[binding];
+        const block = this._getBlockView(type, binding);
         return type2reader[type](block, out, ofs) as T;
     }
 
@@ -298,7 +292,7 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const stride = GetTypeSize(type) >> 2;
-        const block = this._blocks[binding];
+        const block = this._getBlockView(type, binding);
         let ofs = Pass.getOffsetFromHandle(handle);
         for (let i = 0; i < value.length; i++, ofs += stride) {
             if (value[i] === null) { continue; }
@@ -345,7 +339,7 @@ export class Pass {
      * @param original The original pass info
      * @param value The override pipeline state info
      */
-    public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
+    public overridePipelineStates (original: EffectAsset.IPassInfo, overrides: PassOverrides): void {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
@@ -370,6 +364,14 @@ export class Pass {
         this._descriptorSet.update();
     }
 
+    public getInstancedBuffer (extraKey = 0) {
+        return this._instancedBuffers[extraKey] || (this._instancedBuffers[extraKey] = new InstancedBuffer(this));
+    }
+
+    public getBatchedBuffer (extraKey = 0) {
+        return this._batchedBuffers[extraKey] || (this._batchedBuffers[extraKey] = new BatchedBuffer(this));
+    }
+
     /**
      * @en Destroy the current pass.
      * @zh 销毁当前 pass。
@@ -384,6 +386,14 @@ export class Pass {
         if (this._rootBuffer) {
             this._rootBuffer.destroy();
             this._rootBuffer = null;
+        }
+
+        for (const ib in this._instancedBuffers) {
+            this._instancedBuffers[ib].destroy();
+        }
+
+        for (const bb in this._batchedBuffers) {
+            this._batchedBuffers[bb].destroy();
         }
 
         this._descriptorSet.destroy();
@@ -403,10 +413,13 @@ export class Pass {
         const type = Pass.getTypeFromHandle(handle);
         const binding = Pass.getBindingFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
-        const block = this._blocks[binding];
+        const count = Pass.getCountFromHandle(handle);
+        const block = this._getBlockView(type, binding);
         const info = this._properties[name];
-        const value = (info && info.value) || getDefaultFromType(type);
-        type2writer[type](block, value, ofs);
+        const givenDefault = info && info.value;
+        const value = (givenDefault || getDefaultFromType(type)) as number[];
+        const size = (GetTypeSize(type) >> 2) * count;
+        for (let k = 0; k + value.length <= size; k += value.length) { block.set(value, ofs + k); }
         this._rootBufferDirty = true;
     }
 
@@ -424,8 +437,9 @@ export class Pass {
         const texName = value ? `${value as string}-texture` : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
         const texture = textureBase && textureBase.getGFXTexture()!;
-        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : textureBase && textureBase.getSamplerHash();
-        const sampler = samplerLib.getSampler(this._device, samplerHash);
+        const samplerInfo = info && info.samplerHash !== undefined
+            ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
+        const sampler = this._device.getSampler(samplerInfo);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
     }
@@ -437,10 +451,10 @@ export class Pass {
     public resetUBOs (): void {
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            const block = this._blocks[u.binding];
             let ofs = 0;
             for (let j = 0; j < u.members.length; j++) {
                 const cur = u.members[j];
+                const block = this._getBlockView(cur.type, u.binding);
                 const info = this._properties[cur.name];
                 const givenDefault = info && info.value;
                 const value = (givenDefault || getDefaultFromType(cur.type)) as number[];
@@ -585,6 +599,7 @@ export class Pass {
             // guarantees these bindings to be consecutive, starting from 0 and non-array-typed
             this._blocks[binding] = new Float32Array(this._rootBlock!, _bufferViewInfo.offset,
                 size / Float32Array.BYTES_PER_ELEMENT);
+            this._blocksInt[binding] = new Int32Array(this._blocks[binding].buffer, this._blocks[binding].byteOffset, this._blocks[binding].length);
             this._descriptorSet.bindBuffer(binding, bufferView);
         }
         // store handles
@@ -613,6 +628,10 @@ export class Pass {
         }
     }
 
+    private _getBlockView (type: Type, binding: number) {
+        return type < Type.FLOAT ? this._blocksInt[binding] : this._blocks[binding];
+    }
+
     // Only for UI
     private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState, hashFactor: number) {
         this._priority = target.priority;
@@ -633,6 +652,7 @@ export class Pass {
         this._properties = target._properties;
 
         this._blocks = target._blocks;
+        this._blocksInt = target._blocksInt;
         this._dynamics =  target._dynamics;
 
         this._shader = target._shader;
@@ -641,21 +661,20 @@ export class Pass {
         this._hash = target._hash ^ hashFactor;
     }
 
-    /* eslint-disable max-len */
-
     // infos
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }
     get shaderInfo (): IProgramInfo { return this._shaderInfo; }
     get localSetLayout (): DescriptorSetLayout { return programLib.getDescriptorSetLayout(this._device, this._programName, true); }
     get program (): string { return this._programName; }
-    get properties (): Record<string, IPropertyInfo> { return this._properties; }
+    get properties (): Record<string, EffectAsset.IPropertyInfo> { return this._properties; }
     get defines (): Record<string, string | number | boolean> { return this._defines; }
     get passIndex (): number { return this._passIndex; }
     get propertyIndex (): number { return this._propertyIndex; }
     // data
     get dynamics (): IPassDynamics { return this._dynamics; }
     get blocks (): Float32Array[] { return this._blocks; }
+    get blocksInt (): Int32Array[] { return this._blocksInt; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
     // states
     get priority (): RenderPriority { return this._priority; }

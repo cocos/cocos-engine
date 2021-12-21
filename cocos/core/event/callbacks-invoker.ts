@@ -178,13 +178,15 @@ export interface ICallbackTable {
     [x: string]: CallbackList | undefined;
 }
 
+type EventType = string | number;
 /**
  * @zh CallbacksInvoker 用来根据事件名（Key）管理事件监听器列表并调用回调方法。
  * @en CallbacksInvoker is used to manager and invoke event listeners with different event keys,
  * each key is mapped to a CallbackList.
  */
-export class CallbacksInvoker {
+export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
     public _callbackTable: ICallbackTable = createMap(true);
+    private _offCallback?: () => void;
 
     /**
      * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
@@ -195,7 +197,7 @@ export class CallbacksInvoker {
      * @param target - Callback callee
      * @param once - Whether invoke the callback only once (and remove it)
      */
-    public on (key: string | number, callback: AnyFunction, target?: unknown, once?: boolean) {
+    public on (key: EventTypeClass, callback: AnyFunction, target?: unknown, once?: boolean) {
         if (!this.hasEventListener(key, callback, target)) {
             let list = this._callbackTable[key];
             if (!list) {
@@ -215,7 +217,7 @@ export class CallbacksInvoker {
      * @param callback - Callback function when event triggered
      * @param target - Callback callee
      */
-    public hasEventListener (key: string | number, callback?: AnyFunction, target?: unknown) {
+    public hasEventListener (key: EventTypeClass, callback?: AnyFunction, target?: unknown) {
         const list = this._callbackTable && this._callbackTable[key];
         if (!list) {
             return false;
@@ -251,7 +253,7 @@ export class CallbacksInvoker {
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (keyOrTarget: string | number | unknown) {
+    public removeAll (keyOrTarget: EventTypeClass | unknown) {
         const type = typeof keyOrTarget;
         if (type === 'string' || type === 'number') {
             // remove by key
@@ -291,7 +293,7 @@ export class CallbacksInvoker {
      * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
      * @param target - The callback callee of the event listener
      */
-    public off (key: string | number, callback?: AnyFunction, target?: unknown) {
+    public off (key: EventTypeClass, callback?: AnyFunction, target?: unknown) {
         const list = this._callbackTable && this._callbackTable[key];
         if (list) {
             const infos = list.callbackInfos;
@@ -307,6 +309,7 @@ export class CallbacksInvoker {
                 this.removeAll(key);
             }
         }
+        this._offCallback?.();
     }
 
     /**
@@ -319,7 +322,7 @@ export class CallbacksInvoker {
      * @param arg3 - The fourth argument to be passed to the callback
      * @param arg4 - The fifth argument to be passed to the callback
      */
-    public emit (key: string | number, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+    public emit (key: EventTypeClass, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
         const list: CallbackList = this._callbackTable && this._callbackTable[key]!;
         if (list) {
             const rootInvoker = !list.isInvoking;
@@ -368,6 +371,10 @@ export class CallbacksInvoker {
                 delete this._callbackTable[key];
             }
         }
+    }
+
+    private _registerOffCallback (cb: () => void) {
+        this._offCallback = cb;
     }
 }
 

@@ -32,13 +32,17 @@ import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
 import { RenderableComponent } from '../components/renderable-component';
-import { Texture } from '../gfx';
+import { Texture, Type } from '../gfx';
 import { TextureBase } from './texture-base';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
-import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
+import { MacroRecord, MaterialProperty } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
 import { warnID } from '../platform/debug';
+import { Vec4 } from '../math';
+import { SRGBToLinear } from '../pipeline/pipeline-funcs';
+
+const v4_1 = new Vec4();
 
 /**
  * @en The basic infos for material initialization.
@@ -375,10 +379,9 @@ export class Material extends Asset {
             const passInfo = tech.passes[k] as IPassInfoFull;
             const propIdx = passInfo.passIndex = k;
             const defines = passInfo.defines = this._defines[propIdx] || (this._defines[propIdx] = {});
-            const states = passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
+            passInfo.stateOverrides = this._states[propIdx] || (this._states[propIdx] = {});
             if (passInfo.propertyIndex !== undefined) {
                 Object.assign(defines, this._defines[passInfo.propertyIndex]);
-                Object.assign(states, this._states[passInfo.propertyIndex]);
             }
             if (passInfo.embeddedMacros !== undefined) {
                 Object.assign(defines, passInfo.embeddedMacros);
@@ -418,25 +421,29 @@ export class Material extends Asset {
     protected _uploadProperty (pass: Pass, name: string, val: MaterialPropertyFull | MaterialPropertyFull[]) {
         const handle = pass.getHandle(name);
         if (!handle) { return false; }
-        const propertyType = Pass.getPropertyTypeFromHandle(handle);
-        if (propertyType === PropertyType.BUFFER) {
+        const type = Pass.getTypeFromHandle(handle);
+        if (type < Type.SAMPLER1D) {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
+                if (pass.properties[name]?.linear) {
+                    const v4 = val as Vec4;
+                    SRGBToLinear(v4_1, v4);
+                    v4_1.w = v4.w;
+                    val = v4_1;
+                }
                 pass.setUniform(handle, val as MaterialProperty);
             } else {
                 pass.resetUniform(name);
             }
-        } else if (propertyType === PropertyType.TEXTURE) {
-            if (Array.isArray(val)) {
-                for (let i = 0; i < val.length; i++) {
-                    this._bindTexture(pass, handle, val[i], i);
-                }
-            } else if (val) {
-                this._bindTexture(pass, handle, val);
-            } else {
-                pass.resetTexture(name);
+        } else if (Array.isArray(val)) {
+            for (let i = 0; i < val.length; i++) {
+                this._bindTexture(pass, handle, val[i], i);
             }
+        } else if (val) {
+            this._bindTexture(pass, handle, val);
+        } else {
+            pass.resetTexture(name);
         }
         return true;
     }

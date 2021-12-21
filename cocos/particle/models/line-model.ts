@@ -72,7 +72,7 @@ export class LineModel extends scene.Model {
         this._iaInfo = new IndirectBuffer([new DrawInfo()]);
         this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDIRECT,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             DRAW_INFO_SIZE,
             DRAW_INFO_SIZE,
         ));
@@ -108,7 +108,7 @@ export class LineModel extends scene.Model {
         this._indexCount = 6;
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             this._vertSize * this._capacity * this._vertCount,
             this._vertSize,
         ));
@@ -129,7 +129,7 @@ export class LineModel extends scene.Model {
 
         const indexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            MemoryUsageBit.DEVICE,
             (this._capacity - 1) * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));

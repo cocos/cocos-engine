@@ -33,11 +33,10 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer,
     DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature, API } from '../gfx';
 
-export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
-export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
+export const PIPELINE_FLOW_MAIN = 'MainFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
 export const PIPELINE_FLOW_SHADOW = 'ShadowFlow';
 export const PIPELINE_FLOW_SMAA = 'SMAAFlow';
@@ -104,7 +103,7 @@ export interface IRenderQueueDesc {
 
 export interface IDescriptorSetLayoutInfo {
     bindings: DescriptorSetLayoutBinding[];
-    layouts: Record<string, UniformBlock | UniformSamplerTexture | UniformStorageImage>;
+    layouts: Record<string, UniformBlock | UniformSamplerTexture | UniformStorageImage | UniformStorageBuffer>;
 }
 
 export const globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], layouts: {} };
@@ -122,11 +121,7 @@ export enum PipelineGlobalBindings {
     SAMPLER_SHADOWMAP,
     SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
     SAMPLER_SPOT_LIGHTING_MAP,
-    SAMPLER_GBUFFER_ALBEDOMAP,
-    SAMPLER_GBUFFER_POSITIONMAP,
-    SAMPLER_GBUFFER_NORMALMAP,
-    SAMPLER_GBUFFER_EMISSIVEMAP,
-    SAMPLER_LIGHTING_RESULTMAP,
+    SAMPLER_DIFFUSEMAP,
 
     COUNT,
 }
@@ -139,6 +134,7 @@ export enum ModelLocalBindings {
     UBO_SKINNING_ANIMATION,
     UBO_SKINNING_TEXTURE,
     UBO_MORPH,
+    UBO_UI_LOCAL,
 
     SAMPLER_JOINTS,
     SAMPLER_MORPH_POSITION,
@@ -209,7 +205,9 @@ export class UBOCamera {
     public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
     public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
     public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly NEAR_FAR_OFFSET = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly VIEW_PORT_OFFSET = UBOCamera.NEAR_FAR_OFFSET + 4;
+    public static readonly COUNT = UBOCamera.VIEW_PORT_OFFSET + 4;
     public static readonly SIZE = UBOCamera.COUNT * 4;
 
     public static readonly NAME = 'CCCamera';
@@ -232,6 +230,8 @@ export class UBOCamera {
         new Uniform('cc_fogColor', Type.FLOAT4, 1),
         new Uniform('cc_fogBase', Type.FLOAT4, 1),
         new Uniform('cc_fogAdd', Type.FLOAT4, 1),
+        new Uniform('cc_nearFar', Type.FLOAT4, 1),
+        new Uniform('cc_viewPort', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
@@ -245,9 +245,12 @@ export class UBOShadow {
     public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
     public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
     public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
-    public static readonly SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET: number = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
-    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET: number = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
+    public static readonly SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    public static readonly SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
+    public static readonly SHADOW_PROJ_INFO_OFFSET = UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 4;
+    public static readonly SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow.SHADOW_PROJ_INFO_OFFSET + 4;
+    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
+    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
     public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
     public static readonly COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
@@ -258,6 +261,9 @@ export class UBOShadow {
         new Uniform('cc_matLightPlaneProj', Type.MAT4, 1),
         new Uniform('cc_matLightView', Type.MAT4, 1),
         new Uniform('cc_matLightViewProj', Type.MAT4, 1),
+        new Uniform('cc_shadowInvProjDepthInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowProjDepthInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowProjInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowNFLSInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowWHPBInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),
@@ -280,47 +286,19 @@ const UNIFORM_SHADOWMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIF
 globalDescriptorSetLayout.layouts[UNIFORM_SHADOWMAP_NAME] = UNIFORM_SHADOWMAP_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP_BINDING] = UNIFORM_SHADOWMAP_DESCRIPTOR;
 
-const UNIFORM_GBUFFER_ALBEDOMAP_NAME = 'cc_gbuffer_albedoMap';
-export const UNIFORM_GBUFFER_ALBEDOMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_ALBEDOMAP;
-const UNIFORM_GBUFFER_ALBEDOMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_GBUFFER_ALBEDOMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_NAME, Type.SAMPLER2D, 1);
-globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_ALBEDOMAP_NAME] = UNIFORM_GBUFFER_ALBEDOMAP_LAYOUT;
-globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_ALBEDOMAP_BINDING] = UNIFORM_GBUFFER_ALBEDOMAP_DESCRIPTOR;
-
-const UNIFORM_GBUFFER_POSITIONMAP_NAME = 'cc_gbuffer_positionMap';
-export const UNIFORM_GBUFFER_POSITIONMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_POSITIONMAP;
-const UNIFORM_GBUFFER_POSITIONMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_POSITIONMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_GBUFFER_POSITIONMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_NAME, Type.SAMPLER2D, 1);
-globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_POSITIONMAP_NAME] = UNIFORM_GBUFFER_POSITIONMAP_LAYOUT;
-globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_POSITIONMAP_BINDING] = UNIFORM_GBUFFER_POSITIONMAP_DESCRIPTOR;
-
-const UNIFORM_GBUFFER_NORMALMAP_NAME = 'cc_gbuffer_normalMap';
-export const UNIFORM_GBUFFER_NORMALMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_NORMALMAP;
-const UNIFORM_GBUFFER_NORMALMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_NORMALMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_GBUFFER_NORMALMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_NAME, Type.SAMPLER2D, 1);
-globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_NORMALMAP_NAME] = UNIFORM_GBUFFER_NORMALMAP_LAYOUT;
-globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_NORMALMAP_BINDING] = UNIFORM_GBUFFER_NORMALMAP_DESCRIPTOR;
-
-const UNIFORM_LIGHTING_RESULTMAP_NAME = 'cc_lighting_resultMap';
-export const UNIFORM_LIGHTING_RESULTMAP_BINDING = PipelineGlobalBindings.SAMPLER_LIGHTING_RESULTMAP;
-const UNIFORM_LIGHTING_RESULTMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_LIGHTING_RESULTMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_LIGHTING_RESULTMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_LIGHTING_RESULTMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_NAME, Type.SAMPLER2D, 1);
-globalDescriptorSetLayout.layouts[UNIFORM_LIGHTING_RESULTMAP_NAME] = UNIFORM_LIGHTING_RESULTMAP_LAYOUT;
-globalDescriptorSetLayout.bindings[UNIFORM_LIGHTING_RESULTMAP_BINDING] = UNIFORM_LIGHTING_RESULTMAP_DESCRIPTOR;
-
-const UNIFORM_GBUFFER_EMISSIVEMAP_NAME = 'cc_gbuffer_emissiveMap';
-export const UNIFORM_GBUFFER_EMISSIVEMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_EMISSIVEMAP;
-const UNIFORM_GBUFFER_EMISSIVEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
-const UNIFORM_GBUFFER_EMISSIVEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_NAME, Type.SAMPLER2D, 1);
-globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_EMISSIVEMAP_NAME] = UNIFORM_GBUFFER_EMISSIVEMAP_LAYOUT;
-globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_EMISSIVEMAP_BINDING] = UNIFORM_GBUFFER_EMISSIVEMAP_DESCRIPTOR;
-
 const UNIFORM_ENVIRONMENT_NAME = 'cc_environment';
 export const UNIFORM_ENVIRONMENT_BINDING = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
 const UNIFORM_ENVIRONMENT_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_ENVIRONMENT_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
 const UNIFORM_ENVIRONMENT_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_ENVIRONMENT_BINDING, UNIFORM_ENVIRONMENT_NAME, Type.SAMPLER_CUBE, 1);
 globalDescriptorSetLayout.layouts[UNIFORM_ENVIRONMENT_NAME] = UNIFORM_ENVIRONMENT_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT_BINDING] = UNIFORM_ENVIRONMENT_DESCRIPTOR;
+
+const UNIFORM_DIFFUSEMAP_NAME = 'cc_diffuseMap';
+export const UNIFORM_DIFFUSEMAP_BINDING = PipelineGlobalBindings.SAMPLER_DIFFUSEMAP;
+const UNIFORM_DIFFUSEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_DIFFUSEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_DIFFUSEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_DIFFUSEMAP_BINDING, UNIFORM_DIFFUSEMAP_NAME, Type.SAMPLER_CUBE, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_DIFFUSEMAP_NAME] = UNIFORM_DIFFUSEMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_DIFFUSEMAP_BINDING] = UNIFORM_DIFFUSEMAP_DESCRIPTOR;
 
 /**
  * @en The sampler for spot light shadow map
@@ -355,6 +333,27 @@ export class UBOLocal {
 }
 localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
 localDescriptorSetLayout.bindings[UBOLocal.BINDING] = UBOLocal.DESCRIPTOR;
+
+/**
+ * @en The world bound uniform buffer object
+ * @zh 世界空间包围盒 UBO。
+ */
+export class UBOWorldBound {
+    public static readonly WORLD_BOUND_CENTER = 0;
+    public static readonly WORLD_BOUND_HALF_EXTENTS = UBOWorldBound.WORLD_BOUND_CENTER + 4;
+    public static readonly COUNT = UBOWorldBound.WORLD_BOUND_HALF_EXTENTS + 4;
+    public static readonly SIZE = UBOWorldBound.COUNT * 4;
+
+    public static readonly NAME = 'CCWorldBound';
+    public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOWorldBound.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOWorldBound.BINDING, UBOWorldBound.NAME, [
+        new Uniform('cc_worldBoundCenter', Type.FLOAT4, 1),
+        new Uniform('cc_worldBoundHalfExtents', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOWorldBound.NAME] = UBOWorldBound.LAYOUT;
+localDescriptorSetLayout.bindings[UBOWorldBound.BINDING] = UBOWorldBound.DESCRIPTOR;
 
 export const INST_MAT_WORLD = 'a_matWorld0';
 
@@ -481,6 +480,18 @@ export class UBOMorph {
 localDescriptorSetLayout.layouts[UBOMorph.NAME] = UBOMorph.LAYOUT;
 localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
 
+// UI local uniform UBO
+export class UBOUILocal { // pre one vec4
+    public static readonly NAME = 'CCUILocal';
+    public static readonly BINDING = ModelLocalBindings.UBO_UI_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOUILocal.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOUILocal.BINDING, UBOUILocal.NAME, [
+        new Uniform('cc_local_data', Type.FLOAT4, 1),
+    ], 1);
+}
+localDescriptorSetLayout.layouts[UBOUILocal.NAME] = UBOUILocal.LAYOUT;
+localDescriptorSetLayout.bindings[UBOUILocal.BINDING] = UBOUILocal.DESCRIPTOR;
+
 /**
  * @en The sampler for joint texture
  * @zh 骨骼纹理采样器。
@@ -586,6 +597,16 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
 export function supportsHalfFloatTexture (device: Device) {
     return device.hasFeature(Feature.COLOR_HALF_FLOAT)
      && device.hasFeature(Feature.TEXTURE_HALF_FLOAT)
+     && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
+/**
+ * @en Does the device support half float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
+ */
+export function supportsFloatTexture (device: Device) {
+    return device.hasFeature(Feature.COLOR_FLOAT)
+     && device.hasFeature(Feature.TEXTURE_FLOAT)
      && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 

@@ -39,6 +39,7 @@ export interface IParticleSystemRenderer {
     onDisable (): void;
     onDestroy (): void;
     clear (): void;
+    getModel (): ParticleBatchModel | null;
     attachToScene (): void;
     detachFromScene (): void;
     updateMaterialParams (): void;
@@ -49,6 +50,8 @@ export interface IParticleSystemRenderer {
     getParticleCount (): number;
     getFreeParticle (): Particle | null;
     setNewParticle (p: Particle): void;
+    updateRotation (): void;
+    updateScale (): void;
     updateParticles (dt: number): number;
     updateRenderData (): void;
     enableModule (name: string, val: boolean, pm: IParticleModule): void;
@@ -123,6 +126,10 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         if (this._model) this._model.enabled = false;
     }
 
+    public getModel () {
+        return this._model;
+    }
+
     protected _initModel () {
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(ParticleBatchModel);
@@ -140,6 +147,8 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
     public abstract updateRenderMode () : void;
     public abstract updateMaterialParams () : void;
     public abstract setNewParticle (p: Particle): void;
+    public abstract updateRotation (): void;
+    public abstract updateScale (): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
     public abstract enableModule (name: string, val: boolean, pm: IParticleModule): void;

@@ -26,14 +26,13 @@
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemblerInfo, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, TextureFlagBit, Shader } from '../../gfx';
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
+    Format, Sampler, Filter, Address, Shader, SamplerInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform/debug';
-import { Shadows } from './shadows';
 import { getPhaseID } from '../../pipeline/pass-phase';
-import { genSamplerHash, samplerLib } from '../core/sampler-lib';
+import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -46,6 +45,7 @@ export class SubModel {
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
+    protected _worldBoundDescriptorSet: DescriptorSet | null = null;
     protected _planarInstanceShader: Shader | null = null;
     protected _planarShader: Shader | null = null;
     protected _reflectionTex: Texture | null = null;
@@ -59,6 +59,9 @@ export class SubModel {
         }
         this._passes = passes;
         this._flushPassInfo();
+        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
+            this.subMesh.genFlatBuffers();
+        }
 
         // DS layout might change too
         if (this._descriptorSet) {
@@ -77,10 +80,10 @@ export class SubModel {
     }
 
     set subMesh (subMesh) {
-        this._subMesh = subMesh;
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
         if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        this._subMesh = subMesh;
     }
 
     get subMesh (): RenderingSubMesh {
@@ -103,6 +106,10 @@ export class SubModel {
         return this._descriptorSet!;
     }
 
+    get worldBoundDescriptorSet (): DescriptorSet {
+        return this._worldBoundDescriptorSet!;
+    }
+
     get patches (): IMacroPatch[] | null {
         return this._patches;
     }
@@ -116,23 +123,33 @@ export class SubModel {
     }
 
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
-        this._device = legacyCC.director.root.device as Device;
+        const root = legacyCC.director.root as Root;
+        this._device = root.device;
         _dsInfo.layout = passes[0].localSetLayout;
+
         this._inputAssembler = this._device.createInputAssembler(subMesh.iaInfo);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
+
+        const pipeline = legacyCC.director.root.pipeline;
+        const occlusionPass = pipeline.pipelineSceneData.getOcclusionQueryPass();
+        const occlusionDSInfo = new DescriptorSetInfo(null!);
+        occlusionDSInfo.layout = occlusionPass.localSetLayout;
+        this._worldBoundDescriptorSet = this._device.createDescriptorSet(occlusionDSInfo);
         this._subMesh = subMesh;
         this._patches = patches;
         this._passes = passes;
 
         this._flushPassInfo();
-        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) {
+            this.subMesh.genFlatBuffers();
+        }
 
         this.priority = RenderPriority.DEFAULT;
 
         // initialize resources for reflection material
         if (passes[0].phase === getPhaseID('reflection')) {
-            let texWidth = this._device.width;
-            let texHeight = this._device.height;
+            let texWidth = root.mainWindow!.width;
+            let texHeight = root.mainWindow!.height;
             const minSize = 512;
 
             if (texHeight < texWidth) {
@@ -149,22 +166,18 @@ export class SubModel {
                 Format.RGBA8,
                 texWidth,
                 texHeight,
-                TextureFlagBit.IMMUTABLE,
             ));
 
             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionTex);
 
-            const samplerInfo = [
+            this._reflectionSampler = this._device.getSampler(new SamplerInfo(
                 Filter.LINEAR,
                 Filter.LINEAR,
                 Filter.NONE,
                 Address.CLAMP,
                 Address.CLAMP,
                 Address.CLAMP,
-            ];
-
-            const samplerHash = genSamplerHash(samplerInfo);
-            this._reflectionSampler = samplerLib.getSampler(this._device, samplerHash);
+            ));
             this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
         }
@@ -193,6 +206,9 @@ export class SubModel {
         this._inputAssembler!.destroy();
         this._inputAssembler = null;
 
+        this._worldBoundDescriptorSet!.destroy();
+        this._worldBoundDescriptorSet = null;
+
         this.priority = RenderPriority.DEFAULT;
 
         this._patches = null;
@@ -203,7 +219,6 @@ export class SubModel {
 
         if (this._reflectionTex) this._reflectionTex.destroy();
         this._reflectionTex = null;
-        if (this._reflectionSampler) this._reflectionSampler.destroy();
         this._reflectionSampler = null;
     }
 
@@ -213,6 +228,7 @@ export class SubModel {
             pass.update();
         }
         this._descriptorSet!.update();
+        this._worldBoundDescriptorSet!.update();
     }
 
     public onPipelineStateChanged (): void {

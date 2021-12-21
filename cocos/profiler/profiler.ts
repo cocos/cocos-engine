@@ -26,10 +26,9 @@
 
 import { TEST, EDITOR } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
-import { Camera } from '../core/components/camera-component';
 import { createMesh } from '../3d/misc';
 import { Material } from '../core/assets/material';
-import { ClearFlagBit, Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
+import { Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy, Swapchain } from '../core/gfx';
 import { Layers } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';
 import { ICounterOption } from './counter';
@@ -38,6 +37,8 @@ import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
 import { JSB } from '../core/default-constants';
+import { Root } from '../core/root';
+import { RenderPipeline } from '../core';
 
 const _characters = '0123456789. ';
 
@@ -107,6 +108,9 @@ export class Profiler {
 
     private _rootNode: Node | null = null;
     private _device: Device | null = null;
+    private _swapchain: Swapchain | null = null;
+    private _pipeline: RenderPipeline = null!;
+    private _meshRenderer: MeshRenderer = null!;
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;
     private _texture: Texture | null = null;
@@ -154,13 +158,19 @@ export class Profiler {
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
+            this._pipeline.profiler = null;
             legacyCC.game.config.showFPS = false;
         }
     }
 
     public showStats () {
         if (!this._showFPS) {
-            if (!this._device) { this._device = legacyCC.director.root.device; }
+            if (!this._device) {
+                const root = legacyCC.director.root as Root;
+                this._device = root.device;
+                this._swapchain = root.mainWindow!.swapchain;
+                this._pipeline = root.pipeline;
+            }
             if (!EDITOR) {
                 this.generateCanvas();
             }
@@ -263,18 +273,6 @@ export class Profiler {
         this._rootNode = new Node('PROFILER_NODE');
         legacyCC.game.addPersistRootNode(this._rootNode);
 
-        const cameraNode = new Node('Profiler_Camera');
-        cameraNode.setPosition(0, 0, 1.5);
-        cameraNode.parent = this._rootNode;
-        const camera = cameraNode.addComponent('cc.Camera') as Camera;
-        camera.projection = Camera.ProjectionType.ORTHO;
-        camera.orthoHeight = 1;
-        camera.near = 1;
-        camera.far = 2;
-        camera.visibility = Layers.BitMask.PROFILER;
-        camera.clearFlags = ClearFlagBit.NONE;
-        camera.priority = 0xffffffff; // after everything else
-
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
 
@@ -284,10 +282,10 @@ export class Profiler {
         const scale = rowHeight / _constants.fontSize;
         const columnWidth = this._eachNumWidth * this._canvas!.width * scale;
         const vertexPos: number[] = [
-            0, height, 0, // top-left
+            0,      height, 0, // top-left
             lWidth, height, 0, // top-right
             lWidth,      0, 0, // bottom-right
-            0,      0, 0, // bottom-left
+            0,           0, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
@@ -318,8 +316,8 @@ export class Profiler {
             }
         }
 
-        const modelCom = managerNode.addComponent(MeshRenderer);
-        modelCom.mesh = createMesh({
+        this._meshRenderer = managerNode.addComponent(MeshRenderer);
+        this._meshRenderer.mesh = createMesh({
             positions: vertexPos,
             indices: vertexindices,
             colors: vertexUV, // pack all the necessary info in a_color: { x: u, y: v, z: id.x, w: id.y }
@@ -337,8 +335,9 @@ export class Profiler {
         this.offsetData = pass.blocks[bOffset];
         this.offsetData[3] = -1; // ensure init on the first frame
 
-        modelCom.material = _material;
-        modelCom.node.layer = Layers.Enum.PROFILER;
+        this._meshRenderer.material = _material;
+        this._meshRenderer.node.layer = Layers.Enum.PROFILER;
+
         this._inited = true;
     }
 
@@ -384,12 +383,12 @@ export class Profiler {
     }
 
     public beforeDraw () {
-        if (!this._stats) {
+        if (!this._stats || !this._inited) {
             return;
         }
 
         if (!EDITOR) {
-            const surfaceTransform = this._device!.surfaceTransform;
+            const surfaceTransform = this._swapchain!.surfaceTransform;
             const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
             if (surfaceTransform !== this.offsetData[3]) {
                 const preTransform = preTransforms[surfaceTransform];
@@ -402,6 +401,8 @@ export class Profiler {
 
             this.pass._setRootBufferDirty(true);
         }
+
+        if (this._meshRenderer.model) this._pipeline.profiler = this._meshRenderer.model;
 
         const now = performance.now();
         (this._stats.render.counter as PerfCounter).start(now);

@@ -31,7 +31,7 @@
 import { SpriteFrame } from '../../assets';
 import { Color, Vec2 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { Batcher2D } from '../../renderer/batcher-2d';
+import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { fillVertices3D } from '../utils';
@@ -360,10 +360,11 @@ export const radialFilled: IAssembler = {
                 renderData.indicesCount = renderData.vertexCount = offset;
                 renderData.vertDirty = renderData.uvDirty = false;
             }
+            renderData.updateRenderData(sprite, frame);
         }
     },
 
-    fillBuffers (comp: Sprite, renderer: Batcher2D) {
+    fillBuffers (comp: Sprite, renderer: IBatcher) {
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
         tempColor.set(comp.color);

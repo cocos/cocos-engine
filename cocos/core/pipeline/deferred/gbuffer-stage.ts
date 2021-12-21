@@ -37,13 +37,13 @@ import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from './enum';
+import { DeferredStagePriority } from '../enum';
 import { InstancedBuffer } from '../instanced-buffer';
 import { BatchedBuffer } from '../batched-buffer';
 import { BatchingSchemes } from '../../renderer/core/pass';
-import { GbufferFlow } from './gbuffer-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
+import { MainFlow } from './main-flow';
 
 const colors: Color[] = [new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0), new Color(0, 0, 0, 0)];
 
@@ -80,7 +80,7 @@ export class GbufferStage extends RenderStage {
     private _renderArea = new Rect();
     private _batchedQueue: RenderBatchedQueue;
     private _instancedQueue: RenderInstancedQueue;
-    private _phaseID = getPhaseID('deferred');
+    private _phaseID = getPhaseID('default');
 
     constructor () {
         super();
@@ -96,7 +96,7 @@ export class GbufferStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: GbufferFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
         for (let i = 0; i < this.renderQueues.length; i++) {
             this._renderQueues[i] = convertRenderQueue(this.renderQueues[i]);
@@ -113,10 +113,10 @@ export class GbufferStage extends RenderStage {
         const device = pipeline.device;
         this._renderQueues.forEach(renderQueueClearFunc);
 
+        pipeline.generateRenderArea(camera, this._renderArea);
+        pipeline.updateQuadVertexData(this._renderArea, camera.window);
+
         const renderObjects = pipeline.pipelineSceneData.renderObjects;
-        if (renderObjects.length === 0) {
-            return;
-        }
 
         let m = 0; let p = 0; let k = 0;
         for (let i = 0; i < renderObjects.length; ++i) {
@@ -130,11 +130,11 @@ export class GbufferStage extends RenderStage {
                     if (pass.phase !== this._phaseID) continue;
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
-                        const instancedBuffer = InstancedBuffer.get(pass);
+                        const instancedBuffer = pass.getInstancedBuffer();
                         instancedBuffer.merge(subModel, ro.model.instancedAttributes, p);
                         this._instancedQueue.queue.add(instancedBuffer);
                     } else if (batchingScheme === BatchingSchemes.VB_MERGING) {
-                        const batchedBuffer = BatchedBuffer.get(pass);
+                        const batchedBuffer = pass.getBatchedBuffer();
                         batchedBuffer.merge(subModel, p, ro.model);
                         this._batchedQueue.queue.add(batchedBuffer);
                     } else {
@@ -151,16 +151,10 @@ export class GbufferStage extends RenderStage {
 
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
-        this._renderArea = pipeline.generateRenderArea(camera);
-        pipeline.updateQuadVertexData(this._renderArea);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.pipelineSceneData.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
             } else {
                 colors[0].x = camera.clearColor.x;
                 colors[0].y = camera.clearColor.y;
@@ -170,13 +164,13 @@ export class GbufferStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        const deferredData = pipeline.getDeferredRenderData(camera);
-        const framebuffer = deferredData.gbufferFrameBuffer!;
+        const deferredData = pipeline.getPipelineRenderData();
+        const framebuffer = deferredData.gbufferFrameBuffer;
         const renderPass = framebuffer.renderPass;
-
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
+        cmdBuff.setScissor(pipeline.generateScissor(camera));
+        cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         for (let i = 0; i < this.renderQueues.length; i++) {

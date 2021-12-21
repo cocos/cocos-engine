@@ -1,0 +1,60 @@
+import { _decorator, animation } from "cc";
+const { ccclass, property } = _decorator;
+
+/**
+ * Predefined variables
+ * Name = <%Name%>
+ * DateTime = <%DateTime%>
+ * Author = <%Author%>
+ * FileBasename = <%FileBasename%>
+ * FileBasenameNoExtension = <%FileBasenameNoExtension%>
+ * URL = <%URL%>
+ * ManualUrl = <%ManualUrl%>
+ *
+ */
+
+@ccclass("<%Name%>")
+export class <%Name%> extends animation.StateMachineComponent {
+    // /**
+    //  * Called when a motion state right after it entered.
+    //  * @param controller The animation controller it within.
+    //  * @param motionStateStatus The status of the motion.
+    //  */
+    // public onMotionStateEnter (controller: animation.AnimationController, motionStateStatus: Readonly<animation.MotionStateStatus>): void {
+    //     // Can be overrode
+    // }
+
+    // /**
+    //  * Called when a motion state is going to be exited.
+    //  * @param controller The animation controller it within.
+    //  * @param motionStateStatus The status of the motion.
+    //  */
+    // public onMotionStateExit (controller: animation.AnimationController, motionStateStatus: Readonly<animation.MotionStateStatus>): void {
+    //     // Can be overrode
+    // }
+
+    // /**
+    //  * Called when a motion state updated except for the first and last frame.
+    //  * @param controller The animation controller it within.
+    //  * @param motionStateStatus The status of the motion.
+    //  */
+    // public onMotionStateUpdate (controller: animation.AnimationController, motionStateStatus: Readonly<animation.MotionStateStatus>): void {
+    //     // Can be overrode
+    // }
+
+    // /**
+    //  * Called when a state machine right after it entered.
+    //  * @param controller The animation controller it within.
+    //  */
+    // public onStateMachineEnter (controller: animation.AnimationController) {
+    //     // Can be overrode
+    // }
+
+    // /**
+    //  * Called when a state machine right after it entered.
+    //  * @param controller The animation controller it within.
+    //  */
+    // public onStateMachineExit (controller: animation.AnimationController) {
+    //     // Can be overrode
+    // }
+}

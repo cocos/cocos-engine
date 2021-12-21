@@ -31,7 +31,7 @@
 import { SpriteFrame } from '../../assets/sprite-frame';
 import * as js from '../../../core/utils/js';
 import { Color, Rect } from '../../../core/math';
-import { Batcher2D } from '../../renderer/batcher-2d';
+import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
 import { fillMeshVertices3D } from '../utils';
@@ -48,9 +48,8 @@ export const bmfont: IAssembler = {
         return comp.requestRenderData();
     },
 
-    fillBuffers (comp: Label, renderer: Batcher2D) {
+    fillBuffers (comp: Label, renderer: IBatcher) {
         const node = comp.node;
-        comp._setCacheAlpha(node._uiProps.opacity);
         tempColor.set(comp.color);
         tempColor.a = node._uiProps.opacity * 255;
         fillMeshVertices3D(node, renderer, comp.renderData!, tempColor);

@@ -18,7 +18,7 @@ const _indices: number[] = [];
 let _boneInfoOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
-let _preTexUrl: string|null = null;
+let _preTexID: string|null = null;
 let _preBlendMode: spine.BlendMode | null = null;
 let _segVCount = 0;
 let _segICount = 0;
@@ -328,7 +328,7 @@ export class AnimationCache {
         _vfOffset = 0;
         _boneInfoOffset = 0;
         _indexOffset = 0;
-        _preTexUrl = null;
+        _preTexID = null;
         _preBlendMode = null;
         _segVCount = 0;
         _segICount = 0;
@@ -479,8 +479,8 @@ export class AnimationCache {
             }
 
             blendMode = slot.data.blendMode;
-            if (_preTexUrl !== texture.nativeUrl || _preBlendMode !== blendMode) {
-                _preTexUrl = texture.nativeUrl;
+            if (_preTexID !== texture.getId() || _preBlendMode !== blendMode) {
+                _preTexID = texture.getId();
                 _preBlendMode = blendMode;
                 // Handle pre segment.
                 preSegOffset = _segOffset - 1;
@@ -686,10 +686,10 @@ class SkeletonCache {
         return animationCache;
     }
 
-    public updateAnimationCache (uuid: string, animationName: string): null | void {
+    public updateAnimationCache (uuid: string, animationName: string): void {
         if (animationName) {
             const animationCache = this.initAnimationCache(uuid, animationName);
-            if (!animationCache) return null;
+            if (!animationCache) return;
             animationCache.updateAllFrame();
         } else {
             const skeletonInfo = this._skeletonCache[uuid];

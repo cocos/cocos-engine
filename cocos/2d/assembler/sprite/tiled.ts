@@ -31,7 +31,7 @@
 import { IUV } from '../../assets';
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { Batcher2D } from '../../renderer/batcher-2d';
+import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';
 import { Renderable2D } from '../../framework/renderable-2d';
 import { IAssembler } from '../../renderer/base';
@@ -51,7 +51,13 @@ export const tiled: IAssembler = {
     updateRenderData (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const frame = sprite.spriteFrame!;
-        if (!frame || !renderData || !(renderData.uvDirty || renderData.vertDirty)) {
+        if (!frame || !renderData) {
+            return;
+        }
+
+        renderData.updateRenderData(sprite, frame);
+
+        if (!renderData.uvDirty && !renderData.vertDirty) {
             return;
         }
 
@@ -90,7 +96,7 @@ export const tiled: IAssembler = {
         this.updateColor(sprite);
     },
 
-    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
+    fillBuffers (sprite: Sprite, renderer: IBatcher) {
         const node = sprite.node;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const contentWidth = Math.abs(uiTrans.width);

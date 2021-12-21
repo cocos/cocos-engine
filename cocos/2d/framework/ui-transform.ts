@@ -29,20 +29,21 @@
  */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { Component } from '../../core/components';
-import { EventListener } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
-import { legacyCC } from '../../core/global-exports';
 import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import visibleRect from '../../core/platform/visible-rect';
+import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
+const _vec3a = new Vec3();
 const _mat4_temp = new Mat4();
 const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
@@ -70,7 +71,7 @@ export class UITransform extends Component {
      * 内容尺寸。
      */
     @displayOrder(0)
-    @tooltip('i18n:ui_transform.conten_size')
+    @tooltip('i18n:ui_transform.content_size')
     // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
@@ -253,6 +254,20 @@ export class UITransform extends Component {
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
+    // macro.UI_GPU_DRIVEN
+    declare public _rectDirty: boolean;
+    declare public _rectWithScale: Vec3;
+    declare public _anchorCache: Vec3;
+
+    constructor () {
+        super();
+        if (UI_GPU_DRIVEN) {
+            this._rectDirty = true;
+            this._rectWithScale = new Vec3();
+            this._anchorCache = new Vec3();
+        }
+    }
+
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
     }
@@ -402,13 +417,13 @@ export class UITransform extends Component {
      * 当前节点的点击计算。
      *
      * @param point - 屏幕点。
-     * @param listener - 事件监听器。
      */
-    public isHit (point: Vec2, listener?: EventListener) {
+    public isHit (point: Vec2) {
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const cameraPt = _vec2a;
         const testPt = _vec2b;
+        const nodeEventProcessor = this.node?.eventProcessor;
 
         const cameras = this._getRenderScene().cameras;
         for (let i = 0; i < cameras.length; i++) {
@@ -436,17 +451,17 @@ export class UITransform extends Component {
             let hit = false;
             if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
                 hit = true;
-                if (listener && listener.mask) {
-                    const mask = listener.mask;
+                if (nodeEventProcessor && nodeEventProcessor.maskList) {
+                    const maskList = nodeEventProcessor.maskList;
                     let parent: any = this.node;
-                    const length = mask ? mask.length : 0;
+                    const length = maskList ? maskList.length : 0;
                     // find mask parent, should hit test it
                     for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
-                        const temp = mask[j];
+                        const temp = maskList[j];
                         if (i === temp.index) {
                             if (parent === temp.comp.node) {
                                 const comp = temp.comp;
-                                if (comp && comp._enabled && !(comp as any).isHit(cameraPt)) {
+                                if (comp && comp._enabled && !comp.isHit(cameraPt)) {
                                     hit = false;
                                     break;
                                 }
@@ -454,12 +469,12 @@ export class UITransform extends Component {
                                 j++;
                             } else {
                                 // mask parent no longer exists
-                                mask.length = j;
+                                maskList.length = j;
                                 break;
                             }
                         } else if (i > temp.index) {
                             // mask parent no longer exists
-                            mask.length = j;
+                            maskList.length = j;
                             break;
                         }
                     }
@@ -660,9 +675,33 @@ export class UITransform extends Component {
     }
 
     private _markRenderDataDirty () {
+        if (UI_GPU_DRIVEN) {
+            this._rectDirty = true;
+            return;
+        }
         const uiComp = this.node._uiProps.uiComp;
         if (uiComp) {
             uiComp.markForUpdateRenderData();
+            // @ts-expect-error hack for canRender is false // HACK,Need remove
+            if (uiComp.renderData) { uiComp.renderData.vertDirty = true; }
+        }
+    }
+
+    public checkAndUpdateRect (rot: Quat, scale: Vec3) {
+        if (this._rectDirty) {
+            this._rectWithScale.x = scale.x * this.width;
+            this._rectWithScale.y = scale.y * this.height;
+            this._rectWithScale.z = scale.z;
+
+            const lenX = (0.5 - this.anchorPoint.x) * this.width * scale.x;
+            const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;
+            Vec3.transformQuat(this._anchorCache, _vec3a.set(lenX, lenY, 0), rot);
+        }
+    }
+
+    public setRectDirty (transformBit: TransformBit) {
+        if (transformBit & TransformBit.RS) {
+            this._rectDirty = true;
         }
     }
 

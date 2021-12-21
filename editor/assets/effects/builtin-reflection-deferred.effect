@@ -17,14 +17,14 @@ CCEffect %{
           blendDstAlpha: one_minus_src_alpha
       properties: &props
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
+        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
         occlusion:      { value: 1.0, target: pbrParams.x }
         roughness:      { value: 0.8, target: pbrParams.y }
         metallic:       { value: 0.6, target: pbrParams.z }
         normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
-        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
         normalMap:      { value: normal       }
@@ -213,8 +213,8 @@ CCProgram standard-fs %{
     #if USE_OCCLUSION_MAP
       pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
     #endif
-    s.occlusion = clamp(pbr.x, 0.0, 0.96);
-    s.roughness = clamp(pbr.y, 0.04, 1.0);
+    s.occlusion = pbr.x;
+    s.roughness = pbr.y;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
@@ -224,14 +224,14 @@ CCProgram standard-fs %{
   }
 
   #pragma builtin(local)
-  layout(set = 2, binding = 11) uniform sampler2D cc_reflectionTexture;
+  layout(set = 2, binding = 12) uniform sampler2D cc_reflectionTexture;
 
-  layout(location = 0) out vec4 fragColorX;                        
+  layout(location = 0) out vec4 fragColorX;
 
-  void main () {                                                   
+  void main () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);
-    CC_APPLY_FOG(color);
+    CC_APPLY_FOG(color, s.position.xyz);
     vec4 baseColor = CCFragOutput(color);
 
     vec2 noise = v_normal.xy * 0.02;

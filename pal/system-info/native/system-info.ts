@@ -1,6 +1,8 @@
-import { SupportCapability } from 'pal/system-info';
-import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
+import { IFeatureMap } from 'pal/system-info';
+import { EventTarget } from '../../../cocos/core/event';
+import { SplashScreen } from '../../../cocos/core/splash-screen';
+import legacyCC from '../../../predefine';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 const networkTypeMap: Record<string, NetworkType> = {
     0: NetworkType.NONE,
@@ -32,8 +34,7 @@ class SystemInfo extends EventTarget {
     public readonly osMainVersion: number;
     public readonly browserType: BrowserType;
     public readonly browserVersion: string;
-    public readonly pixelRatio: number;
-    public readonly supportCapability: SupportCapability;
+    private _featureMap: IFeatureMap;
     // TODO: need to wrap the function __isObjectValid()
 
     public get networkType (): NetworkType {
@@ -74,14 +75,18 @@ class SystemInfo extends EventTarget {
         this.browserType = BrowserType.UNKNOWN;
         this.browserVersion = '';
 
-        this.pixelRatio = jsb.device.getDevicePixelRatio() || 1;
+        this._featureMap = {
+            [Feature.WEBP]: true,
+            [Feature.IMAGE_BITMAP]: false,
+            [Feature.WEB_VIEW]: this.isMobile,
+            [Feature.VIDEO_PLAYER]: this.isMobile,
+            [Feature.SAFE_AREA]: this.isMobile,
 
-        // init capability
-        this.supportCapability = {
-            webp: true,
-            gl: true,
-            canvas: true,
-            imageBitmap: false,
+            [Feature.INPUT_TOUCH]: this.isMobile,
+            [Feature.EVENT_KEYBOARD]: !this.isMobile,
+            [Feature.EVENT_MOUSE]: !this.isMobile,
+            [Feature.EVENT_TOUCH]: true,
+            [Feature.EVENT_ACCELEROMETER]: this.isMobile,
         };
 
         this._registerEvent();
@@ -90,13 +95,19 @@ class SystemInfo extends EventTarget {
     private _registerEvent () {
         jsb.onPause = () => {
             this.emit('hide');
+            legacyCC.internal.SplashScreen.instance.pauseRendering();
         };
         jsb.onResume = () => {
             this.emit('show');
+            legacyCC.internal.SplashScreen.instance.resumeRendering();
         };
         jsb.onClose = () => {
             this.emit('close');
         };
+    }
+
+    public hasFeature (feature: Feature): boolean {
+        return this._featureMap[feature];
     }
 
     public getBatteryLevel (): number {

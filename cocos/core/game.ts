@@ -28,13 +28,14 @@
  * @module core
  */
 
-import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { EDITOR, HTML5, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
+import { ConfigOrientation } from 'pal/screen-adapter';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
-import { EventTarget } from './event/event-target';
+import { EventTarget } from './event';
+import { input } from '../input';
 import * as debug from './platform/debug';
-import inputManager from './platform/event-manager/input-manager';
-import { Device, DeviceInfo } from './gfx';
+import { Device, DeviceInfo, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
@@ -48,6 +49,7 @@ import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
+import { screen } from './platform/screen';
 
 interface ISceneInfo {
     url: string;
@@ -113,13 +115,15 @@ export interface IGameConfig {
      * - 0 - 通过引擎自动选择。
      * - 1 - 强制使用 canvas 渲染。
      * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
+     * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
      * @en
      * Sets the renderer type, only useful on web:
      * - 0 - Automatically chosen by engine.
      * - 1 - Forced to use canvas renderer.
      * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
+     * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
      */
-    renderMode?: 0 | 1 | 2;
+    renderMode?: 0 | 1 | 2 | 3;
 
     /**
      * @zh
@@ -168,6 +172,17 @@ export interface IGameConfig {
         container: HTMLDivElement,
         [x: string]: any,
     };
+
+    /**
+     * The orientation from the builder configuration.
+     * Available value can be 'auto', 'landscape', 'portrait'.
+     */
+    orientation?: ConfigOrientation;
+    /**
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     */
+    exactFitScreen: boolean,
 }
 
 /**
@@ -256,6 +271,12 @@ export class Game extends EventTarget {
     public static readonly RENDER_TYPE_OPENGL = 2;
 
     /**
+     * @en Headless Renderer, usually used in test or server env
+     * @zh 空渲染器，通常用于测试环境或服务器端模式
+     */
+    public static readonly RENDER_TYPE_HEADLESS = 3;
+
+    /**
      * @en If delta time since last frame is more than this threshold in seconds,
      * the game timer will consider user is debugging and adjust the delta time to [[frameTime]].
      * @zh 如果距离上一帧的帧间隔超过了这个阈值（单位是 s），那么就会被认为正在调试，帧间隔会被自动调节为 [[frameTime]].
@@ -265,11 +286,15 @@ export class Game extends EventTarget {
     /**
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
+     *
+     * @deprecated since 3.4.0, frame is a concept on web standard, please manager screens via the `screen` module.
      */
     public frame: HTMLDivElement | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
+     *
+     * @deprecated since 3.4.0, container is a concept on web standard, please manager screens via the `screen` module.
      */
     public container: HTMLDivElement | null = null;
     /**
@@ -366,7 +391,8 @@ export class Game extends EventTarget {
 
     public _persistRootNodes = {};
 
-    private _gfxDevice: Device | null = null;
+    public _gfxDevice: Device | null = null;
+    public _swapchain: Swapchain | null = null;
     // states
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
@@ -414,10 +440,19 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Pause the game main loop. This will pause:<br>
-     * game logic execution, rendering process, event manager, background music and all audio effects.<br>
-     * This is different with `director.pause` which only pause the game logic execution.<br>
-     * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 `director.pause` 不同。
+     * @en Pause the game main loop. This will pause:
+     * - game logic execution
+     * - rendering process
+     * - input event dispatching (excluding Web and Minigame platforms)
+     *
+     * This is different with `director.pause()` which only pause the game logic execution.
+     *
+     * @zh 暂停游戏主循环。包含：
+     * - 游戏逻辑
+     * - 渲染
+     * - 输入事件派发（Web 和小游戏平台除外）
+     *
+     * 这点和只暂停游戏逻辑的 `director.pause()` 不同。
      */
     public pause () {
         if (this._paused) { return; }
@@ -435,7 +470,8 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
-        inputManager.clearEvents();
+        // @ts-expect-error _clearEvents is a private method.
+        input._clearEvents();
         if (this._intervalId) {
             window.cAF(this._intervalId);
             this._intervalId = 0;
@@ -536,6 +572,14 @@ export class Game extends EventTarget {
      */
     public init (config: IGameConfig) {
         this._initConfig(config);
+        // TODO: unify the screen initialization workflow.
+        if (HTML5) {
+            // @ts-expect-error access private method.
+            screen._init({
+                configOrientation: config.orientation || 'auto',
+                exactFitScreen: config.exactFitScreen,
+            });
+        }
         // Init assetManager
         if (this.config.assetOptions) {
             legacyCC.assetManager.init(this.config.assetOptions);
@@ -581,7 +625,15 @@ export class Game extends EventTarget {
         }
         garbageCollectionManager.init();
 
-        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash());
+        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash()).then(() => {
+            if (!HTML5) {
+                // @ts-expect-error access private method.
+                screen._init({
+                    configOrientation: 'auto',
+                    exactFitScreen: true,
+                });
+            }
+        });
     }
 
     //  @ Persist root node section
@@ -649,7 +701,9 @@ export class Game extends EventTarget {
 
     private _initEngine () {
         this._initDevice();
-        return Promise.resolve(legacyCC.director._init()).then(() => {
+        const director = legacyCC.director;
+        return Promise.resolve(director._init()).then(() => {
+            legacyCC.view.init();
             // Log engine version
             debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
@@ -762,7 +816,7 @@ export class Game extends EventTarget {
             config.frameRate = 60;
         }
         const renderMode = config.renderMode;
-        if (typeof renderMode !== 'number' || renderMode > 2 || renderMode < 0) {
+        if (typeof renderMode !== 'number' || renderMode > 3 || renderMode < 0) {
             config.renderMode = 0;
         }
         config.showFPS = !!config.showFPS;
@@ -783,19 +837,14 @@ export class Game extends EventTarget {
         this.renderType = Game.RENDER_TYPE_CANVAS;
         let supportRender = false;
 
-        if (userRenderMode === 0) {
-            if (sys.capabilities.opengl) {
-                this.renderType = Game.RENDER_TYPE_WEBGL;
-                supportRender = true;
-            } else if (sys.capabilities.canvas) {
-                this.renderType = Game.RENDER_TYPE_CANVAS;
-                supportRender = true;
-            }
-        } else if (userRenderMode === 1 && sys.capabilities.canvas) {
+        if (userRenderMode === 1) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
-        } else if (userRenderMode === 2 && sys.capabilities.opengl) {
+        } else if (userRenderMode === 0 || userRenderMode === 2) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
+            supportRender = true;
+        } else if (userRenderMode === 3) {
+            this.renderType = Game.RENDER_TYPE_HEADLESS;
             supportRender = true;
         }
 
@@ -816,27 +865,14 @@ export class Game extends EventTarget {
             this.container = adapter.container;
         }
 
-        // The test environment does not currently support the renderer
-        if (TEST) return;
-
         this._determineRenderType();
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            const ctors: Constructor<Device>[] = [];
-
-            const opts = new DeviceInfo(
-                this.canvas as HTMLCanvasElement,
-                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                false,
-                window.devicePixelRatio,
-                sys.windowPixelResolution.width,
-                sys.windowPixelResolution.height,
-                bindingMappingInfo,
-            );
+            const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && window.gfx) {
-                this._gfxDevice = gfx.DeviceManager.create(opts);
+                this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
@@ -845,18 +881,27 @@ export class Game extends EventTarget {
                 ) {
                     useWebGL2 = false;
                 }
+
+                const deviceCtors: Constructor<Device>[] = [];
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    ctors.push(legacyCC.WebGL2Device);
+                    deviceCtors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    ctors.push(legacyCC.WebGLDevice);
+                    deviceCtors.push(legacyCC.WebGLDevice);
+                }
+                if (legacyCC.EmptyDevice) {
+                    deviceCtors.push(legacyCC.EmptyDevice);
                 }
 
-                for (let i = 0; i < ctors.length; i++) {
-                    this._gfxDevice = new ctors[i]();
-                    if (this._gfxDevice.initialize(opts)) { break; }
+                Device.canvas = this.canvas!;
+                for (let i = 0; i < deviceCtors.length; i++) {
+                    this._gfxDevice = new deviceCtors[i]();
+                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
             }
+        } else if (this.renderType === Game.RENDER_TYPE_HEADLESS && legacyCC.EmptyDevice) {
+            this._gfxDevice = new legacyCC.EmptyDevice();
+            this._gfxDevice!.initialize(new DeviceInfo(bindingMappingInfo));
         }
 
         if (!this._gfxDevice) {
@@ -865,6 +910,12 @@ export class Game extends EventTarget {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             return;
         }
+
+        const swapchainInfo = new SwapchainInfo(this.canvas!);
+        const windowSize = screen.windowSize;
+        swapchainInfo.width = windowSize.width;
+        swapchainInfo.height = windowSize.height;
+        this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         this.canvas!.oncontextmenu = () => false;
     }

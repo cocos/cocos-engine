@@ -466,6 +466,7 @@ prototype._onPreDestroy = null;
 
 CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
 CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
+CCClass.Attr.setClassAttr(CCObject, 'replicated', 'visible', false);
 
 /**
  * Bit mask that controls object states.

@@ -26,34 +26,31 @@
 /**
  * @category pipeline
  */
-
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { SetIndex } from '../define';
-import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
+import { Color, Rect, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from './enum';
-import { LightingFlow } from './lighting-flow';
-import { DeferredPipeline } from './deferred-pipeline';
+import { CommonStagePriority } from '../enum';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { UIPhase } from '../forward/ui-phase';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-import { getPhaseID } from '../pass-phase';
+import { RenderQueueDesc } from '../pipeline-serialization';
+import { renderProfiler } from '../pipeline-funcs';
+import { RenderFlow, RenderPipeline } from '..';
+import { UIPhase } from '../ui-phase';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
 /**
- * @en The postprocess render stage
- * @zh 前向渲染阶段。
- */
-@ccclass('PostprocessStage')
-export class PostprocessStage extends RenderStage {
+  * @en The postprocess render stage
+  * @zh 后处理渲染阶段。
+  */
+@ccclass('PostProcessStage')
+export class PostProcessStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
-        name: 'PostprocessStage',
-        priority: DeferredStagePriority.POSTPROCESS,
+        name: 'PostProcessStage',
+        priority: CommonStagePriority.POST_PROCESS,
         tag: 0,
     };
 
@@ -68,7 +65,7 @@ export class PostprocessStage extends RenderStage {
     private renderQueues: RenderQueueDesc[] = [];
 
     private _renderArea = new Rect();
-    private _uiPhase: UIPhase;
+    private declare _uiPhase: UIPhase;
 
     constructor () {
         super();
@@ -80,31 +77,31 @@ export class PostprocessStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
+    public activate (pipeline: RenderPipeline, flow: RenderFlow) {
         super.activate(pipeline, flow);
+        if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).postprocessMaterial = this._postProcessMaterial; }
         this._uiPhase.activate(pipeline);
-        if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredPostMaterial = this._postProcessMaterial; }
     }
 
     public destroy () {
     }
 
     public render (camera: Camera) {
-        const pipeline = this._pipeline as DeferredPipeline;
+        const pipeline = this._pipeline;
         const device = pipeline.device;
         const sceneData = pipeline.pipelineSceneData;
         const cmdBuff = pipeline.commandBuffers[0];
-
         pipeline.pipelineUBO.updateCameraUBO(camera);
 
         const vp = camera.viewport;
-        this._renderArea.x = vp.x * camera.width;
-        this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width * sceneData.shadingScale;
-        this._renderArea.height = vp.height * camera.height * sceneData.shadingScale;
-
-        const framebuffer = camera.window!.framebuffer;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
+        this._renderArea.x = vp.x * camera.window.width;
+        this._renderArea.y = vp.y * camera.window.height;
+        this._renderArea.width = vp.width * camera.window.width;
+        this._renderArea.height = vp.height * camera.window.height;
+        const renderData = pipeline.getPipelineRenderData();
+        const framebuffer = camera.window.framebuffer;
+        const swapchain = camera.window.swapchain;
+        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag, swapchain) : framebuffer.renderPass;
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;
@@ -116,17 +113,24 @@ export class PostprocessStage extends RenderStage {
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
-
         // Postprocess
-        const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMaterial;
+        const builtinPostProcess = (sceneData as DeferredPipelineSceneData).postprocessMaterial;
         const pass = builtinPostProcess.passes[0];
         const shader = pass.getShaderVariant();
+
+        if (pipeline.bloomEnabled) {
+            pass.descriptorSet.bindTexture(0, renderData.bloom!.combineTex);
+        } else {
+            pass.descriptorSet.bindTexture(0, renderData.outputRenderTargets[0]);
+        }
+        pass.descriptorSet.bindSampler(0, renderData.sampler);
+        pass.descriptorSet.update();
+
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
-        const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
-        let pso:PipelineState|null = null;
+        const inputAssembler = camera.window.swapchain ? pipeline.quadIAOnscreen : pipeline.quadIAOffscreen;
+        let pso: PipelineState | null = null;
         if (pass != null && shader != null && inputAssembler != null) {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
@@ -137,8 +141,8 @@ export class PostprocessStage extends RenderStage {
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }
-
         this._uiPhase.render(camera, renderPass);
+        renderProfiler(device, renderPass, cmdBuff, pipeline.profiler, camera);
 
         cmdBuff.endRenderPass();
     }

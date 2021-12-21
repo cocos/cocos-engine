@@ -72,11 +72,24 @@ export class NodeUIProperties {
     private _uiComp: UIComponent | Renderable2D | null = null;
 
     /**
-     * @en The opacity of the UI node
-     * @zh UI 透明度
+     * @en The opacity of the UI node for final rendering
+     * @zh 最终显示的 UI 透明度，受父节点透明度影响
      */
-    public opacity = 1;
-    public localOpacity = 1;
+    private _opacity = 1;
+    public get opacity () { return this._opacity; }
+
+    /**
+     * @en The opacity of the UI node itself
+     * @zh 本节点的 UI 透明度
+     */
+    private _localOpacity = 1;
+    get localOpacity () { return this._localOpacity; }
+    set localOpacity (val) {
+        this._localOpacity = val;
+        NodeUIProperties.markOpacityTree(this._node);
+    }
+
+    public opacityDirty = true;
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 
@@ -99,6 +112,22 @@ export class NodeUIProperties {
                 });
         } else {
             this.uiTransformDirty = false;
+        }
+    }
+
+    public applyOpacity (effectOpacity) {
+        this._opacity = this._localOpacity * effectOpacity;
+    }
+
+    /**
+     * @en Make the opacity state of node tree is dirty
+     * @zh 为结点树的透明度状态设置脏标签
+     */
+    public static markOpacityTree (node, isDirty = true) {
+        node._uiProps.opacityDirty = isDirty;
+        for (let i = 0, l = node.children.length; i < l; i++) {
+            const c = node.children[i];
+            NodeUIProperties.markOpacityTree(c, isDirty);
         }
     }
 }

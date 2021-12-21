@@ -21,6 +21,9 @@
 #pragma define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS default(1024)
 #pragma define CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS default(128)
 #pragma define CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS default(128)
+#pragma define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT default(0)
+// use cluster shading or not
+#pragma define CC_ENABLE_CLUSTERED_LIGHT_CULLING default(0)
 // When sampling RTs, Y-flip is needed if the screen space sign Y is positive (pointing upwards)
 #define CC_HANDLE_RT_SAMPLE_FLIP(uv) uv = cc_cameraPos.w > 1.0 ? vec2(uv.x, 1.0 - uv.y) : uv
 #define CC_HANDLE_GET_CLIP_FLIP(uv) uv = cc_cameraPos.w == 0.0 ? vec2(uv.x, -uv.y) : uv
@@ -34,4 +37,9 @@ highp float decode32 (highp vec4 rgba) {
   highp float Exponent = 2.0 * MOD_FINT_128(rgba[3]) + STEP_FINT_128(rgba[2]) - 127.0;
   highp float Mantissa = MOD_FINT_128(rgba[2]) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
   return Sign * exp2(Exponent - 23.0) * Mantissa;
+}
+
+float isNan(float val) 
+{ 
+    return (val <= 0.0 || 0.0 <= val) ? 0.0 : 1.0; 
 }

@@ -28,16 +28,25 @@
  * @module pipeline
  */
 
-import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { legacyCC } from '../global-exports';
+import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
+import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../assets/asset';
-import { RenderFlow } from './render-flow';
+import { AccessType, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer,
+    DepthStencilAttachment, DescriptorSet, Device, Feature, Format, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo,
+    LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo,
+    TextureType, TextureUsageBit, Viewport } from '../gfx';
+import { legacyCC } from '../global-exports';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, Feature, Rect } from '../gfx';
-import { Camera } from '../renderer/scene/camera';
-import { PipelineUBO } from './pipeline-ubo';
-import { PipelineSceneData } from './pipeline-scene-data';
+import { RenderWindow } from '../renderer/core/render-window';
+import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
+import { Model } from '../renderer/scene/model';
+import { Root } from '../root';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { PipelineSceneData } from './pipeline-scene-data';
+import { PipelineUBO } from './pipeline-ubo';
+import { RenderFlow } from './render-flow';
+import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+import { decideProfilerCamera } from './pipeline-funcs';
 
 /**
  * @en Render pipeline information descriptor
@@ -46,6 +55,42 @@ import { GlobalDSManager } from './global-descriptor-set-manager';
 export interface IRenderPipelineInfo {
     flows: RenderFlow[];
     tag?: number;
+}
+
+export const MAX_BLOOM_FILTER_PASS_NUM = 6;
+
+const tmpRect = new Rect();
+const tmpViewport = new Viewport();
+
+export class BloomRenderData {
+    renderPass: RenderPass = null!;
+
+    sampler: Sampler = null!;
+
+    prefiterTex: Texture = null!;
+    downsampleTexs: Texture[] = [];
+    upsampleTexs: Texture[] = [];
+    combineTex: Texture = null!;
+
+    prefilterFramebuffer: Framebuffer = null!;
+    downsampleFramebuffers: Framebuffer[] = [];
+    upsampleFramebuffers: Framebuffer[] = [];
+    combineFramebuffer: Framebuffer = null!;
+}
+
+export class PipelineRenderData {
+    outputFrameBuffer: Framebuffer = null!;
+    outputRenderTargets: Texture[] = [];
+    outputDepth: Texture = null!;
+    sampler: Sampler = null!;
+
+    bloom: BloomRenderData | null = null;
+}
+
+export class PipelineInputAssemblerData {
+    quadIB: Buffer|null = null;
+    quadVB: Buffer|null = null;
+    quadIA: InputAssembler|null = null;
 }
 
 /**
@@ -57,7 +102,7 @@ export interface IRenderPipelineInfo {
  * 渲染流程函数 [[render]] 会由 [[Root]] 发起调用并对所有 [[Camera]] 执行预设的渲染流程。
  */
 @ccclass('cc.RenderPipeline')
-export abstract class RenderPipeline extends Asset {
+export abstract class RenderPipeline extends Asset implements IPipelineEvent {
     /**
      * @en The tag of pipeline.
      * @zh 管线的标签。
@@ -94,6 +139,29 @@ export abstract class RenderPipeline extends Asset {
     @type([RenderFlow])
     @serializable
     protected _flows: RenderFlow[] = [];
+
+    protected _quadIB: Buffer | null = null;
+    protected _quadVBOnscreen: Buffer | null = null;
+    protected _quadVBOffscreen: Buffer | null = null;
+    protected _quadIAOnscreen: InputAssembler | null = null;
+    protected _quadIAOffscreen: InputAssembler | null = null;
+    protected _eventProcessor: PipelineEventProcessor = new PipelineEventProcessor();
+
+    /**
+     * @zh
+     * 四边形输入汇集器。
+     */
+    public get quadIAOnscreen (): InputAssembler {
+        return this._quadIAOnscreen!;
+    }
+
+    public get quadIAOffscreen (): InputAssembler {
+        return this._quadIAOffscreen!;
+    }
+
+    public getPipelineRenderData (): PipelineRenderData {
+        return this._pipelineRenderData!;
+    }
 
     /**
      * @en
@@ -145,6 +213,30 @@ export abstract class RenderPipeline extends Asset {
         return this._pipelineSceneData;
     }
 
+    set profiler (value) {
+        this._profiler = value;
+    }
+
+    get profiler () {
+        return this._profiler;
+    }
+
+    set clusterEnabled (value) {
+        this._clusterEnabled = value;
+    }
+
+    get clusterEnabled () {
+        return this._clusterEnabled;
+    }
+
+    set bloomEnabled (value) {
+        this._bloomEnabled = value;
+    }
+
+    get bloomEnabled () {
+        return this._bloomEnabled;
+    }
+
     protected _device!: Device;
     protected _globalDSManager!: GlobalDSManager;
     protected _descriptorSet!: DescriptorSet;
@@ -152,7 +244,15 @@ export abstract class RenderPipeline extends Asset {
     protected _pipelineUBO = new PipelineUBO();
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
+    protected _profiler: Model | null = null;
     protected declare _pipelineSceneData: PipelineSceneData;
+    protected _pipelineRenderData: PipelineRenderData | null = null;
+    protected _renderPasses = new Map<ClearFlags, RenderPass>();
+    protected _width = 0;
+    protected _height = 0;
+    protected _lastUsedRenderArea: Rect = new Rect();
+    protected _clusterEnabled = false;
+    protected _bloomEnabled = false;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -165,47 +265,126 @@ export abstract class RenderPipeline extends Asset {
         return true;
     }
 
+    public createRenderPass (clearFlags: ClearFlags, colorFmt: Format, depthFmt: Format): RenderPass {
+        const device = this._device;
+        const colorAttachment = new ColorAttachment();
+        const depthStencilAttachment = new DepthStencilAttachment();
+        colorAttachment.format = colorFmt;
+        depthStencilAttachment.format = depthFmt;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+
+        if (!(clearFlags & ClearFlagBit.COLOR)) {
+            if (clearFlags & SKYBOX_FLAG) {
+                colorAttachment.loadOp = LoadOp.DISCARD;
+            } else {
+                colorAttachment.loadOp = LoadOp.LOAD;
+                colorAttachment.beginAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+            }
+        }
+
+        if ((clearFlags & ClearFlagBit.DEPTH_STENCIL) !== ClearFlagBit.DEPTH_STENCIL) {
+            if (!(clearFlags & ClearFlagBit.DEPTH)) depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
+            if (!(clearFlags & ClearFlagBit.STENCIL)) depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
+        }
+        depthStencilAttachment.beginAccesses = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE];
+
+        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
+
+        return device.createRenderPass(renderPassInfo);
+    }
+
+    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
+        let renderPass = this._renderPasses.get(clearFlags);
+        if (renderPass) { return renderPass; }
+        renderPass = this.createRenderPass(clearFlags, swapchain.colorTexture.format, swapchain.depthStencilTexture.format);
+        this._renderPasses.set(clearFlags, renderPass);
+        return renderPass;
+    }
+
+    public applyFramebufferRatio (framebuffer: Framebuffer) {
+        const sceneData = this.pipelineSceneData;
+        const width = this._width * sceneData.shadingScale;
+        const height = this._height * sceneData.shadingScale;
+        const colorTexArr: any = framebuffer.colorTextures;
+        for (let i = 0; i < colorTexArr.length; i++) {
+            colorTexArr[i]!.resize(width, height);
+        }
+        if (framebuffer.depthStencilTexture) {
+            framebuffer.depthStencilTexture.resize(width, height);
+        }
+        framebuffer.destroy();
+        framebuffer.initialize(new FramebufferInfo(
+            framebuffer.renderPass,
+            colorTexArr,
+            framebuffer.depthStencilTexture,
+        ));
+    }
+
     /**
      * @en generate renderArea by camera
      * @zh 生成renderArea
      * @param camera the camera
      * @returns
      */
-    public generateRenderArea (camera: Camera): Rect {
-        const res = new Rect();
+    public generateRenderArea (camera: Camera, out: Rect) {
         const vp = camera.viewport;
-        const sceneData = this.pipelineSceneData;
-        // render area is not oriented
-        const w = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.width : camera.height;
-        res.x = vp.x * w;
-        res.y = vp.y * h;
-        res.width = vp.width * w * sceneData.shadingScale;
-        res.height = vp.height * h * sceneData.shadingScale;
-        return res;
+        const w = camera.window.width;
+        const h = camera.window.height;
+        out.x = vp.x * w;
+        out.y = vp.y * h;
+        out.width = vp.width * w;
+        out.height = vp.height * h;
+    }
+
+    public generateViewport (camera: Camera, out?: Viewport): Viewport {
+        this.generateRenderArea(camera, tmpRect);
+        if (!out) out = tmpViewport;
+        const shadingScale = this.pipelineSceneData.shadingScale;
+        out.left = tmpRect.x * shadingScale;
+        out.top = tmpRect.y * shadingScale;
+        out.width = tmpRect.width * shadingScale;
+        out.height = tmpRect.height * shadingScale;
+        return out;
+    }
+
+    public generateScissor (camera: Camera, out?: Rect): Rect {
+        if (!out) out = tmpRect;
+        this.generateRenderArea(camera, out);
+        const shadingScale = this.pipelineSceneData.shadingScale;
+        out.x *= shadingScale;
+        out.y *= shadingScale;
+        out.width *= shadingScale;
+        out.height *= shadingScale;
+        return out;
     }
 
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
+     * TODO: remove swapchain dependency at this stage
+     * after deferred pipeline can handle multiple swapchains
      */
-    public activate (): boolean {
-        this._device = legacyCC.director.root.device;
+    public activate (swapchain: Swapchain): boolean {
+        const root = legacyCC.director.root as Root;
+        this._device = root.device;
+        this._generateConstantMacros();
         this._globalDSManager = new GlobalDSManager(this);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
+        // update global defines in advance here for deferred pipeline may tryCompile shaders.
+        this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._generateConstantMacros();
         this._pipelineSceneData.activate(this._device, this);
 
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
         }
 
-        // update global defines when all states initialized.
-        this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
-        this._generateConstantMacros();
-
         return true;
     }
+
+    protected _ensureEnoughSize (cameras: Camera[]) {}
 
     /**
      * @en Render function, it basically run the render process of all flows in sequence for the given view.
@@ -213,14 +392,218 @@ export abstract class RenderPipeline extends Asset {
      * @param view Render view。
      */
     public render (cameras: Camera[]) {
+        if (cameras.length === 0) {
+            return;
+        }
+        this._commandBuffers[0].begin();
+        this.emit(PipelineEventType.RENDER_FRAME_BEGIN, cameras);
+        this._ensureEnoughSize(cameras);
+        decideProfilerCamera(cameras);
+
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
+                this.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
+                validPunctualLightsCulling(this, camera);
+                sceneCulling(this, camera);
+                this._pipelineUBO.updateGlobalUBO(camera.window);
+                this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }
+                this.emit(PipelineEventType.RENDER_CAMERA_END, camera);
             }
         }
+        this.emit(PipelineEventType.RENDER_FRAME_END, cameras);
+        this._commandBuffers[0].end();
+        this._device.queue.submit(this._commandBuffers);
+    }
+
+    /**
+     * @zh
+     * 销毁四边形输入汇集器。
+     */
+    protected _destroyQuadInputAssembler () {
+        if (this._quadIB) {
+            this._quadIB.destroy();
+            this._quadIB = null;
+        }
+
+        if (this._quadVBOnscreen) {
+            this._quadVBOnscreen.destroy();
+            this._quadVBOnscreen = null;
+        }
+
+        if (this._quadVBOffscreen) {
+            this._quadVBOffscreen.destroy();
+            this._quadVBOffscreen = null;
+        }
+
+        if (this._quadIAOnscreen) {
+            this._quadIAOnscreen.destroy();
+            this._quadIAOnscreen = null;
+        }
+
+        if (this._quadIAOffscreen) {
+            this._quadIAOffscreen.destroy();
+            this._quadIAOffscreen = null;
+        }
+    }
+
+    protected _destroyBloomData () {
+        const bloom = this._pipelineRenderData!.bloom;
+        if (bloom === null) return;
+
+        if (bloom.prefiterTex) bloom.prefiterTex.destroy();
+        if (bloom.prefilterFramebuffer) bloom.prefilterFramebuffer.destroy();
+
+        for (let i = 0; i < bloom.downsampleTexs.length; ++i) {
+            bloom.downsampleTexs[i].destroy();
+            bloom.downsampleFramebuffers[i].destroy();
+        }
+        bloom.downsampleTexs.length = 0;
+        bloom.downsampleFramebuffers.length = 0;
+
+        for (let i = 0; i < bloom.upsampleTexs.length; ++i) {
+            bloom.upsampleTexs[i].destroy();
+            bloom.upsampleFramebuffers[i].destroy();
+        }
+        bloom.upsampleTexs.length = 0;
+        bloom.upsampleFramebuffers.length = 0;
+
+        if (bloom.combineTex) bloom.combineTex.destroy();
+        if (bloom.combineFramebuffer) bloom.combineFramebuffer.destroy();
+
+        bloom.renderPass?.destroy();
+
+        this._pipelineRenderData!.bloom = null;
+    }
+
+    private _genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+        const vbData = new Float32Array(4 * 4);
+
+        const minX = renderArea.x / this._width;
+        const maxX = (renderArea.x + renderArea.width) / this._width;
+        let minY = renderArea.y / this._height;
+        let maxY = (renderArea.y + renderArea.height) / this._height;
+        if (this.device.capabilities.screenSpaceSignY > 0) {
+            const temp = maxY;
+            maxY       = minY;
+            minY       = temp;
+        }
+        let n = 0;
+        switch (surfaceTransform) {
+        case (SurfaceTransform.IDENTITY):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_90):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = minY;
+            break;
+        case (SurfaceTransform.ROTATE_180):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        case (SurfaceTransform.ROTATE_270):
+            n = 0;
+            vbData[n++] = -1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = -1.0; vbData[n++] = minX; vbData[n++] = maxY;
+            vbData[n++] = -1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = minY;
+            vbData[n++] = 1.0; vbData[n++] = 1.0; vbData[n++] = maxX; vbData[n++] = maxY;
+            break;
+        default:
+            break;
+        }
+
+        return vbData;
+    }
+
+    /**
+     * @zh
+     * 创建四边形输入汇集器。
+     */
+    protected _createQuadInputAssembler (): PipelineInputAssemblerData {
+        // create vertex buffer
+        const inputAssemblerData = new PipelineInputAssemblerData();
+
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
+        const vbSize = vbStride * 4;
+
+        const quadVB = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
+            vbSize,
+            vbStride,
+        ));
+
+        if (!quadVB) {
+            return inputAssemblerData;
+        }
+
+        // create index buffer
+        const ibStride = Uint8Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 6;
+
+        const quadIB = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.DEVICE,
+            ibSize,
+            ibStride,
+        ));
+
+        if (!quadIB) {
+            return inputAssemblerData;
+        }
+
+        const indices = new Uint8Array(6);
+        indices[0] = 0; indices[1] = 1; indices[2] = 2;
+        indices[3] = 1; indices[4] = 3; indices[5] = 2;
+
+        quadIB.update(indices);
+
+        // create input assembler
+
+        const attributes = new Array<Attribute>(2);
+        attributes[0] = new Attribute('a_position', Format.RG32F);
+        attributes[1] = new Attribute('a_texCoord', Format.RG32F);
+
+        const quadIA = this._device.createInputAssembler(new InputAssemblerInfo(
+            attributes,
+            [quadVB],
+            quadIB,
+        ));
+
+        inputAssemblerData.quadIB = quadIB;
+        inputAssemblerData.quadVB = quadVB;
+        inputAssemblerData.quadIA = quadIA;
+        return inputAssemblerData;
+    }
+
+    public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
+        const cachedArea = this._lastUsedRenderArea;
+        if (cachedArea.x === renderArea.x
+            && cachedArea.y === renderArea.y
+            && cachedArea.width === renderArea.width
+            && cachedArea.height === renderArea.height) {
+            return;
+        }
+
+        const offData = this._genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
+        this._quadVBOffscreen!.update(offData);
+        const onData = this._genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea);
+        this._quadVBOnscreen!.update(onData);
+
+        cachedArea.copy(renderArea);
     }
 
     /**
@@ -249,18 +632,169 @@ export abstract class RenderPipeline extends Asset {
         return super.destroy();
     }
 
-    /**
-     * @en Device size change.
-     * @zh 设备尺寸重置。
-     */
-    public resize (width: number, height: number) {}
-
     protected _generateConstantMacros () {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;
+        str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${this._clusterEnabled ? 1 : 0}\n`;
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
+        str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this.device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
         this._constantMacros = str;
+    }
+
+    public generateBloomRenderData () {
+        if (this._pipelineRenderData!.bloom != null) return;
+
+        const bloom = this._pipelineRenderData!.bloom = new BloomRenderData();
+        const device = this.device;
+
+        // create renderPass
+        const colorAttachment = new ColorAttachment();
+        colorAttachment.format = Format.RGBA8;
+        colorAttachment.loadOp = LoadOp.CLEAR;
+        colorAttachment.storeOp = StoreOp.STORE;
+        colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
+        bloom.renderPass = device.createRenderPass(new RenderPassInfo([colorAttachment]));
+
+        let curWidth = this._width;
+        let curHeight = this._height;
+
+        // prefilter
+        bloom.prefiterTex = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA8,
+            curWidth >> 1,
+            curHeight >> 1,
+        ));
+        bloom.prefilterFramebuffer = device.createFramebuffer(new FramebufferInfo(
+            bloom.renderPass,
+            [bloom.prefiterTex],
+        ));
+
+        // downsample & upsample
+        curWidth >>= 1;
+        curHeight >>= 1;
+        for (let i = 0; i < MAX_BLOOM_FILTER_PASS_NUM; ++i) {
+            bloom.downsampleTexs.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                curWidth >> 1,
+                curHeight >> 1,
+            )));
+            bloom.downsampleFramebuffers[i] = device.createFramebuffer(new FramebufferInfo(
+                bloom.renderPass,
+                [bloom.downsampleTexs[i]],
+            ));
+
+            bloom.upsampleTexs.push(device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                curWidth,
+                curHeight,
+            )));
+            bloom.upsampleFramebuffers[i] = device.createFramebuffer(new FramebufferInfo(
+                bloom.renderPass,
+                [bloom.upsampleTexs[i]],
+            ));
+
+            curWidth >>= 1;
+            curHeight >>= 1;
+        }
+
+        // combine
+        bloom.combineTex = device.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+            Format.RGBA8,
+            this._width,
+            this._height,
+        ));
+        bloom.combineFramebuffer = device.createFramebuffer(new FramebufferInfo(
+            bloom.renderPass,
+            [bloom.combineTex],
+        ));
+
+        // sampler
+        bloom.sampler = this.globalDSManager.linearSampler;
+    }
+
+    /**
+     * @en
+     * Register an callback of the pipeline event type on the RenderPipeline.
+     * @zh
+     * 在渲染管线中注册管线事件类型的回调。
+     */
+    public on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback {
+        return this._eventProcessor.on(type, callback, target, once);
+    }
+
+    /**
+     * @en
+     * Register an callback of the pipeline event type on the RenderPipeline,
+     * the callback will remove itself after the first time it is triggered.
+     * @zh
+     * 在渲染管线中注册管线事件类型的回调, 回调后会在第一时间删除自身。
+     */
+    public once (type: PipelineEventType, callback: any, target?: any): typeof callback {
+        return this._eventProcessor.once(type, callback, target);
+    }
+
+    /**
+     * @en
+     * Removes the listeners previously registered with the same type, callback, target and or useCapture,
+     * if only type is passed as parameter, all listeners registered with that type will be removed.
+     * @zh
+     * 删除之前用同类型、回调、目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
+     */
+    public off (type: PipelineEventType, callback?: any, target?: any) {
+        this._eventProcessor.off(type, callback, target);
+    }
+
+    /**
+     * @zh 派发一个指定事件，并传递需要的参数
+     * @en Trigger an event directly with the event name and necessary arguments.
+     * @param type - event type
+     * @param args - Arguments when the event triggered
+     */
+    public emit (type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
+        this._eventProcessor.emit(type, arg0, arg1, arg2, arg3, arg4);
+    }
+
+    /**
+     * @en Removes all callbacks previously registered with the same target (passed as parameter).
+     * This is not for removing all listeners in the current event target,
+     * and this is not for removing all listeners the target parameter have registered.
+     * It's only for removing all listeners (callback and target couple) registered on the current event target by the target parameter.
+     * @zh 在当前 EventTarget 上删除指定目标（target 参数）注册的所有事件监听器。
+     * 这个函数无法删除当前 EventTarget 的所有事件监听器，也无法删除 target 参数所注册的所有事件监听器。
+     * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
+     * @param typeOrTarget - The target to be searched for all related listeners
+     */
+    public targetOff (typeOrTarget: any) {
+        this._eventProcessor.targetOff(typeOrTarget);
+    }
+
+    /**
+     * @zh 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
+     * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
+     * @param typeOrTarget - The event type or target with which the listeners will be removed
+     */
+    public removeAll (typeOrTarget: any) {
+        this._eventProcessor.removeAll(typeOrTarget);
+    }
+
+    /**
+     * @zh 检查指定事件是否已注册回调。
+     * @en Checks whether there is correspond event listener registered on the given event.
+     * @param type - Event type.
+     * @param callback - Callback function when event triggered.
+     * @param target - Callback callee.
+     */
+    public hasEventListener (type: PipelineEventType, callback?: any, target?: any): boolean {
+        return this._eventProcessor.hasEventListener(type, callback, target);
     }
 }
 

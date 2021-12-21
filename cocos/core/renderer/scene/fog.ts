@@ -24,9 +24,12 @@
  */
 
 import { Enum } from '../../value-types';
-import { Color } from '../../math';
+import { Color, Vec4 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { FogInfo } from '../../scene-graph/scene-globals';
+import { SRGBToLinear } from '../../pipeline/pipeline-funcs';
+
+const _v4 = new Vec4();
 
 /**
  * @zh
@@ -80,12 +83,29 @@ export class Fog {
      */
     set enabled (val: boolean) {
         this._enabled = val;
-        if (!val) this._type = FOG_TYPE_NONE;
-        val ? this.activate() : this._updatePipeline();
+        if (!val) {
+            this._type = FOG_TYPE_NONE;
+            this._updatePipeline();
+        } else {
+            this.activate();
+        }
     }
 
     get enabled (): boolean {
         return this._enabled;
+    }
+
+    /**
+     * @zh 是否启用精确雾效(像素雾)计算
+     * @en Enable accurate fog (pixel fog)
+     */
+    set accurate (val: boolean) {
+        this._accurate = val;
+        this._updatePipeline();
+    }
+
+    get accurate (): boolean {
+        return this._accurate;
     }
 
     /**
@@ -94,7 +114,9 @@ export class Fog {
      */
     set fogColor (val: Color) {
         this._fogColor.set(val);
-        Color.toArray(this._colorArray, this._fogColor);
+
+        _v4.set(val.x, val.y, val.z, val.w);
+        SRGBToLinear(this._colorArray, _v4);
     }
 
     get fogColor () {
@@ -190,12 +212,13 @@ export class Fog {
     set fogRange (val: number) {
         this._fogRange = val;
     }
-    get colorArray (): Float32Array {
+    get colorArray (): Readonly<Vec4> {
         return this._colorArray;
     }
     protected _fogColor = new Color('#C8C8C8');
-    protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
+    protected _colorArray: Vec4 = new Vec4(0.2, 0.2, 0.2, 1.0);
     protected _enabled = false;
+    protected _accurate = false;
     protected _type = 0;
     protected _fogDensity = 0.3;
     protected _fogStart = 0.5;
@@ -208,6 +231,7 @@ export class Fog {
         this.fogColor = fogInfo.fogColor;
         this._enabled = fogInfo.enabled;
         this._type = this.enabled ? fogInfo.type : FOG_TYPE_NONE;
+        this._accurate = fogInfo.accurate;
         this.fogDensity = fogInfo.fogDensity;
         this.fogStart = fogInfo.fogStart;
         this.fogEnd = fogInfo.fogEnd;
@@ -223,9 +247,13 @@ export class Fog {
     protected _updatePipeline () {
         const root = legacyCC.director.root;
         const value = this.enabled ? this.type : FOG_TYPE_NONE;
+        const accurateValue = this.accurate ? 1 : 0;
         const pipeline = root.pipeline;
-        if (pipeline.macros.CC_USE_FOG === value) { return; }
+        if (pipeline.macros.CC_USE_FOG === value && pipeline.macros.CC_USE_ACCURATE_FOG === accurateValue) {
+            return;
+        }
         pipeline.macros.CC_USE_FOG = value;
+        pipeline.macros.CC_USE_ACCURATE_FOG = accurateValue;
         root.onGlobalPipelineStateChanged();
     }
 }

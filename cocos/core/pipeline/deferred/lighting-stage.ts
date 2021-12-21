@@ -31,22 +31,21 @@ import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../renderer/scene';
 import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
-import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
+import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
-import { DeferredStagePriority } from './enum';
-import { LightingFlow } from './lighting-flow';
+import { DeferredStagePriority } from '../enum';
+import { MainFlow } from './main-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
-import { SRGBToLinear } from '../pipeline-funcs';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
-import { Pass } from '../../renderer/core/pass';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';
+import { UIPhase } from '../ui-phase';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -64,6 +63,7 @@ export class LightingStage extends RenderStage {
     private _descriptorSetLayout!: DescriptorSetLayout;
     private _renderArea = new Rect();
     private declare _planarQueue: PlanarShadowQueue;
+    private _uiPhase: UIPhase;
 
     @type(Material)
     @serializable
@@ -75,7 +75,6 @@ export class LightingStage extends RenderStage {
     @displayOrder(2)
     private renderQueues: RenderQueueDesc[] = [];
     private _phaseID = getPhaseID('default');
-    private _defPhaseID = getPhaseID('deferred');
     private _renderQueues: RenderQueue[] = [];
 
     public static initInfo: IRenderStageInfo = {
@@ -83,6 +82,12 @@ export class LightingStage extends RenderStage {
         priority: DeferredStagePriority.LIGHTING,
         tag: 0,
     };
+
+    constructor () {
+        super();
+        this._uiPhase = new UIPhase();
+    }
+
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         return true;
@@ -120,9 +125,9 @@ export class LightingStage extends RenderStage {
                 }
 
                 if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
-                } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
                 }
 
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
@@ -153,9 +158,9 @@ export class LightingStage extends RenderStage {
                     _vec4Array[2] *= tempRGB.z;
                 }
                 if (pipeline.pipelineSceneData.isHDR) {
-                    _vec4Array[3] = light.luminance * pipeline.pipelineSceneData.fpScale * this._lightMeterScale;
-                } else {
                     _vec4Array[3] = light.luminance * exposure * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = light.luminance;
                 }
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 
@@ -178,9 +183,9 @@ export class LightingStage extends RenderStage {
         cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
     }
 
-    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
-
+        this._uiPhase.activate(pipeline);
         const device = pipeline.device;
 
         // activate queue
@@ -224,9 +229,6 @@ export class LightingStage extends RenderStage {
         const cmdBuff = pipeline.commandBuffers[0];
         const sceneData = pipeline.pipelineSceneData;
         const renderObjects = sceneData.renderObjects;
-        if (renderObjects.length === 0) {
-            return;
-        }
 
         // light信息
         this.gatherLights(camera);
@@ -236,36 +238,38 @@ export class LightingStage extends RenderStage {
         const dynamicOffsets: number[] = [0];
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet, dynamicOffsets);
 
-        this._renderArea = pipeline.generateRenderArea(camera);
+        pipeline.generateRenderArea(camera, this._renderArea);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
-            if (sceneData.isHDR) {
-                SRGBToLinear(colors[0], camera.clearColor);
-                const scale = sceneData.fpScale / camera.exposure;
-                colors[0].x *= scale;
-                colors[0].y *= scale;
-                colors[0].z *= scale;
-            } else {
-                colors[0].x = camera.clearColor.x;
-                colors[0].y = camera.clearColor.y;
-                colors[0].z = camera.clearColor.z;
-            }
+            colors[0].x = camera.clearColor.x;
+            colors[0].y = camera.clearColor.y;
+            colors[0].z = camera.clearColor.z;
         }
 
         colors[0].w = 0;
-        const deferredData = pipeline.getDeferredRenderData(camera);
-        const framebuffer = deferredData.lightingFrameBuffer!;
+        const deferredData = pipeline.getPipelineRenderData();
+        const framebuffer = deferredData.outputFrameBuffer;
         const renderPass = framebuffer.renderPass;
+
+        pipeline.pipelineUBO.updateShadowUBO(camera);
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);
-
+        cmdBuff.setScissor(pipeline.generateScissor(camera));
+        cmdBuff.setViewport(pipeline.generateViewport(camera));
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
         const lightingMat = (sceneData as DeferredPipelineSceneData).deferredLightingMaterial;
         const pass = lightingMat.passes[0];
         const shader = pass.getShaderVariant();
+
+        for (let i = 0; i < 4; ++i) {
+            pass.descriptorSet.bindTexture(i, deferredData.gbufferRenderTargets[i]);
+            pass.descriptorSet.bindSampler(i, deferredData.sampler);
+        }
+        pass.descriptorSet.update();
+
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
         const inputAssembler = pipeline.quadIAOffscreen;
@@ -292,23 +296,23 @@ export class LightingStage extends RenderStage {
                 const passes = subModel.passes;
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
-                    // TODO: need fallback of ulit and gizmo material.
-                    if (pass.phase !== this._phaseID && pass.phase !== this._defPhaseID) continue;
+                    if (pass.phase !== this._phaseID) continue;
                     for (k = 0; k < this._renderQueues.length; k++) {
                         this._renderQueues[k].insertRenderPass(ro, m, p);
                     }
                 }
             }
         }
+        if (renderObjects.length > 0) {
+            this._renderQueues.forEach(renderQueueSortFunc);
+            for (let i = 0; i < this._renderQueues.length; i++) {
+                this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+            }
 
-        this._renderQueues.forEach(renderQueueSortFunc);
-        for (let i = 0; i < this._renderQueues.length; i++) {
-            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
+            // planarQueue
+            this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         }
-
-        // planarQueue
-        this._planarQueue.recordCommandBuffer(device, renderPass, cmdBuff);
-
+        this._uiPhase.render(camera, renderPass);
         cmdBuff.endRenderPass();
     }
 }

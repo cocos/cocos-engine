@@ -33,11 +33,12 @@ import { CCObject } from '../data/object';
 import * as js from '../utils/js';
 import { legacyCC } from '../global-exports';
 import { error, errorID, getError } from '../platform/debug';
+import { Component } from '../components';
 
 const Destroying = CCObject.Flags.Destroying;
 
 export function baseNodePolyfill (BaseNode) {
-    if (EDITOR) {
+    if (EDITOR || TEST) {
         BaseNode.prototype._checkMultipleComp = function (ctor) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
@@ -71,7 +72,7 @@ export function baseNodePolyfill (BaseNode) {
             const ctor = comp.constructor;
             if (ctor._disallowMultiple) {
                 if (!this._checkMultipleComp(ctor)) {
-                    return;
+                    return undefined;
                 }
             }
 
@@ -100,24 +101,34 @@ export function baseNodePolyfill (BaseNode) {
             if (this._activeInHierarchy) {
                 legacyCC.director._nodeActivator.activateComp(comp);
             }
+            return undefined;
         };
 
         /**
          * @method _getDependComponent
          * @param {Component} depended
-         * @return {Component}
+         * @return {Component[]}
          */
         BaseNode.prototype._getDependComponent = function (depended) {
+            const dependant: Component[] = [];
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
                 if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
-                    const depend = comp.constructor._requireComponent;
-                    if (depend && depended instanceof depend) {
-                        return comp;
+                    const reqComps = comp.constructor._requireComponent;
+                    if (reqComps) {
+                        if (Array.isArray(reqComps)) {
+                            for (let i = 0; i < reqComps.length; i++) {
+                                if (depended instanceof reqComps[i]) {
+                                    dependant.push(comp);
+                                }
+                            }
+                        } else if (depended instanceof reqComps) {
+                            dependant.push(comp);
+                        }
                     }
                 }
             }
-            return null;
+            return dependant;
         };
 
         BaseNode.prototype.onRestore = function () {
@@ -129,7 +140,7 @@ export function baseNodePolyfill (BaseNode) {
         };
 
         BaseNode.prototype._onPreDestroy = function () {
-            const destroyByParent = this._onPreDestroyBase();
+            const destroyByParent: boolean = this._onPreDestroyBase();
             if (!destroyByParent) {
                 // ensure this node can reattach to scene by undo system
                 // (simulate some destruct logic to make undo system work correctly)

@@ -1,6 +1,6 @@
 import { systemInfo } from 'pal/system-info';
 import { AudioType, AudioState, AudioEvent } from '../type';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '../../../cocos/core/event';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
@@ -212,6 +212,7 @@ export class AudioPlayer implements OperationQueueable {
                         this._cachedState.currentTime = 0;
                     }
                     audioEngine.setFinishCallback(this._id, () => {
+                        this._cachedState.currentTime = 0;
                         this._id = INVALID_AUDIO_ID;
                         this._state = AudioState.INIT;
                         this._eventTarget.emit(AudioEvent.ENDED);
@@ -242,6 +243,7 @@ export class AudioPlayer implements OperationQueueable {
             }
             this._state = AudioState.STOPPED;
             this._id = INVALID_AUDIO_ID;
+            this._cachedState.currentTime = 0;
             resolve();
         });
     }

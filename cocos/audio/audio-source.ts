@@ -236,10 +236,21 @@ export class AudioSource extends Component {
      * Play the clip.<br>
      * Restart if already playing.<br>
      * Resume if paused.
+     *
+     * NOTE: On Web platforms, the Auto Play Policy bans auto playing audios at the first time, because the user gesture is required.
+     * there are 2 ways to play audios at the first time:
+     * - play audios in the callback of TOUCH_END or MOUSE_UP event
+     * - play audios straightly, the engine will auto play audios at the next user gesture.
+     *
      * @zh
      * 开始播放。<br>
      * 如果音频处于正在播放状态，将会重新开始播放音频。<br>
      * 如果音频处于暂停状态，则会继续播放音频。
+     *
+     * 注意:在 Web 平台，Auto Play Policy 禁止首次自动播放音频，因为需要发生用户交互之后才能播放音频。
+     * 有两种方式实现音频首次自动播放：
+     * - 在 TOUCH_END 或者 MOUSE_UP 的事件回调里播放音频。
+     * - 直接播放音频，引擎会在下一次发生用户交互时自动播放。
      */
     public play () {
         if (!this._isLoaded) {

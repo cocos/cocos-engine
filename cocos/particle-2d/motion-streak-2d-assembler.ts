@@ -32,7 +32,9 @@
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
+import { Texture2D } from '../core';
+import { RenderData } from '../2d/renderer/render-data';
 
 const _tangent = new Vec2();
 // const _miter = new Vec2();
@@ -110,7 +112,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
 
         const renderData = comp.renderData!;
-
+        this.updateRenderDataCache(comp, renderData);
         const color = comp.color;
         const cr = color.r;
         const cg = color.g;
@@ -183,10 +185,26 @@ export const MotionStreakAssembler: IAssembler = {
         renderData.indicesCount = indicesCount;
     },
 
+    updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {
+        if (renderData.passDirty) {
+            renderData.updatePass(comp);
+        }
+        if (renderData.nodeDirty) {
+            renderData.updateNode(comp);
+        }
+        if (renderData.textureDirty && comp.texture) {
+            renderData.updateTexture(comp.texture);
+            renderData.material = comp.getRenderMaterial(0);
+        }
+        if (renderData.hashDirty) {
+            renderData.updateHash();
+        }
+    },
+
     updateRenderData (comp: MotionStreak) {
     },
 
-    fillBuffers (comp: MotionStreak, renderer: Batcher2D) {
+    fillBuffers (comp: MotionStreak, renderer: IBatcher) {
         const renderData = comp.renderData!;
         const dataList = renderData.data;
         const node = comp.node;

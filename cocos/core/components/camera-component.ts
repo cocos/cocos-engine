@@ -393,7 +393,7 @@ export class Camera extends Component {
 
     set rect (val) {
         this._rect = val;
-        if (this._camera) { this._camera.viewport = val; }
+        if (this._camera) { this._camera.setViewportInOrientedSpace(val); }
     }
 
     /**
@@ -543,7 +543,7 @@ export class Camera extends Component {
                 priority: this._priority,
             });
 
-            this._camera.viewport = this._rect;
+            this._camera.setViewportInOrientedSpace(this._rect);
             this._camera.fovAxis = this._fovAxis;
             this._camera.fov = toRadian(this._fov);
             this._camera.orthoHeight = this._orthoHeight;
@@ -580,18 +580,16 @@ export class Camera extends Component {
     }
 
     protected _checkTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (window: RenderWindow) => {
-            if (this._camera) {
-                this._camera.setFixedSize(window.width, window.height);
-            }
-        };
-
         if (old) {
             old.off('resize');
         }
 
         if (this._targetTexture) {
-            this._targetTexture.on('resize', resizeFunc, this);
+            this._targetTexture.on('resize', (window: RenderWindow) => {
+                if (this._camera) {
+                    this._camera.setFixedSize(window.width, window.height);
+                }
+            }, this);
         }
     }
 

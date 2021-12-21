@@ -28,21 +28,19 @@
  * @hidden
  */
 
-/* eslint-disable no-restricted-globals */
-import { JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform,
+    MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform, Swapchain,
 } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
 import { SetIndex } from './pipeline/define';
-import { error } from './platform';
+import { error } from './platform/debug';
 import { Mat4, Vec2 } from './math';
 
 const v2_0 = new Vec2();
@@ -73,12 +71,13 @@ export class SplashScreen {
     private callBack: (() => void) | null = null;
     private cancelAnimate = false;
     private startTime = -1;
+    private isPause = false;
     private _splashFinish = false;
     private _loadFinish = false;
     private _directCall = false;
 
-    private root!: Root;
     private device!: Device;
+    private swapchain!: Swapchain;
     private shader!: Shader;
     private sampler!: Sampler;
     private cmdBuff!: CommandBuffer;
@@ -96,6 +95,14 @@ export class SplashScreen {
 
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
+
+    public pauseRendering () {
+        this.isPause = true;
+    }
+
+    public resumeRendering () {
+        this.isPause = false;
+    }
 
     public main (root: Root) {
         if (root == null) {
@@ -128,7 +135,6 @@ export class SplashScreen {
             (this.settings as any) = null;
             this._directCall = true;
         } else {
-            legacyCC.view.enableRetina(true);
             legacyCC.view.resizeWithBrowserSize(true);
             const designRes = window._CCSettings.designResolution;
             if (designRes) {
@@ -136,8 +142,9 @@ export class SplashScreen {
             } else {
                 legacyCC.view.setDesignResolutionSize(960, 640, 4);
             }
-            this.root = root;
             this.device = root.device;
+            this.swapchain = root.mainWindow!.swapchain;
+            this.framebuffer = root.mainWindow!.framebuffer;
             legacyCC.game.once(legacyCC.Game.EVENT_GAME_INITED, () => {
                 legacyCC.director._lateUpdate = performance.now();
             }, legacyCC.director);
@@ -178,9 +185,8 @@ export class SplashScreen {
         // Color manually, or will have problem on native.
         const clearColor = this.settings.clearColor;
         this.clearColors = [new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w)];
-        const device = this.device;
-        this.renderArea = new Rect(0, 0, device.width, device.height);
-        this.framebuffer = this.root.mainWindow!.framebuffer;
+        const { device, swapchain } = this;
+        this.renderArea = new Rect(0, 0, swapchain.width, swapchain.height);
         this.cmdBuff = device.commandBuffer;
 
         // create input assembler
@@ -190,7 +196,7 @@ export class SplashScreen {
         const vbSize = vbStride * 4;
         this.vertexBuffers = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE, vbSize, vbStride,
+            MemoryUsageBit.DEVICE, vbSize, vbStride,
         ));
         this.vertexBuffers.update(verts);
 
@@ -200,7 +206,7 @@ export class SplashScreen {
         const ibSize = ibStride * 6;
         this.indicesBuffers = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE, ibSize, ibStride,
+            MemoryUsageBit.DEVICE, ibSize, ibStride,
         ));
         this.indicesBuffers.update(indices);
 
@@ -213,7 +219,7 @@ export class SplashScreen {
 
         this.projection = new Mat4();
         Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-            device.capabilities.clipSpaceSignY, device.surfaceTransform);
+            device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
     }
 
     private init () {
@@ -222,10 +228,10 @@ export class SplashScreen {
         const animate = (time: number) => {
             if (this.cancelAnimate) return;
             const settings = this.settings;
-            const device = this.device;
+            const { device, swapchain } = this;
             Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-                device.capabilities.clipSpaceSignY, device.surfaceTransform);
-            const dw = device.width; const dh = device.height;
+                device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+            const dw = swapchain.width; const dh = swapchain.height;
             const refW = dw < dh ? dw : dh;
             // update logo uniform
             if (this.startTime < 0) this.startTime = time;
@@ -237,15 +243,15 @@ export class SplashScreen {
             const logoW = refW * settings.displayRatio;
             let scaleX = logoW * logoTW / logoTH;
             let scaleY = logoW;
-            if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+            if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
+                || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
                 scaleX = logoW * dw / dh;
                 scaleY = logoW * logoTH / logoTW * dh / dw;
             }
             this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
             this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
             this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
-            this.logoMat.setProperty('precent', u_p);
+            this.logoMat.setProperty('percent', u_p);
             this.logoMat.setProperty('u_projection', this.projection);
             this.logoMat.passes[0].update();
 
@@ -255,21 +261,22 @@ export class SplashScreen {
                 const wartermarkTW = this.watermarkTexture.width; const wartermarkTH = this.watermarkTexture.height;
                 let scaleX = wartermarkW;
                 let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
-                if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-                    || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
+                    || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
                     scaleX = wartermarkW * 0.5;
                     scaleY = wartermarkW * dw / dh * 0.5;
                 }
                 this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
                 this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
                 this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
-                this.watermarkMat.setProperty('precent', u_p);
+                this.watermarkMat.setProperty('percent', u_p);
                 this.watermarkMat.setProperty('u_projection', this.projection);
                 this.watermarkMat.passes[0].update();
             }
-
-            this.frame();
-            if (elapsedTime > settings.totalTime) this.splashFinish = true;
+            if (!this.isPause) {
+                this.frame();
+                if (elapsedTime > settings.totalTime) this.splashFinish = true;
+            }
             requestAnimationFrame(animate);
         };
         legacyCC.game.pause();
@@ -293,7 +300,7 @@ export class SplashScreen {
         samplerInfo.addressU = Address.CLAMP;
         samplerInfo.addressV = Address.CLAMP;
         samplerInfo.addressW = Address.CLAMP;
-        this.sampler = device.createSampler(samplerInfo);
+        this.sampler = device.getSampler(samplerInfo);
 
         this.logoTexture = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
@@ -348,15 +355,15 @@ export class SplashScreen {
     }
 
     private frame () {
-        const device = this.device;
-        device.acquire();
+        const { device, swapchain } = this;
+        device.acquire([swapchain]);
         // record command
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
 
-        renderArea.width = device.width;
-        renderArea.height = device.height;
+        renderArea.width = swapchain.width;
+        renderArea.height = swapchain.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
@@ -388,8 +395,8 @@ export class SplashScreen {
 
     private destroy () {
         this.callBack = null;
-        this.root = null!;
         this.device = null!;
+        this.swapchain = null!;
         this.clearColors = null!;
         if ((this.logoImage as any).destroy) (this.logoImage as any).destroy();
         this.logoImage = null!;
@@ -407,7 +414,6 @@ export class SplashScreen {
         this.vertexBuffers = null!;
         this.indicesBuffers.destroy();
         this.indicesBuffers = null!;
-        this.sampler.destroy();
         this.sampler = null!;
 
         /** text */

@@ -24,6 +24,7 @@
  */
 
 import { AABB, Frustum } from '../../geometry';
+import { legacyCC } from '../../global-exports';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 
@@ -61,7 +62,9 @@ export class SpotLight extends Light {
 
     protected _size = 0.15;
 
-    protected _luminance = 0;
+    protected _luminanceHDR = 0;
+
+    protected _luminanceLDR = 0;
 
     protected _aspect = 0;
 
@@ -87,12 +90,35 @@ export class SpotLight extends Light {
         return this._range;
     }
 
-    set luminance (lum: number) {
-        this._luminance = lum;
+    get luminance (): number {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._luminanceHDR;
+        } else {
+            return this._luminanceLDR;
+        }
+    }
+    set luminance (value: number) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this.luminanceHDR = value;
+        } else {
+            this.luminanceLDR = value;
+        }
     }
 
-    get luminance (): number {
-        return this._luminance;
+    get luminanceHDR () {
+        return this._luminanceHDR;
+    }
+    set luminanceHDR (value: number) {
+        this._luminanceHDR = value;
+    }
+
+    get luminanceLDR () {
+        return this._luminanceLDR;
+    }
+    set luminanceLDR (value: number) {
+        this._luminanceLDR = value;
     }
 
     get direction (): Vec3 {
@@ -110,6 +136,10 @@ export class SpotLight extends Light {
         this._spotAngle = Math.cos(val * 0.5);
 
         this._needUpdate = true;
+    }
+
+    get angle () {
+        return this._angle;
     }
 
     set aspect (val: number) {
@@ -145,6 +175,7 @@ export class SpotLight extends Light {
         this.size = size;
         this.aspect = 1.0;
         this.luminance = 1700 / nt2lm(size);
+        this.luminanceLDR = 1.0;
         this.range = Math.cos(Math.PI / 6);
         this._dir.set(new Vec3(1.0, -1.0, -1.0));
     }

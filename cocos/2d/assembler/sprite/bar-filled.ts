@@ -30,7 +30,7 @@
 
 import { Color, Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
-import { Batcher2D } from '../../renderer/batcher-2d';
+import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { fillVerticesWithoutCalc3D } from '../utils';
@@ -65,6 +65,7 @@ export const barFilled: IAssembler = {
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
+            renderData.updateRenderData(sprite, frame);
             const uvDirty = renderData.uvDirty;
             const vertDirty = renderData.vertDirty;
 
@@ -254,7 +255,7 @@ export const barFilled: IAssembler = {
         }
     },
 
-    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
+    fillBuffers (sprite: Sprite, renderer: IBatcher) {
         if (sprite.node.hasChangedFlags) {
             this.updateWorldVertexData(sprite);
         }

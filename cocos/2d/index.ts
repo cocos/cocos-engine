@@ -48,6 +48,7 @@ import {
 import { MeshBuffer } from './renderer/mesh-buffer';
 import { StencilManager } from './renderer/stencil-manager';
 import { legacyCC } from '../core/global-exports';
+import './event';
 
 import './renderer/batcher-2d';
 

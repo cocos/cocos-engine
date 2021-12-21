@@ -37,10 +37,10 @@ import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature } from './gfx';
 import { warnID } from './platform/debug';
 
 /**
@@ -125,8 +125,8 @@ export class Root {
      * UI实例
      * 引擎内部使用，用户无需调用此接口
      */
-    public get batcher2D (): Batcher2D {
-        return this._batcher as Batcher2D;
+    public get batcher2D (): IBatcher {
+        return this._batcher as IBatcher;
     }
 
     /**
@@ -203,7 +203,7 @@ export class Root {
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _batcher: Batcher2D | null = null;
+    private _batcher: IBatcher | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
@@ -230,7 +230,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
-        this._cameraPool = new Pool(() => new Camera(this._device), 4);
+        this._cameraPool = new Pool(() => new Camera(this._device), 4, (cam) => cam.destroy());
     }
 
     /**
@@ -239,27 +239,25 @@ export class Root {
      * @param info Root描述信息
      */
     public initialize (info: IRootInfo): Promise<void> {
+        const swapchain: Swapchain = legacyCC.game._swapchain;
         const colorAttachment = new ColorAttachment();
+        colorAttachment.format = swapchain.colorTexture.format;
         const depthStencilAttachment = new DepthStencilAttachment();
+        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
+
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
-            width: this._device.width,
-            height: this._device.height,
+            width: swapchain.width,
+            height: swapchain.height,
             renderPassInfo,
-            swapchainBufferIndices: -1, // always on screen
+            swapchain,
         });
         this._curWindow = this._mainWindow;
 
-        return Promise.resolve(builtinResMgr.initBuiltinRes(this._device)).then(() => {
-            legacyCC.view.on('design-resolution-changed', () => {
-                const width = legacyCC.game.canvas.width;
-                const height = legacyCC.game.canvas.height;
-                this.resize(width, height);
-            }, this);
-        });
+        return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
     }
 
     public destroy () {
@@ -287,21 +285,10 @@ export class Root {
      * @param height 屏幕高度
      */
     public resize (width: number, height: number) {
-        // const w = width / cc.view._devicePixelRatio;
-        // const h = height / cc.view._devicePixelRatio;
-
-        this._device.resize(width, height);
-
-        this._mainWindow!.resize(width, height);
-
         for (const window of this._windows) {
-            if (window.shouldSyncSizeWithSwapchain) {
+            if (window.swapchain) {
                 window.resize(width, height);
             }
-        }
-
-        if (this._pipeline) {
-            this._pipeline.resize(width, height);
         }
     }
 
@@ -316,8 +303,14 @@ export class Root {
             isCreateDefaultPipeline = true;
         }
         this._pipeline = rppl;
+        // now cluster just enabled in deferred pipeline
+        if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
+            // disable cluster
+            this._pipeline.clusterEnabled = false;
+        }
+        this._pipeline.bloomEnabled = false;
 
-        if (!this._pipeline.activate()) {
+        if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
             if (isCreateDefaultPipeline) {
                 this._pipeline.destroy();
             }
@@ -333,7 +326,7 @@ export class Root {
 
         this.onGlobalPipelineStateChanged();
         if (!this._batcher && legacyCC.internal.Batcher2D) {
-            this._batcher = new legacyCC.internal.Batcher2D(this) as Batcher2D;
+            this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
             if (!this._batcher.initialize()) {
                 this.destroy();
                 return false;
@@ -408,7 +401,7 @@ export class Root {
         }
 
         if (this._pipeline && cameraList.length > 0) {
-            this._device.acquire();
+            this._device.acquire([legacyCC.game._swapchain]);
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
             if (this._batcher) this._batcher.uploadBuffers();
@@ -505,7 +498,7 @@ export class Root {
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
         let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10));
+            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
             p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
@@ -533,7 +526,7 @@ export class Root {
     public createLight<T extends Light> (LightCtor: new () => T): T {
         let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4));
+            this._lightPools.set(LightCtor, new Pool<Light>(() => new LightCtor(), 4, (obj) => obj.destroy()));
             l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;

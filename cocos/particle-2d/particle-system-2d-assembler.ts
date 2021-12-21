@@ -32,7 +32,7 @@
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import { PositionType } from './define';
 import { legacyCC } from '../core/global-exports';
 
@@ -41,9 +41,12 @@ export const ParticleAssembler: IAssembler = {
     createData (comp: ParticleSystem2D) {
         return MeshRenderData.add();
     },
+    removeData (data) {
+        MeshRenderData.remove(data);
+    },
     updateRenderData () {
     },
-    fillBuffers (comp: ParticleSystem2D, renderer: Batcher2D) {
+    fillBuffers (comp: ParticleSystem2D, renderer: IBatcher) {
         if (comp === null) {
             return;
         }
@@ -60,6 +63,7 @@ export const ParticleAssembler: IAssembler = {
         const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
             indicesOffset = 0;
             vertexId = 0;
         }

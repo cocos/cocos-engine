@@ -358,7 +358,6 @@ const Elements = {
     clips: {
         ready() {
             const panel = this;
-
             Object.assign(panel, {
                 splitClipIndex: 0,
                 rawClipIndex: 0,
@@ -428,11 +427,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
+                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
+                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * (subAnim.fps || panel.rawClipInfo.fps));
                     line.appendChild(timeEnd);
                 });
 
@@ -470,6 +469,10 @@ const Elements = {
                     }
                     panel.clipNames.delete(panel.currentClipInfo.name);
                     panel.animationInfos[panel.rawClipIndex].splits.splice(panel.splitClipIndex, 1);
+                    const length = panel.animationInfos[panel.rawClipIndex].splits.length;
+                    if (length > 0 && panel.splitClipIndex > 0 && panel.splitClipIndex >= length) {
+                        panel.splitClipIndex = length - 1;
+                    }
                     Elements.clips.update.call(panel);
                     Elements.editor.update.call(panel);
                     panel.dispatch('change');
@@ -627,7 +630,7 @@ exports.update = function(assetList, metaList) {
     this.initAnimationNameToUUIDMap();
     this.initAnimationInfos();
     if (this.animationInfos) {
-        this.onSelect(0, 0);
+        this.onSelect(this.rawClipIndex, this.splitClipIndex);
     }
 };
 
@@ -699,13 +702,18 @@ exports.methods = {
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
     },
     getCurClipInfo() {
+        if (!this.animationInfos) {
+            return null;
+        }
         const animInfo = this.animationInfos[this.rawClipIndex];
         const splitInfo = animInfo.splits[this.splitClipIndex];
 
         if (!animInfo) {
             return null;
         }
-
+        if (!splitInfo) {
+            return null;
+        }
         const rawClipUUID = this.animationNameToUUIDMap.get(animInfo.name);
         const clipUUID = this.animationNameToUUIDMap.get(splitInfo.name);
         let duration = animInfo.duration;
@@ -733,6 +741,8 @@ exports.methods = {
             fps,
             from,
             to,
+            wrapMode: splitInfo.wrapMode,
+            speed: splitInfo.speed || 1,
         };
     },
     getRightName(name) {
@@ -809,6 +819,11 @@ exports.methods = {
 
         panel.$.clipFrames.innerText = maxFrames;
         panel.$.clipFPS.value = fps;
+
+        // TODO: hack for bug at 3d-tasks#10113. Because the new value would be limited in min and max, should firstly remove min and max.
+        panel.$.clipFrom.max = null;
+        panel.$.clipTo.min = null;
+        panel.$.clipTo.max = null;
 
         panel.$.clipFrom.value = startFrames;
         panel.$.clipFrom.setAttribute('max', endFrames);
@@ -1041,15 +1056,32 @@ exports.methods = {
     onWrapModeChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = Number(event.target.value);
-
+        const wrapMode = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = wrapMode;
+        Editor.Message.request(
+            'scene',
+            'execute-model-preview-animation-operation',
+            'setClipConfig',
+            {
+                wrapMode,
+            }
+        );
         Elements.editor.update.call(panel);
         panel.dispatch('change');
     },
     onSpeedChange(event) {
         const panel = this;
 
-        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = Number(event.target.value);
+        const speed = Number(event.target.value);
+        panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].speed = speed;
+        Editor.Message.request(
+            'scene',
+            'execute-model-preview-animation-operation',
+            'setClipConfig',
+            {
+                speed,
+            }
+        );
 
         Elements.editor.update.call(panel);
         panel.dispatch('change');

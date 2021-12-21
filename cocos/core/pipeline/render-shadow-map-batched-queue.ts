@@ -29,8 +29,8 @@
  */
 
 import { SubModel } from '../renderer/scene/submodel';
-import { SetIndex, UBOShadow } from './define';
-import { Device, RenderPass, Buffer, Shader, CommandBuffer } from '../gfx';
+import { SetIndex } from './define';
+import { Device, RenderPass, Shader, CommandBuffer, DescriptorSet } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';
@@ -39,11 +39,17 @@ import { InstancedBuffer } from './instanced-buffer';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { BatchedBuffer } from './batched-buffer';
 import { ShadowType } from '../renderer/scene/shadows';
-import { ForwardPipeline } from './forward/forward-pipeline';
 import { Light, LightType } from '../renderer/scene/light';
-import { SpotLight } from '../renderer/scene/spot-light';
-import { intersect } from '../geometry';
+import { AABB, intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
+import { RenderPipeline } from './render-pipeline';
+import { Camera } from '../renderer/scene';
+import { Mat4 } from '../math';
+
+const _matShadowView = new Mat4();
+const _matShadowProj = new Mat4();
+const _matShadowViewProj = new Mat4();
+const _ab = new AABB();
 
 const _phaseID = getPhaseID('shadow-caster');
 const _shadowPassIndices: number[] = [];
@@ -70,43 +76,53 @@ function getShadowPassIndex (subModels: SubModel[], shadowPassIndices: number[])
  * 阴影渲染队列
  */
 export class RenderShadowMapBatchedQueue {
-    private _pipeline: ForwardPipeline;
+    private _pipeline: RenderPipeline;
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
 
-    public constructor (pipeline: ForwardPipeline) {
+    public constructor (pipeline: RenderPipeline) {
         this._pipeline = pipeline;
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (light: Light, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (globalDS: DescriptorSet, camera: Camera, light: Light, cmdBuff: CommandBuffer) {
         this.clear();
-        const shadowInfo = this._pipeline.pipelineSceneData.shadows;
-        const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
+
+        const pipelineSceneData = this._pipeline.pipelineSceneData;
+        const shadowInfo = pipelineSceneData.shadows;
+        const dirShadowObjects = pipelineSceneData.dirShadowObjects;
+        const castShadowObjects = pipelineSceneData.castShadowObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            this._pipeline.pipelineUBO.updateShadowUBOLight(light);
-
-            for (let i = 0; i < shadowObjects.length; i++) {
-                const ro = shadowObjects[i];
-                const model = ro.model;
-                if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-
-                switch (light.type) {
-                case LightType.DIRECTIONAL:
+            switch (light.type) {
+            case LightType.DIRECTIONAL:
+                for (let i = 0; i < dirShadowObjects.length; i++) {
+                    const ro = dirShadowObjects[i];
+                    const model = ro.model;
+                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                     this.add(model, cmdBuff, _shadowPassIndices);
-                    break;
-                case LightType.SPOT:
-                    if ((model.worldBounds
-                                && (!intersect.aabbWithAABB(model.worldBounds, (light as SpotLight).aabb)
-                                    || !intersect.aabbFrustum(model.worldBounds, (light as SpotLight).frustum)))) continue;
-                    this.add(model, cmdBuff, _shadowPassIndices);
-                    break;
-                default:
                 }
+                break;
+            case LightType.SPOT:
+                Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
+                Mat4.perspective(_matShadowProj, (light as any).angle, (light as any).aspect, 0.001, (light as any).range);
+                Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
+                for (let i = 0; i < castShadowObjects.length; i++) {
+                    const ro = castShadowObjects[i];
+                    const model = ro.model;
+                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
+                    if (model.worldBounds) {
+                        AABB.transform(_ab, model.worldBounds, _matShadowViewProj);
+                        if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
+                    }
+
+                    this.add(model, cmdBuff, _shadowPassIndices);
+                }
+                break;
+            default:
             }
         }
     }
@@ -132,11 +148,11 @@ export class RenderShadowMapBatchedQueue {
             const batchingScheme = pass.batchingScheme;
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
-                const buffer = InstancedBuffer.get(pass);
+                const buffer = pass.getInstancedBuffer();
                 buffer.merge(subModel, model.instancedAttributes, shadowPassIdx);
                 this._instancedQueue.queue.add(buffer);
             } else if (pass.batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                const buffer = BatchedBuffer.get(pass);
+                const buffer = pass.getBatchedBuffer();
                 buffer.merge(subModel, shadowPassIdx, model);
                 this._batchedQueue.queue.add(buffer);
             } else {

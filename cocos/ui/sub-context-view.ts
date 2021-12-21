@@ -31,12 +31,12 @@
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { minigame } from 'pal/minigame';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../core/components/component';
 import { view } from '../core/platform/view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../core/scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
-
 import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../core/assets/image-asset';
 import {  Size } from '../core/math';
@@ -73,6 +73,14 @@ import { CCObject, Texture2D } from '../core';
 @requireComponent(UITransform)
 @menu('Miscellaneous/SubContextView')
 export class SubContextView extends Component {
+    /**
+     * @en Specify a reference value of canvas size for style editing in Open Data Context.
+     * The width and height setting of CSS style should not exceed this size, otherwise the rendered content will exceed the canvas.
+     * NOTE: This property is read-only at runtime. Please configure the design resolution in the Editor.
+     *
+     * @zh 为开放数据域的样式编辑指定一个画布尺寸的参考值，CSS 样式的宽高设置不应该超过这个尺寸，否则渲染的内容会超出画布。
+     * 注意：该属性在运行时是只读的，请在编辑器环境下配置好设计分辨率。
+     */
     @tooltip('i18n:subContextView.design_size')
     get designResolutionSize () {
         return this._designResolutionSize;
@@ -84,6 +92,11 @@ export class SubContextView extends Component {
         this._designResolutionSize.set(value);
     }
 
+    /**
+     * @en Setting frame rate in Open Data Context.
+     *
+     * @zh 设置开放数据域的渲染帧率。
+     */
     @tooltip('i18n:subContextView.fps')
     get fps () {
         return this._fps;
@@ -194,7 +207,7 @@ export class SubContextView extends Component {
         const viewportRect = view.getViewportRect();
         const box = contentTrans.getBoundingBoxToWorld();
         const visibleSize = view.getVisibleSize();
-        const dpr = view.getDevicePixelRatio();
+        const dpr = screenAdapter.devicePixelRatio;
 
         // TODO: the visibleSize need to be the size of Canvas node where the content node is.
         const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / dpr;

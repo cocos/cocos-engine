@@ -22,9 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { JSB } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
+import { Orientation } from '../../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -34,9 +37,15 @@ export interface IRenderWindowInfo {
     width: number;
     height: number;
     renderPassInfo: RenderPassInfo;
-    swapchainBufferIndices?: number;
-    shouldSyncSizeWithSwapchain?: boolean;
+    swapchain?: Swapchain;
 }
+
+const orientationMap: Record<Orientation, SurfaceTransform> = {
+    [Orientation.PORTRAIT]: SurfaceTransform.IDENTITY,
+    [Orientation.LANDSCAPE_RIGHT]: SurfaceTransform.ROTATE_90,
+    [Orientation.PORTRAIT_UPSIDE_DOWN]: SurfaceTransform.ROTATE_180,
+    [Orientation.LANDSCAPE_LEFT]: SurfaceTransform.ROTATE_270,
+};
 
 /**
  * @en The render window represents the render target, it could be an off screen frame buffer or the on screen buffer.
@@ -44,19 +53,29 @@ export interface IRenderWindowInfo {
  */
 export class RenderWindow {
     /**
-     * @en Get window width.
-     * @zh 窗口宽度。
+     * @en Get window width. Pre-rotated (i.e. rotationally invariant, always in identity/portrait mode) if possible.
+     * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
+     * @zh 获取窗口宽度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.width]]。
      */
     get width (): number {
         return this._width;
     }
 
     /**
-     * @en Get window height.
-     * @zh 窗口高度。
+     * @en Get window height. Pre-rotated (i.e. rotationally invariant, always in identity/portrait mode) if possible.
+     * If you want to get oriented size instead, you should use [[Camera.width]] which corresponds to the current screen rotation.
+     * @zh 获取窗口高度。如果支持交换链预变换，返回值将始终处于单位旋转（竖屏）坐标系下。如果需要获取旋转后的尺寸，请使用 [[Camera.height]]。
      */
     get height (): number {
         return this._height;
+    }
+
+    /**
+     * @en Get the swapchain for this window, if there is one
+     * @zh 如果存在的话，获取此窗口的交换链
+     */
+    get swapchain () {
+        return this._swapchain;
     }
 
     /**
@@ -65,26 +84,6 @@ export class RenderWindow {
      */
     get framebuffer (): Framebuffer {
         return this._framebuffer!;
-    }
-
-    get shouldSyncSizeWithSwapchain () {
-        return this._shouldSyncSizeWithSwapchain;
-    }
-
-    /**
-     * @en Whether it has on screen attachments
-     * @zh 这个渲染窗口是否指向在屏缓冲
-     */
-    get hasOnScreenAttachments () {
-        return this._hasOnScreenAttachments;
-    }
-
-    /**
-     * @en Whether it has off screen attachments
-     * @zh 这个渲染窗口是否指向离屏缓冲
-     */
-    get hasOffScreenAttachments () {
-        return this._hasOffScreenAttachments;
     }
 
     get cameras () {
@@ -101,11 +100,10 @@ export class RenderWindow {
     protected _title = '';
     protected _width = 1;
     protected _height = 1;
+    protected _swapchain: Swapchain = null!;
     protected _renderPass: RenderPass | null = null;
-    protected _colorTextures: (Texture | null)[] = [];
+    protected _colorTextures: Texture[] = [];
     protected _depthStencilTexture: Texture | null = null;
-    protected _swapchainBufferIndices = 0;
-    protected _shouldSyncSizeWithSwapchain = false;
     protected _cameras: Camera[] = [];
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
@@ -119,71 +117,56 @@ export class RenderWindow {
             this._title = info.title;
         }
 
-        if (info.swapchainBufferIndices !== undefined) {
-            this._swapchainBufferIndices = info.swapchainBufferIndices;
-        }
-
-        if (info.shouldSyncSizeWithSwapchain !== undefined) {
-            this._shouldSyncSizeWithSwapchain = info.shouldSyncSizeWithSwapchain;
+        if (info.swapchain !== undefined) {
+            this._swapchain = info.swapchain;
         }
 
         this._width = info.width;
         this._height = info.height;
-
-        const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
-        for (let i = 0; i < colorAttachments.length; i++) {
-            if (colorAttachments[i].format === Format.UNKNOWN) {
-                colorAttachments[i].format = device.colorFormat;
-            }
-        }
-        if (depthStencilAttachment && depthStencilAttachment.format === Format.UNKNOWN) {
-            depthStencilAttachment.format = device.depthStencilFormat;
-        }
-
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
-        for (let i = 0; i < colorAttachments.length; i++) {
-            let colorTex: Texture | null = null;
-            if (!(this._swapchainBufferIndices & (1 << i))) {
-                colorTex = device.createTexture(new TextureInfo(
+        if (info.swapchain) {
+            this._swapchain = info.swapchain;
+            this._colorTextures.push(info.swapchain.colorTexture);
+            this._depthStencilTexture = info.swapchain.depthStencilTexture;
+        } else {
+            for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
+                this._colorTextures.push(device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
-                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                    colorAttachments[i].format,
+                    TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_SRC,
+                    info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
-                ));
-                this._hasOffScreenAttachments = true;
-            } else {
-                this._hasOnScreenAttachments = true;
+                )));
             }
-            this._colorTextures.push(colorTex);
-        }
-
-        // Use the sign bit to indicate depth attachment
-        if (depthStencilAttachment) {
-            if (this._swapchainBufferIndices >= 0) {
+            if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
                 this._depthStencilTexture = device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
                     TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
-                    depthStencilAttachment.format,
+                    info.renderPassInfo.depthStencilAttachment.format,
                     this._width,
                     this._height,
                 ));
                 this._hasOffScreenAttachments = true;
             }
-        } else {
-            this._hasOnScreenAttachments = true;
         }
         this._framebuffer = device.createFramebuffer(new FramebufferInfo(
             this._renderPass,
             this._colorTextures,
             this._depthStencilTexture,
         ));
+
         return true;
     }
 
     public destroy () {
         this.clearCameras();
+
+        if (this._framebuffer) {
+            this._framebuffer.destroy();
+            this._framebuffer = null;
+        }
+
         if (this._depthStencilTexture) {
             this._depthStencilTexture.destroy();
             this._depthStencilTexture = null;
@@ -206,28 +189,24 @@ export class RenderWindow {
      * @param height The new height.
      */
     public resize (width: number, height: number) {
-        this._width = width;
-        this._height = height;
-
-        let needRebuild = false;
-
-        if (this._depthStencilTexture) {
-            this._depthStencilTexture.resize(width, height);
-            needRebuild = true;
-        }
-
-        for (let i = 0; i < this._colorTextures.length; i++) {
-            const colorTex = this._colorTextures[i];
-            if (colorTex) {
-                colorTex.resize(width, height);
-                needRebuild = true;
+        if (this._swapchain) {
+            this._swapchain.resize(width, height, orientationMap[screenAdapter.orientation]);
+            this._width = this._swapchain.width;
+            this._height = this._swapchain.height;
+        } else {
+            for (let i = 0; i < this._colorTextures.length; i++) {
+                this._colorTextures[i].resize(width, height);
             }
+            if (this._depthStencilTexture) {
+                this._depthStencilTexture.resize(width, height);
+            }
+            this._width = width;
+            this._height = height;
         }
 
-        const framebuffer = this.framebuffer;
-        if (needRebuild && framebuffer) {
-            framebuffer.destroy();
-            framebuffer.initialize(new FramebufferInfo(
+        if (this.framebuffer) {
+            this.framebuffer.destroy();
+            this.framebuffer.initialize(new FramebufferInfo(
                 this._renderPass!,
                 this._colorTextures,
                 this._depthStencilTexture,
@@ -235,9 +214,7 @@ export class RenderWindow {
         }
 
         for (const camera of this._cameras) {
-            if (camera.isWindowSize) {
-                camera.resize(width, height);
-            }
+            camera.resize(width, height);
         }
     }
 

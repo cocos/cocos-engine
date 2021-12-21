@@ -26,7 +26,7 @@ import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
-import { Model, ModelType } from './model';
+import { Model } from './model';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';

@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
@@ -32,7 +33,8 @@ const _v3 = new Vec3();
 
 export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
-    protected _illuminance: number = Ambient.SUN_ILLUM;
+    protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
+    protected _illuminanceLDR = 1.0;
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
@@ -43,12 +45,35 @@ export class DirectionalLight extends Light {
     }
 
     // in Lux(lx)
-    set illuminance (illum: number) {
-        this._illuminance = illum;
+    get illuminance (): number {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._illuminanceHDR;
+        } else {
+            return this._illuminanceLDR;
+        }
+    }
+    set illuminance (value: number) {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            this.illuminanceHDR = value;
+        } else {
+            this.illuminanceLDR = value;
+        }
     }
 
-    get illuminance (): number {
-        return this._illuminance;
+    get illuminanceHDR () {
+        return this._illuminanceHDR;
+    }
+    set illuminanceHDR (value: number) {
+        this._illuminanceHDR = value;
+    }
+
+    get illuminanceLDR () {
+        return this._illuminanceLDR;
+    }
+    set illuminanceLDR (value: number) {
+        this._illuminanceLDR = value;
     }
 
     constructor () {

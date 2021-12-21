@@ -9,24 +9,31 @@
 #define CC_STANDARD_SURFACE_ENTRY()                                \
 #if CC_FORWARD_ADD                                                 \
   #include <shading-standard-additive>                             \
+  #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                            \
+  #include <shading-cluster-additive>                              \
+  #endif                                                           \
                                                                    \
   layout(location = 0) out vec4 fragColorX;                        \
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
+    #if CC_ENABLE_CLUSTERED_LIGHT_CULLING == 1                          \
+    vec4 color = CCClusterShadingAdditive(s, CC_SHADOW_POSITION);  \
+    #else                                                          \
     vec4 color = CCStandardShadingAdditive(s, CC_SHADOW_POSITION); \
-    CC_APPLY_FOG(color);                                           \
+    #endif                                                         \
+    CC_APPLY_FOG(color, s.position.xyz);                           \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \
-#elif (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_STANDARD_TRANSPARENT) \
+#elif (CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD || CC_FORCE_FORWARD_SHADING) \
                                                                    \
   layout(location = 0) out vec4 fragColorX;                        \
                                                                    \
   void main () {                                                   \
     StandardSurface s; surf(s);                                    \
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);     \
-    CC_APPLY_FOG(color);                                           \
+    CC_APPLY_FOG(color, s.position.xyz);                           \
     fragColorX = CCFragOutput(color);                              \
   }                                                                \
                                                                    \

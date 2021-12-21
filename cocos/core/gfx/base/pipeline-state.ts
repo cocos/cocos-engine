@@ -28,7 +28,6 @@
  * @module gfx
  */
 
-import { Device } from './device';
 import { PipelineLayout } from './pipeline-layout';
 import { RenderPass } from './render-pass';
 import { Shader } from './shader';
@@ -40,7 +39,7 @@ import {
     CullMode,
     DynamicStateFlagBit,
     DynamicStateFlags,
-    Obj,
+    GFXObject,
     ObjectType,
     PolygonMode,
     PrimitiveMode,
@@ -265,7 +264,7 @@ export class PipelineStateInfo {
  * @en GFX pipeline state.
  * @zh GFX 管线状态。
  */
-export abstract class PipelineState extends Obj {
+export abstract class PipelineState extends GFXObject {
     /**
      * @en Get current shader.
      * @zh GFX 着色器。
@@ -338,32 +337,21 @@ export abstract class PipelineState extends Obj {
         return this._renderPass as RenderPass;
     }
 
-    protected _device: Device;
-
     protected _shader: Shader | null = null;
-
     protected _pipelineLayout: PipelineLayout | null = null;
-
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
-
     protected _is: InputState | null = null;
-
     protected _rs: RasterizerState = new RasterizerState();
-
     protected _dss: DepthStencilState = new DepthStencilState();
-
     protected _bs: BlendState = new BlendState();
-
     protected _dynamicStates: DynamicStateFlags = DynamicStateFlagBit.NONE;
-
     protected _renderPass: RenderPass | null = null;
 
-    constructor (device: Device) {
+    constructor () {
         super(ObjectType.PIPELINE_STATE);
-        this._device = device;
     }
 
-    public abstract initialize (info: PipelineStateInfo): boolean;
+    public abstract initialize (info: PipelineStateInfo): void;
 
     public abstract destroy (): void;
 }

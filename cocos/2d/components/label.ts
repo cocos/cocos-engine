@@ -30,11 +30,11 @@
  */
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, UI_GPU_DRIVEN } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
@@ -348,13 +348,38 @@ export class Label extends Renderable2D {
 
     /**
      * @en
+     * The spacing between text characters, only available in BMFont.
+     *
+     * @zh
+     * 文本字符之间的间距。仅在使用 BMFont 位图字体时生效。
+     */
+    @visible(function (this: Label) {
+        return !this._isSystemFontUsed && this._font instanceof BitmapFont;
+    })
+    @displayOrder(9)
+    @tooltip('i18n:label.spacing_x')
+    get spacingX () {
+        return this._spacingX;
+    }
+
+    set spacingX (value) {
+        if (this._spacingX === value) {
+            return;
+        }
+
+        this._spacingX = value;
+        this.updateRenderData();
+    }
+
+    /**
+     * @en
      * Overflow of label.
      *
      * @zh
      * 文字显示超出范围时的处理方式。
      */
     @type(Overflow)
-    @displayOrder(9)
+    @displayOrder(10)
     @tooltip('i18n:label.overflow')
     get overflow () {
         return this._overflow;
@@ -376,7 +401,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否自动换行。
      */
-    @displayOrder(10)
+    @displayOrder(11)
     @tooltip('i18n:label.wrap')
     get enableWrapText () {
         return this._enableWrapText;
@@ -398,7 +423,7 @@ export class Label extends Renderable2D {
      * 文本字体。
      */
     @type(Font)
-    @displayOrder(11)
+    @displayOrder(12)
     @visible(function (this: Label) { return !this._isSystemFontUsed; })
     @tooltip('i18n:label.font')
     get font () {
@@ -439,7 +464,7 @@ export class Label extends Renderable2D {
      * @zh
      * 是否使用系统字体。
      */
-    @displayOrder(12)
+    @displayOrder(13)
     @tooltip('i18n:label.system_font')
     get useSystemFont () {
         return this._isSystemFontUsed;
@@ -477,7 +502,7 @@ export class Label extends Renderable2D {
      * 文本缓存模式, 该模式只支持系统字体。
      */
     @type(CacheMode)
-    @displayOrder(13)
+    @displayOrder(14)
     @tooltip('i18n:label.cache_mode')
     get cacheMode () {
         return this._cacheMode;
@@ -490,10 +515,17 @@ export class Label extends Renderable2D {
 
         if (this._cacheMode === CacheMode.BITMAP && !(this._font instanceof BitmapFont) && this._ttfSpriteFrame) {
             this._ttfSpriteFrame._resetDynamicAtlasFrame();
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = true;
+            }
         }
-
         if (this._cacheMode === CacheMode.CHAR) {
             this._ttfSpriteFrame = null;
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         }
 
         this._cacheMode = value;
@@ -580,6 +612,8 @@ export class Label extends Renderable2D {
      */
     @visible(function (this: Label) { return this._isUnderline; })
     @editable
+    @displayOrder(18)
+    @tooltip('i18n:label.underline_height')
     public get underlineHeight () {
         return this._underlineHeight;
     }
@@ -600,19 +634,6 @@ export class Label extends Renderable2D {
 
     set fontAtlas (value) {
         this._fontAtlas = value;
-    }
-
-    get spacingX () {
-        return this._spacingX;
-    }
-
-    set spacingX (value) {
-        if (this._spacingX === value) {
-            return;
-        }
-
-        this._spacingX = value;
-        this.updateRenderData();
     }
 
     get _bmFontOriginalSize () {
@@ -675,6 +696,9 @@ export class Label extends Renderable2D {
 
     constructor () {
         super();
+        if (UI_GPU_DRIVEN) {
+            this._canDrawByFourVertex = true;
+        }
         if (EDITOR) {
             this._userDefinedFont = null;
         }
@@ -708,8 +732,10 @@ export class Label extends Renderable2D {
 
         this._assemblerData = null;
         if (this._ttfSpriteFrame) {
+            this._ttfSpriteFrame._resetDynamicAtlasFrame();
             const tex = this._ttfSpriteFrame.texture;
-            if (tex && this._ttfSpriteFrame.original === null) {
+            this._ttfSpriteFrame.destroy();
+            if (tex) {
                 const tex2d = tex as Texture2D;
                 if (tex2d.image) {
                     tex2d.image.destroy();
@@ -739,13 +765,12 @@ export class Label extends Renderable2D {
         }
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         render.commitComp(this, this._texture, this._assembler!, null);
     }
 
     // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor () {
-        this._updateWorldAlpha();
         if (this._colorDirty) {
             this.updateRenderData(false);
             this._colorDirty = false;
@@ -763,6 +788,9 @@ export class Label extends Renderable2D {
             // cannot be activated if texture not loaded yet
             if (!spriteFrame || !spriteFrame.texture) {
                 return false;
+            }
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
             }
         }
 
@@ -792,15 +820,26 @@ export class Label extends Renderable2D {
             const spriteFrame = font.spriteFrame;
             if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
+                if (this.renderData) {
+                    this.renderData.textureDirty = true;
+                }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
                     this._assembler.updateRenderData(this);
                 }
             }
+            // macro.UI_GPU_DRIVEN
+            if (UI_GPU_DRIVEN) {
+                this._canDrawByFourVertex = false;
+            }
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler!.getAssemblerData();
                 this._texture = this._letterTexture;
+                // macro.UI_GPU_DRIVEN
+                if (UI_GPU_DRIVEN) {
+                    this._canDrawByFourVertex = false;
+                }
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
@@ -813,6 +852,10 @@ export class Label extends Renderable2D {
             if (this.cacheMode !== CacheMode.CHAR) {
                 // this._frame._refreshTexture(this._texture);
                 this._texture = this._ttfSpriteFrame;
+                // macro.UI_GPU_DRIVEN
+                if (UI_GPU_DRIVEN) {
+                    this._canDrawByFourVertex = true;
+                }
             }
             this.changeMaterialForDefine();
         }

@@ -254,6 +254,14 @@ Forward render pipeline initialized.
 
 Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.
 
+### 1220
+
+Failed to set shading scale, pipelineSceneData is invalid.
+
+### 1221
+
+Setting orientation is not supported yet.
+
 ### 1300
 
 %s is not in the model pool and cannot be destroyed by destroyModel.
@@ -611,6 +619,9 @@ Invalid index in MultiplexLayer switchTo message
 
 <!-- DEPRECATED -->
 cc.Layer.addLayer(): layer should be non-null
+
+### 2104
+Layer collision. The name of layer (%s) is collided with the name or value of some layer
 
 ### 2200
 
@@ -1692,6 +1703,10 @@ Cannot change hierarchy while activating or deactivating the parent.
 
 addComponent: Cannot add any component to the scene.
 
+### 3823
+
+The enabled component (id: %s, name: %s) doesn't have a valid node
+
 ### 3900
 
 Invalid clip to add
@@ -1807,6 +1822,10 @@ Misconfigured legacy curve: the first keyframe value is number but others aren't
 ### 3935
 
 We don't currently support conversion of \`CubicSplineQuatValue\`.
+
+### 3936
+
+Instancing/Batching enabled for non-baked skinning model '%s', this may result in unexpected rendering artifacts. Consider turning it off in the material if you do not intend to do this.
 
 ### 4000
 
@@ -3011,6 +3030,10 @@ Should only one camera exists, please check your project.
 
 Camera does not support Canvas Mode.
 
+### 8302
+
+Camera.viewport is deprecated, please use setViewportInOrientedSpace instead.
+
 ### 8400
 
 Wrong type arguments, 'filePath' must be a String.
@@ -3036,6 +3059,14 @@ texture size exceeds current device limits %d/%d
 
 <!-- DEPRECATED -->
 cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
+
+### 9201
+
+Cannot access game frame or container.
+
+### 9202
+
+Setting window size is not supported.
 
 ### 9300
 
@@ -3137,3 +3168,11 @@ Can not encode CCON binary: lack of text encoder.
 ### 13104
 
 Can not decode CCON binary: lack of text decoder.
+
+### 14000
+
+Graph update has been interrupted since too many transitions(greater than %s) occurred during one frame.
+
+### 14100
+
+Pool.destroy no longer take a function as parameter, Please specify destruct function in the construction of Pool instead

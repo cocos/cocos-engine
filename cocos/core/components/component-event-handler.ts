@@ -99,6 +99,7 @@ export class EventHandler {
      */
     @serializable
     @type(legacyCC.Node)
+    @serializable
     @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
     /**

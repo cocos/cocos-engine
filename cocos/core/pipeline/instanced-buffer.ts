@@ -50,15 +50,6 @@ const INITIAL_CAPACITY = 32;
 const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
-    private static _buffers = new Map<Pass, Record<number, InstancedBuffer>>();
-
-    public static get (pass: Pass, extraKey = 0) {
-        const buffers = InstancedBuffer._buffers;
-        if (!buffers.has(pass)) buffers.set(pass, {});
-        const record = buffers.get(pass)!;
-        return record[extraKey] || (record[extraKey] = new InstancedBuffer(pass));
-    }
-
     public instances: IInstancedItem[] = [];
     public pass: Pass;
     public hasPendingModels = false;
@@ -99,8 +90,9 @@ export class InstancedBuffer {
             }
 
             if (instance.stride !== stride) {
-                // console.error(`instanced buffer stride mismatch! ${stride}/${instance.stride}`);
-                return;
+                // we allow this considering both baked and non-baked
+                // skinning models may be present in the same buffer
+                continue;
             }
             if (instance.count >= instance.capacity) { // resize buffers
                 instance.capacity <<= 1;

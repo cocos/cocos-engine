@@ -28,7 +28,7 @@
  * @module particle
  */
 
-import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { director } from '../../core/director';
@@ -216,6 +216,7 @@ export default class TrailModule {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(3)
     @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
@@ -277,6 +278,7 @@ export default class TrailModule {
      */
     @type(CurveRange)
     @serializable
+    @range([0, 1])
     @displayOrder(10)
     @tooltip('i18n:trailSegment.widthRatio')
     public widthRatio = new CurveRange();
@@ -356,7 +358,7 @@ export default class TrailModule {
             burstCount += b.getMaxCount(ps) * Math.ceil(psTime / duration);
         }
         this._trailNum = Math.ceil(psTime * this.lifeTime.getMax() * 60 * (psRate * duration + burstCount));
-        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration));
+        this._trailSegments = new Pool(() => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment) => obj.trailElements.length = 0);
         if (this._enable) {
             this.enable = this._enable;
         }
@@ -393,7 +395,7 @@ export default class TrailModule {
             this._trailModel = null;
         }
         if (this._trailSegments) {
-            this._trailSegments.destroy((obj: TrailSegment) => { obj.trailElements.length = 0; });
+            this._trailSegments.destroy();
             this._trailSegments = null;
         }
     }
@@ -637,10 +639,10 @@ export default class TrailModule {
         const indexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            this._trailNum * 6 * Uint16Array.BYTES_PER_ELEMENT,
+            Math.max(1, this._trailNum) * 6 * Uint16Array.BYTES_PER_ELEMENT,
             Uint16Array.BYTES_PER_ELEMENT,
         ));
-        this._iBuffer = new Uint16Array(this._trailNum * 6);
+        this._iBuffer = new Uint16Array(Math.max(1, this._trailNum) * 6);
         indexBuffer.update(this._iBuffer);
 
         this._iaInfoBuffer = device.createBuffer(new BufferInfo(

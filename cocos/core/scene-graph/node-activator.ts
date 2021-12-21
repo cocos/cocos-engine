@@ -28,15 +28,15 @@
  * @module scene-graph
  */
 
-import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR, DEV, TEST, SUPPORT_JIT, DEBUG } from 'internal:constants';
 import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
-import { assert, errorID } from '../platform/debug';
-import { JSB } from '../default-constants';
-import { updateChildren } from '../utils/jsb-utils';
+import { assert, errorID, getError } from '../platform/debug';
+import { NodeEventType } from './node-event';
+import { assertIsTrue } from '../data/utils/asserts';
 
 const MAX_POOL_SIZE = 4;
 
@@ -126,10 +126,8 @@ activateTasksPool.get = function getActivateTask () {
 };
 
 function _componentCorrupted (node, comp, index) {
-    if (DEV) {
-        errorID(3817, node.name, index);
-        console.log('Corrupted component value:', comp);
-    }
+    errorID(3817, node.name, index);
+    console.log('Corrupted component value:', comp);
     if (comp) {
         node._removeComponent(comp);
     } else {
@@ -139,7 +137,7 @@ function _componentCorrupted (node, comp, index) {
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-expect-error
+        // @ts-expect-error Editor API usage
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
@@ -150,7 +148,7 @@ function _onLoadInEditor (comp) {
         }
     }
     if (!TEST) {
-        // @ts-expect-error
+        // @ts-expect-error Editor API usage
         _Scene.AssetsWatcher.start(comp);
     }
 }
@@ -206,7 +204,7 @@ export default class NodeActivator {
                 lastTask.onEnable.cancelInactive();
             }
         }
-        node.emit('active-in-hierarchy-changed', node);
+        node.emit(NodeEventType.ACTIVE_IN_HIERARCHY_CHANGED, node);
     }
 
     /**
@@ -246,6 +244,9 @@ export default class NodeActivator {
             }
         }
         if (comp._enabled) {
+            if (DEBUG) {
+                assertIsTrue(comp.node, getError(3823, comp.uuid, comp.name));
+            }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;
@@ -297,13 +298,9 @@ export default class NodeActivator {
             }
         }
 
-        // if (JSB) {
-        //     updateChildren(node);
-        // }
-        // activate children  recursively
-        const children = node._children;
-        for (let i = 0, len = children.length; i < len; ++i) {
-            const child = children[i];
+        // activate children recursively
+        for (let i = 0, len = node._children.length; i < len; ++i) {
+            const child = node._children[i];
             if (child._active) {
                 this._activateNodeRecursively(child, preloadInvoker, onLoadInvoker, onEnableInvoker);
             }
@@ -385,6 +382,9 @@ if (EDITOR) {
             }
         }
         if (comp._enabled) {
+            if (DEBUG) {
+                assertIsTrue(comp.node, getError(3823, comp.uuid, comp.name));
+            }
             const deactivatedOnLoading = !comp.node._activeInHierarchy;
             if (deactivatedOnLoading) {
                 return;

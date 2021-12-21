@@ -21,6 +21,10 @@ module.exports = {
             Canvas: `${url}/${version}/manual/en/ui-system/components/editor/canvas.html`,
             SkinnedMeshRenderer: `${url}/${version}/manual/en/engine/animation/skeletal-animation.html`,
             SkinnedMeshBatchRenderer: `${url}/${version}/manual/en/engine/animation/skeletal-animation.html`,
+            Ambient: `${url}/${version}/manual/zh/concepts/scene/light/lighttype/ambient.html`,
+            Skybox: `${url}/${version}/manual/zh/concepts/scene/skybox.html`,
+            Fog: `${url}/${version}/manual/zh/concepts/scene/fog.html`,
+            Shadow: `${url}/${version}/manual/zh/concepts/scene/light/shadow.html`,
             DirectionalLight: `${url}/${version}/manual/en/concepts/scene/light/dir-light.html`,
             SphereLight: `${url}/${version}/manual/en/concepts/scene/light/sphere-light.html`,
             SpotLight: `${url}/${version}/manual/en/concepts/scene/light/spot-light.html`,
@@ -64,10 +68,51 @@ module.exports = {
             Terrain: `${url}/${version}/manual/en/editor/terrain/`,
             TiledMap: ``,
             Spine: ``,
+            OctreeCulling: `${url}/${version}/manual/en/advanced-topics/native-scene-culling.html`,
         },
     },
+    ambient: {
+        skyLightingColor: 'Sky Color (Upper sphere lighting source).',
+        groundLightingColor: 'Ground Color (Lower sphere lighting source).',
+        skyIllum: 'Ambient lighting intensity.',
+    },
+    skybox: {
+        applyDiffuseMap: 'When checking, scene objects will use accurate diffusion map instead of hemisphere lighting.',
+        enabled: 'Enable or disable skybox rendering with Envmap cube texture settings.',
+        useIBL: 'When checking, scene objects will calculate image based lighting from Envmap settings with diffuse and specular-reflections. Otherwise objects only calculate hemisphere diffuse lighting.',
+        useHDR: 'Toggle HDR or LDR mode. Each mode has seperate light source settings, HDR mode uses physical luminosity unit with camera exposure attributes, and LDR mode uses none-unit without exposure calculations.',
+        envmap: 'Set skybox texture and environment light source. Support cross / longitude and latitude / 6-separated cube textures. Support hdr / tga / png file type.',
+    },
+    fog: {
+        enabled: 'Enable or disable global fog effect.',
+        accurate: 'Toggle vertex fog and pixel fog. Pixel fog has more accurate visual effect with low vertex count objects, but vertex fog has better performance.',
+        fogColor: 'Fog In-Scattering Color.',
+        type: 'Different calculation models.',
+        fogDensity: 'The larger the value, the more foggy it looks.',
+        fogStart: 'Fog will start with this value (world space unit). Increase this value if you want more clarity nearby.',
+        fogEnd: 'Further than this value (world space unit), will receive maximum fog effect.',
+        fogAtten: 'The smaller the value, the more foggy it looks.',
+        fogTop: 'Objects above this height value (world space unit) are not affected by fog.',
+        fogRange: 'Fog extends down this range value (world space unit) from the top point.',
+    },
+    shadow: {
+        enabled: 'Enable or disable real time shadows.',
+        normal: 'The normal of the plane which receives shadow.',
+        distance: 'The distance from coordinate origin to the receiving plane.',
+        saturation: 'Shadow saturation. This value should be 1.0, we recommend that you\'d rather increase ambient lighting than modify this value. ',
+        pcf: 'Enable soft shadows.',
+        bias: 'Bias value (world space unit) that can avoid moire artifacts with shadows. The more the value, the more the light leakage.',
+        normalBias: 'Bias value (world space unit) that can avoid moire artifacts with surfaces that parallel to the directional light.',
+        shadowMapSize: 'Shadowmap resolutions.',
+        fixedArea: 'Toggle CSM and fixed area shadows. When checking, shadow will not follow camera, it distributes around directional light position. It is a legacy mode that we do not recommend.',
+        near: 'Fix area start.',
+        far: 'Fix area end.',
+        orthoSize: 'Fix area size, the larger value, the lower precision of shadows.',
+        invisibleOcclusionRange: 'If some shadow near the camera is missing, increase this value (world space unit) to fix it.',
+        shadowDistance: 'Shadows do not appear beyond this distance (world space unit).',
+    },
     animation: {
-        default_clip: 'When checking, the deault animation clip is automatically played.',
+        default_clip: 'When checking, the default animation clip is automatically played.',
         clips: 'You can access and play animation clips via a script',
         play_on_load: 'Automatically play animation clip with the scene is loaded',
         use_baked_animation:
@@ -123,6 +168,7 @@ module.exports = {
         skinning_root: 'The skinning root, where the controlling Animation is located',
     },
     sprite: {
+        gray_scale: 'Whether turn on grayscale rendering mode',
         sprite_frame: 'SpriteFrame image to use',
         atlas: 'Atlas that the image belongs to',
         type:
@@ -145,6 +191,9 @@ module.exports = {
             'Set the size of the node on which the Sprite component is on. CUSTOM for setting width and height manually;TRIMMED to use image size with transparent pixels trimmed; RAW to use image size without trimming.',
         trim:
             "Whether to render transparent pixels around image in node's bounding box. If you check this option the bounding box will not include transparent pixels around the image.",
+    },
+    UIOpacity: {
+        opacity: 'The value between 0 to 255 showing the transparency of the object',
     },
     billboard: {
         texture: 'Billboard texture',
@@ -204,9 +253,11 @@ module.exports = {
         system_font: 'Whether to use the system default font',
         cache_mode:
             'Text cache modes：\n 1. NONE: No cache，draw once. \n 2. BITMAP: Text is added as a static image to the dynamic atlas for batch merging, but its content cannot be dynamically modified frequently. \n 3. CHAR: Split the text into characters and cache the character texture into a character atlas for reuse, which is suitable for text content with repeated character content and frequently updated.',
-        font_bold: 'Bold font',
+        font_bold: 'Font bold',
         font_italic: 'Font italic',
         font_underline: 'Font underlined',
+        spacing_x: 'The spacing between text characters, only available in BMFont',
+        underline_height: 'The height of underline',
     },
     labelOutline: {
         color: 'Outline color',
@@ -292,6 +343,7 @@ module.exports = {
     renderable2D: {
         srcBlendFactor: 'Source blend factor',
         dstBlendFactor: 'Destination blend factor',
+        customMaterial: 'User specified material',
         color: 'Render color',
     },
     rotationOvertimeModule: {
@@ -501,7 +553,7 @@ module.exports = {
         distance: 'The distance from the camera for displaying the 2d node in normal size',
         sync_events: 'Event callback after coordinates synchronization.\nThe first parameter of the callback is the mapped local coordinate in UI camera.\nThe second parameter is the distance scale of the 3d node from the 3d camera viewport.',
     },
-    SubContextView: {
+    subContextView: {
         design_size: 'Design resolution of the SubContextView, dynamic updates at runtime is not possible',
         fps: 'Update frame rate for the SubContextView',
     },
@@ -615,7 +667,13 @@ module.exports = {
         textureAnimationModule: 'Texture animation module',
         trailModule: 'Trail module(only support on CPU)',
         renderer: 'Particle render module',
-        enableCulling: 'Cull disabled data if true',
+        renderCulling: 'Whether to enable the particle culling feature. If enabled, a particle emitter bounding box will be generated, and the particle emitter will be culled if the bounding box is not in the visible range of the camera. Please refer to the cullingMode option below for the behavior settings after particle culling.',
+        cullingMode: 'Sets the behavior of the particle emitter after it has been culled. The available options include Pause, Pause and Catchup, and Always Simulate.\nWhen the Pause is selected, the particle will pause the simulation if the particle emitter bounding box is not in the camera\'s visible range. If it resumes visibility, the particle will continue simulating at the time of last pause.\nWhen the Pause and Catchup is selected, if the particle emitter bounding box is not in the camera\'s visible range, the particle will pause the simulation.  If visible again, the particle will start simulating at the current time.\nWhen the Always Simulate is selected, the particle will keep simulating regardless of whether the particle emitter bounding box is in the camera\'s visible range, but will not render when it is not in the camera\'s visible range.',
+        alignSpace: 'Particle alignment space, the available options include View Space, World Space and Local Space.\nWhen the View Space is selected, the rotation direction of the particle mesh will follow the camera\'s view direction.\nWhen the World Space is selected, the direction of the particle mesh will use the world space rotation direction of the node where the particle emitter is located.\nWhen the Local Space is selected, the particle mesh will use the local space rotation direction of the node where the particle emitter is located.',
+        aabbHalfX: 'Half width of the emitter bounding box',
+        aabbHalfY: 'Half height of the emitter bounding box',
+        aabbHalfZ: 'Half length of the emitter bounding box',
+        dataCulling: 'Cull disabled data if true',
     },
     mask: {
         type: 'The mask type',
@@ -726,6 +784,10 @@ module.exports = {
             label: "User Interface",
             description: "User interface support.",
         },
+        gpu_driven: {
+            label: "GPU Driven",
+            description: "Whether to enable GPU-driven solutions",
+        },
         base_3d: {
             label: "Basic 3D Features",
             description: "Components and tools that are widely used in general 3D applications.",
@@ -747,8 +809,8 @@ module.exports = {
             description: "Physics system that based on cannon.js.",
         },
         physics_ammo: {
-            label: "bullet(ammo.js) Based Physics System",
-            description: "Physics system that based on bullet(ammo.js).",
+            label: "Bullet Based Physics System",
+            description: "Physics system that based on Bullet.",
         },
         physics_physx: {
             label: "PhysX Based Physics System",
@@ -830,6 +892,7 @@ module.exports = {
         priority:'Priority of rendering ordering.',
     },
     graphics: {
+        lineWidth: 'The width of edges',
         lineJoin: 'Determines how two connecting segments (of lines, arcs or curves) with non-zero lengths in a shape are joined together.',
         lineCap: 'Determines how the end points of every line are drawn.',
         strokeColor: 'Brush stroke color.',
@@ -881,5 +944,11 @@ module.exports = {
             torque: 'The torque applied to the rigid body in the world coordinate system',
             localTorque: 'The torque applied to the rigid body in the local coordinate system',
         },
+    },
+    octree_culling: {
+        enabled: 'The switch of octree culling, only available for native platforms.',
+        minPos: 'The minimum position of the world bounding box.',
+        maxPos: 'The maximum position of the world bounding box.',
+        depth: 'The depth of octree.',
     },
 };

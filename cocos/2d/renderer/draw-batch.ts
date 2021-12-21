@@ -36,10 +36,10 @@ import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Model } from '../../core/renderer/scene/model';
-import { Batcher2D } from './batcher-2d';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
+import { IBatcher } from './i-batcher';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -80,7 +80,8 @@ export class DrawBatch2D {
             this._nativeObj.visFlags = vis;
         }
     }
-    public get passes () {
+
+    get passes () {
         return this._passes;
     }
 
@@ -107,12 +108,13 @@ export class DrawBatch2D {
 
     constructor () {
         if (JSB) {
+            // @ts-expect-error jsb related codes
             this._nativeObj = new jsb.DrawBatch2D();
             this._nativeObj.visFlags = this._visFlags;
         }
     }
 
-    public destroy (ui: Batcher2D) {
+    public destroy (ui: IBatcher) {
         this._passes = [];
         if (JSB) {
             this._nativeObj = null;
@@ -134,7 +136,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches) {
+    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches, batcher: IBatcher) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }

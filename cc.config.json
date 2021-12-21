@@ -26,7 +26,13 @@
         "tween": { "modules": [ "tween" ] },
         "tiled-map": { "modules": [ "tiled-map" ] },
         "spine": { "modules": [ "spine" ] },
-        "dragon-bones": { "modules": [ "dragon-bones" ] }
+        "dragon-bones": { "modules": [ "dragon-bones" ] },
+        "marionette": {
+            "modules": [],
+            "intrinsicFlags": {
+                "MARIONETTE": true
+            }
+        }
     },
     "moduleOverrides": [
         {
@@ -133,6 +139,19 @@
             "overrides": {
                 "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
             }
+        },
+        {
+            "test": "!context.buildTimeConstants.MARIONETTE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/core/animation/marionette/runtime-exports.ts": "cocos/core/animation/marionette/index-empty.ts"
+            }
         }
+    ],
+    "includes": [
+        "./exports/**/*.{ts,js,json}",
+        "./editor/exports/**/*.{ts,js,json}",
+        "./cocos/**/*.{ts,js,json}",
+        "./pal/**/*.{ts,js,json}"
     ]
 }

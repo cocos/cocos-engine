@@ -33,7 +33,7 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visib
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { warnID } from '../../core/platform';
-import { Batcher2D } from '../renderer/batcher-2d';
+import { IBatcher } from '../renderer/i-batcher';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -367,6 +367,7 @@ export class Mask extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._updateGraphics();
+        this._enableGraphics();
     }
 
     /**
@@ -437,11 +438,11 @@ export class Mask extends Renderable2D {
         return result;
     }
 
-    protected _render (render: Batcher2D) {
+    protected _render (render: IBatcher) {
         render.commitComp(this, null, this._assembler!, null);
     }
 
-    protected _postRender (render: Batcher2D) {
+    protected _postRender (render: IBatcher) {
         if (!this._postAssembler) {
             return;
         }
@@ -585,6 +586,13 @@ export class Mask extends Renderable2D {
         }
     }
 
+    protected _enableGraphics () {
+        if (this._graphics) {
+            // @ts-expect-error hack for mask _graphics renderFlag
+            this._graphics._renderFlag = this._graphics._canRender();
+        }
+    }
+
     protected _disableGraphics () {
         if (this._graphics) {
             this._graphics.onDisable();
@@ -609,6 +617,6 @@ export class Mask extends Renderable2D {
     }
 }
 
-NodeEventProcessor._comp = Mask;
+NodeEventProcessor._maskComp = Mask;
 
 legacyCC.Mask = Mask;

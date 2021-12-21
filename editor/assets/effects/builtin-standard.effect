@@ -7,38 +7,23 @@ CCEffect %{
     - vert: standard-vs
       frag: standard-fs
       properties: &props
-        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
-        mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
-        albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
-        occlusion:      { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
-        roughness:      { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
-        metallic:       { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        SpecularIntensity:  { value: 0.5, target: pbrParams.w, editor: {  slide: true, range: [0.0, 1.0], step: 0.001 } }
-        normalStrenth:  { value: 1.0, target: miscParams.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
-        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
-        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
-        mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
-        normalMap:      { value: normal       }
-        pbrMap:         { value: grey         }
-        metallicRoughnessMap: { value: grey   }
-        occlusionMap:   { value: white        }
-        emissiveMap:    { value: grey         }
-      migrations:
-        properties:
-          pbrParams: { removeImmediately: true }
-    - &deferred
-      vert: standard-vs
-      frag: standard-fs
-      phase: deferred
-      propertyIndex: 0
-      blendState:
-        targets:
-        - blend: false
-        - blend: false
-        - blend: false
-        - blend: false
-      properties: *props
+        tilingOffset:         { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:            { value: [1.0, 1.0, 1.0, 1.0], target: albedo, linear: true, editor: { displayName: Albedo, type: color } }
+        albedoScale:          { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
+        alphaThreshold:       { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:            { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        roughness:            { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        metallic:             { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        SpecularIntensity:    { value: 0.5, target: pbrParams.w, editor: { slide: true, range: [0.0, 1.0], step: 0.001 } }
+        emissive:             { value: [0.0, 0.0, 0.0, 1.0], linear: true, editor: { type: color } }
+        emissiveScale:        { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
+        normalStrenth:        { value: 1.0, target: emissiveScaleParam.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        mainTexture:          { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
+        normalMap:            { value: normal }
+        pbrMap:               { value: grey }
+        metallicRoughnessMap: { value: grey }
+        occlusionMap:         { value: white }
+        emissiveMap:          { value: grey }
     - &forward-add
       vert: standard-vs
       frag: standard-fs
@@ -56,7 +41,6 @@ CCEffect %{
           blendDst: one
           blendSrcAlpha: zero
           blendDstAlpha: one
-      properties: *props
     - &shadow-caster
       vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
@@ -69,18 +53,12 @@ CCEffect %{
         mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
         alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        occlusion:      { value: 1.0, target: pbrParams.x }
-        roughness:      { value: 0.8, target: pbrParams.y }
-        metallic:       { value: 0.6, target: pbrParams.z }
-        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
-        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
-        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
   - name: transparent
     passes:
     - vert: standard-vs
       frag: standard-fs
-      embeddedMacros: { CC_STANDARD_TRANSPARENT: true }
+      embeddedMacros: { CC_FORCE_FORWARD_SHADING: true }
       depthStencilState:
         depthTest: true
         depthWrite: false
@@ -101,7 +79,6 @@ CCProgram shared-ubos %{
     vec4 albedo;
     vec4 albedoScaleAndCutoff;
     vec4 pbrParams;
-    vec4 miscParams;
     vec4 emissive;
     vec4 emissiveScaleParam;
   };
@@ -150,6 +127,12 @@ CCProgram standard-vs %{
 
     v_position = pos.xyz;
     v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
+
+    #if USE_TWOSIDE
+      vec3 viewDirect = normalize(cc_cameraPos.xyz - v_position);
+      v_normal *= dot(v_normal, viewDirect) < 0.0 ? -1.0 : 1.0;
+    #endif
+
     #if USE_NORMAL_MAP
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
       v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
@@ -176,7 +159,6 @@ CCProgram standard-vs %{
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
       CCLightingMapCaclUV();
     #endif
-
 
     gl_Position = cc_matProj * (cc_matView * matWorld) * In.position;
   }
@@ -226,11 +208,10 @@ CCProgram standard-fs %{
     #pragma define EMISSIVE_UV options([v_uv, v_uv1])
   #endif
 
-  #define OCCLUSION_CHANNEL r
-  #define ROUGHNESS_CHANNEL g
-  #define METALLIC_CHANNEL  b
-  #define SPECULARINTENSITY_CHANNEL w
-
+  #define OCCLUSION_CHANNEL          r
+  #define ROUGHNESS_CHANNEL          g
+  #define METALLIC_CHANNEL           b
+  #define SPECULAR_INTENSITY_CHANNEL a
 
   #if USE_ALPHA_TEST
     #pragma define ALPHA_TEST_CHANNEL options([a, r])
@@ -239,7 +220,7 @@ CCProgram standard-fs %{
   void surf (out StandardSurface s) {
     vec4 baseColor = albedo;
     #if USE_VERTEX_COLOR
-      baseColor.rgb *= SRGBToLinear(v_color.rgb);//use linear
+      baseColor.rgb *= SRGBToLinear(v_color.rgb); // use linear
       baseColor.a *= v_color.a;
     #endif
     #if USE_ALBEDO_MAP
@@ -264,8 +245,8 @@ CCProgram standard-fs %{
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
       s.normal =
-        (nmmp.x * miscParams.x) * normalize(v_tangent) +
-        (nmmp.y * miscParams.x) * normalize(v_bitangent) +
+        (nmmp.x * emissiveScaleParam.w) * normalize(v_tangent) +
+        (nmmp.y * emissiveScaleParam.w) * normalize(v_bitangent) +
         nmmp.z * normalize(s.normal);
     #endif
 
@@ -277,7 +258,7 @@ CCProgram standard-fs %{
       pbr.x *= res.OCCLUSION_CHANNEL;
       pbr.y *= res.ROUGHNESS_CHANNEL;
       pbr.z *= res.METALLIC_CHANNEL;
-      pbr.w *= res.SPECULARINTENSITY_CHANNEL;
+      pbr.w *= res.SPECULAR_INTENSITY_CHANNEL;
     #endif
     #if USE_METALLIC_ROUGHNESS_MAP
       vec4 metallicRoughness = texture(metallicRoughnessMap, PBR_UV);
@@ -287,8 +268,8 @@ CCProgram standard-fs %{
     #if USE_OCCLUSION_MAP
       pbr.x *= texture(occlusionMap, PBR_UV).OCCLUSION_CHANNEL;
     #endif
-    s.occlusion = clamp(pbr.x, 0.0, 0.96);
-    s.roughness = clamp(pbr.y, 0.04, 1.0);
+    s.occlusion = pbr.x;
+    s.roughness = pbr.y;
     s.metallic = pbr.z;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
@@ -342,7 +323,7 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
   #include <packing>
-  #include <cc-shadow>
+  #include <cc-shadow-map-base>
 
   in vec2 v_uv;
   in vec2 v_uv1;
@@ -373,18 +354,14 @@ CCProgram shadow-caster-fs %{
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
       // enabled linear depth
       if (cc_shadowNFLSInfo.z > 0.000001) {
-        vec4 viewStartPos = cc_matLightView * v_worldPos;
-        float dist = length(viewStartPos.xyz);
-        float linearDepth = cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
-
-        return vec4(linearDepth, 1.0, 1.0, 1.0);
+        return vec4(CCGetLinearDepth(v_worldPos.xyz), 1.0, 1.0, 1.0);
       }
     }
 
     if (cc_shadowLPNNInfo.y > 0.000001) {
       return packDepthToRGBA(v_clip_depth);
     }
-  
+
     return vec4(v_clip_depth, 1.0, 1.0, 1.0);
   }
 }%

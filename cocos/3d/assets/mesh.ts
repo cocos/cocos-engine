@@ -287,6 +287,10 @@ export class Mesh extends Asset {
         super();
     }
 
+    public onLoaded () {
+        this.initialize();
+    }
+
     public initialize () {
         if (this._initialized) {
             return;
@@ -347,7 +351,7 @@ export class Mesh extends Asset {
                 const attrs = vertexBundle.attributes;
                 for (let j = 0; j < attrs.length; ++j) {
                     const attr = attrs[j];
-                    gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isInstanced, attr.stream, attr.isInstanced, attr.location);
+                    gfxAttributes[j] = new Attribute(attr.name, attr.format, attr.isNormalized, attr.stream, attr.isInstanced, attr.location);
                 }
             }
 
@@ -1011,10 +1015,6 @@ export class Mesh extends Asset {
             },
             data: globalEmptyMeshBuffer,
         });
-    }
-
-    public validate () {
-        return this.renderingSubMeshes.length > 0 && this.data.byteLength > 0;
     }
 }
 legacyCC.Mesh = Mesh;
