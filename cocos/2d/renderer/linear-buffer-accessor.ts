@@ -68,6 +68,10 @@ export class LinearBufferAccessor extends BufferAccessor {
         this.vertexStart = 0;
 
         for (let i = 0; i <= this._currentId; ++i) {
+            const buf = this._buffers[i];
+            buf.byteOffset = 0;
+            buf.indexOffset = 0;
+            buf.vertexOffset = 0;
             this._buffers[i].reset();
         }
         this._currentId = 0;

@@ -91,9 +91,6 @@ export class MeshBuffer extends ScalableContainer {
     }
 
     public reset () {
-        this.byteOffset = 0;
-        this.indexOffset = 0;
-        this.vertexOffset = 0;
         this._nextFreeIAHandle = 0;
         this._dirty = false;
     }
