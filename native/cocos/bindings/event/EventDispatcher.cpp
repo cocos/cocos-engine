@@ -48,7 +48,7 @@ std::unordered_map<std::string, EventDispatcher::Node *> EventDispatcher::listen
 uint32_t                                                 EventDispatcher::hashListenerId = 1;
 
 bool EventDispatcher::initialized() {
-    return inited;
+    return inited && se::ScriptEngine::getInstance()->isValid();
 };
 
 void EventDispatcher::init() {

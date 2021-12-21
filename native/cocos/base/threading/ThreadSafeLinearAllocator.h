@@ -67,6 +67,7 @@ private:
 
     void *              _buffer{nullptr};
     size_t              _capacity{0};
+    size_t              _alignment{1};
     std::atomic<size_t> _usedSize{0};
 };
 
