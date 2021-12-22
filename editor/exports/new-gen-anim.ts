@@ -21,25 +21,101 @@ export type {
 
 export * from '../../cocos/core/animation/marionette/asset-creation';
 
-export class TransitionPreviewer {
+class AnimationGraphPartialPreviewer {
     constructor(root: Node) {
         this._root = root;
-        const bindContext: BindContext = {
-            getVar: this._getVar.bind(this),
-        };
-        this._source = new TransitionEndpoint(root, this._blendBuffer, bindContext);
-        this._target = new TransitionEndpoint(root, this._blendBuffer, bindContext);
-    }
-
-    get source() {
-        return this._source;
-    }
-
-    get target() {
-        return this._target;
     }
 
     public destroy() {
+    }
+
+    public evaluate() {
+        this._blendBuffer.apply();
+    }
+
+    public addVariable(id: string, type: VariableType, value: Value) {
+        this._varInstances[id] = new VarInstance(type, value);
+    }
+
+    public removeVariable(id: string) {
+        delete this._varInstances[id];
+    }
+
+    public updateVariable(id: string, value: Value) {
+        this._varInstances[id].value = value;
+    }
+
+    protected createMotionEval(motion: Motion) {
+        const {
+            _root: root,
+            _blendBuffer: blendBuffer,
+        } = this;
+
+        const bindContext: BindContext = {
+            getVar: this._getVar.bind(this),
+        };
+
+        const motionEval = motion[createEval]({
+            node: root,
+            blendBuffer,
+            getVar: (...args) => {
+                return bindContext.getVar(...args);
+            },
+        });
+
+        return motionEval;
+    }
+
+    private _root: Node;
+
+    private _blendBuffer = new BlendStateBuffer();
+
+    private _varInstances: Record<string, VarInstance> = {};
+
+    private _getVar(id: string): VarInstance | undefined {
+        return this._varInstances[id];
+    }
+}
+
+export class AnimationBlendPreviewer extends AnimationGraphPartialPreviewer {
+    public setMotion(motion: Motion) {
+        this._motionEval = super.createMotionEval(motion);
+    }
+
+    public setTime(time: number) {
+        this._time = time;
+    }
+
+    public evaluate(): void {
+        const {
+            _motionEval: motionEval,
+        } = this;
+        if (!motionEval) {
+            return;
+        }
+        motionEval.sample(this._time / this._motionEval.duration, 1.0);
+        super.evaluate();
+    }
+
+    private _time: number = 0.0;
+
+    private _motionEval: MotionEval | null = null;
+}
+
+export class TransitionPreviewer extends AnimationGraphPartialPreviewer {
+    constructor(root: Node) {
+        super(root);
+    }
+
+    public destroy() {
+    }
+
+    public setSourceMotion(motion: Motion) {
+        this._source = super.createMotionEval(motion);
+    }
+
+    public setTargetMotion(motion: Motion) {
+        this._target = super.createMotionEval(motion);
     }
 
     public setTransitionDuration(value: number) {
@@ -58,18 +134,6 @@ export class TransitionPreviewer {
         this._exitConditionEnabled = value;
     }
 
-    public addVariable(id: string, type: VariableType, value: Value) {
-        this._varInstances[id] = new VarInstance(type, value);
-    }
-
-    public removeVariable(id: string) {
-        delete this._varInstances[id];
-    }
-
-    public updateVariable(id: string, value: Value) {
-        this._varInstances[id].value = value;
-    }
-
     /**
      * 
      * @param time Player time, in seconds.
@@ -79,22 +143,9 @@ export class TransitionPreviewer {
     }
 
     public evaluate() {
-        this._eval();
-    }
-
-    private _root: Node;
-    private _time: number;
-    private _transitionDuration: number = 0.0;
-    private _relativeDuration: boolean = false;
-    private _exitConditionEnabled: boolean = false;
-    private _exitCondition: number = 0.0;
-    private _blendBuffer = new BlendStateBuffer();
-    private _source: TransitionEndpoint;
-    private _target: TransitionEndpoint;
-    private _varInstances: Record<string, VarInstance> = {};
-
-    private _eval() {
         const {
+            _source: source,
+            _target: target,
             _time: time,
             _exitCondition: exitCondition,
             _exitConditionEnabled: exitConditionEnabled,
@@ -102,7 +153,12 @@ export class TransitionPreviewer {
             _relativeDuration: relativeDuration,
         } = this;
 
-        const sourceDuration = this._source.duration;
+        if (!source || !target) {
+            return;
+        }
+
+        const sourceDuration = source.duration;
+        const targetDuration = target.duration;
 
         const exitTimeAbsolute = exitConditionEnabled
             ? sourceDuration * exitCondition
@@ -113,62 +169,28 @@ export class TransitionPreviewer {
             : transitionDuration;
 
         if (time < exitTimeAbsolute) {
-            this._source.eval(time, 1.0);
+            source.sample(time / sourceDuration, 1.0);
         } else {
             const transitionTime = time - exitTimeAbsolute;
             if (transitionTime > transitionDurationAbsolute) {
-                this._target.eval(transitionTime, 1.0);
+                target.sample(transitionTime / targetDuration, 1.0);
             } else {
                 const transitionRatio = transitionTime / transitionDurationAbsolute;
                 const sourceWeight = 1.0 - transitionRatio;
                 const targetWeight = transitionRatio;
-                this._source.eval(time, sourceWeight);
-                this._target.eval(transitionTime, targetWeight);
+                source.sample(time / sourceDuration, sourceWeight);
+                target.sample(transitionTime / targetDuration, targetWeight);
             }
         }
 
-        this._blendBuffer.apply();
+        super.evaluate();
     }
 
-    private _getVar(id: string): VarInstance | undefined {
-        return this._varInstances[id];
-    }
-}
-
-class TransitionEndpoint {
-    constructor(root: Node, blendBuffer: BlendStateBuffer, bindContext: BindContext) {
-        this._root = root;
-        this._blendBuffer = blendBuffer;
-        this._bindContext = bindContext;
-    }
-
-    get duration() {
-        return this._motionEval.duration;
-    }
-
-    public setMotion(motion: Motion) {
-        const {
-            _root: root,
-            _blendBuffer: blendBuffer,
-        } = this;
-
-        const motionEval = motion[createEval]({
-            node: root,
-            blendBuffer,
-            getVar: (...args) => {
-                return this._bindContext.getVar(...args);
-            },
-        });
-
-        this._motionEval = motionEval;
-    }
-
-    public eval(progress: number, weight: number) {
-        this._motionEval.sample(progress, weight);
-    }
-
-    private declare _root: Node;
-    private declare _blendBuffer: BlendStateBuffer;
-    private declare _bindContext: BindContext;
-    private _motionEval: MotionEval;
+    private _time: number;
+    private _transitionDuration: number = 0.0;
+    private _relativeDuration: boolean = false;
+    private _exitConditionEnabled: boolean = false;
+    private _exitCondition: number = 0.0;
+    private _source: MotionEval | null;
+    private _target: MotionEval | null;
 }
