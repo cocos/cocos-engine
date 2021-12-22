@@ -1391,7 +1391,7 @@ export function WebGL2CmdFuncDestroyFramebuffer (device: WebGL2Device, gpuFrameb
     if (gpuFramebuffer.glFramebuffer) {
         if (device.stateCache.glFramebuffer === gpuFramebuffer.glFramebuffer) {
             device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, null);
-            device.stateCache.glFramebuffer = null!;
+            device.stateCache.glFramebuffer = null;
         }
         device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         gpuFramebuffer.glFramebuffer = null;
