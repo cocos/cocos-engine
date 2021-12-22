@@ -257,29 +257,31 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private doUpdateRotation (pass) {
-        if (this._alignSpace === AlignmentSpace.Local) {
-            this._particleSystem.node.getRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.World) {
-            this._particleSystem.node.getWorldRotation(_node_rot);
-        } else if (this._alignSpace === AlignmentSpace.View) {
-            // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
-            const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
-            if (cameraLst !== undefined) {
-                for (let i = 0; i < cameraLst?.length; ++i) {
-                    const camera:Camera = cameraLst[i];
-                    // eslint-disable-next-line max-len
-                    const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
-                    if (checkCamera) {
-                        Quat.fromViewUp(_node_rot, camera.forward);
-                        break;
+        if (this._renderInfo!.renderMode === RenderMode.Mesh) {
+            if (this._alignSpace === AlignmentSpace.Local) {
+                this._particleSystem.node.getRotation(_node_rot);
+            } else if (this._alignSpace === AlignmentSpace.World) {
+                this._particleSystem.node.getWorldRotation(_node_rot);
+            } else if (this._alignSpace === AlignmentSpace.View) {
+                // Quat.fromEuler(_node_rot, 0.0, 0.0, 0.0);
+                _node_rot.set(0.0, 0.0, 0.0, 1.0);
+                const cameraLst: Camera[]|undefined = this._particleSystem.node.scene.renderScene?.cameras;
+                if (cameraLst !== undefined) {
+                    for (let i = 0; i < cameraLst?.length; ++i) {
+                        const camera:Camera = cameraLst[i];
+                        // eslint-disable-next-line max-len
+                        const checkCamera: boolean = !EDITOR ? (camera.visibility & this._particleSystem.node.layer) === this._particleSystem.node.layer : camera.name === 'Editor Camera';
+                        if (checkCamera) {
+                            Quat.fromViewUp(_node_rot, camera.forward);
+                            break;
+                        }
                     }
                 }
+            } else {
+                _node_rot.set(0.0, 0.0, 0.0, 1.0);
             }
-        } else {
-            _node_rot.set(0.0, 0.0, 0.0, 1.0);
+            pass.setUniform(this._uNodeRotHandle, _node_rot);
         }
-        pass.setUniform(this._uNodeRotHandle, _node_rot);
     }
 
     public updateScale () {
