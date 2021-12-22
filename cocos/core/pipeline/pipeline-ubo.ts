@@ -26,13 +26,13 @@
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsFloatTexture, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
-import { Mat4, Vec2, Vec3, Vec4, Color } from '../math';
+import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
 import { ShadowType } from '../renderer/scene/shadows';
 import { updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
-import { SpotLight } from '../renderer/scene';
+import { DirectionalLight, SpotLight } from '../renderer/scene';
 import { RenderWindow } from '../renderer/core/render-window';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets';
@@ -171,7 +171,7 @@ export class PipelineUBO {
                 let matShadowView;
                 let matShadowProj;
                 let matShadowViewProj;
-                if (!shadowInfo.fixedArea) {
+                if (!mainLight.fixedArea) {
                     near = 0.1;
                     far = shadowInfo.shadowCameraFar;
                     matShadowView = shadowInfo.matShadowView;
@@ -180,10 +180,10 @@ export class PipelineUBO {
                 } else {
                     Mat4.invert(_matShadowView, mainLight.node!.getWorldMatrix());
                     matShadowView = _matShadowView;
-                    const x = shadowInfo.orthoSize;
-                    const y = shadowInfo.orthoSize;
-                    near = shadowInfo.near;
-                    far = shadowInfo.far;
+                    const x = mainLight.fixedOrthoSize;
+                    const y = mainLight.fixedOrthoSize;
+                    near = mainLight.fixedNear;
+                    far = mainLight.fixedFar;
                     Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
                         device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
                     matShadowProj = _matShadowProj;
@@ -210,16 +210,16 @@ export class PipelineUBO {
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = near;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = far;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
-                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 1.0 - shadowInfo.saturation;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 1.0 - mainLight.shadowSaturation;
 
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
-                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
-                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
+                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = mainLight.shadowPcf;
+                sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = mainLight.shadowBias;
 
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 0.0;
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
-                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = mainLight.shadowNormalBias;
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
             } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
                 updatePlanarPROJ(shadowInfo, mainLight, sv);
@@ -241,8 +241,9 @@ export class PipelineUBO {
         let matShadowProj;
         let matShadowViewProj;
         switch (light.type) {
-        case LightType.DIRECTIONAL:
-            if (!shadowInfo.fixedArea) {
+        case LightType.DIRECTIONAL: {
+            const mainLight = light as DirectionalLight;
+            if (!mainLight.fixedArea) {
                 near = 0.1;
                 far = shadowInfo.shadowCameraFar;
                 matShadowView = shadowInfo.matShadowView;
@@ -251,10 +252,10 @@ export class PipelineUBO {
             } else {
                 Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
                 matShadowView = _matShadowView;
-                const x = shadowInfo.orthoSize;
-                const y = shadowInfo.orthoSize;
-                near = shadowInfo.near;
-                far = shadowInfo.far;
+                const x = mainLight.fixedOrthoSize;
+                const y = mainLight.fixedOrthoSize;
+                near = mainLight.fixedNear;
+                far = mainLight.fixedFar;
                 Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
                     device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
                 matShadowProj = _matShadowProj;
@@ -276,13 +277,18 @@ export class PipelineUBO {
 
             Mat4.toArray(bufferView, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            _vec4ShadowInfo.set(near, far, linear, 1.0 - shadowInfo.saturation);
+            _vec4ShadowInfo.set(near, far, linear, 1.0 - mainLight.shadowSaturation);
             Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
-            _vec4ShadowInfo.set(0.0, packing, shadowInfo.normalBias, 0.0);
+            _vec4ShadowInfo.set(0.0, packing, mainLight.shadowNormalBias, 0.0);
             Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
+
+            _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, mainLight.shadowPcf, mainLight.shadowBias);
+            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
             break;
-        case LightType.SPOT:
+        }
+        case LightType.SPOT: {
+            const spotLight = light as SpotLight;
             Mat4.invert(_matShadowView, (light as any).node.getWorldMatrix());
             Mat4.toArray(sv, _matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
 
@@ -291,17 +297,18 @@ export class PipelineUBO {
             Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
             Mat4.toArray(sv, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-            _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 1.0 - shadowInfo.saturation);
+            _vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, 0.0);
             Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
 
-            _vec4ShadowInfo.set(1.0, packing, shadowInfo.normalBias, 0.0);
+            _vec4ShadowInfo.set(1.0, packing, spotLight.shadowNormalBias, 0.0);
             Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
+
+            _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, spotLight.shadowPcf, spotLight.shadowBias);
+            Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
             break;
+        }
         default:
         }
-
-        _vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
-        Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
 
         Color.toArray(sv, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
     }

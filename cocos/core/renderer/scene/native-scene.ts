@@ -114,6 +114,17 @@ export const NativeDirectionalLight: Constructor<{
     setDirection (dir: Vec3): void;
     setIlluminanceHDR (lum: number): void;
     setIlluminanceLDR(lum: number): void;
+    setShadowEnabled(val: boolean): void;
+    setShadowPcf(val: number): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
+    setShadowSaturation(val: number): void;
+    setShadowDistance(val: number): void;
+    setShadowInvisibleOcclusionRange(val: number): void;
+    setShadowFixedArea(val: boolean): void;
+    setShadowNear(val: number): void;
+    setShadowFar(val: number): void;
+    setShadowOrthoSize(val: number): void;
 } & NativeLight> = null!;
 export type NativeDirectionalLight = InstanceType<typeof NativeDirectionalLight>;
 
@@ -138,6 +149,10 @@ export const NativeSpotLight: Constructor<{
     setAngle (angle: number): void;
     setLuminanceHDR (lum: number): void;
     setLuminanceLDR(lum: number): void;
+    setShadowEnabled(val: boolean): void;
+    setShadowPcf(val: number): void;
+    setShadowBias(val: number): void;
+    setShadowNormalBias(val: number): void;
 } & NativeLight> = null!;
 export type NativeSpotLight = InstanceType<typeof NativeSpotLight>;
 
@@ -284,25 +299,15 @@ export const NativeAmbient: Constructor<{
 export type NativeAmbient = InstanceType<typeof NativeAmbient>;
 
 export const NativeShadow: Constructor<{
+    enabled: boolean;
+    shadowType: number;
     normal: Vec3;
     distance: number;
     color: Color;
-    nearValue: number;
-    farValue: number;
-    invisibleOcclusionRange: number;
-    shadowDistance: number;
-    orthoSize: number;
     size: Vec2;
-    pcfType: number;
     shadowMapDirty: boolean;
-    bias: number;
-    normalBias: number;
-    fixedArea: boolean;
     planarPass: NativePass;
     instancePass: NativePass;
-    enabled: boolean;
-    shadowType: number;
-    saturation: number;
 }> = null!;
 export type NativeShadow = InstanceType<typeof NativeShadow>;
 

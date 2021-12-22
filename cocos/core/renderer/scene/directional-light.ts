@@ -29,6 +29,7 @@ import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 import { NativeDirectionalLight } from './native-scene';
+import { PCFType, Shadows } from './shadows';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -37,6 +38,22 @@ export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminanceHDR: number = Ambient.SUN_ILLUM;
     protected _illuminanceLDR = 1.0;
+
+    // public
+    protected _shadowEnabled = false;
+
+    protected _shadowPcf = PCFType.HARD;
+    protected _shadowBias = 0.00001;
+    protected _shadowNormalBias = 0.0;
+    protected _shadowSaturation = 0.75;
+    protected _shadowDistance = 100;
+    protected _shadowInvisibleOcclusionRange = 200;
+
+    // fixed area
+    protected _shadowFixedArea = false;
+    protected _shadowNear = 0.1;
+    protected _shadowFar = 10.0;
+    protected _shadowOrthoSize = 5;
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
@@ -87,6 +104,164 @@ export class DirectionalLight extends Light {
         }
     }
 
+    /**
+     * @en Whether activate shadow
+     * @zh 是否启用阴影？
+     */
+    get shadowEnabled () {
+        return this._shadowEnabled;
+    }
+    set shadowEnabled (val) {
+        this._shadowEnabled = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowEnabled(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow pcf.
+      * @zh 获取或者设置阴影pcf等级。
+      */
+    get shadowPcf () {
+        return this._shadowPcf;
+    }
+    set shadowPcf (val) {
+        this._shadowPcf = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowPcf(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow map sampler offset
+      * @zh 获取或者设置阴影纹理偏移值
+      */
+    get shadowBias () {
+        return this._shadowBias;
+    }
+    set shadowBias (val) {
+        this._shadowBias = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowBias(val);
+        }
+    }
+
+    /**
+      * @en get or set normal bias.
+      * @zh 设置或者获取法线偏移。
+      */
+    get shadowNormalBias () {
+        return this._shadowNormalBias;
+    }
+    set shadowNormalBias (val: number) {
+        this._shadowNormalBias = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowNormalBias(val);
+        }
+    }
+
+    /**
+      * @en Shadow color saturation
+      * @zh 阴影颜色饱和度
+      */
+    get shadowSaturation () {
+        return this._shadowSaturation;
+    }
+    set shadowSaturation (val: number) {
+        if (val > 1.0) {
+            this._shadowSaturation = val / val;
+        } else {
+            this._shadowSaturation = val;
+        }
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowSaturation(this._shadowSaturation);
+        }
+    }
+
+    /**
+      * @en get or set shadow camera far
+      * @zh 获取或者设置潜在阴影产生的范围
+      */
+    get shadowDistance () {
+        return this._shadowDistance;
+    }
+    set shadowDistance (val) {
+        this._shadowDistance = Math.min(val, Shadows.MAX_FAR);
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowDistance(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow camera far
+      * @zh 获取或者设置潜在阴影产生的范围
+     */
+    get shadowInvisibleOcclusionRange () {
+        return this._shadowInvisibleOcclusionRange;
+    }
+    set shadowInvisibleOcclusionRange (val) {
+        this._shadowInvisibleOcclusionRange = Math.min(val, Shadows.MAX_FAR);
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowInvisibleOcclusionRange(val);
+        }
+    }
+
+    /**
+      * @en get or set fixed area shadow
+      * @zh 是否是固定区域阴影
+      */
+    get fixedArea () {
+        return this._shadowFixedArea;
+    }
+    set fixedArea (val) {
+        this._shadowFixedArea = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowFixedArea(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow camera near
+      * @zh 获取或者设置阴影相机近裁剪面
+      */
+    get fixedNear () {
+        return this._shadowNear;
+    }
+    set fixedNear (val) {
+        this._shadowNear = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowNear(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow camera far
+      * @zh 获取或者设置阴影相机远裁剪面
+      */
+    get fixedFar () {
+        return this._shadowFar;
+    }
+    set fixedFar (val) {
+        this._shadowFar = Math.min(val, Shadows.MAX_FAR);
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowFar(val);
+        }
+    }
+
+    /**
+      * @en get or set shadow camera orthoSize
+      * @zh 获取或者设置阴影相机正交大小
+      */
+    get fixedOrthoSize () {
+        return this._shadowOrthoSize;
+    }
+    set fixedOrthoSize (val) {
+        this._shadowOrthoSize = val;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setShadowOrthoSize(val);
+        }
+    }
+
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
@@ -97,6 +272,22 @@ export class DirectionalLight extends Light {
 
         this.illuminance = Ambient.SUN_ILLUM;
         this.direction = new Vec3(1.0, -1.0, -1.0);
+
+        // public
+        this.shadowEnabled = false;
+
+        this.shadowPcf = PCFType.HARD;
+        this.shadowBias = 0.00001;
+        this.shadowNormalBias = 0.0;
+        this.shadowSaturation = 0.75;
+        this.shadowDistance = 100;
+        this.shadowInvisibleOcclusionRange = 200;
+
+        // fixed area
+        this.fixedArea = false;
+        this.fixedNear = 0.1;
+        this.fixedFar = 10.0;
+        this.fixedOrthoSize = 5;
     }
 
     public update () {
