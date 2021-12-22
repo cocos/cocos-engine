@@ -955,7 +955,7 @@ export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWe
             if (device.stateCache.glTexUnits[i].glTexture === gpuTexture.glTexture) {
                 device.gl.activeTexture(device.gl.TEXTURE0 + i);
                 device.gl.bindTexture(gpuTexture.glTarget, null);
-                device.stateCache.glTexUnits[i].glTexture = null!;
+                device.stateCache.glTexUnits[i].glTexture = null;
             }
         }
         device.gl.deleteTexture(gpuTexture.glTexture);
