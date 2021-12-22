@@ -217,7 +217,7 @@ export class TerrainLayerInfo {
  * @en terrain layer binary info
  * @zh 地形纹理二进制信息
  */
- @ccclass('cc.TerrainLayerBinaryInfo')
+@ccclass('cc.TerrainLayerBinaryInfo')
 export class TerrainLayerBinaryInfo {
     public slot = 0;
     public tileSize = 1;
@@ -251,7 +251,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     get _nativeAsset (): ArrayBuffer {
         return this._data!.buffer;
@@ -408,14 +408,14 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _setNativeData (_nativeData: Uint8Array) {
         this._data = _nativeData;
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _loadNativeData (_nativeData: Uint8Array) {
         if (!_nativeData || _nativeData.length === 0) {
@@ -489,7 +489,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _exportNativeData (): Uint8Array {
         const stream = new TerrainBuffer();
@@ -551,7 +551,7 @@ export class TerrainAsset extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _exportDefaultNativeData (): Uint8Array {
         const stream = new TerrainBuffer();

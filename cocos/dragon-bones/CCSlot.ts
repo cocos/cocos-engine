@@ -17,28 +17,28 @@ export class CCSlot extends Slot {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     _localVertices: number[];
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     _indices: number[];
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     _matrix: Mat4;
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _worldMatrix: Mat4;
     protected _worldMatrixDirty: boolean;
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     _color: Color;
 

@@ -471,11 +471,11 @@ function isTempClassId (id) {
 
 // id registration
 /**
- * @marked_as_engine_private
+ * @legacy_public
  */
 export const _idToClass: Record<string, Constructor> = createMap(true);
 /**
- * @marked_as_engine_private
+ * @legacy_public
  */
 export const _nameToClass: Record<string, Constructor> = createMap(true);
 
@@ -512,7 +512,7 @@ js.unregisterClass to remove the id of unused class';
  * @method _setClassId
  * @param classId
  * @param constructor
- * @marked_as_engine_private
+ * @legacy_public
  */
 export const _setClassId = setup('__cid__', _idToClass);
 
@@ -606,7 +606,7 @@ export function unregisterClass (...constructors: Function[]) {
  * Get the registered class by id
  * @param classId
  * @return constructor
- * @marked_as_engine_private
+ * @legacy_public
  */
 export function _getClassById (classId) {
     return _idToClass[classId];
@@ -626,7 +626,7 @@ export function getClassByName (classname) {
  * @param obj - instance or constructor
  * @param [allowTempId = true]   - can return temp id in editor
  * @return
- * @marked_as_engine_private
+ * @legacy_public
  */
 export function _getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);

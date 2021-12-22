@@ -776,7 +776,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _onMaterialModified (index: number, material: Material) {
         if (this.processor !== null) {
@@ -785,14 +785,14 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _onRebuildPSO (index: number, material: Material) {
         this.processor.onRebuildPSO(index, material);
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _collectModels (): scene.Model[] {
         this._models.length = 0;
@@ -1349,7 +1349,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _onBeforeSerialize (props) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return

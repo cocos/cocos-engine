@@ -64,7 +64,7 @@ import { legacyCC } from '../global-exports';
 @ccclass('cc.ClickEvent')
 export class EventHandler {
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     get _componentName () {
         this._genCompIdIfNeeded();
@@ -118,7 +118,7 @@ export class EventHandler {
     public component = '';
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     @serializable
     public _componentId = '';

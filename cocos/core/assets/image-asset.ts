@@ -83,7 +83,7 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     @override
     get _nativeAsset () {
@@ -218,7 +218,7 @@ export class ImageAsset extends Asset {
     // SERIALIZATION
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     // eslint-disable-next-line consistent-return
     public _serialize () {
@@ -247,7 +247,7 @@ export class ImageAsset extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _deserialize (data: any) {
         let fmtStr = '';

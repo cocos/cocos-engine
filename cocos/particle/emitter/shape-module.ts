@@ -126,7 +126,7 @@ export default class ShapeModule {
     /**
      * @zh 粒子发射器类型 [[ShapeType]]。
      *
-     * @marked_as_engine_private
+     * @legacy_public
      */
     @type(ShapeType)
     @formerlySerializedAs('shapeType')

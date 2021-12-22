@@ -186,7 +186,7 @@ type EventType = string | number;
  */
 export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _callbackTable: ICallbackTable = createMap(true);
     private _offCallback?: () => void;

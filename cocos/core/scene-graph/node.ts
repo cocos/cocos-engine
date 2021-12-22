@@ -158,12 +158,12 @@ export class Node extends BaseNode implements CustomSerializable {
     public static TransformBit = TransformBit;
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _uiProps = new NodeUIProperties(this);
 
@@ -175,7 +175,7 @@ export class Node extends BaseNode implements CustomSerializable {
     private static ClearRound = 1000;
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _static = false;
 
@@ -552,7 +552,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
         super._onSetParent(oldParent, keepWorldTransform);
@@ -579,7 +579,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
@@ -596,7 +596,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _onBeforeSerialize () {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -604,7 +604,7 @@ export class Node extends BaseNode implements CustomSerializable {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public _onPostActivated (active: boolean) {
         if (active) { // activated

@@ -965,7 +965,7 @@ enum NodeKind {
 
 export class StateEval {
     /**
-     * @marked_as_engine_private
+     * @legacy_public
      */
     public declare __DEBUG_ID__?: string;
 
