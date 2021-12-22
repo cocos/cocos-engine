@@ -14,6 +14,32 @@ export const glsl1 = [
   ],
   [
     {
+      "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\nattribute highp vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nvec4 vert () {\nvec4 pos = cc_matViewProj * vec4(a_position, 1);\npos.z -= 0.000001;\nv_color = a_color;\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec4 v_color;\nvec4 front() {\n#if USE_FORWARD_PIPELINE\nreturn CCFragOutput(v_color);\n#else\nreturn v_color;\n#endif\n}\nvoid main() { gl_FragColor = front(); }",
+    },
+    {
+      "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\nattribute highp vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nvec4 vert () {\nvec4 pos = cc_matViewProj * vec4(a_position, 1);\npos.z -= 0.000001;\nv_color = a_color;\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec4 v_color;\nvec4 back() {\n#if USE_FORWARD_PIPELINE\nreturn CCFragOutput(vec4(v_color.rgb, v_color.a * 0.2));\n#else\nreturn vec4(v_color.rgb, v_color.a * 0.2);\n#endif\n}\nvoid main() { gl_FragColor = back(); }",
+    },
+    {
+      "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\nattribute highp vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nvarying float v_distance;\nvec4 vert () {\nvec4 pos = cc_matViewProj * vec4(a_position, 1);\npos.z -= 0.000001;\nv_color = a_color;\nv_distance = dot(a_position, vec3(1.0, 1.0, 1.0));\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec4 v_color;\nvarying float v_distance;\nvec4 front() {\nif (fract(v_distance) > 0.5) {\ndiscard;\n}\n#if USE_FORWARD_PIPELINE\nreturn CCFragOutput(v_color);\n#else\nreturn v_color;\n#endif\n}\nvoid main() { gl_FragColor = front(); }",
+    },
+    {
+      "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\nattribute highp vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nvarying float v_distance;\nvec4 vert () {\nvec4 pos = cc_matViewProj * vec4(a_position, 1);\npos.z -= 0.000001;\nv_color = a_color;\nv_distance = dot(a_position, vec3(1.0, 1.0, 1.0));\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec4 v_color;\nvarying float v_distance;\nvec4 back() {\nif (fract(v_distance) > 0.5) {\ndiscard;\n}\n#if USE_FORWARD_PIPELINE\nreturn CCFragOutput(vec4(v_color.rgb, v_color.a * 0.2));\n#else\nreturn vec4(v_color.rgb, v_color.a * 0.2);\n#endif\n}\nvoid main() { gl_FragColor = back(); }",
+    },
+    {
+      "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\nattribute highp vec3 a_position;\nattribute vec4 a_normal;\nattribute vec4 a_color;\nvarying vec4 v_color;\nvec4 vert () {\nvec4 pos = cc_matViewProj * vec4(a_position, 1);\nv_color = a_color;\nfloat intensity = dot(vec3(1, 2, 4), a_normal.xyz);\nv_color.rgb -= a_normal.w * intensity * 0.1;\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec4 v_color;\nvec4 front() {\n#if USE_FORWARD_PIPELINE\nreturn CCFragOutput(v_color);\n#else\nreturn v_color;\n#endif\n}\nvoid main() { gl_FragColor = front(); }",
+    },
+    {
+      "vert": "\nprecision mediump float;\nuniform highp mat4 cc_matViewProj;\nattribute highp vec3 a_position;\nattribute vec4 a_normal;\nattribute vec4 a_color;\nvarying vec4 v_color;\nvec4 vert () {\nvec4 pos = cc_matViewProj * vec4(a_position, 1);\nv_color = a_color;\nfloat intensity = dot(vec3(1, 2, 4), a_normal.xyz);\nv_color.rgb -= a_normal.w * intensity * 0.1;\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nvec4 CCFragOutput (vec4 color) {\nreturn color;\n}\nvarying vec4 v_color;\nvec4 back() {\n#if USE_FORWARD_PIPELINE\nreturn CCFragOutput(vec4(v_color.rgb, v_color.a * 0.2));\n#else\nreturn vec4(v_color.rgb, v_color.a * 0.2);\n#endif\n}\nvoid main() { gl_FragColor = back(); }",
+    }
+  ],
+  [
+    {
       "vert": "\nprecision highp float;\nuniform highp mat4 cc_matViewProj;\nuniform highp mat4 cc_matWorld;\nattribute vec3 a_position;\nattribute vec4 a_color;\nvarying vec4 v_color;\nattribute float a_dist;\nvarying float v_dist;\nvec4 vert () {\nvec4 pos = vec4(a_position, 1);\npos = cc_matViewProj * cc_matWorld * pos;\nv_color = a_color;\nv_dist = a_dist;\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
       "frag": "\n#ifdef GL_OES_standard_derivatives\n#extension GL_OES_standard_derivatives: enable\n#endif\nprecision highp float;\nvarying vec4 v_color;\nvarying float v_dist;\nvec4 frag () {\nvec4 o = v_color;\n#ifdef GL_OES_standard_derivatives\nfloat aa = fwidth(v_dist);\n#else\nfloat aa = 0.05;\n#endif\nfloat alpha = 1. - smoothstep(-aa, 0., abs(v_dist) - 1.0);\no.rgb *= o.a;\no *= alpha;\nreturn o;\n}\nvoid main() { gl_FragColor = frag(); }",
     }
