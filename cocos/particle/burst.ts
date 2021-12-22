@@ -106,6 +106,11 @@ export default class Burst {
         }
     }
 
+    public reset () {
+        this._remainingCount = 0;
+        this._curTime = 0.0;
+    }
+
     public getMaxCount (psys) {
         return this.count.getMax() * Math.min(Math.ceil(psys.duration / this.repeatInterval), this.repeatCount);
     }
