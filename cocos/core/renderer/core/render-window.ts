@@ -179,7 +179,6 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-        this.framebuffer.destroy();
     }
 
     /**

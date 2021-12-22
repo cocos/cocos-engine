@@ -212,6 +212,8 @@ export class Node extends BaseNode implements CustomSerializable {
         const [chunk, offset] = bookOfChange.alloc();
         this._hasChangedFlagsChunk = chunk;
         this._hasChangedFlagsOffset = offset;
+        const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
+        this._hasChangedFlags = flagBuffer;
 
         this._pos = new Vec3();
         this._rot = new Quat();
