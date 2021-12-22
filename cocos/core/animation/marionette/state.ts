@@ -22,9 +22,6 @@ export class State extends EditorExtendable implements OwnedBy<Layer | StateMach
 
     public [incomingsSymbol]: TransitionInternal[] = [];
 
-    /**
-     * @legacy_public
-     */
     constructor () {
         super();
     }

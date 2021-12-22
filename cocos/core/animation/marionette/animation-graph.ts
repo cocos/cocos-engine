@@ -44,9 +44,6 @@ class Transition extends EditorExtendable implements OwnedBy<StateMachine>, Tran
     @serializable
     public conditions: Condition[] = [];
 
-    /**
-     * @legacy_public
-     */
     constructor (from: State, to: State, conditions?: Condition[]) {
         super();
         this.from = from;
@@ -143,9 +140,6 @@ export class StateMachine extends EditorExtendable {
         }
     }
 
-    /**
-     * @legacy_public
-     */
     constructor () {
         super();
         this._entryState = this._addState(new State());
@@ -481,9 +475,6 @@ export class Layer implements OwnedBy<AnimationGraph> {
     @serializable
     public blending: LayerBlending = LayerBlending.additive;
 
-    /**
-     * @legacy_public
-     */
     constructor () {
         this._stateMachine = new StateMachine();
     }
