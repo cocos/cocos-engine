@@ -46,88 +46,135 @@ class BuiltinResMgr {
         this._device = device;
         const resources = this._resources;
 
-        const l = 2;
-        const pixelBytes = 4;
-        const arrayBuffer = new ArrayBuffer(l * l * pixelBytes);
-        const blackValueView = new Uint8Array(arrayBuffer);
-        const emptyValueView = new Uint8Array(arrayBuffer);
-        const greyValueView = new Uint8Array(arrayBuffer);
-        const whiteValueView = new Uint8Array(arrayBuffer);
-        const normalValueView = new Uint8Array(arrayBuffer);
+        const len = 2;
+        const pixelBytesUInt = 1;
+        const numChannels = 4;
 
-        const defaultArrayBuffer = new ArrayBuffer(16 * 16 * pixelBytes);
+        const blackArrayBuffer  = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
+        const emptyArrayBuffer  = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
+        const greyArrayBuffer   = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
+        const whiteArrayBuffer  = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
+        const normalArrayBuffer = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
+
+        const blackValueView  = new Uint8Array(blackArrayBuffer);
+        const emptyValueView  = new Uint8Array(emptyArrayBuffer);
+        const greyValueView   = new Uint8Array(greyArrayBuffer);
+        const whiteValueView  = new Uint8Array(whiteArrayBuffer);
+        const normalValueView = new Uint8Array(normalArrayBuffer);
+
+        const defaultSize = 16;
+        const halfDefaultSize = defaultSize / 2;
+
+        const defaultArrayBuffer = new ArrayBuffer(defaultSize * defaultSize * numChannels * pixelBytesUInt);
         const defaultValueView = new Uint8Array(defaultArrayBuffer);
 
-        const normalColor = new Color('7f7fff');
-        const defaultColorTop = new Color('ddd');
-        const defaultColorBottom = new Color('555');
-
         let offset = 0;
-        for (let i = 0; i < l * l; i++) {
-            Color.toArray(blackValueView, Color.BLACK, offset);
-            Color.toArray(emptyValueView, Color.TRANSPARENT, offset);
-            Color.toArray(greyValueView, Color.GRAY, offset);
-            Color.toArray(whiteValueView, Color.WHITE, offset);
-            Color.toArray(normalValueView, normalColor, offset);
-            offset += pixelBytes;
+        for (let i = 0; i < len * len; i++) {
+            blackValueView[offset]     = 0;
+            blackValueView[offset + 1] = 0;
+            blackValueView[offset + 2] = 0;
+            blackValueView[offset + 3] = 255;
+
+            emptyValueView[offset]     = 0;
+            emptyValueView[offset + 1] = 0;
+            emptyValueView[offset + 2] = 0;
+            emptyValueView[offset + 3] = 0;
+
+            greyValueView[offset]     = 119;
+            greyValueView[offset + 1] = 119;
+            greyValueView[offset + 2] = 119;
+            greyValueView[offset + 3] = 255;
+
+            whiteValueView[offset]     = 255;
+            whiteValueView[offset + 1] = 255;
+            whiteValueView[offset + 2] = 255;
+            whiteValueView[offset + 3] = 255;
+
+            normalValueView[offset]     = 127;
+            normalValueView[offset + 1] = 127;
+            normalValueView[offset + 2] = 255;
+            normalValueView[offset + 3] = 255;
+
+            offset += numChannels;
+        }
+
+        offset = 0;
+        for (let i = 0; i < defaultSize * defaultSize; i++) {
+            defaultValueView[offset]     = 221;
+            defaultValueView[offset + 1] = 221;
+            defaultValueView[offset + 2] = 221;
+            defaultValueView[offset + 3] = 255;
+
+            offset += numChannels;
         }
         offset = 0;
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 16; ++j) {
-                Color.toArray(defaultValueView, defaultColorTop, offset);
-                offset += pixelBytes;
+        for (let i = 0; i < halfDefaultSize; i++) {
+            for (let j = 0; j < halfDefaultSize; j++) {
+                defaultValueView[offset]     = 85;
+                defaultValueView[offset + 1] = 85;
+                defaultValueView[offset + 2] = 85;
+                defaultValueView[offset + 3] = 255;
+
+                offset += numChannels;
             }
+            offset += halfDefaultSize * numChannels;
         }
-        for (let i = 8; i < 16; i++) {
-            for (let j = 0; j < 16; ++j) {
-                Color.toArray(defaultValueView, defaultColorBottom, offset);
-                offset += pixelBytes;
+        offset += halfDefaultSize * numChannels;
+        for (let i = 0; i < halfDefaultSize; i++) {
+            for (let j = 0; j < halfDefaultSize; j++) {
+                defaultValueView[offset]     = 85;
+                defaultValueView[offset + 1] = 85;
+                defaultValueView[offset + 2] = 85;
+                defaultValueView[offset + 3] = 255;
+
+                offset += numChannels;
             }
+            offset += halfDefaultSize * numChannels;
         }
 
         const blackMemImageSource: ImageSource = {
-            width: l,
-            height: l,
+            width: len,
+            height: len,
             _data: blackValueView,
             _compressed: false,
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const emptyMemImageSource: ImageSource = {
-            width: l,
-            height: l,
+            width: len,
+            height: len,
             _data: emptyValueView,
             _compressed: false,
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const greyMemImageSource: ImageSource = {
-            width: l,
-            height: l,
+            width: len,
+            height: len,
             _data: greyValueView,
             _compressed: false,
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const whiteMemImageSource: ImageSource = {
-            width: l,
-            height: l,
+            width: len,
+            height: len,
             _data: whiteValueView,
             _compressed: false,
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const normalMemImageSource: ImageSource = {
-            width: l,
-            height: l,
+            width: len,
+            height: len,
             _data: normalValueView,
             _compressed: false,
             format: Texture2D.PixelFormat.RGBA8888,
         };
 
         const defaultMemImageSource: ImageSource = {
-            width: 16,
-            height: 16,
+            width: defaultSize,
+            height: defaultSize,
             _data: defaultValueView,
             _compressed: false,
             format: Texture2D.PixelFormat.RGBA8888,
