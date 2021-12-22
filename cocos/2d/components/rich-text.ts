@@ -619,17 +619,11 @@ export class RichText extends UIComponent {
             // so we need to reduce this part length for extra space
             const offsetOfError = lineCountForOnePart * avgOneCharSize;
             const sizeForOnePartWithOffset = sizeForOnePart - offsetOfError;
-            console.error(`avgOneCharSize = ${avgOneCharSize}`);
-            console.error(`offsetOfError = ${offsetOfError}`);
 
             // avoid endless loop
             let tryCount = 100;
             let isLastPart = curEnd >= text.length;
             while (tryCount && curStart < text.length) {
-                console.error(`index = ${100 - tryCount}`);
-                console.error(`curStart = ${curStart}`);
-                console.error(`curEnd = ${curEnd}`);
-                console.error(`curStringSize.x = ${curStringSize.x}`);
                 const unitCloseToTargetSize = Math.abs(curStringSize.x - sizeForOnePartWithOffset) < error
                     ? 1 : Math.abs(curStringSize.x - sizeForOnePartWithOffset) / avgOneCharSize;
                 if (curStringSize.x > sizeForOnePartWithOffset) {
