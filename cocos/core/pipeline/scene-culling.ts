@@ -252,12 +252,12 @@ export function getCameraWorldMatrix (out: Mat4, camera: Camera) {
 export function QuantizeDirLightShadowCamera (out: Frustum, pipeline: RenderPipeline,
     dirLight: DirectionalLight, camera: Camera, shadowInfo: Shadows) {
     const device = pipeline.device;
-    const invisibleOcclusionRange = shadowInfo.invisibleOcclusionRange;
+    const invisibleOcclusionRange = dirLight.shadowInvisibleOcclusionRange;
     const shadowMapWidth = shadowInfo.size.x;
 
     // Raw data
     getCameraWorldMatrix(_mat4_trans, camera);
-    Frustum.split(_validFrustum, camera, _mat4_trans, 0.1, shadowInfo.shadowDistance);
+    Frustum.split(_validFrustum, camera, _mat4_trans, 0.1, dirLight.shadowDistance);
     _lightViewFrustum = Frustum.clone(_validFrustum);
 
     // view matrix with range back
@@ -358,10 +358,12 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         }
     }
 
+    let fixedArea = false;
     if (mainLight) {
         if (shadows.type === ShadowType.Planar) {
             updateDirLight(pipeline, mainLight);
         }
+        fixedArea = mainLight.fixedArea;
     }
 
     if (skybox.enabled && skybox.model && (camera.clearFlag & SKYBOX_FLAG)) {
@@ -393,7 +395,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 // shadow render Object
                 if (dirShadowObjects != null && model.castShadow && model.worldBounds) {
                     // frustum culling
-                    if (shadows.fixedArea) {
+                    if (fixedArea) {
                         AABB.transform(_ab, model.worldBounds, shadows.matLight);
                         if (intersect.aabbFrustum(_ab, camera.frustum)) {
                             dirShadowObjects.push(getDirShadowRenderObject(model, camera));
@@ -413,11 +415,5 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 renderObjects.push(getRenderObject(model, camera));
             }
         }
-    }
-
-    // FirstSetCSM flag Bit Control
-    if (shadows.firstSetCSM) {
-        shadows.shadowDistance = _castWorldBounds.halfExtents.length() * 2.0;
-        shadows.firstSetCSM = false;
     }
 }
