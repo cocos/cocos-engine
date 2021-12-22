@@ -1132,11 +1132,11 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
     }
 
     if (gpuTexture.glRenderbuffer) {
-        device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         if (device.stateCache.glRenderbuffer === gpuTexture.glRenderbuffer) {
             device.gl.bindRenderbuffer(device.gl.RENDERBUFFER, null);
             device.stateCache.glRenderbuffer = null;
         }
+        device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         gpuTexture.glRenderbuffer = null;
     }
 }
@@ -1677,11 +1677,11 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
 export function WebGL2CmdFuncDestroyShader (device: WebGL2Device, gpuShader: IWebGL2GPUShader) {
     if (gpuShader.glProgram) {
-        device.gl.deleteProgram(gpuShader.glProgram);
         if (device.stateCache.glProgram === gpuShader.glProgram) {
             device.gl.useProgram(null);
             device.stateCache.glProgram = null;
         }
+        device.gl.deleteProgram(gpuShader.glProgram);
         gpuShader.glProgram = null;
     }
 }
