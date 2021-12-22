@@ -368,6 +368,9 @@ export class ComponentScheduler {
         this._updating = false;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _onEnabled (comp) {
         legacyCC.director.getScheduler().resumeTarget(comp);
         comp._objFlags |= IsOnEnableCalled;
@@ -380,6 +383,9 @@ export class ComponentScheduler {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _onDisabled (comp) {
         legacyCC.director.getScheduler().pauseTarget(comp);
         comp._objFlags &= ~IsOnEnableCalled;

@@ -72,6 +72,9 @@ export class AudioClip extends Asset {
         return destroyResult;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
         if (meta) {
@@ -83,11 +86,13 @@ export class AudioClip extends Asset {
             this._duration = 0;
         }
     }
-
     get _nativeAsset () {
         return this._meta;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     @override
     get _nativeDep () {
         return {

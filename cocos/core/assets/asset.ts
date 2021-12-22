@@ -84,6 +84,9 @@ export class Asset extends Eventify(GCObject) {
      */
     public loaded = true;
 
+    /**
+     * @marked_as_engine_private
+     */
     public declare _uuid: string;
 
     public declare isDefault: boolean;
@@ -94,9 +97,14 @@ export class Asset extends Eventify(GCObject) {
      * @zh
      * 用于本机资产的可序列化URL。供内部使用。
      * @default ""
+     *
+     * @marked_as_engine_private
      */
     @serializable
     public _native = '';
+    /**
+     * @marked_as_engine_private
+     */
     public _nativeUrl = '';
 
     private _file: any = null;
@@ -138,7 +146,7 @@ export class Asset extends Eventify(GCObject) {
      * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
      * 如果`_native`可用，则此属性将由加载器初始化。
      * @default null
-     * @private
+     * @marked_as_engine_private
      */
     @property
     get _nativeAsset () {
@@ -211,7 +219,7 @@ export class Asset extends Eventify(GCObject) {
      *
      * @param filename
      * @param inLibrary
-     * @private
+     * @marked_as_engine_private
      */
     public _setRawAsset (filename: string, inLibrary = true) {
         if (inLibrary !== false) {
@@ -231,6 +239,9 @@ export class Asset extends Eventify(GCObject) {
      */
     public createNode? (callback: CreateNodeCallback): void;
 
+    /**
+     * @marked_as_engine_private
+     */
     public get _nativeDep () {
         if (this._native) {
             return { __isNative__: true, uuid: this._uuid, ext: this._native };

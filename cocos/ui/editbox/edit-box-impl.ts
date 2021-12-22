@@ -64,13 +64,37 @@ let _currentEditBoxImpl: EditBoxImpl | null = null;
 let _domCount = 0;
 
 export class EditBoxImpl extends EditBoxImplBase {
+    /**
+     * @marked_as_engine_private
+     */
     public _delegate: EditBox | null = null;
+    /**
+     * @marked_as_engine_private
+     */
     public _inputMode: InputMode = -1;
+    /**
+     * @marked_as_engine_private
+     */
     public _inputFlag: InputFlag = -1;
+    /**
+     * @marked_as_engine_private
+     */
     public _returnType: KeyboardReturnType = -1;
+    /**
+     * @marked_as_engine_private
+     */
     public __eventListeners: any = {};
+    /**
+     * @marked_as_engine_private
+     */
     public __autoResize = false;
+    /**
+     * @marked_as_engine_private
+     */
     public __orientationChanged: any;
+    /**
+     * @marked_as_engine_private
+     */
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
     private _isTextArea = false;
 
@@ -374,7 +398,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         } else if (inputMode === InputMode.PHONE_NUMBER) {
             type = 'number';
             elem.pattern = '[0-9]*';
-            elem.addEventListener("wheel", () => false);
+            elem.addEventListener('wheel', () => false);
         } else if (inputMode === InputMode.URL) {
             type = 'url';
         } else {

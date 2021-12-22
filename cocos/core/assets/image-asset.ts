@@ -82,12 +82,14 @@ function isNativeImage (imageSource: ImageSource): imageSource is (HTMLImageElem
  */
 @ccclass('cc.ImageAsset')
 export class ImageAsset extends Asset {
+    /**
+     * @marked_as_engine_private
+     */
     @override
     get _nativeAsset () {
         // Maybe returned to pool in webgl.
         return this._nativeData;
     }
-
     set _nativeAsset (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             // @ts-expect-error internal API usage
@@ -215,6 +217,9 @@ export class ImageAsset extends Asset {
 
     // SERIALIZATION
 
+    /**
+     * @marked_as_engine_private
+     */
     // eslint-disable-next-line consistent-return
     public _serialize () {
         if (EDITOR || TEST) {
@@ -241,6 +246,9 @@ export class ImageAsset extends Asset {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _deserialize (data: any) {
         let fmtStr = '';
         if (typeof data === 'string') {

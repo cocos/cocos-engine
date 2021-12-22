@@ -47,6 +47,9 @@ export class VideoClip extends Asset {
         super();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     set _nativeAsset (clip: HTMLVideoElement | null) {
         this._video = clip;
         if (clip) {
@@ -55,7 +58,6 @@ export class VideoClip extends Asset {
             this._duration = 0;
         }
     }
-
     get _nativeAsset (): HTMLVideoElement | null {
         return this._video;
     }

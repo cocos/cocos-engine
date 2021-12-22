@@ -55,7 +55,7 @@ class TrackPath {
     }
 
     /**
-     * @internal Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
+     * @marked_as_engine_private Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
      */
     public toCustomized (resolver: CustomizedTrackPathResolver) {
         this._paths.push(resolver);

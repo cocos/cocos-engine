@@ -168,6 +168,9 @@ export class TextureCube extends SimpleTexture {
         return out;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     @serializable
     public _mipmaps: ITextureCubeMipmap[] = [];
 
@@ -225,6 +228,9 @@ export class TextureCube extends SimpleTexture {
         this.mipmaps = [];
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _serialize (ctxForExporting: any): Record<string, unknown> | null {
         if (EDITOR || TEST) {
             return {
@@ -250,6 +256,9 @@ export class TextureCube extends SimpleTexture {
         return null;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
         const data = serializedData;
         super._deserialize(data.base, handle);

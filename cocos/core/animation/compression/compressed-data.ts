@@ -174,6 +174,9 @@ export class CompressedData {
         };
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _addQuatCurve (curve: QuatCurve): CompressedQuatCurvePointer {
         const times = Array.from(curve.times());
         let iKeySharedCurves = this._quatCurves.findIndex((shared) => shared.matchCurve(curve));

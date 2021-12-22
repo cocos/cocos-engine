@@ -34,7 +34,13 @@
 import { EditBox } from './edit-box';
 
 export class EditBoxImplBase {
+    /**
+     * @marked_as_engine_private
+     */
     public _editing = false;
+    /**
+     * @marked_as_engine_private
+     */
     public _delegate: EditBox | null = null;
 
     public init (delegate: EditBox) {}

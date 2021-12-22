@@ -221,7 +221,13 @@ export class Root {
         return this._useDeferredPipeline;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _createSceneFun: (root: Root) => RenderScene = null!;
+    /**
+     * @marked_as_engine_private
+     */
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
     private _device: Device;

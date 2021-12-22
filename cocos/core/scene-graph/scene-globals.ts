@@ -1087,6 +1087,9 @@ export class SceneGlobals {
     @serializable
     @editable
     public shadows = new ShadowsInfo();
+    /**
+     * @marked_as_engine_private
+     */
     @serializable
     public _skybox = new SkyboxInfo();
     @editable

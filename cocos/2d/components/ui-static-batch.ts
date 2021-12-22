@@ -159,6 +159,9 @@ export class UIStaticBatch extends Renderable2D {
         this._clearData();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _requireDrawBatch () {
         const batch = new DrawBatch2D();
         batch.isStatic = true;

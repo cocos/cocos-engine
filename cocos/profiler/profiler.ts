@@ -92,6 +92,9 @@ const _constants = {
 };
 
 export class Profiler {
+    /**
+     * @marked_as_engine_private
+     */
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';
 

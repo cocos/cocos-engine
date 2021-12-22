@@ -16,12 +16,31 @@ export class CCSlot extends Slot {
         return '[class dragonBones.CCSlot]';
     }
 
-    /* protected */ _localVertices: number[];
-    /* protected */ _indices: number[];
-    /* protected */ _matrix: Mat4;
+    /**
+     * @marked_as_engine_private
+     */
+    _localVertices: number[];
+
+    /**
+     * @marked_as_engine_private
+     */
+    _indices: number[];
+
+    /**
+     * @marked_as_engine_private
+     */
+    _matrix: Mat4;
+
+    /**
+     * @marked_as_engine_private
+     */
     public _worldMatrix: Mat4;
     protected _worldMatrixDirty: boolean;
-    /* protected */ _color: Color;
+
+    /**
+     * @marked_as_engine_private
+     */
+    _color: Color;
 
     constructor () {
         super();

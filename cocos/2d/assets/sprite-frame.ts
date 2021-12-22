@@ -803,7 +803,10 @@ export class SpriteFrame extends Asset {
         return super.destroy();
     }
 
-    // Calculate UV for sliced
+    /**
+     * Calculate UV for sliced
+     * @marked_as_engine_private
+     */
     public _calculateSlicedUV () {
         if (UI_GPU_DRIVEN) {
             this._calculateSlicedData();
@@ -865,7 +868,10 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    // Calculate UV
+    /**
+     * Calculate UV
+     * @marked_as_engine_private
+     */
     public _calculateUV () {
         const rect = this._rect;
         const uv = this.uv;
@@ -1106,6 +1112,9 @@ export class SpriteFrame extends Asset {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _setDynamicAtlasFrame (frame) {
         if (!frame) return;
 
@@ -1121,6 +1130,9 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _resetDynamicAtlasFrame () {
         if (!this._original) return;
         this._rect.x = this._original._x;
@@ -1130,6 +1142,9 @@ export class SpriteFrame extends Asset {
         this._calculateUV();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _checkPackable () {
         const dynamicAtlas = dynamicAtlasManager;
         if (!dynamicAtlas) return;
@@ -1153,7 +1168,9 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    // SERIALIZATION
+    /**
+     * @marked_as_engine_private
+     */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
             const rect = { x: this._rect.x, y: this._rect.y, width: this._rect.width, height: this._rect.height };
@@ -1197,6 +1214,9 @@ export class SpriteFrame extends Asset {
         return null;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
         const rect = data.rect;

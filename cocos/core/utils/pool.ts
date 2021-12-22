@@ -138,6 +138,8 @@ export default class Pool<T> {
      * Get an object from pool, if no available object in the pool, null will be returned.
      * @zh
      * 获取对象池中的对象，如果对象池没有可用对象，则返回空。
+     *
+     * @marked_as_engine_private
      */
     public _get () {
         if (this.count > 0) {

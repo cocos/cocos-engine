@@ -752,6 +752,9 @@ export class Sprite extends Renderable2D {
     }
 
     // macro.UI_GPU_DRIVEN
+    /**
+     * @marked_as_engine_private
+     */
     public _calculateSlicedData (out: number[]) {
         const content = this.node._uiProps.uiTransformComp!.contentSize;
 
@@ -782,6 +785,9 @@ export class Sprite extends Renderable2D {
     }
 
     // macro.UI_GPU_DRIVEN
+    /**
+     * @marked_as_engine_private
+     */
     public _updateUVWithTrim () {
         this.tillingOffsetWithTrim.length = 0;
         const frame = this.spriteFrame!;

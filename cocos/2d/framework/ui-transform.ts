@@ -255,8 +255,17 @@ export class UITransform extends Component {
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
     // macro.UI_GPU_DRIVEN
+    /**
+     * @marked_as_engine_private
+     */
     declare public _rectDirty: boolean;
+    /**
+     * @marked_as_engine_private
+     */
     declare public _rectWithScale: Vec3;
+    /**
+     * @marked_as_engine_private
+     */
     declare public _anchorCache: Vec3;
 
     constructor () {

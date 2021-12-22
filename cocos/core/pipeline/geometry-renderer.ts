@@ -72,11 +72,29 @@ enum GeometryType {
 }
 
 class GeometryVertexBuffer {
+    /**
+     * @marked_as_engine_private
+     */
     public _maxVertices = 0;
+    /**
+     * @marked_as_engine_private
+     */
     public _vertexCount = 0;
+    /**
+     * @marked_as_engine_private
+     */
     public _stride = 0;
+    /**
+     * @marked_as_engine_private
+     */
     public _vertices!: Float32Array;
+    /**
+     * @marked_as_engine_private
+     */
     public _buffer!: Buffer;
+    /**
+     * @marked_as_engine_private
+     */
     public _inputAssembler!: InputAssembler;
 
     public init (device: Device, maxVertices: number, stride: number, attributes: Attribute[]) {

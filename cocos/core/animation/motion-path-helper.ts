@@ -94,6 +94,9 @@ export class Bezier {
      */
     public endCtrlPoint = new Vec2();
 
+    /**
+     * @marked_as_engine_private
+     */
     public __arcLengthDivisions?: number;
 
     private cacheArcLengths?: number[];

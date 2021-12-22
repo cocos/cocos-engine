@@ -199,6 +199,9 @@ export default class TrailModule {
         else this.onDisable();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     @serializable
     public _enable = false;
 
@@ -221,6 +224,9 @@ export default class TrailModule {
     @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
 
+    /**
+     * @marked_as_engine_private
+     */
     @serializable
     public _minParticleDistance = 0.1;
 
@@ -373,6 +379,9 @@ export default class TrailModule {
         this._detachFromScene();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _attachToScene () {
         if (this._trailModel) {
             if (this._trailModel.scene) {
@@ -382,6 +391,9 @@ export default class TrailModule {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _detachFromScene () {
         if (this._trailModel && this._trailModel.scene) {
             this._trailModel.scene.removeModel(this._trailModel);

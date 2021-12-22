@@ -201,7 +201,13 @@ export class Director extends EventTarget {
 
     public static instance: Director;
 
+    /**
+     * @marked_as_engine_private
+     */
     public _compScheduler: ComponentScheduler;
+    /**
+     * @marked_as_engine_private
+     */
     public _nodeActivator: NodeActivator;
     private _invalid: boolean;
     private _paused: boolean;

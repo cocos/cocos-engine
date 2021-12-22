@@ -693,8 +693,14 @@ export class ParticleSystem2D extends Renderable2D {
         return this._assembler;
     }
     public aspectRatio = 1;
-    // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
+    /**
+     * The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
+     * @marked_as_engine_private
+     */
     public declare _renderSpriteFrame: SpriteFrame | null;
+    /**
+     * @marked_as_engine_private
+     */
     public declare _simulator: Simulator;
 
     /**
@@ -897,7 +903,9 @@ export class ParticleSystem2D extends Renderable2D {
         return (this.particleCount >= this.totalParticles);
     }
 
-    // PRIVATE METHODS
+    /**
+     * @marked_as_engine_private
+     */
     public _applyFile () {
         const file = this._file;
         if (file) {
@@ -927,6 +935,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _initTextureWithDictionary (dict: any) {
         if (dict.spriteFrameUuid) {
             const spriteFrameUuid = dict.spriteFrameUuid;
@@ -1008,7 +1019,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
-    // parsing process
+    /**
+     * @marked_as_engine_private
+     */
     public _initWithDictionary (dict: any) {
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
@@ -1121,6 +1134,9 @@ export class ParticleSystem2D extends Renderable2D {
         return true;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _syncAspect () {
         if (this._renderSpriteFrame) {
             const frameRect = this._renderSpriteFrame.rect;
@@ -1128,6 +1144,9 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _applySpriteFrame () {
         this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
@@ -1143,15 +1162,24 @@ export class ParticleSystem2D extends Renderable2D {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _getTexture () {
         return (this._renderSpriteFrame && this._renderSpriteFrame.texture);
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
         if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _finishedSimulation () {
         if (EDITOR) {
             if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {

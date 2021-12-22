@@ -466,19 +466,47 @@ export class Skeleton extends Renderable2D {
     // private _enableBatch: boolean = true;
 
     public enableBatch = false;
-    // Frame cache
+    /**
+     * @marked_as_engine_private
+     */
     public _frameCache: AnimationCache | null = null;
-    // Cur frame
+    /**
+     * @marked_as_engine_private
+     */
     public _curFrame: AnimationFrame | null = null;
 
     // protected _materialCache = {};
+    /**
+     * @marked_as_engine_private
+     */
     public _effectDelegate: VertexEffectDelegate | null | undefined = null;
+    /**
+     * @marked_as_engine_private
+     */
     public _skeleton: spine.Skeleton | null;
+    /**
+     * @marked_as_engine_private
+     */
     public _clipper?: spine.SkeletonClipping;
+    /**
+     * @marked_as_engine_private
+     */
     public _debugRenderer: Graphics | null;
+    /**
+     * @marked_as_engine_private
+     */
     public _startSlotIndex;
+    /**
+     * @marked_as_engine_private
+     */
     public _endSlotIndex;
+    /**
+     * @marked_as_engine_private
+     */
     public _startEntry;
+    /**
+     * @marked_as_engine_private
+     */
     public _endEntry;
     public attachUtil: AttachUtil;
 
@@ -1360,6 +1388,9 @@ export class Skeleton extends Renderable2D {
         return [];
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _meshRenderDataArrayIdx = 0;
     protected _render (ui: IBatcher) {
         if (this._meshRenderDataArray) {

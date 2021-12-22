@@ -62,9 +62,21 @@ export class TerrainLod {
         return i * (TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS) + j * TERRAIN_LOD_LEVELS + k;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _bodyIndexPool: TerrainIndexPool[];
+    /**
+     * @marked_as_engine_private
+     */
     public _connecterIndexPool: TerrainIndexPool[];
+    /**
+     * @marked_as_engine_private
+     */
     public _indexMap: TerrainIndexData[] = [];
+    /**
+     * @marked_as_engine_private
+     */
     public _indexBuffer: Uint16Array = new Uint16Array();
 
     constructor () {

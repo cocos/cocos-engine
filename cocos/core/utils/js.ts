@@ -93,7 +93,7 @@ export const js = {
     /**
      * @en All classes registered in the engine, indexed by name.
      * @zh 引擎中已注册的所有类型，通过名称进行索引。
-     * @private
+     * @marked_as_engine_private
      * @example
      * ```
      * import { js } from 'cc';
@@ -106,6 +106,8 @@ export const js = {
      * js._registeredClassIds = builtinClassIds;
      * js._registeredClassNames = builtinClassNames;
      * ```
+     *
+     * @marked_as_engine_private
      */
     get _registeredClassNames (): typeof _nameToClass {
         return { ..._nameToClass };
@@ -117,7 +119,6 @@ export const js = {
     /**
      * @en All classes registered in the engine, indexed by ID.
      * @zh 引擎中已注册的所有类型，通过 ID 进行索引。
-     * @private
      * @example
      * ```
      * import { js } from 'cc';
@@ -130,6 +131,8 @@ export const js = {
      * js._registeredClassIds = builtinClassIds;
      * js._registeredClassNames = builtinClassNames;
      * ```
+     *
+     * @marked_as_engine_private
      */
     get _registeredClassIds (): typeof _idToClass {
         return { ..._idToClass };
@@ -138,8 +141,17 @@ export const js = {
         clear(_idToClass);
         Object.assign(_idToClass, value);
     },
+    /**
+     * @marked_as_engine_private
+     */
     _getClassId,
+    /**
+     * @marked_as_engine_private
+     */
     _setClassId,
+    /**
+     * @marked_as_engine_private
+     */
     _getClassById,
     obsolete,
     obsoletes,

@@ -128,6 +128,9 @@ class ReleaseManager {
         this._toDelete.clear();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _addPersistNodeRef (node: Node) {
         const deps = [];
         visitNode(node, deps);
@@ -140,6 +143,9 @@ class ReleaseManager {
         this._persistNodeDeps.add(node.uuid, deps);
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _removePersistNodeRef (node: Node) {
         if (!this._persistNodeDeps.has(node.uuid)) { return; }
 
@@ -154,6 +160,9 @@ class ReleaseManager {
     }
 
     // do auto release
+    /**
+     * @marked_as_engine_private
+     */
     public _autoRelease (oldScene: Scene, newScene: Scene, persistNodes: Record<string, Node>) {
         if (oldScene) {
             const childs = dependUtil.getDeps(oldScene.uuid);

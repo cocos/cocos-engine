@@ -45,7 +45,7 @@ class Transition extends EditorExtendable implements OwnedBy<StateMachine>, Tran
     public conditions: Condition[] = [];
 
     /**
-     * @internal
+     * @marked_as_engine_private
      */
     constructor (from: State, to: State, conditions?: Condition[]) {
         super();
@@ -130,7 +130,7 @@ export class StateMachine extends EditorExtendable {
 
     /**
      * // TODO: HACK
-     * @internal
+     * @marked_as_engine_private
      */
     public __callOnAfterDeserializeRecursive () {
         this[onAfterDeserializedTag]();
@@ -144,7 +144,7 @@ export class StateMachine extends EditorExtendable {
     }
 
     /**
-     * @internal
+     * @marked_as_engine_private
      */
     constructor () {
         super();
@@ -482,7 +482,7 @@ export class Layer implements OwnedBy<AnimationGraph> {
     public blending: LayerBlending = LayerBlending.additive;
 
     /**
-     * @internal
+     * @marked_as_engine_private
      */
     constructor () {
         this._stateMachine = new StateMachine();

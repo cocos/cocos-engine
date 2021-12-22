@@ -122,7 +122,7 @@ export class AnimationCurve {
 
     /**
      * For internal usage only.
-     * @internal
+     * @marked_as_engine_private
      */
     get _internalCurve () {
         return this._curve;

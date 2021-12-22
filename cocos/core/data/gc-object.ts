@@ -25,6 +25,9 @@ import { CCObject } from './object';
 
 @ccclass('cc.GCObject')
 export class GCObject extends CCObject {
+    /**
+     * @marked_as_engine_private
+     */
     public declare _finalizationToken: any;
 
     constructor (...arg: ConstructorParameters<typeof CCObject>) {

@@ -229,6 +229,9 @@ export class MotionStreak extends Renderable2D {
         if (this._assembler) this._assembler.update(this, dt);
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _render (render: IBatcher) {
         render.commitComp(this, this._texture, this._assembler, null);
     }

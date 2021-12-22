@@ -179,12 +179,29 @@ export class TerrainLayer {
  * @zh 地形渲染组件
  */
 class TerrainRenderable extends RenderableComponent {
+    /**
+     * @marked_as_engine_private
+     */
     public _model: scene.Model | null = null;
+    /**
+     * @marked_as_engine_private
+     */
     public _meshData: RenderingSubMesh | null = null;
-
+    /**
+     * @marked_as_engine_private
+     */
     public _brushPass: Pass | null = null;
+    /**
+     * @marked_as_engine_private
+     */
     public _brushMaterial: Material | null = null;
+    /**
+     * @marked_as_engine_private
+     */
     public _currentMaterial: Material | null = null;
+    /**
+     * @marked_as_engine_private
+     */
     public _currentMaterialLayers = 0;
 
     public destroy () {
@@ -197,6 +214,9 @@ class TerrainRenderable extends RenderableComponent {
         return super.destroy();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _destroyModel () {
         // this._invalidMaterial();
         if (this._model != null) {
@@ -205,6 +225,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _invalidMaterial () {
         if (this._currentMaterial == null) {
             return;
@@ -219,6 +242,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _updateMaterial (block: TerrainBlock, init: boolean) {
         if (this._meshData == null || this._model == null) {
             return;
@@ -259,6 +285,9 @@ class TerrainRenderable extends RenderableComponent {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _onMaterialModified (idx: number, mtl: Material|null) {
         if (this._model == null) {
             return;
@@ -875,11 +904,17 @@ export class TerrainBlock {
         this._weightMap.uploadData(weightData);
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _updateLightmap (info: TerrainBlockLightmapInfo) {
         this._lightmapInfo = info;
         this._invalidMaterial();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _updateLod () {
         const key = new TerrainLodKey();
         key.level = this._lodLevel;
@@ -928,6 +963,9 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _resetLod () {
         const key = new TerrainLodKey();
         key.level = 0;
@@ -944,6 +982,9 @@ export class TerrainBlock {
         this._updateIndexBuffer();
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _updateIndexBuffer () {
         if (this._renderable._meshData === null) {
             return;
@@ -1188,6 +1229,9 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public get _asset () {
         return this.__asset;
     }
@@ -1734,6 +1778,9 @@ export class Terrain extends Component {
         return h;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _setNormal (i: number, j: number, n: Vec3) {
         const index = j * this.vertexCount[0] + i;
 
@@ -2044,6 +2091,9 @@ export class Terrain extends Component {
         return position;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _getSharedIndexBuffer () {
         if (this._sharedIndexBuffer == null) {
             // initialize shared index buffer
@@ -2060,10 +2110,16 @@ export class Terrain extends Component {
         return this._sharedIndexBuffer;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _getIndexData (key: TerrainLodKey) {
         return this._lod.getIndexData(key);
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _resetLightmap (enble: boolean) {
         this._lightmapInfos.length = 0;
         if (enble) {
@@ -2073,6 +2129,9 @@ export class Terrain extends Component {
         }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _updateLightmap (blockId: number, tex: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this._lightmapInfos[blockId].texture = tex;
         this._lightmapInfos[blockId].UOff = uOff;
@@ -2082,11 +2141,17 @@ export class Terrain extends Component {
         this._blocks[blockId]._updateLightmap(this._lightmapInfos[blockId]);
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _getLightmapInfo (i: number, j: number) {
         const index = j * this._blockCount[0] + i;
         return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _calcNormal (x: number, z: number) {
         let flip = 1;
         const here = this.getPosition(x, z);
@@ -2119,6 +2184,9 @@ export class Terrain extends Component {
         return normal;
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _buildNormals () {
         let index = 0;
         for (let y = 0; y < this.vertexCount[1]; ++y) {

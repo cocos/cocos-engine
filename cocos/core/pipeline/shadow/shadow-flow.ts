@@ -163,6 +163,9 @@ export class ShadowFlow extends RenderFlow {
         if (this._shadowRenderPass) { this._shadowRenderPass.destroy(); }
     }
 
+    /**
+     * @marked_as_engine_private
+     */
     public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
         const { device } = pipeline;
         const shadows = pipeline.pipelineSceneData.shadows;
