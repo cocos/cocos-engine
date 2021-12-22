@@ -598,8 +598,9 @@ export class RichText extends UIComponent {
             let curString = longStr.substring(curStart, curEnd);
             let curStringSize = this._calculateSize(styleIndex, curString);
 
-            // calculate a threshold that is n times of this.maxWidth and less than 2048
-            const lineCountFor2048 = 2048 / this.maxWidth;
+            // calculate a threshold that is n times of this.maxWidth and less than 2048,
+            // if maxWidth is greater than 2048, let all characters stay in a line.
+            const lineCountFor2048 = this.maxWidth > 2048 ? 1 : 2048 / this.maxWidth;
             const lineCountForOnePart = Math.floor(lineCountFor2048);
             const sizeForOnePart = lineCountForOnePart * this.maxWidth;
 
@@ -613,15 +614,27 @@ export class RichText extends UIComponent {
 
             // approach target(sizeForOnePart - error)
             const avgOneCharSize = curStringSize.x / (curEnd - curStart);
+            // The second stage of truncation into real lines could waste some spaces
+            // because of mixed arrangement of Chinese and English characters,
+            // so we need to reduce this part length for extra space
+            const offsetOfError = lineCountForOnePart * avgOneCharSize;
+            const sizeForOnePartWithOffset = sizeForOnePart - offsetOfError;
+            console.error(`avgOneCharSize = ${avgOneCharSize}`);
+            console.error(`offsetOfError = ${offsetOfError}`);
+
             // avoid endless loop
             let tryCount = 100;
             let isLastPart = curEnd >= text.length;
             while (tryCount && curStart < text.length) {
-                const unitCloseToTargetSize = Math.abs(curStringSize.x - sizeForOnePart) < error
-                    ? 1 : Math.abs(curStringSize.x - sizeForOnePart) / avgOneCharSize;
-                if (curStringSize.x > sizeForOnePart) {
+                console.error(`index = ${100 - tryCount}`);
+                console.error(`curStart = ${curStart}`);
+                console.error(`curEnd = ${curEnd}`);
+                console.error(`curStringSize.x = ${curStringSize.x}`);
+                const unitCloseToTargetSize = Math.abs(curStringSize.x - sizeForOnePartWithOffset) < error
+                    ? 1 : Math.abs(curStringSize.x - sizeForOnePartWithOffset) / avgOneCharSize;
+                if (curStringSize.x > sizeForOnePartWithOffset) {
                     curEnd -= unitCloseToTargetSize;
-                } else if (curStringSize.x + error < sizeForOnePart) {
+                } else if (curStringSize.x + error < sizeForOnePartWithOffset) {
                     if (isLastPart) {
                         partStringArr.push(curString);
                         const step = curEnd - curStart;
