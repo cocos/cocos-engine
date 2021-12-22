@@ -36,6 +36,7 @@ import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
+import { JSB } from '../core/default-constants';
 import { Root } from '../core/root';
 import { RenderPipeline } from '../core';
 
@@ -70,8 +71,16 @@ interface IProfilerState {
     bufferMemory: ICounterOption;
 }
 
+// FIXME: remove this after v3.3.0-native is stable.
+let fpsPrefix = '';
+if (JSB) {
+    const osStr: string = (window as any).__getOS();
+    fpsPrefix = `${osStr}: `;
+}
+//
+
 const _profileInfo = {
-    fps: { desc: 'Framerate (FPS)', below: 30, average: _average, isInteger: true },
+    fps: { desc: `${fpsPrefix}Framerate (FPS)`, below: 30, average: _average, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
     frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: _average },
     instances: { desc: 'Instance Count', isInteger: true },
@@ -390,8 +399,7 @@ export class Profiler {
                 this.offsetData[3] = surfaceTransform;
             }
 
-            // @ts-expect-error using private members for efficiency
-            this.pass._setRootBufferDirty(true);
+            this.pass._rootBufferDirty = true;
         }
 
         if (this._meshRenderer.model) this._pipeline.profiler = this._meshRenderer.model;

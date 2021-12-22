@@ -28,13 +28,10 @@
  * @module geometry
  */
 
-import { JSB } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
-import { FloatArray, IVec3, IVec3Like } from '../math/type-define';
+import { IVec3, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
-import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
-import { NativeAABB } from '../renderer/scene/native-scene';
 import { Frustum } from './frustum';
 
 const _v3_tmp = new Vec3();
@@ -216,27 +213,11 @@ export class AABB {
     }
 
     protected readonly _type: number;
-    protected _aabbHandle: AABBHandle = NULL_HANDLE;
-    protected declare _nativeObj: NativeAABB;
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
         this._type = enums.SHAPE_AABB;
-        if (JSB) {
-            // new aabb
-            this._aabbHandle = AABBPool.alloc();
-            this.center = new Vec3(AABBPool.getTypedArray(this._aabbHandle, AABBView.CENTER) as any);
-            this.halfExtents = new Vec3(AABBPool.getTypedArray(this._aabbHandle, AABBView.HALFEXTENTS) as any);
-            this.center.set(px, py, pz);
-            this.halfExtents.set(hw, hh, hl);
-            this._nativeObj = new NativeAABB();
-            this._nativeObj.initWithData(AABBPool.getBuffer(this._aabbHandle));
-            return;
-        }
+
         this.center = new Vec3(px, py, pz);
         this.halfExtents = new Vec3(hw, hh, hl);
-    }
-
-    get native (): NativeAABB {
-        return this._nativeObj;
     }
 
     /**

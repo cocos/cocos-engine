@@ -30,7 +30,7 @@ import {
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform,
 } from '../../gfx';
 import { Root } from '../../root';
-import { Camera, NativeRenderWindow } from '../scene';
+import { Camera } from '../scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -108,17 +108,11 @@ export class RenderWindow {
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
     protected _framebuffer: Framebuffer | null = null;
-    private declare _nativeObj: NativeRenderWindow | null;
 
-    get native () {
-        return this._nativeObj;
+    private constructor (root: Root) {
     }
 
-    private constructor (root: Root) {}
-
     public initialize (device: Device, info: IRenderWindowInfo): boolean {
-        this._init();
-
         if (info.title !== undefined) {
             this._title = info.title;
         }
@@ -132,7 +126,7 @@ export class RenderWindow {
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
         if (info.swapchain) {
-            this._setSwapchain(info.swapchain);
+            this._swapchain = info.swapchain;
             this._colorTextures.push(info.swapchain.colorTexture);
             this._depthStencilTexture = info.swapchain.depthStencilTexture;
         } else {
@@ -153,14 +147,14 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
+                this._hasOffScreenAttachments = true;
             }
         }
-
-        this._setFrameBuffer(device.createFramebuffer(new FramebufferInfo(
+        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
             this._renderPass,
             this._colorTextures,
             this._depthStencilTexture,
-        )));
+        ));
 
         return true;
     }
@@ -185,8 +179,7 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-
-        this._destroy();
+        this.framebuffer.destroy();
     }
 
     /**
@@ -274,33 +267,5 @@ export class RenderWindow {
 
     public sortCameras () {
         this._cameras.sort((a: Camera, b: Camera) => a.priority - b.priority);
-    }
-
-    // ====================== Native Specific ====================== //
-
-    private _init () {
-        if (JSB) {
-            this._nativeObj = new NativeRenderWindow();
-        }
-    }
-
-    private _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    private _setSwapchain (val: Swapchain) {
-        this._swapchain = val;
-        if (JSB) {
-            this._nativeObj!.swapchain = val;
-        }
-    }
-
-    private _setFrameBuffer (val: Framebuffer) {
-        this._framebuffer = val;
-        if (JSB) {
-            this._nativeObj!.frameBuffer = val;
-        }
     }
 }

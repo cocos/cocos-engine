@@ -42,6 +42,7 @@ import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID, error } from '../platform/debug';
 import { CompPrefabInfo } from '../utils/prefab/prefab-info';
+import { EventHandler } from './component-event-handler';
 
 const idGenerator = new IDGenerator('Comp');
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
@@ -61,6 +62,8 @@ const NullNode = null as unknown as Node;
  */
 @ccclass('cc.Component')
 class Component extends CCObject {
+    public static EventHandler = EventHandler;
+
     get name () {
         if (this._name) {
             return this._name;

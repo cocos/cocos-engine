@@ -43,7 +43,7 @@ import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
-import { RenderPipeline } from './pipeline';
+import { RenderPipeline } from './pipeline/render-pipeline';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';

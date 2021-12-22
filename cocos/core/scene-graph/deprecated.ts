@@ -40,18 +40,31 @@ import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
 import { SceneGlobals } from './scene-globals';
+import { JSB } from '../default-constants';
 import { SystemEventType } from '../../input/types';
 import { SystemEvent } from '../../input';
 
-replaceProperty(BaseNode.prototype, 'BaseNode', [
-    {
-        name: 'childrenCount',
-        newName: 'children.length',
-        customGetter (this: BaseNode) {
-            return this.children.length;
+if (JSB) {
+    replaceProperty(Node.prototype, 'Node', [
+        {
+            name: 'childrenCount',
+            newName: 'children.length',
+            customGetter (this: Node) {
+                return this.children.length;
+            },
         },
-    },
-]);
+    ]);
+} else {
+    replaceProperty(BaseNode.prototype, 'BaseNode', [
+        {
+            name: 'childrenCount',
+            newName: 'children.length',
+            customGetter (this: BaseNode) {
+                return this.children.length;
+            },
+        },
+    ]);
+}
 
 replaceProperty(Node.prototype, 'Node', [
     {

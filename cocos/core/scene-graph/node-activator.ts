@@ -34,10 +34,9 @@ import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
-import { assert, errorID, error, getError } from '../platform/debug';
+import { assert, errorID, getError } from '../platform/debug';
 import { NodeEventType } from './node-event';
 import { assertIsTrue } from '../data/utils/asserts';
-import { Component } from '..';
 
 const MAX_POOL_SIZE = 4;
 
@@ -298,6 +297,7 @@ export default class NodeActivator {
                 --originCount;
             }
         }
+
         // activate children recursively
         for (let i = 0, len = node._children.length; i < len; ++i) {
             const child = node._children[i];

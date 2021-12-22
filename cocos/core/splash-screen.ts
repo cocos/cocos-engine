@@ -370,6 +370,7 @@ export class SplashScreen {
 
         const logoPass = this.logoMat.passes[0];
         const logoPso = PipelineStateManager.getOrCreatePipelineState(device, logoPass, this.shader, framebuffer.renderPass, this.quadAssmebler);
+
         cmdBuff.bindPipelineState(logoPso);
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, logoPass.descriptorSet);
         cmdBuff.bindInputAssembler(this.quadAssmebler);

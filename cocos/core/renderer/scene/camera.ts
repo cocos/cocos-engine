@@ -22,9 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
-import { EDITOR, JSB } from 'internal:constants';
-import { enums, Frustum, Ray } from '../../geometry';
+import { EDITOR } from 'internal:constants';
+import { Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
@@ -35,7 +34,6 @@ import { RenderScene } from './render-scene';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
 import { preTransforms } from '../../math/mat4';
-import { NativeCamera } from './native-scene';
 import { warnID } from '../../platform/debug';
 
 export enum CameraFOVAxis {
@@ -157,7 +155,6 @@ export class Camera {
     private _iso: CameraISO = CameraISO.ISO100;
     private _isoValue = 0.0;
     private _ec = 0.0;
-    private declare _nativeObj: NativeCamera | null;
     private _window: RenderWindow | null = null;
     private _width = 1;
     private _height = 1;
@@ -184,27 +181,6 @@ export class Camera {
         }
     }
 
-    private _setWidth (val: number) {
-        this._width = val;
-        if (JSB) {
-            this._nativeObj!.width = val;
-        }
-    }
-
-    private _setHeight (val: number) {
-        this._height = val;
-        if (JSB) {
-            this._nativeObj!.height = val;
-        }
-    }
-
-    private _setScene (scene: RenderScene | null) {
-        this._scene = scene;
-        if (JSB) {
-            this._nativeObj!.scene = scene ? scene.native : null;
-        }
-    }
-
     private _updateAspect (oriented = true) {
         this._aspect = (this.window.width * this._viewport.width) / (this.window.height * this._viewport.height);
         // window size/viewport is pre-rotated, but aspect should be oriented to acquire the correct projection
@@ -214,16 +190,6 @@ export class Camera {
             if (orientation % 2) this._aspect = 1 / this._aspect;
         }
         this._isProjDirty = true;
-
-        if (JSB) this._nativeObj!.aspect = this._aspect;
-    }
-
-    protected _init (info: ICameraInfo) {
-        if (JSB) {
-            this._nativeObj = new NativeCamera();
-            if (this._scene) this._nativeObj.scene = this._scene.native;
-            this._nativeObj.frustum = this._frustum;
-        }
     }
 
     /**
@@ -241,10 +207,9 @@ export class Camera {
     }
 
     public initialize (info: ICameraInfo) {
-        this._init(info);
         this.node = info.node;
-        this._setWidth(1);
-        this._setHeight(1);
+        this._width = 1;
+        this._height = 1;
         this.clearFlag = ClearFlagBit.NONE;
         this.clearDepth = 1.0;
         this.visibility = CAMERA_DEFAULT_MASK;
@@ -256,41 +221,38 @@ export class Camera {
         this.changeTargetWindow(info.window);
     }
 
-    protected _destroy () {
-        if (JSB) this._nativeObj = null;
-    }
-
     public destroy () {
         if (this._window) {
             this._window.detachCamera(this);
             this.window = null!;
         }
         this._name = null;
-        this._destroy();
     }
 
     public attachToScene (scene: RenderScene) {
         this._enabled = true;
-        this._setScene(scene);
+        this._scene = scene;
     }
 
     public detachFromScene () {
         this._enabled = false;
-        this._setScene(null);
+        this._scene = null;
     }
 
     public resize (width: number, height: number) {
         if (!this._window) return;
 
-        this._setWidth(width);
-        this._setHeight(height);
-        this._updateAspect();
+        this._width = width;
+        this._width = width;
+        this._height = height;
+        this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
+        this._isProjDirty = true;
     }
 
     public setFixedSize (width: number, height: number) {
-        this._setWidth(width);
-        this._setHeight(height);
-        this._updateAspect(false);
+        this._width = width;
+        this._height = height;
+        this._updateAspect();
         this.isWindowSize = false;
     }
 
@@ -313,17 +275,10 @@ export class Camera {
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
-            if (JSB) {
-                this._nativeObj!.matView = this._matView;
-            }
             this._forward.x = -this._matView.m02;
             this._forward.y = -this._matView.m06;
             this._forward.z = -this._matView.m10;
             this._node.getWorldPosition(this._position);
-            if (JSB) {
-                this._nativeObj!.position = this._position;
-                this._nativeObj!.forward = this._forward;
-            }
             viewProjDirty = true;
         }
 
@@ -343,14 +298,7 @@ export class Camera {
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
             }
-            if (JSB) {
-                this._nativeObj!.aspect = this._aspect;
-            }
             Mat4.invert(this._matProjInv, this._matProj);
-            if (JSB) {
-                this._nativeObj!.matProj = this._matProj;
-                this._nativeObj!.matProjInv = this._matProjInv;
-            }
             viewProjDirty = true;
             this._isProjDirty = false;
         }
@@ -360,19 +308,11 @@ export class Camera {
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
-            if (JSB) {
-                this._nativeObj!.matViewProj = this._matViewProj;
-                this._nativeObj!.matViewProjInv = this._matViewProjInv;
-                this._nativeObj!.frustum = this._frustum;
-            }
         }
     }
 
     set node (val: Node) {
         this._node = val;
-        if (JSB) {
-            this._nativeObj!.node = this._node.native;
-        }
     }
 
     get node () {
@@ -416,9 +356,6 @@ export class Camera {
 
     set fov (fov) {
         this._fov = fov;
-        if (JSB) {
-            this._nativeObj!.fov = fov;
-        }
         this._isProjDirty = true;
     }
 
@@ -428,9 +365,6 @@ export class Camera {
 
     set nearClip (nearClip) {
         this._nearClip = nearClip;
-        if (JSB) {
-            this._nativeObj!.nearClip = this._nearClip;
-        }
         this._isProjDirty = true;
     }
 
@@ -440,9 +374,6 @@ export class Camera {
 
     set farClip (farClip) {
         this._farClip = farClip;
-        if (JSB) {
-            this._nativeObj!.farClip = this._farClip;
-        }
         this._isProjDirty = true;
     }
 
@@ -455,9 +386,6 @@ export class Camera {
         this._clearColor.y = val.y;
         this._clearColor.z = val.z;
         this._clearColor.w = val.w;
-        if (JSB) {
-            this._nativeObj!.clearColor = this._clearColor;
-        }
     }
 
     get clearColor () {
@@ -513,14 +441,12 @@ export class Camera {
             break;
         default:
         }
+
         this._orientedViewport.x = x;
         this._orientedViewport.y = y;
         this._orientedViewport.width = width;
         this._orientedViewport.height = height;
 
-        if (JSB) {
-            this._nativeObj!.viewPort = this._viewport;
-        }
         this.resize(this.width, this.height);
     }
 
@@ -566,9 +492,6 @@ export class Camera {
 
     set frustum (val) {
         this._frustum = val;
-        if (JSB) {
-            this._nativeObj!.frustum = this._frustum;
-        }
     }
 
     get frustum () {
@@ -577,9 +500,6 @@ export class Camera {
 
     set window (val) {
         this._window = val;
-        if (JSB && val) {
-            this._nativeObj!.window = this._window.native;
-        }
     }
 
     get window () {
@@ -588,9 +508,6 @@ export class Camera {
 
     set forward (val) {
         this._forward = val;
-        if (JSB) {
-            this._nativeObj!.forward = this._forward;
-        }
     }
 
     get forward () {
@@ -599,9 +516,6 @@ export class Camera {
 
     set position (val) {
         this._position = val;
-        if (JSB) {
-            this._nativeObj!.position = this._position;
-        }
     }
 
     get position () {
@@ -610,9 +524,6 @@ export class Camera {
 
     set visibility (vis: number) {
         this._visibility = vis;
-        if (JSB) {
-            this._nativeObj!.visibility = this._visibility;
-        }
     }
     get visibility (): number {
         return this._visibility;
@@ -686,9 +597,6 @@ export class Camera {
 
     set clearFlag (flag: ClearFlags) {
         this._clearFlag = flag;
-        if (JSB) {
-            this._nativeObj!.clearFlag = flag;
-        }
     }
 
     get clearDepth () : number {
@@ -697,9 +605,6 @@ export class Camera {
 
     set clearDepth (depth: number) {
         this._clearDepth = depth;
-        if (JSB) {
-            this._nativeObj!.clearDepth = depth;
-        }
     }
 
     get clearStencil () : number {
@@ -708,13 +613,6 @@ export class Camera {
 
     set clearStencil (stencil: number) {
         this._clearStencil = stencil;
-        if (JSB) {
-            this._nativeObj!.clearStencil = stencil;
-        }
-    }
-
-    get native (): any {
-        return this._nativeObj;
     }
 
     public changeTargetWindow (window: RenderWindow | null = null) {
@@ -873,9 +771,6 @@ export class Camera {
 
     protected setExposure (ev100) {
         this._exposure = 0.833333 / (2.0 ** ev100);
-        if (JSB) {
-            this._nativeObj!.exposure = this._exposure;
-        }
     }
 
     private updateExposure () {

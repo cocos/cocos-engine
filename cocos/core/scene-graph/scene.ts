@@ -29,7 +29,7 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { EDITOR, JSB, TEST } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
@@ -39,7 +39,6 @@ import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from '../utils/prefab/utils';
-import { NativeScene } from '../renderer/scene/native-scene';
 
 /**
  * @en
@@ -98,8 +97,6 @@ export class Scene extends BaseNode {
 
     protected _dirtyFlags = 0;
 
-    protected declare _nativeObj: NativeScene | null;
-
     protected _lpos = Vec3.ZERO;
 
     protected _lrot = Quat.IDENTITY;
@@ -110,16 +107,6 @@ export class Scene extends BaseNode {
         this._scene = this;
     }
 
-    get native (): any {
-        return this._nativeObj;
-    }
-
-    protected _init () {
-        if (JSB) {
-            this._nativeObj = new NativeScene();
-        }
-    }
-
     constructor (name: string) {
         super(name);
         this._activeInHierarchy = false;
@@ -127,7 +114,6 @@ export class Scene extends BaseNode {
             this._renderScene = legacyCC.director.root.createScene({});
         }
         this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
-        this._init();
     }
 
     /**
@@ -294,9 +280,6 @@ export class Scene extends BaseNode {
         // The test environment does not currently support the renderer
         if (!TEST) {
             this._globals.activate();
-            if (this._renderScene) {
-                this._renderScene.activate();
-            }
         }
     }
 }
