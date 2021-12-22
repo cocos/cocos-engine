@@ -1120,6 +1120,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
 
 export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: IWebGL2GPUTexture) {
     if (gpuTexture.glTexture) {
+        device.gl.deleteTexture(gpuTexture.glTexture);
         for (let i = 0; i < device.stateCache.glTexUnits.length; ++i) {
             if (device.stateCache.glTexUnits[i].glTexture === gpuTexture.glTexture) {
                 device.gl.activeTexture(device.gl.TEXTURE0 + i);
@@ -1127,16 +1128,15 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
                 device.stateCache.glTexUnits[i].glTexture = null;
             }
         }
-        device.gl.deleteTexture(gpuTexture.glTexture);
         gpuTexture.glTexture = null;
     }
 
     if (gpuTexture.glRenderbuffer) {
+        device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         if (device.stateCache.glRenderbuffer === gpuTexture.glRenderbuffer) {
             device.gl.bindRenderbuffer(device.gl.RENDERBUFFER, null);
             device.stateCache.glRenderbuffer = null;
         }
-        device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         gpuTexture.glRenderbuffer = null;
     }
 }
@@ -1276,13 +1276,13 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2Device, gpuSampler: IW
 
 export function WebGL2CmdFuncDestroySampler (device: WebGL2Device, gpuSampler: IWebGL2GPUSampler) {
     if (gpuSampler.glSampler) {
+        device.gl.deleteSampler(gpuSampler.glSampler);
         for (let i = 0; i < device.stateCache.glSamplerUnits.length; ++i) {
             if (device.stateCache.glSamplerUnits[i] === gpuSampler.glSampler) {
                 device.gl.bindSampler(i, null);
                 device.stateCache.glSamplerUnits[i] = null;
             }
         }
-        device.gl.deleteSampler(gpuSampler.glSampler);
         gpuSampler.glSampler = null;
     }
 }
@@ -1389,11 +1389,11 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
 
 export function WebGL2CmdFuncDestroyFramebuffer (device: WebGL2Device, gpuFramebuffer: IWebGL2GPUFramebuffer) {
     if (gpuFramebuffer.glFramebuffer) {
+        device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         if (device.stateCache.glFramebuffer === gpuFramebuffer.glFramebuffer) {
             device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, null);
             device.stateCache.glFramebuffer = null;
         }
-        device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         gpuFramebuffer.glFramebuffer = null;
     }
 }
@@ -1677,11 +1677,11 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
 
 export function WebGL2CmdFuncDestroyShader (device: WebGL2Device, gpuShader: IWebGL2GPUShader) {
     if (gpuShader.glProgram) {
+        device.gl.deleteProgram(gpuShader.glProgram);
         if (device.stateCache.glProgram === gpuShader.glProgram) {
             device.gl.useProgram(null);
             device.stateCache.glProgram = null;
         }
-        device.gl.deleteProgram(gpuShader.glProgram);
         gpuShader.glProgram = null;
     }
 }
@@ -1725,11 +1725,11 @@ export function WebGL2CmdFuncDestroyInputAssembler (device: WebGL2Device, gpuInp
     const it = gpuInputAssembler.glVAOs.values();
     let res = it.next();
     while (!res.done) {
+        device.gl.deleteVertexArray(res.value);
         if (device.stateCache.glVAO === res.value) {
             device.gl.bindVertexArray(null);
             device.stateCache.glVAO = null;
         }
-        device.gl.deleteVertexArray(res.value);
         res = it.next();
     }
     gpuInputAssembler.glVAOs.clear();
