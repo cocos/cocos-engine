@@ -193,4 +193,37 @@ removeProperty(Shadows.prototype, 'Shadows.prototype', [
     {
         name: 'autoAdapt',
     },
+    {
+        name: 'fixedArea',
+    },
+    {
+        name: 'pcf',
+    },
+    {
+        name: 'bias',
+    },
+    {
+        name: 'normalBias',
+    },
+    {
+        name: 'near',
+    },
+    {
+        name: 'far',
+    },
+    {
+        name: 'shadowDistance',
+    },
+    {
+        name: 'invisibleOcclusionRange',
+    },
+    {
+        name: 'orthoSize',
+    },
+    {
+        name: 'saturation',
+    },
+    {
+        name: 'aspect',
+    },
 ]);
