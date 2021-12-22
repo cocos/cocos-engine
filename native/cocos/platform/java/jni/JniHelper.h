@@ -57,6 +57,7 @@
         }                             \
     } while (false)
 
+
 struct android_app;
 
 namespace cc {
@@ -268,7 +269,7 @@ public:
         std::string       signature = "(" + std::string(getJNISignature(xs...)) + ")[F";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
-            auto            *array = static_cast<jfloatArray>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
+            auto *          array = static_cast<jfloatArray>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
             CLEAR_EXCEPTON(t.env);
             jsize len = t.env->GetArrayLength(array);
             if (len <= 32) {
@@ -298,7 +299,7 @@ public:
         std::string       signature = "(" + std::string(getJNISignature(xs...)) + ")[F";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
-            auto            *array = static_cast<jfloatArray>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
+            auto *          array = static_cast<jfloatArray>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
             CLEAR_EXCEPTON(t.env);
             jsize len = t.env->GetArrayLength(array);
             if (len == 3) {
@@ -350,7 +351,7 @@ public:
         std::string       signature = "(" + std::string(getJNISignature(xs...)) + ")Ljava/lang/String;";
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
-            auto            *jret = static_cast<jstring>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
+            auto *          jret = static_cast<jstring>(t.env->CallStaticObjectMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...));
             CLEAR_EXCEPTON(t.env);
             ret = cc::JniHelper::jstring2string(jret);
             ccDeleteLocalRef(t.env, jret);

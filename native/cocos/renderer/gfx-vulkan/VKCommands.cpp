@@ -48,7 +48,10 @@ CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
 }
 
 CCVKGPUDescriptorSetPool *CCVKGPUDevice::getDescriptorSetPool(uint32_t layoutID) {
-    return &_descriptorSetPools[layoutID];
+    if (_descriptorSetPools.find(layoutID) == _descriptorSetPools.end()) {
+        _descriptorSetPools[layoutID] = std::make_unique<CCVKGPUDescriptorSetPool>();
+    }
+    return _descriptorSetPools[layoutID].get();
 }
 
 void insertVkDynamicStates(vector<VkDynamicState> *out, const vector<DynamicStateFlagBit> &dynamicStates) {
@@ -95,7 +98,7 @@ void cmdFuncCCVKGetDeviceQueue(CCVKDevice *device, CCVKGPUQueue *gpuQueue) {
     gpuQueue->queueFamilyIndex = gpuQueue->possibleQueueFamilyIndices[0];
 }
 
-void cmdFuncCCVKCreateQuery(CCVKDevice *device, CCVKGPUQueryPool *gpuQueryPool) {
+void cmdFuncCCVKCreateQueryPool(CCVKDevice *device, CCVKGPUQueryPool *gpuQueryPool) {
     VkQueryPoolCreateInfo queryPoolInfo = {};
     queryPoolInfo.sType                 = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     queryPoolInfo.queryType             = mapVkQueryType(gpuQueryPool->type);
@@ -1351,7 +1354,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     device->gpuBarrierManager()->checkIn(gpuTexture);
 }
 
-CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer,
+void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTexture *srcTexture, CCVKGPUBuffer *destBuffer,
                                                    const BufferTextureCopy *regions, uint32_t count, const CCVKGPUCommandBuffer *gpuCommandBuffer) {
     vector<ThsvsAccessType> &curTypes = srcTexture->currentAccessTypes;
 
@@ -1398,7 +1401,7 @@ CC_VULKAN_API void cmdFuncCCVKCopyTextureToBuffers(CCVKDevice *device, CCVKGPUTe
     device->gpuBarrierManager()->checkIn(srcTexture);
 }
 
-void cmdFuncCCVKDestroyQuery(CCVKGPUDevice *gpuDevice, CCVKGPUQueryPool *gpuQueryPool) {
+void cmdFuncCCVKDestroyQueryPool(CCVKGPUDevice *gpuDevice, CCVKGPUQueryPool *gpuQueryPool) {
     if (gpuQueryPool->vkPool != VK_NULL_HANDLE) {
         vkDestroyQueryPool(gpuDevice->vkDevice, gpuQueryPool->vkPool, nullptr);
         gpuQueryPool->vkPool = VK_NULL_HANDLE;
@@ -1506,9 +1509,9 @@ void CCVKGPURecycleBin::clear() {
                     res.vkFramebuffer = VK_NULL_HANDLE;
                 }
                 break;
-            case RecycledType::QUERY:
+            case RecycledType::QUERY_POOL:
                 if (res.gpuQueryPool) {
-                    cmdFuncCCVKDestroyQuery(_device, res.gpuQueryPool);
+                    cmdFuncCCVKDestroyQueryPool(_device, res.gpuQueryPool);
                     CC_DELETE(res.gpuQueryPool);
                     res.gpuQueryPool = nullptr;
                 }

@@ -1,6 +1,4 @@
 /****************************************************************************
- Copyright (c) 2010-2013 cocos2d-x.org
- Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
@@ -39,6 +37,7 @@
 
 #include <cerrno>
 #include <cstring>
+#include <iostream>
 
 #ifdef MINIZIP_FROM_SYSTEM
     #include <minizip/unzip.h>

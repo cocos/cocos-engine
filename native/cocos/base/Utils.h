@@ -30,6 +30,8 @@
 #include <cerrno>
 #include <string>
 #include <vector>
+#include <climits>
+#include <limits>
 #include "base/Macros.h"
 #include "base/TypeDef.h"
 /** @file ccUtils.h
@@ -62,7 +64,10 @@ CC_DLL uint nextPOT(uint x);
  */
 CC_DLL double atof(const char *str);
 
-CC_DLL uint alignTo(uint size, uint alignment);
+template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value>>
+T alignTo(T size, T alignment) {
+    return ((size - 1) / alignment + 1) * alignment;
+}
 
 template<uint size, uint alignment>
 constexpr uint ALIGN_TO = ((size - 1) / alignment + 1) * alignment;

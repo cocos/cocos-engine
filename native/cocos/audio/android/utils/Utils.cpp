@@ -23,13 +23,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "audio/android/utils/Utils.h"
-#include "platform/android/jni/JniCocosActivity.h"
+#include "platform/BasePlatform.h"
 #include <android_native_app_glue.h>
 
 namespace cc {
 
 int getSDKVersion() {
-    return cocosApp.sdkVersion;
+    return BasePlatform::getPlatform()->getSdkVersion();
 }
 
 } // end of namespace cc

@@ -26,7 +26,6 @@
 #pragma once
 
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXSwapchain.h"
 
 namespace cc {
 namespace gfx {

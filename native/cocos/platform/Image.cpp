@@ -29,6 +29,7 @@
 #include <cassert>
 #include <cctype>
 #include <string>
+#include <cstring>
 #include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
 
 #if CC_USE_JPEG
@@ -42,7 +43,7 @@
 
 extern "C" {
 #if CC_USE_PNG
-    #if __OHOS__
+    #if __OHOS__ || __LINUX__ || __QNX__
         #include "png.h"
     #else
         #include "png/png.h"

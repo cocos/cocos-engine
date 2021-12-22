@@ -25,8 +25,9 @@
 
 #include <boost/functional/hash.hpp>
 
-#include "InstancedBuffer.h"
 #include "BatchedBuffer.h"
+#include "GeometryRenderer.h"
+#include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "RenderFlow.h"
 #include "RenderPipeline.h"
@@ -80,6 +81,7 @@ bool RenderPipeline::activate(gfx::Swapchain * /*swapchain*/) {
     _descriptorSet = _globalDSManager->getGlobalDescriptorSet();
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device, this);
+    _geometryRenderer->activate(_device, this);
 
     // generate macros here rather than construct func because _clusterEnabled
     // switch may be changed in root.ts setRenderPipeline() function which is after
@@ -127,6 +129,7 @@ void RenderPipeline::destroy() {
     CC_SAFE_DESTROY(_globalDSManager);
     CC_SAFE_DESTROY(_pipelineUBO);
     CC_SAFE_DESTROY(_pipelineSceneData);
+    _geometryRenderer->destroy();
 
     for (auto *const queryPool : _queryPools) {
         queryPool->destroy();
@@ -329,7 +332,7 @@ bool RenderPipeline::isOccluded(const scene::Camera *camera, const scene::SubMod
 }
 
 void RenderPipeline::framegraphGC() {
-    static uint64_t frameCount{0U};
+    static uint64_t           frameCount{0U};
     static constexpr uint32_t INTERVAL_IN_SECONDS = 30;
     if (++frameCount % (INTERVAL_IN_SECONDS * 60) == 0) {
         framegraph::FrameGraph::gc(INTERVAL_IN_SECONDS * 60);

@@ -125,6 +125,7 @@ public:
         unsigned char *ptr = p + offset;
         ptr[-1] = (unsigned char)offset;
     #else
+        CCASSERT(alignment % sizeof(void*) == 0, "alignment is not multiple of sizeof(void*)");
         void *ptr = NULL;
         posix_memalign(&ptr, alignment, count);
     #endif

@@ -32,9 +32,14 @@
 
 namespace cc {
 
+// class may be padded
+#if (CC_COMPILER == CC_COMPILER_MSVC)
+    #pragma warning(disable : 4324)
+#endif
+
 class ALIGNAS(16) ThreadSafeLinearAllocator final {
 public:
-    explicit ThreadSafeLinearAllocator(uint32_t size) noexcept;
+    explicit ThreadSafeLinearAllocator(size_t size, size_t alignment = 1) noexcept;
     ~ThreadSafeLinearAllocator();
     ThreadSafeLinearAllocator(ThreadSafeLinearAllocator const &) = delete;
     ThreadSafeLinearAllocator(ThreadSafeLinearAllocator &&)      = delete;
@@ -46,20 +51,29 @@ public:
         return reinterpret_cast<T *>(doAllocate(count * sizeof(T), alignment));
     }
 
-    inline void *   getBuffer() const noexcept { return _buffer; }
-    inline uint32_t getCapacity() const noexcept { return _capacity; }
-    inline uint32_t getUsedSize() const noexcept { return _usedSize.load(std::memory_order_relaxed); }
-    inline uint32_t getBalance() const noexcept { return getCapacity() - getUsedSize(); }
+    inline ptrdiff_t allocateToOffset(size_t size, size_t alignment = 1) noexcept {
+        return reinterpret_cast<intptr_t>(doAllocate(size, alignment)) - reinterpret_cast<intptr_t>(_buffer);
+    }
+
+    inline void * getBuffer() const noexcept { return _buffer; }
+    inline size_t getCapacity() const noexcept { return _capacity; }
+    inline size_t getUsedSize() const noexcept { return _usedSize.load(std::memory_order_relaxed); }
+    inline size_t getBalance() const noexcept { return getCapacity() - getUsedSize(); }
 
     inline void recycle() noexcept { _usedSize.store(0, std::memory_order_relaxed); }
 
 private:
     void *doAllocate(size_t size, size_t alignment) noexcept;
 
-    void *                _buffer{nullptr};
-    uint32_t              _capacity{0};
-    std::atomic<uint32_t> _usedSize{0};
-    // 16 bytes
+    void *              _buffer{nullptr};
+    size_t              _capacity{0};
+    size_t              _alignment{1};
+    std::atomic<size_t> _usedSize{0};
 };
+
+// class may be padded
+#if (CC_COMPILER == CC_COMPILER_MSVC)
+    #pragma warning(default : 4324)
+#endif
 
 } // namespace cc

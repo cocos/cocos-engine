@@ -48,13 +48,13 @@ void GLES3QueryPool::doInit(const QueryPoolInfo& /*info*/) {
         _gpuQueryPool->forceWait       = _forceWait;
         _gpuQueryPool->glQueryIds.resize(_maxQueryObjects, 0U);
 
-        cmdFuncGLES3CreateQuery(device, _gpuQueryPool);
+        cmdFuncGLES3CreateQueryPool(device, _gpuQueryPool);
     }
 }
 
 void GLES3QueryPool::doDestroy() {
     if (_gpuQueryPool) {
-        cmdFuncGLES3DestroyQuery(GLES3Device::getInstance(), _gpuQueryPool);
+        cmdFuncGLES3DestroyQueryPool(GLES3Device::getInstance(), _gpuQueryPool);
         CC_DELETE(_gpuQueryPool);
         _gpuQueryPool = nullptr;
     }

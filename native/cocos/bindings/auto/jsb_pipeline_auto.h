@@ -22,6 +22,7 @@
 #include "cocos/renderer/pipeline/deferred/LightingStage.h"
 #include "cocos/renderer/pipeline/deferred/BloomStage.h"
 #include "cocos/renderer/pipeline/deferred/PostProcessStage.h"
+#include "cocos/renderer/pipeline/GeometryRenderer.h"
 
 extern se::Object* __jsb_cc_pipeline_RenderQueueDesc_proto;
 extern se::Class* __jsb_cc_pipeline_RenderQueueDesc_class;
@@ -77,6 +78,7 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_genQuadVertexData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getClearcolor);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getDevice);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getFrameGraph);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getGeometryRenderer);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getHeight);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getIAByRenderArea);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_getOcclusionQueryEnabled);
@@ -90,6 +92,7 @@ SE_DECLARE_FUNC(js_pipeline_RenderPipeline_initialize);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isEnvmapEnabled);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_isOccluded);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_render);
+SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setGeometryRenderer);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setOcclusionQueryEnabled);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData);
 SE_DECLARE_FUNC(js_pipeline_RenderPipeline_setProfiler);
@@ -269,4 +272,13 @@ bool register_all_pipeline(se::Object* obj);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::PostProcessStage);
 SE_DECLARE_FUNC(js_pipeline_PostProcessStage_getInitializeInfo);
 SE_DECLARE_FUNC(js_pipeline_PostProcessStage_PostProcessStage);
+
+extern se::Object* __jsb_cc_pipeline_GeometryRenderer_proto;
+extern se::Class* __jsb_cc_pipeline_GeometryRenderer_class;
+
+bool js_register_cc_pipeline_GeometryRenderer(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GeometryRenderer);
+SE_DECLARE_FUNC(js_pipeline_GeometryRenderer_GeometryRenderer);
 

@@ -23,10 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
-#include "VKBuffer.h"
 #include "VKCommandBuffer.h"
+#include "VKBuffer.h"
 #include "VKCommands.h"
 #include "VKDescriptorSet.h"
 #include "VKDevice.h"

@@ -49,7 +49,7 @@ GLES3Swapchain::~GLES3Swapchain() {
 void GLES3Swapchain::doInit(const SwapchainInfo& info) {
     const auto* context = GLES3Device::getInstance()->context();
     _gpuSwapchain       = CC_NEW(GLES3GPUSwapchain);
-    auto* window        = reinterpret_cast<EGLNativeWindowType>(info.windowHandle);
+    auto window        = reinterpret_cast<EGLNativeWindowType>(info.windowHandle); //NOLINT [readability-qualified-auto]
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     EGLint nFmt;
@@ -130,7 +130,7 @@ void GLES3Swapchain::doDestroySurface() {
 
 void GLES3Swapchain::doCreateSurface(void* windowHandle) {
     auto* context = GLES3Device::getInstance()->context();
-    auto* window  = reinterpret_cast<EGLNativeWindowType>(windowHandle);
+    auto window  = reinterpret_cast<EGLNativeWindowType>(windowHandle); //NOLINT [readability-qualified-auto]
 
     EGLint nFmt = 0;
     if (eglGetConfigAttrib(context->eglDisplay, context->eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
@@ -140,6 +140,8 @@ void GLES3Swapchain::doCreateSurface(void* windowHandle) {
 
     auto width  = static_cast<int>(_colorTexture->getWidth());
     auto height = static_cast<int>(_colorTexture->getHeight());
+    CC_UNUSED_PARAM(width);
+    CC_UNUSED_PARAM(height);
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
 #elif CC_PLATFORM == CC_PLATFORM_OHOS

@@ -23,14 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKSwapchain.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
 #include "VKGPUObjects.h"
 #include "VKQueue.h"
 #include "VKRenderPass.h"
-#include "VKSwapchain.h"
 #include "VKTexture.h"
 #include "VKUtils.h"
 
@@ -405,6 +403,10 @@ void CCVKSwapchain::createVkSurface() {
     surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(nullptr));
     surfaceCreateInfo.hwnd      = reinterpret_cast<HWND>(_windowHandle);
     VK_CHECK(vkCreateWin32SurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
+#elif defined(VK_USE_PLATFORM_VI_NN)
+    VkViSurfaceCreateInfoNN surfaceCreateInfo{VK_STRUCTURE_TYPE_VI_SURFACE_CREATE_INFO_NN};
+    surfaceCreateInfo.window = _windowHandle;
+    VK_CHECK(vkCreateViSurfaceNN(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
     VkMetalSurfaceCreateInfoEXT surfaceCreateInfo{VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT};
     surfaceCreateInfo.pLayer = reinterpret_cast<CAMetalLayer *>(_windowHandle);
@@ -417,7 +419,7 @@ void CCVKSwapchain::createVkSurface() {
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
     VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
     surfaceCreateInfo.connection = nullptr; // TODO
-    surfaceCreateInfo.window     = static_cast<xcb_window_t>(_windowHandle);
+    surfaceCreateInfo.window     = reinterpret_cast<uint64_t>(_windowHandle);
     VK_CHECK(vkCreateXcbSurfaceKHR(gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuSwapchain->vkSurface));
 #else
     #pragma error Platform not supported

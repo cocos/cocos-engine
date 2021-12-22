@@ -89,7 +89,7 @@ inline double random(double min, double max) {
  * Returns a random int between 0 and RAND_MAX.
  */
 inline int random() {
-    return cc::random(0, RAND_MAX);
+    return cc::random(0, static_cast<int>(RAND_MAX));
 };
 
 /**

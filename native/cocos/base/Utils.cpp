@@ -36,6 +36,7 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 
 #define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
 #include "boost/stacktrace.hpp"
@@ -69,10 +70,6 @@ uint nextPOT(uint x) {
     x = x | (x >> 8);
     x = x | (x >> 16);
     return x + 1;
-}
-
-uint alignTo(uint size, uint alignment) {
-    return ((size - 1) / alignment + 1) * alignment;
 }
 
 // painfully slow to execute, use with caution

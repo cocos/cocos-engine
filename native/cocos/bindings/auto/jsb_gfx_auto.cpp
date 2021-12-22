@@ -1,7 +1,6 @@
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
-#include "renderer/gfx-base/GFXBase.h"
 #include "renderer/GFXDeviceManager.h"
 
 #ifndef JSB_ALLOC

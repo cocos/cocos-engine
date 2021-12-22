@@ -23,12 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKTexture.h"
 #include "VKCommandBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "VKTexture.h"
 #include "VKSwapchain.h"
 
 namespace cc {

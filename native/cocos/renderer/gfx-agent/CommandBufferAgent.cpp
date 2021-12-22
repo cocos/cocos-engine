@@ -39,6 +39,8 @@
 #include "base/job-system/JobSystem.h"
 #include "base/threading/MessageQueue.h"
 #include "base/threading/ThreadSafeLinearAllocator.h"
+#include <cstring>
+
 
 namespace cc {
 namespace gfx {
@@ -377,53 +379,6 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint32_t s
         {
             actor->updateBuffer(buff, data, size);
             if (needFreeing) free(data);
-        });
-}
-
-void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) {
-    uint32_t bufferCount = 0U;
-    for (uint32_t i = 0U; i < count; i++) {
-        bufferCount += regions[i].texSubres.layerCount;
-    }
-    uint32_t totalSize = sizeof(BufferTextureCopy) * count + sizeof(uint8_t *) * bufferCount;
-    for (uint32_t i = 0U; i < count; i++) {
-        const BufferTextureCopy &region = regions[i];
-
-        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
-        totalSize += size * region.texSubres.layerCount;
-    }
-
-    // TODO(PatriceJiang): in C++17 replace with:  auto *allocator = CC_NEW(ThreadSafeLinearAllocator(totalSize));
-    auto *allocator = _CC_NEW_T_ALIGN_ARGS(ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator), totalSize);
-
-    auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
-    memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
-
-    const auto **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
-    for (uint32_t i = 0U, n = 0U; i < count; i++) {
-        const BufferTextureCopy &region = regions[i];
-
-        uint32_t size = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
-        for (uint32_t l = 0; l < region.texSubres.layerCount; l++) {
-            auto *buffer = allocator->allocate<uint8_t>(size);
-            memcpy(buffer, buffers[n], size);
-            actorBuffers[n++] = buffer;
-        }
-    }
-
-    ENQUEUE_MESSAGE_6(
-        _messageQueue, CommandBufferCopyBuffersToTexture,
-        actor, getActor(),
-        buffers, actorBuffers,
-        dst, static_cast<TextureAgent *>(texture)->getActor(),
-        regions, actorRegions,
-        count, count,
-        allocator, allocator,
-        {
-            actor->copyBuffersToTexture(buffers, dst, regions, count);
-            // TODO(PatriceJiang): C++17 replace with:  CC_DELETE(allocator);
-            _CC_DELETE_T_ALIGN(allocator, ThreadSafeLinearAllocator, alignof(ThreadSafeLinearAllocator));
-            allocator = nullptr;
         });
 }
 

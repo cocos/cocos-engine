@@ -22,26 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #pragma once
 
-#include "platform/Application.h"
-
+#include "cocos/application/CocosApplication.h"
 /**
  @brief    The cocos2d Application.
  
  The reason for implement as private inheritance is to hide some interface call by Director.
  */
-class Game : public cc::Application
-{
+class Game : public cc::CocosApplication {
 public:
-    /**
-     * width and height in logical pixel unit
-     */
+    Game();
     Game(int width, int height);
-    virtual ~Game();
-    virtual bool init() override;
-    virtual void onPause() override;
-    virtual void onResume() override;
-    virtual void onClose() override;
+    ~Game();
+
+    int init() override;
+    //bool init() override;
+    void onPause() override;
+    void onResume() override;
+    void onClose() override;
+
+    void handleException(const char* location, const char* message, const char* stack) override;
 };

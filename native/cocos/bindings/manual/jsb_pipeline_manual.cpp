@@ -33,7 +33,7 @@
 #include "renderer/pipeline/PipelineStateManager.h"
 #include "renderer/pipeline/RenderPipeline.h"
 
-static bool js_pipeline_RenderPipeline_getMacros(se::State &s) {
+static bool js_pipeline_RenderPipeline_getMacros(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::pipeline::RenderPipeline *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getMacros : Invalid Native Object.");
     const auto &   args = s.args();
@@ -49,7 +49,7 @@ static bool js_pipeline_RenderPipeline_getMacros(se::State &s) {
 }
 SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getMacros)
 
-static bool JSB_getOrCreatePipelineState(se::State &s) {
+static bool JSB_getOrCreatePipelineState(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 4) {
@@ -66,7 +66,43 @@ static bool JSB_getOrCreatePipelineState(se::State &s) {
 }
 SE_BIND_FUNC(JSB_getOrCreatePipelineState);
 
-bool register_all_pipeline_manual(se::Object *obj) {
+static bool js_pipeline_GeometryRenderer_flushFromJSB(se::State &s) // NOLINT(readability-identifier-naming)
+{
+    auto *cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_GeometryRenderer_flushFromJSB : Invalid Native Object");
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
+    if (argc == 4) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<unsigned int, false> arg1 = {};
+        HolderType<unsigned int, false> arg3 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[3], &arg3, s.thisObject());
+        uint8_t *        arg2       = nullptr;
+        CC_UNUSED size_t dataLength = 0;
+        se::Object *     obj        = args[2].toObject();
+        if (obj->isArrayBuffer()) {
+            ok &= obj->getArrayBufferData(&arg2, &dataLength);
+            SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+        } else if (obj->isTypedArray()) {
+            ok &= obj->getTypedArrayData(&arg2, &dataLength);
+            SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+        } else {
+            ok = false;
+        }
+
+        SE_PRECONDITION2(ok, false, "js_pipeline_GeometryRenderer_flushFromJSB : Error processing arguments");
+        cobj->flushFromJSB(arg0.value(), arg1.value(), arg2, arg3.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_GeometryRenderer_flushFromJSB)
+
+bool register_all_pipeline_manual(se::Object *obj) { // NOLINT(readability-identifier-naming)
     // Get the ns
     se::Value nrVal;
     if (!obj->getProperty("nr", &nrVal)) {
@@ -83,5 +119,8 @@ bool register_all_pipeline_manual(se::Object *obj) {
     psmVal.toObject()->defineFunction("getOrCreatePipelineState", _SE(JSB_getOrCreatePipelineState));
 
     __jsb_cc_pipeline_RenderPipeline_proto->defineProperty("macros", _SE(js_pipeline_RenderPipeline_getMacros), nullptr);
+
+    __jsb_cc_pipeline_GeometryRenderer_proto->defineFunction("flushFromJSB", _SE(js_pipeline_GeometryRenderer_flushFromJSB));
+
     return true;
 }

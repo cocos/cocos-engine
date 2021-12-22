@@ -23,8 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
 #include "VKGPUObjects.h"
 
 namespace cc {
@@ -32,13 +30,13 @@ namespace gfx {
 
 namespace {
 
-constexpr uint32_t FORCE_MINOR_VERSION           = 0; // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
-constexpr uint32_t DISABLE_VALIDATION_ASSERTIONS = 1; // 0 for default behavior, otherwise assertions will be disabled
+constexpr uint32_t FORCE_MINOR_VERSION = 0; // 0 for default version, otherwise minorVersion = (FORCE_MINOR_VERSION - 1)
 
 #define FORCE_ENABLE_VALIDATION  0
 #define FORCE_DISABLE_VALIDATION 1
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
+constexpr uint32_t DISABLE_VALIDATION_ASSERTIONS = 1; // 0 for default behavior, otherwise assertions will be disabled
 VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                            VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
                                                            const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
@@ -136,6 +134,8 @@ bool CCVKGPUContext::initialize() {
     requestedExtensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
     requestedExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#elif defined(VK_USE_PLATFORM_VI_NN)
+    requestedExtensions.push_back(VK_NN_VI_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
     requestedExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)

@@ -434,6 +434,7 @@ GLenum formatToGLType(Format format) {
         case Format::BC7_SRGB:
 
         case Format::ETC_RGB8:
+        case Format::ETC2_RGBA8:
         case Format::ETC2_RGB8:
         case Format::ETC2_SRGB8:
         case Format::ETC2_RGB8_A1:
@@ -483,53 +484,6 @@ GLenum formatToGLType(Format format) {
         default: {
             CCASSERT(false, "Unsupported Format, convert to GL type failed.");
             return GL_NONE;
-        }
-    }
-}
-
-uint32_t glTypeSize(GLenum glType) {
-    switch (glType) {
-        case GL_BOOL: return 4;
-        case GL_BOOL_VEC2: return 8;
-        case GL_BOOL_VEC3: return 12;
-        case GL_BOOL_VEC4: return 16;
-        case GL_INT: return 4;
-        case GL_INT_VEC2: return 8;
-        case GL_INT_VEC3: return 12;
-        case GL_INT_VEC4: return 16;
-        case GL_UNSIGNED_INT: return 4;
-        case GL_UNSIGNED_INT_VEC2: return 8;
-        case GL_UNSIGNED_INT_VEC3: return 12;
-        case GL_UNSIGNED_INT_VEC4: return 16;
-        case GL_FLOAT: return 4;
-        case GL_FLOAT_VEC2: return 8;
-        case GL_FLOAT_VEC3: return 12;
-        case GL_FLOAT_VEC4:
-        case GL_FLOAT_MAT2: return 16;
-        case GL_FLOAT_MAT2x3: return 24;
-        case GL_FLOAT_MAT2x4: return 32;
-        case GL_FLOAT_MAT3x2: return 24;
-        case GL_FLOAT_MAT3: return 36;
-        case GL_FLOAT_MAT3x4: return 48;
-        case GL_FLOAT_MAT4x2: return 32;
-        case GL_FLOAT_MAT4x3: return 48;
-        case GL_FLOAT_MAT4: return 64;
-        case GL_SAMPLER_2D:
-        case GL_SAMPLER_2D_ARRAY:
-        case GL_SAMPLER_2D_ARRAY_SHADOW:
-        case GL_SAMPLER_3D:
-        case GL_SAMPLER_CUBE:
-        case GL_INT_SAMPLER_2D:
-        case GL_INT_SAMPLER_2D_ARRAY:
-        case GL_INT_SAMPLER_3D:
-        case GL_INT_SAMPLER_CUBE:
-        case GL_UNSIGNED_INT_SAMPLER_2D:
-        case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY:
-        case GL_UNSIGNED_INT_SAMPLER_3D:
-        case GL_UNSIGNED_INT_SAMPLER_CUBE: return 4;
-        default: {
-            CCASSERT(false, "Unsupported GLType, get type size failed.");
-            return 0;
         }
     }
 }
@@ -844,8 +798,6 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
 }
 
 void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
-    static const TextureUsage MEMORYLESS = TextureUsageBit::INPUT_ATTACHMENT |
-                                           TextureUsageBit::COLOR_ATTACHMENT;
     static vector<GLint> supportedSampleCounts;
 
     gpuTexture->glInternalFmt = mapGLInternalFormat(gpuTexture->format);
@@ -1774,11 +1726,11 @@ void cmdFuncGLES3CreateGlobalBarrier(const std::vector<AccessType> &prevAccesses
     }
 }
 
-void cmdFuncGLES3CreateQuery(GLES3Device * /*device*/, GLES3GPUQueryPool *gpuQueryPool) {
+void cmdFuncGLES3CreateQueryPool(GLES3Device * /*device*/, GLES3GPUQueryPool *gpuQueryPool) {
     GL_CHECK(glGenQueries(gpuQueryPool->maxQueryObjects, &gpuQueryPool->glQueryIds[0]));
 }
 
-void cmdFuncGLES3DestroyQuery(GLES3Device * /*device*/, GLES3GPUQueryPool *gpuQueryPool) {
+void cmdFuncGLES3DestroyQueryPool(GLES3Device * /*device*/, GLES3GPUQueryPool *gpuQueryPool) {
     GL_CHECK(glDeleteQueries(gpuQueryPool->maxQueryObjects, &gpuQueryPool->glQueryIds[0]));
 }
 
@@ -2990,7 +2942,7 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
     }
 }
 
-CC_GLES3_API void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *device, GLES3GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
+void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *device, GLES3GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count) {
     auto glFormat = gpuTexture->glFormat;
     auto glType   = gpuTexture->glType;
 

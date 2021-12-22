@@ -23,12 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
+#include "VKInputAssembler.h"
 #include "VKBuffer.h"
 #include "VKCommands.h"
 #include "VKDevice.h"
-#include "VKInputAssembler.h"
 
 namespace cc {
 namespace gfx {

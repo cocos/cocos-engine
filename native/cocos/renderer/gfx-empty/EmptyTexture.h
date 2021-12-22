@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "gfx-base/GFXDef.h"
 #include "gfx-base/GFXTexture.h"
 
 namespace cc {

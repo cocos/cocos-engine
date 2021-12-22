@@ -187,24 +187,24 @@ public:
     }
 };
 
-CC_GLES2_API void cmdFuncGLES2CreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer);
-CC_GLES2_API void cmdFuncGLES2DestroyBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer);
-CC_GLES2_API void cmdFuncGLES2ResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer);
-CC_GLES2_API void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture);
-CC_GLES2_API void cmdFuncGLES2DestroyTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture);
-CC_GLES2_API void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture);
-CC_GLES2_API void cmdFuncGLES2CreateSampler(GLES2Device *device, GLES2GPUSampler *gpuSampler);
-CC_GLES2_API void cmdFuncGLES2DestroySampler(GLES2Device *device, GLES2GPUSampler *gpuSampler);
-CC_GLES2_API void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader);
-CC_GLES2_API void cmdFuncGLES2DestroyShader(GLES2Device *device, GLES2GPUShader *gpuShader);
-CC_GLES2_API void cmdFuncGLES2CreateRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRenderPass);
-CC_GLES2_API void cmdFuncGLES2DestroyRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRenderPass);
-CC_GLES2_API void cmdFuncGLES2CreateInputAssembler(GLES2Device *device, GLES2GPUInputAssembler *gpuInputAssembler);
-CC_GLES2_API void cmdFuncGLES2DestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembler *gpuInputAssembler);
-CC_GLES2_API void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
-CC_GLES2_API void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
+void cmdFuncGLES2CreateBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer);
+void cmdFuncGLES2DestroyBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer);
+void cmdFuncGLES2ResizeBuffer(GLES2Device *device, GLES2GPUBuffer *gpuBuffer);
+void cmdFuncGLES2CreateTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture);
+void cmdFuncGLES2DestroyTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture);
+void cmdFuncGLES2ResizeTexture(GLES2Device *device, GLES2GPUTexture *gpuTexture);
+void cmdFuncGLES2CreateSampler(GLES2Device *device, GLES2GPUSampler *gpuSampler);
+void cmdFuncGLES2DestroySampler(GLES2Device *device, GLES2GPUSampler *gpuSampler);
+void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader);
+void cmdFuncGLES2DestroyShader(GLES2Device *device, GLES2GPUShader *gpuShader);
+void cmdFuncGLES2CreateRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRenderPass);
+void cmdFuncGLES2DestroyRenderPass(GLES2Device *device, GLES2GPURenderPass *gpuRenderPass);
+void cmdFuncGLES2CreateInputAssembler(GLES2Device *device, GLES2GPUInputAssembler *gpuInputAssembler);
+void cmdFuncGLES2DestroyInputAssembler(GLES2Device *device, GLES2GPUInputAssembler *gpuInputAssembler);
+void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
+void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpuFBO);
 
-CC_GLES2_API void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx,
+void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subpassIdx,
                                               GLES2GPURenderPass * gpuRenderPass  = nullptr,
                                               GLES2GPUFramebuffer *gpuFramebuffer = nullptr,
                                               const Rect *         renderArea     = nullptr,
@@ -212,43 +212,43 @@ CC_GLES2_API void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint32_t subp
                                               float                clearDepth     = 1.F,
                                               uint32_t             clearStencil   = 0);
 
-CC_GLES2_API void cmdFuncGLES2EndRenderPass(GLES2Device *device);
+void cmdFuncGLES2EndRenderPass(GLES2Device *device);
 
-CC_GLES2_API void cmdFuncGLES2BindState(GLES2Device *                       device,
+void cmdFuncGLES2BindState(GLES2Device *                       device,
                                         GLES2GPUPipelineState *             gpuPipelineState,
                                         GLES2GPUInputAssembler *            gpuInputAssembler,
                                         const GLES2GPUDescriptorSet *const *gpuDescriptorSets,
                                         const uint32_t *                    dynamicOffsets = nullptr,
                                         const DynamicStates *               dynamicStates  = nullptr);
 
-CC_GLES2_API void cmdFuncGLES2Draw(GLES2Device *device, const DrawInfo &drawInfo);
+void cmdFuncGLES2Draw(GLES2Device *device, const DrawInfo &drawInfo);
 
-CC_GLES2_API void cmdFuncGLES2UpdateBuffer(GLES2Device *   device,
+void cmdFuncGLES2UpdateBuffer(GLES2Device *   device,
                                            GLES2GPUBuffer *gpuBuffer,
                                            const void *    buffer,
                                            uint32_t        offset,
                                            uint32_t        size);
 
-CC_GLES2_API void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *            device,
+void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *            device,
                                                    const uint8_t *const *   buffers,
                                                    GLES2GPUTexture *        gpuTexture,
                                                    const BufferTextureCopy *regions,
                                                    uint32_t                 count);
 
-CC_GLES2_API void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *            device,
+void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *            device,
                                                    GLES2GPUTexture *        gpuTexture,
                                                    uint8_t *const *         buffers,
                                                    const BufferTextureCopy *regions,
                                                    uint32_t                 count);
 
-CC_GLES2_API void cmdFuncGLES2BlitTexture(GLES2Device *      device,
+void cmdFuncGLES2BlitTexture(GLES2Device *      device,
                                           GLES2GPUTexture *  gpuTextureSrc,
                                           GLES2GPUTexture *  gpuTextureDst,
                                           const TextureBlit *regions,
                                           uint32_t           count,
                                           Filter             filter);
 
-CC_GLES2_API void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage);
+void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage);
 
 } // namespace gfx
 } // namespace cc

@@ -36,9 +36,73 @@ class Value;
 
 namespace cc {
 
+enum class OSEventType {
+    KEYBOARD_OSEVENT = 0,
+    TOUCH_OSEVENT    = 1,
+    MOUSE_OSEVENT    = 2,
+    CUSTOM_OSEVENT   = 3,
+    DEVICE_OSEVENT   = 4,
+    WINDOW_OSEVENT   = 5,
+    APP_OSEVENT      = 6,
+    UNKNOWN_OSEVENT  = 7
+};
+
+class OSEvent {
+public:
+    explicit OSEvent(OSEventType type) : _type(type) {}
+
+    template <typename T>
+    std::enable_if_t<std::is_base_of<cc::OSEvent, T>::value, const T &> 
+    static castEvent(const cc::OSEvent &ev) {
+        const T &evDetail = dynamic_cast<const T &>(ev);
+        return std::move(evDetail);
+    }
+
+    virtual OSEventType eventType() const {
+        return _type;
+    }
+
+private:
+    OSEventType _type = OSEventType::UNKNOWN_OSEVENT;
+};
+
+#define CONSTRUCT_EVENT(name, type)  name() : OSEvent(type) {}
+
+class AppEvent : public OSEvent {
+public:
+    CONSTRUCT_EVENT(AppEvent, OSEventType::APP_OSEVENT)
+    enum class Type {
+        RUN = 0,
+        PAUSE,
+        RESUME,
+        CLOSE,
+        UNKNOWN,
+    };
+    Type type = Type::UNKNOWN;
+};
+
+class WindowEvent : public OSEvent {
+public:
+    CONSTRUCT_EVENT(WindowEvent, OSEventType::WINDOW_OSEVENT)
+    enum class Type {
+        QUIT = 0,
+        SHOW,
+        RESTORED,
+        SIZE_CHANGED,
+        RESIZED,
+        HIDDEN,
+        MINIMIZED,
+        CLOSE,
+        UNKNOWN,
+    };
+    Type type   = Type::UNKNOWN;
+    int  width  = 0;
+    int  height = 0;
+};
 // Touch event related
 
-struct TouchInfo {
+class TouchInfo {
+public:
     float x     = 0;
     float y     = 0;
     int   index = 0;
@@ -49,7 +113,9 @@ struct TouchInfo {
       index(index) {}
 };
 
-struct TouchEvent {
+class TouchEvent : public OSEvent {
+public:
+    CONSTRUCT_EVENT(TouchEvent, OSEventType::TOUCH_OSEVENT)
     enum class Type {
         BEGAN,
         MOVED,
@@ -62,7 +128,9 @@ struct TouchEvent {
     Type                   type = Type::UNKNOWN;
 };
 
-struct MouseEvent {
+class MouseEvent : public OSEvent {
+public:
+    CONSTRUCT_EVENT(MouseEvent, OSEventType::MOUSE_OSEVENT)
     enum class Type {
         DOWN,
         UP,
@@ -138,7 +206,9 @@ enum class KeyCode {
     NUMPAD_9        = 10057
 };
 
-struct KeyboardEvent {
+class KeyboardEvent : public OSEvent {
+public:
+    CONSTRUCT_EVENT(KeyboardEvent, OSEventType::KEYBOARD_OSEVENT)
     enum class Action {
         PRESS,
         RELEASE,
@@ -155,8 +225,9 @@ struct KeyboardEvent {
     // TODO(mingo): support caps lock?
 };
 
-class CustomEvent {
+class CustomEvent : public OSEvent {
 public:
+    CONSTRUCT_EVENT(CustomEvent, OSEventType::CUSTOM_OSEVENT)
     std::string name;
     union {
         void *  ptrVal;
@@ -167,8 +238,26 @@ public:
         bool    boolVal;
     } args[10];
 
-    CustomEvent()          = default;
     virtual ~CustomEvent() = default;
+};
+
+class DeviceEvent : public OSEvent {
+public:
+    CONSTRUCT_EVENT(DeviceEvent, OSEventType::DEVICE_OSEVENT)
+    enum class Type {
+        DEVICE_MEMORY,
+        DEVICE_ORIENTATION,
+        UNKNOWN
+    };
+    union {
+        void *  ptrVal;
+        int32_t longVal;
+        int     intVal;
+        int16_t shortVal;
+        char    charVal;
+        bool    boolVal;
+    } args[3];
+    Type type = Type::DEVICE_MEMORY;
 };
 
 class EventDispatcher {
@@ -177,9 +266,9 @@ public:
     static void destroy();
     static bool initialized();
 
-    static void dispatchTouchEvent(const struct TouchEvent &touchEvent);
-    static void dispatchMouseEvent(const struct MouseEvent &mouseEvent);
-    static void dispatchKeyboardEvent(const struct KeyboardEvent &keyboardEvent);
+    static void dispatchTouchEvent(const TouchEvent &touchEvent);
+    static void dispatchMouseEvent(const MouseEvent &mouseEvent);
+    static void dispatchKeyboardEvent(const KeyboardEvent &keyboardEvent);
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height);
     static void dispatchOrientationChangeEvent(int orientation);

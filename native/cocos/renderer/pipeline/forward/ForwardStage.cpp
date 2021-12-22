@@ -25,6 +25,7 @@
 
 #include "ForwardStage.h"
 #include "../BatchedBuffer.h"
+#include "../GeometryRenderer.h"
 #include "../InstancedBuffer.h"
 #include "../PlanarShadowQueue.h"
 #include "../RenderAdditiveLightQueue.h"
@@ -227,6 +228,7 @@ void ForwardStage::render(scene::Camera *camera) {
             _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
             _renderQueues[1]->recordCommandBuffer(_device, camera, renderPass, cmdBuff);
         }
+        _pipeline->getGeometryRenderer()->render(renderPass, cmdBuff);
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
     };

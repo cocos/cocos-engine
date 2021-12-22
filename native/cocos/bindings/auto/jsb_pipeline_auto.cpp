@@ -18,7 +18,8 @@
 #include "renderer/pipeline/deferred/LightingStage.h"
 #include "renderer/pipeline/deferred/BloomStage.h"
 #include "renderer/pipeline/deferred/PostProcessStage.h"
-#include "cocos/renderer/gfx-base/GFXBase.h"
+#include "renderer/pipeline/GeometryRenderer.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
 
 #ifndef JSB_ALLOC
 #define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
@@ -903,6 +904,25 @@ static bool js_pipeline_RenderPipeline_getFrameGraph(se::State& s) // NOLINT(rea
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getFrameGraph)
 
+static bool js_pipeline_RenderPipeline_getGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::pipeline::GeometryRenderer* result = cobj->getGeometryRenderer();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getGeometryRenderer : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_getGeometryRenderer)
+
 static bool js_pipeline_RenderPipeline_getGlobalDSManager(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1227,6 +1247,25 @@ static bool js_pipeline_RenderPipeline_setClusterEnabled(se::State& s) // NOLINT
 }
 SE_BIND_PROP_SET(js_pipeline_RenderPipeline_setClusterEnabled)
 
+static bool js_pipeline_RenderPipeline_setGeometryRenderer(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setGeometryRenderer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::pipeline::GeometryRenderer*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_setGeometryRenderer : Error processing arguments");
+        cobj->setGeometryRenderer(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_pipeline_RenderPipeline_setGeometryRenderer)
+
 static bool js_pipeline_RenderPipeline_setOcclusionQueryEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -1383,6 +1422,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("getClearcolor", _SE(js_pipeline_RenderPipeline_getClearcolor));
     cls->defineFunction("getDevice", _SE(js_pipeline_RenderPipeline_getDevice));
     cls->defineFunction("getFrameGraph", _SE(js_pipeline_RenderPipeline_getFrameGraph));
+    cls->defineFunction("getGeometryRenderer", _SE(js_pipeline_RenderPipeline_getGeometryRenderer));
     cls->defineFunction("getHeight", _SE(js_pipeline_RenderPipeline_getHeight));
     cls->defineFunction("getIAByRenderArea", _SE(js_pipeline_RenderPipeline_getIAByRenderArea));
     cls->defineFunction("getOcclusionQueryEnabled", _SE(js_pipeline_RenderPipeline_getOcclusionQueryEnabled));
@@ -1396,6 +1436,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-
     cls->defineFunction("isEnvmapEnabled", _SE(js_pipeline_RenderPipeline_isEnvmapEnabled));
     cls->defineFunction("isOccluded", _SE(js_pipeline_RenderPipeline_isOccluded));
     cls->defineFunction("render", _SE(js_pipeline_RenderPipeline_render));
+    cls->defineFunction("setGeometryRenderer", _SE(js_pipeline_RenderPipeline_setGeometryRenderer));
     cls->defineFunction("setOcclusionQueryEnabled", _SE(js_pipeline_RenderPipeline_setOcclusionQueryEnabled));
     cls->defineFunction("setPipelineSharedSceneData", _SE(js_pipeline_RenderPipeline_setPipelineSharedSceneData));
     cls->defineFunction("setProfiler", _SE(js_pipeline_RenderPipeline_setProfiler));
@@ -3125,6 +3166,49 @@ bool js_register_pipeline_PostProcessStage(se::Object* obj) // NOLINT(readabilit
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_pipeline_GeometryRenderer_proto = nullptr;
+se::Class* __jsb_cc_pipeline_GeometryRenderer_class = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GeometryRenderer_finalize)
+
+static bool js_pipeline_GeometryRenderer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    cc::pipeline::GeometryRenderer* cobj = JSB_ALLOC(cc::pipeline::GeometryRenderer);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_pipeline_GeometryRenderer_constructor, __jsb_cc_pipeline_GeometryRenderer_class, js_cc_pipeline_GeometryRenderer_finalize)
+
+
+
+static bool js_cc_pipeline_GeometryRenderer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::pipeline::GeometryRenderer>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_pipeline_GeometryRenderer_finalize)
+
+bool js_register_pipeline_GeometryRenderer(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("GeometryRenderer", obj, nullptr, _SE(js_pipeline_GeometryRenderer_constructor));
+
+    cls->defineFinalizeFunction(_SE(js_cc_pipeline_GeometryRenderer_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::pipeline::GeometryRenderer>(cls);
+
+    __jsb_cc_pipeline_GeometryRenderer_proto = cls->getProto();
+    __jsb_cc_pipeline_GeometryRenderer_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 bool register_all_pipeline(se::Object* obj)
 {
     // Get the ns
@@ -3157,6 +3241,7 @@ bool register_all_pipeline(se::Object* obj)
     js_register_pipeline_LightingStage(ns);
     js_register_pipeline_BloomStage(ns);
     js_register_pipeline_PostProcessStage(ns);
+    js_register_pipeline_GeometryRenderer(ns);
     return true;
 }
 

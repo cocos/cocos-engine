@@ -62,6 +62,26 @@ DEFINE_CMP_OP(TextureBarrierInfo)
 
 #undef DEFINE_CMP_OP
 
+class Executable {
+public:
+    virtual ~Executable()  = default;
+    virtual void execute() = 0;
+};
+
+template <typename ExecuteMethodType>
+class CallbackExecutable final : public Executable {
+public:
+    using ExecuteMethod = std::remove_reference_t<ExecuteMethodType>;
+
+    explicit CallbackExecutable(ExecuteMethod& execute) : Executable(), _execute(execute) {}
+    explicit CallbackExecutable(ExecuteMethod&& execute) : Executable(), _execute(execute) {}
+
+    void execute() override { _execute(); }
+
+private:
+    ExecuteMethod _execute;
+};
+
 struct SwapchainTextureInfo final {
     Swapchain* swapchain{nullptr};
     Format     format{Format::UNKNOWN};
@@ -99,6 +119,5 @@ std::pair<uint32_t, uint32_t> formatAlignment(Format format);
 uint32_t formatSize(Format format, uint32_t width, uint32_t height, uint32_t depth);
 
 uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t mips);
-
 } // namespace gfx
 } // namespace cc

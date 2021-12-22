@@ -30,7 +30,7 @@
 
 namespace cc {
 
-template <typename T, typename = typename std::enable_if_t<std::is_integral_v<T>>>
+template <typename T, typename = typename std::enable_if_t<std::is_integral<T>::value>>
 class ThreadSafeCounter final {
 public:
     inline T    increment() noexcept { return add(1); }

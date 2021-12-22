@@ -23,12 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "VKStd.h"
-
-#include "gfx-base/GFXDef.h"
-
-#include "VKCommands.h"
 #include "VKDescriptorSetLayout.h"
+#include "VKCommands.h"
 #include "VKDevice.h"
 
 namespace cc {

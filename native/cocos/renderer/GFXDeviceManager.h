@@ -29,29 +29,35 @@
 #include "bindings/event/EventDispatcher.h"
 
 #include "gfx-agent/DeviceAgent.h"
-#include "gfx-empty/EmptyDevice.h"
 #include "gfx-validator/DeviceValidator.h"
 
+//#undef CC_USE_NVN
 //#undef CC_USE_VULKAN
 //#undef CC_USE_METAL
 //#undef CC_USE_GLES3
 //#undef CC_USE_GLES2
 
+#ifdef CC_USE_NVN
+    #include "gfx-nvn/NVNDevice.h"
+#endif
+
 #ifdef CC_USE_VULKAN
-    #include "gfx-vulkan/GFXVulkan.h"
+    #include "gfx-vulkan/VKDevice.h"
 #endif
 
 #ifdef CC_USE_METAL
-    #include "gfx-metal/GFXMTL.h"
+    #include "gfx-metal/MTLDevice.h"
 #endif
 
 #ifdef CC_USE_GLES3
-    #include "gfx-gles3/GFXGLES3.h"
+    #include "gfx-gles3/GLES3Device.h"
 #endif
 
 #ifdef CC_USE_GLES2
-    #include "gfx-gles2/GFXGLES2.h"
+    #include "gfx-gles2/GLES2Device.h"
 #endif
+
+#include "gfx-empty/EmptyDevice.h"
 
 namespace cc {
 namespace gfx {
@@ -66,6 +72,10 @@ public:
         if (Device::instance) return Device::instance;
 
         Device *device = nullptr;
+
+#ifdef CC_USE_NVN
+        if (tryCreate<CCNVNDevice>(info, &device)) return device;
+#endif
 
 #ifdef CC_USE_VULKAN
         if (tryCreate<CCVKDevice>(info, &device)) return device;
