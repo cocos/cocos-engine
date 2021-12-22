@@ -116,6 +116,10 @@ export class WebGLDevice extends Device {
         this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
         this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
 
+        // WebGL doesn't support UBOs at all, so here we return
+        // the guaranteed minimum number of available bindings in WebGL2
+        this._caps.maxUniformBufferBindings = 16;
+
         const extensions = gl.getSupportedExtensions();
         let extStr = '';
         if (extensions) {
