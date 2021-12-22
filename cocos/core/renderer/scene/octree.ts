@@ -23,11 +23,8 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
-import { legacyCC } from '../../global-exports';
 import { Vec3 } from '../../math/vec3';
 import { OctreeInfo } from '../../scene-graph/scene-globals';
-import { NativeOctree } from './native-scene';
 
 export class Octree {
     /**
@@ -36,9 +33,6 @@ export class Octree {
      */
     set enabled (val: boolean) {
         this._enabled = val;
-        if (JSB) {
-            this._nativeObj!.enabled = val;
-        }
     }
     get enabled (): boolean {
         return this._enabled;
@@ -53,9 +47,6 @@ export class Octree {
     }
     set minPos (val: Vec3) {
         this._minPos = val;
-        if (JSB) {
-            this._nativeObj!.minPos = val;
-        }
     }
 
     /**
@@ -67,9 +58,6 @@ export class Octree {
     }
     set maxPos (val: Vec3) {
         this._maxPos = val;
-        if (JSB) {
-            this._nativeObj!.maxPos = val;
-        }
     }
 
     /**
@@ -82,48 +70,17 @@ export class Octree {
 
     set depth (val: number) {
         this._depth = val;
-        if (JSB) {
-            this._nativeObj!.depth = val;
-        }
     }
 
     protected _enabled = false;
     protected _minPos = new Vec3(0, 0, 0);
     protected _maxPos = new Vec3(0, 0, 0);
     protected _depth = 0;
-    protected declare _nativeObj: NativeOctree | null;
-
-    get native (): NativeOctree {
-        return this._nativeObj!;
-    }
-
-    constructor () {
-        if (JSB) {
-            this._nativeObj = new NativeOctree();
-        }
-    }
 
     public initialize (octreeInfo: OctreeInfo) {
         this._enabled = octreeInfo.enabled;
         this._minPos = octreeInfo.minPos;
         this._maxPos = octreeInfo.maxPos;
         this._depth = octreeInfo.depth;
-
-        if (JSB) {
-            this._nativeObj!.enabled = this._enabled;
-            this._nativeObj!.minPos = this._minPos;
-            this._nativeObj!.maxPos = this._maxPos;
-            this._nativeObj!.depth = this._depth;
-        }
-    }
-
-    protected _destroy () {
-        if (JSB) {
-            this._nativeObj = null;
-        }
-    }
-
-    public destroy () {
-        this._destroy();
     }
 }
