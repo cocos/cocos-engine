@@ -226,3 +226,4 @@ export * from './model';
 
 export * from './render-scene';
 export * from './submodel';
+export * from './camera';

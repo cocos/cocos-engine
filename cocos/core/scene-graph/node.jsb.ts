@@ -36,7 +36,6 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { Mat4, Quat, Vec3 } from '../math';
 import { NodeEventProcessor } from './node-event-processor';
 import { Layers } from './layers';
-import { eventManager } from '../platform/event-manager/event-manager';
 import { SerializationContext, SerializationOutput, serializeTag } from '../data';
 import { EDITOR } from '../default-constants';
 import {
@@ -399,11 +398,17 @@ nodeProto._onActivateNode = function (shouldActiveNow) {
 
 nodeProto._onPostActivated = function (active: boolean) {
     if (active) { // activated
-        eventManager.resumeTarget(this);
+        this._eventProcessor.setEnabled(true);
         // in case transform updated during deactivated period
         this.invalidateChildren(TransformBit.TRS);
+        // ALL Node renderData dirty flag will set on here
+        if (this._uiProps && this._uiProps.uiComp) {
+            this._uiProps.uiComp.setNodeDirty();
+            this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
+            this._uiProps.uiComp.markForUpdateRenderData();
+        }
     } else { // deactivated
-        eventManager.pauseTarget(this);
+        this._eventProcessor.setEnabled(false);
     }
 };
 
