@@ -528,8 +528,8 @@ export class ArmatureDisplay extends Renderable2D {
         this._inited = false;
         this.attachUtil = new AttachUtil();
         this.initFactory();
-        setEnumAttr(this, '_animationIndex', this._enumAnimations);
-        setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+        setEnumAttr(this, 'animationIndex', this._enumAnimations);
+        setEnumAttr(this, 'defaultArmatureIndex', this._enumArmatures);
     }
 
     initFactory () {
@@ -1016,7 +1016,7 @@ export class ArmatureDisplay extends Renderable2D {
         } else {
             Object.assign(this._cacheModeEnum, DefaultCacheMode);
         }
-        setEnumAttr(this, '_defaultCacheMode', this._cacheModeEnum);
+        setEnumAttr(this, 'defaultCacheMode', this._cacheModeEnum);
     }
 
     // update animation list for editor
@@ -1032,7 +1032,7 @@ export class ArmatureDisplay extends Renderable2D {
         Object.assign(this._enumAnimations, animEnum || DefaultAnimsEnum);
         Enum.update(this._enumAnimations);
         // change enum
-        setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        setEnumAttr(this, 'animationIndex', this._enumAnimations);
     }
 
     // update armature list for editor
@@ -1048,7 +1048,7 @@ export class ArmatureDisplay extends Renderable2D {
         Object.assign(this._enumArmatures, armatureEnum || DefaultArmaturesEnum);
         Enum.update(this._enumArmatures);
         // change enum
-        setEnumAttr(this, '_defaultArmatureIndex', this._enumArmatures);
+        setEnumAttr(this, 'defaultArmatureIndex', this._enumArmatures);
     }
 
     _indexBoneSockets () {

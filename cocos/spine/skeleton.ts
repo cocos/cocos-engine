@@ -592,8 +592,8 @@ export class Skeleton extends Renderable2D {
         this._startEntry = { animation: { name: '' }, trackIndex: 0 } as any;
         this._endEntry = { animation: { name: '' }, trackIndex: 0 } as any;
         this.attachUtil = new AttachUtil();
-        setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
-        setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        setEnumAttr(this, 'defaultSkinIndex', this._enumSkins);
+        setEnumAttr(this, 'animationIndex', this._enumAnimations);
     }
 
     // override base class disableRender to clear post render flag
@@ -1539,7 +1539,7 @@ export class Skeleton extends Renderable2D {
         this._enumAnimations = Enum({});
         Object.assign(this._enumAnimations, animEnum);
         Enum.update(this._enumAnimations);
-        setEnumAttr(this, '_animationIndex', this._enumAnimations);
+        setEnumAttr(this, 'animationIndex', this._enumAnimations);
     }
 
     // update skin list for editor
@@ -1554,7 +1554,7 @@ export class Skeleton extends Renderable2D {
         this._enumSkins = Enum({});
         Object.assign(this._enumSkins, skinEnum);
         Enum.update(this._enumSkins);
-        setEnumAttr(this, '_defaultSkinIndex', this._enumSkins);
+        setEnumAttr(this, 'defaultSkinIndex', this._enumSkins);
     }
 
     protected _ensureListener () {
