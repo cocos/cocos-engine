@@ -104,7 +104,7 @@ export class RenderShadowMapBatchedQueue {
                     const ro = dirShadowObjects[i];
                     const model = ro.model;
                     if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-                    this.add(model, cmdBuff, _shadowPassIndices);
+                    this.add(model, _shadowPassIndices);
                 }
                 break;
             case LightType.SPOT:
@@ -120,7 +120,7 @@ export class RenderShadowMapBatchedQueue {
                         if (!intersect.aabbFrustum(_ab, camera.frustum)) { continue; }
                     }
 
-                    this.add(model, cmdBuff, _shadowPassIndices);
+                    this.add(model, _shadowPassIndices);
                 }
                 break;
             default:
@@ -143,7 +143,7 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue.clear();
     }
 
-    public add (model: Model, cmdBuff: CommandBuffer, _shadowPassIndices: number[]) {
+    public add (model: Model, _shadowPassIndices: number[]) {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
