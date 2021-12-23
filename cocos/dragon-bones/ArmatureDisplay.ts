@@ -256,7 +256,7 @@ export class ArmatureDisplay extends Renderable2D {
                 return;
             }
 
-            armatureName = armaturesEnum[this.defaultArmatureIndex];
+            armatureName = armaturesEnum[this._defaultArmatureIndexValue];
         }
 
         if (armatureName !== undefined) {
@@ -292,7 +292,7 @@ export class ArmatureDisplay extends Renderable2D {
     set animationIndex (value) {
         this._animationIndexValue = value;
 
-        if (this.animationIndex === 0) {
+        if (this._animationIndexValue === 0) {
             this.animationName = '';
             return;
         }
@@ -306,7 +306,7 @@ export class ArmatureDisplay extends Renderable2D {
             return;
         }
 
-        const animName = animsEnum[this.animationIndex];
+        const animName = animsEnum[this._animationIndexValue];
         if (animName !== undefined) {
             this.playAnimation(animName, this.playTimes);
         } else {
@@ -336,14 +336,14 @@ export class ArmatureDisplay extends Renderable2D {
     set defaultCacheMode (value) {
         this._defaultCacheModeValue = value;
 
-        if (this.defaultCacheMode !== AnimationCacheMode.REALTIME) {
+        if (this._defaultCacheModeValue !== AnimationCacheMode.REALTIME) {
             if (this._armature && !ArmatureCache.canCache(this._armature)) {
-                this.defaultCacheMode = AnimationCacheMode.REALTIME;
+                this._defaultCacheModeValue = AnimationCacheMode.REALTIME;
                 console.warn('Animation cache mode doesn\'t support skeletal nesting');
                 return;
             }
         }
-        this.setAnimationCacheMode(this.defaultCacheMode);
+        this.setAnimationCacheMode(this._defaultCacheModeValue);
     }
     /**
      * @en The time scale of this armature.
@@ -676,7 +676,7 @@ export class ArmatureDisplay extends Renderable2D {
             // this._refreshInspector();
         }
 
-        this._cacheMode = this.defaultCacheMode;
+        this._cacheMode = this._defaultCacheModeValue;
 
         if (this._inited) return;
         this._inited = true;
