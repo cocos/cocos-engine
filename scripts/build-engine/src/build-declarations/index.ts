@@ -219,8 +219,8 @@ export async function build (options: {
 
         interfaceFilter.cullInterface({
             inputDts: indexOutputPath,
-            privateTag: 'engine_internal',
-            deprecateTag: 'legacy_public',
+            privateTag: 'engineInternal',
+            deprecateTag: 'legacyPublic',
             deprecateTip: 'since v3.5.0, this is an engine private interface that will be removed in the future.',
         });
     } catch (error) {
