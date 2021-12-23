@@ -1,4 +1,5 @@
 import { ccclass, serializable, editable, type } from 'cc.decorator';
+import type { Node } from '../../scene-graph/node';
 import { Asset } from '../../assets/asset';
 import { removeIf } from '../../utils/array';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
@@ -27,6 +28,14 @@ export class AnimationMask extends Asset {
 
     public removeJoint (removal: string) {
         removeIf(this._jointMasks, ({ path }) => path === removal);
+    }
+
+    public filterDisabledNodes (root: Node) {
+        return this._jointMasks.filter(
+            ({ enabled }) => !enabled,
+        ).map(
+            ({ path }) => root.getChildByPath(path)!,
+        ).filter((node) => !!node);
     }
 }
 

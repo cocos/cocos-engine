@@ -57,7 +57,10 @@ export class AnimationGraphEval {
         }
         for (const layerEval of this._layerEvaluations) {
             layerEval.update(deltaTime);
-            this._blendBuffer.commitLayerChanges(layerEval.weight);
+            this._blendBuffer.commitLayerChanges(
+                layerEval.weight,
+                layerEval.excludeNodes,
+            );
         }
         if (GRAPH_DEBUG_ENABLED) {
             graphDebug(`Weights: ${getWeightsStats()}`);
@@ -182,6 +185,9 @@ class LayerEval {
         this._topLevelExit = exit;
         this._currentNode = entry;
         this._resetTrigger = context.triggerResetFn;
+        if (context.mask) {
+            this._excludeNodes = new Set<Node>(context.mask.filterDisabledNodes(context.node));
+        }
     }
 
     /**
@@ -189,6 +195,10 @@ class LayerEval {
      */
     get exited () {
         return this._currentNode === this._topLevelExit;
+    }
+
+    get excludeNodes () {
+        return this._excludeNodes;
     }
 
     public update (deltaTime: number) {
@@ -254,6 +264,7 @@ class LayerEval {
     }
 
     private declare _controller: AnimationController;
+    private _excludeNodes: Set<Node> | null = null;
     private _nodes: NodeEval[] = [];
     private _topLevelEntry: NodeEval;
     private _topLevelExit: NodeEval;

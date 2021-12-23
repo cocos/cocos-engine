@@ -336,13 +336,21 @@ class LayeredVec3PropertyBlendState implements PropertyBlendState<Vec3> {
     constructor (defaultValue: Readonly<Vec3>) {
         Vec3.copy(this._defaultValue, defaultValue);
         Vec3.copy(this.result, defaultValue);
+        if (DEBUG) {
+            this.clipBlendCount = 0;
+        }
     }
 
     public refCount = 0;
 
     public result = new Vec3();
 
+    public declare clipBlendCount: number;
+
     public blend (value: Readonly<Vec3>, weight: number): void {
+        if (DEBUG) {
+            ++this.clipBlendCount;
+        }
         this._accumulatedWeight = mixAveragedVec3(
             this._clipBlendResult,
             this._clipBlendResult,
@@ -353,6 +361,9 @@ class LayeredVec3PropertyBlendState implements PropertyBlendState<Vec3> {
     }
 
     public commitLayerChange (weight: number) {
+        if (DEBUG) {
+            this.clipBlendCount = 0;
+        }
         const {
             result,
             _clipBlendResult: clipBlendResult,
@@ -379,13 +390,21 @@ class LayeredQuatPropertyBlendState implements PropertyBlendState<Quat> {
     constructor (defaultValue: Readonly<Quat>) {
         Quat.copy(this._defaultValue, defaultValue);
         Quat.copy(this.result, defaultValue);
+        if (DEBUG) {
+            this.clipBlendCount = 0;
+        }
     }
 
     public refCount = 0;
 
     public result = new Quat();
 
+    public declare clipBlendCount: number;
+
     public blend (value: Readonly<Quat>, weight: number): void {
+        if (DEBUG) {
+            ++this.clipBlendCount;
+        }
         this._accumulatedWeight = mixAveragedQuat(
             this._clipBlendResult,
             this._clipBlendResult,
@@ -396,6 +415,9 @@ class LayeredQuatPropertyBlendState implements PropertyBlendState<Quat> {
     }
 
     public commitLayerChange (weight: number) {
+        if (DEBUG) {
+            this.clipBlendCount = 0;
+        }
         const {
             result,
             _clipBlendResult: clipBlendResult,
@@ -444,6 +466,23 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
         scale?.reset();
         rotation?.reset();
         eulerAngles?.reset();
+    }
+
+    public zeroCheck () {
+        const { _properties: { position, scale, rotation, eulerAngles } } = this;
+        if (position && position.clipBlendCount !== 0) {
+            return false;
+        }
+        if (scale && scale.clipBlendCount !== 0) {
+            return false;
+        }
+        if (rotation && rotation.clipBlendCount !== 0) {
+            return false;
+        }
+        if (eulerAngles && eulerAngles.clipBlendCount !== 0) {
+            return false;
+        }
+        return true;
     }
 
     protected _createVec3BlendState (currentValue: Readonly<Vec3>) {
@@ -536,8 +575,17 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
  * ```
  */
 export class LayeredBlendStateBuffer extends BlendStateBuffer<LayeredNodeBlendState> {
-    public commitLayerChanges (weight: number) {
-        this._nodeBlendStates.forEach((nodeBlendState) => {
+    public commitLayerChanges (weight: number, excludeNodes: Set<Node> | null) {
+        this._nodeBlendStates.forEach((nodeBlendState, node) => {
+            if (excludeNodes?.has(node)) {
+                if (DEBUG) {
+                    assertIsTrue(
+                        nodeBlendState.zeroCheck(),
+                        `The layer declares the node is excluded, but it was written.`,
+                    );
+                }
+                return;
+            }
             nodeBlendState.commitLayerChanges(weight);
         });
     }
