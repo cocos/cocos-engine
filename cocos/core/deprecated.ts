@@ -250,42 +250,6 @@ removeProperty(SubModel.prototype, 'SubModel.prototype', [
     },
 ]);
 
-replaceProperty(ArmatureDisplay.prototype, 'ArmatureDisplay.prototype', [
-    {
-        name: '_defaultArmatureIndex',
-        newName: 'defaultArmatureIndex',
-        target: ArmatureDisplay,
-        targetName: 'ArmatureDisplay',
-    },
-    {
-        name: '_animationIndex',
-        newName: 'animationIndex',
-        target: ArmatureDisplay,
-        targetName: 'ArmatureDisplay',
-    },
-    {
-        name: '_defaultCacheMode',
-        newName: 'defaultCacheMode',
-        target: ArmatureDisplay,
-        targetName: 'ArmatureDisplay',
-    },
-]);
-
-replaceProperty(Skeleton.prototype, 'Skeleton.prototype', [
-    {
-        name: '_defaultSkinIndex',
-        newName: 'defaultSkinIndex',
-        target: Skeleton,
-        targetName: 'Skeleton',
-    },
-    {
-        name: '_animationIndex',
-        newName: 'animationIndex',
-        target: Skeleton,
-        targetName: 'Skeleton',
-    },
-]);
-
 // Root
 
 replaceProperty(Root.prototype, 'Root.prototype', [
