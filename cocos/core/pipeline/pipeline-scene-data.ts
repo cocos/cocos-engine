@@ -127,7 +127,6 @@ export class PipelineSceneData {
 
     public destroy () {
         this.shadows.destroy();
-        this.octree.destroy();
         this.validPunctualLights.length = 0;
         this._occlusionQueryInputAssembler?.destroy();
         this._occlusionQueryInputAssembler = null;
