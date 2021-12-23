@@ -547,44 +547,8 @@ export class RichText extends UIComponent {
         }
     }
 
-    protected splitLongStringIntoSeveralShortString (styleIndex: number, s: string) {
-        const splitLongStrArr: string[] = [];
-
-        const userMultilineString: string[] = s.split('\n');
-        for (let i = 0; i < userMultilineString.length; i++) {
-            const labelSize = this._calculateSize(styleIndex, userMultilineString[i]);
-            if (labelSize.x < 2048) {
-                splitLongStrArr.push(userMultilineString[i]);
-            } else {
-                const longStr = userMultilineString[i];
-                let tempString = longStr.substring(0, longStr.length / 2);
-                let tempSize = this._calculateSize(styleIndex, tempString);
-                let tempLength = tempString.length;
-                while (tempSize.x >= 2048) {
-                    tempString = tempString.substring(0, tempString.length / 2);
-                    tempSize = this._calculateSize(styleIndex, tempString);
-                    tempLength = tempString.length;
-                }
-
-                let tempIndex = 0;
-                while (tempIndex < longStr.length) {
-                    const thisLength = Math.min(tempLength, longStr.length - tempIndex);
-                    //substring return characters from indexA to indexB(not contain indexB)
-                    splitLongStrArr.push(longStr.substring(tempIndex, tempIndex + thisLength));
-                    tempIndex += thisLength;
-                }
-            }
-        }
-
-        for (let i = 0; i < splitLongStrArr.length; i++) {
-            console.log(splitLongStrArr[i]);
-        }
-
-        return splitLongStrArr;
-    }
-
     // error means toleration of difference of current splitted string size and the target single line size.
-    protected CalculateOneLineCharCountApproximatelyInThresholdWithInError (text: string, styleIndex: number, error: number) {
+    protected SplitLongStringApproximatelyInThresholdWithInError (text: string, styleIndex: number, error: number) {
         const labelSize = this._calculateSize(styleIndex, text);
         const partStringArr: string[] = [];
         if (labelSize.x < 2048) {
@@ -996,9 +960,7 @@ export class RichText extends UIComponent {
                 }
             }
 
-            //test code
-            //const splitArr: string[] = this.splitLongStringIntoSeveralShortString(i, text);
-            const splitArr: string[] = this.CalculateOneLineCharCountApproximatelyInThresholdWithInError(text, i, this.fontSize);
+            const splitArr: string[] = this.SplitLongStringApproximatelyInThresholdWithInError(text, i, this.fontSize);
             text = splitArr.join('\n');
 
             const multilineTexts = text.split('\n');
