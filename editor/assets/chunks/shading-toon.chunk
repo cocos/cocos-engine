@@ -16,6 +16,7 @@ struct ToonSurface {
   float baseFeather;
   float shadeStep;
   float shadeFeather;
+  float shadowCover;
 };
 
 // Inspired by UTS2, (C)UTJ/UCL
@@ -77,6 +78,7 @@ struct ToonSurface {
 
     vec3 diffuse = mix(s.shade1, s.shade2,
       clamp(1.0 + (s.shadeStep - s.shadeFeather - NL) / s.shadeFeather, 0.0, 1.0));
+
     diffuse = mix(s.baseColor.rgb, diffuse,
       clamp(1.0 + (s.baseStep - s.baseFeather - NL) / s.baseFeather, 0.0, 1.0));
 
@@ -88,10 +90,9 @@ struct ToonSurface {
 
     float shadow = 1.0;
     #if CC_RECEIVE_SHADOW && CC_ENABLE_DIR_SHADOW
-      NL = max(dot(N, L), 0.0);
-      if (NL > 0.0) {
+    if(s.shadowCover < NL) {
         CC_SHADOW_FACTOR(shadow, N, NL);
-      }
+    }
     #endif
 
     dirlightContrib *= shadow;
