@@ -1043,34 +1043,14 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
 };
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
-    const prefabInstance = this._prefab?.instance;
-    if (!dontSyncChildPrefab && prefabInstance) {
-        createNodeWithPrefab(this);
-    }
-
     this.hasChangedFlags = TransformBit.TRS;
     this._dirtyFlags |= TransformBit.TRS;
-    this._uiProps.uiTransformDirty = true;
     const children = this._children;
     const len = children.length;
     for (let i = 0; i < len; ++i) {
         children[i]._siblingIndex = i;
         children[i]._onBatchCreated(dontSyncChildPrefab);
     }
-
-    // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
-    if (!dontSyncChildPrefab && prefabInstance) {
-        const targetMap: Record<string, any | Node | Component> = {};
-        prefabInstance.targetMap = targetMap;
-        generateTargetMap(this, targetMap, true);
-
-        applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
-        applyRemovedComponents(this, prefabInstance.removedComponents, targetMap);
-        applyMountedComponents(this, prefabInstance.mountedComponents, targetMap);
-        applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
-    }
-
-    applyTargetOverrides(this);
 
     // Sync node _lpos, _lrot, _lscale to native
     syncNodeValues(this);

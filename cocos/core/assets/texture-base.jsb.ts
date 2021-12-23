@@ -154,7 +154,7 @@ const _descriptor8$1 = _applyDecoratedDescriptor(_class2$b.prototype, '_anisotro
 textureBaseProto._ctor = function () {
     jsb.Asset.prototype._ctor.apply(this, arguments);
     this._gfxSampler = null;
-    this._samplerHash = 0;
+    this._samplerInfo = null;
     this._textureHash = 0;
 
     this._registerGFXSamplerUpdatedListener();
@@ -185,17 +185,17 @@ textureBaseProto.getHash = function () {
     return this._textureHash;
 };
 
-const oldGetSamplerHash = textureBaseProto.getSamplerHash;
-textureBaseProto.getSamplerHash = function () {
-    if (this._samplerHash === 0) {
-        this._samplerHash = oldGetSamplerHash.call(this);
+const oldGetSamplerInfo = textureBaseProto.GetSamplerInfo;
+textureBaseProto.getSamplerInfo = function () {
+    if (!this._samplerInfo) {
+        this._samplerInfo = oldGetSamplerInfo.call(this);
     }
-    return this._samplerHash;
+    return this._samplerInfo;
 };
 
-textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerHash) {
+textureBaseProto._onGFXSamplerUpdated = function (gfxSampler, samplerInfo) {
     this._gfxSampler = gfxSampler;
-    this._samplerHash = samplerHash;
+    this._samplerInfo = samplerInfo;
 };
 
 clsDecorator(TextureBase);

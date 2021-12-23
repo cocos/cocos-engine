@@ -28,15 +28,14 @@ import {
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
-import { RenderPassInfo } from "../../gfx";
+import { RenderPassInfo, Swapchain } from "../../gfx";
 
 export interface IRenderWindowInfo {
     title?: string;
     width: number;
     height: number;
     renderPassInfo: RenderPassInfo;
-    swapchainBufferIndices?: number;
-    shouldSyncSizeWithSwapchain?: boolean;
+    swapchain?: Swapchain;
 }
 
 export const RenderWindow = jsb.RenderWindow;
