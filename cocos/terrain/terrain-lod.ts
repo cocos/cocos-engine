@@ -63,19 +63,19 @@ export class TerrainLod {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _bodyIndexPool: TerrainIndexPool[];
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _connecterIndexPool: TerrainIndexPool[];
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _indexMap: TerrainIndexData[] = [];
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _indexBuffer: Uint16Array = new Uint16Array();
 

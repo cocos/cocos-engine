@@ -93,7 +93,7 @@ const _constants = {
 
 export class Profiler {
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _stats: IProfilerState | null = null;
     public id = '__Profiler__';

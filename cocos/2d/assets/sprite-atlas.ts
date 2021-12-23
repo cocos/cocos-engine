@@ -107,7 +107,7 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -130,7 +130,7 @@ export class SpriteAtlas extends Asset {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteAtlasSerializeData;

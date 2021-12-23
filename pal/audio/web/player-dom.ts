@@ -68,11 +68,11 @@ export class AudioPlayerDOM implements OperationQueueable {
     private _onEnded: () => void;
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _operationQueue: OperationInfo[] = [];
 

@@ -230,7 +230,7 @@ export class MotionStreak extends Renderable2D {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _render (render: IBatcher) {
         render.commitComp(this, this._texture, this._assembler, null);

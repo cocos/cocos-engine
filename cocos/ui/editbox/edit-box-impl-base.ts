@@ -35,11 +35,11 @@ import { EditBox } from './edit-box';
 
 export class EditBoxImplBase {
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _editing = false;
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _delegate: EditBox | null = null;
 

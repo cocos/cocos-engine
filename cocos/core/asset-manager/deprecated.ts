@@ -107,13 +107,13 @@ export class CCLoader {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _autoReleaseSetting: Record<string, boolean> = Object.create(null);
     private _parseLoadResArgs = parseLoadResArgs;
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public get _cache (): Record<string, Asset> {
         if (assets instanceof Cache) {

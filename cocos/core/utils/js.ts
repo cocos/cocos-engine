@@ -93,7 +93,7 @@ export const js = {
     /**
      * @en All classes registered in the engine, indexed by name.
      * @zh 引擎中已注册的所有类型，通过名称进行索引。
-     * @legacy_public
+     * @legacyPublic
      * @example
      * ```
      * import { js } from 'cc';
@@ -107,7 +107,7 @@ export const js = {
      * js._registeredClassNames = builtinClassNames;
      * ```
      *
-     * @legacy_public
+     * @legacyPublic
      */
     get _registeredClassNames (): typeof _nameToClass {
         return { ..._nameToClass };
@@ -132,7 +132,7 @@ export const js = {
      * js._registeredClassNames = builtinClassNames;
      * ```
      *
-     * @legacy_public
+     * @legacyPublic
      */
     get _registeredClassIds (): typeof _idToClass {
         return { ..._idToClass };
@@ -142,15 +142,15 @@ export const js = {
         Object.assign(_idToClass, value);
     },
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     _getClassId,
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     _setClassId,
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     _getClassById,
     obsolete,

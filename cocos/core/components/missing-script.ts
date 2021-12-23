@@ -72,7 +72,7 @@ export default class MissingScript extends Component {
 
     // the serialized data for original script object
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     @serializable
     @editorOnly

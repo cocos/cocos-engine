@@ -637,7 +637,7 @@ export class Label extends Renderable2D {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     get _bmFontOriginalSize () {
         if (this._font instanceof BitmapFont) {

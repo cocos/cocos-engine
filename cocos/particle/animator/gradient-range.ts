@@ -142,7 +142,7 @@ export default class GradientRange {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _onBeforeSerialize (props: any): any {
         return SerializableTable[this._mode];

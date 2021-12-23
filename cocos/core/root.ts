@@ -222,11 +222,11 @@ export class Root {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _createSceneFun: (root: Root) => RenderScene = null!;
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 

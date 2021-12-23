@@ -26,7 +26,7 @@ import { containerManager } from './container-manager';
 
 export abstract class ScalableContainer {
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _poolHandle = -1;
     constructor () {

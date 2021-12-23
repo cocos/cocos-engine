@@ -218,7 +218,7 @@ export class SkinningModel extends MorphModel {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);

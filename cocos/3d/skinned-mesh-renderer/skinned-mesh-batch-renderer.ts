@@ -73,7 +73,7 @@ export class SkinnedMeshUnit {
     public material: Material | null = null;
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     @serializable
     public _localTransform = new Mat4();
@@ -213,7 +213,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _onMaterialModified (idx: number, material: Material | null) {
         this.cookMaterials();

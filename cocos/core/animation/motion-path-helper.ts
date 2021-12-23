@@ -95,7 +95,7 @@ export class Bezier {
     public endCtrlPoint = new Vec2();
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public __arcLengthDivisions?: number;
 

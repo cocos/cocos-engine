@@ -161,7 +161,7 @@ export class TiledObjectGroup extends Component {
     protected _objects: TMXObject[] = [];
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _init (groupInfo: TMXObjectGroupInfo, mapInfo: TMXMapInfo, texGrids: TiledTextureGrids) {
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;

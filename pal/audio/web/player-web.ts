@@ -161,11 +161,11 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _audioTimer: AudioTimer;
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _operationQueue: OperationInfo[] = [];
 

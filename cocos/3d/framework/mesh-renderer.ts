@@ -399,7 +399,7 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _updateLightmap (lightmap: Texture2D|null, uOff: number, vOff: number, uScale: number, vScale: number) {
         this.lightmapSettings.texture = lightmap;

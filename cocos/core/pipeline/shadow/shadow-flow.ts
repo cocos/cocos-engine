@@ -164,7 +164,7 @@ export class ShadowFlow extends RenderFlow {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _initShadowFrameBuffer  (pipeline: RenderPipeline, light: Light, swapchain: Swapchain) {
         const { device } = pipeline;

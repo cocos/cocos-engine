@@ -532,7 +532,7 @@ export class Camera extends Component {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _createCamera () {
         if (!this._camera) {

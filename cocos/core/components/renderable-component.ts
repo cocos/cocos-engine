@@ -225,7 +225,7 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _collectModels (): scene.Model[] {
         return this._models;

@@ -446,7 +446,7 @@ export class Renderable2D extends RenderableComponent {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _updateBlendFunc () {
         // todo: Not only Pass[0].target[0]

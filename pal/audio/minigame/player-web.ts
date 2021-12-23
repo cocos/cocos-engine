@@ -71,11 +71,11 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _readyToHandleOnShow = false;
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _eventTarget: EventTarget = new EventTarget();
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _operationQueue: OperationInfo[] = [];
 

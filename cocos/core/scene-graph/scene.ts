@@ -76,7 +76,7 @@ export class Scene extends BaseNode {
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
      *
-     * @legacy_public
+     * @legacyPublic
      */
     @serializable
     public _globals = new SceneGlobals();
@@ -165,12 +165,12 @@ export class Scene extends BaseNode {
     }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _onHierarchyChanged () { }
 
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);

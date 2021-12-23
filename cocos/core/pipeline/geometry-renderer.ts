@@ -73,27 +73,27 @@ enum GeometryType {
 
 class GeometryVertexBuffer {
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _maxVertices = 0;
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _vertexCount = 0;
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _stride = 0;
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _vertices!: Float32Array;
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _buffer!: Buffer;
     /**
-     * @legacy_public
+     * @legacyPublic
      */
     public _inputAssembler!: InputAssembler;
 

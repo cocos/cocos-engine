@@ -127,7 +127,7 @@ export class StateMachine extends EditorExtendable {
 
     /**
      * // TODO: HACK
-     * @legacy_public
+     * @legacyPublic
      */
     public __callOnAfterDeserializeRecursive () {
         this[onAfterDeserializedTag]();
