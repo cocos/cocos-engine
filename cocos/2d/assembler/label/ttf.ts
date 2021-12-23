@@ -99,8 +99,11 @@ export const ttf: IAssembler = {
         vData[27] = cx1 * bx + cx2 * by + x;
         vData[28] = cy1 * by + cy2 * bx + y;
 
-        const accessor = renderer.switchBufferAccessor();
-        accessor.appendBuffers(vData, QUAD_INDICES);
+        const VBChunk = comp.VBChunk!;
+        const VB = VBChunk.vertexAccessor.getVertexBuffer(VBChunk.bufferId);
+        VB.set(vData, VBChunk.vertexOffset * VBChunk.vertexAccessor.floatsPerVertex);
+        VBChunk.setIndexBuffer(QUAD_INDICES);
+        renderer.switchBufferAccessor().appendIndices(VBChunk);
     },
 
     updateVertexData (comp: Label) {

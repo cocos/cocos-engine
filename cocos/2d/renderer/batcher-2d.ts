@@ -48,7 +48,7 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
-import { LinearBufferAccessor } from './linear-buffer-accessor';
+import { StaticVBAccessor } from './static-vb-accessor';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -59,10 +59,10 @@ const m4_1 = new Mat4();
  */
 export class Batcher2D implements IBatcher {
     get currBufferAccessor () {
-        if (this._linearBuffer) return this._linearBuffer;
+        if (this._staticVBBuffer) return this._staticVBBuffer;
         // create if not set
-        this._linearBuffer = this.switchBufferAccessor();
-        return this._linearBuffer;
+        this._staticVBBuffer = this.switchBufferAccessor();
+        return this._staticVBBuffer;
     }
 
     get batches () {
@@ -117,8 +117,8 @@ export class Batcher2D implements IBatcher {
 
     public device: Device;
     private _screens: RenderRoot2D[] = [];
-    private _linearBuffer: LinearBufferAccessor | null = null;
-    private _bufferAccessors: Map<number, LinearBufferAccessor> = new Map();
+    private _staticVBBuffer: StaticVBAccessor | null = null;
+    private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
     // private _bufferBatchPool: RecyclePool<MeshBuffer> = new RecyclePool(() => new MeshBuffer(), 128, (obj) => obj.destroy());
     // private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
@@ -141,6 +141,7 @@ export class Batcher2D implements IBatcher {
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
     private _currHash = 0;
+    private _currBID = -1;
 
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
@@ -163,7 +164,7 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        this._bufferAccessors.forEach((accessor: LinearBufferAccessor) => {
+        this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
             accessor.destroy();
         });
         this._bufferAccessors.clear();
@@ -257,7 +258,7 @@ export class Batcher2D implements IBatcher {
 
     public uploadBuffers () {
         if (this._batches.length > 0) {
-            this._bufferAccessors.forEach((accessor: LinearBufferAccessor) => {
+            this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
                 accessor.uploadBuffers();
                 accessor.reset();
             });
@@ -287,11 +288,12 @@ export class Batcher2D implements IBatcher {
             this._drawBatchPool.free(batch);
         }
         // Reset buffer accessors
-        this._bufferAccessors.forEach((accessor: LinearBufferAccessor) => {
+        this._bufferAccessors.forEach((accessor: StaticVBAccessor) => {
             accessor.reset();
         });
-        this._linearBuffer = null;
+        this._staticVBBuffer = null;
 
+        this._currBID = -1;
         this._currHash = 0;
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
@@ -313,10 +315,10 @@ export class Batcher2D implements IBatcher {
     public switchBufferAccessor (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
         const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
         // If current accessor not compatible with the requested attributes
-        if (!this._linearBuffer || (this._linearBuffer.vertexFormatBytes) !== strideBytes) {
+        if (!this._staticVBBuffer || (this._staticVBBuffer.vertexFormatBytes) !== strideBytes) {
             let accessor = this._bufferAccessors.get(strideBytes);
             if (!accessor) {
-                accessor = new LinearBufferAccessor(this.device, attributes);
+                accessor = new StaticVBAccessor(this.device, attributes);
                 this._bufferAccessors.set(strideBytes, accessor);
             }
             // let meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
@@ -327,9 +329,9 @@ export class Batcher2D implements IBatcher {
             // }
             // this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
 
-            this._linearBuffer = accessor;
+            this._staticVBBuffer = accessor;
         }
-        return this._linearBuffer;
+        return this._staticVBBuffer;
     }
 
     /**
@@ -357,10 +359,12 @@ export class Batcher2D implements IBatcher {
         }
         renderComp.stencilStage = StencilManager.sharedManager!.stage;
         const depthStencilStateStage = renderComp.stencilStage;
+        const bufferID = renderComp.VBChunk!.bufferId;
 
         if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
-            || this._currDepthStencilStateStage !== depthStencilStateStage) {
+            || this._currDepthStencilStateStage !== depthStencilStateStage || this._currBID !== bufferID) {
             this.autoMergeBatches(this._currComponent!);
+            this._currBID = bufferID;
             if (renderData) {
                 this._currHash = renderData.dataHash;
                 this._currScene = renderData.renderScene;
@@ -475,9 +479,10 @@ export class Batcher2D implements IBatcher {
         this._currLayer = 0;
     }
 
-    public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: LinearBufferAccessor) {
+    // 不一定要这么处理
+    public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor) {
         this.finishMergeBatches();
-        this._linearBuffer = bufferAccessor;
+        this._staticVBBuffer = bufferAccessor;
         this.currStaticRoot = staticComp;
     }
 
@@ -485,7 +490,7 @@ export class Batcher2D implements IBatcher {
         this.finishMergeBatches();
         this.currStaticRoot = null;
         // Clear linear buffer to switch to the correct internal accessor
-        this._linearBuffer = null;
+        this._staticVBBuffer = null;
         this.switchBufferAccessor();
     }
 
@@ -512,10 +517,11 @@ export class Batcher2D implements IBatcher {
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
         const accessor = this.currBufferAccessor;
-        if (!accessor) {
+        const VBChunk = renderComp?.VBChunk;
+        if (!accessor || !VBChunk) {
             return;
         }
-        const ia = accessor.recordBatch();
+        const ia = accessor.recordBatch(this._currBID);
         const mat = this._currMaterial;
         if (!ia || !mat) {
             return;

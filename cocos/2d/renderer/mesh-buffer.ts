@@ -219,7 +219,8 @@ export class MeshBuffer extends ScalableContainer {
     private _reallocVData (copyOldData: boolean) {
         let oldVData;
         if (this.vData) {
-            oldVData = new Uint8Array(this.vData.buffer);
+            const byteLength = Math.min(this._initVDataCount, this.vData.length) << 2;
+            oldVData = new Uint8Array(this.vData.buffer, 0, byteLength);
         }
 
         this.vData = new Float32Array(this._initVDataCount);
@@ -231,13 +232,15 @@ export class MeshBuffer extends ScalableContainer {
     }
 
     private _reallocIData (copyOldData: boolean) {
-        const oldIData = this.iData;
+        let oldIData;
+        if (this.iData && this._initVDataCount < this.iData.length) {
+            oldIData = new Uint16Array(this.iData.buffer, 0, this._initIDataCount << 1);
+        }
 
         this.iData = new Uint16Array(this._initIDataCount);
 
         if (oldIData && copyOldData) {
-            const iData = this.iData;
-            iData.set(oldIData);
+            this.iData.set(oldIData);
         }
     }
 }

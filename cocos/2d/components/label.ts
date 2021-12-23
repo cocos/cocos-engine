@@ -40,6 +40,7 @@ import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
+import { director } from '../../core/director';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -799,15 +800,24 @@ export class Label extends Renderable2D {
 
     protected _flushAssembler () {
         const assembler = Label.Assembler!.getAssembler(this);
+        const batch = director.root!.batcher2D;
+        const accessor = batch.switchBufferAccessor();
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
+            if (this.VBChunk) {
+                accessor.recycleChunk(this.VBChunk);
+            }
             this._assembler = assembler;
         }
 
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
+                if (this._renderData!.vertexCount !== 0) {
+                    // only ttf assambler
+                    this.VBChunk = accessor.allocateChunk(this._renderData!.vertexCount, this._renderData!.indicesCount);
+                }
                 this._renderData!.material = this.material;
             }
         }

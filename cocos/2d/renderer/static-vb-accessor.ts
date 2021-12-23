@@ -40,12 +40,10 @@ interface IFreeEntry {
     length: number;
 }
 
-const _entryPool = new Pool<IFreeEntry>(() => {
-    return {
-        offset: 0,
-        length: 0,
-    }
-}, 32);
+const _entryPool = new Pool<IFreeEntry>(() => ({
+    offset: 0,
+    length: 0,
+}), 32);
 
 export class StaticVBChunk {
     public get ib (): Readonly<Uint16Array> {
@@ -54,16 +52,16 @@ export class StaticVBChunk {
     private _ib: Uint16Array;
     constructor (
         public bufferId: number,
-        public vb: Float32Array,
         public vertexOffset: number,
         public vertexCount: number,
         indexCount: number,
+        public vertexAccessor: StaticVBAccessor,
     ) {
         this._ib = new Uint16Array(indexCount);
     }
     setIndexBuffer (indices: ArrayLike<number>) {
         for (let i = 0; i < indices.length; ++i) {
-            let vid = indices[i];
+            const vid = indices[i];
             assertIsTrue(vid < this.vertexCount);
             this._ib[i] = this.vertexOffset + vid;
         }
@@ -71,9 +69,13 @@ export class StaticVBChunk {
 }
 
 export class StaticVBAccessor extends BufferAccessor {
+    public get floatsPerVertex () {
+        return this._floatsPerVertex;
+    }
+
     private _freeLists: IFreeEntry[][] = [];
-    private _currBID: number = -1;
-    private _indexStart: number = 0;
+    private _currBID = -1;
+    private _indexStart = 0;
 
     public constructor (device: Device, attributes: Attribute[]) {
         super(device, attributes);
@@ -107,11 +109,11 @@ export class StaticVBAccessor extends BufferAccessor {
     }
 
     public uploadBuffers () {
-        for (let i = 0; i <= this._buffers.length; ++i) {
-            let firstEntry = this._freeLists[i][0];
-            let buffer = this._buffers[i];
+        for (let i = 0; i < this._buffers.length; ++i) {
+            const firstEntry = this._freeLists[i][0];
+            const buffer = this._buffers[i];
             // Recognize active buffers
-            if (firstEntry && firstEntry.length < buffer.vData.byteLength) {
+            if (!firstEntry || firstEntry.length < buffer.vData!.byteLength) {
                 buffer.uploadBuffers();
             }
         }
@@ -120,7 +122,7 @@ export class StaticVBAccessor extends BufferAccessor {
     public appendIndices (vbChunk: StaticVBChunk) {
         const buf = this._buffers[vbChunk.bufferId];
         // Vertex format check
-        assertIsTrue(vbChunk.vb.byteLength / vbChunk.vertexCount === this.vertexFormatBytes);
+        // assertIsTrue(vbChunk.vb.byteLength / vbChunk.vertexCount === this.vertexFormatBytes);
         assertIsTrue(vbChunk.bufferId === this._currBID || this._currBID === -1);
         const vCount = vbChunk.ib.length;
         if (vCount) {
@@ -131,6 +133,7 @@ export class StaticVBAccessor extends BufferAccessor {
             // Append index buffer
             buf.iData.set(vbChunk.ib, buf.indexOffset);
             buf.indexOffset += vbChunk.ib.length;
+            buf.setDirty();
         }
     }
 
@@ -145,13 +148,14 @@ export class StaticVBAccessor extends BufferAccessor {
         const ia = buf.requireFreeIA(this._device);
         ia.firstIndex = this._indexStart;
         ia.indexCount = buf.indexOffset - this._indexStart;
+        this._indexStart = buf.indexOffset;
         return ia;
     }
 
     public allocateChunk (vertexCount: number, indexCount: number) {
         const byteLength = vertexCount * this.vertexFormatBytes;
-        let buf: MeshBuffer, freeList: IFreeEntry[];
-        let bid: number, eid: number, entry: IFreeEntry | null = null;
+        let buf: MeshBuffer; let freeList: IFreeEntry[];
+        let bid: number; let eid: number; let entry: IFreeEntry | null = null;
         // Loop buffers
         for (let i = 0; i < this._buffers.length; ++i) {
             buf = this._buffers[i];
@@ -189,11 +193,9 @@ export class StaticVBAccessor extends BufferAccessor {
         if (entry) {
             const vertexOffset = entry.offset / this.vertexFormatBytes;
             assertIsTrue(Number.isInteger(vertexOffset));
-            const vb = new Float32Array(buf.vData.buffer, entry.offset, byteLength / 4);
             this._allocateChunkFromEntry(bid, eid, entry, byteLength);
-            return new StaticVBChunk(bid, vb, vertexOffset, vertexCount, indexCount);
-        }
-        else {
+            return new StaticVBChunk(bid, vertexOffset, vertexCount, indexCount, this);
+        } else {
             warnID(9004, byteLength);
             return null;
         }
@@ -203,7 +205,7 @@ export class StaticVBAccessor extends BufferAccessor {
         const freeList = this._freeLists[chunk.bufferId];
         const buf = this._buffers[chunk.bufferId];
         let offset = chunk.vertexOffset * this.vertexFormatBytes;
-        let bytes = chunk.vb.byteLength;
+        let bytes = chunk.vertexCount * this.vertexFormatBytes;
         let recycled = false;
         let i = 0;
         let prevEntry = null;
@@ -215,7 +217,7 @@ export class StaticVBAccessor extends BufferAccessor {
         }
         // Found previous entry
         if (prevEntry) {
-            let distance = offset - (prevEntry.offset + prevEntry.length);
+            const distance = offset - (prevEntry.offset + prevEntry.length);
             // Ensure no overlap with previous chunk
             assertIsTrue(distance >= 0);
             // Can be merged
@@ -237,7 +239,7 @@ export class StaticVBAccessor extends BufferAccessor {
         }
         // Found next entry
         if (!recycled && nextEntry) {
-            let distance = nextEntry.offset - (offset + bytes);
+            const distance = nextEntry.offset - (offset + bytes);
             // Ensure no overlap with next chunk
             assertIsTrue(distance >= 0);
             // Can be merged
@@ -267,6 +269,10 @@ export class StaticVBAccessor extends BufferAccessor {
             newEntry.length = bytes;
             freeList.push(newEntry);
         }
+    }
+
+    public getVertexBuffer (bid: number): Float32Array {
+        return this._buffers[bid].vData!;
     }
 
     private _increaseBufferCapacity (bid: number, vertexCount: number, indexCount: number) {
@@ -307,8 +313,7 @@ export class StaticVBAccessor extends BufferAccessor {
         if (remaining === 0) {
             this._freeLists[bid].splice(eid, 1);
             _entryPool.free(entry);
-        }
-        else {
+        } else {
             entry.offset += bytes;
             entry.length = remaining;
         }

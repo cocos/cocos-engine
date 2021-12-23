@@ -47,6 +47,8 @@ const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
+    vertexDirty: false,
+
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 4;
@@ -150,6 +152,7 @@ export const simple: IAssembler = {
             vData[27] = ar + cttx;
             vData[28] = br + dtty;
         }
+        this.vertexDirty = true;
     },
 
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
@@ -161,9 +164,18 @@ export const simple: IAssembler = {
         if (sprite.node.hasChangedFlags) {
             this.updateWorldVerts(sprite, vData);
         }
+        const VBChunk = sprite.VBChunk!;
+        // 更新 VB // 通过 dirty flag 来进行判断？
+        if (this.vertexDirty) {
+            const VB = VBChunk.vertexAccessor.getVertexBuffer(VBChunk.bufferId);
+            VB.set(vData, VBChunk.vertexOffset * VBChunk.vertexAccessor.floatsPerVertex);
+            this.vertexDirty = false;
+        }
 
-        const buffer = renderer.switchBufferAccessor();
-        buffer.appendBuffers(vData, QUAD_INDICES);
+        // 更新 IB
+        VBChunk.setIndexBuffer(QUAD_INDICES);
+
+        renderer.switchBufferAccessor().appendIndices(VBChunk);
     },
 
     updateVertexData (sprite: Sprite) {
@@ -232,6 +244,7 @@ export const simple: IAssembler = {
         vData[31] = uv[7];
 
         renderData.uvDirty = false;
+        this.vertexDirty = true;
     },
 
     updateColor (sprite: Sprite) {
@@ -251,5 +264,6 @@ export const simple: IAssembler = {
 
             colorOffset += 9;
         }
+        this.vertexDirty = true;
     },
 };

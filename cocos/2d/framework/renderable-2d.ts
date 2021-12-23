@@ -49,6 +49,7 @@ import { legacyCC } from '../../core/global-exports';
 import { director } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 import { NodeUIProperties } from '../../core/scene-graph/node-ui-properties';
+import { StaticVBChunk } from '../renderer/static-vb-accessor';
 
 // hack
 ccenum(BlendFactor);
@@ -302,6 +303,8 @@ export class Renderable2D extends RenderableComponent {
      * @zh 后置渲染数据组装器
      */
     public static PostAssembler: IAssemblerManager | null = null;
+
+    public VBChunk: StaticVBChunk | null = null;
 
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;

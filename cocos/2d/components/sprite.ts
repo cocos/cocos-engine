@@ -550,6 +550,10 @@ export class Sprite extends Renderable2D {
 
     public onDestroy () {
         this.destroyRenderData();
+        const accessor = director.root!.batcher2D.switchBufferAccessor();
+        if (this.VBChunk) {
+            accessor.recycleChunk(this.VBChunk);
+        }
         if (EDITOR) {
             this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
@@ -635,15 +639,21 @@ export class Sprite extends Renderable2D {
     protected _flushAssembler () {
         // macro.UI_GPU_DRIVEN
         const assembler = Sprite.Assembler!.getAssembler(this);
+        const batch = director.root!.batcher2D;
+        const accessor = batch.switchBufferAccessor();
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();
+            if (this.VBChunk) {
+                accessor.recycleChunk(this.VBChunk);
+            }
             this._assembler = assembler;
         }
 
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
+                this.VBChunk = accessor.allocateChunk(this._renderData!.vertexCount, this._renderData!.indicesCount);
                 this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 this._colorDirty = true;
