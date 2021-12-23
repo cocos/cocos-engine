@@ -60,6 +60,7 @@ export class StaticVBChunk {
         this._ib = new Uint16Array(indexCount);
     }
     setIndexBuffer (indices: ArrayLike<number>) {
+        assertIsTrue(indices.length === this._ib.length);
         for (let i = 0; i < indices.length; ++i) {
             const vid = indices[i];
             assertIsTrue(vid < this.vertexCount);

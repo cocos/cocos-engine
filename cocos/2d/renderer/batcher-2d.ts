@@ -35,7 +35,6 @@ import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
     BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../core/gfx';
 import { Pool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
@@ -127,7 +126,6 @@ export class Batcher2D implements IBatcher {
     private _batches: CachedArray<DrawBatch2D>;
 
     private _emptyMaterial = new Material();
-    private _currScene: RenderScene | null = null;
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexture: Texture | null = null;
     private _currSampler: Sampler | null = null;
@@ -301,7 +299,6 @@ export class Batcher2D implements IBatcher {
         this._currSampler = null;
         this._currComponent = null;
         this._currTransform = null;
-        this._currScene = null;
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
@@ -354,13 +351,14 @@ export class Batcher2D implements IBatcher {
         const renderData = comp.renderData;
         let dataHash = 0;
         let mat;
+        let bufferID = -1;
         if (renderData) {
             dataHash = renderData.dataHash;
             mat = renderData.material;
+            bufferID = renderData.chunk.bufferId;
         }
         renderComp.stencilStage = StencilManager.sharedManager!.stage;
         const depthStencilStateStage = renderComp.stencilStage;
-        const bufferID = renderComp.VBChunk!.bufferId;
 
         if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
             || this._currDepthStencilStateStage !== depthStencilStateStage || this._currBID !== bufferID) {
@@ -368,7 +366,6 @@ export class Batcher2D implements IBatcher {
             this._currBID = bufferID;
             if (renderData) {
                 this._currHash = renderData.dataHash;
-                this._currScene = renderData.renderScene;
                 this._currComponent = renderComp;
                 this._currTransform = transform;
                 this._currMaterial = renderData.material!;
@@ -390,7 +387,6 @@ export class Batcher2D implements IBatcher {
             } else {
                 // for Mask & spine
                 this._currHash = dataHash;
-                this._currScene = renderComp._getRenderScene();
                 this._currComponent = renderComp;
                 this._currTransform = transform;
                 this._currMaterial = renderComp.getRenderMaterial(0)!;
@@ -454,7 +450,6 @@ export class Batcher2D implements IBatcher {
         for (let i = 0; i < model!.subModels.length; i++) {
             const curDrawBatch = this._drawBatchPool.alloc();
             const subModel = model!.subModels[i];
-            curDrawBatch.renderScene = comp._getRenderScene();
             curDrawBatch.visFlags = comp.node.layer;
             curDrawBatch.model = model;
             curDrawBatch.texture = null;
@@ -471,7 +466,6 @@ export class Batcher2D implements IBatcher {
 
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
-        this._currScene = null;
         this._currComponent = null;
         this._currTransform = null;
         this._currTexture = null;
@@ -516,8 +510,8 @@ export class Batcher2D implements IBatcher {
      * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
-        const accessor = this.currBufferAccessor;
-        const VBChunk = renderComp?.VBChunk;
+        const accessor = this._staticVBBuffer;
+        const VBChunk = renderComp;
         if (!accessor || !VBChunk) {
             return;
         }
@@ -542,7 +536,6 @@ export class Batcher2D implements IBatcher {
         }
 
         const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
-        curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
@@ -586,7 +579,6 @@ export class Batcher2D implements IBatcher {
             this._currTextureHash = this._currSamplerHash = 0;
         }
         this._currLayer = renderComp.node.layer;
-        this._currScene = renderComp._getRenderScene();
 
         this.autoMergeBatches(renderComp);
     }

@@ -35,7 +35,6 @@ import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { BlendFactor, BlendState, BlendTarget } from '../../core/gfx';
-import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
@@ -303,8 +302,6 @@ export class Renderable2D extends RenderableComponent {
      * @zh 后置渲染数据组装器
      */
     public static PostAssembler: IAssemblerManager | null = null;
-
-    public VBChunk: StaticVBChunk | null = null;
 
     @serializable
     protected _srcBlendFactor = BlendFactor.SRC_ALPHA;

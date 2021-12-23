@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { director } from '../../core/director';
 import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Color } from '../../core/math';
@@ -36,6 +37,7 @@ import { RenderScene } from '../../core/renderer/scene';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
+import { StaticVBChunk } from './static-vb-accessor';
 
 export interface IRenderData {
     x: number;
@@ -48,8 +50,19 @@ export interface IRenderData {
 
 export class BaseRenderData {
     public material: Material | null = null;
-    public vertexCount = 0;
-    public indexCount = 0;
+    get vertexCount () {
+        return this._vc;
+    }
+    get indexCount () {
+        return this._ic;
+    }
+    protected _vc = 0;
+    protected _ic = 0;
+
+    public resize (vertexCount: number, indexCount: number) {
+        this._vc = vertexCount;
+        this._ic = indexCount;
+    }
 }
 
 export class RenderData extends BaseRenderData {
@@ -93,10 +106,9 @@ export class RenderData extends BaseRenderData {
         _pool.removeAt(idx);
     }
 
-    public vData: Float32Array | null = null;
-
     public uvDirty = true;
     public vertDirty = true;
+    public chunk: StaticVBChunk = null!;
 
     private _data: IRenderData[] = [];
     private _indices: number[] = [];
@@ -105,22 +117,33 @@ export class RenderData extends BaseRenderData {
     private _width = 0;
     private _height = 0;
 
-    public renderScene: RenderScene | null = null;
-    public layer = 0;
-    public nodeDirty = true;
-
-    public blendHash = -1;
-    public passDirty = true;
-
     public frame;
+    public layer = 0;
+    public blendHash = -1;
     public textureHash = 0;
-    public textureDirty = true;
-
-    public hashDirty = true;
     public dataHash = 0;
 
+    public nodeDirty = true;
+    public passDirty = true;
+    public textureDirty = true;
+    public hashDirty = true;
+
+    public resize (vertexCount: number, indexCount: number) {
+        if (vertexCount === this._vc && indexCount === this._ic) return;
+        this._vc = vertexCount;
+        this._ic = indexCount;
+        const batcher = director.root!.batcher2D;
+        const accessor = batcher.getBufferAccessor();
+        if (this.chunk) {
+            accessor.recycleChunk(this.chunk);
+            this.chunk = null!;
+        }
+        if (vertexCount) {
+            accessor.allocateChunk(vertexCount, indexCount);
+        }
+    }
+
     public updateNode (comp: Renderable2D) {
-        this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
         this.layer = comp.node.layer;
         this.nodeDirty = false;
         this.hashDirty = true;
@@ -154,10 +177,10 @@ export class RenderData extends BaseRenderData {
             this.hashDirty = true;
         }
         if (this.nodeDirty) {
-            this.renderScene = comp.node.scene ? comp._getRenderScene() : null;
+            const renderScene = comp.node.scene ? comp._getRenderScene() : null;
             this.layer = comp.node.layer;
             // Hack for updateRenderData when node not add to scene
-            if (this.renderScene !== null) {
+            if (renderScene !== null) {
                 this.nodeDirty = false;
             }
             this.hashDirty = true;
@@ -189,6 +212,7 @@ export class RenderData extends BaseRenderData {
     }
 
     public clear () {
+        this.resize(0, 0);
         this._data.length = 0;
         this._indices.length = 0;
         this._pivotX = 0;
@@ -198,15 +222,12 @@ export class RenderData extends BaseRenderData {
         this.uvDirty = true;
         this.vertDirty = true;
         this.material = null;
-        this.vertexCount = 0;
-        this.indicesCount = 0;
 
         this.nodeDirty = true;
         this.passDirty = true;
         this.textureDirty = true;
         this.hashDirty = true;
 
-        this.renderScene = null;
         this.layer = 0;
         this.blendHash = -1;
         this.frame = null;
@@ -269,8 +290,8 @@ export class MeshRenderData extends BaseRenderData {
     public request (vertexCount: number, indexCount: number) {
         const byteOffset = this.byteCount + vertexCount * this._formatByte;
         this.reserve(vertexCount, indexCount);
-        this.vertexCount += vertexCount; // vertexOffset
-        this.indexCount += indexCount; // indicesOffset
+        this._vc += vertexCount; // vertexOffset
+        this._ic += indexCount; // indicesOffset
         this.byteCount = byteOffset; // byteOffset
         return true;
     }
@@ -302,14 +323,14 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     public advance (vertexCount: number, indexCount: number) {
-        this.vertexCount += vertexCount; // vertexOffset
-        this.indexCount += indexCount; // indicesOffset
+        this._vc += vertexCount; // vertexOffset
+        this._ic += indexCount; // indicesOffset
         this.byteCount += vertexCount * this._formatByte;
     }
 
     public reset () {
-        this.vertexCount = 0;
-        this.indexCount = 0;
+        this._vc = 0;
+        this._ic = 0;
         this.byteCount = 0;
         this.vertexStart = 0;
         this.indicesStart = 0;

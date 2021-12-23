@@ -50,9 +50,8 @@ export const simple: IAssembler = {
 
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indexCount = 6;
+        renderData.dataLength = 2;
+        renderData.resize(4, 6);
         return renderData;
     },
 
@@ -95,7 +94,7 @@ export const simple: IAssembler = {
         const node = sprite.node;
 
         const data0 = dataList[0];
-        const data3 = dataList[3];
+        const data3 = dataList[1];
         const matrix = node.worldMatrix;
         const a = matrix.m00; const b = matrix.m01;
         const c = matrix.m04; const d = matrix.m05;
@@ -232,8 +231,8 @@ export const simple: IAssembler = {
         dataList[0].x = l;
         dataList[0].y = b;
 
-        dataList[3].x = r;
-        dataList[3].y = t;
+        dataList[1].x = r;
+        dataList[1].y = t;
 
         renderData.vertDirty = false;
         this.updateWorldVerts(sprite, renderData.vData);
