@@ -148,14 +148,14 @@ export const simple: IAssembler = {
         const dataArray = layer.meshRenderDataArray;
         const node = layer.node;
 
-        const accessor = renderer.switchBufferAccessor();
+        const accessor = renderer.getBufferAccessor();
 
         // 当前渲染的数据
         const data = dataArray[layer._meshRenderDataArrayIdx] as TiledMeshData;
         const renderData = data.renderData;
 
         const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indicesCount;
+        const indexCount = renderData.indexCount;
         accessor.request(vertexCount, indexCount);
 
         const vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;

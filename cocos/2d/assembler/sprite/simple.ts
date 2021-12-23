@@ -52,10 +52,7 @@ export const simple: IAssembler = {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 4;
         renderData.vertexCount = 4;
-        renderData.indicesCount = 6;
-
-        renderData.vData = new Float32Array(4 * 9);
-
+        renderData.indexCount = 6;
         return renderData;
     },
 
@@ -187,7 +184,7 @@ export const simple: IAssembler = {
         // meshBuffer.setDirty();
 
         // slow version
-        renderer.switchBufferAccessor().appendIndices(VBChunk);
+        renderer.getBufferAccessor().appendIndices(VBChunk);
     },
 
     updateVertexData (sprite: Sprite) {
@@ -269,10 +266,10 @@ export const simple: IAssembler = {
         const colorB = color.b / 255;
         const colorA = sprite.node._uiProps.opacity;
         for (let i = 0; i < 4; i++) {
-            vData![colorOffset] = colorR;
-            vData![colorOffset + 1] = colorG;
-            vData![colorOffset + 2] = colorB;
-            vData![colorOffset + 3] = colorA;
+            vData[colorOffset] = colorR;
+            vData[colorOffset + 1] = colorG;
+            vData[colorOffset + 2] = colorB;
+            vData[colorOffset + 3] = colorA;
 
             colorOffset += 9;
         }

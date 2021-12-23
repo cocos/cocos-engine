@@ -129,14 +129,14 @@ export const simple: IAssembler = {
         const dataArray = comp.meshRenderDataArray;
         const node = comp.node;
 
-        const accessor = renderer.switchBufferAccessor();
+        const accessor = renderer.getBufferAccessor();
 
         // 当前渲染的数据
         const data = dataArray[comp._meshRenderDataArrayIdx];
         const renderData = data.renderData;
 
         const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indicesCount;
+        const indexCount = renderData.indexCount;
         accessor.request(vertexCount, indexCount);
 
         const vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
@@ -166,7 +166,7 @@ export const simple: IAssembler = {
         }
 
         const srcIOffset = renderData.indicesStart;
-        for (let i = 0; i < renderData.indicesCount; i += 1) {
+        for (let i = 0; i < renderData.indexCount; i += 1) {
             iBuf[i + indexOffset] = srcIBuf[i + srcIOffset] + vertexId;
         }
     },
@@ -235,7 +235,7 @@ function realTimeTraverse (armature: Armature, parentMat: Mat4|undefined, parent
         const rd = _buffer!.renderData;
         rd.reserve(_vertexCount, _indexCount);
 
-        _indexOffset = rd.indicesCount;
+        _indexOffset = rd.indexCount;
         _vfOffset = rd.vDataOffset;
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;
@@ -327,7 +327,7 @@ function cacheTraverse (frame: ArmatureFrame | null, parentMat?: Mat4) {
         const rd = _buffer!.renderData;
         rd.reserve(_vertexCount, _indexCount);
 
-        _indexOffset = rd.indicesCount;
+        _indexOffset = rd.indexCount;
         _vfOffset = rd.vDataOffset;
         _vertexOffset = rd.vertexCount;
         vbuf = _buffer!.renderData.vData;

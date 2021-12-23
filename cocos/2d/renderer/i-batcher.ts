@@ -34,12 +34,12 @@ export interface IBatcher {
     uploadBuffers ();
     reset ();
 
-    switchBufferAccessor (attributes?: Attribute[]): StaticVBAccessor;
+    getBufferAccessor (attributes?: Attribute[]): StaticVBAccessor;
 
     commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null);
     commitModel (comp: UIComponent | Renderable2D, model: Model | null, mat: Material | null);
 
-    setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor); // 存疑，不应该再用同一个 buffer
+    setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor);
     endStaticBatch ();
     commitStaticBatch (comp: UIStaticBatch);
 

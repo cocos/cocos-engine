@@ -69,10 +69,6 @@ export class StaticVBChunk {
 }
 
 export class StaticVBAccessor extends BufferAccessor {
-    public get floatsPerVertex () {
-        return this._floatsPerVertex;
-    }
-
     private _freeLists: IFreeEntry[][] = [];
     private _currBID = -1;
     private _indexStart = 0;
@@ -108,12 +104,20 @@ export class StaticVBAccessor extends BufferAccessor {
         }
     }
 
+    public getVertexBuffer (bid: number): Float32Array {
+        return this._buffers[bid].vData;
+    }
+
+    public getIndexBuffer (bid: number): Uint16Array {
+        return this._buffers[bid].iData;
+    }
+
     public uploadBuffers () {
         for (let i = 0; i < this._buffers.length; ++i) {
             const firstEntry = this._freeLists[i][0];
             const buffer = this._buffers[i];
             // Recognize active buffers
-            if (!firstEntry || firstEntry.length < buffer.vData!.byteLength) {
+            if (!firstEntry || firstEntry.length < buffer.vData.byteLength) {
                 buffer.uploadBuffers();
             }
             // Need destroy empty buffer
@@ -139,9 +143,6 @@ export class StaticVBAccessor extends BufferAccessor {
     }
 
     public recordBatch (bid: number) {
-        if (bid === -1) {
-            return;
-        }
         assertIsTrue(bid === this._currBID);
         const buf = this._buffers[bid];
         assertIsTrue(this._indexStart < buf.indexOffset);
@@ -157,7 +158,7 @@ export class StaticVBAccessor extends BufferAccessor {
     public allocateChunk (vertexCount: number, indexCount: number) {
         const byteLength = vertexCount * this.vertexFormatBytes;
         let buf: MeshBuffer; let freeList: IFreeEntry[];
-        let bid: number; let eid: number; let entry: IFreeEntry | null = null;
+        let bid = 0; let eid = -1; let entry: IFreeEntry | null = null;
         // Loop buffers
         for (let i = 0; i < this._buffers.length; ++i) {
             buf = this._buffers[i];
@@ -202,8 +203,8 @@ export class StaticVBAccessor extends BufferAccessor {
         let bytes = chunk.vertexCount * this.vertexFormatBytes;
         let recycled = false;
         let i = 0;
-        let prevEntry = null;
-        let nextEntry = freeList[i];
+        let prevEntry: IFreeEntry|null = null;
+        let nextEntry: IFreeEntry|null = freeList[i];
         // Loop entries
         while (nextEntry && nextEntry.offset < offset) {
             prevEntry = nextEntry;
@@ -241,9 +242,8 @@ export class StaticVBAccessor extends BufferAccessor {
                 nextEntry.offset = offset;
                 nextEntry.length += bytes;
                 recycled = true;
-            }
+            } else {
             // Can not be merged
-            else {
                 const newEntry = _entryPool.alloc();
                 newEntry.offset = offset;
                 newEntry.length = bytes;
@@ -255,9 +255,8 @@ export class StaticVBAccessor extends BufferAccessor {
             if (offset + bytes === buf.byteOffset) {
                 buf.byteOffset = offset;
             }
-        }
-        // Haven't found any entry or any entry after the buffer chunk
-        else {
+        } else {
+            // Haven't found any entry or any entry after the buffer chunk
             const newEntry = _entryPool.alloc();
             newEntry.offset = offset;
             newEntry.length = bytes;

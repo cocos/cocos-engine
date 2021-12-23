@@ -93,9 +93,9 @@ export class LinearBufferAccessor extends BufferAccessor {
         this._allocateChunk(vertexCount, indices.length);
         const buf = this._buffers[this._currentId];
         // Float offset calculation only valid for Float32 vertex buffer
-        buf.vData!.set(vertices, buf.byteOffset >> 2);
+        buf.vData.set(vertices, buf.byteOffset >> 2);
 
-        const iData = buf.iData!;
+        const iData = buf.iData;
         const vertexId = buf.vertexOffset;
         let indexOffset = buf.indexOffset;
         for (let i = 0; i < indices.length; ++i, ++indexOffset) {
@@ -138,8 +138,8 @@ export class LinearBufferAccessor extends BufferAccessor {
         const buf = this._buffers[this._currentId];
         const byteOffset = buf.byteOffset + vertexCount * this.vertexFormatBytes;
         const indexOffset = buf.indexOffset + indexCount;
-        const byteLength = buf.vData!.byteLength;
-        const indicesLength = buf.iData!.length;
+        const byteLength = buf.vData.byteLength;
+        const indicesLength = buf.iData.length;
         if (byteOffset > byteLength || indexOffset > indicesLength) {
             const success = buf.ensureCapacity(vertexCount, indexCount);
             // No enough space in the current mesh buffer

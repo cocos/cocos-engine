@@ -49,7 +49,7 @@ export const ttf: IAssembler = {
 
         renderData.dataLength = 4;
         renderData.vertexCount = 4;
-        renderData.indicesCount = 6;
+        renderData.indexCount = 6;
 
         const vData =  renderData.vData = new Float32Array(4 * 9);
 
@@ -103,7 +103,7 @@ export const ttf: IAssembler = {
         const VB = VBChunk.vertexAccessor.getVertexBuffer(VBChunk.bufferId);
         VB.set(vData, VBChunk.vertexOffset * VBChunk.vertexAccessor.floatsPerVertex);
         VBChunk.setIndexBuffer(QUAD_INDICES);
-        renderer.switchBufferAccessor().appendIndices(VBChunk);
+        renderer.getBufferAccessor().appendIndices(VBChunk);
     },
 
     updateVertexData (comp: Label) {

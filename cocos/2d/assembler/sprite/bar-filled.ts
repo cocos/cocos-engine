@@ -233,7 +233,7 @@ export const barFilled: IAssembler = {
         // 5-8 for local vertex
         renderData.dataLength = 8;
         renderData.vertexCount = 4;
-        renderData.indicesCount = 6;
+        renderData.indexCount = 6;
 
         const dataList = renderData.data;
         for (const data of dataList) {

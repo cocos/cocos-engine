@@ -38,9 +38,9 @@ const _worldMatrix = new Mat4();
 
 export function fillVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    const accessor = renderer.switchBufferAccessor();
+    const accessor = renderer.getBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    const indexCount = renderData.indicesCount;
+    const indexCount = renderData.indexCount;
     accessor.request(vertexCount, indexCount);
     const buffer = accessor.currentBuffer;
     let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
@@ -48,7 +48,7 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
     const vertexId = accessor.vertexOffset - vertexCount;
 
     // buffer data may be realloc, need get reference after request.
-    const vBuf = buffer.vData!;
+    const vBuf = buffer.vData;
 
     node.getWorldMatrix(_worldMatrix);
 
@@ -74,9 +74,9 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
 
 export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    const accessor = renderer.switchBufferAccessor();
+    const accessor = renderer.getBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    const indexCount = renderData.indicesCount;
+    const indexCount = renderData.indexCount;
     accessor.request(vertexCount, indexCount);
     const buffer = accessor.currentBuffer;
     let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
@@ -84,8 +84,8 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
     const vertexId = accessor.vertexOffset - vertexCount;
 
     // buffer data may be realloc, need get reference after request.
-    const vBuf = buffer.vData!;
-    const iBuf = buffer.iData!;
+    const vBuf = buffer.vData;
+    const iBuf = buffer.iData;
 
     node.getWorldMatrix(_worldMatrix);
 
@@ -116,9 +116,9 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
 
 export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    const accessor = renderer.switchBufferAccessor();
+    const accessor = renderer.getBufferAccessor();
     const vertexCount = renderData.vertexCount;
-    const indexCount = renderData.indicesCount;
+    const indexCount = renderData.indexCount;
     accessor.request(vertexCount, indexCount);
     const buffer = accessor.currentBuffer;
     let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
@@ -126,7 +126,7 @@ export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, rende
     const vertexId = accessor.vertexOffset - vertexCount;
 
     // buffer data may be realloc, need get reference after request.
-    const vBuf = buffer.vData!;
+    const vBuf = buffer.vData;
 
     for (let i = 0; i < vertexCount; i++) {
         const vert = dataList[i];

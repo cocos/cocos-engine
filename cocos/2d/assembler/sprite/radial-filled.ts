@@ -357,7 +357,7 @@ export const radialFilled: IAssembler = {
                     }
                 }
 
-                renderData.indicesCount = renderData.vertexCount = offset;
+                renderData.indexCount = renderData.vertexCount = offset;
                 renderData.vertDirty = renderData.uvDirty = false;
             }
             renderData.updateRenderData(sprite, frame);

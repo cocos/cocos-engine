@@ -53,7 +53,7 @@ export const sliced: IAssembler = {
         renderData.dataLength = 20;
 
         renderData.vertexCount = 16;
-        renderData.indicesCount = 54;
+        renderData.indexCount = 54;
         return renderData;
     },
 
@@ -124,7 +124,7 @@ export const sliced: IAssembler = {
             this.updateWorldVertexData(sprite);
         }
 
-        const accessor = renderer.switchBufferAccessor();
+        const accessor = renderer.getBufferAccessor();
         const renderData: RenderData = sprite.renderData!;
 
         // const node: Node = sprite.node;
@@ -132,7 +132,7 @@ export const sliced: IAssembler = {
         const dataList: IRenderData[] = renderData.data;
 
         const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indicesCount;
+        const indexCount = renderData.indexCount;
         const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
 
         accessor.request(vertexCount, indexCount);

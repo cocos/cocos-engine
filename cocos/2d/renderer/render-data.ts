@@ -49,7 +49,7 @@ export interface IRenderData {
 export class BaseRenderData {
     public material: Material | null = null;
     public vertexCount = 0;
-    public indicesCount = 0;
+    public indexCount = 0;
 }
 
 export class RenderData extends BaseRenderData {
@@ -266,18 +266,18 @@ export class MeshRenderData extends BaseRenderData {
         _meshDataPool.removeAt(idx);
     }
 
-    public request (vertexCount: number, indicesCount: number) {
+    public request (vertexCount: number, indexCount: number) {
         const byteOffset = this.byteCount + vertexCount * this._formatByte;
-        this.reserve(vertexCount, indicesCount);
+        this.reserve(vertexCount, indexCount);
         this.vertexCount += vertexCount; // vertexOffset
-        this.indicesCount += indicesCount; // indicesOffset
+        this.indexCount += indexCount; // indicesOffset
         this.byteCount = byteOffset; // byteOffset
         return true;
     }
 
-    public reserve (vertexCount: number, indicesCount: number) {
+    public reserve (vertexCount: number, indexCount: number) {
         const newVBytes = this.byteCount + vertexCount * this._formatByte;
-        const newICount = this.indicesCount + indicesCount;
+        const newICount = this.indexCount + indexCount;
 
         if (vertexCount + this.vertexCount > 65535) {
             return false;
@@ -301,15 +301,15 @@ export class MeshRenderData extends BaseRenderData {
         return true;
     }
 
-    public advance (vertexCount: number, indicesCount: number) {
+    public advance (vertexCount: number, indexCount: number) {
         this.vertexCount += vertexCount; // vertexOffset
-        this.indicesCount += indicesCount; // indicesOffset
+        this.indexCount += indexCount; // indicesOffset
         this.byteCount += vertexCount * this._formatByte;
     }
 
     public reset () {
         this.vertexCount = 0;
-        this.indicesCount = 0;
+        this.indexCount = 0;
         this.byteCount = 0;
         this.vertexStart = 0;
         this.indicesStart = 0;

@@ -52,13 +52,13 @@ export const ParticleAssembler: IAssembler = {
         }
 
         const renderData = comp._simulator.renderData;
-        if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
+        if (renderData.vertexCount === 0 || renderData.indexCount === 0) {
             return;
         }
-        const accessor = renderer.switchBufferAccessor();
+        const accessor = renderer.getBufferAccessor();
 
         const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indicesCount;
+        const indexCount = renderData.indexCount;
 
         accessor.request(vertexCount, indexCount);
         let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
@@ -78,7 +78,7 @@ export const ParticleAssembler: IAssembler = {
             vBuf[vertexOffset++] = vData[i];
         }
 
-        const iLen = renderData.indicesCount;
+        const iLen = renderData.indexCount;
         for (let i = 0; i < iLen; i++) {
             iBuf[indexOffset++] = iData[i] + vertexId;
         }

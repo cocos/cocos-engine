@@ -60,6 +60,6 @@ replaceProperty(Batcher2D.prototype, 'Batcher2D', [
     },
     {
         name: 'acquireBufferBatch',
-        newName: 'switchBufferAccessor',
+        newName: 'getBufferAccessor',
     },
 ]);

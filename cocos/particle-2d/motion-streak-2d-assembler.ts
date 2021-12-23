@@ -33,7 +33,6 @@ import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
 import { Vec2, Color } from '../core/math';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { Texture2D } from '../core';
 import { RenderData } from '../2d/renderer/render-data';
 
 const _tangent = new Vec2();
@@ -72,7 +71,7 @@ export const MotionStreakAssembler: IAssembler = {
         const renderData = comp.requestRenderData();
         renderData.dataLength = 4;
         renderData.vertexCount = 16;
-        renderData.indicesCount = (16 - 2) * 3;
+        renderData.indexCount = (16 - 2) * 3;
         return renderData;
     },
 
@@ -104,8 +103,8 @@ export const MotionStreakAssembler: IAssembler = {
         cur.setPoint(tx, ty);
         cur.time = comp.fadeTime + dt;
 
-        let verticesCount = 0;
-        let indicesCount = 0;
+        let vertexCount = 0;
+        let indexCount = 0;
 
         if (points.length < 2) {
             return;
@@ -160,7 +159,7 @@ export const MotionStreakAssembler: IAssembler = {
             const da = progress * ca;
             const c = ((da << 24) >>> 0) + (cb << 16) + (cg << 8) + cr;
 
-            let offset = verticesCount;
+            let offset = vertexCount;
 
             data[offset].x = point.x + _normal.x * stroke;
             data[offset].y = point.y + _normal.y * stroke;
@@ -176,13 +175,13 @@ export const MotionStreakAssembler: IAssembler = {
             data[offset].v = progress;
             data[offset].color._val = c;
 
-            verticesCount += 2;
+            vertexCount += 2;
         }
 
-        indicesCount = verticesCount <= 2 ? 0 : (verticesCount - 2) * 3;
+        indexCount = vertexCount <= 2 ? 0 : (vertexCount - 2) * 3;
 
-        renderData.vertexCount = verticesCount;
-        renderData.indicesCount = indicesCount;
+        renderData.vertexCount = vertexCount;
+        renderData.indexCount = indexCount;
     },
 
     updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {
@@ -209,10 +208,10 @@ export const MotionStreakAssembler: IAssembler = {
         const dataList = renderData.data;
         const node = comp.node;
 
-        const accessor = renderer.switchBufferAccessor();
+        const accessor = renderer.getBufferAccessor();
 
         const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indicesCount;
+        const indexCount = renderData.indexCount;
 
         accessor.request(vertexCount, indexCount);
         let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;

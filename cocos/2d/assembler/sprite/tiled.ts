@@ -89,7 +89,7 @@ export const tiled: IAssembler = {
 
         // update data property
         renderData.vertexCount = row * col * 4;
-        renderData.indicesCount = row * col * 6;
+        renderData.indexCount = row * col * 6;
         renderData.uvDirty = false;
         renderData.vertDirty = false;
         // Tiled mode create data is after updateColor
@@ -104,17 +104,17 @@ export const tiled: IAssembler = {
         const renderData = sprite.renderData!;
 
         // buffer
-        const accessor = renderer.switchBufferAccessor();
+        const accessor = renderer.getBufferAccessor();
         const vertexCount = renderData.vertexCount;
-        const indicesCount = renderData.indicesCount;
-        accessor.request(vertexCount, indicesCount);
+        const indexCount = renderData.indexCount;
+        accessor.request(vertexCount, indexCount);
         // buffer data may be realloc, need get reference after request.
         const buffer = accessor.currentBuffer;
         let vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
-        let indicesOffset = accessor.indexOffset - indicesCount;
+        let indicesOffset = accessor.indexOffset - indexCount;
         let vertexId = accessor.vertexOffset - vertexCount;
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
+        const vBuf = buffer.vData;
+        const iBuf = buffer.iData;
 
         const frame = sprite.spriteFrame!;
         const rotated = frame.rotated;
@@ -253,7 +253,7 @@ export const tiled: IAssembler = {
         }
 
         // update indices
-        for (let i = 0; i < indicesCount; i += 6) {
+        for (let i = 0; i < indexCount; i += 6) {
             iBuf[indicesOffset++] = vertexId;
             iBuf[indicesOffset++] = vertexId + 1;
             iBuf[indicesOffset++] = vertexId + 2;

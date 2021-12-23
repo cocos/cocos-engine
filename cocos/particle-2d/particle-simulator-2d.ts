@@ -461,7 +461,7 @@ export class Simulator {
                 }
                 pool.put(deadParticle);
                 particles.length--;
-                renderData.indicesCount -= 6;
+                renderData.indexCount -= 6;
                 renderData.vertexCount -= 4;
             }
         }
@@ -472,10 +472,10 @@ export class Simulator {
         }
     }
 
-    requestData (vertexCount: number, indicesCount: number) {
-        let offset = this.renderData.indicesCount;
-        this.renderData.request(vertexCount, indicesCount);
-        const count = this.renderData.indicesCount / 6;
+    requestData (vertexCount: number, indexCount: number) {
+        let offset = this.renderData.indexCount;
+        this.renderData.request(vertexCount, indexCount);
+        const count = this.renderData.indexCount / 6;
         const buffer = this.renderData.iData;
         for (let i = offset; i < count; i++) {
             const vId = i * 4;

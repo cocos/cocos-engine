@@ -185,10 +185,10 @@ export const simple: IAssembler = {
         // 当前渲染的数据
         const data = dataArray[comp._meshRenderDataArrayIdx];
         const renderData = data.renderData;
-        const accessor = renderer.switchBufferAccessor(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor);
+        const accessor = renderer.getBufferAccessor(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor);
 
         const vertexCount = renderData.vertexCount;
-        const indexCount = renderData.indicesCount;
+        const indexCount = renderData.indexCount;
         accessor.request(vertexCount, indexCount);
 
         const vertexOffset = (accessor.byteOffset - vertexCount * accessor.vertexFormatBytes) >> 2;
@@ -217,7 +217,7 @@ export const simple: IAssembler = {
         }
 
         const srcIOffset = renderData.indicesStart;
-        for (let i = 0; i < renderData.indicesCount; i += 1) {
+        for (let i = 0; i < renderData.indexCount; i += 1) {
             iBuf[i + indexOffset] = srcIBuf[i + srcIOffset] + vertexId;
         }
     },
@@ -358,7 +358,7 @@ function fillVertices (skeletonColor: spine.Color, attachmentColor: spine.Color,
         _vertexFloatCount = clippedVertices.length / _perClipVertexSize * _perVertexSize;
 
         _buffer!.renderData.reserve(_vertexFloatCount / _perVertexSize, _indexCount);
-        _indexOffset = _buffer!.renderData.indicesCount;
+        _indexOffset = _buffer!.renderData.indexCount;
         _vertexOffset = _buffer!.renderData.vertexCount;
         _vertexFloatOffset = _buffer!.renderData.vDataOffset;
         vbuf = _buffer!.renderData.vData;
@@ -532,7 +532,7 @@ function realTimeTraverse (worldMat?: Mat4) {
             _indexCount = 6;
 
             _buffer!.renderData.reserve(4, 6);
-            _indexOffset = _buffer!.renderData.indicesCount;
+            _indexOffset = _buffer!.renderData.indexCount;
             _vertexOffset = _buffer!.renderData.vertexCount;
             _vertexFloatOffset = _buffer!.renderData.vDataOffset;
             vbuf = _buffer!.renderData.vData;
@@ -561,7 +561,7 @@ function realTimeTraverse (worldMat?: Mat4) {
 
             _buffer!.renderData.reserve(mattachment.worldVerticesLength >> 1, _indexCount);
 
-            _indexOffset = _buffer!.renderData.indicesCount;
+            _indexOffset = _buffer!.renderData.indexCount;
             _vertexOffset = _buffer!.renderData.vertexCount;
             _vertexFloatOffset = _buffer!.renderData.vDataOffset;
 
@@ -727,7 +727,7 @@ function cacheTraverse (worldMat?: Mat4) {
 
         _buffer!.renderData.reserve(_vertexCount, _indexCount);
 
-        _indexOffset = _buffer!.renderData.indicesCount;
+        _indexOffset = _buffer!.renderData.indexCount;
         _vertexOffset = _buffer!.renderData.vertexCount;
         _vfOffset = _buffer!.renderData.vDataOffset;
         vbuf = _buffer!.renderData.vData;

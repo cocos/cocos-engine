@@ -61,7 +61,7 @@ export class Batcher2D implements IBatcher {
     get currBufferAccessor () {
         if (this._staticVBBuffer) return this._staticVBBuffer;
         // create if not set
-        this._staticVBBuffer = this.switchBufferAccessor();
+        this._staticVBBuffer = this.getBufferAccessor();
         return this._staticVBBuffer;
     }
 
@@ -309,10 +309,11 @@ export class Batcher2D implements IBatcher {
     }
 
     /**
-     * Acquire a new mesh buffer if the vertex layout differs from the current one.
+     * Acquire the mesh buffer for corresponding vertex layout.
      * @param attributes
+     * @default [[VertexFormat.vfmtPosUvColor]]
      */
-    public switchBufferAccessor (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
+    public getBufferAccessor (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
         const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
         // If current accessor not compatible with the requested attributes
         if (!this._staticVBBuffer || (this._staticVBBuffer.vertexFormatBytes) !== strideBytes) {
@@ -479,7 +480,6 @@ export class Batcher2D implements IBatcher {
         this._currLayer = 0;
     }
 
-    // 不一定要这么处理
     public setupStaticBatch (staticComp: UIStaticBatch, bufferAccessor: StaticVBAccessor) {
         this.finishMergeBatches();
         this._staticVBBuffer = bufferAccessor;
@@ -491,7 +491,7 @@ export class Batcher2D implements IBatcher {
         this.currStaticRoot = null;
         // Clear linear buffer to switch to the correct internal accessor
         this._staticVBBuffer = null;
-        this.switchBufferAccessor();
+        this.getBufferAccessor();
     }
 
     /**

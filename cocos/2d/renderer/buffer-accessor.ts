@@ -35,6 +35,7 @@ import { getComponentPerVertex } from './vertex-format';
 export class BufferAccessor {
     public get attributes (): Readonly<Attribute[]> { return this._attributes; }
     public get vertexFormatBytes () { return this._vertexFormatBytes; }
+    public get floatsPerVertex () { return this._floatsPerVertex; }
 
     protected _device: Device = null!
     protected _attributes: Attribute[] = null!;
@@ -51,7 +52,7 @@ export class BufferAccessor {
 
     public initialize () {}
     public reset () {}
-    public request (vertexCount = 4, indicesCount = 6) {}
+    public request (vertexCount = 4, indexCount = 6) {}
     public appendBuffers (vertices: Float32Array, indices: Uint16Array) {}
     public uploadBuffers () {}
     public destroy () {

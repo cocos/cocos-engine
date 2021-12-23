@@ -41,8 +41,8 @@ export class MeshBuffer {
     public byteOffset = 0;
     public vertexOffset = 0;
     public indexOffset = 0;
-    public vData: Float32Array | null = null;
-    public iData: Uint16Array | null = null;
+    public vData: Float32Array = null!;
+    public iData: Uint16Array = null!;
 
     private _dirty = false;
     private _vertexFormatBytes = 0;
@@ -164,8 +164,8 @@ export class MeshBuffer {
             return;
         }
 
-        const verticesData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
-        const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indexOffset);
+        const verticesData = new Float32Array(this.vData.buffer, 0, this.byteOffset >> 2);
+        const indicesData = new Uint16Array(this.iData.buffer, 0, this.indexOffset);
 
         const vertexBuffer = this._vertexBuffers[0];
         if (this.byteOffset > vertexBuffer.size) {
