@@ -1,12 +1,13 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 #include <cc-global>
 #include <common>
+#include <packing>
 
 struct ToonSurface {
   vec4 baseColor;
   vec4 specular;
   // these two need to be in the same coordinate system
-  vec3 position;
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, position);
   vec3 normal;
   // shading params
   vec3 shade1;
@@ -22,13 +23,16 @@ struct ToonSurface {
 #if CC_FORWARD_ADD
   #include <lighting>
   vec4 CCToonShading (ToonSurface s) {
-    vec3 V = normalize(cc_cameraPos.xyz - s.position);
+    vec3 position;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+    
+    vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
     float specularWeight = 1.0 - pow(s.specular.a, 5.0);
     vec3 finalColor = vec3(0.0);
 
     for (int i = 0; i < LIGHTS_PER_PASS; i++) {
-      vec3 SLU = cc_lightPos[i].xyz - s.position;
+      vec3 SLU = cc_lightPos[i].xyz - position;
       vec3 SL = normalize(SLU);
       vec3 SH = normalize(SL + V);
       float SNL = 0.5 * dot(N, SL) + 0.5;
@@ -67,7 +71,7 @@ struct ToonSurface {
   #endif
 
   vec4 CCToonShading (ToonSurface s) {
-    vec3 V = normalize(cc_cameraPos.xyz - s.position);
+    vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
 
     vec3 L = normalize(-cc_mainLitDir.xyz);
