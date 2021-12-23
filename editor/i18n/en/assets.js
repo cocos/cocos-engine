@@ -327,6 +327,10 @@ module.exports = {
         animationGraph: {
             edit: 'Edit',
         },
+        animationMask: {
+            importSkeleton: 'Import Skeleton Nodes',
+            nodeEnableTip: 'Whether enable this joint;<br>Alt + Click can toggle the children state.',
+        },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },
 };

@@ -49,7 +49,7 @@ interface ISocketData {
 
 @ccclass
 export class AnimationManager extends System {
-    public get blendState () {
+    public get blendState (): LegacyBlendStateBuffer {
         return this._blendStateBuffer;
     }
 

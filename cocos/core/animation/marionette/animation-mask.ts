@@ -1,4 +1,4 @@
-import { ccclass, serializable, type } from 'cc.decorator';
+import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { Asset } from '../../assets/asset';
 import { removeIf } from '../../utils/array';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
@@ -6,6 +6,7 @@ import { CLASS_NAME_PREFIX_ANIM } from '../define';
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}AnimationMask`)
 export class AnimationMask extends Asset {
     @serializable
+    @editable
     private _jointMasks: JointMask[] = [];
 
     get joints (): Iterable<JointMaskInfo> {
