@@ -41,8 +41,6 @@ import * as path from './path';
  */
 //export * from './js-event-handler';
 
-export * from './js-event-handler';
-
 export * from './x-deprecated';
 export * from './murmurhash2_gc';
 export { PrefabLink } from './prefab-link';

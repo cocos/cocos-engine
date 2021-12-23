@@ -22,50 +22,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { JSB } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-
-export type JsCallback = (arg: string) => void;
-class JsEventHandler {
-    //public
+const JsEventHandler = {
+    eventMap: new Map(),
     /**
      * Method to set callback with an event name
      * should be triggered if the event is called by native function on JAVA or Objective-C etc.
      */
-    public addCallback (event: string, callback: JsCallback): void {
-        if (!this.eventMap.get(event)) {
-            this.eventMap.set(event, new Array<JsCallback>());
+    addCallback (event, callback) {
+        const _a = this.eventMap.get(event);
+        if (!_a) {
+            this.eventMap.set(event, []);
         }
-        this.eventMap.get(event)?.push(callback);
-    }
+        this.eventMap.get(event).push(callback);
+    },
     /**
      * Trigger native event on JAVA or Objective-C with a string type argeter
      */
-    public sendToNative (event: string, arg?: string) {
-        if (JSB) {
-            jsb.bridge.sendToNative(event, arg);
-        }
-    }
+    sendToNative (event, arg) {
+        jsb.bridge.sendToNative(event, arg);
+    },
     /**
      * Remove callback for certain event.
      * @param event event to delete
      * @returns
      */
-    public removeEvent (event: string): boolean {
-        if (!this.eventMap.get(event)) {
+    removeEvent (event) {
+        const _a = this.eventMap.get(event);
+        if (!_a) {
             return true;
         }
-        this.eventMap.get(event)?.splice(0, this.eventMap.get(event)?.length);
+        _a.splice(0, _a.length);
         return this.eventMap.delete(event);
-    }
+    },
     /**
      * remove a callback for certain event
      */
-    public removeCallback (event: string, cb: JsCallback): boolean {
-        const arr = this.eventMap.get(event);
-        if (!arr) {
+    removeCallback (event, cb) {
+        if (!this.eventMap.get(event)) {
             return false;
         }
+        const arr = this.eventMap.get(event);
         for (let i = 0, l = arr.length; i < l; i++) {
             if (arr[i] === cb) {
                 arr.splice(i, 1);
@@ -73,29 +69,34 @@ class JsEventHandler {
             }
         }
         return false;
-    }
-    public static getInstance () {
-        if (!JsEventHandler.instance) {
-            JsEventHandler.instance = new JsEventHandler();
-        }
-        return JsEventHandler.instance;
-    }
-    private constructor () {
-        this.eventMap = new Map();
-        JsEventHandler.instance = this;
-        jsb.bridge.onNative = (methodName: string, arg1?: string | null) => {
-            console.log(`Trigger event: ${methodName} with argeter: ${arg1!}`);
-            JsEventHandler.instance.triggerEvent(methodName, arg1!);
-        };
-    }
-    private triggerEvent (event: string, arg: string) {
+    },
+    triggerEvent (event, arg) {
         if (!this.eventMap.get(event)) {
-            console.log(`Function ${event} not exist`);
+            console.log('Function '.concat(event, ' not exist'));
         }
         const arr = this.eventMap.get(event);
-        arr?.map((f) => f.call(null, arg));
-    }
-    private eventMap: Map<string, Array<JsCallback>>;
-    private static instance: JsEventHandler;
-}
-export const jsEventHandler =  legacyCC.jsEventHandler = JsEventHandler.getInstance();
+        arr.map((f) => f.call(null, arg));
+    },
+};
+
+Object.defineProperty(jsb, 'jsEventHandler', {
+    get () {
+        if (jsb.__jsEventHandler !== undefined) return jsb.__jsEventHandler;
+
+        if (window.ScriptNativeBridge && cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX) {
+            jsb.__jsEventHandler = JsEventHandler;
+            jsb.bridge.onNative = (methodName, arg1) => {
+                console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
+                jsb.__jsEventHandler.triggerEvent(methodName, arg1);
+            };
+        } else {
+            jsb.__jsEventHandler = null;
+        }
+        return jsb.__jsEventHandler;
+    },
+    enumerable: true,
+    configurable: true,
+    set (value) {
+        jsb.__jsEventHandler = value;
+    },
+});

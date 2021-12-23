@@ -139,7 +139,15 @@ declare namespace jsb {
          * use jsb.bridge.onNative = (arg0: String, arg1: String)=>{...}
          * @param args : received from native
          */
-         export function onNative(arg0: string, arg1?: string|null): void;
+        export function onNative(arg0: string, arg1?: string|null): void;
+    }
+
+    export type JsCallback = (arg: string) => void;
+    export namespace jsEventHandler {
+        export function addCallback(event: string, callback: JsCallback);
+        export function sendToNative(event: string, arg: string);
+        export function removeEvent(event: string);
+        export function removeCallback(event: string, callback: JsCallback);
     }
     /**
      * 下载任务对象
