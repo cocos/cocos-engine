@@ -94,9 +94,10 @@ export class RenderShadowMapBatchedQueue {
 
         const pipelineSceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = pipelineSceneData.shadows;
-        const dirShadowObjects = pipelineSceneData.dirShadowObjects;
-        const castShadowObjects = pipelineSceneData.castShadowObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
+            const dirShadowObjects = pipelineSceneData.dirShadowObjects;
+            const castShadowObjects = pipelineSceneData.castShadowObjects;
+
             switch (light.type) {
             case LightType.DIRECTIONAL:
                 for (let i = 0; i < dirShadowObjects.length; i++) {
@@ -124,6 +125,9 @@ export class RenderShadowMapBatchedQueue {
                 break;
             default:
             }
+
+            this._instancedQueue.uploadBuffers(cmdBuff);
+            this._batchedQueue.uploadBuffers(cmdBuff);
         }
     }
 
@@ -162,9 +166,6 @@ export class RenderShadowMapBatchedQueue {
                 this._passArray.push(pass);
             }
         }
-
-        this._instancedQueue.uploadBuffers(cmdBuff);
-        this._batchedQueue.uploadBuffers(cmdBuff);
     }
 
     /**
