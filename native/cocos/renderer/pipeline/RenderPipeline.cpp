@@ -286,6 +286,8 @@ void RenderPipeline::generateConstantMacros() {
 #define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
 #define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
 #define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT %d
+#define CC_PLATFORM_ANDROID_AND_WEBGL 0
+#define CC_ENABLE_WEBGL_HIGHP_STRUCT_VALUES 0
         )",
         _device->hasFeature(gfx::Feature::TEXTURE_FLOAT) ? 1 : 0,
         _clusterEnabled ? 1 : 0,
