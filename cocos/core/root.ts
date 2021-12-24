@@ -548,6 +548,7 @@ export class Root {
         } else {
             warnID(1300, m.constructor.name);
         }
+        m.destroy();
     }
 
     public createCamera (): Camera {
