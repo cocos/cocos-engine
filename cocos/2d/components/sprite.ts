@@ -654,6 +654,8 @@ export class Sprite extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._renderData = this._assembler.createData(this);
                 this.VBChunk = accessor.allocateChunk(this._renderData!.vertexCount, this._renderData!.indicesCount);
+                const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);// todo,this type is only for simple
+                this.VBChunk!.setIndexBuffer(QUAD_INDICES);
                 this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 this._colorDirty = true;

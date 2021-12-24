@@ -116,6 +116,7 @@ export class StaticVBAccessor extends BufferAccessor {
             if (!firstEntry || firstEntry.length < buffer.vData!.byteLength) {
                 buffer.uploadBuffers();
             }
+            // Need destroy empty buffer
         }
     }
 
@@ -131,7 +132,7 @@ export class StaticVBAccessor extends BufferAccessor {
                 this._indexStart = buf.indexOffset;
             }
             // Append index buffer
-            buf.iData.set(vbChunk.ib, buf.indexOffset);
+            buf.iData!.set(vbChunk.ib, buf.indexOffset);
             buf.indexOffset += vbChunk.ib.length;
             buf.setDirty();
         }
@@ -149,6 +150,7 @@ export class StaticVBAccessor extends BufferAccessor {
         ia.firstIndex = this._indexStart;
         ia.indexCount = buf.indexOffset - this._indexStart;
         this._indexStart = buf.indexOffset;
+        this._currBID = -1;
         return ia;
     }
 
@@ -169,18 +171,10 @@ export class StaticVBAccessor extends BufferAccessor {
                     eid = e;
                 }
             }
-            // Try to increase capacity
-            if (!entry) {
-                entry = this._increaseBufferCapacity(i, vertexCount, indexCount);
-                if (entry) {
-                    bid = i;
-                    eid = freeList.length - 1;
-                }
-            }
         }
         // Allocation fail
         if (!entry) {
-            const bid = this._allocateBuffer();
+            bid = this._allocateBuffer();
             buf = this._buffers[bid];
             if (buf && buf.ensureCapacity(vertexCount, indexCount)) {
                 eid = 0;
@@ -275,30 +269,13 @@ export class StaticVBAccessor extends BufferAccessor {
         return this._buffers[bid].vData!;
     }
 
-    private _increaseBufferCapacity (bid: number, vertexCount: number, indexCount: number) {
-        const buf = this._buffers[bid];
-        const freeList = this._freeLists[bid];
-        assertIsTrue(buf && freeList);
-        const byteLength = buf.vData.byteLength;
-        buf.vertexOffset = byteLength / buf.vertexFormatBytes;
-        buf.indexOffset = buf.iData.length;
-        buf.byteOffset = byteLength;
-        if (buf.ensureCapacity(vertexCount, indexCount)) {
-            let entry = freeList[freeList.length - 1];
-            // Can be merge with last entry
-            if (entry && (entry.offset + entry.length === byteLength)) {
-                entry.length += buf.vData.byteLength - byteLength;
-            }
-            // Need a new entry
-            else {
-                entry = _entryPool.alloc();
-                entry.offset = byteLength;
-                entry.length = buf.vData.byteLength - byteLength;
-                freeList.push(entry);
-            }
-            return entry;
-        }
-        return null;
+    public getIndexBuffer (bid: number): Uint16Array {
+        return this._buffers[bid].iData!;
+    }
+
+    // hack
+    public getMeshBuffer (bid: number): MeshBuffer {
+        return this._buffers[bid];
     }
 
     private _allocateChunkFromEntry (bid: number, eid: number, entry: IFreeEntry, bytes: number) {

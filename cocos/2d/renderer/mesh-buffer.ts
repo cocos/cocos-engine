@@ -28,13 +28,11 @@
  * @module ui
  */
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../core/gfx';
-import { ScalableContainer } from '../../core/memop/scalable-container';
 import { getComponentPerVertex } from './vertex-format';
 import { warnID } from '../../core/platform/debug';
+import { macro } from '../../core';
 
-export class MeshBuffer extends ScalableContainer {
-    public static OPACITY_OFFSET = 8;
-
+export class MeshBuffer {
     get attributes () { return this._attributes; }
     get vertexFormatBytes () { return this._vertexFormatBytes; }
     get vertexBuffers (): Readonly<Buffer[]> { return this._vertexBuffers; }
@@ -49,9 +47,7 @@ export class MeshBuffer extends ScalableContainer {
     private _dirty = false;
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
-    private _initIDataCount = 256 * 6;
-    private _lastUsedVDataSize = 0;
-    private _lastUsedIDataSize = 0;
+    private _initIDataCount = 0;
     private _attributes: Attribute[] = null!;
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
@@ -61,11 +57,14 @@ export class MeshBuffer extends ScalableContainer {
     private _iaInfo: InputAssemblerInfo = null!;
     private _nextFreeIAHandle = 0;
 
+    private _preVertexUsed = 4; // ib 和 vb 的长度比 // 默认值存疑
+
     public initialize (device: Device, attrs: Attribute[]) {
         const floatCount = getComponentPerVertex(attrs);
         const vbStride = this._vertexFormatBytes = floatCount * Float32Array.BYTES_PER_ELEMENT;
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        this._initVDataCount = 256 * floatCount;
+        this._initVDataCount = macro.BYTE_LENGTH_PRE_MASHBUFFER * 1024 / Float32Array.BYTES_PER_ELEMENT;
+        this._initIDataCount = this._initVDataCount * this._preVertexUsed;
         this._attributes = attrs;
 
         this._vertexBuffers[0] = device.createBuffer(new BufferInfo(
@@ -83,7 +82,8 @@ export class MeshBuffer extends ScalableContainer {
 
         // for recycle pool using purpose --
         if (!this.vData || !this.iData) {
-            this._reallocBuffer();
+            this.vData = new Float32Array(this._initVDataCount);
+            this.iData = new Uint16Array(this._initIDataCount);
         }
         // ----------
 
@@ -109,13 +109,14 @@ export class MeshBuffer extends ScalableContainer {
         }
         this._indexBuffer = null!;
 
+        this.vData = null;
+        this.iData = null;
+
         // Destroy InputAssemblers
         for (let i = 0; i < this._iaPool.length; ++i) {
             this._iaPool[i].destroy();
         }
         this._iaPool.length = 0;
-
-        super.destroy();
     }
 
     public setDirty () {
@@ -152,40 +153,10 @@ export class MeshBuffer extends ScalableContainer {
     public ensureCapacity (vertexCount: number, indexCount: number) {
         const maxVertex = this.vertexOffset + vertexCount;
         const maxIndex = this.indexOffset + indexCount;
-        if (maxVertex > 65535) {
+        if (maxVertex > this._initVDataCount || maxIndex > this._initIDataCount) {
             return false;
         }
-        const maxByte = maxVertex * this.vertexFormatBytes;
-        let byteLength = this.vData!.byteLength;
-        let indexLength = this.iData!.length;
-        let realloc = false;
-        while (byteLength < maxByte) {
-            this._initVDataCount *= 2;
-            byteLength = this._initVDataCount * 4;
-            realloc = true;
-        }
-        while (indexLength < maxIndex) {
-            this._initIDataCount *= 2;
-            indexLength = this._initIDataCount;
-            realloc = true;
-        }
-        if (realloc) {
-            this._reallocBuffer();
-        }
         return true;
-    }
-
-    public tryShrink () {
-        if (this._dirty || !this.vData || !this.iData) return;
-        if (this.vData.byteLength >> 2 > this._lastUsedVDataSize && this.iData.length >> 2 > this._lastUsedIDataSize) {
-            const vDataCount = Math.max(256 * this._vertexFormatBytes, this._initVDataCount >> 1);
-            const iDataCount = Math.max(256 * 6, this._initIDataCount >> 1);
-            if (vDataCount !== this._initVDataCount || iDataCount !== this._initIDataCount) {
-                this._initIDataCount = iDataCount;
-                this._initVDataCount = vDataCount;
-                this._reallocBuffer();
-            }
-        }
     }
 
     public uploadBuffers () {
@@ -206,41 +177,6 @@ export class MeshBuffer extends ScalableContainer {
             this.indexBuffer.resize(this.indexOffset * 2);
         }
         this.indexBuffer.update(indicesData);
-        this._lastUsedVDataSize = this.byteOffset;
-        this._lastUsedIDataSize = this.indexOffset;
         this._dirty = false;
-    }
-
-    private _reallocBuffer () {
-        this._reallocVData(true);
-        this._reallocIData(true);
-    }
-
-    private _reallocVData (copyOldData: boolean) {
-        let oldVData;
-        if (this.vData) {
-            const byteLength = Math.min(this._initVDataCount, this.vData.length) << 2;
-            oldVData = new Uint8Array(this.vData.buffer, 0, byteLength);
-        }
-
-        this.vData = new Float32Array(this._initVDataCount);
-
-        if (oldVData && copyOldData) {
-            const newData = new Uint8Array(this.vData.buffer);
-            newData.set(oldVData);
-        }
-    }
-
-    private _reallocIData (copyOldData: boolean) {
-        let oldIData;
-        if (this.iData && this._initVDataCount < this.iData.length) {
-            oldIData = new Uint16Array(this.iData.buffer, 0, this._initIDataCount << 1);
-        }
-
-        this.iData = new Uint16Array(this._initIDataCount);
-
-        if (oldIData && copyOldData) {
-            this.iData.set(oldIData);
-        }
     }
 }

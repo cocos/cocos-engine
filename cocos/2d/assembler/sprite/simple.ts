@@ -40,7 +40,6 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
-const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * simple 组装器
@@ -172,9 +171,22 @@ export const simple: IAssembler = {
             this.vertexDirty = false;
         }
 
-        // 更新 IB
-        VBChunk.setIndexBuffer(QUAD_INDICES);
+        // quick version
+        // const index0 = VBChunk.vertexOffset; const index1 = VBChunk.vertexOffset + 1;
+        // const index2 = VBChunk.vertexOffset + 2; const index3 = VBChunk.vertexOffset + 3;
+        // const meshBuffer = VBChunk.vertexAccessor.getMeshBuffer(VBChunk.bufferId);
+        // const IB = meshBuffer.iData!;
+        // let indexOffset = meshBuffer.indexOffset;
+        // IB[indexOffset++] = index0;
+        // IB[indexOffset++] = index1;
+        // IB[indexOffset++] = index2;
+        // IB[indexOffset++] = index2;
+        // IB[indexOffset++] = index1;
+        // IB[indexOffset++] = index3;
+        // meshBuffer.indexOffset += 6;
+        // meshBuffer.setDirty();
 
+        // slow version
         renderer.switchBufferAccessor().appendIndices(VBChunk);
     },
 

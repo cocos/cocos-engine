@@ -1053,6 +1053,13 @@ const macro = {
      * @default 20
      */
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
+
+    /**
+     * @zh
+     * 每个 MeshBuffer 占用内存的大小（字节），默认值在默认格式下可容纳 4096 个顶点（4096*9*4/1024）
+     * @default 144
+     */
+    BYTE_LENGTH_PRE_MASHBUFFER: 144,
 };
 
 legacyCC.macro = macro;
