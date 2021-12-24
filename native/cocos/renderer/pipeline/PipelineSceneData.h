@@ -67,6 +67,10 @@ public:
     inline void                                                                setMatShadowProj(const Mat4 &matShadowProj) { _matShadowProj = matShadowProj; }
     inline Mat4                                                                getMatShadowViewProj() const { return _matShadowViewProj; }
     inline void                                                                setMatShadowViewProj(const Mat4 &matShadowViewProj) { _matShadowViewProj = matShadowViewProj; }
+    inline void                                                                addRenderObject(RenderObject &&obj) { _renderObjects.emplace_back(obj); }
+    inline void                                                                clearRenderObjects() { _renderObjects.clear(); }
+    inline void                                                                addValidPunctualLight(scene::Light *light) { _validPunctualLights.emplace_back(light); }
+    inline void                                                                clearValidPunctualLights() { _validPunctualLights.clear(); }
 
 private:
     RenderObjectList     _renderObjects;

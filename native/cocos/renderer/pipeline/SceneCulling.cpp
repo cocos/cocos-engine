@@ -146,8 +146,7 @@ void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::arra
 void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera) {
     const auto *const            scene               = camera->scene;
     PipelineSceneData *          sceneData           = pipeline->getPipelineSceneData();
-    vector<const scene::Light *> validPunctualLights = sceneData->getValidPunctualLights();
-    validPunctualLights.clear();
+    sceneData->clearValidPunctualLights();
 
     scene::Sphere sphere;
     for (auto *light : scene->getSpotLights()) {
@@ -158,7 +157,7 @@ void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera)
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
-            validPunctualLights.emplace_back(static_cast<scene::Light *>(light));
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
         }
     }
 
@@ -170,11 +169,9 @@ void validPunctualLightsCulling(RenderPipeline *pipeline, scene::Camera *camera)
         sphere.setCenter(light->getPosition());
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
-            validPunctualLights.emplace_back(static_cast<scene::Light *>(light));
+            sceneData->addValidPunctualLight(static_cast<scene::Light *>(light));
         }
     }
-
-    sceneData->setValidPunctualLights(std::move(validPunctualLights));
 }
 
 Mat4 getCameraWorldMatrix(const scene::Camera *camera) {
@@ -323,11 +320,12 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         }
     }
 
-    RenderObjectList renderObjects;
+    sceneData->clearRenderObjects();
+
     RenderObjectList castShadowObject;
 
     if (skyBox->enabled && skyBox->model && (camera->clearFlag & skyboxFlag)) {
-        renderObjects.emplace_back(genRenderObject(skyBox->model, camera));
+        sceneData->addRenderObject(genRenderObject(skyBox->model, camera));
     }
 
     const scene::Octree *octree = scene->getOctree();
@@ -346,7 +344,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                     (visibility & model->getVisFlags())) {
                     const auto *modelWorldBounds = model->getWorldBounds();
                     if (!modelWorldBounds && skyBox->model != model) {
-                        renderObjects.emplace_back(genRenderObject(model, camera));
+                        sceneData->addRenderObject(genRenderObject(model, camera));
                     }
                 }
             }
@@ -369,7 +367,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         models.reserve(scene->getModels().size() / 4);
         octree->queryVisibility(camera, camera->frustum, false, models);
         for (const auto *model : models) {
-            renderObjects.emplace_back(genRenderObject(model, camera));
+            sceneData->addRenderObject(genRenderObject(model, camera));
         }
     } else {
         scene::AABB ab;
@@ -388,7 +386,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                     (visibility & model->getVisFlags())) {
                     const auto *modelWorldBounds = model->getWorldBounds();
                     if (!modelWorldBounds) {
-                        renderObjects.emplace_back(genRenderObject(model, camera));
+                        sceneData->addRenderObject(genRenderObject(model, camera));
                         continue;
                     }
 
@@ -408,7 +406,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
 
                     // frustum culling
                     if (modelWorldBounds->aabbFrustum(camera->frustum)) {
-                        renderObjects.emplace_back(genRenderObject(model, camera));
+                        sceneData->addRenderObject(genRenderObject(model, camera));
                     }
                 }
             }
@@ -419,8 +417,6 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         sceneData->setDirShadowObjects(std::move(dirShadowObjects));
         sceneData->setCastShadowObjects(std::move(castShadowObject));
     }
-
-    sceneData->setRenderObjects(std::move(renderObjects));
 }
 
 } // namespace pipeline
