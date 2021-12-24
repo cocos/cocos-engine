@@ -542,7 +542,6 @@ export class Root {
         const p = this._modelPools.get(m.constructor as Constructor<Model>);
         if (p) {
             p.free(m);
-            m.destroy();
             if (m.scene) {
                 m.scene.removeModel(m);
             }
@@ -568,7 +567,6 @@ export class Root {
 
     public destroyLight (l: Light) {
         const p = this._lightPools.get(l.constructor as Constructor<Light>);
-        l.destroy();
         if (p) {
             p.free(l);
             if (l.scene) {
@@ -584,6 +582,7 @@ export class Root {
                 }
             }
         }
+        l.destroy();
     }
 }
 
