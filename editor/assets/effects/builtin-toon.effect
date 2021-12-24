@@ -216,7 +216,7 @@ CCProgram toon-fs %{
         nmmp.z * normalize(s.normal);
     #endif
 
-    s.position = v_position;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     s.specular = specular;
     #if USE_SPECULAR_MAP

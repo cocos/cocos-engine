@@ -250,7 +250,7 @@ CCProgram standard-fs %{
         nmmp.z * normalize(s.normal);
     #endif
 
-    s.position = v_position;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(v_position, s.position);
 
     vec4 pbr = pbrParams;
     #if USE_PBR_MAP
