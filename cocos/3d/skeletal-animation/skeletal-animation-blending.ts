@@ -32,7 +32,8 @@ import { DEBUG } from 'internal:constants';
 import { Vec3, Quat, approx } from '../../core/math';
 import { Node } from '../../core/scene-graph';
 import { RuntimeBinding } from '../../core/animation/tracks/track';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
+import { MAX_ANIMATION_LAYER } from './limits';
 
 export abstract class BlendStateBuffer<
     TNodeBlendState extends NodeBlendState<PropertyBlendState<Vec3>, PropertyBlendState<Quat>> =
@@ -336,21 +337,13 @@ class LayeredVec3PropertyBlendState implements PropertyBlendState<Vec3> {
     constructor (defaultValue: Readonly<Vec3>) {
         Vec3.copy(this._defaultValue, defaultValue);
         Vec3.copy(this.result, defaultValue);
-        if (DEBUG) {
-            this.clipBlendCount = 0;
-        }
     }
 
     public refCount = 0;
 
     public result = new Vec3();
 
-    public declare clipBlendCount: number;
-
     public blend (value: Readonly<Vec3>, weight: number): void {
-        if (DEBUG) {
-            ++this.clipBlendCount;
-        }
         this._accumulatedWeight = mixAveragedVec3(
             this._clipBlendResult,
             this._clipBlendResult,
@@ -361,9 +354,6 @@ class LayeredVec3PropertyBlendState implements PropertyBlendState<Vec3> {
     }
 
     public commitLayerChange (weight: number) {
-        if (DEBUG) {
-            this.clipBlendCount = 0;
-        }
         const {
             result,
             _clipBlendResult: clipBlendResult,
@@ -390,21 +380,13 @@ class LayeredQuatPropertyBlendState implements PropertyBlendState<Quat> {
     constructor (defaultValue: Readonly<Quat>) {
         Quat.copy(this._defaultValue, defaultValue);
         Quat.copy(this.result, defaultValue);
-        if (DEBUG) {
-            this.clipBlendCount = 0;
-        }
     }
 
     public refCount = 0;
 
     public result = new Quat();
 
-    public declare clipBlendCount: number;
-
     public blend (value: Readonly<Quat>, weight: number): void {
-        if (DEBUG) {
-            ++this.clipBlendCount;
-        }
         this._accumulatedWeight = mixAveragedQuat(
             this._clipBlendResult,
             this._clipBlendResult,
@@ -415,9 +397,6 @@ class LayeredQuatPropertyBlendState implements PropertyBlendState<Quat> {
     }
 
     public commitLayerChange (weight: number) {
-        if (DEBUG) {
-            this.clipBlendCount = 0;
-        }
         const {
             result,
             _clipBlendResult: clipBlendResult,
@@ -441,7 +420,14 @@ class LayeredQuatPropertyBlendState implements PropertyBlendState<Quat> {
 }
 
 class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState, LayeredQuatPropertyBlendState> {
-    public commitLayerChanges (weight: number) {
+    public setLayerMask (layerIndex: number) {
+        this._layerMask &= ~(1 << layerIndex);
+    }
+
+    public commitLayerChanges (layerIndex: number, weight: number) {
+        if (!(this._layerMask & (1 << layerIndex))) {
+            return;
+        }
         const { _properties: { position, scale, rotation, eulerAngles } } = this;
         if (position) {
             position.commitLayerChange(weight);
@@ -468,23 +454,6 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
         eulerAngles?.reset();
     }
 
-    public zeroCheck () {
-        const { _properties: { position, scale, rotation, eulerAngles } } = this;
-        if (position && position.clipBlendCount !== 0) {
-            return false;
-        }
-        if (scale && scale.clipBlendCount !== 0) {
-            return false;
-        }
-        if (rotation && rotation.clipBlendCount !== 0) {
-            return false;
-        }
-        if (eulerAngles && eulerAngles.clipBlendCount !== 0) {
-            return false;
-        }
-        return true;
-    }
-
     protected _createVec3BlendState (currentValue: Readonly<Vec3>) {
         return new LayeredVec3PropertyBlendState(currentValue);
     }
@@ -492,6 +461,8 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
     protected _createQuatBlendState (currentValue: Readonly<Quat>) {
         return new LayeredQuatPropertyBlendState(currentValue);
     }
+
+    private _layerMask = ~0;
 }
 
 /**
@@ -499,6 +470,16 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
  * used by Creator to implements animation blending.
  *
  * The workflow of a blend state buffer is described as following:
+ *
+ * - Create writers onto the buffer.
+ *
+ *   Through `createWriter()`.
+ *
+ * - Set layer masks.
+ *
+ *   Each layer should set its mask, if any.
+ *
+ * - Call the following steps in every buffer frame.
  *
  * - Change to layer: sample animation.
  *
@@ -575,24 +556,33 @@ class LayeredNodeBlendState extends NodeBlendState<LayeredVec3PropertyBlendState
  * ```
  */
 export class LayeredBlendStateBuffer extends BlendStateBuffer<LayeredNodeBlendState> {
-    public commitLayerChanges (weight: number, excludeNodes: Set<Node> | null) {
+    public setMask (layerIndex: number, excludeNodes: Set<Node>) {
+        if (DEBUG) {
+            checkLayerIndex(layerIndex);
+        }
         this._nodeBlendStates.forEach((nodeBlendState, node) => {
-            if (excludeNodes?.has(node)) {
-                if (DEBUG) {
-                    assertIsTrue(
-                        nodeBlendState.zeroCheck(),
-                        `The layer declares the node is excluded, but it was written.`,
-                    );
-                }
-                return;
+            if (excludeNodes.has(node)) {
+                nodeBlendState.setLayerMask(layerIndex);
             }
-            nodeBlendState.commitLayerChanges(weight);
+        });
+    }
+
+    public commitLayerChanges (layerIndex: number, weight: number) {
+        if (DEBUG) {
+            checkLayerIndex(layerIndex);
+        }
+        this._nodeBlendStates.forEach((nodeBlendState, node) => {
+            nodeBlendState.commitLayerChanges(layerIndex, weight);
         });
     }
 
     protected createNodeBlendState () {
         return new LayeredNodeBlendState();
     }
+}
+
+function checkLayerIndex (layerIndex: number) {
+    assertIsTrue(layerIndex < MAX_ANIMATION_LAYER);
 }
 
 function mixAveragedVec3 (result: Vec3, previous: Readonly<Vec3>, accumulatedWeight: number, input: Readonly<Vec3>, weight: number) {

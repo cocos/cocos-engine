@@ -12,6 +12,7 @@ import { MotionState } from './motion-state';
 import { AnimationMask } from './animation-mask';
 import { debug, warnID } from '../../platform/debug';
 import { BlendStateBuffer, LayeredBlendStateBuffer } from '../../../3d/skeletal-animation/skeletal-animation-blending';
+import { MAX_ANIMATION_LAYER } from '../../../3d/skeletal-animation/limits';
 import { clearWeightsStats, getWeightsStats, graphDebug, graphDebugGroup, graphDebugGroupEnd, GRAPH_DEBUG_ENABLED } from './graph-debug';
 import { AnimationClip } from '../animation-clip';
 import type { AnimationController } from './animation-controller';
@@ -27,6 +28,15 @@ export class AnimationGraphEval {
     };
 
     constructor (graph: AnimationGraph, root: Node, controller: AnimationController) {
+        if (DEBUG) {
+            if (graph.layers.length >= MAX_ANIMATION_LAYER) {
+                throw new Error(
+                    `Max layer count exceeds. `
+                    + `Allowed: ${MAX_ANIMATION_LAYER}, actual: ${graph.layers.length}`,
+                );
+            }
+        }
+
         for (const [name, { type, value }] of graph.variables) {
             this._varInstances[name] = new VarInstance(type, value);
         }
@@ -41,26 +51,39 @@ export class AnimationGraphEval {
             },
         };
 
-        this._layerEvaluations = Array.from(graph.layers).map((layer) => {
+        const layerEvaluations = this._layerEvaluations = Array.from(graph.layers).map((layer) => {
             const layerEval = new LayerEval(layer, {
                 ...context,
                 mask: layer.mask ?? undefined,
             });
             return layerEval;
         });
+
+        // Set layer masks.
+        const nLayers = layerEvaluations.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const mask = graph.layers[iLayer].mask;
+            if (mask) {
+                const excludeNodes = new Set(mask.filterDisabledNodes(context.node));
+                this._blendBuffer.setMask(iLayer, excludeNodes);
+            }
+        }
     }
 
     public update (deltaTime: number) {
+        const {
+            _blendBuffer: blendBuffer,
+            _layerEvaluations: layerEvaluations,
+        } = this;
         graphDebugGroup(`New frame started.`);
         if (GRAPH_DEBUG_ENABLED) {
             clearWeightsStats();
         }
-        for (const layerEval of this._layerEvaluations) {
+        const nLayers = layerEvaluations.length;
+        for (let iLayer = 0; iLayer < nLayers; ++iLayer) {
+            const layerEval = layerEvaluations[iLayer];
             layerEval.update(deltaTime);
-            this._blendBuffer.commitLayerChanges(
-                layerEval.weight,
-                layerEval.excludeNodes,
-            );
+            blendBuffer.commitLayerChanges(iLayer, layerEval.weight);
         }
         if (GRAPH_DEBUG_ENABLED) {
             graphDebug(`Weights: ${getWeightsStats()}`);

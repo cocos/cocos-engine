@@ -1,6 +1,7 @@
 
 import { BlendStateBuffer, BlendStateWriter, BlendStateWriterHost, LayeredBlendStateBuffer, LegacyBlendStateBuffer } from '../../cocos/3d/skeletal-animation/skeletal-animation-blending';
-import { Node, Quat, toRadian, Vec3 } from '../../cocos/core';
+import { approx, Node, Quat, toRadian, Vec3 } from '../../cocos/core';
+import '../utils/matcher-deep-close-to';
 
 describe('Skeletal animation blending', () => {
     function createTestCase<T extends boolean>(legacy: T) {
@@ -297,7 +298,7 @@ describe('Skeletal animation blending', () => {
                 writers2.nodeEulerAngles_all.setValue(new Vec3(toRadian(30.0), 0.0, 0.0));
                 writers3.nodeEulerAngles_all.setValue(new Vec3(toRadian(40.0), 0.0, 0.0));
     
-                blendBuffer.commitLayerChanges(1.0);
+                blendBuffer.commitLayerChanges(0, 1.0);
                 blendBuffer.apply();
     
                 const sumWeight = host1.weight + host2.weight + host3.weight;
@@ -392,7 +393,7 @@ describe('Skeletal animation blending', () => {
 
                 const blendBuffer = new LayeredBlendStateBuffer();
 
-                for (const [layerWeight, layerValue] of layers) {
+                layers.forEach(([layerWeight, layerValue], layerIndex) => {
                     const writerHost: BlendStateWriterHost = { weight: 1.0 };
                     const pWriter = blendBuffer.createWriter(pNode, 'position', writerHost, false);
                     const sWriter = blendBuffer.createWriter(sNode, 'scale', writerHost, false);
@@ -402,8 +403,8 @@ describe('Skeletal animation blending', () => {
                     sWriter.setValue(new Vec3(layerValue, 0.0, 0.0));
                     eWriter.setValue(new Vec3(toRadian(layerValue), 0.0, 0.0));
                     rWriter.setValue(Quat.fromEuler(new Quat(), toRadian(layerValue), 0.0, 0.0));
-                    blendBuffer.commitLayerChanges(layerWeight);
-                }
+                    blendBuffer.commitLayerChanges(0, layerWeight);
+                });
 
                 blendBuffer.apply();
 
@@ -411,6 +412,141 @@ describe('Skeletal animation blending', () => {
                 expect(sNode.scale.x).toBeCloseTo(expected);
                 expect(eNode.eulerAngles.x).toBeCloseTo(toRadian(expected));
                 expect(Quat.equals(rNode.rotation, Quat.fromEuler(new Quat(), toRadian(expected), 0.0, 0.0))).toBeTrue();
+            });
+        });
+
+        describe('Layer mask', () => {
+            const DEFAULT_VALUE = 0.9;
+            const VALUE_0 = 2.0;
+            const VALUE_1 = -5.0;
+            const VALUE_2 = 16.0;
+            const VALUE_1_0 = 999.0;
+            const VALUE_1_1 = 66.0;
+            const VALUE_1_2 = -88.0;
+    
+            test.each([
+                ['Zero layers', [
+                ], [
+                    DEFAULT_VALUE,
+                    DEFAULT_VALUE,
+                    DEFAULT_VALUE,
+                ]],
+
+                ['Single layer; layer mask unspecified', [
+                    [0.3, [VALUE_0, VALUE_1, VALUE_2]],
+                ], [
+                    DEFAULT_VALUE * 0.7 + VALUE_0 * 0.3,
+                    DEFAULT_VALUE * 0.7 + VALUE_1 * 0.3,
+                    DEFAULT_VALUE * 0.7 + VALUE_2 * 0.3,
+                ]],
+
+                ['Single layer; none of the nodes are masked', [
+                    [0.3, [VALUE_0, VALUE_1, VALUE_2], [true, true, true]],
+                ], [
+                    DEFAULT_VALUE * 0.7 + VALUE_0 * 0.3,
+                    DEFAULT_VALUE * 0.7 + VALUE_1 * 0.3,
+                    DEFAULT_VALUE * 0.7 + VALUE_2 * 0.3,
+                ]],
+
+                ['Single layer; all nodes are masked', [
+                    [0.3, [VALUE_0, VALUE_1, VALUE_2], [false, false, false]],
+                ], [
+                    DEFAULT_VALUE,
+                    DEFAULT_VALUE,
+                    DEFAULT_VALUE
+                ]],
+
+                ['Single layer; partial nodes are masked', [
+                    [0.3, [VALUE_0, VALUE_1, VALUE_2], [true, false, true]],
+                ], [
+                    DEFAULT_VALUE * 0.7 + VALUE_0 * 0.3,
+                    DEFAULT_VALUE,
+                    DEFAULT_VALUE * 0.7 + VALUE_2 * 0.3,
+                ]],
+
+                ['Multiple layer; layer mask unspecified', [
+                    [0.3, [VALUE_0, VALUE_1, VALUE_2], [true, false, true]],
+                    [0.4, [VALUE_1_0, VALUE_1_1, VALUE_1_2]],
+                ], [
+                    (DEFAULT_VALUE * 0.7 + VALUE_0 * 0.3) * 0.6 + VALUE_1_0 * 0.4,
+                    (DEFAULT_VALUE) * 0.6 + VALUE_1_1 * 0.4,
+                    (DEFAULT_VALUE * 0.7 + VALUE_2 * 0.3) * 0.6 + VALUE_1_2 * 0.4,
+                ]],
+
+                ['Multiple layer; none of the nodes are masked', [
+                    [0.3, [VALUE_0, VALUE_1, VALUE_2], [true, false, true]],
+                    [0.4, [VALUE_1_0, VALUE_1_1, VALUE_1_2], [true, true, true]],
+                ], [
+                    (DEFAULT_VALUE * 0.7 + VALUE_0 * 0.3) * 0.6 + VALUE_1_0 * 0.4,
+                    (DEFAULT_VALUE) * 0.6 + VALUE_1_1 * 0.4,
+                    (DEFAULT_VALUE * 0.7 + VALUE_2 * 0.3) * 0.6 + VALUE_1_2 * 0.4,
+                ]],
+
+                ['Multiple layer; interleaved', [
+                    [0.3, [VALUE_0, VALUE_1, VALUE_2], [true, false, true]],
+                    [0.4, [VALUE_1_0, VALUE_1_1, VALUE_1_2], [true, true, false]],
+                ], [
+                    (DEFAULT_VALUE * 0.7 + VALUE_0 * 0.3) * 0.6 + VALUE_1_0 * 0.4,
+                    (DEFAULT_VALUE) * 0.6 + VALUE_1_1 * 0.4,
+                    DEFAULT_VALUE * 0.7 + VALUE_2 * 0.3,
+                ]],
+            ] as Array<[
+                title: string,
+                layers: Array<[weight: number, values: [number | null, number | null, number | null], mask?: [boolean, boolean, boolean]]>,
+                expected: [number, number, number],
+            ]>)(`%s`, (_title, layers, expected) => {
+                const nodes = Array.from({ length: 3 }, () => {
+                    const node = new Node();
+                    node.setPosition(new Vec3(DEFAULT_VALUE, 0.0, 0.0));
+                    return node;
+                });
+
+                const blendBuffer = new LayeredBlendStateBuffer();
+
+                // Create writers
+                const layerWriters = layers.map(([, layerValues, ]) => {
+                    const writerHost: BlendStateWriterHost = { weight: 1.0 };
+                    const writers = Array.from({ length: 3 }, (_, iNode) => {
+                        const value = layerValues[iNode];
+                        if (typeof value === 'number') {
+                            return blendBuffer.createWriter(nodes[iNode], 'position', writerHost, false);
+                        } else {
+                            return null;
+                        }
+                    });
+                    return writers;
+                });
+
+                // Apply mask
+                layers.forEach(([, , mask], layerIndex) => {
+                    if (mask) {
+                        blendBuffer.setMask(
+                            layerIndex,
+                            new Set(
+                                mask.map((on, nodeIndex) => on ? null : nodes[nodeIndex]).filter((node) => !!node),
+                            ),
+                        );
+                    }
+                });
+
+                // Change, and commit
+                layers.forEach(([weight, layerValues, mask], layerIndex) => {
+                    for (let iValue = 0; iValue < 3; ++iValue) {
+                        const writer = layerWriters[layerIndex][iValue];
+                        const value = layerValues[iValue];
+                        if (typeof value === 'number'
+                            && (!mask || mask[iValue]) // TODO: we really do not want to enforce this constraint.
+                        ) {
+                            writer!.setValue(new Vec3(value));
+                        }
+                    }
+
+                    blendBuffer.commitLayerChanges(layerIndex, weight);
+                });
+
+                blendBuffer.apply();
+
+                expect(nodes.map((node) => node.position.x)).toBeDeepCloseTo(expected, 5);
             });
         });
     });
