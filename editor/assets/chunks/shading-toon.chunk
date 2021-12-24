@@ -72,6 +72,9 @@ struct ToonSurface {
   #endif
 
   vec4 CCToonShading (ToonSurface s) {
+    vec3 position;
+    HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+    
     vec3 V = normalize(cc_cameraPos.xyz - position);
     vec3 N = normalize(s.normal);
 
