@@ -28,7 +28,7 @@ import {
 import { legacyCC } from '../global-exports';
 import { SceneGlobals } from './scene-globals';
 import { Node } from './node';
-import { applyTargetOverrides } from "../utils/prefab/utils";
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "../utils/prefab/utils";
 import { EDITOR, TEST } from "../default-constants";
 import { assert } from "../platform/debug";
 import { updateChildrenForDeserialize } from '../utils/jsb-utils';
@@ -126,8 +126,6 @@ sceneProto._onBatchCreated = function(dontSyncChildPrefab: boolean) {
         this.children[i]._siblingIndex = i;
         this._children[i]._onBatchCreated(dontSyncChildPrefab);
     }
-
-    applyTargetOverrides(this);
 };
 
 const oldLoad = sceneProto._load;
@@ -137,6 +135,9 @@ sceneProto._load = function () {
         if (TEST) {
             assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
         }
+
+        expandNestedPrefabInstanceNode(this);
+        applyTargetOverrides(this);
         this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
         this._inited = true;
     }

@@ -27,18 +27,4 @@ import { legacyCC } from '../global-exports';
 
 export const Layers = jsb.Layers;
 export type Layers = jsb.Layers;
-// built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
-const layerList = {
-    NONE: 0,
-    IGNORE_RAYCAST: (1 << 20),
-    GIZMOS: (1 << 21),
-    EDITOR: (1 << 22),
-    UI_3D: (1 << 23),
-    SCENE_GIZMO: (1 << 24),
-    UI_2D: (1 << 25),
-
-    PROFILER: (1 << 28),
-    DEFAULT: (1 << 30),
-    ALL: 0xffffffff,
-};
 legacyCC.Layers = Layers;

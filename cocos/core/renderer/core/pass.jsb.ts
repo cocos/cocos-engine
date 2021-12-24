@@ -28,16 +28,16 @@ import {
     _assertThisInitialized,
     _initializerDefineProperty,
 } from '../data/utils/decorator-jsb-utils';
-import { IPassInfo, IPassStates } from "../../assets/effect-asset";
 import { MacroRecord } from "./pass-utils";
+import { EffectAsset } from '../../assets/effect-asset';
 
-export interface IPassInfoFull extends IPassInfo {
+export interface IPassInfoFull extends EffectAsset.IPassStates {
     // generated part
     passIndex: number;
     defines: MacroRecord;
     stateOverrides?: PassOverrides;
 }
-export type PassOverrides = RecursivePartial<IPassStates>;
+export type PassOverrides = RecursivePartial<EffectAsset.IPassStates>;
 
 export interface IMacroPatch {
     name: string;
