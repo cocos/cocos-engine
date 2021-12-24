@@ -48,7 +48,7 @@ public:
 
     void clear();
     void gatherLightPasses(const scene::Camera *, const scene::Light *, gfx::CommandBuffer *);
-    void add(const scene::Model *, gfx::CommandBuffer *);
+    void add(const scene::Model *);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *) const;
 
 private:
