@@ -95,7 +95,7 @@ CCProgram lighting-fs %{
 
     s.albedo = albedoMap;
     vec3 position = positionMap.xyz;
-    s.position = position;
+    HIGHP_VALUE_TO_STRUCT_DEFINED(position, s.position);
     s.roughness = positionMap.w;
     s.normal = normalMap.xyz;
     s.metallic = normalMap.w;

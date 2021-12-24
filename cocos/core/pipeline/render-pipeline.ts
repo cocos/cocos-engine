@@ -49,7 +49,7 @@ import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../../pal/system-info/enum-type';
-import { macro } from '..';
+import { macro } from '../platform/macro';
 
 /**
  * @en Render pipeline information descriptor
