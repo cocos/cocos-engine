@@ -6,7 +6,7 @@ jobs:
     runs-on: run-test-win01
 
     steps:
-      - name: 'Checkout engine-native'
+      - name: 'Checkout engine'
         uses: actions/checkout@v2
         with:
           path: engine
