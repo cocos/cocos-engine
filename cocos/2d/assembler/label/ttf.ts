@@ -51,7 +51,7 @@ export const ttf: IAssembler = {
         renderData.vertexCount = 4;
         renderData.indexCount = 6;
 
-        const vData =  renderData.vData = new Float32Array(4 * 9);
+        const vData = renderData.chunk.vb;
 
         vData[3] = vData[21] = vData[22] = vData[31] = 0;
         vData[4] = vData[12] = vData[13] = vData[30] = 1;

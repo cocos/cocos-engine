@@ -98,6 +98,8 @@ export class MeshBuffer {
     public destroy () {
         this.reset();
         this._attributes = null!;
+        this.vData = null!;
+        this.iData = null!;
 
         if (this._vertexBuffers[0]) {
             this._vertexBuffers[0].destroy();
@@ -108,9 +110,6 @@ export class MeshBuffer {
             this._indexBuffer.destroy();
         }
         this._indexBuffer = null!;
-
-        this.vData = null;
-        this.iData = null;
 
         // Destroy InputAssemblers
         for (let i = 0; i < this._iaPool.length; ++i) {
@@ -150,7 +149,7 @@ export class MeshBuffer {
         }
     }
 
-    public ensureCapacity (vertexCount: number, indexCount: number) {
+    public checkCapacity (vertexCount: number, indexCount: number) {
         const maxVertex = this.vertexOffset + vertexCount;
         const maxIndex = this.indexOffset + indexCount;
         if (maxVertex > this._initVDataCount || maxIndex > this._initIDataCount) {

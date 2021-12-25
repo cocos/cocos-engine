@@ -35,23 +35,24 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
+// const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * simple 组装器
  * 可通过 `UI.simple` 获取该组装器。
  */
 export const simple: IAssembler = {
-    vertexDirty: false,
-
     createData (sprite: Sprite) {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 2;
         renderData.resize(4, 6);
+        // renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
@@ -87,10 +88,11 @@ export const simple: IAssembler = {
         }
     },
 
-    updateWorldVerts (sprite: Sprite, vData: Float32Array) {
-        const renderData = sprite.renderData;
+    updateWorldVerts (sprite: Sprite, chunk: StaticVBChunk) {
+        const renderData = sprite.renderData!;
+        const vData = chunk.vb;
 
-        const dataList: IRenderData[] = renderData!.data;
+        const dataList: IRenderData[] = renderData.data;
         const node = sprite.node;
 
         const data0 = dataList[0];
@@ -147,43 +149,36 @@ export const simple: IAssembler = {
             vData[27] = ar + cttx;
             vData[28] = br + dtty;
         }
-        this.vertexDirty = true;
     },
 
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
         if (sprite === null) {
             return;
         }
-
-        const vData = sprite.renderData!.vData!;
-        if (sprite.node.hasChangedFlags) {
-            this.updateWorldVerts(sprite, vData);
-        }
-        const VBChunk = sprite.VBChunk!;
-        // 更新 VB // 通过 dirty flag 来进行判断？
-        if (this.vertexDirty) {
-            const VB = VBChunk.vertexAccessor.getVertexBuffer(VBChunk.bufferId);
-            VB.set(vData, VBChunk.vertexOffset * VBChunk.vertexAccessor.floatsPerVertex);
-            this.vertexDirty = false;
+        const renderData = sprite.renderData!;
+        const chunk = renderData.chunk;
+        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+            // const vb = chunk.vertexAccessor.getVertexBuffer(chunk.bufferId);
+            this.updateWorldVerts(sprite, chunk);
         }
 
         // quick version
-        // const index0 = VBChunk.vertexOffset; const index1 = VBChunk.vertexOffset + 1;
-        // const index2 = VBChunk.vertexOffset + 2; const index3 = VBChunk.vertexOffset + 3;
-        // const meshBuffer = VBChunk.vertexAccessor.getMeshBuffer(VBChunk.bufferId);
-        // const IB = meshBuffer.iData!;
-        // let indexOffset = meshBuffer.indexOffset;
-        // IB[indexOffset++] = index0;
-        // IB[indexOffset++] = index1;
-        // IB[indexOffset++] = index2;
-        // IB[indexOffset++] = index2;
-        // IB[indexOffset++] = index1;
-        // IB[indexOffset++] = index3;
-        // meshBuffer.indexOffset += 6;
-        // meshBuffer.setDirty();
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        let indexOffset = meshBuffer.indexOffset;
+        ib[indexOffset++] = vid;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 3;
+        meshBuffer.indexOffset += 6;
+        meshBuffer.setDirty();
 
         // slow version
-        renderer.getBufferAccessor().appendIndices(VBChunk);
+        // renderer.getBufferAccessor().appendIndices(chunk);
     },
 
     updateVertexData (sprite: Sprite) {
@@ -234,13 +229,11 @@ export const simple: IAssembler = {
         dataList[1].x = r;
         dataList[1].y = t;
 
-        renderData.vertDirty = false;
-        this.updateWorldVerts(sprite, renderData.vData);
+        renderData.vertDirty = true;
     },
 
     updateUvs (sprite: Sprite) {
-        const renderData = sprite.renderData!;
-        const vData = renderData.vData!;
+        const vData = sprite.renderData!.chunk.vb;
         const uv = sprite.spriteFrame!.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
@@ -256,7 +249,7 @@ export const simple: IAssembler = {
     },
 
     updateColor (sprite: Sprite) {
-        const vData = sprite.renderData!.vData;
+        const vData = sprite.renderData!.chunk.vb;
 
         let colorOffset = 5;
         const color = sprite.color;

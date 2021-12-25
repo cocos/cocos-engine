@@ -141,7 +141,7 @@ export class LinearBufferAccessor extends BufferAccessor {
         const byteLength = buf.vData.byteLength;
         const indicesLength = buf.iData.length;
         if (byteOffset > byteLength || indexOffset > indicesLength) {
-            const success = buf.ensureCapacity(vertexCount, indexCount);
+            const success = buf.checkCapacity(vertexCount, indexCount);
             // No enough space in the current mesh buffer
             if (!success) {
                 this._allocateBuffer();
