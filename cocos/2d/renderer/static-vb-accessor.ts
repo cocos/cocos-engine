@@ -46,7 +46,10 @@ const _entryPool = new Pool<IFreeEntry>(() => ({
 }), 32);
 
 export class StaticVBChunk {
-    // public ib: Uint16Array;
+    public get ib (): Readonly<Uint16Array> {
+        return this._ib;
+    }
+    private _ib: Uint16Array;
     constructor (
         public vertexAccessor: StaticVBAccessor,
         public bufferId: number,
@@ -54,15 +57,15 @@ export class StaticVBChunk {
         public vb: Float32Array,
         indexCount: number,
     ) {
-        // this.ib = new Uint16Array(indexCount);
+        this._ib = new Uint16Array(indexCount);
     }
-    // setIndexBuffer (indices: ArrayLike<number>) {
-    //     assertIsTrue(indices.length === this.ib.length);
-    //     for (let i = 0; i < indices.length; ++i) {
-    //         const vid = indices[i];
-    //         this.ib[i] = this.vertexOffset + vid;
-    //     }
-    // }
+    setIndexBuffer (indices: ArrayLike<number>) {
+        assertIsTrue(indices.length === this._ib.length);
+        for (let i = 0; i < indices.length; ++i) {
+            const vid = indices[i];
+            this._ib[i] = this.vertexOffset + vid;
+        }
+    }
 }
 
 export class StaticVBAccessor extends BufferAccessor {
@@ -109,11 +112,6 @@ export class StaticVBAccessor extends BufferAccessor {
         return this._buffers[bid].iData;
     }
 
-    // hack
-    public getMeshBuffer (bid: number): MeshBuffer {
-        return this._buffers[bid];
-    }
-
     public uploadBuffers () {
         for (let i = 0; i < this._buffers.length; ++i) {
             const firstEntry = this._freeLists[i][0];
@@ -127,21 +125,26 @@ export class StaticVBAccessor extends BufferAccessor {
     }
 
     public appendIndices (vbChunk: StaticVBChunk) {
-        // const buf = this._buffers[vbChunk.bufferId];
-        // // Vertex format check
-        // // assertIsTrue(vbChunk.vb.byteLength / vbChunk.vertexCount === this.vertexFormatBytes);
-        // assertIsTrue(vbChunk.bufferId === this._currBID || this._currBID === -1);
-        // const vCount = vbChunk.ib.length;
-        // if (vCount) {
-        //     if (this._currBID === -1) {
-        //         this._currBID = vbChunk.bufferId;
-        //         this._indexStart = buf.indexOffset;
-        //     }
-        //     // Append index buffer
-        //     buf.iData.set(vbChunk.ib, buf.indexOffset);
-        //     buf.indexOffset += vbChunk.ib.length;
-        //     buf.setDirty();
-        // }
+        const buf = this._buffers[vbChunk.bufferId];
+        // Vertex format check
+        // assertIsTrue(vbChunk.vb.byteLength / vbChunk.vertexCount === this.vertexFormatBytes);
+        assertIsTrue(vbChunk.bufferId === this._currBID || this._currBID === -1);
+        const vCount = vbChunk.ib.length;
+        if (vCount) {
+            if (this._currBID === -1) {
+                this._currBID = vbChunk.bufferId;
+                this._indexStart = buf.indexOffset;
+            }
+            // Append index buffer
+            const ib = vbChunk.ib;
+            const iData = buf.iData;
+            let offset = buf.indexOffset;
+            for (let i = 0; i < ib.length; ++i) {
+                iData[offset++] = ib[i];
+            }
+            buf.indexOffset = offset;
+            buf.setDirty();
+        }
     }
 
     public recordBatch (bid: number) {

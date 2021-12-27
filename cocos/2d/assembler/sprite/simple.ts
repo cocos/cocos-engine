@@ -41,7 +41,7 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
-// const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
+const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * simple 组装器
@@ -52,7 +52,7 @@ export const simple: IAssembler = {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 2;
         renderData.resize(4, 6);
-        // renderData.chunk.setIndexBuffer(QUAD_INDICES);
+        renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
@@ -70,6 +70,7 @@ export const simple: IAssembler = {
         //     }
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        // TODO update material and uv
         // @ts-expect-error hack
         if (UI_GPU_DRIVEN && sprite._canDrawByFourVertex) {
             sprite._updateUVWithTrim();
@@ -162,23 +163,7 @@ export const simple: IAssembler = {
             this.updateWorldVerts(sprite, chunk);
         }
 
-        // quick version
-        const bid = chunk.bufferId;
-        const vid = chunk.vertexOffset;
-        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
-        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
-        let indexOffset = meshBuffer.indexOffset;
-        ib[indexOffset++] = vid;
-        ib[indexOffset++] = vid + 1;
-        ib[indexOffset++] = vid + 2;
-        ib[indexOffset++] = vid + 2;
-        ib[indexOffset++] = vid + 1;
-        ib[indexOffset++] = vid + 3;
-        meshBuffer.indexOffset += 6;
-        meshBuffer.setDirty();
-
-        // slow version
-        // renderer.getBufferAccessor().appendIndices(chunk);
+        renderer.getBufferAccessor().appendIndices(chunk);
     },
 
     updateVertexData (sprite: Sprite) {
