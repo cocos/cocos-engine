@@ -13,7 +13,8 @@ jobs:
 
       - name: 'npm install'
         run: |
-          cd engine && npm install
+          cd engine
+          npm install
 
       - name: 'CocosCreator version'
         shell: bash
