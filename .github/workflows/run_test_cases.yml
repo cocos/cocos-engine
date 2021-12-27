@@ -15,7 +15,6 @@ jobs:
         run: |
           cd engine
           npm -v
-          npm install npm -g
           npm install --registry https://registry.npm.taobao.org
 
       - name: 'CocosCreator version'
