@@ -12,7 +12,6 @@ jobs:
           path: engine
 
       - name: 'npm install'
-        shell: bash
         run: |
           cd engine && npm install
 
