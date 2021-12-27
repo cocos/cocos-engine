@@ -282,7 +282,7 @@ export class Tween<T> {
      */
     repeat (repeatTimes: number, embedTween?: Tween<T>): Tween<T> {
         /** adapter */
-        if (repeatTimes == Infinity) {
+        if (repeatTimes === Infinity) {
             return this.repeatForever(embedTween);
         }
 
