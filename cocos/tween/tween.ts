@@ -397,7 +397,7 @@ export class Tween<T> {
      * 停止所有指定标签的缓动
      */
     static stopAllByTag (tag: number, target?: object) {
-        TweenSystem.instance.ActionManager.removeActionByTag(tag, target as any);
+        TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target as any);
     }
     /**
      * @en
