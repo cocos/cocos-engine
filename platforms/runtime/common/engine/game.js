@@ -2,8 +2,7 @@ cc.game.restart = function () {
 };
 
 cc.game._setAnimFrame = function () {
-    this._lastTime = performance.now();
-    const frameRate = this.config.frameRate;
+    const frameRate = this._frameRate;
     this._frameTime = 1000 / frameRate;
     ral.setPreferredFramesPerSecond(frameRate);
     window.rAF = window.requestAnimationFrame;
