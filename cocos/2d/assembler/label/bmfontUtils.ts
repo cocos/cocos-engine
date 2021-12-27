@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { screenAdapter } from 'pal/screen-adapter';
 import { BitmapFont, IConfig, FontLetterDefinition } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { isUnicodeCJK, isUnicodeSpace } from '../../utils/text-utils';
@@ -81,8 +82,13 @@ let _isWrapText = false;
 let _labelWidth = 0;
 let _labelHeight = 0;
 let _maxLineWidth = 0;
+let _enableDpr = false;
+const _dpr = Math.floor(screenAdapter.devicePixelRatio);
 
 export const bmfontUtils = {
+    enableDpr (v: boolean) {
+        _enableDpr = v;
+    },
     updateRenderData (comp: Label) {
         if (!comp.renderData) {
             return;
@@ -139,6 +145,7 @@ export const bmfontUtils = {
         _string = comp.string.toString();
         _fontSize = comp.fontSize;
         _originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
+        if (_enableDpr) _originFontSize *= _dpr;
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _spacingX = comp.spacingX;
