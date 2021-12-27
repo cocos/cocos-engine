@@ -1,6 +1,6 @@
 import { Pool } from './memop';
 import { warnID } from './platform';
-import { Batcher2D } from '../2d/renderer/batcher-2d';
+import { IBatcher } from '../2d/renderer/i-batcher';
 import legacyCC from '../../predefine';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { Device } from './gfx';
@@ -28,7 +28,7 @@ const rootProto: any = Root.prototype;
 Object.defineProperty(rootProto, 'batcher2D', {
     configurable: true,
     enumerable: true,
-    get () : Batcher2D {
+    get () : IBatcher {
         return this._batcher;
     },
 });
@@ -52,19 +52,13 @@ rootProto._ctor = function (device: Device) {
 rootProto.initialize = function (info: IRootInfo) {
     // TODO:
     this._initialize(legacyCC.game._swapchain);
-    return Promise.resolve(builtinResMgr.initBuiltinRes(this.device)).then(() => {
-        legacyCC.view.on('design-resolution-changed', () => {
-            const width = legacyCC.game.canvas.width;
-            const height = legacyCC.game.canvas.height;
-            this.resize(width, height);
-        }, this);
-    });
+    return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 };
 
 rootProto.createModel = function (ModelCtor) {
     let p = this._modelPools.get(ModelCtor);
     if (!p) {
-        this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10));
+        this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
         p = this._modelPools.get(ModelCtor)!;
     }
     const model = p.alloc();
@@ -88,7 +82,7 @@ rootProto.removeModel = function (m) {
 rootProto.createLight = function (LightCtor) {
     let l = this._lightPools.get(LightCtor);
     if (!l) {
-        this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4));
+        this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4, (obj) => obj.destroy()));
         l = this._lightPools.get(LightCtor)!;
     }
     const light = l.alloc();
@@ -118,7 +112,7 @@ rootProto.destroyLight = function (l) {
 
 rootProto._onBatch2DInit = function () {
     if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this) as Batcher2D;
+        this._batcher = new legacyCC.internal.Batcher2D(this) as IBatcher;
         if (!this._batcher.initialize()) {
             this.destroy();
             return false;
