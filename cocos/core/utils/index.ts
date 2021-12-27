@@ -36,11 +36,6 @@ import * as misc from './misc';
  */
 import * as path from './path';
 
-/**
- * 默认的jsb-bridge通讯管理机制
- */
-//export * from './js-event-handler';
-
 export * from './x-deprecated';
 export * from './murmurhash2_gc';
 export { PrefabLink } from './prefab-link';
