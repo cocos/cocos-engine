@@ -20,7 +20,7 @@ jobs:
       - name: 'CocosCreator version'
         shell: bash
         run: |
-          echo ${{github.base_ref}}
+          echo "CocosCreator Version: ${{github.base_ref}}"
 
       - name: 'Call run test cases job'
         run: |
