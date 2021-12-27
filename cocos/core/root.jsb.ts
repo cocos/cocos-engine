@@ -51,7 +51,7 @@ rootProto._ctor = function (device: Device) {
 
 rootProto.initialize = function (info: IRootInfo) {
     // TODO:
-    this._initialize();
+    this._initialize(legacyCC.game._swapchain);
     return Promise.resolve(builtinResMgr.initBuiltinRes(this._device));
 };
 
