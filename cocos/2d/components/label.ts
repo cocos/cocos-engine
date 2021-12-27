@@ -722,10 +722,6 @@ export class Label extends Renderable2D {
         this._applyFontTexture();
     }
 
-    public onDisable () {
-        super.onDisable();
-    }
-
     public onDestroy () {
         if (this._assembler && this._assembler.resetAssemblerData) {
             this._assembler.resetAssemblerData(this._assemblerData!);
