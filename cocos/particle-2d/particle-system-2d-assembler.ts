@@ -41,6 +41,9 @@ export const ParticleAssembler: IAssembler = {
     createData (comp: ParticleSystem2D) {
         return MeshRenderData.add();
     },
+    removeData (data) {
+        MeshRenderData.remove(data);
+    },
     updateRenderData () {
     },
     fillBuffers (comp: ParticleSystem2D, renderer: IBatcher) {
@@ -60,6 +63,7 @@ export const ParticleAssembler: IAssembler = {
         const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
         if (!isRecreate) {
             buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
             indicesOffset = 0;
             vertexId = 0;
         }
@@ -71,9 +75,6 @@ export const ParticleAssembler: IAssembler = {
         const vData = renderData.vData;
         const iData = renderData.iData as number[];
 
-        renderData.cacheBuffer = buffer;
-        renderData.bufferOffset = vertexOffset;
-
         const vLen = renderData.vertexCount * 9;
         for (let i = 0; i < vLen; i++) {
             vBuf[vertexOffset++] = vData[i];
@@ -83,30 +84,6 @@ export const ParticleAssembler: IAssembler = {
         for (let i = 0; i < iLen; i++) {
             iBuf[indicesOffset++] = iData[i] + vertexId;
         }
-    },
-    fillCacheBuffer (comp: ParticleSystem2D) {
-        if (comp === null) {
-            return;
-        }
-
-        const renderData = comp._simulator.renderData;
-        if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
-            return;
-        }
-
-        const buffer = renderData.cacheBuffer!;
-        let vertexOffset = renderData.bufferOffset;
-
-        // buffer data may be realloc, need get reference after request.
-        const vBuf = buffer.vData!;
-
-        const vData = renderData.vData;
-
-        const vLen = renderData.vertexCount * 9;
-        for (let i = 0; i < vLen; i++) {
-            vBuf[vertexOffset++] = vData[i];
-        }
-        buffer.setDirty();
     },
 };
 

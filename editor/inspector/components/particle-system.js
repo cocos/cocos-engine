@@ -37,7 +37,7 @@ exports.template = /* html*/`
         <!-- Render other data that has not taken over -->
         <div id="customProps">
         </div>
-        <ui-section key="renderCulling" cache-expand="particle-system-cullingMode">
+        <ui-section key="renderCulling" autoExpand cache-expand="particle-system-cullingMode">
             <ui-prop slot="header" class="header" empty="true" labelflag="renderCulling" key="renderCulling">
                 <ui-label></ui-label>
                 <ui-checkbox></ui-checkbox>
@@ -308,13 +308,22 @@ const uiElements = {
             this.$.resetBounds.addEventListener('confirm', async () => {
                 const nodeDumps = this.dump.value.node.values || [this.dump.value.node.value];
                 const componentUUIDs = this.dump.value.uuid.values || [this.dump.value.uuid.value];
-                await Promise.all(componentUUIDs.map(uuid =>
-                    Editor.Message.request('scene', 'execute-component-method', {
-                        uuid,
-                        name: '_calculateBounding',
-                        args: [true],
-                    }))
-                );
+                await Promise.all(componentUUIDs.map(uuid => {
+                    return new Promise((res) => {
+                        Editor.Message.request('scene', 'execute-component-method', {
+                            uuid,
+                            name: '_calculateBounding',
+                            args: [true],
+                        }).then(() => {
+                            Editor.Message.request('scene', 'execute-component-method', {
+                                uuid,
+                                name: 'gizmo.onNodeChanged',
+                                args: [],
+                            });
+                            res();
+                        });
+                    });
+                }));
                 nodeDumps.forEach(dump => {
                     Editor.Message.broadcast('scene:change-node', dump.uuid);
                 });
@@ -328,6 +337,14 @@ const uiElements = {
     uiSections: {
         ready() {
             this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section');
+            this.$.uiSections.forEach((element) => {
+                // expand when checkbox enable
+                if (element.hasAttribute('autoExpand')) {
+                    element.addEventListener('checkbox-enable', () => {
+                        element.setAttribute('expand', 'expand');
+                    });
+                }
+            });
         },
         update() {
             this.$.uiSections.forEach((element) => {
@@ -472,6 +489,9 @@ const uiElements = {
                 });
                 if (isEmpty) {
                     if (isHeader) {
+                        /**
+                         * @type {HTMLInputElement}
+                         */
                         const checkbox = element.querySelector('ui-checkbox');
                         if (checkbox) {
                             checkbox.addEventListener('change', (event) => {
@@ -482,6 +502,11 @@ const uiElements = {
                                 }
                                 dump.value = value;
                                 element.dispatch('change-dump');
+                                if (value) {
+                                    // bubbles the event when value is true
+                                    const event = new Event('checkbox-enable', { bubbles: true, cancelable: true });
+                                    checkbox.dispatchEvent(event);
+                                }
                             });
                         }
                     }

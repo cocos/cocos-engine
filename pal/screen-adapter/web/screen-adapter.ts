@@ -255,11 +255,19 @@ class ScreenAdapter extends EventTarget {
         this._gameContainer = document.getElementById('Cocos3dGameContainer') as HTMLDivElement;
         this._gameCanvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
         // Compability with old preview or build template in Editor.
-        if (!TEST && !EDITOR && !this._gameContainer) {
-            this._gameContainer = document.createElement<'div'>('div');
-            this._gameContainer.setAttribute('id', 'Cocos3dGameContainer');
-            this._gameCanvas?.parentNode?.insertBefore(this._gameContainer, this._gameCanvas);
-            this._gameContainer.appendChild(this._gameCanvas);
+        if (!TEST && !EDITOR) {
+            if (!this._gameFrame) {
+                this._gameFrame = document.createElement<'div'>('div');
+                this._gameFrame.setAttribute('id', 'GameDiv');
+                this._gameCanvas?.parentNode?.insertBefore(this._gameFrame, this._gameCanvas);
+                this._gameFrame.appendChild(this._gameCanvas);
+            }
+            if (!this._gameContainer) {
+                this._gameContainer = document.createElement<'div'>('div');
+                this._gameContainer.setAttribute('id', 'Cocos3dGameContainer');
+                this._gameCanvas?.parentNode?.insertBefore(this._gameContainer, this._gameCanvas);
+                this._gameContainer.appendChild(this._gameCanvas);
+            }
         }
 
         let fnList: Array<string>;

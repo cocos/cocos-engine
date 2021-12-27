@@ -211,7 +211,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
                     // @ts-expect-error private member access
                     childNode._siblingIndex = target._children.length - 1;
-                    expandPrefabInstanceNode(childNode);
+                    expandPrefabInstanceNode(childNode, true);
                 }
             }
         }
@@ -399,7 +399,7 @@ export function applyTargetOverrides (node: BaseNode) {
     }
 }
 
-export function expandPrefabInstanceNode (node: Node) {
+export function expandPrefabInstanceNode (node: Node, recursively = false) {
     // @ts-expect-error private member access
     const prefabInfo = node._prefab;
     const prefabInstance = prefabInfo?.instance;
@@ -414,6 +414,14 @@ export function expandPrefabInstanceNode (node: Node) {
         applyRemovedComponents(node, prefabInstance.removedComponents, targetMap);
         applyMountedComponents(node, prefabInstance.mountedComponents, targetMap);
         applyPropertyOverrides(node, prefabInstance.propertyOverrides, targetMap);
+    }
+
+    if (recursively) {
+        if (node && node.children) {
+            node.children.forEach((child) => {
+                expandPrefabInstanceNode(child, true);
+            });
+        }
     }
 }
 

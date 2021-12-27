@@ -325,7 +325,7 @@ module.exports = {
             'illegal-inspector-url': "Inspector's URL is not valid",
         },
         animationGraph: {
-            edit: 'Edit in the Animation Graph panel',
+            edit: 'Edit',
         },
         multipleWarning: 'Multi-select editing of this type of asset is not supported',
     },
