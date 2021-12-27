@@ -11,6 +11,11 @@ jobs:
         with:
           path: engine
 
+      - name: 'npm install'
+        shell: bash
+        run: |
+          cd engine && npm install
+
       - name: 'CocosCreator version'
         shell: bash
         run: |
