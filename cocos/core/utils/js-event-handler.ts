@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import { JSB } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 export type JsCallback = (arg: string) => void;
@@ -42,9 +41,7 @@ class JsEventHandler {
      * Trigger native event on JAVA or Objective-C with a string type argeter
      */
     public sendToNative (event: string, arg?: string) {
-        if (JSB) {
-            jsb.bridge.sendToNative(event, arg);
-        }
+        jsb.bridge.sendToNative(event, arg);
     }
     /**
      * Remove callback for certain event.

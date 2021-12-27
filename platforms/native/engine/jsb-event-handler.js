@@ -38,7 +38,7 @@ const JsEventHandler = {
     /**
      * Trigger native event on JAVA or Objective-C with a string type argeter
      */
-    sendToNative (event, arg) {
+    dispatchNativeEvent (event, arg) {
         jsb.bridge.sendToNative(event, arg);
     },
     /**
@@ -72,7 +72,8 @@ const JsEventHandler = {
     },
     triggerEvent (event, arg) {
         if (!this.eventMap.get(event)) {
-            console.log('Function '.concat(event, ' not exist'));
+            console.error(`${event} does not exist`);
+            return;
         }
         const arr = this.eventMap.get(event);
         arr.map((f) => f.call(null, arg));

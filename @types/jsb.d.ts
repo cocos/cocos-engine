@@ -145,7 +145,7 @@ declare namespace jsb {
     export type JsCallback = (arg: string) => void;
     export namespace jsEventHandler {
         export function addCallback(event: string, callback: JsCallback);
-        export function sendToNative(event: string, arg: string);
+        export function dispatchNativeEvent(event: string, arg?: string);
         export function removeEvent(event: string);
         export function removeCallback(event: string, callback: JsCallback);
     }
