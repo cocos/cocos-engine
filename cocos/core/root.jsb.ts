@@ -42,6 +42,7 @@ Object.defineProperty(rootProto, 'dataPoolManager', {
 });
 
 rootProto._ctor = function (device: Device) {
+    this._device = device;
     this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
     this._modelPools = new Map();
     this._lightPools = new Map();
