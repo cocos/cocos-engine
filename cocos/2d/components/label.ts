@@ -206,11 +206,12 @@ export class Label extends Renderable2D {
         return this._string;
     }
     set string (value) {
-        if (value) {
-            value += '';
-        } else {
+        if (value === null || value === undefined) {
             value = '';
+        } else {
+            value = value.toString();
         }
+
         if (this._string === value) {
             return;
         }
@@ -720,10 +721,6 @@ export class Label extends Renderable2D {
         }
 
         this._applyFontTexture();
-    }
-
-    public onDisable () {
-        super.onDisable();
     }
 
     public onDestroy () {
