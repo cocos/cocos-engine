@@ -185,7 +185,7 @@ textureBaseProto.getHash = function () {
     return this._textureHash;
 };
 
-const oldGetSamplerInfo = textureBaseProto.GetSamplerInfo;
+const oldGetSamplerInfo = textureBaseProto.getSamplerInfo;
 textureBaseProto.getSamplerInfo = function () {
     if (!this._samplerInfo) {
         this._samplerInfo = oldGetSamplerInfo.call(this);
