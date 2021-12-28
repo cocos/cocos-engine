@@ -997,16 +997,15 @@ nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
     this.rotateForJS();
 };
 
-// nodeProto.addChild = function (child: Node): void {
-//     jsb.registerNativeRef(this, child); // Root JSB object to avoid child node being garbage collected
-//     child.setParent(this);
-// };
-//
-// nodeProto.insertChild = function (child: Node, siblingIndex: number) {
-//     child.parent = this;
-//     child.setSiblingIndex(siblingIndex);
-// };
-//
+nodeProto.addChild = function (child: Node): void {
+    child.setParent(this);
+};
+
+nodeProto.insertChild = function (child: Node, siblingIndex: number) {
+    child.parent = this;
+    child.setSiblingIndex(siblingIndex);
+};
+
 // nodeProto.removeFromParent = function () {
 //     if (this._parent) {
 //         this._parent.removeChild(this);
@@ -1018,7 +1017,7 @@ nodeProto.rotate = function (rot: Quat, ns?: NodeSpace): void {
 //     oldRemoveChild.call(this, child);
 //     jsb.unregisterNativeRef(this, child);
 // };
-
+//
 // const oldRemoveAllChildren = nodeProto.removeAllChildren;
 // nodeProto.removeAllChildren = function () {
 //     oldRemoveAllChildren.call(this);
