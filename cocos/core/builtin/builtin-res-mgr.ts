@@ -46,15 +46,14 @@ class BuiltinResMgr {
         const resources = this._resources;
 
         const len = 2;
-        const pixelBytesUInt = 1;
         const numChannels = 4;
 
-        const blackValueView   = new Uint8Array(len * len * numChannels * pixelBytesUInt);
-        const emptyValueView   = new Uint8Array(len * len * numChannels * pixelBytesUInt);
-        const greyValueView    = new Uint8Array(len * len * numChannels * pixelBytesUInt);
-        const whiteValueView   = new Uint8Array(len * len * numChannels * pixelBytesUInt);
-        const normalValueView  = new Uint8Array(len * len * numChannels * pixelBytesUInt);
-        const defaultValueView = new Uint8Array(len * len * numChannels * pixelBytesUInt);
+        const blackValueView   = new Uint8Array(len * len * numChannels);
+        const emptyValueView   = new Uint8Array(len * len * numChannels);
+        const greyValueView    = new Uint8Array(len * len * numChannels);
+        const whiteValueView   = new Uint8Array(len * len * numChannels);
+        const normalValueView  = new Uint8Array(len * len * numChannels);
+        const defaultValueView = new Uint8Array(len * len * numChannels);
 
         const defaultSize = 16;
         const halfDefaultSize = defaultSize / 2;
