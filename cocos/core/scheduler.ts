@@ -288,7 +288,8 @@ class CallbackTimer {
                     this._timesExecuted += 1;
                 }
 
-                if (this._callback !== null && !this._runForever && this._timesExecuted > this._repeat) {
+                // @ts-expect-error Notes written for over eslint
+                if (this._callback && !this._runForever && this._timesExecuted > this._repeat) {
                     this.cancel();
                 }
             }
