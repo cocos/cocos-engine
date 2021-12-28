@@ -30,6 +30,10 @@ export class AnimationMask extends Asset {
         removeIf(this._jointMasks, ({ path }) => path === removal);
     }
 
+    public clear () {
+        this._jointMasks.length = 0;
+    }
+
     public filterDisabledNodes (root: Node) {
         return this._jointMasks.filter(
             ({ enabled }) => !enabled,
