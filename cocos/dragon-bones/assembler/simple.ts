@@ -129,7 +129,7 @@ export const simple: IAssembler = {
         const dataArray = comp.meshRenderDataArray;
         const node = comp.node;
 
-        const accessor = renderer.getBufferAccessor();
+        const accessor = renderer.switchBufferAccessor();
 
         // 当前渲染的数据
         const data = dataArray[comp._meshRenderDataArrayIdx];

@@ -208,7 +208,7 @@ export const MotionStreakAssembler: IAssembler = {
         const dataList = renderData.data;
         const node = comp.node;
 
-        const accessor = renderer.getBufferAccessor();
+        const accessor = renderer.switchBufferAccessor();
 
         const vertexCount = renderData.vertexCount;
         const indexCount = renderData.indexCount;

@@ -63,11 +63,11 @@ export const ttf: IAssembler = {
     },
 
     fillBuffers (comp: Label, renderer: IBatcher) {
-        const renderData = comp.renderData!;
-        const dataList: IRenderData[] = renderData.data;
+        const chunk = comp.renderData!.chunk;
+        const dataList: IRenderData[] = comp.renderData!.data;
         const node = comp.node;
 
-        const vData = renderData.chunk.vb;
+        const vData = chunk.vb;
         const data0 = dataList[0];
         const data3 = dataList[1];
         /* */
@@ -98,14 +98,11 @@ export const ttf: IAssembler = {
         vData[27] = cx1 * bx + cx2 * by + x;
         vData[28] = cy1 * by + cy2 * bx + y;
 
-        renderer.getBufferAccessor();
         // quick version
-        const chunk = renderData.chunk;
         const bid = chunk.bufferId;
         const vid = chunk.vertexOffset;
         const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
         const ib = chunk.vertexAccessor.getIndexBuffer(bid);
-        chunk.vertexAccessor.resetState(ib, meshBuffer, bid);
         let indexOffset = meshBuffer.indexOffset;
         ib[indexOffset++] = vid;
         ib[indexOffset++] = vid + 1;

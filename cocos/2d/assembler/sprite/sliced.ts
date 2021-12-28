@@ -124,7 +124,7 @@ export const sliced: IAssembler = {
             this.updateWorldVertexData(sprite);
         }
 
-        const accessor = renderer.getBufferAccessor();
+        const accessor = renderer.switchBufferAccessor();
         const renderData: RenderData = sprite.renderData!;
 
         // const node: Node = sprite.node;

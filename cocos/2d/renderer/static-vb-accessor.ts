@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { InputAssembler, Device, Attribute } from '../../core/gfx';
+import { Device, Attribute } from '../../core/gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
 import { assertID, warnID } from '../../core/platform/debug';
@@ -67,8 +67,6 @@ export class StaticVBChunk {
 
 export class StaticVBAccessor extends BufferAccessor {
     private _freeLists: IFreeEntry[][] = [];
-    private _currBID = -1;
-    private _indexStart = 0;
 
     public constructor (device: Device, attributes: Attribute[]) {
         super(device, attributes);
@@ -91,8 +89,6 @@ export class StaticVBAccessor extends BufferAccessor {
     }
 
     public reset () {
-        this._currBID = -1;
-        this._indexStart = 0;
         for (let i = 0; i < this._buffers.length; ++i) {
             const buffer = this._buffers[i];
             // Reset index buffer
@@ -109,7 +105,6 @@ export class StaticVBAccessor extends BufferAccessor {
         return this._buffers[bid].iData;
     }
 
-    // hack
     public getMeshBuffer (bid: number): MeshBuffer {
         return this._buffers[bid];
     }
@@ -126,16 +121,6 @@ export class StaticVBAccessor extends BufferAccessor {
         }
     }
 
-    public resetState (ib: Uint16Array, buf: MeshBuffer, bufferID: number) {
-        const vCount = ib.length;
-        if (vCount) {
-            if (this._currBID === -1) {
-                this._currBID = bufferID;
-                this._indexStart = buf.indexOffset;
-            }
-        }
-    }
-
     public appendIndices (vbChunk: StaticVBChunk) {
         // const buf = this._buffers[vbChunk.bufferId];
         // // Vertex format check
@@ -143,28 +128,11 @@ export class StaticVBAccessor extends BufferAccessor {
         // assertIsTrue(vbChunk.bufferId === this._currBID || this._currBID === -1);
         // const vCount = vbChunk.ib.length;
         // if (vCount) {
-        //     if (this._currBID === -1) {
-        //         this._currBID = vbChunk.bufferId;
-        //         this._indexStart = buf.indexOffset;
-        //     }
         //     // Append index buffer
         //     buf.iData.set(vbChunk.ib, buf.indexOffset);
         //     buf.indexOffset += vbChunk.ib.length;
         //     buf.setDirty();
         // }
-    }
-
-    public recordBatch (bid: number) {
-        assertIsTrue(bid === this._currBID);
-        const buf = this._buffers[bid];
-        assertIsTrue(this._indexStart < buf.indexOffset);
-        // Request ia
-        const ia = buf.requireFreeIA(this._device);
-        ia.firstIndex = this._indexStart;
-        ia.indexCount = buf.indexOffset - this._indexStart;
-        this._indexStart = buf.indexOffset;
-        this._currBID = -1;
-        return ia;
     }
 
     public allocateChunk (vertexCount: number, indexCount: number) {

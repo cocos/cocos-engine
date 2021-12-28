@@ -185,7 +185,7 @@ export const simple: IAssembler = {
         // 当前渲染的数据
         const data = dataArray[comp._meshRenderDataArrayIdx];
         const renderData = data.renderData;
-        const accessor = renderer.getBufferAccessor(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor);
+        const accessor = renderer.switchBufferAccessor(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor);
 
         const vertexCount = renderData.vertexCount;
         const indexCount = renderData.indexCount;

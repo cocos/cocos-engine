@@ -38,7 +38,7 @@ const _worldMatrix = new Mat4();
 
 export function fillVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    const accessor = renderer.getBufferAccessor();
+    const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
     const indexCount = renderData.indexCount;
     accessor.request(vertexCount, indexCount);
@@ -74,7 +74,7 @@ export function fillVertices3D (node: Node, renderer: IBatcher, renderData: Rend
 
 export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    const accessor = renderer.getBufferAccessor();
+    const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
     const indexCount = renderData.indexCount;
     accessor.request(vertexCount, indexCount);
@@ -116,7 +116,7 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
 
 export function fillVerticesWithoutCalc3D (node: Node, renderer: IBatcher, renderData: RenderData, color: Color) {
     const dataList = renderData.data;
-    const accessor = renderer.getBufferAccessor();
+    const accessor = renderer.switchBufferAccessor();
     const vertexCount = renderData.vertexCount;
     const indexCount = renderData.indexCount;
     accessor.request(vertexCount, indexCount);

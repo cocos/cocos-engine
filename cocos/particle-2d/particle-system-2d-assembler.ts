@@ -55,7 +55,7 @@ export const ParticleAssembler: IAssembler = {
         if (renderData.vertexCount === 0 || renderData.indexCount === 0) {
             return;
         }
-        const accessor = renderer.getBufferAccessor();
+        const accessor = renderer.switchBufferAccessor();
 
         const vertexCount = renderData.vertexCount;
         const indexCount = renderData.indexCount;

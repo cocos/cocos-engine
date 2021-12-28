@@ -148,7 +148,7 @@ export const simple: IAssembler = {
         const dataArray = layer.meshRenderDataArray;
         const node = layer.node;
 
-        const accessor = renderer.getBufferAccessor();
+        const accessor = renderer.switchBufferAccessor();
 
         // 当前渲染的数据
         const data = dataArray[layer._meshRenderDataArrayIdx] as TiledMeshData;

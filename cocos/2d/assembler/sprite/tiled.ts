@@ -104,7 +104,7 @@ export const tiled: IAssembler = {
         const renderData = sprite.renderData!;
 
         // buffer
-        const accessor = renderer.getBufferAccessor();
+        const accessor = renderer.switchBufferAccessor();
         const vertexCount = renderData.vertexCount;
         const indexCount = renderData.indexCount;
         accessor.request(vertexCount, indexCount);

@@ -133,7 +133,7 @@ export class RenderData extends BaseRenderData {
         this._vc = vertexCount;
         this._ic = indexCount;
         const batcher = director.root!.batcher2D;
-        const accessor = batcher.getBufferAccessor();
+        const accessor = batcher.switchBufferAccessor();
         if (this.chunk) {
             accessor.recycleChunk(this.chunk);
             this.chunk = null!;

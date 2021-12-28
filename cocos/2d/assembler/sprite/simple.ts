@@ -157,7 +157,6 @@ export const simple: IAssembler = {
         }
         const renderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        renderer.getBufferAccessor();  // for set staticAccessor in batcher
         if (sprite.node.hasChangedFlags || renderData.vertDirty) {
             // const vb = chunk.vertexAccessor.getVertexBuffer(chunk.bufferId);
             this.updateWorldVerts(sprite, chunk);
@@ -169,7 +168,6 @@ export const simple: IAssembler = {
         const vid = chunk.vertexOffset;
         const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
         const ib = chunk.vertexAccessor.getIndexBuffer(bid);
-        chunk.vertexAccessor.resetState(ib, meshBuffer, bid); // for set state
         let indexOffset = meshBuffer.indexOffset;
         ib[indexOffset++] = vid;
         ib[indexOffset++] = vid + 1;
@@ -181,7 +179,7 @@ export const simple: IAssembler = {
         meshBuffer.setDirty();
 
         // slow version
-        // renderer.getBufferAccessor().appendIndices(chunk);
+        // renderer.switchBufferAccessor().appendIndices(chunk);
     },
 
     updateVertexData (sprite: Sprite) {
