@@ -701,13 +701,14 @@ legacyCC.SceneGlobals = SceneGlobals;
         this._shadowsRef = null;
         this._skyboxRef = null;
         this._fogRef = null;
+        this._octreeRef = null;
     };
 
     Object.defineProperty(sceneGlobalsProto, 'ambient', {
         enumerable: true,
         configurable: true,
         get() {
-            return this.getAmbientInfo();
+            return this._ambientRef;
         },
         set(v) {
             this._ambientRef = v;
@@ -719,7 +720,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         enumerable: true,
         configurable: true,
         get() {
-            return this.getShadowsInfo();
+            return this._shadowsRef;
         },
         set(v) {
             this._shadowsRef = v;
@@ -731,7 +732,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         enumerable: true,
         configurable: true,
         get() {
-            return this.getSkyboxInfo();
+            return this._skyboxRef;
         },
         set(v) {
             this._skyboxRef = v;
@@ -743,7 +744,7 @@ legacyCC.SceneGlobals = SceneGlobals;
         enumerable: true,
         configurable: true,
         get() {
-            return this.getSkyboxInfo();
+            return this._skyboxRef;
         },
         set(v) {
             this._skyboxRef = v;
@@ -755,11 +756,23 @@ legacyCC.SceneGlobals = SceneGlobals;
         enumerable: true,
         configurable: true,
         get() {
-            return this.getFogInfo();
+            return this._fogRef;
         },
         set(v) {
             this._fogRef = v;
             this.setFogInfo(v);
+        },
+    });
+
+    Object.defineProperty(sceneGlobalsProto, 'octree', {
+        enumerable: true,
+        configurable: true,
+        get() {
+            return this._octreeRef;
+        },
+        set(v) {
+            this._octreeRef = v;
+            this.setOctreeInfo(v);
         },
     });
 
