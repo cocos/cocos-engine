@@ -882,6 +882,10 @@ Object.defineProperty(nodeProto, 'layer', {
     },
     set (v) {
         this._layerArr[0] = v;
+        if (this._uiProps && this._uiProps.uiComp) {
+            this._uiProps.uiComp.setNodeDirty();
+            this._uiProps.uiComp.markForUpdateRenderData();
+        }
         this.emit(NodeEventType.LAYER_CHANGED, v);
     },
 });
