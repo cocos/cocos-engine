@@ -62,6 +62,19 @@ renderingSubMeshProto._ctor = function (vertexBuffers: Buffer[], attributes: Att
     this._indirectBuffer = indirectBuffer;
 };
 
+Object.defineProperty(renderingSubMeshProto, 'geometricInfo', {
+    configurable: true,
+    enumerable: true,
+    get() {
+        let r = this.getGeometricInfo();
+        if (!r.positions && !r.indices) {
+            r.positions = new Float32Array;
+            r.indices = new Uint8Array;
+        }
+        return r;
+    }
+});
+
 Object.defineProperty(renderingSubMeshProto, 'attributes', {
     configurable: true,
     enumerable: true,
