@@ -308,6 +308,9 @@ export default class ParticleBatchModel extends scene.Model {
     }
 
     public updateIA (count: number) {
+        if (count <= 0) {
+           return;
+        }
         const ia = this._subModels[0].inputAssembler;
         ia.vertexBuffers[0].update(this._vdataF32!);
         this._iaInfo.drawInfos[0].firstIndex = 0;
