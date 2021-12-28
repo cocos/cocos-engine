@@ -76,6 +76,10 @@ export class DrawBatch2D {
         }
     }
 
+    public get native () {
+        return this._nativeObj;
+    }
+
     get passes () {
         return this._passes;
     }
