@@ -125,7 +125,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
@@ -232,7 +232,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _serialize (ctxForExporting: any) {
         if (EDITOR || TEST) {
@@ -254,7 +254,7 @@ export class Texture2D extends SimpleTexture {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData as ITexture2DSerializeData;

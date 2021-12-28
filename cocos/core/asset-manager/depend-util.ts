@@ -54,7 +54,7 @@ export interface IDependencies {
  */
 export class DependUtil {
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _depends: Cache<IDependencies> = new Cache<IDependencies>();
 

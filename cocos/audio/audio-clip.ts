@@ -73,7 +73,7 @@ export class AudioClip extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
@@ -91,7 +91,7 @@ export class AudioClip extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     @override
     get _nativeDep () {

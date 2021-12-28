@@ -287,7 +287,7 @@ export class TextureBase extends Asset {
     // SERIALIZATION
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
@@ -299,7 +299,7 @@ export class TextureBase extends Asset {
     }
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     public _deserialize (serializedData: any, handle: any) {
         const data = serializedData as string;

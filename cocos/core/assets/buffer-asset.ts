@@ -37,7 +37,7 @@ export class BufferAsset extends Asset {
     private _buffer: ArrayBuffer | null = null;
 
     /**
-     * @marked_as_engine_private
+     * @legacyPublic
      */
     @override
     get _nativeAsset () {
