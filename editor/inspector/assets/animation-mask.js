@@ -33,7 +33,6 @@ exports.methods = {
         this.dirtyData.uuid = '';
     },
     async dataChange() {
-        console.log(this.queryData);
         await Editor.Message.request('scene', 'change-animation-mask', {
             method: 'change-dump',
             dump: this.queryData,
@@ -48,7 +47,7 @@ exports.methods = {
         origin.value.enabled.value = checked;
 
         if (loop) {
-            children.forEach(childKey => {
+            children.forEach((childKey) => {
                 this.jointEnableChange(childKey, checked, loop);
             });
         }
@@ -80,8 +79,6 @@ exports.methods = {
             return collator.compare(a.value.path.value, b.value.path.value);
         });
 
-        console.log(jointArr);
-
         const flatData = {};
 
         for (const joint of jointArr) {
@@ -90,13 +87,19 @@ exports.methods = {
                 continue;
             }
 
-            const parentKey = key.substr(0, key.lastIndexOf('/'));
-            if (!flatData[parentKey]) {
-                flatData[parentKey] = { children: [key] };
-            } else {
-                if (!flatData[parentKey].children.includes(key)) {
-                    flatData[parentKey].children.push(key);
+            let childKey = key;
+            let parentKey = childKey.substr(0, childKey.lastIndexOf('/'));
+            while (parentKey) {
+                if (!flatData[parentKey]) {
+                    flatData[parentKey] = { children: [childKey] };
+                } else {
+                    if (!flatData[parentKey].children.includes(childKey)) {
+                        flatData[parentKey].children.push(childKey);
+                    }
                 }
+
+                childKey = parentKey;
+                parentKey = childKey.substr(0, childKey.lastIndexOf('/'));
             }
 
             if (!flatData[key]) {
@@ -105,13 +108,16 @@ exports.methods = {
                 flatData[key].origin = joint;
             }
         }
-        console.log(flatData);
 
         const treeData = [];
-        for (const key in flatData) {
-            if (!flatData[key].detail) {
+        const keys = Object.keys(flatData);
+        keys.sort((a, b) => {
+            return collator.compare(a, b);
+        });
+        for (const key of keys) {
+            // 一级根路径
+            if (key.indexOf('/') === -1) {
                 treeDataFromFlatData(treeData, flatData[key].children);
-                break;
             }
         }
 
@@ -123,22 +129,24 @@ exports.methods = {
             keys.forEach((key) => {
                 const { origin, children } = flatData[key];
 
-                const name = origin.value.path.value;
                 const treeNode = {
                     detail: {
                         key,
-                        name: name.substr(name.lastIndexOf('/') + 1),
-                        checked: origin.value.enabled.value,
+                        name: key.substr(key.lastIndexOf('/') + 1),
+                        disabled: true,
                     },
                     children: [],
                 };
+
+                if (origin) {
+                    treeNode.detail.disabled = false;
+                }
+
                 treeArr.push(treeNode);
 
                 treeDataFromFlatData(treeNode.children, children);
             });
         }
-
-        console.log(treeData);
 
         return { flatData, treeData };
     },
@@ -227,9 +235,19 @@ exports.ready = function() {
         });
     });
     panel.$.tree.setRender('left', ($left) => {
-        const key = $left.data.detail.key;
+        const { key, disabled } = $left.data.detail;
+
+        if (disabled) {
+            $left.$checkbox.setAttribute('disabled', true);
+            $left.$checkbox.value = true;
+        } else {
+            $left.$checkbox.removeAttribute('disabled');
+        }
+
         const origin = panel.flatData[key].origin;
-        $left.$checkbox.value = origin.value.enabled.value;
+        if (origin) {
+            $left.$checkbox.value = origin.value.enabled.value;
+        }
     });
 
     panel.$.tree.setTemplate('text', `<span class="name"></span>`);
@@ -237,7 +255,7 @@ exports.ready = function() {
         $text.$name = $text.querySelector('.name');
     });
     panel.$.tree.setRender('text', ($text, data) => {
-        $text.$name.innerHTML = data.detail.name;
+        $text.$name.innerHTML = data.detail.name || data.detail.root;
     });
 };
 
