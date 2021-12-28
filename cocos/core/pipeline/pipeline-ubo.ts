@@ -168,27 +168,15 @@ export class PipelineUBO {
             if (mainLight && shadowInfo.type === ShadowType.ShadowMap) {
                 let near = 0.1;
                 let far = 0;
-                let matShadowView;
-                let matShadowProj;
-                let matShadowViewProj;
-                if (!shadowInfo.fixedArea) {
-                    near = 0.1;
-                    far = shadowInfo.shadowCameraFar;
-                    matShadowView = shadowInfo.matShadowView;
-                    matShadowProj = shadowInfo.matShadowProj;
-                    matShadowViewProj = shadowInfo.matShadowViewProj;
-                } else {
-                    Mat4.invert(_matShadowView, mainLight.node!.getWorldMatrix());
-                    matShadowView = _matShadowView;
-                    const x = shadowInfo.orthoSize;
-                    const y = shadowInfo.orthoSize;
+                const matShadowView = shadowInfo.matShadowView;
+                const matShadowProj = shadowInfo.matShadowProj;
+                const matShadowViewProj = shadowInfo.matShadowViewProj;
+                if (shadowInfo.fixedArea) {
                     near = shadowInfo.near;
                     far = shadowInfo.far;
-                    Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
-                        device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-                    matShadowProj = _matShadowProj;
-                    Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-                    matShadowViewProj = _matShadowViewProj;
+                } else {
+                    near = 0.1;
+                    far = shadowInfo.shadowCameraFar;
                 }
 
                 Mat4.toArray(bufferView, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
@@ -237,29 +225,17 @@ export class PipelineUBO {
         const packing = supportsFloatTexture(device) ? 0.0 : 1.0;
         let near = 0.1;
         let far = 0;
-        let matShadowView;
-        let matShadowProj;
-        let matShadowViewProj;
+        const matShadowView = shadowInfo.matShadowView;
+        const matShadowProj = shadowInfo.matShadowProj;
+        const matShadowViewProj = shadowInfo.matShadowViewProj;
         switch (light.type) {
         case LightType.DIRECTIONAL:
-            if (!shadowInfo.fixedArea) {
-                near = 0.1;
-                far = shadowInfo.shadowCameraFar;
-                matShadowView = shadowInfo.matShadowView;
-                matShadowProj = shadowInfo.matShadowProj;
-                matShadowViewProj = shadowInfo.matShadowViewProj;
-            } else {
-                Mat4.invert(_matShadowView, light.node!.getWorldMatrix());
-                matShadowView = _matShadowView;
-                const x = shadowInfo.orthoSize;
-                const y = shadowInfo.orthoSize;
+            if (shadowInfo.fixedArea) {
                 near = shadowInfo.near;
                 far = shadowInfo.far;
-                Mat4.ortho(_matShadowProj, -x, x, -y, y, near, far,
-                    device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
-                matShadowProj = _matShadowProj;
-                Mat4.multiply(_matShadowViewProj, _matShadowProj, _matShadowView);
-                matShadowViewProj = _matShadowViewProj;
+            } else {
+                near = 0.1;
+                far = shadowInfo.shadowCameraFar;
             }
 
             Mat4.toArray(bufferView, matShadowView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
