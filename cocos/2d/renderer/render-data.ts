@@ -139,7 +139,7 @@ export class RenderData extends BaseRenderData {
             this.chunk = null!;
         }
         if (vertexCount) {
-            accessor.allocateChunk(vertexCount, indexCount);
+            this.chunk = accessor.allocateChunk(vertexCount, indexCount)!;
         }
     }
 

@@ -47,9 +47,8 @@ export const ttf: IAssembler = {
     createData (comp: Label) {
         const renderData = comp.requestRenderData()!;
 
-        renderData.dataLength = 4;
-        renderData.vertexCount = 4;
-        renderData.indexCount = 6;
+        renderData.dataLength = 2;
+        renderData.resize(4, 6);
 
         const vData = renderData.chunk.vb;
 
@@ -68,9 +67,9 @@ export const ttf: IAssembler = {
         const dataList: IRenderData[] = renderData.data;
         const node = comp.node;
 
-        const vData = renderData.vData!;
+        const vData = renderData.chunk.vb;
         const data0 = dataList[0];
-        const data3 = dataList[3];
+        const data3 = dataList[1];
         /* */
         node.updateWorldTransform();
         // @ts-expect-error private property access
@@ -99,11 +98,26 @@ export const ttf: IAssembler = {
         vData[27] = cx1 * bx + cx2 * by + x;
         vData[28] = cy1 * by + cy2 * bx + y;
 
-        const VBChunk = comp.VBChunk!;
-        const VB = VBChunk.vertexAccessor.getVertexBuffer(VBChunk.bufferId);
-        VB.set(vData, VBChunk.vertexOffset * VBChunk.vertexAccessor.floatsPerVertex);
-        VBChunk.setIndexBuffer(QUAD_INDICES);
-        renderer.getBufferAccessor().appendIndices(VBChunk);
+        renderer.getBufferAccessor();
+        // quick version
+        const chunk = renderData.chunk;
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        chunk.vertexAccessor.resetState(ib, meshBuffer, bid);
+        let indexOffset = meshBuffer.indexOffset;
+        ib[indexOffset++] = vid;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 3;
+        meshBuffer.indexOffset += 6;
+        meshBuffer.setDirty();
+        // slow version
+        // const chunk = renderData.chunk;
+        // renderer.getBufferAccessor().appendIndices(chunk);
     },
 
     updateVertexData (comp: Label) {
@@ -121,8 +135,8 @@ export const ttf: IAssembler = {
         const data = renderData.data;
         data[0].x = -appX;
         data[0].y = -appY;
-        data[3].x = width - appX;
-        data[3].y = height - appY;
+        data[1].x = width - appX;
+        data[1].y = height - appY;
     },
 
     updateUvs (comp: Label) {
@@ -130,7 +144,7 @@ export const ttf: IAssembler = {
         if (!renderData) {
             return;
         }
-        const vData = renderData.vData!;
+        const vData = renderData.chunk.vb;
         if (!vData || !renderData.uvDirty) {
             return;
         }

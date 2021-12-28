@@ -143,12 +143,12 @@ export const ttfUtils =  {
     },
 
     updateOpacity (comp: Label) {
-        const vData = comp.renderData!.vData;
+        const vData = comp.renderData!.chunk.vb;
 
         let colorOffset = 5;
         const colorA = comp.node._uiProps.opacity;
         for (let i = 0; i < 4; i++) {
-            vData![colorOffset + 3] = colorA;
+            vData[colorOffset + 3] = colorA;
 
             colorOffset += 9;
         }

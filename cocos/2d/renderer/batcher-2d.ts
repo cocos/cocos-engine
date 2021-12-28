@@ -27,7 +27,7 @@
  * @hidden
  */
 import { JSB } from 'internal:constants';
-import { Camera, Model } from 'cocos/core/renderer/scene';
+import { Camera, Model, RenderScene } from 'cocos/core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
@@ -224,32 +224,33 @@ export class Batcher2D implements IBatcher {
 
     public update () {
         const screens = this._screens;
+        let offset = 0;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
-            if (!screen.enabledInHierarchy) {
+            const scene = screen._getRenderScene();
+            if (!screen.enabledInHierarchy || !scene) {
                 continue;
             }
             this.walk(screen.node);
             this.autoMergeBatches(this._currComponent!);
-        }
 
-        let batchPriority = 0;
-        if (this._batches.length) {
-            for (let i = 0; i < this._batches.length; ++i) {
-                const batch = this._batches.array[i];
-                if (!batch.renderScene) continue;
+            let batchPriority = 0;
+            if (this._batches.length > offset) {
+                for (; offset < this._batches.length; ++offset) {
+                    const batch = this._batches.array[offset];
 
-                if (batch.model) {
-                    const subModels = batch.model.subModels;
-                    for (let j = 0; j < subModels.length; j++) {
-                        subModels[j].priority = batchPriority++;
+                    if (batch.model) {
+                        const subModels = batch.model.subModels;
+                        for (let j = 0; j < subModels.length; j++) {
+                            subModels[j].priority = batchPriority++;
+                        }
+                    } else {
+                        for (let j = 0; j < batch.drawCalls.length; j++) {
+                            batch.drawCalls[j].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawCalls[j]);
+                        }
                     }
-                } else {
-                    for (let i = 0; i < batch.drawCalls.length; i++) {
-                        batch.drawCalls[i].descriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawCalls[i]);
-                    }
+                    scene.addBatch(batch);
                 }
-                batch.renderScene.addBatch(batch);
             }
         }
     }

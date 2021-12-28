@@ -41,7 +41,7 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
-const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
+// const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * simple 组装器
@@ -52,7 +52,7 @@ export const simple: IAssembler = {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 2;
         renderData.resize(4, 6);
-        renderData.chunk.setIndexBuffer(QUAD_INDICES);
+        // renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
@@ -70,7 +70,6 @@ export const simple: IAssembler = {
         //     }
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
-        // TODO update material and uv
         // @ts-expect-error hack
         if (UI_GPU_DRIVEN && sprite._canDrawByFourVertex) {
             sprite._updateUVWithTrim();
@@ -158,12 +157,31 @@ export const simple: IAssembler = {
         }
         const renderData = sprite.renderData!;
         const chunk = renderData.chunk;
+        renderer.getBufferAccessor();  // for set staticAccessor in batcher
         if (sprite.node.hasChangedFlags || renderData.vertDirty) {
             // const vb = chunk.vertexAccessor.getVertexBuffer(chunk.bufferId);
             this.updateWorldVerts(sprite, chunk);
+            renderData.vertDirty = false;
         }
 
-        renderer.getBufferAccessor().appendIndices(chunk);
+        // quick version
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        chunk.vertexAccessor.resetState(ib, meshBuffer, bid); // for set state
+        let indexOffset = meshBuffer.indexOffset;
+        ib[indexOffset++] = vid;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 3;
+        meshBuffer.indexOffset += 6;
+        meshBuffer.setDirty();
+
+        // slow version
+        // renderer.getBufferAccessor().appendIndices(chunk);
     },
 
     updateVertexData (sprite: Sprite) {
@@ -218,7 +236,8 @@ export const simple: IAssembler = {
     },
 
     updateUvs (sprite: Sprite) {
-        const vData = sprite.renderData!.chunk.vb;
+        const renderData = sprite.renderData!;
+        const vData = renderData.chunk.vb;
         const uv = sprite.spriteFrame!.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
