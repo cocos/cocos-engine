@@ -42,7 +42,6 @@ class BuiltinResMgr {
 
     // this should be called after renderer initialized
     public initBuiltinRes (device: Device): Promise<void> {
-        // if (TEST) return Promise.resolve();
         this._device = device;
         const resources = this._resources;
 
@@ -50,23 +49,15 @@ class BuiltinResMgr {
         const pixelBytesUInt = 1;
         const numChannels = 4;
 
-        const blackArrayBuffer  = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
-        const emptyArrayBuffer  = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
-        const greyArrayBuffer   = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
-        const whiteArrayBuffer  = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
-        const normalArrayBuffer = new ArrayBuffer(len * len * numChannels * pixelBytesUInt);
-
-        const blackValueView  = new Uint8Array(blackArrayBuffer);
-        const emptyValueView  = new Uint8Array(emptyArrayBuffer);
-        const greyValueView   = new Uint8Array(greyArrayBuffer);
-        const whiteValueView  = new Uint8Array(whiteArrayBuffer);
-        const normalValueView = new Uint8Array(normalArrayBuffer);
+        const blackValueView   = new Uint8Array(len * len * numChannels * pixelBytesUInt);
+        const emptyValueView   = new Uint8Array(len * len * numChannels * pixelBytesUInt);
+        const greyValueView    = new Uint8Array(len * len * numChannels * pixelBytesUInt);
+        const whiteValueView   = new Uint8Array(len * len * numChannels * pixelBytesUInt);
+        const normalValueView  = new Uint8Array(len * len * numChannels * pixelBytesUInt);
+        const defaultValueView = new Uint8Array(len * len * numChannels * pixelBytesUInt);
 
         const defaultSize = 16;
         const halfDefaultSize = defaultSize / 2;
-
-        const defaultArrayBuffer = new ArrayBuffer(defaultSize * defaultSize * numChannels * pixelBytesUInt);
-        const defaultValueView = new Uint8Array(defaultArrayBuffer);
 
         let offset = 0;
         for (let i = 0; i < len * len; i++) {
