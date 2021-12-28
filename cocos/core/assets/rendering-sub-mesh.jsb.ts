@@ -66,7 +66,7 @@ Object.defineProperty(renderingSubMeshProto, 'geometricInfo', {
     configurable: true,
     enumerable: true,
     get() {
-        let r = this._geometricInfo;
+        let r = this.getGeometricInfo();
         if (!r.positions && !r.indices) {
             r.positions = new Float32Array;
             r.indices = new Uint8Array;
