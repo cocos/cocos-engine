@@ -29,6 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
+import { BAIDU } from 'internal:constants';
 import { PIPELINE_FLOW_SHADOW, supportsFloatTexture } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../enum';
@@ -81,7 +82,7 @@ export class ShadowFlow extends RenderFlow {
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
         const castShadowObjects = pipeline.pipelineSceneData.castShadowObjects;
         const validPunctualLights = this._pipeline.pipelineSceneData.validPunctualLights;
-        if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
+        if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap || BAIDU) { return; }
 
         let n = 0;
         let m = 0;

@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { JSB } from 'internal:constants';
+import { BAIDU, JSB } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
@@ -500,7 +500,14 @@ export class Shadows {
     public activate () {
         if (this.enabled) {
             if (this.type === ShadowType.ShadowMap) {
-                this._updatePipeline();
+                if (BAIDU) {
+                    const root = legacyCC.director.root;
+                    const pipeline = root.pipeline;
+                    pipeline.macros.CC_ENABLE_DIR_SHADOW = 0;
+                    root.onGlobalPipelineStateChanged();
+                } else {
+                    this._updatePipeline();
+                }
             } else {
                 this._updatePlanarInfo();
             }
