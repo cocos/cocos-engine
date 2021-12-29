@@ -246,7 +246,7 @@ export class PhysicsContact implements IPhysics2DContact {
         }
 
         if (bodyA!.enabledContactListener || bodyB!.enabledContactListener) {
-            PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB);
+            PhysicsSystem2D.instance.emit(contactType, colliderA, colliderB, this);
         }
 
         if (this.disabled || this.disabledOnce) {
