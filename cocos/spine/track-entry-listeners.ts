@@ -3,7 +3,7 @@
  * @module spine
  */
 
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 
 export class TrackEntryListeners {
     start?: ((entry: spine.TrackEntry) => void);

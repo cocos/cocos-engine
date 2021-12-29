@@ -5,7 +5,7 @@
 
 import { Material, Texture2D } from '../core';
 import { Filter, WrapMode } from '../core/assets/asset-enum';
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 
 export class SkeletonTexture extends spine.Texture {
     name = 'sp.SkeletonTexture';

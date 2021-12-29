@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import spine from '../lib/spine-core.js';
+import spine from '../lib/spine-core';
 import { IAssembler } from '../../2d/renderer/base';
 import { IBatcher } from '../../2d/renderer/i-batcher.js';
 import { FrameColor } from '../skeleton-cache';
