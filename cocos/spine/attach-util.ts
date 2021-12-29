@@ -5,7 +5,7 @@
 
 import { Mat4, Vec3, Node } from '../core';
 import { Skeleton } from './skeleton';
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 import { FrameBoneInfo } from './skeleton-cache';
 
 const tempMat4 = new Mat4();
