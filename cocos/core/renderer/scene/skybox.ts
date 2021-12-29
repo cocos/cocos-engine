@@ -94,8 +94,10 @@ export class Skybox {
 
     set useDiffuseMap (val: boolean) {
         this._useDiffuseMap = val;
-        this._updateGlobalBinding();
-        this._updatePipeline();
+        if (!val) {
+            this._updateGlobalBinding();
+            this._updatePipeline();
+        }
     }
 
     /**
@@ -293,16 +295,15 @@ export class Skybox {
         const useDiffuseMapValue = (this.useIBL && this.useDiffuseMap && this.diffuseMap) ? (this.isRGBE ? 2 : 1) : 0;
         const useHDRValue = this.useHDR;
 
-        if (pipeline.macros.CC_USE_IBL === useIBLValue
-            && pipeline.macros.CC_USE_DIFFUSEMAP === useDiffuseMapValue
-            && pipeline.macros.CC_USE_HDR === useHDRValue) {
-            return;
-        }
-        pipeline.macros.CC_USE_IBL = useIBLValue;
-        pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
-        pipeline.macros.CC_USE_HDR = useHDRValue;
+        if (pipeline.macros.CC_USE_IBL !== useIBLValue
+            || pipeline.macros.CC_USE_DIFFUSEMAP !== useDiffuseMapValue
+            || pipeline.macros.CC_USE_HDR !== useHDRValue) {
+            pipeline.macros.CC_USE_IBL = useIBLValue;
+            pipeline.macros.CC_USE_DIFFUSEMAP = useDiffuseMapValue;
+            pipeline.macros.CC_USE_HDR = useHDRValue;
 
-        root.onGlobalPipelineStateChanged();
+            root.onGlobalPipelineStateChanged();
+        }
 
         if (this.enabled && skybox_material) {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
