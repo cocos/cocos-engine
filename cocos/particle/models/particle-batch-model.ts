@@ -115,6 +115,7 @@ export default class ParticleBatchModel extends scene.Model {
             this._vertCount = this._mesh.struct.vertexBundles[this._mesh.struct.primitives[0].vertexBundelIndices[0]].view.count;
             this._indexCount = this._mesh.struct.primitives[0].indexView!.count;
         }
+
         const vertexBuffer = this._device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
