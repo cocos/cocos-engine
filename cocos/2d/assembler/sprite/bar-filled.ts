@@ -107,14 +107,14 @@ export const barFilled: IAssembler = {
     },
 
     updateUVs (sprite: Sprite, fillStart: number, fillEnd: number) {
-        const spriteFrame = sprite.spriteFrame;
-        const renderData = sprite.renderData;
-        const dataList = renderData!.data;
+        const spriteFrame = sprite.spriteFrame!;
+        const renderData = sprite.renderData!;
+        const dataList = renderData.data;
 
         // build uvs
-        const atlasWidth = spriteFrame!.width;
-        const atlasHeight = spriteFrame!.height;
-        const textureRect = spriteFrame!.getRect();
+        const atlasWidth = spriteFrame.width;
+        const atlasHeight = spriteFrame.height;
+        const textureRect = spriteFrame.rect;
         // uv computation should take spriteSheet into account.
         let ul = 0;
         let vb = 0;
@@ -128,7 +128,7 @@ export const barFilled: IAssembler = {
         let quadUV5 = 0;
         let quadUV6 = 0;
         let quadUV7 = 0;
-        if (spriteFrame!.isRotated()) {
+        if (spriteFrame.isRotated()) {
             ul = (textureRect.x) / atlasWidth;
             vb = (textureRect.y + textureRect.width) / atlasHeight;
             ur = (textureRect.x + textureRect.height) / atlasWidth;
@@ -232,8 +232,7 @@ export const barFilled: IAssembler = {
         // 0-4 for world vertex
         // 5-8 for local vertex
         renderData.dataLength = 8;
-        renderData.vertexCount = 4;
-        renderData.indexCount = 6;
+        renderData.resize(4, 6);
 
         const dataList = renderData.data;
         for (const data of dataList) {

@@ -175,7 +175,7 @@ export class MeshBuffer {
         if (this.indexOffset * 2 > this.indexBuffer.size) {
             this.indexBuffer.resize(this.indexOffset * 2);
         }
-        this.indexBuffer.update(indicesData);
+        this._indexBuffer.update(indicesData);
         this._dirty = false;
     }
 }

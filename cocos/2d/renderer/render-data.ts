@@ -33,11 +33,11 @@ import { Material } from '../../core/assets/material';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Color } from '../../core/math';
 import { Pool, RecyclePool } from '../../core/memop';
-import { RenderScene } from '../../core/renderer/scene';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { Renderable2D } from '../framework/renderable-2d';
 import { StaticVBChunk } from './static-vb-accessor';
+import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 
 export interface IRenderData {
     x: number;
@@ -48,6 +48,8 @@ export interface IRenderData {
     color: Color;
 }
 
+const DEFAULT_STRIDE = getAttributeStride(vfmtPosUvColor);
+
 export class BaseRenderData {
     public material: Material | null = null;
     get vertexCount () {
@@ -56,12 +58,34 @@ export class BaseRenderData {
     get indexCount () {
         return this._ic;
     }
+    get stride () {
+        return this._stride;
+    }
+    public chunk: StaticVBChunk = null!;
+    public vertexFormat = vfmtPosUvColor;
+
     protected _vc = 0;
     protected _ic = 0;
+    protected _stride = 0;
+
+    constructor (vertexFormat = vfmtPosUvColor) {
+        this._stride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : getAttributeStride(vertexFormat);
+        this.vertexFormat = vertexFormat;
+    }
 
     public resize (vertexCount: number, indexCount: number) {
+        if (vertexCount === this._vc && indexCount === this._ic) return;
         this._vc = vertexCount;
         this._ic = indexCount;
+        const batcher = director.root!.batcher2D;
+        const accessor = batcher.switchBufferAccessor(this.vertexFormat);
+        if (this.chunk) {
+            accessor.recycleChunk(this.chunk);
+            this.chunk = null!;
+        }
+        if (vertexCount) {
+            this.chunk = accessor.allocateChunk(vertexCount, indexCount)!;
+        }
     }
 }
 
@@ -108,7 +132,6 @@ export class RenderData extends BaseRenderData {
 
     public uvDirty = true;
     public vertDirty = true;
-    public chunk: StaticVBChunk = null!;
 
     private _data: IRenderData[] = [];
     private _indices: number[] = [];
@@ -127,21 +150,6 @@ export class RenderData extends BaseRenderData {
     public passDirty = true;
     public textureDirty = true;
     public hashDirty = true;
-
-    public resize (vertexCount: number, indexCount: number) {
-        if (vertexCount === this._vc && indexCount === this._ic) return;
-        this._vc = vertexCount;
-        this._ic = indexCount;
-        const batcher = director.root!.batcher2D;
-        const accessor = batcher.switchBufferAccessor();
-        if (this.chunk) {
-            accessor.recycleChunk(this.chunk);
-            this.chunk = null!;
-        }
-        if (vertexCount) {
-            this.chunk = accessor.allocateChunk(vertexCount, indexCount)!;
-        }
-    }
 
     public updateNode (comp: Renderable2D) {
         this.layer = comp.node.layer;
@@ -253,20 +261,19 @@ export class MeshRenderData extends BaseRenderData {
     public lastFilledIndices = 0;
     public lastFilledVertex = 0;
 
-    private _formatByte:number;
-
-    constructor (vertexFloatCnt = 9) {
-        super();
-        this._formatByte = vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT;
-        this.vData = new Float32Array(256 * vertexFloatCnt * Float32Array.BYTES_PER_ELEMENT);
+    constructor (vertexFormat = vfmtPosUvColor) {
+        super(vertexFormat);
+        this.vData = new Float32Array(256 * this._stride);
         this.iData = new Uint16Array(256 * 6);
     }
 
-    set formatByte (value: number) { this._formatByte = value; }
+    /**
+     * @deprecated
+     */
+    set formatByte (value: number) {}
+    get formatByte () { return this._stride; }
 
-    get formatByte () { return this._formatByte; }
-
-    get floatStride () { return this._formatByte >> 2; }
+    get floatStride () { return this._stride >> 2; }
 
     /**
      * Index of Float32Array: vData
@@ -288,7 +295,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     public request (vertexCount: number, indexCount: number) {
-        const byteOffset = this.byteCount + vertexCount * this._formatByte;
+        const byteOffset = this.byteCount + vertexCount * this._stride;
         this.reserve(vertexCount, indexCount);
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
@@ -297,7 +304,7 @@ export class MeshRenderData extends BaseRenderData {
     }
 
     public reserve (vertexCount: number, indexCount: number) {
-        const newVBytes = this.byteCount + vertexCount * this._formatByte;
+        const newVBytes = this.byteCount + vertexCount * this._stride;
         const newICount = this.indexCount + indexCount;
 
         if (vertexCount + this.vertexCount > 65535) {
@@ -325,7 +332,7 @@ export class MeshRenderData extends BaseRenderData {
     public advance (vertexCount: number, indexCount: number) {
         this._vc += vertexCount; // vertexOffset
         this._ic += indexCount; // indicesOffset
-        this.byteCount += vertexCount * this._formatByte;
+        this.byteCount += vertexCount * this._stride;
     }
 
     public reset () {

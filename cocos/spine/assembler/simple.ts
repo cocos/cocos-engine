@@ -185,7 +185,7 @@ export const simple: IAssembler = {
         // 当前渲染的数据
         const data = dataArray[comp._meshRenderDataArrayIdx];
         const renderData = data.renderData;
-        const accessor = renderer.switchBufferAccessor(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor);
+        const accessor = renderer.switchBufferAccessor(renderData.vertexFormat);
 
         const vertexCount = renderData.vertexCount;
         const indexCount = renderData.indexCount;
@@ -241,7 +241,7 @@ function updateComponentRenderData (comp: Skeleton, ui: IBatcher) {
     // huge performance impact
     comp.destroyRenderData();
 
-    _buffer = comp.requestMeshRenderData(_perVertexSize);
+    _buffer = comp.requestMeshRenderData(_useTint ? vfmtPosUvTwoColor : vfmtPosUvColor);
     _comp = comp;
 
     _currentMaterial = null;
@@ -715,7 +715,7 @@ function cacheTraverse (worldMat?: Mat4) {
             if (!_buffer!.texture) {
                 _buffer!.texture = segInfo.tex!;
             }
-            _buffer = _comp!.requestMeshRenderData(_vfmtFloatSize(_useTint));
+            _buffer = _comp!.requestMeshRenderData(_useTint ? vfmtPosUvTwoColor : vfmtPosUvColor);
             _currentMaterial = material;
             _currentTexture = segInfo.tex!;
             _buffer.texture = segInfo.tex!;

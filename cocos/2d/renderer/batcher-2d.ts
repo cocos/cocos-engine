@@ -27,7 +27,7 @@
  * @hidden
  */
 import { JSB } from 'internal:constants';
-import { Camera, Model, RenderScene } from 'cocos/core/renderer/scene';
+import { Camera, Model } from 'cocos/core/renderer/scene';
 import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
@@ -39,7 +39,6 @@ import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D, DrawCall } from './draw-batch';
-import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { SpriteFrame } from '../assets';
@@ -49,6 +48,7 @@ import { Mat4 } from '../../core/math';
 import { IBatcher } from './i-batcher';
 import { StaticVBAccessor } from './static-vb-accessor';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -313,8 +313,8 @@ export class Batcher2D implements IBatcher {
      * Switch the mesh buffer for corresponding vertex layout if necessary.
      * @param attributes use [[VertexFormat.vfmtPosUvColor]] by default
      */
-    public switchBufferAccessor (attributes: Attribute[] = VertexFormat.vfmtPosUvColor) {
-        const strideBytes = attributes === VertexFormat.vfmtPosUvColor ? 36 /* 9x4 */ : VertexFormat.getAttributeStride(attributes);
+    public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor) {
+        const strideBytes = attributes === vfmtPosUvColor ? 36 /* 9x4 */ : getAttributeStride(attributes);
         // If current accessor not compatible with the requested attributes
         if (!this._staticVBBuffer || (this._staticVBBuffer.vertexFormatBytes) !== strideBytes) {
             let accessor = this._bufferAccessors.get(strideBytes);
@@ -331,8 +331,18 @@ export class Batcher2D implements IBatcher {
             // this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
 
             this._staticVBBuffer = accessor;
+            this._currBID = -1;
         }
         return this._staticVBBuffer;
+    }
+
+    public updateBuffer (attributes: Attribute[], bid: number) {
+        const accessor = this.switchBufferAccessor(attributes);
+        // If accessor changed, then current bid will be reset to -1, this check will pass too
+        if (this._currBID !== bid) {
+            this._currBID = bid;
+            this._indexStart = accessor.getMeshBuffer(bid).indexOffset;
+        }
     }
 
     /**
@@ -366,10 +376,8 @@ export class Batcher2D implements IBatcher {
         if (this._currHash !== dataHash || dataHash === 0 || this._currMaterial !== mat
             || this._currDepthStencilStateStage !== depthStencilStateStage || this._currBID !== bufferID) {
             this.autoMergeBatches(this._currComponent!);
-            this._currBID = bufferID;
-            // TODO add vertex format property to assembler, and use correct vertex format to switch buffer accessor
-            this.switchBufferAccessor();
             if (renderData) {
+                this.updateBuffer(renderData.vertexFormat, bufferID);
                 this._currHash = renderData.dataHash;
                 this._currComponent = renderComp;
                 this._currTransform = transform;

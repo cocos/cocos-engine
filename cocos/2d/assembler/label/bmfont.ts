@@ -64,8 +64,7 @@ export const bmfont: IAssembler = {
         const dataOffset = renderData.dataLength;
 
         renderData.dataLength += 4;
-        renderData.vertexCount = renderData.dataLength;
-        renderData.indexCount = renderData.dataLength / 2 * 3;
+        renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
 
         const dataList = renderData.data;
         const texW = spriteFrame.width;

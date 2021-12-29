@@ -70,8 +70,7 @@ export const MotionStreakAssembler: IAssembler = {
     createData (comp: MotionStreak) {
         const renderData = comp.requestRenderData();
         renderData.dataLength = 4;
-        renderData.vertexCount = 16;
-        renderData.indexCount = (16 - 2) * 3;
+        renderData.resize(16, (16 - 2) * 3);
         return renderData;
     },
 
@@ -180,8 +179,7 @@ export const MotionStreakAssembler: IAssembler = {
 
         indexCount = vertexCount <= 2 ? 0 : (vertexCount - 2) * 3;
 
-        renderData.vertexCount = vertexCount;
-        renderData.indexCount = indexCount;
+        renderData.resize(vertexCount, indexCount);
     },
 
     updateRenderDataCache (comp: MotionStreak, renderData: RenderData) {

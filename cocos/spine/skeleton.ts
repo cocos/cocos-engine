@@ -19,7 +19,7 @@ import { IBatcher } from '../2d/renderer/i-batcher';
 import { Graphics } from '../2d/components/graphics';
 import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
-import { BlendFactor, BlendOp } from '../core/gfx';
+import { Attribute, BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 
@@ -1262,12 +1262,12 @@ export class Skeleton extends Renderable2D {
         super.onDestroy();
     }
 
-    public requestMeshRenderData (vertexFloatCnt: number) {
+    public requestMeshRenderData (vertexFormat: Attribute[]) {
         if (this._meshRenderDataArray.length > 0 && this._meshRenderDataArray[this._meshRenderDataArray.length - 1].renderData.vertexCount === 0) {
             return this._meshRenderDataArray[this._meshRenderDataArray.length - 1];
         }
 
-        const renderData = new MeshRenderData(vertexFloatCnt);
+        const renderData = new MeshRenderData(vertexFormat);
         const comb: SkeletonMeshData = { renderData };
         renderData.material = null;
         this._meshRenderDataArray.push(comb);

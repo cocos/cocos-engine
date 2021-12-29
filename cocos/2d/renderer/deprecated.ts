@@ -26,8 +26,9 @@
 import * as VertexFormat from './vertex-format';
 import { Batcher2D } from './batcher-2d';
 import { DrawBatch2D } from './draw-batch';
-import { markAsWarning, replaceProperty } from '../../core/utils/x-deprecated';
+import { markAsWarning, replaceProperty, removeProperty } from '../../core/utils/x-deprecated';
 import { MeshBuffer } from './mesh-buffer';
+import { MeshRenderData } from './render-data';
 
 export { VertexFormat as UIVertexFormat };
 
@@ -60,6 +61,12 @@ replaceProperty(Batcher2D.prototype, 'Batcher2D', [
     },
     {
         name: 'acquireBufferBatch',
-        newName: 'getBufferAccessor',
+        newName: 'switchBufferAccessor',
+    },
+]);
+
+removeProperty(MeshRenderData.prototype, 'MeshRenderData', [
+    {
+        name: 'formatByte',
     },
 ]);

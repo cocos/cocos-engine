@@ -550,7 +550,8 @@ export const bmfontUtils = {
 
         const texture =  _spriteFrame ? _spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
         const renderData = _comp.renderData!;
-        renderData.dataLength = renderData.vertexCount = renderData.indexCount = 0;
+        renderData.dataLength = 0;
+        renderData.resize(0, 0);
         const anchorPoint = _uiTrans!.anchorPoint;
         const contentSize = _contentSize;
         const appX = anchorPoint.x * contentSize.width;

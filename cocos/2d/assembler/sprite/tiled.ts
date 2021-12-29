@@ -88,9 +88,8 @@ export const tiled: IAssembler = {
         this.updateVerts(sprite, sizableWidth, sizableHeight, row, col);
 
         // update data property
-        renderData.vertexCount = row * col * 4;
-        renderData.indexCount = row * col * 6;
         renderData.uvDirty = false;
+        renderData.resize(row * col * 4, row * col * 6);
         renderData.vertDirty = false;
         // Tiled mode create data is after updateColor
         this.updateColor(sprite);
