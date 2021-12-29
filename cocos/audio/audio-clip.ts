@@ -69,6 +69,9 @@ export class AudioClip extends Asset {
     public destroy (): boolean {
         const destroyResult = super.destroy();
         this._player?.destroy();
+        this._player = undefined;
+        // @ts-expect-error Type 'undefined' is not assignable to type 'AudioPlayer'
+        this._meta!.player = undefined;
         return destroyResult;
     }
 

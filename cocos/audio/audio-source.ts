@@ -118,6 +118,7 @@ export class AudioSource extends Component {
                 // In case the developers set AudioSource.clip concurrently,
                 // we should choose the last one player of AudioClip set to AudioSource.clip
                 // instead of the last loaded one.
+                player.destroy();
                 return;
             }
             this._isLoaded = true;
@@ -223,6 +224,8 @@ export class AudioSource extends Component {
     public onDestroy () {
         this.stop();
         this._player?.destroy();
+        // @ts-expect-error Type 'undefined' is not assignable to type 'AudioPlayer | null'.
+        this._player = undefined;
     }
 
     private _getRootNode (): Node | null | undefined {
