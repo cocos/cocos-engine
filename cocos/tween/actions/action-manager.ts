@@ -205,6 +205,9 @@ export class ActionManager {
         }
     }
 
+    /**
+     * @internal
+     */
     _removeActionByTag (tag: number, element: any, target?: Node) {
         for (let i = 0, l = element.actions.length; i < l; ++i) {
             const action = element.actions[i];
@@ -218,6 +221,9 @@ export class ActionManager {
         }
     }
 
+    /**
+     * @internal
+     */
     _removeAllActionsByTag (tag: number, element: any, target?: Node) {
         const validActions:any[] = [];
         for (let i = 0, l = element.actions.length; i < l; ++i) {
