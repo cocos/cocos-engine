@@ -31,6 +31,7 @@ import {
 import { legacyCC } from '../global-exports';
 
 const renderTextureProto: any = jsb.RenderTexture.prototype;
+const textureBaseProto: any = jsb.TextureBase.prototype;
 
 renderTextureProto.createNode = null!;
 
@@ -64,11 +65,19 @@ const _descriptor2$d = _applyDecoratedDescriptor(_class2$j.prototype, '_height',
 });
 
 renderTextureProto._ctor = function () {
-    jsb.TextureBase.prototype._ctor.apply(this, arguments);
+    textureBaseProto.prototype._ctor.apply(this, arguments);
     // for deserialization
     // _initializerDefineProperty(_this, '_width', _descriptor$h, _assertThisInitialized(_this));
     // _initializerDefineProperty(_this, '_height', _descriptor2$d, _assertThisInitialized(_this));
 };
+
+renderTextureProto._deserialize = function (serializedData: any, handle: any) {
+    const data = serializedData;
+    this._width = data.w;
+    this._height = data.h;
+    this._name = data.n;
+    textureBaseProto._deserialize.call(this, data.base, handle);
+}
 
 clsDecorator(RenderTexture);
 
