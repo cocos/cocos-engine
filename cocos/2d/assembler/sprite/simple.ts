@@ -41,7 +41,6 @@ const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
-// const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * simple 组装器
@@ -52,7 +51,6 @@ export const simple: IAssembler = {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 2;
         renderData.resize(4, 6);
-        // renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
 
@@ -80,9 +78,6 @@ export const simple: IAssembler = {
         if (renderData && frame) {
             if (renderData.vertDirty) {
                 this.updateVertexData(sprite);
-            }
-            if (renderData.uvDirty) {
-                this.updateUvs(sprite);
             }
             renderData.updateRenderData(sprite, frame);
         }
@@ -233,7 +228,7 @@ export const simple: IAssembler = {
         renderData.vertDirty = true;
     },
 
-    updateUvs (sprite: Sprite) {
+    updateUVs (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
         const uv = sprite.spriteFrame!.uv;
@@ -245,8 +240,6 @@ export const simple: IAssembler = {
         vData[22] = uv[5];
         vData[30] = uv[6];
         vData[31] = uv[7];
-
-        renderData.uvDirty = false;
     },
 
     updateColor (sprite: Sprite) {
@@ -263,7 +256,6 @@ export const simple: IAssembler = {
             vData[colorOffset + 1] = colorG;
             vData[colorOffset + 2] = colorB;
             vData[colorOffset + 3] = colorA;
-
             colorOffset += 9;
         }
     },

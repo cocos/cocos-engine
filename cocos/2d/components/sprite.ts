@@ -38,10 +38,9 @@ import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { IBatcher } from '../renderer/i-batcher';
 import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
-import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
-import { director, Material, RenderTexture } from '../../core';
+import { Material, RenderTexture } from '../../core';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 /**
@@ -89,7 +88,6 @@ export enum SpriteType {
     //  */
     // MESH: 4
 }
-
 ccenum(SpriteType);
 
 /**
@@ -124,7 +122,6 @@ enum FillType {
      */
     RADIAL = 2,
 }
-
 ccenum(FillType);
 
 /**
@@ -160,7 +157,6 @@ enum SizeMode {
      */
     RAW = 2,
 }
-
 ccenum(SizeMode);
 
 enum EventType {
@@ -215,9 +211,7 @@ export class Sprite extends Renderable2D {
         if (this._atlas === value) {
             return;
         }
-
         this._atlas = value;
-        //        this.spriteFrame = null;
     }
 
     /**
@@ -354,7 +348,7 @@ export class Sprite extends Renderable2D {
         this._fillStart = clamp(value, 0, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
-            this._renderData.uvDirty = true;
+            this._updateUVs();
         }
     }
 
@@ -381,7 +375,7 @@ export class Sprite extends Renderable2D {
         this._fillRange = clamp(value, -1, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
-            this._renderData.uvDirty = true;
+            this._updateUVs();
         }
     }
     /**
@@ -491,10 +485,8 @@ export class Sprite extends Renderable2D {
     protected _isTrimmedMode = true;
     @serializable
     protected _useGrayscale = false;
-    // _state = 0;
     @serializable
     protected _atlas: SpriteAtlas | null = null;
-    // static State = State;
 
     // macro.UI_GPU_DRIVEN
     public declare tillingOffsetWithTrim: number[];
@@ -507,40 +499,20 @@ export class Sprite extends Renderable2D {
     }
 
     public __preload () {
-        this.changeMaterialForDefine();
-
         super.__preload();
 
         if (EDITOR) {
+            // Force update uv, material define, active material, etc
+            this._applySpriteFrame(null);
             this._resized();
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
     }
 
-    // /**
-    //  * Change the state of sprite.
-    //  * @method setState
-    //  * @see `Sprite.State`
-    //  * @param state {Sprite.State} NORMAL or GRAY State.
-    //  */
-    // getState() {
-    //     return this._state;
-    // }
-
-    // setState(state) {
-    //     if (this._state === state) return;
-    //     this._state = state;
-    //     this._activateMaterial();
-    // }
-
-    // onLoad() {}
-
     public onEnable () {
         super.onEnable();
-
-        // this._flushAssembler();
-        this._activateMaterial();
-        this._markForUpdateUvDirty();
+        // Force update uv, material define, active material, etc
+        this._applySpriteFrame(null);
         if (UI_GPU_DRIVEN) {
             this.tillingOffsetWithTrim = [];
         }
@@ -644,8 +616,18 @@ export class Sprite extends Renderable2D {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
-                this._colorDirty = true;
+                this._assembler.updateUVs(this);
+                // this._colorDirty = true;
                 this._updateColor();
+            }
+        }
+
+        // Only Sliced type need update uv when sprite frame insets changed
+        if (this._spriteFrame) {
+            if (this._type === SpriteType.SLICED) {
+                this._spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            } else {
+                this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
             }
         }
     }
@@ -657,7 +639,7 @@ export class Sprite extends Renderable2D {
                     const size = this._spriteFrame.originalSize;
                     this.node._uiProps.uiTransformComp!.setContentSize(size);
                 } else if (SizeMode.TRIMMED === this._sizeMode) {
-                    const rect = this._spriteFrame.getRect();
+                    const rect = this._spriteFrame.rect;
                     this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
                 }
             }
@@ -676,11 +658,11 @@ export class Sprite extends Renderable2D {
             let expectedW = actualSize.width;
             let expectedH = actualSize.height;
             if (this._sizeMode === SizeMode.RAW) {
-                const size = this._spriteFrame.getOriginalSize();
+                const size = this._spriteFrame.originalSize;
                 expectedW = size.width;
                 expectedH = size.height;
             } else if (this._sizeMode === SizeMode.TRIMMED) {
-                const rect = this._spriteFrame.getRect();
+                const rect = this._spriteFrame.rect;
                 expectedW = rect.width;
                 expectedH = rect.height;
             }
@@ -705,20 +687,19 @@ export class Sprite extends Renderable2D {
         }
     }
 
+    private _updateUVs () {
+        if (this._assembler) {
+            this._assembler.updateUVs(this);
+        }
+    }
+
     private _applySpriteFrame (oldFrame: SpriteFrame | null) {
         const spriteFrame = this._spriteFrame;
 
-        if (this._renderData) {
-            if (!this._renderData.uvDirty) {
-                if (oldFrame && spriteFrame) {
-                    this._renderData.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
-                } else {
-                    this._renderData.uvDirty = true;
-                }
-            }
-
-            this._renderDataFlag = this._renderData.uvDirty;
+        if (oldFrame && this._type === SpriteType.SLICED) {
+            oldFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
         }
+        this._updateUVs();
 
         let textureChanged = false;
         if (spriteFrame) {
@@ -730,22 +711,9 @@ export class Sprite extends Renderable2D {
                 this.changeMaterialForDefine();
             }
             this._applySpriteSize();
-        }
-        /*
-        if (EDITOR) {
-            // Set atlas
-            this._applyAtlas(spriteFrame);
-        }
-*/
-    }
-
-    /**
-     * 强制刷新 uv。
-     */
-    private _markForUpdateUvDirty () {
-        if (this._renderData) {
-            this._renderData.uvDirty = true;
-            this._renderDataFlag = true;
+            if (this._type === SpriteType.SLICED) {
+                spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            }
         }
     }
 

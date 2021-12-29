@@ -37,7 +37,6 @@ import { ttfUtils } from './ttfUtils';
 import { IRenderData } from '../../renderer/render-data';
 
 const WHITE = Color.WHITE.clone();
-const QUAD_INDICES = Uint16Array.from([0, 1, 2, 2, 1, 3]);
 
 /**
  * ttf 组装器
@@ -142,10 +141,6 @@ export const ttf: IAssembler = {
             return;
         }
         const vData = renderData.chunk.vb;
-        if (!vData || !renderData.uvDirty) {
-            return;
-        }
-
         const uv = comp.ttfSpriteFrame!.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
@@ -155,8 +150,6 @@ export const ttf: IAssembler = {
         vData[22] = uv[5];
         vData[30] = uv[6];
         vData[31] = uv[7];
-
-        renderData.uvDirty = false;
     },
 };
 

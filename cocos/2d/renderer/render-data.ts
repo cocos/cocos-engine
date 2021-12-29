@@ -137,7 +137,6 @@ export class RenderData extends BaseRenderData {
         _pool.removeAt(idx);
     }
 
-    public uvDirty = true;
     public vertDirty = true;
 
     private _data: IRenderData[] = [];
@@ -234,7 +233,6 @@ export class RenderData extends BaseRenderData {
         this._pivotY = 0;
         this._width = 0;
         this._height = 0;
-        this.uvDirty = true;
         this.vertDirty = true;
         this.material = null;
 

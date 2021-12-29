@@ -57,7 +57,7 @@ export const tiled: IAssembler = {
 
         renderData.updateRenderData(sprite, frame);
 
-        if (!renderData.uvDirty && !renderData.vertDirty) {
+        if (!renderData.vertDirty) {
             return;
         }
 

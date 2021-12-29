@@ -28,7 +28,6 @@
  * @module ui-assembler
  */
 
-import { SpriteFrame } from '../../assets';
 import { Mat4, Vec3 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
@@ -68,35 +67,32 @@ export const sliced: IAssembler = {
         //     }
         // }
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        // TODO update material and uv
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
             const vertDirty = renderData.vertDirty;
             if (vertDirty) {
-                this.updateVertexData!(sprite);
-            }
-            // TODO
-            if (renderData.uvDirty) {
-                this.updateUvs(sprite);
+                this.updateVertexData(sprite);
             }
             renderData.updateRenderData(sprite, frame);
         }
     },
 
     updateVertexData (sprite: Sprite) {
-        const renderData: RenderData | null = sprite.renderData;
-        const dataList: IRenderData[] = renderData!.data;
+        const renderData: RenderData = sprite.renderData!;
+        const dataList: IRenderData[] = renderData.data;
         const uiTrans = sprite.node._uiProps.uiTransformComp!;
         const width = uiTrans.width;
         const height = uiTrans.height;
         const appX = uiTrans.anchorX * width;
         const appY = uiTrans.anchorY * height;
 
-        const frame: SpriteFrame|null = sprite.spriteFrame;
-        const leftWidth = frame!.insetLeft;
-        const rightWidth = frame!.insetRight;
-        const topHeight = frame!.insetTop;
-        const bottomHeight = frame!.insetBottom;
+        const frame = sprite.spriteFrame!;
+        const leftWidth = frame.insetLeft;
+        const rightWidth = frame.insetRight;
+        const topHeight = frame.insetTop;
+        const bottomHeight = frame.insetBottom;
 
         let sizableWidth = width - leftWidth - rightWidth;
         let sizableHeight = height - topHeight - bottomHeight;
@@ -170,20 +166,17 @@ export const sliced: IAssembler = {
         }
     },
 
-    updateUvs (sprite: Sprite) {
+    updateUVs (sprite: Sprite) {
         const renderData = sprite.renderData!;
         const vData = renderData.chunk.vb;
         const stride = renderData.floatStride;
         const uv = sprite.spriteFrame!.uvSliced;
         let uvOffset = 3;
-
         for (let i = 0; i < 16; i++) {
             vData[uvOffset] = uv[i].u;
             vData[uvOffset + 1] = uv[i].v;
             uvOffset += stride;
         }
-
-        renderData.uvDirty = false;
     },
 
     updateColor (sprite: Sprite) {

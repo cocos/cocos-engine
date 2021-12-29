@@ -101,7 +101,7 @@ export const bmfontUtils = {
             _comp.actualFontSize = _fontSize;
             _uiTrans.setContentSize(_contentSize);
 
-            _comp.renderData!.vertDirty = _comp.renderData!.uvDirty = false;
+            _comp.renderData!.vertDirty = false;
             // fix bmfont run updateRenderData twice bug
             _comp.markForUpdateRenderData(false);
 
@@ -127,6 +127,7 @@ export const bmfontUtils = {
         shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
 
         dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
+        // TODO update material and uv
     },
 
     _updateLabelInfo (comp) {

@@ -48,58 +48,37 @@ const vec3_temp = new Vec3();
 export const barFilled: IAssembler = {
     updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
-
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        // if (frame) {
-        //     if (!frame._original && dynamicAtlasManager) {
-        //         dynamicAtlasManager.insertSpriteFrame(frame);
-        //     }
-        //     if (sprite._material._texture !== frame._texture) {
-        //         sprite._activateMaterial();
-        //     }
-        // }
-
         dynamicAtlasManager.packToDynamicAtlas(sprite, frame);
+        // TODO update material and uv
 
         const renderData = sprite.renderData;
         if (renderData && frame) {
             renderData.updateRenderData(sprite, frame);
-            const uvDirty = renderData.uvDirty;
             const vertDirty = renderData.vertDirty;
 
-            if (!uvDirty && !vertDirty) {
+            if (!vertDirty) {
                 return;
             }
 
-            let fillStart = sprite.fillStart;
-            let fillRange = sprite.fillRange;
-
-            if (fillRange < 0) {
-                fillStart += fillRange;
-                fillRange = -fillRange;
-            }
-
-            fillRange = fillStart + fillRange;
-
-            fillStart = fillStart > 1.0 ? 1.0 : fillStart;
-            fillStart = fillStart < 0.0 ? 0.0 : fillStart;
-
-            fillRange = fillRange > 1.0 ? 1.0 : fillRange;
-            fillRange = fillRange < 0.0 ? 0.0 : fillRange;
-            fillRange -= fillStart;
-            fillRange = fillRange < 0 ? 0 : fillRange;
-
-            let fillEnd = fillStart + fillRange;
-            fillEnd = fillEnd > 1 ? 1 : fillEnd;
-
-            if (uvDirty) {
-                this.updateUVs!(sprite, fillStart, fillEnd);
-            }
-            if (vertDirty) {
-                if (this.updateVertexData) {
-                    this.updateVertexData(sprite, fillStart, fillEnd);
+            if (this.updateVertexData) {
+                let fillStart = sprite.fillStart;
+                let fillRange = sprite.fillRange;
+                if (fillRange < 0) {
+                    fillStart += fillRange;
+                    fillRange = -fillRange;
                 }
+                fillRange = fillStart + fillRange;
+                fillStart = fillStart > 1.0 ? 1.0 : fillStart;
+                fillStart = fillStart < 0.0 ? 0.0 : fillStart;
+                fillRange = fillRange > 1.0 ? 1.0 : fillRange;
+                fillRange = fillRange < 0.0 ? 0.0 : fillRange;
+                fillRange -= fillStart;
+                fillRange = fillRange < 0 ? 0 : fillRange;
+                let fillEnd = fillStart + fillRange;
+                fillEnd = fillEnd > 1 ? 1 : fillEnd;
+
+                this.updateUVs(sprite, fillStart, fillEnd);
+                this.updateVertexData(sprite, fillStart, fillEnd);
             }
         }
     },
@@ -173,8 +152,6 @@ export const barFilled: IAssembler = {
             errorID(2626);
             break;
         }
-
-        renderData.uvDirty = false;
     },
 
     updateVertexData (sprite: Sprite, fillStart: number, fillEnd: number) {
