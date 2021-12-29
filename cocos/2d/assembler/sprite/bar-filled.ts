@@ -33,20 +33,19 @@ import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
-import { fillVerticesWithoutCalc3D } from '../utils';
 import { errorID } from '../../../core/platform/debug';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const FillType = Sprite.FillType;
 const matrix = new Mat4();
-const tempColor = new Color(255, 255, 255, 255);
+const vec3_temp = new Vec3();
 
 /**
  * barFilled 组装器
  * 可通过 `UI.barFilled` 获取该组装器。
  */
 export const barFilled: IAssembler = {
-    useModel: false,
     updateRenderData (sprite: Sprite) {
         const frame = sprite.spriteFrame;
 
@@ -101,7 +100,6 @@ export const barFilled: IAssembler = {
                 if (this.updateVertexData) {
                     this.updateVertexData(sprite, fillStart, fillEnd);
                 }
-                this.updateWorldVertexData!(sprite);
             }
         }
     },
@@ -109,7 +107,7 @@ export const barFilled: IAssembler = {
     updateUVs (sprite: Sprite, fillStart: number, fillEnd: number) {
         const spriteFrame = sprite.spriteFrame!;
         const renderData = sprite.renderData!;
-        const dataList = renderData.data;
+        const vData = renderData.chunk.vb;
 
         // build uvs
         const atlasWidth = spriteFrame.width;
@@ -152,31 +150,31 @@ export const barFilled: IAssembler = {
 
         switch (sprite.fillType) {
         case FillType.HORIZONTAL:
-            dataList[0].u = quadUV0 + (quadUV2 - quadUV0) * fillStart;
-            dataList[0].v = quadUV1 + (quadUV3 - quadUV1) * fillStart;
-            dataList[1].u = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
-            dataList[1].v = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
-            dataList[2].u = quadUV4 + (quadUV6 - quadUV4) * fillStart;
-            dataList[2].v = quadUV5 + (quadUV7 - quadUV5) * fillStart;
-            dataList[3].u = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
-            dataList[3].v = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
+            vData[3]  = quadUV0 + (quadUV2 - quadUV0) * fillStart;
+            vData[4]  = quadUV1 + (quadUV3 - quadUV1) * fillStart;
+            vData[12] = quadUV0 + (quadUV2 - quadUV0) * fillEnd;
+            vData[13] = quadUV1 + (quadUV3 - quadUV1) * fillEnd;
+            vData[21] = quadUV4 + (quadUV6 - quadUV4) * fillStart;
+            vData[22] = quadUV5 + (quadUV7 - quadUV5) * fillStart;
+            vData[30] = quadUV4 + (quadUV6 - quadUV4) * fillEnd;
+            vData[31] = quadUV5 + (quadUV7 - quadUV5) * fillEnd;
             break;
         case FillType.VERTICAL:
-            dataList[0].u = quadUV0 + (quadUV4 - quadUV0) * fillStart;
-            dataList[0].v = quadUV1 + (quadUV5 - quadUV1) * fillStart;
-            dataList[1].u = quadUV2 + (quadUV6 - quadUV2) * fillStart;
-            dataList[1].v = quadUV3 + (quadUV7 - quadUV3) * fillStart;
-            dataList[2].u = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
-            dataList[2].v = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
-            dataList[3].u = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
-            dataList[3].v = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
+            vData[3]  = quadUV0 + (quadUV4 - quadUV0) * fillStart;
+            vData[4]  = quadUV1 + (quadUV5 - quadUV1) * fillStart;
+            vData[12] = quadUV2 + (quadUV6 - quadUV2) * fillStart;
+            vData[13] = quadUV3 + (quadUV7 - quadUV3) * fillStart;
+            vData[21] = quadUV0 + (quadUV4 - quadUV0) * fillEnd;
+            vData[22] = quadUV1 + (quadUV5 - quadUV1) * fillEnd;
+            vData[30] = quadUV2 + (quadUV6 - quadUV2) * fillEnd;
+            vData[31] = quadUV3 + (quadUV7 - quadUV3) * fillEnd;
             break;
         default:
             errorID(2626);
             break;
         }
 
-        renderData!.uvDirty = false;
+        renderData.uvDirty = false;
     },
 
     updateVertexData (sprite: Sprite, fillStart: number, fillEnd: number) {
@@ -215,23 +213,20 @@ export const barFilled: IAssembler = {
             break;
         }
 
-        dataList[4].x = l;
-        dataList[4].y = b;
-        dataList[5].x = r;
-        dataList[5].y = b;
-        dataList[6].x = l;
-        dataList[6].y = t;
-        dataList[7].x = r;
-        dataList[7].y = t;
-
-        renderData!.vertDirty = false;
+        dataList[0].x = l;
+        dataList[0].y = b;
+        dataList[1].x = r;
+        dataList[1].y = b;
+        dataList[2].x = l;
+        dataList[2].y = t;
+        dataList[3].x = r;
+        dataList[3].y = t;
     },
 
     createData (sprite: Sprite) {
         const renderData: RenderData|null = sprite.requestRenderData();
-        // 0-4 for world vertex
-        // 5-8 for local vertex
-        renderData.dataLength = 8;
+        // 0-4 for local vertex
+        renderData.dataLength = 4;
         renderData.resize(4, 6);
 
         const dataList = renderData.data;
@@ -242,29 +237,66 @@ export const barFilled: IAssembler = {
         return renderData;
     },
 
-    updateWorldVertexData (sprite: Sprite) {
+    updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
         const node = sprite.node;
-        const dataList = sprite.renderData!.data;
-
         node.getWorldMatrix(matrix);
+
+        const renderData = sprite.renderData!;
+        const stride = renderData.floatStride;
+        const dataList = sprite.renderData!.data;
+        const vData = chunk.vb;
+
+        let offset = 0;
         for (let i = 0; i < 4; i++) {
-            const local = dataList[i + 4];
-            const world = dataList[i];
-            Vec3.transformMat4(world, local, matrix);
+            const local = dataList[i];
+            Vec3.transformMat4(vec3_temp, local, matrix);
+            offset = i * stride;
+            vData[offset++] = vec3_temp.x;
+            vData[offset++] = vec3_temp.y;
+            vData[offset++] = vec3_temp.z;
         }
     },
 
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
-        if (sprite.node.hasChangedFlags) {
-            this.updateWorldVertexData(sprite);
+        const renderData: RenderData = sprite.renderData!;
+        const chunk = renderData.chunk;
+        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+            this.updateWorldVertexData(sprite, chunk);
+            renderData.vertDirty = false;
         }
 
-        const node = sprite.node;
-        tempColor.set(sprite.color);
-        tempColor.a = node._uiProps.opacity * 255;
-        fillVerticesWithoutCalc3D(node, renderer, sprite.renderData!, tempColor);
+        const bid = chunk.bufferId;
+        const vid = chunk.vertexOffset;
+        const meshBuffer = chunk.vertexAccessor.getMeshBuffer(chunk.bufferId);
+        const ib = chunk.vertexAccessor.getIndexBuffer(bid);
+        let indexOffset = meshBuffer.indexOffset;
+        ib[indexOffset++] = vid;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 2;
+        ib[indexOffset++] = vid + 1;
+        ib[indexOffset++] = vid + 3;
+        meshBuffer.indexOffset += 6;
+        meshBuffer.setDirty();
     },
 
     updateColor (sprite: Sprite) {
+        const renderData = sprite.renderData!;
+        const vData = renderData.chunk.vb;
+        const stride = renderData.floatStride;
+        let colorOffset = 5;
+        const color = sprite.color;
+        const colorR = color.r / 255;
+        const colorG = color.g / 255;
+        const colorB = color.b / 255;
+        const colorA = sprite.node._uiProps.opacity;
+        for (let i = 0; i < 4; i++) {
+            vData[colorOffset] = colorR;
+            vData[colorOffset + 1] = colorG;
+            vData[colorOffset + 2] = colorB;
+            vData[colorOffset + 3] = colorA;
+
+            colorOffset += stride;
+        }
     },
 };

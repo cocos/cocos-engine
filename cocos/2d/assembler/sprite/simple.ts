@@ -247,7 +247,6 @@ export const simple: IAssembler = {
         vData[31] = uv[7];
 
         renderData.uvDirty = false;
-        this.vertexDirty = true;
     },
 
     updateColor (sprite: Sprite) {
@@ -267,6 +266,5 @@ export const simple: IAssembler = {
 
             colorOffset += 9;
         }
-        this.vertexDirty = true;
     },
 };
