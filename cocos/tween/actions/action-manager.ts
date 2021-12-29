@@ -225,21 +225,14 @@ export class ActionManager {
      * @internal
      */
     _removeAllActionsByTag (tag: number, element: any, target?: Node) {
-        const validActions:any[] = [];
-        for (let i = 0, l = element.actions.length; i < l; ++i) {
+        for (let i = element.actions.length - 1; i >= 0; --i) {
             const action = element.actions[i];
             if (action && action.getTag() === tag) {
                 if (target && action.getOriginalTarget() !== target) {
-                    validActions.push(action);
                     continue;
                 }
-            } else {
-                validActions.push(action);
+                this._removeActionAtIndex(i, element);
             }
-        }
-        element.actions = validActions;
-        if (element.actions.length === 0) {
-            this._deleteHashElement(element);
         }
     }
 
