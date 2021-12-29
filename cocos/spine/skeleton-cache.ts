@@ -4,7 +4,7 @@
  */
 
 import { TrackEntryListeners } from './track-entry-listeners';
-import spine from './lib/spine-core';
+import spine from './lib/spine-core.js';
 import { Texture2D } from '../core';
 // Permit max cache time, unit is second.
 const MaxCacheTime = 30;
