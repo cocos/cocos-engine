@@ -541,7 +541,7 @@ export class Scheduler extends System {
      * @param [delay=0]
      * @param [paused=fasle]
      */
-    public schedule (callback: () => void, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
+    public schedule (callback: (dt?: number) => void, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
         if (typeof callback !== 'function') {
             const tmp = callback;
             // @ts-expect-error Notes written for over eslint
