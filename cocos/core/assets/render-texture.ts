@@ -181,7 +181,7 @@ export class RenderTexture extends TextureBase {
      */
     public readPixels (x = 0, y = 0, width?: number, height?: number) : Uint8Array | null {
         width = width || this.width;
-        height = width || this.height;
+        height = height || this.height;
         const gfxTexture = this.getGFXTexture();
         if (!gfxTexture) {
             return null;
