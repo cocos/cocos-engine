@@ -3,7 +3,7 @@
  * @module spine
  */
 
-import spine from './lib/spine-core';
+import spine from './lib/spine-core.js';
 
 /**
  * @en
