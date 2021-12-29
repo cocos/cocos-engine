@@ -248,10 +248,10 @@ export class Skybox {
         const isHDR = root.pipeline.pipelineSceneData.isHDR;
         if (isHDR) {
             if (envmapHDR) {
-                root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = envmapHDR.mipmapLevel;
+                root.pipeline.pipelineSceneData.ambient.mipmapLevelHDR = envmapHDR.mipmapLevel;
             }
         } else if (envmapLDR) {
-            root.pipeline.pipelineSceneData.ambient.groundAlbedo.w = envmapLDR.mipmapLevel;
+            root.pipeline.pipelineSceneData.ambient.mipmapLevelLDR = envmapLDR.mipmapLevel;
         }
 
         this._updateGlobalBinding();

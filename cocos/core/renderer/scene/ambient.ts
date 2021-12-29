@@ -139,6 +139,34 @@ export class Ambient {
 
     protected _enabled = false;
     protected declare _nativeObj: NativeAmbient | null;
+    protected _mipmapLevelHDR = 0;
+    protected _mipmapLevelLDR = 0;
+    set mipmapLevelHDR(val)
+    {
+        this._mipmapLevelHDR = val;
+    }
+    get mipmapLevelHDR()
+    {
+        return this._mipmapLevelHDR;
+    }
+    set mipmapLevelLDR(val)
+    {
+        this._mipmapLevelLDR = val;
+    }
+    get mipmapLevelLDR()
+    {
+        return this._mipmapLevelLDR;
+    }
+    public getMipmapLevel()
+    {
+        const isHDR = (legacyCC.director.root).pipeline.pipelineSceneData.isHDR;
+        if (isHDR) {
+            return this._mipmapLevelHDR;
+        } else {
+            return this._mipmapLevelLDR;
+        }
+    }
+
 
     get native (): NativeAmbient {
         return this._nativeObj!;
