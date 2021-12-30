@@ -38,6 +38,7 @@ import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window'
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
 import { BufferTextureCopy } from '../gfx/base/define';
+import { errorID } from '..';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -185,14 +186,14 @@ export class RenderTexture extends TextureBase {
         height = height || this.height;
         const gfxTexture = this.getGFXTexture();
         if (!gfxTexture) {
-            console.error('getGFXTexture null');
+            errorID(7606);
             return null;
         }
         const needSize = 4 * width * height;
         if (buffer === undefined) {
             buffer = new Uint8Array(needSize);
         } else if (buffer.length < needSize) {
-            console.error('buffer size need larger than 4 * width * height');
+            errorID(7607, needSize);
             return null;
         }
 

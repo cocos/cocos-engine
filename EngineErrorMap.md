@@ -2881,6 +2881,14 @@ saveToFile isn't supported on Cocos2d-Html5
 
 newCCImage isn't supported on Cocos2d-Html5
 
+### 7606
+
+GFXTexture is null
+
+### 7607
+
+readPixels buffer size need larger than %d
+
 ### 7700
 
 On the web is always keep the aspect ratio
