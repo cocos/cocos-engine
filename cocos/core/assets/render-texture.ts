@@ -38,7 +38,7 @@ import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window'
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
 import { BufferTextureCopy } from '../gfx/base/define';
-import { errorID } from '..';
+import { errorID } from '../platform/debug';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
