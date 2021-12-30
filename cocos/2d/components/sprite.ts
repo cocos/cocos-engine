@@ -603,8 +603,7 @@ export class Sprite extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        // macro.UI_GPU_DRIVEN
-        const assembler = Sprite.Assembler!.getAssembler(this);
+        const assembler = Sprite.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();

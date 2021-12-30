@@ -536,6 +536,7 @@ export class Batcher2D implements IBatcher {
             return;
         }
         assertIsTrue(this._indexStart < buf.indexOffset);
+        buf.setDirty();
         // Request ia
         const ia = buf.requireFreeIA(this.device);
         ia.firstIndex = this._indexStart;

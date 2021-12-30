@@ -799,7 +799,7 @@ export class Label extends Renderable2D {
     }
 
     protected _flushAssembler () {
-        const assembler = Label.Assembler!.getAssembler(this);
+        const assembler = Label.Assembler.getAssembler(this);
 
         if (this._assembler !== assembler) {
             this.destroyRenderData();

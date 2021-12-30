@@ -131,7 +131,6 @@ export class StaticVBAccessor extends BufferAccessor {
         //     // Append index buffer
         //     buf.iData.set(vbChunk.ib, buf.indexOffset);
         //     buf.indexOffset += vbChunk.ib.length;
-        //     buf.setDirty();
         // }
     }
 

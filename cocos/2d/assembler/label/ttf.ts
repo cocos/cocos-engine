@@ -110,7 +110,6 @@ export const ttf: IAssembler = {
         ib[indexOffset++] = vid + 1;
         ib[indexOffset++] = vid + 3;
         meshBuffer.indexOffset += 6;
-        meshBuffer.setDirty();
         // slow version
         // const chunk = renderData.chunk;
         // renderer.getBufferAccessor().appendIndices(chunk);

@@ -296,7 +296,7 @@ export class Renderable2D extends RenderableComponent {
      * @en The render data assembler
      * @zh 渲染数据组装器
      */
-    public static Assembler: IAssemblerManager | null = null;
+    public static Assembler: IAssemblerManager = null!;
     /**
      * @en The post render data assembler
      * @zh 后置渲染数据组装器
@@ -424,7 +424,6 @@ export class Renderable2D extends RenderableComponent {
         if (!this._renderData) {
             return;
         }
-
         RenderData.remove(this._renderData);
         this._renderData = null;
     }
