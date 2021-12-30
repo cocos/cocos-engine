@@ -40,6 +40,7 @@ vec3 BRDFApprox (vec3 specular, float roughness, float NoV) {
 }
 
 #if USE_REFLECTION_DENOISE
+#pragma extension([GL_OES_standard_derivatives, __VERSION__ < 110])
   vec3 GetEnvReflectionWithMipFiltering(vec3 R, float roughness, float mipCount, float denoiseIntensity) {
     #if CC_USE_IBL
     	float mip = roughness * mipCount;
@@ -69,7 +70,7 @@ struct StandardSurface {
   // albedo
   vec4 albedo;
   // these two need to be in the same coordinate system
-  vec3 position;
+  HIGHP_VALUE_STRUCT_DEFINE(vec3, position);
   vec3 normal;
   // emissive
   vec3 emissive;
@@ -88,8 +89,11 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
  
   vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
 
+  vec3 position;
+  HIGHP_VALUE_FROM_STRUCT_DEFINED(position, s.position);
+
   vec3 N = normalize(s.normal);
-  vec3 V = normalize(cc_cameraPos.xyz - s.position);
+  vec3 V = normalize(cc_cameraPos.xyz - position);
 
   float NV = max(abs(dot(N, V)), 0.0);
   specular = BRDFApprox(specular, s.roughness, NV);

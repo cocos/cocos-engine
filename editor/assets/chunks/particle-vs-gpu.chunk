@@ -78,6 +78,7 @@ vec4 scaleAndAdd (vec4 a, vec4 b, float scale) {
 
 // Vulkan compatible issue#9858, do not use large number (more than 100) in mod function
 float pseudoRandom(float x) {
+#if USE_VK_SHADER
   float o = x;
   x = mod(x - 1.0, 2.0) - 1.0;
   float freqVar = 10.16640753482; //3.1415927*(sqrt(5.0)+1.0);
@@ -86,6 +87,11 @@ float pseudoRandom(float x) {
   v *= 0.7071067812; // fix sheared 'distance' measurements - but this is 1D so unsure it's even a good thing to try
   v = y < 0.0 ? -v : v;
   return v;
+#else
+  float seed = mod(x, 233280.);
+  float q = (seed * 9301. + 49297.) / 233280.;
+  return fract(q);
+#endif
 }
 
 #if COLOR_OVER_TIME_MODULE_ENABLE
