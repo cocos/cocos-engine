@@ -43,6 +43,7 @@ type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Typ
 type AllowedNames<Base, Type> = FlagExcludedType<Base, Type>[keyof Base];
 type KeyPartial<T, K extends keyof T> = { [P in K]?: T[P] };
 type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
+// eslint-disable-next-line @typescript-eslint/ban-types
 type ConstructorType<T> = OmitType<T, Function>;
 
 /**
@@ -241,6 +242,7 @@ export class Tween<T> {
      * @param {Function} callback
      * @return {Tween}
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     call (callback: Function): Tween<T> {
         const action = callFunc(callback);
         this._actions.push(action);
@@ -396,6 +398,7 @@ export class Tween<T> {
      * @zh
      * 停止所有指定标签的缓动
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     static stopAllByTag (tag: number, target?: object) {
         TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target as any);
     }
@@ -405,6 +408,7 @@ export class Tween<T> {
      * @zh
      * 停止所有指定对象的缓动
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     static stopAllByTarget (target?: object) {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target as any);
     }
