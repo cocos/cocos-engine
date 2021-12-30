@@ -121,7 +121,7 @@ export const ttfUtils =  {
             trans.setContentSize(_canvasSize);
 
             this.updateVertexData(comp);
-            this.updateUvs(comp);
+            this.updateUVs(comp);
 
             comp.markForUpdateRenderData(false);
 
@@ -139,7 +139,7 @@ export const ttfUtils =  {
     updateVertexData (comp: Label) {
     },
 
-    updateUvs (comp: Label) {
+    updateUVs (comp: Label) {
     },
 
     updateOpacity (comp: Label) {

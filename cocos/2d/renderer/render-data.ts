@@ -76,6 +76,10 @@ export class BaseRenderData {
         this.vertexFormat = vertexFormat;
     }
 
+    public isValid () {
+        return this._ic > 0 && this.chunk.vertexAccessor;
+    }
+
     public resize (vertexCount: number, indexCount: number) {
         if (vertexCount === this._vc && indexCount === this._ic) return;
         this._vc = vertexCount;

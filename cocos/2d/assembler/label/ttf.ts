@@ -136,7 +136,7 @@ export const ttf: IAssembler = {
         data[1].y = height - appY;
     },
 
-    updateUvs (comp: Label) {
+    updateUVs (comp: Label) {
         const renderData = comp.renderData;
         if (!renderData) {
             return;

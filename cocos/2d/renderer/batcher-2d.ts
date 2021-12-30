@@ -366,6 +366,7 @@ export class Batcher2D implements IBatcher {
         let mat;
         let bufferID = -1;
         if (renderData) {
+            if (!renderData.isValid()) return;
             dataHash = renderData.dataHash;
             mat = renderData.material;
             bufferID = renderData.chunk.bufferId;

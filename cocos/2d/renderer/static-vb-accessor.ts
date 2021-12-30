@@ -182,6 +182,7 @@ export class StaticVBAccessor extends BufferAccessor {
         const buf = this._buffers[chunk.bufferId];
         let offset = chunk.vertexOffset * this.vertexFormatBytes;
         let bytes = chunk.vb.byteLength;
+        if (bytes === 0) return;
         let recycled = false;
         let i = 0;
         let prevEntry: IFreeEntry|null = null;
@@ -222,7 +223,6 @@ export class StaticVBAccessor extends BufferAccessor {
             if (distance === 0) {
                 nextEntry.offset = offset;
                 nextEntry.length += bytes;
-                recycled = true;
             } else {
             // Can not be merged
                 const newEntry = _entryPool.alloc();
@@ -230,6 +230,7 @@ export class StaticVBAccessor extends BufferAccessor {
                 newEntry.length = bytes;
                 freeList.splice(i, 0, newEntry);
             }
+            recycled = true;
         }
         if (recycled) {
             // If the last chunk is recycled, ensure correct mesh buffer byte offset
