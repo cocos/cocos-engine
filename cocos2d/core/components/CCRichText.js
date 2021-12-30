@@ -500,7 +500,12 @@ let RichText = cc.Class({
         // Because undo/redo will not call onEnable/onDisable,
         // we need call onEnable/onDisable manually to active/disactive children nodes.
         if (this.enabledInHierarchy) {
-            this.onEnable();
+            this._layoutDirty = true;
+            if (this.handleTouchEvent) {
+                this._addEventListeners();
+            }
+            this._updateRichTextStatus();
+            this._activateChildren(true);
         }
         else {
             this.onDisable();
@@ -528,7 +533,7 @@ let RichText = cc.Class({
         labelSegment.active = this.node.active;
 
         labelSegment.setAnchorPoint(0, 0);
-        this._applyTextAttribute(labelSegment, stringToken);
+        this._applyTextAttribute(labelSegment, stringToken, true);
 
         this.node.addChild(labelSegment);
         this._labelSegments.push(labelSegment);

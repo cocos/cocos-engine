@@ -439,6 +439,18 @@ var Sprite = cc.Class({
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
     },
 
+    onRestore: CC_EDITOR && function () {
+        // Because undo/redo will not call onEnable/onDisable,
+        // we need call onEnable/onDisable manually to active/disactive children nodes.
+        if (this.enabled && this.enabledInHierarchy) {
+            this.node._renderComponent = null;
+            this.onEnable();
+        }
+        else {
+            this.onDisable();
+        }
+    },
+
     _updateMaterial () {
         let texture = null;
 
