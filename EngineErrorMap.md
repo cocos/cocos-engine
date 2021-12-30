@@ -2887,7 +2887,7 @@ GFXTexture is null
 
 ### 7607
 
-readPixels buffer size need larger than %d
+readPixels buffer size smaller than %d
 
 ### 7700
 
