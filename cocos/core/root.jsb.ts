@@ -28,7 +28,7 @@ const rootProto: any = Root.prototype;
 Object.defineProperty(rootProto, 'batcher2D', {
     configurable: true,
     enumerable: true,
-    get () : IBatcher {
+    get(): IBatcher {
         return this._batcher;
     },
 });
@@ -36,7 +36,7 @@ Object.defineProperty(rootProto, 'batcher2D', {
 Object.defineProperty(rootProto, 'dataPoolManager', {
     configurable: true,
     enumerable: true,
-    get () : DataPoolManager {
+    get(): DataPoolManager {
         return this._dataPoolMgr;
     },
 });
@@ -98,14 +98,14 @@ rootProto.destroyLight = function (l) {
         p.free(l);
         if (l.scene) {
             switch (l.type) {
-            case LightType.SPHERE:
-                l.scene.removeSphereLight(l);
-                break;
-            case LightType.SPOT:
-                l.scene.removeSpotLight(l);
-                break;
-            default:
-                break;
+                case LightType.SPHERE:
+                    l.scene.removeSphereLight(l);
+                    break;
+                case LightType.SPOT:
+                    l.scene.removeSpotLight(l);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -141,3 +141,14 @@ const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
     oldFrameMove.call(this, deltaTime, legacyCC.director.getTotalFrames());
 };
+
+const oldSetPipeline = rootProto.setRenderPipeline;
+rootProto.setRenderPipeline = function (pipeline) {
+    if (!pipeline) {
+        // pipeline should not be created in C++, ._ctor need to be triggered
+        pipeline = new nr.ForwardPipeline();
+        pipeline.initialize({});
+        this._rppcache = pipeline;
+    }
+    return oldSetPipeline.call(this, pipeline);
+}
