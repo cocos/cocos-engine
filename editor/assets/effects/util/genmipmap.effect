@@ -1,0 +1,53 @@
+// Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+CCEffect %{
+ techniques:
+  - passes:
+    - vert: genmipmap-vs:vert
+      frag: genmipmap-fs:frag
+      priority: max - 12
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: false
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendDstAlpha: one_minus_src_alpha
+      rasterizerState:
+        cullMode: none
+}%
+
+CCProgram genmipmap-vs %{
+  precision mediump float;
+
+  in vec2 a_position;
+  in vec2 a_texCoord;
+  out vec2 v_uv;
+
+  vec4 vert () {
+    v_uv = a_texCoord;
+    return vec4(a_position, 0.0, 1.0);
+  }
+}%
+
+CCProgram genmipmap-fs %{
+  precision mediump float;
+  in vec2 v_uv;
+  uniform sampler2D mainTexture;
+
+  layout(set = 1, binding = 1, rgba8) writeOnly uniform image2D LODTex0;
+  layout(set = 1, binding = 2, rgba8) writeOnly uniform image2D LODTex1;
+  layout(set = 1, binding = 3, rgba8) writeOnly uniform image2D LODTex2;
+  layout(set = 1, binding = 4, rgba8) writeOnly uniform image2D LODTex3;
+
+  vec4 frag () {
+    ivec2 mainSize = textureSize(mainTexture, 0);
+    ivec2 mainCoord = ivec2(int((float)mainSize.x * v_uv.x), int((float)mainSize.y * v_uv.y));
+
+    imageStore(LODTex0, mainCoord * 0.5, texture(mainTexture, v_uv));
+    imageStore(LODTex1, mainCoord * 0.25, texture(mainTexture, v_uv));
+    imageStore(LODTex2, mainCoord * 0.125, texture(mainTexture, v_uv));
+    imageStore(LODTex3, mainCoord * 0.0625, texture(mainTexture, v_uv));
+  }
+}%
