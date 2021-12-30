@@ -26,6 +26,7 @@ import { Ray } from '../../geometry';
 import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
 import { _tempFloatArray } from '../../scene-graph/node.jsb';
+import { Mat4, Vec3 } from '../../math';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -118,11 +119,14 @@ Object.defineProperty(Camera, "standardLightMeterScale", {
 });
 
 const oldScreenPointToRay = cameraProto.screenPointToRay;
+const oldScreenToWorld = cameraProto.screenToWorld;
+const oldWorldToScreen = cameraProto.worldToScreen;
+const oldWorldMatrixToScreen = cameraProto.worldMatrixToScreen;
 
 /**
  * transform a screen position (in oriented space) to a world space ray
  */
-cameraProto.screenPointToRay = function (out: Ray, x: number, y: number): Ray {
+cameraProto.screenPointToRay = function screenPointToRay (out: Ray, x: number, y: number): Ray {
     _tempFloatArray[0] = x;
     _tempFloatArray[1] = y;
     oldScreenPointToRay.call(this);
@@ -135,4 +139,55 @@ cameraProto.screenPointToRay = function (out: Ray, x: number, y: number): Ray {
     out.d.z = _tempFloatArray[5];
 
     return out;
-}
+};
+
+cameraProto.screenToWorld = function screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
+    _tempFloatArray[0] = screenPos.x;
+    _tempFloatArray[1] = screenPos.y;
+    _tempFloatArray[2] = screenPos.z;
+    oldScreenToWorld.call(this);
+    Vec3.set(out, _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
+    return out;
+};
+
+cameraProto.worldToScreen = function worldToScreen (out: Vec3, worldPos: Vec3 | Readonly<Vec3>): Vec3 {
+    _tempFloatArray[0] = worldPos.x;
+    _tempFloatArray[1] = worldPos.y;
+    _tempFloatArray[2] = worldPos.z;
+    oldWorldToScreen.call(this);
+    Vec3.set(out, _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2]);
+    return out;
+};
+
+cameraProto.worldMatrixToScreen = function worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number) {
+    _tempFloatArray[0] = worldMatrix.m00;
+    _tempFloatArray[1] = worldMatrix.m01;
+    _tempFloatArray[2] = worldMatrix.m02;
+    _tempFloatArray[3] = worldMatrix.m03;
+    _tempFloatArray[4] = worldMatrix.m04;
+    _tempFloatArray[5] = worldMatrix.m05;
+    _tempFloatArray[6] = worldMatrix.m06;
+    _tempFloatArray[7] = worldMatrix.m07;
+    _tempFloatArray[8] = worldMatrix.m08;
+    _tempFloatArray[9] = worldMatrix.m09;
+    _tempFloatArray[10] = worldMatrix.m10;
+    _tempFloatArray[11] = worldMatrix.m11;
+    _tempFloatArray[12] = worldMatrix.m12;
+    _tempFloatArray[13] = worldMatrix.m13;
+    _tempFloatArray[14] = worldMatrix.m14;
+    _tempFloatArray[15] = worldMatrix.m15;
+
+    _tempFloatArray[16] = width;
+    _tempFloatArray[17] = height;
+
+    oldWorldMatrixToScreen.call(this);
+    Mat4.set(out,
+        _tempFloatArray[0], _tempFloatArray[1], _tempFloatArray[2], _tempFloatArray[3],
+        _tempFloatArray[4], _tempFloatArray[5], _tempFloatArray[6], _tempFloatArray[7],
+        _tempFloatArray[8], _tempFloatArray[9], _tempFloatArray[10], _tempFloatArray[11],
+        _tempFloatArray[12], _tempFloatArray[13], _tempFloatArray[14], _tempFloatArray[15]
+    );
+    return out;
+};
+
+

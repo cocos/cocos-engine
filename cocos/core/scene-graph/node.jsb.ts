@@ -89,6 +89,7 @@ export const _tempFloatArray = new Float32Array([
     0, 0, 0, 0,
     0, 0, 0, 0,
     0, 0, 0, 0,
+    0, 0, 0, 0,
     0, 0, 0, 0
 ]);
 //
