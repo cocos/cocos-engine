@@ -1583,14 +1583,17 @@ export function WebGLCmdFuncCreateInputAssember (device: WebGLDevice, gpuInputAs
 export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInputAssembler: IWebGLGPUInputAssembler) {
     const it = gpuInputAssembler.glVAOs.values();
     let res = it.next();
+    const OES_vertex_array_object = device.extensions.OES_vertex_array_object!;
+    let glVAO = device.stateCache.glVAO;
     while (!res.done) {
-        device.extensions.OES_vertex_array_object!.deleteVertexArrayOES(res.value);
-        if (device.stateCache.glVAO === res.value) {
-            device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
-            device.stateCache.glVAO = null;
+        OES_vertex_array_object.deleteVertexArrayOES(res.value);
+        if (glVAO === res.value) {
+            OES_vertex_array_object.bindVertexArrayOES(null);
+            glVAO = null;
         }
         res = it.next();
     }
+    device.stateCache.glVAO = glVAO;
     gpuInputAssembler.glVAOs.clear();
 }
 

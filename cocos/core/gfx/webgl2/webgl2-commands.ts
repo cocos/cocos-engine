@@ -1732,14 +1732,17 @@ export function WebGL2CmdFuncCreateInputAssember (device: WebGL2Device, gpuInput
 export function WebGL2CmdFuncDestroyInputAssembler (device: WebGL2Device, gpuInputAssembler: IWebGL2GPUInputAssembler) {
     const it = gpuInputAssembler.glVAOs.values();
     let res = it.next();
+    const { gl } = device;
+    let glVAO = device.stateCache.glVAO;
     while (!res.done) {
-        device.gl.deleteVertexArray(res.value);
-        if (device.stateCache.glVAO === res.value) {
-            device.gl.bindVertexArray(null);
-            device.stateCache.glVAO = null;
+        gl.deleteVertexArray(res.value);
+        if (glVAO === res.value) {
+            gl.bindVertexArray(null);
+            glVAO = null;
         }
         res = it.next();
     }
+    device.stateCache.glVAO = glVAO;
     gpuInputAssembler.glVAOs.clear();
 }
 
