@@ -24,41 +24,6 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { mixin } from '../utils/js-typed';
-import { PipelineEventProcessor } from './pipeline-event'
 export const RenderPipeline = nr.RenderPipeline;
 // Do not delete, for the class detection of editor
 legacyCC.RenderPipeline = RenderPipeline;
-
-Object.defineProperty(RenderPipeline.prototype, '_eventProcessor', {
-    get() {
-        if (!this.__eventProcessor) {
-            this.__eventProcessor = new PipelineEventProcessor();
-        }
-        return this.__eventProcessor;
-    }
-});
-// mixin
-mixin(RenderPipeline.prototype, {
-    on: function (type, callback: any, target?: any, once?: boolean): typeof callback {
-        return this._eventProcessor.on(type, callback, target, once);
-    },
-    once: function (type, callback: any, target?: any): typeof callback {
-        return this._eventProcessor.once(type, callback, target);
-    },
-    off: function (type, callback?: any, target?: any) {
-        this._eventProcessor.off(type, callback, target);
-    },
-    emit: function (type, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any) {
-        this._eventProcessor.emit(type, arg0, arg1, arg2, arg3, arg4);
-    },
-    targetOff: function (typeOrTarget: any) {
-        this._eventProcessor.targetOff(typeOrTarget);
-    },
-    removeAll: function (typeOrTarget: any) {
-        this._eventProcessor.removeAll(typeOrTarget);
-    },
-    hasEventListener: function (type, callback?: any, target?: any): boolean {
-        return this._eventProcessor.hasEventListener(type, callback, target);
-    },
-});
