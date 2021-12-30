@@ -38,6 +38,7 @@ import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window'
 import { Root } from '../root';
 import { TextureBase } from './texture-base';
 import { BufferTextureCopy } from '../gfx/base/define';
+import { errorID } from '../platform/debug';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -178,14 +179,24 @@ export class RenderTexture extends TextureBase {
      * @param y 起始位置Y轴坐标
      * @param width 像素宽度
      * @param height 像素高度
+     * @param buffer 像素缓存
      */
-    public readPixels (x = 0, y = 0, width?: number, height?: number) : Uint8Array | null {
+    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array) : Uint8Array | null {
         width = width || this.width;
-        height = width || this.height;
+        height = height || this.height;
         const gfxTexture = this.getGFXTexture();
         if (!gfxTexture) {
+            errorID(7606);
             return null;
         }
+        const needSize = 4 * width * height;
+        if (buffer === undefined) {
+            buffer = new Uint8Array(needSize);
+        } else if (buffer.length < needSize) {
+            errorID(7607, needSize);
+            return null;
+        }
+
         const gfxDevice = this._getGFXDevice();
 
         const bufferViews: ArrayBufferView[] = [];
@@ -198,11 +209,8 @@ export class RenderTexture extends TextureBase {
         region0.texExtent.height = height;
         regions.push(region0);
 
-        const buffer = new Uint8Array(width * height * 4);
         bufferViews.push(buffer);
-
         gfxDevice?.copyTextureToBuffers(gfxTexture, bufferViews, regions);
-
         return buffer;
     }
 }
