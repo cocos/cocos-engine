@@ -30,6 +30,8 @@ CCProgram planar-shadow-vs %{
   #include <cc-local-batch>
   #include <cc-shadow>
 
+  out float v_discard;
+
   vec4 vert () {
     vec4 position;
     CCVertInput(position);
@@ -37,9 +39,17 @@ CCProgram planar-shadow-vs %{
     mat4 matWorld;
     CCGetWorldMatrix(matWorld);
 
-    position = cc_matProj * (cc_matView * cc_matLightPlaneProj * matWorld) * position;
+    vec3 P = (matWorld * vec4(a_position, 1.0)).xyz;
+    vec3 L = cc_mainLitDir.xyz;
+    vec3 N = cc_planarNDInfo.xyz;
+    float d = cc_planarNDInfo.w;
+    float dist = (-d - dot(P, N)) / (dot(L, N) + 0.0001);
+    vec4 shadowpos = vec4(P + L * dist, 1.0);
+    position = cc_matProj * (cc_matView * shadowpos);
+
     position.z -= 0.0001;
 
+    v_discard = dist < 0.00001 ? 0.0 : 10.0;
     return position;
   }
 }%
@@ -49,7 +59,11 @@ CCProgram planar-shadow-fs %{
   #include <cc-shadow>
   #include <output>
 
+  in float v_discard;
+
   vec4 frag () {
+    if(v_discard < 9.9)
+      discard;
     return CCFragOutput(cc_shadowColor);
   }
 }%

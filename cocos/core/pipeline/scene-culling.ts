@@ -205,6 +205,14 @@ export function updatePlanarPROJ (shadowInfo: Shadows, light: DirectionalLight, 
     Mat4.toArray(shadowUBO, m, UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET);
 }
 
+export function updatePlanarNormalAndDistance (shadowInfo: Shadows, shadowUBO: Float32Array) {
+    Vec3.normalize(_tempVec3, shadowInfo.normal);
+    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 0] = _tempVec3.x;
+    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 1] = _tempVec3.y;
+    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 2] = _tempVec3.z;
+    shadowUBO[UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 3] = shadowInfo.distance;
+}
+
 export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera) {
     const sceneData = pipeline.pipelineSceneData;
     const validPunctualLights = sceneData.validPunctualLights;
