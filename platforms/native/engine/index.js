@@ -24,7 +24,7 @@
  ****************************************************************************/
 require('./jsb-reflection.js');
 require('./jsb-bridge.js');
-require('./jsb-event-handler.js');
+require('./jsb-bridge-wrapper.js');
 require('./jsb-assets-manager.js');
 
 require('./jsb-game.js');

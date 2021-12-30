@@ -22,82 +22,64 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const JsEventHandler = {
+const JsbBridgeWrapper = {
     eventMap: new Map(),
-    /**
-     * Method to set callback with an event name
-     * should be triggered if the event is called by native function on JAVA or Objective-C etc.
-     */
     addCallback (event, callback) {
-        const _a = this.eventMap.get(event);
-        if (!_a) {
+        if (!this.eventMap.get(event)) {
             this.eventMap.set(event, []);
         }
-        this.eventMap.get(event).push(callback);
+        const arr = this.eventMap.get(event);
+        if (!arr.find(callback)) {
+            arr.push(callback);
+        }
     },
-    /**
-     * Trigger native event on JAVA or Objective-C with a string type argeter
-     */
     dispatchNativeEvent (event, arg) {
         jsb.bridge.sendToNative(event, arg);
     },
-    /**
-     * Remove callback for certain event.
-     * @param event event to delete
-     * @returns
-     */
     removeEvent (event) {
-        const _a = this.eventMap.get(event);
-        if (!_a) {
-            return true;
-        }
-        _a.splice(0, _a.length);
         return this.eventMap.delete(event);
     },
-    /**
-     * remove a callback for certain event
-     */
     removeCallback (event, cb) {
-        if (!this.eventMap.get(event)) {
+        const arr = this.eventMap.get(event);
+        if (!arr) {
             return false;
         }
-        const arr = this.eventMap.get(event);
         for (let i = 0, l = arr.length; i < l; i++) {
             if (arr[i] === cb) {
                 arr.splice(i, 1);
                 return true;
             }
         }
-        return false;
+        return true;
     },
     triggerEvent (event, arg) {
-        if (!this.eventMap.get(event)) {
+        const arr = this.eventMap.get(event);
+        if (!arr) {
             console.error(`${event} does not exist`);
             return;
         }
-        const arr = this.eventMap.get(event);
         arr.map((f) => f.call(null, arg));
     },
 };
 
-Object.defineProperty(jsb, 'jsEventHandler', {
+Object.defineProperty(jsb, 'jsbBridgeWrapper', {
     get () {
-        if (jsb.__jsEventHandler !== undefined) return jsb.__jsEventHandler;
+        if (jsb.__JsbBridgeWrapper !== undefined) return jsb.__JsbBridgeWrapper;
 
         if (window.ScriptNativeBridge && cc.sys.os === cc.sys.OS.ANDROID || cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX) {
-            jsb.__jsEventHandler = JsEventHandler;
+            jsb.__JsbBridgeWrapper = JsbBridgeWrapper;
             jsb.bridge.onNative = (methodName, arg1) => {
                 console.log(`Trigger event: ${methodName} with argeter: ${arg1}`);
-                jsb.__jsEventHandler.triggerEvent(methodName, arg1);
+                jsb.__JsbBridgeWrapper.triggerEvent(methodName, arg1);
             };
         } else {
-            jsb.__jsEventHandler = null;
+            jsb.__JsbBridgeWrapper = null;
         }
-        return jsb.__jsEventHandler;
+        return jsb.__JsbBridgeWrapper;
     },
     enumerable: true,
     configurable: true,
     set (value) {
-        jsb.__jsEventHandler = value;
+        jsb.__JsbBridgeWrapper = value;
     },
 });

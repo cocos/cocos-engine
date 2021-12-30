@@ -141,9 +141,13 @@ declare namespace jsb {
          */
         export function onNative(arg0: string, arg1?: string|null): void;
     }
-
+    /**
+     * Callback for jsbBridgeWrapper's event.
+     * It takes one argument as string which is transferred by jsbBridge.
+     */
     export type JsCallback = (arg: string) => void;
-    export namespace jsEventHandler {
+    export namespace jsbBridgeWrapper {
+        /** If there's no event registerred, the wrapper will create one  */
         export function addCallback(event: string, callback: JsCallback);
         export function dispatchNativeEvent(event: string, arg?: string);
         export function removeEvent(event: string);
