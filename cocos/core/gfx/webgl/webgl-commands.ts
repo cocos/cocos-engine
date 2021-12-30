@@ -950,24 +950,29 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
 }
 
 export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWebGLGPUTexture) {
+    const { gl } = device;
     if (gpuTexture.glTexture) {
-        device.gl.deleteTexture(gpuTexture.glTexture);
-        for (let i = 0; i < device.stateCache.glTexUnits.length; i++) {
-            if (device.stateCache.glTexUnits[i].glTexture === gpuTexture.glTexture) {
-                device.gl.activeTexture(device.gl.TEXTURE0 + i);
-                device.stateCache.texUnit = i;
-                device.gl.bindTexture(gpuTexture.glTarget, null);
-                device.stateCache.glTexUnits[i].glTexture = null;
+        const glTexUnits = device.stateCache.glTexUnits;
+        let texUnit = 0;
+        gl.deleteTexture(gpuTexture.glTexture);
+        for (let i = 0; i < glTexUnits.length; i++) {
+            if (glTexUnits[i].glTexture === gpuTexture.glTexture) {
+                gl.activeTexture(gl.TEXTURE0 + i);
+                texUnit = i;
+                gl.bindTexture(gpuTexture.glTarget, null);
+                glTexUnits[i].glTexture = null;
             }
         }
+        device.stateCache.texUnit = texUnit;
         gpuTexture.glTexture = null;
     }
 
     if (gpuTexture.glRenderbuffer) {
-        device.gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
-        if (device.stateCache.glRenderbuffer === gpuTexture.glRenderbuffer) {
-            device.gl.bindRenderbuffer(device.gl.RENDERBUFFER, null);
-            device.stateCache.glRenderbuffer = null;
+        let glRenderbuffer = device.stateCache.glRenderbuffer;
+        gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
+        if (glRenderbuffer === gpuTexture.glRenderbuffer) {
+            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+            glRenderbuffer = null;
         }
         gpuTexture.glRenderbuffer = null;
     }
