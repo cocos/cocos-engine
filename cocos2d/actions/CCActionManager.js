@@ -203,6 +203,9 @@ cc.ActionManager.prototype = {
         }
     },
 
+    /**
+     * @internal
+     */
     _removeActionByTag (tag, element, target) {
         for (var i = 0, l = element.actions.length; i < l; ++i) {
             var action = element.actions[i];
@@ -212,6 +215,21 @@ cc.ActionManager.prototype = {
                 }
                 this._removeActionAtIndex(i, element);
                 break;
+            }
+        }
+    },
+
+    /**
+     * @internal
+     */
+     _removeAllActionsByTag (tag, element, target) {
+        for (var i = element.actions.length - 1; i >= 0; --i) {
+            var action = element.actions[i];
+            if (action && action.getTag() === tag) {
+                if (target && action.getOriginalTarget() !== target) {
+                    continue;
+                }
+                this._removeActionAtIndex(i, element);
             }
         }
     },
