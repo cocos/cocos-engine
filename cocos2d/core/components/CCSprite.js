@@ -442,7 +442,7 @@ var Sprite = cc.Class({
     onRestore: CC_EDITOR && function () {
         // Because undo/redo will not call onEnable/onDisable,
         // we need call onEnable/onDisable manually to active/disactive children nodes.
-        if (this.enabled && this.enabledInHierarchy) {
+        if (this.enabledInHierarchy) {
             this.node._renderComponent = null;
             this.onEnable();
         }
