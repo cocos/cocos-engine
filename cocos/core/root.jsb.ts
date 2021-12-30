@@ -148,7 +148,6 @@ rootProto.setRenderPipeline = function (pipeline) {
         // pipeline should not be created in C++, ._ctor need to be triggered
         pipeline = new nr.ForwardPipeline();
         pipeline.initialize({});
-        this._rppcache = pipeline;
     }
     return oldSetPipeline.call(this, pipeline);
 }
