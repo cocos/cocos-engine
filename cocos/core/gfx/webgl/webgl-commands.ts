@@ -953,7 +953,7 @@ export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWe
     const { gl } = device;
     if (gpuTexture.glTexture) {
         const glTexUnits = device.stateCache.glTexUnits;
-        let texUnit = 0;
+        let texUnit = device.stateCache.texUnit;
         gl.deleteTexture(gpuTexture.glTexture);
         for (let i = 0; i < glTexUnits.length; i++) {
             if (glTexUnits[i].glTexture === gpuTexture.glTexture) {
