@@ -346,7 +346,6 @@ export const radialFilled: IAssembler = {
             }
 
             renderData.resize(offset, offset);
-            renderData.uvDirty = false;
             renderData.updateRenderData(sprite, frame);
         }
     },

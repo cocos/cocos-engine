@@ -52,10 +52,8 @@ export function fillMeshVertices3D (node: Node, renderer: IBatcher, renderData: 
         vData[vertexOffset++] = vec3_temp.x;
         vData[vertexOffset++] = vec3_temp.y;
         vData[vertexOffset++] = vec3_temp.z;
-        vData[vertexOffset++] = vert.u;
-        vData[vertexOffset++] = vert.v;
-        Color.toArray(vData, color, vertexOffset);
-        vertexOffset += 4;
+        Color.toArray(vData, color, vertexOffset + 2);
+        vertexOffset += 6;
     }
 
     // fill index data
