@@ -261,6 +261,32 @@ cc.ActionManager.prototype = {
     },
 
     /**
+     * !#en Removes all actions given the tag and the target.
+     * !#zh 删除指定对象下特定标签的所有动作。
+     * @method removeAllActionsByTag
+     * @param {Number} tag
+     * @param {Node} [target]
+     */
+    removeAllActionsByTag:function(tag, target) {
+        if (tag === cc.Action.TAG_INVALID)
+            cc.logID(1002);
+
+        let hashTargets = this._hashTargets;
+        if (target) {
+            var element = hashTargets[target._id];
+            if (element) {
+                this._removeAllActionsByTag(tag, element, target);
+            }
+        }
+        else {
+            for (let name in hashTargets) {
+                let element = hashTargets[name];
+                this._removeAllActionsByTag(tag, element);
+            }
+        }
+    },
+
+    /**
      * !#en Gets an action given its tag an a target.
      * !#zh 通过目标对象和标签获取一个动作。
      * @method getActionByTag
