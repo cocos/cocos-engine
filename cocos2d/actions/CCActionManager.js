@@ -71,7 +71,7 @@ cc.ActionManager.prototype = {
     constructor: cc.ActionManager,
     _elementPool: [],
 
-    _searchElementByTarget:function (arr, target) {
+    _searchElementByTarget: function (arr, target) {
         for (var k = 0; k < arr.length; k++) {
             if (target === arr[k].target)
                 return arr[k];
@@ -116,7 +116,7 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      * @param {Boolean} paused
      */
-    addAction:function (action, target, paused) {
+    addAction: function (action, target, paused) {
         if (!action || !target) {
             cc.errorID(1000);
             return;
@@ -143,7 +143,7 @@ cc.ActionManager.prototype = {
      * !#zh 移除所有对象的所有动作。
      * @method removeAllActions
      */
-    removeAllActions:function () {
+    removeAllActions: function () {
         var locTargets = this._arrayTargets;
         for (var i = 0; i < locTargets.length; i++) {
             var element = locTargets[i];
@@ -164,7 +164,7 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      * @param {Boolean} forceDelete
      */
-    removeAllActionsFromTarget:function (target, forceDelete) {
+    removeAllActionsFromTarget: function (target, forceDelete) {
         // explicit null handling
         if (target == null)
             return;
@@ -180,7 +180,7 @@ cc.ActionManager.prototype = {
      * @method removeAction 
      * @param {Action} action
      */
-    removeAction:function (action) {
+    removeAction: function (action) {
         // explicit null handling
         if (!action) {
             return;
@@ -241,7 +241,7 @@ cc.ActionManager.prototype = {
      * @param {Number} tag
      * @param {Node} [target]
      */
-    removeActionByTag:function (tag, target) {
+    removeActionByTag: function (tag, target) {
         if(tag === cc.Action.TAG_INVALID)
             cc.logID(1002);
 
@@ -267,7 +267,7 @@ cc.ActionManager.prototype = {
      * @param {Number} tag
      * @param {Node} [target]
      */
-    removeAllActionsByTag:function(tag, target) {
+    removeAllActionsByTag: function (tag, target) {
         if (tag === cc.Action.TAG_INVALID)
             cc.logID(1002);
 
@@ -294,7 +294,7 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      * @return {Action|Null}  return the Action with the given tag on success
      */
-    getActionByTag:function (tag, target) {
+    getActionByTag: function (tag, target) {
         if(tag === cc.Action.TAG_INVALID)
             cc.logID(1004);
 
@@ -331,7 +331,7 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      * @return {Number}
      */
-    getNumberOfRunningActionsInTarget:function (target) {
+    getNumberOfRunningActionsInTarget: function (target) {
         var element = this._hashTargets[target._id];
         if (element)
             return (element.actions) ? element.actions.length : 0;
@@ -344,7 +344,7 @@ cc.ActionManager.prototype = {
      * @method pauseTarget
      * @param {Node} target
      */
-    pauseTarget:function (target) {
+    pauseTarget: function (target) {
         var element = this._hashTargets[target._id];
         if (element)
             element.paused = true;
@@ -355,7 +355,7 @@ cc.ActionManager.prototype = {
      * @method resumeTarget
      * @param {Node} target
      */
-    resumeTarget:function (target) {
+    resumeTarget: function (target) {
         var element = this._hashTargets[target._id];
         if (element)
             element.paused = false;
@@ -367,10 +367,10 @@ cc.ActionManager.prototype = {
      * @method pauseAllRunningActions
      * @return {Array}  a list of targets whose actions were paused.
      */
-    pauseAllRunningActions:function(){
+    pauseAllRunningActions: function () {
         var idsWithActions = [];
         var locTargets = this._arrayTargets;
-        for(var i = 0; i< locTargets.length; i++){
+        for(var i = 0; i < locTargets.length; i++){
             var element = locTargets[i];
             if(element && !element.paused){
                 element.paused = true;
@@ -386,11 +386,11 @@ cc.ActionManager.prototype = {
      * @method resumeTargets
      * @param {Array} targetsToResume
      */
-    resumeTargets:function(targetsToResume){
+    resumeTargets: function (targetsToResume) {
         if (!targetsToResume)
             return;
 
-        for (var i = 0; i< targetsToResume.length; i++) {
+        for (var i = 0; i < targetsToResume.length; i++) {
             if(targetsToResume[i])
                 this.resumeTarget(targetsToResume[i]);
         }
@@ -402,11 +402,11 @@ cc.ActionManager.prototype = {
      * @method pauseTargets
      * @param {Array} targetsToPause
      */
-    pauseTargets:function(targetsToPause){
+    pauseTargets: function (targetsToPause) {
         if (!targetsToPause)
             return;
 
-        for (var i = 0; i< targetsToPause.length; i++) {
+        for (var i = 0; i < targetsToPause.length; i++) {
             if (targetsToPause[i])
                 this.pauseTarget(targetsToPause[i]);
         }
@@ -421,12 +421,12 @@ cc.ActionManager.prototype = {
      * 因为它使用 this，因此它不能是静态的。
      * @method purgeSharedManager
      */
-    purgeSharedManager:function () {
+    purgeSharedManager: function () {
         cc.director.getScheduler().unscheduleUpdate(this);
     },
 
     //protected
-    _removeActionAtIndex:function (index, element) {
+    _removeActionAtIndex: function (index, element) {
         var action = element.actions[index];
 
         element.actions.splice(index, 1);
@@ -440,7 +440,7 @@ cc.ActionManager.prototype = {
         }
     },
 
-    _deleteHashElement:function (element) {
+    _deleteHashElement: function (element) {
         var ret = false;
         if (element && !element.lock) {
             if (this._hashTargets[element.target._id]) {
@@ -465,7 +465,7 @@ cc.ActionManager.prototype = {
      * @method update
      * @param {Number} dt delta time in seconds
      */
-    update:function (dt) {
+    update: function (dt) {
         var locTargets = this._arrayTargets , locCurrTarget;
         for (var elt = 0; elt < locTargets.length; elt++) {
             this._currentTarget = locTargets[elt];
