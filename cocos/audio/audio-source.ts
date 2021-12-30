@@ -224,8 +224,7 @@ export class AudioSource extends Component {
     public onDestroy () {
         this.stop();
         this._player?.destroy();
-        // @ts-expect-error Type 'undefined' is not assignable to type 'AudioPlayer | null'.
-        this._player = undefined;
+        this._player = null;
     }
 
     private _getRootNode (): Node | null | undefined {
