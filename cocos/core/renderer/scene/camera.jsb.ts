@@ -101,6 +101,22 @@ export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
 export const Camera = jsb.Camera;
 const cameraProto: any = jsb.Camera.prototype;
 
+Object.defineProperty(Camera, "standardExposureValue", {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return Camera.getStandardExposureValue();
+    },
+});
+
+Object.defineProperty(Camera, "standardLightMeterScale", {
+    configurable: true,
+    enumerable: true,
+    get () {
+        return Camera.getStandardLightMeterScale();
+    },
+});
+
 const oldScreenPointToRay = cameraProto.screenPointToRay;
 
 /**
