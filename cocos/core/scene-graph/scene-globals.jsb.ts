@@ -520,12 +520,22 @@ legacyCC.ShadowsInfo = ShadowsInfo;
             return new Color(0, 0, 0, 76);
         },
     });
-    const _descriptor22$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_autoAdapt', [serializable], {
+
+    const _descriptor30$1 = _applyDecoratedDescriptor(_class11$1.prototype, "_firstSetCSM", [serializable], {
         configurable: true,
         enumerable: true,
         writable: true,
         initializer: function initializer() {
-            return true;
+            return false;
+        }
+    })
+
+    const _descriptor22$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_fixedArea', [serializable], {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        initializer: function initializer() {
+            return false;
         },
     });
     const _descriptor23$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_pcf', [serializable], {
@@ -557,7 +567,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         enumerable: true,
         writable: true,
         initializer: function initializer() {
-            return 1;
+            return 0.1;
         },
     });
     const _descriptor27$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_far', [serializable], {
@@ -565,9 +575,28 @@ legacyCC.ShadowsInfo = ShadowsInfo;
         enumerable: true,
         writable: true,
         initializer: function initializer() {
-            return 30;
+            return 10;
         },
     });
+
+    const _descriptor37 = _applyDecoratedDescriptor(_class11$1.prototype, "_shadowDistance", [serializable], {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        initializer: function initializer() {
+            return 100;
+        }
+    });
+
+    const _descriptor38 = _applyDecoratedDescriptor(_class11$1.prototype, "_invisibleOcclusionRange", [serializable], {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        initializer: function initializer() {
+            return 200;
+        }
+    });
+
     const _descriptor28$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_orthoSize', [serializable], {
         configurable: true,
         enumerable: true,
@@ -584,7 +613,7 @@ legacyCC.ShadowsInfo = ShadowsInfo;
             return 4;
         },
     });
-    const _descriptor30$1 = _applyDecoratedDescriptor(_class11$1.prototype, '_size', [serializable], {
+    const _descriptor30$11 = _applyDecoratedDescriptor(_class11$1.prototype, '_size', [serializable], {
         configurable: true,
         enumerable: true,
         writable: true,
