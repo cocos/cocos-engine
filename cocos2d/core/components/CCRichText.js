@@ -496,7 +496,6 @@ let RichText = cc.Class({
     },
 
     onRestore: CC_EDITOR && function () {
-        // TODO: refine undo/redo system
         // Because undo/redo will not call onEnable/onDisable,
         // we need call onEnable/onDisable manually to active/disactive children nodes.
         if (this.enabledInHierarchy) {
