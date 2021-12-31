@@ -2,7 +2,7 @@ import { IExposedAttributes } from './utils/attribute-defines';
 
 /**
  * Class slash stores information collected from decorators.
- * Once upon class decorator entered, class definition begins. It process the stash and remove it.
+ * Once class decorator entered, class definition begins. It process the stash and remove it.
  */
 export interface ClassStash {
     default?: unknown;
